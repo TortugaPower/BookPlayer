@@ -1,0 +1,409 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418B6CFB1D2707F800F974FB /* AppDelegate.swift */; };
+		418B6CFE1D2707F800F974FB /* MasterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418B6CFD1D2707F800F974FB /* MasterViewController.swift */; };
+		418B6D001D2707F800F974FB /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418B6CFF1D2707F800F974FB /* DetailViewController.swift */; };
+		418B6D031D2707F800F974FB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 418B6D011D2707F800F974FB /* Main.storyboard */; };
+		418B6D051D2707F800F974FB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 418B6D041D2707F800F974FB /* Assets.xcassets */; };
+		418B6D081D2707F800F974FB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 418B6D061D2707F800F974FB /* LaunchScreen.storyboard */; };
+		418B6D131D2707F800F974FB /* Audiobook_PlayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418B6D121D2707F800F974FB /* Audiobook_PlayerTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		418B6D0F1D2707F800F974FB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 418B6CF01D2707F700F974FB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 418B6CF71D2707F800F974FB;
+			remoteInfo = "Audiobook Player";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		418B6CF81D2707F800F974FB /* Audiobook Player.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Audiobook Player.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		418B6CFB1D2707F800F974FB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		418B6CFD1D2707F800F974FB /* MasterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MasterViewController.swift; sourceTree = "<group>"; };
+		418B6CFF1D2707F800F974FB /* DetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewController.swift; sourceTree = "<group>"; };
+		418B6D021D2707F800F974FB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		418B6D041D2707F800F974FB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		418B6D071D2707F800F974FB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		418B6D091D2707F800F974FB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		418B6D0E1D2707F800F974FB /* Audiobook PlayerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Audiobook PlayerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		418B6D121D2707F800F974FB /* Audiobook_PlayerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Audiobook_PlayerTests.swift; sourceTree = "<group>"; };
+		418B6D141D2707F800F974FB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		418B6CF51D2707F800F974FB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		418B6D0B1D2707F800F974FB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		418B6CEF1D2707F700F974FB = {
+			isa = PBXGroup;
+			children = (
+				418B6CFA1D2707F800F974FB /* Audiobook Player */,
+				418B6D111D2707F800F974FB /* Audiobook PlayerTests */,
+				418B6CF91D2707F800F974FB /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		418B6CF91D2707F800F974FB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				418B6CF81D2707F800F974FB /* Audiobook Player.app */,
+				418B6D0E1D2707F800F974FB /* Audiobook PlayerTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		418B6CFA1D2707F800F974FB /* Audiobook Player */ = {
+			isa = PBXGroup;
+			children = (
+				418B6CFB1D2707F800F974FB /* AppDelegate.swift */,
+				418B6CFD1D2707F800F974FB /* MasterViewController.swift */,
+				418B6CFF1D2707F800F974FB /* DetailViewController.swift */,
+				418B6D011D2707F800F974FB /* Main.storyboard */,
+				418B6D041D2707F800F974FB /* Assets.xcassets */,
+				418B6D061D2707F800F974FB /* LaunchScreen.storyboard */,
+				418B6D091D2707F800F974FB /* Info.plist */,
+			);
+			path = "Audiobook Player";
+			sourceTree = "<group>";
+		};
+		418B6D111D2707F800F974FB /* Audiobook PlayerTests */ = {
+			isa = PBXGroup;
+			children = (
+				418B6D121D2707F800F974FB /* Audiobook_PlayerTests.swift */,
+				418B6D141D2707F800F974FB /* Info.plist */,
+			);
+			path = "Audiobook PlayerTests";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		418B6CF71D2707F800F974FB /* Audiobook Player */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 418B6D171D2707F800F974FB /* Build configuration list for PBXNativeTarget "Audiobook Player" */;
+			buildPhases = (
+				418B6CF41D2707F800F974FB /* Sources */,
+				418B6CF51D2707F800F974FB /* Frameworks */,
+				418B6CF61D2707F800F974FB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Audiobook Player";
+			productName = "Audiobook Player";
+			productReference = 418B6CF81D2707F800F974FB /* Audiobook Player.app */;
+			productType = "com.apple.product-type.application";
+		};
+		418B6D0D1D2707F800F974FB /* Audiobook PlayerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 418B6D1A1D2707F800F974FB /* Build configuration list for PBXNativeTarget "Audiobook PlayerTests" */;
+			buildPhases = (
+				418B6D0A1D2707F800F974FB /* Sources */,
+				418B6D0B1D2707F800F974FB /* Frameworks */,
+				418B6D0C1D2707F800F974FB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				418B6D101D2707F800F974FB /* PBXTargetDependency */,
+			);
+			name = "Audiobook PlayerTests";
+			productName = "Audiobook PlayerTests";
+			productReference = 418B6D0E1D2707F800F974FB /* Audiobook PlayerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		418B6CF01D2707F700F974FB /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0730;
+				LastUpgradeCheck = 0730;
+				ORGANIZATIONNAME = "Tortuga Power";
+				TargetAttributes = {
+					418B6CF71D2707F800F974FB = {
+						CreatedOnToolsVersion = 7.3;
+					};
+					418B6D0D1D2707F800F974FB = {
+						CreatedOnToolsVersion = 7.3;
+						TestTargetID = 418B6CF71D2707F800F974FB;
+					};
+				};
+			};
+			buildConfigurationList = 418B6CF31D2707F700F974FB /* Build configuration list for PBXProject "Audiobook Player" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 418B6CEF1D2707F700F974FB;
+			productRefGroup = 418B6CF91D2707F800F974FB /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				418B6CF71D2707F800F974FB /* Audiobook Player */,
+				418B6D0D1D2707F800F974FB /* Audiobook PlayerTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		418B6CF61D2707F800F974FB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				418B6D081D2707F800F974FB /* LaunchScreen.storyboard in Resources */,
+				418B6D051D2707F800F974FB /* Assets.xcassets in Resources */,
+				418B6D031D2707F800F974FB /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		418B6D0C1D2707F800F974FB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		418B6CF41D2707F800F974FB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				418B6D001D2707F800F974FB /* DetailViewController.swift in Sources */,
+				418B6CFE1D2707F800F974FB /* MasterViewController.swift in Sources */,
+				418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		418B6D0A1D2707F800F974FB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				418B6D131D2707F800F974FB /* Audiobook_PlayerTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		418B6D101D2707F800F974FB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 418B6CF71D2707F800F974FB /* Audiobook Player */;
+			targetProxy = 418B6D0F1D2707F800F974FB /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		418B6D011D2707F800F974FB /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				418B6D021D2707F800F974FB /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		418B6D061D2707F800F974FB /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				418B6D071D2707F800F974FB /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		418B6D151D2707F800F974FB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		418B6D161D2707F800F974FB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		418B6D181D2707F800F974FB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = "Audiobook Player/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tortugapower.Audiobook-Player";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		418B6D191D2707F800F974FB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = "Audiobook Player/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tortugapower.Audiobook-Player";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		418B6D1B1D2707F800F974FB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = "Audiobook PlayerTests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tortugapower.Audiobook-PlayerTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Audiobook Player.app/Audiobook Player";
+			};
+			name = Debug;
+		};
+		418B6D1C1D2707F800F974FB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = "Audiobook PlayerTests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tortugapower.Audiobook-PlayerTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Audiobook Player.app/Audiobook Player";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		418B6CF31D2707F700F974FB /* Build configuration list for PBXProject "Audiobook Player" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				418B6D151D2707F800F974FB /* Debug */,
+				418B6D161D2707F800F974FB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		418B6D171D2707F800F974FB /* Build configuration list for PBXNativeTarget "Audiobook Player" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				418B6D181D2707F800F974FB /* Debug */,
+				418B6D191D2707F800F974FB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		418B6D1A1D2707F800F974FB /* Build configuration list for PBXNativeTarget "Audiobook PlayerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				418B6D1B1D2707F800F974FB /* Debug */,
+				418B6D1C1D2707F800F974FB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 418B6CF01D2707F700F974FB /* Project object */;
+}
