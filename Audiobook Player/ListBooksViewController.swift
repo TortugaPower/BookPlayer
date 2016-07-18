@@ -234,14 +234,23 @@ extension ListBooksViewController: UITableViewDelegate {
     func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
         
         let deleteAction = UITableViewRowAction(style: .Default, title: "Delete") { (action, indexPath) in
-            self.itemArray.removeAtIndex(indexPath.row)
-            let url = self.urlArray.removeAtIndex(indexPath.row)
-            try! NSFileManager.defaultManager().removeItemAtURL(url)
-            tableView.beginUpdates()
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .None)
-            tableView.endUpdates()
+            let alert = UIAlertController(title: "Confirmation", message: "Are you sure you would like to remove this audiobook?", preferredStyle: .Alert)
             
-            self.emptyListContainerView.hidden = self.itemArray.count > 0 ? true : false
+            alert.addAction(UIAlertAction(title: "No", style: .Cancel, handler: { action in
+                tableView.setEditing(false, animated: true)
+            }))
+            alert.addAction(UIAlertAction(title: "Yes", style: .Destructive, handler: { action in
+                self.itemArray.removeAtIndex(indexPath.row)
+                let url = self.urlArray.removeAtIndex(indexPath.row)
+                try! NSFileManager.defaultManager().removeItemAtURL(url)
+                tableView.beginUpdates()
+                tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .None)
+                tableView.endUpdates()
+                
+                self.emptyListContainerView.hidden = self.itemArray.count > 0 ? true : false
+            }))
+            
+            self.presentViewController(alert, animated: true, completion: nil)
         }
         
         deleteAction.backgroundColor = UIColor.redColor()
