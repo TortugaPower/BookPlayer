@@ -13,7 +13,9 @@ Player made in Swift for your DRM-free audiobooks.
 # Upcoming features
 - Jump to start of book button
 - Mark book as finished button
-- Load books from online services like Dropbox
+- Smart Speed control for the player
+- Load books from apps in the phone (e.g. dropbox)
+- Stream books from online services like Dropbox
 
 # Contributing
 Pull requests regarding upcoming features (or bugs) are welcomed. Any suggestion or bug please open up an issue 👍
