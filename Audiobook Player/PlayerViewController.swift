@@ -12,7 +12,7 @@ import MediaPlayer
 import Chameleon
 import MBProgressHUD
 
-class PlayerViewController: UIViewController {
+class PlayerViewController: UIViewController, AVAudioPlayerDelegate {
     @IBOutlet weak var authorLabel: UILabel!
     @IBOutlet weak var titleLabel: UILabel!
     
@@ -24,7 +24,7 @@ class PlayerViewController: UIViewController {
     @IBOutlet weak var currentTimeLabel: UILabel!
     
     @IBOutlet weak var timeSeparator: UILabel!
-    var audioPlayer:AVAudioPlayer!
+    var audioPlayer:AVAudioPlayer?
     
     @IBOutlet weak var leftVerticalView: UIView!
     @IBOutlet weak var sliderView: UISlider!
@@ -50,6 +50,7 @@ class PlayerViewController: UIViewController {
     //book identifier for `NSUserDefaults`
     var identifier:String!
     
+    //MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -107,9 +108,9 @@ class PlayerViewController: UIViewController {
             }
             
             //try loading the player
-            do{
-                try self.audioPlayer = AVAudioPlayer(data: data)
-            } catch {
+            self.audioPlayer = try? AVAudioPlayer(data: data)
+            
+            guard let audioplayer = self.audioPlayer else {
                 //show error on main thread
                 dispatch_async(dispatch_get_main_queue(), {
                     MBProgressHUD.hideHUDForView(self.view, animated: true)
@@ -125,7 +126,7 @@ class PlayerViewController: UIViewController {
                 MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo = [
                     MPMediaItemPropertyTitle: self.titleLabel.text!,
                     MPMediaItemPropertyArtist: self.authorLabel.text!,
-                    MPMediaItemPropertyPlaybackDuration: self.audioPlayer.duration,
+                    MPMediaItemPropertyPlaybackDuration: audioplayer.duration,
                     MPMediaItemPropertyArtwork: mediaArtwork
                 ]
                 
@@ -137,11 +138,11 @@ class PlayerViewController: UIViewController {
                     let formattedCurrentTime = self.formatTime(currentTime)
                     self.currentTimeLabel.text = formattedCurrentTime
                     
-                    self.audioPlayer.currentTime = NSTimeInterval(currentTime)
+                    audioplayer.currentTime = NSTimeInterval(currentTime)
                 }
                 
                 //update max duration label of book
-                let maxDuration = Int(self.audioPlayer.duration)
+                let maxDuration = Int(audioplayer.duration)
                 self.maxTimeLabel.text = self.formatTime(maxDuration)
                 
                 //play audio automatically
@@ -173,38 +174,48 @@ extension PlayerViewController {
     
     //skip time forward
     @IBAction func forwardPressed(sender: UIButton) {
-        let time = self.audioPlayer.currentTime
-        self.audioPlayer.currentTime = time + 30
+        guard let audioplayer = self.audioPlayer else {
+            return
+        }
+        let time = audioplayer.currentTime
+        audioplayer.currentTime = time + 30
         //update time on lockscreen and control center
-        MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = self.audioPlayer.currentTime
+        MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
         //trigger timer event
         self.updateTimer()
     }
     
     //skip time backwards
     @IBAction func rewindPressed(sender: UIButton) {
-        let time = self.audioPlayer.currentTime
-        self.audioPlayer.currentTime = time - 30
+        guard let audioplayer = self.audioPlayer else {
+            return
+        }
+        
+        let time = audioplayer.currentTime
+        audioplayer.currentTime = time - 30
         //update time on lockscreen and control center
-        MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = self.audioPlayer.currentTime
+        MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
         //trigger timer event
         self.updateTimer()
     }
     
     //toggle play/pause of book
     @IBAction func playPressed(sender: UIButton) {
+        guard let audioplayer = self.audioPlayer else {
+            return
+        }
         
         //pause player if it's playing
-        if self.audioPlayer.playing {
+        if audioplayer.playing {
             //invalidate timer if needed
             if self.timer != nil {
                 self.timer.invalidate()
             }
             
             //set pause state on player and control center
-            self.audioPlayer.stop()
+            audioplayer.stop()
             MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 0
-            MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = self.audioPlayer.currentTime
+            MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
             try! AVAudioSession.sharedInstance().setActive(false)
             
             //update image for play button
@@ -221,8 +232,8 @@ extension PlayerViewController {
         }
         
         //set play state on player and control center
-        self.audioPlayer.play()
-        MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = self.audioPlayer.currentTime
+        audioplayer.play()
+        MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
         MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 1
         
         //update image for play button
@@ -231,7 +242,11 @@ extension PlayerViewController {
     
     //timer callback (called every second)
     func updateTimer() {
-        let currentTime = Int(self.audioPlayer.currentTime)
+        guard let audioplayer = self.audioPlayer else {
+            return
+        }
+        
+        let currentTime = Int(audioplayer.currentTime)
         
         //store state every 2 seconds, I/O can be expensive
         if currentTime % 2 == 0 {
@@ -243,7 +258,7 @@ extension PlayerViewController {
         self.currentTimeLabel.text = timeText
         
         //calculate book read percentage based on current time
-        let percentage = (Float(currentTime) / Float(self.audioPlayer.duration)) * 100
+        let percentage = (Float(currentTime) / Float(audioplayer.duration)) * 100
         self.sliderView.value = percentage
         
         let percentageString = String(Int(percentage))+"%"
@@ -271,4 +286,5 @@ extension PlayerViewController {
         
         return formattedTime
     }
+    
 }

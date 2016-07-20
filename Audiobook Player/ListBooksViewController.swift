@@ -27,7 +27,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     let miniPauseButton = UIImage(named: "miniPauseButton")
     
     //keep reference to player to know if there's an book loaded
-    var playerViewController:PlayerViewController!
+    var playerViewController:PlayerViewController?
     
     var listBooks:[String] = []
     
@@ -75,6 +75,9 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.didPressShowDetail(_:)))
         self.footerView.addGestureRecognizer(tapRecognizer)
         
+        //register to audio-interruption notifications
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.handleAudioInterruptions(_:)), name: AVAudioSessionInterruptionNotification, object: nil)
+        
         //load local files
         self.loadFiles()
     }
@@ -86,7 +89,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         self.navigationController?.setNavigationBarHidden(false, animated: true)
         
         //check if audiobook is loaded
-        if self.playerViewController == nil {
+        guard let _ = self.playerViewController else {
             self.footerHeightConstraint.constant = 0
             return
         }
@@ -102,6 +105,23 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         }
         
         self.tableView.reloadRowsAtIndexPaths([index], withRowAnimation: .Automatic)
+    }
+    
+    //no longer need to deregister observers for iOS 9+!
+    //https://developer.apple.com/library/mac/releasenotes/Foundation/RN-Foundation/index.html#10_11NotificationCenter
+    deinit {
+        //for iOS 8
+        NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
+    
+    //Playback may be interrupted by calls. Handle pause
+    func handleAudioInterruptions(notification:NSNotification){
+        guard let playerVC = self.playerViewController, let audioPlayer = playerVC.audioPlayer else {
+            return
+        }
+        if audioPlayer.playing {
+            self.didPressPlay(self.footerPlayButton)
+        }
     }
     
     /**
@@ -150,12 +170,12 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
      * Set play or pause image on button
      */
     func setPlayImage(){
-        if self.playerViewController.audioPlayer == nil {
+        guard let playerVC = self.playerViewController, audioPlayer = playerVC.audioPlayer else{
             self.footerPlayButton.setImage(self.miniPlayImage, forState: .Normal)
             return
         }
         
-        if self.playerViewController.audioPlayer.playing {
+        if audioPlayer.playing {
             self.footerPlayButton.setImage(self.miniPauseButton, forState: .Normal)
         }else{
             self.footerPlayButton.setImage(self.miniPlayImage, forState: .Normal)
@@ -178,35 +198,38 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     
     @IBAction func didPressPlay(sender: UIButton) {
         //check if audiobook is loaded
-        if self.playerViewController == nil {
+        guard let playerVC = self.playerViewController else {
             return
         }
         
-        self.playerViewController.playPressed(self.playerViewController.playButton)
+        playerVC.playPressed(playerVC.playButton)
         
         self.setPlayImage()
     }
     
     func forwardPressed(sender: UIButton) {
         //check if audiobook is loaded
-        if self.playerViewController == nil {
+        guard let playerVC = self.playerViewController else {
             return
         }
         
-        self.playerViewController.forwardPressed(sender)
+        playerVC.forwardPressed(sender)
     }
     
     func rewindPressed(sender: UIButton) {
         //check if audiobook is loaded
-        if self.playerViewController == nil {
+        guard let playerVC = self.playerViewController else {
             return
         }
         
-        self.playerViewController.rewindPressed(sender)
+        playerVC.rewindPressed(sender)
     }
     
     @IBAction func didPressShowDetail(sender: UIButton) {
-        self.navigationController?.showViewController(self.playerViewController, sender: self)
+        guard let playerVC = self.playerViewController else {
+            return
+        }
+        self.navigationController?.showViewController(playerVC, sender: self)
     }
 }
 
@@ -292,31 +315,40 @@ extension ListBooksViewController: UITableViewDelegate {
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         
         let item = self.itemArray[indexPath.row]
+        let url = self.urlArray[indexPath.row]
+        let cell = tableView.cellForRowAtIndexPath(indexPath) as! BookCellView
+        
+        guard let playerVC = self.playerViewController, audioPlayer = playerVC.audioPlayer else {
+            //create new player
+            self.loadPlayer(item, url: url, cell: cell, indexPath: indexPath)
+            return
+        }
         
         //stop audiobook if it's playing
-        if self.playerViewController != nil &&
-            self.playerViewController.playerItem != item &&
-            self.playerViewController.audioPlayer.playing {
-            self.playerViewController.audioPlayer.stop()
+        if playerVC.playerItem != item && audioPlayer.playing {
+            audioPlayer.stop()
+            //replace player with new one
+            self.loadPlayer(item, url: url, cell: cell, indexPath: indexPath)
+            return
         }
         
-        //load default player if there's not
-        if self.playerViewController == nil ||  self.playerViewController.playerItem != item{
-            let cell = tableView.cellForRowAtIndexPath(indexPath) as! BookCellView
-            
-            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-            self.playerViewController = storyboard.instantiateViewControllerWithIdentifier("PlayerViewController") as! PlayerViewController
-            
-            self.playerViewController.playerItem = item
-            
-            let url = self.urlArray[indexPath.row]
-            self.playerViewController.fileURL = url
-            
-            self.footerTitleLabel.text = cell.titleLabel.text! + " - " + cell.authorLabel.text!
-            self.footerImageView.image = cell.artworkImageView.image
-        }
+        //show the current player
+        self.navigationController?.pushViewController(playerVC, animated: true)
+    }
+    
+    func loadPlayer(item:AVPlayerItem, url:NSURL, cell:BookCellView, indexPath:NSIndexPath) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        self.playerViewController = storyboard.instantiateViewControllerWithIdentifier("PlayerViewController") as? PlayerViewController
         
-        self.navigationController?.pushViewController(self.playerViewController, animated: true)
+        self.playerViewController!.playerItem = item
+        
+        let url = self.urlArray[indexPath.row]
+        self.playerViewController!.fileURL = url
+        
+        self.footerTitleLabel.text = cell.titleLabel.text! + " - " + cell.authorLabel.text!
+        self.footerImageView.image = cell.artworkImageView.image
+        
+        self.navigationController?.pushViewController(self.playerViewController!, animated: true)
     }
 }
 
