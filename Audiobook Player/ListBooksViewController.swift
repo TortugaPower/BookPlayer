@@ -324,8 +324,8 @@ extension ListBooksViewController: UITableViewDelegate {
             return
         }
         
-        //stop audiobook if it's playing
-        if playerVC.playerItem != item && audioPlayer.playing {
+        //check if player is for a different book
+        if playerVC.playerItem != item {
             audioPlayer.stop()
             //replace player with new one
             self.loadPlayer(item, url: url, cell: cell, indexPath: indexPath)
