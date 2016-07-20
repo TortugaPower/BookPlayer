@@ -30,19 +30,24 @@ class PlayerViewController: UIViewController {
     @IBOutlet weak var sliderView: UISlider!
     
     @IBOutlet weak var percentageLabel: UILabel!
-//    var completionPercentage
     
-    
+    //keep in memory current Documents folder
     let documentsPath = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first!
+    
     var namesArray:[String]!
     var fileURL:NSURL!
     
+    //keep in memory images to toggle play/pause
     let playImage = UIImage(named: "playButton")
     let pauseImage = UIImage(named: "pauseButton")
     
+    //current item to play
     var playerItem:AVPlayerItem!
+    
+    //timer to update labels about time
     var timer:NSTimer!
     
+    //book identifier for `NSUserDefaults`
     var identifier:String!
     
     override func viewDidLoad() {
@@ -79,6 +84,7 @@ class PlayerViewController: UIViewController {
         self.sliderView.maximumValue = 100
         self.sliderView.value = 0
         
+        //set percentage label to stored value
         let currentPercentage = NSUserDefaults.standardUserDefaults().stringForKey(self.identifier+"_percentage") ?? "0%"
         self.percentageLabel.text = currentPercentage
         
@@ -89,9 +95,9 @@ class PlayerViewController: UIViewController {
             
             let mediaArtwork = MPMediaItemArtwork(image: UIImage(data: artwork) ?? UIImage())
             
-            //try fetching the data of the book
+            //try loading the data of the book
             guard let data = NSFileManager.defaultManager().contentsAtPath(self.fileURL.path!) else {
-                //do something
+                //show error on main thread
                 dispatch_async(dispatch_get_main_queue(), {
                     MBProgressHUD.hideHUDForView(self.view, animated: true)
                     self.showAlert(nil, message: "Problem loading mp3 data", style: .Alert)
@@ -104,7 +110,7 @@ class PlayerViewController: UIViewController {
             do{
                 try self.audioPlayer = AVAudioPlayer(data: data)
             } catch {
-                //do something
+                //show error on main thread
                 dispatch_async(dispatch_get_main_queue(), {
                     MBProgressHUD.hideHUDForView(self.view, animated: true)
                     self.showAlert(nil, message: "Problem loading player", style: .Alert)
@@ -112,9 +118,10 @@ class PlayerViewController: UIViewController {
                 return
             }
             
-            //update ui on main queue
+            //update UI on main thread
             dispatch_async(dispatch_get_main_queue(), {
                 
+                //set book metadata for lockscreen and control center
                 MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo = [
                     MPMediaItemPropertyTitle: self.titleLabel.text!,
                     MPMediaItemPropertyArtist: self.authorLabel.text!,
@@ -122,8 +129,10 @@ class PlayerViewController: UIViewController {
                     MPMediaItemPropertyArtwork: mediaArtwork
                 ]
                 
+                //get stored value for current time of book
                 let currentTime = NSUserDefaults.standardUserDefaults().integerForKey(self.identifier)
                 
+                //update UI if needed and set player to stored time
                 if currentTime > 0 {
                     let formattedCurrentTime = self.formatTime(currentTime)
                     self.currentTimeLabel.text = formattedCurrentTime
@@ -131,6 +140,7 @@ class PlayerViewController: UIViewController {
                     self.audioPlayer.currentTime = NSTimeInterval(currentTime)
                 }
                 
+                //update max duration label of book
                 let maxDuration = Int(self.audioPlayer.duration)
                 self.maxTimeLabel.text = self.formatTime(maxDuration)
                 
@@ -146,6 +156,7 @@ class PlayerViewController: UIViewController {
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
+        //hide navigation bar for this controller
         self.navigationController?.setNavigationBarHidden(true, animated: true)
     }
     
@@ -160,68 +171,90 @@ class PlayerViewController: UIViewController {
 
 extension PlayerViewController {
     
+    //skip time forward
     @IBAction func forwardPressed(sender: UIButton) {
         let time = self.audioPlayer.currentTime
         self.audioPlayer.currentTime = time + 30
+        //update time on lockscreen and control center
         MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = self.audioPlayer.currentTime
+        //trigger timer event
         self.updateTimer()
     }
     
+    //skip time backwards
     @IBAction func rewindPressed(sender: UIButton) {
         let time = self.audioPlayer.currentTime
         self.audioPlayer.currentTime = time - 30
+        //update time on lockscreen and control center
         MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = self.audioPlayer.currentTime
+        //trigger timer event
         self.updateTimer()
     }
     
+    //toggle play/pause of book
     @IBAction func playPressed(sender: UIButton) {
+        
+        //pause player if it's playing
         if self.audioPlayer.playing {
+            //invalidate timer if needed
             if self.timer != nil {
                 self.timer.invalidate()
             }
             
+            //set pause state on player and control center
             self.audioPlayer.stop()
             MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 0
             MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = self.audioPlayer.currentTime
-            
             try! AVAudioSession.sharedInstance().setActive(false)
+            
+            //update image for play button
             self.playButton.setImage(self.playImage, forState: .Normal)
             return
         }
         
         try! AVAudioSession.sharedInstance().setActive(true)
-
+        
+        //create timer if needed
         if self.timer == nil || (self.timer != nil && !self.timer.valid) {
             self.timer = NSTimer.scheduledTimerWithTimeInterval(1.0, target: self, selector: #selector(updateTimer), userInfo: nil, repeats: true)
             NSRunLoop.mainRunLoop().addTimer(self.timer, forMode: NSRunLoopCommonModes)
         }
+        
+        //set play state on player and control center
         self.audioPlayer.play()
         MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = self.audioPlayer.currentTime
         MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 1
+        
+        //update image for play button
         self.playButton.setImage(self.pauseImage, forState: .Normal)
     }
     
+    //timer callback (called every second)
     func updateTimer() {
         let currentTime = Int(self.audioPlayer.currentTime)
         
+        //store state every 2 seconds, I/O can be expensive
         if currentTime % 2 == 0 {
             NSUserDefaults.standardUserDefaults().setInteger(currentTime, forKey: self.identifier)
         }
         
+        //update current time label
         let timeText = self.formatTime(currentTime)
-        
         self.currentTimeLabel.text = timeText
         
+        //calculate book read percentage based on current time
         let percentage = (Float(currentTime) / Float(self.audioPlayer.duration)) * 100
         self.sliderView.value = percentage
         
         let percentageString = String(Int(percentage))+"%"
         self.percentageLabel.text = percentageString
         
+        //FIXME: this should only be updated when there's change to current percentage
         NSUserDefaults.standardUserDefaults().setObject(percentageString, forKey: self.identifier+"_percentage")
         
     }
     
+    //utility function to transform seconds to format HH:MM:SS
     func formatTime(time:Int) -> String {
         let hours = Int(time / 3600)
         

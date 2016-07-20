@@ -22,13 +22,19 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet weak var footerHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var footerPlayButton: UIButton!
     
+    //keep in memory images to toggle play/pause
     let miniPlayImage = UIImage(named: "miniPlayButton")
     let miniPauseButton = UIImage(named: "miniPauseButton")
     
+    //keep reference to player to know if there's an book loaded
     var playerViewController:PlayerViewController!
+    
     var listBooks:[String] = []
+    
+    //TableView's datasource
     var itemArray:[AVPlayerItem] = []
     var urlArray:[NSURL] = []
+    //keep in memory current Documents folder
     let documentsPath = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first!
     
     override func viewDidLoad() {
@@ -90,7 +96,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         
         self.setPlayImage()
         
-        //reload cell to show percentage label
+        //reload selected cell to show accurate percentage label
         guard let index = self.tableView.indexPathForSelectedRow else {
             return
         }
@@ -99,14 +105,17 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     /**
-     Load local files and process them (rename them if necessary)
+     *  Load local files and process them (rename them if necessary)
+     *  Spaces in file names can cause side effects when trying to load the data
      */
     func loadFiles() {
         self.itemArray = []
         self.urlArray = []
         
+        //get reference of all the files located inside the Documents folder
         let fileEnumerator = NSFileManager.defaultManager().enumeratorAtPath(self.documentsPath)!
         
+        //iterate and process files
         for filename in fileEnumerator {
             var finalPath = self.documentsPath+"/"+(filename as! String)
             
@@ -123,17 +132,22 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
                 try! NSFileManager.defaultManager().moveItemAtURL(original, toURL: fileURL)
             }
             
+            //NOTE: AVPlayerItem from URL might not be ready right away, 
+            //		it might be better to create it from a AVAsset
+            
+            //create AVPlayerItem to better access each files' metadata
             self.itemArray.append(AVPlayerItem(URL: fileURL))
             self.urlArray.append(fileURL)
         }
         
+        //show/hide instructions view
         self.emptyListContainerView.hidden = self.itemArray.count > 0 ? true : false
         
         self.tableView.reloadData()
     }
     
     /**
-     Set play or pause image on button
+     * Set play or pause image on button
      */
     func setPlayImage(){
         if self.playerViewController.audioPlayer == nil {
@@ -213,12 +227,13 @@ extension ListBooksViewController: UITableViewDataSource {
         
         let artwork = AVMetadataItem.metadataItemsFromArray(item.asset.metadata, withKey: AVMetadataCommonKeyArtwork, keySpace: AVMetadataKeySpaceCommon).first?.value?.copyWithZone(nil) as! NSData
         
+        //NOTE: we should have a default image for artwork
         cell.artworkImageView.image = UIImage(data: artwork) ?? UIImage()
         
         let title = cell.titleLabel.text?.stringByReplacingOccurrencesOfString(" ", withString: "_") ?? "defaulttitle"
         let author = cell.authorLabel.text?.stringByReplacingOccurrencesOfString(" ", withString: "_") ?? "defaultauthor"
-        print(title+author)
-        print(NSUserDefaults.standardUserDefaults().stringForKey(title+author+"_percentage"))
+        
+        //load stored percentage value
         cell.completionLabel.text = NSUserDefaults.standardUserDefaults().stringForKey(title+author+"_percentage") ?? "0%"
         cell.completionLabel.textColor = UIColor.flatGreenColorDark()
         
