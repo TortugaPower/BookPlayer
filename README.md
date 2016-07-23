@@ -34,6 +34,7 @@ Managed with [Carthage](https://github.com/Carthage/Carthage)
 - Small Double right arrows image made by [Freepik](http://www.flaticon.com/authors/freepik) from [www.flaticon.com](www.flaticon.com)
 - Book image (part of app icon) made by [Freepik](http://www.flaticon.com/authors/freepik) from [www.flaticon.com](www.flaticon.com)
 - Speaker image (part of app icon) made by [Madebyoliver](http://www.flaticon.com/authors/madebyoliver) from [www.flaticon.com](www.flaticon.com)
+- Three squares image made by [Vaadin](http://www.flaticon.com/authors/vaadin) from [www.flaticon.com](www.flaticon.com)
 
 # License
 Licensed under [GNU GPL v. 3.0](https://opensource.org/licenses/GPL-3.0). See `LICENSE` for details.
