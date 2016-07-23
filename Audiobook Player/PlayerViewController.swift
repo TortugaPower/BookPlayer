@@ -161,6 +161,18 @@ class PlayerViewController: UIViewController, AVAudioPlayerDelegate {
         self.navigationController?.setNavigationBarHidden(true, animated: true)
     }
     
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        
+        //don't do anything special for other segues that weren't identified beforehand
+        guard let _ = segue.identifier else {
+            return
+        }
+        
+        //set every modal to preserve current view contaxt
+        let vc = segue.destinationViewController
+        vc.modalPresentationStyle = .OverCurrentContext
+    }
+    
     override func prefersStatusBarHidden() -> Bool {
         return true
     }
