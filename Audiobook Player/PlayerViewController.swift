@@ -132,11 +132,6 @@ class PlayerViewController: UIViewController {
             
             audioplayer.delegate = self
             
-            //set smart speed
-            let speed = NSUserDefaults.standardUserDefaults().floatForKey(self.identifier+"_speed")
-            self.currentSpeed = speed > 0 ? speed : 1.0
-            self.speedButton.setTitle("Speed \(String(self.currentSpeed))x", forState: .Normal)
-            
             //try loading chapters
             var chapterIndex = 1
             
@@ -173,6 +168,11 @@ class PlayerViewController: UIViewController {
             
             //update UI on main thread
             dispatch_async(dispatch_get_main_queue(), {
+                
+                //set smart speed
+                let speed = NSUserDefaults.standardUserDefaults().floatForKey(self.identifier+"_speed")
+                self.currentSpeed = speed > 0 ? speed : 1.0
+                self.speedButton.setTitle("Speed \(String(self.currentSpeed))x", forState: .Normal)
                 
                 //enable/disable chapters button
                 self.chaptersButton.enabled = self.chapterArray.count > 0
