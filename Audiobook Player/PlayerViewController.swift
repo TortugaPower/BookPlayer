@@ -58,6 +58,9 @@ class PlayerViewController: UIViewController, AVAudioPlayerDelegate {
     var chapterArray:[Chapter] = []
     var currentChapter:Chapter?
     
+    //speed
+    var currentSpeed:Float = 1.0
+    
     //MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -127,8 +130,10 @@ class PlayerViewController: UIViewController, AVAudioPlayerDelegate {
                 return
             }
             
-            //check for smart speed
-            
+            //set smart speed
+            let speed = NSUserDefaults.standardUserDefaults().floatForKey(self.identifier+"_speed")
+            self.currentSpeed = speed > 0 ? speed : 1.0
+            self.speedButton.setTitle("Speed \(String(self.currentSpeed))x", forState: .Normal)
             
             //try loading chapters
             var chapterIndex = 1
@@ -195,6 +200,8 @@ class PlayerViewController: UIViewController, AVAudioPlayerDelegate {
                 
                 //play audio automatically
                 if let rootVC = self.navigationController?.viewControllers.first as? ListBooksViewController {
+                    audioplayer.enableRate = true
+                    audioplayer.rate = self.currentSpeed
                     rootVC.didPressPlay(self.playButton)
                 }
                 
@@ -225,6 +232,10 @@ class PlayerViewController: UIViewController, AVAudioPlayerDelegate {
             let chapterVC = vc as! ChaptersViewController
             chapterVC.chapterArray = self.chapterArray
             chapterVC.currentChapter = self.currentChapter
+        case "showSpeedSegue":
+            let speedVC = vc as! SpeedViewController
+            speedVC.currentSpeed = self.currentSpeed
+            break
         default:
             break
         }
@@ -241,6 +252,19 @@ class PlayerViewController: UIViewController, AVAudioPlayerDelegate {
         MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
         
         self.updateTimer()
+    }
+    
+    @IBAction func didSelectSpeed(segue:UIStoryboardSegue){
+        
+        guard let audioplayer = self.audioPlayer else {
+            return
+        }
+        let vc = segue.sourceViewController as! SpeedViewController
+        self.currentSpeed = vc.currentSpeed
+        
+        NSUserDefaults.standardUserDefaults().setFloat(self.currentSpeed, forKey: self.identifier+"_speed")
+        self.speedButton.setTitle("Speed \(String(self.currentSpeed))x", forState: .Normal)
+        audioplayer.rate = self.currentSpeed
     }
     
     override func prefersStatusBarHidden() -> Bool {
