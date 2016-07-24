@@ -12,7 +12,7 @@ import MediaPlayer
 import Chameleon
 import MBProgressHUD
 
-class PlayerViewController: UIViewController, AVAudioPlayerDelegate {
+class PlayerViewController: UIViewController {
     @IBOutlet weak var authorLabel: UILabel!
     @IBOutlet weak var titleLabel: UILabel!
     
@@ -130,6 +130,8 @@ class PlayerViewController: UIViewController, AVAudioPlayerDelegate {
                 return
             }
             
+            audioplayer.delegate = self
+            
             //set smart speed
             let speed = NSUserDefaults.standardUserDefaults().floatForKey(self.identifier+"_speed")
             self.currentSpeed = speed > 0 ? speed : 1.0
@@ -197,12 +199,19 @@ class PlayerViewController: UIViewController, AVAudioPlayerDelegate {
                 //update max duration label of book
                 let maxDuration = Int(audioplayer.duration)
                 self.maxTimeLabel.text = self.formatTime(maxDuration)
+                self.sliderView.value = Float(currentTime)
+                self.updateCurrentChapter()
+                
+                //set speed for player
+                audioplayer.enableRate = true
+                audioplayer.rate = self.currentSpeed
                 
                 //play audio automatically
                 if let rootVC = self.navigationController?.viewControllers.first as? ListBooksViewController {
-                    audioplayer.enableRate = true
-                    audioplayer.rate = self.currentSpeed
-                    rootVC.didPressPlay(self.playButton)
+                    //only if the book isn't finished
+                    if currentTime != maxDuration {
+                        rootVC.didPressPlay(self.playButton)
+                    }
                 }
                 
                 MBProgressHUD.hideHUDForView(self.view, animated: true)
@@ -267,6 +276,33 @@ class PlayerViewController: UIViewController, AVAudioPlayerDelegate {
         audioplayer.rate = self.currentSpeed
     }
     
+    @IBAction func didSelectAction(segue:UIStoryboardSegue){
+        
+        guard let audioplayer = self.audioPlayer else {
+            return
+        }
+        
+        if audioplayer.playing {
+            self.playPressed(self.playButton)
+        }
+        
+        let vc = segue.sourceViewController as! MoreViewController
+        let action = vc.selectedAction
+        
+        switch action.rawValue {
+        case MoreAction.JumpToStart.rawValue:
+            audioplayer.currentTime = 0
+            break
+        case MoreAction.MarkFinished.rawValue:
+            audioplayer.currentTime = audioplayer.duration
+            break
+        default:
+            break
+        }
+        
+        self.updateTimer()
+    }
+    
     override func prefersStatusBarHidden() -> Bool {
         return true
     }
@@ -276,7 +312,7 @@ class PlayerViewController: UIViewController, AVAudioPlayerDelegate {
     }
 }
 
-extension PlayerViewController {
+extension PlayerViewController: AVAudioPlayerDelegate {
     
     //skip time forward
     @IBAction func forwardPressed(sender: UIButton) {
@@ -331,6 +367,11 @@ extension PlayerViewController {
         
         try! AVAudioSession.sharedInstance().setActive(true)
         
+        //if book is completed, reset to start
+        if audioplayer.duration == audioplayer.currentTime {
+            audioplayer.currentTime = 0
+        }
+        
         //create timer if needed
         if self.timer == nil || (self.timer != nil && !self.timer.valid) {
             self.timer = NSTimer.scheduledTimerWithTimeInterval(1.0, target: self, selector: #selector(updateTimer), userInfo: nil, repeats: true)
@@ -367,9 +408,9 @@ extension PlayerViewController {
         let percentage = (Float(currentTime) / Float(audioplayer.duration)) * 100
         self.sliderView.value = percentage
         
-        let percentageString = String(Int(percentage))+"%"
+        let percentageString = String(Int(ceil(percentage)))+"%"
         //only update percentage if there are no chapters
-        if self.chapterArray.count > 0 {
+        if self.chapterArray.count == 0 {
             self.percentageLabel.text = percentageString
         }
         
@@ -379,6 +420,16 @@ extension PlayerViewController {
         
         //update chapter
         self.updateCurrentChapter()
+        
+        //stop timer if the book is finished
+        if Int(audioplayer.currentTime) == Int(audioplayer.duration) {
+            if self.timer.valid {
+                self.timer.invalidate()
+            }
+            
+            self.playButton.setImage(self.playImage, forState: .Normal)
+            return
+        }
     }
     
     func updateCurrentChapter() {
@@ -392,6 +443,14 @@ extension PlayerViewController {
                 self.percentageLabel.text = "Chapter \(chapter.index) of \(self.chapterArray.count)"
                 
             }
+        }
+    }
+    
+    //leave the slider at max
+    func audioPlayerDidFinishPlaying(player: AVAudioPlayer, successfully flag: Bool) {
+        if flag {
+            player.currentTime = player.duration
+            self.updateTimer()
         }
     }
     
