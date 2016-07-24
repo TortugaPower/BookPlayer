@@ -352,6 +352,18 @@ extension ListBooksViewController: UITableViewDelegate {
     }
 }
 
+extension ListBooksViewController {
+    @IBAction func didPressImportOptions(sender: UIBarButtonItem) {
+        let sheet = UIAlertController(title: "Import Books", message: nil, preferredStyle: .ActionSheet)
+        
+        let cancelButton = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
+
+        sheet.addAction(cancelButton)
+        
+        self.presentViewController(sheet, animated: true, completion: nil)
+    }
+}
+
 class BookCellView: UITableViewCell {
     @IBOutlet weak var artworkImageView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
