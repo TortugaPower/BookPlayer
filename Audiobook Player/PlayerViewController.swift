@@ -31,6 +31,10 @@ class PlayerViewController: UIViewController, AVAudioPlayerDelegate {
     
     @IBOutlet weak var percentageLabel: UILabel!
     
+    @IBOutlet weak var chaptersButton: UIButton!
+    @IBOutlet weak var speedButton: UIButton!
+    
+    
     //keep in memory current Documents folder
     let documentsPath = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first!
     
@@ -50,6 +54,10 @@ class PlayerViewController: UIViewController, AVAudioPlayerDelegate {
     //book identifier for `NSUserDefaults`
     var identifier:String!
     
+    //chapters
+    var chapterArray:[Chapter] = []
+    var currentChapter:Chapter?
+    
     //MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -64,6 +72,8 @@ class PlayerViewController: UIViewController, AVAudioPlayerDelegate {
         self.maxTimeLabel.textColor = UIColor.flatWhiteColorDark()
         self.authorLabel.textColor = UIColor.flatWhiteColorDark()
         self.timeSeparator.textColor = UIColor.flatWhiteColorDark()
+        self.chaptersButton.setTitleColor(UIColor.flatGrayColor(), forState: .Disabled)
+        self.speedButton.setTitleColor(UIColor.flatGrayColor(), forState: .Disabled)
         
         self.setStatusBarStyle(UIStatusBarStyleContrast)
         
@@ -85,9 +95,7 @@ class PlayerViewController: UIViewController, AVAudioPlayerDelegate {
         self.sliderView.maximumValue = 100
         self.sliderView.value = 0
         
-        //set percentage label to stored value
-        let currentPercentage = NSUserDefaults.standardUserDefaults().stringForKey(self.identifier+"_percentage") ?? "0%"
-        self.percentageLabel.text = currentPercentage
+        self.percentageLabel.text = ""
         
         MBProgressHUD.showHUDAddedTo(self.view, animated: true)
         
@@ -119,8 +127,48 @@ class PlayerViewController: UIViewController, AVAudioPlayerDelegate {
                 return
             }
             
+            //check for smart speed
+            
+            
+            //try loading chapters
+            var chapterIndex = 1
+            
+            let locales = self.playerItem.asset.availableChapterLocales
+            for locale in locales {
+                let chapters = self.playerItem.asset.chapterMetadataGroupsWithTitleLocale(locale, containingItemsWithCommonKeys: [AVMetadataCommonKeyArtwork])
+                
+                for chapterMetadata in chapters {
+                    
+                    let chapter = Chapter(title: AVMetadataItem.metadataItemsFromArray(chapterMetadata.items, withKey: AVMetadataCommonKeyTitle, keySpace: AVMetadataKeySpaceCommon).first?.value?.copyWithZone(nil) as? String ?? "Chapter \(index)",
+                                     start: Int(CMTimeGetSeconds(chapterMetadata.timeRange.start)),
+                                     duration: Int(CMTimeGetSeconds(chapterMetadata.timeRange.duration)),
+                                     index: chapterIndex)
+
+                    if Int(audioplayer.currentTime) >= chapter.start {
+                        self.currentChapter = chapter
+                    }
+                    
+                    self.chapterArray.append(chapter)
+                    chapterIndex = chapterIndex + 1
+                }
+                
+            }
+            
+            //set percentage label to stored value
+            let currentPercentage = NSUserDefaults.standardUserDefaults().stringForKey(self.identifier+"_percentage") ?? "0%"
+            self.percentageLabel.text = currentPercentage
+            
+            //currentChapter is not reliable because of currentTime is not ready, set to blank
+            if self.chapterArray.count > 0 {
+                self.percentageLabel.text = ""
+            }
+            
+            
             //update UI on main thread
             dispatch_async(dispatch_get_main_queue(), {
+                
+                //enable/disable chapters button
+                self.chaptersButton.enabled = self.chapterArray.count > 0
                 
                 //set book metadata for lockscreen and control center
                 MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo = [
@@ -164,13 +212,35 @@ class PlayerViewController: UIViewController, AVAudioPlayerDelegate {
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         
         //don't do anything special for other segues that weren't identified beforehand
-        guard let _ = segue.identifier else {
+        guard let identifier = segue.identifier else {
             return
         }
         
         //set every modal to preserve current view contaxt
         let vc = segue.destinationViewController
         vc.modalPresentationStyle = .OverCurrentContext
+        
+        switch identifier {
+        case "showChapterSegue":
+            let chapterVC = vc as! ChaptersViewController
+            chapterVC.chapterArray = self.chapterArray
+            chapterVC.currentChapter = self.currentChapter
+        default:
+            break
+        }
+    }
+    
+    @IBAction func didSelectChapter(segue:UIStoryboardSegue){
+        
+        guard let audioplayer = self.audioPlayer else {
+            return
+        }
+        let vc = segue.sourceViewController as! ChaptersViewController
+        audioplayer.currentTime = NSTimeInterval(vc.currentChapter.start)
+        
+        MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
+        
+        self.updateTimer()
     }
     
     override func prefersStatusBarHidden() -> Bool {
@@ -274,29 +344,31 @@ extension PlayerViewController {
         self.sliderView.value = percentage
         
         let percentageString = String(Int(percentage))+"%"
-        self.percentageLabel.text = percentageString
+        //only update percentage if there are no chapters
+        if self.chapterArray.count > 0 {
+            self.percentageLabel.text = percentageString
+        }
+        
         
         //FIXME: this should only be updated when there's change to current percentage
         NSUserDefaults.standardUserDefaults().setObject(percentageString, forKey: self.identifier+"_percentage")
         
+        //update chapter
+        self.updateCurrentChapter()
     }
     
-    //utility function to transform seconds to format HH:MM:SS
-    func formatTime(time:Int) -> String {
-        let hours = Int(time / 3600)
-        
-        let remaining = Float(time - (hours * 3600))
-        
-        let minutes = Int(remaining / 60)
-        
-        let seconds = Int(remaining - Float(minutes * 60))
-
-        var formattedTime = String(format:"%02d:%02d", minutes, seconds)
-        if hours > 0 {
-            formattedTime = String(format:"%02d:"+formattedTime, hours)
+    func updateCurrentChapter() {
+        guard let audioplayer = self.audioPlayer else {
+            return
         }
         
-        return formattedTime
+        for chapter in self.chapterArray {
+            if Int(audioplayer.currentTime) >= chapter.start {
+                self.currentChapter = chapter
+                self.percentageLabel.text = "Chapter \(chapter.index) of \(self.chapterArray.count)"
+                
+            }
+        }
     }
     
 }

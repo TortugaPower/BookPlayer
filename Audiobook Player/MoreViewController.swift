@@ -16,7 +16,7 @@ class MoreViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.vfxBackgroundView.effect = UIBlurEffect(style: .Light)
-        
+        self.tableView.tableFooterView = UIView()
     }
     
     override func prefersStatusBarHidden() -> Bool {

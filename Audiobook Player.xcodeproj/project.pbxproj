@@ -93,6 +93,7 @@
 		418B6CFA1D2707F800F974FB /* Audiobook Player */ = {
 			isa = PBXGroup;
 			children = (
+				41B2AC931D4417EE005382A9 /* Player Modals */,
 				4136163F1D2E21F000E48944 /* ListBooksViewController.swift */,
 				418B6D5C1D2CB76900F974FB /* PlayerViewController.swift */,
 				418B6CFB1D2707F800F974FB /* AppDelegate.swift */,
@@ -100,9 +101,6 @@
 				418B6D041D2707F800F974FB /* Assets.xcassets */,
 				418B6D061D2707F800F974FB /* LaunchScreen.storyboard */,
 				418B6D091D2707F800F974FB /* Info.plist */,
-				41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */,
-				41B2AC8F1D43CD2F005382A9 /* SpeedViewController.swift */,
-				41B2AC911D441627005382A9 /* MoreViewController.swift */,
 			);
 			path = "Audiobook Player";
 			sourceTree = "<group>";
@@ -114,6 +112,16 @@
 				418B6D141D2707F800F974FB /* Info.plist */,
 			);
 			path = "Audiobook PlayerTests";
+			sourceTree = "<group>";
+		};
+		41B2AC931D4417EE005382A9 /* Player Modals */ = {
+			isa = PBXGroup;
+			children = (
+				41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */,
+				41B2AC8F1D43CD2F005382A9 /* SpeedViewController.swift */,
+				41B2AC911D441627005382A9 /* MoreViewController.swift */,
+			);
+			name = "Player Modals";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

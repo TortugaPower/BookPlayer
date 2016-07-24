@@ -472,6 +472,7 @@
                     <navigationItem key="navigationItem" id="mOI-FS-AaM"/>
                     <connections>
                         <outlet property="authorLabel" destination="Ugu-r8-8OF" id="hKh-QA-8iJ"/>
+                        <outlet property="chaptersButton" destination="I6W-6G-1Lz" id="w77-CO-MMc"/>
                         <outlet property="currentTimeLabel" destination="pIa-Ca-Qef" id="SKl-dd-Pzj"/>
                         <outlet property="forwardButton" destination="GcK-bx-Lp0" id="d0D-Yu-eiw"/>
                         <outlet property="leftVerticalView" destination="Tzw-qS-O7I" id="85b-PT-4hP"/>
@@ -480,6 +481,7 @@
                         <outlet property="playButton" destination="EV6-kJ-RSt" id="wNC-Tz-V7U"/>
                         <outlet property="rewindButton" destination="Xm9-P8-cWQ" id="Jz4-vo-3zS"/>
                         <outlet property="sliderView" destination="3Ah-kW-bx4" id="7Hv-Oi-L1G"/>
+                        <outlet property="speedButton" destination="qml-C5-mHf" id="cv1-BP-eXX"/>
                         <outlet property="timeSeparator" destination="mgG-dL-P0p" id="T3R-ei-bOV"/>
                         <outlet property="titleLabel" destination="2KB-bk-jYi" id="Ycp-la-9ZX"/>
                     </connections>
@@ -593,15 +595,49 @@
                                 <rect key="frame" x="0.0" y="64" width="600" height="536"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="Tvh-ek-HpW">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" restorationIdentifier="ChapterViewCell" selectionStyle="default" indentationWidth="10" reuseIdentifier="ChapterViewCell" id="Tvh-ek-HpW" customClass="ChapterViewCell" customModule="Audiobook_Player" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="28" width="600" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Tvh-ek-HpW" id="uyn-wk-HYj">
                                             <rect key="frame" x="0.0" y="0.0" width="600" height="43.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="00:00:00" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="O04-9i-LyL">
+                                                    <rect key="frame" x="516.5" y="12" width="70" height="20"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="70" id="yJF-Dj-y5d"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                                    <color key="textColor" red="0.93725490199999995" green="0.93725490199999995" blue="0.95686274510000002" alpha="1" colorSpace="calibratedRGB"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.69999999999999996" translatesAutoresizingMaskIntoConstraints="NO" id="6EW-9p-GP5">
+                                                    <rect key="frame" x="8" y="11" width="493.5" height="21"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <color key="textColor" red="0.93725490199999995" green="0.93725490199999995" blue="0.95686274510000002" alpha="1" colorSpace="calibratedRGB"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                            <constraints>
+                                                <constraint firstAttribute="trailing" secondItem="O04-9i-LyL" secondAttribute="trailing" constant="13.5" id="3if-ik-Paa"/>
+                                                <constraint firstItem="6EW-9p-GP5" firstAttribute="leading" secondItem="uyn-wk-HYj" secondAttribute="leading" constant="8" id="55X-FK-OVF"/>
+                                                <constraint firstItem="O04-9i-LyL" firstAttribute="centerY" secondItem="uyn-wk-HYj" secondAttribute="centerY" id="EeM-ja-5vY"/>
+                                                <constraint firstItem="6EW-9p-GP5" firstAttribute="centerY" secondItem="uyn-wk-HYj" secondAttribute="centerY" id="O4h-gx-boY"/>
+                                                <constraint firstItem="O04-9i-LyL" firstAttribute="leading" secondItem="6EW-9p-GP5" secondAttribute="trailing" constant="15" id="jGa-PD-x0j"/>
+                                            </constraints>
                                         </tableViewCellContentView>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                        <connections>
+                                            <outlet property="durationLabel" destination="O04-9i-LyL" id="IX8-C6-X43"/>
+                                            <outlet property="titleLabel" destination="6EW-9p-GP5" id="t83-D6-dJC"/>
+                                        </connections>
                                     </tableViewCell>
                                 </prototypes>
+                                <connections>
+                                    <outlet property="dataSource" destination="ftF-d7-Cal" id="rOv-qO-Mb6"/>
+                                    <outlet property="delegate" destination="ftF-d7-Cal" id="Ndl-BJ-cEj"/>
+                                </connections>
                             </tableView>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
@@ -622,9 +658,11 @@
                     <connections>
                         <outlet property="tableView" destination="RGQ-wq-bQY" id="CpS-Y2-p65"/>
                         <outlet property="vfxBackgroundView" destination="Ve6-Am-59G" id="Fit-ME-Cum"/>
+                        <segue destination="8qd-dR-5cd" kind="unwind" identifier="selectedChapterSegue" unwindAction="didSelectChapter:" id="1gr-zj-VIY"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="RAh-ft-2fx" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="8qd-dR-5cd" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
             <point key="canvasLocation" x="2162" y="-556"/>
         </scene>
