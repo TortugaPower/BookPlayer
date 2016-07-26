@@ -352,15 +352,41 @@ extension ListBooksViewController: UITableViewDelegate {
     }
 }
 
-extension ListBooksViewController {
+extension ListBooksViewController:UIDocumentMenuDelegate {
     @IBAction func didPressImportOptions(sender: UIBarButtonItem) {
         let sheet = UIAlertController(title: "Import Books", message: nil, preferredStyle: .ActionSheet)
         
         let cancelButton = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
-
+        let localButton = UIAlertAction(title: "From Local Apps", style: .Default) { (action) in
+            let providerList = UIDocumentMenuViewController(documentTypes: ["public.audio"], inMode: .Import)
+            providerList.delegate = self;
+            
+            self.presentViewController(providerList, animated: true, completion: nil)
+        }
+        
+        sheet.addAction(localButton)
         sheet.addAction(cancelButton)
         
         self.presentViewController(sheet, animated: true, completion: nil)
+    }
+    
+    func documentMenu(documentMenu: UIDocumentMenuViewController, didPickDocumentPicker documentPicker: UIDocumentPickerViewController) {
+        print("did pick document")
+        documentPicker.delegate = self;
+        self.presentViewController(documentPicker, animated: true, completion: nil)
+    }
+    
+    func documentMenuWasCancelled(documentMenu: UIDocumentMenuViewController) {
+        print("cancelled!")
+    }
+}
+
+extension ListBooksViewController:UIDocumentPickerDelegate {
+    func documentPicker(controller: UIDocumentPickerViewController, didPickDocumentAtURL url: NSURL) {
+        print("file picked: \(url)")
+    }
+    func documentPickerWasCancelled(controller: UIDocumentPickerViewController) {
+        print("picker cancelled")
     }
 }
 
