@@ -9,11 +9,11 @@ Player made in Swift for your DRM-free audiobooks.
 - Control audio playback from the lock screen or the control center
 - Maintain progress of your audiobooks
 - Delete uploaded books from the app
-
-# Upcoming features
 - Jump to start of book button
 - Mark book as finished button
 - Smart Speed control for the player
+
+# Upcoming features
 - Load books from apps in the phone (e.g. dropbox)
 - Stream books from online services like Dropbox
 
