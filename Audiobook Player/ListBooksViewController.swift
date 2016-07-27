@@ -371,22 +371,36 @@ extension ListBooksViewController:UIDocumentMenuDelegate {
     }
     
     func documentMenu(documentMenu: UIDocumentMenuViewController, didPickDocumentPicker documentPicker: UIDocumentPickerViewController) {
-        print("did pick document")
+        //show document picker
         documentPicker.delegate = self;
         self.presentViewController(documentPicker, animated: true, completion: nil)
-    }
-    
-    func documentMenuWasCancelled(documentMenu: UIDocumentMenuViewController) {
-        print("cancelled!")
     }
 }
 
 extension ListBooksViewController:UIDocumentPickerDelegate {
     func documentPicker(controller: UIDocumentPickerViewController, didPickDocumentAtURL url: NSURL) {
         print("file picked: \(url)")
-    }
-    func documentPickerWasCancelled(controller: UIDocumentPickerViewController) {
-        print("picker cancelled")
+        
+        //Documentation states that the file might not be imported due to being accessed from somewhere else
+        do {
+            try NSFileManager.defaultManager().attributesOfItemAtPath(url.path!)
+        }catch{
+            self.showAlert("Error", message: "File import fail, try again later", style: .Alert)
+            return
+        }
+        
+        let trueName = url.lastPathComponent!
+        var finalPath = self.documentsPath+"/"+(trueName)
+        
+        if trueName.containsString(" ") {
+            finalPath = finalPath.stringByReplacingOccurrencesOfString(" ", withString: "_")
+        }
+        
+        let fileURL = NSURL(fileURLWithPath: finalPath.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLQueryAllowedCharacterSet())!)
+        
+        try! NSFileManager.defaultManager().moveItemAtURL(url, toURL: fileURL)
+        
+        self.loadFiles()
     }
 }
 

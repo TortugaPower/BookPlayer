@@ -116,43 +116,112 @@
                                     <outlet property="delegate" destination="1tN-zP-ONE" id="ETi-4c-8Ja"/>
                                 </connections>
                             </tableView>
-                            <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xYN-SW-g2w">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xYN-SW-g2w">
                                 <rect key="frame" x="0.0" y="64" width="600" height="481"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Load your audiobooks using iTunes on your Laptop" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="jJ7-Ge-oj2">
-                                        <rect key="frame" x="8" y="180" width="584" height="21"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Upload Files From iTunes!" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hWb-dF-DRH">
+                                        <rect key="frame" x="197" y="150" width="206" height="21"/>
+                                        <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Add only your book as a file, not in a folder" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="fLY-W1-qp3">
-                                        <rect key="frame" x="8" y="210" width="584" height="21"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="curved_arrow" translatesAutoresizingMaskIntoConstraints="NO" id="oWh-Wv-p01">
+                                        <rect key="frame" x="25" y="-11" width="78" height="78"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="78" id="AvE-mo-jyH"/>
+                                            <constraint firstAttribute="height" constant="78" id="FDk-Sy-49w"/>
+                                        </constraints>
+                                    </imageView>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Import Audiobooks!" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oKh-na-jWf">
+                                        <rect key="frame" x="111" y="31" width="158" height="21"/>
+                                        <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Hit refresh to see your uploaded book" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="1mG-3H-lMd">
-                                        <rect key="frame" x="8" y="239" width="584" height="21"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
+                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" usesAttributedText="YES" translatesAutoresizingMaskIntoConstraints="NO" id="20A-MM-uMd">
+                                        <rect key="frame" x="15" y="180" width="570" height="281"/>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <attributedString key="attributedText">
+                                            <fragment content="1.-">
+                                                <attributes>
+                                                    <font key="NSFont" size="17" name="HelveticaNeue-Medium"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" lineSpacing="5" tighteningFactorForTruncation="0.0"/>
+                                                </attributes>
+                                            </fragment>
+                                            <fragment>
+                                                <string key="content"> Connect your iPhone to your Mac or PC using the cable.
+</string>
+                                                <attributes>
+                                                    <font key="NSFont" size="17" name="HelveticaNeue"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" lineSpacing="5" tighteningFactorForTruncation="0.0"/>
+                                                </attributes>
+                                            </fragment>
+                                            <fragment content="2.-">
+                                                <attributes>
+                                                    <font key="NSFont" size="17" name="HelveticaNeue-Medium"/>
+                                                    <font key="NSOriginalFont" size="17" name="HelveticaNeue-Medium"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" lineSpacing="5" tighteningFactorForTruncation="0.0"/>
+                                                </attributes>
+                                            </fragment>
+                                            <fragment>
+                                                <string key="content"> Open iTunes and select your iPhone.
+</string>
+                                                <attributes>
+                                                    <font key="NSFont" size="17" name="HelveticaNeue"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" lineSpacing="5" tighteningFactorForTruncation="0.0"/>
+                                                </attributes>
+                                            </fragment>
+                                            <fragment content="3.-">
+                                                <attributes>
+                                                    <font key="NSFont" size="17" name="HelveticaNeue-Medium"/>
+                                                    <font key="NSOriginalFont" size="17" name="HelveticaNeue-Medium"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" lineSpacing="5" tighteningFactorForTruncation="0.0"/>
+                                                </attributes>
+                                            </fragment>
+                                            <fragment>
+                                                <string key="content"> Switch to the "Apps" tab, scroll down and look for BookPlayer.
+</string>
+                                                <attributes>
+                                                    <font key="NSFont" size="17" name="HelveticaNeue"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" lineSpacing="5" tighteningFactorForTruncation="0.0"/>
+                                                </attributes>
+                                            </fragment>
+                                            <fragment content="4.-">
+                                                <attributes>
+                                                    <font key="NSFont" size="17" name="HelveticaNeue-Medium"/>
+                                                    <font key="NSOriginalFont" size="17" name="HelveticaNeue-Medium"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" lineSpacing="5" lineHeightMultiple="1" tighteningFactorForTruncation="0.0"/>
+                                                </attributes>
+                                            </fragment>
+                                            <fragment content=" Transfer your files!">
+                                                <attributes>
+                                                    <font key="NSFont" size="17" name="HelveticaNeue"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" lineSpacing="5" lineHeightMultiple="1" tighteningFactorForTruncation="0.0"/>
+                                                </attributes>
+                                            </fragment>
+                                        </attributedString>
+                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                    </textView>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstAttribute="trailing" secondItem="jJ7-Ge-oj2" secondAttribute="trailing" constant="8" id="9Yn-FJ-n6z"/>
-                                    <constraint firstItem="fLY-W1-qp3" firstAttribute="centerY" secondItem="xYN-SW-g2w" secondAttribute="centerY" constant="-20" id="Dl0-6l-Ehj"/>
-                                    <constraint firstItem="fLY-W1-qp3" firstAttribute="centerX" secondItem="xYN-SW-g2w" secondAttribute="centerX" id="F4P-5s-m8j"/>
-                                    <constraint firstItem="1mG-3H-lMd" firstAttribute="centerX" secondItem="xYN-SW-g2w" secondAttribute="centerX" id="FHs-pB-mL6"/>
-                                    <constraint firstItem="jJ7-Ge-oj2" firstAttribute="centerX" secondItem="xYN-SW-g2w" secondAttribute="centerX" id="HUm-2f-ZFs"/>
-                                    <constraint firstItem="fLY-W1-qp3" firstAttribute="leading" secondItem="xYN-SW-g2w" secondAttribute="leading" constant="8" id="IQL-F2-PPL"/>
-                                    <constraint firstAttribute="trailing" secondItem="1mG-3H-lMd" secondAttribute="trailing" constant="8" id="LNI-LP-xKe"/>
-                                    <constraint firstItem="1mG-3H-lMd" firstAttribute="leading" secondItem="xYN-SW-g2w" secondAttribute="leading" constant="8" id="QDn-vD-pEP"/>
-                                    <constraint firstItem="fLY-W1-qp3" firstAttribute="top" secondItem="jJ7-Ge-oj2" secondAttribute="bottom" constant="9" id="TMO-TH-NAc"/>
-                                    <constraint firstAttribute="trailing" secondItem="fLY-W1-qp3" secondAttribute="trailing" constant="8" id="Wko-6d-gtK"/>
-                                    <constraint firstItem="1mG-3H-lMd" firstAttribute="top" secondItem="fLY-W1-qp3" secondAttribute="bottom" constant="8" id="gKH-46-dE3"/>
-                                    <constraint firstItem="jJ7-Ge-oj2" firstAttribute="leading" secondItem="xYN-SW-g2w" secondAttribute="leading" constant="8" id="qSi-nr-uXJ"/>
+                                    <constraint firstItem="oWh-Wv-p01" firstAttribute="top" secondItem="xYN-SW-g2w" secondAttribute="top" constant="-11" id="1ph-Ce-ARl"/>
+                                    <constraint firstAttribute="trailing" secondItem="20A-MM-uMd" secondAttribute="trailing" constant="15" id="9ig-Ow-E0I"/>
+                                    <constraint firstItem="oWh-Wv-p01" firstAttribute="leading" secondItem="xYN-SW-g2w" secondAttribute="leading" constant="25" id="B4s-Ix-O4L"/>
+                                    <constraint firstItem="hWb-dF-DRH" firstAttribute="centerX" secondItem="xYN-SW-g2w" secondAttribute="centerX" id="BPA-fo-Wfe"/>
+                                    <constraint firstItem="20A-MM-uMd" firstAttribute="top" secondItem="hWb-dF-DRH" secondAttribute="bottom" constant="9" id="GAo-wy-BnJ"/>
+                                    <constraint firstItem="hWb-dF-DRH" firstAttribute="centerY" secondItem="xYN-SW-g2w" secondAttribute="centerY" constant="-80" id="GHg-1P-WUg"/>
+                                    <constraint firstItem="oKh-na-jWf" firstAttribute="bottom" secondItem="oWh-Wv-p01" secondAttribute="bottom" constant="-15" id="fXw-3k-TG4"/>
+                                    <constraint firstItem="hWb-dF-DRH" firstAttribute="top" secondItem="xYN-SW-g2w" secondAttribute="top" constant="150" id="hFx-GC-Yg8"/>
+                                    <constraint firstItem="oKh-na-jWf" firstAttribute="leading" secondItem="oWh-Wv-p01" secondAttribute="trailing" constant="8" id="xJ0-7q-8jb"/>
+                                    <constraint firstItem="20A-MM-uMd" firstAttribute="leading" secondItem="xYN-SW-g2w" secondAttribute="leading" constant="15" id="zSa-Qo-A8J"/>
+                                    <constraint firstAttribute="bottom" secondItem="20A-MM-uMd" secondAttribute="bottom" constant="20" id="zSp-nI-NbH"/>
                                 </constraints>
+                                <variation key="default">
+                                    <mask key="constraints">
+                                        <exclude reference="hFx-GC-Yg8"/>
+                                    </mask>
+                                </variation>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kBQ-Ty-lp5">
                                 <rect key="frame" x="0.0" y="545" width="600" height="55"/>
@@ -177,7 +246,7 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bK1-Ql-IlZ">
-                                        <rect key="frame" x="562" y="12.5" width="30" height="30"/>
+                                        <rect key="frame" x="562" y="12" width="30" height="30"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="30" id="2wy-Ij-VZI"/>
                                             <constraint firstAttribute="height" constant="30" id="tvp-5y-9La"/>
@@ -188,7 +257,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="a6E-yc-dtn" userLabel="DidPressPlay">
-                                        <rect key="frame" x="517" y="13" width="30" height="30"/>
+                                        <rect key="frame" x="517" y="12" width="30" height="30"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="30" id="CJk-JZ-DON"/>
                                             <constraint firstAttribute="width" constant="30" id="vqK-hB-cvq"/>
@@ -775,6 +844,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="curved_arrow" width="78" height="78"/>
         <image name="forwardButton" width="25" height="25"/>
         <image name="miniPlayButton" width="30" height="30"/>
         <image name="moreImage" width="34" height="34"/>
