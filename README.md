@@ -1,5 +1,5 @@
 # Audiobook-Player
-Player made in Swift for your DRM-free audiobooks.
+Player made in Swift for your DRM-free audiobooks. Now available in the [Appstore!](https://itunes.apple.com/us/app/bookplayer-audio-book-player/id1138219998?ls=1&mt=8)
 
 <img src="https://raw.githubusercontent.com/GianniCarlo/Audiobook-Player/master/Assets/list_screenshot.png" width="350"/>
 <img src="https://raw.githubusercontent.com/GianniCarlo/Audiobook-Player/master/Assets/player_screenshot.png" width="350"/>
