@@ -25,40 +25,40 @@ class ChaptersViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.vfxBackgroundView.effect = UIBlurEffect(style: .Light)
+        self.vfxBackgroundView.effect = UIBlurEffect(style: .light)
         self.tableView.tableFooterView = UIView()
         self.tableView.reloadData()
     }
     
-    override func prefersStatusBarHidden() -> Bool {
+    override var prefersStatusBarHidden : Bool {
         return true
     }
     
-    override func preferredStatusBarUpdateAnimation() -> UIStatusBarAnimation {
-        return .Slide
+    override var preferredStatusBarUpdateAnimation : UIStatusBarAnimation {
+        return .slide
     }
     
     
-    @IBAction func didPressClose(sender: UIBarButtonItem) {
-        self.dismissViewControllerAnimated(true, completion: nil)
+    @IBAction func didPressClose(_ sender: UIBarButtonItem) {
+        self.dismiss(animated: true, completion: nil)
     }
 }
 
 extension ChaptersViewController: UITableViewDataSource {
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return chapterArray.count
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("ChapterViewCell", forIndexPath: indexPath) as! ChapterViewCell
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "ChapterViewCell", for: indexPath) as! ChapterViewCell
         let chapter = self.chapterArray[indexPath.row]
         cell.titleLabel.text = chapter.title
         cell.durationLabel.text = formatTime(chapter.start)
-        cell.titleLabel.highlightedTextColor = UIColor.blackColor()
-        cell.durationLabel.highlightedTextColor = UIColor.blackColor()
+        cell.titleLabel.highlightedTextColor = UIColor.black
+        cell.durationLabel.highlightedTextColor = UIColor.black
         
         if self.currentChapter.index == chapter.index {
-            tableView.selectRowAtIndexPath(indexPath, animated: true, scrollPosition: .Top)
+            tableView.selectRow(at: indexPath, animated: true, scrollPosition: .top)
         }
         
         return cell
@@ -66,10 +66,10 @@ extension ChaptersViewController: UITableViewDataSource {
 }
 
 extension ChaptersViewController: UITableViewDelegate {
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let chapter = self.chapterArray[indexPath.row]
         self.currentChapter = chapter
-        self.performSegueWithIdentifier("selectedChapterSegue", sender: self)
+        self.performSegue(withIdentifier: "selectedChapterSegue", sender: self)
     }
 }
 

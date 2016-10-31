@@ -36,10 +36,10 @@ class PlayerViewController: UIViewController {
     
     
     //keep in memory current Documents folder
-    let documentsPath = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first!
+    let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
     
     var namesArray:[String]!
-    var fileURL:NSURL!
+    var fileURL:URL!
     
     //keep in memory images to toggle play/pause
     let playImage = UIImage(named: "playButton")
@@ -49,7 +49,7 @@ class PlayerViewController: UIViewController {
     var playerItem:AVPlayerItem!
     
     //timer to update labels about time
-    var timer:NSTimer!
+    var timer:Timer!
     
     //book identifier for `NSUserDefaults`
     var identifier:String!
@@ -70,49 +70,49 @@ class PlayerViewController: UIViewController {
             UIColor.flatGrayColorDark(),
             UIColor.flatSkyBlueColorDark()
         ]
-        self.view.backgroundColor = GradientColor(.Radial, frame: view.frame, colors: colors)
-        self.leftVerticalView.backgroundColor = UIColor.flatRedColor()
+        self.view.backgroundColor = GradientColor(.radial, frame: view.frame, colors: colors)
+        self.leftVerticalView.backgroundColor = UIColor.flatRed()
         self.maxTimeLabel.textColor = UIColor.flatWhiteColorDark()
         self.authorLabel.textColor = UIColor.flatWhiteColorDark()
         self.timeSeparator.textColor = UIColor.flatWhiteColorDark()
-        self.chaptersButton.setTitleColor(UIColor.flatGrayColor(), forState: .Disabled)
-        self.speedButton.setTitleColor(UIColor.flatGrayColor(), forState: .Disabled)
+        self.chaptersButton.setTitleColor(UIColor.flatGray(), for: .disabled)
+        self.speedButton.setTitleColor(UIColor.flatGray(), for: .disabled)
         
         self.setStatusBarStyle(UIStatusBarStyleContrast)
         
         //load book metadata
-        self.titleLabel.text = AVMetadataItem.metadataItemsFromArray(self.playerItem.asset.metadata, withKey: AVMetadataCommonKeyTitle, keySpace: AVMetadataKeySpaceCommon).first?.value?.copyWithZone(nil) as? String
+        self.titleLabel.text = AVMetadataItem.metadataItems(from: self.playerItem.asset.metadata, withKey: AVMetadataCommonKeyTitle, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String
         
-        self.authorLabel.text = AVMetadataItem.metadataItemsFromArray(self.playerItem.asset.metadata, withKey: AVMetadataCommonKeyArtist, keySpace: AVMetadataKeySpaceCommon).first?.value?.copyWithZone(nil) as? String
+        self.authorLabel.text = AVMetadataItem.metadataItems(from: self.playerItem.asset.metadata, withKey: AVMetadataCommonKeyArtist, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String
         
-        let artwork = AVMetadataItem.metadataItemsFromArray(self.playerItem.asset.metadata, withKey: AVMetadataCommonKeyArtwork, keySpace: AVMetadataKeySpaceCommon).first?.value?.copyWithZone(nil) as! NSData
+        let artwork = AVMetadataItem.metadataItems(from: self.playerItem.asset.metadata, withKey: AVMetadataCommonKeyArtwork, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as! Data
         
-        let title = self.titleLabel.text?.stringByReplacingOccurrencesOfString(" ", withString: "_") ?? "defaulttitle"
-        let author = self.authorLabel.text?.stringByReplacingOccurrencesOfString(" ", withString: "_") ?? "defaultauthor"
+        let title = self.titleLabel.text?.replacingOccurrences(of: " ", with: "_") ?? "defaulttitle"
+        let author = self.authorLabel.text?.replacingOccurrences(of: " ", with: "_") ?? "defaultauthor"
         
         self.identifier = title+author
         
         //set initial state for slider
-        self.sliderView.setThumbImage(UIImage(), forState: .Normal)
+        self.sliderView.setThumbImage(UIImage(), for: UIControlState())
         self.sliderView.tintColor = UIColor.flatLimeColorDark()
         self.sliderView.maximumValue = 100
         self.sliderView.value = 0
         
         self.percentageLabel.text = ""
         
-        MBProgressHUD.showHUDAddedTo(self.view, animated: true)
+        MBProgressHUD.showAdded(to: self.view, animated: true)
         
         //load data on background thread
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+        DispatchQueue.global().async {
             
             let mediaArtwork = MPMediaItemArtwork(image: UIImage(data: artwork) ?? UIImage())
             
             //try loading the data of the book
-            guard let data = NSFileManager.defaultManager().contentsAtPath(self.fileURL.path!) else {
+            guard let data = FileManager.default.contents(atPath: self.fileURL.path) else {
                 //show error on main thread
-                dispatch_async(dispatch_get_main_queue(), {
-                    MBProgressHUD.hideHUDForView(self.view, animated: true)
-                    self.showAlert(nil, message: "Problem loading mp3 data", style: .Alert)
+                DispatchQueue.main.async(execute: {
+                    MBProgressHUD.hide(for: self.view, animated: true)
+                    self.showAlert(nil, message: "Problem loading mp3 data", style: .alert)
                 })
                 
                 return
@@ -123,9 +123,9 @@ class PlayerViewController: UIViewController {
             
             guard let audioplayer = self.audioPlayer else {
                 //show error on main thread
-                dispatch_async(dispatch_get_main_queue(), {
-                    MBProgressHUD.hideHUDForView(self.view, animated: true)
-                    self.showAlert(nil, message: "Problem loading player", style: .Alert)
+                DispatchQueue.main.async(execute: {
+                    MBProgressHUD.hide(for: self.view, animated: true)
+                    self.showAlert(nil, message: "Problem loading player", style: .alert)
                 })
                 return
             }
@@ -137,11 +137,11 @@ class PlayerViewController: UIViewController {
             
             let locales = self.playerItem.asset.availableChapterLocales
             for locale in locales {
-                let chapters = self.playerItem.asset.chapterMetadataGroupsWithTitleLocale(locale, containingItemsWithCommonKeys: [AVMetadataCommonKeyArtwork])
+                let chapters = self.playerItem.asset.chapterMetadataGroups(withTitleLocale: locale, containingItemsWithCommonKeys: [AVMetadataCommonKeyArtwork])
                 
                 for chapterMetadata in chapters {
                     
-                    let chapter = Chapter(title: AVMetadataItem.metadataItemsFromArray(chapterMetadata.items, withKey: AVMetadataCommonKeyTitle, keySpace: AVMetadataKeySpaceCommon).first?.value?.copyWithZone(nil) as? String ?? "Chapter \(index)",
+                    let chapter = Chapter(title: AVMetadataItem.metadataItems(from: chapterMetadata.items, withKey: AVMetadataCommonKeyTitle, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String ?? "Chapter \(chapterIndex)",
                                      start: Int(CMTimeGetSeconds(chapterMetadata.timeRange.start)),
                                      duration: Int(CMTimeGetSeconds(chapterMetadata.timeRange.duration)),
                                      index: chapterIndex)
@@ -157,7 +157,7 @@ class PlayerViewController: UIViewController {
             }
             
             //set percentage label to stored value
-            let currentPercentage = NSUserDefaults.standardUserDefaults().stringForKey(self.identifier+"_percentage") ?? "0%"
+            let currentPercentage = UserDefaults.standard.string(forKey: self.identifier+"_percentage") ?? "0%"
             self.percentageLabel.text = currentPercentage
             
             //currentChapter is not reliable because of currentTime is not ready, set to blank
@@ -167,18 +167,18 @@ class PlayerViewController: UIViewController {
             
             
             //update UI on main thread
-            dispatch_async(dispatch_get_main_queue(), {
+            DispatchQueue.main.async(execute: {
                 
                 //set smart speed
-                let speed = NSUserDefaults.standardUserDefaults().floatForKey(self.identifier+"_speed")
+                let speed = UserDefaults.standard.float(forKey: self.identifier+"_speed")
                 self.currentSpeed = speed > 0 ? speed : 1.0
-                self.speedButton.setTitle("Speed \(String(self.currentSpeed))x", forState: .Normal)
+                self.speedButton.setTitle("Speed \(String(self.currentSpeed))x", for: UIControlState())
                 
                 //enable/disable chapters button
-                self.chaptersButton.enabled = self.chapterArray.count > 0
+                self.chaptersButton.isEnabled = self.chapterArray.count > 0
                 
                 //set book metadata for lockscreen and control center
-                MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo = [
+                MPNowPlayingInfoCenter.default().nowPlayingInfo = [
                     MPMediaItemPropertyTitle: self.titleLabel.text!,
                     MPMediaItemPropertyArtist: self.authorLabel.text!,
                     MPMediaItemPropertyPlaybackDuration: audioplayer.duration,
@@ -186,14 +186,14 @@ class PlayerViewController: UIViewController {
                 ]
                 
                 //get stored value for current time of book
-                let currentTime = NSUserDefaults.standardUserDefaults().integerForKey(self.identifier)
+                let currentTime = UserDefaults.standard.integer(forKey: self.identifier)
                 
                 //update UI if needed and set player to stored time
                 if currentTime > 0 {
                     let formattedCurrentTime = self.formatTime(currentTime)
                     self.currentTimeLabel.text = formattedCurrentTime
                     
-                    audioplayer.currentTime = NSTimeInterval(currentTime)
+                    audioplayer.currentTime = TimeInterval(currentTime)
                 }
                 
                 //update max duration label of book
@@ -214,18 +214,18 @@ class PlayerViewController: UIViewController {
                     }
                 }
                 
-                MBProgressHUD.hideHUDForView(self.view, animated: true)
+                MBProgressHUD.hide(for: self.view, animated: true)
             })
         }
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         //hide navigation bar for this controller
         self.navigationController?.setNavigationBarHidden(true, animated: true)
     }
     
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
         //don't do anything special for other segues that weren't identified beforehand
         guard let identifier = segue.identifier else {
@@ -233,8 +233,8 @@ class PlayerViewController: UIViewController {
         }
         
         //set every modal to preserve current view contaxt
-        let vc = segue.destinationViewController
-        vc.modalPresentationStyle = .OverCurrentContext
+        let vc = segue.destination
+        vc.modalPresentationStyle = .overCurrentContext
         
         switch identifier {
         case "showChapterSegue":
@@ -250,50 +250,52 @@ class PlayerViewController: UIViewController {
         }
     }
     
-    @IBAction func didSelectChapter(segue:UIStoryboardSegue){
+    @IBAction func didSelectChapter(_ segue:UIStoryboardSegue){
         
         guard let audioplayer = self.audioPlayer else {
             return
         }
-        let vc = segue.sourceViewController as! ChaptersViewController
-        audioplayer.currentTime = NSTimeInterval(vc.currentChapter.start)
+        let vc = segue.source as! ChaptersViewController
+        audioplayer.currentTime = TimeInterval(vc.currentChapter.start)
         
-        MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
+        MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
         
         self.updateTimer()
     }
     
-    @IBAction func didSelectSpeed(segue:UIStoryboardSegue){
+    @IBAction func didSelectSpeed(_ segue:UIStoryboardSegue){
         
         guard let audioplayer = self.audioPlayer else {
             return
         }
-        let vc = segue.sourceViewController as! SpeedViewController
+        let vc = segue.source as! SpeedViewController
         self.currentSpeed = vc.currentSpeed
         
-        NSUserDefaults.standardUserDefaults().setFloat(self.currentSpeed, forKey: self.identifier+"_speed")
-        self.speedButton.setTitle("Speed \(String(self.currentSpeed))x", forState: .Normal)
+        UserDefaults.standard.set(self.currentSpeed, forKey: self.identifier+"_speed")
+        self.speedButton.setTitle("Speed \(String(self.currentSpeed))x", for: UIControlState())
         audioplayer.rate = self.currentSpeed
     }
     
-    @IBAction func didSelectAction(segue:UIStoryboardSegue){
+    @IBAction func didSelectAction(_ segue:UIStoryboardSegue){
         
         guard let audioplayer = self.audioPlayer else {
             return
         }
         
-        if audioplayer.playing {
+        if audioplayer.isPlaying {
             self.playPressed(self.playButton)
         }
         
-        let vc = segue.sourceViewController as! MoreViewController
-        let action = vc.selectedAction
+        let vc = segue.source as! MoreViewController
+        guard let action = vc.selectedAction else {
+            return
+        }
         
         switch action.rawValue {
-        case MoreAction.JumpToStart.rawValue:
+        case MoreAction.jumpToStart.rawValue:
             audioplayer.currentTime = 0
             break
-        case MoreAction.MarkFinished.rawValue:
+        case MoreAction.markFinished.rawValue:
             audioplayer.currentTime = audioplayer.duration
             break
         default:
@@ -303,32 +305,32 @@ class PlayerViewController: UIViewController {
         self.updateTimer()
     }
     
-    override func prefersStatusBarHidden() -> Bool {
+    override var prefersStatusBarHidden : Bool {
         return true
     }
     
-    override func preferredStatusBarUpdateAnimation() -> UIStatusBarAnimation {
-        return .Slide
+    override var preferredStatusBarUpdateAnimation : UIStatusBarAnimation {
+        return .slide
     }
 }
 
 extension PlayerViewController: AVAudioPlayerDelegate {
     
     //skip time forward
-    @IBAction func forwardPressed(sender: UIButton) {
+    @IBAction func forwardPressed(_ sender: UIButton) {
         guard let audioplayer = self.audioPlayer else {
             return
         }
         let time = audioplayer.currentTime
         audioplayer.currentTime = time + 30
         //update time on lockscreen and control center
-        MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
+        MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
         //trigger timer event
         self.updateTimer()
     }
     
     //skip time backwards
-    @IBAction func rewindPressed(sender: UIButton) {
+    @IBAction func rewindPressed(_ sender: UIButton) {
         guard let audioplayer = self.audioPlayer else {
             return
         }
@@ -336,19 +338,19 @@ extension PlayerViewController: AVAudioPlayerDelegate {
         let time = audioplayer.currentTime
         audioplayer.currentTime = time - 30
         //update time on lockscreen and control center
-        MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
+        MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
         //trigger timer event
         self.updateTimer()
     }
     
     //toggle play/pause of book
-    @IBAction func playPressed(sender: UIButton) {
+    @IBAction func playPressed(_ sender: UIButton) {
         guard let audioplayer = self.audioPlayer else {
             return
         }
         
         //pause player if it's playing
-        if audioplayer.playing {
+        if audioplayer.isPlaying {
             //invalidate timer if needed
             if self.timer != nil {
                 self.timer.invalidate()
@@ -356,12 +358,12 @@ extension PlayerViewController: AVAudioPlayerDelegate {
             
             //set pause state on player and control center
             audioplayer.stop()
-            MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 0
-            MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
+            MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 0
+            MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
             try! AVAudioSession.sharedInstance().setActive(false)
             
             //update image for play button
-            self.playButton.setImage(self.playImage, forState: .Normal)
+            self.playButton.setImage(self.playImage, for: UIControlState())
             return
         }
         
@@ -373,18 +375,18 @@ extension PlayerViewController: AVAudioPlayerDelegate {
         }
         
         //create timer if needed
-        if self.timer == nil || (self.timer != nil && !self.timer.valid) {
-            self.timer = NSTimer.scheduledTimerWithTimeInterval(1.0, target: self, selector: #selector(updateTimer), userInfo: nil, repeats: true)
-            NSRunLoop.mainRunLoop().addTimer(self.timer, forMode: NSRunLoopCommonModes)
+        if self.timer == nil || (self.timer != nil && !self.timer.isValid) {
+            self.timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(updateTimer), userInfo: nil, repeats: true)
+            RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
         }
         
         //set play state on player and control center
         audioplayer.play()
-        MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
-        MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 1
+        MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
+        MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 1
         
         //update image for play button
-        self.playButton.setImage(self.pauseImage, forState: .Normal)
+        self.playButton.setImage(self.pauseImage, for: UIControlState())
     }
     
     //timer callback (called every second)
@@ -397,7 +399,7 @@ extension PlayerViewController: AVAudioPlayerDelegate {
         
         //store state every 2 seconds, I/O can be expensive
         if currentTime % 2 == 0 {
-            NSUserDefaults.standardUserDefaults().setInteger(currentTime, forKey: self.identifier)
+            UserDefaults.standard.set(currentTime, forKey: self.identifier)
         }
         
         //update current time label
@@ -416,18 +418,18 @@ extension PlayerViewController: AVAudioPlayerDelegate {
         
         
         //FIXME: this should only be updated when there's change to current percentage
-        NSUserDefaults.standardUserDefaults().setObject(percentageString, forKey: self.identifier+"_percentage")
+        UserDefaults.standard.set(percentageString, forKey: self.identifier+"_percentage")
         
         //update chapter
         self.updateCurrentChapter()
         
         //stop timer if the book is finished
         if Int(audioplayer.currentTime) == Int(audioplayer.duration) {
-            if self.timer.valid {
+            if self.timer.isValid {
                 self.timer.invalidate()
             }
             
-            self.playButton.setImage(self.playImage, forState: .Normal)
+            self.playButton.setImage(self.playImage, for: UIControlState())
             return
         }
     }
@@ -447,7 +449,7 @@ extension PlayerViewController: AVAudioPlayerDelegate {
     }
     
     //leave the slider at max
-    func audioPlayerDidFinishPlaying(player: AVAudioPlayer, successfully flag: Bool) {
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         if flag {
             player.currentTime = player.duration
             self.updateTimer()

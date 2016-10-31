@@ -18,44 +18,44 @@ class SpeedViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.vfxBackgroundView.effect = UIBlurEffect(style: .Light)
+        self.vfxBackgroundView.effect = UIBlurEffect(style: .light)
         self.tableView.tableFooterView = UIView()
     }
     
-    override func prefersStatusBarHidden() -> Bool {
+    override var prefersStatusBarHidden : Bool {
         return true
     }
     
-    override func preferredStatusBarUpdateAnimation() -> UIStatusBarAnimation {
-        return .Slide
+    override var preferredStatusBarUpdateAnimation : UIStatusBarAnimation {
+        return .slide
     }
     
     
-    @IBAction func didPressClose(sender: UIBarButtonItem) {
-        self.dismissViewControllerAnimated(true, completion: nil)
+    @IBAction func didPressClose(_ sender: UIBarButtonItem) {
+        self.dismiss(animated: true, completion: nil)
     }
 }
 
 extension SpeedViewController: UITableViewDataSource {
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.speedArray.count
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("SpeedViewCell", forIndexPath: indexPath)
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "SpeedViewCell", for: indexPath)
         let speed = self.speedArray[indexPath.row]
         
         cell.textLabel?.text = String(speed)
-        cell.textLabel?.highlightedTextColor = UIColor.blackColor()
+        cell.textLabel?.highlightedTextColor = UIColor.black
         
         if speed == self.currentSpeed {
-            cell.accessoryType = .Checkmark
+            cell.accessoryType = .checkmark
         }else{
-            cell.accessoryType = .None
+            cell.accessoryType = .none
         }
         
         if self.currentSpeed == speed {
-            tableView.selectRowAtIndexPath(indexPath, animated: true, scrollPosition: .Top)
+            tableView.selectRow(at: indexPath, animated: true, scrollPosition: .top)
         }
         
         return cell
@@ -63,9 +63,9 @@ extension SpeedViewController: UITableViewDataSource {
 }
 
 extension SpeedViewController: UITableViewDelegate {
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let speed = self.speedArray[indexPath.row]
         self.currentSpeed = speed
-        self.performSegueWithIdentifier("selectedSpeedSegue", sender: self)
+        self.performSegue(withIdentifier: "selectedSpeedSegue", sender: self)
     }
 }

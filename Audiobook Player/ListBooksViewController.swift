@@ -33,9 +33,9 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     
     //TableView's datasource
     var itemArray:[AVPlayerItem] = []
-    var urlArray:[NSURL] = []
+    var urlArray:[URL] = []
     //keep in memory current Documents folder
-    let documentsPath = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first!
+    let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,31 +44,31 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         self.navigationController!.interactivePopGestureRecognizer!.delegate = self
         
         //fixed tableview having strange offset
-        self.edgesForExtendedLayout = UIRectEdge.None
+        self.edgesForExtendedLayout = UIRectEdge()
 
         //set colors
-        self.navigationController?.navigationBar.barTintColor = UIColor.flatSkyBlueColor()
-        self.footerView.backgroundColor = UIColor.flatSkyBlueColor()
+        self.navigationController?.navigationBar.barTintColor = UIColor.flatSkyBlue()
+        self.footerView.backgroundColor = UIColor.flatSkyBlue()
         
         self.tableView.tableFooterView = UIView()
         
         //set external control listeners
-        let skipForward = MPRemoteCommandCenter.sharedCommandCenter().skipForwardCommand
-        skipForward.enabled = true
+        let skipForward = MPRemoteCommandCenter.shared().skipForwardCommand
+        skipForward.isEnabled = true
         skipForward.addTarget(self, action: #selector(self.forwardPressed(_:)))
         skipForward.preferredIntervals = [30]
         
-        let skipRewind = MPRemoteCommandCenter.sharedCommandCenter().skipBackwardCommand
-        skipRewind.enabled = true
+        let skipRewind = MPRemoteCommandCenter.shared().skipBackwardCommand
+        skipRewind.isEnabled = true
         skipRewind.addTarget(self, action: #selector(self.rewindPressed(_:)))
         skipRewind.preferredIntervals = [30]
         
-        let playCommand = MPRemoteCommandCenter.sharedCommandCenter().playCommand
-        playCommand.enabled = true
+        let playCommand = MPRemoteCommandCenter.shared().playCommand
+        playCommand.isEnabled = true
         playCommand.addTarget(self, action: #selector(self.didPressPlay(_:)))
         
-        let pauseCommand = MPRemoteCommandCenter.sharedCommandCenter().pauseCommand
-        pauseCommand.enabled = true
+        let pauseCommand = MPRemoteCommandCenter.shared().pauseCommand
+        pauseCommand.isEnabled = true
         pauseCommand.addTarget(self, action: #selector(self.didPressPlay(_:)))
         
         //set tap handler to show detail on tap on footer view
@@ -76,13 +76,13 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         self.footerView.addGestureRecognizer(tapRecognizer)
         
         //register to audio-interruption notifications
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.handleAudioInterruptions(_:)), name: AVAudioSessionInterruptionNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioInterruptions(_:)), name: NSNotification.Name.AVAudioSessionInterruption, object: nil)
         
         //load local files
         self.loadFiles()
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
         //show navigation bar for this controller
@@ -104,22 +104,22 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
             return
         }
         
-        self.tableView.reloadRowsAtIndexPaths([index], withRowAnimation: .Automatic)
+        self.tableView.reloadRows(at: [index], with: .automatic)
     }
     
     //no longer need to deregister observers for iOS 9+!
     //https://developer.apple.com/library/mac/releasenotes/Foundation/RN-Foundation/index.html#10_11NotificationCenter
     deinit {
         //for iOS 8
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+        NotificationCenter.default.removeObserver(self)
     }
     
     //Playback may be interrupted by calls. Handle pause
-    func handleAudioInterruptions(notification:NSNotification){
+    func handleAudioInterruptions(_ notification:Notification){
         guard let playerVC = self.playerViewController, let audioPlayer = playerVC.audioPlayer else {
             return
         }
-        if audioPlayer.playing {
+        if audioPlayer.isPlaying {
             self.didPressPlay(self.footerPlayButton)
         }
     }
@@ -133,35 +133,35 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         self.urlArray = []
         
         //get reference of all the files located inside the Documents folder
-        let fileEnumerator = NSFileManager.defaultManager().enumeratorAtPath(self.documentsPath)!
+        let fileEnumerator = FileManager.default.enumerator(atPath: self.documentsPath)!
         
         //iterate and process files
         for filename in fileEnumerator {
             var finalPath = self.documentsPath+"/"+(filename as! String)
             
-            var originalURL:NSURL?
+            var originalURL:URL?
             
-            if finalPath.containsString(" ") {
-                originalURL = NSURL(fileURLWithPath: finalPath)
-                finalPath = finalPath.stringByReplacingOccurrencesOfString(" ", withString: "_")
+            if finalPath.contains(" ") {
+                originalURL = URL(fileURLWithPath: finalPath)
+                finalPath = finalPath.replacingOccurrences(of: " ", with: "_")
             }
             
-            let fileURL = NSURL(fileURLWithPath: finalPath.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLQueryAllowedCharacterSet())!)
+            let fileURL = URL(fileURLWithPath: finalPath.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed)!)
             
             if let original = originalURL {
-                try! NSFileManager.defaultManager().moveItemAtURL(original, toURL: fileURL)
+                try! FileManager.default.moveItem(at: original, to: fileURL)
             }
             
             //NOTE: AVPlayerItem from URL might not be ready right away, 
             //		it might be better to create it from a AVAsset
             
             //create AVPlayerItem to better access each files' metadata
-            self.itemArray.append(AVPlayerItem(URL: fileURL))
+            self.itemArray.append(AVPlayerItem(url: fileURL))
             self.urlArray.append(fileURL)
         }
         
         //show/hide instructions view
-        self.emptyListContainerView.hidden = self.itemArray.count > 0 ? true : false
+        self.emptyListContainerView.isHidden = self.itemArray.count > 0 ? true : false
         
         self.tableView.reloadData()
     }
@@ -170,33 +170,33 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
      * Set play or pause image on button
      */
     func setPlayImage(){
-        guard let playerVC = self.playerViewController, audioPlayer = playerVC.audioPlayer else{
-            self.footerPlayButton.setImage(self.miniPlayImage, forState: .Normal)
+        guard let playerVC = self.playerViewController, let audioPlayer = playerVC.audioPlayer else{
+            self.footerPlayButton.setImage(self.miniPlayImage, for: UIControlState())
             return
         }
         
-        if audioPlayer.playing {
-            self.footerPlayButton.setImage(self.miniPauseButton, forState: .Normal)
+        if audioPlayer.isPlaying {
+            self.footerPlayButton.setImage(self.miniPauseButton, for: UIControlState())
         }else{
-            self.footerPlayButton.setImage(self.miniPlayImage, forState: .Normal)
+            self.footerPlayButton.setImage(self.miniPlayImage, for: UIControlState())
         }
     }
     
-    override func prefersStatusBarHidden() -> Bool {
+    override var prefersStatusBarHidden : Bool {
         return false
     }
     
-    func gestureRecognizerShouldBegin(gestureRecognizer: UIGestureRecognizer) -> Bool {
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         if(navigationController!.viewControllers.count > 1){
             return true
         }
         return false
     }
-    @IBAction func didPressReload(sender: UIBarButtonItem) {
+    @IBAction func didPressReload(_ sender: UIBarButtonItem) {
         self.loadFiles()
     }
     
-    @IBAction func didPressPlay(sender: UIButton) {
+    @IBAction func didPressPlay(_ sender: UIButton) {
         //check if audiobook is loaded
         guard let playerVC = self.playerViewController else {
             return
@@ -207,7 +207,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         self.setPlayImage()
     }
     
-    func forwardPressed(sender: UIButton) {
+    func forwardPressed(_ sender: UIButton) {
         //check if audiobook is loaded
         guard let playerVC = self.playerViewController else {
             return
@@ -216,7 +216,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         playerVC.forwardPressed(sender)
     }
     
-    func rewindPressed(sender: UIButton) {
+    func rewindPressed(_ sender: UIButton) {
         //check if audiobook is loaded
         guard let playerVC = self.playerViewController else {
             return
@@ -225,39 +225,39 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         playerVC.rewindPressed(sender)
     }
     
-    @IBAction func didPressShowDetail(sender: UIButton) {
+    @IBAction func didPressShowDetail(_ sender: UIButton) {
         guard let playerVC = self.playerViewController else {
             return
         }
-        self.navigationController?.showViewController(playerVC, sender: self)
+        self.navigationController?.show(playerVC, sender: self)
     }
 }
 
 extension ListBooksViewController: UITableViewDataSource {
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.itemArray.count
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("BookCellView", forIndexPath: indexPath) as! BookCellView
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "BookCellView", for: indexPath) as! BookCellView
         
         let item = self.itemArray[indexPath.row]
         
-        cell.titleLabel.text = AVMetadataItem.metadataItemsFromArray(item.asset.metadata, withKey: AVMetadataCommonKeyTitle, keySpace: AVMetadataKeySpaceCommon).first?.value?.copyWithZone(nil) as? String
-        cell.titleLabel.highlightedTextColor = UIColor.blackColor()
+        cell.titleLabel.text = AVMetadataItem.metadataItems(from: item.asset.metadata, withKey: AVMetadataCommonKeyTitle, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String
+        cell.titleLabel.highlightedTextColor = UIColor.black
         
-        cell.authorLabel.text = AVMetadataItem.metadataItemsFromArray(item.asset.metadata, withKey: AVMetadataCommonKeyArtist, keySpace: AVMetadataKeySpaceCommon).first?.value?.copyWithZone(nil) as? String
+        cell.authorLabel.text = AVMetadataItem.metadataItems(from: item.asset.metadata, withKey: AVMetadataCommonKeyArtist, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String
         
-        let artwork = AVMetadataItem.metadataItemsFromArray(item.asset.metadata, withKey: AVMetadataCommonKeyArtwork, keySpace: AVMetadataKeySpaceCommon).first?.value?.copyWithZone(nil) as! NSData
+        let artwork = AVMetadataItem.metadataItems(from: item.asset.metadata, withKey: AVMetadataCommonKeyArtwork, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as! Data
         
         //NOTE: we should have a default image for artwork
         cell.artworkImageView.image = UIImage(data: artwork) ?? UIImage()
         
-        let title = cell.titleLabel.text?.stringByReplacingOccurrencesOfString(" ", withString: "_") ?? "defaulttitle"
-        let author = cell.authorLabel.text?.stringByReplacingOccurrencesOfString(" ", withString: "_") ?? "defaultauthor"
+        let title = cell.titleLabel.text?.replacingOccurrences(of: " ", with: "_") ?? "defaulttitle"
+        let author = cell.authorLabel.text?.replacingOccurrences(of: " ", with: "_") ?? "defaultauthor"
         
         //load stored percentage value
-        cell.completionLabel.text = NSUserDefaults.standardUserDefaults().stringForKey(title+author+"_percentage") ?? "0%"
+        cell.completionLabel.text = UserDefaults.standard.string(forKey: title+author+"_percentage") ?? "0%"
         cell.completionLabel.textColor = UIColor.flatGreenColorDark()
         
         return cell
@@ -265,60 +265,60 @@ extension ListBooksViewController: UITableViewDataSource {
 }
 
 extension ListBooksViewController: UITableViewDelegate {
-    func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+    func tableView(_ tableView: UITableView, canFocusRowAt indexPath: IndexPath) -> Bool {
         return true
     }
     
-    func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
+    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
         
-        let deleteAction = UITableViewRowAction(style: .Default, title: "Delete") { (action, indexPath) in
-            let alert = UIAlertController(title: "Confirmation", message: "Are you sure you would like to remove this audiobook?", preferredStyle: .Alert)
+        let deleteAction = UITableViewRowAction(style: .default, title: "Delete") { (action, indexPath) in
+            let alert = UIAlertController(title: "Confirmation", message: "Are you sure you would like to remove this audiobook?", preferredStyle: .alert)
             
-            alert.addAction(UIAlertAction(title: "No", style: .Cancel, handler: { action in
+            alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: { action in
                 tableView.setEditing(false, animated: true)
             }))
-            alert.addAction(UIAlertAction(title: "Yes", style: .Destructive, handler: { action in
-                self.itemArray.removeAtIndex(indexPath.row)
-                let url = self.urlArray.removeAtIndex(indexPath.row)
-                try! NSFileManager.defaultManager().removeItemAtURL(url)
+            alert.addAction(UIAlertAction(title: "Yes", style: .destructive, handler: { action in
+                self.itemArray.remove(at: indexPath.row)
+                let url = self.urlArray.remove(at: indexPath.row)
+                try! FileManager.default.removeItem(at: url)
                 tableView.beginUpdates()
-                tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .None)
+                tableView.deleteRows(at: [indexPath], with: .none)
                 tableView.endUpdates()
                 
-                self.emptyListContainerView.hidden = self.itemArray.count > 0 ? true : false
+                self.emptyListContainerView.isHidden = self.itemArray.count > 0 ? true : false
             }))
             
-            self.presentViewController(alert, animated: true, completion: nil)
+            self.present(alert, animated: true, completion: nil)
         }
         
-        deleteAction.backgroundColor = UIColor.redColor()
+        deleteAction.backgroundColor = UIColor.red
         
         return [deleteAction]
     }
     
-    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
     }
-    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 86
     }
     
-    func tableView(tableView: UITableView, willSelectRowAtIndexPath indexPath: NSIndexPath) -> NSIndexPath? {
+    func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
         guard let index = tableView.indexPathForSelectedRow else {
             return indexPath
         }
         
-        tableView.deselectRowAtIndexPath(index, animated: true)
+        tableView.deselectRow(at: index, animated: true)
         
         return indexPath
     }
     
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         let item = self.itemArray[indexPath.row]
         let url = self.urlArray[indexPath.row]
-        let cell = tableView.cellForRowAtIndexPath(indexPath) as! BookCellView
+        let cell = tableView.cellForRow(at: indexPath) as! BookCellView
         
-        guard let playerVC = self.playerViewController, audioPlayer = playerVC.audioPlayer else {
+        guard let playerVC = self.playerViewController, let audioPlayer = playerVC.audioPlayer else {
             //create new player
             self.loadPlayer(item, url: url, cell: cell, indexPath: indexPath)
             return
@@ -336,9 +336,9 @@ extension ListBooksViewController: UITableViewDelegate {
         self.navigationController?.pushViewController(playerVC, animated: true)
     }
     
-    func loadPlayer(item:AVPlayerItem, url:NSURL, cell:BookCellView, indexPath:NSIndexPath) {
+    func loadPlayer(_ item:AVPlayerItem, url:URL, cell:BookCellView, indexPath:IndexPath) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        self.playerViewController = storyboard.instantiateViewControllerWithIdentifier("PlayerViewController") as? PlayerViewController
+        self.playerViewController = storyboard.instantiateViewController(withIdentifier: "PlayerViewController") as? PlayerViewController
         
         self.playerViewController!.playerItem = item
         
@@ -353,52 +353,52 @@ extension ListBooksViewController: UITableViewDelegate {
 }
 
 extension ListBooksViewController:UIDocumentMenuDelegate {
-    @IBAction func didPressImportOptions(sender: UIBarButtonItem) {
-        let sheet = UIAlertController(title: "Import Books", message: nil, preferredStyle: .ActionSheet)
+    @IBAction func didPressImportOptions(_ sender: UIBarButtonItem) {
+        let sheet = UIAlertController(title: "Import Books", message: nil, preferredStyle: .actionSheet)
         
-        let cancelButton = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
-        let localButton = UIAlertAction(title: "From Local Apps", style: .Default) { (action) in
-            let providerList = UIDocumentMenuViewController(documentTypes: ["public.audio"], inMode: .Import)
+        let cancelButton = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        let localButton = UIAlertAction(title: "From Local Apps", style: .default) { (action) in
+            let providerList = UIDocumentMenuViewController(documentTypes: ["public.audio"], in: .import)
             providerList.delegate = self;
             
-            self.presentViewController(providerList, animated: true, completion: nil)
+            self.present(providerList, animated: true, completion: nil)
         }
         
         sheet.addAction(localButton)
         sheet.addAction(cancelButton)
         
-        self.presentViewController(sheet, animated: true, completion: nil)
+        self.present(sheet, animated: true, completion: nil)
     }
     
-    func documentMenu(documentMenu: UIDocumentMenuViewController, didPickDocumentPicker documentPicker: UIDocumentPickerViewController) {
+    func documentMenu(_ documentMenu: UIDocumentMenuViewController, didPickDocumentPicker documentPicker: UIDocumentPickerViewController) {
         //show document picker
         documentPicker.delegate = self;
-        self.presentViewController(documentPicker, animated: true, completion: nil)
+        self.present(documentPicker, animated: true, completion: nil)
     }
 }
 
 extension ListBooksViewController:UIDocumentPickerDelegate {
-    func documentPicker(controller: UIDocumentPickerViewController, didPickDocumentAtURL url: NSURL) {
+    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
         print("file picked: \(url)")
         
         //Documentation states that the file might not be imported due to being accessed from somewhere else
         do {
-            try NSFileManager.defaultManager().attributesOfItemAtPath(url.path!)
+            try FileManager.default.attributesOfItem(atPath: url.path)
         }catch{
-            self.showAlert("Error", message: "File import fail, try again later", style: .Alert)
+            self.showAlert("Error", message: "File import fail, try again later", style: .alert)
             return
         }
         
-        let trueName = url.lastPathComponent!
+        let trueName = url.lastPathComponent
         var finalPath = self.documentsPath+"/"+(trueName)
         
-        if trueName.containsString(" ") {
-            finalPath = finalPath.stringByReplacingOccurrencesOfString(" ", withString: "_")
+        if trueName.contains(" ") {
+            finalPath = finalPath.replacingOccurrences(of: " ", with: "_")
         }
         
-        let fileURL = NSURL(fileURLWithPath: finalPath.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLQueryAllowedCharacterSet())!)
+        let fileURL = URL(fileURLWithPath: finalPath.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed)!)
         
-        try! NSFileManager.defaultManager().moveItemAtURL(url, toURL: fileURL)
+        try! FileManager.default.moveItem(at: url, to: fileURL)
         
         self.loadFiles()
     }

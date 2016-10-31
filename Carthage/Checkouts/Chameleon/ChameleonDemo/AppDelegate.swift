@@ -1,30 +1,26 @@
 //
 //  AppDelegate.swift
-//  Audiobook Player
+//  ChameleonDemo
 //
-//  Created by Gianni Carlo on 7/1/16.
-//  Copyright © 2016 Tortuga Power. All rights reserved.
+//  Created by Vicc Alexander on 9/25/15.
+//  Copyright © 2015 Vicc Alexander. All rights reserved.
 //
 
 import UIKit
-import AVFoundation
-import Fabric
-import Crashlytics
+import Chameleon
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        Fabric.with([Crashlytics.self])
-
-        UIApplication.shared.statusBarStyle = .lightContent
+        Chameleon.setGlobalThemeUsingPrimaryColor(.flatMint(),
+            withSecondaryColor: .flatBlue(),
+            andContentStyle: UIContentStyle.contrast)
         
-        UIApplication.shared.beginReceivingRemoteControlEvents()
-        try! AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
         return true
     }
 
@@ -50,40 +46,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
 
-}
 
-extension UIViewController {
-    func showAlert(_ title: String?, message: String?, style: UIAlertControllerStyle) {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: style)
-        let okButton = UIAlertAction(title: "Ok", style: .default, handler: nil)
-        
-        alert.addAction(okButton)
-        
-        self.present(alert, animated: true, completion: nil)
-    }
-    
-    //utility function to transform seconds to format HH:MM:SS
-    func formatTime(_ time:Int) -> String {
-        let hours = Int(time / 3600)
-        
-        let remaining = Float(time - (hours * 3600))
-        
-        let minutes = Int(remaining / 60)
-        
-        let seconds = Int(remaining - Float(minutes * 60))
-        
-        var formattedTime = String(format:"%02d:%02d", minutes, seconds)
-        if hours > 0 {
-            formattedTime = String(format:"%02d:"+formattedTime, hours)
-        }
-        
-        return formattedTime
-    }
-}
-
-extension UINavigationController {
-    override open var preferredStatusBarStyle : UIStatusBarStyle {
-        return .lightContent
-    }
 }
 
