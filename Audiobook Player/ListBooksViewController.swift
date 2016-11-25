@@ -247,11 +247,16 @@ extension ListBooksViewController: UITableViewDataSource {
         cell.titleLabel.highlightedTextColor = UIColor.black
         
         cell.authorLabel.text = AVMetadataItem.metadataItems(from: item.asset.metadata, withKey: AVMetadataCommonKeyArtist, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String
-        
-        let artwork = AVMetadataItem.metadataItems(from: item.asset.metadata, withKey: AVMetadataCommonKeyArtwork, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as! Data
+      
+        var defaultImage:UIImage!
+        if let artwork = AVMetadataItem.metadataItems(from: item.asset.metadata, withKey: AVMetadataCommonKeyArtwork, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? Data {
+            defaultImage = UIImage(data: artwork)
+        }else{
+            defaultImage = UIImage()
+        }
         
         //NOTE: we should have a default image for artwork
-        cell.artworkImageView.image = UIImage(data: artwork) ?? UIImage()
+        cell.artworkImageView.image = defaultImage
         
         let title = cell.titleLabel.text?.replacingOccurrences(of: " ", with: "_") ?? "defaulttitle"
         let author = cell.authorLabel.text?.replacingOccurrences(of: " ", with: "_") ?? "defaultauthor"
