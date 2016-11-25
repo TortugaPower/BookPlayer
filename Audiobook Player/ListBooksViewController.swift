@@ -133,11 +133,18 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         self.urlArray = []
         
         //get reference of all the files located inside the Documents folder
-        let fileEnumerator = FileManager.default.enumerator(atPath: self.documentsPath)!
+        guard let fileEnumerator = FileManager.default.enumerator(atPath: self.documentsPath) else {
+            return
+        }
         
         //iterate and process files
         for filename in fileEnumerator {
-            var finalPath = self.documentsPath+"/"+(filename as! String)
+            
+            guard let name = filename as? String else {
+                return
+            }
+            
+            var finalPath = self.documentsPath + "/" + name
             
             var originalURL:URL?
             
@@ -149,7 +156,12 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
             let fileURL = URL(fileURLWithPath: finalPath.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed)!)
             
             if let original = originalURL {
-                try! FileManager.default.moveItem(at: original, to: fileURL)
+                do {
+                    try FileManager.default.moveItem(at: original, to: fileURL)
+                } catch {
+                    self.showAlert(nil, message: "There was a problem loading your books, please try again", style: .alert)
+                }
+                
             }
             
             //NOTE: AVPlayerItem from URL might not be ready right away, 
@@ -293,6 +305,9 @@ extension ListBooksViewController: UITableViewDelegate {
                 self.emptyListContainerView.isHidden = self.itemArray.count > 0 ? true : false
             }))
             
+            alert.popoverPresentationController?.sourceView = self.view
+            alert.popoverPresentationController?.sourceRect = CGRect(x: Double(self.view.bounds.size.width / 2.0), y: Double(self.view.bounds.size.height-45), width: 1.0, height: 1.0)
+            
             self.present(alert, animated: true, completion: nil)
         }
         
@@ -366,11 +381,16 @@ extension ListBooksViewController:UIDocumentMenuDelegate {
             let providerList = UIDocumentMenuViewController(documentTypes: ["public.audio"], in: .import)
             providerList.delegate = self;
             
+            providerList.popoverPresentationController?.sourceView = self.view
+            providerList.popoverPresentationController?.sourceRect = CGRect(x: Double(self.view.bounds.size.width / 2.0), y: Double(self.view.bounds.size.height-45), width: 1.0, height: 1.0)
             self.present(providerList, animated: true, completion: nil)
         }
         
         sheet.addAction(localButton)
         sheet.addAction(cancelButton)
+        
+        sheet.popoverPresentationController?.sourceView = self.view
+        sheet.popoverPresentationController?.sourceRect = CGRect(x: Double(self.view.bounds.size.width / 2.0), y: Double(self.view.bounds.size.height-45), width: 1.0, height: 1.0)
         
         self.present(sheet, animated: true, completion: nil)
     }
@@ -378,6 +398,9 @@ extension ListBooksViewController:UIDocumentMenuDelegate {
     func documentMenu(_ documentMenu: UIDocumentMenuViewController, didPickDocumentPicker documentPicker: UIDocumentPickerViewController) {
         //show document picker
         documentPicker.delegate = self;
+        
+        documentPicker.popoverPresentationController?.sourceView = self.view
+        documentPicker.popoverPresentationController?.sourceRect = CGRect(x: Double(self.view.bounds.size.width / 2.0), y: Double(self.view.bounds.size.height-45), width: 1.0, height: 1.0)
         self.present(documentPicker, animated: true, completion: nil)
     }
 }
