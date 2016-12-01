@@ -255,10 +255,10 @@ extension ListBooksViewController: UITableViewDataSource {
         
         let item = self.itemArray[indexPath.row]
         
-        cell.titleLabel.text = AVMetadataItem.metadataItems(from: item.asset.metadata, withKey: AVMetadataCommonKeyTitle, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String
+        cell.titleLabel.text = AVMetadataItem.metadataItems(from: item.asset.metadata, withKey: AVMetadataCommonKeyTitle, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String ?? "Unknown Book"
         cell.titleLabel.highlightedTextColor = UIColor.black
         
-        cell.authorLabel.text = AVMetadataItem.metadataItems(from: item.asset.metadata, withKey: AVMetadataCommonKeyArtist, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String
+        cell.authorLabel.text = AVMetadataItem.metadataItems(from: item.asset.metadata, withKey: AVMetadataCommonKeyArtist, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String ?? "Unknown Author"
       
         var defaultImage:UIImage!
         if let artwork = AVMetadataItem.metadataItems(from: item.asset.metadata, withKey: AVMetadataCommonKeyArtwork, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? Data {
@@ -364,8 +364,11 @@ extension ListBooksViewController: UITableViewDelegate {
         
         let url = self.urlArray[indexPath.row]
         self.playerViewController!.fileURL = url
-        
-        self.footerTitleLabel.text = cell.titleLabel.text! + " - " + cell.authorLabel.text!
+      
+        let title = cell.titleLabel.text ?? "Unknown Book"
+        let author = cell.authorLabel.text ?? "Unknown Author"
+      
+        self.footerTitleLabel.text = title + " - " + author
         self.footerImageView.image = cell.artworkImageView.image
         
         self.navigationController?.pushViewController(self.playerViewController!, animated: true)
@@ -407,7 +410,6 @@ extension ListBooksViewController:UIDocumentMenuDelegate {
 
 extension ListBooksViewController:UIDocumentPickerDelegate {
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
-        print("file picked: \(url)")
         
         //Documentation states that the file might not be imported due to being accessed from somewhere else
         do {
@@ -425,8 +427,13 @@ extension ListBooksViewController:UIDocumentPickerDelegate {
         }
         
         let fileURL = URL(fileURLWithPath: finalPath.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed)!)
-        
-        try! FileManager.default.moveItem(at: url, to: fileURL)
+      
+        do {
+          try FileManager.default.moveItem(at: url, to: fileURL)
+        }catch{
+          self.showAlert("Error", message: "File import fail, try again later", style: .alert)
+          return
+        }
         
         self.loadFiles()
     }

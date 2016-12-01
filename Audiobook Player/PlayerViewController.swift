@@ -84,13 +84,22 @@ class PlayerViewController: UIViewController {
         self.titleLabel.text = AVMetadataItem.metadataItems(from: self.playerItem.asset.metadata, withKey: AVMetadataCommonKeyTitle, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String
         
         self.authorLabel.text = AVMetadataItem.metadataItems(from: self.playerItem.asset.metadata, withKey: AVMetadataCommonKeyArtist, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String
-        
-        let artwork = AVMetadataItem.metadataItems(from: self.playerItem.asset.metadata, withKey: AVMetadataCommonKeyArtwork, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as! Data
+      
+        var defaultImage:UIImage!
+        if let artwork = AVMetadataItem.metadataItems(from: self.playerItem.asset.metadata, withKey: AVMetadataCommonKeyArtwork, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? Data {
+        defaultImage = UIImage(data: artwork)
+        }else{
+          defaultImage = UIImage()
+        }
         
         let title = self.titleLabel.text?.replacingOccurrences(of: " ", with: "_") ?? "defaulttitle"
         let author = self.authorLabel.text?.replacingOccurrences(of: " ", with: "_") ?? "defaultauthor"
         
         self.identifier = title+author
+      
+      if title == "defaulttitle" && author == "defaultauthor" {
+        self.showAlert(nil, message: "We can't correctly store your progress of books that don't have a title or author specified", style: .alert)
+      }
         
         //set initial state for slider
         self.sliderView.setThumbImage(UIImage(), for: UIControlState())
@@ -105,7 +114,7 @@ class PlayerViewController: UIViewController {
         //load data on background thread
         DispatchQueue.global().async {
             
-            let mediaArtwork = MPMediaItemArtwork(image: UIImage(data: artwork) ?? UIImage())
+            let mediaArtwork = MPMediaItemArtwork(image: defaultImage)
             
             //try loading the data of the book
             guard let data = FileManager.default.contents(atPath: self.fileURL.path) else {
@@ -179,8 +188,8 @@ class PlayerViewController: UIViewController {
                 
                 //set book metadata for lockscreen and control center
                 MPNowPlayingInfoCenter.default().nowPlayingInfo = [
-                    MPMediaItemPropertyTitle: self.titleLabel.text!,
-                    MPMediaItemPropertyArtist: self.authorLabel.text!,
+                    MPMediaItemPropertyTitle: self.titleLabel.text ?? "Unknown Book",
+                    MPMediaItemPropertyArtist: self.authorLabel.text ?? "Unknown Author",
                     MPMediaItemPropertyPlaybackDuration: audioplayer.duration,
                     MPMediaItemPropertyArtwork: mediaArtwork
                 ]
