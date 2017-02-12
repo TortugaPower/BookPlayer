@@ -25,6 +25,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         
         UIApplication.shared.beginReceivingRemoteControlEvents()
         try! AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
+        
+        //clean leftover sleep timer registry
+        UserDefaults.standard.set(nil, forKey: "sleep_timer")
         return true
     }
 

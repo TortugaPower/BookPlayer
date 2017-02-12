@@ -33,6 +33,9 @@ class PlayerViewController: UIViewController {
     
     @IBOutlet weak var chaptersButton: UIButton!
     @IBOutlet weak var speedButton: UIButton!
+    @IBOutlet weak var sleepButton: UIButton!
+    
+    @IBOutlet weak var sleepTimerWidthConstraint: NSLayoutConstraint!
     
     
     //keep in memory current Documents folder
@@ -50,6 +53,9 @@ class PlayerViewController: UIViewController {
     
     //timer to update labels about time
     var timer:Timer!
+    
+    //timer to update sleep time
+    var sleepTimer:Timer!
     
     //book identifier for `NSUserDefaults`
     var identifier:String!
@@ -77,6 +83,7 @@ class PlayerViewController: UIViewController {
         self.timeSeparator.textColor = UIColor.flatWhiteColorDark()
         self.chaptersButton.setTitleColor(UIColor.flatGray(), for: .disabled)
         self.speedButton.setTitleColor(UIColor.flatGray(), for: .disabled)
+        self.sleepButton.tintColor = UIColor.white
         
         self.setStatusBarStyle(UIStatusBarStyleContrast)
         
@@ -234,6 +241,21 @@ class PlayerViewController: UIViewController {
         self.navigationController?.setNavigationBarHidden(true, animated: true)
     }
     
+    //Resize sleep button on orientation transition
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        coordinator.animate(alongsideTransition: { (context) in
+            let orientation = UIApplication.shared.statusBarOrientation
+            
+            if orientation.isLandscape {
+                self.sleepTimerWidthConstraint.constant = 20
+            } else {
+                self.sleepTimerWidthConstraint.constant = 30
+            }
+            
+        })
+    }
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
         //don't do anything special for other segues that weren't identified beforehand
@@ -314,6 +336,105 @@ class PlayerViewController: UIViewController {
         self.updateTimer()
     }
     
+    @IBAction func didPressSleepTimer(_ sender: UIButton) {
+        
+//        guard let audioPlayer = self.audioPlayer, audioPlayer.isPlaying else {
+//            self.showAlert("Play your book before setting a sleep timer", message: nil, style: .actionSheet)
+//            return
+//        }
+        
+        var alertTitle:String? = nil
+        if self.sleepTimer != nil && self.sleepTimer.isValid {
+            alertTitle = " "
+        }
+        
+        let alert = UIAlertController(title: alertTitle, message: nil, preferredStyle: .actionSheet)
+        
+        
+        alert.addAction(UIAlertAction(title: "Off", style: .default, handler: { action in
+            self.sleep(in: nil)
+        }))
+        
+        alert.addAction(UIAlertAction(title: "In 5 Minutes", style: .default, handler: { action in
+            self.sleep(in: 300)
+        }))
+        
+        alert.addAction(UIAlertAction(title: "In 10 Minutes", style: .default, handler: { action in
+            self.sleep(in: 600)
+        }))
+        alert.addAction(UIAlertAction(title: "In 15 Minutes", style: .default, handler: { action in
+            self.sleep(in: 900)
+        }))
+        alert.addAction(UIAlertAction(title: "In 30 Minutes", style: .default, handler: { action in
+            self.sleep(in: 1800)
+        }))
+        alert.addAction(UIAlertAction(title: "In 45 Minutes", style: .default, handler: { action in
+            self.sleep(in: 2700)
+        }))
+        alert.addAction(UIAlertAction(title: "In One Hour", style: .default, handler: { action in
+            self.sleep(in: 3600)
+        }))
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        
+        alert.popoverPresentationController?.sourceView = self.view
+        alert.popoverPresentationController?.sourceRect = CGRect(x: Double(self.view.bounds.size.width / 2.0), y: Double(self.view.bounds.size.height-45), width: 1.0, height: 1.0)
+        
+        self.present(alert, animated: true, completion: nil)
+    }
+    
+    func sleep(in seconds:Int?) {
+        UserDefaults.standard.set(seconds, forKey: "sleep_timer")
+        
+        guard seconds != nil else {
+            self.sleepButton.tintColor = UIColor.white
+            //kill timer
+            if self.sleepTimer != nil {
+                self.sleepTimer.invalidate()
+            }
+            return
+        }
+        
+        self.sleepButton.tintColor = UIColor.flatLimeColorDark()
+        
+        //create timer if needed
+        if self.sleepTimer == nil || (self.sleepTimer != nil && !self.sleepTimer.isValid) {
+            self.sleepTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(updateSleepTimer), userInfo: nil, repeats: true)
+            RunLoop.main.add(self.sleepTimer, forMode: RunLoopMode.commonModes)
+        }
+    }
+    
+    func updateSleepTimer(){
+        guard let audioplayer = self.audioPlayer else {
+            //kill timer
+            if self.sleepTimer != nil {
+                self.sleepTimer.invalidate()
+            }
+            return
+        }
+        
+        let currentTime = UserDefaults.standard.integer(forKey: "sleep_timer")
+        
+        var newTime:Int? = currentTime - 1
+        
+        if let alertVC = self.presentedViewController, alertVC is UIAlertController {
+            alertVC.title = "Time: " + self.formatTime(newTime!)
+        }
+        
+        if newTime! <= 0 {
+            newTime = nil
+            //stop audiobook
+            if self.sleepTimer != nil && self.sleepTimer.isValid {
+                self.sleepTimer.invalidate()
+            }
+            
+            if audioplayer.isPlaying {
+                self.playPressed(self.playButton)
+            }
+        }
+        UserDefaults.standard.set(newTime , forKey: "sleep_timer")
+    }
+    
     override var prefersStatusBarHidden : Bool {
         return true
     }
@@ -373,6 +494,7 @@ extension PlayerViewController: AVAudioPlayerDelegate {
             
             //update image for play button
             self.playButton.setImage(self.playImage, for: UIControlState())
+            self.sleep(in: nil)
             return
         }
         
@@ -434,7 +556,7 @@ extension PlayerViewController: AVAudioPlayerDelegate {
         
         //stop timer if the book is finished
         if Int(audioplayer.currentTime) == Int(audioplayer.duration) {
-            if self.timer.isValid {
+            if self.timer != nil && self.timer.isValid {
                 self.timer.invalidate()
             }
             
