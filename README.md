@@ -26,15 +26,16 @@ Managed with [Carthage](https://github.com/Carthage/Carthage)
 - [MBProgressHUD](https://github.com/jdg/MBProgressHUD) for loading wheels
 
 # Credits
-- Large Play image made by [Vectors Market](http://www.flaticon.com/authors/vectors-market) from [www.flaticon.com](www.flaticon.com)
-- Large Pause image made by [Vectors Market](http://www.flaticon.com/authors/vectors-market) from [www.flaticon.com](www.flaticon.com)
-- Skip time image made by [Vaadin](http://www.flaticon.com/authors/vaadin) from [www.flaticon.com](www.flaticon.com)
-- Small Play image made by [Madebyoliver](http://www.flaticon.com/authors/madebyoliver) from [www.flaticon.com](www.flaticon.com)
-- Small Pause image made by [Hanan](http://www.flaticon.com/authors/hanan) from [www.flaticon.com](www.flaticon.com)
-- Small Double right arrows image made by [Freepik](http://www.flaticon.com/authors/freepik) from [www.flaticon.com](www.flaticon.com)
-- Book image (part of app icon) made by [Freepik](http://www.flaticon.com/authors/freepik) from [www.flaticon.com](www.flaticon.com)
-- Speaker image (part of app icon) made by [Madebyoliver](http://www.flaticon.com/authors/madebyoliver) from [www.flaticon.com](www.flaticon.com)
-- Three squares image made by [Vaadin](http://www.flaticon.com/authors/vaadin) from [www.flaticon.com](www.flaticon.com)
+- Large Play image made by [Vectors Market](http://www.flaticon.com/authors/vectors-market) from [www.flaticon.com](http://www.flaticon.com)
+- Large Pause image made by [Vectors Market](http://www.flaticon.com/authors/vectors-market) from [www.flaticon.com](http://www.flaticon.com)
+- Skip time image made by [Vaadin](http://www.flaticon.com/authors/vaadin) from [www.flaticon.com](http://www.flaticon.com)
+- Small Play image made by [Madebyoliver](http://www.flaticon.com/authors/madebyoliver) from [www.flaticon.com](http://www.flaticon.com)
+- Small Pause image made by [Hanan](http://www.flaticon.com/authors/hanan) from [www.flaticon.com](http://www.flaticon.com)
+- Small Double right arrows image made by [Freepik](http://www.flaticon.com/authors/freepik) from [www.flaticon.com](http://www.flaticon.com)
+- Book image (part of app icon) made by [Freepik](http://www.flaticon.com/authors/freepik) from [www.flaticon.com](http://www.flaticon.com)
+- Moon image made by [VectorSqure](http://www.iconfinder.com/vectorsquare) from [www.iconfinder.com](http://www.iconfinder.com)
+- Speaker image (part of app icon) made by [Madebyoliver](http://www.flaticon.com/authors/madebyoliver) from [www.flaticon.com](http://www.flaticon.com)
+- Three squares image made by [Vaadin](http://www.flaticon.com/authors/vaadin) from [www.flaticon.com](http://www.flaticon.com)
 - App icon and screenshot template generator from https://appicontemplate.com/
 
 # License
