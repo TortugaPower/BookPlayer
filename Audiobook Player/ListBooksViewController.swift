@@ -140,31 +140,18 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         //iterate and process files
         for filename in fileEnumerator {
             
-            guard let name = filename as? String else {
-                return
+            // We don't want the Inbox folder to be interpreted as an audiobook
+            // casting should be fine here b/c we use the file manager enumerator
+            let filename = filename as! String
+            if filename  == "Inbox" {
+                continue
             }
+            let documentsURL = URL(fileURLWithPath: self.documentsPath)
             
-            var finalPath = self.documentsPath + "/" + name
+            // which should return valid url strings
+            let fileURL = documentsURL.appendingPathComponent(filename)
             
-            var originalURL:URL?
-            
-            if finalPath.contains(" ") {
-                originalURL = URL(fileURLWithPath: finalPath)
-                finalPath = finalPath.replacingOccurrences(of: " ", with: "_")
-            }
-            
-            let fileURL = URL(fileURLWithPath: finalPath.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed)!)
-            
-            if let original = originalURL {
-                do {
-                    try FileManager.default.moveItem(at: original, to: fileURL)
-                } catch {
-                    self.showAlert(nil, message: "There was a problem loading your books, please try again", style: .alert)
-                }
-                
-            }
-            
-            //NOTE: AVPlayerItem from URL might not be ready right away, 
+            //NOTE: AVPlayerItem from URL might not be ready right away,
             //		it might be better to create it from a AVAsset
             
             //create AVPlayerItem to better access each files' metadata
@@ -254,8 +241,12 @@ extension ListBooksViewController: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: "BookCellView", for: indexPath) as! BookCellView
         
         let item = self.itemArray[indexPath.row]
+
+        // use the file name if the title can't be read from metadata
+        let alternateTitle = self.urlArray[indexPath.row].lastPathComponent
         
-        cell.titleLabel.text = AVMetadataItem.metadataItems(from: item.asset.metadata, withKey: AVMetadataCommonKeyTitle, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String ?? "Unknown Book"
+        cell.titleLabel.text = AVMetadataItem.metadataItems(from: item.asset.metadata, withKey: AVMetadataCommonKeyTitle, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String ?? alternateTitle
+
         cell.titleLabel.highlightedTextColor = UIColor.black
         
         cell.authorLabel.text = AVMetadataItem.metadataItems(from: item.asset.metadata, withKey: AVMetadataCommonKeyArtist, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String ?? "Unknown Author"
@@ -298,6 +289,7 @@ extension ListBooksViewController: UITableViewDelegate {
                 self.itemArray.remove(at: indexPath.row)
                 let url = self.urlArray.remove(at: indexPath.row)
                 try! FileManager.default.removeItem(at: url)
+                
                 tableView.beginUpdates()
                 tableView.deleteRows(at: [indexPath], with: .none)
                 tableView.endUpdates()
