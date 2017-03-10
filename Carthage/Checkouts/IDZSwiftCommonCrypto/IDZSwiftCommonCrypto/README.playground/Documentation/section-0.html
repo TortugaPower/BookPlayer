@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Section 1</title>
+  <meta id="xcode-display" name="xcode-display" content="render">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, maximum-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="stylesheet.css">
+</head>
+<body>
+<div class="content-wrapper">
+  <section class="section">
+    <h1 id="idzswiftcommoncrypto-carthage-compatible-https-img-shields-io-badge-carthage-compatible-4bc51d-svg-style-flat-https-github-com-carthage-carthage-build-status-https-travis-ci-org-iosdevzone-idzswiftcommoncrypto-svg-branch-master-https-travis-ci-org-iosdevzone-idzswiftcommoncrypto-">IDZSwiftCommonCrypto <a href="https://github.com/Carthage/Carthage"><img src="https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat" alt="Carthage compatible"></a> <a href="https://travis-ci.org/iosdevzone/IDZSwiftCommonCrypto"><img src="https://travis-ci.org/iosdevzone/IDZSwiftCommonCrypto.svg?branch=master" alt="Build Status"></a></h1>
+<p>A Swift wrapper for Apple&#39;s <code>CommonCrypto</code> library.</p>
+<h2 id="using-idzswiftcommoncrypto-">Using <code>IDZSwiftCommonCrypto</code></h2>
+<p>Since <code>CommonCrypto</code> is not a standalone module, you need to generate a fake module map to convince Xcode into allowing you to <code>import CommonCrypto</code>. The <code>GenerateCommonCryptoModule</code> script provides two methods for doing this. Which method you choose depends on whether you want to able to use <code>CommonCrypto</code> and, by extension, <code>IDZSwiftCommonCrypto</code> in playgrounds.</p>
+<p>To make <code>CommonCrypto</code> available to frameworks and playground use the command:</p>
+<pre><code class="lang-bash">    ./GenerateCommonCryptoModule iphonesimulator8.0
+</code></pre>
+<p>This command creates a <code>CommonCrypto.framework</code> in the SDK system library directory. You should now be able to use either <code>CommonCrypto</code> or <code>IDZSwiftCommonCrypto</code> in a playground simply importing them or in your own app project by dragging the <code>IDZSwiftCommonCrypto.xcodeproj</code> into your project.</p>
+<p>If you do not want to add any files to your SDK you can use the command</p>
+<pre><code class="lang-bash">    ./GenerateCommonCryptoModule iphonesimulator8.0 .
+</code></pre>
+<p>This method creates a <code>CommonCrypto</code> directory within the <code>IDZSwiftCommonCrypto</code> source tree, so the SDK directories are not altered, but the module is not available in playgrounds. To use the framework in your own project drag the <code>IDZSwiftCommonCrypto.xcodeproj</code> into your project and set the <strong>Module Import Path</strong> to the directory containing the <code>CommonCrypto</code> directory created by the script. For more about this, see my blog post <a href="http://bit.ly/1xMAGQl">Using CommonCrypto in Swift</a> </p>
+
+  </section>
+</div>
+</body>
+</html>

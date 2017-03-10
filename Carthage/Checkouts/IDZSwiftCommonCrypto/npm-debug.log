@@ -1,0 +1,30 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'node',
+1 verbose cli   '/usr/local/bin/npm',
+1 verbose cli   'uninstall',
+1 verbose cli   '-g',
+1 verbose cli   'swift-playground-builder' ]
+2 info using npm@1.4.28
+3 info using node@v0.10.32
+4 verbose lib/node_modules/swift-playground-builder unbuild
+5 info preuninstall swift-playground-builder@1.0.0
+6 info uninstall swift-playground-builder@1.0.0
+7 verbose true,/usr/local/lib/node_modules,/usr/local/lib/node_modules unbuild swift-playground-builder@1.0.0
+8 verbose /usr/local/bin,[object Object] binRoot
+9 info postuninstall swift-playground-builder@1.0.0
+10 error Error: EACCES, unlink '/usr/local/lib/node_modules/swift-playground-builder'
+10 error  { [Error: EACCES, unlink '/usr/local/lib/node_modules/swift-playground-builder']
+10 error   errno: 3,
+10 error   code: 'EACCES',
+10 error   path: '/usr/local/lib/node_modules/swift-playground-builder' }
+11 error Please try running this command again as root/Administrator.
+12 error System Darwin 14.4.0
+13 error command "node" "/usr/local/bin/npm" "uninstall" "-g" "swift-playground-builder"
+14 error cwd /Users/danny/Documents/github/IDZSwiftCommonCrypto
+15 error node -v v0.10.32
+16 error npm -v 1.4.28
+17 error path /usr/local/lib/node_modules/swift-playground-builder
+18 error code EACCES
+19 error errno 3
+20 error stack Error: EACCES, unlink '/usr/local/lib/node_modules/swift-playground-builder'
+21 verbose exit [ 3, true ]

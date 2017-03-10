@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<playground version="3.0" sdk="iphonesimulator" allows-reset="YES">
+    <sections>
+        <documentation relative-path="section-0.html">
+        </documentation>
+        <code source-file-name="section-1.swift">
+        </code>
+        <documentation relative-path="section-2.html">
+        </documentation>
+        <code source-file-name="section-3.swift">
+        </code>
+        <documentation relative-path="section-4.html">
+        </documentation>
+        <code source-file-name="section-5.swift">
+        </code>
+        <documentation relative-path="section-6.html">
+        </documentation>
+        <code source-file-name="section-7.swift">
+        </code>
+        <documentation relative-path="section-8.html">
+        </documentation>
+        <code source-file-name="section-9.swift">
+        </code>
+        <documentation relative-path="section-10.html">
+        </documentation>
+        <code source-file-name="section-11.swift">
+        </code>
+        <documentation relative-path="section-12.html">
+        </documentation>
+        <code source-file-name="section-13.swift">
+        </code>
+        <documentation relative-path="section-14.html">
+        </documentation>
+        <code source-file-name="section-15.swift">
+        </code>
+        <documentation relative-path="section-16.html">
+        </documentation>
+        <code source-file-name="section-17.swift">
+        </code>
+        <documentation relative-path="section-18.html">
+        </documentation>
+    </sections>
+</playground>

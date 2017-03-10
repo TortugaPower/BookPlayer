@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Cryptor Class Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Class/Cryptor" class="dashAnchor"></a>
+    <a title="Cryptor Class Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../index.html"> Docs</a> (100% documented)</p>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../index.html"> Reference</a>
+        <img id="carat" src="../img/carat.png" />
+        Cryptor Class Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+          <a href="../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Classes/Cryptor.html">Cryptor</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Digest.html">Digest</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/HMAC.html">HMAC</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/PBKDF.html">PBKDF</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Random.html">Random</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/StreamCryptor.html">StreamCryptor</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+          <a href="../Enums.html">Enums</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Enums/Status.html">Status</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+          <a href="../Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Extensions/CryptoDigest.html">CryptoDigest</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Extensions/NSData.html">NSData</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Extensions/String.html">String</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Extensions/Updateable.html">Updateable</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+          <a href="../Functions.html">Functions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F20IDZSwiftCommonCrypto18arrayFromHexStringFSSGSaVSs5UInt8_">arrayFromHexString(_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F20IDZSwiftCommonCrypto17dataFromByteArrayFGSaVSs5UInt8_CSo6NSData">dataFromByteArray(_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F20IDZSwiftCommonCrypto17dataFromHexStringFSSCSo6NSData">dataFromHexString(_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F20IDZSwiftCommonCrypto16hexListFromArrayFGSaVSs5UInt8_SS">hexListFromArray(_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F20IDZSwiftCommonCrypto20hexNSStringFromArrayFTGSaVSs5UInt8_9uppercaseSb_CSo8NSString">hexNSStringFromArray(_:uppercase:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F20IDZSwiftCommonCrypto18hexStringFromArrayFTGSaVSs5UInt8_9uppercaseSb_SS">hexStringFromArray(_:uppercase:)</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+          <a href="../Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Protocols/CryptoDigest.html">CryptoDigest</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/Updateable.html">Updateable</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>Cryptor</h1>
+              <div class="declaration">
+                <div class="Swift">
+                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">Cryptor</span> <span class="p">:</span> <span class="kt">StreamCryptor</span><span class="p">,</span> <span class="kt">Updateable</span></code></pre>
+
+                </div>
+              </div>
+            <p>Encrypts or decrypts, accumulating result.</p>
+
+<p>Useful for small in-memory buffers.</p>
+
+<p>For large files or network streams use StreamCryptor.</p>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC20IDZSwiftCommonCrypto7Cryptor5finalFS0_FT_GSqGSaVSs5UInt8__"></a>
+                    <a name="//apple_ref/swift/Method/final()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC20IDZSwiftCommonCrypto7Cryptor5finalFS0_FT_GSqGSaVSs5UInt8__">final()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Retrieves the encrypted or decrypted data.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">final</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">UInt8</span><span class="p">]?</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>the encrypted or decrypted data or nil if an error occured.</p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+                <div class="task-name-container">
+                  <a name="/Low-level%20interface"></a>
+                  <a name="//apple_ref/swift/Section/Low-level interface" class="dashAnchor"></a>
+                  <a href="#/Low-level%20interface">
+                    <h3 class="section-name">Low-level interface</h3>
+                  </a>
+                </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC20IDZSwiftCommonCrypto7Cryptor6updateFS0_FTGVSs13UnsafePointerT__Si_GSqDS0__"></a>
+                    <a name="//apple_ref/swift/Method/update(_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC20IDZSwiftCommonCrypto7Cryptor6updateFS0_FTGVSs13UnsafePointerT__Si_GSqDS0__">update(_:_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Upates the accumulated encrypted/decrypted data with the contents
+of a raw byte buffer.</p>
+
+<p>It is not envisaged the users of the framework will need to call this directly.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">update</span><span class="p">(</span><span class="nv">buffer</span><span class="p">:</span> <span class="kt">UnsafePointer</span><span class="o">&lt;</span><span class="kt">Void</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">_</span> <span class="nv">byteCount</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="k">Self</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>this Cryptor object or nil if an error occurs (for optional chaining)</p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2015 <a class="link" href="" target="_blank" rel="external"></a>. All rights reserved. (Last updated: 2015-10-29)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.3.2</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</div>
+</html>

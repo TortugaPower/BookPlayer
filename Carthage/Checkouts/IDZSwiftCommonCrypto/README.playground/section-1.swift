@@ -1,0 +1,2 @@
+import Cocoa
+import IDZSwiftCommonCrypto

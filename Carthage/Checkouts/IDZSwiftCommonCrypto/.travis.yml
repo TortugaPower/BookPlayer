@@ -1,0 +1,18 @@
+language: objective-c
+osx_image: xcode8
+install:
+- npm install -g playground
+
+env:
+  matrix:
+    secure: a2fi02GPkxw27jVjW47EkvB/BW/SOIxlmLQJaiZ3xqbKe4udUxKE0ZigD0nVJDmxpiVHv5/Uc9ZQDPtKvvmU9kakusxjBVqMy+IxCYsH4+aDaATdaY9WHvVbARXJGjE/KmKnTfos/P8G8XqXahNKznql/gF2wZNoQIQD49JNk8s=
+
+before_install:
+- bundle install
+
+script:
+- echo Available SDKs
+- xcodebuild -showsdks
+- make all
+
+after_success: bundle exec slather coverage --input-format profdata IDZSwiftCommonCrypto.xcodeproj
