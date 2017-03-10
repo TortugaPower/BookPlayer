@@ -30,6 +30,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         UserDefaults.standard.set(nil, forKey: "sleep_timer")
         return true
     }
+    
+    func application(_ app: UIApplication,
+                              open url: URL,
+                              options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {
+        // This function is called when the app is opened with a audio file url,
+        // like when receiving files through AirDrop
+        
+        let fmanager = FileManager.default
+
+        let filename = url.lastPathComponent
+        let documentsURL = fmanager.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let destinationURL = documentsURL.appendingPathComponent(filename)
+        
+        // move file from Inbox to Document folder
+        do {
+            try fmanager.moveItem(at: url, to: destinationURL)
+        } catch {
+            // TODO: How should this case be handled?
+            try! fmanager.removeItem(at: url)
+            return false
+        }
+        return true
+    }
 
     func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
