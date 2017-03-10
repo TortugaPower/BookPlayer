@@ -11,6 +11,7 @@
 		412451841D489204008AC0E5 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412451821D489204008AC0E5 /* Crashlytics.framework */; };
 		413616401D2E21F000E48944 /* ListBooksViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4136163F1D2E21F000E48944 /* ListBooksViewController.swift */; };
 		413616441D30115700E48944 /* Chameleon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 413616431D30115700E48944 /* Chameleon.framework */; };
+		416B640D1E72F362000E955A /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416B640C1E72F362000E955A /* Extensions.swift */; };
 		418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418B6CFB1D2707F800F974FB /* AppDelegate.swift */; };
 		418B6D031D2707F800F974FB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 418B6D011D2707F800F974FB /* Main.storyboard */; };
 		418B6D051D2707F800F974FB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 418B6D041D2707F800F974FB /* Assets.xcassets */; };
@@ -54,6 +55,7 @@
 		412451821D489204008AC0E5 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		4136163F1D2E21F000E48944 /* ListBooksViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListBooksViewController.swift; sourceTree = "<group>"; };
 		413616431D30115700E48944 /* Chameleon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Chameleon.framework; path = Carthage/Build/iOS/Chameleon.framework; sourceTree = "<group>"; };
+		416B640C1E72F362000E955A /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		418B6CF81D2707F800F974FB /* Audiobook Player.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Audiobook Player.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		418B6CFB1D2707F800F974FB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		418B6D021D2707F800F974FB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -95,6 +97,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		416B640B1E72F328000E955A /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				4136163F1D2E21F000E48944 /* ListBooksViewController.swift */,
+				418B6D5C1D2CB76900F974FB /* PlayerViewController.swift */,
+			);
+			name = Controllers;
+			sourceTree = "<group>";
+		};
 		418B6CEF1D2707F700F974FB = {
 			isa = PBXGroup;
 			children = (
@@ -119,8 +130,8 @@
 			children = (
 				419196341D47CC4E007A3AF3 /* Audiobook Player.entitlements */,
 				41B2AC931D4417EE005382A9 /* Player Modals */,
-				4136163F1D2E21F000E48944 /* ListBooksViewController.swift */,
-				418B6D5C1D2CB76900F974FB /* PlayerViewController.swift */,
+				416B640B1E72F328000E955A /* Controllers */,
+				416B640C1E72F362000E955A /* Extensions.swift */,
 				418B6CFB1D2707F800F974FB /* AppDelegate.swift */,
 				418B6D011D2707F800F974FB /* Main.storyboard */,
 				418B6D041D2707F800F974FB /* Assets.xcassets */,
@@ -313,6 +324,7 @@
 				41B2AC921D441627005382A9 /* MoreViewController.swift in Sources */,
 				418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */,
 				418B6D5D1D2CB76900F974FB /* PlayerViewController.swift in Sources */,
+				416B640D1E72F362000E955A /* Extensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
