@@ -46,6 +46,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         // move file from Inbox to Document folder
         do {
             try fmanager.moveItem(at: url, to: destinationURL)
+            //In case the app was already running in background
+            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.openURL, object: nil)
         } catch {
             // TODO: How should this case be handled?
             try! fmanager.removeItem(at: url)

@@ -78,6 +78,9 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         //register to audio-interruption notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioInterruptions(_:)), name: NSNotification.Name.AVAudioSessionInterruption, object: nil)
         
+        //register for appDelegate openUrl notifications
+        NotificationCenter.default.addObserver(self, selector: #selector(self.loadFiles), name: Notification.Name.AudiobookPlayer.openURL, object: nil)
+        
         //load local files
         self.loadFiles()
     }

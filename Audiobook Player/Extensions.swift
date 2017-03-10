@@ -45,3 +45,11 @@ extension UINavigationController {
         return .lightContent
     }
 }
+
+extension Notification.Name {
+    
+    public struct AudiobookPlayer {
+        public static let openURL = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.openurl")
+    }
+}
+
