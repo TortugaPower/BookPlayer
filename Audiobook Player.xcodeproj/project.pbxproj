@@ -100,6 +100,7 @@
 		416B640B1E72F328000E955A /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				41B2AC931D4417EE005382A9 /* Player Modals */,
 				4136163F1D2E21F000E48944 /* ListBooksViewController.swift */,
 				418B6D5C1D2CB76900F974FB /* PlayerViewController.swift */,
 			);
@@ -129,7 +130,6 @@
 			isa = PBXGroup;
 			children = (
 				419196341D47CC4E007A3AF3 /* Audiobook Player.entitlements */,
-				41B2AC931D4417EE005382A9 /* Player Modals */,
 				416B640B1E72F328000E955A /* Controllers */,
 				416B640C1E72F362000E955A /* Extensions.swift */,
 				418B6CFB1D2707F800F974FB /* AppDelegate.swift */,
