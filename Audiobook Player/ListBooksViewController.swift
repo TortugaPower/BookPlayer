@@ -10,6 +10,8 @@ import UIKit
 import AVFoundation
 import MediaPlayer
 import Chameleon
+import MBProgressHUD
+import IDZSwiftCommonCrypto
 
 class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     
@@ -31,8 +33,8 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     
     var listBooks:[String] = []
     
-    //TableView's datasource
-    var itemArray:[AVPlayerItem] = []
+    //TableView's datasource Array of tuples:(identifier, item)
+    var itemArray:[(String, AVPlayerItem)] = []
     var urlArray:[URL] = []
     //keep in memory current Documents folder
     let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
@@ -45,7 +47,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         
         //fixed tableview having strange offset
         self.edgesForExtendedLayout = UIRectEdge()
-
+        
         //set colors
         self.navigationController?.navigationBar.barTintColor = UIColor.flatSkyBlue()
         self.footerView.backgroundColor = UIColor.flatSkyBlue()
@@ -82,7 +84,10 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(self.loadFiles), name: Notification.Name.AudiobookPlayer.openURL, object: nil)
         
         //load local files
-        self.loadFiles()
+        MBProgressHUD.showAdded(to: self.view, animated: true)
+        DispatchQueue.global(qos: .background).async {
+            self.loadFiles()
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -157,15 +162,47 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
             //NOTE: AVPlayerItem from URL might not be ready right away,
             //		it might be better to create it from a AVAsset
             
+            guard let data = FileManager.default.contents(atPath: fileURL.path) else {
+                continue
+            }
+
+            let digest = Digest(algorithm: .sha1).update(data: data)?.final()
+            let hash = hexString(fromArray: digest!)
+            
             //create AVPlayerItem to better access each files' metadata
-            self.itemArray.append(AVPlayerItem(url: fileURL))
+            let item = AVPlayerItem(url: fileURL)
+            self.itemArray.append((hash, item))
             self.urlArray.append(fileURL)
+            
+            //migrate keys
+            let title = (AVMetadataItem.metadataItems(from: item.asset.metadata, withKey: AVMetadataCommonKeyTitle, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String ?? "Unknown Book").replacingOccurrences(of: " ", with: "_")
+            
+            let author = (AVMetadataItem.metadataItems(from: item.asset.metadata, withKey: AVMetadataCommonKeyArtist, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String ?? "Unknown Author").replacingOccurrences(of: " ", with: "_")
+            
+            let identifier = title+author
+            
+            let storedTime = UserDefaults.standard.integer(forKey: hash) // 0 for nil
+            let currentTime = UserDefaults.standard.integer(forKey: identifier)
+            
+            if storedTime == 0 && currentTime != 0 {
+                //store values in new key
+                UserDefaults.standard.set(currentTime, forKey: hash)
+                //remove previous values
+                UserDefaults.standard.removeObject(forKey: identifier)
+            }
+            
+            if let currentPercentage = UserDefaults.standard.string(forKey: identifier+"_percentage") {
+                UserDefaults.standard.set(currentPercentage, forKey: hash+"_percentage")
+                UserDefaults.standard.removeObject(forKey: identifier+"_percentage")
+            }
         }
         
-        //show/hide instructions view
-        self.emptyListContainerView.isHidden = self.itemArray.count > 0 ? true : false
-        
-        self.tableView.reloadData()
+        DispatchQueue.main.async {
+            MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
+            //show/hide instructions view
+            self.emptyListContainerView.isHidden = self.itemArray.count > 0 ? true : false
+            self.tableView.reloadData()
+        }
     }
     
     /**
@@ -195,7 +232,10 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         return false
     }
     @IBAction func didPressReload(_ sender: UIBarButtonItem) {
-        self.loadFiles()
+        MBProgressHUD.showAdded(to: self.view, animated: true)
+        DispatchQueue.global(qos: .background).async {
+            self.loadFiles()
+        }
     }
     
     @IBAction func didPressPlay(_ sender: UIButton) {
@@ -243,7 +283,7 @@ extension ListBooksViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "BookCellView", for: indexPath) as! BookCellView
         
-        let item = self.itemArray[indexPath.row]
+        let item = self.itemArray[indexPath.row].1
 
         // use the file name if the title can't be read from metadata
         let alternateTitle = self.urlArray[indexPath.row].lastPathComponent
@@ -253,7 +293,7 @@ extension ListBooksViewController: UITableViewDataSource {
         cell.titleLabel.highlightedTextColor = UIColor.black
         
         cell.authorLabel.text = AVMetadataItem.metadataItems(from: item.asset.metadata, withKey: AVMetadataCommonKeyArtist, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String ?? "Unknown Author"
-      
+        
         var defaultImage:UIImage!
         if let artwork = AVMetadataItem.metadataItems(from: item.asset.metadata, withKey: AVMetadataCommonKeyArtwork, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? Data {
             defaultImage = UIImage(data: artwork)
@@ -264,11 +304,8 @@ extension ListBooksViewController: UITableViewDataSource {
         //NOTE: we should have a default image for artwork
         cell.artworkImageView.image = defaultImage
         
-        let title = cell.titleLabel.text?.replacingOccurrences(of: " ", with: "_") ?? "defaulttitle"
-        let author = cell.authorLabel.text?.replacingOccurrences(of: " ", with: "_") ?? "defaultauthor"
-        
         //load stored percentage value
-        cell.completionLabel.text = UserDefaults.standard.string(forKey: title+author+"_percentage") ?? "0%"
+        cell.completionLabel.text = UserDefaults.standard.string(forKey: self.itemArray[indexPath.row].0+"_percentage") ?? "0%"
         cell.completionLabel.textColor = UIColor.flatGreenColorDark()
         
         return cell
@@ -340,7 +377,7 @@ extension ListBooksViewController: UITableViewDelegate {
         }
         
         //check if player is for a different book
-        if playerVC.playerItem != item {
+        if playerVC.playerItem != item.1 {
             audioPlayer.stop()
             //replace player with new one
             self.loadPlayer(item, url: url, cell: cell, indexPath: indexPath)
@@ -351,18 +388,19 @@ extension ListBooksViewController: UITableViewDelegate {
         self.navigationController?.pushViewController(playerVC, animated: true)
     }
     
-    func loadPlayer(_ item:AVPlayerItem, url:URL, cell:BookCellView, indexPath:IndexPath) {
+    func loadPlayer(_ item:(String, AVPlayerItem), url:URL, cell:BookCellView, indexPath:IndexPath) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         self.playerViewController = storyboard.instantiateViewController(withIdentifier: "PlayerViewController") as? PlayerViewController
         
-        self.playerViewController!.playerItem = item
+        self.playerViewController?.identifier = item.0
+        self.playerViewController?.playerItem = item.1
         
         let url = self.urlArray[indexPath.row]
         self.playerViewController!.fileURL = url
-      
+        
         let title = cell.titleLabel.text ?? "Unknown Book"
         let author = cell.authorLabel.text ?? "Unknown Author"
-      
+        
         self.footerTitleLabel.text = title + " - " + author
         self.footerImageView.image = cell.artworkImageView.image
         
@@ -422,15 +460,18 @@ extension ListBooksViewController:UIDocumentPickerDelegate {
         }
         
         let fileURL = URL(fileURLWithPath: finalPath.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed)!)
-      
+        
         do {
-          try FileManager.default.moveItem(at: url, to: fileURL)
+            try FileManager.default.moveItem(at: url, to: fileURL)
         }catch{
-          self.showAlert("Error", message: "File import fail, try again later", style: .alert)
-          return
+            self.showAlert("Error", message: "File import fail, try again later", style: .alert)
+            return
         }
         
-        self.loadFiles()
+        MBProgressHUD.showAdded(to: self.view, animated: true)
+        DispatchQueue.global(qos: .background).async {
+            self.loadFiles()
+        }
     }
 }
 

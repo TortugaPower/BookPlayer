@@ -88,9 +88,9 @@ class PlayerViewController: UIViewController {
         self.setStatusBarStyle(UIStatusBarStyleContrast)
         
         //load book metadata
-        self.titleLabel.text = AVMetadataItem.metadataItems(from: self.playerItem.asset.metadata, withKey: AVMetadataCommonKeyTitle, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String
+        self.titleLabel.text = AVMetadataItem.metadataItems(from: self.playerItem.asset.metadata, withKey: AVMetadataCommonKeyTitle, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String ?? self.fileURL.lastPathComponent
         
-        self.authorLabel.text = AVMetadataItem.metadataItems(from: self.playerItem.asset.metadata, withKey: AVMetadataCommonKeyArtist, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String
+        self.authorLabel.text = AVMetadataItem.metadataItems(from: self.playerItem.asset.metadata, withKey: AVMetadataCommonKeyArtist, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String ?? "Unknown Author"
       
         var defaultImage:UIImage!
         if let artwork = AVMetadataItem.metadataItems(from: self.playerItem.asset.metadata, withKey: AVMetadataCommonKeyArtwork, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? Data {
@@ -98,16 +98,7 @@ class PlayerViewController: UIViewController {
         }else{
           defaultImage = UIImage()
         }
-        
-        let title = self.titleLabel.text?.replacingOccurrences(of: " ", with: "_") ?? "defaulttitle"
-        let author = self.authorLabel.text?.replacingOccurrences(of: " ", with: "_") ?? "defaultauthor"
-        
-        self.identifier = title+author
-      
-      if title == "defaulttitle" && author == "defaultauthor" {
-        self.showAlert(nil, message: "We can't correctly store your progress of books that don't have a title or author specified", style: .alert)
-      }
-        
+
         //set initial state for slider
         self.sliderView.setThumbImage(UIImage(), for: UIControlState())
         self.sliderView.tintColor = UIColor.flatLimeColorDark()
@@ -337,11 +328,6 @@ class PlayerViewController: UIViewController {
     }
     
     @IBAction func didPressSleepTimer(_ sender: UIButton) {
-        
-//        guard let audioPlayer = self.audioPlayer, audioPlayer.isPlaying else {
-//            self.showAlert("Play your book before setting a sleep timer", message: nil, style: .actionSheet)
-//            return
-//        }
         
         var alertTitle:String? = nil
         if self.sleepTimer != nil && self.sleepTimer.isValid {
