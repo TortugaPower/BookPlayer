@@ -84,7 +84,9 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(self.loadFiles), name: Notification.Name.AudiobookPlayer.openURL, object: nil)
         
         //load local files
-        MBProgressHUD.showAdded(to: self.view, animated: true)
+        let loadingWheel = MBProgressHUD.showAdded(to: self.view, animated: true)
+        loadingWheel?.labelText = "Loading Books"
+        
         DispatchQueue.global(qos: .background).async {
             self.loadFiles()
         }
@@ -422,7 +424,12 @@ extension ListBooksViewController:UIDocumentMenuDelegate {
             self.present(providerList, animated: true, completion: nil)
         }
         
+        let airdropButton = UIAlertAction(title: "AirDrop", style: .default) { (action) in
+            self.showAlert("AirDrop", message: "Make sure AirDrop is enabled.\n\nOnce you transfer the file to your device via AirDrop, choose 'BookPlayer' from the app list that will appear", style: .alert)
+        }
+        
         sheet.addAction(localButton)
+        sheet.addAction(airdropButton)
         sheet.addAction(cancelButton)
         
         sheet.popoverPresentationController?.sourceView = self.view

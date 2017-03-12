@@ -499,8 +499,8 @@ extension PlayerViewController: AVAudioPlayerDelegate {
         
         //set play state on player and control center
         audioplayer.play()
-        MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
         MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 1
+        MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
         
         //update image for play button
         self.playButton.setImage(self.pauseImage, for: UIControlState())
