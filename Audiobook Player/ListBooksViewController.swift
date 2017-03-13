@@ -51,6 +51,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         //set colors
         self.navigationController?.navigationBar.barTintColor = UIColor.flatSkyBlue()
         self.footerView.backgroundColor = UIColor.flatSkyBlue()
+        self.footerView.isHidden = true
         
         self.tableView.tableFooterView = UIView()
         
@@ -83,13 +84,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         //register for appDelegate openUrl notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.loadFiles), name: Notification.Name.AudiobookPlayer.openURL, object: nil)
         
-        //load local files
-        let loadingWheel = MBProgressHUD.showAdded(to: self.view, animated: true)
-        loadingWheel?.labelText = "Loading Books"
-        
-        DispatchQueue.global(qos: .background).async {
-            self.loadFiles()
-        }
+        self.loadFiles()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -139,38 +134,58 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
      *  Spaces in file names can cause side effects when trying to load the data
      */
     func loadFiles() {
-        self.itemArray = []
-        self.urlArray = []
+        //load local files
+        let loadingWheel = MBProgressHUD.showAdded(to: self.view, animated: true)
+        loadingWheel?.labelText = "Loading Books"
         
         //get reference of all the files located inside the Documents folder
         guard let fileEnumerator = FileManager.default.enumerator(atPath: self.documentsPath) else {
             return
         }
-        
+        var filenameArray = fileEnumerator.map({ return $0}) as! [String]
         //iterate and process files
-        for filename in fileEnumerator {
-            
-            // We don't want the Inbox folder to be interpreted as an audiobook
-            // casting should be fine here b/c we use the file manager enumerator
-            let filename = filename as! String
-            if filename  == "Inbox" {
-                continue
+        
+        DispatchQueue.global().async {
+            self.process(&filenameArray, loadingWheel: loadingWheel!)
+            DispatchQueue.main.async {
+                MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
             }
-            let documentsURL = URL(fileURLWithPath: self.documentsPath)
-            
-            // which should return valid url strings
-            let fileURL = documentsURL.appendingPathComponent(filename)
-            
-            //NOTE: AVPlayerItem from URL might not be ready right away,
-            //		it might be better to create it from a AVAsset
-            
+        }
+    }
+    
+    func process(_ files:inout [String], loadingWheel: MBProgressHUD){
+        if files.count == 0 {
+            return
+        }
+        
+        let filename = files.removeFirst()
+        
+        if filename  == "Inbox" {
+            return self.process(&files, loadingWheel: loadingWheel)
+        }
+        
+        let documentsURL = URL(fileURLWithPath: self.documentsPath)
+        
+        // which should return valid url strings
+        let fileURL = documentsURL.appendingPathComponent(filename)
+        loadingWheel.detailsLabelText = fileURL.lastPathComponent
+        
+        //if file already in list, skip to next one
+        if self.urlArray.contains(fileURL) {
+            return self.process(&files, loadingWheel: loadingWheel)
+        }
+        
+        //autoreleasepool needed to avoid OOM crashes from the file manager
+        autoreleasepool { () -> () in 
             guard let data = FileManager.default.contents(atPath: fileURL.path) else {
-                continue
+                return self.process(&files, loadingWheel: loadingWheel)
             }
-
+            
             let digest = Digest(algorithm: .sha1).update(data: data)?.final()
             let hash = hexString(fromArray: digest!)
             
+            //NOTE: AVPlayerItem from URL might not be ready right away,
+            //		it might be better to create it from a AVAsset
             //create AVPlayerItem to better access each files' metadata
             let item = AVPlayerItem(url: fileURL)
             self.itemArray.append((hash, item))
@@ -197,14 +212,16 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
                 UserDefaults.standard.set(currentPercentage, forKey: hash+"_percentage")
                 UserDefaults.standard.removeObject(forKey: identifier+"_percentage")
             }
+
         }
         
         DispatchQueue.main.async {
-            MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
             //show/hide instructions view
             self.emptyListContainerView.isHidden = self.itemArray.count > 0 ? true : false
             self.tableView.reloadData()
         }
+        
+        return self.process(&files, loadingWheel: loadingWheel)
     }
     
     /**
@@ -234,10 +251,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         return false
     }
     @IBAction func didPressReload(_ sender: UIBarButtonItem) {
-        MBProgressHUD.showAdded(to: self.view, animated: true)
-        DispatchQueue.global(qos: .background).async {
-            self.loadFiles()
-        }
+        self.loadFiles()
     }
     
     @IBAction func didPressPlay(_ sender: UIButton) {
@@ -403,6 +417,8 @@ extension ListBooksViewController: UITableViewDelegate {
         let title = cell.titleLabel.text ?? "Unknown Book"
         let author = cell.authorLabel.text ?? "Unknown Author"
         
+        self.footerView.isHidden = false
+        
         self.footerTitleLabel.text = title + " - " + author
         self.footerImageView.image = cell.artworkImageView.image
         
@@ -475,10 +491,7 @@ extension ListBooksViewController:UIDocumentPickerDelegate {
             return
         }
         
-        MBProgressHUD.showAdded(to: self.view, animated: true)
-        DispatchQueue.global(qos: .background).async {
-            self.loadFiles()
-        }
+        self.loadFiles()
     }
 }
 
