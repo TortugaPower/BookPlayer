@@ -13,6 +13,7 @@ Player made in Swift for your DRM-free audiobooks. Now available in the [Appstor
 - Mark book as finished button
 - Smart Speed control for the player
 - Load books from apps in the phone (e.g. dropbox)
+- Import books via AirDrop (Thanks [vab9](https://github.com/vab9))
 
 # Upcoming features
 - Stream books from online services like Dropbox
@@ -24,6 +25,7 @@ Pull requests regarding upcoming features (or bugs) are welcomed. Any suggestion
 Managed with [Carthage](https://github.com/Carthage/Carthage)
 - [Chameleon](https://github.com/ViccAlexander/Chameleon) for colors
 - [MBProgressHUD](https://github.com/jdg/MBProgressHUD) for loading wheels
+- [IDZSwiftCommonCrypto](https://github.com/iosdevzone/IDZSwiftCommonCrypto) for SHA-1 identifiers for the books
 
 # Credits
 - Large Play image made by [Vectors Market](http://www.flaticon.com/authors/vectors-market) from [www.flaticon.com](http://www.flaticon.com)
