@@ -182,9 +182,9 @@
 				418B6CF41D2707F800F974FB /* Sources */,
 				418B6CF51D2707F800F974FB /* Frameworks */,
 				418B6CF61D2707F800F974FB /* Resources */,
+				41AABFFF1E705D21006BD2E0 /* Embed Frameworks */,
 				413616421D30100100E48944 /* ShellScript */,
 				412451801D4891EF008AC0E5 /* ShellScript */,
-				41AABFFF1E705D21006BD2E0 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -304,6 +304,7 @@
 			inputPaths = (
 				"$(SRCROOT)/Carthage/Build/iOS/Chameleon.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/MBProgressHUD.framework",
+				"$(SRCROOT)/Carthage/Build/iOS/IDZSwiftCommonCrypto.framework",
 			);
 			outputPaths = (
 			);
