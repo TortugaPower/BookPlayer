@@ -176,13 +176,8 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         }
         
         //autoreleasepool needed to avoid OOM crashes from the file manager
-        autoreleasepool { () -> () in 
-            guard let data = FileManager.default.contents(atPath: fileURL.path) else {
-                return self.process(&files, loadingWheel: loadingWheel)
-            }
-            
-            let digest = Digest(algorithm: .sha1).update(data: data)?.final()
-            let hash = hexString(fromArray: digest!)
+        autoreleasepool { () -> () in
+            let hash = fileURL.lastPathComponent
             
             //NOTE: AVPlayerItem from URL might not be ready right away,
             //		it might be better to create it from a AVAsset
