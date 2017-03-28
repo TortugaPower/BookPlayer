@@ -11,6 +11,7 @@ import AVFoundation
 import MediaPlayer
 import Chameleon
 import MBProgressHUD
+import StoreKit
 
 class PlayerViewController: UIViewController {
     @IBOutlet weak var authorLabel: UILabel!
@@ -86,6 +87,9 @@ class PlayerViewController: UIViewController {
         self.sleepButton.tintColor = UIColor.white
         
         self.setStatusBarStyle(UIStatusBarStyleContrast)
+        
+        //register for appDelegate requestReview notifications
+        NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: Notification.Name.AudiobookPlayer.requestReview, object: nil)
         
         //load book metadata
         self.titleLabel.text = AVMetadataItem.metadataItems(from: self.playerItem.asset.metadata, withKey: AVMetadataCommonKeyTitle, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String ?? self.fileURL.lastPathComponent
@@ -547,7 +551,28 @@ extension PlayerViewController: AVAudioPlayerDelegate {
             }
             
             self.playButton.setImage(self.playImage, for: UIControlState())
+            
+            // Once book a book is finished, ask for a review
+            UserDefaults.standard.set(true, forKey: "ask_review")
+            self.requestReview()
             return
+        }
+    }
+    
+    func requestReview(){
+        
+        // don't do anything if flag isn't true
+        guard UserDefaults.standard.bool(forKey: "ask_review"),
+            let audioplayer = self.audioPlayer else {
+            return
+        }
+        
+        // request for review
+        if #available(iOS 10.3, *),
+            UIApplication.shared.applicationState == .active,
+            Int(audioplayer.currentTime) == Int(audioplayer.duration) {
+            SKStoreReviewController.requestReview()
+            UserDefaults.standard.set(false, forKey: "ask_review")
         }
     }
     

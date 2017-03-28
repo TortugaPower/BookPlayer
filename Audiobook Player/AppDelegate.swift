@@ -72,6 +72,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+        
+        // Check if the app is on the PlayerViewController
+        guard let navigationVC = UIApplication.shared.keyWindow?.rootViewController!,
+            navigationVC.childViewControllers.count > 1 else{
+            return
+        }
+        
+        // Notify controller to see if it should ask for review
+        NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.requestReview, object: nil)
     }
 
     func applicationWillTerminate(_ application: UIApplication) {
