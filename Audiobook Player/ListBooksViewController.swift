@@ -38,8 +38,15 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     //keep in memory current Documents folder
     let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
     
+    let refreshControl = UIRefreshControl()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        //pull-down-to-refresh support
+        self.refreshControl.attributedTitle = NSAttributedString(string: "Pull down to reload books")
+        self.refreshControl.addTarget(self, action: #selector(loadFiles), for: .valueChanged)
+        self.tableView.addSubview(self.refreshControl)
         
         //enables pop gesture on pushed controller
         self.navigationController!.interactivePopGestureRecognizer!.delegate = self
@@ -147,6 +154,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         DispatchQueue.global().async {
             self.process(&filenameArray, loadingWheel: loadingWheel!)
             DispatchQueue.main.async {
+                self.refreshControl.endRefreshing()
                 MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
             }
         }
