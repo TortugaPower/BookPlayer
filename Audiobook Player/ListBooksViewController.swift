@@ -14,7 +14,16 @@ import MBProgressHUD
 
 class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     
+    @IBOutlet weak var tabContainerView: UIView!
     @IBOutlet weak var emptyListContainerView: UIView!
+    
+    @IBOutlet weak var libraryButton: UIButton!
+    @IBOutlet weak var libraryLabel: UILabel!
+    @IBOutlet weak var libraryImage: UIImageView!
+    
+    @IBOutlet weak var playlistButton: UIButton!
+    @IBOutlet weak var playlistLabel: UILabel!
+    @IBOutlet weak var playlistImage: UIImageView!
     
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var footerView: UIView!
@@ -38,15 +47,31 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     //keep in memory current Documents folder
     let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
     
+    // pull down to refresh
     let refreshControl = UIRefreshControl()
+    
+    let grayColor = UIColor(red:0.58, green:0.58, blue:0.58, alpha:1.0)
+    let blueColor = UIColor(red:0.00, green:0.48, blue:1.00, alpha:1.0)
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        //set shadow for tab container view
+        self.tabContainerView.layer.masksToBounds = false
+        self.tabContainerView.layer.shadowOffset = CGSize(width: 0, height: 0.5)
+        self.tabContainerView.layer.shadowRadius = 5
+        self.tabContainerView.layer.shadowOpacity = 0.5
+        
+        //set as initial state
+        self.libraryImage.tintColor = self.blueColor
+        self.libraryLabel.textColor = self.blueColor
+        
         //pull-down-to-refresh support
         self.refreshControl.attributedTitle = NSAttributedString(string: "Pull down to reload books")
         self.refreshControl.addTarget(self, action: #selector(loadFiles), for: .valueChanged)
+        
         self.tableView.addSubview(self.refreshControl)
+        self.tableView.sendSubview(toBack: self.refreshControl)
         
         //enables pop gesture on pushed controller
         self.navigationController!.interactivePopGestureRecognizer!.delegate = self
@@ -290,6 +315,22 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
             return
         }
         self.navigationController?.show(playerVC, sender: self)
+    }
+    
+    @IBAction func didPressLibrary(_ sender: UIButton) {
+        self.libraryImage.tintColor = self.blueColor
+        self.libraryLabel.textColor = self.blueColor
+        
+        self.playlistImage.tintColor = self.grayColor
+        self.playlistLabel.textColor = self.grayColor
+    }
+    
+    @IBAction func didPressPlaylist(_ sender: UIButton) {
+        self.playlistImage.tintColor = self.blueColor
+        self.playlistLabel.textColor = self.blueColor
+        
+        self.libraryImage.tintColor = self.grayColor
+        self.libraryLabel.textColor = self.grayColor
     }
 }
 
