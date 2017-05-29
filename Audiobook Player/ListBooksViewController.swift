@@ -291,6 +291,11 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         }
         self.navigationController?.show(playerVC, sender: self)
     }
+    
+    @IBAction func didPressShowSettings(_ sender: UIBarButtonItem) {
+        print("showing settings")
+    }
+    
 }
 
 extension ListBooksViewController: UITableViewDataSource {
