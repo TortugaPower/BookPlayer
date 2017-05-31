@@ -144,15 +144,17 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         let loadingWheel = MBProgressHUD.showAdded(to: self.view, animated: true)
         loadingWheel?.labelText = "Loading Books"
         
+        
+        
         //get reference of all the files located inside the Documents folder
-        guard let fileEnumerator = FileManager.default.enumerator(atPath: self.documentsPath) else {
+        guard let urls = DataManager.getLocalFilesURL() else {
             return
         }
-        var filenameArray = fileEnumerator.map({ return $0}) as! [String]
+        
         //iterate and process files
         
         DispatchQueue.global().async {
-            self.process(&filenameArray, loadingWheel: loadingWheel!)
+            self.process(urls, loadingWheel: loadingWheel!)
             DispatchQueue.main.async {
                 self.refreshControl.endRefreshing()
                 MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
@@ -160,61 +162,49 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         }
     }
     
-    func process(_ files:inout [String], loadingWheel: MBProgressHUD){
-        if files.count == 0 {
-            return
-        }
+    func process(_ urls: [URL], loadingWheel: MBProgressHUD){
         
-        let filename = files.removeFirst()
-        
-        if filename  == "Inbox" {
-            return self.process(&files, loadingWheel: loadingWheel)
-        }
-        
-        let documentsURL = URL(fileURLWithPath: self.documentsPath)
-        
-        // which should return valid url strings
-        let fileURL = documentsURL.appendingPathComponent(filename)
-        loadingWheel.detailsLabelText = fileURL.lastPathComponent
-        
-        //if file already in list, skip to next one
-        if self.urlArray.contains(fileURL) {
-            return self.process(&files, loadingWheel: loadingWheel)
-        }
-        
-        //autoreleasepool needed to avoid OOM crashes from the file manager
-        autoreleasepool { () -> () in
-            let hash = fileURL.lastPathComponent
+        for fileURL in urls {
+            loadingWheel.detailsLabelText = fileURL.lastPathComponent
             
-            //NOTE: AVPlayerItem from URL might not be ready right away,
-            //		it might be better to create it from a AVAsset
-            //create AVPlayerItem to better access each files' metadata
-            let item = AVPlayerItem(url: fileURL)
-            self.itemArray.append((hash, item))
-            self.urlArray.append(fileURL)
-            
-            //migrate keys
-            let title = (AVMetadataItem.metadataItems(from: item.asset.metadata, withKey: AVMetadataCommonKeyTitle, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String ?? "Unknown Book").replacingOccurrences(of: " ", with: "_")
-            
-            let author = (AVMetadataItem.metadataItems(from: item.asset.metadata, withKey: AVMetadataCommonKeyArtist, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String ?? "Unknown Author").replacingOccurrences(of: " ", with: "_")
-            
-            let identifier = title+author
-            
-            let storedTime = UserDefaults.standard.integer(forKey: hash) // 0 for nil
-            let currentTime = UserDefaults.standard.integer(forKey: identifier)
-            
-            if storedTime == 0 && currentTime != 0 {
-                //store values in new key
-                UserDefaults.standard.set(currentTime, forKey: hash)
-                //remove previous values
-                UserDefaults.standard.removeObject(forKey: identifier)
+            //if file already in list, skip to next one
+            if self.urlArray.contains(fileURL) {
+                continue
             }
             
-            if let currentPercentage = UserDefaults.standard.string(forKey: identifier+"_percentage") {
-                UserDefaults.standard.set(currentPercentage, forKey: hash+"_percentage")
-                UserDefaults.standard.removeObject(forKey: identifier+"_percentage")
+            //autoreleasepool needed to avoid OOM crashes from the file manager
+            autoreleasepool { () -> () in
+                let hash = fileURL.lastPathComponent
+                
+                //NOTE: AVPlayerItem from URL might not be ready right away,
+                //		it might be better to create it from a AVAsset
+                //create AVPlayerItem to better access each files' metadata
+                let item = AVPlayerItem(url: fileURL)
+                self.itemArray.append((hash, item))
+                self.urlArray.append(fileURL)
+                
+                //migrate keys
+                let title = (AVMetadataItem.metadataItems(from: item.asset.metadata, withKey: AVMetadataCommonKeyTitle, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String ?? "Unknown Book").replacingOccurrences(of: " ", with: "_")
+                
+                let author = (AVMetadataItem.metadataItems(from: item.asset.metadata, withKey: AVMetadataCommonKeyArtist, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String ?? "Unknown Author").replacingOccurrences(of: " ", with: "_")
+                
+                let identifier = title+author
+                
+                let storedTime = UserDefaults.standard.integer(forKey: hash) // 0 for nil
+                let currentTime = UserDefaults.standard.integer(forKey: identifier)
+                
+                if storedTime == 0 && currentTime != 0 {
+                    //store values in new key
+                    UserDefaults.standard.set(currentTime, forKey: hash)
+                    //remove previous values
+                    UserDefaults.standard.removeObject(forKey: identifier)
+                }
+                
+                if let currentPercentage = UserDefaults.standard.string(forKey: identifier+"_percentage") {
+                    UserDefaults.standard.set(currentPercentage, forKey: hash+"_percentage")
+                    UserDefaults.standard.removeObject(forKey: identifier+"_percentage")
+                }
             }
-
         }
         
         DispatchQueue.main.async {
@@ -222,8 +212,6 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
             self.emptyListContainerView.isHidden = self.itemArray.count > 0 ? true : false
             self.tableView.reloadData()
         }
-        
-        return self.process(&files, loadingWheel: loadingWheel)
     }
     
     /**
@@ -291,11 +279,6 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         }
         self.navigationController?.show(playerVC, sender: self)
     }
-    
-    @IBAction func didPressShowSettings(_ sender: UIBarButtonItem) {
-        print("showing settings")
-    }
-    
 }
 
 extension ListBooksViewController: UITableViewDataSource {
