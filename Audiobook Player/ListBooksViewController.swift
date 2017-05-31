@@ -90,6 +90,9 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         //register for appDelegate openUrl notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.loadFiles), name: Notification.Name.AudiobookPlayer.openURL, object: nil)
         
+        //register for remote events
+        UIApplication.shared.beginReceivingRemoteControlEvents()
+        
         self.loadFiles()
     }
     
@@ -123,6 +126,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     deinit {
         //for iOS 8
         NotificationCenter.default.removeObserver(self)
+        UIApplication.shared.endReceivingRemoteControlEvents()
     }
     
     //Playback may be interrupted by calls. Handle pause
@@ -482,6 +486,43 @@ extension ListBooksViewController:UIDocumentPickerDelegate {
         }
         
         self.loadFiles()
+    }
+}
+
+extension ListBooksViewController {
+    override func remoteControlReceived(with event: UIEvent?) {
+        guard let event = event else {
+            return
+        }
+        
+        //TODO: after decoupling AVAudioPlayer from the PlayerViewController 
+        switch event.subtype {
+        case .remoteControlTogglePlayPause:
+            print("toggle play/pause")
+            
+        case .remoteControlBeginSeekingBackward:
+            print("seeking backward")
+        case .remoteControlEndSeekingBackward:
+            print("end seeking backward")
+        case .remoteControlBeginSeekingForward:
+            print("seeking forward")
+        case .remoteControlEndSeekingForward:
+            print("end seeking forward")
+        
+        case .remoteControlPause:
+            print("control pause")
+        case .remoteControlPlay:
+            print("control play")
+        case .remoteControlStop:
+            print("stop")
+            
+        case .remoteControlNextTrack:
+            print("next track")
+        case .remoteControlPreviousTrack:
+            print("previous track")
+        default:
+            print(event.description)
+        }
     }
 }
 
