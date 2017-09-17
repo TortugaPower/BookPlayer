@@ -13,7 +13,7 @@ class SpeedViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var vfxBackgroundView: UIVisualEffectView!
     
-    var speedArray:[Float] = [0.75, 1, 1.25, 1.5, 1.75]
+    var speedArray:[Float] = [0.75, 1, 1.25, 1.5, 1.75, 2.00, 2.25, 2.5]
     var currentSpeed:Float!
     
     override func viewDidLoad() {
