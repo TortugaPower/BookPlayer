@@ -145,11 +145,27 @@ class PlayerViewController: UIViewController {
         })
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        //set every modal to preserve current view context
-        let vc = segue.destination
-        vc.modalPresentationStyle = .overCurrentContext
+    @IBAction func presentMore(_ sender: UIButton) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let vc = storyboard.instantiateViewController(withIdentifier: "MoreViewController") as! MoreViewController
+        
+        self.presentModal(vc, animated: true, completion: nil)
     }
+    
+    @IBAction func presentChapter(_ sender: UIButton) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let vc = storyboard.instantiateViewController(withIdentifier: "ChaptersViewController") as! ChaptersViewController
+        
+        self.presentModal(vc, animated: true, completion: nil)
+    }
+    
+    @IBAction func presentSpeed(_ sender: UIButton) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let vc = storyboard.instantiateViewController(withIdentifier: "SpeedViewController") as! SpeedViewController
+        
+        self.presentModal(vc, animated: true, completion: nil)
+    }
+    
     
     @IBAction func didSelectChapter(_ segue:UIStoryboardSegue){
         
@@ -332,31 +348,30 @@ extension PlayerViewController: AVAudioPlayerDelegate {
         guard let userInfo = notification.userInfo,
             let fileURL = userInfo["fileURL"] as? URL,
             let timeText = userInfo["timeString"] as? String,
+            let percentage = userInfo["percentage"] as? Float,
             fileURL == self.currentBook.fileURL else {
             return
         }
         
         //update current time label
         self.currentTimeLabel.text = timeText
+        
+        //update book read percentage
+        self.sliderView.value = percentage
     }
     
     //percentage callback
     func updatePercentage(_ notification:Notification) {
         guard let userInfo = notification.userInfo,
-            let percentage = userInfo["percentage"] as? Float,
             let fileURL = userInfo["fileURL"] as? URL,
-            fileURL == self.currentBook.fileURL else {
+            fileURL == self.currentBook.fileURL,
+            let percentageString = userInfo["percentageString"] as? String,
+            let hasChapters = userInfo["hasChapters"] as? Bool,
+            !hasChapters else {
                 return
         }
         
-        //update book read percentage
-        self.sliderView.value = percentage
-        
-        //only update percentage if there are no chapters
-        if let percentageString = userInfo["percentageString"] as? String,
-            let hasChapters = userInfo["hasChapters"] as? Bool, !hasChapters {
-            self.percentageLabel.text = percentageString
-        }
+        self.percentageLabel.text = percentageString
     }
     
     func requestReview(){

@@ -10,7 +10,6 @@ import UIKit
 import MediaPlayer
 import Chameleon
 import MBProgressHUD
-import DeckTransition
 
 class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     
@@ -188,11 +187,9 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         
         guard let index = (self.bookArray.index { (book) -> Bool in
             return book.fileURL == fileURL
-        }) else {
+        }), let cell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView else {
             return
         }
-
-        let cell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as! BookCellView
 
         cell.completionLabel.text = percentageString
     }
@@ -288,12 +285,9 @@ extension ListBooksViewController: UITableViewDelegate {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let playerVC = storyboard.instantiateViewController(withIdentifier: "PlayerViewController") as! PlayerViewController
         playerVC.currentBook = book
-        let transitionDelegate = DeckTransitioningDelegate()
-        playerVC.transitioningDelegate = transitionDelegate
-        playerVC.modalPresentationStyle = .custom
         
         //show the current player
-        present(playerVC, animated: true) {
+        self.presentModal(playerVC, animated: true) {
             self.footerView.isHidden = false
             self.footerTitleLabel.text = title + " - " + author
             self.footerImageView.image = cell.artworkImageView.image

@@ -469,7 +469,7 @@
                                     <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 </state>
                                 <connections>
-                                    <segue destination="ubE-L5-gfk" kind="presentation" identifier="showSpeedSegue" id="Zqe-d0-4p3"/>
+                                    <action selector="presentSpeed:" destination="JEX-9P-axG" eventType="touchUpInside" id="Dzf-46-mcZ"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="I6W-6G-1Lz">
@@ -481,7 +481,7 @@
                                     <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 </state>
                                 <connections>
-                                    <segue destination="ftF-d7-Cal" kind="presentation" identifier="showChapterSegue" id="IHn-qH-Sq7"/>
+                                    <action selector="presentChapter:" destination="JEX-9P-axG" eventType="touchUpInside" id="RbM-Sn-Qt2"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JHJ-U2-q0F" userLabel="More Button">
@@ -492,7 +492,7 @@
                                 <inset key="contentEdgeInsets" minX="5" minY="10" maxX="5" maxY="10"/>
                                 <state key="normal" image="moreImage"/>
                                 <connections>
-                                    <segue destination="q6k-XR-Mqe" kind="presentation" identifier="showMoreSegue" id="4iY-1x-OG5"/>
+                                    <action selector="presentMore:" destination="JEX-9P-axG" eventType="touchUpInside" id="PCD-6X-NJg"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="o5L-ES-pPP" userLabel="Sleep Button">
@@ -580,6 +580,9 @@
                         <outlet property="speedButton" destination="qml-C5-mHf" id="cv1-BP-eXX"/>
                         <outlet property="timeSeparator" destination="mgG-dL-P0p" id="T3R-ei-bOV"/>
                         <outlet property="titleLabel" destination="2KB-bk-jYi" id="Ycp-la-9ZX"/>
+                        <segue destination="q6k-XR-Mqe" kind="presentation" identifier="showMoreSegue" id="sYS-Ax-LX7"/>
+                        <segue destination="ftF-d7-Cal" kind="presentation" identifier="showChapterSegue" id="jCX-Kc-yPB"/>
+                        <segue destination="ubE-L5-gfk" kind="presentation" identifier="showSpeedSegue" id="BZT-8z-fw1"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FJe-Yq-33r" sceneMemberID="firstResponder"/>
@@ -725,9 +728,9 @@
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                             </view>
                             <navigationBar contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="DQn-ea-oCI">
-                                <rect key="frame" x="0.0" y="0.0" width="600" height="64"/>
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="64" id="a5u-Cc-ZD5"/>
+                                    <constraint firstAttribute="height" constant="44" id="a5u-Cc-ZD5"/>
                                 </constraints>
                                 <items>
                                     <navigationItem title="Narration Speed" id="qqG-J7-Pmy">
@@ -740,7 +743,7 @@
                                 </items>
                             </navigationBar>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="cp6-dC-BsU">
-                                <rect key="frame" x="0.0" y="64" width="600" height="536"/>
+                                <rect key="frame" x="0.0" y="44" width="600" height="556"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="SpeedViewCell" textLabel="diL-Ht-rCA" style="IBUITableViewCellStyleDefault" id="CF9-Pr-16C">
@@ -813,9 +816,9 @@
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                             </view>
                             <navigationBar contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1L4-ko-bP5">
-                                <rect key="frame" x="0.0" y="0.0" width="600" height="64"/>
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="64" id="nQx-ub-6D8"/>
+                                    <constraint firstAttribute="height" constant="44" id="nQx-ub-6D8"/>
                                 </constraints>
                                 <items>
                                     <navigationItem title="Chapters" id="vLa-pO-TaR">
@@ -828,7 +831,7 @@
                                 </items>
                             </navigationBar>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="RGQ-wq-bQY">
-                                <rect key="frame" x="0.0" y="64" width="600" height="536"/>
+                                <rect key="frame" x="0.0" y="44" width="600" height="556"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" restorationIdentifier="ChapterViewCell" selectionStyle="default" indentationWidth="10" reuseIdentifier="ChapterViewCell" id="Tvh-ek-HpW" customClass="ChapterViewCell" customModule="Audiobook_Player" customModuleProvider="target">
@@ -921,9 +924,9 @@
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                             </view>
                             <navigationBar contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Onl-Ec-Xf8">
-                                <rect key="frame" x="0.0" y="0.0" width="600" height="64"/>
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="64" id="ToR-eN-uOG"/>
+                                    <constraint firstAttribute="height" constant="44" id="ToR-eN-uOG"/>
                                 </constraints>
                                 <items>
                                     <navigationItem title="More" id="GAk-Eo-8rJ">
@@ -936,7 +939,7 @@
                                 </items>
                             </navigationBar>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="l0L-ug-vfg">
-                                <rect key="frame" x="0.0" y="64" width="600" height="536"/>
+                                <rect key="frame" x="0.0" y="44" width="600" height="556"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="MoreViewCell" textLabel="kec-im-6Ou" style="IBUITableViewCellStyleDefault" id="fd7-y4-KCO">
