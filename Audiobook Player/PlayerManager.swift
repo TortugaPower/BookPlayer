@@ -269,7 +269,7 @@ extension PlayerManager: AVAudioPlayerDelegate {
         try! AVAudioSession.sharedInstance().setActive(true)
         
         //if book is completed, reset to start
-        if audioplayer.duration == audioplayer.currentTime {
+        if Int(audioplayer.duration) == Int(audioplayer.currentTime) {
             audioplayer.currentTime = 0
         }
         
