@@ -7,6 +7,21 @@
 //
 
 import Foundation
+import AVFoundation
+import UIKit
+
+struct Book {
+    var identifier: String {
+        get {
+            return self.fileURL.lastPathComponent
+        }
+    }
+    var title: String
+    var author: String
+    var artwork: UIImage
+    var asset: AVAsset
+    var fileURL: URL
+}
 
 class DataManager {
     
@@ -30,6 +45,57 @@ class DataManager {
         return urlArray
     }
     
+    /**
+     *  Load local files and process them (rename them if necessary)
+     *  Spaces in file names can cause side effects when trying to load the data
+     */
+    class func loadBooks(completion:@escaping ([Book]) -> Void) {
+        var books = [Book]()
+        //get reference of all the files located inside the Documents folder
+        guard let urls = DataManager.getLocalFilesURL() else {
+            return completion(books)
+        }
+        
+        DispatchQueue.global().async {
+            //iterate and process files
+            self.process(urls, books: &books)
+            
+            DispatchQueue.main.async {
+                completion(books)
+            }
+        }
+    }
+    
+    class func process(_ urls: [URL], books:inout [Book]){
+        
+        for fileURL in urls {
+            
+            //if file already in list, skip to next one
+            if books.contains(where: { $0.fileURL == fileURL }) {
+                continue
+            }
+            
+            //autoreleasepool needed to avoid OOM crashes from the file manager
+            autoreleasepool { () -> () in
+                let asset = AVAsset(url: fileURL)
+                
+                let title = (AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataCommonKeyTitle, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String ?? fileURL.lastPathComponent).replacingOccurrences(of: " ", with: "_")
+                
+                let author = (AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataCommonKeyArtist, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String ?? "Unknown Author").replacingOccurrences(of: " ", with: "_")
+                
+                var bookCover:UIImage!
+                if let artwork = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataCommonKeyArtwork, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? Data {
+                    bookCover = UIImage(data: artwork)
+                }else{
+                    bookCover = UIImage()
+                }
+                
+                let book = Book(title: title, author: author, artwork: bookCover, asset: asset, fileURL: fileURL)
+                books.append(book)
+            }
+        }
+    }
+    
     class func process(_ files:inout [String], urls:inout [URL]){
         if files.count == 0 {
             return
@@ -50,7 +116,6 @@ class DataManager {
         //append if file isn't in list
         if !urls.contains(fileURL) {
             urls.append(fileURL)
-            
         }
         
         return self.process(&files, urls: &urls)
