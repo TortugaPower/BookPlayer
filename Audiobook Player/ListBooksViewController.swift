@@ -10,6 +10,7 @@ import UIKit
 import MediaPlayer
 import Chameleon
 import MBProgressHUD
+import DeckTransition
 
 class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     
@@ -86,36 +87,14 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         //register for percentage change notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.updatePercentage(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
         
+        //register for book end notifications
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookEnd(_:)), name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
+        
         //register for remote events
         UIApplication.shared.beginReceivingRemoteControlEvents()
         
         self.loadFiles()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        //show navigation bar for this controller
-        self.navigationController?.setNavigationBarHidden(false, animated: true)
-        
-        //check if audiobook is loaded
-        
-        guard PlayerManager.sharedInstance.isLoaded() else {
-            self.footerHeightConstraint.constant = 0
-            return
-        }
-        
-        //resize footer view
-        self.footerHeightConstraint.constant = 55
-        
-        self.setPlayImage()
-        
-        //reload selected cell to show accurate percentage label
-        guard let index = self.tableView.indexPathForSelectedRow else {
-            return
-        }
-        
-        self.tableView.reloadRows(at: [index], with: .automatic)
+        self.footerHeightConstraint.constant = 0
     }
     
     //no longer need to deregister observers for iOS 9+!
@@ -168,10 +147,6 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         }
     }
     
-    override var prefersStatusBarHidden : Bool {
-        return false
-    }
-    
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         if(navigationController!.viewControllers.count > 1){
             return true
@@ -219,6 +194,10 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         let cell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as! BookCellView
 
         cell.completionLabel.text = percentageString
+    }
+    
+    func bookEnd(_ notification:Notification) {
+        self.setPlayImage()
     }
 }
 
@@ -308,13 +287,18 @@ extension ListBooksViewController: UITableViewDelegate {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let playerVC = storyboard.instantiateViewController(withIdentifier: "PlayerViewController") as! PlayerViewController
         playerVC.currentBook = book
-        
-        self.footerView.isHidden = false
-        self.footerTitleLabel.text = title + " - " + author
-        self.footerImageView.image = cell.artworkImageView.image
+        let transitionDelegate = DeckTransitioningDelegate()
+        playerVC.transitioningDelegate = transitionDelegate
+        playerVC.modalPresentationStyle = .custom
         
         //show the current player
-        self.navigationController?.pushViewController(playerVC, animated: true)
+        present(playerVC, animated: true) {
+            self.footerView.isHidden = false
+            self.footerTitleLabel.text = title + " - " + author
+            self.footerImageView.image = cell.artworkImageView.image
+            self.footerHeightConstraint.constant = 55
+            self.setPlayImage()
+        }
     }
 }
 

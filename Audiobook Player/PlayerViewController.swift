@@ -64,6 +64,8 @@ class PlayerViewController: UIViewController {
         self.speedButton.setTitleColor(UIColor.flatGray(), for: .disabled)
         self.sleepButton.tintColor = UIColor.white
         
+        modalPresentationCapturesStatusBarAppearance = true
+        
         self.setStatusBarStyle(UIStatusBarStyleContrast)
         
         //register for appDelegate requestReview notifications
@@ -126,12 +128,6 @@ class PlayerViewController: UIViewController {
             //enable/disable chapters button
             self.chaptersButton.isEnabled = !PlayerManager.sharedInstance.chapterArray.isEmpty
         }
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        //hide navigation bar for this controller
-        self.navigationController?.setNavigationBarHidden(true, animated: true)
     }
     
     //Resize sleep button on orientation transition
@@ -301,10 +297,6 @@ class PlayerViewController: UIViewController {
             }
         }
         UserDefaults.standard.set(newTime , forKey: "sleep_timer")
-    }
-    
-    override var prefersStatusBarHidden : Bool {
-        return true
     }
     
     override var preferredStatusBarUpdateAnimation : UIStatusBarAnimation {

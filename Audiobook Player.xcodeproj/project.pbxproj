@@ -137,6 +137,7 @@
 			isa = PBXGroup;
 			children = (
 				419196341D47CC4E007A3AF3 /* Audiobook Player.entitlements */,
+				41B955461F9E5E4E000C9231 /* Managers */,
 				416B640B1E72F328000E955A /* Controllers */,
 				416B640C1E72F362000E955A /* Extensions.swift */,
 				418B6CFB1D2707F800F974FB /* AppDelegate.swift */,
@@ -144,8 +145,6 @@
 				418B6D041D2707F800F974FB /* Assets.xcassets */,
 				418B6D061D2707F800F974FB /* LaunchScreen.storyboard */,
 				418B6D091D2707F800F974FB /* Info.plist */,
-				410D0FF01EDF659900A52EB9 /* PlayerManager.swift */,
-				410D0FEE1EDDBC3300A52EB9 /* DataManager.swift */,
 			);
 			path = "Audiobook Player";
 			sourceTree = "<group>";
@@ -179,6 +178,15 @@
 				41B2AC911D441627005382A9 /* MoreViewController.swift */,
 			);
 			name = "Player Modals";
+			sourceTree = "<group>";
+		};
+		41B955461F9E5E4E000C9231 /* Managers */ = {
+			isa = PBXGroup;
+			children = (
+				410D0FF01EDF659900A52EB9 /* PlayerManager.swift */,
+				410D0FEE1EDDBC3300A52EB9 /* DataManager.swift */,
+			);
+			name = Managers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
