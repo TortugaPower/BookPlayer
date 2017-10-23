@@ -70,6 +70,7 @@ class PlayerViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: Notification.Name.AudiobookPlayer.requestReview, object: nil)
         //register for timer update
         NotificationCenter.default.addObserver(self, selector: #selector(self.updateTimer(_:)), name: Notification.Name.AudiobookPlayer.updateTimer, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.updatePercentage(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.updateCurrentChapter(_:)), name: Notification.Name.AudiobookPlayer.updateChapter, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookReady), name: Notification.Name.AudiobookPlayer.bookReady, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookEnd), name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
@@ -339,14 +340,23 @@ extension PlayerViewController: AVAudioPlayerDelegate {
         guard let userInfo = notification.userInfo,
             let fileURL = userInfo["fileURL"] as? URL,
             let timeText = userInfo["timeString"] as? String,
-            let percentage = userInfo["percentage"] as? Float,
             fileURL == self.currentBook.fileURL else {
             return
         }
         
         //update current time label
         self.currentTimeLabel.text = timeText
-
+    }
+    
+    //percentage callback
+    func updatePercentage(_ notification:Notification) {
+        guard let userInfo = notification.userInfo,
+            let percentage = userInfo["percentage"] as? Float,
+            let fileURL = userInfo["fileURL"] as? URL,
+            fileURL == self.currentBook.fileURL else {
+                return
+        }
+        
         //update book read percentage
         self.sliderView.value = percentage
         

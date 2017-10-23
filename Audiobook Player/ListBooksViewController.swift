@@ -83,6 +83,9 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         //register for appDelegate openUrl notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.loadFiles), name: Notification.Name.AudiobookPlayer.openURL, object: nil)
         
+        //register for percentage change notifications
+        NotificationCenter.default.addObserver(self, selector: #selector(self.updatePercentage(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
+        
         //register for remote events
         UIApplication.shared.beginReceivingRemoteControlEvents()
         
@@ -197,6 +200,25 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
 //            return
 //        }
 //        self.navigationController?.show(playerVC, sender: self)
+    }
+    
+    //percentage callback
+    func updatePercentage(_ notification:Notification) {
+        guard let userInfo = notification.userInfo,
+            let fileURL = userInfo["fileURL"] as? URL,
+            let percentageString = userInfo["percentageString"] as? String else {
+                return
+        }
+        
+        guard let index = (self.bookArray.index { (book) -> Bool in
+            return book.fileURL == fileURL
+        }) else {
+            return
+        }
+
+        let cell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as! BookCellView
+
+        cell.completionLabel.text = percentageString
     }
 }
 

@@ -162,14 +162,9 @@ class PlayerManager: NSObject {
                 
                 //update UI if needed and set player to stored time
                 if currentTime > 0 {
-                    let formattedCurrentTime = self.formatTime(currentTime)
-                    //notify
-                    
                     audioplayer.currentTime = TimeInterval(currentTime)
                 }
                 
-                //update max duration label of book
-                let maxDuration = Int(audioplayer.duration)
                 //notify
                 self.updateCurrentChapter()
                 
@@ -306,13 +301,25 @@ extension PlayerManager: AVAudioPlayerDelegate {
         //update current time label
         let timeText = self.formatTime(currentTime)
         
+        let storedPercentage = UserDefaults.standard.string(forKey: self.identifier+"_percentage") ?? "0%"
+        
         //calculate book read percentage based on current time
         let percentage = (Float(currentTime) / Float(audioplayer.duration)) * 100
         let percentageString = String(Int(ceil(percentage)))+"%"
-        //notify
         
-        //FIXME: this should only be updated when there's change to current percentage
-        UserDefaults.standard.set(percentageString, forKey: self.identifier+"_percentage")
+        let userInfo = ["time":currentTime,
+                        "timeString":timeText,
+                        "percentage":percentage,
+                        "percentageString":percentageString,
+                        "hasChapters":!self.chapterArray.isEmpty,
+                        "fileURL":self.currentBook.fileURL] as [String : Any]
+        
+        //notify percentage
+        if storedPercentage != percentageString {
+            UserDefaults.standard.set(percentageString, forKey: self.identifier+"_percentage")
+            
+            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil, userInfo: userInfo)
+        }
         
         //update chapter
         self.updateCurrentChapter()
@@ -328,12 +335,7 @@ extension PlayerManager: AVAudioPlayerDelegate {
             NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
         }
         
-        let userInfo = ["time":currentTime,
-                        "timeString":timeText,
-                        "percentage":percentage,
-                        "percentageString":percentageString,
-                        "hasChapters":!self.chapterArray.isEmpty,
-                        "fileURL":self.currentBook.fileURL] as [String : Any]
+        
         
         //notify
         NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.updateTimer, object: nil, userInfo: userInfo)
