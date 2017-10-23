@@ -51,6 +51,12 @@ extension Notification.Name {
     public struct AudiobookPlayer {
         public static let openURL = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.openurl")
         public static let requestReview = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.requestreview")
+        public static let updateTimer = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.book.timer")
+        public static let updateChapter = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.book.chapter")
+        public static let errorLoadingBook = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.book.error")
+        public static let bookReady = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.book.ready")
+        public static let playBook = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.book.play")
+        public static let bookEnd = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.book.end")
     }
 }
 

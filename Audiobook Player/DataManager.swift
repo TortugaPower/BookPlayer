@@ -16,6 +16,13 @@ struct Book {
             return self.fileURL.lastPathComponent
         }
     }
+    
+    var duration: Int {
+        get {
+            return Int(CMTimeGetSeconds(self.asset.duration))
+        }
+    }
+    
     var title: String
     var author: String
     var artwork: UIImage
