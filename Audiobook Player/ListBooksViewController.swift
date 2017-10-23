@@ -171,10 +171,11 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @IBAction func didPressShowDetail(_ sender: UIButton) {
-//        guard let playerVC = self.playerViewController else {
-//            return
-//        }
-//        self.navigationController?.show(playerVC, sender: self)
+        guard let indexPath = self.tableView.indexPathForSelectedRow else {
+            return
+        }
+        
+        self.tableView(self.tableView, didSelectRowAt: indexPath)
     }
     
     //percentage callback
