@@ -25,6 +25,8 @@
 		41B2AC8E1D43CCE8005382A9 /* ChaptersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */; };
 		41B2AC901D43CD2F005382A9 /* SpeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2AC8F1D43CD2F005382A9 /* SpeedViewController.swift */; };
 		41B2AC921D441627005382A9 /* MoreViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2AC911D441627005382A9 /* MoreViewController.swift */; };
+		41B9553E1F9E5149000C9231 /* DeckTransition.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41B9553D1F9E5149000C9231 /* DeckTransition.framework */; };
+		41B955441F9E552A000C9231 /* DeckTransition.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 41B9553D1F9E5149000C9231 /* DeckTransition.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +38,20 @@
 			remoteInfo = "Audiobook Player";
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		41B955451F9E552B000C9231 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				41B955441F9E552A000C9231 /* DeckTransition.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		410D0FEC1EDCF4B000A52EB9 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
@@ -61,6 +77,7 @@
 		41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChaptersViewController.swift; sourceTree = "<group>"; };
 		41B2AC8F1D43CD2F005382A9 /* SpeedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpeedViewController.swift; sourceTree = "<group>"; };
 		41B2AC911D441627005382A9 /* MoreViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MoreViewController.swift; sourceTree = "<group>"; };
+		41B9553D1F9E5149000C9231 /* DeckTransition.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DeckTransition.framework; path = Carthage/Build/iOS/DeckTransition.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +85,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				41B9553E1F9E5149000C9231 /* DeckTransition.framework in Frameworks */,
 				413616441D30115700E48944 /* Chameleon.framework in Frameworks */,
 				41AB1C131D30298800AC1AA0 /* MBProgressHUD.framework in Frameworks */,
 				412451841D489204008AC0E5 /* Crashlytics.framework in Frameworks */,
@@ -144,6 +162,7 @@
 		41AABFFA1E705D18006BD2E0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				41B9553D1F9E5149000C9231 /* DeckTransition.framework */,
 				412451811D489204008AC0E5 /* Fabric.framework */,
 				412451821D489204008AC0E5 /* Crashlytics.framework */,
 				41AB1C121D30298800AC1AA0 /* MBProgressHUD.framework */,
@@ -174,6 +193,7 @@
 				418B6CF61D2707F800F974FB /* Resources */,
 				413616421D30100100E48944 /* ShellScript */,
 				412451801D4891EF008AC0E5 /* ShellScript */,
+				41B955451F9E552B000C9231 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
