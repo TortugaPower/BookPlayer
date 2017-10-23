@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import AVFoundation
 import MediaPlayer
 import Chameleon
 import MBProgressHUD
@@ -27,14 +26,8 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     let miniPlayImage = UIImage(named: "miniPlayButton")
     let miniPauseButton = UIImage(named: "miniPauseButton")
     
-    //keep reference to player to know if there's an book loaded
-    var playerViewController:PlayerViewController?
-    
-    var listBooks:[String] = []
-    
-    //TableView's datasource Array of tuples:(identifier, item)
-    var itemArray:[(String, AVPlayerItem)] = []
-    var urlArray:[URL] = []
+    //TableView's datasource
+    var bookArray = [Book]()
     //keep in memory current Documents folder
     let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
     
@@ -103,7 +96,8 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         self.navigationController?.setNavigationBarHidden(false, animated: true)
         
         //check if audiobook is loaded
-        guard let _ = self.playerViewController else {
+        
+        guard PlayerManager.sharedInstance.isLoaded() else {
             self.footerHeightConstraint.constant = 0
             return
         }
@@ -131,7 +125,8 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     
     //Playback may be interrupted by calls. Handle pause
     func handleAudioInterruptions(_ notification:Notification){
-        guard let playerVC = self.playerViewController, let audioPlayer = playerVC.audioPlayer else {
+        
+        guard let audioPlayer = PlayerManager.sharedInstance.audioPlayer else {
             return
         }
         if audioPlayer.isPlaying {
@@ -148,72 +143,13 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         let loadingWheel = MBProgressHUD.showAdded(to: self.view, animated: true)
         loadingWheel?.labelText = "Loading Books"
         
-        
-        
-        //get reference of all the files located inside the Documents folder
-        guard let urls = DataManager.getLocalFilesURL() else {
-            return
-        }
-        
-        //iterate and process files
-        
-        DispatchQueue.global().async {
-            self.process(urls, loadingWheel: loadingWheel!)
-            DispatchQueue.main.async {
-                self.refreshControl.endRefreshing()
-                MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
-            }
-        }
-    }
-    
-    func process(_ urls: [URL], loadingWheel: MBProgressHUD){
-        
-        for fileURL in urls {
-            loadingWheel.detailsLabelText = fileURL.lastPathComponent
+        DataManager.loadBooks { (books) in
+            self.bookArray = books
+            self.refreshControl.endRefreshing()
+            MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
             
-            //if file already in list, skip to next one
-            if self.urlArray.contains(fileURL) {
-                continue
-            }
-            
-            //autoreleasepool needed to avoid OOM crashes from the file manager
-            autoreleasepool { () -> () in
-                let hash = fileURL.lastPathComponent
-                
-                //NOTE: AVPlayerItem from URL might not be ready right away,
-                //		it might be better to create it from a AVAsset
-                //create AVPlayerItem to better access each files' metadata
-                let item = AVPlayerItem(url: fileURL)
-                self.itemArray.append((hash, item))
-                self.urlArray.append(fileURL)
-                
-                //migrate keys
-                let title = (AVMetadataItem.metadataItems(from: item.asset.metadata, withKey: AVMetadataCommonKeyTitle, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String ?? "Unknown Book").replacingOccurrences(of: " ", with: "_")
-                
-                let author = (AVMetadataItem.metadataItems(from: item.asset.metadata, withKey: AVMetadataCommonKeyArtist, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String ?? "Unknown Author").replacingOccurrences(of: " ", with: "_")
-                
-                let identifier = title+author
-                
-                let storedTime = UserDefaults.standard.integer(forKey: hash) // 0 for nil
-                let currentTime = UserDefaults.standard.integer(forKey: identifier)
-                
-                if storedTime == 0 && currentTime != 0 {
-                    //store values in new key
-                    UserDefaults.standard.set(currentTime, forKey: hash)
-                    //remove previous values
-                    UserDefaults.standard.removeObject(forKey: identifier)
-                }
-                
-                if let currentPercentage = UserDefaults.standard.string(forKey: identifier+"_percentage") {
-                    UserDefaults.standard.set(currentPercentage, forKey: hash+"_percentage")
-                    UserDefaults.standard.removeObject(forKey: identifier+"_percentage")
-                }
-            }
-        }
-        
-        DispatchQueue.main.async {
             //show/hide instructions view
-            self.emptyListContainerView.isHidden = self.itemArray.count > 0 ? true : false
+            self.emptyListContainerView.isHidden = !self.bookArray.isEmpty
             self.tableView.reloadData()
         }
     }
@@ -222,12 +158,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
      * Set play or pause image on button
      */
     func setPlayImage(){
-        guard let playerVC = self.playerViewController, let audioPlayer = playerVC.audioPlayer else{
-            self.footerPlayButton.setImage(self.miniPlayImage, for: UIControlState())
-            return
-        }
-        
-        if audioPlayer.isPlaying {
+        if PlayerManager.sharedInstance.isPlaying() {
             self.footerPlayButton.setImage(self.miniPauseButton, for: UIControlState())
         }else{
             self.footerPlayButton.setImage(self.miniPlayImage, for: UIControlState())
@@ -249,73 +180,45 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @IBAction func didPressPlay(_ sender: UIButton) {
-        //check if audiobook is loaded
-        guard let playerVC = self.playerViewController else {
-            return
-        }
-        
-        playerVC.playPressed(playerVC.playButton)
-        
+        PlayerManager.sharedInstance.playPressed()
         self.setPlayImage()
     }
     
     func forwardPressed(_ sender: UIButton) {
-        //check if audiobook is loaded
-        guard let playerVC = self.playerViewController else {
-            return
-        }
-        
-        playerVC.forwardPressed(sender)
+        PlayerManager.sharedInstance.forwardPressed()
     }
     
     func rewindPressed(_ sender: UIButton) {
-        //check if audiobook is loaded
-        guard let playerVC = self.playerViewController else {
-            return
-        }
-        
-        playerVC.rewindPressed(sender)
+        PlayerManager.sharedInstance.rewindPressed()
     }
     
     @IBAction func didPressShowDetail(_ sender: UIButton) {
-        guard let playerVC = self.playerViewController else {
-            return
-        }
-        self.navigationController?.show(playerVC, sender: self)
+//        guard let playerVC = self.playerViewController else {
+//            return
+//        }
+//        self.navigationController?.show(playerVC, sender: self)
     }
 }
 
 extension ListBooksViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.itemArray.count
+        return self.bookArray.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "BookCellView", for: indexPath) as! BookCellView
         
-        let item = self.itemArray[indexPath.row].1
-
-        // use the file name if the title can't be read from metadata
-        let alternateTitle = self.urlArray[indexPath.row].lastPathComponent
+        let book = self.bookArray[indexPath.row]
         
-        cell.titleLabel.text = AVMetadataItem.metadataItems(from: item.asset.metadata, withKey: AVMetadataCommonKeyTitle, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String ?? alternateTitle
-
+        cell.titleLabel.text = book.title
         cell.titleLabel.highlightedTextColor = UIColor.black
-        
-        cell.authorLabel.text = AVMetadataItem.metadataItems(from: item.asset.metadata, withKey: AVMetadataCommonKeyArtist, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String ?? "Unknown Author"
-        
-        var defaultImage:UIImage!
-        if let artwork = AVMetadataItem.metadataItems(from: item.asset.metadata, withKey: AVMetadataCommonKeyArtwork, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? Data {
-            defaultImage = UIImage(data: artwork)
-        }else{
-            defaultImage = UIImage()
-        }
+        cell.authorLabel.text = book.author
         
         //NOTE: we should have a default image for artwork
-        cell.artworkImageView.image = defaultImage
+        cell.artworkImageView.image = book.artwork
         
         //load stored percentage value
-        cell.completionLabel.text = UserDefaults.standard.string(forKey: self.itemArray[indexPath.row].0+"_percentage") ?? "0%"
+        cell.completionLabel.text = UserDefaults.standard.string(forKey: self.bookArray[indexPath.row].identifier + "_percentage") ?? "0%"
         cell.completionLabel.textColor = UIColor.flatGreenColorDark()
         
         return cell
@@ -336,15 +239,14 @@ extension ListBooksViewController: UITableViewDelegate {
                 tableView.setEditing(false, animated: true)
             }))
             alert.addAction(UIAlertAction(title: "Yes", style: .destructive, handler: { action in
-                self.itemArray.remove(at: indexPath.row)
-                let url = self.urlArray.remove(at: indexPath.row)
-                try! FileManager.default.removeItem(at: url)
+                let book = self.bookArray.remove(at: indexPath.row)
+                try! FileManager.default.removeItem(at: book.fileURL)
                 
                 tableView.beginUpdates()
                 tableView.deleteRows(at: [indexPath], with: .none)
                 tableView.endUpdates()
                 
-                self.emptyListContainerView.isHidden = self.itemArray.count > 0 ? true : false
+                self.emptyListContainerView.isHidden = !self.bookArray.isEmpty
             }))
             
             alert.popoverPresentationController?.sourceView = self.view
@@ -375,48 +277,22 @@ extension ListBooksViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
-        let item = self.itemArray[indexPath.row]
-        let url = self.urlArray[indexPath.row]
+        let book = self.bookArray[indexPath.row]
         let cell = tableView.cellForRow(at: indexPath) as! BookCellView
         
-        guard let playerVC = self.playerViewController, let audioPlayer = playerVC.audioPlayer else {
-            //create new player
-            self.loadPlayer(item, url: url, cell: cell, indexPath: indexPath)
-            return
-        }
-        
-        //check if player is for a different book
-        if playerVC.playerItem != item.1 {
-            audioPlayer.stop()
-            //replace player with new one
-            self.loadPlayer(item, url: url, cell: cell, indexPath: indexPath)
-            return
-        }
-        
-        //show the current player
-        self.navigationController?.pushViewController(playerVC, animated: true)
-    }
-    
-    func loadPlayer(_ item:(String, AVPlayerItem), url:URL, cell:BookCellView, indexPath:IndexPath) {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        self.playerViewController = storyboard.instantiateViewController(withIdentifier: "PlayerViewController") as? PlayerViewController
-        
-        self.playerViewController?.identifier = item.0
-        self.playerViewController?.playerItem = item.1
-        
-        let url = self.urlArray[indexPath.row]
-        self.playerViewController!.fileURL = url
-        
-        let title = cell.titleLabel.text ?? "Unknown Book"
+        let title = cell.titleLabel.text ?? book.fileURL.lastPathComponent
         let author = cell.authorLabel.text ?? "Unknown Author"
         
-        self.footerView.isHidden = false
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let playerVC = storyboard.instantiateViewController(withIdentifier: "PlayerViewController") as! PlayerViewController
+        playerVC.currentBook = book
         
+        self.footerView.isHidden = false
         self.footerTitleLabel.text = title + " - " + author
         self.footerImageView.image = cell.artworkImageView.image
         
-        self.navigationController?.pushViewController(self.playerViewController!, animated: true)
+        //show the current player
+        self.navigationController?.pushViewController(playerVC, animated: true)
     }
 }
 

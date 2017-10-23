@@ -26,6 +26,10 @@ class ChaptersViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.vfxBackgroundView.effect = UIBlurEffect(style: .light)
+        
+        self.currentChapter = PlayerManager.sharedInstance.currentChapter
+        self.chapterArray = PlayerManager.sharedInstance.chapterArray
+        
         self.tableView.tableFooterView = UIView()
         self.tableView.reloadData()
     }

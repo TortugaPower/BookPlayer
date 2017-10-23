@@ -19,6 +19,7 @@ class SpeedViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.vfxBackgroundView.effect = UIBlurEffect(style: .light)
+        self.currentSpeed = PlayerManager.sharedInstance.currentSpeed
         self.tableView.tableFooterView = UIView()
     }
     
