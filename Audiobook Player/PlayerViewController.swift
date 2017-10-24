@@ -78,7 +78,7 @@ class PlayerViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookEnd), name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
 
         //set initial state for slider
-        self.sliderView.setThumbImage(UIImage(), for: UIControlState())
+        self.sliderView.addTarget(self, action: #selector(sliderChanged(_:)), for: .valueChanged)
         self.sliderView.tintColor = UIColor.flatLimeColorDark()
         self.sliderView.maximumValue = 100
         self.sliderView.value = 0
@@ -149,6 +149,14 @@ class PlayerViewController: UIViewController {
             }
             
         })
+    }
+    
+    func sliderChanged(_ sender: UISlider) {
+        let percentage = sender.value / sender.maximumValue
+        
+        if let audioPlayer = PlayerManager.sharedInstance.audioPlayer {
+            audioPlayer.currentTime = TimeInterval(percentage) * audioPlayer.duration
+        }
     }
     
     @IBAction func presentMore(_ sender: UIButton) {
