@@ -161,7 +161,7 @@ class PlayerViewController: UIViewController {
         })
     }
     
-    func sliderChanged(_ sender: UISlider) {
+    @objc func sliderChanged(_ sender: UISlider) {
         let percentage = sender.value / sender.maximumValue
         
         if let audioPlayer = PlayerManager.sharedInstance.audioPlayer {
@@ -307,7 +307,7 @@ class PlayerViewController: UIViewController {
         }
     }
     
-    func updateSleepTimer(){
+    @objc func updateSleepTimer(){
         
         guard PlayerManager.sharedInstance.isLoaded() else {
             //kill timer
@@ -368,7 +368,7 @@ extension PlayerViewController: AVAudioPlayerDelegate {
     }
     
     //timer callback (called every second)
-    func updateTimer(_ notification:Notification) {
+    @objc func updateTimer(_ notification:Notification) {
         guard let userInfo = notification.userInfo,
             let fileURL = userInfo["fileURL"] as? URL,
             let timeText = userInfo["timeString"] as? String,
@@ -385,7 +385,7 @@ extension PlayerViewController: AVAudioPlayerDelegate {
     }
     
     //percentage callback
-    func updatePercentage(_ notification:Notification) {
+    @objc func updatePercentage(_ notification:Notification) {
         guard let userInfo = notification.userInfo,
             let fileURL = userInfo["fileURL"] as? URL,
             fileURL == self.currentBook.fileURL,
@@ -398,7 +398,7 @@ extension PlayerViewController: AVAudioPlayerDelegate {
         self.percentageLabel.text = percentageString
     }
     
-    func requestReview(){
+    @objc func requestReview(){
         //don't do anything if flag isn't true
         guard UserDefaults.standard.bool(forKey: "ask_review") else {
             return
@@ -412,7 +412,7 @@ extension PlayerViewController: AVAudioPlayerDelegate {
         }
     }
     
-    func bookReady(){
+    @objc func bookReady(){
         MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
         
         if PlayerManager.sharedInstance.isPlaying() {
@@ -424,12 +424,12 @@ extension PlayerViewController: AVAudioPlayerDelegate {
         PlayerManager.sharedInstance.playPressed()
     }
     
-    func bookEnd() {
+    @objc func bookEnd() {
         self.playButton.setImage(self.playImage, for: UIControlState())
         self.requestReview()
     }
     
-    func updateCurrentChapter(_ notification:Notification) {
+    @objc func updateCurrentChapter(_ notification:Notification) {
         guard let userInfo = notification.userInfo,
             let fileURL = userInfo["fileURL"] as? URL,
             let chapterString = userInfo["chapterString"] as? String,

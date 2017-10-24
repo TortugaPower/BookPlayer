@@ -87,12 +87,12 @@ class DataManager {
             autoreleasepool { () -> () in
                 let asset = AVAsset(url: fileURL)
                 
-                let title = (AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataCommonKeyTitle, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String ?? fileURL.lastPathComponent).replacingOccurrences(of: " ", with: "_")
+                let title = (AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyTitle, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String ?? fileURL.lastPathComponent).replacingOccurrences(of: " ", with: "_")
                 
-                let author = (AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataCommonKeyArtist, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String ?? "Unknown Author").replacingOccurrences(of: " ", with: "_")
+                let author = (AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtist, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String ?? "Unknown Author").replacingOccurrences(of: " ", with: "_")
                 
                 var bookCover:UIImage!
-                if let artwork = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataCommonKeyArtwork, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? Data {
+                if let artwork = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtwork, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? Data {
                     bookCover = UIImage(data: artwork)
                 }else{
                     bookCover = UIImage()

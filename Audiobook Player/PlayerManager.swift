@@ -117,11 +117,11 @@ class PlayerManager: NSObject {
             
             let locales = self.playerItem.asset.availableChapterLocales
             for locale in locales {
-                let chapters = self.playerItem.asset.chapterMetadataGroups(withTitleLocale: locale, containingItemsWithCommonKeys: [AVMetadataCommonKeyArtwork])
+                let chapters = self.playerItem.asset.chapterMetadataGroups(withTitleLocale: locale, containingItemsWithCommonKeys: [AVMetadataKey.commonKeyArtwork])
                 
                 for chapterMetadata in chapters {
                     
-                    let chapter = Chapter(title: AVMetadataItem.metadataItems(from: chapterMetadata.items, withKey: AVMetadataCommonKeyTitle, keySpace: AVMetadataKeySpaceCommon).first?.value?.copy(with: nil) as? String ?? "Chapter \(chapterIndex)",
+                    let chapter = Chapter(title: AVMetadataItem.metadataItems(from: chapterMetadata.items, withKey: AVMetadataKey.commonKeyTitle, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String ?? "Chapter \(chapterIndex)",
                         start: Int(CMTimeGetSeconds(chapterMetadata.timeRange.start)),
                         duration: Int(CMTimeGetSeconds(chapterMetadata.timeRange.duration)),
                         index: chapterIndex)
@@ -286,7 +286,7 @@ extension PlayerManager: AVAudioPlayerDelegate {
     }
     
     //timer callback (called every second)
-    func updateTimer() {
+    @objc func updateTimer() {
         guard let audioplayer = self.audioPlayer else {
             return
         }

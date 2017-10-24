@@ -105,7 +105,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     //Playback may be interrupted by calls. Handle pause
-    func handleAudioInterruptions(_ notification:Notification){
+    @objc func handleAudioInterruptions(_ notification:Notification){
         
         guard let audioPlayer = PlayerManager.sharedInstance.audioPlayer else {
             return
@@ -119,7 +119,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
      *  Load local files and process them (rename them if necessary)
      *  Spaces in file names can cause side effects when trying to load the data
      */
-    func loadFiles() {
+    @objc func loadFiles() {
         //load local files
         let loadingWheel = MBProgressHUD.showAdded(to: self.view, animated: true)
         loadingWheel?.labelText = "Loading Books"
@@ -161,11 +161,11 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         self.setPlayImage()
     }
     
-    func forwardPressed(_ sender: UIButton) {
+    @objc func forwardPressed(_ sender: UIButton) {
         PlayerManager.sharedInstance.forwardPressed()
     }
     
-    func rewindPressed(_ sender: UIButton) {
+    @objc func rewindPressed(_ sender: UIButton) {
         PlayerManager.sharedInstance.rewindPressed()
     }
     
@@ -178,7 +178,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     //percentage callback
-    func updatePercentage(_ notification:Notification) {
+    @objc func updatePercentage(_ notification:Notification) {
         guard let userInfo = notification.userInfo,
             let fileURL = userInfo["fileURL"] as? URL,
             let percentageString = userInfo["percentageString"] as? String else {
@@ -194,7 +194,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         cell.completionLabel.text = percentageString
     }
     
-    func bookEnd(_ notification:Notification) {
+    @objc func bookEnd(_ notification:Notification) {
         self.setPlayImage()
     }
 }
