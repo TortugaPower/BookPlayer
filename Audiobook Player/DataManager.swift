@@ -35,26 +35,7 @@ class DataManager {
     static let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
     
     /**
-     *  Load local files and process them (rename them if necessary)
-     *  Spaces in file names can cause side effects when trying to load the data
-     */
-    class func getLocalFilesURL() -> [URL]? {
-        
-        //get reference of all the files located inside the Documents folder
-        guard let fileEnumerator = FileManager.default.enumerator(atPath: self.documentsPath) else {
-            return nil
-        }
-        var filenameArray = fileEnumerator.map({ return $0}) as! [String]
-        
-        var urlArray = [URL]()
-        self.process(&filenameArray, urls: &urlArray)
-        
-        return urlArray
-    }
-    
-    /**
-     *  Load local files and process them (rename them if necessary)
-     *  Spaces in file names can cause side effects when trying to load the data
+     *  Load local files and return array of Books
      */
     class func loadBooks(completion:@escaping ([Book]) -> Void) {
         var books = [Book]()
@@ -73,7 +54,27 @@ class DataManager {
         }
     }
     
-    class func process(_ urls: [URL], books:inout [Book]){
+    /**
+     *  Return array of file URLs
+     */
+    class func getLocalFilesURL() -> [URL]? {
+        
+        //get reference of all the files located inside the Documents folder
+        guard let fileEnumerator = FileManager.default.enumerator(atPath: self.documentsPath) else {
+            return nil
+        }
+        var filenameArray = fileEnumerator.map({ return $0}) as! [String]
+        
+        var urlArray = [URL]()
+        self.process(&filenameArray, urls: &urlArray)
+        
+        return urlArray
+    }
+    
+    /**
+     * Create book objects array from
+     */
+    private class func process(_ urls: [URL], books:inout [Book]){
         
         for fileURL in urls {
             
@@ -103,7 +104,7 @@ class DataManager {
         }
     }
     
-    class func process(_ files:inout [String], urls:inout [URL]){
+    private class func process(_ files:inout [String], urls:inout [URL]){
         if files.count == 0 {
             return
         }
