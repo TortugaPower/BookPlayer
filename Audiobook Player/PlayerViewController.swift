@@ -111,6 +111,12 @@ class PlayerViewController: UIViewController {
             } else {
                 self.playButton.setImage(self.playImage, for: UIControlState())
             }
+            
+            //set smart speed
+            self.speedButton.setTitle("Speed \(String(PlayerManager.sharedInstance.currentSpeed))x", for: UIControlState())
+            
+            //enable/disable chapters button
+            self.chaptersButton.isEnabled = !PlayerManager.sharedInstance.chapterArray.isEmpty
             return
         }
         
