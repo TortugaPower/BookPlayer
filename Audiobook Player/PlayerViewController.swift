@@ -97,7 +97,6 @@ class PlayerViewController: UIViewController {
         if currentTime > 0 {
             let formattedCurrentTime = self.formatTime(currentTime)
             self.currentTimeLabel.text = formattedCurrentTime
-            self.sliderView.value = Float(currentTime)
         }
         
         //update max duration label of book
@@ -117,6 +116,12 @@ class PlayerViewController: UIViewController {
             
             //enable/disable chapters button
             self.chaptersButton.isEnabled = !PlayerManager.sharedInstance.chapterArray.isEmpty
+            
+            if let audioPlayer = PlayerManager.sharedInstance.audioPlayer {
+                let percentage = (Float(currentTime) / Float(audioPlayer.duration)) * 100
+                self.sliderView.value = percentage
+            }
+            
             return
         }
         
@@ -133,6 +138,11 @@ class PlayerViewController: UIViewController {
             
             //enable/disable chapters button
             self.chaptersButton.isEnabled = !PlayerManager.sharedInstance.chapterArray.isEmpty
+            
+            if let audioPlayer = audioPlayer {
+                let percentage = (Float(currentTime) / Float(audioPlayer.duration)) * 100
+                self.sliderView.value = percentage
+            }
         }
     }
     
