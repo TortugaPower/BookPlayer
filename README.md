@@ -25,6 +25,7 @@ Pull requests regarding upcoming features (or bugs) are welcomed. Any suggestion
 Managed with [Carthage](https://github.com/Carthage/Carthage)
 - [Chameleon](https://github.com/ViccAlexander/Chameleon) for colors
 - [MBProgressHUD](https://github.com/jdg/MBProgressHUD) for loading wheels
+- [DeckTransition](https://github.com/HarshilShah/DeckTransition) for modal presentations (like music app)
 
 # Credits
 - Large Play image made by [Vectors Market](http://www.flaticon.com/authors/vectors-market) from [www.flaticon.com](http://www.flaticon.com)
