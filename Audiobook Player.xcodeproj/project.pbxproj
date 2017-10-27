@@ -27,6 +27,7 @@
 		41B2AC921D441627005382A9 /* MoreViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2AC911D441627005382A9 /* MoreViewController.swift */; };
 		41B9553E1F9E5149000C9231 /* DeckTransition.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41B9553D1F9E5149000C9231 /* DeckTransition.framework */; };
 		41B955441F9E552A000C9231 /* DeckTransition.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 41B9553D1F9E5149000C9231 /* DeckTransition.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D367F7681FA2A6F000FEDB37 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = D367F7671FA2A6F000FEDB37 /* Constants.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -78,6 +79,7 @@
 		41B2AC8F1D43CD2F005382A9 /* SpeedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpeedViewController.swift; sourceTree = "<group>"; };
 		41B2AC911D441627005382A9 /* MoreViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MoreViewController.swift; sourceTree = "<group>"; };
 		41B9553D1F9E5149000C9231 /* DeckTransition.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DeckTransition.framework; path = Carthage/Build/iOS/DeckTransition.framework; sourceTree = "<group>"; };
+		D367F7671FA2A6F000FEDB37 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -139,6 +141,7 @@
 				419196341D47CC4E007A3AF3 /* Audiobook Player.entitlements */,
 				41B955461F9E5E4E000C9231 /* Managers */,
 				416B640B1E72F328000E955A /* Controllers */,
+				D367F7671FA2A6F000FEDB37 /* Constants.swift */,
 				416B640C1E72F362000E955A /* Extensions.swift */,
 				418B6CFB1D2707F800F974FB /* AppDelegate.swift */,
 				418B6D011D2707F800F974FB /* Main.storyboard */,
@@ -336,6 +339,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */,
+				D367F7681FA2A6F000FEDB37 /* Constants.swift in Sources */,
 				41B2AC8E1D43CCE8005382A9 /* ChaptersViewController.swift in Sources */,
 				41B2AC901D43CD2F005382A9 /* SpeedViewController.swift in Sources */,
 				413616401D2E21F000E48944 /* ListBooksViewController.swift in Sources */,

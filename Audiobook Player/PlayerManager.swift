@@ -12,6 +12,7 @@ import MediaPlayer
 
 class PlayerManager: NSObject {
     static let sharedInstance = PlayerManager()
+    let defaults:UserDefaults = UserDefaults.standard
     
     //current item to play
     var playerItem:AVPlayerItem!
@@ -109,7 +110,7 @@ class PlayerManager: NSObject {
             audioplayer.delegate = self
             
             //set smart speed
-            let speed = UserDefaults.standard.float(forKey: self.identifier+"_speed")
+            let speed = self.defaults.float(forKey: self.identifier+"_speed")
             PlayerManager.sharedInstance.currentSpeed = speed > 0 ? speed : 1.0
             
             //try loading chapters
@@ -144,7 +145,7 @@ class PlayerManager: NSObject {
             DispatchQueue.main.async(execute: {
                 
                 //set smart speed
-                let speed = UserDefaults.standard.float(forKey: self.identifier+"_speed")
+                let speed = self.defaults.float(forKey: self.identifier+"_speed")
                 self.currentSpeed = speed > 0 ? speed : 1.0
                 
                 //enable/disable chapters button
@@ -157,8 +158,18 @@ class PlayerManager: NSObject {
                     MPMediaItemPropertyArtwork: mediaArtwork
                 ]
                 
-                //get stored value for current time of book
-                let currentTime = UserDefaults.standard.integer(forKey: self.identifier)
+                //get stored value for current time of book in seconds
+                var lastPlayedPositionInSeconds = self.defaults.integer(forKey: self.identifier)
+                
+                
+                // If smartRewind is enabled and time since last play was 10 minutes (599s), rewind audiobook by 30 seconds or to start.
+                if let lastPlayTime:Date = self.defaults.object(forKey: UserDefaultsConstants.lastPauseTime+"_\(self.identifier)") as? Date, self.defaults.bool(forKey: UserDefaultsConstants.smartRewindEnabled)  {
+                    if Date().timeIntervalSince(lastPlayTime) > 599 {
+                        lastPlayedPositionInSeconds = max(lastPlayedPositionInSeconds - 30, 0)
+                    }
+                }
+                
+                let currentTime = lastPlayedPositionInSeconds
                 
                 //update UI if needed and set player to stored time
                 if currentTime > 0 {
@@ -202,7 +213,7 @@ extension PlayerManager: AVAudioPlayerDelegate {
         }
         
         self.currentSpeed = speed
-        UserDefaults.standard.set(PlayerManager.sharedInstance.currentSpeed, forKey: self.identifier+"_speed")
+        defaults.set(PlayerManager.sharedInstance.currentSpeed, forKey: self.identifier+"_speed")
         audioPlayer.rate = self.currentSpeed
     }
     
@@ -250,6 +261,8 @@ extension PlayerManager: AVAudioPlayerDelegate {
             return
         }
         
+        defaults.set(self.identifier, forKey: UserDefaultsConstants.lastPlayedBook);
+        
         //pause player if it's playing
         if audioplayer.isPlaying {
             //invalidate timer if needed
@@ -261,6 +274,9 @@ extension PlayerManager: AVAudioPlayerDelegate {
             audioplayer.stop()
             MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 0
             MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
+            
+            defaults.set(Date(), forKey:UserDefaultsConstants.lastPauseTime+"_\(self.identifier)")
+            
             try! AVAudioSession.sharedInstance().setActive(false)
             
             return
@@ -295,13 +311,13 @@ extension PlayerManager: AVAudioPlayerDelegate {
         
         //store state every 2 seconds, I/O can be expensive
         if currentTime % 2 == 0 {
-            UserDefaults.standard.set(currentTime, forKey: self.identifier)
+            defaults.set(currentTime, forKey: self.identifier)
         }
         
         //update current time label
         let timeText = self.formatTime(currentTime)
         
-        let storedPercentage = UserDefaults.standard.string(forKey: self.identifier+"_percentage") ?? "0%"
+        let storedPercentage = defaults.string(forKey: self.identifier+"_percentage") ?? "0%"
         
         //calculate book read percentage based on current time
         let percentage = (Float(currentTime) / Float(audioplayer.duration)) * 100
@@ -316,7 +332,7 @@ extension PlayerManager: AVAudioPlayerDelegate {
         
         //notify percentage
         if storedPercentage != percentageString {
-            UserDefaults.standard.set(percentageString, forKey: self.identifier+"_percentage")
+            defaults.set(percentageString, forKey: self.identifier+"_percentage")
             
             NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil, userInfo: userInfo)
         }
@@ -331,7 +347,7 @@ extension PlayerManager: AVAudioPlayerDelegate {
             }
             
             // Once book a book is finished, ask for a review
-            UserDefaults.standard.set(true, forKey: "ask_review")
+            defaults.set(true, forKey: "ask_review")
             NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
         }
         

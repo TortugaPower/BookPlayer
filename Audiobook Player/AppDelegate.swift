@@ -20,6 +20,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         Fabric.with([Crashlytics.self])
+        let defaults:UserDefaults = UserDefaults.standard
+        
+        //If app has never been launched...
+        if defaults.bool(forKey: UserDefaultsConstants.isFirstLaunch) {
+            //Set smartRewindEnabled and isFirstLaunch to false
+            defaults.set(true, forKey: UserDefaultsConstants.smartRewindEnabled)
+            defaults.set(false, forKey: UserDefaultsConstants.isFirstLaunch)
+            
+            //Ensure user defaults are saved immediately
+            defaults.synchronize()
+        }
 
         UIApplication.shared.statusBarStyle = .lightContent
         
