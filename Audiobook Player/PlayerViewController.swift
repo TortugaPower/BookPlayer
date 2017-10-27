@@ -16,6 +16,7 @@ import StoreKit
 class PlayerViewController: UIViewController {
     @IBOutlet weak var authorLabel: UILabel!
     @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var optionsIndicatorButton: UIButton!
     
     @IBOutlet weak var playButton: UIButton!
     @IBOutlet weak var forwardButton: UIButton!
@@ -35,6 +36,8 @@ class PlayerViewController: UIViewController {
     @IBOutlet weak var speedButton: UIButton!
     @IBOutlet weak var sleepButton: UIButton!
     
+    @IBOutlet weak var coverImageView: UIImageView!
+    
     @IBOutlet weak var sleepTimerWidthConstraint: NSLayoutConstraint!
     
     //keep in memory images to toggle play/pause
@@ -50,19 +53,28 @@ class PlayerViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let averageArtworkColor = UIColor(averageColorFrom: currentBook.artwork) ?? UIColor.flatSkyBlueColorDark()
+        
         //set UI colors
-        let colors:[UIColor] = [
-            UIColor.flatGrayColorDark(),
-            UIColor.flatSkyBlueColorDark()
+        let artworkColors:[UIColor] = [
+            averageArtworkColor!,
+            UIColor.flatBlack()
         ]
-        self.view.backgroundColor = GradientColor(.radial, frame: view.frame, colors: colors)
-        self.leftVerticalView.backgroundColor = UIColor.flatRed()
+        self.view.backgroundColor = GradientColor(.topToBottom, frame: view.frame, colors: artworkColors)
+        
+        self.leftVerticalView.backgroundColor = averageArtworkColor
         self.maxTimeLabel.textColor = UIColor.flatWhiteColorDark()
-        self.authorLabel.textColor = UIColor.flatWhiteColorDark()
+        
+        self.titleLabel.textColor = UIColor(contrastingBlackOrWhiteColorOn:averageArtworkColor!, isFlat:true)
+        self.authorLabel.textColor = UIColor(contrastingBlackOrWhiteColorOn:averageArtworkColor!, isFlat:true)
+        self.optionsIndicatorButton.tintColor = UIColor(contrastingBlackOrWhiteColorOn:averageArtworkColor!, isFlat:true)
+        
         self.timeSeparator.textColor = UIColor.flatWhiteColorDark()
         self.chaptersButton.setTitleColor(UIColor.flatGray(), for: .disabled)
         self.speedButton.setTitleColor(UIColor.flatGray(), for: .disabled)
         self.sleepButton.tintColor = UIColor.white
+        
+        self.coverImageView.image = currentBook.artwork
         
         modalPresentationCapturesStatusBarAppearance = true
         
