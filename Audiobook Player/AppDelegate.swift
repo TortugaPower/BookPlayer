@@ -27,9 +27,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             //Set smartRewindEnabled and isFirstLaunch to false
             defaults.set(true, forKey: UserDefaultsConstants.smartRewindEnabled)
             defaults.set(false, forKey: UserDefaultsConstants.isFirstLaunch)
-            
-            //Ensure user defaults are saved immediately
-            defaults.synchronize()
         }
 
         UIApplication.shared.statusBarStyle = .lightContent
