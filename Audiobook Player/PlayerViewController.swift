@@ -76,6 +76,13 @@ class PlayerViewController: UIViewController {
         
         self.coverImageView.image = currentBook.artwork
         
+        //Drop shadow on cover view
+        coverImageView.layer.shadowColor = UIColor.flatBlack().cgColor
+        coverImageView.layer.shadowOffset = CGSize(width: 0, height: 4)
+        coverImageView.layer.shadowOpacity = 0.6
+        coverImageView.layer.shadowRadius = 6.0
+        coverImageView.clipsToBounds = false
+        
         modalPresentationCapturesStatusBarAppearance = true
         
         self.setStatusBarStyle(UIStatusBarStyleContrast)
