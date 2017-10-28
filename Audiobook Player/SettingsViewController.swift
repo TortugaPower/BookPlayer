@@ -11,14 +11,26 @@ import UIKit
 class SettingsViewController: UITableViewController {
     @IBOutlet weak var storageSizeLabel: UILabel!
     @IBOutlet weak var themeSwitch: UISwitch!
+    @IBOutlet weak var smartRewindSwitch: UISwitch!
+    
+    let defaults:UserDefaults = UserDefaults.standard
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        smartRewindSwitch.addTarget(self, action: #selector(self.rewindToggleDidChange), for: .valueChanged)
+        
         //set colors
         self.navigationController?.navigationBar.barTintColor = UIColor.flatSkyBlue()
         
+        //Set initial switch positions
+        smartRewindSwitch.setOn(defaults.bool(forKey: UserDefaultsConstants.smartRewindEnabled), animated: false)
+        
 //        FileManager
+    }
+    
+    @objc func rewindToggleDidChange(){
+        defaults.set(smartRewindSwitch.isOn, forKey:UserDefaultsConstants.smartRewindEnabled)
     }
     
     @IBAction func didPressClose(_ sender: UIBarButtonItem) {
