@@ -166,6 +166,7 @@ class PlayerManager: NSObject {
                 if let lastPlayTime:Date = self.defaults.object(forKey: UserDefaultsConstants.lastPauseTime+"_\(self.identifier)") as? Date, self.defaults.bool(forKey: UserDefaultsConstants.smartRewindEnabled)  {
                     if Date().timeIntervalSince(lastPlayTime) > 599 {
                         lastPlayedPositionInSeconds = max(lastPlayedPositionInSeconds - 30, 0)
+                        self.defaults.set(nil, forKey:UserDefaultsConstants.lastPauseTime+"_\(self.identifier)")
                     }
                 }
                 

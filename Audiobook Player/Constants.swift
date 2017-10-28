@@ -6,7 +6,7 @@ import Foundation
 
 struct UserDefaultsConstants {
     // Application information
-    static let isFirstLaunch = "userSettingsIsFirstLaunch";
+    static let completedFirstLaunch = "userSettingsCompletedFirstLaunch";
     static let lastPauseTime = "userSettingsLastPauseTime";
     static let lastPlayedBook = "userSettingsLastPlayedBook";
     

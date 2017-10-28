@@ -22,11 +22,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         Fabric.with([Crashlytics.self])
         let defaults:UserDefaults = UserDefaults.standard
         
-        //If app has never been launched...
-        if defaults.bool(forKey: UserDefaultsConstants.isFirstLaunch) {
-            //Set smartRewindEnabled and isFirstLaunch to false
+        // Perfrom first launch setup
+        if !defaults.bool(forKey: UserDefaultsConstants.completedFirstLaunch) {
+            // Set default settings
             defaults.set(true, forKey: UserDefaultsConstants.smartRewindEnabled)
-            defaults.set(false, forKey: UserDefaultsConstants.isFirstLaunch)
+            
+            defaults.set(true, forKey: UserDefaultsConstants.completedFirstLaunch)
         }
 
         UIApplication.shared.statusBarStyle = .lightContent
