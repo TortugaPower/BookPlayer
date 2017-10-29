@@ -95,7 +95,7 @@ class DataManager {
                 if let artwork = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtwork, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? Data {
                     bookCover = UIImage(data: artwork)
                 }else{
-                    bookCover = UIImage()
+                    bookCover = #imageLiteral(resourceName: "defaultBookArt")
                 }
                 
                 let book = Book(title: title, author: author, artwork: bookCover, asset: asset, fileURL: fileURL)
