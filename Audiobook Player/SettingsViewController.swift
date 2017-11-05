@@ -37,4 +37,14 @@ class SettingsViewController: UITableViewController {
         self.dismiss(animated: true, completion: nil)
     }
     
+    //TODO: remove this once settings page is completed
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        //hide all options except smart rewind
+        switch section {
+        case 0, 1:
+            return 0
+        default:
+            return 1
+        }
+    }
 }
