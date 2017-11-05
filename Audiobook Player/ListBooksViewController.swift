@@ -277,14 +277,18 @@ extension ListBooksViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let book = self.bookArray[indexPath.row]
-        let cell = tableView.cellForRow(at: indexPath) as! BookCellView
-        
-        let title = cell.titleLabel.text ?? book.fileURL.lastPathComponent
-        let author = cell.authorLabel.text ?? "Unknown Author"
         
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let playerVC = storyboard.instantiateViewController(withIdentifier: "PlayerViewController") as! PlayerViewController
         playerVC.currentBook = book
+        
+        guard let cell = tableView.cellForRow(at: indexPath) as? BookCellView else {
+            self.presentModal(playerVC, animated: true)
+            return
+        }
+        
+        let title = cell.titleLabel.text ?? book.fileURL.lastPathComponent
+        let author = cell.authorLabel.text ?? "Unknown Author"
         
         //show the current player
         self.presentModal(playerVC, animated: true) {
