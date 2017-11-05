@@ -14,6 +14,7 @@ Player made in Swift for your DRM-free audiobooks. Now available in the [Appstor
 - Smart Speed control for the player
 - Load books from apps in the phone (e.g. dropbox)
 - Import books via AirDrop (Thanks [vab9](https://github.com/vab9))
+- Smart rewind (Thanks [bryanrezende](https://github.com/bryanrezende))
 
 # Upcoming features
 - Stream books from online services like Dropbox
