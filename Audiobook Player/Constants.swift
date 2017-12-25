@@ -12,4 +12,5 @@ struct UserDefaultsConstants {
     
     // User preferences
     static let smartRewindEnabled = "userSettingsSmartRewind";
+    static let boostVolumeEnabled = "userSettingsBoostVolume";
 }

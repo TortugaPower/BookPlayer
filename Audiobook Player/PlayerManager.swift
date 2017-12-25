@@ -108,6 +108,9 @@ class PlayerManager: NSObject {
             }
             
             audioplayer.delegate = self
+            if self.defaults.bool(forKey: UserDefaultsConstants.boostVolumeEnabled) {
+                audioplayer.volume = 2.0
+            }
             
             //set smart speed
             let speed = self.defaults.float(forKey: self.identifier+"_speed")
