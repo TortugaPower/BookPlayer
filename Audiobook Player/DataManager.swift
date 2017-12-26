@@ -102,6 +102,9 @@ class DataManager {
                 books.append(book)
             }
         }
+        books.sort { (b1, b2) -> Bool in
+            return b1.title.compare(b2.title) == .orderedAscending
+        }
     }
     
     private class func process(_ files:inout [String], urls:inout [URL]){
