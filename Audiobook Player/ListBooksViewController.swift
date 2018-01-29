@@ -80,6 +80,9 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         //register to audio-interruption notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioInterruptions(_:)), name: NSNotification.Name.AVAudioSessionInterruption, object: nil)
         
+        //register to audio-route-change notifications
+        NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioRouteChange(_:)), name: NSNotification.Name.AVAudioSessionRouteChange, object: nil)
+        
         //register for appDelegate openUrl notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.loadFiles), name: Notification.Name.AudiobookPlayer.openURL, object: nil)
         
@@ -112,6 +115,27 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         }
         if audioPlayer.isPlaying {
             self.didPressPlay(self.footerPlayButton)
+        }
+    }
+    
+    //Handle audio route changes
+    @objc func handleAudioRouteChange(_ notification:Notification){
+        
+        guard let audioPlayer = PlayerManager.sharedInstance.audioPlayer,
+            audioPlayer.isPlaying,
+            let userInfo = notification.userInfo,
+            let reasonValue = userInfo[AVAudioSessionRouteChangeReasonKey] as? UInt,
+            let reason = AVAudioSessionRouteChangeReason(rawValue:reasonValue) else {
+            return
+        }
+        
+        //Pause playback if route changes due to a disconnect
+        switch reason {
+        case .oldDeviceUnavailable:
+            self.didPressPlay(self.footerPlayButton)
+            break
+        default:
+            break
         }
     }
     
