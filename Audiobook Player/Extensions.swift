@@ -64,7 +64,8 @@ extension Notification.Name {
         public static let updateChapter = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.book.chapter")
         public static let errorLoadingBook = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.book.error")
         public static let bookReady = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.book.ready")
-        public static let playBook = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.book.play")
+        public static let bookPlayed = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.book.play")
+        public static let bookPaused = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.book.pause")
         public static let bookEnd = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.book.end")
     }
 }

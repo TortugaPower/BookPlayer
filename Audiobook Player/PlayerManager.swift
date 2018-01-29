@@ -282,6 +282,10 @@ extension PlayerManager: AVAudioPlayerDelegate {
             defaults.set(Date(), forKey:UserDefaultsConstants.lastPauseTime+"_\(self.identifier)")
             
             try! AVAudioSession.sharedInstance().setActive(false)
+
+            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookPaused,
+                                            object: nil,
+                                            userInfo: nil)
             
             return
         }
@@ -303,6 +307,10 @@ extension PlayerManager: AVAudioPlayerDelegate {
         audioplayer.play()
         MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 1
         MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
+        
+        NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookPlayed,
+                                        object: nil,
+                                        userInfo: nil)
     }
     
     //timer callback (called every second)
