@@ -186,7 +186,7 @@
                                                 </attributes>
                                             </fragment>
                                             <fragment>
-                                                <string key="content"> Switch to the "Apps" tab, scroll down and look for BookPlayer.
+                                                <string key="content"> Click "File Sharing" under Settings, scroll and look for BookPlayer.
 </string>
                                                 <attributes>
                                                     <font key="NSFont" size="17" name="HelveticaNeue"/>
