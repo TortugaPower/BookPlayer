@@ -89,6 +89,12 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         //register for percentage change notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.updatePercentage(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
         
+        //register notifications when the book is played
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookPlayed), name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
+        
+        //register notifications when the book is paused
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookPaused), name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
+        
         //register for book end notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookEnd(_:)), name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
         
@@ -159,17 +165,6 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         }
     }
     
-    /**
-     * Set play or pause image on button
-     */
-    func setPlayImage(){
-        if PlayerManager.sharedInstance.isPlaying() {
-            self.footerPlayButton.setImage(self.miniPauseButton, for: UIControlState())
-        }else{
-            self.footerPlayButton.setImage(self.miniPlayImage, for: UIControlState())
-        }
-    }
-    
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         if(navigationController!.viewControllers.count > 1){
             return true
@@ -182,7 +177,6 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     
     @IBAction func didPressPlay(_ sender: UIButton) {
         PlayerManager.sharedInstance.playPressed()
-        self.setPlayImage()
     }
     
     @objc func forwardPressed(_ sender: UIButton) {
@@ -218,8 +212,16 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         cell.completionLabel.text = percentageString
     }
     
+    @objc func bookPlayed(){
+        self.footerPlayButton.setImage(self.miniPauseButton, for: UIControlState())
+    }
+    
+    @objc func bookPaused(){
+        self.footerPlayButton.setImage(self.miniPlayImage, for: UIControlState())
+    }
+    
     @objc func bookEnd(_ notification:Notification) {
-        self.setPlayImage()
+        self.footerPlayButton.setImage(self.miniPlayImage, for: UIControlState())
     }
 }
 
@@ -320,7 +322,6 @@ extension ListBooksViewController: UITableViewDelegate {
             self.footerTitleLabel.text = title + " - " + author
             self.footerImageView.image = cell.artworkImageView.image
             self.footerHeightConstraint.constant = 55
-            self.setPlayImage()
         }
     }
 }

@@ -94,6 +94,8 @@ class PlayerViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(self.updatePercentage(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.updateCurrentChapter(_:)), name: Notification.Name.AudiobookPlayer.updateChapter, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookReady), name: Notification.Name.AudiobookPlayer.bookReady, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookPlayed), name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookPaused), name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookEnd), name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
 
         //set initial state for slider
@@ -377,12 +379,6 @@ extension PlayerViewController: AVAudioPlayerDelegate {
     
     //toggle play/pause of book
     @IBAction func playPressed(_ sender: UIButton) {
-        if PlayerManager.sharedInstance.isPlaying() {
-            self.playButton.setImage(self.playImage, for: UIControlState())
-        } else {
-            self.playButton.setImage(self.pauseImage, for: UIControlState())
-        }
-        
         PlayerManager.sharedInstance.playPressed()
     }
     
@@ -433,14 +429,15 @@ extension PlayerViewController: AVAudioPlayerDelegate {
     
     @objc func bookReady(){
         MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
-        
-        if PlayerManager.sharedInstance.isPlaying() {
-            self.playButton.setImage(self.playImage, for: UIControlState())
-        } else {
-            self.playButton.setImage(self.pauseImage, for: UIControlState())
-        }
-        
         PlayerManager.sharedInstance.playPressed()
+    }
+    
+    @objc func bookPlayed(){
+        self.playButton.setImage(self.pauseImage, for: UIControlState())
+    }
+    
+    @objc func bookPaused(){
+        self.playButton.setImage(self.playImage, for: UIControlState())
     }
     
     @objc func bookEnd() {
