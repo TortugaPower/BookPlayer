@@ -32,7 +32,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
         UIApplication.shared.statusBarStyle = .lightContent
         
-        UIApplication.shared.beginReceivingRemoteControlEvents()
         try! AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
         
         //clean leftover sleep timer registry

@@ -99,7 +99,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookEnd(_:)), name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
         
         //register for remote events
-        UIApplication.shared.beginReceivingRemoteControlEvents()
+        self.registerRemoteEvents()
         
         self.loadFiles()
         self.footerHeightConstraint.constant = 0
@@ -396,38 +396,48 @@ extension ListBooksViewController:UIDocumentPickerDelegate {
 }
 
 extension ListBooksViewController {
-    override func remoteControlReceived(with event: UIEvent?) {
-        guard let event = event else {
-            return
+    
+    /**
+     * For now, seek forward/backward and next/previous track perform the same function
+     */
+    func registerRemoteEvents() {
+        MPRemoteCommandCenter.shared().togglePlayPauseCommand.addTarget { (commandEvent) -> MPRemoteCommandHandlerStatus in
+            PlayerManager.sharedInstance.playPressed()
+            return .success
         }
         
-        //TODO: after decoupling AVAudioPlayer from the PlayerViewController 
-        switch event.subtype {
-        case .remoteControlTogglePlayPause:
-            print("toggle play/pause")
-            
-        case .remoteControlBeginSeekingBackward:
-            print("seeking backward")
-        case .remoteControlEndSeekingBackward:
-            print("end seeking backward")
-        case .remoteControlBeginSeekingForward:
-            print("seeking forward")
-        case .remoteControlEndSeekingForward:
-            print("end seeking forward")
+        let skipForwardHandler: (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus = { (commandEvent) -> MPRemoteCommandHandlerStatus in
+            PlayerManager.sharedInstance.forwardPressed()
+            return .success
+        }
         
-        case .remoteControlPause:
-            print("control pause")
-        case .remoteControlPlay:
-            print("control play")
-        case .remoteControlStop:
-            print("stop")
+        MPRemoteCommandCenter.shared().skipForwardCommand.addTarget(handler: skipForwardHandler)
+        MPRemoteCommandCenter.shared().nextTrackCommand.addTarget(handler: skipForwardHandler)
+        
+        MPRemoteCommandCenter.shared().seekForwardCommand.addTarget { (commandEvent) -> MPRemoteCommandHandlerStatus in
+            guard let cmd = commandEvent as? MPSeekCommandEvent,
+                cmd.type == .endSeeking else { return .success }
             
-        case .remoteControlNextTrack:
-            print("next track")
-        case .remoteControlPreviousTrack:
-            print("previous track")
-        default:
-            print(event.description)
+            //end seeking
+            PlayerManager.sharedInstance.forwardPressed()
+            return .success
+        }
+        
+        let skipBackwardHandler: (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus = { (commandEvent) -> MPRemoteCommandHandlerStatus in
+            PlayerManager.sharedInstance.rewindPressed()
+            return .success
+        }
+        
+        MPRemoteCommandCenter.shared().skipBackwardCommand.addTarget(handler: skipBackwardHandler)
+        MPRemoteCommandCenter.shared().previousTrackCommand.addTarget(handler: skipBackwardHandler)
+        
+        MPRemoteCommandCenter.shared().seekBackwardCommand.addTarget { (commandEvent) -> MPRemoteCommandHandlerStatus in
+            guard let cmd = commandEvent as? MPSeekCommandEvent,
+                cmd.type == .endSeeking else { return .success }
+            
+            //end seeking
+            PlayerManager.sharedInstance.rewindPressed()
+            return .success
         }
     }
 }
