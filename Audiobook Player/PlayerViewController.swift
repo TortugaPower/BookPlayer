@@ -422,7 +422,9 @@ extension PlayerViewController: AVAudioPlayerDelegate {
         // request for review
         if #available(iOS 10.3, *),
             UIApplication.shared.applicationState == .active {
-            SKStoreReviewController.requestReview()
+            #if RELEASE
+                SKStoreReviewController.requestReview()
+            #endif
             UserDefaults.standard.set(false, forKey: "ask_review")
         }
     }
