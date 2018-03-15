@@ -13,6 +13,7 @@ class SettingsViewController: UITableViewController {
     @IBOutlet weak var themeSwitch: UISwitch!
     @IBOutlet weak var smartRewindSwitch: UISwitch!
     @IBOutlet weak var boostVolumeSwitch: UISwitch!
+    @IBOutlet weak var globalSpeedSwitch: UISwitch!
 
     let defaults:UserDefaults = UserDefaults.standard
     
@@ -21,6 +22,7 @@ class SettingsViewController: UITableViewController {
         
         smartRewindSwitch.addTarget(self, action: #selector(self.rewindToggleDidChange), for: .valueChanged)
         boostVolumeSwitch.addTarget(self, action: #selector(self.boostVolumeToggleDidChange), for: .valueChanged)
+        globalSpeedSwitch.addTarget(self, action: #selector(self.globalSpeedToggleDidChange), for: .valueChanged)
 
         //set colors
         self.navigationController?.navigationBar.barTintColor = UIColor.flatSkyBlue()
@@ -28,6 +30,7 @@ class SettingsViewController: UITableViewController {
         //Set initial switch positions
         smartRewindSwitch.setOn(defaults.bool(forKey: UserDefaultsConstants.smartRewindEnabled), animated: false)
         boostVolumeSwitch.setOn(defaults.bool(forKey: UserDefaultsConstants.boostVolumeEnabled), animated: false)
+        globalSpeedSwitch.setOn(defaults.bool(forKey: UserDefaultsConstants.globalSpeedEnabled), animated: false)
 
 //        FileManager
     }
@@ -38,6 +41,10 @@ class SettingsViewController: UITableViewController {
 
     @objc func boostVolumeToggleDidChange(){
         defaults.set(boostVolumeSwitch.isOn, forKey:UserDefaultsConstants.boostVolumeEnabled)
+    }
+
+    @objc func globalSpeedToggleDidChange(){
+        defaults.set(globalSpeedSwitch.isOn, forKey:UserDefaultsConstants.globalSpeedEnabled)
     }
 
     @IBAction func didPressClose(_ sender: UIBarButtonItem) {
@@ -51,7 +58,7 @@ class SettingsViewController: UITableViewController {
         case 0, 1:
             return 0
         default:
-            return 2
+            return 3
         }
     }
 }
