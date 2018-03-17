@@ -113,7 +113,7 @@ class PlayerManager: NSObject {
             }
             
             //set smart speed
-            let speed = self.defaults.float(forKey: self.identifier+"_speed")
+            let speed = self.defaults.bool(forKey: UserDefaultsConstants.globalSpeedEnabled) ? self.defaults.float(forKey: "global_speed") : self.defaults.float(forKey: self.identifier+"_speed")
             PlayerManager.sharedInstance.currentSpeed = speed > 0 ? speed : 1.0
             
             //try loading chapters
@@ -148,7 +148,7 @@ class PlayerManager: NSObject {
             DispatchQueue.main.async(execute: {
                 
                 //set smart speed
-                let speed = self.defaults.float(forKey: self.identifier+"_speed")
+                let speed = self.defaults.bool(forKey: UserDefaultsConstants.globalSpeedEnabled) ? self.defaults.float(forKey: "global_speed") : self.defaults.float(forKey: self.identifier+"_speed")
                 self.currentSpeed = speed > 0 ? speed : 1.0
                 
                 //enable/disable chapters button
@@ -218,6 +218,11 @@ extension PlayerManager: AVAudioPlayerDelegate {
         
         self.currentSpeed = speed
         defaults.set(PlayerManager.sharedInstance.currentSpeed, forKey: self.identifier+"_speed")
+        //set global speed
+        if self.defaults.bool(forKey: UserDefaultsConstants.globalSpeedEnabled) == true {
+            self.defaults.set(speed, forKey: "global_speed")
+        }
+
         audioPlayer.rate = self.currentSpeed
     }
     
