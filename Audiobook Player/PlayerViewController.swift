@@ -44,7 +44,7 @@ class PlayerViewController: UIViewController {
     let playImage = UIImage(named: "playButton")
     let pauseImage = UIImage(named: "pauseButton")
     
-    var currentBook: Book!
+    var currentBooks: [Book]!
     
     //timer to update sleep time
     var sleepTimer:Timer!
@@ -53,6 +53,7 @@ class PlayerViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let currentBook = self.currentBooks.first!
         let averageArtworkColor = UIColor(averageColorFrom: currentBook.artwork) ?? UIColor.flatSkyBlueColorDark()
         
         //set UI colors
@@ -104,15 +105,15 @@ class PlayerViewController: UIViewController {
         self.sliderView.maximumValue = 100
         self.sliderView.value = 0
         
-        self.titleLabel.text = self.currentBook.title
-        self.authorLabel.text = self.currentBook.author
+        self.titleLabel.text = self.currentBooks.first!.title
+        self.authorLabel.text = self.currentBooks.first!.author
         
         //set percentage label to stored value
-        let currentPercentage = UserDefaults.standard.string(forKey: self.currentBook.identifier+"_percentage") ?? "0%"
+        let currentPercentage = UserDefaults.standard.string(forKey: self.currentBooks.first!.identifier+"_percentage") ?? "0%"
         self.percentageLabel.text = currentPercentage
         
         //get stored value for current time of book
-        let currentTime = UserDefaults.standard.integer(forKey: self.currentBook.identifier)
+        let currentTime = UserDefaults.standard.integer(forKey: self.currentBooks.first!.identifier)
         
         //update UI if needed and set player to stored time
         if currentTime > 0 {
@@ -121,11 +122,11 @@ class PlayerViewController: UIViewController {
         }
         
         //update max duration label of book
-        let maxDuration = self.currentBook.duration
+        let maxDuration = self.currentBooks.first!.duration
         self.maxTimeLabel.text = self.formatTime(maxDuration)
         
         //make sure player is for a different book
-        guard PlayerManager.sharedInstance.fileURL != self.currentBook.fileURL else {
+        guard PlayerManager.sharedInstance.fileURL != self.currentBooks.first!.fileURL else {
             if PlayerManager.sharedInstance.isPlaying() {
                 self.playButton.setImage(self.pauseImage, for: UIControlState())
             } else {
@@ -148,7 +149,7 @@ class PlayerViewController: UIViewController {
         
         MBProgressHUD.showAdded(to: self.view, animated: true)
         //replace player with new one
-        PlayerManager.sharedInstance.load(self.currentBook) { (audioPlayer) in
+        PlayerManager.sharedInstance.load(self.currentBooks) { (audioPlayer) in
             //currentChapter is not reliable because of currentTime is not ready, set to blank
             if !PlayerManager.sharedInstance.chapterArray.isEmpty {
                 self.percentageLabel.text = ""
@@ -388,7 +389,7 @@ extension PlayerViewController: AVAudioPlayerDelegate {
             let fileURL = userInfo["fileURL"] as? URL,
             let timeText = userInfo["timeString"] as? String,
             let percentage = userInfo["percentage"] as? Float,
-            fileURL == self.currentBook.fileURL else {
+            fileURL == self.currentBooks.first!.fileURL else {
             return
         }
         
@@ -403,7 +404,7 @@ extension PlayerViewController: AVAudioPlayerDelegate {
     @objc func updatePercentage(_ notification:Notification) {
         guard let userInfo = notification.userInfo,
             let fileURL = userInfo["fileURL"] as? URL,
-            fileURL == self.currentBook.fileURL,
+            fileURL == self.currentBooks.first!.fileURL,
             let percentageString = userInfo["percentageString"] as? String,
             let hasChapters = userInfo["hasChapters"] as? Bool,
             !hasChapters else {
@@ -451,7 +452,7 @@ extension PlayerViewController: AVAudioPlayerDelegate {
         guard let userInfo = notification.userInfo,
             let fileURL = userInfo["fileURL"] as? URL,
             let chapterString = userInfo["chapterString"] as? String,
-            fileURL == self.currentBook.fileURL else {
+            fileURL == self.currentBooks.first!.fileURL else {
                 return
         }
         

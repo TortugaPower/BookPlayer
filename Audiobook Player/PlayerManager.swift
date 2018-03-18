@@ -16,7 +16,7 @@ class PlayerManager: NSObject {
     
     //current item to play
     var playerItem:AVPlayerItem!
-    var currentBook:Book!
+    var currentBooks:[Book]!
     
     var fileURL:URL!
     
@@ -69,18 +69,21 @@ class PlayerManager: NSObject {
     
     
     
-    func load(_ book:Book, completion:@escaping (AVAudioPlayer?) -> Void) {
+    func load(_ books:[Book], completion:@escaping (AVAudioPlayer?) -> Void) {
         
-        if let player = self.audioPlayer {
-            player.stop()
-            //notify?
+        if self.currentBooks != nil && self.currentBooks!.count == books.count { //todo : fix logic
+            if let player = self.audioPlayer {
+                player.stop()
+                //notify?
+            }
         }
-        
+            
+        self.currentBooks = books
+        let book = books.first!
         
         self.playerItem = AVPlayerItem(asset: book.asset)
         self.fileURL = book.fileURL
         self.identifier = book.identifier
-        self.currentBook = book
         self.currentChapter = nil
         self.chapterArray = []
         //notify metadata
@@ -347,7 +350,7 @@ extension PlayerManager: AVAudioPlayerDelegate {
                         "percentage":percentage,
                         "percentageString":percentageString,
                         "hasChapters":!self.chapterArray.isEmpty,
-                        "fileURL":self.currentBook.fileURL] as [String : Any]
+                        "fileURL":self.currentBooks.first!.fileURL] as [String : Any]
         
         //notify percentage
         if storedPercentage != percentageString {
@@ -387,7 +390,7 @@ extension PlayerManager: AVAudioPlayerDelegate {
                 let chapterString = "Chapter \(chapter.index) of \(self.chapterArray.count)"
                 //notify
                 let userInfo = ["chapterString": chapterString,
-                                "fileURL":self.currentBook.fileURL] as [String : Any]
+                                "fileURL":self.currentBooks.first!.fileURL] as [String : Any]
                 
                 //notify
                 NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.updateChapter, object: nil, userInfo: userInfo)
