@@ -53,7 +53,27 @@ class PlayerViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let currentBook = self.currentBooks.first!
+        let currentBook = currentBooks.first!
+        setupView(book: currentBook)
+        setupPlayer(book: currentBook)
+    }
+    
+    //Resize sleep button on orientation transition
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        coordinator.animate(alongsideTransition: { (context) in
+            let orientation = UIApplication.shared.statusBarOrientation
+            
+            if orientation.isLandscape {
+                self.sleepTimerWidthConstraint.constant = 20
+            } else {
+                self.sleepTimerWidthConstraint.constant = 30
+            }
+            
+        })
+    }
+    
+    func setupView(book currentBook: Book) {
         let averageArtworkColor = UIColor(averageColorFrom: currentBook.artwork) ?? UIColor.flatSkyBlueColorDark()
         
         //set UI colors
@@ -98,22 +118,23 @@ class PlayerViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookPlayed), name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookPaused), name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookEnd), name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
-
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: Notification.Name.AudiobookPlayer.bookChange, object: nil)
+        
         //set initial state for slider
         self.sliderView.addTarget(self, action: #selector(sliderChanged(_:)), for: .valueChanged)
         self.sliderView.tintColor = UIColor.flatLimeColorDark()
         self.sliderView.maximumValue = 100
         self.sliderView.value = 0
         
-        self.titleLabel.text = self.currentBooks.first!.title
-        self.authorLabel.text = self.currentBooks.first!.author
+        self.titleLabel.text = currentBook.title
+        self.authorLabel.text = currentBook.author
         
         //set percentage label to stored value
-        let currentPercentage = UserDefaults.standard.string(forKey: self.currentBooks.first!.identifier+"_percentage") ?? "0%"
+        let currentPercentage = UserDefaults.standard.string(forKey: currentBook.identifier+"_percentage") ?? "0%"
         self.percentageLabel.text = currentPercentage
         
         //get stored value for current time of book
-        let currentTime = UserDefaults.standard.integer(forKey: self.currentBooks.first!.identifier)
+        let currentTime = UserDefaults.standard.integer(forKey: currentBook.identifier)
         
         //update UI if needed and set player to stored time
         if currentTime > 0 {
@@ -122,9 +143,14 @@ class PlayerViewController: UIViewController {
         }
         
         //update max duration label of book
-        let maxDuration = self.currentBooks.first!.duration
+        let maxDuration = currentBook.duration
         self.maxTimeLabel.text = self.formatTime(maxDuration)
-        
+    }
+    
+    func setupPlayer(book currentBook: Book) {
+        //get stored value for current time of book
+        let currentTime = UserDefaults.standard.integer(forKey: currentBook.identifier)
+
         //make sure player is for a different book
         guard PlayerManager.sharedInstance.fileURL != self.currentBooks.first!.fileURL else {
             if PlayerManager.sharedInstance.isPlaying() {
@@ -166,21 +192,6 @@ class PlayerViewController: UIViewController {
                 self.sliderView.value = percentage
             }
         }
-    }
-    
-    //Resize sleep button on orientation transition
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        super.viewWillTransition(to: size, with: coordinator)
-        coordinator.animate(alongsideTransition: { (context) in
-            let orientation = UIApplication.shared.statusBarOrientation
-            
-            if orientation.isLandscape {
-                self.sleepTimerWidthConstraint.constant = 20
-            } else {
-                self.sleepTimerWidthConstraint.constant = 30
-            }
-            
-        })
     }
     
     @objc func sliderChanged(_ sender: UISlider) {
@@ -445,7 +456,16 @@ extension PlayerViewController: AVAudioPlayerDelegate {
     
     @objc func bookEnd() {
         self.playButton.setImage(self.playImage, for: UIControlState())
-        self.requestReview()
+        self.requestReview()        
+    }
+
+    @objc func bookChange(_ notification:Notification) {
+        guard let userInfo = notification.userInfo,
+            let books = userInfo["books"] as? [Book],
+            let book = books.first else {
+                return
+        }
+        setupView(book: book)
     }
     
     @objc func updateCurrentChapter(_ notification:Notification) {

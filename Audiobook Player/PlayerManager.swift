@@ -403,6 +403,17 @@ extension PlayerManager: AVAudioPlayerDelegate {
         if flag {
             player.currentTime = player.duration
             self.updateTimer()
+            
+            if (UserDefaults.standard.bool(forKey: UserDefaultsConstants.autoplayEnabled)) {
+                if self.currentBooks.count > 1 {
+                    let currentBooks = Array(PlayerManager.sharedInstance.currentBooks.dropFirst())
+                    load(currentBooks, completion: { (audioPlayer) in
+                        let userInfo = ["books": currentBooks]
+                        NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookChange, object: nil, userInfo: userInfo)
+                    })
+                }
+            }
+
         }
     }
     

@@ -25,6 +25,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     //keep in memory images to toggle play/pause
     let miniPlayImage = UIImage(named: "miniPlayButton")
     let miniPauseButton = UIImage(named: "miniPauseButton")
+    var currentBooks: [Book] = []
     
     //TableView's datasource
     var bookArray = [Book]()
@@ -97,6 +98,9 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         
         //register for book end notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookEnd(_:)), name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
+        
+        //register for book change notifications
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: Notification.Name.AudiobookPlayer.bookChange, object: nil)
         
         //register for remote events
         self.registerRemoteEvents()
@@ -188,11 +192,10 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @IBAction func didPressShowDetail(_ sender: UIButton) {
-        guard let indexPath = self.tableView.indexPathForSelectedRow else {
+        guard currentBooks.count > 0 else {
             return
         }
-        
-        self.tableView(self.tableView, didSelectRowAt: indexPath)
+        play(books: currentBooks)
     }
     
     //percentage callback
@@ -223,6 +226,17 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     @objc func bookEnd(_ notification:Notification) {
         self.footerPlayButton.setImage(self.miniPlayImage, for: UIControlState())
     }
+    
+    @objc func bookChange(_ notification:Notification) {
+        guard let userInfo = notification.userInfo,
+            let books = userInfo["books"] as? [Book],
+            books.count > 0 else {
+                return
+        }
+        currentBooks = books
+        setupFooter(book: books.first!)
+    }
+
 }
 
 extension ListBooksViewController: UITableViewDataSource {
@@ -304,25 +318,33 @@ extension ListBooksViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let books = Array(self.bookArray.suffix(from: indexPath.row))
         
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let playerVC = storyboard.instantiateViewController(withIdentifier: "PlayerViewController") as! PlayerViewController
-        playerVC.currentBooks = books
-        
-        guard let cell = tableView.cellForRow(at: indexPath) as? BookCellView else {
-            self.presentModal(playerVC, animated: true)
+        play(books: books)
+    }
+    
+    func play(books: [Book]) {
+        guard books.count > 0 else {
             return
         }
         
-        let title = cell.titleLabel.text ?? books.first!.fileURL.lastPathComponent
-        let author = cell.authorLabel.text ?? "Unknown Author"
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let playerVC = storyboard.instantiateViewController(withIdentifier: "PlayerViewController") as! PlayerViewController
+        playerVC.currentBooks = books
+        self.currentBooks = books
         
         //show the current player
         self.presentModal(playerVC, animated: true) {
-            self.footerView.isHidden = false
-            self.footerTitleLabel.text = title + " - " + author
-            self.footerImageView.image = cell.artworkImageView.image
-            self.footerHeightConstraint.constant = 55
+            self.setupFooter(book: books.first!)
         }
+    }
+    
+    func setupFooter(book: Book) {
+        let title = book.fileURL.lastPathComponent
+        let author = book.author
+
+        self.footerView.isHidden = false
+        self.footerTitleLabel.text = title + " - " + author
+        self.footerImageView.image = book.artwork
+        self.footerHeightConstraint.constant = 55
     }
 }
 
