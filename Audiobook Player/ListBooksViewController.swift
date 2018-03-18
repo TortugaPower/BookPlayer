@@ -36,7 +36,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         //pull-down-to-refresh support
         self.refreshControl.attributedTitle = NSAttributedString(string: "Pull down to reload books")
         self.refreshControl.addTarget(self, action: #selector(loadFiles), for: .valueChanged)
@@ -90,9 +90,12 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         //register for percentage change notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.updatePercentage(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
         
+        //register notifications when the book is ready
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookReady), name: Notification.Name.AudiobookPlayer.bookReady, object: nil)
+
         //register notifications when the book is played
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookPlayed), name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
-        
+
         //register notifications when the book is paused
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookPaused), name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
         
@@ -214,7 +217,12 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
 
         cell.completionLabel.text = percentageString
     }
-    
+
+    @objc func bookReady(){
+        MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
+        PlayerManager.sharedInstance.playPressed()
+    }
+
     @objc func bookPlayed(){
         self.footerPlayButton.setImage(self.miniPauseButton, for: UIControlState())
     }
@@ -249,8 +257,9 @@ extension ListBooksViewController: UITableViewDataSource {
         let book = self.bookArray[indexPath.row]
         
         cell.titleLabel.text = book.title
-        cell.titleLabel.highlightedTextColor = UIColor.black
         cell.authorLabel.text = book.author
+        
+        cell.selectionStyle = .none
         
         //NOTE: we should have a default image for artwork
         cell.artworkImageView.image = book.artwork
@@ -316,7 +325,6 @@ extension ListBooksViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let books = Array(self.bookArray.suffix(from: indexPath.row))
-        
         play(books: books)
     }
     
@@ -324,24 +332,43 @@ extension ListBooksViewController: UITableViewDelegate {
         guard !books.isEmpty else {
             return
         }
-        
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let playerVC = storyboard.instantiateViewController(withIdentifier: "PlayerViewController") as! PlayerViewController
-        playerVC.currentBooks = books
         self.currentBooks = books
-        
-        //show the current player
-        self.presentModal(playerVC, animated: true) {
-            self.setupFooter(book: books.first!)
-        }
+        let book = currentBooks.first!
+        setupPlayer(book: book)
+        showPlayerView(book: book)
+        setupFooter(book: book)
     }
     
+    func setupPlayer(book: Book) {
+        //make sure player is for a different book
+        guard PlayerManager.sharedInstance.fileURL != book.fileURL else {
+            showPlayerView(book: book)
+            return
+        }
+        
+        MBProgressHUD.showAdded(to: self.view, animated: true)
+        //replace player with new one
+        PlayerManager.sharedInstance.load(self.currentBooks) { (audioPlayer) in
+            self.showPlayerView(book: book)
+        }
+    }
+
     func setupFooter(book: Book) {
         self.footerView.isHidden = false
         self.footerTitleLabel.text = book.displayTitle
         self.footerImageView.image = book.artwork
         self.footerHeightConstraint.constant = 55
-    }    
+    }
+    
+    func showPlayerView(book: Book) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let playerVC = storyboard.instantiateViewController(withIdentifier: "PlayerViewController") as! PlayerViewController
+        playerVC.currentBook = book
+        
+        //show the current player
+        self.presentModal(playerVC, animated: true) {
+        }
+    }
 }
 
 extension ListBooksViewController:UIDocumentMenuDelegate {

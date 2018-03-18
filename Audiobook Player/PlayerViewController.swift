@@ -10,7 +10,6 @@ import UIKit
 import AVFoundation
 import MediaPlayer
 import Chameleon
-import MBProgressHUD
 import StoreKit
 
 class PlayerViewController: UIViewController {
@@ -44,19 +43,18 @@ class PlayerViewController: UIViewController {
     let playImage = UIImage(named: "playButton")
     let pauseImage = UIImage(named: "pauseButton")
     
-    var currentBooks: [Book]!
+    var currentBook: Book!
     
     //timer to update sleep time
-    var sleepTimer:Timer!
+    var sleepTimer: Timer!
     
     //MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         registerObservers()
         
-        let currentBook = currentBooks.first!
-        setupView(book: currentBook)
-        setupPlayer(book: currentBook)
+        setupView(book: currentBook!)
+        playPlayer()
     }
     
     //Resize sleep button on orientation transition
@@ -136,52 +134,28 @@ class PlayerViewController: UIViewController {
         self.maxTimeLabel.text = self.formatTime(maxDuration)
     }
     
-    func setupPlayer(book currentBook: Book) {
+    func playPlayer() {
         //get stored value for current time of book
         let currentTime = UserDefaults.standard.integer(forKey: currentBook.identifier)
 
-        //make sure player is for a different book
-        guard PlayerManager.sharedInstance.fileURL != self.currentBooks.first!.fileURL else {
-            if PlayerManager.sharedInstance.isPlaying() {
-                self.playButton.setImage(self.pauseImage, for: UIControlState())
-            } else {
-                self.playButton.setImage(self.playImage, for: UIControlState())
-            }
-            
-            //set smart speed
-            self.speedButton.setTitle("Speed \(String(PlayerManager.sharedInstance.currentSpeed))x", for: UIControlState())
-            
-            //enable/disable chapters button
-            self.chaptersButton.isEnabled = !PlayerManager.sharedInstance.chapterArray.isEmpty
-            
-            if let audioPlayer = PlayerManager.sharedInstance.audioPlayer {
-                let percentage = (Float(currentTime) / Float(audioPlayer.duration)) * 100
-                self.sliderView.value = percentage
-            }
-            
-            return
+        if PlayerManager.sharedInstance.isPlaying() {
+            self.playButton.setImage(self.pauseImage, for: UIControlState())
+        } else {
+            self.playButton.setImage(self.playImage, for: UIControlState())
         }
-        
-        MBProgressHUD.showAdded(to: self.view, animated: true)
-        //replace player with new one
-        PlayerManager.sharedInstance.load(self.currentBooks) { (audioPlayer) in
-            //currentChapter is not reliable because of currentTime is not ready, set to blank
-            if !PlayerManager.sharedInstance.chapterArray.isEmpty {
-                self.percentageLabel.text = ""
-            }
-            
-            //set smart speed
-            self.speedButton.setTitle("Speed \(String(PlayerManager.sharedInstance.currentSpeed))x", for: UIControlState())
-            
-            //enable/disable chapters button
-            self.chaptersButton.isEnabled = !PlayerManager.sharedInstance.chapterArray.isEmpty
-            
-            if let audioPlayer = audioPlayer {
-                let percentage = (Float(currentTime) / Float(audioPlayer.duration)) * 100
-                self.sliderView.value = percentage
-            }
+        if !PlayerManager.sharedInstance.chapterArray.isEmpty {
+            self.percentageLabel.text = ""
+        }
+        self.speedButton.setTitle("Speed \(String(PlayerManager.sharedInstance.currentSpeed))x", for: UIControlState())
+
+        self.chaptersButton.isEnabled = !PlayerManager.sharedInstance.chapterArray.isEmpty
+
+        if let audioPlayer = PlayerManager.sharedInstance.audioPlayer {
+            let percentage = (Float(currentTime) / Float(audioPlayer.duration)) * 100
+            self.sliderView.value = percentage
         }
     }
+    
     func registerObservers() {
         //register for appDelegate requestReview notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: Notification.Name.AudiobookPlayer.requestReview, object: nil)
@@ -189,7 +163,6 @@ class PlayerViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(self.updateTimer(_:)), name: Notification.Name.AudiobookPlayer.updateTimer, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.updatePercentage(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.updateCurrentChapter(_:)), name: Notification.Name.AudiobookPlayer.updateChapter, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookReady), name: Notification.Name.AudiobookPlayer.bookReady, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookPlayed), name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookPaused), name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookEnd), name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
@@ -402,7 +375,7 @@ extension PlayerViewController: AVAudioPlayerDelegate {
             let fileURL = userInfo["fileURL"] as? URL,
             let timeText = userInfo["timeString"] as? String,
             let percentage = userInfo["percentage"] as? Float,
-            fileURL == self.currentBooks.first!.fileURL else {
+            fileURL == self.currentBook.fileURL else {
             return
         }
         
@@ -417,7 +390,7 @@ extension PlayerViewController: AVAudioPlayerDelegate {
     @objc func updatePercentage(_ notification:Notification) {
         guard let userInfo = notification.userInfo,
             let fileURL = userInfo["fileURL"] as? URL,
-            fileURL == self.currentBooks.first!.fileURL,
+            fileURL == self.currentBook.fileURL,
             let percentageString = userInfo["percentageString"] as? String,
             let hasChapters = userInfo["hasChapters"] as? Bool,
             !hasChapters else {
@@ -441,11 +414,6 @@ extension PlayerViewController: AVAudioPlayerDelegate {
             #endif
             UserDefaults.standard.set(false, forKey: "ask_review")
         }
-    }
-    
-    @objc func bookReady(){
-        MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
-        PlayerManager.sharedInstance.playPressed()
     }
     
     @objc func bookPlayed(){
@@ -474,7 +442,7 @@ extension PlayerViewController: AVAudioPlayerDelegate {
         guard let userInfo = notification.userInfo,
             let fileURL = userInfo["fileURL"] as? URL,
             let chapterString = userInfo["chapterString"] as? String,
-            fileURL == self.currentBooks.first!.fileURL else {
+            fileURL == self.currentBook.fileURL else {
                 return
         }
         
