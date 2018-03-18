@@ -192,7 +192,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @IBAction func didPressShowDetail(_ sender: UIButton) {
-        guard currentBooks.count > 0 else {
+        guard !currentBooks.isEmpty else {
             return
         }
         play(books: currentBooks)
@@ -230,11 +230,10 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     @objc func bookChange(_ notification:Notification) {
         guard let userInfo = notification.userInfo,
             let books = userInfo["books"] as? [Book],
-            books.count > 0 else {
+            let currentBook = books.first else {
                 return
         }
-        currentBooks = books
-        setupFooter(book: books.first!)
+        setupFooter(book: currentBook)
     }
 
 }
@@ -322,7 +321,7 @@ extension ListBooksViewController: UITableViewDelegate {
     }
     
     func play(books: [Book]) {
-        guard books.count > 0 else {
+        guard !books.isEmpty else {
             return
         }
         
@@ -338,14 +337,11 @@ extension ListBooksViewController: UITableViewDelegate {
     }
     
     func setupFooter(book: Book) {
-        let title = book.fileURL.lastPathComponent
-        let author = book.author
-
         self.footerView.isHidden = false
-        self.footerTitleLabel.text = title + " - " + author
+        self.footerTitleLabel.text = book.displayTitle
         self.footerImageView.image = book.artwork
         self.footerHeightConstraint.constant = 55
-    }
+    }    
 }
 
 extension ListBooksViewController:UIDocumentMenuDelegate {
