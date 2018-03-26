@@ -16,11 +16,11 @@ class SettingsViewController: UITableViewController {
     @IBOutlet weak var globalSpeedSwitch: UISwitch!
     @IBOutlet weak var autoplaySwitch: UISwitch!
 
-    let defaults:UserDefaults = UserDefaults.standard
-    
+    let defaults: UserDefaults = UserDefaults.standard
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         smartRewindSwitch.addTarget(self, action: #selector(self.rewindToggleDidChange), for: .valueChanged)
         boostVolumeSwitch.addTarget(self, action: #selector(self.boostVolumeToggleDidChange), for: .valueChanged)
         globalSpeedSwitch.addTarget(self, action: #selector(self.globalSpeedToggleDidChange), for: .valueChanged)
@@ -28,7 +28,7 @@ class SettingsViewController: UITableViewController {
 
         //set colors
         self.navigationController?.navigationBar.barTintColor = UIColor.flatSkyBlue()
-        
+
         //Set initial switch positions
         smartRewindSwitch.setOn(defaults.bool(forKey: UserDefaultsConstants.smartRewindEnabled), animated: false)
         boostVolumeSwitch.setOn(defaults.bool(forKey: UserDefaultsConstants.boostVolumeEnabled), animated: false)
@@ -37,17 +37,17 @@ class SettingsViewController: UITableViewController {
 
 //        FileManager
     }
-    
-    @objc func rewindToggleDidChange(){
-        defaults.set(smartRewindSwitch.isOn, forKey:UserDefaultsConstants.smartRewindEnabled)
+
+    @objc func rewindToggleDidChange() {
+        defaults.set(smartRewindSwitch.isOn, forKey: UserDefaultsConstants.smartRewindEnabled)
     }
 
-    @objc func boostVolumeToggleDidChange(){
-        defaults.set(boostVolumeSwitch.isOn, forKey:UserDefaultsConstants.boostVolumeEnabled)
+    @objc func boostVolumeToggleDidChange() {
+        defaults.set(boostVolumeSwitch.isOn, forKey: UserDefaultsConstants.boostVolumeEnabled)
     }
 
-    @objc func globalSpeedToggleDidChange(){
-        defaults.set(globalSpeedSwitch.isOn, forKey:UserDefaultsConstants.globalSpeedEnabled)
+    @objc func globalSpeedToggleDidChange() {
+        defaults.set(globalSpeedSwitch.isOn, forKey: UserDefaultsConstants.globalSpeedEnabled)
     }
 
     @objc func autoplayToggleDidChange(){
@@ -57,7 +57,7 @@ class SettingsViewController: UITableViewController {
     @IBAction func didPressClose(_ sender: UIBarButtonItem) {
         self.dismiss(animated: true, completion: nil)
     }
-    
+
     //TODO: remove this once settings page is completed
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         //hide all options except smart rewind
