@@ -432,10 +432,10 @@ extension PlayerViewController: AVAudioPlayerDelegate {
     @objc func bookChange(_ notification:Notification) {
         guard let userInfo = notification.userInfo,
             let books = userInfo["books"] as? [Book],
-            let book = books.first else {
+            let currentBook = books.first else {
                 return
         }
-        setupView(book: book)
+        setupView(book: currentBook)
     }
     
     @objc func updateCurrentChapter(_ notification:Notification) {
