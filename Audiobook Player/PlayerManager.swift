@@ -268,7 +268,7 @@ extension PlayerManager: AVAudioPlayerDelegate {
     }
     
     //toggle play/pause of book
-    func playPressed() {
+    func playPressed(autoplayed: Bool = false) {
         guard let audioplayer = self.audioPlayer else {
             return
         }
@@ -301,8 +301,14 @@ extension PlayerManager: AVAudioPlayerDelegate {
         
         try! AVAudioSession.sharedInstance().setActive(true)
         
+        let completed = Int(audioplayer.duration) == Int(audioplayer.currentTime)
+        
+        if autoplayed && completed {
+            return
+        }
+        
         //if book is completed, reset to start
-        if Int(audioplayer.duration) == Int(audioplayer.currentTime) {
+        if completed {
             audioplayer.currentTime = 0
         }
         

@@ -220,7 +220,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
 
     @objc func bookReady(){
         MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
-        PlayerManager.sharedInstance.playPressed()
+        PlayerManager.sharedInstance.playPressed(autoplayed: true)
     }
 
     @objc func bookPlayed(){
