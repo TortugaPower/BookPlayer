@@ -348,7 +348,6 @@ extension ListBooksViewController: UITableViewDelegate {
         let book = currentBooks.first!
 
         setupPlayer(book: book)
-        showPlayerView(book: book)
         setupFooter(book: book)
     }
 
