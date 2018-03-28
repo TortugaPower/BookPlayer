@@ -54,19 +54,22 @@ extension ChaptersViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ChapterViewCell", for: indexPath) as! ChapterViewCell
-        let chapter = self.chapterArray[indexPath.row]
+        if let cell = tableView.dequeueReusableCell(withIdentifier: "ChapterViewCell", for: indexPath) as? ChapterViewCell {
+            let chapter = self.chapterArray[indexPath.row]
 
-        cell.titleLabel.text = chapter.title
-        cell.durationLabel.text = formatTime(chapter.start)
-        cell.titleLabel.highlightedTextColor = UIColor.black
-        cell.durationLabel.highlightedTextColor = UIColor.black
+            cell.titleLabel.text = chapter.title
+            cell.durationLabel.text = formatTime(chapter.start)
+            cell.titleLabel.highlightedTextColor = UIColor.black
+            cell.durationLabel.highlightedTextColor = UIColor.black
 
-        if self.currentChapter.index == chapter.index {
-            tableView.selectRow(at: indexPath, animated: true, scrollPosition: .top)
+            if self.currentChapter.index == chapter.index {
+                tableView.selectRow(at: indexPath, animated: true, scrollPosition: .top)
+            }
+
+            return cell
         }
 
-        return cell
+        return UITableViewCell()
     }
 }
 

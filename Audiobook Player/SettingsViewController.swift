@@ -50,8 +50,8 @@ class SettingsViewController: UITableViewController {
         defaults.set(globalSpeedSwitch.isOn, forKey: UserDefaultsConstants.globalSpeedEnabled)
     }
 
-    @objc func autoplayToggleDidChange(){
-        defaults.set(autoplaySwitch.isOn, forKey:UserDefaultsConstants.autoplayEnabled)
+    @objc func autoplayToggleDidChange() {
+        defaults.set(autoplaySwitch.isOn, forKey: UserDefaultsConstants.autoplayEnabled)
     }
 
     @IBAction func didPressClose(_ sender: UIBarButtonItem) {

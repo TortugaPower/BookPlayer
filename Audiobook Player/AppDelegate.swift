@@ -30,7 +30,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
         UIApplication.shared.statusBarStyle = .lightContent
 
-        try! AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
+        do {
+            try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
+        } catch {
+            // @TODO: Handle failing AVAudioSession
+        }
 
         // clean leftover sleep timer registry
         UserDefaults.standard.set(nil, forKey: "sleep_timer")
@@ -55,8 +59,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             // In case the app was already running in background
             NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.openURL, object: nil)
         } catch {
-            // TODO: How should this case be handled?
-            try! fmanager.removeItem(at: url)
+            do {
+                try fmanager.removeItem(at: url)
+            } catch {
+                // @TODO: How should this case be handled?
+            }
 
             return false
         }
