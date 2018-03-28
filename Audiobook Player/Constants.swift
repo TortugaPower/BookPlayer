@@ -14,4 +14,5 @@ struct UserDefaultsConstants {
     static let smartRewindEnabled = "userSettingsSmartRewind";
     static let boostVolumeEnabled = "userSettingsBoostVolume";
     static let globalSpeedEnabled = "userSettingsGlobalSpeed";
+    static let autoplayEnabled = "userSettingsAutoplay";
 }

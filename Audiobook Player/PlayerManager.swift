@@ -16,7 +16,7 @@ class PlayerManager: NSObject {
     
     //current item to play
     var playerItem:AVPlayerItem!
-    var currentBook:Book!
+    var currentBooks:[Book]!
     
     var fileURL:URL!
     
@@ -69,18 +69,21 @@ class PlayerManager: NSObject {
     
     
     
-    func load(_ book:Book, completion:@escaping (AVAudioPlayer?) -> Void) {
+    func load(_ books:[Book], completion:@escaping (AVAudioPlayer?) -> Void) {
         
-        if let player = self.audioPlayer {
-            player.stop()
-            //notify?
+        if self.currentBooks != nil && self.currentBooks!.count == books.count { //todo : fix logic
+            if let player = self.audioPlayer {
+                player.stop()
+                //notify?
+            }
         }
-        
+            
+        self.currentBooks = books
+        let book = books.first!
         
         self.playerItem = AVPlayerItem(asset: book.asset)
         self.fileURL = book.fileURL
         self.identifier = book.identifier
-        self.currentBook = book
         self.currentChapter = nil
         self.chapterArray = []
         //notify metadata
@@ -265,7 +268,7 @@ extension PlayerManager: AVAudioPlayerDelegate {
     }
     
     //toggle play/pause of book
-    func playPressed() {
+    func playPressed(autoplayed: Bool = false) {
         guard let audioplayer = self.audioPlayer else {
             return
         }
@@ -298,8 +301,14 @@ extension PlayerManager: AVAudioPlayerDelegate {
         
         try! AVAudioSession.sharedInstance().setActive(true)
         
+        let completed = Int(audioplayer.duration) == Int(audioplayer.currentTime)
+        
+        if autoplayed && completed {
+            return
+        }
+        
         //if book is completed, reset to start
-        if Int(audioplayer.duration) == Int(audioplayer.currentTime) {
+        if completed {
             audioplayer.currentTime = 0
         }
         
@@ -347,7 +356,7 @@ extension PlayerManager: AVAudioPlayerDelegate {
                         "percentage":percentage,
                         "percentageString":percentageString,
                         "hasChapters":!self.chapterArray.isEmpty,
-                        "fileURL":self.currentBook.fileURL] as [String : Any]
+                        "fileURL":self.currentBooks.first!.fileURL] as [String : Any]
         
         //notify percentage
         if storedPercentage != percentageString {
@@ -387,7 +396,7 @@ extension PlayerManager: AVAudioPlayerDelegate {
                 let chapterString = "Chapter \(chapter.index) of \(self.chapterArray.count)"
                 //notify
                 let userInfo = ["chapterString": chapterString,
-                                "fileURL":self.currentBook.fileURL] as [String : Any]
+                                "fileURL":self.currentBooks.first!.fileURL] as [String : Any]
                 
                 //notify
                 NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.updateChapter, object: nil, userInfo: userInfo)
@@ -400,6 +409,17 @@ extension PlayerManager: AVAudioPlayerDelegate {
         if flag {
             player.currentTime = player.duration
             self.updateTimer()
+            
+            if (UserDefaults.standard.bool(forKey: UserDefaultsConstants.autoplayEnabled)) {
+                if self.currentBooks.count > 1 {
+                    let currentBooks = Array(PlayerManager.sharedInstance.currentBooks.dropFirst())
+                    load(currentBooks, completion: { (audioPlayer) in
+                        let userInfo = ["books": currentBooks]
+                        NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookChange, object: nil, userInfo: userInfo)
+                    })
+                }
+            }
+
         }
     }
     

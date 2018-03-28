@@ -25,6 +25,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     //keep in memory images to toggle play/pause
     let miniPlayImage = UIImage(named: "miniPlayButton")
     let miniPauseButton = UIImage(named: "miniPauseButton")
+    var currentBooks: [Book] = []
     
     //TableView's datasource
     var bookArray = [Book]()
@@ -35,7 +36,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         //pull-down-to-refresh support
         self.refreshControl.attributedTitle = NSAttributedString(string: "Pull down to reload books")
         self.refreshControl.addTarget(self, action: #selector(loadFiles), for: .valueChanged)
@@ -89,14 +90,20 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         //register for percentage change notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.updatePercentage(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
         
+        //register notifications when the book is ready
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookReady), name: Notification.Name.AudiobookPlayer.bookReady, object: nil)
+
         //register notifications when the book is played
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookPlayed), name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
-        
+
         //register notifications when the book is paused
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookPaused), name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
         
         //register for book end notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookEnd(_:)), name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
+        
+        //register for book change notifications
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: Notification.Name.AudiobookPlayer.bookChange, object: nil)
         
         //register for remote events
         self.registerRemoteEvents()
@@ -188,11 +195,10 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @IBAction func didPressShowDetail(_ sender: UIButton) {
-        guard let indexPath = self.tableView.indexPathForSelectedRow else {
+        guard !currentBooks.isEmpty else {
             return
         }
-        
-        self.tableView(self.tableView, didSelectRowAt: indexPath)
+        play(books: currentBooks)
     }
     
     //percentage callback
@@ -211,7 +217,12 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
 
         cell.completionLabel.text = percentageString
     }
-    
+
+    @objc func bookReady(){
+        MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
+        PlayerManager.sharedInstance.playPressed(autoplayed: true)
+    }
+
     @objc func bookPlayed(){
         self.footerPlayButton.setImage(self.miniPauseButton, for: UIControlState())
     }
@@ -223,6 +234,16 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     @objc func bookEnd(_ notification:Notification) {
         self.footerPlayButton.setImage(self.miniPlayImage, for: UIControlState())
     }
+    
+    @objc func bookChange(_ notification:Notification) {
+        guard let userInfo = notification.userInfo,
+            let books = userInfo["books"] as? [Book],
+            let currentBook = books.first else {
+                return
+        }
+        setupFooter(book: currentBook)
+    }
+
 }
 
 extension ListBooksViewController: UITableViewDataSource {
@@ -236,8 +257,9 @@ extension ListBooksViewController: UITableViewDataSource {
         let book = self.bookArray[indexPath.row]
         
         cell.titleLabel.text = book.title
-        cell.titleLabel.highlightedTextColor = UIColor.black
         cell.authorLabel.text = book.author
+        
+        cell.selectionStyle = .none
         
         //NOTE: we should have a default image for artwork
         cell.artworkImageView.image = book.artwork
@@ -302,26 +324,49 @@ extension ListBooksViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let book = self.bookArray[indexPath.row]
+        let books = Array(self.bookArray.suffix(from: indexPath.row))
+        play(books: books)
+    }
+    
+    func play(books: [Book]) {
+        guard !books.isEmpty else {
+            return
+        }
+        self.currentBooks = books
+        let book = currentBooks.first!
+        setupPlayer(book: book)
+        showPlayerView(book: book)
+        setupFooter(book: book)
+    }
+    
+    func setupPlayer(book: Book) {
+        //make sure player is for a different book
+        guard PlayerManager.sharedInstance.fileURL != book.fileURL else {
+            showPlayerView(book: book)
+            return
+        }
         
+        MBProgressHUD.showAdded(to: self.view, animated: true)
+        //replace player with new one
+        PlayerManager.sharedInstance.load(self.currentBooks) { (audioPlayer) in
+            self.showPlayerView(book: book)
+        }
+    }
+
+    func setupFooter(book: Book) {
+        self.footerView.isHidden = false
+        self.footerTitleLabel.text = book.displayTitle
+        self.footerImageView.image = book.artwork
+        self.footerHeightConstraint.constant = 55
+    }
+    
+    func showPlayerView(book: Book) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let playerVC = storyboard.instantiateViewController(withIdentifier: "PlayerViewController") as! PlayerViewController
         playerVC.currentBook = book
         
-        guard let cell = tableView.cellForRow(at: indexPath) as? BookCellView else {
-            self.presentModal(playerVC, animated: true)
-            return
-        }
-        
-        let title = cell.titleLabel.text ?? book.fileURL.lastPathComponent
-        let author = cell.authorLabel.text ?? "Unknown Author"
-        
         //show the current player
         self.presentModal(playerVC, animated: true) {
-            self.footerView.isHidden = false
-            self.footerTitleLabel.text = title + " - " + author
-            self.footerImageView.image = cell.artworkImageView.image
-            self.footerHeightConstraint.constant = 55
         }
     }
 }

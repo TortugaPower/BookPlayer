@@ -10,7 +10,6 @@ import UIKit
 import AVFoundation
 import MediaPlayer
 import Chameleon
-import MBProgressHUD
 import StoreKit
 
 class PlayerViewController: UIViewController {
@@ -47,12 +46,33 @@ class PlayerViewController: UIViewController {
     var currentBook: Book!
     
     //timer to update sleep time
-    var sleepTimer:Timer!
+    var sleepTimer: Timer!
     
     //MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        registerObservers()
         
+        setupView(book: currentBook!)
+        playPlayer()
+    }
+    
+    //Resize sleep button on orientation transition
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        coordinator.animate(alongsideTransition: { (context) in
+            let orientation = UIApplication.shared.statusBarOrientation
+            
+            if orientation.isLandscape {
+                self.sleepTimerWidthConstraint.constant = 20
+            } else {
+                self.sleepTimerWidthConstraint.constant = 30
+            }
+            
+        })
+    }
+    
+    func setupView(book currentBook: Book) {
         let averageArtworkColor = UIColor(averageColorFrom: currentBook.artwork) ?? UIColor.flatSkyBlueColorDark()
         
         //set UI colors
@@ -87,32 +107,21 @@ class PlayerViewController: UIViewController {
         
         self.setStatusBarStyle(UIStatusBarStyleContrast)
         
-        //register for appDelegate requestReview notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: Notification.Name.AudiobookPlayer.requestReview, object: nil)
-        //register for timer update
-        NotificationCenter.default.addObserver(self, selector: #selector(self.updateTimer(_:)), name: Notification.Name.AudiobookPlayer.updateTimer, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.updatePercentage(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.updateCurrentChapter(_:)), name: Notification.Name.AudiobookPlayer.updateChapter, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookReady), name: Notification.Name.AudiobookPlayer.bookReady, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookPlayed), name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookPaused), name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookEnd), name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
-
         //set initial state for slider
         self.sliderView.addTarget(self, action: #selector(sliderChanged(_:)), for: .valueChanged)
         self.sliderView.tintColor = UIColor.flatLimeColorDark()
         self.sliderView.maximumValue = 100
         self.sliderView.value = 0
         
-        self.titleLabel.text = self.currentBook.title
-        self.authorLabel.text = self.currentBook.author
+        self.titleLabel.text = currentBook.title
+        self.authorLabel.text = currentBook.author
         
         //set percentage label to stored value
-        let currentPercentage = UserDefaults.standard.string(forKey: self.currentBook.identifier+"_percentage") ?? "0%"
+        let currentPercentage = UserDefaults.standard.string(forKey: currentBook.identifier+"_percentage") ?? "0%"
         self.percentageLabel.text = currentPercentage
         
         //get stored value for current time of book
-        let currentTime = UserDefaults.standard.integer(forKey: self.currentBook.identifier)
+        let currentTime = UserDefaults.standard.integer(forKey: currentBook.identifier)
         
         //update UI if needed and set player to stored time
         if currentTime > 0 {
@@ -121,67 +130,45 @@ class PlayerViewController: UIViewController {
         }
         
         //update max duration label of book
-        let maxDuration = self.currentBook.duration
+        let maxDuration = currentBook.duration
         self.maxTimeLabel.text = self.formatTime(maxDuration)
-        
-        //make sure player is for a different book
-        guard PlayerManager.sharedInstance.fileURL != self.currentBook.fileURL else {
-            if PlayerManager.sharedInstance.isPlaying() {
-                self.playButton.setImage(self.pauseImage, for: UIControlState())
-            } else {
-                self.playButton.setImage(self.playImage, for: UIControlState())
-            }
-            
-            //set smart speed
-            self.speedButton.setTitle("Speed \(String(PlayerManager.sharedInstance.currentSpeed))x", for: UIControlState())
-            
-            //enable/disable chapters button
-            self.chaptersButton.isEnabled = !PlayerManager.sharedInstance.chapterArray.isEmpty
-            
-            if let audioPlayer = PlayerManager.sharedInstance.audioPlayer {
-                let percentage = (Float(currentTime) / Float(audioPlayer.duration)) * 100
-                self.sliderView.value = percentage
-            }
-            
-            return
+    }
+    
+    func playPlayer() {
+        //get stored value for current time of book
+        let currentTime = UserDefaults.standard.integer(forKey: currentBook.identifier)
+
+        if PlayerManager.sharedInstance.isPlaying() {
+            self.playButton.setImage(self.pauseImage, for: UIControlState())
+        } else {
+            self.playButton.setImage(self.playImage, for: UIControlState())
         }
-        
-        MBProgressHUD.showAdded(to: self.view, animated: true)
-        //replace player with new one
-        PlayerManager.sharedInstance.load(self.currentBook) { (audioPlayer) in
-            //currentChapter is not reliable because of currentTime is not ready, set to blank
-            if !PlayerManager.sharedInstance.chapterArray.isEmpty {
-                self.percentageLabel.text = ""
-            }
-            
-            //set smart speed
-            self.speedButton.setTitle("Speed \(String(PlayerManager.sharedInstance.currentSpeed))x", for: UIControlState())
-            
-            //enable/disable chapters button
-            self.chaptersButton.isEnabled = !PlayerManager.sharedInstance.chapterArray.isEmpty
-            
-            if let audioPlayer = audioPlayer {
-                let percentage = (Float(currentTime) / Float(audioPlayer.duration)) * 100
-                self.sliderView.value = percentage
-            }
+        if !PlayerManager.sharedInstance.chapterArray.isEmpty {
+            self.percentageLabel.text = ""
+        }
+        self.speedButton.setTitle("Speed \(String(PlayerManager.sharedInstance.currentSpeed))x", for: UIControlState())
+
+        self.chaptersButton.isEnabled = !PlayerManager.sharedInstance.chapterArray.isEmpty
+
+        if let audioPlayer = PlayerManager.sharedInstance.audioPlayer {
+            let percentage = (Float(currentTime) / Float(audioPlayer.duration)) * 100
+            self.sliderView.value = percentage
         }
     }
     
-    //Resize sleep button on orientation transition
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        super.viewWillTransition(to: size, with: coordinator)
-        coordinator.animate(alongsideTransition: { (context) in
-            let orientation = UIApplication.shared.statusBarOrientation
-            
-            if orientation.isLandscape {
-                self.sleepTimerWidthConstraint.constant = 20
-            } else {
-                self.sleepTimerWidthConstraint.constant = 30
-            }
-            
-        })
+    func registerObservers() {
+        //register for appDelegate requestReview notifications
+        NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: Notification.Name.AudiobookPlayer.requestReview, object: nil)
+        //register for timer update
+        NotificationCenter.default.addObserver(self, selector: #selector(self.updateTimer(_:)), name: Notification.Name.AudiobookPlayer.updateTimer, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.updatePercentage(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.updateCurrentChapter(_:)), name: Notification.Name.AudiobookPlayer.updateChapter, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookPlayed), name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookPaused), name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookEnd), name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: Notification.Name.AudiobookPlayer.bookChange, object: nil)
     }
-    
+
     @objc func sliderChanged(_ sender: UISlider) {
         let percentage = sender.value / sender.maximumValue
         
@@ -429,11 +416,6 @@ extension PlayerViewController: AVAudioPlayerDelegate {
         }
     }
     
-    @objc func bookReady(){
-        MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
-        PlayerManager.sharedInstance.playPressed()
-    }
-    
     @objc func bookPlayed(){
         self.playButton.setImage(self.pauseImage, for: UIControlState())
     }
@@ -444,7 +426,16 @@ extension PlayerViewController: AVAudioPlayerDelegate {
     
     @objc func bookEnd() {
         self.playButton.setImage(self.playImage, for: UIControlState())
-        self.requestReview()
+        self.requestReview()        
+    }
+
+    @objc func bookChange(_ notification:Notification) {
+        guard let userInfo = notification.userInfo,
+            let books = userInfo["books"] as? [Book],
+            let currentBook = books.first else {
+                return
+        }
+        setupView(book: currentBook)
     }
     
     @objc func updateCurrentChapter(_ notification:Notification) {

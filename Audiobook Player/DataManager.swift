@@ -23,6 +23,9 @@ struct Book {
         }
     }
     
+    var displayTitle: String {
+        return title + " - " + author
+    }
     var title: String
     var author: String
     var artwork: UIImage
