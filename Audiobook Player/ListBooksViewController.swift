@@ -12,9 +12,7 @@ import Chameleon
 import MBProgressHUD
 
 class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
-
     @IBOutlet weak var emptyListContainerView: UIView!
-
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var footerView: UIView!
     @IBOutlet weak var footerImageView: UIImageView!
@@ -22,118 +20,122 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet weak var footerHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var footerPlayButton: UIButton!
 
-    //keep in memory images to toggle play/pause
+    // Keep in memory images to toggle play/pause
     let miniPlayImage = UIImage(named: "miniPlayButton")
     let miniPauseButton = UIImage(named: "miniPauseButton")
     var currentBooks: [Book] = []
-
-    //TableView's datasource
+    // TableView's datasource
     var bookArray = [Book]()
-    //keep in memory current Documents folder
-    let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
 
+    // keep in memory current Documents folder
+    let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
     let refreshControl = UIRefreshControl()
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        //pull-down-to-refresh support
+        // pull-down-to-refresh support
         self.refreshControl.attributedTitle = NSAttributedString(string: "Pull down to reload books")
         self.refreshControl.addTarget(self, action: #selector(loadFiles), for: .valueChanged)
         self.tableView.addSubview(self.refreshControl)
 
-        //enables pop gesture on pushed controller
+        // enables pop gesture on pushed controller
         self.navigationController!.interactivePopGestureRecognizer!.delegate = self
 
-        //fixed tableview having strange offset
+        // fixed tableview having strange offset
         self.edgesForExtendedLayout = UIRectEdge()
 
-        //set colors
+        // set colors
         self.navigationController?.navigationBar.barTintColor = UIColor.flatSkyBlue()
         self.footerView.backgroundColor = UIColor.flatSkyBlue()
         self.footerView.isHidden = true
 
         self.tableView.tableFooterView = UIView()
 
-        //set external control listeners
+        // set external control listeners
         let skipForward = MPRemoteCommandCenter.shared().skipForwardCommand
+
         skipForward.isEnabled = true
         skipForward.addTarget(self, action: #selector(self.forwardPressed(_:)))
         skipForward.preferredIntervals = [30]
 
         let skipRewind = MPRemoteCommandCenter.shared().skipBackwardCommand
+
         skipRewind.isEnabled = true
         skipRewind.addTarget(self, action: #selector(self.rewindPressed(_:)))
         skipRewind.preferredIntervals = [30]
 
         let playCommand = MPRemoteCommandCenter.shared().playCommand
+
         playCommand.isEnabled = true
         playCommand.addTarget(self, action: #selector(self.didPressPlay(_:)))
 
         let pauseCommand = MPRemoteCommandCenter.shared().pauseCommand
+
         pauseCommand.isEnabled = true
         pauseCommand.addTarget(self, action: #selector(self.didPressPlay(_:)))
 
-        //set tap handler to show detail on tap on footer view
+        // set tap handler to show detail on tap on footer view
         let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.didPressShowDetail(_:)))
+
         self.footerView.addGestureRecognizer(tapRecognizer)
 
-        //register to audio-interruption notifications
+        // register to audio-interruption notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioInterruptions(_:)), name: NSNotification.Name.AVAudioSessionInterruption, object: nil)
 
-        //register to audio-route-change notifications
+        // register to audio-route-change notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioRouteChange(_:)), name: NSNotification.Name.AVAudioSessionRouteChange, object: nil)
 
-        //register for appDelegate openUrl notifications
+        // register for appDelegate openUrl notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.loadFiles), name: Notification.Name.AudiobookPlayer.openURL, object: nil)
 
-        //register for percentage change notifications
+        // register for percentage change notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.updatePercentage(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
 
-        //register notifications when the book is ready
+        // register notifications when the book is ready
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookReady), name: Notification.Name.AudiobookPlayer.bookReady, object: nil)
 
-        //register notifications when the book is played
+        // register notifications when the book is played
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookPlayed), name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
 
-        //register notifications when the book is paused
+        // register notifications when the book is paused
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookPaused), name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
 
-        //register for book end notifications
+        // register for book end notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookEnd(_:)), name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
 
-        //register for book change notifications
+        // register for book change notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: Notification.Name.AudiobookPlayer.bookChange, object: nil)
 
-        //register for remote events
+        // register for remote events
         self.registerRemoteEvents()
 
         self.loadFiles()
+
         self.footerHeightConstraint.constant = 0
     }
 
-    //no longer need to deregister observers for iOS 9+!
-    //https://developer.apple.com/library/mac/releasenotes/Foundation/RN-Foundation/index.html#10_11NotificationCenter
+    // No longer need to deregister observers for iOS 9+!
+    // https://developer.apple.com/library/mac/releasenotes/Foundation/RN-Foundation/index.html#10_11NotificationCenter
     deinit {
         //for iOS 8
         NotificationCenter.default.removeObserver(self)
         UIApplication.shared.endReceivingRemoteControlEvents()
     }
 
-    //Playback may be interrupted by calls. Handle pause
+    // Playback may be interrupted by calls. Handle pause
     @objc func handleAudioInterruptions(_ notification: Notification) {
-
         guard let audioPlayer = PlayerManager.sharedInstance.audioPlayer else {
             return
         }
+
         if audioPlayer.isPlaying {
             self.didPressPlay(self.footerPlayButton)
         }
     }
 
-    //Handle audio route changes
+    // Handle audio route changes
     @objc func handleAudioRouteChange(_ notification: Notification) {
-
         guard let audioPlayer = PlayerManager.sharedInstance.audioPlayer,
             audioPlayer.isPlaying,
             let userInfo = notification.userInfo,
@@ -142,7 +144,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
             return
         }
 
-        //Pause playback if route changes due to a disconnect
+        // Pause playback if route changes due to a disconnect
         switch reason {
         case .oldDeviceUnavailable:
             self.didPressPlay(self.footerPlayButton)
@@ -174,6 +176,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         return navigationController!.viewControllers.count > 1
     }
+
     @IBAction func didPressReload(_ sender: UIBarButtonItem) {
         self.loadFiles()
     }
@@ -194,10 +197,11 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         guard !currentBooks.isEmpty else {
             return
         }
+
         play(books: currentBooks)
     }
 
-    //percentage callback
+    // Percentage callback
     @objc func updatePercentage(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
             let fileURL = userInfo["fileURL"] as? URL,
@@ -237,6 +241,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
             let currentBook = books.first else {
                 return
         }
+
         setupFooter(book: currentBook)
     }
 
@@ -256,10 +261,10 @@ extension ListBooksViewController: UITableViewDataSource {
 
             cell.selectionStyle = .none
 
-            //NOTE: we should have a default image for artwork
+            // NOTE: we should have a default image for artwork
             cell.artworkImageView.image = book.artwork
 
-            //load stored percentage value
+            // Load stored percentage value
             cell.completionLabel.text = UserDefaults.standard.string(forKey: self.bookArray[indexPath.row].identifier + "_percentage") ?? "0%"
             cell.completionLabel.textColor = UIColor.flatGreenColorDark()
 
@@ -276,13 +281,13 @@ extension ListBooksViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-
         let deleteAction = UITableViewRowAction(style: .default, title: "Delete") { (_, indexPath) in
             let alert = UIAlertController(title: "Confirmation", message: "Are you sure you would like to remove this audiobook?", preferredStyle: .alert)
 
             alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: { _ in
                 tableView.setEditing(false, animated: true)
             }))
+
             alert.addAction(UIAlertAction(title: "Yes", style: .destructive, handler: { _ in
                 let book = self.bookArray.remove(at: indexPath.row)
 
@@ -312,6 +317,7 @@ extension ListBooksViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
     }
+
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 86
     }
@@ -328,6 +334,7 @@ extension ListBooksViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let books = Array(self.bookArray.suffix(from: indexPath.row))
+
         play(books: books)
     }
 
@@ -335,22 +342,27 @@ extension ListBooksViewController: UITableViewDelegate {
         guard !books.isEmpty else {
             return
         }
+
         self.currentBooks = books
+
         let book = currentBooks.first!
+
         setupPlayer(book: book)
         showPlayerView(book: book)
         setupFooter(book: book)
     }
 
     func setupPlayer(book: Book) {
-        //make sure player is for a different book
+        // Make sure player is for a different book
         guard PlayerManager.sharedInstance.fileURL != book.fileURL else {
             showPlayerView(book: book)
+
             return
         }
 
         MBProgressHUD.showAdded(to: self.view, animated: true)
-        //replace player with new one
+
+        // Replace player with new one
         PlayerManager.sharedInstance.load(self.currentBooks) { (_) in
             self.showPlayerView(book: book)
         }
@@ -369,7 +381,7 @@ extension ListBooksViewController: UITableViewDelegate {
         if let playerVC = storyboard.instantiateViewController(withIdentifier: "PlayerViewController") as? PlayerViewController {
             playerVC.currentBook = book
 
-            //show the current player
+            // Show the current player
             self.presentModal(playerVC, animated: true)
         }
     }
@@ -378,8 +390,8 @@ extension ListBooksViewController: UITableViewDelegate {
 extension ListBooksViewController: UIDocumentMenuDelegate {
     @IBAction func didPressImportOptions(_ sender: UIBarButtonItem) {
         let sheet = UIAlertController(title: "Import Books", message: nil, preferredStyle: .actionSheet)
-
         let cancelButton = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+
         let localButton = UIAlertAction(title: "From Local Apps", style: .default) { (_) in
             let providerList = UIDocumentMenuViewController(documentTypes: ["public.audio"], in: .import)
             providerList.delegate = self
@@ -409,13 +421,13 @@ extension ListBooksViewController: UIDocumentMenuDelegate {
 
         documentPicker.popoverPresentationController?.sourceView = self.view
         documentPicker.popoverPresentationController?.sourceRect = CGRect(x: Double(self.view.bounds.size.width / 2.0), y: Double(self.view.bounds.size.height-45), width: 1.0, height: 1.0)
+
         self.present(documentPicker, animated: true, completion: nil)
     }
 }
 
 extension ListBooksViewController: UIDocumentPickerDelegate {
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
-
         //Documentation states that the file might not be imported due to being accessed from somewhere else
         do {
             try FileManager.default.attributesOfItem(atPath: url.path)

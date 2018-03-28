@@ -42,8 +42,10 @@ extension UIViewController {
 
     func presentModal(_ viewController: UIViewController, animated: Bool, completion: (() -> Swift.Void)? = nil) {
         let transitionDelegate = DeckTransitioningDelegate()
+
         viewController.transitioningDelegate = transitionDelegate
         viewController.modalPresentationStyle = .custom
+
         self.present(viewController, animated: animated, completion: completion)
     }
 }
