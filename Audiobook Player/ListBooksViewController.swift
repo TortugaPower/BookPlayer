@@ -52,29 +52,6 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
 
         self.tableView.tableFooterView = UIView()
 
-        // set external control listeners
-        let skipForward = MPRemoteCommandCenter.shared().skipForwardCommand
-
-        skipForward.isEnabled = true
-        skipForward.addTarget(self, action: #selector(self.forwardPressed(_:)))
-        skipForward.preferredIntervals = [30]
-
-        let skipRewind = MPRemoteCommandCenter.shared().skipBackwardCommand
-
-        skipRewind.isEnabled = true
-        skipRewind.addTarget(self, action: #selector(self.rewindPressed(_:)))
-        skipRewind.preferredIntervals = [30]
-
-        let playCommand = MPRemoteCommandCenter.shared().playCommand
-
-        playCommand.isEnabled = true
-        playCommand.addTarget(self, action: #selector(self.didPressPlay(_:)))
-
-        let pauseCommand = MPRemoteCommandCenter.shared().pauseCommand
-
-        pauseCommand.isEnabled = true
-        pauseCommand.addTarget(self, action: #selector(self.didPressPlay(_:)))
-
         // set tap handler to show detail on tap on footer view
         let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.didPressShowDetail(_:)))
 
@@ -470,7 +447,10 @@ extension ListBooksViewController {
             return .success
         }
 
+        MPRemoteCommandCenter.shared().skipForwardCommand.preferredIntervals = [30]
         MPRemoteCommandCenter.shared().skipForwardCommand.addTarget(handler: skipForwardHandler)
+
+        MPRemoteCommandCenter.shared().skipBackwardCommand.preferredIntervals = [30]
         MPRemoteCommandCenter.shared().nextTrackCommand.addTarget(handler: skipForwardHandler)
 
         MPRemoteCommandCenter.shared().seekForwardCommand.addTarget { (commandEvent) -> MPRemoteCommandHandlerStatus in
