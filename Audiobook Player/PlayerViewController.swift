@@ -157,6 +157,7 @@ class PlayerViewController: UIViewController {
 
         if let audioPlayer = PlayerManager.sharedInstance.audioPlayer {
             let percentage = (Float(currentTime) / Float(audioPlayer.duration)) * 100
+
             self.sliderView.value = percentage
         }
     }
@@ -208,29 +209,25 @@ class PlayerViewController: UIViewController {
     }
 
     @IBAction func didSelectChapter(_ segue: UIStoryboardSegue) {
-        guard PlayerManager.sharedInstance.isLoaded() else {
+        guard PlayerManager.sharedInstance.isLoaded(),
+            let viewController = segue.source as? ChaptersViewController,
+            let chapter = viewController.currentChapter else {
             return
         }
 
-        if let viewController = segue.source as? ChaptersViewController {
-            let chapter = viewController.currentChapter!
-
-            PlayerManager.sharedInstance.setChapter(chapter)
-        }
+        PlayerManager.sharedInstance.setChapter(chapter)
     }
 
     @IBAction func didSelectSpeed(_ segue: UIStoryboardSegue) {
-        guard PlayerManager.sharedInstance.isLoaded() else {
+        guard PlayerManager.sharedInstance.isLoaded(),
+            let viewController = segue.source as? SpeedViewController,
+            let speed = viewController.currentSpeed else {
             return
         }
 
-        if let viewController = segue.source as? SpeedViewController {
-            let speed = viewController.currentSpeed!
+        PlayerManager.sharedInstance.setSpeed(speed)
 
-            PlayerManager.sharedInstance.setSpeed(speed)
-
-            self.speedButton.setTitle("Speed \(String(PlayerManager.sharedInstance.currentSpeed))x", for: UIControlState())
-        }
+        self.speedButton.setTitle("Speed \(String(PlayerManager.sharedInstance.currentSpeed))x", for: UIControlState())
     }
 
     @IBAction func didSelectAction(_ segue: UIStoryboardSegue) {
@@ -333,7 +330,7 @@ class PlayerViewController: UIViewController {
             if self.sleepTimer != nil {
                 self.sleepTimer.invalidate()
             }
-            
+
             return
         }
 
