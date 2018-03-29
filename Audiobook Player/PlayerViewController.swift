@@ -51,8 +51,8 @@ class PlayerViewController: UIViewController {
     // MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        registerObservers()
 
+        registerObservers()
         setupView(book: currentBook!)
         playPlayer()
     }
@@ -60,6 +60,7 @@ class PlayerViewController: UIViewController {
     //Resize sleep button on orientation transition
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
+
         coordinator.animate(alongsideTransition: { (_) in
             let orientation = UIApplication.shared.statusBarOrientation
 
@@ -126,11 +127,13 @@ class PlayerViewController: UIViewController {
         //update UI if needed and set player to stored time
         if currentTime > 0 {
             let formattedCurrentTime = self.formatTime(currentTime)
+
             self.currentTimeLabel.text = formattedCurrentTime
         }
 
         //update max duration label of book
         let maxDuration = currentBook.duration
+
         self.maxTimeLabel.text = self.formatTime(maxDuration)
     }
 
@@ -143,9 +146,11 @@ class PlayerViewController: UIViewController {
         } else {
             self.playButton.setImage(self.playImage, for: UIControlState())
         }
+
         if !PlayerManager.sharedInstance.chapterArray.isEmpty {
             self.percentageLabel.text = ""
         }
+
         self.speedButton.setTitle("Speed \(String(PlayerManager.sharedInstance.currentSpeed))x", for: UIControlState())
 
         self.chaptersButton.isEnabled = !PlayerManager.sharedInstance.chapterArray.isEmpty
@@ -159,6 +164,7 @@ class PlayerViewController: UIViewController {
     func registerObservers() {
         //register for appDelegate requestReview notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: Notification.Name.AudiobookPlayer.requestReview, object: nil)
+
         //register for timer update
         NotificationCenter.default.addObserver(self, selector: #selector(self.updateTimer(_:)), name: Notification.Name.AudiobookPlayer.updateTimer, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.updatePercentage(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
@@ -202,7 +208,6 @@ class PlayerViewController: UIViewController {
     }
 
     @IBAction func didSelectChapter(_ segue: UIStoryboardSegue) {
-
         guard PlayerManager.sharedInstance.isLoaded() else {
             return
         }
@@ -215,7 +220,6 @@ class PlayerViewController: UIViewController {
     }
 
     @IBAction func didSelectSpeed(_ segue: UIStoryboardSegue) {
-
         guard PlayerManager.sharedInstance.isLoaded() else {
             return
         }
@@ -230,7 +234,6 @@ class PlayerViewController: UIViewController {
     }
 
     @IBAction func didSelectAction(_ segue: UIStoryboardSegue) {
-
         guard PlayerManager.sharedInstance.isLoaded() else {
             return
         }
@@ -258,8 +261,8 @@ class PlayerViewController: UIViewController {
     }
 
     @IBAction func didPressSleepTimer(_ sender: UIButton) {
-
         var alertTitle: String? = nil
+
         if self.sleepTimer != nil && self.sleepTimer.isValid {
             alertTitle = " "
         }
@@ -277,15 +280,19 @@ class PlayerViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "In 10 Minutes", style: .default, handler: { _ in
             self.sleep(in: 600)
         }))
+
         alert.addAction(UIAlertAction(title: "In 15 Minutes", style: .default, handler: { _ in
             self.sleep(in: 900)
         }))
+
         alert.addAction(UIAlertAction(title: "In 30 Minutes", style: .default, handler: { _ in
             self.sleep(in: 1800)
         }))
+
         alert.addAction(UIAlertAction(title: "In 45 Minutes", style: .default, handler: { _ in
             self.sleep(in: 2700)
         }))
+
         alert.addAction(UIAlertAction(title: "In One Hour", style: .default, handler: { _ in
             self.sleep(in: 3600)
         }))
@@ -315,22 +322,22 @@ class PlayerViewController: UIViewController {
         //create timer if needed
         if self.sleepTimer == nil || (self.sleepTimer != nil && !self.sleepTimer.isValid) {
             self.sleepTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(updateSleepTimer), userInfo: nil, repeats: true)
+
             RunLoop.main.add(self.sleepTimer, forMode: RunLoopMode.commonModes)
         }
     }
 
     @objc func updateSleepTimer() {
-
         guard PlayerManager.sharedInstance.isLoaded() else {
             //kill timer
             if self.sleepTimer != nil {
                 self.sleepTimer.invalidate()
             }
+            
             return
         }
 
         let currentTime = UserDefaults.standard.integer(forKey: "sleep_timer")
-
         var newTime: Int? = currentTime - 1
 
         if let alertviewController = self.presentedViewController, alertviewController is UIAlertController {
@@ -339,6 +346,7 @@ class PlayerViewController: UIViewController {
 
         if newTime! <= 0 {
             newTime = nil
+
             //stop audiobook
             if self.sleepTimer != nil && self.sleepTimer.isValid {
                 self.sleepTimer.invalidate()
@@ -348,6 +356,7 @@ class PlayerViewController: UIViewController {
                 self.playPressed(self.playButton)
             }
         }
+
         UserDefaults.standard.set(newTime, forKey: "sleep_timer")
     }
 
@@ -357,7 +366,6 @@ class PlayerViewController: UIViewController {
 }
 
 extension PlayerViewController: AVAudioPlayerDelegate {
-
     //skip time forward
     @IBAction func forwardPressed(_ sender: UIButton) {
         PlayerManager.sharedInstance.forwardPressed()
@@ -439,7 +447,9 @@ extension PlayerViewController: AVAudioPlayerDelegate {
             let book = books.first else {
                 return
         }
+
         self.currentBook = book
+
         setupView(book: book)
     }
 
