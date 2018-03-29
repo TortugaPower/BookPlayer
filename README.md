@@ -1,10 +1,12 @@
 # Audiobook-Player
+
 Player made in Swift for your DRM-free audiobooks. Now available in the [Appstore!](https://itunes.apple.com/us/app/bookplayer-audio-book-player/id1138219998?ls=1&mt=8)
 
-<img src="https://raw.githubusercontent.com/GianniCarlo/Audiobook-Player/master/Assets/list_screenshot.png" width="350"/>
-<img src="https://raw.githubusercontent.com/GianniCarlo/Audiobook-Player/master/Assets/player_screenshot.png" width="350"/>
+<img src="https://raw.githubusercontent.com/GianniCarlo/Audiobook-Player/master/Assets/list_screenshot.png" width="350" />
+<img src="https://raw.githubusercontent.com/GianniCarlo/Audiobook-Player/master/Assets/player_screenshot.png" width="350" />
 
-# Features
+## Features
+
 - Upload your DRM-free audiobooks to your phone via file sharing in iTunes
 - Control audio playback from the lock screen or the control center
 - Maintain progress of your audiobooks
@@ -18,22 +20,31 @@ Player made in Swift for your DRM-free audiobooks. Now available in the [Appstor
 - Boost volume (Thanks [gpambrozio](https://github.com/gpambrozio))
 - Support for remote events from headset buttons.
 
-# Upcoming features
+### Upcoming features
+
 - Support for Playlists
 - iCloud integration to store users' playlist and books' url cloud reference
 - Implementation of AWS S3 integration to store books in the cloud
 - Stream books
 
-# Contributing
+## Contributing
+
 Pull requests regarding upcoming features (or bugs) are welcomed. Any suggestion or bug please open up an issue 👍
 
-# Dependencies
+## Dependencies
+
 Managed with [Carthage](https://github.com/Carthage/Carthage)
+
 - [Chameleon](https://github.com/ViccAlexander/Chameleon) for colors
 - [MBProgressHUD](https://github.com/jdg/MBProgressHUD) for loading wheels
 - [DeckTransition](https://github.com/HarshilShah/DeckTransition) for modal presentations (like music app)
 
-# Credits
+Managed with [Homebrew](https://brew.sh)
+å
+- [SwiftLint](https://github.com/realm/SwiftLint)
+
+## Credits
+
 - Large Play image made by [Vectors Market](http://www.flaticon.com/authors/vectors-market) from [www.flaticon.com](http://www.flaticon.com)
 - Large Pause image made by [Vectors Market](http://www.flaticon.com/authors/vectors-market) from [www.flaticon.com](http://www.flaticon.com)
 - Skip time image made by [Vaadin](http://www.flaticon.com/authors/vaadin) from [www.flaticon.com](http://www.flaticon.com)
@@ -46,5 +57,6 @@ Managed with [Carthage](https://github.com/Carthage/Carthage)
 - Three squares image made by [Vaadin](http://www.flaticon.com/authors/vaadin) from [www.flaticon.com](http://www.flaticon.com)
 - App icon and screenshot template generator from https://appicontemplate.com/
 
-# License
-Licensed under [GNU GPL v. 3.0](https://opensource.org/licenses/GPL-3.0). See `LICENSE` for details.
+## License
+
+See `LICENSE` for details.

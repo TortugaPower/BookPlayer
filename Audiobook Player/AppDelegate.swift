@@ -1,9 +1,9 @@
 //
-//  AppDelegate.swift
-//  Audiobook Player
+// AppDelegate.swift
+// Audiobook Player
 //
-//  Created by Gianni Carlo on 7/1/16.
-//  Copyright © 2016 Tortuga Power. All rights reserved.
+// Created by Gianni Carlo on 7/1/16.
+// Copyright © 2016 Tortuga Power. All rights reserved.
 //
 
 import UIKit
@@ -13,54 +13,61 @@ import Crashlytics
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
-
     var window: UIWindow?
-
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         Fabric.with([Crashlytics.self])
-        let defaults:UserDefaults = UserDefaults.standard
-        
+
+        let defaults: UserDefaults = UserDefaults.standard
+
         // Perfrom first launch setup
         if !defaults.bool(forKey: UserDefaultsConstants.completedFirstLaunch) {
             // Set default settings
             defaults.set(true, forKey: UserDefaultsConstants.smartRewindEnabled)
-            
             defaults.set(true, forKey: UserDefaultsConstants.completedFirstLaunch)
         }
 
         UIApplication.shared.statusBarStyle = .lightContent
-        
-        try! AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
-        
-        //clean leftover sleep timer registry
+
+        do {
+            try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
+        } catch {
+            // @TODO: Handle failing AVAudioSession
+        }
+
+        // clean leftover sleep timer registry
         UserDefaults.standard.set(nil, forKey: "sleep_timer")
+
         return true
     }
-    
+
     func application(_ app: UIApplication,
-                              open url: URL,
-                              options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {
+                     open url: URL,
+                     options: [UIApplicationOpenURLOptionsKey: Any] = [:]) -> Bool {
         // This function is called when the app is opened with a audio file url,
         // like when receiving files through AirDrop
-        
-        let fmanager = FileManager.default
 
+        let fmanager = FileManager.default
         let filename = url.lastPathComponent
         let documentsURL = fmanager.urls(for: .documentDirectory, in: .userDomainMask).first!
         let destinationURL = documentsURL.appendingPathComponent(filename)
-        
+
         // move file from Inbox to Document folder
         do {
             try fmanager.moveItem(at: url, to: destinationURL)
-            //In case the app was already running in background
+            // In case the app was already running in background
             NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.openURL, object: nil)
         } catch {
-            // TODO: How should this case be handled?
-            try! fmanager.removeItem(at: url)
+            do {
+                try fmanager.removeItem(at: url)
+            } catch {
+                // @TODO: How should this case be handled?
+            }
+
             return false
         }
+
         return true
     }
 
@@ -80,13 +87,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-        
+
         // Check if the app is on the PlayerViewController
         guard let navigationVC = UIApplication.shared.keyWindow?.rootViewController!,
-            navigationVC.childViewControllers.count > 1 else{
+            navigationVC.childViewControllers.count > 1 else {
+
             return
         }
-        
+
         // Notify controller to see if it should ask for review
         NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.requestReview, object: nil)
     }
@@ -94,5 +102,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
-
 }

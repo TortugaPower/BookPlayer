@@ -77,6 +77,9 @@
 		41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChaptersViewController.swift; sourceTree = "<group>"; };
 		41B2AC8F1D43CD2F005382A9 /* SpeedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpeedViewController.swift; sourceTree = "<group>"; };
 		41B2AC911D441627005382A9 /* MoreViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MoreViewController.swift; sourceTree = "<group>"; };
+		C35BADE7206989E6007687C1 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		C35BADE8206989E6007687C1 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		C35BADE9206989E6007687C1 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .swiftlint.yml; sourceTree = "<group>"; };
 		D367F7671FA2A6F000FEDB37 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -117,6 +120,9 @@
 		418B6CEF1D2707F700F974FB = {
 			isa = PBXGroup;
 			children = (
+				C35BADE8206989E6007687C1 /* README.md */,
+				C35BADE7206989E6007687C1 /* LICENSE */,
+				C35BADE9206989E6007687C1 /* .swiftlint.yml */,
 				418B6CFA1D2707F800F974FB /* Audiobook Player */,
 				418B6D111D2707F800F974FB /* Audiobook PlayerTests */,
 				418B6CF91D2707F800F974FB /* Products */,
@@ -197,6 +203,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 418B6D171D2707F800F974FB /* Build configuration list for PBXNativeTarget "Audiobook Player" */;
 			buildPhases = (
+				C35BADEA20698A6D007687C1 /* ShellScript */,
 				418B6CF41D2707F800F974FB /* Sources */,
 				418B6CF51D2707F800F974FB /* Frameworks */,
 				418B6CF61D2707F800F974FB /* Resources */,
@@ -332,6 +339,19 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "/usr/local/bin/carthage copy-frameworks";
+		};
+		C35BADEA20698A6D007687C1 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftlint >/dev/null; then\n    swiftlint\nelse\n    echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi";
 		};
 /* End PBXShellScriptBuildPhase section */
 

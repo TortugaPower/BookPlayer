@@ -1,0 +1,8 @@
+excluded:
+  - Carthage
+# line_length: 120
+disabled_rules:
+  - todo
+  - line_length
+  - type_name
+  - switch_case_alignment
