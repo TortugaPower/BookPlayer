@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import DeckTransition
 
 extension UIViewController {
     func showAlert(_ title: String?, message: String?, style: UIAlertControllerStyle) {
@@ -38,21 +37,6 @@ extension UIViewController {
         }
 
         return formattedTime
-    }
-
-    func presentModal(_ viewController: UIViewController, animated: Bool, completion: (() -> Swift.Void)? = nil) {
-        let transitionDelegate = DeckTransitioningDelegate()
-
-        viewController.transitioningDelegate = transitionDelegate
-        viewController.modalPresentationStyle = .custom
-
-        self.present(viewController, animated: animated, completion: completion)
-    }
-}
-
-extension UINavigationController {
-    override open var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
     }
 }
 

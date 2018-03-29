@@ -15,7 +15,6 @@ import StoreKit
 class PlayerViewController: UIViewController {
     @IBOutlet weak var authorLabel: UILabel!
     @IBOutlet weak var titleLabel: UILabel!
-    @IBOutlet weak var optionsIndicatorButton: UIButton!
 
     @IBOutlet weak var playButton: UIButton!
     @IBOutlet weak var forwardButton: UIButton!
@@ -26,18 +25,19 @@ class PlayerViewController: UIViewController {
 
     @IBOutlet weak var timeSeparator: UILabel!
 
-    @IBOutlet weak var leftVerticalView: UIView!
     @IBOutlet weak var sliderView: UISlider!
 
     @IBOutlet weak var percentageLabel: UILabel!
 
-    @IBOutlet weak var chaptersButton: UIButton!
-    @IBOutlet weak var speedButton: UIButton!
-    @IBOutlet weak var sleepButton: UIButton!
+    @IBOutlet weak var bottomToolbar: UIToolbar!
+
+    @IBOutlet weak var optionsIndicatorButton: UIBarButtonItem!
+    @IBOutlet weak var closeButton: UIBarButtonItem!
+    @IBOutlet weak var chaptersButton: UIBarButtonItem!
+    @IBOutlet weak var speedButton: UIBarButtonItem!
+    @IBOutlet weak var sleepButton: UIBarButtonItem!
 
     @IBOutlet weak var coverImageView: UIImageView!
-
-    @IBOutlet weak var sleepTimerWidthConstraint: NSLayoutConstraint!
 
     //keep in memory images to toggle play/pause
     let playImage = UIImage(named: "playButton")
@@ -51,25 +51,15 @@ class PlayerViewController: UIViewController {
     // MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        registerObservers()
 
+        // Make toolbar transparent
+        self.bottomToolbar.setBackgroundImage(UIImage(), forToolbarPosition: .any, barMetrics: .default)
+
+        self.bottomToolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
+
+        registerObservers()
         setupView(book: currentBook!)
         playPlayer()
-    }
-
-    //Resize sleep button on orientation transition
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        super.viewWillTransition(to: size, with: coordinator)
-        coordinator.animate(alongsideTransition: { (_) in
-            let orientation = UIApplication.shared.statusBarOrientation
-
-            if orientation.isLandscape {
-                self.sleepTimerWidthConstraint.constant = 20
-            } else {
-                self.sleepTimerWidthConstraint.constant = 30
-            }
-
-        })
     }
 
     func setupView(book currentBook: Book) {
@@ -80,19 +70,13 @@ class PlayerViewController: UIViewController {
             averageArtworkColor!,
             UIColor.flatBlack()
         ]
+
         self.view.backgroundColor = GradientColor(.topToBottom, frame: view.frame, colors: artworkColors)
 
-        self.leftVerticalView.backgroundColor = averageArtworkColor
         self.maxTimeLabel.textColor = UIColor.flatWhiteColorDark()
-
         self.titleLabel.textColor = UIColor(contrastingBlackOrWhiteColorOn: averageArtworkColor!, isFlat: true)
         self.authorLabel.textColor = UIColor(contrastingBlackOrWhiteColorOn: averageArtworkColor!, isFlat: true)
-        self.optionsIndicatorButton.tintColor = UIColor(contrastingBlackOrWhiteColorOn: averageArtworkColor!, isFlat: true)
-
         self.timeSeparator.textColor = UIColor.flatWhiteColorDark()
-        self.chaptersButton.setTitleColor(UIColor.flatGray(), for: .disabled)
-        self.speedButton.setTitleColor(UIColor.flatGray(), for: .disabled)
-        self.sleepButton.tintColor = UIColor.white
 
         self.coverImageView.image = currentBook.artwork
 
@@ -102,10 +86,6 @@ class PlayerViewController: UIViewController {
         coverImageView.layer.shadowOpacity = 0.6
         coverImageView.layer.shadowRadius = 6.0
         coverImageView.clipsToBounds = false
-
-        modalPresentationCapturesStatusBarAppearance = true
-
-        self.setStatusBarStyle(UIStatusBarStyleContrast)
 
         //set initial state for slider
         self.sliderView.addTarget(self, action: #selector(sliderChanged(_:)), for: .valueChanged)
@@ -131,7 +111,13 @@ class PlayerViewController: UIViewController {
 
         //update max duration label of book
         let maxDuration = currentBook.duration
+
         self.maxTimeLabel.text = self.formatTime(maxDuration)
+
+        // Set status bar
+        modalPresentationCapturesStatusBarAppearance = true
+
+        self.setStatusBarStyle(UIStatusBarStyleContrast)
     }
 
     func playPlayer() {
@@ -143,10 +129,12 @@ class PlayerViewController: UIViewController {
         } else {
             self.playButton.setImage(self.playImage, for: UIControlState())
         }
+
         if !PlayerManager.sharedInstance.chapterArray.isEmpty {
             self.percentageLabel.text = ""
         }
-        self.speedButton.setTitle("Speed \(String(PlayerManager.sharedInstance.currentSpeed))x", for: UIControlState())
+
+        self.speedButton.title = "\(String(PlayerManager.sharedInstance.currentSpeed))x"
 
         self.chaptersButton.isEnabled = !PlayerManager.sharedInstance.chapterArray.isEmpty
 
@@ -177,32 +165,7 @@ class PlayerViewController: UIViewController {
         }
     }
 
-    @IBAction func presentMore(_ sender: UIButton) {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-
-        if let viewController = storyboard.instantiateViewController(withIdentifier: "MoreViewController") as? MoreViewController {
-            self.presentModal(viewController, animated: true, completion: nil)
-        }
-    }
-
-    @IBAction func presentChapter(_ sender: UIButton) {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-
-        if let viewController = storyboard.instantiateViewController(withIdentifier: "ChaptersViewController") as? ChaptersViewController {
-            self.presentModal(viewController, animated: true, completion: nil)
-        }
-    }
-
-    @IBAction func presentSpeed(_ sender: UIButton) {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-
-        if let viewController = storyboard.instantiateViewController(withIdentifier: "SpeedViewController") as? SpeedViewController {
-            self.presentModal(viewController, animated: true, completion: nil)
-        }
-    }
-
     @IBAction func didSelectChapter(_ segue: UIStoryboardSegue) {
-
         guard PlayerManager.sharedInstance.isLoaded() else {
             return
         }
@@ -215,7 +178,6 @@ class PlayerViewController: UIViewController {
     }
 
     @IBAction func didSelectSpeed(_ segue: UIStoryboardSegue) {
-
         guard PlayerManager.sharedInstance.isLoaded() else {
             return
         }
@@ -225,12 +187,11 @@ class PlayerViewController: UIViewController {
 
             PlayerManager.sharedInstance.setSpeed(speed)
 
-            self.speedButton.setTitle("Speed \(String(PlayerManager.sharedInstance.currentSpeed))x", for: UIControlState())
+            self.speedButton.title = "\(String(PlayerManager.sharedInstance.currentSpeed))x"
         }
     }
 
     @IBAction func didSelectAction(_ segue: UIStoryboardSegue) {
-
         guard PlayerManager.sharedInstance.isLoaded() else {
             return
         }
@@ -257,9 +218,13 @@ class PlayerViewController: UIViewController {
         }
     }
 
-    @IBAction func didPressSleepTimer(_ sender: UIButton) {
+    @IBAction func dismissPlayer() {
+        self.dismiss(animated: true, completion: nil)
+    }
 
+    @IBAction func setSleepTimer(_ sender: Any) {
         var alertTitle: String? = nil
+
         if self.sleepTimer != nil && self.sleepTimer.isValid {
             alertTitle = " "
         }
@@ -277,15 +242,19 @@ class PlayerViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "In 10 Minutes", style: .default, handler: { _ in
             self.sleep(in: 600)
         }))
+
         alert.addAction(UIAlertAction(title: "In 15 Minutes", style: .default, handler: { _ in
             self.sleep(in: 900)
         }))
+
         alert.addAction(UIAlertAction(title: "In 30 Minutes", style: .default, handler: { _ in
             self.sleep(in: 1800)
         }))
+
         alert.addAction(UIAlertAction(title: "In 45 Minutes", style: .default, handler: { _ in
             self.sleep(in: 2700)
         }))
+
         alert.addAction(UIAlertAction(title: "In One Hour", style: .default, handler: { _ in
             self.sleep(in: 3600)
         }))
@@ -320,7 +289,6 @@ class PlayerViewController: UIViewController {
     }
 
     @objc func updateSleepTimer() {
-
         guard PlayerManager.sharedInstance.isLoaded() else {
             //kill timer
             if self.sleepTimer != nil {

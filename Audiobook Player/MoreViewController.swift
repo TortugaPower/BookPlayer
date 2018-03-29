@@ -10,26 +10,16 @@ import UIKit
 
 class MoreViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var vfxBackgroundView: UIVisualEffectView!
 
     var selectedAction: MoreAction!
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.vfxBackgroundView.effect = UIBlurEffect(style: .light)
         self.tableView.tableFooterView = UIView()
     }
 
-    override var prefersStatusBarHidden: Bool {
-        return true
-    }
-
-    override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation {
-        return .slide
-    }
-
-    @IBAction func didPressClose(_ sender: UIBarButtonItem) {
+    @IBAction func done(_ sender: UIBarButtonItem) {
         self.dismiss(animated: true, completion: nil)
     }
 }
