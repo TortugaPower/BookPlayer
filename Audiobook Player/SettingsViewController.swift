@@ -26,16 +26,11 @@ class SettingsViewController: UITableViewController {
         globalSpeedSwitch.addTarget(self, action: #selector(self.globalSpeedToggleDidChange), for: .valueChanged)
         autoplaySwitch.addTarget(self, action: #selector(self.autoplayToggleDidChange), for: .valueChanged)
 
-        //set colors
-        self.navigationController?.navigationBar.barTintColor = UIColor.flatSkyBlue()
-
         //Set initial switch positions
         smartRewindSwitch.setOn(defaults.bool(forKey: UserDefaultsConstants.smartRewindEnabled), animated: false)
         boostVolumeSwitch.setOn(defaults.bool(forKey: UserDefaultsConstants.boostVolumeEnabled), animated: false)
         globalSpeedSwitch.setOn(defaults.bool(forKey: UserDefaultsConstants.globalSpeedEnabled), animated: false)
         autoplaySwitch.setOn(defaults.bool(forKey: UserDefaultsConstants.autoplayEnabled), animated: false)
-
-//        FileManager
     }
 
     @objc func rewindToggleDidChange() {
@@ -54,7 +49,7 @@ class SettingsViewController: UITableViewController {
         defaults.set(autoplaySwitch.isOn, forKey: UserDefaultsConstants.autoplayEnabled)
     }
 
-    @IBAction func didPressClose(_ sender: UIBarButtonItem) {
+    @IBAction func done(_ sender: UIBarButtonItem) {
         self.dismiss(animated: true, completion: nil)
     }
 

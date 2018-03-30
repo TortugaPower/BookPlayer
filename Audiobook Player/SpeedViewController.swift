@@ -10,7 +10,6 @@ import UIKit
 
 class SpeedViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var vfxBackgroundView: UIVisualEffectView!
 
     var speedArray: [Float] = [0.75, 1, 1.25, 1.5, 1.75, 2.00, 2.25, 2.5]
     var currentSpeed: Float!
@@ -18,21 +17,11 @@ class SpeedViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.vfxBackgroundView.effect = UIBlurEffect(style: .light)
-
         self.currentSpeed = PlayerManager.sharedInstance.currentSpeed
         self.tableView.tableFooterView = UIView()
     }
 
-    override var prefersStatusBarHidden: Bool {
-        return true
-    }
-
-    override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation {
-        return .slide
-    }
-
-    @IBAction func didPressClose(_ sender: UIBarButtonItem) {
+    @IBAction func done(_ sender: UIBarButtonItem) {
         self.dismiss(animated: true, completion: nil)
     }
 }
@@ -66,7 +55,9 @@ extension SpeedViewController: UITableViewDataSource {
 extension SpeedViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let speed = self.speedArray[indexPath.row]
+
         self.currentSpeed = speed
+
         self.performSegue(withIdentifier: "selectedSpeedSegue", sender: self)
     }
 }

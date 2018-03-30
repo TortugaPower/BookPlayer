@@ -1,5 +1,5 @@
 //
-//  ListBooksViewController.swift
+//  LibraryViewController.swift
 //  Audiobook Player
 //
 //  Created by Gianni Carlo on 7/7/16.
@@ -8,10 +8,9 @@
 
 import UIKit
 import MediaPlayer
-import Chameleon
 import MBProgressHUD
 
-class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
+class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet weak var emptyListContainerView: UIView!
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var footerView: UIView!
@@ -46,7 +45,6 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
         self.edgesForExtendedLayout = UIRectEdge()
 
         // set colors
-        self.navigationController?.navigationBar.barTintColor = UIColor.flatSkyBlue()
         self.footerView.backgroundColor = UIColor.flatSkyBlue()
         self.footerView.isHidden = true
 
@@ -224,7 +222,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
 
 }
 
-extension ListBooksViewController: UITableViewDataSource {
+extension LibraryViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.bookArray.count
     }
@@ -252,7 +250,7 @@ extension ListBooksViewController: UITableViewDataSource {
     }
 }
 
-extension ListBooksViewController: UITableViewDelegate {
+extension LibraryViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, canFocusRowAt indexPath: IndexPath) -> Bool {
         return true
     }
@@ -357,13 +355,12 @@ extension ListBooksViewController: UITableViewDelegate {
         if let playerVC = storyboard.instantiateViewController(withIdentifier: "PlayerViewController") as? PlayerViewController {
             playerVC.currentBook = book
 
-            // Show the current player
-            self.presentModal(playerVC, animated: true)
+            self.present(playerVC, animated: true)
         }
     }
 }
 
-extension ListBooksViewController: UIDocumentMenuDelegate {
+extension LibraryViewController: UIDocumentMenuDelegate {
     @IBAction func didPressImportOptions(_ sender: UIBarButtonItem) {
         let sheet = UIAlertController(title: "Import Books", message: nil, preferredStyle: .actionSheet)
         let cancelButton = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
@@ -402,7 +399,7 @@ extension ListBooksViewController: UIDocumentMenuDelegate {
     }
 }
 
-extension ListBooksViewController: UIDocumentPickerDelegate {
+extension LibraryViewController: UIDocumentPickerDelegate {
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
         //Documentation states that the file might not be imported due to being accessed from somewhere else
         do {
@@ -432,7 +429,7 @@ extension ListBooksViewController: UIDocumentPickerDelegate {
     }
 }
 
-extension ListBooksViewController {
+extension LibraryViewController {
     /**
      * For now, seek forward/backward and next/previous track perform the same function
      */
