@@ -266,19 +266,19 @@ extension ListBooksViewController: UITableViewDelegate {
             }))
 
             alert.addAction(UIAlertAction(title: "Yes", style: .destructive, handler: { _ in
-                let book = self.bookArray.remove(at: indexPath.row)
+                let book = self.bookArray[indexPath.row]
 
                 do {
                     try FileManager.default.removeItem(at: book.fileURL)
+                    
+                    self.bookArray.remove(at: indexPath.row)
+                    tableView.beginUpdates()
+                    tableView.deleteRows(at: [indexPath], with: .none)
+                    tableView.endUpdates()
+                    self.emptyListContainerView.isHidden = !self.bookArray.isEmpty
                 } catch {
-                    // @TODO: Handle error when failing to remove a file
+                    self.showAlert("Error", message: "There was an error deleting the book, please try again.", style: .alert)
                 }
-
-                tableView.beginUpdates()
-                tableView.deleteRows(at: [indexPath], with: .none)
-                tableView.endUpdates()
-
-                self.emptyListContainerView.isHidden = !self.bookArray.isEmpty
             }))
 
             alert.popoverPresentationController?.sourceView = self.view
