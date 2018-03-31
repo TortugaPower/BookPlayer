@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14105" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Him-vk-TAg">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Him-vk-TAg">
     <device id="retina5_9" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -17,7 +17,7 @@
                 <navigationController id="Him-vk-TAg" sceneMemberID="viewController">
                     <simulatedStatusBarMetrics key="simulatedStatusBarMetrics" statusBarStyle="lightContent"/>
                     <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" largeTitles="YES" id="il0-XD-ghB">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" largeTitles="YES" id="il0-XD-ghB">
                         <rect key="frame" x="0.0" y="44" width="375" height="96"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
@@ -34,11 +34,11 @@
             <objects>
                 <viewController title="Audiobook lists" id="1tN-zP-ONE" customClass="LibraryViewController" customModule="Audiobook_Player" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="EqL-FA-MOg">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" layoutMarginsFollowReadableWidth="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="86" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="392-ii-NXF">
-                                <rect key="frame" x="0.0" y="140" width="375" height="583"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="583"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" restorationIdentifier="BookCellView" selectionStyle="default" indentationWidth="10" reuseIdentifier="BookCellView" rowHeight="86" id="3Mr-Ez-ii0" customClass="BookCellView" customModule="Audiobook_Player" customModuleProvider="target">
@@ -114,7 +114,7 @@
                                 </connections>
                             </tableView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xYN-SW-g2w">
-                                <rect key="frame" x="0.0" y="140" width="375" height="583"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="583"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Upload Files From iTunes!" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hWb-dF-DRH">
                                         <rect key="frame" x="84.666666666666686" y="201" width="206" height="21"/>
@@ -222,7 +222,7 @@
                                 </variation>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kBQ-Ty-lp5">
-                                <rect key="frame" x="0.0" y="723" width="375" height="55"/>
+                                <rect key="frame" x="0.0" y="583" width="375" height="55"/>
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VAW-EN-5IS">
                                         <rect key="frame" x="8" y="7" width="40" height="40"/>
@@ -406,12 +406,6 @@
                                 <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="|" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mgG-dL-P0p">
-                                <rect key="frame" x="184" y="545" width="8" height="26"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="21"/>
-                                <color key="textColor" red="0.59999999999999998" green="0.59999999999999998" blue="0.59999999999999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="3Ah-kW-bx4">
                                 <rect key="frame" x="17" y="581" width="339" height="31"/>
                             </slider>
@@ -483,7 +477,7 @@
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="pRa-DC-CZt"/>
                                     <barButtonItem title="Timer" id="8NO-0Z-wE9">
                                         <connections>
-                                            <action selector="setSleepTimer:" destination="JEX-9P-axG" id="brm-vG-dap"/>
+                                            <action selector="setSleepTimer" destination="JEX-9P-axG" id="31K-wT-kKi"/>
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="qUr-ME-K8y"/>
@@ -502,6 +496,7 @@
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="cJT-r4-n9Y"/>
                                     <barButtonItem title="More" id="Zpk-J1-mAs">
                                         <connections>
+                                            <action selector="didSelectAction:" destination="JEX-9P-axG" id="ffA-FQ-Nnj"/>
                                             <segue destination="ctP-dv-OXR" kind="presentation" id="KFB-4Y-5SB"/>
                                         </connections>
                                     </barButtonItem>
@@ -526,23 +521,21 @@
                             <constraint firstItem="EV6-kJ-RSt" firstAttribute="leading" secondItem="Xm9-P8-cWQ" secondAttribute="trailing" constant="41" id="RAg-Gg-5WA"/>
                             <constraint firstItem="GcK-bx-Lp0" firstAttribute="leading" secondItem="EV6-kJ-RSt" secondAttribute="trailing" constant="41" id="RPO-Y4-IQu"/>
                             <constraint firstItem="2KB-bk-jYi" firstAttribute="trailing" secondItem="Ugu-r8-8OF" secondAttribute="trailing" id="Rfm-bs-XYI"/>
+                            <constraint firstItem="CQn-JB-tMb" firstAttribute="baseline" secondItem="pIa-Ca-Qef" secondAttribute="baseline" id="SXM-54-yQb"/>
                             <constraint firstItem="MUH-Ds-5l0" firstAttribute="centerX" secondItem="EV6-kJ-RSt" secondAttribute="centerX" id="WoF-uz-QTh"/>
                             <constraint firstItem="LMK-z6-AR3" firstAttribute="centerX" secondItem="GcK-bx-Lp0" secondAttribute="centerX" id="XNc-bO-8H2"/>
                             <constraint firstItem="2KB-bk-jYi" firstAttribute="leading" secondItem="gxt-td-n8N" secondAttribute="leading" constant="20" id="YzR-JR-tjd"/>
                             <constraint firstItem="Ugu-r8-8OF" firstAttribute="top" secondItem="svH-Pt-448" secondAttribute="top" constant="80" id="a6H-Ms-lab"/>
+                            <constraint firstItem="3Ah-kW-bx4" firstAttribute="top" secondItem="CQn-JB-tMb" secondAttribute="bottom" constant="10" id="dAQ-72-Zh6"/>
                             <constraint firstItem="gxt-td-n8N" firstAttribute="trailing" secondItem="Ugu-r8-8OF" secondAttribute="trailing" constant="80" id="dtD-hE-H5s"/>
-                            <constraint firstItem="CQn-JB-tMb" firstAttribute="bottom" secondItem="mgG-dL-P0p" secondAttribute="bottom" id="eFH-gF-qYP"/>
-                            <constraint firstItem="pIa-Ca-Qef" firstAttribute="bottom" secondItem="mgG-dL-P0p" secondAttribute="bottom" id="erP-kb-ThB"/>
                             <constraint firstItem="Wrj-aG-VQg" firstAttribute="centerX" secondItem="EV6-kJ-RSt" secondAttribute="centerX" id="g4p-VK-gFo"/>
-                            <constraint firstItem="CQn-JB-tMb" firstAttribute="leading" secondItem="mgG-dL-P0p" secondAttribute="trailing" constant="15" id="h30-ja-hLm"/>
                             <constraint firstItem="gxt-td-n8N" firstAttribute="trailing" secondItem="2KB-bk-jYi" secondAttribute="trailing" constant="80" id="hFL-RB-ejd"/>
+                            <constraint firstItem="CQn-JB-tMb" firstAttribute="top" secondItem="EV6-kJ-RSt" secondAttribute="bottom" constant="25" id="hXP-aK-GmR"/>
                             <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="CQn-JB-tMb" secondAttribute="trailing" constant="20" symbolic="YES" id="hop-ZF-d5U"/>
-                            <constraint firstItem="mgG-dL-P0p" firstAttribute="centerX" secondItem="EV6-kJ-RSt" secondAttribute="centerX" id="jZQ-nX-v2R"/>
+                            <constraint firstItem="CQn-JB-tMb" firstAttribute="leading" secondItem="pIa-Ca-Qef" secondAttribute="trailing" constant="38" id="itG-2U-MP5"/>
                             <constraint firstItem="2KB-bk-jYi" firstAttribute="top" secondItem="Ugu-r8-8OF" secondAttribute="bottom" id="k1p-PG-ju4"/>
                             <constraint firstItem="EV6-kJ-RSt" firstAttribute="centerY" secondItem="svH-Pt-448" secondAttribute="centerY" constant="85" id="lys-iz-0XG"/>
                             <constraint firstItem="LMK-z6-AR3" firstAttribute="top" secondItem="GcK-bx-Lp0" secondAttribute="bottom" constant="9" id="oht-0d-Jo7"/>
-                            <constraint firstItem="3Ah-kW-bx4" firstAttribute="top" secondItem="mgG-dL-P0p" secondAttribute="bottom" constant="10" id="qkm-kJ-Okn"/>
-                            <constraint firstItem="mgG-dL-P0p" firstAttribute="top" secondItem="EV6-kJ-RSt" secondAttribute="bottom" constant="20" id="szd-qC-Slu"/>
                             <constraint firstItem="pIa-Ca-Qef" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="gxt-td-n8N" secondAttribute="leading" id="uBU-jf-9AD"/>
                             <constraint firstItem="MUH-Ds-5l0" firstAttribute="top" secondItem="3Ah-kW-bx4" secondAttribute="bottom" constant="5" id="xAF-HV-uFp"/>
                             <constraint firstItem="3Ah-kW-bx4" firstAttribute="leading" secondItem="svH-Pt-448" secondAttribute="leadingMargin" constant="3" id="xwi-9C-5dz"/>
@@ -562,20 +555,18 @@
                     <connections>
                         <outlet property="authorLabel" destination="Ugu-r8-8OF" id="hKh-QA-8iJ"/>
                         <outlet property="bottomToolbar" destination="o75-2w-gMe" id="UGi-1J-7cM"/>
-                        <outlet property="chaptersButton" destination="dFj-x8-KRQ" id="e6i-3b-UPd"/>
-                        <outlet property="closeButton" destination="isS-Ee-7WD" id="15p-fi-5bx"/>
+                        <outlet property="chaptersButton" destination="dFj-x8-KRQ" id="CjH-r6-gE3"/>
                         <outlet property="coverImageView" destination="Wrj-aG-VQg" id="pFy-Kq-uE9"/>
                         <outlet property="currentTimeLabel" destination="pIa-Ca-Qef" id="SKl-dd-Pzj"/>
                         <outlet property="forwardButton" destination="GcK-bx-Lp0" id="d0D-Yu-eiw"/>
                         <outlet property="maxTimeLabel" destination="CQn-JB-tMb" id="7pQ-ZU-iCW"/>
-                        <outlet property="optionsIndicatorButton" destination="Zpk-J1-mAs" id="4Zg-H0-J3v"/>
                         <outlet property="percentageLabel" destination="MUH-Ds-5l0" id="GC6-B3-P4x"/>
                         <outlet property="playButton" destination="EV6-kJ-RSt" id="wNC-Tz-V7U"/>
                         <outlet property="rewindButton" destination="Xm9-P8-cWQ" id="Jz4-vo-3zS"/>
-                        <outlet property="sleepButton" destination="8NO-0Z-wE9" id="Yha-X5-UKf"/>
+                        <outlet property="sleepButton" destination="8NO-0Z-wE9" id="FBo-xr-Inr"/>
                         <outlet property="sliderView" destination="3Ah-kW-bx4" id="7Hv-Oi-L1G"/>
-                        <outlet property="speedButton" destination="LX4-Gd-MX5" id="uV9-P0-LSG"/>
-                        <outlet property="timeSeparator" destination="mgG-dL-P0p" id="T3R-ei-bOV"/>
+                        <outlet property="spaceBeforeChaptersButton" destination="taK-Rl-sV1" id="dDa-5z-4jN"/>
+                        <outlet property="speedButton" destination="LX4-Gd-MX5" id="Awk-Gk-aUM"/>
                         <outlet property="titleLabel" destination="2KB-bk-jYi" id="Ycp-la-9ZX"/>
                     </connections>
                 </viewController>
@@ -822,7 +813,6 @@
         <!--Navigation Controller-->
         <scene sceneID="Sgz-Qg-U2r">
             <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="Ndh-8t-7fD" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <navigationController id="1sN-GG-oUw" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translucent="NO" largeTitles="YES" id="VaH-zu-yOi">
                         <rect key="frame" x="0.0" y="44" width="375" height="96"/>
@@ -832,6 +822,7 @@
                         <segue destination="Obf-Zy-aDj" kind="relationship" relationship="rootViewController" id="4Es-Ri-LtP"/>
                     </connections>
                 </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Ndh-8t-7fD" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="660" y="754"/>
         </scene>
