@@ -15,38 +15,29 @@ import StoreKit
 class PlayerViewController: UIViewController {
     @IBOutlet weak var authorLabel: UILabel!
     @IBOutlet weak var titleLabel: UILabel!
-
     @IBOutlet weak var playButton: UIButton!
     @IBOutlet weak var forwardButton: UIButton!
     @IBOutlet weak var rewindButton: UIButton!
-
     @IBOutlet weak var maxTimeLabel: UILabel!
     @IBOutlet weak var currentTimeLabel: UILabel!
-
-    @IBOutlet weak var timeSeparator: UILabel!
-
     @IBOutlet weak var sliderView: UISlider!
-
     @IBOutlet weak var percentageLabel: UILabel!
-
+    @IBOutlet weak var coverImageView: UIImageView!
     @IBOutlet weak var bottomToolbar: UIToolbar!
-
-    @IBOutlet weak var optionsIndicatorButton: UIBarButtonItem!
-    @IBOutlet weak var closeButton: UIBarButtonItem!
-    @IBOutlet weak var chaptersButton: UIBarButtonItem!
     @IBOutlet weak var speedButton: UIBarButtonItem!
     @IBOutlet weak var sleepButton: UIBarButtonItem!
+    @IBOutlet weak var spaceBeforeChaptersButton: UIBarButtonItem!
+    @IBOutlet weak var chaptersButton: UIBarButtonItem!
 
-    @IBOutlet weak var coverImageView: UIImageView!
-
-    //keep in memory images to toggle play/pause
+    // Keep in memory images to toggle play/pause
     let playImage = UIImage(named: "playButton")
     let pauseImage = UIImage(named: "pauseButton")
 
     var currentBook: Book!
 
-    //timer to update sleep time
-    var sleepTimer: Timer!
+    override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation {
+        return .slide
+    }
 
     // MARK: Lifecycle
     override func viewDidLoad() {
@@ -64,7 +55,7 @@ class PlayerViewController: UIViewController {
     func setupView(book currentBook: Book) {
         let averageArtworkColor = UIColor(averageColorFrom: currentBook.artwork) ?? UIColor.flatSkyBlueColorDark()
 
-        //set UI colors
+        // Set UI colors
         let artworkColors: [UIColor] = [
             averageArtworkColor!,
             UIColor.flatBlack()
@@ -75,18 +66,17 @@ class PlayerViewController: UIViewController {
         self.maxTimeLabel.textColor = UIColor.flatWhiteColorDark()
         self.titleLabel.textColor = UIColor(contrastingBlackOrWhiteColorOn: averageArtworkColor!, isFlat: true)
         self.authorLabel.textColor = UIColor(contrastingBlackOrWhiteColorOn: averageArtworkColor!, isFlat: true)
-        self.timeSeparator.textColor = UIColor.flatWhiteColorDark()
 
         self.coverImageView.image = currentBook.artwork
 
-        //Drop shadow on cover view
+        // Drop shadow on cover view
         coverImageView.layer.shadowColor = UIColor.flatBlack().cgColor
         coverImageView.layer.shadowOffset = CGSize(width: 0, height: 4)
         coverImageView.layer.shadowOpacity = 0.6
         coverImageView.layer.shadowRadius = 6.0
         coverImageView.clipsToBounds = false
 
-        //set initial state for slider
+        // Set initial state for slider
         self.sliderView.addTarget(self, action: #selector(sliderChanged(_:)), for: .valueChanged)
         self.sliderView.tintColor = UIColor.flatLimeColorDark()
         self.sliderView.maximumValue = 100
@@ -95,21 +85,21 @@ class PlayerViewController: UIViewController {
         self.titleLabel.text = currentBook.title
         self.authorLabel.text = currentBook.author
 
-        //set percentage label to stored value
+        // Set percentage label to stored value
         let currentPercentage = UserDefaults.standard.string(forKey: currentBook.identifier+"_percentage") ?? "0%"
         self.percentageLabel.text = currentPercentage
 
-        //get stored value for current time of book
+        // Get stored value for current time of book
         let currentTime = UserDefaults.standard.integer(forKey: currentBook.identifier)
 
-        //update UI if needed and set player to stored time
+        // Update UI if needed and set player to stored time
         if currentTime > 0 {
             let formattedCurrentTime = self.formatTime(currentTime)
 
             self.currentTimeLabel.text = formattedCurrentTime
         }
 
-        //update max duration label of book
+        // Update max duration label of book
         let maxDuration = currentBook.duration
 
         self.maxTimeLabel.text = self.formatTime(maxDuration)
@@ -146,10 +136,9 @@ class PlayerViewController: UIViewController {
     }
 
     func registerObservers() {
-        //register for appDelegate requestReview notifications
+        // register for appDelegate requestReview notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: Notification.Name.AudiobookPlayer.requestReview, object: nil)
-
-        //register for timer update
+        // register for timer update
         NotificationCenter.default.addObserver(self, selector: #selector(self.updateTimer(_:)), name: Notification.Name.AudiobookPlayer.updateTimer, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.updatePercentage(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.updateCurrentChapter(_:)), name: Notification.Name.AudiobookPlayer.updateChapter, object: nil)
@@ -220,128 +209,40 @@ class PlayerViewController: UIViewController {
         self.dismiss(animated: true, completion: nil)
     }
 
-    @IBAction func setSleepTimer(_ sender: UIButton) {
-        var alertTitle: String?
+    @IBAction func setSleepTimer() {
+        let actions = SleepTimer.shared.actionSheet(
+            onStart: { () -> Void in },
+            onProgress: { (interval: Double) -> Void in
+                self.sleepButton.title = SleepTimer.shared.format(duration: interval)
+            },
+            onCompletion: { () -> Void in
+                PlayerManager.sharedInstance.playPressed()
 
-        if self.sleepTimer != nil && self.sleepTimer.isValid {
-            alertTitle = " "
-        }
-
-        let alert = UIAlertController(title: alertTitle, message: nil, preferredStyle: .actionSheet)
-
-        alert.addAction(UIAlertAction(title: "Off", style: .default, handler: { _ in
-            self.sleep(in: nil)
-        }))
-
-        alert.addAction(UIAlertAction(title: "In 5 Minutes", style: .default, handler: { _ in
-            self.sleep(in: 300)
-        }))
-
-        alert.addAction(UIAlertAction(title: "In 10 Minutes", style: .default, handler: { _ in
-            self.sleep(in: 600)
-        }))
-
-        alert.addAction(UIAlertAction(title: "In 15 Minutes", style: .default, handler: { _ in
-            self.sleep(in: 900)
-        }))
-
-        alert.addAction(UIAlertAction(title: "In 30 Minutes", style: .default, handler: { _ in
-            self.sleep(in: 1800)
-        }))
-
-        alert.addAction(UIAlertAction(title: "In 45 Minutes", style: .default, handler: { _ in
-            self.sleep(in: 2700)
-        }))
-
-        alert.addAction(UIAlertAction(title: "In One Hour", style: .default, handler: { _ in
-            self.sleep(in: 3600)
-        }))
-
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-
-        alert.popoverPresentationController?.sourceView = self.view
-        alert.popoverPresentationController?.sourceRect = CGRect(x: Double(self.view.bounds.size.width / 2.0), y: Double(self.view.bounds.size.height-45), width: 1.0, height: 1.0)
-
-        self.present(alert, animated: true, completion: nil)
-    }
-
-    func sleep(in seconds: Int?) {
-        UserDefaults.standard.set(seconds, forKey: "sleep_timer")
-
-        guard seconds != nil else {
-            self.sleepButton.tintColor = UIColor.white
-            //kill timer
-            if self.sleepTimer != nil {
-                self.sleepTimer.invalidate()
+                self.sleepButton.title = "Timer"
             }
-            return
-        }
+        )
 
-        self.sleepButton.tintColor = UIColor.flatLimeColorDark()
-
-        //create timer if needed
-        if self.sleepTimer == nil || (self.sleepTimer != nil && !self.sleepTimer.isValid) {
-            self.sleepTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(updateSleepTimer), userInfo: nil, repeats: true)
-
-            RunLoop.main.add(self.sleepTimer, forMode: RunLoopMode.commonModes)
-        }
-    }
-
-    @objc func updateSleepTimer() {
-        guard PlayerManager.sharedInstance.isLoaded() else {
-            //kill timer
-            if self.sleepTimer != nil {
-                self.sleepTimer.invalidate()
-            }
-
-            return
-        }
-
-        let currentTime = UserDefaults.standard.integer(forKey: "sleep_timer")
-        var newTime: Int? = currentTime - 1
-
-        if let alertviewController = self.presentedViewController, alertviewController is UIAlertController {
-            alertviewController.title = "Time: " + self.formatTime(newTime!)
-        }
-
-        if newTime! <= 0 {
-            newTime = nil
-
-            //stop audiobook
-            if self.sleepTimer != nil && self.sleepTimer.isValid {
-                self.sleepTimer.invalidate()
-            }
-
-            if PlayerManager.sharedInstance.isPlaying() {
-                self.playPressed(self.playButton)
-            }
-        }
-
-        UserDefaults.standard.set(newTime, forKey: "sleep_timer")
-    }
-
-    override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation {
-        return .slide
+        self.present(actions, animated: true, completion: nil)
     }
 }
 
 extension PlayerViewController: AVAudioPlayerDelegate {
-    //skip time forward
+    // skip time forward
     @IBAction func forwardPressed(_ sender: UIButton) {
         PlayerManager.sharedInstance.forwardPressed()
     }
 
-    //skip time backwards
+    // skip time backwards
     @IBAction func rewindPressed(_ sender: UIButton) {
         PlayerManager.sharedInstance.rewindPressed()
     }
 
-    //toggle play/pause of book
+    // toggle play/pause of book
     @IBAction func playPressed(_ sender: UIButton) {
         PlayerManager.sharedInstance.playPressed()
     }
 
-    //timer callback (called every second)
+    // timer callback (called every second)
     @objc func updateTimer(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
             let fileURL = userInfo["fileURL"] as? URL,
@@ -351,14 +252,14 @@ extension PlayerViewController: AVAudioPlayerDelegate {
             return
         }
 
-        //update current time label
+        // update current time label
         self.currentTimeLabel.text = timeText
 
-        //update book read percentage
+        // update book read percentage
         self.sliderView.value = percentage
     }
 
-    //percentage callback
+    // percentage callback
     @objc func updatePercentage(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
             let fileURL = userInfo["fileURL"] as? URL,
@@ -373,17 +274,17 @@ extension PlayerViewController: AVAudioPlayerDelegate {
     }
 
     @objc func requestReview() {
-        //don't do anything if flag isn't true
+        // don't do anything if flag isn't true
         guard UserDefaults.standard.bool(forKey: "ask_review") else {
             return
         }
 
         // request for review
-        if #available(iOS 10.3, *),
-            UIApplication.shared.applicationState == .active {
+        if #available(iOS 10.3, *), UIApplication.shared.applicationState == .active {
             #if RELEASE
                 SKStoreReviewController.requestReview()
             #endif
+
             UserDefaults.standard.set(false, forKey: "ask_review")
         }
     }
@@ -398,6 +299,7 @@ extension PlayerViewController: AVAudioPlayerDelegate {
 
     @objc func bookEnd() {
         self.playButton.setImage(self.playImage, for: UIControlState())
+
         self.requestReview()
     }
 

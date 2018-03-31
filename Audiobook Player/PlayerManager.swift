@@ -14,7 +14,7 @@ class PlayerManager: NSObject {
     static let sharedInstance = PlayerManager()
     let defaults: UserDefaults = UserDefaults.standard
 
-    //current item to play
+    // current item to play
     var playerItem: AVPlayerItem!
     var currentBooks: [Book]!
 
@@ -22,14 +22,14 @@ class PlayerManager: NSObject {
 
     var audioPlayer: AVAudioPlayer?
 
-    //chapters
+    // chapters
     var chapterArray: [Chapter] = []
     var currentChapter: Chapter?
 
-    //book identifier for `NSUserDefaults`
+    // book identifier for `NSUserDefaults`
     var identifier: String!
 
-    //speed
+    // speed
     var currentSpeed: Float {
         guard let player = self.audioPlayer else {
             return 1.0
@@ -38,7 +38,7 @@ class PlayerManager: NSObject {
         return player.rate
     }
 
-    //timer to update labels about time
+    // timer to update labels about time
     var timer: Timer!
 
     func isLoaded() -> Bool {
@@ -72,9 +72,9 @@ class PlayerManager: NSObject {
     func load(_ books: [Book], completion:@escaping (AVAudioPlayer?) -> Void) {
         if let player = self.audioPlayer,
             let currentBooks = self.currentBooks,
-            currentBooks.count == books.count { //todo : fix logic
+            currentBooks.count == books.count { // @TODO : fix logic
                 player.stop()
-                //notify?
+                // notify?
         }
 
         self.currentBooks = books
@@ -86,12 +86,11 @@ class PlayerManager: NSObject {
         self.identifier = book.identifier
         self.currentChapter = nil
 
-        //load data on background thread
+        // load data on background thread
         DispatchQueue.global().async {
-
             let mediaArtwork = MPMediaItemArtwork(image: book.artwork)
 
-            //try loading the player
+            // try loading the player
             do {
                 self.audioPlayer = try AVAudioPlayer(contentsOf: book.fileURL)
             } catch {
@@ -147,7 +146,7 @@ class PlayerManager: NSObject {
     }
 
     func process(_ chapterLocales: [Locale]) -> [Chapter] {
-        //try loading chapters
+        // try loading chapters
         var chapterIndex = 1
 
         var chapters = [Chapter]()
@@ -182,7 +181,7 @@ class PlayerManager: NSObject {
     }
 
     func getStoredTime() -> Int {
-        //get stored value for current time of book in seconds
+        // get stored value for current time of book in seconds
         var lastPlayedPositionInSeconds = self.defaults.integer(forKey: self.identifier)
 
         // If smartRewind is enabled and time since last play was 10 minutes (599s), rewind audiobook by 30 seconds or to start.
@@ -204,7 +203,7 @@ class PlayerManager: NSObject {
 
 extension PlayerManager: AVAudioPlayerDelegate {
 
-    //move to chapter
+    // move to chapter
     func setChapter(_ chapter: Chapter) {
 
         guard let audioPlayer = self.audioPlayer else {
@@ -217,7 +216,7 @@ extension PlayerManager: AVAudioPlayerDelegate {
         self.updateTimer()
     }
 
-    //set speed
+    // set speed
     func setSpeed(_ speed: Float) {
 
         guard let audioPlayer = self.audioPlayer else {
@@ -233,7 +232,7 @@ extension PlayerManager: AVAudioPlayerDelegate {
         audioPlayer.rate = speed
     }
 
-    //set speed
+    // set speed
     func setTime(_ time: TimeInterval) {
 
         guard let audioPlayer = self.audioPlayer else {
@@ -244,33 +243,33 @@ extension PlayerManager: AVAudioPlayerDelegate {
         self.updateTimer()
     }
 
-    //skip time forward
+    // skip time forward
     func forwardPressed() {
         guard let audioplayer = self.audioPlayer else {
             return
         }
 
         audioplayer.currentTime += 30
-        //update time on lockscreen and control center
+        // update time on lockscreen and control center
         MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
-        //trigger timer event
+        // trigger timer event
         self.updateTimer()
     }
 
-    //skip time backwards
+    // skip time backwards
     func rewindPressed() {
         guard let audioplayer = self.audioPlayer else {
             return
         }
 
         audioplayer.currentTime -= 30
-        //update time on lockscreen and control center
+        // update time on lockscreen and control center
         MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
-        //trigger timer event
+        // trigger timer event
         self.updateTimer()
     }
 
-    //toggle play/pause of book
+    // toggle play/pause of book
     func playPressed(autoplayed: Bool = false) {
         guard let audioplayer = self.audioPlayer else {
             return
@@ -278,14 +277,14 @@ extension PlayerManager: AVAudioPlayerDelegate {
 
         defaults.set(self.identifier, forKey: UserDefaultsConstants.lastPlayedBook)
 
-        //pause player if it's playing
+        // pause player if it's playing
         if audioplayer.isPlaying {
             //invalidate timer if needed
             if self.timer != nil {
                 self.timer.invalidate()
             }
 
-            //set pause state on player and control center
+            // set pause state on player and control center
             audioplayer.stop()
             MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 0
             MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
@@ -317,18 +316,18 @@ extension PlayerManager: AVAudioPlayerDelegate {
             return
         }
 
-        //if book is completed, reset to start
+        // if book is completed, reset to start
         if completed {
             audioplayer.currentTime = 0
         }
 
-        //create timer if needed
+        // create timer if needed
         if self.timer == nil || (self.timer != nil && !self.timer.isValid) {
             self.timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(updateTimer), userInfo: nil, repeats: true)
             RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
         }
 
-        //set play state on player and control center
+        // set play state on player and control center
         audioplayer.play()
         MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 1
         MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
@@ -339,7 +338,7 @@ extension PlayerManager: AVAudioPlayerDelegate {
         }
     }
 
-    //timer callback (called every second)
+    // timer callback (called every second)
     @objc func updateTimer() {
         guard let audioplayer = self.audioPlayer else {
             return
@@ -347,17 +346,17 @@ extension PlayerManager: AVAudioPlayerDelegate {
 
         let currentTime = Int(audioplayer.currentTime)
 
-        //store state every 2 seconds, I/O can be expensive
+        // store state every 2 seconds, I/O can be expensive
         if currentTime % 2 == 0 {
             defaults.set(currentTime, forKey: self.identifier)
         }
 
-        //update current time label
+        // update current time label
         let timeText = self.formatTime(currentTime)
 
         let storedPercentage = defaults.string(forKey: self.identifier+"_percentage") ?? "0%"
 
-        //calculate book read percentage based on current time
+        // calculate book read percentage based on current time
         let percentage = (Float(currentTime) / Float(audioplayer.duration)) * 100
         let percentageString = String(Int(ceil(percentage)))+"%"
 
@@ -368,17 +367,17 @@ extension PlayerManager: AVAudioPlayerDelegate {
                         "hasChapters": !self.chapterArray.isEmpty,
                         "fileURL": self.currentBooks.first!.fileURL] as [String: Any]
 
-        //notify percentage
+        // notify percentage
         if storedPercentage != percentageString {
             defaults.set(percentageString, forKey: self.identifier+"_percentage")
 
             NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil, userInfo: userInfo)
         }
 
-        //update chapter
+        // update chapter
         self.updateCurrentChapter()
 
-        //stop timer if the book is finished
+        // stop timer if the book is finished
         if Int(audioplayer.currentTime) == Int(audioplayer.duration) {
             if self.timer != nil && self.timer.isValid {
                 self.timer.invalidate()
@@ -389,7 +388,7 @@ extension PlayerManager: AVAudioPlayerDelegate {
             NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
         }
 
-        //notify
+        // notify
         NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.updateTimer, object: nil, userInfo: userInfo)
     }
 
@@ -402,16 +401,16 @@ extension PlayerManager: AVAudioPlayerDelegate {
             if Int(audioplayer.currentTime) >= chapter.start {
                 self.currentChapter = chapter
                 let chapterString = "Chapter \(chapter.index) of \(self.chapterArray.count)"
-                //notify
+                // notify
                 let userInfo = ["chapterString": chapterString, "fileURL": self.currentBooks.first!.fileURL] as [String: Any]
 
-                //notify
+                // notify
                 NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.updateChapter, object: nil, userInfo: userInfo)
             }
         }
     }
 
-    //leave the slider at max
+    // leave the slider at max
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         guard flag else {
             return
@@ -435,6 +434,7 @@ extension PlayerManager: AVAudioPlayerDelegate {
         })
     }
 
+    // @TODO: Replace with DateComponentsFormatter
     func formatTime(_ time: Int) -> String {
         let hours = Int(time / 3600)
         let remaining = Float(time - (hours * 3600))
