@@ -23,8 +23,8 @@
 		418B6D5D1D2CB76900F974FB /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418B6D5C1D2CB76900F974FB /* PlayerViewController.swift */; };
 		41AB1C131D30298800AC1AA0 /* MBProgressHUD.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41AB1C121D30298800AC1AA0 /* MBProgressHUD.framework */; };
 		41B2AC8E1D43CCE8005382A9 /* ChaptersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */; };
-		41B2AC901D43CD2F005382A9 /* SpeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2AC8F1D43CD2F005382A9 /* SpeedViewController.swift */; };
-		41B2AC921D441627005382A9 /* MoreViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2AC911D441627005382A9 /* MoreViewController.swift */; };
+		C30A2D512071596200F4A878 /* PlaybackSpeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30A2D502071596200F4A878 /* PlaybackSpeed.swift */; };
+		C30A2D5320715D4400F4A878 /* MoreOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30A2D5220715D4400F4A878 /* MoreOptions.swift */; };
 		C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3EC372D206EE0650094B4E8 /* SleepTimer.swift */; };
 		D367F7681FA2A6F000FEDB37 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = D367F7671FA2A6F000FEDB37 /* Constants.swift */; };
 /* End PBXBuildFile section */
@@ -74,8 +74,8 @@
 		419196341D47CC4E007A3AF3 /* Audiobook Player.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "Audiobook Player.entitlements"; sourceTree = "<group>"; };
 		41AB1C121D30298800AC1AA0 /* MBProgressHUD.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MBProgressHUD.framework; path = Carthage/Build/iOS/MBProgressHUD.framework; sourceTree = "<group>"; };
 		41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChaptersViewController.swift; sourceTree = "<group>"; };
-		41B2AC8F1D43CD2F005382A9 /* SpeedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpeedViewController.swift; sourceTree = "<group>"; };
-		41B2AC911D441627005382A9 /* MoreViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MoreViewController.swift; sourceTree = "<group>"; };
+		C30A2D502071596200F4A878 /* PlaybackSpeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackSpeed.swift; sourceTree = "<group>"; };
+		C30A2D5220715D4400F4A878 /* MoreOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreOptions.swift; sourceTree = "<group>"; };
 		C35BADE7206989E6007687C1 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		C35BADE8206989E6007687C1 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		C35BADE9206989E6007687C1 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .swiftlint.yml; sourceTree = "<group>"; };
@@ -187,10 +187,10 @@
 			isa = PBXGroup;
 			children = (
 				418B6D5C1D2CB76900F974FB /* PlayerViewController.swift */,
-				C3EC372D206EE0650094B4E8 /* SleepTimer.swift */,
 				41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */,
-				41B2AC8F1D43CD2F005382A9 /* SpeedViewController.swift */,
-				41B2AC911D441627005382A9 /* MoreViewController.swift */,
+				C30A2D502071596200F4A878 /* PlaybackSpeed.swift */,
+				C3EC372D206EE0650094B4E8 /* SleepTimer.swift */,
+				C30A2D5220715D4400F4A878 /* MoreOptions.swift */,
 			);
 			path = Player;
 			sourceTree = "<group>";
@@ -360,9 +360,9 @@
 				410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */,
 				D367F7681FA2A6F000FEDB37 /* Constants.swift in Sources */,
 				41B2AC8E1D43CCE8005382A9 /* ChaptersViewController.swift in Sources */,
-				41B2AC901D43CD2F005382A9 /* SpeedViewController.swift in Sources */,
+				C30A2D5320715D4400F4A878 /* MoreOptions.swift in Sources */,
 				413616401D2E21F000E48944 /* LibraryViewController.swift in Sources */,
-				41B2AC921D441627005382A9 /* MoreViewController.swift in Sources */,
+				C30A2D512071596200F4A878 /* PlaybackSpeed.swift in Sources */,
 				418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */,
 				418B6D5D1D2CB76900F974FB /* PlayerViewController.swift in Sources */,
 				416B640D1E72F362000E955A /* Extensions.swift in Sources */,

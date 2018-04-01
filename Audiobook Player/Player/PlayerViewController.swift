@@ -124,9 +124,10 @@ class PlayerViewController: UIViewController {
             self.percentageLabel.text = ""
         }
 
-        self.speedButton.title = "\(String(PlayerManager.sharedInstance.currentSpeed))x"
+        self.speedButton.title = PlaybackSpeed.shared.format(PlayerManager.sharedInstance.currentSpeed)
 
         self.chaptersButton.isEnabled = !PlayerManager.sharedInstance.chapterArray.isEmpty
+        self.spaceBeforeChaptersButton.isEnabled = !PlayerManager.sharedInstance.chapterArray.isEmpty
 
         if let audioPlayer = PlayerManager.sharedInstance.audioPlayer {
             let percentage = (Float(currentTime) / Float(audioPlayer.duration)) * 100
@@ -166,47 +167,19 @@ class PlayerViewController: UIViewController {
         PlayerManager.sharedInstance.setChapter(chapter)
     }
 
-    @IBAction func didSelectSpeed(_ segue: UIStoryboardSegue) {
-        guard PlayerManager.sharedInstance.isLoaded(),
-            let viewController = segue.source as? SpeedViewController,
-            let speed = viewController.currentSpeed else {
-            return
-        }
+    // MARK: Toolbar actions
 
-        PlayerManager.sharedInstance.setSpeed(speed)
+    @IBAction func setSpeed() {
+        let actions = PlaybackSpeed.shared.actionSheet(
+            onSelect: { (speed) -> Void in
+                PlayerManager.sharedInstance.setSpeed(speed)
 
-        self.speedButton.title = "\(String(PlayerManager.sharedInstance.currentSpeed))x"
-    }
+                self.speedButton.title = PlaybackSpeed.shared.format(PlayerManager.sharedInstance.currentSpeed)
+            },
+            currentSpeed: PlayerManager.sharedInstance.currentSpeed
+        )
 
-    @IBAction func didSelectAction(_ segue: UIStoryboardSegue) {
-        guard PlayerManager.sharedInstance.isLoaded() else {
-            return
-        }
-
-        PlayerManager.sharedInstance.stop()
-
-        if let viewController = segue.source as? MoreViewController {
-            guard let action = viewController.selectedAction else {
-                return
-            }
-
-            switch action.rawValue {
-            case MoreAction.jumpToStart.rawValue:
-                PlayerManager.sharedInstance.setTime(0.0)
-            case MoreAction.markFinished.rawValue:
-                PlayerManager.sharedInstance.setTime(PlayerManager.sharedInstance.audioPlayer?.duration ?? 0.0)
-            default:
-                break
-            }
-
-            let test = Notification(name: Notification.Name.AudiobookPlayer.openURL)
-
-            self.updateTimer(test)
-        }
-    }
-
-    @IBAction func dismissPlayer() {
-        self.dismiss(animated: true, completion: nil)
+        self.present(actions, animated: true, completion: nil)
     }
 
     @IBAction func setSleepTimer() {
@@ -228,7 +201,41 @@ class PlayerViewController: UIViewController {
 
         self.present(actions, animated: true, completion: nil)
     }
+
+    // @TODO: Remove from toolbar
+    @IBAction func dismissPlayer() {
+        self.dismiss(animated: true, completion: nil)
+    }
+
+    @IBAction func showMore() {
+        let actions = MoreOptions.shared.actionSheet(actions: [
+            UIAlertAction(title: "Jump To Start", style: .destructive, handler: { _ in
+                self.jump(0.0)
+            }),
+            UIAlertAction(title: "Mark as Finished", style: .destructive, handler: { _ in
+                self.jump(PlayerManager.sharedInstance.audioPlayer?.duration ?? 0.0)
+                self.bookEnd()
+            })
+        ])
+
+        self.present(actions, animated: true, completion: nil)
+    }
+
+    func jump(_ position: Double = 0.0) {
+        guard PlayerManager.sharedInstance.isLoaded() else {
+            return
+        }
+
+        PlayerManager.sharedInstance.stop()
+        PlayerManager.sharedInstance.setTime(position)
+
+        let test = Notification(name: Notification.Name.AudiobookPlayer.openURL)
+
+        self.updateTimer(test)
+    }
 }
+
+// MARK: AVAudioPlayerDelegate
 
 extension PlayerViewController: AVAudioPlayerDelegate {
     // skip time forward

@@ -470,14 +470,13 @@
                                 <items>
                                     <barButtonItem title="Speed" id="LX4-Gd-MX5">
                                         <connections>
-                                            <action selector="didSelectSpeed:" destination="JEX-9P-axG" id="xqK-2D-R5D"/>
-                                            <segue destination="9Ew-Q0-Uvb" kind="presentation" id="QAG-qG-Wex"/>
+                                            <action selector="setSpeed" destination="JEX-9P-axG" id="pMp-bj-MiJ"/>
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="pRa-DC-CZt"/>
                                     <barButtonItem title="Timer" id="8NO-0Z-wE9">
                                         <connections>
-                                            <action selector="setSleepTimer" destination="JEX-9P-axG" id="31K-wT-kKi"/>
+                                            <action selector="setSleepTimer" destination="JEX-9P-axG" id="AEQ-tD-AmO"/>
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="qUr-ME-K8y"/>
@@ -496,8 +495,7 @@
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="cJT-r4-n9Y"/>
                                     <barButtonItem title="More" id="Zpk-J1-mAs">
                                         <connections>
-                                            <action selector="didSelectAction:" destination="JEX-9P-axG" id="ffA-FQ-Nnj"/>
-                                            <segue destination="ctP-dv-OXR" kind="presentation" id="KFB-4Y-5SB"/>
+                                            <action selector="showMore" destination="JEX-9P-axG" id="xsu-tS-3jl"/>
                                         </connections>
                                     </barButtonItem>
                                 </items>
@@ -826,69 +824,6 @@
             </objects>
             <point key="canvasLocation" x="660" y="754"/>
         </scene>
-        <!--Speed-->
-        <scene sceneID="jOw-GC-6Gj">
-            <objects>
-                <viewController storyboardIdentifier="SpeedViewController" id="ubE-L5-gfk" customClass="SpeedViewController" customModule="Audiobook_Player" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" opaque="NO" contentMode="scaleToFill" id="s6n-6v-Qi7">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="cp6-dC-BsU">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="SpeedViewCell" textLabel="diL-Ht-rCA" style="IBUITableViewCellStyleDefault" id="CF9-Pr-16C">
-                                        <rect key="frame" x="0.0" y="28" width="375" height="44"/>
-                                        <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="CF9-Pr-16C" id="nqd-4S-Q5K">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="43.666666666666664"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                            <subviews>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="diL-Ht-rCA">
-                                                    <rect key="frame" x="15" y="0.0" width="345" height="43.666666666666664"/>
-                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
-                                                    <nil key="textColor"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
-                                            </subviews>
-                                        </tableViewCellContentView>
-                                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
-                                    </tableViewCell>
-                                </prototypes>
-                                <connections>
-                                    <outlet property="dataSource" destination="ubE-L5-gfk" id="BHM-4O-wbh"/>
-                                    <outlet property="delegate" destination="ubE-L5-gfk" id="pkn-hK-DRt"/>
-                                </connections>
-                            </tableView>
-                        </subviews>
-                        <constraints>
-                            <constraint firstItem="cp6-dC-BsU" firstAttribute="bottom" secondItem="s6n-6v-Qi7" secondAttribute="bottom" id="B8J-ba-8YZ"/>
-                            <constraint firstItem="cp6-dC-BsU" firstAttribute="top" secondItem="L1t-36-YWu" secondAttribute="top" id="CEz-Eu-kh9"/>
-                            <constraint firstItem="cp6-dC-BsU" firstAttribute="leading" secondItem="L1t-36-YWu" secondAttribute="leading" id="Vx6-kt-9Yg"/>
-                            <constraint firstItem="L1t-36-YWu" firstAttribute="trailing" secondItem="cp6-dC-BsU" secondAttribute="trailing" id="Wwf-rt-kd5"/>
-                        </constraints>
-                        <viewLayoutGuide key="safeArea" id="L1t-36-YWu"/>
-                    </view>
-                    <navigationItem key="navigationItem" title="Speed" id="kR9-aH-OX9">
-                        <barButtonItem key="rightBarButtonItem" style="done" systemItem="done" id="z7r-VO-IzP">
-                            <connections>
-                                <action selector="done:" destination="ubE-L5-gfk" id="HhB-Ql-Xdh"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
-                    <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-                    <connections>
-                        <outlet property="tableView" destination="cp6-dC-BsU" id="7eD-f2-sd3"/>
-                        <segue destination="qD3-1j-9qg" kind="unwind" identifier="selectedSpeedSegue" unwindAction="didSelectSpeed:" id="uUk-wc-yyl"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="J6y-27-hix" userLabel="First Responder" sceneMemberID="firstResponder"/>
-                <exit id="qD3-1j-9qg" userLabel="Exit" sceneMemberID="exit"/>
-            </objects>
-            <point key="canvasLocation" x="3414" y="428"/>
-        </scene>
         <!--Chapters-->
         <scene sceneID="GYe-by-LSE">
             <objects>
@@ -970,7 +905,7 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="RAh-ft-2fx" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <exit id="8qd-dR-5cd" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="3414" y="-276"/>
+            <point key="canvasLocation" x="3249" y="-157"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="tcl-rj-dcK">
@@ -986,102 +921,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="5JU-ee-g1s" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2575" y="-277"/>
-        </scene>
-        <!--Navigation Controller-->
-        <scene sceneID="wEw-7G-AMl">
-            <objects>
-                <navigationController id="9Ew-Q0-Uvb" sceneMemberID="viewController">
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translucent="NO" largeTitles="YES" id="FqG-Z8-YnW">
-                        <rect key="frame" x="0.0" y="44" width="375" height="96"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <connections>
-                        <segue destination="ubE-L5-gfk" kind="relationship" relationship="rootViewController" id="MyP-ed-Adq"/>
-                    </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="hoy-5F-448" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="2574" y="428"/>
-        </scene>
-        <!--Navigation Controller-->
-        <scene sceneID="Vcz-RK-Li2">
-            <objects>
-                <navigationController id="ctP-dv-OXR" sceneMemberID="viewController">
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translucent="NO" largeTitles="YES" id="gId-Bk-Ldx">
-                        <rect key="frame" x="0.0" y="44" width="375" height="96"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <connections>
-                        <segue destination="q6k-XR-Mqe" kind="relationship" relationship="rootViewController" id="nSU-7R-Uop"/>
-                    </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="1hY-tt-DUO" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="2574" y="-992"/>
-        </scene>
-        <!--More-->
-        <scene sceneID="s1U-6w-oY7">
-            <objects>
-                <viewController storyboardIdentifier="MoreViewController" id="q6k-XR-Mqe" customClass="MoreViewController" customModule="Audiobook_Player" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" opaque="NO" contentMode="scaleToFill" id="Mno-8y-mNj">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="l0L-ug-vfg">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="MoreViewCell" textLabel="kec-im-6Ou" style="IBUITableViewCellStyleDefault" id="fd7-y4-KCO">
-                                        <rect key="frame" x="0.0" y="28" width="375" height="44"/>
-                                        <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="fd7-y4-KCO" id="NEX-Jw-Wgx">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="43.666666666666664"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                            <subviews>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="kec-im-6Ou">
-                                                    <rect key="frame" x="15" y="0.0" width="345" height="43.666666666666664"/>
-                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
-                                                    <nil key="textColor"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
-                                            </subviews>
-                                        </tableViewCellContentView>
-                                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
-                                    </tableViewCell>
-                                </prototypes>
-                                <connections>
-                                    <outlet property="dataSource" destination="q6k-XR-Mqe" id="47j-3M-9b6"/>
-                                    <outlet property="delegate" destination="q6k-XR-Mqe" id="1SF-Wi-I9W"/>
-                                </connections>
-                            </tableView>
-                        </subviews>
-                        <constraints>
-                            <constraint firstItem="l0L-ug-vfg" firstAttribute="bottom" secondItem="Mno-8y-mNj" secondAttribute="bottom" id="6Bs-VP-zRh"/>
-                            <constraint firstItem="l0L-ug-vfg" firstAttribute="top" secondItem="LfO-4q-8La" secondAttribute="top" id="Zxs-bM-Qkj"/>
-                            <constraint firstItem="l0L-ug-vfg" firstAttribute="leading" secondItem="LfO-4q-8La" secondAttribute="leading" id="c2T-hk-ZaH"/>
-                            <constraint firstItem="LfO-4q-8La" firstAttribute="trailing" secondItem="l0L-ug-vfg" secondAttribute="trailing" id="xrx-Vg-IEN"/>
-                        </constraints>
-                        <viewLayoutGuide key="safeArea" id="LfO-4q-8La"/>
-                    </view>
-                    <navigationItem key="navigationItem" title="More" id="stu-Wo-0gW">
-                        <barButtonItem key="rightBarButtonItem" style="done" systemItem="done" id="dNp-H1-7gt">
-                            <connections>
-                                <action selector="done:" destination="q6k-XR-Mqe" id="dmF-gL-ob2"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
-                    <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-                    <connections>
-                        <outlet property="tableView" destination="l0L-ug-vfg" id="AoX-Tk-ELE"/>
-                        <segue destination="PNQ-2C-YnZ" kind="unwind" identifier="selectedActionSegue" unwindAction="didSelectAction:" id="zkb-45-jC5"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="y35-Zb-zFv" userLabel="First Responder" sceneMemberID="firstResponder"/>
-                <exit id="PNQ-2C-YnZ" userLabel="Exit" sceneMemberID="exit"/>
-            </objects>
-            <point key="canvasLocation" x="3412" y="-991"/>
+            <point key="canvasLocation" x="2385" y="-157"/>
         </scene>
     </scenes>
     <resources>
