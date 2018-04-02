@@ -39,7 +39,7 @@ Pull requests regarding upcoming features (or bugs) are welcomed. Any suggestion
 - [@GianniCarlo](https://github.com/GianniCarlo) - Creator
 - [@bryanrezende](https://github.com/bryanrezende) - Smart rewind
 - [@e7mac](https://github.com/e7mac) - Speed control, Autoplay
-- [@gpambrozio](https://github.com/gpambrozio)) - Volume Boost
+- [@gpambrozio](https://github.com/gpambrozio) - Volume Boost
 - [@pichfl](https://github.com/pichfl) - Refactoring
 - [@vab9](https://github.com/vab9) - AirDrop Support
 
