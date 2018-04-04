@@ -29,17 +29,13 @@ class PlayerViewController: UIViewController {
     @IBOutlet weak var spaceBeforeChaptersButton: UIBarButtonItem!
     @IBOutlet weak var chaptersButton: UIBarButtonItem!
 
-    // Keep in memory images to toggle play/pause
     let playImage = UIImage(named: "playButton")
     let pauseImage = UIImage(named: "pauseButton")
 
     var currentBook: Book!
 
-    override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation {
-        return .slide
-    }
-
     // MARK: Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -47,7 +43,15 @@ class PlayerViewController: UIViewController {
         self.bottomToolbar.setBackgroundImage(UIImage(), forToolbarPosition: .any, barMetrics: .default)
         self.bottomToolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
 
-        registerObservers()
+        NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: Notification.Name.AudiobookPlayer.requestReview, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.updateTimer(_:)), name: Notification.Name.AudiobookPlayer.updateTimer, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.updatePercentage(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.updateCurrentChapter(_:)), name: Notification.Name.AudiobookPlayer.updateChapter, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookPlayed), name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookPaused), name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookEnd), name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: Notification.Name.AudiobookPlayer.bookChange, object: nil)
+
         setupView(book: currentBook!)
         playPlayer()
     }
@@ -77,7 +81,6 @@ class PlayerViewController: UIViewController {
         coverImageView.clipsToBounds = false
 
         // Set initial state for slider
-        self.sliderView.addTarget(self, action: #selector(sliderChanged(_:)), for: .valueChanged)
         self.sliderView.tintColor = UIColor.flatLimeColorDark()
         self.sliderView.maximumValue = 100
         self.sliderView.value = 0
@@ -114,57 +117,51 @@ class PlayerViewController: UIViewController {
         //get stored value for current time of book
         let currentTime = UserDefaults.standard.integer(forKey: currentBook.identifier)
 
-        if PlayerManager.sharedInstance.isPlaying() {
+        if PlayerManager.shared.isPlaying {
             self.playButton.setImage(self.pauseImage, for: UIControlState())
         } else {
             self.playButton.setImage(self.playImage, for: UIControlState())
         }
 
-        if !PlayerManager.sharedInstance.chapterArray.isEmpty {
+        if !PlayerManager.shared.chapterArray.isEmpty {
             self.percentageLabel.text = ""
         }
 
-        self.speedButton.title = PlaybackSpeed.shared.format(PlayerManager.sharedInstance.currentSpeed)
+        self.speedButton.title = PlaybackSpeed.shared.format(PlayerManager.shared.currentSpeed)
 
-        self.chaptersButton.isEnabled = !PlayerManager.sharedInstance.chapterArray.isEmpty
-        self.spaceBeforeChaptersButton.isEnabled = !PlayerManager.sharedInstance.chapterArray.isEmpty
+        self.chaptersButton.isEnabled = !PlayerManager.shared.chapterArray.isEmpty
+        self.spaceBeforeChaptersButton.isEnabled = !PlayerManager.shared.chapterArray.isEmpty
 
-        if let audioPlayer = PlayerManager.sharedInstance.audioPlayer {
+        if let audioPlayer = PlayerManager.shared.audioPlayer {
             let percentage = (Float(currentTime) / Float(audioPlayer.duration)) * 100
 
             self.sliderView.value = percentage
         }
     }
 
-    func registerObservers() {
-        // register for appDelegate requestReview notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: Notification.Name.AudiobookPlayer.requestReview, object: nil)
-        // register for timer update
-        NotificationCenter.default.addObserver(self, selector: #selector(self.updateTimer(_:)), name: Notification.Name.AudiobookPlayer.updateTimer, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.updatePercentage(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.updateCurrentChapter(_:)), name: Notification.Name.AudiobookPlayer.updateChapter, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookPlayed), name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookPaused), name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookEnd), name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: Notification.Name.AudiobookPlayer.bookChange, object: nil)
+    // MARK: Interface actions
+
+    // skip time forward
+    @IBAction func forward(_ sender: UIButton) {
+        PlayerManager.shared.forward()
     }
 
-    @objc func sliderChanged(_ sender: UISlider) {
-        let percentage = sender.value / sender.maximumValue
-
-        if let audioPlayer = PlayerManager.sharedInstance.audioPlayer {
-            audioPlayer.currentTime = TimeInterval(percentage) * audioPlayer.duration
-        }
+    // skip time backwards
+    @IBAction func rewind(_ sender: UIButton) {
+        PlayerManager.shared.rewind()
     }
 
-    @IBAction func didSelectChapter(_ segue: UIStoryboardSegue) {
-        guard PlayerManager.sharedInstance.isLoaded(),
-            let viewController = segue.source as? ChaptersViewController,
-            let chapter = viewController.currentChapter else {
+    // toggle play/pause of book
+    @IBAction func play(_ sender: UIButton) {
+        PlayerManager.shared.playPause()
+    }
+
+    @IBAction func sliderValueChanged(_ sender: UISlider) {
+        guard let audioPlayer = PlayerManager.shared.audioPlayer else {
             return
         }
 
-        PlayerManager.sharedInstance.setChapter(chapter)
+        audioPlayer.currentTime = TimeInterval(sender.value / sender.maximumValue) * audioPlayer.duration
     }
 
     // MARK: Toolbar actions
@@ -172,11 +169,11 @@ class PlayerViewController: UIViewController {
     @IBAction func setSpeed() {
         let actions = PlaybackSpeed.shared.actionSheet(
             onSelect: { (speed) -> Void in
-                PlayerManager.sharedInstance.setSpeed(speed)
+                PlayerManager.shared.setSpeed(speed)
 
-                self.speedButton.title = PlaybackSpeed.shared.format(PlayerManager.sharedInstance.currentSpeed)
+                self.speedButton.title = PlaybackSpeed.shared.format(PlayerManager.shared.currentSpeed)
             },
-            currentSpeed: PlayerManager.sharedInstance.currentSpeed
+            currentSpeed: PlayerManager.shared.currentSpeed
         )
 
         self.present(actions, animated: true, completion: nil)
@@ -190,7 +187,7 @@ class PlayerViewController: UIViewController {
             },
             onEnd: { (_ cancelled: Bool) -> Void in
                 if !cancelled {
-                    PlayerManager.sharedInstance.stop()
+                    PlayerManager.shared.stop()
 
                     self.playButton.setImage(self.playImage, for: UIControlState())
                 }
@@ -213,7 +210,7 @@ class PlayerViewController: UIViewController {
                 self.jump(0.0)
             }),
             UIAlertAction(title: "Mark as Finished", style: .destructive, handler: { _ in
-                self.jump(PlayerManager.sharedInstance.audioPlayer?.duration ?? 0.0)
+                self.jump(PlayerManager.shared.audioPlayer?.duration ?? 0.0)
                 self.bookEnd()
             })
         ])
@@ -222,67 +219,33 @@ class PlayerViewController: UIViewController {
     }
 
     func jump(_ position: Double = 0.0) {
-        guard PlayerManager.sharedInstance.isLoaded() else {
+        guard PlayerManager.shared.isLoaded else {
             return
         }
 
-        PlayerManager.sharedInstance.stop()
-        PlayerManager.sharedInstance.setTime(position)
+        PlayerManager.shared.stop()
+        PlayerManager.shared.setTime(position)
 
         let test = Notification(name: Notification.Name.AudiobookPlayer.openURL)
 
         self.updateTimer(test)
     }
-}
 
-// MARK: AVAudioPlayerDelegate
+    // MARK: Handle segues from child ViewControllers
 
-extension PlayerViewController: AVAudioPlayerDelegate {
-    // skip time forward
-    @IBAction func forwardPressed(_ sender: UIButton) {
-        PlayerManager.sharedInstance.forwardPressed()
-    }
-
-    // skip time backwards
-    @IBAction func rewindPressed(_ sender: UIButton) {
-        PlayerManager.sharedInstance.rewindPressed()
-    }
-
-    // toggle play/pause of book
-    @IBAction func playPressed(_ sender: UIButton) {
-        PlayerManager.sharedInstance.playPressed()
-    }
-
-    // timer callback (called every second)
-    @objc func updateTimer(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-            let fileURL = userInfo["fileURL"] as? URL,
-            let timeText = userInfo["timeString"] as? String,
-            let percentage = userInfo["percentage"] as? Float,
-            fileURL == self.currentBook.fileURL else {
+    @IBAction func didSelectChapter(_ segue: UIStoryboardSegue) {
+        guard PlayerManager.shared.isLoaded else {
             return
         }
 
-        // update current time label
-        self.currentTimeLabel.text = timeText
+        if let viewController = segue.source as? ChaptersViewController {
+            let chapter = viewController.currentChapter!
 
-        // update book read percentage
-        self.sliderView.value = percentage
-    }
-
-    // percentage callback
-    @objc func updatePercentage(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-            let fileURL = userInfo["fileURL"] as? URL,
-            fileURL == self.currentBook.fileURL,
-            let percentageString = userInfo["percentageString"] as? String,
-            let hasChapters = userInfo["hasChapters"] as? Bool,
-            !hasChapters else {
-                return
+            PlayerManager.shared.setChapter(chapter)
         }
-
-        self.percentageLabel.text = percentageString
     }
+
+    // MARK: Handle notifications
 
     @objc func requestReview() {
         // don't do anything if flag isn't true
@@ -293,25 +256,11 @@ extension PlayerViewController: AVAudioPlayerDelegate {
         // request for review
         if #available(iOS 10.3, *), UIApplication.shared.applicationState == .active {
             #if RELEASE
-                SKStoreReviewController.requestReview()
+            SKStoreReviewController.requestReview()
             #endif
 
             UserDefaults.standard.set(false, forKey: "ask_review")
         }
-    }
-
-    @objc func bookPlayed() {
-        self.playButton.setImage(self.pauseImage, for: UIControlState())
-    }
-
-    @objc func bookPaused() {
-        self.playButton.setImage(self.playImage, for: UIControlState())
-    }
-
-    @objc func bookEnd() {
-        self.playButton.setImage(self.playImage, for: UIControlState())
-
-        self.requestReview()
     }
 
     @objc func bookChange(_ notification: Notification) {
@@ -335,5 +284,50 @@ extension PlayerViewController: AVAudioPlayerDelegate {
         }
 
         self.percentageLabel.text = chapterString
+    }
+
+    // timer callback (called every second)
+    @objc func updateTimer(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+            let fileURL = userInfo["fileURL"] as? URL,
+            let time = userInfo["time"] as? Int,
+            let percentage = userInfo["percentage"] as? Float,
+            fileURL == self.currentBook.fileURL else {
+            return
+        }
+
+        // update current time label
+        self.currentTimeLabel.text = self.formatTime(time)
+
+        // update book read percentage
+        self.sliderView.value = percentage
+    }
+
+    // percentage callback
+    @objc func updatePercentage(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+            let fileURL = userInfo["fileURL"] as? URL,
+            fileURL == self.currentBook.fileURL,
+            let percentageString = userInfo["percentageString"] as? String,
+            let hasChapters = userInfo["hasChapters"] as? Bool,
+            !hasChapters else {
+                return
+        }
+
+        self.percentageLabel.text = percentageString
+    }
+
+    @objc func bookPlayed() {
+        self.playButton.setImage(self.pauseImage, for: UIControlState())
+    }
+
+    @objc func bookPaused() {
+        self.playButton.setImage(self.playImage, for: UIControlState())
+    }
+
+    @objc func bookEnd() {
+        self.playButton.setImage(self.playImage, for: UIControlState())
+
+        self.requestReview()
     }
 }

@@ -14,7 +14,7 @@
 		412451841D489204008AC0E5 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412451821D489204008AC0E5 /* Crashlytics.framework */; };
 		413616401D2E21F000E48944 /* LibraryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4136163F1D2E21F000E48944 /* LibraryViewController.swift */; };
 		413616441D30115700E48944 /* Chameleon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 413616431D30115700E48944 /* Chameleon.framework */; };
-		416B640D1E72F362000E955A /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416B640C1E72F362000E955A /* Extensions.swift */; };
+		416B640D1E72F362000E955A /* UIViewControllerExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416B640C1E72F362000E955A /* UIViewControllerExtensions.swift */; };
 		418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418B6CFB1D2707F800F974FB /* AppDelegate.swift */; };
 		418B6D031D2707F800F974FB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 418B6D011D2707F800F974FB /* Main.storyboard */; };
 		418B6D051D2707F800F974FB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 418B6D041D2707F800F974FB /* Assets.xcassets */; };
@@ -25,6 +25,8 @@
 		41B2AC8E1D43CCE8005382A9 /* ChaptersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */; };
 		C30A2D512071596200F4A878 /* PlaybackSpeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30A2D502071596200F4A878 /* PlaybackSpeed.swift */; };
 		C30A2D5320715D4400F4A878 /* MoreOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30A2D5220715D4400F4A878 /* MoreOptions.swift */; };
+		C383530720754F3B00BD43EF /* NotificationCenterExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C383530620754F3B00BD43EF /* NotificationCenterExtensions.swift */; };
+		C383530920755C5400BD43EF /* Book.swift in Sources */ = {isa = PBXBuildFile; fileRef = C383530820755C5400BD43EF /* Book.swift */; };
 		C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3EC372D206EE0650094B4E8 /* SleepTimer.swift */; };
 		D367F7681FA2A6F000FEDB37 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = D367F7671FA2A6F000FEDB37 /* Constants.swift */; };
 /* End PBXBuildFile section */
@@ -60,7 +62,7 @@
 		412451821D489204008AC0E5 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		4136163F1D2E21F000E48944 /* LibraryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryViewController.swift; sourceTree = "<group>"; };
 		413616431D30115700E48944 /* Chameleon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Chameleon.framework; path = Carthage/Build/iOS/Chameleon.framework; sourceTree = "<group>"; };
-		416B640C1E72F362000E955A /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		416B640C1E72F362000E955A /* UIViewControllerExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIViewControllerExtensions.swift; sourceTree = "<group>"; };
 		418B6CF81D2707F800F974FB /* Audiobook Player.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Audiobook Player.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		418B6CFB1D2707F800F974FB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		418B6D021D2707F800F974FB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -76,9 +78,12 @@
 		41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChaptersViewController.swift; sourceTree = "<group>"; };
 		C30A2D502071596200F4A878 /* PlaybackSpeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackSpeed.swift; sourceTree = "<group>"; };
 		C30A2D5220715D4400F4A878 /* MoreOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreOptions.swift; sourceTree = "<group>"; };
+		C30A2D542072952C00F4A878 /* Cartfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Cartfile; sourceTree = SOURCE_ROOT; };
 		C35BADE7206989E6007687C1 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		C35BADE8206989E6007687C1 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		C35BADE9206989E6007687C1 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .swiftlint.yml; sourceTree = "<group>"; };
+		C383530620754F3B00BD43EF /* NotificationCenterExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCenterExtensions.swift; sourceTree = "<group>"; };
+		C383530820755C5400BD43EF /* Book.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Book.swift; sourceTree = "<group>"; };
 		C3EC372D206EE0650094B4E8 /* SleepTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepTimer.swift; sourceTree = "<group>"; };
 		D367F7671FA2A6F000FEDB37 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -105,15 +110,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		416B640B1E72F328000E955A /* Controllers */ = {
-			isa = PBXGroup;
-			children = (
-				4136163F1D2E21F000E48944 /* LibraryViewController.swift */,
-				410D0FEC1EDCF4B000A52EB9 /* SettingsViewController.swift */,
-			);
-			name = Controllers;
-			sourceTree = "<group>";
-		};
 		418B6CEF1D2707F700F974FB = {
 			isa = PBXGroup;
 			children = (
@@ -121,6 +117,7 @@
 				C35BADE7206989E6007687C1 /* LICENSE */,
 				C35BADE9206989E6007687C1 /* .swiftlint.yml */,
 				418B6CFA1D2707F800F974FB /* Audiobook Player */,
+				C30A2D542072952C00F4A878 /* Cartfile */,
 				418B6D111D2707F800F974FB /* Audiobook PlayerTests */,
 				418B6CF91D2707F800F974FB /* Products */,
 				41AABFFA1E705D18006BD2E0 /* Frameworks */,
@@ -139,12 +136,12 @@
 		418B6CFA1D2707F800F974FB /* Audiobook Player */ = {
 			isa = PBXGroup;
 			children = (
+				C383530520754F0F00BD43EF /* Extensions */,
+				C31268802073E6790043E2B3 /* Library */,
+				C31268812073E6940043E2B3 /* Settings */,
 				C3EC372A206EDB9A0094B4E8 /* Player */,
 				419196341D47CC4E007A3AF3 /* Audiobook Player.entitlements */,
-				41B955461F9E5E4E000C9231 /* Managers */,
-				416B640B1E72F328000E955A /* Controllers */,
 				D367F7671FA2A6F000FEDB37 /* Constants.swift */,
-				416B640C1E72F362000E955A /* Extensions.swift */,
 				418B6CFB1D2707F800F974FB /* AppDelegate.swift */,
 				418B6D011D2707F800F974FB /* Main.storyboard */,
 				418B6D041D2707F800F974FB /* Assets.xcassets */,
@@ -174,18 +171,37 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		41B955461F9E5E4E000C9231 /* Managers */ = {
+		C31268802073E6790043E2B3 /* Library */ = {
 			isa = PBXGroup;
 			children = (
-				410D0FF01EDF659900A52EB9 /* PlayerManager.swift */,
+				4136163F1D2E21F000E48944 /* LibraryViewController.swift */,
 				410D0FEE1EDDBC3300A52EB9 /* DataManager.swift */,
+				C383530820755C5400BD43EF /* Book.swift */,
 			);
-			name = Managers;
+			path = Library;
+			sourceTree = "<group>";
+		};
+		C31268812073E6940043E2B3 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				410D0FEC1EDCF4B000A52EB9 /* SettingsViewController.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		C383530520754F0F00BD43EF /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				416B640C1E72F362000E955A /* UIViewControllerExtensions.swift */,
+				C383530620754F3B00BD43EF /* NotificationCenterExtensions.swift */,
+			);
+			path = Extensions;
 			sourceTree = "<group>";
 		};
 		C3EC372A206EDB9A0094B4E8 /* Player */ = {
 			isa = PBXGroup;
 			children = (
+				410D0FF01EDF659900A52EB9 /* PlayerManager.swift */,
 				418B6D5C1D2CB76900F974FB /* PlayerViewController.swift */,
 				41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */,
 				C30A2D502071596200F4A878 /* PlaybackSpeed.swift */,
@@ -209,6 +225,7 @@
 				413616421D30100100E48944 /* ShellScript */,
 				412451801D4891EF008AC0E5 /* ShellScript */,
 				41B955451F9E552B000C9231 /* Embed Frameworks */,
+				C31268822073FF5A0043E2B3 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -337,6 +354,19 @@
 			shellPath = /bin/sh;
 			shellScript = "/usr/local/bin/carthage copy-frameworks";
 		};
+		C31268822073FF5A0043E2B3 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "carthage outdated --xcode-warnings";
+		};
 		C35BADEA20698A6D007687C1 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -361,11 +391,13 @@
 				D367F7681FA2A6F000FEDB37 /* Constants.swift in Sources */,
 				41B2AC8E1D43CCE8005382A9 /* ChaptersViewController.swift in Sources */,
 				C30A2D5320715D4400F4A878 /* MoreOptions.swift in Sources */,
+				C383530720754F3B00BD43EF /* NotificationCenterExtensions.swift in Sources */,
 				413616401D2E21F000E48944 /* LibraryViewController.swift in Sources */,
 				C30A2D512071596200F4A878 /* PlaybackSpeed.swift in Sources */,
 				418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */,
+				C383530920755C5400BD43EF /* Book.swift in Sources */,
 				418B6D5D1D2CB76900F974FB /* PlayerViewController.swift in Sources */,
-				416B640D1E72F362000E955A /* Extensions.swift in Sources */,
+				416B640D1E72F362000E955A /* UIViewControllerExtensions.swift in Sources */,
 				410D0FEF1EDDBC3300A52EB9 /* DataManager.swift in Sources */,
 				410D0FED1EDCF4B000A52EB9 /* SettingsViewController.swift in Sources */,
 				C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */,

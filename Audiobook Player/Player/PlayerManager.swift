@@ -11,7 +11,8 @@ import AVFoundation
 import MediaPlayer
 
 class PlayerManager: NSObject {
-    static let sharedInstance = PlayerManager()
+    static let shared = PlayerManager()
+
     let defaults: UserDefaults = UserDefaults.standard
 
     // current item to play
@@ -19,10 +20,9 @@ class PlayerManager: NSObject {
     var currentBooks: [Book]!
 
     var fileURL: URL!
-
     var audioPlayer: AVAudioPlayer?
 
-    // chapters
+    // @TODO: Refactor. Chapters should be stored on the book
     var chapterArray: [Chapter] = []
     var currentChapter: Chapter?
 
@@ -41,11 +41,13 @@ class PlayerManager: NSObject {
     // timer to update labels about time
     var timer: Timer!
 
-    func isLoaded() -> Bool {
+    let center = NotificationCenter.default
+
+    var isLoaded: Bool {
         return self.audioPlayer != nil
     }
 
-    func isPlaying() -> Bool {
+    var isPlaying: Bool {
         guard let audioPlayer = self.audioPlayer else {
             return false
         }
@@ -94,15 +96,19 @@ class PlayerManager: NSObject {
             do {
                 self.audioPlayer = try AVAudioPlayer(contentsOf: book.fileURL)
             } catch {
-                NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.errorLoadingBook, object: nil)
+                self.center.post(name: Notification.Name.AudiobookPlayer.errorLoadingBook, object: nil)
+
                 completion(nil)
+
                 return
             }
 
             guard let audioplayer = self.audioPlayer else {
                 //notify error
-                NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.errorLoadingBook, object: nil)
+                self.center.post(name: Notification.Name.AudiobookPlayer.errorLoadingBook, object: nil)
+
                 completion(nil)
+
                 return
             }
 
@@ -113,12 +119,12 @@ class PlayerManager: NSObject {
                 audioplayer.volume = 2.0
             }
 
-            self.chapterArray = self.process(self.playerItem.asset.availableChapterLocales)
+            // @TODO: Remove
+            self.chapterArray = book.loadChapters()
 
-            //update UI on main thread
+            // Update UI on main thread
             DispatchQueue.main.async(execute: {
-
-                //set book metadata for lockscreen and control center
+                // Set book metadata for lockscreen and control center
                 MPNowPlayingInfoCenter.default().nowPlayingInfo = [
                     MPMediaItemPropertyTitle: book.title,
                     MPMediaItemPropertyArtist: book.author,
@@ -133,51 +139,17 @@ class PlayerManager: NSObject {
                     audioplayer.currentTime = TimeInterval(currentTime)
                 }
 
-                //notify
+                // Notify
                 self.updateCurrentChapter()
 
-                //set speed for player
+                // Set speed for player
                 audioplayer.rate = self.getSpeed()
 
-                NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookReady, object: nil)
+                self.center.post(name: Notification.Name.AudiobookPlayer.bookReady, object: nil)
+
                 completion(audioplayer)
             })
         }
-    }
-
-    func process(_ chapterLocales: [Locale]) -> [Chapter] {
-        // try loading chapters
-        var chapterIndex = 1
-
-        var chapters = [Chapter]()
-
-        for locale in chapterLocales {
-            let chaptersMetadata = self.playerItem.asset.chapterMetadataGroups(withTitleLocale: locale, containingItemsWithCommonKeys: [AVMetadataKey.commonKeyArtwork])
-
-            for chapterMetadata in chaptersMetadata {
-
-                let chapter = Chapter(
-                    title: AVMetadataItem.metadataItems(
-                        from: chapterMetadata.items,
-                        withKey: AVMetadataKey.commonKeyTitle,
-                        keySpace: AVMetadataKeySpace.common
-                        ).first?.value?.copy(with: nil) as? String ?? "Chapter \(chapterIndex)",
-                    start: Int(CMTimeGetSeconds(chapterMetadata.timeRange.start)),
-                    duration: Int(CMTimeGetSeconds(chapterMetadata.timeRange.duration)),
-                    index: chapterIndex)
-
-                if let audioplayer = self.audioPlayer,
-                    Int(audioplayer.currentTime) >= chapter.start {
-                    self.currentChapter = chapter
-                }
-
-                chapters.append(chapter)
-
-                chapterIndex += 1
-            }
-        }
-
-        return chapters
     }
 
     func getStoredTime() -> Int {
@@ -197,18 +169,16 @@ class PlayerManager: NSObject {
 
     func getSpeed() -> Float {
         let speed = self.defaults.bool(forKey: UserDefaultsConstants.globalSpeedEnabled) ? self.defaults.float(forKey: "global_speed") : self.defaults.float(forKey: self.identifier+"_speed")
+
         return speed > 0 ? speed : 1.0
     }
-}
-
-extension PlayerManager: AVAudioPlayerDelegate {
 
     // move to chapter
     func setChapter(_ chapter: Chapter) {
-
         guard let audioPlayer = self.audioPlayer else {
             return
         }
+
         audioPlayer.currentTime = TimeInterval(chapter.start)
 
         MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioPlayer.currentTime
@@ -218,12 +188,12 @@ extension PlayerManager: AVAudioPlayerDelegate {
 
     // set speed
     func setSpeed(_ speed: Float) {
-
         guard let audioPlayer = self.audioPlayer else {
             return
         }
 
         defaults.set(speed, forKey: self.identifier+"_speed")
+
         //set global speed
         if self.defaults.bool(forKey: UserDefaultsConstants.globalSpeedEnabled) == true {
             self.defaults.set(speed, forKey: "global_speed")
@@ -234,43 +204,39 @@ extension PlayerManager: AVAudioPlayerDelegate {
 
     // set speed
     func setTime(_ time: TimeInterval) {
-
         guard let audioPlayer = self.audioPlayer else {
             return
         }
 
         audioPlayer.currentTime = time
+
         self.updateTimer()
     }
 
     // skip time forward
-    func forwardPressed() {
+    func forward() {
         guard let audioplayer = self.audioPlayer else {
             return
         }
 
         audioplayer.currentTime += 30
-        // update time on lockscreen and control center
-        MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
-        // trigger timer event
+
         self.updateTimer()
     }
 
     // skip time backwards
-    func rewindPressed() {
+    func rewind() {
         guard let audioplayer = self.audioPlayer else {
             return
         }
 
         audioplayer.currentTime -= 30
-        // update time on lockscreen and control center
-        MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
-        // trigger timer event
+
         self.updateTimer()
     }
 
     // toggle play/pause of book
-    func playPressed(autoplayed: Bool = false) {
+    func playPause(autoplayed: Bool = false) {
         guard let audioplayer = self.audioPlayer else {
             return
         }
@@ -279,7 +245,7 @@ extension PlayerManager: AVAudioPlayerDelegate {
 
         // pause player if it's playing
         if audioplayer.isPlaying {
-            //invalidate timer if needed
+            // invalidate timer if needed
             if self.timer != nil {
                 self.timer.invalidate()
             }
@@ -298,7 +264,7 @@ extension PlayerManager: AVAudioPlayerDelegate {
             }
 
             DispatchQueue.main.async {
-                NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
+                self.center.post(name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
             }
 
             return
@@ -329,12 +295,12 @@ extension PlayerManager: AVAudioPlayerDelegate {
 
         // set play state on player and control center
         audioplayer.play()
+
         MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 1
         MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
 
         DispatchQueue.main.async {
-            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookPlayed,
-                                            object: nil)
+            self.center.post(name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
         }
     }
 
@@ -344,6 +310,9 @@ extension PlayerManager: AVAudioPlayerDelegate {
             return
         }
 
+        // Notify controls
+        MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
+
         let currentTime = Int(audioplayer.currentTime)
 
         // store state every 2 seconds, I/O can be expensive
@@ -351,27 +320,25 @@ extension PlayerManager: AVAudioPlayerDelegate {
             defaults.set(currentTime, forKey: self.identifier)
         }
 
-        // update current time label
-        let timeText = self.formatTime(currentTime)
-
         let storedPercentage = defaults.string(forKey: self.identifier+"_percentage") ?? "0%"
 
         // calculate book read percentage based on current time
         let percentage = (Float(currentTime) / Float(audioplayer.duration)) * 100
         let percentageString = String(Int(ceil(percentage)))+"%"
 
-        let userInfo = ["time": currentTime,
-                        "timeString": timeText,
-                        "percentage": percentage,
-                        "percentageString": percentageString,
-                        "hasChapters": !self.chapterArray.isEmpty,
-                        "fileURL": self.currentBooks.first!.fileURL] as [String: Any]
+        let userInfo = [
+            "time": currentTime,
+            "percentage": percentage,
+            "percentageString": percentageString,
+            "hasChapters": self.currentBooks.first!.hasChapters,
+            "fileURL": self.currentBooks.first!.fileURL
+            ] as [String: Any]
 
         // notify percentage
         if storedPercentage != percentageString {
             defaults.set(percentageString, forKey: self.identifier+"_percentage")
 
-            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil, userInfo: userInfo)
+            self.center.post(name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil, userInfo: userInfo)
         }
 
         // update chapter
@@ -385,11 +352,13 @@ extension PlayerManager: AVAudioPlayerDelegate {
 
             // Once book a book is finished, ask for a review
             defaults.set(true, forKey: "ask_review")
-            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
+
+            self.center.post(name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
         }
 
         // notify
-        NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.updateTimer, object: nil, userInfo: userInfo)
+        self.center.post(name: Notification.Name.AudiobookPlayer.updateTimer, object: nil, userInfo: userInfo)
+        self.center.post(name: Notification.Name.AudiobookPlayer.updateTimer, object: nil, userInfo: userInfo)
     }
 
     func updateCurrentChapter() {
@@ -397,19 +366,25 @@ extension PlayerManager: AVAudioPlayerDelegate {
             return
         }
 
+        // @TODO: a book should report its current chapter just by updating its play position
         for chapter in self.chapterArray {
             if Int(audioplayer.currentTime) >= chapter.start {
                 self.currentChapter = chapter
+
                 let chapterString = "Chapter \(chapter.index) of \(self.chapterArray.count)"
-                // notify
-                let userInfo = ["chapterString": chapterString, "fileURL": self.currentBooks.first!.fileURL] as [String: Any]
+                let userInfo = [
+                    "chapterString": chapterString,
+                    "fileURL": self.currentBooks.first!.fileURL
+                    ] as [String: Any]
 
                 // notify
-                NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.updateChapter, object: nil, userInfo: userInfo)
+                self.center.post(name: Notification.Name.AudiobookPlayer.updateChapter, object: nil, userInfo: userInfo)
             }
         }
     }
+}
 
+extension PlayerManager: AVAudioPlayerDelegate {
     // leave the slider at max
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         guard flag else {
@@ -420,33 +395,16 @@ extension PlayerManager: AVAudioPlayerDelegate {
 
         self.updateTimer()
 
-        guard UserDefaults.standard.bool(forKey: UserDefaultsConstants.autoplayEnabled),
-            self.currentBooks.count > 1 else {
+        guard UserDefaults.standard.bool(forKey: UserDefaultsConstants.autoplayEnabled), self.currentBooks.count > 1 else {
             return
         }
 
-        let currentBooks = Array(PlayerManager.sharedInstance.currentBooks.dropFirst())
+        let currentBooks = Array(PlayerManager.shared.currentBooks.dropFirst())
 
         load(currentBooks, completion: { (_) in
             let userInfo = ["books": currentBooks]
 
-            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookChange, object: nil, userInfo: userInfo)
+            self.center.post(name: Notification.Name.AudiobookPlayer.bookChange, object: nil, userInfo: userInfo)
         })
-    }
-
-    // @TODO: Replace with DateComponentsFormatter
-    func formatTime(_ time: Int) -> String {
-        let hours = Int(time / 3600)
-        let remaining = Float(time - (hours * 3600))
-        let minutes = Int(remaining / 60)
-        let seconds = Int(remaining - Float(minutes * 60))
-
-        var formattedTime = String(format: "%02d:%02d", minutes, seconds)
-
-        if hours > 0 {
-            formattedTime = String(format: "%02d:"+formattedTime, hours)
-        }
-
-        return formattedTime
     }
 }
