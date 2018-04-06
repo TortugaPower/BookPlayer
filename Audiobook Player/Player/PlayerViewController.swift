@@ -205,17 +205,20 @@ class PlayerViewController: UIViewController {
     }
 
     @IBAction func showMore() {
-        let actions = MoreOptions.shared.actionSheet(actions: [
-            UIAlertAction(title: "Jump To Start", style: .destructive, handler: { _ in
-                self.jump(0.0)
-            }),
-            UIAlertAction(title: "Mark as Finished", style: .destructive, handler: { _ in
-                self.jump(PlayerManager.shared.audioPlayer?.duration ?? 0.0)
-                self.bookEnd()
-            })
-        ])
+        let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
-        self.present(actions, animated: true, completion: nil)
+        actionSheet.addAction(UIAlertAction(title: "Jump To Start", style: .default, handler: { _ in
+            self.jump(0.0)
+        }))
+
+        actionSheet.addAction(UIAlertAction(title: "Mark as Finished", style: .default, handler: { _ in
+            self.jump(PlayerManager.shared.audioPlayer?.duration ?? 0.0)
+            self.bookEnd()
+        }))
+
+        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+
+        self.present(actionSheet, animated: true, completion: nil)
     }
 
     func jump(_ position: Double = 0.0) {
