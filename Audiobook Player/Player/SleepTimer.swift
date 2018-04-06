@@ -9,28 +9,24 @@
 import UIKit
 import Foundation
 
-enum SleepTimerState {
-    case ready
-    case running
-    case expired
-}
-
-typealias SleepTimerCompletion = () -> Void
 typealias SleepTimerStart = () -> Void
 typealias SleepTimerProgress = (Double) -> Void
+typealias SleepTimerEnd = (_ cancelled: Bool) -> Void
 
 final class SleepTimer {
     static let shared = SleepTimer()
 
-    let durationFormatter = DateComponentsFormatter()
+    let durationFormatter: DateComponentsFormatter = DateComponentsFormatter()
 
-    var timer: Timer!
-    var state: SleepTimerState = .ready
-    var onStart: SleepTimerStart?
-    var onProgress: SleepTimerProgress?
-    var onCompletion: SleepTimerCompletion?
+    private var timer: Timer?
+    private var onStart: SleepTimerStart?
+    private var onProgress: SleepTimerProgress?
+    private var onEnd: SleepTimerEnd?
 
-    let intervals: [Double] = [
+    private let defaultMessage: String = "Pause playback"
+    private let alert: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+    private var timeLeft: Double = 0.0
+    private let intervals: [Double] = [
         300.0,
         600.0,
         900.0,
@@ -43,84 +39,22 @@ final class SleepTimer {
 
     private init() {
         durationFormatter.unitsStyle = .positional
-        durationFormatter.allowedUnits = [ .hour, .minute, .second ]
+        durationFormatter.allowedUnits = [ .minute, .second ]
         durationFormatter.collapsesLargestUnit = true
-        durationFormatter.zeroFormattingBehavior = .pad
-    }
 
-    private func sleep(in seconds: Double?) {
-        UserDefaults.standard.set(seconds, forKey: "sleep_timer")
-
-        guard seconds != nil else {
-            self.reset()
-
-            return
-        }
-
-        self.state = .running
-
-        self.onStart?()
-        self.onProgress?(seconds!)
-
-        // create timer if needed
-        if self.timer == nil || (self.timer != nil && !self.timer.isValid) {
-            self.timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(update), userInfo: nil, repeats: true)
-
-            RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
-        }
-    }
-
-    private func reset() {
-        self.state = .ready
-
-        if self.timer != nil && self.timer.isValid {
-            self.timer.invalidate()
-        }
-
-        UserDefaults.standard.set(nil, forKey: "sleep_timer")
-
-        self.onCompletion?()
-    }
-
-    @objc private func update() {
-        let currentTime = UserDefaults.standard.double(forKey: "sleep_timer")
-        let newTime: Double? = currentTime - 1.0
-
-        self.onProgress?(newTime!)
-
-        if newTime! <= 0 {
-            self.reset()
-
-            return
-        }
-
-        UserDefaults.standard.set(newTime, forKey: "sleep_timer")
-    }
-
-    // MARK: Public methods
-
-    func actionSheet(onStart: @escaping SleepTimerStart, onProgress: @escaping SleepTimerProgress, onCompletion: @escaping SleepTimerCompletion) -> UIAlertController {
-        self.onStart = onStart
-        self.onCompletion = onCompletion
-        self.onProgress = onProgress
-
-        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-
-        alert.message = "Pause playback"
-
-        alert.addAction(UIAlertAction(title: "Off", style: .default, handler: { _ in
-            self.reset()
-        }))
+        reset()
 
         let formatter = DateComponentsFormatter()
 
         formatter.unitsStyle = .full
         formatter.allowedUnits = [ .hour, .minute ]
 
+        alert.addAction(UIAlertAction(title: "Off", style: .default, handler: { _ in
+            self.cancel()
+        }))
+
         for interval in intervals {
-            guard let formattedDuration = formatter.string(from: interval as TimeInterval) else {
-                continue
-            }
+            let formattedDuration = formatter.string(from: interval as TimeInterval)!
 
             alert.addAction(UIAlertAction(title: "In \(formattedDuration)", style: .default, handler: { _ in
                 self.sleep(in: interval)
@@ -128,11 +62,57 @@ final class SleepTimer {
         }
 
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-
-        return alert
     }
 
-    func format(duration: Double) -> String? {
-        return self.durationFormatter.string(from: duration)
+    private func sleep(in seconds: Double) {
+        onStart?()
+        onProgress?(seconds)
+
+        reset()
+
+        timeLeft = seconds
+        timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(update), userInfo: nil, repeats: true)
+
+        RunLoop.main.add(self.timer!, forMode: RunLoopMode.commonModes)
+    }
+
+    private func reset() {
+        alert.message = defaultMessage
+        
+        guard timer != nil else {
+            return
+        }
+
+        timer?.invalidate()
+    }
+
+    private func cancel() {
+        reset()
+
+        onEnd?(true)
+    }
+
+    @objc private func update() {
+        timeLeft -= 1.0
+
+        onProgress?(timeLeft)
+
+        alert.message = "Sleeping in \(durationFormatter.string(from: timeLeft)!)"
+
+        if timeLeft <= 0 {
+            timer?.invalidate()
+
+            onEnd?(false)
+        }
+    }
+
+    // MARK: Public methods
+
+    func actionSheet(onStart: @escaping SleepTimerStart, onProgress: @escaping SleepTimerProgress, onEnd: @escaping SleepTimerEnd) -> UIAlertController {
+        self.onStart = onStart
+        self.onEnd = onEnd
+        self.onProgress = onProgress
+
+        return alert
     }
 }

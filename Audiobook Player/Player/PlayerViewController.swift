@@ -211,14 +211,18 @@ class PlayerViewController: UIViewController {
 
     @IBAction func setSleepTimer() {
         let actions = SleepTimer.shared.actionSheet(
-            onStart: { () -> Void in },
-            onProgress: { (interval: Double) -> Void in
-                self.sleepButton.title = SleepTimer.shared.format(duration: interval)
+            onStart: {},
+            onProgress: { (_: Double) -> Void in
+//                self.sleepButton.title = SleepTimer.shared.durationFormatter.string(from: timeLeft)
             },
-            onCompletion: { () -> Void in
-                PlayerManager.sharedInstance.playPressed()
+            onEnd: { (_ cancelled: Bool) -> Void in
+                if !cancelled {
+                    PlayerManager.sharedInstance.stop()
 
-                self.sleepButton.title = "Timer"
+                    self.playButton.setImage(self.playImage, for: UIControlState())
+                }
+
+//                self.sleepButton.title = "Timer"
             }
         )
 

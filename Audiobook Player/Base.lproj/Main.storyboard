@@ -477,7 +477,7 @@
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="pRa-DC-CZt"/>
                                     <barButtonItem title="Timer" id="8NO-0Z-wE9">
                                         <connections>
-                                            <action selector="setSleepTimer:" destination="JEX-9P-axG" id="brm-vG-dap"/>
+                                            <action selector="setSleepTimer" destination="JEX-9P-axG" id="31K-wT-kKi"/>
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="qUr-ME-K8y"/>
