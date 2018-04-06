@@ -54,7 +54,6 @@ class PlayerViewController: UIViewController {
 
         // Make toolbar transparent
         self.bottomToolbar.setBackgroundImage(UIImage(), forToolbarPosition: .any, barMetrics: .default)
-
         self.bottomToolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
 
         registerObservers()
@@ -106,6 +105,7 @@ class PlayerViewController: UIViewController {
         //update UI if needed and set player to stored time
         if currentTime > 0 {
             let formattedCurrentTime = self.formatTime(currentTime)
+
             self.currentTimeLabel.text = formattedCurrentTime
         }
 
@@ -140,6 +140,7 @@ class PlayerViewController: UIViewController {
 
         if let audioPlayer = PlayerManager.sharedInstance.audioPlayer {
             let percentage = (Float(currentTime) / Float(audioPlayer.duration)) * 100
+
             self.sliderView.value = percentage
         }
     }
@@ -147,6 +148,7 @@ class PlayerViewController: UIViewController {
     func registerObservers() {
         //register for appDelegate requestReview notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: Notification.Name.AudiobookPlayer.requestReview, object: nil)
+
         //register for timer update
         NotificationCenter.default.addObserver(self, selector: #selector(self.updateTimer(_:)), name: Notification.Name.AudiobookPlayer.updateTimer, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.updatePercentage(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
@@ -166,29 +168,25 @@ class PlayerViewController: UIViewController {
     }
 
     @IBAction func didSelectChapter(_ segue: UIStoryboardSegue) {
-        guard PlayerManager.sharedInstance.isLoaded() else {
+        guard PlayerManager.sharedInstance.isLoaded(),
+            let viewController = segue.source as? ChaptersViewController,
+            let chapter = viewController.currentChapter else {
             return
         }
 
-        if let viewController = segue.source as? ChaptersViewController {
-            let chapter = viewController.currentChapter!
-
-            PlayerManager.sharedInstance.setChapter(chapter)
-        }
+        PlayerManager.sharedInstance.setChapter(chapter)
     }
 
     @IBAction func didSelectSpeed(_ segue: UIStoryboardSegue) {
-        guard PlayerManager.sharedInstance.isLoaded() else {
+        guard PlayerManager.sharedInstance.isLoaded(),
+            let viewController = segue.source as? SpeedViewController,
+            let speed = viewController.currentSpeed else {
             return
         }
 
-        if let viewController = segue.source as? SpeedViewController {
-            let speed = viewController.currentSpeed!
+        PlayerManager.sharedInstance.setSpeed(speed)
 
-            PlayerManager.sharedInstance.setSpeed(speed)
-
-            self.speedButton.title = "\(String(PlayerManager.sharedInstance.currentSpeed))x"
-        }
+        self.speedButton.title = "\(String(PlayerManager.sharedInstance.currentSpeed))x"
     }
 
     @IBAction func didSelectAction(_ segue: UIStoryboardSegue) {
@@ -222,8 +220,8 @@ class PlayerViewController: UIViewController {
         self.dismiss(animated: true, completion: nil)
     }
 
-    @IBAction func setSleepTimer(_ sender: Any) {
-        var alertTitle: String? = nil
+    @IBAction func setSleepTimer(_ sender: UIButton) {
+        var alertTitle: String?
 
         if self.sleepTimer != nil && self.sleepTimer.isValid {
             alertTitle = " "
@@ -284,6 +282,7 @@ class PlayerViewController: UIViewController {
         //create timer if needed
         if self.sleepTimer == nil || (self.sleepTimer != nil && !self.sleepTimer.isValid) {
             self.sleepTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(updateSleepTimer), userInfo: nil, repeats: true)
+
             RunLoop.main.add(self.sleepTimer, forMode: RunLoopMode.commonModes)
         }
     }
@@ -294,11 +293,11 @@ class PlayerViewController: UIViewController {
             if self.sleepTimer != nil {
                 self.sleepTimer.invalidate()
             }
+
             return
         }
 
         let currentTime = UserDefaults.standard.integer(forKey: "sleep_timer")
-
         var newTime: Int? = currentTime - 1
 
         if let alertviewController = self.presentedViewController, alertviewController is UIAlertController {
@@ -307,6 +306,7 @@ class PlayerViewController: UIViewController {
 
         if newTime! <= 0 {
             newTime = nil
+
             //stop audiobook
             if self.sleepTimer != nil && self.sleepTimer.isValid {
                 self.sleepTimer.invalidate()
@@ -316,6 +316,7 @@ class PlayerViewController: UIViewController {
                 self.playPressed(self.playButton)
             }
         }
+
         UserDefaults.standard.set(newTime, forKey: "sleep_timer")
     }
 
@@ -325,7 +326,6 @@ class PlayerViewController: UIViewController {
 }
 
 extension PlayerViewController: AVAudioPlayerDelegate {
-
     //skip time forward
     @IBAction func forwardPressed(_ sender: UIButton) {
         PlayerManager.sharedInstance.forwardPressed()
@@ -407,7 +407,9 @@ extension PlayerViewController: AVAudioPlayerDelegate {
             let book = books.first else {
                 return
         }
+
         self.currentBook = book
+
         setupView(book: book)
     }
 

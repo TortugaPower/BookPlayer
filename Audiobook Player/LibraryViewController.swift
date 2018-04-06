@@ -264,19 +264,19 @@ extension LibraryViewController: UITableViewDelegate {
             }))
 
             alert.addAction(UIAlertAction(title: "Yes", style: .destructive, handler: { _ in
-                let book = self.bookArray.remove(at: indexPath.row)
+                let book = self.bookArray[indexPath.row]
 
                 do {
                     try FileManager.default.removeItem(at: book.fileURL)
+                    
+                    self.bookArray.remove(at: indexPath.row)
+                    tableView.beginUpdates()
+                    tableView.deleteRows(at: [indexPath], with: .none)
+                    tableView.endUpdates()
+                    self.emptyListContainerView.isHidden = !self.bookArray.isEmpty
                 } catch {
-                    // @TODO: Handle error when failing to remove a file
+                    self.showAlert("Error", message: "There was an error deleting the book, please try again.", style: .alert)
                 }
-
-                tableView.beginUpdates()
-                tableView.deleteRows(at: [indexPath], with: .none)
-                tableView.endUpdates()
-
-                self.emptyListContainerView.isHidden = !self.bookArray.isEmpty
             }))
 
             alert.popoverPresentationController?.sourceView = self.view
@@ -434,10 +434,19 @@ extension LibraryViewController {
      * For now, seek forward/backward and next/previous track perform the same function
      */
     func registerRemoteEvents() {
-        MPRemoteCommandCenter.shared().togglePlayPauseCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
+        let togglePlayPauseHandler: (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus = { (_) -> MPRemoteCommandHandlerStatus in
             PlayerManager.sharedInstance.playPressed()
             return .success
         }
+
+        MPRemoteCommandCenter.shared().togglePlayPauseCommand.isEnabled = true
+        MPRemoteCommandCenter.shared().togglePlayPauseCommand.addTarget(handler: togglePlayPauseHandler)
+
+        MPRemoteCommandCenter.shared().playCommand.isEnabled = true
+        MPRemoteCommandCenter.shared().playCommand.addTarget(handler: togglePlayPauseHandler)
+
+        MPRemoteCommandCenter.shared().pauseCommand.isEnabled = true
+        MPRemoteCommandCenter.shared().pauseCommand.addTarget(handler: togglePlayPauseHandler)
 
         let skipForwardHandler: (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus = { (commandEvent) -> MPRemoteCommandHandlerStatus in
             PlayerManager.sharedInstance.forwardPressed()
