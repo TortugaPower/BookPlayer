@@ -9,13 +9,6 @@
 import UIKit
 import MediaPlayer
 
-struct Chapter {
-    var title: String
-    var start: Int
-    var duration: Int
-    var index: Int
-}
-
 class ChaptersViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
 
@@ -25,8 +18,8 @@ class ChaptersViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.currentChapter = PlayerManager.sharedInstance.currentChapter
-        self.chapterArray = PlayerManager.sharedInstance.chapterArray
+        self.currentChapter = PlayerManager.shared.currentChapter
+        self.chapterArray = PlayerManager.shared.chapterArray
 
         self.tableView.tableFooterView = UIView()
         self.tableView.reloadData()

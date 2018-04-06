@@ -100,7 +100,7 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
 
     // Playback may be interrupted by calls. Handle pause
     @objc func handleAudioInterruptions(_ notification: Notification) {
-        guard let audioPlayer = PlayerManager.sharedInstance.audioPlayer else {
+        guard let audioPlayer = PlayerManager.shared.audioPlayer else {
             return
         }
 
@@ -111,7 +111,7 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
 
     // Handle audio route changes
     @objc func handleAudioRouteChange(_ notification: Notification) {
-        guard let audioPlayer = PlayerManager.sharedInstance.audioPlayer,
+        guard let audioPlayer = PlayerManager.shared.audioPlayer,
             audioPlayer.isPlaying,
             let userInfo = notification.userInfo,
             let reasonValue = userInfo[AVAudioSessionRouteChangeReasonKey] as? UInt,
@@ -157,15 +157,15 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     @IBAction func didPressPlay(_ sender: UIButton) {
-        PlayerManager.sharedInstance.playPressed()
+        PlayerManager.shared.playPause()
     }
 
     @objc func forwardPressed(_ sender: UIButton) {
-        PlayerManager.sharedInstance.forwardPressed()
+        PlayerManager.shared.forward()
     }
 
     @objc func rewindPressed(_ sender: UIButton) {
-        PlayerManager.sharedInstance.rewindPressed()
+        PlayerManager.shared.rewind()
     }
 
     @IBAction func didPressShowDetail(_ sender: UIButton) {
@@ -195,7 +195,7 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
 
     @objc func bookReady() {
         MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
-        PlayerManager.sharedInstance.playPressed(autoplayed: true)
+        PlayerManager.shared.playPause(autoplayed: true)
     }
 
     @objc func bookPlayed() {
@@ -268,7 +268,7 @@ extension LibraryViewController: UITableViewDelegate {
 
                 do {
                     try FileManager.default.removeItem(at: book.fileURL)
-                    
+
                     self.bookArray.remove(at: indexPath.row)
                     tableView.beginUpdates()
                     tableView.deleteRows(at: [indexPath], with: .none)
@@ -328,7 +328,7 @@ extension LibraryViewController: UITableViewDelegate {
 
     func setupPlayer(book: Book) {
         // Make sure player is for a different book
-        guard PlayerManager.sharedInstance.fileURL != book.fileURL else {
+        guard PlayerManager.shared.fileURL != book.fileURL else {
             showPlayerView(book: book)
 
             return
@@ -337,7 +337,7 @@ extension LibraryViewController: UITableViewDelegate {
         MBProgressHUD.showAdded(to: self.view, animated: true)
 
         // Replace player with new one
-        PlayerManager.sharedInstance.load(self.currentBooks) { (_) in
+        PlayerManager.shared.load(self.currentBooks) { (_) in
             self.showPlayerView(book: book)
         }
     }
@@ -422,6 +422,7 @@ extension LibraryViewController: UIDocumentPickerDelegate {
             try FileManager.default.moveItem(at: url, to: fileURL)
         } catch {
             self.showAlert("Error", message: "File import fail, try again later", style: .alert)
+
             return
         }
 
@@ -435,7 +436,14 @@ extension LibraryViewController {
      */
     func registerRemoteEvents() {
         let togglePlayPauseHandler: (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus = { (_) -> MPRemoteCommandHandlerStatus in
-            PlayerManager.sharedInstance.playPressed()
+            PlayerManager.shared.playPause()
+
+            return .success
+        }
+
+        MPRemoteCommandCenter.shared().togglePlayPauseCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
+            PlayerManager.shared.playPause()
+
             return .success
         }
 
@@ -449,27 +457,28 @@ extension LibraryViewController {
         MPRemoteCommandCenter.shared().pauseCommand.addTarget(handler: togglePlayPauseHandler)
 
         let skipForwardHandler: (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus = { (commandEvent) -> MPRemoteCommandHandlerStatus in
-            PlayerManager.sharedInstance.forwardPressed()
+            PlayerManager.shared.forward()
+
             return .success
         }
 
         MPRemoteCommandCenter.shared().skipForwardCommand.preferredIntervals = [30]
         MPRemoteCommandCenter.shared().skipForwardCommand.addTarget(handler: skipForwardHandler)
-
         MPRemoteCommandCenter.shared().skipBackwardCommand.preferredIntervals = [30]
         MPRemoteCommandCenter.shared().nextTrackCommand.addTarget(handler: skipForwardHandler)
-
         MPRemoteCommandCenter.shared().seekForwardCommand.addTarget { (commandEvent) -> MPRemoteCommandHandlerStatus in
             guard let cmd = commandEvent as? MPSeekCommandEvent,
                 cmd.type == .endSeeking else { return .success }
 
-            //end seeking
-            PlayerManager.sharedInstance.forwardPressed()
+            // End seeking
+            PlayerManager.shared.forward()
+
             return .success
         }
 
         let skipBackwardHandler: (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus = { (commandEvent) -> MPRemoteCommandHandlerStatus in
-            PlayerManager.sharedInstance.rewindPressed()
+            PlayerManager.shared.rewind()
+
             return .success
         }
 
@@ -480,8 +489,9 @@ extension LibraryViewController {
             guard let cmd = commandEvent as? MPSeekCommandEvent,
                 cmd.type == .endSeeking else { return .success }
 
-            //end seeking
-            PlayerManager.sharedInstance.rewindPressed()
+            // End seeking
+            PlayerManager.shared.rewind()
+
             return .success
         }
     }

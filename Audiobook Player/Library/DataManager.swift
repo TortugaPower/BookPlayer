@@ -10,27 +10,7 @@ import Foundation
 import AVFoundation
 import UIKit
 
-struct Book {
-    var identifier: String {
-        return self.fileURL.lastPathComponent
-    }
-
-    var duration: Int {
-        return Int(CMTimeGetSeconds(self.asset.duration))
-    }
-
-    var displayTitle: String {
-        return title + " - " + author
-    }
-    var title: String
-    var author: String
-    var artwork: UIImage
-    var asset: AVAsset
-    var fileURL: URL
-}
-
 class DataManager {
-
     static let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
 
     /**
@@ -38,6 +18,7 @@ class DataManager {
      */
     class func loadBooks(completion:@escaping ([Book]) -> Void) {
         var books = [Book]()
+
         //get reference of all the files located inside the Documents folder
         guard let urls = DataManager.getLocalFilesURL() else {
             return completion(books)
@@ -76,7 +57,6 @@ class DataManager {
      * Create book objects array from
      */
     private class func process(_ urls: [URL], books:inout [Book]) {
-
         for fileURL in urls {
 
             //if file already in list, skip to next one
@@ -93,6 +73,7 @@ class DataManager {
                 let author = (AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtist, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String ?? "Unknown Author").replacingOccurrences(of: " ", with: "_")
 
                 var bookCover: UIImage!
+
                 if let artwork = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtwork, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? Data {
                     bookCover = UIImage(data: artwork)
                 } else {
@@ -100,9 +81,11 @@ class DataManager {
                 }
 
                 let book = Book(title: title, author: author, artwork: bookCover, asset: asset, fileURL: fileURL)
+
                 books.append(book)
             }
         }
+
         books.sort { (book1, book2) -> Bool in
             return book1.title.compare(book2.title) == .orderedAscending
         }
