@@ -23,6 +23,10 @@
 		418B6D5D1D2CB76900F974FB /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418B6D5C1D2CB76900F974FB /* PlayerViewController.swift */; };
 		41AB1C131D30298800AC1AA0 /* MBProgressHUD.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41AB1C121D30298800AC1AA0 /* MBProgressHUD.framework */; };
 		41B2AC8E1D43CCE8005382A9 /* ChaptersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */; };
+		C30EEEBE2079645C00A4ED33 /* PlayerProgressViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30EEEBA2079645C00A4ED33 /* PlayerProgressViewController.swift */; };
+		C30EEEBF2079645C00A4ED33 /* PlayerContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30EEEBB2079645C00A4ED33 /* PlayerContainerViewController.swift */; };
+		C30EEEC02079645C00A4ED33 /* PlayerControlsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30EEEBC2079645C00A4ED33 /* PlayerControlsViewController.swift */; };
+		C30EEEC12079645C00A4ED33 /* PlayerMetaViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30EEEBD2079645C00A4ED33 /* PlayerMetaViewController.swift */; };
 		C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3EC372D206EE0650094B4E8 /* SleepTimer.swift */; };
 		D367F7681FA2A6F000FEDB37 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = D367F7671FA2A6F000FEDB37 /* Constants.swift */; };
 /* End PBXBuildFile section */
@@ -72,6 +76,10 @@
 		419196341D47CC4E007A3AF3 /* Audiobook Player.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "Audiobook Player.entitlements"; sourceTree = "<group>"; };
 		41AB1C121D30298800AC1AA0 /* MBProgressHUD.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MBProgressHUD.framework; path = Carthage/Build/iOS/MBProgressHUD.framework; sourceTree = "<group>"; };
 		41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChaptersViewController.swift; sourceTree = "<group>"; };
+		C30EEEBA2079645C00A4ED33 /* PlayerProgressViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerProgressViewController.swift; sourceTree = "<group>"; };
+		C30EEEBB2079645C00A4ED33 /* PlayerContainerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerContainerViewController.swift; sourceTree = "<group>"; };
+		C30EEEBC2079645C00A4ED33 /* PlayerControlsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerControlsViewController.swift; sourceTree = "<group>"; };
+		C30EEEBD2079645C00A4ED33 /* PlayerMetaViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerMetaViewController.swift; sourceTree = "<group>"; };
 		C35BADE7206989E6007687C1 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		C35BADE8206989E6007687C1 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		C35BADE9206989E6007687C1 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .swiftlint.yml; sourceTree = "<group>"; };
@@ -136,7 +144,6 @@
 			isa = PBXGroup;
 			children = (
 				C3EC372A206EDB9A0094B4E8 /* Player */,
-				419196341D47CC4E007A3AF3 /* Audiobook Player.entitlements */,
 				41B955461F9E5E4E000C9231 /* Managers */,
 				416B640B1E72F328000E955A /* Controllers */,
 				D367F7671FA2A6F000FEDB37 /* Constants.swift */,
@@ -145,6 +152,7 @@
 				418B6D011D2707F800F974FB /* Main.storyboard */,
 				418B6D041D2707F800F974FB /* Assets.xcassets */,
 				418B6D061D2707F800F974FB /* LaunchScreen.storyboard */,
+				419196341D47CC4E007A3AF3 /* Audiobook Player.entitlements */,
 				418B6D091D2707F800F974FB /* Info.plist */,
 			);
 			path = "Audiobook Player";
@@ -179,12 +187,24 @@
 			name = Managers;
 			sourceTree = "<group>";
 		};
+		C30EEEB92079645C00A4ED33 /* Containers */ = {
+			isa = PBXGroup;
+			children = (
+				C30EEEBA2079645C00A4ED33 /* PlayerProgressViewController.swift */,
+				C30EEEBB2079645C00A4ED33 /* PlayerContainerViewController.swift */,
+				C30EEEBC2079645C00A4ED33 /* PlayerControlsViewController.swift */,
+				C30EEEBD2079645C00A4ED33 /* PlayerMetaViewController.swift */,
+			);
+			path = Containers;
+			sourceTree = "<group>";
+		};
 		C3EC372A206EDB9A0094B4E8 /* Player */ = {
 			isa = PBXGroup;
 			children = (
 				418B6D5C1D2CB76900F974FB /* PlayerViewController.swift */,
 				C3EC372D206EE0650094B4E8 /* SleepTimer.swift */,
 				41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */,
+				C30EEEB92079645C00A4ED33 /* Containers */,
 			);
 			path = Player;
 			sourceTree = "<group>";
@@ -353,10 +373,14 @@
 			files = (
 				410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */,
 				D367F7681FA2A6F000FEDB37 /* Constants.swift in Sources */,
+				C30EEEC12079645C00A4ED33 /* PlayerMetaViewController.swift in Sources */,
 				41B2AC8E1D43CCE8005382A9 /* ChaptersViewController.swift in Sources */,
+				C30EEEC02079645C00A4ED33 /* PlayerControlsViewController.swift in Sources */,
 				413616401D2E21F000E48944 /* LibraryViewController.swift in Sources */,
 				418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */,
+				C30EEEBF2079645C00A4ED33 /* PlayerContainerViewController.swift in Sources */,
 				418B6D5D1D2CB76900F974FB /* PlayerViewController.swift in Sources */,
+				C30EEEBE2079645C00A4ED33 /* PlayerProgressViewController.swift in Sources */,
 				416B640D1E72F362000E955A /* Extensions.swift in Sources */,
 				410D0FEF1EDDBC3300A52EB9 /* DataManager.swift in Sources */,
 				410D0FED1EDCF4B000A52EB9 /* SettingsViewController.swift in Sources */,

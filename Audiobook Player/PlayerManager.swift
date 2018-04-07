@@ -41,11 +41,11 @@ class PlayerManager: NSObject {
     // timer to update labels about time
     var timer: Timer!
 
-    func isLoaded() -> Bool {
+    var isLoaded: Bool {
         return self.audioPlayer != nil
     }
 
-    func isPlaying() -> Bool {
+    var isPlaying: Bool {
         guard let audioPlayer = self.audioPlayer else {
             return false
         }
@@ -244,7 +244,7 @@ extension PlayerManager: AVAudioPlayerDelegate {
     }
 
     // skip time forward
-    func forwardPressed() {
+    func forward() {
         guard let audioplayer = self.audioPlayer else {
             return
         }
@@ -257,7 +257,7 @@ extension PlayerManager: AVAudioPlayerDelegate {
     }
 
     // skip time backwards
-    func rewindPressed() {
+    func rewind() {
         guard let audioplayer = self.audioPlayer else {
             return
         }
@@ -270,7 +270,7 @@ extension PlayerManager: AVAudioPlayerDelegate {
     }
 
     // toggle play/pause of book
-    func playPressed(autoplayed: Bool = false) {
+    func playPause(autoplayed: Bool = false) {
         guard let audioplayer = self.audioPlayer else {
             return
         }
@@ -389,7 +389,7 @@ extension PlayerManager: AVAudioPlayerDelegate {
         }
 
         // notify
-        NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.updateTimer, object: nil, userInfo: userInfo)
+        NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookPlaying, object: nil, userInfo: userInfo)
     }
 
     func updateCurrentChapter() {
