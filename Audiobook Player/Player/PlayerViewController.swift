@@ -166,33 +166,6 @@ class PlayerViewController: UIViewController {
         PlayerManager.sharedInstance.setChapter(chapter)
     }
 
-    @IBAction func didSelectAction(_ segue: UIStoryboardSegue) {
-        guard PlayerManager.sharedInstance.isLoaded() else {
-            return
-        }
-
-        PlayerManager.sharedInstance.stop()
-
-        if let viewController = segue.source as? MoreViewController {
-            guard let action = viewController.selectedAction else {
-                return
-            }
-
-            switch action.rawValue {
-            case MoreAction.jumpToStart.rawValue:
-                PlayerManager.sharedInstance.setTime(0.0)
-            case MoreAction.markFinished.rawValue:
-                PlayerManager.sharedInstance.setTime(PlayerManager.sharedInstance.audioPlayer?.duration ?? 0.0)
-            default:
-                break
-            }
-
-            let test = Notification(name: Notification.Name.AudiobookPlayer.openURL)
-
-            self.updateTimer(test)
-        }
-    }
-
     @IBAction func dismissPlayer() {
         self.dismiss(animated: true, completion: nil)
     }
@@ -237,6 +210,32 @@ class PlayerViewController: UIViewController {
 //                self.sleepButton.title = "Timer"
             }
         )
+
+        self.present(actionSheet, animated: true, completion: nil)
+    }
+
+    @IBAction func showMore() {
+        guard PlayerManager.sharedInstance.isLoaded() else {
+            return
+        }
+
+        let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+
+        actionSheet.addAction(UIAlertAction(title: "Jump To Start", style: .default, handler: { _ in
+            PlayerManager.sharedInstance.stop()
+            PlayerManager.sharedInstance.setTime(0.0)
+
+            self.bookPaused()
+        }))
+
+        actionSheet.addAction(UIAlertAction(title: "Mark as Finished", style: .default, handler: { _ in
+            PlayerManager.sharedInstance.stop()
+            PlayerManager.sharedInstance.setTime(PlayerManager.sharedInstance.audioPlayer?.duration ?? 0.0)
+
+            self.bookEnd()
+        }))
+
+        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
 
         self.present(actionSheet, animated: true, completion: nil)
     }
