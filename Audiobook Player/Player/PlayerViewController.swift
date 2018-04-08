@@ -166,47 +166,32 @@ class PlayerViewController: UIViewController {
         PlayerManager.sharedInstance.setChapter(chapter)
     }
 
-    @IBAction func didSelectSpeed(_ segue: UIStoryboardSegue) {
-        guard PlayerManager.sharedInstance.isLoaded(),
-            let viewController = segue.source as? SpeedViewController,
-            let speed = viewController.currentSpeed else {
-            return
-        }
-
-        PlayerManager.sharedInstance.setSpeed(speed)
-
-        self.speedButton.title = "\(String(PlayerManager.sharedInstance.currentSpeed))x"
-    }
-
-    @IBAction func didSelectAction(_ segue: UIStoryboardSegue) {
-        guard PlayerManager.sharedInstance.isLoaded() else {
-            return
-        }
-
-        PlayerManager.sharedInstance.stop()
-
-        if let viewController = segue.source as? MoreViewController {
-            guard let action = viewController.selectedAction else {
-                return
-            }
-
-            switch action.rawValue {
-            case MoreAction.jumpToStart.rawValue:
-                PlayerManager.sharedInstance.setTime(0.0)
-            case MoreAction.markFinished.rawValue:
-                PlayerManager.sharedInstance.setTime(PlayerManager.sharedInstance.audioPlayer?.duration ?? 0.0)
-            default:
-                break
-            }
-
-            let test = Notification(name: Notification.Name.AudiobookPlayer.openURL)
-
-            self.updateTimer(test)
-        }
-    }
-
     @IBAction func dismissPlayer() {
         self.dismiss(animated: true, completion: nil)
+    }
+
+    // MARK: Toolbar actions
+
+    @IBAction func setSpeed() {
+        let actionSheet = UIAlertController(title: nil, message: "Set playback speed", preferredStyle: .actionSheet)
+
+        let speedOptions: [Float] = [2.5, 2.0, 1.5, 1.25, 1.0, 0.75]
+
+        for speed in speedOptions {
+            if speed == PlayerManager.sharedInstance.currentSpeed {
+                actionSheet.addAction(UIAlertAction(title: "\u{00A0} \(speed) ✓", style: .default, handler: nil))
+            } else {
+                actionSheet.addAction(UIAlertAction(title: "\(speed)", style: .default, handler: { _ in
+                    PlayerManager.sharedInstance.setSpeed(speed)
+
+                    self.speedButton.title = "\(String(PlayerManager.sharedInstance.currentSpeed))x"
+                }))
+            }
+        }
+
+        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+
+        self.present(actionSheet, animated: true, completion: nil)
     }
 
     @IBAction func setSleepTimer() {
@@ -225,6 +210,32 @@ class PlayerViewController: UIViewController {
 //                self.sleepButton.title = "Timer"
             }
         )
+
+        self.present(actionSheet, animated: true, completion: nil)
+    }
+
+    @IBAction func showMore() {
+        guard PlayerManager.sharedInstance.isLoaded() else {
+            return
+        }
+
+        let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+
+        actionSheet.addAction(UIAlertAction(title: "Jump To Start", style: .default, handler: { _ in
+            PlayerManager.sharedInstance.stop()
+            PlayerManager.sharedInstance.setTime(0.0)
+
+            self.bookPaused()
+        }))
+
+        actionSheet.addAction(UIAlertAction(title: "Mark as Finished", style: .default, handler: { _ in
+            PlayerManager.sharedInstance.stop()
+            PlayerManager.sharedInstance.setTime(PlayerManager.sharedInstance.audioPlayer?.duration ?? 0.0)
+
+            self.bookEnd()
+        }))
+
+        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
 
         self.present(actionSheet, animated: true, completion: nil)
     }
