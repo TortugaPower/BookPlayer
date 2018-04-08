@@ -36,9 +36,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             // @TODO: Handle failing AVAudioSession
         }
 
-        // clean leftover sleep timer registry
-        UserDefaults.standard.set(nil, forKey: "sleep_timer")
-
         return true
     }
 

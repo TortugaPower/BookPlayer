@@ -23,20 +23,19 @@ extension UIViewController {
 
     // utility function to transform seconds to format HH:MM:SS
     func formatTime(_ time: Int) -> String {
-        let hours = Int(time / 3600)
+        let durationFormatter = DateComponentsFormatter()
 
-        let remaining = Float(time - (hours * 3600))
+        durationFormatter.unitsStyle = .positional
+        durationFormatter.allowedUnits = [ .hour, .minute, .second ]
+        durationFormatter.collapsesLargestUnit = true
+        durationFormatter.zeroFormattingBehavior = .pad
 
-        let minutes = Int(remaining / 60)
+        guard let duration = durationFormatter.string(from: TimeInterval(time))
+            else {
+                return ""
+            }
 
-        let seconds = Int(remaining - Float(minutes * 60))
-
-        var formattedTime = String(format: "%02d:%02d", minutes, seconds)
-        if hours > 0 {
-            formattedTime = String(format: "%02d:" + formattedTime, hours)
-        }
-
-        return formattedTime
+        return duration
     }
 }
 

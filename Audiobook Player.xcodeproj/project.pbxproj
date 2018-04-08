@@ -25,6 +25,7 @@
 		41B2AC8E1D43CCE8005382A9 /* ChaptersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */; };
 		41B2AC901D43CD2F005382A9 /* SpeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2AC8F1D43CD2F005382A9 /* SpeedViewController.swift */; };
 		41B2AC921D441627005382A9 /* MoreViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2AC911D441627005382A9 /* MoreViewController.swift */; };
+		C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3EC372D206EE0650094B4E8 /* SleepTimer.swift */; };
 		D367F7681FA2A6F000FEDB37 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = D367F7671FA2A6F000FEDB37 /* Constants.swift */; };
 /* End PBXBuildFile section */
 
@@ -78,6 +79,7 @@
 		C35BADE7206989E6007687C1 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		C35BADE8206989E6007687C1 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		C35BADE9206989E6007687C1 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .swiftlint.yml; sourceTree = "<group>"; };
+		C3EC372D206EE0650094B4E8 /* SleepTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepTimer.swift; sourceTree = "<group>"; };
 		D367F7671FA2A6F000FEDB37 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -108,10 +110,6 @@
 			children = (
 				4136163F1D2E21F000E48944 /* LibraryViewController.swift */,
 				410D0FEC1EDCF4B000A52EB9 /* SettingsViewController.swift */,
-				418B6D5C1D2CB76900F974FB /* PlayerViewController.swift */,
-				41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */,
-				41B2AC8F1D43CD2F005382A9 /* SpeedViewController.swift */,
-				41B2AC911D441627005382A9 /* MoreViewController.swift */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -141,6 +139,7 @@
 		418B6CFA1D2707F800F974FB /* Audiobook Player */ = {
 			isa = PBXGroup;
 			children = (
+				C3EC372A206EDB9A0094B4E8 /* Player */,
 				419196341D47CC4E007A3AF3 /* Audiobook Player.entitlements */,
 				41B955461F9E5E4E000C9231 /* Managers */,
 				416B640B1E72F328000E955A /* Controllers */,
@@ -182,6 +181,18 @@
 				410D0FEE1EDDBC3300A52EB9 /* DataManager.swift */,
 			);
 			name = Managers;
+			sourceTree = "<group>";
+		};
+		C3EC372A206EDB9A0094B4E8 /* Player */ = {
+			isa = PBXGroup;
+			children = (
+				418B6D5C1D2CB76900F974FB /* PlayerViewController.swift */,
+				C3EC372D206EE0650094B4E8 /* SleepTimer.swift */,
+				41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */,
+				41B2AC8F1D43CD2F005382A9 /* SpeedViewController.swift */,
+				41B2AC911D441627005382A9 /* MoreViewController.swift */,
+			);
+			path = Player;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -357,6 +368,7 @@
 				416B640D1E72F362000E955A /* Extensions.swift in Sources */,
 				410D0FEF1EDDBC3300A52EB9 /* DataManager.swift in Sources */,
 				410D0FED1EDCF4B000A52EB9 /* SettingsViewController.swift in Sources */,
+				C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
