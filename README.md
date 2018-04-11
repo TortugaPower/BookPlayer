@@ -51,6 +51,7 @@ Managed with [Carthage](https://github.com/Carthage/Carthage)
 
 - [Chameleon](https://github.com/ViccAlexander/Chameleon) for colors
 - [MBProgressHUD](https://github.com/jdg/MBProgressHUD) for loading wheels
+- [MarqueeLabel](https://github.com/cbpowell/MarqueeLabel) for scrolling labels
 
 Managed with [Homebrew](https://brew.sh)
 
