@@ -9,13 +9,6 @@
 import UIKit
 import MediaPlayer
 
-struct Chapter {
-    var title: String
-    var start: Int
-    var duration: Int
-    var index: Int
-}
-
 class ChaptersViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
 

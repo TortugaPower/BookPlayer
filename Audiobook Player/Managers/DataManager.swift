@@ -10,27 +10,7 @@ import Foundation
 import AVFoundation
 import UIKit
 
-struct Book {
-    var identifier: String {
-        return self.fileURL.lastPathComponent
-    }
-
-    var duration: Int {
-        return Int(CMTimeGetSeconds(self.asset.duration))
-    }
-
-    var displayTitle: String {
-        return title + " - " + author
-    }
-    var title: String
-    var author: String
-    var artwork: UIImage
-    var asset: AVAsset
-    var fileURL: URL
-}
-
 class DataManager {
-
     static let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
 
     /**
@@ -99,10 +79,12 @@ class DataManager {
                     bookCover = #imageLiteral(resourceName: "defaultBookArt")
                 }
 
-                let book = Book(title: title, author: author, artwork: bookCover, asset: asset, fileURL: fileURL)
+                let book = Book(title: title, author: author, artwork: bookCover, asset: asset, fileURL: fileURL, chapters: nil)
+
                 books.append(book)
             }
         }
+
         books.sort { (book1, book2) -> Bool in
             return book1.title.compare(book2.title) == .orderedAscending
         }

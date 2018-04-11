@@ -27,6 +27,8 @@
 		C30EEEBF2079645C00A4ED33 /* PlayerContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30EEEBB2079645C00A4ED33 /* PlayerContainerViewController.swift */; };
 		C30EEEC02079645C00A4ED33 /* PlayerControlsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30EEEBC2079645C00A4ED33 /* PlayerControlsViewController.swift */; };
 		C30EEEC12079645C00A4ED33 /* PlayerMetaViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30EEEBD2079645C00A4ED33 /* PlayerMetaViewController.swift */; };
+		C32BE6B8207BF7A6006D07B9 /* Book.swift in Sources */ = {isa = PBXBuildFile; fileRef = C32BE6B7207BF7A6006D07B9 /* Book.swift */; };
+		C32BE6BA207BF80A006D07B9 /* Chapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C32BE6B9207BF80A006D07B9 /* Chapter.swift */; };
 		C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3EC372D206EE0650094B4E8 /* SleepTimer.swift */; };
 		D367F7681FA2A6F000FEDB37 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = D367F7671FA2A6F000FEDB37 /* Constants.swift */; };
 /* End PBXBuildFile section */
@@ -83,6 +85,7 @@
 		C30EEEC3207A7CCE00A4ED33 /* Cartfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Cartfile; sourceTree = SOURCE_ROOT; };
 		C30EEEC4207A7CD500A4ED33 /* Cartfile.resolved */ = {isa = PBXFileReference; lastKnownFileType = text; path = Cartfile.resolved; sourceTree = SOURCE_ROOT; };
 		C32BE6B7207BF7A6006D07B9 /* Book.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Book.swift; sourceTree = "<group>"; };
+		C32BE6B9207BF80A006D07B9 /* Chapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chapter.swift; sourceTree = "<group>"; };
 		C35BADE7206989E6007687C1 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		C35BADE8206989E6007687C1 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		C35BADE9206989E6007687C1 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .swiftlint.yml; sourceTree = "<group>"; };
@@ -146,6 +149,7 @@
 		418B6CFA1D2707F800F974FB /* Audiobook Player */ = {
 			isa = PBXGroup;
 			children = (
+				C3AA3732207BF7670004DCFD /* Models */,
 				C3EC372A206EDB9A0094B4E8 /* Player */,
 				41B955461F9E5E4E000C9231 /* Managers */,
 				416B640B1E72F328000E955A /* Controllers */,
@@ -201,6 +205,15 @@
 				C30EEEBD2079645C00A4ED33 /* PlayerMetaViewController.swift */,
 			);
 			path = Containers;
+			sourceTree = "<group>";
+		};
+		C3AA3732207BF7670004DCFD /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				C32BE6B7207BF7A6006D07B9 /* Book.swift */,
+				C32BE6B9207BF80A006D07B9 /* Chapter.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		C3EC372A206EDB9A0094B4E8 /* Player */ = {
@@ -381,6 +394,7 @@
 				410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */,
 				D367F7681FA2A6F000FEDB37 /* Constants.swift in Sources */,
 				C30EEEC12079645C00A4ED33 /* PlayerMetaViewController.swift in Sources */,
+				C32BE6BA207BF80A006D07B9 /* Chapter.swift in Sources */,
 				41B2AC8E1D43CCE8005382A9 /* ChaptersViewController.swift in Sources */,
 				C30EEEC02079645C00A4ED33 /* PlayerControlsViewController.swift in Sources */,
 				413616401D2E21F000E48944 /* LibraryViewController.swift in Sources */,
@@ -392,6 +406,7 @@
 				410D0FEF1EDDBC3300A52EB9 /* DataManager.swift in Sources */,
 				410D0FED1EDCF4B000A52EB9 /* SettingsViewController.swift in Sources */,
 				C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */,
+				C32BE6B8207BF7A6006D07B9 /* Book.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
