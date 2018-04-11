@@ -21,21 +21,20 @@ extension UIViewController {
         self.present(alert, animated: true, completion: nil)
     }
 
-    // utility function to transform seconds to format HH:MM:SS
-    func formatTime(_ time: Int) -> String {
+    // utility function to transform seconds to format MM:SS or HH:MM:SS
+    func formatTime(_ time: TimeInterval) -> String {
         let durationFormatter = DateComponentsFormatter()
 
         durationFormatter.unitsStyle = .positional
-        durationFormatter.allowedUnits = [ .hour, .minute, .second ]
-        durationFormatter.collapsesLargestUnit = true
+        durationFormatter.allowedUnits = [ .minute, .second ]
         durationFormatter.zeroFormattingBehavior = .pad
+        durationFormatter.collapsesLargestUnit = false
 
-        guard let duration = durationFormatter.string(from: TimeInterval(time))
-            else {
-                return ""
-            }
+        if time > 3599.0 {
+            durationFormatter.allowedUnits = [ .hour, .minute, .second ]
+        }
 
-        return duration
+        return durationFormatter.string(from: time)!
     }
 }
 

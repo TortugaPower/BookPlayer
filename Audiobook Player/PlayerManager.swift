@@ -351,9 +351,6 @@ extension PlayerManager: AVAudioPlayerDelegate {
             defaults.set(currentTime, forKey: self.identifier)
         }
 
-        // update current time label
-        let timeText = self.formatTime(currentTime)
-
         let storedPercentage = defaults.string(forKey: self.identifier+"_percentage") ?? "0%"
 
         // calculate book read percentage based on current time
@@ -361,7 +358,6 @@ extension PlayerManager: AVAudioPlayerDelegate {
         let percentageString = String(Int(ceil(percentage)))+"%"
 
         let userInfo = ["time": currentTime,
-                        "timeString": timeText,
                         "percentage": percentage,
                         "percentageString": percentageString,
                         "hasChapters": !self.chapterArray.isEmpty,
@@ -432,21 +428,5 @@ extension PlayerManager: AVAudioPlayerDelegate {
 
             NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookChange, object: nil, userInfo: userInfo)
         })
-    }
-
-    // @TODO: Replace with DateComponentsFormatter
-    func formatTime(_ time: Int) -> String {
-        let hours = Int(time / 3600)
-        let remaining = Float(time - (hours * 3600))
-        let minutes = Int(remaining / 60)
-        let seconds = Int(remaining - Float(minutes * 60))
-
-        var formattedTime = String(format: "%02d:%02d", minutes, seconds)
-
-        if hours > 0 {
-            formattedTime = String(format: "%02d:"+formattedTime, hours)
-        }
-
-        return formattedTime
     }
 }
