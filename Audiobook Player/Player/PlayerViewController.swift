@@ -13,6 +13,7 @@ import Chameleon
 import StoreKit
 
 class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
+    @IBOutlet weak var closeButton: UIButton!
     @IBOutlet weak var bottomToolbar: UIToolbar!
     @IBOutlet weak var speedButton: UIBarButtonItem!
     @IBOutlet weak var sleepButton: UIBarButtonItem!
@@ -25,6 +26,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     private weak var metaViewController: PlayerMetaViewController?
     private weak var progressViewController: PlayerProgressViewController?
 
+    private let closeButtonImage = UIImage(named: "mask_player_button_close")
 
     var currentBook: Book!
 
@@ -64,8 +66,6 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: Notification.Name.AudiobookPlayer.bookChange, object: nil)
 
-        // @TODO: Remove, replace with chapter calculation in book
-        NotificationCenter.default.addObserver(self, selector: #selector(self.updateCurrentChapter(_:)), name: Notification.Name.AudiobookPlayer.updateChapter, object: nil)
         // Gesture
         pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
         pan!.delegate = self
@@ -83,10 +83,26 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
         speedButton.title = "\(String(PlayerManager.sharedInstance.speed))x"
 
+        // Colors
+        guard var artworkColors = NSArray(ofColorsFrom: currentBook.artwork, withFlatScheme: false) as? [UIColor] else {
+            return
+        }
 
+        artworkColors = artworkColors.sorted { (aColor, bColor) -> Bool in
+            let aLightness = aColor.luminance
+            let bLightness = bColor.luminance
+
+            return aLightness > bLightness
+        }
+
+        view.backgroundColor = artworkColors.last?.withAlphaComponent(1.0) ?? view.backgroundColor
 
         setStatusBarStyle(.lightContent)
 
+        closeButton.tintColor = artworkColors[1]
+        metaViewController?.colors = artworkColors
+
+        // @TODO: Add blurred version of the album artwork as background
     }
 
     // MARK: Interface actions
