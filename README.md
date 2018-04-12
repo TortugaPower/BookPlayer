@@ -59,6 +59,10 @@ Managed with [Homebrew](https://brew.sh)
 
 ## Credits
 
+### Code
+
+- Drag gesture code adapted from [HarshilShah/DeckTransition](https://github.com/HarshilShah/DeckTransition)
+
 ### Images
 
 - Skip time image made by [Vaadin](http://www.flaticon.com/authors/vaadin) from [www.flaticon.com](http://www.flaticon.com)
