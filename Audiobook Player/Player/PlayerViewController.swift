@@ -12,12 +12,14 @@ import MediaPlayer
 import Chameleon
 import StoreKit
 
-class PlayerViewController: UIViewController {
+class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet weak var bottomToolbar: UIToolbar!
     @IBOutlet weak var speedButton: UIBarButtonItem!
     @IBOutlet weak var sleepButton: UIBarButtonItem!
     @IBOutlet weak var spaceBeforeChaptersButton: UIBarButtonItem!
     @IBOutlet weak var chaptersButton: UIBarButtonItem!
+
+    private var pan: UIPanGestureRecognizer?
 
     private weak var controlsViewController: PlayerControlsViewController?
     private weak var metaViewController: PlayerMetaViewController?
@@ -64,7 +66,13 @@ class PlayerViewController: UIViewController {
 
         // @TODO: Remove, replace with chapter calculation in book
         NotificationCenter.default.addObserver(self, selector: #selector(self.updateCurrentChapter(_:)), name: Notification.Name.AudiobookPlayer.updateChapter, object: nil)
+        // Gesture
+        pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
+        pan!.delegate = self
+        pan!.maximumNumberOfTouches = 1
+        pan!.cancelsTouchesInView = false
 
+        self.view.addGestureRecognizer(pan!)
     }
 
     func setupView(book currentBook: Book) {
@@ -192,5 +200,54 @@ class PlayerViewController: UIViewController {
         setupView(book: book)
     }
 
+    // MARK: Gesture recognizers
+    // Based on https://github.com/HarshilShah/DeckTransition/blob/master/Source/DeckPresentationController.swift
+
+    private func updatePresentedViewForTranslation(inVerticalDirection translation: CGFloat) {
+        let elasticThreshold: CGFloat = 120.0
+        let dismissThreshold: CGFloat = 240.0
+        let translationFactor: CGFloat = 0.5
+
+        if translation >= 0 {
+            let translationForModal: CGFloat = {
+                if translation >= elasticThreshold {
+                    let frictionLength = translation - elasticThreshold
+                    let frictionTranslation = 30 * atan(frictionLength/120) + frictionLength/10
+                    return frictionTranslation + (elasticThreshold * translationFactor)
+                } else {
+                    return translation * translationFactor
+                }
+            }()
+
+            self.view?.transform = CGAffineTransform(translationX: 0, y: translationForModal)
+
+            if translation >= dismissThreshold {
+                self.dismiss(animated: true, completion: nil)
+            }
+        }
+    }
+
+    @objc private func handlePan(gestureRecognizer: UIPanGestureRecognizer) {
+        guard gestureRecognizer.isEqual(pan) else {
+            return
+        }
+
+        switch gestureRecognizer.state {
+            case .began:
+                gestureRecognizer.setTranslation(CGPoint(x: 0, y: 0), in: self.view.superview)
+
+            case .changed:
+                let translation = gestureRecognizer.translation(in: self.view)
+                updatePresentedViewForTranslation(inVerticalDirection: translation.y)
+
+            case .ended:
+                UIView.animate(
+                    withDuration: 0.25,
+                    animations: {
+                        self.view?.transform = .identity
+                })
+
+            default: break
+        }
     }
 }
