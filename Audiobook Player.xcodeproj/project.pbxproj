@@ -115,15 +115,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		416B640B1E72F328000E955A /* Controllers */ = {
-			isa = PBXGroup;
-			children = (
-				4136163F1D2E21F000E48944 /* LibraryViewController.swift */,
-				410D0FEC1EDCF4B000A52EB9 /* SettingsViewController.swift */,
-			);
-			name = Controllers;
-			sourceTree = "<group>";
-		};
 		418B6CEF1D2707F700F974FB = {
 			isa = PBXGroup;
 			children = (
@@ -151,8 +142,10 @@
 			children = (
 				C3AA3732207BF7670004DCFD /* Models */,
 				C3EC372A206EDB9A0094B4E8 /* Player */,
-				41B955461F9E5E4E000C9231 /* Managers */,
-				416B640B1E72F328000E955A /* Controllers */,
+				C35E04F0207E8CEC007D3370 /* Managers */,
+				C35E04F1207E8D0F007D3370 /* Library */,
+				C35E04F2207E8D4C007D3370 /* Settings */,
+				410D0FF01EDF659900A52EB9 /* PlayerManager.swift */,
 				D367F7671FA2A6F000FEDB37 /* Constants.swift */,
 				416B640C1E72F362000E955A /* Extensions.swift */,
 				418B6CFB1D2707F800F974FB /* AppDelegate.swift */,
@@ -187,15 +180,6 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		41B955461F9E5E4E000C9231 /* Managers */ = {
-			isa = PBXGroup;
-			children = (
-				410D0FF01EDF659900A52EB9 /* PlayerManager.swift */,
-				410D0FEE1EDDBC3300A52EB9 /* DataManager.swift */,
-			);
-			name = Managers;
-			sourceTree = "<group>";
-		};
 		C30EEEB92079645C00A4ED33 /* Containers */ = {
 			isa = PBXGroup;
 			children = (
@@ -205,6 +189,31 @@
 				C30EEEBD2079645C00A4ED33 /* PlayerMetaViewController.swift */,
 			);
 			path = Containers;
+			sourceTree = "<group>";
+		};
+		C35E04F0207E8CEC007D3370 /* Managers */ = {
+			isa = PBXGroup;
+			children = (
+				410D0FEE1EDDBC3300A52EB9 /* DataManager.swift */,
+				C3AA372F207BF6C10004DCFD /* AVPlayerItemExtensions.swift */,
+			);
+			path = Managers;
+			sourceTree = "<group>";
+		};
+		C35E04F1207E8D0F007D3370 /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				4136163F1D2E21F000E48944 /* LibraryViewController.swift */,
+			);
+			path = Library;
+			sourceTree = "<group>";
+		};
+		C35E04F2207E8D4C007D3370 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				410D0FEC1EDCF4B000A52EB9 /* SettingsViewController.swift */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 		C3AA3732207BF7670004DCFD /* Models */ = {
