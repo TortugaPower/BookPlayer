@@ -45,6 +45,8 @@ class PlayerViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setupView(book: currentBook!)
+
         // Make toolbar transparent
         bottomToolbar.setBackgroundImage(UIImage(), forToolbarPosition: .any, barMetrics: .default)
         bottomToolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
@@ -57,18 +59,16 @@ class PlayerViewController: UIViewController {
         // @TODO: Remove, replace with chapter calculation in book
         NotificationCenter.default.addObserver(self, selector: #selector(self.updateCurrentChapter(_:)), name: Notification.Name.AudiobookPlayer.updateChapter, object: nil)
 
-        setupView(book: currentBook!)
     }
 
     func setupView(book currentBook: Book) {
-        // Setup containers
-        controlsViewController?.cover = currentBook.artwork
-
-        metaViewController?.author = currentBook.author
-        metaViewController?.book = currentBook.title
-
+        metaViewController?.book = currentBook
+        controlsViewController?.book = currentBook
+        progressViewController?.book = currentBook
         progressViewController?.currentTime = UserDefaults.standard.double(forKey: currentBook.identifier)
-        progressViewController?.maxTime = Double(currentBook.duration)
+
+        speedButton.title = "\(String(PlayerManager.sharedInstance.speed))x"
+
 
 
         setStatusBarStyle(.lightContent)
@@ -196,10 +196,6 @@ extension PlayerViewController: AVAudioPlayerDelegate {
 
             UserDefaults.standard.set(false, forKey: "ask_review")
         }
-    }
-
-    @objc func bookEnd() {
-        self.requestReview()
     }
 
     @objc func bookChange(_ notification: Notification) {

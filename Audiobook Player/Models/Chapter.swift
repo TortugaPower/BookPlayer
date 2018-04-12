@@ -10,7 +10,7 @@ import UIKit
 
 struct Chapter {
     var title: String
-    var start: Double
+    var start: TimeInterval
     var duration: TimeInterval
     var index: Int
 }

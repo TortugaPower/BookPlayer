@@ -14,18 +14,25 @@ class PlayerProgressViewController: PlayerContainerViewController {
     @IBOutlet private weak var maxTimeLabel: UILabel!
     @IBOutlet private weak var percentageLabel: UILabel!
 
-    var currentTime: Double = 0.0 {
+    var book: Book? {
         didSet {
-            currentTimeLabel.text = self.formatTime(Int(currentTime))
+            maxTimeLabel.text = self.formatTime((book?.duration)!)
+        }
+    }
+
+    var currentTime: TimeInterval = 0.0 {
+        didSet {
+            currentTimeLabel.text = self.formatTime(currentTime)
             self.setPercentage()
         }
     }
 
-    var maxTime: Double = 0.0 {
-        didSet {
-            maxTimeLabel.text = self.formatTime(Int(maxTime))
-            self.setPercentage()
+    var duration: TimeInterval {
+        guard let duration = book?.duration else {
+            return 0.0
         }
+
+        return duration
     }
 
     var percentage: Double = 0
@@ -53,26 +60,26 @@ class PlayerProgressViewController: PlayerContainerViewController {
     }
 
     private func setPercentage() {
-        if currentTime == 0.0 || maxTime == 0.0 {
+        if currentTime == 0.0 || duration == 0.0 {
             percentage = 0.0
         } else {
-            percentage = round(currentTime / maxTime * 100)
+            percentage = round(currentTime / duration * 100)
         }
 
         percentageLabel.text = "\(Int(percentage))%"
-        progressSlider.value = Float(currentTime / maxTime * 100)
+        progressSlider.value = Float(currentTime / duration * 100)
     }
 
     @objc func onPlayback(_ notification: Notification) {
-        guard let userInfo = notification.userInfo, let time = userInfo["time"] as? Int else {
+        guard let userInfo = notification.userInfo, let time = userInfo["time"] as? TimeInterval else {
             return
         }
 
-        currentTime = Double(time)
+        currentTime = time
     }
 
     @IBAction func sliderValueChanged(_ sender: UISlider) {
-        currentTime = TimeInterval(sender.value / sender.maximumValue) * maxTime
+        currentTime = TimeInterval(sender.value / sender.maximumValue) * duration
 
         guard let audioPlayer = PlayerManager.sharedInstance.audioPlayer else {
             return

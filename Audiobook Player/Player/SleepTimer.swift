@@ -25,8 +25,8 @@ final class SleepTimer {
 
     private let defaultMessage: String = "Pause playback"
     private let alert: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-    private var timeLeft: Double = 0.0
-    private let intervals: [Double] = [
+    private var timeLeft: TimeInterval = 0.0
+    private let intervals: [TimeInterval] = [
         300.0,
         600.0,
         900.0,
