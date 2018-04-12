@@ -10,37 +10,32 @@ import UIKit
 import MarqueeLabelSwift
 
 class PlayerMetaViewController: PlayerContainerViewController {
-    @IBOutlet private weak var _authorLabel: MarqueeLabel!
-    @IBOutlet private weak var _titleLabel: MarqueeLabel!
-    @IBOutlet private weak var _chapterLabel: MarqueeLabel!
+    @IBOutlet private weak var authorLabel: MarqueeLabel!
+    @IBOutlet private weak var titleLabel: MarqueeLabel!
+    @IBOutlet private weak var chapterLabel: MarqueeLabel!
 
     var book: Book? {
         didSet {
-            _authorLabel.text = book?.author
-            _titleLabel.text = book?.title
+            self.authorLabel.text = book?.author
+            self.titleLabel.text = book?.title
+
+            self.setChapterLabel()
         }
     }
 
-    var chapterLabel: String = "" {
-        didSet {
-            self._chapterLabel.text = chapterLabel
-            self._chapterLabel.isEnabled = chapterLabel != ""
-        }
-    }
-
-    var chapters: [Chapter] = []
+    var chapters: [Chapter]?
 
     var colors: [UIColor] = [.white, .white, .white] {
         didSet {
-            self._authorLabel.textColor = colors[0]
-            self._titleLabel.textColor = colors[1]
+            self.authorLabel.textColor = colors[0]
+            self.titleLabel.textColor = colors[1]
         }
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let labels: [MarqueeLabel] = [self._authorLabel, self._titleLabel, self._chapterLabel]
+        let labels: [MarqueeLabel] = [self.authorLabel, self.titleLabel, self.chapterLabel]
 
         for label in labels {
             label.animationDelay = 2.0
@@ -49,12 +44,23 @@ class PlayerMetaViewController: PlayerContainerViewController {
             label.leadingBuffer = 10.0
             label.trailingBuffer = 10.0
         }
+
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onPlayback), name: Notification.Name.AudiobookPlayer.bookPlaying, object: nil)
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
+    private func setChapterLabel() {
+        guard let chapters = self.book?.chapters, !chapters.isEmpty, let currentChapter = self.book?.currentChapter else {
+            self.chapterLabel.text = ""
+            self.chapterLabel.isEnabled = false
+
+            return
+        }
+
+        self.chapterLabel.isEnabled = true
+        self.chapterLabel.text = currentChapter.title != "" ? currentChapter.title : "\(currentChapter.index) of \(chapters.count)"
     }
 
-    // @TODO: Create label view that fades out and scrolls
-    // See https://stablekernel.com/how-to-fade-out-content-using-gradients-in-ios/
+    @objc func onPlayback(_ notification: Notification) {
+        self.setChapterLabel()
+    }
 }

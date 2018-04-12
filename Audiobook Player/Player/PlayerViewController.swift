@@ -40,6 +40,12 @@ class PlayerViewController: UIViewController {
         if let viewController = segue.destination as? PlayerProgressViewController {
             progressViewController = viewController
         }
+
+        if segue.identifier == "ChapterSelectionSegue",
+            let navigationController = segue.destination as? UINavigationController,
+            let viewController = navigationController.viewControllers.first as? ChaptersViewController {
+                viewController.book = currentBook
+            }
     }
 
     override func viewDidLoad() {
@@ -85,17 +91,16 @@ class PlayerViewController: UIViewController {
 
     @IBAction func setSpeed() {
         let actionSheet = UIAlertController(title: nil, message: "Set playback speed", preferredStyle: .actionSheet)
-
         let speedOptions: [Float] = [2.5, 2.0, 1.5, 1.25, 1.0, 0.75]
 
         for speed in speedOptions {
-            if speed == PlayerManager.sharedInstance.currentSpeed {
+            if speed == PlayerManager.sharedInstance.speed {
                 actionSheet.addAction(UIAlertAction(title: "\u{00A0} \(speed) ✓", style: .default, handler: nil))
             } else {
                 actionSheet.addAction(UIAlertAction(title: "\(speed)", style: .default, handler: { _ in
-                    PlayerManager.sharedInstance.setSpeed(speed)
+                    PlayerManager.sharedInstance.speed = speed
 
-                    self.speedButton.title = "\(String(PlayerManager.sharedInstance.currentSpeed))x"
+                    self.speedButton.title = "\(String(PlayerManager.sharedInstance.speed))x"
                 }))
             }
         }
@@ -142,45 +147,22 @@ class PlayerViewController: UIViewController {
 
         actionSheet.addAction(UIAlertAction(title: "Jump To Start", style: .default, handler: { _ in
             PlayerManager.sharedInstance.stop()
-            PlayerManager.sharedInstance.setTime(0.0)
+            PlayerManager.sharedInstance.jumpTo(0.0)
         }))
 
         actionSheet.addAction(UIAlertAction(title: "Mark as Finished", style: .default, handler: { _ in
             PlayerManager.sharedInstance.stop()
-            PlayerManager.sharedInstance.setTime(PlayerManager.sharedInstance.audioPlayer?.duration ?? 0.0)
+            PlayerManager.sharedInstance.jumpTo(0.0, fromEnd: true)
 
-            self.bookEnd()
+            self.requestReview()
         }))
 
         actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
 
         self.present(actionSheet, animated: true, completion: nil)
     }
-}
 
-extension PlayerViewController: AVAudioPlayerDelegate {
-    // timer callback (called every second)
-    @objc func updateTimer(_ notification: Notification) {
-//        guard let userInfo = notification.userInfo,
-//            let fileURL = userInfo["fileURL"] as? URL,
-//            let timeText = userInfo["timeString"] as? String,
-//            let percentage = userInfo["percentage"] as? Float,
-//            fileURL == self.currentBook.fileURL else {
-//            return
-//        }
-    }
-
-    // percentage callback
-    @objc func updatePercentage(_ notification: Notification) {
-//        guard let userInfo = notification.userInfo,
-//            let fileURL = userInfo["fileURL"] as? URL,
-//            fileURL == self.currentBook.fileURL,
-//            let percentageString = userInfo["percentageString"] as? String,
-//            let hasChapters = userInfo["hasChapters"] as? Bool,
-//            !hasChapters else {
-//                return
-//        }
-    }
+    // MARK: Other Methods
 
     @objc func requestReview() {
         // don't do anything if flag isn't true
@@ -210,12 +192,5 @@ extension PlayerViewController: AVAudioPlayerDelegate {
         setupView(book: book)
     }
 
-    @objc func updateCurrentChapter(_ notification: Notification) {
-//        guard let userInfo = notification.userInfo,
-//            let fileURL = userInfo["fileURL"] as? URL,
-//            let chapterString = userInfo["chapterString"] as? String,
-//            fileURL == self.currentBook.fileURL else {
-//                return
-//        }
     }
 }

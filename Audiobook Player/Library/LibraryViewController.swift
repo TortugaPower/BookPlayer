@@ -180,7 +180,7 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
     @objc func updatePercentage(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
             let fileURL = userInfo["fileURL"] as? URL,
-            let percentageString = userInfo["percentageString"] as? String else {
+            let percentCompletedString = userInfo["percentCompletedString"] as? String else {
                 return
         }
 
@@ -190,7 +190,7 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
             return
         }
 
-        cell.completionLabel.text = percentageString
+        cell.completionLabel.text = percentCompletedString
     }
 
     @objc func bookReady() {
@@ -240,7 +240,7 @@ extension LibraryViewController: UITableViewDataSource {
             cell.artworkImageView.image = book.artwork
 
             // Load stored percentage value
-            cell.completionLabel.text = UserDefaults.standard.string(forKey: self.bookArray[indexPath.row].identifier + "_percentage") ?? "0%"
+            cell.completionLabel.text = book.percentCompletedString
             cell.completionLabel.textColor = UIColor.flatGreenColorDark()
 
             return cell
@@ -268,7 +268,7 @@ extension LibraryViewController: UITableViewDelegate {
 
                 do {
                     try FileManager.default.removeItem(at: book.fileURL)
-                    
+
                     self.bookArray.remove(at: indexPath.row)
                     tableView.beginUpdates()
                     tableView.deleteRows(at: [indexPath], with: .none)

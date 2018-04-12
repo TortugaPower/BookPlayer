@@ -81,10 +81,6 @@ class PlayerProgressViewController: PlayerContainerViewController {
     @IBAction func sliderValueChanged(_ sender: UISlider) {
         currentTime = TimeInterval(sender.value / sender.maximumValue) * duration
 
-        guard let audioPlayer = PlayerManager.sharedInstance.audioPlayer else {
-            return
-        }
-
-        audioPlayer.currentTime = currentTime
+        PlayerManager.sharedInstance.jumpTo(currentTime)
     }
 }

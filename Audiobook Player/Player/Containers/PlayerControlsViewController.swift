@@ -8,36 +8,21 @@
 
 import UIKit
 
-enum PlayState {
-    case playing
-    case paused
-}
-
 class PlayerControlsViewController: PlayerContainerViewController {
     @IBOutlet private weak var coverImage: UIImageView!
     @IBOutlet private weak var playPauseButton: UIButton!
     @IBOutlet private weak var rewindButton: UIButton!
     @IBOutlet private weak var forwardButton: UIButton!
 
-    var cover: UIImage? {
-        get {
-            return coverImage.image
-        }
-
-        set(image) {
-            coverImage.image = image
+    var book: Book? {
+        didSet {
+            coverImage.image = book?.artwork
         }
     }
 
-    var playState: PlayState = .paused {
+    var isPlaying: Bool = false {
         didSet {
-            if playState == .paused {
-                playPauseButton.setImage(playImage, for: UIControlState())
-            }
-
-            if playState == .playing {
-                playPauseButton.setImage(pauseImage, for: UIControlState())
-            }
+            playPauseButton.setImage(isPlaying ? pauseImage : playImage, for: UIControlState())
         }
     }
 
@@ -46,6 +31,8 @@ class PlayerControlsViewController: PlayerContainerViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        isPlaying = PlayerManager.sharedInstance.isPlaying
 
         coverImage.layer.shadowColor = UIColor.flatBlack().cgColor
         coverImage.layer.shadowOffset = CGSize(width: 0, height: 4)
@@ -76,19 +63,15 @@ class PlayerControlsViewController: PlayerContainerViewController {
     @IBAction func play(_ sender: Any) {
         PlayerManager.sharedInstance.playPause()
 
-        if PlayerManager.sharedInstance.isPlaying {
-            self.playState = .playing
-        } else {
-            self.playState = .paused
-        }
+        self.isPlaying = PlayerManager.sharedInstance.isPlaying
     }
 
     @objc func onBookPlay() {
-        self.playState = .playing
+        self.isPlaying = true
     }
 
     @objc func onBookPause() {
-        self.playState = .paused
+        self.isPlaying = false
     }
 
     /*

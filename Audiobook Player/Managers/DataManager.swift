@@ -53,33 +53,18 @@ class DataManager {
     }
 
     /**
-     * Create book objects array from
+     * Create book objects array from urls
      */
     private class func process(_ urls: [URL], books:inout [Book]) {
-
         for fileURL in urls {
-
-            //if file already in list, skip to next one
+            // if file already in list, skip to next one
             if books.contains(where: { $0.fileURL == fileURL }) {
                 continue
             }
 
-            //autoreleasepool needed to avoid OOM crashes from the file manager
+            // autoreleasepool needed to avoid OOM crashes from the file manager
             autoreleasepool { () -> Void in
-                let asset = AVAsset(url: fileURL)
-
-                let title = (AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyTitle, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String ?? fileURL.lastPathComponent).replacingOccurrences(of: " ", with: "_")
-
-                let author = (AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtist, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String ?? "Unknown Author").replacingOccurrences(of: " ", with: "_")
-
-                var bookCover: UIImage!
-                if let artwork = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtwork, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? Data {
-                    bookCover = UIImage(data: artwork)
-                } else {
-                    bookCover = #imageLiteral(resourceName: "defaultBookArt")
-                }
-
-                let book = Book(title: title, author: author, artwork: bookCover, asset: asset, fileURL: fileURL, chapters: nil)
+                let book = Book(fromFileURL: fileURL)
 
                 books.append(book)
             }
