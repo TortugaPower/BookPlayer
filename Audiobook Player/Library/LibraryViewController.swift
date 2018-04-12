@@ -486,10 +486,3 @@ extension LibraryViewController {
         }
     }
 }
-
-class BookCellView: UITableViewCell {
-    @IBOutlet weak var artworkImageView: UIImageView!
-    @IBOutlet weak var titleLabel: UILabel!
-    @IBOutlet weak var authorLabel: UILabel!
-    @IBOutlet weak var completionLabel: UILabel!
-}
