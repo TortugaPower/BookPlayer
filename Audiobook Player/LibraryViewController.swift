@@ -157,15 +157,15 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     @IBAction func didPressPlay(_ sender: UIButton) {
-        PlayerManager.sharedInstance.playPressed()
+        PlayerManager.sharedInstance.play()
     }
 
     @objc func forwardPressed(_ sender: UIButton) {
-        PlayerManager.sharedInstance.forwardPressed()
+        PlayerManager.sharedInstance.forward()
     }
 
     @objc func rewindPressed(_ sender: UIButton) {
-        PlayerManager.sharedInstance.rewindPressed()
+        PlayerManager.sharedInstance.rewind()
     }
 
     @IBAction func didPressShowDetail(_ sender: UIButton) {
@@ -195,7 +195,7 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
 
     @objc func bookReady() {
         MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
-        PlayerManager.sharedInstance.playPressed(autoplayed: true)
+        PlayerManager.sharedInstance.playPause(autoplayed: true)
     }
 
     @objc func bookPlayed() {
@@ -435,7 +435,7 @@ extension LibraryViewController {
      */
     func registerRemoteEvents() {
         let togglePlayPauseHandler: (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus = { (_) -> MPRemoteCommandHandlerStatus in
-            PlayerManager.sharedInstance.playPressed()
+            PlayerManager.sharedInstance.playPause()
             return .success
         }
 
@@ -449,7 +449,7 @@ extension LibraryViewController {
         MPRemoteCommandCenter.shared().pauseCommand.addTarget(handler: togglePlayPauseHandler)
 
         let skipForwardHandler: (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus = { (commandEvent) -> MPRemoteCommandHandlerStatus in
-            PlayerManager.sharedInstance.forwardPressed()
+            PlayerManager.sharedInstance.forward()
             return .success
         }
 
@@ -464,12 +464,12 @@ extension LibraryViewController {
                 cmd.type == .endSeeking else { return .success }
 
             //end seeking
-            PlayerManager.sharedInstance.forwardPressed()
+            PlayerManager.sharedInstance.forward()
             return .success
         }
 
         let skipBackwardHandler: (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus = { (commandEvent) -> MPRemoteCommandHandlerStatus in
-            PlayerManager.sharedInstance.rewindPressed()
+            PlayerManager.sharedInstance.rewind()
             return .success
         }
 
@@ -481,7 +481,7 @@ extension LibraryViewController {
                 cmd.type == .endSeeking else { return .success }
 
             //end seeking
-            PlayerManager.sharedInstance.rewindPressed()
+            PlayerManager.sharedInstance.rewind()
             return .success
         }
     }
