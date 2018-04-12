@@ -100,19 +100,14 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
 
     // Playback may be interrupted by calls. Handle pause
     @objc func handleAudioInterruptions(_ notification: Notification) {
-        guard let audioPlayer = PlayerManager.sharedInstance.audioPlayer else {
-            return
-        }
-
-        if audioPlayer.isPlaying {
+        if PlayerManager.sharedInstance.isPlaying {
             self.didPressPlay(self.footerPlayButton)
         }
     }
 
     // Handle audio route changes
     @objc func handleAudioRouteChange(_ notification: Notification) {
-        guard let audioPlayer = PlayerManager.sharedInstance.audioPlayer,
-            audioPlayer.isPlaying,
+        guard PlayerManager.sharedInstance.isPlaying,
             let userInfo = notification.userInfo,
             let reasonValue = userInfo[AVAudioSessionRouteChangeReasonKey] as? UInt,
             let reason = AVAudioSessionRouteChangeReason(rawValue: reasonValue) else {
