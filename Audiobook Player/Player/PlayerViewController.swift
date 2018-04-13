@@ -152,16 +152,6 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.present(actionSheet, animated: true, completion: nil)
     }
 
-    @IBAction func didSelectChapter(_ segue: UIStoryboardSegue) {
-        guard PlayerManager.sharedInstance.isLoaded,
-            let viewController = segue.source as? ChaptersViewController,
-            let chapter = viewController.currentChapter else {
-                return
-        }
-
-        PlayerManager.sharedInstance.setChapter(chapter)
-    }
-
     @IBAction func showMore() {
         guard PlayerManager.sharedInstance.isLoaded else {
             return
@@ -229,6 +219,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
                 if translation >= elasticThreshold {
                     let frictionLength = translation - elasticThreshold
                     let frictionTranslation = 30 * atan(frictionLength/120) + frictionLength/10
+
                     return frictionTranslation + (elasticThreshold * translationFactor)
                 } else {
                     return translation * translationFactor
