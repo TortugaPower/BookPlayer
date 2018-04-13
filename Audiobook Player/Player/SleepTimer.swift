@@ -38,9 +38,9 @@ final class SleepTimer {
     // MARK: Internals
 
     private init() {
-        durationFormatter.unitsStyle = .positional
-        durationFormatter.allowedUnits = [ .minute, .second ]
-        durationFormatter.collapsesLargestUnit = true
+        self.durationFormatter.unitsStyle = .positional
+        self.durationFormatter.allowedUnits = [ .minute, .second ]
+        self.durationFormatter.collapsesLargestUnit = true
 
         reset()
 
@@ -49,56 +49,56 @@ final class SleepTimer {
         formatter.unitsStyle = .full
         formatter.allowedUnits = [ .hour, .minute ]
 
-        alert.addAction(UIAlertAction(title: "Off", style: .default, handler: { _ in
+        self.alert.addAction(UIAlertAction(title: "Off", style: .default, handler: { _ in
             self.cancel()
         }))
 
         for interval in intervals {
             let formattedDuration = formatter.string(from: interval as TimeInterval)!
 
-            alert.addAction(UIAlertAction(title: "In \(formattedDuration)", style: .default, handler: { _ in
+            self.alert.addAction(UIAlertAction(title: "In \(formattedDuration)", style: .default, handler: { _ in
                 self.sleep(in: interval)
             }))
         }
 
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        self.alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
     }
 
     private func sleep(in seconds: Double) {
-        onStart?()
-        onProgress?(seconds)
+        self.onStart?()
+        self.onProgress?(seconds)
 
         reset()
 
-        timeLeft = seconds
-        timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(update), userInfo: nil, repeats: true)
+        self.timeLeft = seconds
+        self.timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(update), userInfo: nil, repeats: true)
 
         RunLoop.main.add(self.timer!, forMode: RunLoopMode.commonModes)
     }
 
     private func reset() {
-        alert.message = defaultMessage
+        self.alert.message = defaultMessage
 
-        timer?.invalidate()
+        self.timer?.invalidate()
     }
 
     private func cancel() {
         reset()
 
-        onEnd?(true)
+        self.onEnd?(true)
     }
 
     @objc private func update() {
-        timeLeft -= 1.0
+        self.timeLeft -= 1.0
 
-        onProgress?(timeLeft)
+        self.onProgress?(timeLeft)
 
-        alert.message = "Sleeping in \(durationFormatter.string(from: timeLeft)!)"
+        self.alert.message = "Sleeping in \(durationFormatter.string(from: self.timeLeft)!)"
 
-        if timeLeft <= 0 {
-            timer?.invalidate()
+        if self.timeLeft <= 0 {
+            self.timer?.invalidate()
 
-            onEnd?(false)
+            self.onEnd?(false)
         }
     }
 

@@ -34,32 +34,32 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let viewController = segue.destination as? PlayerControlsViewController {
-            controlsViewController = viewController
+            self.controlsViewController = viewController
         }
 
         if let viewController = segue.destination as? PlayerMetaViewController {
-            metaViewController = viewController
+            self.metaViewController = viewController
         }
 
         if let viewController = segue.destination as? PlayerProgressViewController {
-            progressViewController = viewController
+            self.progressViewController = viewController
         }
 
         if segue.identifier == "ChapterSelectionSegue",
             let navigationController = segue.destination as? UINavigationController,
             let viewController = navigationController.viewControllers.first as? ChaptersViewController {
-                viewController.book = currentBook
+                viewController.book = self.currentBook
             }
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        setupView(book: currentBook!)
+        self.setupView(book: self.currentBook!)
 
         // Make toolbar transparent
-        bottomToolbar.setBackgroundImage(UIImage(), forToolbarPosition: .any, barMetrics: .default)
-        bottomToolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
+        self.bottomToolbar.setBackgroundImage(UIImage(), forToolbarPosition: .any, barMetrics: .default)
+        self.bottomToolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
 
         // Observers
         NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: Notification.Name.AudiobookPlayer.requestReview, object: nil)
@@ -67,21 +67,21 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: Notification.Name.AudiobookPlayer.bookChange, object: nil)
 
         // Gesture
-        pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
-        pan!.delegate = self
-        pan!.maximumNumberOfTouches = 1
-        pan!.cancelsTouchesInView = false
+        self.pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
+        self.pan!.delegate = self
+        self.pan!.maximumNumberOfTouches = 1
+        self.pan!.cancelsTouchesInView = false
 
         self.view.addGestureRecognizer(pan!)
     }
 
     func setupView(book currentBook: Book) {
-        metaViewController?.book = currentBook
-        controlsViewController?.book = currentBook
-        progressViewController?.book = currentBook
-        progressViewController?.currentTime = UserDefaults.standard.double(forKey: currentBook.identifier)
+        self.metaViewController?.book = currentBook
+        self.controlsViewController?.book = currentBook
+        self.progressViewController?.book = currentBook
+        self.progressViewController?.currentTime = UserDefaults.standard.double(forKey: currentBook.identifier)
 
-        speedButton.title = "\(String(PlayerManager.sharedInstance.speed))x"
+        self.speedButton.title = "\(String(PlayerManager.sharedInstance.speed))x"
 
         // Colors
         guard var artworkColors = NSArray(ofColorsFrom: currentBook.artwork, withFlatScheme: false) as? [UIColor] else {
@@ -97,10 +97,10 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
         view.backgroundColor = artworkColors.last?.withAlphaComponent(1.0) ?? view.backgroundColor
 
-        setStatusBarStyle(.lightContent)
+        self.setStatusBarStyle(.lightContent)
 
-        closeButton.tintColor = artworkColors[1]
-        metaViewController?.colors = artworkColors
+        self.closeButton.tintColor = artworkColors[1]
+        self.metaViewController?.colors = artworkColors
 
         // @TODO: Add blurred version of the album artwork as background
     }
