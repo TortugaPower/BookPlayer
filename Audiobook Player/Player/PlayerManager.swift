@@ -261,7 +261,7 @@ class PlayerManager: NSObject {
 
         // if book is completed, reset to start
         if completed {
-            audioplayer.currentTime = 0
+            audioplayer.currentTime = 0.0
         }
 
         // create timer if needed
@@ -274,7 +274,7 @@ class PlayerManager: NSObject {
         // set play state on player and control center
         audioplayer.play()
 
-        MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 1
+        MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 1.0
         MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
 
         DispatchQueue.main.async {

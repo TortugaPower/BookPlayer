@@ -98,12 +98,7 @@ class Book: NSObject {
             self.updateCurrentChapter()
         }
     }
-    var currentChapter: Chapter? {
-        didSet {
-            // @TODO Jump to new chapter if necessary
-        }
-    }
-
+    var currentChapter: Chapter?
     private var cachedChapter: Chapter?
 
     private func updateCurrentChapter() {

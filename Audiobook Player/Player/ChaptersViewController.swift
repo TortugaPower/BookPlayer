@@ -56,7 +56,8 @@ extension ChaptersViewController: UITableViewDataSource {
 
 extension ChaptersViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.book.currentChapter = self.book.chapters[indexPath.row]
+        // Don't set the chapter, set the new time which will set the chapter in didSet
+        PlayerManager.sharedInstance.jumpTo(self.book.chapters[indexPath.row].start)
 
         self.dismiss(animated: true, completion: nil)
     }
