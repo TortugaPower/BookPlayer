@@ -26,8 +26,6 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     private weak var metaViewController: PlayerMetaViewController?
     private weak var progressViewController: PlayerProgressViewController?
 
-    private let closeButtonImage = UIImage(named: "mask_player_button_close")
-
     var currentBook: Book!
 
     // MARK: Lifecycle
