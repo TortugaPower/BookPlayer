@@ -201,7 +201,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
         self.currentBook = book
 
-        setupView(book: book)
+        self.setupView(book: book)
     }
 
     // MARK: Gesture recognizers
@@ -243,14 +243,16 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
             case .changed:
                 let translation = gestureRecognizer.translation(in: self.view)
-                updatePresentedViewForTranslation(inVerticalDirection: translation.y)
+
+                self.updatePresentedViewForTranslation(inVerticalDirection: translation.y)
 
             case .ended:
                 UIView.animate(
                     withDuration: 0.25,
                     animations: {
                         self.view?.transform = .identity
-                })
+                    }
+                )
 
             default: break
         }

@@ -9,20 +9,20 @@
 import UIKit
 
 class PlayerControlsViewController: PlayerContainerViewController {
-    @IBOutlet private weak var coverImage: UIImageView!
+    @IBOutlet private weak var artwork: UIImageView!
     @IBOutlet private weak var playPauseButton: UIButton!
     @IBOutlet private weak var rewindButton: UIButton!
     @IBOutlet private weak var forwardButton: UIButton!
 
     var book: Book? {
         didSet {
-            coverImage.image = book?.artwork
+            self.artwork.image = self.book?.artwork
         }
     }
 
     var isPlaying: Bool = false {
         didSet {
-            playPauseButton.setImage(isPlaying ? pauseImage : playImage, for: UIControlState())
+            self.playPauseButton.setImage(self.isPlaying ? self.pauseImage : self.playImage, for: UIControlState())
         }
     }
 
@@ -32,13 +32,13 @@ class PlayerControlsViewController: PlayerContainerViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        isPlaying = PlayerManager.sharedInstance.isPlaying
+        self.isPlaying = PlayerManager.sharedInstance.isPlaying
 
-        coverImage.layer.shadowColor = UIColor.flatBlack().cgColor
-        coverImage.layer.shadowOffset = CGSize(width: 0, height: 4)
-        coverImage.layer.shadowOpacity = 0.6
-        coverImage.layer.shadowRadius = 6.0
-        coverImage.clipsToBounds = false
+        self.artwork.layer.shadowColor = UIColor.flatBlack().cgColor
+        self.artwork.layer.shadowOffset = CGSize(width: 0, height: 4)
+        self.artwork.layer.shadowOpacity = 0.6
+        self.artwork.layer.shadowRadius = 6.0
+        self.artwork.clipsToBounds = false
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPlay), name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
@@ -73,14 +73,4 @@ class PlayerControlsViewController: PlayerContainerViewController {
     @objc func onBookPause() {
         self.isPlaying = false
     }
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
 }

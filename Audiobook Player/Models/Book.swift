@@ -63,30 +63,33 @@ class Book: NSObject {
         return lastPlayedPosition
     }
 
-    var percentCompleted: Int = 0
+    var percentCompleted: Int = 0 {
+        didSet {
+            percentCompletedString = "\(self.percentCompleted)%"
+        }
+    }
+
     var percentCompletedString: String = "0%"
 
     private func updatePercentCompleted() {
-        var percentage = 0
-
-        // Make sure not to try to divide by zero accidentially
-        if currentTime >= 0.0 && duration > 0.0 {
-            percentage = Int(round(currentTime / duration * 100))
+        guard self.currentTime >= 0.0 && self.duration > 0.0 else {
+            return
         }
 
-        if percentage == self.percentCompleted {
+        let percentage = Int(round(self.currentTime / self.duration * 100))
+
+        guard percentage != self.percentCompleted else {
             return
         }
 
         self.percentCompleted = percentage
-        self.percentCompletedString = "\(percentage)%"
 
         // Save to defaults
         UserDefaults.standard.set(percentage, forKey: self.identifier + "_percentage_completed")
 
         // Notify
         NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil, userInfo: [
-            "percentCompletedString": percentCompletedString,
+            "percentCompletedString": self.percentCompletedString,
             "fileURL": self.fileURL
         ] as [String: Any])
     }
@@ -98,27 +101,25 @@ class Book: NSObject {
             self.updateCurrentChapter()
         }
     }
+
     var currentChapter: Chapter?
-    private var cachedChapter: Chapter?
 
     private func updateCurrentChapter() {
         // Don't change anything if we have no chapter or are still in range of the current
         if
             !self.chapters.isEmpty,
-            self.cachedChapter != nil,
-            let chapter = self.cachedChapter,
-            (chapter.start + chapter.duration) > self.currentTime && chapter.start <= self.currentTime
+            self.currentChapter != nil,
+            let current = self.currentChapter,
+            (current.start + current.duration) > self.currentTime && current.start <= self.currentTime
         {
             return
         }
 
         for chapter in self.chapters where chapter.start >= self.currentTime {
-            self.cachedChapter = chapter
+            self.currentChapter = chapter
 
-            break
+            return
         }
-
-        currentChapter = self.cachedChapter
     }
 
     // MARK: Live cycle
