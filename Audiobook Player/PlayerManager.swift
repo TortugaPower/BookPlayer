@@ -95,14 +95,18 @@ class PlayerManager: NSObject {
             do {
                 self.audioPlayer = try AVAudioPlayer(contentsOf: book.fileURL)
             } catch {
-                NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.errorLoadingBook, object: nil)
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.errorLoadingBook, object: nil)
+                }
                 completion(nil)
                 return
             }
 
             guard let audioplayer = self.audioPlayer else {
                 //notify error
-                NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.errorLoadingBook, object: nil)
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.errorLoadingBook, object: nil)
+                }
                 completion(nil)
                 return
             }
@@ -402,7 +406,6 @@ extension PlayerManager: AVAudioPlayerDelegate {
             if Int(audioplayer.currentTime) >= chapter.start {
                 self.currentChapter = chapter
                 let chapterString = "Chapter \(chapter.index) of \(self.chapterArray.count)"
-                //notify
                 let userInfo = ["chapterString": chapterString, "fileURL": self.currentBooks.first!.fileURL] as [String: Any]
 
                 //notify
@@ -426,12 +429,14 @@ extension PlayerManager: AVAudioPlayerDelegate {
             return
         }
 
-        let currentBooks = Array(PlayerManager.sharedInstance.currentBooks.dropFirst())
+        let currentBooks = Array(self.currentBooks.dropFirst())
 
         load(currentBooks, completion: { (_) in
             let userInfo = ["books": currentBooks]
 
-            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookChange, object: nil, userInfo: userInfo)
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookChange, object: nil, userInfo: userInfo)
+            }
         })
     }
 

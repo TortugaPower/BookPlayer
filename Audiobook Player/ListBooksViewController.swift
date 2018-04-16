@@ -219,6 +219,7 @@ class ListBooksViewController: UIViewController, UIGestureRecognizerDelegate {
                 return
         }
 
+        self.currentBooks = books
         setupFooter(book: currentBook)
     }
 

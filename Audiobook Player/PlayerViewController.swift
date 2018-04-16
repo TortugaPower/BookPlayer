@@ -74,6 +74,7 @@ class PlayerViewController: UIViewController {
     }
 
     func setupView(book currentBook: Book) {
+        self.currentBook = currentBook
         let averageArtworkColor = UIColor(averageColorFrom: currentBook.artwork) ?? UIColor.flatSkyBlueColorDark()
 
         //set UI colors
