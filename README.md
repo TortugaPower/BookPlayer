@@ -40,7 +40,7 @@ Pull requests regarding upcoming features (or bugs) are welcomed. Any suggestion
 - [@bryanrezende](https://github.com/bryanrezende) - Smart rewind
 - [@e7mac](https://github.com/e7mac) - Speed control, Autoplay
 - [@gpambrozio](https://github.com/gpambrozio) - Volume Boost
-- [@pichfl](https://github.com/pichfl) - Refactoring
+- [@pichfl](https://github.com/pichfl) - UI Design, Artwork, Refactoring
 - [@vab9](https://github.com/vab9) - AirDrop Support
 
 A full list of all contributors can be found [on GitHub.](https://github.com/GianniCarlo/Audiobook-Player/graphs/contributors)
@@ -51,6 +51,7 @@ Managed with [Carthage](https://github.com/Carthage/Carthage)
 
 - [Chameleon](https://github.com/ViccAlexander/Chameleon) for colors
 - [MBProgressHUD](https://github.com/jdg/MBProgressHUD) for loading wheels
+- [MarqueeLabel](https://github.com/cbpowell/MarqueeLabel) for scrolling labels
 
 Managed with [Homebrew](https://brew.sh)
 
@@ -58,16 +59,18 @@ Managed with [Homebrew](https://brew.sh)
 
 ## Credits
 
-- Large Play image made by [Vectors Market](http://www.flaticon.com/authors/vectors-market) from [www.flaticon.com](http://www.flaticon.com)
-- Large Pause image made by [Vectors Market](http://www.flaticon.com/authors/vectors-market) from [www.flaticon.com](http://www.flaticon.com)
+### Code
+
+- Drag gesture code adapted from [HarshilShah/DeckTransition](https://github.com/HarshilShah/DeckTransition)
+
+### Images
+
 - Skip time image made by [Vaadin](http://www.flaticon.com/authors/vaadin) from [www.flaticon.com](http://www.flaticon.com)
 - Small Play image made by [Madebyoliver](http://www.flaticon.com/authors/madebyoliver) from [www.flaticon.com](http://www.flaticon.com)
 - Small Pause image made by [Hanan](http://www.flaticon.com/authors/hanan) from [www.flaticon.com](http://www.flaticon.com)
 - Small Double right arrows image made by [Freepik](http://www.flaticon.com/authors/freepik) from [www.flaticon.com](http://www.flaticon.com)
 - Book image (part of app icon) made by [Freepik](http://www.flaticon.com/authors/freepik) from [www.flaticon.com](http://www.flaticon.com)
-- Moon image made by [VectorSqure](http://www.iconfinder.com/vectorsquare) from [www.iconfinder.com](http://www.iconfinder.com)
 - Speaker image (part of app icon) made by [Madebyoliver](http://www.flaticon.com/authors/madebyoliver) from [www.flaticon.com](http://www.flaticon.com)
-- Three squares image made by [Vaadin](http://www.flaticon.com/authors/vaadin) from [www.flaticon.com](http://www.flaticon.com)
 - App icon and screenshot template generator from https://appicontemplate.com/
 
 ## License

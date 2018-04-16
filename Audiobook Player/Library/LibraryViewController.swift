@@ -100,19 +100,14 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
 
     // Playback may be interrupted by calls. Handle pause
     @objc func handleAudioInterruptions(_ notification: Notification) {
-        guard let audioPlayer = PlayerManager.sharedInstance.audioPlayer else {
-            return
-        }
-
-        if audioPlayer.isPlaying {
+        if PlayerManager.sharedInstance.isPlaying {
             self.didPressPlay(self.footerPlayButton)
         }
     }
 
     // Handle audio route changes
     @objc func handleAudioRouteChange(_ notification: Notification) {
-        guard let audioPlayer = PlayerManager.sharedInstance.audioPlayer,
-            audioPlayer.isPlaying,
+        guard PlayerManager.sharedInstance.isPlaying,
             let userInfo = notification.userInfo,
             let reasonValue = userInfo[AVAudioSessionRouteChangeReasonKey] as? UInt,
             let reason = AVAudioSessionRouteChangeReason(rawValue: reasonValue) else {
@@ -157,15 +152,15 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     @IBAction func didPressPlay(_ sender: UIButton) {
-        PlayerManager.sharedInstance.playPressed()
+        PlayerManager.sharedInstance.play()
     }
 
     @objc func forwardPressed(_ sender: UIButton) {
-        PlayerManager.sharedInstance.forwardPressed()
+        PlayerManager.sharedInstance.forward()
     }
 
     @objc func rewindPressed(_ sender: UIButton) {
-        PlayerManager.sharedInstance.rewindPressed()
+        PlayerManager.sharedInstance.rewind()
     }
 
     @IBAction func didPressShowDetail(_ sender: UIButton) {
@@ -180,7 +175,7 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
     @objc func updatePercentage(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
             let fileURL = userInfo["fileURL"] as? URL,
-            let percentageString = userInfo["percentageString"] as? String else {
+            let percentCompletedString = userInfo["percentCompletedString"] as? String else {
                 return
         }
 
@@ -190,12 +185,12 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
             return
         }
 
-        cell.completionLabel.text = percentageString
+        cell.completionLabel.text = percentCompletedString
     }
 
     @objc func bookReady() {
         MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
-        PlayerManager.sharedInstance.playPressed(autoplayed: true)
+        PlayerManager.sharedInstance.playPause(autoplayed: true)
     }
 
     @objc func bookPlayed() {
@@ -240,7 +235,7 @@ extension LibraryViewController: UITableViewDataSource {
             cell.artworkImageView.image = book.artwork
 
             // Load stored percentage value
-            cell.completionLabel.text = UserDefaults.standard.string(forKey: self.bookArray[indexPath.row].identifier + "_percentage") ?? "0%"
+            cell.completionLabel.text = book.percentCompletedRoundedString
             cell.completionLabel.textColor = UIColor.flatGreenColorDark()
 
             return cell
@@ -268,7 +263,7 @@ extension LibraryViewController: UITableViewDelegate {
 
                 do {
                     try FileManager.default.removeItem(at: book.fileURL)
-                    
+
                     self.bookArray.remove(at: indexPath.row)
                     tableView.beginUpdates()
                     tableView.deleteRows(at: [indexPath], with: .none)
@@ -435,7 +430,7 @@ extension LibraryViewController {
      */
     func registerRemoteEvents() {
         let togglePlayPauseHandler: (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus = { (_) -> MPRemoteCommandHandlerStatus in
-            PlayerManager.sharedInstance.playPressed()
+            PlayerManager.sharedInstance.playPause()
             return .success
         }
 
@@ -449,7 +444,7 @@ extension LibraryViewController {
         MPRemoteCommandCenter.shared().pauseCommand.addTarget(handler: togglePlayPauseHandler)
 
         let skipForwardHandler: (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus = { (commandEvent) -> MPRemoteCommandHandlerStatus in
-            PlayerManager.sharedInstance.forwardPressed()
+            PlayerManager.sharedInstance.forward()
             return .success
         }
 
@@ -464,12 +459,12 @@ extension LibraryViewController {
                 cmd.type == .endSeeking else { return .success }
 
             //end seeking
-            PlayerManager.sharedInstance.forwardPressed()
+            PlayerManager.sharedInstance.forward()
             return .success
         }
 
         let skipBackwardHandler: (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus = { (commandEvent) -> MPRemoteCommandHandlerStatus in
-            PlayerManager.sharedInstance.rewindPressed()
+            PlayerManager.sharedInstance.rewind()
             return .success
         }
 
@@ -481,15 +476,8 @@ extension LibraryViewController {
                 cmd.type == .endSeeking else { return .success }
 
             //end seeking
-            PlayerManager.sharedInstance.rewindPressed()
+            PlayerManager.sharedInstance.rewind()
             return .success
         }
     }
-}
-
-class BookCellView: UITableViewCell {
-    @IBOutlet weak var artworkImageView: UIImageView!
-    @IBOutlet weak var titleLabel: UILabel!
-    @IBOutlet weak var authorLabel: UILabel!
-    @IBOutlet weak var completionLabel: UILabel!
 }

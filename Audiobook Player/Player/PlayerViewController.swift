@@ -12,159 +12,98 @@ import MediaPlayer
 import Chameleon
 import StoreKit
 
-class PlayerViewController: UIViewController {
-    @IBOutlet weak var authorLabel: UILabel!
-    @IBOutlet weak var titleLabel: UILabel!
-    @IBOutlet weak var playButton: UIButton!
-    @IBOutlet weak var forwardButton: UIButton!
-    @IBOutlet weak var rewindButton: UIButton!
-    @IBOutlet weak var maxTimeLabel: UILabel!
-    @IBOutlet weak var currentTimeLabel: UILabel!
-    @IBOutlet weak var sliderView: UISlider!
-    @IBOutlet weak var percentageLabel: UILabel!
-    @IBOutlet weak var coverImageView: UIImageView!
+class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
+    @IBOutlet weak var closeButton: UIButton!
     @IBOutlet weak var bottomToolbar: UIToolbar!
     @IBOutlet weak var speedButton: UIBarButtonItem!
     @IBOutlet weak var sleepButton: UIBarButtonItem!
     @IBOutlet weak var spaceBeforeChaptersButton: UIBarButtonItem!
     @IBOutlet weak var chaptersButton: UIBarButtonItem!
 
-    // Keep in memory images to toggle play/pause
-    let playImage = UIImage(named: "playButton")
-    let pauseImage = UIImage(named: "pauseButton")
+    private var pan: UIPanGestureRecognizer?
+
+    private weak var controlsViewController: PlayerControlsViewController?
+    private weak var metaViewController: PlayerMetaViewController?
+    private weak var progressViewController: PlayerProgressViewController?
 
     var currentBook: Book!
 
-    override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation {
-        return .slide
+    // MARK: Lifecycle
+
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if let viewController = segue.destination as? PlayerControlsViewController {
+            self.controlsViewController = viewController
+        }
+
+        if let viewController = segue.destination as? PlayerMetaViewController {
+            self.metaViewController = viewController
+        }
+
+        if let viewController = segue.destination as? PlayerProgressViewController {
+            self.progressViewController = viewController
+        }
+
+        if segue.identifier == "ChapterSelectionSegue",
+            let navigationController = segue.destination as? UINavigationController,
+            let viewController = navigationController.viewControllers.first as? ChaptersViewController {
+                viewController.book = self.currentBook
+            }
     }
 
-    // MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        self.setupView(book: self.currentBook!)
 
         // Make toolbar transparent
         self.bottomToolbar.setBackgroundImage(UIImage(), forToolbarPosition: .any, barMetrics: .default)
         self.bottomToolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
 
-        registerObservers()
-        setupView(book: currentBook!)
-        playPlayer()
+        // Observers
+        NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: Notification.Name.AudiobookPlayer.requestReview, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: Notification.Name.AudiobookPlayer.bookChange, object: nil)
+
+        // Gesture
+        self.pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
+        self.pan!.delegate = self
+        self.pan!.maximumNumberOfTouches = 1
+        self.pan!.cancelsTouchesInView = false
+
+        self.view.addGestureRecognizer(pan!)
     }
 
     func setupView(book currentBook: Book) {
-        let averageArtworkColor = UIColor(averageColorFrom: currentBook.artwork) ?? UIColor.flatSkyBlueColorDark()
+        self.metaViewController?.book = currentBook
+        self.controlsViewController?.book = currentBook
+        self.progressViewController?.book = currentBook
+        self.progressViewController?.currentTime = UserDefaults.standard.double(forKey: currentBook.identifier)
 
-        // Set UI colors
-        let artworkColors: [UIColor] = [
-            averageArtworkColor!,
-            UIColor.flatBlack()
-        ]
+        self.speedButton.title = "\(String(PlayerManager.sharedInstance.speed))x"
 
-        self.view.backgroundColor = GradientColor(.topToBottom, frame: view.frame, colors: artworkColors)
-
-        self.maxTimeLabel.textColor = UIColor.flatWhiteColorDark()
-        self.titleLabel.textColor = UIColor(contrastingBlackOrWhiteColorOn: averageArtworkColor!, isFlat: true)
-        self.authorLabel.textColor = UIColor(contrastingBlackOrWhiteColorOn: averageArtworkColor!, isFlat: true)
-
-        self.coverImageView.image = currentBook.artwork
-
-        // Drop shadow on cover view
-        coverImageView.layer.shadowColor = UIColor.flatBlack().cgColor
-        coverImageView.layer.shadowOffset = CGSize(width: 0, height: 4)
-        coverImageView.layer.shadowOpacity = 0.6
-        coverImageView.layer.shadowRadius = 6.0
-        coverImageView.clipsToBounds = false
-
-        // Set initial state for slider
-        self.sliderView.addTarget(self, action: #selector(sliderChanged(_:)), for: .valueChanged)
-        self.sliderView.tintColor = UIColor.flatLimeColorDark()
-        self.sliderView.maximumValue = 100
-        self.sliderView.value = 0
-
-        self.titleLabel.text = currentBook.title
-        self.authorLabel.text = currentBook.author
-
-        // Set percentage label to stored value
-        let currentPercentage = UserDefaults.standard.string(forKey: currentBook.identifier+"_percentage") ?? "0%"
-        self.percentageLabel.text = currentPercentage
-
-        // Get stored value for current time of book
-        let currentTime = UserDefaults.standard.integer(forKey: currentBook.identifier)
-
-        // Update UI if needed and set player to stored time
-        if currentTime > 0 {
-            let formattedCurrentTime = self.formatTime(currentTime)
-
-            self.currentTimeLabel.text = formattedCurrentTime
-        }
-
-        // Update max duration label of book
-        let maxDuration = currentBook.duration
-
-        self.maxTimeLabel.text = self.formatTime(maxDuration)
-
-        // Set status bar
-        modalPresentationCapturesStatusBarAppearance = true
-
-        self.setStatusBarStyle(UIStatusBarStyleContrast)
-    }
-
-    func playPlayer() {
-        //get stored value for current time of book
-        let currentTime = UserDefaults.standard.integer(forKey: currentBook.identifier)
-
-        if PlayerManager.sharedInstance.isPlaying() {
-            self.playButton.setImage(self.pauseImage, for: UIControlState())
-        } else {
-            self.playButton.setImage(self.playImage, for: UIControlState())
-        }
-
-        if !PlayerManager.sharedInstance.chapterArray.isEmpty {
-            self.percentageLabel.text = ""
-        }
-
-        self.speedButton.title = "\(String(PlayerManager.sharedInstance.currentSpeed))x"
-
-        self.chaptersButton.isEnabled = !PlayerManager.sharedInstance.chapterArray.isEmpty
-
-        if let audioPlayer = PlayerManager.sharedInstance.audioPlayer {
-            let percentage = (Float(currentTime) / Float(audioPlayer.duration)) * 100
-
-            self.sliderView.value = percentage
-        }
-    }
-
-    func registerObservers() {
-        // register for appDelegate requestReview notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: Notification.Name.AudiobookPlayer.requestReview, object: nil)
-        // register for timer update
-        NotificationCenter.default.addObserver(self, selector: #selector(self.updateTimer(_:)), name: Notification.Name.AudiobookPlayer.updateTimer, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.updatePercentage(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.updateCurrentChapter(_:)), name: Notification.Name.AudiobookPlayer.updateChapter, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookPlayed), name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookPaused), name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookEnd), name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: Notification.Name.AudiobookPlayer.bookChange, object: nil)
-    }
-
-    @objc func sliderChanged(_ sender: UISlider) {
-        let percentage = sender.value / sender.maximumValue
-
-        if let audioPlayer = PlayerManager.sharedInstance.audioPlayer {
-            audioPlayer.currentTime = TimeInterval(percentage) * audioPlayer.duration
-        }
-    }
-
-    @IBAction func didSelectChapter(_ segue: UIStoryboardSegue) {
-        guard PlayerManager.sharedInstance.isLoaded(),
-            let viewController = segue.source as? ChaptersViewController,
-            let chapter = viewController.currentChapter else {
+        // Colors
+        guard var artworkColors = NSArray(ofColorsFrom: currentBook.artwork, withFlatScheme: false) as? [UIColor] else {
             return
         }
 
-        PlayerManager.sharedInstance.setChapter(chapter)
+        artworkColors = artworkColors.sorted { (aColor, bColor) -> Bool in
+            let aLightness = aColor.luminance
+            let bLightness = bColor.luminance
+
+            return aLightness > bLightness
+        }
+
+        view.backgroundColor = artworkColors.last?.withAlphaComponent(1.0) ?? view.backgroundColor
+
+        self.setStatusBarStyle(.lightContent)
+
+        self.closeButton.tintColor = artworkColors[1]
+        self.metaViewController?.colors = artworkColors
+
+        // @TODO: Add blurred version of the album artwork as background
     }
+
+    // MARK: Interface actions
 
     @IBAction func dismissPlayer() {
         self.dismiss(animated: true, completion: nil)
@@ -174,17 +113,16 @@ class PlayerViewController: UIViewController {
 
     @IBAction func setSpeed() {
         let actionSheet = UIAlertController(title: nil, message: "Set playback speed", preferredStyle: .actionSheet)
-
         let speedOptions: [Float] = [2.5, 2.0, 1.5, 1.25, 1.0, 0.75]
 
         for speed in speedOptions {
-            if speed == PlayerManager.sharedInstance.currentSpeed {
+            if speed == PlayerManager.sharedInstance.speed {
                 actionSheet.addAction(UIAlertAction(title: "\u{00A0} \(speed) ✓", style: .default, handler: nil))
             } else {
                 actionSheet.addAction(UIAlertAction(title: "\(speed)", style: .default, handler: { _ in
-                    PlayerManager.sharedInstance.setSpeed(speed)
+                    PlayerManager.sharedInstance.speed = speed
 
-                    self.speedButton.title = "\(String(PlayerManager.sharedInstance.currentSpeed))x"
+                    self.speedButton.title = "\(String(PlayerManager.sharedInstance.speed))x"
                 }))
             }
         }
@@ -203,8 +141,6 @@ class PlayerViewController: UIViewController {
             onEnd: { (_ cancelled: Bool) -> Void in
                 if !cancelled {
                     PlayerManager.sharedInstance.stop()
-
-                    self.playButton.setImage(self.playImage, for: UIControlState())
                 }
 
 //                self.sleepButton.title = "Timer"
@@ -215,7 +151,7 @@ class PlayerViewController: UIViewController {
     }
 
     @IBAction func showMore() {
-        guard PlayerManager.sharedInstance.isLoaded() else {
+        guard PlayerManager.sharedInstance.isLoaded else {
             return
         }
 
@@ -223,70 +159,22 @@ class PlayerViewController: UIViewController {
 
         actionSheet.addAction(UIAlertAction(title: "Jump To Start", style: .default, handler: { _ in
             PlayerManager.sharedInstance.stop()
-            PlayerManager.sharedInstance.setTime(0.0)
-
-            self.bookPaused()
+            PlayerManager.sharedInstance.jumpTo(0.0)
         }))
 
         actionSheet.addAction(UIAlertAction(title: "Mark as Finished", style: .default, handler: { _ in
             PlayerManager.sharedInstance.stop()
-            PlayerManager.sharedInstance.setTime(PlayerManager.sharedInstance.audioPlayer?.duration ?? 0.0)
+            PlayerManager.sharedInstance.jumpTo(0.0, fromEnd: true)
 
-            self.bookEnd()
+            self.requestReview()
         }))
 
         actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
 
         self.present(actionSheet, animated: true, completion: nil)
     }
-}
 
-extension PlayerViewController: AVAudioPlayerDelegate {
-    // skip time forward
-    @IBAction func forwardPressed(_ sender: UIButton) {
-        PlayerManager.sharedInstance.forwardPressed()
-    }
-
-    // skip time backwards
-    @IBAction func rewindPressed(_ sender: UIButton) {
-        PlayerManager.sharedInstance.rewindPressed()
-    }
-
-    // toggle play/pause of book
-    @IBAction func playPressed(_ sender: UIButton) {
-        PlayerManager.sharedInstance.playPressed()
-    }
-
-    // timer callback (called every second)
-    @objc func updateTimer(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-            let fileURL = userInfo["fileURL"] as? URL,
-            let timeText = userInfo["timeString"] as? String,
-            let percentage = userInfo["percentage"] as? Float,
-            fileURL == self.currentBook.fileURL else {
-            return
-        }
-
-        // update current time label
-        self.currentTimeLabel.text = timeText
-
-        // update book read percentage
-        self.sliderView.value = percentage
-    }
-
-    // percentage callback
-    @objc func updatePercentage(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-            let fileURL = userInfo["fileURL"] as? URL,
-            fileURL == self.currentBook.fileURL,
-            let percentageString = userInfo["percentageString"] as? String,
-            let hasChapters = userInfo["hasChapters"] as? Bool,
-            !hasChapters else {
-                return
-        }
-
-        self.percentageLabel.text = percentageString
-    }
+    // MARK: Other Methods
 
     @objc func requestReview() {
         // don't do anything if flag isn't true
@@ -304,20 +192,6 @@ extension PlayerViewController: AVAudioPlayerDelegate {
         }
     }
 
-    @objc func bookPlayed() {
-        self.playButton.setImage(self.pauseImage, for: UIControlState())
-    }
-
-    @objc func bookPaused() {
-        self.playButton.setImage(self.playImage, for: UIControlState())
-    }
-
-    @objc func bookEnd() {
-        self.playButton.setImage(self.playImage, for: UIControlState())
-
-        self.requestReview()
-    }
-
     @objc func bookChange(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
             let books = userInfo["books"] as? [Book],
@@ -327,17 +201,60 @@ extension PlayerViewController: AVAudioPlayerDelegate {
 
         self.currentBook = book
 
-        setupView(book: book)
+        self.setupView(book: book)
     }
 
-    @objc func updateCurrentChapter(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-            let fileURL = userInfo["fileURL"] as? URL,
-            let chapterString = userInfo["chapterString"] as? String,
-            fileURL == self.currentBook.fileURL else {
-                return
+    // MARK: Gesture recognizers
+    // Based on https://github.com/HarshilShah/DeckTransition/blob/master/Source/DeckPresentationController.swift
+
+    private func updatePresentedViewForTranslation(inVerticalDirection translation: CGFloat) {
+        let elasticThreshold: CGFloat = 120.0
+        let dismissThreshold: CGFloat = 240.0
+        let translationFactor: CGFloat = 0.5
+
+        if translation >= 0 {
+            let translationForModal: CGFloat = {
+                if translation >= elasticThreshold {
+                    let frictionLength = translation - elasticThreshold
+                    let frictionTranslation = 30 * atan(frictionLength/120) + frictionLength/10
+
+                    return frictionTranslation + (elasticThreshold * translationFactor)
+                } else {
+                    return translation * translationFactor
+                }
+            }()
+
+            self.view?.transform = CGAffineTransform(translationX: 0, y: translationForModal)
+
+            if translation >= dismissThreshold {
+                self.dismiss(animated: true, completion: nil)
+            }
+        }
+    }
+
+    @objc private func handlePan(gestureRecognizer: UIPanGestureRecognizer) {
+        guard gestureRecognizer.isEqual(pan) else {
+            return
         }
 
-        self.percentageLabel.text = chapterString
+        switch gestureRecognizer.state {
+            case .began:
+                gestureRecognizer.setTranslation(CGPoint(x: 0, y: 0), in: self.view.superview)
+
+            case .changed:
+                let translation = gestureRecognizer.translation(in: self.view)
+
+                self.updatePresentedViewForTranslation(inVerticalDirection: translation.y)
+
+            case .ended:
+                UIView.animate(
+                    withDuration: 0.25,
+                    animations: {
+                        self.view?.transform = .identity
+                    }
+                )
+
+            default: break
+        }
     }
 }

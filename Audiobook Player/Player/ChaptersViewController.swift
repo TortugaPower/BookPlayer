@@ -9,24 +9,16 @@
 import UIKit
 import MediaPlayer
 
-struct Chapter {
-    var title: String
-    var start: Int
-    var duration: Int
-    var index: Int
-}
-
 class ChaptersViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
 
-    var chapterArray: [Chapter]!
+    var book: Book!
     var currentChapter: Chapter!
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.currentChapter = PlayerManager.sharedInstance.currentChapter
-        self.chapterArray = PlayerManager.sharedInstance.chapterArray
+        self.currentChapter = self.book.currentChapter
 
         self.tableView.tableFooterView = UIView()
         self.tableView.reloadData()
@@ -39,19 +31,19 @@ class ChaptersViewController: UIViewController {
 
 extension ChaptersViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return chapterArray.count
+        return self.book.chapters.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell = tableView.dequeueReusableCell(withIdentifier: "ChapterViewCell", for: indexPath) as? ChapterViewCell {
-            let chapter = self.chapterArray[indexPath.row]
+            let chapter = self.book.chapters[indexPath.row]
 
             cell.titleLabel.text = chapter.title
             cell.durationLabel.text = formatTime(chapter.start)
             cell.titleLabel.highlightedTextColor = UIColor.black
             cell.durationLabel.highlightedTextColor = UIColor.black
 
-            if self.currentChapter.index == chapter.index {
+            if self.book.currentChapter?.index == chapter.index {
                 tableView.selectRow(at: indexPath, animated: true, scrollPosition: .top)
             }
 
@@ -64,10 +56,10 @@ extension ChaptersViewController: UITableViewDataSource {
 
 extension ChaptersViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let chapter = self.chapterArray[indexPath.row]
+        // Don't set the chapter, set the new time which will set the chapter in didSet
+        PlayerManager.sharedInstance.jumpTo(self.book.chapters[indexPath.row].start)
 
-        self.currentChapter = chapter
-        self.performSegue(withIdentifier: "selectedChapterSegue", sender: self)
+        self.dismiss(animated: true, completion: nil)
     }
 }
 
