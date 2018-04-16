@@ -235,7 +235,7 @@ extension LibraryViewController: UITableViewDataSource {
             cell.artworkImageView.image = book.artwork
 
             // Load stored percentage value
-            cell.completionLabel.text = book.percentCompletedString
+            cell.completionLabel.text = book.percentCompletedRoundedString
             cell.completionLabel.textColor = UIColor.flatGreenColorDark()
 
             return cell

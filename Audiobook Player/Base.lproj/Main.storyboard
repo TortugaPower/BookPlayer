@@ -70,7 +70,7 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="100%" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DQK-t5-8FR">
-                                                    <rect key="frame" x="216.5" y="33" width="363.5" height="21"/>
+                                                    <rect key="frame" x="216.5" y="33" width="138.5" height="21"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="45" id="87M-DX-FOC"/>
                                                     </constraints>
@@ -730,7 +730,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="00:00:00" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="O04-9i-LyL">
-                                                    <rect key="frame" x="65" y="12" width="521.5" height="20"/>
+                                                    <rect key="frame" x="65" y="12" width="296.5" height="20"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="70" id="yJF-Dj-y5d"/>
                                                     </constraints>
@@ -850,7 +850,7 @@
                         <viewLayoutGuide key="safeArea" id="Lv6-Z0-oMN"/>
                     </view>
                     <connections>
-                        <outlet property="coverImage" destination="Wrj-aG-VQg" id="ZNL-VK-aju"/>
+                        <outlet property="artwork" destination="Wrj-aG-VQg" id="VOg-rv-Qvu"/>
                         <outlet property="forwardButton" destination="GcK-bx-Lp0" id="arf-Nf-umd"/>
                         <outlet property="playPauseButton" destination="EV6-kJ-RSt" id="GMl-xA-JHs"/>
                         <outlet property="rewindButton" destination="Xm9-P8-cWQ" id="nux-gv-bqm"/>

@@ -63,33 +63,36 @@ class Book: NSObject {
         return lastPlayedPosition
     }
 
-    var percentCompleted: Int = 0 {
-        didSet {
-            percentCompletedString = "\(self.percentCompleted)%"
-        }
-    }
+    var percentCompleted: Double = 0.0
+    var percentCompletedRounded: Int = 0
 
-    var percentCompletedString: String = "0%"
+    var percentCompletedRoundedString: String {
+        return "\(self.percentCompletedRounded)%"
+    }
 
     private func updatePercentCompleted() {
         guard self.currentTime >= 0.0 && self.duration > 0.0 else {
             return
         }
 
-        let percentage = Int(round(self.currentTime / self.duration * 100))
+        let percentage = round(self.currentTime / self.duration * 100)
+        let percentageRounded = Int(round(percentage))
 
-        guard percentage != self.percentCompleted else {
+        self.percentCompleted = percentage
+
+        // Only notify if the rounded percentage changes
+        guard percentageRounded != self.percentCompletedRounded else {
             return
         }
 
-        self.percentCompleted = percentage
+        self.percentCompletedRounded = percentageRounded
 
         // Save to defaults
         UserDefaults.standard.set(percentage, forKey: self.identifier + "_percentage_completed")
 
         // Notify
         NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil, userInfo: [
-            "percentCompletedString": self.percentCompletedString,
+            "percentCompletedString": self.percentCompletedRoundedString,
             "fileURL": self.fileURL
         ] as [String: Any])
     }
