@@ -52,7 +52,7 @@ A full list of all contributors can be found [on GitHub.](https://github.com/Gia
 
 Managed with [Carthage](https://github.com/Carthage/Carthage)
 
-- [Chameleon](https://github.com/ViccAlexander/Chameleon) for colors
+- [UIImageColors](https://github.com/jathu/UIImageColors)[*](https://github.com/thefabulous/UIImageColors "Using the fork from @thefabulous for Carthage fixes") for colors
 - [MBProgressHUD](https://github.com/jdg/MBProgressHUD) for loading wheels
 - [MarqueeLabel](https://github.com/cbpowell/MarqueeLabel) for scrolling labels
 

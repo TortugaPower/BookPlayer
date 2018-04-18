@@ -9,8 +9,8 @@
 import UIKit
 import AVFoundation
 import MediaPlayer
-import Chameleon
 import StoreKit
+import UIImageColors
 
 class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet weak var closeButton: UIButton!
@@ -19,6 +19,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet weak var sleepButton: UIBarButtonItem!
     @IBOutlet weak var spaceBeforeChaptersButton: UIBarButtonItem!
     @IBOutlet weak var chaptersButton: UIBarButtonItem!
+    @IBOutlet weak var backgroundImage: UIImageView!
 
     private var pan: UIPanGestureRecognizer?
 
@@ -79,26 +80,35 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.progressViewController?.book = currentBook
         self.progressViewController?.currentTime = UserDefaults.standard.double(forKey: currentBook.identifier)
 
-        self.speedButton.title = "\(String(PlayerManager.sharedInstance.speed))x"
+        self.speedButton.title = "\(String(PlayerManager.sharedInstance.speed))×"
 
         // Colors
-        guard var artworkColors = NSArray(ofColorsFrom: currentBook.artwork, withFlatScheme: false) as? [UIColor] else {
-            return
-        }
+        self.backgroundImage.image = currentBook.artwork
 
-        artworkColors = artworkColors.sorted { (aColor, bColor) -> Bool in
-            let aLightness = aColor.luminance
-            let bLightness = bColor.luminance
+        let colors: UIImageColors = currentBook.artwork.getColors(quality: .highest)
+        let blur = UIBlurEffect(style: colors.background.luminance > 0.5 ? UIBlurEffectStyle.light : UIBlurEffectStyle.dark)
+        let vibrancy = UIVibrancyEffect(blurEffect: blur)
+        let blurView = UIVisualEffectView(effect: blur)
+        let vibrancyView = UIVisualEffectView(effect: vibrancy)
 
-            return aLightness > bLightness
-        }
+        blurView.frame = backgroundImage.frame
+        vibrancyView.frame = backgroundImage.frame
 
-        view.backgroundColor = artworkColors.last?.withAlphaComponent(1.0) ?? view.backgroundColor
+        self.backgroundImage.addSubview(blurView)
+        self.backgroundImage.addSubview(vibrancyView)
+        self.backgroundImage.alpha = (1.0 - colors.background.luminance) * 0.5
 
-        self.setStatusBarStyle(.lightContent)
+        UIApplication.shared.statusBarStyle = colors.background.luminance > 0.5 ? UIStatusBarStyle.default : UIStatusBarStyle.lightContent
+        self.setNeedsStatusBarAppearanceUpdate()
 
-        self.closeButton.tintColor = artworkColors[1]
-        self.metaViewController?.colors = artworkColors
+        view.backgroundColor = colors.background ?? view.backgroundColor
+
+        self.closeButton.tintColor = colors.detail
+        self.bottomToolbar.tintColor = colors.detail
+
+        self.metaViewController?.colors = colors
+        self.controlsViewController?.colors = colors
+        self.progressViewController?.colors = colors
 
         // @TODO: Add blurred version of the album artwork as background
     }
@@ -122,7 +132,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
                 actionSheet.addAction(UIAlertAction(title: "\(speed)", style: .default, handler: { _ in
                     PlayerManager.sharedInstance.speed = speed
 
-                    self.speedButton.title = "\(String(PlayerManager.sharedInstance.speed))x"
+                    self.speedButton.title = "\(String(PlayerManager.sharedInstance.speed))×"
                 }))
             }
         }
@@ -233,7 +243,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     @objc private func handlePan(gestureRecognizer: UIPanGestureRecognizer) {
-        guard gestureRecognizer.isEqual(pan) else {
+        guard gestureRecognizer.isEqual(self.pan) else {
             return
         }
 
