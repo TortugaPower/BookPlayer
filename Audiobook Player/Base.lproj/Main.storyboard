@@ -963,6 +963,9 @@
         <image name="miniPlayButton" width="30" height="30"/>
         <image name="playButton" width="68" height="68"/>
         <image name="right-arrow" width="30" height="30"/>
+        <image name="toolbarIconChapters" width="24" height="24"/>
+        <image name="toolbarIconMore" width="24" height="24"/>
+        <image name="toolbarIconTimer" width="24" height="24"/>
     </resources>
     <color key="tintColor" red="0.16470588235294117" green="0.51764705882352935" blue="0.82352941176470584" alpha="1" colorSpace="calibratedRGB"/>
 </document>
