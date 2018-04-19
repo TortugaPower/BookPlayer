@@ -98,10 +98,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.backgroundImage.addSubview(vibrancyView)
         self.backgroundImage.alpha = 0.2 + (1.0 - colors.background.luminance) * 0.3
 
-        UIApplication.shared.statusBarStyle = colors.background.luminance > 0.5 ? UIStatusBarStyle.default : UIStatusBarStyle.lightContent
-        self.setNeedsStatusBarAppearanceUpdate()
-
-        view.backgroundColor = colors.background ?? view.backgroundColor
+        self.view.backgroundColor = colors.background ?? view.backgroundColor
 
         self.closeButton.tintColor = colors.detail
         self.bottomToolbar.tintColor = colors.detail
@@ -109,8 +106,16 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.metaViewController?.colors = colors
         self.controlsViewController?.colors = colors
         self.progressViewController?.colors = colors
+    }
 
-        // @TODO: Add blurred version of the album artwork as background
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        guard let luminance = self.view.backgroundColor?.luminance else {
+            return UIStatusBarStyle.default
+        }
+
+        // Try to keep the default as long as possible to match the rest of the UI
+        // This should most likely be inverted if we provide a dark UI as well
+        return luminance < 0.3 ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
     }
 
     // MARK: Interface actions
