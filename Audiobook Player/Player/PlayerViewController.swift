@@ -96,7 +96,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
         self.backgroundImage.addSubview(blurView)
         self.backgroundImage.addSubview(vibrancyView)
-        self.backgroundImage.alpha = (1.0 - colors.background.luminance) * 0.5
+        self.backgroundImage.alpha = 0.2 + (1.0 - colors.background.luminance) * 0.3
 
         UIApplication.shared.statusBarStyle = colors.background.luminance > 0.5 ? UIStatusBarStyle.default : UIStatusBarStyle.lightContent
         self.setNeedsStatusBarAppearanceUpdate()

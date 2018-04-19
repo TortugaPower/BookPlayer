@@ -45,7 +45,7 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
         self.edgesForExtendedLayout = UIRectEdge()
 
         // set colors
-        self.footerView.backgroundColor = .blue
+        self.footerView.backgroundColor = UIColor.lightGray
         self.footerView.isHidden = true
 
         self.tableView.tableFooterView = UIView()
@@ -236,7 +236,7 @@ extension LibraryViewController: UITableViewDataSource {
 
             // Load stored percentage value
             cell.completionLabel.text = book.percentCompletedRoundedString
-            cell.completionLabel.textColor = .green
+            cell.completionLabel.textColor = UIColor.lightGray
 
             return cell
         }

@@ -184,8 +184,8 @@
 		C30EEEB92079645C00A4ED33 /* Containers */ = {
 			isa = PBXGroup;
 			children = (
-				C30EEEBA2079645C00A4ED33 /* PlayerProgressViewController.swift */,
 				C30EEEBB2079645C00A4ED33 /* PlayerContainerViewController.swift */,
+				C30EEEBA2079645C00A4ED33 /* PlayerProgressViewController.swift */,
 				C30EEEBC2079645C00A4ED33 /* PlayerControlsViewController.swift */,
 				C30EEEBD2079645C00A4ED33 /* PlayerMetaViewController.swift */,
 			);

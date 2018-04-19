@@ -15,10 +15,12 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
     @IBOutlet private weak var playPauseButton: UIButton!
     @IBOutlet private weak var rewindButton: UIButton!
     @IBOutlet private weak var forwardButton: UIButton!
+    @IBOutlet private weak var artworkHeight: NSLayoutConstraint!
 
     private let playImage = UIImage(named: "playButton")
     private let pauseImage = UIImage(named: "pauseButton")
-    private var pan: UIPanGestureRecognizer?
+    private var pan: UIPanGestureRecognizer!
+    private var originalHeight: CGFloat!
 
     var book: Book? {
         didSet {
@@ -29,6 +31,24 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
     var isPlaying: Bool = false {
         didSet {
             self.playPauseButton.setImage(self.isPlaying ? self.pauseImage : self.playImage, for: UIControlState())
+
+            self.artworkView.layoutIfNeeded()
+
+            self.artworkHeight.constant = self.isPlaying ? self.originalHeight : self.originalHeight * 255/325
+
+            self.artworkView.setNeedsLayout()
+
+            UIView.animate(
+                withDuration: 0.25,
+                delay: 0.0,
+                usingSpringWithDamping: self.isPlaying ? 0.7 : 0.5,
+                initialSpringVelocity: 2.0,
+                options: .preferredFramesPerSecond60,
+                animations: {
+                    self.artworkView.layoutIfNeeded()
+                },
+                completion: nil
+            )
         }
     }
 
@@ -47,6 +67,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        self.originalHeight = self.artworkHeight.constant
         self.isPlaying = PlayerManager.sharedInstance.isPlaying
 
         self.artwork.layer.shadowColor = UIColor.black.cgColor
