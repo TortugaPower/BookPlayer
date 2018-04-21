@@ -16,39 +16,38 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
     @IBOutlet private weak var rewindButton: UIButton!
     @IBOutlet private weak var forwardButton: UIButton!
     @IBOutlet private weak var artworkHeight: NSLayoutConstraint!
+    @IBOutlet private weak var artworkHorizontal: NSLayoutConstraint!
 
     private let playImage = UIImage(named: "playButton")
     private let pauseImage = UIImage(named: "pauseButton")
     private var pan: UIPanGestureRecognizer!
     private var originalHeight: CGFloat!
 
-    var book: Book? {
-        didSet {
-            self.artwork.image = self.book?.artwork
-        }
-    }
-
-    var isPlaying: Bool = false {
+    private var isPlaying: Bool = false {
         didSet {
             self.playPauseButton.setImage(self.isPlaying ? self.pauseImage : self.playImage, for: UIControlState())
 
             self.artworkView.layoutIfNeeded()
-
             self.artworkHeight.constant = self.isPlaying ? self.originalHeight : self.originalHeight * 255/325
-
             self.artworkView.setNeedsLayout()
 
             UIView.animate(
                 withDuration: 0.25,
                 delay: 0.0,
-                usingSpringWithDamping: self.isPlaying ? 0.7 : 0.5,
-                initialSpringVelocity: 2.0,
+                usingSpringWithDamping: self.isPlaying ? 0.7 : 0.4,
+                initialSpringVelocity: 1.8,
                 options: .preferredFramesPerSecond60,
                 animations: {
                     self.artworkView.layoutIfNeeded()
-                },
+            },
                 completion: nil
             )
+        }
+    }
+
+    var book: Book? {
+        didSet {
+            self.artwork.image = self.book?.artwork
         }
     }
 
@@ -57,6 +56,9 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
             guard let colors = self.colors else {
                 return
             }
+
+            self.rewindButton.tintColor = colors.detail
+            self.forwardButton.tintColor = colors.detail
 
             // Control shadow strength via the inverse luminance of the background color.
             // Light backgrounds need a much more subtle shadow
@@ -87,16 +89,6 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         super.didReceiveMemoryWarning()
     }
 
-    // skip time forward
-    @IBAction private func forward(_ sender: Any) {
-        PlayerManager.sharedInstance.forward()
-    }
-
-    // skip time backwards
-    @IBAction private func rewind(_ sender: Any) {
-        PlayerManager.sharedInstance.rewind()
-    }
-
     // toggle play/pause of book
     @IBAction private func play(_ sender: Any) {
         PlayerManager.sharedInstance.playPause()
@@ -118,38 +110,76 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         self.pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
         self.pan!.delegate = self
         self.pan!.maximumNumberOfTouches = 1
-        self.pan!.cancelsTouchesInView = false
+        self.pan!.cancelsTouchesInView = true
 
         self.view.addGestureRecognizer(self.pan!)
     }
 
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        // TODO: check x/y
+//    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+//        return false
+//    }
+
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        if gestureRecognizer == self.pan {
+            let velocity: CGPoint = self.pan.velocity(in: self.pan.view)
+            let degree: CGFloat = atan(velocity.y / velocity.x) * 180 / CGFloat.pi
+
+            return fabs(degree) < 20.0
+        }
+
         return true
     }
 
-    private func updateArtworkViewForTranslation(_ translation: CGFloat) {
-        let elasticThreshold: CGFloat = 120.0 * translation > 0 ? 1 : -1
-        let dismissThreshold: CGFloat = 240.0 * translation > 0 ? 1 : -1
+    // swiftlint:disable:next identifier_name
+    private func updateArtworkViewForTranslation(_ x: CGFloat) {
+        let iconWidth: CGFloat = 68.0
+        let sign: CGFloat = x < 0 ? -1 : 1
+        let absoluteX: CGFloat = fabs(x)
+        let elasticThreshold: CGFloat = iconWidth - 25.0
+        let actionThreshold: CGFloat = iconWidth - 10.0
         let translationFactor: CGFloat = 0.5
-        let absTranslation: CGFloat = abs(translation)
 
-        let translationX: CGFloat = {
-            if absTranslation >= elasticThreshold {
-                let frictionLength = translation - elasticThreshold
-                let frictionTranslation = 30 * atan(frictionLength/120) + frictionLength/10
+        let translation: CGFloat = {
+            if absoluteX >= elasticThreshold {
+                let frictionLength = absoluteX - elasticThreshold
+                let frictionTranslation = 20.0 * atan(frictionLength / elasticThreshold) + frictionLength / 10
 
                 return frictionTranslation + (elasticThreshold * translationFactor)
-            } else {
-                return translation * translationFactor
             }
+
+            return absoluteX * translationFactor
         }()
 
-        self.artworkView?.transform = CGAffineTransform(translationX: translationX, y: 0)
+        self.artworkHorizontal.constant = translation * sign
 
-        if translation >= dismissThreshold {
-//            print("Do!")
+        if translation > actionThreshold {
+            self.resetArtworkViewHorizontalConstraintAnimated()
+            self.pan.isEnabled = false
+
+            if sign < 0 {
+                PlayerManager.sharedInstance.forward()
+            } else {
+                PlayerManager.sharedInstance.rewind()
+            }
+
+            self.pan.isEnabled = true
         }
+    }
+
+    func resetArtworkViewHorizontalConstraintAnimated() {
+        self.artworkHorizontal.constant = 0.0
+
+        UIView.animate(
+            withDuration: 0.3,
+            delay: 0.0,
+            usingSpringWithDamping: 0.9,
+            initialSpringVelocity: 1.5,
+            options: .preferredFramesPerSecond60,
+            animations: {
+                self.view.layoutIfNeeded()
+        },
+            completion: nil
+        )
     }
 
     @objc private func handlePan(gestureRecognizer: UIPanGestureRecognizer) {
@@ -167,12 +197,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
                 self.updateArtworkViewForTranslation(translation.x)
 
             case .ended:
-                UIView.animate(
-                    withDuration: 0.25,
-                        animations: {
-                            self.artworkView?.transform = .identity
-                    }
-                )
+                self.resetArtworkViewHorizontalConstraintAnimated()
 
             default: break
         }

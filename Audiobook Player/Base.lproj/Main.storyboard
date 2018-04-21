@@ -890,9 +890,6 @@
                                     <constraint firstAttribute="width" constant="68" id="Wrj-Q2-Mo5"/>
                                 </constraints>
                                 <state key="normal" image="iconRewind"/>
-                                <connections>
-                                    <action selector="rewind:" destination="3sK-z2-NcM" eventType="touchUpInside" id="Hjc-ZT-mAu"/>
-                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GcK-bx-Lp0">
                                 <rect key="frame" x="282" y="153" width="68" height="68"/>
@@ -901,9 +898,6 @@
                                     <constraint firstAttribute="height" constant="68" id="s5D-NP-MaB"/>
                                 </constraints>
                                 <state key="normal" image="iconForward"/>
-                                <connections>
-                                    <action selector="forward:" destination="3sK-z2-NcM" eventType="touchUpInside" id="dHO-QR-mHQ"/>
-                                </connections>
                             </button>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2pN-k2-86D" userLabel="Artwork View">
                                 <rect key="frame" x="25" y="25" width="325" height="325"/>
@@ -915,11 +909,11 @@
                                             <constraint firstAttribute="width" secondItem="9tC-nX-7Sj" secondAttribute="height" multiplier="1:1" id="am8-W1-vxT"/>
                                         </constraints>
                                     </imageView>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="acF-99-ZRa">
-                                        <rect key="frame" x="128" y="128" width="68" height="68"/>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="acF-99-ZRa">
+                                        <rect key="frame" x="25" y="25" width="275" height="275"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" constant="68" id="41y-Qp-tZJ"/>
-                                            <constraint firstAttribute="height" constant="68" id="Acb-xZ-O5q"/>
+                                            <constraint firstAttribute="width" constant="275" id="41y-Qp-tZJ"/>
+                                            <constraint firstAttribute="height" constant="275" id="Acb-xZ-O5q"/>
                                         </constraints>
                                         <state key="normal" image="playButton"/>
                                         <connections>
@@ -930,27 +924,29 @@
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstItem="9tC-nX-7Sj" firstAttribute="centerX" secondItem="2pN-k2-86D" secondAttribute="centerX" id="4ek-8a-LXc"/>
-                                    <constraint firstItem="acF-99-ZRa" firstAttribute="centerX" secondItem="2pN-k2-86D" secondAttribute="centerX" id="K6F-Vv-duL"/>
+                                    <constraint firstItem="acF-99-ZRa" firstAttribute="centerY" secondItem="9tC-nX-7Sj" secondAttribute="centerY" id="SDG-bD-BXb"/>
                                     <constraint firstItem="9tC-nX-7Sj" firstAttribute="centerY" secondItem="2pN-k2-86D" secondAttribute="centerY" id="YHA-Y6-7H9"/>
-                                    <constraint firstItem="acF-99-ZRa" firstAttribute="centerY" secondItem="2pN-k2-86D" secondAttribute="centerY" id="ya2-Rr-bN6"/>
+                                    <constraint firstItem="acF-99-ZRa" firstAttribute="centerX" secondItem="9tC-nX-7Sj" secondAttribute="centerX" id="xhi-Df-WOs"/>
                                 </constraints>
                             </view>
                         </subviews>
                         <color key="backgroundColor" red="0.21960784310000001" green="0.27058823529999998" blue="0.30588235289999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="2pN-k2-86D" firstAttribute="leading" secondItem="zEx-3w-eDd" secondAttribute="leading" constant="25" id="1Lg-JO-TKL"/>
                             <constraint firstItem="2pN-k2-86D" firstAttribute="bottom" secondItem="zEx-3w-eDd" secondAttribute="bottom" constant="-25" id="6Vw-aZ-13u"/>
                             <constraint firstItem="GcK-bx-Lp0" firstAttribute="centerY" secondItem="zEx-3w-eDd" secondAttribute="centerY" id="GeV-uy-RwW"/>
                             <constraint firstItem="Xm9-P8-cWQ" firstAttribute="leading" secondItem="zEx-3w-eDd" secondAttribute="leading" constant="25" id="WgZ-vh-uKg"/>
-                            <constraint firstAttribute="trailing" secondItem="2pN-k2-86D" secondAttribute="trailing" constant="25" id="eeX-b4-ltD"/>
                             <constraint firstAttribute="trailing" secondItem="GcK-bx-Lp0" secondAttribute="trailing" constant="25" id="q83-RJ-2na"/>
+                            <constraint firstItem="2pN-k2-86D" firstAttribute="width" secondItem="zEx-3w-eDd" secondAttribute="width" constant="-50" id="rqM-uw-Dmo"/>
                             <constraint firstItem="Xm9-P8-cWQ" firstAttribute="centerY" secondItem="zEx-3w-eDd" secondAttribute="centerY" id="rwt-Z1-45c"/>
+                            <constraint firstItem="2pN-k2-86D" firstAttribute="centerX" secondItem="YFJ-F0-HJo" secondAttribute="centerX" id="wWJ-am-Pof"/>
                             <constraint firstAttribute="top" secondItem="2pN-k2-86D" secondAttribute="top" constant="-25" id="zGt-pZ-Eeq"/>
                         </constraints>
+                        <viewLayoutGuide key="safeArea" id="YFJ-F0-HJo"/>
                     </view>
                     <connections>
                         <outlet property="artwork" destination="9tC-nX-7Sj" id="k1B-eX-yqS"/>
                         <outlet property="artworkHeight" destination="OCZ-7w-uMn" id="csa-FX-0Xy"/>
+                        <outlet property="artworkHorizontal" destination="wWJ-am-Pof" id="LPB-zV-XpN"/>
                         <outlet property="artworkView" destination="2pN-k2-86D" id="gRO-YD-CqY"/>
                         <outlet property="forwardButton" destination="GcK-bx-Lp0" id="arf-Nf-umd"/>
                         <outlet property="playPauseButton" destination="acF-99-ZRa" id="VOU-nR-TTt"/>
@@ -992,6 +988,7 @@
                             </label>
                         </subviews>
                         <color key="backgroundColor" red="0.21960784310000001" green="0.27058823529999998" blue="0.30588235289999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <viewLayoutGuide key="safeArea" id="OfX-yG-oEA"/>
                     </view>
                     <connections>
                         <outlet property="authorLabel" destination="eJM-Rw-6QO" id="bEs-dL-3Ve"/>
@@ -1041,6 +1038,7 @@
                             </label>
                         </subviews>
                         <color key="backgroundColor" red="0.21960784310000001" green="0.27058823529999998" blue="0.30588235289999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <viewLayoutGuide key="safeArea" id="tQb-1K-z80"/>
                     </view>
                     <connections>
                         <outlet property="currentTimeLabel" destination="pIa-Ca-Qef" id="SA0-kf-omR"/>

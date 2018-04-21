@@ -13,13 +13,13 @@ import StoreKit
 import UIImageColors
 
 class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
-    @IBOutlet weak var closeButton: UIButton!
-    @IBOutlet weak var bottomToolbar: UIToolbar!
-    @IBOutlet weak var speedButton: UIBarButtonItem!
-    @IBOutlet weak var sleepButton: UIBarButtonItem!
-    @IBOutlet weak var spaceBeforeChaptersButton: UIBarButtonItem!
-    @IBOutlet weak var chaptersButton: UIBarButtonItem!
-    @IBOutlet weak var backgroundImage: UIImageView!
+    @IBOutlet private weak var closeButton: UIButton!
+    @IBOutlet private weak var bottomToolbar: UIToolbar!
+    @IBOutlet private weak var speedButton: UIBarButtonItem!
+    @IBOutlet private weak var sleepButton: UIBarButtonItem!
+    @IBOutlet private weak var spaceBeforeChaptersButton: UIBarButtonItem!
+    @IBOutlet private weak var chaptersButton: UIBarButtonItem!
+    @IBOutlet private weak var backgroundImage: UIImageView!
 
     private var pan: UIPanGestureRecognizer?
 
@@ -231,7 +231,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             let translationForModal: CGFloat = {
                 if translation >= elasticThreshold {
                     let frictionLength = translation - elasticThreshold
-                    let frictionTranslation = 30 * atan(frictionLength/120) + frictionLength/10
+                    let frictionTranslation = 30 * atan(frictionLength / elasticThreshold) + frictionLength / 10
 
                     return frictionTranslation + (elasticThreshold * translationFactor)
                 } else {
