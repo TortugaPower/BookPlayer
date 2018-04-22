@@ -13,8 +13,8 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
     @IBOutlet private weak var artworkView: UIView!
     @IBOutlet private weak var artwork: UIImageView!
     @IBOutlet private weak var playPauseButton: UIButton!
-    @IBOutlet private weak var rewindButton: UIButton!
-    @IBOutlet private weak var forwardButton: UIButton!
+    @IBOutlet private weak var rewindIcon: PlayerForwardIconView!
+    @IBOutlet private weak var forwardIcon: PlayerRewindIconView!
     @IBOutlet private weak var artworkHeight: NSLayoutConstraint!
     @IBOutlet private weak var artworkHorizontal: NSLayoutConstraint!
 
@@ -22,6 +22,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
     private let pauseImage = UIImage(named: "pauseButton")
     private var pan: UIPanGestureRecognizer!
     private var originalHeight: CGFloat!
+    private let jumpIconAlpha: CGFloat = 0.15
 
     private var isPlaying: Bool = false {
         didSet {
@@ -34,8 +35,8 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
             UIView.animate(
                 withDuration: 0.25,
                 delay: 0.0,
-                usingSpringWithDamping: self.isPlaying ? 0.7 : 0.4,
-                initialSpringVelocity: 1.8,
+                usingSpringWithDamping: 0.5,
+                initialSpringVelocity: 1.5,
                 options: .preferredFramesPerSecond60,
                 animations: {
                     self.artworkView.layoutIfNeeded()
@@ -57,8 +58,8 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
                 return
             }
 
-            self.rewindButton.tintColor = colors.detail
-            self.forwardButton.tintColor = colors.detail
+            self.rewindIcon.tintColor = colors.detail
+            self.forwardIcon.tintColor = colors.detail
 
             // Control shadow strength via the inverse luminance of the background color.
             // Light backgrounds need a much more subtle shadow
@@ -77,6 +78,12 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         self.artwork.layer.shadowOpacity = 0.2
         self.artwork.layer.shadowRadius = 12.0
         self.artwork.clipsToBounds = false
+
+        self.rewindIcon.title = "−30s"
+        self.forwardIcon.title = "+30s"
+
+        self.rewindIcon.alpha = self.jumpIconAlpha
+        self.forwardIcon.alpha = self.jumpIconAlpha
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPlay), name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
@@ -132,29 +139,31 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
     // swiftlint:disable:next identifier_name
     private func updateArtworkViewForTranslation(_ x: CGFloat) {
-        let iconWidth: CGFloat = 68.0
         let sign: CGFloat = x < 0 ? -1 : 1
         let absoluteX: CGFloat = fabs(x)
-        let elasticThreshold: CGFloat = iconWidth - 25.0
-        let actionThreshold: CGFloat = iconWidth - 10.0
-        let translationFactor: CGFloat = 0.5
+        let actionThreshold: CGFloat = 68.0
 
         let translation: CGFloat = {
-            if absoluteX >= elasticThreshold {
-                let frictionLength = absoluteX - elasticThreshold
-                let frictionTranslation = 20.0 * atan(frictionLength / elasticThreshold) + frictionLength / 10
-
-                return frictionTranslation + (elasticThreshold * translationFactor)
-            }
-
-            return absoluteX * translationFactor
+            return absoluteX * 0.85
         }()
 
         self.artworkHorizontal.constant = translation * sign
 
+        let alpha: CGFloat = self.jumpIconAlpha + min(translation / actionThreshold, 1.0) * (1.0 - self.jumpIconAlpha)
+
+        self.rewindIcon.alpha = alpha
+        self.forwardIcon.alpha = alpha
+
         if translation > actionThreshold {
             self.resetArtworkViewHorizontalConstraintAnimated()
             self.pan.isEnabled = false
+
+            self.rewindIcon.alpha = self.jumpIconAlpha
+            self.forwardIcon.alpha = self.jumpIconAlpha
+
+            if #available(iOS 10.0, *) {
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            }
 
             if sign < 0 {
                 PlayerManager.sharedInstance.forward()
@@ -172,7 +181,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         UIView.animate(
             withDuration: 0.3,
             delay: 0.0,
-            usingSpringWithDamping: 0.9,
+            usingSpringWithDamping: 0.7,
             initialSpringVelocity: 1.5,
             options: .preferredFramesPerSecond60,
             animations: {
@@ -196,10 +205,10 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
                 self.updateArtworkViewForTranslation(translation.x)
 
-            case .ended:
+            case .ended, .cancelled, .failed:
                 self.resetArtworkViewHorizontalConstraintAnimated()
 
-            default: break
+            case .possible: break
         }
     }
 }

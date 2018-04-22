@@ -467,7 +467,6 @@
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </toolbar>
                         </subviews>
-                        <color key="backgroundColor" red="0.2196078431372549" green="0.27058823529411763" blue="0.30588235294117649" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="MjT-9R-fmm" firstAttribute="height" secondItem="6IR-Ir-OLF" secondAttribute="height" multiplier="2" priority="750" id="2Xq-Z6-mbh"/>
                             <constraint firstItem="sjB-UW-xiP" firstAttribute="leading" secondItem="gxt-td-n8N" secondAttribute="leading" id="2hN-5w-BGs"/>
@@ -884,22 +883,22 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="375"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Xm9-P8-cWQ">
-                                <rect key="frame" x="25" y="153" width="68" height="68"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8E4-ye-Un7" customClass="PlayerForwardIconView" customModule="Audiobook_Player" customModuleProvider="target">
+                                <rect key="frame" x="290" y="157" width="60" height="60"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="68" id="EUA-cF-Ioy"/>
-                                    <constraint firstAttribute="width" constant="68" id="Wrj-Q2-Mo5"/>
+                                    <constraint firstAttribute="width" constant="60" id="Wcn-l7-0zs"/>
+                                    <constraint firstAttribute="height" constant="60" id="gbz-7l-HOT"/>
                                 </constraints>
-                                <state key="normal" image="iconRewind"/>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GcK-bx-Lp0">
-                                <rect key="frame" x="282" y="153" width="68" height="68"/>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OB3-jx-i6q" customClass="PlayerRewindIconView" customModule="Audiobook_Player" customModuleProvider="target">
+                                <rect key="frame" x="25" y="157" width="60" height="60"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="68" id="8Sg-dK-oWS"/>
-                                    <constraint firstAttribute="height" constant="68" id="s5D-NP-MaB"/>
+                                    <constraint firstAttribute="width" constant="60" id="McF-rG-DVs"/>
+                                    <constraint firstAttribute="height" constant="60" id="enn-eF-4g3"/>
                                 </constraints>
-                                <state key="normal" image="iconForward"/>
-                            </button>
+                            </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2pN-k2-86D" userLabel="Artwork View">
                                 <rect key="frame" x="25" y="25" width="325" height="325"/>
                                 <subviews>
@@ -931,27 +930,25 @@
                                 </constraints>
                             </view>
                         </subviews>
-                        <color key="backgroundColor" red="0.21960784310000001" green="0.27058823529999998" blue="0.30588235289999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
+                            <constraint firstItem="OB3-jx-i6q" firstAttribute="leading" secondItem="zEx-3w-eDd" secondAttribute="leading" constant="25" id="3b0-1h-zZn"/>
                             <constraint firstItem="2pN-k2-86D" firstAttribute="bottom" secondItem="zEx-3w-eDd" secondAttribute="bottom" constant="-25" id="6Vw-aZ-13u"/>
-                            <constraint firstItem="GcK-bx-Lp0" firstAttribute="centerY" secondItem="zEx-3w-eDd" secondAttribute="centerY" id="GeV-uy-RwW"/>
-                            <constraint firstItem="Xm9-P8-cWQ" firstAttribute="leading" secondItem="zEx-3w-eDd" secondAttribute="leading" constant="25" id="WgZ-vh-uKg"/>
-                            <constraint firstAttribute="trailing" secondItem="GcK-bx-Lp0" secondAttribute="trailing" constant="25" id="q83-RJ-2na"/>
+                            <constraint firstItem="OB3-jx-i6q" firstAttribute="centerY" secondItem="zEx-3w-eDd" secondAttribute="centerY" id="Dgg-Jx-g5b"/>
+                            <constraint firstAttribute="trailing" secondItem="8E4-ye-Un7" secondAttribute="trailing" constant="25" id="NYQ-Ra-nbb"/>
+                            <constraint firstItem="8E4-ye-Un7" firstAttribute="centerY" secondItem="zEx-3w-eDd" secondAttribute="centerY" id="jyc-Zd-0Le"/>
                             <constraint firstItem="2pN-k2-86D" firstAttribute="width" secondItem="zEx-3w-eDd" secondAttribute="width" constant="-50" id="rqM-uw-Dmo"/>
-                            <constraint firstItem="Xm9-P8-cWQ" firstAttribute="centerY" secondItem="zEx-3w-eDd" secondAttribute="centerY" id="rwt-Z1-45c"/>
-                            <constraint firstItem="2pN-k2-86D" firstAttribute="centerX" secondItem="YFJ-F0-HJo" secondAttribute="centerX" id="wWJ-am-Pof"/>
+                            <constraint firstItem="2pN-k2-86D" firstAttribute="centerX" secondItem="zEx-3w-eDd" secondAttribute="centerX" id="wWJ-am-Pof"/>
                             <constraint firstAttribute="top" secondItem="2pN-k2-86D" secondAttribute="top" constant="-25" id="zGt-pZ-Eeq"/>
                         </constraints>
-                        <viewLayoutGuide key="safeArea" id="YFJ-F0-HJo"/>
                     </view>
                     <connections>
                         <outlet property="artwork" destination="9tC-nX-7Sj" id="k1B-eX-yqS"/>
                         <outlet property="artworkHeight" destination="OCZ-7w-uMn" id="csa-FX-0Xy"/>
                         <outlet property="artworkHorizontal" destination="wWJ-am-Pof" id="LPB-zV-XpN"/>
                         <outlet property="artworkView" destination="2pN-k2-86D" id="gRO-YD-CqY"/>
-                        <outlet property="forwardButton" destination="GcK-bx-Lp0" id="arf-Nf-umd"/>
+                        <outlet property="forwardIcon" destination="OB3-jx-i6q" id="BeJ-0x-wW4"/>
                         <outlet property="playPauseButton" destination="acF-99-ZRa" id="VOU-nR-TTt"/>
-                        <outlet property="rewindButton" destination="Xm9-P8-cWQ" id="nux-gv-bqm"/>
+                        <outlet property="rewindIcon" destination="8E4-ye-Un7" id="UHM-JY-mFi"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="xaz-oA-2kU" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -1055,8 +1052,6 @@
     </scenes>
     <resources>
         <image name="curved_arrow" width="78" height="78"/>
-        <image name="iconForward" width="68" height="68"/>
-        <image name="iconRewind" width="68" height="68"/>
         <image name="maskPlayerClose" width="40" height="14"/>
         <image name="miniPlayButton" width="30" height="30"/>
         <image name="playButton" width="68" height="68"/>
