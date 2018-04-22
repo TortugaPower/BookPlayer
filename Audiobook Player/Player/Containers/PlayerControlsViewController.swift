@@ -131,7 +131,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
             let velocity: CGPoint = self.pan.velocity(in: self.pan.view)
             let degree: CGFloat = atan(velocity.y / velocity.x) * 180 / CGFloat.pi
 
-            return fabs(degree) < 20.0
+            return fabs(degree) < 30.0
         }
 
         return true
@@ -144,7 +144,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         let actionThreshold: CGFloat = 68.0
 
         let translation: CGFloat = {
-            return absoluteX * 0.85
+            return absoluteX * 0.6
         }()
 
         self.artworkHorizontal.constant = translation * sign
