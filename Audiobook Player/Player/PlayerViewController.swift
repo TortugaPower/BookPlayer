@@ -22,6 +22,8 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet private weak var chaptersButton: UIBarButtonItem!
     @IBOutlet private weak var backgroundImage: UIImageView!
 
+    private let timerIcon: UIImage = UIImage(named: "toolbarIconTimer")!
+
     private var pan: UIPanGestureRecognizer?
 
     private weak var controlsViewController: PlayerControlsViewController?
@@ -163,16 +165,19 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
     @IBAction func setSleepTimer() {
         let actionSheet = SleepTimer.shared.actionSheet(
-            onStart: {},
-            onProgress: { (_: Double) -> Void in
-//                self.sleepButton.title = SleepTimer.shared.durationFormatter.string(from: timeLeft)
+            onStart: {
+                self.sleepButton.image = nil
+        },
+            onProgress: { (timeLeft: Double) -> Void in
+                self.sleepButton.title = SleepTimer.shared.durationFormatter.string(from: timeLeft)
             },
             onEnd: { (_ cancelled: Bool) -> Void in
                 if !cancelled {
                     PlayerManager.sharedInstance.stop()
                 }
 
-//                self.sleepButton.title = "Timer"
+                self.sleepButton.title = ""
+                self.sleepButton.image = timerIcon
             }
         )
 
