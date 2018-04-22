@@ -177,7 +177,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
                 }
 
                 self.sleepButton.title = ""
-                self.sleepButton.image = timerIcon
+                self.sleepButton.image = self.timerIcon
             }
         )
 
