@@ -14,6 +14,7 @@ import UIImageColors
 
 class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet private weak var closeButton: UIButton!
+    @IBOutlet private weak var closeButtonTop: NSLayoutConstraint!
     @IBOutlet private weak var bottomToolbar: UIToolbar!
     @IBOutlet private weak var speedButton: UIBarButtonItem!
     @IBOutlet private weak var sleepButton: UIBarButtonItem!
@@ -49,6 +50,21 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             let viewController = navigationController.viewControllers.first as? ChaptersViewController {
                 viewController.book = self.currentBook
             }
+    }
+
+    // Prevents dragging the view down from changing the safeAreaInsets.top
+    // Note: I'm pretty sure there is a better solution for this that I haven't found yet - @pichfl
+    override func viewSafeAreaInsetsDidChange() {
+        if #available(iOS 11, *) {
+            super.viewSafeAreaInsetsDidChange()
+
+            let window = UIApplication.shared.windows[0]
+            let insets: UIEdgeInsets = window.safeAreaInsets
+
+            self.closeButtonTop.constant = self.view.safeAreaInsets.top == 0.0 ? insets.top : 0
+
+            self.view.layoutIfNeeded()
+        }
     }
 
     override func viewDidLoad() {

@@ -515,6 +515,7 @@
                         <outlet property="bottomToolbar" destination="o75-2w-gMe" id="UGi-1J-7cM"/>
                         <outlet property="chaptersButton" destination="dFj-x8-KRQ" id="CjH-r6-gE3"/>
                         <outlet property="closeButton" destination="mh3-69-jg9" id="WtE-Hd-9a5"/>
+                        <outlet property="closeButtonTop" destination="cvU-kU-XgE" id="kXb-tL-0Mf"/>
                         <outlet property="sleepButton" destination="8NO-0Z-wE9" id="FBo-xr-Inr"/>
                         <outlet property="spaceBeforeChaptersButton" destination="taK-Rl-sV1" id="dDa-5z-4jN"/>
                         <outlet property="speedButton" destination="LX4-Gd-MX5" id="Awk-Gk-aUM"/>
