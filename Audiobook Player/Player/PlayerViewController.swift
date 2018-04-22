@@ -62,8 +62,6 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             let insets: UIEdgeInsets = window.safeAreaInsets
 
             self.closeButtonTop.constant = self.view.safeAreaInsets.top == 0.0 ? insets.top : 0
-
-            self.view.layoutIfNeeded()
         }
     }
 
