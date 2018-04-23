@@ -98,10 +98,14 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
         self.speedButton.title = "\(String(PlayerManager.sharedInstance.speed))×"
 
-        // Colors
-        self.backgroundImage.image = currentBook.artwork
+        guard let artwork: UIImage = currentBook.artwork else {
+            return
+        }
 
-        let colors: UIImageColors = currentBook.artwork.getColors(quality: .highest)
+        // Colors
+        self.backgroundImage.image = artwork
+
+        let colors: UIImageColors = artwork.getColors(quality: .high)
         let blur = UIBlurEffect(style: colors.background.luminance > 0.5 ? UIBlurEffectStyle.light : UIBlurEffectStyle.dark)
         let vibrancy = UIVibrancyEffect(blurEffect: blur)
         let blurView = UIVisualEffectView(effect: blur)
@@ -114,7 +118,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.backgroundImage.addSubview(vibrancyView)
         self.backgroundImage.alpha = 0.2 + (1.0 - colors.background.luminance) * 0.3
 
-        self.view.backgroundColor = colors.background ?? view.backgroundColor
+        self.view.backgroundColor = colors.background
 
         self.closeButton.tintColor = colors.detail
         self.bottomToolbar.tintColor = colors.detail

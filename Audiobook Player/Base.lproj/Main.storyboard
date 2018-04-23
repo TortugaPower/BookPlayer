@@ -467,6 +467,7 @@
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </toolbar>
                         </subviews>
+                        <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="MjT-9R-fmm" firstAttribute="height" secondItem="6IR-Ir-OLF" secondAttribute="height" multiplier="2" priority="750" id="2Xq-Z6-mbh"/>
                             <constraint firstItem="sjB-UW-xiP" firstAttribute="leading" secondItem="gxt-td-n8N" secondAttribute="leading" id="2hN-5w-BGs"/>
@@ -910,10 +911,10 @@
                                         </constraints>
                                     </imageView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="acF-99-ZRa">
-                                        <rect key="frame" x="25" y="25" width="275" height="275"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="325" height="325"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" constant="275" id="41y-Qp-tZJ"/>
-                                            <constraint firstAttribute="height" constant="275" id="Acb-xZ-O5q"/>
+                                            <constraint firstAttribute="width" constant="325" id="41y-Qp-tZJ"/>
+                                            <constraint firstAttribute="height" constant="325" id="Acb-xZ-O5q"/>
                                         </constraints>
                                         <state key="normal" image="playButton"/>
                                         <connections>
@@ -940,6 +941,7 @@
                             <constraint firstItem="2pN-k2-86D" firstAttribute="centerX" secondItem="zEx-3w-eDd" secondAttribute="centerX" id="wWJ-am-Pof"/>
                             <constraint firstAttribute="top" secondItem="2pN-k2-86D" secondAttribute="top" constant="-25" id="zGt-pZ-Eeq"/>
                         </constraints>
+                        <viewLayoutGuide key="safeArea" id="NZX-wy-3Iq"/>
                     </view>
                     <connections>
                         <outlet property="artwork" destination="9tC-nX-7Sj" id="k1B-eX-yqS"/>
