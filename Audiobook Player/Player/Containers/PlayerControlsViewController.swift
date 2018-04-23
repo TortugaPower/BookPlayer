@@ -23,6 +23,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
     private var pan: UIPanGestureRecognizer!
     private var originalHeight: CGFloat!
     private let jumpIconAlpha: CGFloat = 0.15
+    private var triggeredPanAction: Bool = false
 
     private var isPlaying: Bool = false {
         didSet {
@@ -122,10 +123,6 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         self.view.addGestureRecognizer(self.pan!)
     }
 
-//    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-//        return false
-//    }
-
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         if gestureRecognizer == self.pan {
             let velocity: CGPoint = self.pan.velocity(in: self.pan.view)
@@ -137,32 +134,47 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         return true
     }
 
-    // swiftlint:disable:next identifier_name
-    private func updateArtworkViewForTranslation(_ x: CGFloat) {
-        let sign: CGFloat = x < 0 ? -1 : 1
-        let absoluteX: CGFloat = fabs(x)
-        let actionThreshold: CGFloat = 68.0
+    private func rubberBandDistance(_ offset: CGFloat, dimension: CGFloat, constant: CGFloat = 0.6) -> CGFloat {
+        let result = (constant * abs(offset) * dimension) / (dimension + constant * abs(offset))
+
+        return offset < 0.0 ? -result : result
+    }
+
+    private func updateArtworkViewForTranslation(_ xTranslation: CGFloat) {
+        let sign: CGFloat = xTranslation < 0 ? -1 : 1
+        let width: CGFloat = self.rewindIcon.bounds.width
+        let actionThreshold: CGFloat = width - 10.0
+        let maximumPull: CGFloat = width
+        let constant: CGFloat = 0.6
+        let offset: CGFloat = fabs(xTranslation)
+        let dimension: CGFloat = width * 2 + 10.0
 
         let translation: CGFloat = {
-            return absoluteX * 0.6
+            let result = (constant * abs(offset) * dimension) / (dimension + constant * abs(offset))
+
+            return offset < 0.0 ? -result : result
         }()
 
         self.artworkHorizontal.constant = translation * sign
 
         let alpha: CGFloat = self.jumpIconAlpha + min(translation / actionThreshold, 1.0) * (1.0 - self.jumpIconAlpha)
 
-        self.rewindIcon.alpha = alpha
-        self.forwardIcon.alpha = alpha
+        if !self.triggeredPanAction {
+            if sign < 0 {
+                self.rewindIcon.alpha = alpha
+            } else {
+                self.forwardIcon.alpha = alpha
+            }
+        }
 
-        if translation > actionThreshold {
-            self.resetArtworkViewHorizontalConstraintAnimated()
-            self.pan.isEnabled = false
-
-            self.rewindIcon.alpha = self.jumpIconAlpha
-            self.forwardIcon.alpha = self.jumpIconAlpha
-
+        if translation > actionThreshold && !self.triggeredPanAction {
             if #available(iOS 10.0, *) {
                 UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            }
+
+            UIView.animate(withDuration: 0.2) {
+                self.rewindIcon.alpha = self.jumpIconAlpha
+                self.forwardIcon.alpha = self.jumpIconAlpha
             }
 
             if sign < 0 {
@@ -171,6 +183,13 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
                 PlayerManager.sharedInstance.rewind()
             }
 
+            self.triggeredPanAction = true
+        }
+
+        if translation > maximumPull {
+            self.resetArtworkViewHorizontalConstraintAnimated()
+
+            self.pan.isEnabled = false
             self.pan.isEnabled = true
         }
     }
@@ -189,6 +208,13 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         },
             completion: nil
         )
+
+        UIView.animate(withDuration: 0.20, delay: 0.10, options: .curveEaseOut, animations: {
+            self.rewindIcon.alpha = self.jumpIconAlpha
+            self.forwardIcon.alpha = self.jumpIconAlpha
+        }, completion: nil)
+
+        self.triggeredPanAction = false
     }
 
     @objc private func handlePan(gestureRecognizer: UIPanGestureRecognizer) {
