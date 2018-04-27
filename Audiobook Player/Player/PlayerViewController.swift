@@ -18,6 +18,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet private weak var bottomToolbar: UIToolbar!
     @IBOutlet private weak var speedButton: UIBarButtonItem!
     @IBOutlet private weak var sleepButton: UIBarButtonItem!
+    @IBOutlet private weak var sleepLabel: UIBarButtonItem!
     @IBOutlet private weak var spaceBeforeChaptersButton: UIBarButtonItem!
     @IBOutlet private weak var chaptersButton: UIBarButtonItem!
     @IBOutlet private weak var backgroundImage: UIImageView!
@@ -75,6 +76,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         // Make toolbar transparent
         self.bottomToolbar.setBackgroundImage(UIImage(), forToolbarPosition: .any, barMetrics: .default)
         self.bottomToolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
+        self.sleepLabel.title = ""
 
         // Observers
         NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: Notification.Name.AudiobookPlayer.requestReview, object: nil)
@@ -116,9 +118,12 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
         self.backgroundImage.addSubview(blurView)
         self.backgroundImage.addSubview(vibrancyView)
-        self.backgroundImage.alpha = 0.2 + (1.0 - colors.background.luminance) * 0.3
+        //        self.backgroundImage.alpha = 0.2 + (1.0 - colors.background.luminance) * 0.3
+        self.backgroundImage.alpha = 0.0
 
         self.view.backgroundColor = colors.background
+
+        print(colors.background.luminance, colors.background.brightness, colors.background.saturation, " | ", colors.primary.luminance, colors.secondary.luminance, colors.detail.luminance)
 
         self.closeButton.tintColor = colors.detail
         self.bottomToolbar.tintColor = colors.detail
@@ -169,19 +174,16 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
     @IBAction func setSleepTimer() {
         let actionSheet = SleepTimer.shared.actionSheet(
-            onStart: {
-                self.sleepButton.image = nil
-        },
+            onStart: { },
             onProgress: { (timeLeft: Double) -> Void in
-                self.sleepButton.title = SleepTimer.shared.durationFormatter.string(from: timeLeft)
+                self.sleepLabel.title = SleepTimer.shared.durationFormatter.string(from: timeLeft)
             },
             onEnd: { (_ cancelled: Bool) -> Void in
                 if !cancelled {
                     PlayerManager.sharedInstance.stop()
                 }
 
-                self.sleepButton.title = ""
-                self.sleepButton.image = self.timerIcon
+                self.sleepLabel.title = ""
             }
         )
 

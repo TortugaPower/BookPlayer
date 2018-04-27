@@ -450,6 +450,7 @@
                                             <action selector="setSleepTimer" destination="JEX-9P-axG" id="31K-wT-kKi"/>
                                         </connections>
                                     </barButtonItem>
+                                    <barButtonItem title="00:00" id="mqd-Rw-xXg"/>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="taK-Rl-sV1"/>
                                     <barButtonItem title="Chapters" image="toolbarIconChapters" id="dFj-x8-KRQ">
                                         <connections>
@@ -517,6 +518,7 @@
                         <outlet property="closeButton" destination="mh3-69-jg9" id="WtE-Hd-9a5"/>
                         <outlet property="closeButtonTop" destination="cvU-kU-XgE" id="kXb-tL-0Mf"/>
                         <outlet property="sleepButton" destination="8NO-0Z-wE9" id="FBo-xr-Inr"/>
+                        <outlet property="sleepLabel" destination="mqd-Rw-xXg" id="ij7-Dy-F2u"/>
                         <outlet property="spaceBeforeChaptersButton" destination="taK-Rl-sV1" id="dDa-5z-4jN"/>
                         <outlet property="speedButton" destination="LX4-Gd-MX5" id="Awk-Gk-aUM"/>
                     </connections>
@@ -998,7 +1000,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="UJo-0R-cTE" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2388" y="-271"/>
+            <point key="canvasLocation" x="2388" y="-286"/>
         </scene>
         <!--Player Progress View Controller-->
         <scene sceneID="IVR-v9-a32">
@@ -1049,7 +1051,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="LcB-rH-3vb" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2388" y="-138"/>
+            <point key="canvasLocation" x="2388" y="-157"/>
         </scene>
     </scenes>
     <resources>
