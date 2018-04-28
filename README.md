@@ -1,11 +1,14 @@
-# Audiobook-Player
-
-Player made in Swift for your DRM-free audiobooks. 
-
-[![Download on the App Store](Assets/app-store-badge.svg)](https://itunes.apple.com/us/app/bookplayer-audio-book-player/id1138219998?ls=1&mt=8)
-
-<img src="https://raw.githubusercontent.com/GianniCarlo/Audiobook-Player/master/Assets/list_screenshot.png" width="350" />
-<img src="https://raw.githubusercontent.com/GianniCarlo/Audiobook-Player/master/Assets/player_screenshot.png" width="350" />
+<img src="./.github/readme-header.png" alt="BookPlayer" width="888" height="300">
+<p align="center">Audiobook player made in Swift for your DRM-free audiobooks.</p>
+<p align="center">
+    <a href="https://itunes.apple.com/us/app/bookplayer-audio-book-player/id1138219998?ls=1&amp;mt=8">
+        <img src="./.github/app-store-badge.svg" alt="Download on the App Store">
+    </a>
+</p>
+<p align="center">
+    <img src="./.github/list_screenshot.png" width="350" />
+    <img src="./.github/player_screenshot.png" width="350" />
+</p>
 
 ## Features
 
@@ -40,7 +43,7 @@ Pull requests regarding upcoming features (or bugs) are welcomed. Any suggestion
 - [@bryanrezende](https://github.com/bryanrezende) - Smart rewind
 - [@e7mac](https://github.com/e7mac) - Speed control, Autoplay
 - [@gpambrozio](https://github.com/gpambrozio) - Volume Boost
-- [@pichfl](https://github.com/pichfl) - UI Design, Artwork, Refactoring
+- [@pichfl](https://github.com/pichfl) - UI Design, App Icon, Refactoring
 - [@vab9](https://github.com/vab9) - AirDrop Support
 
 A full list of all contributors can be found [on GitHub.](https://github.com/GianniCarlo/Audiobook-Player/graphs/contributors)
@@ -69,9 +72,6 @@ Managed with [Homebrew](https://brew.sh)
 - Small Play image made by [Madebyoliver](http://www.flaticon.com/authors/madebyoliver) from [www.flaticon.com](http://www.flaticon.com)
 - Small Pause image made by [Hanan](http://www.flaticon.com/authors/hanan) from [www.flaticon.com](http://www.flaticon.com)
 - Small Double right arrows image made by [Freepik](http://www.flaticon.com/authors/freepik) from [www.flaticon.com](http://www.flaticon.com)
-- Book image (part of app icon) made by [Freepik](http://www.flaticon.com/authors/freepik) from [www.flaticon.com](http://www.flaticon.com)
-- Speaker image (part of app icon) made by [Madebyoliver](http://www.flaticon.com/authors/madebyoliver) from [www.flaticon.com](http://www.flaticon.com)
-- App icon and screenshot template generator from https://appicontemplate.com/
 
 ## License
 
