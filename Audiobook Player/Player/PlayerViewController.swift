@@ -104,32 +104,42 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             return
         }
 
-        // Colors
         self.backgroundImage.image = artwork
 
-        let colors: UIImageColors = artwork.getColors(quality: .high)
-        let blur = UIBlurEffect(style: colors.background.luminance > 0.5 ? UIBlurEffectStyle.light : UIBlurEffectStyle.dark)
-        let vibrancy = UIVibrancyEffect(blurEffect: blur)
+        // Colors
+        let backgroundColor: UIColor = artwork.edgeColor(UIEdgeInsets(top: 10.0, left: 10.0, bottom: 0.0, right: 10.0))
+        let artworkColors: UIImageColors = artwork.getColors(quality: .highest)
+        var colors: [UIColor] = [artworkColors.background, artworkColors.detail, artworkColors.primary, artworkColors.secondary]
+
+        colors = colors.filter { (color: UIColor) -> Bool in
+            return color.contrastRatio(with: backgroundColor) > 4.0
+        }
+
+        if colors.count < 3 {
+            let missing = 3 - colors.count
+
+            for _ in 1...missing {
+                colors.append(backgroundColor.fullContrastColor)
+            }
+        }
+
+        let blur = UIBlurEffect(style: backgroundColor.luminance > 0.5 ? UIBlurEffectStyle.light : UIBlurEffectStyle.dark)
         let blurView = UIVisualEffectView(effect: blur)
-        let vibrancyView = UIVisualEffectView(effect: vibrancy)
 
         blurView.frame = backgroundImage.frame
-        vibrancyView.frame = backgroundImage.frame
 
         self.backgroundImage.addSubview(blurView)
-        self.backgroundImage.addSubview(vibrancyView)
-        //        self.backgroundImage.alpha = 0.2 + (1.0 - colors.background.luminance) * 0.3
-        self.backgroundImage.alpha = 0.0
+        self.backgroundImage.alpha = 0.2
 
-        self.view.backgroundColor = colors.background
+        // Using top, right and left edges only, this reduces the green tint from the fold of Audible exclusive artworks
+        self.view.backgroundColor = backgroundColor
 
-        print(colors.background.luminance, colors.background.brightness, colors.background.saturation, " | ", colors.primary.luminance, colors.secondary.luminance, colors.detail.luminance)
-
-        self.closeButton.tintColor = colors.detail
-        self.bottomToolbar.tintColor = colors.detail
+        self.closeButton.tintColor = colors[0]
+        self.bottomToolbar.tintColor = colors[0]
 
         self.metaViewController?.colors = colors
         self.controlsViewController?.colors = colors
+        self.controlsViewController?.backgroundColor = backgroundColor
         self.progressViewController?.colors = colors
     }
 

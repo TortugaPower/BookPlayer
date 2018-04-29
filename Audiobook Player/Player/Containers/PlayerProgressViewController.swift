@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import UIImageColors
 
 class PlayerProgressViewController: PlayerContainerViewController {
     @IBOutlet private weak var progressSlider: UISlider!
@@ -44,18 +43,18 @@ class PlayerProgressViewController: PlayerContainerViewController {
         return duration
     }
 
-    var colors: UIImageColors? {
+    var colors: [UIColor]? {
         didSet {
             guard let colors = self.colors else {
                 return
             }
 
-            self.progressSlider.minimumTrackTintColor = colors.primary
-            self.progressSlider.maximumTrackTintColor = colors.primary.withAlphaComponent(0.3)
+            self.progressSlider.minimumTrackTintColor = colors[2]
+            self.progressSlider.maximumTrackTintColor = colors[2].withAlphaComponent(0.3)
 
-            self.currentTimeLabel.textColor = colors.secondary
-            self.maxTimeLabel.textColor = colors.secondary
-            self.percentageLabel.textColor = colors.secondary
+            self.currentTimeLabel.textColor = colors[2]
+            self.maxTimeLabel.textColor = colors[2]
+            self.percentageLabel.textColor = colors[2]
         }
     }
 

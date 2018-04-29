@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import UIImageColors
 
 class PlayerControlsViewController: PlayerContainerViewController, UIGestureRecognizerDelegate {
     @IBOutlet private weak var artworkView: UIView!
@@ -53,18 +52,26 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         }
     }
 
-    var colors: UIImageColors? {
+    var backgroundColor: UIColor? {
+        didSet {
+            guard let color = self.backgroundColor else {
+                return
+            }
+
+            // Control shadow strength via the inverse luminance of the background color.
+            // Light backgrounds need a much more subtle shadow
+            self.artwork.layer.shadowOpacity = 0.2 + Float(1.0 - color.luminance) * 0.2
+        }
+    }
+
+    var colors: [UIColor]? {
         didSet {
             guard let colors = self.colors else {
                 return
             }
 
-            self.rewindIcon.tintColor = colors.detail
-            self.forwardIcon.tintColor = colors.detail
-
-            // Control shadow strength via the inverse luminance of the background color.
-            // Light backgrounds need a much more subtle shadow
-            self.artwork.layer.shadowOpacity = 0.2 + Float(1.0 - colors.background.luminance) * 0.2
+            self.rewindIcon.tintColor = colors[2]
+            self.forwardIcon.tintColor = colors[2]
         }
     }
 
@@ -134,26 +141,12 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         return true
     }
 
-    private func rubberBandDistance(_ offset: CGFloat, dimension: CGFloat, constant: CGFloat = 0.6) -> CGFloat {
-        let result = (constant * abs(offset) * dimension) / (dimension + constant * abs(offset))
-
-        return offset < 0.0 ? -result : result
-    }
-
     private func updateArtworkViewForTranslation(_ xTranslation: CGFloat) {
         let sign: CGFloat = xTranslation < 0 ? -1 : 1
         let width: CGFloat = self.rewindIcon.bounds.width
         let actionThreshold: CGFloat = width - 10.0
-        let maximumPull: CGFloat = width
-        let constant: CGFloat = 0.6
-        let offset: CGFloat = fabs(xTranslation)
-        let dimension: CGFloat = width * 2 + 10.0
-
-        let translation: CGFloat = {
-            let result = (constant * abs(offset) * dimension) / (dimension + constant * abs(offset))
-
-            return offset < 0.0 ? -result : result
-        }()
+        let maximumPull: CGFloat = width + 5.0
+        let translation: CGFloat = rubberBandDistance(fabs(xTranslation), dimension: width * 2 + 10.0, constant: 0.6)
 
         self.artworkHorizontal.constant = translation * sign
 

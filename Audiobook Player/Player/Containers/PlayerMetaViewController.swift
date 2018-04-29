@@ -8,7 +8,6 @@
 
 import UIKit
 import MarqueeLabelSwift
-import UIImageColors
 
 class PlayerMetaViewController: PlayerContainerViewController {
     @IBOutlet private weak var authorLabel: MarqueeLabel!
@@ -26,15 +25,15 @@ class PlayerMetaViewController: PlayerContainerViewController {
 
     var chapters: [Chapter]?
 
-    var colors: UIImageColors? {
+    var colors: [UIColor]? {
         didSet {
             guard let colors = self.colors else {
                 return
             }
 
-            self.titleLabel.textColor = colors.primary
-            self.authorLabel.textColor = colors.secondary
-            self.chapterLabel.textColor = colors.detail
+            self.titleLabel.textColor = colors[0]
+            self.authorLabel.textColor = colors[1]
+            self.chapterLabel.textColor = colors[2]
         }
     }
 

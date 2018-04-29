@@ -1,3 +1,4 @@
 github "cbpowell/MarqueeLabel" "3.1.4"
+github "jathu/sweetercolor" "f73d01394d5df8e6af09755005bca318d44ebf08"
 github "jdg/MBProgressHUD" "0.9.2"
 github "thefabulous/UIImageColors" "af9fc7cae79fcd656525c7a2e2eddb1de015bfce"
