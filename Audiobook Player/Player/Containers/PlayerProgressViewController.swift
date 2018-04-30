@@ -45,16 +45,16 @@ class PlayerProgressViewController: PlayerContainerViewController {
 
     var colors: [UIColor]? {
         didSet {
-            guard let colors = self.colors else {
+            guard let secondary = self.colors?[1] else {
                 return
             }
 
-            self.progressSlider.minimumTrackTintColor = colors[2]
-            self.progressSlider.maximumTrackTintColor = colors[2].withAlphaComponent(0.3)
+            self.progressSlider.minimumTrackTintColor = secondary
+            self.progressSlider.maximumTrackTintColor = secondary.withAlphaComponent(0.3)
 
-            self.currentTimeLabel.textColor = colors[2]
-            self.maxTimeLabel.textColor = colors[2]
-            self.percentageLabel.textColor = colors[2]
+            self.currentTimeLabel.textColor = secondary
+            self.maxTimeLabel.textColor = secondary
+            self.percentageLabel.textColor = secondary
         }
     }
 

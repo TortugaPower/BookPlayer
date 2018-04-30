@@ -10,7 +10,7 @@ import UIKit
 import AVFoundation
 import MediaPlayer
 import StoreKit
-import UIImageColors
+import ColorCube
 
 class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet private weak var closeButton: UIButton!
@@ -23,15 +23,16 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet private weak var chaptersButton: UIBarButtonItem!
     @IBOutlet private weak var backgroundImage: UIImageView!
 
+    var currentBook: Book!
     private let timerIcon: UIImage = UIImage(named: "toolbarIconTimer")!
-
     private var pan: UIPanGestureRecognizer?
 
     private weak var controlsViewController: PlayerControlsViewController?
     private weak var metaViewController: PlayerMetaViewController?
     private weak var progressViewController: PlayerProgressViewController?
 
-    var currentBook: Book!
+    let darknessThreshold: CGFloat = 0.33
+    let minimumContrastRatio: CGFloat = 3.0 // W3C recommends values larger 4 or 7 (strict), but 3.0 should be fine for us
 
     // MARK: Lifecycle
 
@@ -104,42 +105,51 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             return
         }
 
-        self.backgroundImage.image = artwork
+        let colorCube = CCColorCube()
+        var colors: [UIColor] = colorCube.extractColors(from: artwork, flags: CCOnlyDistinctColors, count: 4)!
 
-        // Colors
-        let backgroundColor: UIColor = artwork.edgeColor(UIEdgeInsets(top: 10.0, left: 10.0, bottom: 0.0, right: 10.0))
-        let artworkColors: UIImageColors = artwork.getColors(quality: .highest)
-        var colors: [UIColor] = [artworkColors.background, artworkColors.detail, artworkColors.primary, artworkColors.secondary]
+        let averageColor = artwork.averageColor()
+        let displayOnDark = averageColor.luminance < self.darknessThreshold
 
-        colors = colors.filter { (color: UIColor) -> Bool in
-            return color.contrastRatio(with: backgroundColor) > 4.0
-        }
-
-        if colors.count < 3 {
-            let missing = 3 - colors.count
-
-            for _ in 1...missing {
-                colors.append(backgroundColor.fullContrastColor)
+        colors.sort { (color1: UIColor, color2: UIColor) -> Bool in
+            if displayOnDark {
+                return color1.isDarker(than: color2)
             }
+
+            return color1.isLighter(than: color2)
         }
 
-        let blur = UIBlurEffect(style: backgroundColor.luminance > 0.5 ? UIBlurEffectStyle.light : UIBlurEffectStyle.dark)
+        let backgroundColor: UIColor = colors[0]
+
+        colors = colors.map { (color: UIColor) -> UIColor in
+            let ratio = color.contrastRatio(with: backgroundColor)
+
+            if ratio > self.minimumContrastRatio || color == backgroundColor {
+                return color
+            }
+
+            if displayOnDark {
+                return color.overlayWhite
+            }
+
+            return color.overlayBlack
+        }
+
+        self.view.backgroundColor = colors[0]
+        self.bottomToolbar.tintColor = colors[3]
+        self.closeButton.tintColor = colors[3]
+
+        let blur = UIBlurEffect(style: displayOnDark ? UIBlurEffectStyle.dark : UIBlurEffectStyle.light)
         let blurView = UIVisualEffectView(effect: blur)
 
         blurView.frame = backgroundImage.frame
 
         self.backgroundImage.addSubview(blurView)
         self.backgroundImage.alpha = 0.2
-
-        // Using top, right and left edges only, this reduces the green tint from the fold of Audible exclusive artworks
-        self.view.backgroundColor = backgroundColor
-
-        self.closeButton.tintColor = colors[0]
-        self.bottomToolbar.tintColor = colors[0]
+        self.backgroundImage.image = artwork
 
         self.metaViewController?.colors = colors
         self.controlsViewController?.colors = colors
-        self.controlsViewController?.backgroundColor = backgroundColor
         self.progressViewController?.colors = colors
     }
 
@@ -150,7 +160,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
         // Try to keep the default as long as possible to match the rest of the UI
         // This should most likely be inverted if we provide a dark UI as well
-        return luminance < 0.3 ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
+        return luminance < self.darknessThreshold ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
     }
 
     // MARK: Interface actions

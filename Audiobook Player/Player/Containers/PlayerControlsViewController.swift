@@ -52,18 +52,6 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         }
     }
 
-    var backgroundColor: UIColor? {
-        didSet {
-            guard let color = self.backgroundColor else {
-                return
-            }
-
-            // Control shadow strength via the inverse luminance of the background color.
-            // Light backgrounds need a much more subtle shadow
-            self.artwork.layer.shadowOpacity = 0.2 + Float(1.0 - color.luminance) * 0.2
-        }
-    }
-
     var colors: [UIColor]? {
         didSet {
             guard let colors = self.colors else {
@@ -72,6 +60,8 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
             self.rewindIcon.tintColor = colors[2]
             self.forwardIcon.tintColor = colors[2]
+
+            self.artwork.layer.shadowOpacity = 0.2 + Float(1.0 - colors[0].luminance) * 0.2
         }
     }
 

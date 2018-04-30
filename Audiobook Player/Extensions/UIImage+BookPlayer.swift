@@ -10,7 +10,7 @@ import UIKit
 import UIImageColors
 
 extension UIImage {
-    var averageColor: UIColor {
+    func averageColor() -> UIColor {
         var bitmap = [UInt8](repeating: 0, count: 4)
 
         // Get average color.

@@ -11,7 +11,7 @@ import UIKit
 // swiftlint:disable identifier_name
 
 extension UIColor {
-    var cssHex: String {
+    public var cssHex: String {
         var r: CGFloat = 0
         var g: CGFloat = 0
         var b: CGFloat = 0

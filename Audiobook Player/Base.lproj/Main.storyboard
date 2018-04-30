@@ -381,7 +381,7 @@
                             <imageView userInteractionEnabled="NO" alpha="0.20000000000000001" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" insetsLayoutMarginsFromSafeArea="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CHt-hV-Yk6" userLabel="Background Image">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                             </imageView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mh3-69-jg9">
+                            <button opaque="NO" alpha="0.33000000000000002" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mh3-69-jg9">
                                 <rect key="frame" x="0.0" y="44" width="375" height="44"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="44" id="3Zj-Tz-Q4c"/>

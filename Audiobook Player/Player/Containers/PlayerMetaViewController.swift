@@ -31,9 +31,9 @@ class PlayerMetaViewController: PlayerContainerViewController {
                 return
             }
 
-            self.titleLabel.textColor = colors[0]
-            self.authorLabel.textColor = colors[1]
-            self.chapterLabel.textColor = colors[2]
+            self.titleLabel.textColor = colors[1]
+            self.authorLabel.textColor = colors[2]
+            self.chapterLabel.textColor = colors[3]
         }
     }
 
