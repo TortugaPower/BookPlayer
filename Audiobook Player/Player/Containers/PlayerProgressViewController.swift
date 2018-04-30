@@ -45,7 +45,7 @@ class PlayerProgressViewController: PlayerContainerViewController {
 
     var colors: [UIColor]? {
         didSet {
-            guard let secondary = self.colors?[1] else {
+            guard let secondary = self.colors?[2] else {
                 return
             }
 

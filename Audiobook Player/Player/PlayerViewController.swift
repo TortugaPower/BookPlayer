@@ -31,7 +31,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     private weak var metaViewController: PlayerMetaViewController?
     private weak var progressViewController: PlayerProgressViewController?
 
-    let darknessThreshold: CGFloat = 0.33
+    let darknessThreshold: CGFloat = 0.2
     let minimumContrastRatio: CGFloat = 3.0 // W3C recommends values larger 4 or 7 (strict), but 3.0 should be fine for us
 
     // MARK: Lifecycle
