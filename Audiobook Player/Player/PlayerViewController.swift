@@ -99,7 +99,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.progressViewController?.book = currentBook
         self.progressViewController?.currentTime = UserDefaults.standard.double(forKey: currentBook.identifier)
 
-        self.speedButton.title = "\(String(PlayerManager.sharedInstance.speed))×"
+        self.speedButton.title = self.formatSpeed(PlayerManager.sharedInstance.speed)
 
         guard let artwork: UIImage = currentBook.artwork else {
             return
@@ -173,7 +173,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
     @IBAction func setSpeed() {
         let actionSheet = UIAlertController(title: nil, message: "Set playback speed", preferredStyle: .actionSheet)
-        let speedOptions: [Float] = [2.5, 2.0, 1.5, 1.25, 1.0, 0.75]
+        let speedOptions: [Float] = [2.5, 2, 1.5, 1.25, 1, 0.75]
 
         for speed in speedOptions {
             if speed == PlayerManager.sharedInstance.speed {
@@ -182,7 +182,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
                 actionSheet.addAction(UIAlertAction(title: "\(speed)", style: .default, handler: { _ in
                     PlayerManager.sharedInstance.speed = speed
 
-                    self.speedButton.title = "\(String(PlayerManager.sharedInstance.speed))×"
+                    self.speedButton.title = self.formatSpeed(speed)
                 }))
             }
         }

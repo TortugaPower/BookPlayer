@@ -45,16 +45,16 @@ class PlayerProgressViewController: PlayerContainerViewController {
 
     var colors: [UIColor]? {
         didSet {
-            guard let secondary = self.colors?[2] else {
+            guard let color = self.colors?[2] else {
                 return
             }
 
-            self.progressSlider.minimumTrackTintColor = secondary
-            self.progressSlider.maximumTrackTintColor = secondary.withAlphaComponent(0.3)
+            self.progressSlider.minimumTrackTintColor = color
+            self.progressSlider.maximumTrackTintColor = color.withAlphaComponent(0.3)
 
-            self.currentTimeLabel.textColor = secondary
-            self.maxTimeLabel.textColor = secondary
-            self.percentageLabel.textColor = secondary
+            self.currentTimeLabel.textColor = color
+            self.maxTimeLabel.textColor = color
+            self.percentageLabel.textColor = color
         }
     }
 
@@ -63,6 +63,10 @@ class PlayerProgressViewController: PlayerContainerViewController {
 
         self.progressSlider.maximumValue = 100.0
         self.progressSlider.minimumValue = 0.0
+
+        self.progressSlider.setThumbImage(#imageLiteral(resourceName: "thumbImageDefault"), for: .normal)
+        self.progressSlider.setThumbImage(#imageLiteral(resourceName: "thumbImageSelected"), for: .selected)
+        self.progressSlider.setThumbImage(#imageLiteral(resourceName: "thumbImageSelected"), for: .highlighted)
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.onPlayback), name: Notification.Name.AudiobookPlayer.bookPlaying, object: nil)
     }

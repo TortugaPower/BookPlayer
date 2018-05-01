@@ -28,7 +28,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             defaults.set(true, forKey: UserDefaultsConstants.completedFirstLaunch)
         }
 
+        // Appearance
         UIApplication.shared.statusBarStyle = .lightContent
+        UINavigationBar.appearance().titleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.init(hex: "#37454E")]
+
+        if #available(iOS 11, *) {
+            UINavigationBar.appearance().largeTitleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.init(hex: "#37454E")]
+        }
 
         do {
             try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)

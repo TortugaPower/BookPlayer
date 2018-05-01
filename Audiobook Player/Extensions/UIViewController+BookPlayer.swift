@@ -36,4 +36,8 @@ extension UIViewController {
 
         return durationFormatter.string(from: time)!
     }
+
+    func formatSpeed(_ speed: Float) -> String {
+        return (speed.truncatingRemainder(dividingBy: 1) == 0 ? "\(Int(speed))" : "\(speed)") + "×"
+    }
 }

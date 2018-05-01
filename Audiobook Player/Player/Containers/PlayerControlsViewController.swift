@@ -16,6 +16,8 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
     @IBOutlet private weak var forwardIcon: PlayerRewindIconView!
     @IBOutlet private weak var artworkHeight: NSLayoutConstraint!
     @IBOutlet private weak var artworkHorizontal: NSLayoutConstraint!
+    @IBOutlet private weak var forwardIconHorizontal: NSLayoutConstraint!
+    @IBOutlet private weak var rewindIconHorizontal: NSLayoutConstraint!
 
     private let playImage = UIImage(named: "playButton")
     private let pauseImage = UIImage(named: "pauseButton")
@@ -26,23 +28,30 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
     private var isPlaying: Bool = false {
         didSet {
+            self.playPauseButton.alpha = 1.0
             self.playPauseButton.setImage(self.isPlaying ? self.pauseImage : self.playImage, for: UIControlState())
 
-            self.artworkView.layoutIfNeeded()
+            self.view.layoutIfNeeded()
             self.artworkHeight.constant = self.isPlaying ? self.originalHeight : self.originalHeight * 255/325
-            self.artworkView.setNeedsLayout()
+            self.forwardIconHorizontal.constant = self.isPlaying ? 25.0 : 15.0
+            self.rewindIconHorizontal.constant = self.isPlaying ? 25.0 : 15.0
+            self.view.setNeedsLayout()
 
             UIView.animate(
                 withDuration: 0.25,
                 delay: 0.0,
-                usingSpringWithDamping: 0.5,
-                initialSpringVelocity: 1.5,
+                usingSpringWithDamping: 0.6,
+                initialSpringVelocity: 1.4,
                 options: .preferredFramesPerSecond60,
                 animations: {
-                    self.artworkView.layoutIfNeeded()
+                    self.view.layoutIfNeeded()
             },
                 completion: nil
             )
+
+            UIView.animate(withDuration: 0.3, delay: 2.2, options: .allowUserInteraction, animations: {
+                self.playPauseButton.alpha = 0.05
+            }, completion: nil)
         }
     }
 
