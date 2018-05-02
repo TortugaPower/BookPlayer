@@ -67,8 +67,8 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
                 return
             }
 
-            self.rewindIcon.tintColor = colors[2]
-            self.forwardIcon.tintColor = colors[2]
+            self.rewindIcon.tintColor = colors[3]
+            self.forwardIcon.tintColor = colors[3]
 
             self.artwork.layer.shadowOpacity = 0.2 + Float(1.0 - colors[0].luminance) * 0.2
         }
