@@ -12,8 +12,8 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
     @IBOutlet private weak var artworkView: UIView!
     @IBOutlet private weak var artwork: UIImageView!
     @IBOutlet private weak var playPauseButton: UIButton!
-    @IBOutlet private weak var rewindIcon: PlayerForwardIconView!
-    @IBOutlet private weak var forwardIcon: PlayerRewindIconView!
+    @IBOutlet private weak var rewindIcon: PlayerRewindIconView!
+    @IBOutlet private weak var forwardIcon: PlayerForwardIconView!
     @IBOutlet private weak var artworkHeight: NSLayoutConstraint!
     @IBOutlet private weak var artworkHorizontal: NSLayoutConstraint!
     @IBOutlet private weak var forwardIconHorizontal: NSLayoutConstraint!
@@ -122,9 +122,9 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
     private func setupGestures() {
         self.pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
-        self.pan!.delegate = self
-        self.pan!.maximumNumberOfTouches = 1
-        self.pan!.cancelsTouchesInView = true
+        self.pan.delegate = self
+        self.pan.maximumNumberOfTouches = 1
+        self.pan.cancelsTouchesInView = true
 
         self.view.addGestureRecognizer(self.pan!)
     }
@@ -152,7 +152,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         let alpha: CGFloat = self.jumpIconAlpha + min(translation / actionThreshold, 1.0) * (1.0 - self.jumpIconAlpha)
 
         if !self.triggeredPanAction {
-            if sign < 0 {
+            if xTranslation > 0 {
                 self.rewindIcon.alpha = alpha
             } else {
                 self.forwardIcon.alpha = alpha

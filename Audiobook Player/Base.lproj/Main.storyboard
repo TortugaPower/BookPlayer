@@ -393,11 +393,11 @@
                                 </connections>
                             </button>
                             <view userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aS6-3N-Jjq" userLabel="A Spacer">
-                                <rect key="frame" x="0.0" y="88" width="375" height="43"/>
+                                <rect key="frame" x="0.0" y="88" width="375" height="44.666666666666657"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="sjB-UW-xiP" userLabel="Meta Container">
-                                <rect key="frame" x="0.0" y="131" width="375" height="63"/>
+                                <rect key="frame" x="0.0" y="132.66666666666666" width="375" height="63"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="63" id="Lnv-TH-fYd"/>
                                 </constraints>
@@ -406,11 +406,11 @@
                                 </connections>
                             </containerView>
                             <view userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="z3g-79-3mR" userLabel="B Spacer">
-                                <rect key="frame" x="0.0" y="194" width="375" height="28.333333333333343"/>
+                                <rect key="frame" x="0.0" y="195.66666666666666" width="375" height="22"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6es-ds-02X" userLabel="Controls Contrainer">
-                                <rect key="frame" x="0.0" y="222.33333333333337" width="375" height="375"/>
+                                <rect key="frame" x="0.0" y="217.66666666666663" width="375" height="375"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="6es-ds-02X" secondAttribute="height" multiplier="1:1" id="O5V-Tx-OHG"/>
                                 </constraints>
@@ -419,7 +419,7 @@
                                 </connections>
                             </containerView>
                             <view userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="MjT-9R-fmm" userLabel="C Spacer">
-                                <rect key="frame" x="0.0" y="644.33333333333337" width="375" height="84.666666666666629"/>
+                                <rect key="frame" x="0.0" y="639.66666666666663" width="375" height="89.333333333333371"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="black" translatesAutoresizingMaskIntoConstraints="NO" id="o75-2w-gMe">
@@ -459,7 +459,7 @@
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </toolbar>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dEm-lJ-I1w" userLabel="Progress Container">
-                                <rect key="frame" x="0.0" y="597.33333333333337" width="375" height="47"/>
+                                <rect key="frame" x="0.0" y="592.66666666666663" width="375" height="47"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="47" id="bNH-Mk-3mK"/>
                                 </constraints>
@@ -476,7 +476,7 @@
                             <constraint firstItem="MjT-9R-fmm" firstAttribute="top" secondItem="dEm-lJ-I1w" secondAttribute="bottom" id="6Md-FS-XSh"/>
                             <constraint firstItem="6es-ds-02X" firstAttribute="top" secondItem="z3g-79-3mR" secondAttribute="bottom" id="7Ty-jg-diH"/>
                             <constraint firstItem="gxt-td-n8N" firstAttribute="trailing" secondItem="sjB-UW-xiP" secondAttribute="trailing" id="C8e-u1-SeH"/>
-                            <constraint firstItem="z3g-79-3mR" firstAttribute="height" secondItem="aS6-3N-Jjq" secondAttribute="height" multiplier="0.66" priority="750" id="CDK-Ir-DaY"/>
+                            <constraint firstItem="z3g-79-3mR" firstAttribute="height" secondItem="aS6-3N-Jjq" secondAttribute="height" multiplier="0.5" priority="750" id="CDK-Ir-DaY"/>
                             <constraint firstItem="z3g-79-3mR" firstAttribute="leading" secondItem="gxt-td-n8N" secondAttribute="leading" id="Eye-by-n7U"/>
                             <constraint firstItem="CHt-hV-Yk6" firstAttribute="leading" secondItem="svH-Pt-448" secondAttribute="leading" id="G82-TS-cPG"/>
                             <constraint firstItem="CHt-hV-Yk6" firstAttribute="bottom" secondItem="svH-Pt-448" secondAttribute="bottom" id="GoU-fK-LNN"/>
@@ -939,16 +939,17 @@
                             <constraint firstItem="2pN-k2-86D" firstAttribute="centerX" secondItem="zEx-3w-eDd" secondAttribute="centerX" id="wWJ-am-Pof"/>
                             <constraint firstAttribute="top" secondItem="2pN-k2-86D" secondAttribute="top" constant="-25" id="zGt-pZ-Eeq"/>
                         </constraints>
+                        <viewLayoutGuide key="safeArea" id="mZG-Je-5Qh"/>
                     </view>
                     <connections>
                         <outlet property="artwork" destination="9tC-nX-7Sj" id="k1B-eX-yqS"/>
                         <outlet property="artworkHeight" destination="OCZ-7w-uMn" id="csa-FX-0Xy"/>
                         <outlet property="artworkHorizontal" destination="wWJ-am-Pof" id="LPB-zV-XpN"/>
                         <outlet property="artworkView" destination="2pN-k2-86D" id="gRO-YD-CqY"/>
-                        <outlet property="forwardIcon" destination="OB3-jx-i6q" id="BeJ-0x-wW4"/>
+                        <outlet property="forwardIcon" destination="8E4-ye-Un7" id="elp-eA-5UN"/>
                         <outlet property="forwardIconHorizontal" destination="3b0-1h-zZn" id="dkS-Ub-xyV"/>
                         <outlet property="playPauseButton" destination="acF-99-ZRa" id="VOU-nR-TTt"/>
-                        <outlet property="rewindIcon" destination="8E4-ye-Un7" id="UHM-JY-mFi"/>
+                        <outlet property="rewindIcon" destination="OB3-jx-i6q" id="E1M-4A-klL"/>
                         <outlet property="rewindIconHorizontal" destination="NYQ-Ra-nbb" id="101-Lc-7j9"/>
                     </connections>
                 </viewController>
@@ -1008,19 +1009,19 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pIa-Ca-Qef">
-                                <rect key="frame" x="25" y="30" width="108" height="17"/>
+                                <rect key="frame" x="24.999999999999993" y="30" width="108.33333333333331" height="17"/>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="14"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CQn-JB-tMb">
-                                <rect key="frame" x="242" y="30" width="108" height="17"/>
+                                <rect key="frame" x="241.66666666666666" y="30" width="108.33333333333334" height="17"/>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="14"/>
                                 <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0%" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MUH-Ds-5l0">
-                                <rect key="frame" x="133" y="30" width="109" height="17"/>
+                                <rect key="frame" x="133.33333333333334" y="30" width="108.33333333333334" height="17"/>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="14"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
@@ -1048,6 +1049,7 @@
                             <constraint firstAttribute="trailing" secondItem="3Ah-kW-bx4" secondAttribute="trailing" constant="25" id="uht-FT-sZR"/>
                             <constraint firstItem="MUH-Ds-5l0" firstAttribute="top" secondItem="3Ah-kW-bx4" secondAttribute="bottom" id="wyf-mA-pVP"/>
                         </constraints>
+                        <viewLayoutGuide key="safeArea" id="lqD-sI-Q1n"/>
                     </view>
                     <connections>
                         <outlet property="currentTimeLabel" destination="pIa-Ca-Qef" id="SA0-kf-omR"/>
