@@ -10,7 +10,6 @@ import UIKit
 import AVFoundation
 import MediaPlayer
 import StoreKit
-import ColorCube
 
 class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet private weak var closeButton: UIButton!
@@ -32,7 +31,6 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     private weak var progressViewController: PlayerProgressViewController?
 
     let darknessThreshold: CGFloat = 0.2
-    let minimumContrastRatio: CGFloat = 3.0 // W3C recommends values larger 4 or 7 (strict), but 3.0 should be fine for us
 
     // MARK: Lifecycle
 
@@ -101,45 +99,21 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
         self.speedButton.title = self.formatSpeed(PlayerManager.sharedInstance.speed)
 
-        guard let artwork: UIImage = currentBook.artwork else {
+        guard let artwork = currentBook.artwork else {
             return
         }
 
-        let colorCube = CCColorCube()
-        var colors: [UIColor] = colorCube.extractColors(from: artwork, flags: CCOnlyDistinctColors, count: 4)!
+        let colors = ArtworkColors(image: artwork, darknessThreshold: self.darknessThreshold)
 
-        let averageColor = artwork.averageColor()
-        let displayOnDark = averageColor.luminance < self.darknessThreshold
+        self.view.backgroundColor = colors.background
+        self.bottomToolbar.tintColor = colors.tertiary
+        self.closeButton.tintColor = colors.tertiary
 
-        colors.sort { (color1: UIColor, color2: UIColor) -> Bool in
-            if displayOnDark {
-                return color1.isDarker(than: color2)
-            }
+        self.controlsViewController?.colors = colors
+        self.metaViewController?.colors = colors
+        self.progressViewController?.colors = colors
 
-            return color1.isLighter(than: color2)
-        }
-
-        let backgroundColor: UIColor = colors[0]
-
-        colors = colors.map { (color: UIColor) -> UIColor in
-            let ratio = color.contrastRatio(with: backgroundColor)
-
-            if ratio > self.minimumContrastRatio || color == backgroundColor {
-                return color
-            }
-
-            if displayOnDark {
-                return color.overlayWhite
-            }
-
-            return color.overlayBlack
-        }
-
-        self.view.backgroundColor = colors[0]
-        self.bottomToolbar.tintColor = colors[3]
-        self.closeButton.tintColor = colors[3]
-
-        let blur = UIBlurEffect(style: displayOnDark ? UIBlurEffectStyle.dark : UIBlurEffectStyle.light)
+        let blur = UIBlurEffect(style: colors.isDark ? UIBlurEffectStyle.dark : UIBlurEffectStyle.light)
         let blurView = UIVisualEffectView(effect: blur)
 
         blurView.frame = backgroundImage.frame
@@ -147,10 +121,6 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.backgroundImage.addSubview(blurView)
         self.backgroundImage.alpha = 0.2
         self.backgroundImage.image = artwork
-
-        self.metaViewController?.colors = colors
-        self.controlsViewController?.colors = colors
-        self.progressViewController?.colors = colors
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {

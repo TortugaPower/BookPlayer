@@ -25,15 +25,15 @@ class PlayerMetaViewController: PlayerContainerViewController {
 
     var chapters: [Chapter]?
 
-    var colors: [UIColor]? {
+    var colors: ArtworkColors? {
         didSet {
             guard let colors = self.colors else {
                 return
             }
 
-            self.titleLabel.textColor = colors[1]
-            self.authorLabel.textColor = colors[2]
-            self.chapterLabel.textColor = colors[3]
+            self.titleLabel.textColor = colors.primary
+            self.authorLabel.textColor = colors.secondary
+            self.chapterLabel.textColor = colors.tertiary
         }
     }
 

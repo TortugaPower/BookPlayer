@@ -26,15 +26,20 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
     private let jumpIconAlpha: CGFloat = 0.15
     private var triggeredPanAction: Bool = false
 
+    // Based on the design files for iPhone X where the regular artwork is 325dp and the paused state is 255dp in width
+    private let artworkScalePaused: CGFloat = 255.0 / 325.0
+    private let jumpIconOffsetPlaying: CGFloat = 25.0
+    private let jumpIconOffsetPaused: CGFloat = 15.0
+
     private var isPlaying: Bool = false {
         didSet {
             self.playPauseButton.alpha = 1.0
             self.playPauseButton.setImage(self.isPlaying ? self.pauseImage : self.playImage, for: UIControlState())
 
             self.view.layoutIfNeeded()
-            self.artworkHeight.constant = self.isPlaying ? self.originalHeight : self.originalHeight * 255/325
-            self.forwardIconHorizontal.constant = self.isPlaying ? 25.0 : 15.0
-            self.rewindIconHorizontal.constant = self.isPlaying ? 25.0 : 15.0
+            self.artworkHeight.constant = self.isPlaying ? self.originalHeight : self.originalHeight * self.artworkScalePaused
+            self.forwardIconHorizontal.constant = self.isPlaying ? self.jumpIconOffsetPlaying : self.jumpIconOffsetPaused
+            self.rewindIconHorizontal.constant = self.isPlaying ? self.jumpIconOffsetPlaying : self.jumpIconOffsetPaused
             self.view.setNeedsLayout()
 
             UIView.animate(
@@ -61,16 +66,16 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         }
     }
 
-    var colors: [UIColor]? {
+    var colors: ArtworkColors? {
         didSet {
             guard let colors = self.colors else {
                 return
             }
 
-            self.rewindIcon.tintColor = colors[3]
-            self.forwardIcon.tintColor = colors[3]
+            self.rewindIcon.tintColor = colors.tertiary
+            self.forwardIcon.tintColor = colors.tertiary
 
-            self.artwork.layer.shadowOpacity = 0.2 + Float(1.0 - colors[0].luminance) * 0.2
+            self.artwork.layer.shadowOpacity = 0.2 + Float(1.0 - colors.background.luminance) * 0.2
         }
     }
 

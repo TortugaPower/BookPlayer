@@ -8,11 +8,6 @@
 
 import UIKit
 
-enum PlayerJumpIconType {
-    case rewind
-    case forward
-}
-
 class PlayerJumpIconView: UIView {
     private var backgroundImageView: UIImageView!
     private var label: UILabel!
