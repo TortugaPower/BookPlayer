@@ -91,6 +91,10 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.view.addGestureRecognizer(pan!)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        self.controlsViewController?.showPlayPauseButton(animated)
+    }
+
     func setupView(book currentBook: Book) {
         self.metaViewController?.book = currentBook
         self.controlsViewController?.book = currentBook
