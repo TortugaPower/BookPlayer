@@ -25,10 +25,15 @@ class PlayerMetaViewController: PlayerContainerViewController {
 
     var chapters: [Chapter]?
 
-    var colors: [UIColor] = [.white, .white, .white] {
+    var colors: ArtworkColors? {
         didSet {
-            self.authorLabel.textColor = colors[0]
-            self.titleLabel.textColor = colors[1]
+            guard let colors = self.colors else {
+                return
+            }
+
+            self.titleLabel.textColor = colors.primary
+            self.authorLabel.textColor = colors.secondary
+            self.chapterLabel.textColor = colors.tertiary
         }
     }
 
@@ -57,7 +62,7 @@ class PlayerMetaViewController: PlayerContainerViewController {
         }
 
         self.chapterLabel.isEnabled = true
-        self.chapterLabel.text = currentChapter.title != "" ? currentChapter.title : "\(currentChapter.index) of \(chapters.count)"
+        self.chapterLabel.text = currentChapter.title != "" ? currentChapter.title : "Chapter \(currentChapter.index) of \(chapters.count)"
     }
 
     @objc func onPlayback(_ notification: Notification) {

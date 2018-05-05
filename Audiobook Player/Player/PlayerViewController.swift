@@ -9,24 +9,28 @@
 import UIKit
 import AVFoundation
 import MediaPlayer
-import Chameleon
 import StoreKit
 
 class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
-    @IBOutlet weak var closeButton: UIButton!
-    @IBOutlet weak var bottomToolbar: UIToolbar!
-    @IBOutlet weak var speedButton: UIBarButtonItem!
-    @IBOutlet weak var sleepButton: UIBarButtonItem!
-    @IBOutlet weak var spaceBeforeChaptersButton: UIBarButtonItem!
-    @IBOutlet weak var chaptersButton: UIBarButtonItem!
+    @IBOutlet private weak var closeButton: UIButton!
+    @IBOutlet private weak var closeButtonTop: NSLayoutConstraint!
+    @IBOutlet private weak var bottomToolbar: UIToolbar!
+    @IBOutlet private weak var speedButton: UIBarButtonItem!
+    @IBOutlet private weak var sleepButton: UIBarButtonItem!
+    @IBOutlet private weak var sleepLabel: UIBarButtonItem!
+    @IBOutlet private weak var spaceBeforeChaptersButton: UIBarButtonItem!
+    @IBOutlet private weak var chaptersButton: UIBarButtonItem!
+    @IBOutlet private weak var backgroundImage: UIImageView!
 
+    var currentBook: Book!
+    private let timerIcon: UIImage = UIImage(named: "toolbarIconTimer")!
     private var pan: UIPanGestureRecognizer?
 
     private weak var controlsViewController: PlayerControlsViewController?
     private weak var metaViewController: PlayerMetaViewController?
     private weak var progressViewController: PlayerProgressViewController?
 
-    var currentBook: Book!
+    let darknessThreshold: CGFloat = 0.2
 
     // MARK: Lifecycle
 
@@ -50,6 +54,19 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             }
     }
 
+    // Prevents dragging the view down from changing the safeAreaInsets.top
+    // Note: I'm pretty sure there is a better solution for this that I haven't found yet - @pichfl
+    override func viewSafeAreaInsetsDidChange() {
+        if #available(iOS 11, *) {
+            super.viewSafeAreaInsetsDidChange()
+
+            let window = UIApplication.shared.windows[0]
+            let insets: UIEdgeInsets = window.safeAreaInsets
+
+            self.closeButtonTop.constant = self.view.safeAreaInsets.top == 0.0 ? insets.top : 0
+        }
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -58,6 +75,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         // Make toolbar transparent
         self.bottomToolbar.setBackgroundImage(UIImage(), forToolbarPosition: .any, barMetrics: .default)
         self.bottomToolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
+        self.sleepLabel.title = ""
 
         // Observers
         NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: Notification.Name.AudiobookPlayer.requestReview, object: nil)
@@ -79,28 +97,40 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.progressViewController?.book = currentBook
         self.progressViewController?.currentTime = UserDefaults.standard.double(forKey: currentBook.identifier)
 
-        self.speedButton.title = "\(String(PlayerManager.sharedInstance.speed))x"
+        self.speedButton.title = self.formatSpeed(PlayerManager.sharedInstance.speed)
 
-        // Colors
-        guard var artworkColors = NSArray(ofColorsFrom: currentBook.artwork, withFlatScheme: false) as? [UIColor] else {
+        guard let artwork = currentBook.artwork else {
             return
         }
 
-        artworkColors = artworkColors.sorted { (aColor, bColor) -> Bool in
-            let aLightness = aColor.luminance
-            let bLightness = bColor.luminance
+        let colors = ArtworkColors(image: artwork, darknessThreshold: self.darknessThreshold)
 
-            return aLightness > bLightness
+        self.view.backgroundColor = colors.background
+        self.bottomToolbar.tintColor = colors.tertiary
+        self.closeButton.tintColor = colors.tertiary
+
+        self.controlsViewController?.colors = colors
+        self.metaViewController?.colors = colors
+        self.progressViewController?.colors = colors
+
+        let blur = UIBlurEffect(style: colors.isDark ? UIBlurEffectStyle.dark : UIBlurEffectStyle.light)
+        let blurView = UIVisualEffectView(effect: blur)
+
+        blurView.frame = backgroundImage.frame
+
+        self.backgroundImage.addSubview(blurView)
+        self.backgroundImage.alpha = 0.2
+        self.backgroundImage.image = artwork
+    }
+
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        guard let luminance = self.view.backgroundColor?.luminance else {
+            return UIStatusBarStyle.default
         }
 
-        view.backgroundColor = artworkColors.last?.withAlphaComponent(1.0) ?? view.backgroundColor
-
-        self.setStatusBarStyle(.lightContent)
-
-        self.closeButton.tintColor = artworkColors[1]
-        self.metaViewController?.colors = artworkColors
-
-        // @TODO: Add blurred version of the album artwork as background
+        // Try to keep the default as long as possible to match the rest of the UI
+        // This should most likely be inverted if we provide a dark UI as well
+        return luminance < self.darknessThreshold ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
     }
 
     // MARK: Interface actions
@@ -113,7 +143,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
     @IBAction func setSpeed() {
         let actionSheet = UIAlertController(title: nil, message: "Set playback speed", preferredStyle: .actionSheet)
-        let speedOptions: [Float] = [2.5, 2.0, 1.5, 1.25, 1.0, 0.75]
+        let speedOptions: [Float] = [2.5, 2, 1.5, 1.25, 1, 0.75]
 
         for speed in speedOptions {
             if speed == PlayerManager.sharedInstance.speed {
@@ -122,7 +152,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
                 actionSheet.addAction(UIAlertAction(title: "\(speed)", style: .default, handler: { _ in
                     PlayerManager.sharedInstance.speed = speed
 
-                    self.speedButton.title = "\(String(PlayerManager.sharedInstance.speed))x"
+                    self.speedButton.title = self.formatSpeed(speed)
                 }))
             }
         }
@@ -134,16 +164,16 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
     @IBAction func setSleepTimer() {
         let actionSheet = SleepTimer.shared.actionSheet(
-            onStart: {},
-            onProgress: { (_: Double) -> Void in
-//                self.sleepButton.title = SleepTimer.shared.durationFormatter.string(from: timeLeft)
+            onStart: { },
+            onProgress: { (timeLeft: Double) -> Void in
+                self.sleepLabel.title = SleepTimer.shared.durationFormatter.string(from: timeLeft)
             },
             onEnd: { (_ cancelled: Bool) -> Void in
                 if !cancelled {
                     PlayerManager.sharedInstance.stop()
                 }
 
-//                self.sleepButton.title = "Timer"
+                self.sleepLabel.title = ""
             }
         )
 
@@ -216,7 +246,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             let translationForModal: CGFloat = {
                 if translation >= elasticThreshold {
                     let frictionLength = translation - elasticThreshold
-                    let frictionTranslation = 30 * atan(frictionLength/120) + frictionLength/10
+                    let frictionTranslation = 30 * atan(frictionLength / elasticThreshold) + frictionLength / 10
 
                     return frictionTranslation + (elasticThreshold * translationFactor)
                 } else {
@@ -233,7 +263,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     @objc private func handlePan(gestureRecognizer: UIPanGestureRecognizer) {
-        guard gestureRecognizer.isEqual(pan) else {
+        guard gestureRecognizer.isEqual(self.pan) else {
             return
         }
 
