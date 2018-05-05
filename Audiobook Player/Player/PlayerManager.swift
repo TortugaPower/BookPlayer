@@ -43,8 +43,6 @@ class PlayerManager: NSObject {
 
         // load data on background thread
         DispatchQueue.global().async {
-            let mediaArtwork = MPMediaItemArtwork(image: book.artwork)
-
             // try loading the player
             do {
                 self.audioPlayer = try AVAudioPlayer(contentsOf: book.fileURL)
@@ -73,12 +71,17 @@ class PlayerManager: NSObject {
             //update UI on main thread
             DispatchQueue.main.async(execute: {
                 //set book metadata for lockscreen and control center
-                MPNowPlayingInfoCenter.default().nowPlayingInfo = [
+                var nowPlayingInfo: [String: Any] = [
                     MPMediaItemPropertyTitle: book.title,
                     MPMediaItemPropertyArtist: book.author,
-                    MPMediaItemPropertyPlaybackDuration: audioplayer.duration,
-                    MPMediaItemPropertyArtwork: mediaArtwork
+                    MPMediaItemPropertyPlaybackDuration: audioplayer.duration
                 ]
+
+                if let artwork = book.artwork {
+                    nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: artwork)
+                }
+
+                MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
 
                 if book.currentTime > 0.0 {
                     self.jumpTo(book.currentTime)
