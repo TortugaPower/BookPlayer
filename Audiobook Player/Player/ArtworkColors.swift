@@ -54,4 +54,13 @@ struct ArtworkColors {
         self.tertiary = colors[3]
         self.isDark = displayOnDark
     }
+
+    // Default colors
+    init() {
+        self.background = UIColor(hex: "#EBECED")
+        self.primary = UIColor(hex: "#696B6E")
+        self.secondary = UIColor(hex: "#3488D1")
+        self.tertiary = UIColor(hex: "#9D9FA3")
+        self.isDark = false
+    }
 }

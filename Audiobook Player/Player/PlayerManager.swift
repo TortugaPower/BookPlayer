@@ -77,9 +77,7 @@ class PlayerManager: NSObject {
                     MPMediaItemPropertyPlaybackDuration: audioplayer.duration
                 ]
 
-                if let artwork = book.artwork {
-                    nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: artwork)
-                }
+                nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: book.artwork)
 
                 MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
 
