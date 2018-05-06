@@ -125,16 +125,13 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.backgroundImage.addSubview(blurView)
         self.backgroundImage.alpha = 0.2
         self.backgroundImage.image = currentBook.artwork
+
+        // UIViewControllerBasedStatusBarAppearance does not seem to work for ViewControllers that are presented with Over Full Screen
+        UIApplication.shared.statusBarStyle = colors.isDark ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
     }
 
-    override var preferredStatusBarStyle: UIStatusBarStyle {
-        guard let luminance = self.view.backgroundColor?.luminance else {
-            return UIStatusBarStyle.default
-        }
-
-        // Try to keep the default as long as possible to match the rest of the UI
-        // This should most likely be inverted if we provide a dark UI as well
-        return luminance < self.darknessThreshold ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
+    override func viewWillDisappear(_ animated: Bool) {
+        UIApplication.shared.statusBarStyle = UIStatusBarStyle.default
     }
 
     // MARK: Interface actions
