@@ -21,6 +21,13 @@ xcuserdata/
 *.moved-aside
 *.xcuserstate
 
+### Xcode Patch ###
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcworkspace/contents.xcworkspacedata
+/*.gcno
+
 ## Obj-C/Swift specific
 *.hmap
 *.ipa
