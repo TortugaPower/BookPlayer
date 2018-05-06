@@ -9,8 +9,6 @@
 import UIKit
 
 class SettingsViewController: UITableViewController {
-    @IBOutlet weak var storageSizeLabel: UILabel!
-    @IBOutlet weak var themeSwitch: UISwitch!
     @IBOutlet weak var smartRewindSwitch: UISwitch!
     @IBOutlet weak var boostVolumeSwitch: UISwitch!
     @IBOutlet weak var globalSpeedSwitch: UISwitch!
@@ -54,13 +52,13 @@ class SettingsViewController: UITableViewController {
     }
 
     //TODO: remove this once settings page is completed
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        //hide all options except smart rewind
-        switch section {
-        case 0, 1:
-            return 0
-        default:
-            return 4
-        }
-    }
+//    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+//        //hide all options except smart rewind
+//        switch section {
+//        case 0, 1:
+//            return 0
+//        default:
+//            return 4
+//        }
+//    }
 }
