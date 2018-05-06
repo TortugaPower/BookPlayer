@@ -32,6 +32,8 @@
 		C318D3AD208CF624000666F8 /* PlayerJumpIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C318D3AC208CF624000666F8 /* PlayerJumpIconView.swift */; };
 		C32BE6B8207BF7A6006D07B9 /* Book.swift in Sources */ = {isa = PBXBuildFile; fileRef = C32BE6B7207BF7A6006D07B9 /* Book.swift */; };
 		C32BE6BA207BF80A006D07B9 /* Chapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C32BE6B9207BF80A006D07B9 /* Chapter.swift */; };
+		C37A6873209F0F830063AEAC /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = C37A6872209F0F830063AEAC /* Credits.html */; };
+		C37A6875209F13120063AEAC /* CreditsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37A6874209F13120063AEAC /* CreditsViewController.swift */; };
 		C3A479132094C8C300D92122 /* rubberBandDistance.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479122094C8C300D92122 /* rubberBandDistance.swift */; };
 		C3A479152094CA3800D92122 /* UIImage+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479142094CA3800D92122 /* UIImage+BookPlayer.swift */; };
 		C3A479192094CAF300D92122 /* UIViewController+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479182094CAF300D92122 /* UIViewController+BookPlayer.swift */; };
@@ -101,6 +103,8 @@
 		C35BADE7206989E6007687C1 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		C35BADE8206989E6007687C1 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		C35BADE9206989E6007687C1 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .swiftlint.yml; sourceTree = "<group>"; };
+		C37A6872209F0F830063AEAC /* Credits.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = Credits.html; sourceTree = "<group>"; };
+		C37A6874209F13120063AEAC /* CreditsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreditsViewController.swift; sourceTree = "<group>"; };
 		C3A479122094C8C300D92122 /* rubberBandDistance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = rubberBandDistance.swift; sourceTree = "<group>"; };
 		C3A479142094CA3800D92122 /* UIImage+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+BookPlayer.swift"; sourceTree = "<group>"; };
 		C3A479182094CAF300D92122 /* UIViewController+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+BookPlayer.swift"; sourceTree = "<group>"; };
@@ -170,6 +174,7 @@
 				418B6D041D2707F800F974FB /* Assets.xcassets */,
 				419196341D47CC4E007A3AF3 /* Audiobook Player.entitlements */,
 				418B6D091D2707F800F974FB /* Info.plist */,
+				C37A6872209F0F830063AEAC /* Credits.html */,
 			);
 			path = "Audiobook Player";
 			sourceTree = "<group>";
@@ -220,6 +225,7 @@
 			isa = PBXGroup;
 			children = (
 				410D0FEC1EDCF4B000A52EB9 /* SettingsViewController.swift */,
+				C37A6874209F13120063AEAC /* CreditsViewController.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -375,6 +381,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				418B6D081D2707F800F974FB /* LaunchScreen.storyboard in Resources */,
+				C37A6873209F0F830063AEAC /* Credits.html in Resources */,
 				418B6D051D2707F800F974FB /* Assets.xcassets in Resources */,
 				418B6D031D2707F800F974FB /* Main.storyboard in Resources */,
 			);
@@ -455,6 +462,7 @@
 				418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */,
 				C30EEEBF2079645C00A4ED33 /* PlayerContainerViewController.swift in Sources */,
 				C318D3AD208CF624000666F8 /* PlayerJumpIconView.swift in Sources */,
+				C37A6875209F13120063AEAC /* CreditsViewController.swift in Sources */,
 				418B6D5D1D2CB76900F974FB /* PlayerViewController.swift in Sources */,
 				C3F69CD6209C4B7300DD9E8F /* ArtworkColors.swift in Sources */,
 				C30EEEBE2079645C00A4ED33 /* PlayerProgressViewController.swift in Sources */,

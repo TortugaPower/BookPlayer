@@ -52,9 +52,9 @@ A full list of all contributors can be found [on GitHub.](https://github.com/Gia
 
 Managed with [Carthage](https://github.com/Carthage/Carthage)
 
-- [MBProgressHUD](https://github.com/jdg/MBProgressHUD) for loading wheels
-- [MarqueeLabel](https://github.com/cbpowell/MarqueeLabel) for scrolling labels
 - [ColorCube](https://github.com/pixelogik/ColorCube) for extracting artwork colors
+- [MarqueeLabel](https://github.com/cbpowell/MarqueeLabel) for scrolling labels
+- [MBProgressHUD](https://github.com/jdg/MBProgressHUD) for loading wheels
 - [Sweetercolor](https://github.com/jathu/sweetercolor) for handling artwork colors
 
 Managed with [Homebrew](https://brew.sh)
