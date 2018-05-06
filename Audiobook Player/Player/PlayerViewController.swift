@@ -91,6 +91,10 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.view.addGestureRecognizer(pan!)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        self.controlsViewController?.showPlayPauseButton(animated)
+    }
+
     func setupView(book currentBook: Book) {
         self.metaViewController?.book = currentBook
         self.controlsViewController?.book = currentBook
@@ -99,11 +103,11 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
         self.speedButton.title = self.formatSpeed(PlayerManager.sharedInstance.speed)
 
-        guard let artwork = currentBook.artwork else {
-            return
-        }
+        var colors = ArtworkColors()
 
-        let colors = ArtworkColors(image: artwork, darknessThreshold: self.darknessThreshold)
+        if !currentBook.usesDefaultArtwork {
+            colors = ArtworkColors(image: currentBook.artwork, darknessThreshold: self.darknessThreshold)
+        }
 
         self.view.backgroundColor = colors.background
         self.bottomToolbar.tintColor = colors.tertiary
@@ -120,7 +124,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
         self.backgroundImage.addSubview(blurView)
         self.backgroundImage.alpha = 0.2
-        self.backgroundImage.image = artwork
+        self.backgroundImage.image = currentBook.artwork
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {

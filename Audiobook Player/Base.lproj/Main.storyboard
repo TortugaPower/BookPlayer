@@ -914,7 +914,7 @@
                                             <constraint firstAttribute="width" constant="325" id="41y-Qp-tZJ"/>
                                             <constraint firstAttribute="height" constant="325" id="Acb-xZ-O5q"/>
                                         </constraints>
-                                        <state key="normal" image="playButton"/>
+                                        <state key="normal" image="playerIconPlay"/>
                                         <connections>
                                             <action selector="play:" destination="3sK-z2-NcM" eventType="touchUpInside" id="VKT-Gt-T8Z"/>
                                         </connections>
@@ -1067,7 +1067,7 @@
         <image name="curved_arrow" width="78" height="78"/>
         <image name="maskPlayerClose" width="40" height="14"/>
         <image name="miniPlayButton" width="30" height="30"/>
-        <image name="playButton" width="68" height="68"/>
+        <image name="playerIconPlay" width="68" height="68"/>
         <image name="right-arrow" width="30" height="30"/>
         <image name="toolbarIconChapters" width="24" height="24"/>
         <image name="toolbarIconMore" width="24" height="24"/>

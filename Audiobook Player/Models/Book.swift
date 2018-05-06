@@ -12,11 +12,12 @@ import AVFoundation
 class Book: NSObject {
     // MARK: Meta data
 
-    var artwork: UIImage?
+    var artwork: UIImage
     var asset: AVAsset
     var fileURL: URL
     var title: String = ""
     var author: String = ""
+    var usesDefaultArtwork: Bool = false
 
     var identifier: String {
         return self.fileURL.lastPathComponent
@@ -139,6 +140,9 @@ class Book: NSObject {
 
         if let artwork = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtwork, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? Data {
             self.artwork = UIImage(data: artwork)!
+        } else {
+            self.artwork = #imageLiteral(resourceName: "defaultArtwork")
+            self.usesDefaultArtwork = true
         }
 
         super.init()

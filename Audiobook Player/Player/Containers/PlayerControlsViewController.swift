@@ -19,8 +19,8 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
     @IBOutlet private weak var forwardIconHorizontal: NSLayoutConstraint!
     @IBOutlet private weak var rewindIconHorizontal: NSLayoutConstraint!
 
-    private let playImage = UIImage(named: "playButton")
-    private let pauseImage = UIImage(named: "pauseButton")
+    private let playImage = UIImage(named: "playerIconPlay")
+    private let pauseImage = UIImage(named: "playerIconPause")
     private var pan: UIPanGestureRecognizer!
     private var originalHeight: CGFloat!
     private let jumpIconAlpha: CGFloat = 0.15
@@ -33,7 +33,6 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
     private var isPlaying: Bool = false {
         didSet {
-            self.playPauseButton.alpha = 1.0
             self.playPauseButton.setImage(self.isPlaying ? self.pauseImage : self.playImage, for: UIControlState())
 
             self.view.layoutIfNeeded()
@@ -54,9 +53,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
                 completion: nil
             )
 
-            UIView.animate(withDuration: 0.3, delay: 2.2, options: .allowUserInteraction, animations: {
-                self.playPauseButton.alpha = 0.05
-            }, completion: nil)
+            self.showPlayPauseButton()
         }
     }
 
@@ -75,7 +72,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
             self.rewindIcon.tintColor = colors.tertiary
             self.forwardIcon.tintColor = colors.tertiary
 
-            self.artwork.layer.shadowOpacity = 0.2 + Float(1.0 - colors.background.luminance) * 0.2
+            self.artwork.layer.shadowOpacity = 0.1 + Float(1.0 - colors.background.luminance) * 0.3
         }
     }
 
@@ -106,6 +103,24 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
+    }
+
+    func showPlayPauseButton(_ animated: Bool = true) {
+        let fadeIn = {
+            self.playPauseButton.alpha = 1.0
+        }
+
+        let fadeOut = {
+            self.playPauseButton.alpha = 0.05
+        }
+
+        if animated || self.playPauseButton.alpha < 1.0 {
+            UIView.animate(withDuration: 0.3, delay: 0, options: .allowUserInteraction, animations: fadeIn, completion: { (_: Bool) in
+                UIView.animate(withDuration: 0.3, delay: 2.2, options: .allowUserInteraction, animations: fadeOut, completion: nil)
+            })
+        } else {
+            UIView.animate(withDuration: 0.3, delay: 2.2, options: .allowUserInteraction, animations: fadeOut, completion: nil)
+        }
     }
 
     // toggle play/pause of book
