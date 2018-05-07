@@ -13,6 +13,9 @@ class PlayerProgressViewController: PlayerContainerViewController {
     @IBOutlet private weak var currentTimeLabel: UILabel!
     @IBOutlet private weak var maxTimeLabel: UILabel!
     @IBOutlet private weak var percentageLabel: UILabel!
+    @IBOutlet weak var sliderMin: UIImageView!
+    @IBOutlet weak var sliderMax: UIImageView!
+    @IBOutlet weak var minTrackWidth: NSLayoutConstraint!
 
     var book: Book? {
         didSet {
@@ -32,6 +35,16 @@ class PlayerProgressViewController: PlayerContainerViewController {
             self.currentTimeLabel.text = self.formatTime(self.currentTime)
 
             self.setPercentage()
+
+            guard let thumbWidth = self.progressSlider.currentThumbImage?.size.width else {
+                return
+            }
+
+            let percentCompleted = CGFloat(self.currentTime / self.duration)
+            let width = self.view.bounds.width
+
+            self.minTrackWidth.constant = (width - thumbWidth) * percentCompleted + thumbWidth / 2
+
         }
     }
 
@@ -49,8 +62,8 @@ class PlayerProgressViewController: PlayerContainerViewController {
                 return
             }
 
-            self.progressSlider.minimumTrackTintColor = secondaryColor
-            self.progressSlider.maximumTrackTintColor = secondaryColor.withAlphaComponent(0.3)
+            self.sliderMin.tintColor = secondaryColor
+            self.sliderMax.tintColor = secondaryColor
 
             self.currentTimeLabel.textColor = secondaryColor
             self.maxTimeLabel.textColor = secondaryColor
@@ -67,6 +80,16 @@ class PlayerProgressViewController: PlayerContainerViewController {
         self.progressSlider.setThumbImage(#imageLiteral(resourceName: "thumbImageDefault"), for: .normal)
         self.progressSlider.setThumbImage(#imageLiteral(resourceName: "thumbImageSelected"), for: .selected)
         self.progressSlider.setThumbImage(#imageLiteral(resourceName: "thumbImageSelected"), for: .highlighted)
+
+        self.sliderMin.image = UIImage(named: "sliderMinimumTrack")?.resizableImage(
+            withCapInsets: UIEdgeInsets(top: 0, left: 27.0, bottom: 0, right: 0),
+            resizingMode: .stretch
+        )
+
+        self.sliderMax.image = UIImage(named: "sliderMaximumTrack")?.resizableImage(
+            withCapInsets: UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 27.0),
+            resizingMode: .stretch
+        )
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.onPlayback), name: Notification.Name.AudiobookPlayer.bookPlaying, object: nil)
     }
