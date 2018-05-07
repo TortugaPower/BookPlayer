@@ -151,10 +151,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         if gestureRecognizer == self.pan {
-            let velocity: CGPoint = self.pan.velocity(in: self.pan.view)
-            let degree: CGFloat = atan(velocity.y / velocity.x) * 180 / CGFloat.pi
-
-            return fabs(degree) < 30.0
+            return limitPanAngle(self.pan, degreesOfFreedom: 30.0, comparator: .lessThan)
         }
 
         return true

@@ -237,6 +237,14 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
     // MARK: Gesture recognizers
 
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        if gestureRecognizer == self.pan {
+            return limitPanAngle(self.pan, degreesOfFreedom: 60.0, comparator: .greaterThan)
+        }
+
+        return true
+    }
+
     private func updatePresentedViewForTranslation(_ yTranslation: CGFloat) {
         let translation: CGFloat = rubberBandDistance(yTranslation, dimension: self.view.frame.height, constant: 0.55)
         let dismissThreshold: CGFloat = self.view.frame.height * 1/6
