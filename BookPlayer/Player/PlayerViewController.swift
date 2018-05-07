@@ -281,8 +281,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
                     options: .preferredFramesPerSecond60,
                     animations: {
                         self.view?.transform = .identity
-                    },
-                    completion: nil
+                    }
                 )
 
             default: break

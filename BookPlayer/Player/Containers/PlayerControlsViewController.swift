@@ -49,8 +49,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
                 options: .preferredFramesPerSecond60,
                 animations: {
                     self.view.layoutIfNeeded()
-            },
-                completion: nil
+                }
             )
 
             self.showPlayPauseButton()
@@ -214,8 +213,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
             options: .preferredFramesPerSecond60,
             animations: {
                 self.view.layoutIfNeeded()
-        },
-            completion: nil
+            }
         )
 
         UIView.animate(withDuration: 0.20, delay: 0.10, options: .curveEaseOut, animations: {
