@@ -24,7 +24,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
     var currentBook: Book!
     private let timerIcon: UIImage = UIImage(named: "toolbarIconTimer")!
-    private var pan: UIPanGestureRecognizer?
+    private var pan: UIPanGestureRecognizer!
 
     private weak var controlsViewController: PlayerControlsViewController?
     private weak var metaViewController: PlayerMetaViewController?
@@ -236,31 +236,18 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     // MARK: Gesture recognizers
-    // Based on https://github.com/HarshilShah/DeckTransition/blob/master/Source/DeckPresentationController.swift
 
-    private func updatePresentedViewForTranslation(inVerticalDirection translation: CGFloat) {
-        let elasticThreshold: CGFloat = 120.0
-        let dismissThreshold: CGFloat = 240.0
-        let translationFactor: CGFloat = 0.5
+    private func updatePresentedViewForTranslation(_ yTranslation: CGFloat) {
+        let translation: CGFloat = rubberBandDistance(yTranslation, dimension: self.view.frame.height, constant: 0.55)
+        let dismissThreshold: CGFloat = self.view.frame.height * 1/6
 
-        if translation >= 0 {
-            let translationForModal: CGFloat = {
-                if translation >= elasticThreshold {
-                    let frictionLength = translation - elasticThreshold
-                    let frictionTranslation = 30 * atan(frictionLength / elasticThreshold) + frictionLength / 10
+        if translation > dismissThreshold {
+            self.dismiss(animated: true, completion: nil)
 
-                    return frictionTranslation + (elasticThreshold * translationFactor)
-                } else {
-                    return translation * translationFactor
-                }
-            }()
-
-            self.view?.transform = CGAffineTransform(translationX: 0, y: translationForModal)
-
-            if translation >= dismissThreshold {
-                self.dismiss(animated: true, completion: nil)
-            }
+            return
         }
+
+        self.view?.transform = CGAffineTransform(translationX: 0, y: translation)
     }
 
     @objc private func handlePan(gestureRecognizer: UIPanGestureRecognizer) {
@@ -275,14 +262,19 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             case .changed:
                 let translation = gestureRecognizer.translation(in: self.view)
 
-                self.updatePresentedViewForTranslation(inVerticalDirection: translation.y)
+                self.updatePresentedViewForTranslation(translation.y)
 
             case .ended:
                 UIView.animate(
-                    withDuration: 0.25,
+                    withDuration: 0.3,
+                    delay: 0.0,
+                    usingSpringWithDamping: 0.7,
+                    initialSpringVelocity: 1.4,
+                    options: .preferredFramesPerSecond60,
                     animations: {
                         self.view?.transform = .identity
-                    }
+                    },
+                    completion: nil
                 )
 
             default: break
