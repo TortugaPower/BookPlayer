@@ -119,7 +119,7 @@ class Book: NSObject {
             return
         }
 
-        for chapter in self.chapters where chapter.start >= self.currentTime {
+        for chapter in self.chapters where chapter.start <= self.currentTime && chapter.end > self.currentTime {
             self.currentChapter = chapter
 
             return

@@ -13,4 +13,8 @@ struct Chapter {
     var start: TimeInterval
     var duration: TimeInterval
     var index: Int
+
+    var end: TimeInterval {
+        return start + duration
+    }
 }
