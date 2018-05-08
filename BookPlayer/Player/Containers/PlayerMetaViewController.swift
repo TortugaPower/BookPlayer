@@ -16,8 +16,8 @@ class PlayerMetaViewController: PlayerContainerViewController {
 
     var book: Book? {
         didSet {
-            self.authorLabel.text = book?.author
-            self.titleLabel.text = book?.title
+            self.authorLabel.text = self.book?.author
+            self.titleLabel.text = self.book?.title
 
             self.setChapterLabel()
         }

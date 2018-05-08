@@ -49,8 +49,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
                 options: .preferredFramesPerSecond60,
                 animations: {
                     self.view.layoutIfNeeded()
-            },
-                completion: nil
+                }
             )
 
             self.showPlayPauseButton()
@@ -151,10 +150,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         if gestureRecognizer == self.pan {
-            let velocity: CGPoint = self.pan.velocity(in: self.pan.view)
-            let degree: CGFloat = atan(velocity.y / velocity.x) * 180 / CGFloat.pi
-
-            return fabs(degree) < 30.0
+            return limitPanAngle(self.pan, degreesOfFreedom: 30.0, comparator: .lessThan)
         }
 
         return true
@@ -217,8 +213,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
             options: .preferredFramesPerSecond60,
             animations: {
                 self.view.layoutIfNeeded()
-        },
-            completion: nil
+            }
         )
 
         UIView.animate(withDuration: 0.20, delay: 0.10, options: .curveEaseOut, animations: {
