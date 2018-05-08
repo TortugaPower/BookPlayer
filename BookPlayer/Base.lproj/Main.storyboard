@@ -34,7 +34,7 @@
         <!--Audiobook lists-->
         <scene sceneID="cIo-ks-gCu">
             <objects>
-                <viewController title="Audiobook lists" id="1tN-zP-ONE" customClass="LibraryViewController" customModule="Audiobook_Player" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Audiobook lists" id="1tN-zP-ONE" customClass="LibraryViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="EqL-FA-MOg">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -43,7 +43,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="583"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" restorationIdentifier="BookCellView" selectionStyle="default" indentationWidth="10" reuseIdentifier="BookCellView" rowHeight="86" id="3Mr-Ez-ii0" customClass="BookCellView" customModule="Audiobook_Player" customModuleProvider="target">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" restorationIdentifier="BookCellView" selectionStyle="default" indentationWidth="10" reuseIdentifier="BookCellView" rowHeight="86" id="3Mr-Ez-ii0" customClass="BookCellView" customModule="BookPlayer" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="28" width="375" height="86"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="3Mr-Ez-ii0" id="bGU-ZB-M0R">
@@ -374,7 +374,7 @@
         <!--Player-->
         <scene sceneID="yUG-lL-AsK">
             <objects>
-                <viewController storyboardIdentifier="PlayerViewController" title="Player" modalPresentationStyle="overFullScreen" id="JEX-9P-axG" customClass="PlayerViewController" customModule="Audiobook_Player" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="PlayerViewController" title="Player" modalPresentationStyle="overFullScreen" id="JEX-9P-axG" customClass="PlayerViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="svH-Pt-448">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -528,7 +528,7 @@
         <!--Settings-->
         <scene sceneID="GOZ-93-E2V">
             <objects>
-                <tableViewController id="Obf-Zy-aDj" customClass="SettingsViewController" customModule="Audiobook_Player" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController id="Obf-Zy-aDj" customClass="SettingsViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="grouped" separatorStyle="default" rowHeight="44" sectionHeaderHeight="18" sectionFooterHeight="18" id="s9V-BX-jf4">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -696,7 +696,7 @@ Use with caution and care for your hearing.</string>
         <!--Credits-->
         <scene sceneID="dMs-na-OfN">
             <objects>
-                <viewController title="Credits" id="eTr-hb-OZz" customClass="CreditsViewController" customModule="Audiobook_Player" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Credits" id="eTr-hb-OZz" customClass="CreditsViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="DOS-Ie-z6Q">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -747,7 +747,7 @@ Use with caution and care for your hearing.</string>
         <!--Chapters-->
         <scene sceneID="GYe-by-LSE">
             <objects>
-                <viewController storyboardIdentifier="ChaptersViewController" id="ftF-d7-Cal" customClass="ChaptersViewController" customModule="Audiobook_Player" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ChaptersViewController" id="ftF-d7-Cal" customClass="ChaptersViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" opaque="NO" contentMode="scaleToFill" id="gtc-yd-6wG">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -756,7 +756,7 @@ Use with caution and care for your hearing.</string>
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" restorationIdentifier="ChapterViewCell" selectionStyle="default" indentationWidth="10" reuseIdentifier="ChapterViewCell" id="Tvh-ek-HpW" customClass="ChapterViewCell" customModule="Audiobook_Player" customModuleProvider="target">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" restorationIdentifier="ChapterViewCell" selectionStyle="default" indentationWidth="10" reuseIdentifier="ChapterViewCell" id="Tvh-ek-HpW" customClass="ChapterViewCell" customModule="BookPlayer" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="28" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Tvh-ek-HpW" id="uyn-wk-HYj">
@@ -846,12 +846,12 @@ Use with caution and care for your hearing.</string>
         <!--Player Controls View Controller-->
         <scene sceneID="XWq-40-6nb">
             <objects>
-                <viewController storyboardIdentifier="PlayerControls" id="3sK-z2-NcM" customClass="PlayerControlsViewController" customModule="Audiobook_Player" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="PlayerControls" id="3sK-z2-NcM" customClass="PlayerControlsViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="zEx-3w-eDd">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="375"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8E4-ye-Un7" customClass="PlayerForwardIconView" customModule="Audiobook_Player" customModuleProvider="target">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8E4-ye-Un7" customClass="PlayerForwardIconView" customModule="BookPlayer" customModuleProvider="target">
                                 <rect key="frame" x="300" y="157" width="60" height="60"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
@@ -859,7 +859,7 @@ Use with caution and care for your hearing.</string>
                                     <constraint firstAttribute="height" constant="60" id="gbz-7l-HOT"/>
                                 </constraints>
                             </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OB3-jx-i6q" customClass="PlayerRewindIconView" customModule="Audiobook_Player" customModuleProvider="target">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OB3-jx-i6q" customClass="PlayerRewindIconView" customModule="BookPlayer" customModuleProvider="target">
                                 <rect key="frame" x="15" y="157" width="60" height="60"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
@@ -929,7 +929,7 @@ Use with caution and care for your hearing.</string>
         <!--Player Meta View Controller-->
         <scene sceneID="VKo-r8-pZZ">
             <objects>
-                <viewController storyboardIdentifier="PlayerMeta" id="NxD-yj-7Vd" customClass="PlayerMetaViewController" customModule="Audiobook_Player" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="PlayerMeta" id="NxD-yj-7Vd" customClass="PlayerMetaViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="zGL-6U-kcX">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="63"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -972,7 +972,7 @@ Use with caution and care for your hearing.</string>
         <!--Player Progress View Controller-->
         <scene sceneID="IVR-v9-a32">
             <objects>
-                <viewController storyboardIdentifier="PlayerProgress" id="kvc-VP-J0K" customClass="PlayerProgressViewController" customModule="Audiobook_Player" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="PlayerProgress" id="kvc-VP-J0K" customClass="PlayerProgressViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="z8h-yL-ztD">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="47"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -995,9 +995,24 @@ Use with caution and care for your hearing.</string>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="3Ah-kW-bx4">
-                                <rect key="frame" x="23" y="0.0" width="329" height="31"/>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Jpe-rf-4YN">
+                                <rect key="frame" x="1" y="13.666666666666666" width="180" height="2.9999999999999982"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="3" id="69A-Mf-imQ"/>
+                                    <constraint firstAttribute="width" constant="180" id="XUJ-Ia-tW6"/>
+                                </constraints>
+                            </imageView>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="idW-DU-bCN">
+                                <rect key="frame" x="178" y="13.666666666666666" width="196" height="2.9999999999999982"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="3" id="Agz-El-fxL"/>
+                                </constraints>
+                            </imageView>
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="3Ah-kW-bx4">
+                                <rect key="frame" x="-1" y="0.0" width="377" height="31"/>
                                 <color key="tintColor" red="0.20392156862745098" green="0.53333333333333333" blue="0.81960784313725488" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="minimumTrackTintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="maximumTrackTintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <connections>
                                     <action selector="sliderValueChanged:" destination="kvc-VP-J0K" eventType="valueChanged" id="NmS-MX-Dm6"/>
                                 </connections>
@@ -1006,16 +1021,21 @@ Use with caution and care for your hearing.</string>
                         <color key="backgroundColor" red="0.21960784310000001" green="0.27058823529999998" blue="0.30588235289999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="CQn-JB-tMb" firstAttribute="leading" secondItem="MUH-Ds-5l0" secondAttribute="trailing" id="5S5-y7-dbJ"/>
+                            <constraint firstItem="idW-DU-bCN" firstAttribute="leading" secondItem="Jpe-rf-4YN" secondAttribute="trailing" constant="-3" id="82r-P9-M2C"/>
                             <constraint firstItem="pIa-Ca-Qef" firstAttribute="width" secondItem="MUH-Ds-5l0" secondAttribute="width" id="G89-ju-tGk"/>
                             <constraint firstItem="MUH-Ds-5l0" firstAttribute="leading" secondItem="pIa-Ca-Qef" secondAttribute="trailing" id="N3c-eu-lao"/>
                             <constraint firstItem="pIa-Ca-Qef" firstAttribute="leading" secondItem="z8h-yL-ztD" secondAttribute="leading" constant="25" id="O9r-Bi-Hql"/>
+                            <constraint firstItem="Jpe-rf-4YN" firstAttribute="leading" secondItem="3Ah-kW-bx4" secondAttribute="leading" id="RFw-Dx-ZLU"/>
                             <constraint firstItem="MUH-Ds-5l0" firstAttribute="width" secondItem="CQn-JB-tMb" secondAttribute="width" id="Wjb-tq-Bk4"/>
                             <constraint firstItem="CQn-JB-tMb" firstAttribute="top" secondItem="3Ah-kW-bx4" secondAttribute="bottom" id="d23-Jj-EII"/>
                             <constraint firstAttribute="top" secondItem="3Ah-kW-bx4" secondAttribute="top" id="dKK-6H-4mf"/>
                             <constraint firstAttribute="trailing" secondItem="CQn-JB-tMb" secondAttribute="trailing" constant="25" id="gjg-aI-vZN"/>
                             <constraint firstItem="pIa-Ca-Qef" firstAttribute="top" secondItem="3Ah-kW-bx4" secondAttribute="bottom" id="mpB-Qd-IsR"/>
-                            <constraint firstItem="3Ah-kW-bx4" firstAttribute="leading" secondItem="z8h-yL-ztD" secondAttribute="leading" constant="25" id="rPb-KF-16a"/>
-                            <constraint firstAttribute="trailing" secondItem="3Ah-kW-bx4" secondAttribute="trailing" constant="25" id="uht-FT-sZR"/>
+                            <constraint firstItem="3Ah-kW-bx4" firstAttribute="leading" secondItem="z8h-yL-ztD" secondAttribute="leading" constant="1" id="rPb-KF-16a"/>
+                            <constraint firstItem="idW-DU-bCN" firstAttribute="centerY" secondItem="3Ah-kW-bx4" secondAttribute="centerY" id="tFe-Y7-XcB"/>
+                            <constraint firstAttribute="trailing" secondItem="3Ah-kW-bx4" secondAttribute="trailing" constant="1" id="uht-FT-sZR"/>
+                            <constraint firstItem="Jpe-rf-4YN" firstAttribute="centerY" secondItem="3Ah-kW-bx4" secondAttribute="centerY" id="v2W-wd-yTF"/>
+                            <constraint firstItem="idW-DU-bCN" firstAttribute="trailing" secondItem="3Ah-kW-bx4" secondAttribute="trailing" id="wyb-N5-diA"/>
                             <constraint firstItem="MUH-Ds-5l0" firstAttribute="top" secondItem="3Ah-kW-bx4" secondAttribute="bottom" id="wyf-mA-pVP"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="lqD-sI-Q1n"/>
@@ -1023,13 +1043,16 @@ Use with caution and care for your hearing.</string>
                     <connections>
                         <outlet property="currentTimeLabel" destination="pIa-Ca-Qef" id="SA0-kf-omR"/>
                         <outlet property="maxTimeLabel" destination="CQn-JB-tMb" id="ioF-Be-Mlp"/>
+                        <outlet property="minTrackWidth" destination="XUJ-Ia-tW6" id="FpC-g7-3Ud"/>
                         <outlet property="percentageLabel" destination="MUH-Ds-5l0" id="D34-1F-L8A"/>
                         <outlet property="progressSlider" destination="3Ah-kW-bx4" id="VyA-2F-h11"/>
+                        <outlet property="sliderMax" destination="idW-DU-bCN" id="SMW-Vt-3ka"/>
+                        <outlet property="sliderMin" destination="Jpe-rf-4YN" id="Edz-Zc-zPw"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="LcB-rH-3vb" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2418" y="-252"/>
+            <point key="canvasLocation" x="2416.8000000000002" y="-252.33990147783251"/>
         </scene>
     </scenes>
     <resources>
