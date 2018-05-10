@@ -48,6 +48,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
                 initialSpringVelocity: 1.4,
                 options: .preferredFramesPerSecond60,
                 animations: {
+                    self.artwork.mask?.frame = self.artwork.bounds
                     self.view.layoutIfNeeded()
                 }
             )
@@ -140,7 +141,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
     // MARK: Gesture recognizers
 
     private func setupGestures() {
-        self.pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
+        self.pan = UIPanGestureRecognizer(target: self, action: #selector(panAction))
         self.pan.delegate = self
         self.pan.maximumNumberOfTouches = 1
         self.pan.cancelsTouchesInView = true
@@ -150,7 +151,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         if gestureRecognizer == self.pan {
-            return limitPanAngle(self.pan, degreesOfFreedom: 30.0, comparator: .lessThan)
+            return limitPanAngle(self.pan, degreesOfFreedom: 45.01, comparator: .lessThan)
         }
 
         return true
@@ -224,7 +225,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         self.triggeredPanAction = false
     }
 
-    @objc private func handlePan(gestureRecognizer: UIPanGestureRecognizer) {
+    @objc private func panAction(gestureRecognizer: UIPanGestureRecognizer) {
         guard gestureRecognizer.isEqual(self.pan) else {
             return
         }

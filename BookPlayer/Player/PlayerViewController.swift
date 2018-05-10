@@ -82,13 +82,13 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: Notification.Name.AudiobookPlayer.bookChange, object: nil)
 
-        // Gesture
-        self.pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
-        self.pan!.delegate = self
-        self.pan!.maximumNumberOfTouches = 1
-        self.pan!.cancelsTouchesInView = false
+        // Gestures
+        self.pan = UIPanGestureRecognizer(target: self, action: #selector(panAction))
+        self.pan.delegate = self
+        self.pan.maximumNumberOfTouches = 1
+        self.pan.cancelsTouchesInView = true
 
-        self.view.addGestureRecognizer(pan!)
+        self.view.addGestureRecognizer(self.pan)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -239,7 +239,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         if gestureRecognizer == self.pan {
-            return limitPanAngle(self.pan, degreesOfFreedom: 60.0, comparator: .greaterThan)
+            return limitPanAngle(self.pan, degreesOfFreedom: 45.0, comparator: .greaterThan)
         }
 
         return true
@@ -247,18 +247,11 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
     private func updatePresentedViewForTranslation(_ yTranslation: CGFloat) {
         let translation: CGFloat = rubberBandDistance(yTranslation, dimension: self.view.frame.height, constant: 0.55)
-        let dismissThreshold: CGFloat = self.view.frame.height * 1/6
 
-        if translation > dismissThreshold {
-            self.dismiss(animated: true, completion: nil)
-
-            return
-        }
-
-        self.view?.transform = CGAffineTransform(translationX: 0, y: translation)
+        self.view?.transform = CGAffineTransform(translationX: 0, y: max(translation, 0.0))
     }
 
-    @objc private func handlePan(gestureRecognizer: UIPanGestureRecognizer) {
+    @objc private func panAction(gestureRecognizer: UIPanGestureRecognizer) {
         guard gestureRecognizer.isEqual(self.pan) else {
             return
         }
@@ -272,12 +265,21 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
                 self.updatePresentedViewForTranslation(translation.y)
 
-            case .ended:
+            case .ended, .cancelled, .failed:
+                let dismissThreshold: CGFloat = 44.0 * UIScreen.main.nativeScale
+                let translation = gestureRecognizer.translation(in: self.view)
+
+                if translation.y > dismissThreshold {
+                    self.dismiss(animated: true, completion: nil)
+
+                    return
+                }
+
                 UIView.animate(
                     withDuration: 0.3,
                     delay: 0.0,
-                    usingSpringWithDamping: 0.7,
-                    initialSpringVelocity: 1.4,
+                    usingSpringWithDamping: 0.75,
+                    initialSpringVelocity: 1.5,
                     options: .preferredFramesPerSecond60,
                     animations: {
                         self.view?.transform = .identity
