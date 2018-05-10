@@ -17,12 +17,21 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     @IBOutlet weak var globalSpeedSwitch: UISwitch!
     @IBOutlet weak var autoplaySwitch: UISwitch!
 
+    let supportSection: Int = 5
     let githubLinkPath: IndexPath = IndexPath(row: 0, section: 5)
     let supportEmailPath: IndexPath = IndexPath(row: 1, section: 5)
 
     var version: String = "0.0.0"
     var build: String = "0"
     var supportEmail = "support@bookplayer.app"
+
+    var appVersion: String {
+        return "\(self.version)-\(self.build)"
+    }
+
+    var systemVersion: String {
+        return "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -79,14 +88,20 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         }
     }
 
+    override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+        if section == self.supportSection {
+            return "BookPlayer \(self.appVersion) on \(self.systemVersion)"
+        }
+
+        return super.tableView(tableView, titleForFooterInSection: section)
+    }
+
     func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
         controller.dismiss(animated: true)
     }
 
     func sendSupportEmmail() {
         let device = Device()
-        let appVersion = "\(self.version)-\(self.build)"
-        let systemVersion = "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
 
         if MFMailComposeViewController.canSendMail() {
             let mail = MFMailComposeViewController()
@@ -94,11 +109,11 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
             mail.mailComposeDelegate = self
             mail.setToRecipients([self.supportEmail])
             mail.setSubject("I need help with BookPlayer \(self.version)-\(self.build)")
-            mail.setMessageBody("<p>Hello BookPlayer Crew,<br>I have an issue concerning BookPlayer \(appVersion) on my \(device) running \(systemVersion)</p><p>When I try to…</p>", isHTML: true)
+            mail.setMessageBody("<p>Hello BookPlayer Crew,<br>I have an issue concerning BookPlayer \(self.appVersion) on my \(device) running \(self.systemVersion)</p><p>When I try to…</p>", isHTML: true)
 
             self.present(mail, animated: true)
         } else {
-            let debugInfo = "BookPlayer \(appVersion)\n\(device) with \(systemVersion)"
+            let debugInfo = "BookPlayer \(self.appVersion)\n\(device) with \(self.systemVersion)"
 
             let alert = UIAlertController(title: "Unable to compose email", message: "You need to set up an email account in your device settings to use this. \n\nPlease mail us at \(self.supportEmail)\n\n\(debugInfo)", preferredStyle: .alert)
 
