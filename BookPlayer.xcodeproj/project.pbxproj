@@ -32,6 +32,7 @@
 		C318D3AD208CF624000666F8 /* PlayerJumpIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C318D3AC208CF624000666F8 /* PlayerJumpIconView.swift */; };
 		C318DDB820A3A3F400C3A17B /* UIImageView+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C318DDB720A3A3F400C3A17B /* UIImageView+BookPlayer.swift */; };
 		C318DDBC20A48D4700C3A17B /* BPMarqueeLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C318DDBB20A48D4700C3A17B /* BPMarqueeLabel.swift */; };
+		C318DDBF20A4DC7500C3A17B /* DeviceKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C318DDBE20A4DC7500C3A17B /* DeviceKit.framework */; };
 		C32BE6B8207BF7A6006D07B9 /* Book.swift in Sources */ = {isa = PBXBuildFile; fileRef = C32BE6B7207BF7A6006D07B9 /* Book.swift */; };
 		C32BE6BA207BF80A006D07B9 /* Chapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C32BE6B9207BF80A006D07B9 /* Chapter.swift */; };
 		C36C4D5C20A23E1800AFDB76 /* NowPlayingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C36C4D5B20A23E1800AFDB76 /* NowPlayingViewController.swift */; };
@@ -104,6 +105,7 @@
 		C318D3AC208CF624000666F8 /* PlayerJumpIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerJumpIconView.swift; sourceTree = "<group>"; };
 		C318DDB720A3A3F400C3A17B /* UIImageView+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+BookPlayer.swift"; sourceTree = "<group>"; };
 		C318DDBB20A48D4700C3A17B /* BPMarqueeLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPMarqueeLabel.swift; sourceTree = "<group>"; };
+		C318DDBE20A4DC7500C3A17B /* DeviceKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DeviceKit.framework; path = Carthage/Build/iOS/DeviceKit.framework; sourceTree = "<group>"; };
 		C32BE6B7207BF7A6006D07B9 /* Book.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Book.swift; sourceTree = "<group>"; };
 		C32BE6B9207BF80A006D07B9 /* Chapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chapter.swift; sourceTree = "<group>"; };
 		C35BADE7206989E6007687C1 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
@@ -128,6 +130,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C318DDBF20A4DC7500C3A17B /* DeviceKit.framework in Frameworks */,
 				41AB1C131D30298800AC1AA0 /* MBProgressHUD.framework in Frameworks */,
 				C30CD2A32097C49F00258B09 /* ColorCube.framework in Frameworks */,
 				412451841D489204008AC0E5 /* Crashlytics.framework in Frameworks */,
@@ -200,6 +203,7 @@
 		41AABFFA1E705D18006BD2E0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C318DDBE20A4DC7500C3A17B /* DeviceKit.framework */,
 				C30CD2A22097C49F00258B09 /* ColorCube.framework */,
 				412451811D489204008AC0E5 /* Fabric.framework */,
 				412451821D489204008AC0E5 /* Crashlytics.framework */,
@@ -311,12 +315,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 418B6D171D2707F800F974FB /* Build configuration list for PBXNativeTarget "BookPlayer" */;
 			buildPhases = (
-				C35BADEA20698A6D007687C1 /* ShellScript */,
+				C35BADEA20698A6D007687C1 /* Run SwiftLint */,
+				C318DDBD20A4C47200C3A17B /* Increment Build Number */,
 				418B6CF41D2707F800F974FB /* Sources */,
 				418B6CF51D2707F800F974FB /* Frameworks */,
 				418B6CF61D2707F800F974FB /* Resources */,
-				413616421D30100100E48944 /* ShellScript */,
-				412451801D4891EF008AC0E5 /* ShellScript */,
+				413616421D30100100E48944 /* Copy Frameworks managed by Carthage */,
+				412451801D4891EF008AC0E5 /* Fabric */,
 				41B955451F9E552B000C9231 /* Embed Frameworks */,
 			);
 			buildRules = (
@@ -417,20 +422,21 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		412451801D4891EF008AC0E5 /* ShellScript */ = {
+		412451801D4891EF008AC0E5 /* Fabric */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = Fabric;
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "./Fabric.framework/run fff3f019692513e38df260d5e737614c67a35eaa 0976c00131dd6676fe42981de5bdda9a9ee35f1ac0425c43c0bd56aaf385198e";
 		};
-		413616421D30100100E48944 /* ShellScript */ = {
+		413616421D30100100E48944 /* Copy Frameworks managed by Carthage */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -439,23 +445,42 @@
 				"$(SRCROOT)/Carthage/Build/iOS/MBProgressHUD.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/MarqueeLabelSwift.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/ColorCube.framework",
+				"$(SRCROOT)/Carthage/Build/iOS/DeviceKit.framework",
 			);
+			name = "Copy Frameworks managed by Carthage";
 			outputPaths = (
 				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/MarqueeLabelSwift.framework",
 				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/ColorCube.framework",
 				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/MBProgressHUD.framework",
+				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/DeviceKit.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "/usr/local/bin/carthage copy-frameworks";
 		};
-		C35BADEA20698A6D007687C1 /* ShellScript */ = {
+		C318DDBD20A4C47200C3A17B /* Increment Build Number */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = "Increment Build Number";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "buildNumber=$(/usr/libexec/PlistBuddy -c \"Print CFBundleVersion\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\")\nbuildNumber=$(($buildNumber + 1))\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"";
+			showEnvVarsInLog = 0;
+		};
+		C35BADEA20698A6D007687C1 /* Run SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Run SwiftLint";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -9,14 +9,11 @@
 import UIKit
 
 extension UIViewController {
-    func showAlert(_ title: String?, message: String?, style: UIAlertControllerStyle) {
+    func showAlert(_ title: String?, message: String?, style: UIAlertControllerStyle = .alert) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: style)
-        let okButton = UIAlertAction(title: "Ok", style: .default, handler: nil)
+        let okButton = UIAlertAction(title: "OK", style: .default, handler: nil)
 
         alert.addAction(okButton)
-
-        alert.popoverPresentationController?.sourceView = self.view
-        alert.popoverPresentationController?.sourceRect = CGRect(x: Double(self.view.bounds.size.width / 2.0), y: Double(self.view.bounds.size.height-45), width: 1.0, height: 1.0)
 
         self.present(alert, animated: true, completion: nil)
     }

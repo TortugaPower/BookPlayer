@@ -236,7 +236,7 @@ extension LibraryViewController: UITableViewDelegate {
                     tableView.endUpdates()
                     self.emptyListContainerView.isHidden = !self.bookArray.isEmpty
                 } catch {
-                    self.showAlert("Error", message: "There was an error deleting the book, please try again.", style: .alert)
+                    self.showAlert("Error", message: "There was an error deleting the book, please try again.")
                 }
             }))
 
@@ -334,7 +334,7 @@ extension LibraryViewController: UIDocumentMenuDelegate {
         }
 
         let airdropButton = UIAlertAction(title: "AirDrop", style: .default) { (_) in
-            self.showAlert("AirDrop", message: "Make sure AirDrop is enabled.\n\nOnce you transfer the file to your device via AirDrop, choose 'BookPlayer' from the app list that will appear", style: .alert)
+            self.showAlert("AirDrop", message: "Make sure AirDrop is enabled.\n\nOnce you transfer the file to your device via AirDrop, choose 'BookPlayer' from the app list that will appear")
         }
 
         sheet.addAction(localButton)
@@ -364,7 +364,8 @@ extension LibraryViewController: UIDocumentPickerDelegate {
         do {
             try FileManager.default.attributesOfItem(atPath: url.path)
         } catch {
-            self.showAlert("Error", message: "File import fail, try again later", style: .alert)
+            self.showAlert("Error", message: "File import fail, try again later")
+
             return
         }
 
@@ -380,7 +381,8 @@ extension LibraryViewController: UIDocumentPickerDelegate {
         do {
             try FileManager.default.moveItem(at: url, to: fileURL)
         } catch {
-            self.showAlert("Error", message: "File import fail, try again later", style: .alert)
+            self.showAlert("Error", message: "File import fail, try again later")
+            
             return
         }
 

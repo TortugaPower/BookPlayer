@@ -7,58 +7,119 @@
 //
 
 import UIKit
+import MessageUI
+import SafariServices
+import DeviceKit
 
-class SettingsViewController: UITableViewController {
+class SettingsViewController: UITableViewController, MFMailComposeViewControllerDelegate {
     @IBOutlet weak var smartRewindSwitch: UISwitch!
     @IBOutlet weak var boostVolumeSwitch: UISwitch!
     @IBOutlet weak var globalSpeedSwitch: UISwitch!
     @IBOutlet weak var autoplaySwitch: UISwitch!
 
-    let defaults: UserDefaults = UserDefaults.standard
+    let githubLinkPath: IndexPath = IndexPath(row: 0, section: 5)
+    let supportEmailPath: IndexPath = IndexPath(row: 1, section: 5)
+
+    var version: String = "0.0.0"
+    var build: String = "0"
+    var supportEmail = "support@bookplayer.app"
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        smartRewindSwitch.addTarget(self, action: #selector(self.rewindToggleDidChange), for: .valueChanged)
-        boostVolumeSwitch.addTarget(self, action: #selector(self.boostVolumeToggleDidChange), for: .valueChanged)
-        globalSpeedSwitch.addTarget(self, action: #selector(self.globalSpeedToggleDidChange), for: .valueChanged)
-        autoplaySwitch.addTarget(self, action: #selector(self.autoplayToggleDidChange), for: .valueChanged)
+        self.smartRewindSwitch.addTarget(self, action: #selector(self.rewindToggleDidChange), for: .valueChanged)
+        self.boostVolumeSwitch.addTarget(self, action: #selector(self.boostVolumeToggleDidChange), for: .valueChanged)
+        self.globalSpeedSwitch.addTarget(self, action: #selector(self.globalSpeedToggleDidChange), for: .valueChanged)
+        self.autoplaySwitch.addTarget(self, action: #selector(self.autoplayToggleDidChange), for: .valueChanged)
 
         //Set initial switch positions
-        smartRewindSwitch.setOn(defaults.bool(forKey: UserDefaultsConstants.smartRewindEnabled), animated: false)
-        boostVolumeSwitch.setOn(defaults.bool(forKey: UserDefaultsConstants.boostVolumeEnabled), animated: false)
-        globalSpeedSwitch.setOn(defaults.bool(forKey: UserDefaultsConstants.globalSpeedEnabled), animated: false)
-        autoplaySwitch.setOn(defaults.bool(forKey: UserDefaultsConstants.autoplayEnabled), animated: false)
+        self.smartRewindSwitch.setOn(UserDefaults.standard.bool(forKey: UserDefaultsConstants.smartRewindEnabled), animated: false)
+        self.boostVolumeSwitch.setOn(UserDefaults.standard.bool(forKey: UserDefaultsConstants.boostVolumeEnabled), animated: false)
+        self.globalSpeedSwitch.setOn(UserDefaults.standard.bool(forKey: UserDefaultsConstants.globalSpeedEnabled), animated: false)
+        self.autoplaySwitch.setOn(UserDefaults.standard.bool(forKey: UserDefaultsConstants.autoplayEnabled), animated: false)
+
+        guard let version = Bundle.main.infoDictionary!["CFBundleShortVersionString"] as? String,
+            let build = Bundle.main.infoDictionary!["CFBundleVersion"] as? String else {
+                return
+        }
+
+        self.version = version
+        self.build = build
     }
 
     @objc func rewindToggleDidChange() {
-        defaults.set(smartRewindSwitch.isOn, forKey: UserDefaultsConstants.smartRewindEnabled)
+        UserDefaults.standard.set(self.smartRewindSwitch.isOn, forKey: UserDefaultsConstants.smartRewindEnabled)
     }
 
     @objc func boostVolumeToggleDidChange() {
-        defaults.set(boostVolumeSwitch.isOn, forKey: UserDefaultsConstants.boostVolumeEnabled)
+        UserDefaults.standard.set(self.boostVolumeSwitch.isOn, forKey: UserDefaultsConstants.boostVolumeEnabled)
     }
 
     @objc func globalSpeedToggleDidChange() {
-        defaults.set(globalSpeedSwitch.isOn, forKey: UserDefaultsConstants.globalSpeedEnabled)
+        UserDefaults.standard.set(self.globalSpeedSwitch.isOn, forKey: UserDefaultsConstants.globalSpeedEnabled)
     }
 
     @objc func autoplayToggleDidChange() {
-        defaults.set(autoplaySwitch.isOn, forKey: UserDefaultsConstants.autoplayEnabled)
+        UserDefaults.standard.set(self.autoplaySwitch.isOn, forKey: UserDefaultsConstants.autoplayEnabled)
     }
 
     @IBAction func done(_ sender: UIBarButtonItem) {
         self.dismiss(animated: true, completion: nil)
     }
 
-    //TODO: remove this once settings page is completed
-//    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        //hide all options except smart rewind
-//        switch section {
-//        case 0, 1:
-//            return 0
-//        default:
-//            return 4
-//        }
-//    }
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath as IndexPath, animated: true)
+
+        switch indexPath {
+            case self.supportEmailPath:
+                self.sendSupportEmmail()
+            case self.githubLinkPath:
+                self.showProjectOnGitHub()
+            default: break
+        }
+    }
+
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        controller.dismiss(animated: true)
+    }
+
+    func sendSupportEmmail() {
+        let device = Device()
+        let appVersion = "\(self.version)-\(self.build)"
+        let systemVersion = "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
+
+        if MFMailComposeViewController.canSendMail() {
+            let mail = MFMailComposeViewController()
+
+            mail.mailComposeDelegate = self
+            mail.setToRecipients([self.supportEmail])
+            mail.setSubject("I need help with BookPlayer \(self.version)-\(self.build)")
+            mail.setMessageBody("<p>Hello BookPlayer Crew,<br>I have an issue concerning BookPlayer \(appVersion) on my \(device) running \(systemVersion)</p><p>When I try to…</p>", isHTML: true)
+
+            self.present(mail, animated: true)
+        } else {
+            let debugInfo = "BookPlayer \(appVersion)\n\(device) with \(systemVersion)"
+
+            let alert = UIAlertController(title: "Unable to compose email", message: "You need to set up an email account in your device settings to use this. \n\nPlease mail us at \(self.supportEmail)\n\n\(debugInfo)", preferredStyle: .alert)
+
+            alert.addAction(UIAlertAction(title: "Copy information to clipboard", style: .default, handler: { _ in
+                UIPasteboard.general.string = "\(self.supportEmail)\(debugInfo)"
+            }))
+
+            alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+
+            self.present(alert, animated: true, completion: nil)
+        }
+    }
+
+    func showProjectOnGitHub() {
+        let url = URL(string: "https://github.com/GianniCarlo/Audiobook-Player")
+        let safari = SFSafariViewController(url: url!)
+
+        if #available(iOS 11.0, *) {
+            safari.dismissButtonStyle = .close
+        }
+
+        self.present(safari, animated: true)
+    }
 }
