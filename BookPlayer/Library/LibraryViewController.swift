@@ -13,15 +13,10 @@ import MBProgressHUD
 class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet weak var emptyListContainerView: UIView!
     @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var footerView: UIView!
-    @IBOutlet weak var footerImageView: UIImageView!
-    @IBOutlet weak var footerTitleLabel: UILabel!
-    @IBOutlet weak var footerHeightConstraint: NSLayoutConstraint!
-    @IBOutlet weak var footerPlayButton: UIButton!
+    @IBOutlet private weak var nowPlayingBar: UIView!
 
-    // Keep in memory images to toggle play/pause
-    let miniPlayImage = UIImage(named: "miniPlayButton")
-    let miniPauseButton = UIImage(named: "miniPauseButton")
+    private weak var nowPlayingViewController: NowPlayingViewController?
+
     var currentBooks: [Book] = []
     // TableView's datasource
     var bookArray = [Book]()
@@ -29,6 +24,20 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
     // keep in memory current Documents folder
     let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
     let refreshControl = UIRefreshControl()
+
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if let viewController = segue.destination as? NowPlayingViewController {
+            self.nowPlayingViewController = viewController
+
+            self.nowPlayingViewController!.showPlayer = {
+                guard !self.currentBooks.isEmpty else {
+                    return
+                }
+
+                self.play(books: self.currentBooks)
+            }
+        }
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,16 +53,7 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
         // fixed tableview having strange offset
         self.edgesForExtendedLayout = UIRectEdge()
 
-        // set colors
-        self.footerView.backgroundColor = UIColor.lightGray
-        self.footerView.isHidden = true
-
-        self.tableView.tableFooterView = UIView()
-
-        // set tap handler to show detail on tap on footer view
-        let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.didPressShowDetail(_:)))
-
-        self.footerView.addGestureRecognizer(tapRecognizer)
+        self.nowPlayingBar.isHidden = true
 
         // register to audio-interruption notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioInterruptions(_:)), name: NSNotification.Name.AVAudioSessionInterruption, object: nil)
@@ -70,24 +70,10 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
         // register notifications when the book is ready
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookReady), name: Notification.Name.AudiobookPlayer.bookReady, object: nil)
 
-        // register notifications when the book is played
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookPlayed), name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
-
-        // register notifications when the book is paused
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookPaused), name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
-
-        // register for book end notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookEnd(_:)), name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
-
         // register for book change notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: Notification.Name.AudiobookPlayer.bookChange, object: nil)
 
-        // register for remote events
-        self.registerRemoteEvents()
-
         self.loadFiles()
-
-        self.footerHeightConstraint.constant = 0
     }
 
     // No longer need to deregister observers for iOS 9+!
@@ -101,7 +87,7 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
     // Playback may be interrupted by calls. Handle pause
     @objc func handleAudioInterruptions(_ notification: Notification) {
         if PlayerManager.sharedInstance.isPlaying {
-            self.didPressPlay(self.footerPlayButton)
+            PlayerManager.sharedInstance.pause()
         }
     }
 
@@ -116,10 +102,10 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
 
         // Pause playback if route changes due to a disconnect
         switch reason {
-        case .oldDeviceUnavailable:
-            self.didPressPlay(self.footerPlayButton)
-        default:
-            break
+            case .oldDeviceUnavailable:
+                PlayerManager.sharedInstance.play()
+            default:
+                break
         }
     }
 
@@ -163,14 +149,6 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
         PlayerManager.sharedInstance.rewind()
     }
 
-    @IBAction func didPressShowDetail(_ sender: UIButton) {
-        guard !currentBooks.isEmpty else {
-            return
-        }
-
-        play(books: currentBooks)
-    }
-
     // Percentage callback
     @objc func updatePercentage(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
@@ -191,18 +169,6 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
     @objc func bookReady() {
         MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
         PlayerManager.sharedInstance.playPause(autoplayed: true)
-    }
-
-    @objc func bookPlayed() {
-        self.footerPlayButton.setImage(self.miniPauseButton, for: UIControlState())
-    }
-
-    @objc func bookPaused() {
-        self.footerPlayButton.setImage(self.miniPlayImage, for: UIControlState())
-    }
-
-    @objc func bookEnd(_ notification: Notification) {
-        self.footerPlayButton.setImage(self.miniPlayImage, for: UIControlState())
     }
 
     @objc func bookChange(_ notification: Notification) {
@@ -338,10 +304,8 @@ extension LibraryViewController: UITableViewDelegate {
     }
 
     func setupFooter(book: Book) {
-        self.footerView.isHidden = false
-        self.footerTitleLabel.text = book.displayTitle
-        self.footerImageView.image = book.artwork
-        self.footerHeightConstraint.constant = 55
+        self.nowPlayingBar.isHidden = false
+        self.nowPlayingViewController?.book = book
     }
 
     func showPlayerView(book: Book) {
@@ -421,63 +385,5 @@ extension LibraryViewController: UIDocumentPickerDelegate {
         }
 
         self.loadFiles()
-    }
-}
-
-extension LibraryViewController {
-    /**
-     * For now, seek forward/backward and next/previous track perform the same function
-     */
-    func registerRemoteEvents() {
-        let togglePlayPauseHandler: (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus = { (_) -> MPRemoteCommandHandlerStatus in
-            PlayerManager.sharedInstance.playPause()
-            return .success
-        }
-
-        MPRemoteCommandCenter.shared().togglePlayPauseCommand.isEnabled = true
-        MPRemoteCommandCenter.shared().togglePlayPauseCommand.addTarget(handler: togglePlayPauseHandler)
-
-        MPRemoteCommandCenter.shared().playCommand.isEnabled = true
-        MPRemoteCommandCenter.shared().playCommand.addTarget(handler: togglePlayPauseHandler)
-
-        MPRemoteCommandCenter.shared().pauseCommand.isEnabled = true
-        MPRemoteCommandCenter.shared().pauseCommand.addTarget(handler: togglePlayPauseHandler)
-
-        let skipForwardHandler: (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus = { (commandEvent) -> MPRemoteCommandHandlerStatus in
-            PlayerManager.sharedInstance.forward()
-            return .success
-        }
-
-        MPRemoteCommandCenter.shared().skipForwardCommand.preferredIntervals = [30]
-        MPRemoteCommandCenter.shared().skipForwardCommand.addTarget(handler: skipForwardHandler)
-
-        MPRemoteCommandCenter.shared().skipBackwardCommand.preferredIntervals = [30]
-        MPRemoteCommandCenter.shared().nextTrackCommand.addTarget(handler: skipForwardHandler)
-
-        MPRemoteCommandCenter.shared().seekForwardCommand.addTarget { (commandEvent) -> MPRemoteCommandHandlerStatus in
-            guard let cmd = commandEvent as? MPSeekCommandEvent,
-                cmd.type == .endSeeking else { return .success }
-
-            //end seeking
-            PlayerManager.sharedInstance.forward()
-            return .success
-        }
-
-        let skipBackwardHandler: (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus = { (commandEvent) -> MPRemoteCommandHandlerStatus in
-            PlayerManager.sharedInstance.rewind()
-            return .success
-        }
-
-        MPRemoteCommandCenter.shared().skipBackwardCommand.addTarget(handler: skipBackwardHandler)
-        MPRemoteCommandCenter.shared().previousTrackCommand.addTarget(handler: skipBackwardHandler)
-
-        MPRemoteCommandCenter.shared().seekBackwardCommand.addTarget { (commandEvent) -> MPRemoteCommandHandlerStatus in
-            guard let cmd = commandEvent as? MPSeekCommandEvent,
-                cmd.type == .endSeeking else { return .success }
-
-            //end seeking
-            PlayerManager.sharedInstance.rewind()
-            return .success
-        }
     }
 }

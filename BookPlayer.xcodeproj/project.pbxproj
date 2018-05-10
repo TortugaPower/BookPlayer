@@ -30,8 +30,11 @@
 		C30EEEC02079645C00A4ED33 /* PlayerControlsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30EEEBC2079645C00A4ED33 /* PlayerControlsViewController.swift */; };
 		C30EEEC12079645C00A4ED33 /* PlayerMetaViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30EEEBD2079645C00A4ED33 /* PlayerMetaViewController.swift */; };
 		C318D3AD208CF624000666F8 /* PlayerJumpIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C318D3AC208CF624000666F8 /* PlayerJumpIconView.swift */; };
+		C318DDB820A3A3F400C3A17B /* UIImageView+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C318DDB720A3A3F400C3A17B /* UIImageView+BookPlayer.swift */; };
+		C318DDBC20A48D4700C3A17B /* BPMarqueeLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C318DDBB20A48D4700C3A17B /* BPMarqueeLabel.swift */; };
 		C32BE6B8207BF7A6006D07B9 /* Book.swift in Sources */ = {isa = PBXBuildFile; fileRef = C32BE6B7207BF7A6006D07B9 /* Book.swift */; };
 		C32BE6BA207BF80A006D07B9 /* Chapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C32BE6B9207BF80A006D07B9 /* Chapter.swift */; };
+		C36C4D5C20A23E1800AFDB76 /* NowPlayingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C36C4D5B20A23E1800AFDB76 /* NowPlayingViewController.swift */; };
 		C37A6873209F0F830063AEAC /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = C37A6872209F0F830063AEAC /* Credits.html */; };
 		C37A6875209F13120063AEAC /* CreditsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37A6874209F13120063AEAC /* CreditsViewController.swift */; };
 		C3A479132094C8C300D92122 /* rubberBandDistance.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479122094C8C300D92122 /* rubberBandDistance.swift */; };
@@ -99,11 +102,14 @@
 		C30EEEC3207A7CCE00A4ED33 /* Cartfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Cartfile; sourceTree = SOURCE_ROOT; };
 		C30EEEC4207A7CD500A4ED33 /* Cartfile.resolved */ = {isa = PBXFileReference; lastKnownFileType = text; path = Cartfile.resolved; sourceTree = SOURCE_ROOT; };
 		C318D3AC208CF624000666F8 /* PlayerJumpIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerJumpIconView.swift; sourceTree = "<group>"; };
+		C318DDB720A3A3F400C3A17B /* UIImageView+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+BookPlayer.swift"; sourceTree = "<group>"; };
+		C318DDBB20A48D4700C3A17B /* BPMarqueeLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPMarqueeLabel.swift; sourceTree = "<group>"; };
 		C32BE6B7207BF7A6006D07B9 /* Book.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Book.swift; sourceTree = "<group>"; };
 		C32BE6B9207BF80A006D07B9 /* Chapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chapter.swift; sourceTree = "<group>"; };
 		C35BADE7206989E6007687C1 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		C35BADE8206989E6007687C1 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		C35BADE9206989E6007687C1 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .swiftlint.yml; sourceTree = "<group>"; };
+		C36C4D5B20A23E1800AFDB76 /* NowPlayingViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NowPlayingViewController.swift; sourceTree = "<group>"; };
 		C37A6872209F0F830063AEAC /* Credits.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = Credits.html; sourceTree = "<group>"; };
 		C37A6874209F13120063AEAC /* CreditsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreditsViewController.swift; sourceTree = "<group>"; };
 		C3A479122094C8C300D92122 /* rubberBandDistance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = rubberBandDistance.swift; sourceTree = "<group>"; };
@@ -169,6 +175,7 @@
 				C3AA3732207BF7670004DCFD /* Models */,
 				C3EF535F20800D8B00B9629D /* Extensions */,
 				C3A479112094C8A800D92122 /* Utils */,
+				C318DDBB20A48D4700C3A17B /* BPMarqueeLabel.swift */,
 				D367F7671FA2A6F000FEDB37 /* Constants.swift */,
 				418B6CFB1D2707F800F974FB /* AppDelegate.swift */,
 				418B6D011D2707F800F974FB /* Main.storyboard */,
@@ -219,6 +226,7 @@
 				410D0FEE1EDDBC3300A52EB9 /* DataManager.swift */,
 				4136163F1D2E21F000E48944 /* LibraryViewController.swift */,
 				C3FE94782080086800BCEA37 /* BookCellView.swift */,
+				C36C4D5820A23DF000AFDB76 /* Containers */,
 			);
 			path = Library;
 			sourceTree = "<group>";
@@ -230,6 +238,14 @@
 				C37A6874209F13120063AEAC /* CreditsViewController.swift */,
 			);
 			path = Settings;
+			sourceTree = "<group>";
+		};
+		C36C4D5820A23DF000AFDB76 /* Containers */ = {
+			isa = PBXGroup;
+			children = (
+				C36C4D5B20A23E1800AFDB76 /* NowPlayingViewController.swift */,
+			);
+			path = Containers;
 			sourceTree = "<group>";
 		};
 		C3A479112094C8A800D92122 /* Utils */ = {
@@ -272,6 +288,7 @@
 				C30B085E209654E3003F325B /* UIColor+BookPlayer.swift */,
 				C30CD2A0209791FA00258B09 /* UIColor+Sweetercolor.swift */,
 				C3A479182094CAF300D92122 /* UIViewController+BookPlayer.swift */,
+				C318DDB720A3A3F400C3A17B /* UIImageView+BookPlayer.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -461,6 +478,7 @@
 				C3A479132094C8C300D92122 /* rubberBandDistance.swift in Sources */,
 				C30CD2A1209791FA00258B09 /* UIColor+Sweetercolor.swift in Sources */,
 				C30EEEC02079645C00A4ED33 /* PlayerControlsViewController.swift in Sources */,
+				C318DDBC20A48D4700C3A17B /* BPMarqueeLabel.swift in Sources */,
 				C3A479152094CA3800D92122 /* UIImage+BookPlayer.swift in Sources */,
 				413616401D2E21F000E48944 /* LibraryViewController.swift in Sources */,
 				418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */,
@@ -476,8 +494,10 @@
 				C3FE94792080086800BCEA37 /* BookCellView.swift in Sources */,
 				C30B085F209654E3003F325B /* UIColor+BookPlayer.swift in Sources */,
 				410D0FEF1EDDBC3300A52EB9 /* DataManager.swift in Sources */,
+				C36C4D5C20A23E1800AFDB76 /* NowPlayingViewController.swift in Sources */,
 				410D0FED1EDCF4B000A52EB9 /* SettingsViewController.swift in Sources */,
 				C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */,
+				C318DDB820A3A3F400C3A17B /* UIImageView+BookPlayer.swift in Sources */,
 				C32BE6B8207BF7A6006D07B9 /* Book.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

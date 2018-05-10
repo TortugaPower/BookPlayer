@@ -10,6 +10,7 @@ import UIKit
 import AVFoundation
 import Fabric
 import Crashlytics
+import MediaPlayer
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
@@ -41,12 +42,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             // @TODO: Handle failing AVAudioSession
         }
 
+        // register for remote events
+        self.registerRemoteEvents()
+
         return true
     }
 
-    func application(_ app: UIApplication,
-                     open url: URL,
-                     options: [UIApplicationOpenURLOptionsKey: Any] = [:]) -> Bool {
+    func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey: Any] = [:]) -> Bool {
         // This function is called when the app is opened with a audio file url,
         // like when receiving files through AirDrop
 
@@ -103,5 +105,62 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    }
+
+    // For now, seek forward/backward and next/previous track perform the same function
+    func registerRemoteEvents() {
+        let togglePlayPauseHandler: (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus = { (_) -> MPRemoteCommandHandlerStatus in
+            PlayerManager.sharedInstance.playPause()
+            return .success
+        }
+
+        MPRemoteCommandCenter.shared().togglePlayPauseCommand.isEnabled = true
+        MPRemoteCommandCenter.shared().togglePlayPauseCommand.addTarget(handler: togglePlayPauseHandler)
+
+        MPRemoteCommandCenter.shared().playCommand.isEnabled = true
+        MPRemoteCommandCenter.shared().playCommand.addTarget(handler: togglePlayPauseHandler)
+
+        MPRemoteCommandCenter.shared().pauseCommand.isEnabled = true
+        MPRemoteCommandCenter.shared().pauseCommand.addTarget(handler: togglePlayPauseHandler)
+
+        let skipForwardHandler: (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus = { (commandEvent) -> MPRemoteCommandHandlerStatus in
+            PlayerManager.sharedInstance.forward()
+            return .success
+        }
+
+        MPRemoteCommandCenter.shared().skipForwardCommand.preferredIntervals = [30]
+        MPRemoteCommandCenter.shared().skipForwardCommand.addTarget(handler: skipForwardHandler)
+
+        MPRemoteCommandCenter.shared().skipBackwardCommand.preferredIntervals = [30]
+        MPRemoteCommandCenter.shared().nextTrackCommand.addTarget(handler: skipForwardHandler)
+
+        MPRemoteCommandCenter.shared().seekForwardCommand.addTarget { (commandEvent) -> MPRemoteCommandHandlerStatus in
+            guard let cmd = commandEvent as? MPSeekCommandEvent, cmd.type == .endSeeking else {
+                return .success
+            }
+
+            // End seeking
+            PlayerManager.sharedInstance.forward()
+
+            return .success
+        }
+
+        let skipBackwardHandler: (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus = { (commandEvent) -> MPRemoteCommandHandlerStatus in
+            PlayerManager.sharedInstance.rewind()
+
+            return .success
+        }
+
+        MPRemoteCommandCenter.shared().skipBackwardCommand.addTarget(handler: skipBackwardHandler)
+        MPRemoteCommandCenter.shared().previousTrackCommand.addTarget(handler: skipBackwardHandler)
+
+        MPRemoteCommandCenter.shared().seekBackwardCommand.addTarget { (commandEvent) -> MPRemoteCommandHandlerStatus in
+            guard let cmd = commandEvent as? MPSeekCommandEvent,
+                cmd.type == .endSeeking else { return .success }
+
+            //end seeking
+            PlayerManager.sharedInstance.rewind()
+            return .success
+        }
     }
 }
