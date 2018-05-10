@@ -122,7 +122,20 @@
                             </tableView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xYN-SW-g2w">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
+                                <subviews>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="emptyLibrary" translatesAutoresizingMaskIntoConstraints="NO" id="0RV-NO-MaQ">
+                                        <rect key="frame" x="63" y="151.66666666666669" width="249" height="249"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="249" id="5na-dc-FrY"/>
+                                            <constraint firstAttribute="width" constant="249" id="Wgm-0u-wJb"/>
+                                        </constraints>
+                                    </imageView>
+                                </subviews>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstItem="0RV-NO-MaQ" firstAttribute="centerX" secondItem="xYN-SW-g2w" secondAttribute="centerX" id="iYA-W8-R4R"/>
+                                    <constraint firstItem="0RV-NO-MaQ" firstAttribute="centerY" secondItem="xYN-SW-g2w" secondAttribute="centerY" constant="-60" id="mIJ-Af-FIC"/>
+                                </constraints>
                             </view>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="b0f-6G-C7c">
                                 <rect key="frame" x="0.0" y="550" width="375" height="88"/>
@@ -152,9 +165,6 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="Gny-cx-Bg7"/>
                         <variation key="default">
-                            <mask key="subviews">
-                                <exclude reference="xYN-SW-g2w"/>
-                            </mask>
                             <mask key="constraints">
                                 <exclude reference="YHw-ln-TSF"/>
                             </mask>
@@ -971,6 +981,7 @@ Use with caution and care for your hearing.</string>
         </scene>
     </scenes>
     <resources>
+        <image name="emptyLibrary" width="249" height="249"/>
         <image name="maskPlayerClose" width="40" height="14"/>
         <image name="nowPlayingPause" width="62" height="62"/>
         <image name="playerIconPlay" width="68" height="68"/>
