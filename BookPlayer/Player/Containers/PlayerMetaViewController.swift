@@ -44,7 +44,7 @@ class PlayerMetaViewController: PlayerContainerViewController {
     }
 
     private func setChapterLabel() {
-        guard let chapters = self.book?.chapters, !chapters.isEmpty, let currentChapter = self.book?.currentChapter else {
+        guard let book = self.book, book.hasChapters, let currentChapter = book.currentChapter else {
             self.chapterLabel.text = ""
             self.chapterLabel.isEnabled = false
 
@@ -52,7 +52,7 @@ class PlayerMetaViewController: PlayerContainerViewController {
         }
 
         self.chapterLabel.isEnabled = true
-        self.chapterLabel.text = currentChapter.title != "" ? currentChapter.title : "Chapter \(currentChapter.index) of \(chapters.count)"
+        self.chapterLabel.text = currentChapter.title != "" ? currentChapter.title : "Chapter \(currentChapter.index) of \(book.chapters.count)"
     }
 
     @objc func onPlayback(_ notification: Notification) {

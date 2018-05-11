@@ -19,20 +19,25 @@ class PlayerProgressViewController: PlayerContainerViewController {
 
     var book: Book? {
         didSet {
-            guard let book = self.book else {
-                return
-            }
-
-            self.maxTimeLabel.text = self.formatTime(book.duration)
-            self.currentTime = book.currentTime
-
             self.setPercentage()
+
+            self.currentTime = self.currentTimeInContext()
+            self.maxTimeLabel.text = self.formatTime(self.maxTime)
         }
+    }
+
+    var maxTime: TimeInterval {
+        guard let book = self.book else {
+            return 0.0
+        }
+
+        return book.hasChapters ? book.currentChapter!.duration : book.duration
     }
 
     var currentTime: TimeInterval = 0.0 {
         didSet {
             self.currentTimeLabel.text = self.formatTime(self.currentTime)
+            self.maxTimeLabel.text = self.formatTime(self.maxTime)
 
             self.setPercentage()
 
@@ -40,41 +45,31 @@ class PlayerProgressViewController: PlayerContainerViewController {
                 return
             }
 
-            let percentCompleted = CGFloat(self.currentTime / self.duration)
+            let percentCompleted = CGFloat(self.progressSlider.value)
             let width = self.view.bounds.width
 
             self.minTrackWidth.constant = (width - thumbWidth) * percentCompleted + thumbWidth / 2
-
         }
-    }
-
-    var duration: TimeInterval {
-        guard let duration = self.book?.duration else {
-            return 0.0
-        }
-
-        return duration
     }
 
     var colors: ArtworkColors? {
         didSet {
-            guard let secondaryColor = self.colors?.secondary else {
+            guard let colors = self.colors else {
                 return
             }
 
-            self.sliderMin.tintColor = secondaryColor
-            self.sliderMax.tintColor = secondaryColor
-
-            self.currentTimeLabel.textColor = secondaryColor
-            self.maxTimeLabel.textColor = secondaryColor
-            self.percentageLabel.textColor = secondaryColor
+            self.sliderMin.tintColor = colors.secondary
+            self.sliderMax.tintColor = colors.secondary
+            self.currentTimeLabel.textColor = colors.secondary
+            self.maxTimeLabel.textColor = colors.secondary
+            self.percentageLabel.textColor = colors.primary
         }
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.progressSlider.maximumValue = 100.0
+        self.progressSlider.maximumValue = 1.0
         self.progressSlider.minimumValue = 0.0
 
         self.progressSlider.setThumbImage(#imageLiteral(resourceName: "thumbImageDefault"), for: .normal)
@@ -94,26 +89,53 @@ class PlayerProgressViewController: PlayerContainerViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(self.onPlayback), name: Notification.Name.AudiobookPlayer.bookPlaying, object: nil)
     }
 
+    private func currentTimeInContext() -> TimeInterval {
+        guard let book = self.book else {
+            return 0.0
+        }
+
+        guard let currentChapter = book.currentChapter else {
+            return book.currentTime
+        }
+
+        return book.currentTime - currentChapter.start
+    }
+
     private func setPercentage() {
         guard let book = self.book else {
             return
         }
 
         self.percentageLabel.text = book.percentCompletedRoundedString
-        self.progressSlider.value = Float(book.percentCompleted)
-    }
 
-    @objc func onPlayback() {
-        guard let time = self.book?.currentTime else {
+        guard let currentChapter = book.currentChapter else {
+            self.progressSlider.value = Float(book.percentCompleted / 100)
+
             return
         }
 
-        self.currentTime = time
+        self.progressSlider.value = Float((book.currentTime - currentChapter.start) / currentChapter.duration)
+    }
+
+    @objc func onPlayback() {
+        self.currentTime = self.currentTimeInContext()
     }
 
     @IBAction func sliderValueChanged(_ sender: UISlider) {
-        self.currentTime = TimeInterval(sender.value / sender.maximumValue) * self.duration
+        guard let book = self.book else {
+            return
+        }
 
-        PlayerManager.shared.jumpTo(self.currentTime)
+        let value = TimeInterval(sender.value / sender.maximumValue)
+
+        var currentTime = value * book.duration
+
+        if let currentChapter = book.currentChapter {
+            currentTime = value * currentChapter.duration + currentChapter.start
+        }
+
+        PlayerManager.shared.jumpTo(currentTime)
+
+        self.currentTime = self.currentTimeInContext()
     }
 }

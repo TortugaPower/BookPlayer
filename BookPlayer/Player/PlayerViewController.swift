@@ -99,7 +99,6 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.metaViewController?.book = currentBook
         self.controlsViewController?.book = currentBook
         self.progressViewController?.book = currentBook
-        self.progressViewController?.currentTime = UserDefaults.standard.double(forKey: currentBook.identifier)
 
         self.speedButton.title = self.formatSpeed(PlayerManager.shared.speed)
 

@@ -185,10 +185,10 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
                 UIImpactFeedbackGenerator(style: .medium).impactOccurred()
             }
 
-            UIView.animate(withDuration: 0.2) {
+            UIView.animate(withDuration: 0.20, delay: 0.0, options: .curveEaseIn, animations: {
                 self.rewindIcon.alpha = self.jumpIconAlpha
                 self.forwardIcon.alpha = self.jumpIconAlpha
-            }
+            })
 
             if sign < 0 {
                 PlayerManager.shared.forward()
@@ -224,7 +224,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         UIView.animate(withDuration: 0.20, delay: 0.10, options: .curveEaseOut, animations: {
             self.rewindIcon.alpha = self.jumpIconAlpha
             self.forwardIcon.alpha = self.jumpIconAlpha
-        }, completion: nil)
+        })
 
         self.triggeredPanAction = false
     }

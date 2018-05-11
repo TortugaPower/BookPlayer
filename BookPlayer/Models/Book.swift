@@ -106,6 +106,10 @@ class Book: NSObject {
         }
     }
 
+    var hasChapters: Bool {
+        return !self.chapters.isEmpty
+    }
+
     var currentChapter: Chapter?
 
     private func updateCurrentChapter() {
