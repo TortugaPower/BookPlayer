@@ -545,26 +545,27 @@ Use with caution and care for your hearing.</string>
                             </tableViewSection>
                             <tableViewSection headerTitle="Support" id="ayL-5Z-O5B">
                                 <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" textLabel="ZIh-S5-rG2" detailTextLabel="2cd-u0-EbM" style="IBUITableViewCellStyleSubtitle" id="PcX-Q6-nTx">
-                                        <rect key="frame" x="0.0" y="575" width="375" height="44"/>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" textLabel="ZIh-S5-rG2" detailTextLabel="2cd-u0-EbM" rowHeight="50" style="IBUITableViewCellStyleSubtitle" id="PcX-Q6-nTx">
+                                        <rect key="frame" x="0.0" y="575" width="375" height="50"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="PcX-Q6-nTx" id="Vnu-PP-RHh">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="43.666666666666664"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="49.666666666666664"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="View project on GitHub" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="ZIh-S5-rG2">
-                                                    <rect key="frame" x="16" y="5" width="177" height="20.333333333333332"/>
+                                                    <rect key="frame" x="16" y="8.9999999999999982" width="177" height="20.333333333333332"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Open new issues for your feature requests and errors" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="2cd-u0-EbM">
-                                                    <rect key="frame" x="16" y="25.333333333333332" width="301" height="14.333333333333334"/>
+                                                    <rect key="frame" x="16" y="29.333333333333329" width="257" height="12"/>
                                                     <autoresizingMask key="autoresizingMask"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="12"/>
-                                                    <color key="textColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="10"/>
+                                                    <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
+                                                    <size key="shadowOffset" width="0.0" height="0.0"/>
                                                 </label>
                                             </subviews>
                                         </tableViewCellContentView>
@@ -572,26 +573,27 @@ Use with caution and care for your hearing.</string>
                                             <accessibilityTraits key="traits" link="YES"/>
                                         </accessibility>
                                     </tableViewCell>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" textLabel="fjz-qr-8eq" detailTextLabel="q0Y-GP-ZUv" style="IBUITableViewCellStyleSubtitle" id="yry-fO-71W">
-                                        <rect key="frame" x="0.0" y="619" width="375" height="44"/>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" textLabel="fjz-qr-8eq" detailTextLabel="q0Y-GP-ZUv" rowHeight="50" style="IBUITableViewCellStyleSubtitle" id="yry-fO-71W">
+                                        <rect key="frame" x="0.0" y="625" width="375" height="50"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="yry-fO-71W" id="wVG-jM-nVz">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="43.666666666666664"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="49.666666666666664"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Send us an email" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="fjz-qr-8eq">
-                                                    <rect key="frame" x="16" y="5" width="129.66666666666666" height="20.333333333333332"/>
+                                                    <rect key="frame" x="16" y="8.9999999999999982" width="129.66666666666666" height="20.333333333333332"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="support@bookplayer.app" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="q0Y-GP-ZUv">
-                                                    <rect key="frame" x="16" y="25.333333333333332" width="142" height="14.333333333333334"/>
+                                                    <rect key="frame" x="16" y="29.333333333333329" width="121" height="12"/>
                                                     <autoresizingMask key="autoresizingMask"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="12"/>
-                                                    <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="10"/>
+                                                    <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
+                                                    <size key="shadowOffset" width="0.0" height="0.0"/>
                                                 </label>
                                             </subviews>
                                         </tableViewCellContentView>
@@ -604,7 +606,7 @@ Use with caution and care for your hearing.</string>
                             <tableViewSection id="Zgg-yq-5sL">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="krc-kL-l61" style="IBUITableViewCellStyleDefault" id="sgZ-av-Xee">
-                                        <rect key="frame" x="0.0" y="699" width="375" height="44"/>
+                                        <rect key="frame" x="0.0" y="711" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="sgZ-av-Xee" id="ZfA-JD-rX3">
                                             <rect key="frame" x="0.0" y="0.0" width="341" height="43.666666666666664"/>
@@ -1077,6 +1079,7 @@ Use with caution and care for your hearing.</string>
                             <constraint firstItem="Sfc-n7-Zho" firstAttribute="leading" secondItem="r9F-fq-dDO" secondAttribute="leading" constant="8" id="ove-4h-K7o"/>
                             <constraint firstItem="fPh-z9-Tc5" firstAttribute="leading" secondItem="jDQ-kp-Eg6" secondAttribute="trailing" constant="-10" id="uKh-k4-ihX"/>
                         </constraints>
+                        <viewLayoutGuide key="safeArea" id="OKP-8n-EqR"/>
                     </view>
                     <connections>
                         <outlet property="artwork" destination="VVl-ON-iS7" id="dxh-IM-pw8"/>
