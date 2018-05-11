@@ -40,7 +40,7 @@ Pull requests regarding upcoming features and bugfixes are always welcomed. Plea
 - [@bryanrezende](https://github.com/bryanrezende) - Smart rewind
 - [@e7mac](https://github.com/e7mac) - Speed control, Autoplay
 - [@gpambrozio](https://github.com/gpambrozio) - Volume Boost
-- [@pichfl](https://github.com/pichfl) - UI Design, App Icon, Refactoring
+- [@pichfl](https://github.com/pichfl) - UI Design, Artwork, Refactoring
 - [@vab9](https://github.com/vab9) - AirDrop Support
 
 A full list of all contributors can be found [on GitHub.](https://github.com/GianniCarlo/Audiobook-Player/graphs/contributors)
