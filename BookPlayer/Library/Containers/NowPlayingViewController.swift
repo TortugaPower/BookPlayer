@@ -55,7 +55,7 @@ class NowPlayingViewController: PlayerContainerViewController, UIGestureRecogniz
         self.background.mask = UIImageView.squircleMask(frame: self.background.bounds)
 
         self.tap = UITapGestureRecognizer(target: self, action: #selector(tapAction))
-        self.tap.cancelsTouchesInView = false
+        self.tap.cancelsTouchesInView = true
 
         self.view.addGestureRecognizer(self.tap)
 
