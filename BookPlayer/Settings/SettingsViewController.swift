@@ -118,7 +118,7 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
             let alert = UIAlertController(title: "Unable to compose email", message: "You need to set up an email account in your device settings to use this. \n\nPlease mail us at \(self.supportEmail)\n\n\(debugInfo)", preferredStyle: .alert)
 
             alert.addAction(UIAlertAction(title: "Copy information to clipboard", style: .default, handler: { _ in
-                UIPasteboard.general.string = "\(self.supportEmail)\(debugInfo)"
+                UIPasteboard.general.string = "\(self.supportEmail)\n\(debugInfo)"
             }))
 
             alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
