@@ -19,11 +19,11 @@ public class LibraryItem: NSManagedObject {
             return #imageLiteral(resourceName: "defaultArtwork")
         }
     }
-    
+
     var percentCompletedRounded: Int {
         return Int(self.percentCompleted)
     }
-    
+
     var percentCompletedRoundedString: String {
         return "\(self.percentCompletedRounded)%"
     }

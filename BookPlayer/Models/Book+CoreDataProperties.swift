@@ -10,7 +10,6 @@
 import Foundation
 import CoreData
 
-
 extension Book {
 
     @nonobjc public class func fetchRequest() -> NSFetchRequest<Book> {

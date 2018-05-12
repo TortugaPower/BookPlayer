@@ -9,26 +9,41 @@
 import Foundation
 import AVFoundation
 import UIKit
+import CoreData
 
 class DataManager {
     static let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
 
-    /**
-     *  Load local files and return array of Books
-     */
-    class func loadBooks(completion:@escaping ([Book]) -> Void) {
-        var books = [Book]()
-        //get reference of all the files located inside the Documents folder
-        guard let urls = DataManager.getLocalFilesURL() else {
-            return completion(books)
-        }
+    // MARK: - Core Data stack
 
-        DispatchQueue.global().async {
-            //iterate and process files
-            self.process(urls, books: &books)
+    static var persistentContainer: NSPersistentContainer = {
+        let container = NSPersistentContainer(name: "BookPlayer")
+        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+            if let error = error as NSError? {
+                /*
+                 Typical reasons for an error here include:
+                 * The parent directory does not exist, cannot be created, or disallows writing.
+                 * The persistent store is not accessible, due to permissions or data protection when the device is locked.
+                 * The device is out of space.
+                 * The store could not be migrated to the current model version.
+                 Check the error message to determine what the actual problem was.
+                 */
+                fatalError("Unresolved error \(error), \(error.userInfo)")
+            }
+        })
+        return container
+    }()
 
-            DispatchQueue.main.async {
-                completion(books)
+    class func saveContext () {
+        let context = self.persistentContainer.viewContext
+        if context.hasChanges {
+            do {
+                try context.save()
+            } catch {
+                // Replace this implementation with code to handle the error appropriately.
+                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
+                let nserror = error as NSError
+                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
             }
         }
     }
@@ -50,29 +65,6 @@ class DataManager {
         }
 
         return urlArray
-    }
-
-    /**
-     * Create book objects array from urls
-     */
-    private class func process(_ urls: [URL], books:inout [Book]) {
-        for fileURL in urls {
-            // if file already in list, skip to next one
-            if books.contains(where: { $0.fileURL == fileURL }) {
-                continue
-            }
-
-            // autoreleasepool needed to avoid OOM crashes from the file manager
-            autoreleasepool { () -> Void in
-                let book = Book(fromFileURL: fileURL)
-
-                books.append(book)
-            }
-        }
-
-        books.sort { (book1, book2) -> Bool in
-            return book1.title.compare(book2.title) == .orderedAscending
-        }
     }
 
     private class func process(_ files:inout [String], urls:inout [URL]) {
@@ -98,5 +90,75 @@ class DataManager {
         }
 
         return self.process(&files, urls: &urls)
+    }
+
+    /**
+     *  Load local files and return array of Books
+     */
+    class func loadLibrary(completion:@escaping (Library) -> Void) {
+
+        //load everything from DB
+        var library: Library!
+
+        let context = self.persistentContainer.viewContext
+        let fetch: NSFetchRequest<Library> = Library.fetchRequest()
+        do {
+            library = try context.fetch(fetch).first ??
+                Library.create(in: context)
+        } catch {
+            fatalError("Failed to fetch library")
+        }
+
+        //get reference of all the files located inside the Documents folder
+        guard var urls = DataManager.getLocalFilesURL() else {
+            return completion(library)
+        }
+
+        if let items = library.items?.array as? [LibraryItem] {
+            //remove urls already transformed into books
+            urls = urls.filter { (url) -> Bool in
+                return !items.contains { (item) -> Bool in
+                    //check if playlist
+                    if let playlist = item as? Playlist,
+                        let books = playlist.books?.array as? [Book] {
+                        //check playlist books
+                        return books.contains { (book) -> Bool in
+                            if book.identifier == url.lastPathComponent {
+                                book.load(fileURL: url)
+                                return true
+                            }
+                            return false
+                        }
+                    }
+
+                    //check book
+                    if item.identifier == url.lastPathComponent,
+                        let book = item as? Book {
+                        book.load(fileURL: url)
+                        return true
+                    }
+                    return false
+                }
+            }
+        }
+
+        DispatchQueue.global().async {
+            //iterate and process files
+            let context = self.persistentContainer.viewContext
+
+            for fileURL in urls {
+                // autoreleasepool needed to avoid OOM crashes from the file manager
+                autoreleasepool { () -> Void in
+                    let book = Book(from: fileURL, context: context)
+                    library.addToItems(book)
+                }
+            }
+
+            self.saveContext()
+
+            DispatchQueue.main.async {
+                completion(library)
+            }
+        }
     }
 }

@@ -10,7 +10,6 @@
 import Foundation
 import CoreData
 
-
 extension Playlist {
 
     @nonobjc public class func fetchRequest() -> NSFetchRequest<Playlist> {

@@ -14,6 +14,6 @@ public class Playlist: LibraryItem {
     convenience init(books: [Book], context: NSManagedObjectContext) {
         let entity = NSEntityDescription.entity(forEntityName: "Playlist", in: context)!
         self.init(entity: entity, insertInto: context)
-        
+
     }
 }

@@ -21,6 +21,8 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
     // TableView's datasource
     var bookArray = [Book]()
 
+    var library: Library!
+
     // keep in memory current Documents folder
     let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
     let refreshControl = UIRefreshControl()
@@ -118,8 +120,10 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
         let loadingWheel = MBProgressHUD.showAdded(to: self.view, animated: true)
         loadingWheel?.labelText = "Loading Books"
 
-        DataManager.loadBooks { (books) in
-            self.bookArray = books
+        DataManager.loadLibrary { (library) in
+            // swiftlint:disable force_cast
+            self.library = library
+            self.bookArray = library.items?.array as! [Book]
             self.refreshControl.endRefreshing()
             MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
 
@@ -198,7 +202,7 @@ extension LibraryViewController: UITableViewDataSource {
             cell.selectionStyle = .none
 
             // NOTE: we should have a default image for artwork
-            cell.artworkImageView.image = book.artwork
+            cell.artworkImageView.image = book.artworkImage
 
             // Load stored percentage value
             cell.completionLabel.text = book.percentCompletedRoundedString
@@ -228,6 +232,9 @@ extension LibraryViewController: UITableViewDelegate {
                 let book = self.bookArray[indexPath.row]
 
                 do {
+                    self.library.removeFromItems(book)
+                    DataManager.saveContext()
+
                     try FileManager.default.removeItem(at: book.fileURL)
 
                     self.bookArray.remove(at: indexPath.row)

@@ -10,7 +10,6 @@
 import Foundation
 import CoreData
 
-
 extension LibraryItem {
 
     @nonobjc public class func fetchRequest() -> NSFetchRequest<LibraryItem> {

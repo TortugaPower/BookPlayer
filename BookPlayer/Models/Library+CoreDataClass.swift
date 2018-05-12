@@ -10,7 +10,6 @@
 import Foundation
 import CoreData
 
-
 public class Library: NSManagedObject {
 
 }

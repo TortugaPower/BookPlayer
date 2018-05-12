@@ -10,11 +10,15 @@
 import Foundation
 import CoreData
 
-
 extension Library {
 
     @nonobjc public class func fetchRequest() -> NSFetchRequest<Library> {
         return NSFetchRequest<Library>(entityName: "Library")
+    }
+
+    @nonobjc public class func create(in context: NSManagedObjectContext) -> Library {
+        // swiftlint:disable force_cast
+        return NSEntityDescription.insertNewObject(forEntityName: "Library", into: context) as! Library
     }
 
     @NSManaged public var items: NSOrderedSet?

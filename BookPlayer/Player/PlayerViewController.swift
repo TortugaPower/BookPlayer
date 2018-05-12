@@ -110,13 +110,14 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.metaViewController?.book = currentBook
         self.controlsViewController?.book = currentBook
         self.progressViewController?.book = currentBook
+        self.progressViewController?.currentTime = currentBook.currentTime
 
         self.speedButton.title = self.formatSpeed(PlayerManager.shared.speed)
 
         var colors = ArtworkColors()
 
         if !currentBook.usesDefaultArtwork {
-            colors = ArtworkColors(image: currentBook.artwork, darknessThreshold: self.darknessThreshold)
+            colors = ArtworkColors(image: currentBook.artworkImage, darknessThreshold: self.darknessThreshold)
         }
 
         self.view.backgroundColor = colors.background
@@ -134,7 +135,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
         self.backgroundImage.addSubview(blurView)
         self.backgroundImage.alpha = 0.2
-        self.backgroundImage.image = currentBook.artwork
+        self.backgroundImage.image = currentBook.artworkImage
 
         self.expectedStatusBarStyle = colors.isDark ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
     }

@@ -45,6 +45,7 @@ class PlayerMetaViewController: PlayerContainerViewController {
 
     private func setChapterLabel() {
         guard let book = self.book, book.hasChapters, let currentChapter = book.currentChapter else {
+
             self.chapterLabel.text = ""
             self.chapterLabel.isEnabled = false
 

@@ -9,8 +9,13 @@
 
 import Foundation
 import CoreData
-
+import AVFoundation
 
 public class Chapter: NSManagedObject {
+    convenience init(from item: AVPlayerItem, context: NSManagedObjectContext) {
+        let entity = NSEntityDescription.entity(forEntityName: "Chapter", in: context)!
+        self.init(entity: entity, insertInto: context)
 
+
+    }
 }

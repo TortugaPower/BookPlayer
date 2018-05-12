@@ -66,8 +66,6 @@ class PlayerManager: NSObject {
                 audioplayer.volume = 2.0
             }
 
-            book.chapters = self.playerItem.getChapters()
-
             //update UI on main thread
             DispatchQueue.main.async(execute: {
                 //set book metadata for lockscreen and control center
@@ -77,7 +75,7 @@ class PlayerManager: NSObject {
                     MPMediaItemPropertyPlaybackDuration: audioplayer.duration
                 ]
 
-                nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: book.artwork)
+                nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: book.artworkImage)
 
                 MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
 
@@ -102,6 +100,9 @@ class PlayerManager: NSObject {
         }
 
         self.currentBook.currentTime = audioplayer.currentTime
+        let percentage = round(self.currentBook.currentTime / self.currentBook.duration * 100)
+        self.currentBook.percentCompleted = percentage
+        DataManager.saveContext()
 
         MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
 
@@ -157,6 +158,7 @@ class PlayerManager: NSObject {
 
     var speed: Float {
         get {
+            print(self.identifier)
             let useGlobalSpeed = UserDefaults.standard.bool(forKey: UserDefaultsConstants.globalSpeedEnabled)
             let globalSpeed = UserDefaults.standard.float(forKey: "global_speed")
             let localSpeed = UserDefaults.standard.float(forKey: self.identifier+"_speed")
