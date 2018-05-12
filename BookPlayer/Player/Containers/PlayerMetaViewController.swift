@@ -10,9 +10,9 @@ import UIKit
 import MarqueeLabelSwift
 
 class PlayerMetaViewController: PlayerContainerViewController {
-    @IBOutlet private weak var authorLabel: MarqueeLabel!
-    @IBOutlet private weak var titleLabel: MarqueeLabel!
-    @IBOutlet private weak var chapterLabel: MarqueeLabel!
+    @IBOutlet private weak var authorLabel: BPMarqueeLabel!
+    @IBOutlet private weak var titleLabel: BPMarqueeLabel!
+    @IBOutlet private weak var chapterLabel: BPMarqueeLabel!
 
     var book: Book? {
         didSet {
@@ -39,16 +39,6 @@ class PlayerMetaViewController: PlayerContainerViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        let labels: [MarqueeLabel] = [self.authorLabel, self.titleLabel, self.chapterLabel]
-
-        for label in labels {
-            label.animationDelay = 2.0
-            label.speed = .rate(7.5)
-            label.fadeLength = 10.0
-            label.leadingBuffer = 10.0
-            label.trailingBuffer = 10.0
-        }
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.onPlayback), name: Notification.Name.AudiobookPlayer.bookPlaying, object: nil)
     }

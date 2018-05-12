@@ -28,14 +28,11 @@
 
 ### Upcoming features
 
-- Support for Playlists
-- iCloud integration to store users' playlist and books' url cloud reference
-- Implementation of AWS S3 integration to store books in the cloud
-- Stream books
+See [our Roadmap on GitHub](https://github.com/GianniCarlo/Audiobook-Player/projects/1) for details
 
 ## Contributing
 
-Pull requests regarding upcoming features (or bugs) are welcomed. Any suggestion or bug please open up an issue 👍
+Pull requests regarding upcoming features and bugfixes are always welcomed. Please [open an issue](https://github.com/GianniCarlo/Audiobook-Player/issues/new) if you have any suggestions or found a bug. 👍
 
 ### Contributors
 
@@ -43,7 +40,7 @@ Pull requests regarding upcoming features (or bugs) are welcomed. Any suggestion
 - [@bryanrezende](https://github.com/bryanrezende) - Smart rewind
 - [@e7mac](https://github.com/e7mac) - Speed control, Autoplay
 - [@gpambrozio](https://github.com/gpambrozio) - Volume Boost
-- [@pichfl](https://github.com/pichfl) - UI Design, App Icon, Refactoring
+- [@pichfl](https://github.com/pichfl) - UI Design, Artwork, Refactoring
 - [@vab9](https://github.com/vab9) - AirDrop Support
 
 A full list of all contributors can be found [on GitHub.](https://github.com/GianniCarlo/Audiobook-Player/graphs/contributors)
@@ -60,19 +57,6 @@ Managed with [Carthage](https://github.com/Carthage/Carthage)
 Managed with [Homebrew](https://brew.sh)
 
 - [SwiftLint](https://github.com/realm/SwiftLint)
-
-## Credits
-
-### Code
-
-- Drag gesture code adapted from [HarshilShah/DeckTransition](https://github.com/HarshilShah/DeckTransition)
-
-### Images
-
-- Skip time image made by [Vaadin](http://www.flaticon.com/authors/vaadin) from [www.flaticon.com](http://www.flaticon.com)
-- Small Play image made by [Madebyoliver](http://www.flaticon.com/authors/madebyoliver) from [www.flaticon.com](http://www.flaticon.com)
-- Small Pause image made by [Hanan](http://www.flaticon.com/authors/hanan) from [www.flaticon.com](http://www.flaticon.com)
-- Small Double right arrows image made by [Freepik](http://www.flaticon.com/authors/freepik) from [www.flaticon.com](http://www.flaticon.com)
 
 ## License
 
