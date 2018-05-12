@@ -57,12 +57,6 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
 
         self.nowPlayingBar.isHidden = true
 
-        // register to audio-interruption notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioInterruptions(_:)), name: NSNotification.Name.AVAudioSessionInterruption, object: nil)
-
-        // register to audio-route-change notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioRouteChange(_:)), name: NSNotification.Name.AVAudioSessionRouteChange, object: nil)
-
         // register for appDelegate openUrl notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.loadFiles), name: Notification.Name.AudiobookPlayer.openURL, object: nil)
 
@@ -84,31 +78,6 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
         //for iOS 8
         NotificationCenter.default.removeObserver(self)
         UIApplication.shared.endReceivingRemoteControlEvents()
-    }
-
-    // Playback may be interrupted by calls. Handle pause
-    @objc func handleAudioInterruptions(_ notification: Notification) {
-        if PlayerManager.shared.isPlaying {
-            PlayerManager.shared.pause()
-        }
-    }
-
-    // Handle audio route changes
-    @objc func handleAudioRouteChange(_ notification: Notification) {
-        guard PlayerManager.shared.isPlaying,
-            let userInfo = notification.userInfo,
-            let reasonValue = userInfo[AVAudioSessionRouteChangeReasonKey] as? UInt,
-            let reason = AVAudioSessionRouteChangeReason(rawValue: reasonValue) else {
-            return
-        }
-
-        // Pause playback if route changes due to a disconnect
-        switch reason {
-            case .oldDeviceUnavailable:
-                PlayerManager.shared.play()
-            default:
-                break
-        }
     }
 
     /**
