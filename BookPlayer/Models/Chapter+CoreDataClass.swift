@@ -16,6 +16,5 @@ public class Chapter: NSManagedObject {
         let entity = NSEntityDescription.entity(forEntityName: "Chapter", in: context)!
         self.init(entity: entity, insertInto: context)
 
-
     }
 }

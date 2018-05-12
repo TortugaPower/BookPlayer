@@ -9,6 +9,7 @@
 import UIKit
 import MediaPlayer
 import MBProgressHUD
+import SwiftReorder
 
 class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet weak var emptyListContainerView: UIView!
@@ -25,7 +26,6 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
 
     // keep in memory current Documents folder
     let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
-    let refreshControl = UIRefreshControl()
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let viewController = segue.destination as? NowPlayingViewController {
@@ -44,14 +44,14 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // pull-down-to-refresh support
-        self.refreshControl.attributedTitle = NSAttributedString(string: "Pull down to reload books")
-        self.refreshControl.addTarget(self, action: #selector(loadFiles), for: .valueChanged)
-        self.tableView.addSubview(self.refreshControl)
-
         // enables pop gesture on pushed controller
         self.navigationController!.interactivePopGestureRecognizer!.delegate = self
 
+        self.tableView.register(UINib(nibName: "BookCellView", bundle: nil), forCellReuseIdentifier: "BookCellView")
+        self.tableView.register(UINib(nibName: "AddCellView", bundle: nil), forCellReuseIdentifier: "AddCellView")
+        self.tableView.reorder.delegate = self
+        self.tableView.reorder.cellScale = 1.05
+        self.tableView.tableFooterView = UIView()
         // fixed tableview having strange offset
         self.edgesForExtendedLayout = UIRectEdge()
 
@@ -124,7 +124,6 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
             // swiftlint:disable force_cast
             self.library = library
             self.bookArray = library.items?.array as! [Book]
-            self.refreshControl.endRefreshing()
             MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
 
             //show/hide instructions view
@@ -189,29 +188,43 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
 
 extension LibraryViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        guard section == 0 else {
+            return 1
+        }
+
         return self.bookArray.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if let cell = tableView.dequeueReusableCell(withIdentifier: "BookCellView", for: indexPath) as? BookCellView {
-            let book = self.bookArray[indexPath.row]
-
-            cell.titleLabel.text = book.title
-            cell.authorLabel.text = book.author
-
-            cell.selectionStyle = .none
-
-            // NOTE: we should have a default image for artwork
-            cell.artworkImageView.image = book.artworkImage
-
-            // Load stored percentage value
-            cell.completionLabel.text = book.percentCompletedRoundedString
-            cell.completionLabel.textColor = UIColor.lightGray
-
-            return cell
+        if let spacer = tableView.reorder.spacerCell(for: indexPath) {
+            return spacer
         }
 
-        return UITableViewCell()
+        guard indexPath.section == 0,
+            let cell = tableView.dequeueReusableCell(withIdentifier: "BookCellView", for: indexPath) as? BookCellView else {
+                //load add cell
+                return tableView.dequeueReusableCell(withIdentifier: "AddCellView", for: indexPath)
+        }
+
+        let book = self.bookArray[indexPath.row]
+
+        cell.titleLabel.text = book.title
+        cell.authorLabel.text = book.author
+
+        cell.selectionStyle = .none
+
+        // NOTE: we should have a default image for artwork
+        cell.artworkImageView.image = book.artworkImage
+
+        // Load stored percentage value
+        cell.completionLabel.text = book.percentCompletedRoundedString
+        cell.completionLabel.textColor = UIColor.lightGray
+
+        return cell
+    }
+
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 2
     }
 }
 
@@ -221,6 +234,10 @@ extension LibraryViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+        guard indexPath.section == 0 else {
+            return nil
+        }
+
         let deleteAction = UITableViewRowAction(style: .default, title: "Delete") { (_, indexPath) in
             let alert = UIAlertController(title: "Confirmation", message: "Are you sure you would like to remove this audiobook?", preferredStyle: .alert)
 
@@ -261,6 +278,13 @@ extension LibraryViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
     }
 
+    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCellEditingStyle {
+        guard indexPath.section == 0 else {
+            return .insert
+        }
+        return .delete
+    }
+
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 86
     }
@@ -276,6 +300,39 @@ extension LibraryViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+
+        guard indexPath.section == 0 else {
+            let alertController = UIAlertController(title: nil, message: "You can also add files via AirDrop. Select BookPlayer from the list that appears when you send a file to your device", preferredStyle: .actionSheet)
+            alertController.addAction(UIAlertAction(title: "Import Files", style: .default) { (_) in
+                let providerList = UIDocumentMenuViewController(documentTypes: ["public.audio"], in: .import)
+                providerList.delegate = self
+
+                providerList.popoverPresentationController?.sourceView = self.view
+                providerList.popoverPresentationController?.sourceRect = CGRect(x: Double(self.view.bounds.size.width / 2.0), y: Double(self.view.bounds.size.height-45), width: 1.0, height: 1.0)
+                self.present(providerList, animated: true, completion: nil)
+            })
+
+            alertController.addAction(UIAlertAction(title: "Create Playlist", style: .default) { (_) in
+
+                let playlistAlert = UIAlertController(title: "Create a New Playlist", message: "Files in playlists are automatically played one after the other", preferredStyle: .alert)
+                playlistAlert.addTextField(configurationHandler: { (textfield) in
+                    textfield.placeholder = "Name"
+                })
+                playlistAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+                playlistAlert.addAction(UIAlertAction(title: "Create", style: .default, handler: { (_) in
+                }))
+
+                self.present(playlistAlert, animated: true, completion: nil)
+            })
+
+            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+
+            self.present(alertController, animated: true, completion: nil)
+
+            return
+        }
+
         let books = Array(self.bookArray.suffix(from: indexPath.row))
 
         play(books: books)
@@ -394,5 +451,52 @@ extension LibraryViewController: UIDocumentPickerDelegate {
         }
 
         self.loadFiles()
+    }
+}
+
+extension LibraryViewController: TableViewReorderDelegate {
+    func tableView(_ tableView: UITableView, reorderRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        guard destinationIndexPath.section == 0 else {
+            return
+        }
+
+        let book = self.bookArray[sourceIndexPath.row]
+        self.library.removeFromItems(at: sourceIndexPath.row)
+        self.library.insertIntoItems(book, at: destinationIndexPath.row)
+        DataManager.saveContext()
+        self.bookArray.remove(at: sourceIndexPath.row)
+        self.bookArray.insert(book, at: destinationIndexPath.row)
+    }
+
+    func tableView(_ tableView: UITableView, canReorderRowAt indexPath: IndexPath) -> Bool {
+        return indexPath.section == 0
+    }
+
+    func tableView(_ tableView: UITableView, targetIndexPathForReorderFromRowAt sourceIndexPath: IndexPath, to proposedDestinationIndexPath: IndexPath, snapshot: UIView?) -> IndexPath {
+
+        guard proposedDestinationIndexPath.section == 0 else {
+            return sourceIndexPath
+        }
+
+        if let snapshot = snapshot {
+            UIView.animate(withDuration: 0.2) {
+                snapshot.transform = CGAffineTransform.identity
+            }
+        }
+
+        return proposedDestinationIndexPath
+    }
+
+    func tableView(_ tableView: UITableView, sourceIndexPath: IndexPath, overIndexPath: IndexPath, snapshot: UIView) {
+        guard overIndexPath.section == 0 else {
+            return
+        }
+
+        UIView.animate(withDuration: 0.2) {
+            snapshot.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+        }
+    }
+
+    func tableViewDidFinishReordering(_ tableView: UITableView, from initialSourceIndexPath: IndexPath, to finalDestinationIndexPath: IndexPath, dropped overIndexPath: IndexPath?) {
     }
 }

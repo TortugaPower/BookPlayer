@@ -24,6 +24,8 @@
 		4165EE0620A743D500616EDF /* LibraryItem+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDFB20A743D500616EDF /* LibraryItem+CoreDataClass.swift */; };
 		4165EE0720A743D500616EDF /* Library+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDFC20A743D500616EDF /* Library+CoreDataClass.swift */; };
 		4165EE0820A743D500616EDF /* Playlist+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDFD20A743D500616EDF /* Playlist+CoreDataProperties.swift */; };
+		4165EE0B20A7A33500616EDF /* AddCellView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4165EE0920A7A33500616EDF /* AddCellView.xib */; };
+		4165EE0C20A7A33500616EDF /* BookCellView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4165EE0A20A7A33500616EDF /* BookCellView.xib */; };
 		416B640D1E72F362000E955A /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416B640C1E72F362000E955A /* Extensions.swift */; };
 		418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418B6CFB1D2707F800F974FB /* AppDelegate.swift */; };
 		418B6D031D2707F800F974FB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 418B6D011D2707F800F974FB /* Main.storyboard */; };
@@ -101,6 +103,8 @@
 		4165EDFB20A743D500616EDF /* LibraryItem+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "LibraryItem+CoreDataClass.swift"; sourceTree = "<group>"; };
 		4165EDFC20A743D500616EDF /* Library+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Library+CoreDataClass.swift"; sourceTree = "<group>"; };
 		4165EDFD20A743D500616EDF /* Playlist+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Playlist+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		4165EE0920A7A33500616EDF /* AddCellView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AddCellView.xib; sourceTree = "<group>"; };
+		4165EE0A20A7A33500616EDF /* BookCellView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BookCellView.xib; sourceTree = "<group>"; };
 		416B640C1E72F362000E955A /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		418B6CF81D2707F800F974FB /* BookPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BookPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		418B6CFB1D2707F800F974FB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -252,6 +256,8 @@
 				410D0FEE1EDDBC3300A52EB9 /* DataManager.swift */,
 				4136163F1D2E21F000E48944 /* LibraryViewController.swift */,
 				C3FE94782080086800BCEA37 /* BookCellView.swift */,
+				4165EE0920A7A33500616EDF /* AddCellView.xib */,
+				4165EE0A20A7A33500616EDF /* BookCellView.xib */,
 				C36C4D5820A23DF000AFDB76 /* Containers */,
 			);
 			path = Library;
@@ -442,6 +448,8 @@
 				C37A6873209F0F830063AEAC /* Credits.html in Resources */,
 				418B6D051D2707F800F974FB /* Assets.xcassets in Resources */,
 				418B6D031D2707F800F974FB /* Main.storyboard in Resources */,
+				4165EE0B20A7A33500616EDF /* AddCellView.xib in Resources */,
+				4165EE0C20A7A33500616EDF /* BookCellView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -479,6 +487,7 @@
 				"$(SRCROOT)/Carthage/Build/iOS/MarqueeLabelSwift.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/ColorCube.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/DeviceKit.framework",
+				"$(SRCROOT)/Carthage/Build/iOS/SwiftReorder.framework",
 			);
 			name = "Copy Frameworks managed by Carthage";
 			outputPaths = (
@@ -486,6 +495,7 @@
 				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/ColorCube.framework",
 				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/MBProgressHUD.framework",
 				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/DeviceKit.framework",
+				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/SwiftReorder.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
