@@ -8,13 +8,13 @@
 
 import UIKit
 
-struct Chapter {
-    var title: String
-    var start: TimeInterval
-    var duration: TimeInterval
-    var index: Int
-
-    var end: TimeInterval {
-        return start + duration
-    }
-}
+//struct Chapter {
+//    var title: String
+//    var start: TimeInterval
+//    var duration: TimeInterval
+//    var index: Int
+//
+//    var end: TimeInterval {
+//        return start + duration
+//    }
+//}

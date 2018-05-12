@@ -13,6 +13,17 @@
 		412451831D489204008AC0E5 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412451811D489204008AC0E5 /* Fabric.framework */; };
 		412451841D489204008AC0E5 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412451821D489204008AC0E5 /* Crashlytics.framework */; };
 		413616401D2E21F000E48944 /* LibraryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4136163F1D2E21F000E48944 /* LibraryViewController.swift */; };
+		4165EDFE20A743D500616EDF /* Chapter+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF220A743D400616EDF /* Chapter+CoreDataClass.swift */; };
+		4165EDFF20A743D500616EDF /* Chapter+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF320A743D400616EDF /* Chapter+CoreDataProperties.swift */; };
+		4165EE0020A743D500616EDF /* Book+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF420A743D400616EDF /* Book+CoreDataProperties.swift */; };
+		4165EE0120A743D500616EDF /* Library+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF520A743D400616EDF /* Library+CoreDataProperties.swift */; };
+		4165EE0220A743D500616EDF /* Book+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF620A743D400616EDF /* Book+CoreDataClass.swift */; };
+		4165EE0320A743D500616EDF /* Playlist+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF720A743D400616EDF /* Playlist+CoreDataClass.swift */; };
+		4165EE0420A743D500616EDF /* LibraryItem+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF820A743D500616EDF /* LibraryItem+CoreDataProperties.swift */; };
+		4165EE0520A743D500616EDF /* BookPlayer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */; };
+		4165EE0620A743D500616EDF /* LibraryItem+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDFB20A743D500616EDF /* LibraryItem+CoreDataClass.swift */; };
+		4165EE0720A743D500616EDF /* Library+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDFC20A743D500616EDF /* Library+CoreDataClass.swift */; };
+		4165EE0820A743D500616EDF /* Playlist+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDFD20A743D500616EDF /* Playlist+CoreDataProperties.swift */; };
 		416B640D1E72F362000E955A /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416B640C1E72F362000E955A /* Extensions.swift */; };
 		418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418B6CFB1D2707F800F974FB /* AppDelegate.swift */; };
 		418B6D031D2707F800F974FB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 418B6D011D2707F800F974FB /* Main.storyboard */; };
@@ -80,6 +91,17 @@
 		412451811D489204008AC0E5 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
 		412451821D489204008AC0E5 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		4136163F1D2E21F000E48944 /* LibraryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryViewController.swift; sourceTree = "<group>"; };
+		4165EDF220A743D400616EDF /* Chapter+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Chapter+CoreDataClass.swift"; sourceTree = "<group>"; };
+		4165EDF320A743D400616EDF /* Chapter+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Chapter+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		4165EDF420A743D400616EDF /* Book+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Book+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		4165EDF520A743D400616EDF /* Library+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Library+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		4165EDF620A743D400616EDF /* Book+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Book+CoreDataClass.swift"; sourceTree = "<group>"; };
+		4165EDF720A743D400616EDF /* Playlist+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Playlist+CoreDataClass.swift"; sourceTree = "<group>"; };
+		4165EDF820A743D500616EDF /* LibraryItem+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "LibraryItem+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		4165EDFA20A743D500616EDF /* Audiobook Player.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Audiobook Player.xcdatamodel"; sourceTree = "<group>"; };
+		4165EDFB20A743D500616EDF /* LibraryItem+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "LibraryItem+CoreDataClass.swift"; sourceTree = "<group>"; };
+		4165EDFC20A743D500616EDF /* Library+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Library+CoreDataClass.swift"; sourceTree = "<group>"; };
+		4165EDFD20A743D500616EDF /* Playlist+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Playlist+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		416B640C1E72F362000E955A /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		418B6CF81D2707F800F974FB /* BookPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BookPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		418B6CFB1D2707F800F974FB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -267,6 +289,17 @@
 		C3AA3732207BF7670004DCFD /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				4165EDF620A743D400616EDF /* Book+CoreDataClass.swift */,
+				4165EDF420A743D400616EDF /* Book+CoreDataProperties.swift */,
+				4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */,
+				4165EDF220A743D400616EDF /* Chapter+CoreDataClass.swift */,
+				4165EDF320A743D400616EDF /* Chapter+CoreDataProperties.swift */,
+				4165EDFC20A743D500616EDF /* Library+CoreDataClass.swift */,
+				4165EDF520A743D400616EDF /* Library+CoreDataProperties.swift */,
+				4165EDFB20A743D500616EDF /* LibraryItem+CoreDataClass.swift */,
+				4165EDF820A743D500616EDF /* LibraryItem+CoreDataProperties.swift */,
+				4165EDF720A743D400616EDF /* Playlist+CoreDataClass.swift */,
+				4165EDFD20A743D500616EDF /* Playlist+CoreDataProperties.swift */,
 				C32BE6B7207BF7A6006D07B9 /* Book.swift */,
 				C32BE6B9207BF80A006D07B9 /* Chapter.swift */,
 			);
@@ -502,14 +535,20 @@
 				C30EEEC12079645C00A4ED33 /* PlayerMetaViewController.swift in Sources */,
 				C32BE6BA207BF80A006D07B9 /* Chapter.swift in Sources */,
 				C3FE3F8220A090880055B9C6 /* limitPanAngle.swift in Sources */,
+				4165EE0520A743D500616EDF /* BookPlayer.xcdatamodeld in Sources */,
+				4165EE0320A743D500616EDF /* Playlist+CoreDataClass.swift in Sources */,
 				41B2AC8E1D43CCE8005382A9 /* ChaptersViewController.swift in Sources */,
+				4165EE0120A743D500616EDF /* Library+CoreDataProperties.swift in Sources */,
+				4165EE0420A743D500616EDF /* LibraryItem+CoreDataProperties.swift in Sources */,
 				C3A479132094C8C300D92122 /* rubberBandDistance.swift in Sources */,
 				C30CD2A1209791FA00258B09 /* UIColor+Sweetercolor.swift in Sources */,
 				C30EEEC02079645C00A4ED33 /* PlayerControlsViewController.swift in Sources */,
 				C318DDBC20A48D4700C3A17B /* BPMarqueeLabel.swift in Sources */,
 				C3A479152094CA3800D92122 /* UIImage+BookPlayer.swift in Sources */,
+				4165EE0720A743D500616EDF /* Library+CoreDataClass.swift in Sources */,
 				413616401D2E21F000E48944 /* LibraryViewController.swift in Sources */,
 				418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */,
+				4165EDFE20A743D500616EDF /* Chapter+CoreDataClass.swift in Sources */,
 				C30EEEBF2079645C00A4ED33 /* PlayerContainerViewController.swift in Sources */,
 				C318D3AD208CF624000666F8 /* PlayerJumpIconView.swift in Sources */,
 				C37A6875209F13120063AEAC /* CreditsViewController.swift in Sources */,
@@ -520,14 +559,19 @@
 				C3AA3730207BF6C10004DCFD /* AVPlayerItem+BookPlayer.swift in Sources */,
 				C3A479192094CAF300D92122 /* UIViewController+BookPlayer.swift in Sources */,
 				416B640D1E72F362000E955A /* Extensions.swift in Sources */,
+				4165EE0620A743D500616EDF /* LibraryItem+CoreDataClass.swift in Sources */,
+				4165EE0020A743D500616EDF /* Book+CoreDataProperties.swift in Sources */,
 				C3FE94792080086800BCEA37 /* BookCellView.swift in Sources */,
 				C30B085F209654E3003F325B /* UIColor+BookPlayer.swift in Sources */,
 				410D0FEF1EDDBC3300A52EB9 /* DataManager.swift in Sources */,
+				4165EDFF20A743D500616EDF /* Chapter+CoreDataProperties.swift in Sources */,
 				C36C4D5C20A23E1800AFDB76 /* NowPlayingViewController.swift in Sources */,
+				4165EE0220A743D500616EDF /* Book+CoreDataClass.swift in Sources */,
 				410D0FED1EDCF4B000A52EB9 /* SettingsViewController.swift in Sources */,
 				C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */,
 				C318DDB820A3A3F400C3A17B /* UIImageView+BookPlayer.swift in Sources */,
 				C32BE6B8207BF7A6006D07B9 /* Book.swift in Sources */,
+				4165EE0820A743D500616EDF /* Playlist+CoreDataProperties.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -782,6 +826,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				4165EDFA20A743D500616EDF /* Audiobook Player.xcdatamodel */,
+			);
+			currentVersion = 4165EDFA20A743D500616EDF /* Audiobook Player.xcdatamodel */;
+			path = BookPlayer.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 418B6CF01D2707F700F974FB /* Project object */;
 }
