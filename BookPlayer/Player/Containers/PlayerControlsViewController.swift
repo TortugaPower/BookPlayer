@@ -178,7 +178,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
         if translation > actionThreshold && !self.triggeredPanAction {
             if #available(iOS 10.0, *) {
-                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
             }
 
             UIView.animate(withDuration: 0.2) {
