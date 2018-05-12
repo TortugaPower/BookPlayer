@@ -97,16 +97,33 @@ class NowPlayingViewController: PlayerContainerViewController, UIGestureRecogniz
 
     private func updatePresentedViewForTranslation(_ yTranslation: CGFloat) {
         let translation: CGFloat = rubberBandDistance(yTranslation, dimension: self.view.frame.height, constant: 0.8)
-
         let actionThreshold: CGFloat = self.view.frame.height * 0.4
 
         if fabs(translation) > actionThreshold {
+            self.pan.isEnabled = false
+
             self.showPlayer?()
+
+
+            self.resetPlayerPosition()
 
             return
         }
 
         self.view?.transform = CGAffineTransform(translationX: 0, y: min(translation, 0.0))
+    }
+
+    private func resetPlayerPosition() {
+        UIView.animate(
+            withDuration: 0.3,
+            delay: 0.0,
+            usingSpringWithDamping: 0.7,
+            initialSpringVelocity: 1.5,
+            options: .preferredFramesPerSecond60,
+            animations: {
+                self.view?.transform = .identity
+            }
+        )
     }
 
     @objc func panAction(gestureRecognizer: UIPanGestureRecognizer) {
@@ -124,16 +141,9 @@ class NowPlayingViewController: PlayerContainerViewController, UIGestureRecogniz
                 self.updatePresentedViewForTranslation(translation.y)
 
             case .ended, .cancelled, .failed:
-                UIView.animate(
-                    withDuration: 0.3,
-                    delay: 0.0,
-                    usingSpringWithDamping: 0.7,
-                    initialSpringVelocity: 1.5,
-                    options: .preferredFramesPerSecond60,
-                    animations: {
-                        self.view?.transform = .identity
-                }
-                )
+                self.resetPlayerPosition()
+
+                self.pan.isEnabled = true
 
             default: break
         }
