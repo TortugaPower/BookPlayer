@@ -104,6 +104,9 @@ class NowPlayingViewController: PlayerContainerViewController, UIGestureRecogniz
 
             self.showPlayer?()
 
+            if #available(iOS 10.0, *) {
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            }
 
             self.resetPlayerPosition()
 
