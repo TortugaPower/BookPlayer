@@ -114,6 +114,6 @@ class PlayerProgressViewController: PlayerContainerViewController {
     @IBAction func sliderValueChanged(_ sender: UISlider) {
         self.currentTime = TimeInterval(sender.value / sender.maximumValue) * self.duration
 
-        PlayerManager.sharedInstance.jumpTo(self.currentTime)
+        PlayerManager.shared.jumpTo(self.currentTime)
     }
 }

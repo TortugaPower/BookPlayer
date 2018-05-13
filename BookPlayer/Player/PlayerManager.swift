@@ -11,7 +11,7 @@ import AVFoundation
 import MediaPlayer
 
 class PlayerManager: NSObject {
-    static let sharedInstance = PlayerManager()
+    static let shared = PlayerManager()
 
     var audioPlayer: AVAudioPlayer?
     private var playerItem: AVPlayerItem!
@@ -324,7 +324,7 @@ extension PlayerManager: AVAudioPlayerDelegate {
             return
         }
 
-        let currentBooks = Array(PlayerManager.sharedInstance.currentBooks.dropFirst())
+        let currentBooks = Array(PlayerManager.shared.currentBooks.dropFirst())
 
         load(currentBooks, completion: { (_) in
             let userInfo = ["books": currentBooks]

@@ -80,7 +80,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         super.viewDidLoad()
 
         self.originalHeight = self.artworkHeight.constant
-        self.isPlaying = PlayerManager.sharedInstance.isPlaying
+        self.isPlaying = PlayerManager.shared.isPlaying
 
         self.artwork.layer.shadowColor = UIColor.black.cgColor
         self.artwork.layer.shadowOffset = CGSize(width: 0.0, height: 4.0)
@@ -125,9 +125,9 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
     // toggle play/pause of book
     @IBAction private func play(_ sender: Any) {
-        PlayerManager.sharedInstance.playPause()
+        PlayerManager.shared.playPause()
 
-        self.isPlaying = PlayerManager.sharedInstance.isPlaying
+        self.isPlaying = PlayerManager.shared.isPlaying
     }
 
     @objc private func onBookPlay() {
@@ -187,9 +187,9 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
             }
 
             if sign < 0 {
-                PlayerManager.sharedInstance.forward()
+                PlayerManager.shared.forward()
             } else {
-                PlayerManager.sharedInstance.rewind()
+                PlayerManager.shared.rewind()
             }
 
             self.triggeredPanAction = true

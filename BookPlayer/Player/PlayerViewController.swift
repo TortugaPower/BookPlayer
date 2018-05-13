@@ -101,7 +101,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.progressViewController?.book = currentBook
         self.progressViewController?.currentTime = UserDefaults.standard.double(forKey: currentBook.identifier)
 
-        self.speedButton.title = self.formatSpeed(PlayerManager.sharedInstance.speed)
+        self.speedButton.title = self.formatSpeed(PlayerManager.shared.speed)
 
         var colors = ArtworkColors()
 
@@ -147,11 +147,11 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         let speedOptions: [Float] = [2.5, 2, 1.5, 1.25, 1, 0.75]
 
         for speed in speedOptions {
-            if speed == PlayerManager.sharedInstance.speed {
+            if speed == PlayerManager.shared.speed {
                 actionSheet.addAction(UIAlertAction(title: "\u{00A0} \(speed) ✓", style: .default, handler: nil))
             } else {
                 actionSheet.addAction(UIAlertAction(title: "\(speed)", style: .default, handler: { _ in
-                    PlayerManager.sharedInstance.speed = speed
+                    PlayerManager.shared.speed = speed
 
                     self.speedButton.title = self.formatSpeed(speed)
                 }))
@@ -171,7 +171,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             },
             onEnd: { (_ cancelled: Bool) -> Void in
                 if !cancelled {
-                    PlayerManager.sharedInstance.stop()
+                    PlayerManager.shared.stop()
                 }
 
                 self.sleepLabel.title = ""
@@ -182,20 +182,20 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     @IBAction func showMore() {
-        guard PlayerManager.sharedInstance.isLoaded else {
+        guard PlayerManager.shared.isLoaded else {
             return
         }
 
         let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
         actionSheet.addAction(UIAlertAction(title: "Jump To Start", style: .default, handler: { _ in
-            PlayerManager.sharedInstance.stop()
-            PlayerManager.sharedInstance.jumpTo(0.0)
+            PlayerManager.shared.stop()
+            PlayerManager.shared.jumpTo(0.0)
         }))
 
         actionSheet.addAction(UIAlertAction(title: "Mark as Finished", style: .default, handler: { _ in
-            PlayerManager.sharedInstance.stop()
-            PlayerManager.sharedInstance.jumpTo(0.0, fromEnd: true)
+            PlayerManager.shared.stop()
+            PlayerManager.shared.jumpTo(0.0, fromEnd: true)
 
             self.requestReview()
         }))

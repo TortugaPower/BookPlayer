@@ -82,7 +82,7 @@ class NowPlayingViewController: PlayerContainerViewController, UIGestureRecogniz
     }
 
     @IBAction func playPause() {
-        PlayerManager.sharedInstance.playPause()
+        PlayerManager.shared.playPause()
     }
 
     // MARK: Gesture recognizers
