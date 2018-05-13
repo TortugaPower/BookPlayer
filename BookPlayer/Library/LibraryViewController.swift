@@ -25,7 +25,7 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
         guard self.library != nil else {
             return []
         }
-        return self.library.items?.array as? [Book] ?? []
+        return self.library.items?.array as? [LibraryItem] ?? []
     }
 
     // keep in memory current Documents folder
@@ -188,16 +188,19 @@ extension LibraryViewController: UITableViewDataSource {
 
         if let book = item as? Book {
             cell.authorLabel.text = book.author
+
+            cell.completionLabel.isHidden = false
+            cell.completionLabel.text = item.percentCompletedRoundedString
+            cell.completionLabel.textColor = UIColor.lightGray
+        } else if let playlist = item as? Playlist {
+            cell.authorLabel.text = playlist.desc
+            cell.completionLabel.isHidden = true
         }
 
         cell.selectionStyle = .none
 
         // NOTE: we should have a default image for artwork
         cell.artworkImageView.image = item.artworkImage
-
-        // Load stored percentage value
-        cell.completionLabel.text = item.percentCompletedRoundedString
-        cell.completionLabel.textColor = UIColor.lightGray
 
         return cell
     }
@@ -472,5 +475,68 @@ extension LibraryViewController: TableViewReorderDelegate {
     }
 
     func tableViewDidFinishReordering(_ tableView: UITableView, from initialSourceIndexPath: IndexPath, to finalDestinationIndexPath: IndexPath, dropped overIndexPath: IndexPath?) {
+        guard let overIndexPath = overIndexPath,
+            overIndexPath.section == 0,
+            let book = self.items[finalDestinationIndexPath.row] as? Book else {
+                return
+        }
+
+        let item = self.items[overIndexPath.row]
+        let isPlaylist = item is Playlist
+        let title = isPlaylist
+            ? "Playlist"
+            : "Create a New Playlist"
+        let message = isPlaylist
+            ? "Add the book to \(item.title!)"
+            : "Files in playlists are automatically played one after the other"
+
+        let hoverAlert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+
+        hoverAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+
+        if isPlaylist {
+            hoverAlert.addAction(UIAlertAction(title: "Add", style: .default, handler: { (_) in
+
+                if let playlist = item as? Playlist {
+                    playlist.addToBooks(book)
+                    playlist.desc = "\(playlist.books!.count) Books"
+                }
+                self.library.removeFromItems(at: finalDestinationIndexPath.row)
+                DataManager.saveContext()
+                self.tableView.beginUpdates()
+                self.tableView.deleteRows(at: [finalDestinationIndexPath], with: .fade)
+                self.tableView.reloadRows(at: [overIndexPath], with: .fade)
+                self.tableView.endUpdates()
+            }))
+        } else {
+            hoverAlert.addTextField(configurationHandler: { (textfield) in
+                textfield.placeholder = "Name"
+            })
+
+            hoverAlert.addAction(UIAlertAction(title: "Create", style: .default, handler: { (_) in
+                let title = hoverAlert.textFields!.first!.text!
+
+                let minIndex = min(finalDestinationIndexPath.row, overIndexPath.row)
+
+                //removing based on minIndex works because the cells are always adjacent
+                let book1 = self.items[minIndex]
+                self.library.removeFromItems(book1)
+                let book2 = self.items[minIndex]
+                self.library.removeFromItems(book2)
+
+                // swiftlint:disable force_cast
+                let books = [book1 as! Book, book2 as! Book]
+                let playlist = DataManager.createPlaylist(title: title, books: books)
+                self.library.insertIntoItems(playlist, at: minIndex)
+                DataManager.saveContext()
+
+                self.tableView.beginUpdates()
+                self.tableView.deleteRows(at: [IndexPath(row: minIndex, section: 0), IndexPath(row: minIndex + 1, section: 0)], with: .fade)
+                self.tableView.insertRows(at: [IndexPath(row: minIndex, section: 0)], with: .fade)
+                self.tableView.endUpdates()
+            }))
+        }
+
+        self.present(hoverAlert, animated: true, completion: nil)
     }
 }
