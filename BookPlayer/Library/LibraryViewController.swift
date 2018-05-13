@@ -86,14 +86,14 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
 
     // Playback may be interrupted by calls. Handle pause
     @objc func handleAudioInterruptions(_ notification: Notification) {
-        if PlayerManager.sharedInstance.isPlaying {
-            PlayerManager.sharedInstance.pause()
+        if PlayerManager.shared.isPlaying {
+            PlayerManager.shared.pause()
         }
     }
 
     // Handle audio route changes
     @objc func handleAudioRouteChange(_ notification: Notification) {
-        guard PlayerManager.sharedInstance.isPlaying,
+        guard PlayerManager.shared.isPlaying,
             let userInfo = notification.userInfo,
             let reasonValue = userInfo[AVAudioSessionRouteChangeReasonKey] as? UInt,
             let reason = AVAudioSessionRouteChangeReason(rawValue: reasonValue) else {
@@ -103,7 +103,7 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
         // Pause playback if route changes due to a disconnect
         switch reason {
             case .oldDeviceUnavailable:
-                PlayerManager.sharedInstance.play()
+                PlayerManager.shared.play()
             default:
                 break
         }
@@ -138,15 +138,15 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     @IBAction func didPressPlay(_ sender: UIButton) {
-        PlayerManager.sharedInstance.play()
+        PlayerManager.shared.play()
     }
 
     @objc func forwardPressed(_ sender: UIButton) {
-        PlayerManager.sharedInstance.forward()
+        PlayerManager.shared.forward()
     }
 
     @objc func rewindPressed(_ sender: UIButton) {
-        PlayerManager.sharedInstance.rewind()
+        PlayerManager.shared.rewind()
     }
 
     // Percentage callback
@@ -168,7 +168,7 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
 
     @objc func bookReady() {
         MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
-        PlayerManager.sharedInstance.playPause(autoplayed: true)
+        PlayerManager.shared.playPause(autoplayed: true)
     }
 
     @objc func bookChange(_ notification: Notification) {
@@ -289,7 +289,7 @@ extension LibraryViewController: UITableViewDelegate {
 
     func setupPlayer(book: Book) {
         // Make sure player is for a different book
-        guard PlayerManager.sharedInstance.fileURL != book.fileURL else {
+        guard PlayerManager.shared.fileURL != book.fileURL else {
             showPlayerView(book: book)
 
             return
@@ -298,7 +298,7 @@ extension LibraryViewController: UITableViewDelegate {
         MBProgressHUD.showAdded(to: self.view, animated: true)
 
         // Replace player with new one
-        PlayerManager.sharedInstance.load(self.currentBooks) { (_) in
+        PlayerManager.shared.load(self.currentBooks) { (_) in
             self.showPlayerView(book: book)
         }
     }

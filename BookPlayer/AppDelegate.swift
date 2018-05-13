@@ -110,7 +110,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     // For now, seek forward/backward and next/previous track perform the same function
     func registerRemoteEvents() {
         let togglePlayPauseHandler: (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus = { (_) -> MPRemoteCommandHandlerStatus in
-            PlayerManager.sharedInstance.playPause()
+            PlayerManager.shared.playPause()
             return .success
         }
 
@@ -124,7 +124,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         MPRemoteCommandCenter.shared().pauseCommand.addTarget(handler: togglePlayPauseHandler)
 
         let skipForwardHandler: (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus = { (commandEvent) -> MPRemoteCommandHandlerStatus in
-            PlayerManager.sharedInstance.forward()
+            PlayerManager.shared.forward()
             return .success
         }
 
@@ -140,13 +140,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             }
 
             // End seeking
-            PlayerManager.sharedInstance.forward()
+            PlayerManager.shared.forward()
 
             return .success
         }
 
         let skipBackwardHandler: (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus = { (commandEvent) -> MPRemoteCommandHandlerStatus in
-            PlayerManager.sharedInstance.rewind()
+            PlayerManager.shared.rewind()
 
             return .success
         }
@@ -159,7 +159,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
                 cmd.type == .endSeeking else { return .success }
 
             //end seeking
-            PlayerManager.sharedInstance.rewind()
+            PlayerManager.shared.rewind()
             return .success
         }
     }
