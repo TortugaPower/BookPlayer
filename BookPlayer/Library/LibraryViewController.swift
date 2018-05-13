@@ -11,40 +11,9 @@ import MediaPlayer
 import MBProgressHUD
 import SwiftReorder
 
-class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
+class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate {
+
     @IBOutlet weak var emptyListContainerView: UIView!
-    @IBOutlet weak var tableView: UITableView!
-    @IBOutlet private weak var nowPlayingBar: UIView!
-
-    private weak var nowPlayingViewController: NowPlayingViewController?
-
-    var library: Library!
-
-    // TableView's datasource
-    var items: [LibraryItem] {
-        guard self.library != nil else {
-            return []
-        }
-        return self.library.items?.array as? [LibraryItem] ?? []
-    }
-
-    // keep in memory current Documents folder
-    let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
-
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if let viewController = segue.destination as? NowPlayingViewController {
-            self.nowPlayingViewController = viewController
-
-            self.nowPlayingViewController!.showPlayer = {
-
-                guard PlayerManager.sharedInstance.currentBook != nil else {
-                    return
-                }
-
-                self.setupPlayer(book: PlayerManager.sharedInstance.currentBook)
-            }
-        }
-    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -52,27 +21,8 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
         // enables pop gesture on pushed controller
         self.navigationController!.interactivePopGestureRecognizer!.delegate = self
 
-        self.tableView.register(UINib(nibName: "BookCellView", bundle: nil), forCellReuseIdentifier: "BookCellView")
-        self.tableView.register(UINib(nibName: "AddCellView", bundle: nil), forCellReuseIdentifier: "AddCellView")
-        self.tableView.reorder.delegate = self
-        self.tableView.reorder.cellScale = 1.05
-        self.tableView.tableFooterView = UIView()
-        // fixed tableview having strange offset
-        self.edgesForExtendedLayout = UIRectEdge()
-
-        self.nowPlayingBar.isHidden = true
-
         // register for appDelegate openUrl notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.loadFiles), name: Notification.Name.AudiobookPlayer.openURL, object: nil)
-
-        // register for percentage change notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.updatePercentage(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
-
-        // register notifications when the book is ready
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookReady), name: Notification.Name.AudiobookPlayer.bookReady, object: nil)
-
-        // register for book change notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: Notification.Name.AudiobookPlayer.bookChange, object: nil)
 
         self.loadFiles()
     }
@@ -89,7 +39,7 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
      *  Load local files and process them (rename them if necessary)
      *  Spaces in file names can cause side effects when trying to load the data
      */
-    @objc func loadFiles() {
+    override func loadFiles() {
         //load local files
         let loadingWheel = MBProgressHUD.showAdded(to: self.view, animated: true)
         loadingWheel?.labelText = "Loading Books"
@@ -108,112 +58,9 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         return navigationController!.viewControllers.count > 1
     }
-
-    @IBAction func didPressReload(_ sender: UIBarButtonItem) {
-        self.loadFiles()
-    }
-
-    @IBAction func didPressPlay(_ sender: UIButton) {
-        PlayerManager.shared.play()
-    }
-
-    @objc func forwardPressed(_ sender: UIButton) {
-        PlayerManager.shared.forward()
-    }
-
-    @objc func rewindPressed(_ sender: UIButton) {
-        PlayerManager.shared.rewind()
-    }
-
-    // Percentage callback
-    @objc func updatePercentage(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-            let fileURL = userInfo["fileURL"] as? URL,
-            let percentCompletedString = userInfo["percentCompletedString"] as? String else {
-                return
-        }
-
-        guard let index = (self.items.index { (item) -> Bool in
-            if let book = item as? Book {
-                return book.fileURL == fileURL
-            }
-            return false
-        }), let cell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView else {
-            return
-        }
-
-        cell.completionLabel.text = percentCompletedString
-    }
-
-    @objc func bookReady() {
-        MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
-        PlayerManager.shared.playPause(autoplayed: true)
-    }
-
-    @objc func bookChange(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-            let books = userInfo["books"] as? [Book],
-            let currentBook = books.first else {
-                return
-        }
-
-        setupFooter(book: currentBook)
-    }
-
 }
 
-extension LibraryViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard section == 0 else {
-            return 1
-        }
-
-        return self.items.count
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if let spacer = tableView.reorder.spacerCell(for: indexPath) {
-            return spacer
-        }
-
-        guard indexPath.section == 0,
-            let cell = tableView.dequeueReusableCell(withIdentifier: "BookCellView", for: indexPath) as? BookCellView else {
-                //load add cell
-                return tableView.dequeueReusableCell(withIdentifier: "AddCellView", for: indexPath)
-        }
-
-        let item = self.items[indexPath.row]
-
-        cell.titleLabel.text = item.title
-
-        if let book = item as? Book {
-            cell.authorLabel.text = book.author
-
-            cell.completionLabel.isHidden = false
-            cell.completionLabel.text = item.percentCompletedRoundedString
-            cell.completionLabel.textColor = UIColor.lightGray
-        } else if let playlist = item as? Playlist {
-            cell.authorLabel.text = playlist.desc
-            cell.completionLabel.isHidden = true
-        }
-
-        cell.selectionStyle = .none
-
-        // NOTE: we should have a default image for artwork
-        cell.artworkImageView.image = item.artworkImage
-
-        return cell
-    }
-
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
-    }
-}
-
-extension LibraryViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, canFocusRowAt indexPath: IndexPath) -> Bool {
-        return true
-    }
+extension LibraryViewController {
 
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
         guard indexPath.section == 0 else {
@@ -258,30 +105,6 @@ extension LibraryViewController: UITableViewDelegate {
         return [deleteAction]
     }
 
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-    }
-
-    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCellEditingStyle {
-        guard indexPath.section == 0 else {
-            return .insert
-        }
-        return .delete
-    }
-
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 86
-    }
-
-    func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
-        guard let index = tableView.indexPathForSelectedRow else {
-            return indexPath
-        }
-
-        tableView.deselectRow(at: index, animated: true)
-
-        return indexPath
-    }
-
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
@@ -319,162 +142,34 @@ extension LibraryViewController: UITableViewDelegate {
         let item = self.items[indexPath.row]
 
         guard let book = item as? Book else {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+
+            if let playlist = item as? Playlist,
+                let playlistVC = storyboard.instantiateViewController(withIdentifier: "PlaylistViewController") as? PlaylistViewController {
+                playlistVC.library = self.library
+                playlistVC.playlist = playlist
+                self.navigationController?.pushViewController(playlistVC, animated: true)
+            }
             return
         }
 
-        self.play(book)
-    }
-
-    func play(_ book: Book) {
-        setupPlayer(book: book)
-        setupFooter(book: book)
-    }
-
-    func setupPlayer(book: Book) {
-        // Make sure player is for a different book
-        guard PlayerManager.shared.fileURL != book.fileURL else {
-            showPlayerView(book: book)
-
-            return
-        }
-
-        MBProgressHUD.showAdded(to: self.view, animated: true)
-
-        // Replace player with new one
-        PlayerManager.shared.load([book]) { (_) in
-            self.showPlayerView(book: book)
-        }
-    }
-
-    func setupFooter(book: Book) {
-        self.nowPlayingBar.isHidden = false
-        self.nowPlayingViewController?.book = book
-    }
-
-    func showPlayerView(book: Book) {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-
-        if let playerVC = storyboard.instantiateViewController(withIdentifier: "PlayerViewController") as? PlayerViewController {
-            playerVC.currentBook = book
-
-            self.present(playerVC, animated: true)
-        }
+        self.setupPlayer(book: book)
     }
 }
 
-extension LibraryViewController: UIDocumentMenuDelegate {
-    @IBAction func didPressImportOptions(_ sender: UIBarButtonItem) {
-        let sheet = UIAlertController(title: "Import Books", message: nil, preferredStyle: .actionSheet)
-        let cancelButton = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-
-        let localButton = UIAlertAction(title: "From Local Apps", style: .default) { (_) in
-            let providerList = UIDocumentMenuViewController(documentTypes: ["public.audio"], in: .import)
-            providerList.delegate = self
-
-            providerList.popoverPresentationController?.sourceView = self.view
-            providerList.popoverPresentationController?.sourceRect = CGRect(x: Double(self.view.bounds.size.width / 2.0), y: Double(self.view.bounds.size.height-45), width: 1.0, height: 1.0)
-            self.present(providerList, animated: true, completion: nil)
-        }
-
-        let airdropButton = UIAlertAction(title: "AirDrop", style: .default) { (_) in
-            self.showAlert("AirDrop", message: "Make sure AirDrop is enabled.\n\nOnce you transfer the file to your device via AirDrop, choose 'BookPlayer' from the app list that will appear")
-        }
-
-        sheet.addAction(localButton)
-        sheet.addAction(airdropButton)
-        sheet.addAction(cancelButton)
-
-        sheet.popoverPresentationController?.sourceView = self.view
-        sheet.popoverPresentationController?.sourceRect = CGRect(x: Double(self.view.bounds.size.width / 2.0), y: Double(self.view.bounds.size.height-45), width: 1.0, height: 1.0)
-
-        self.present(sheet, animated: true, completion: nil)
-    }
-
-    func documentMenu(_ documentMenu: UIDocumentMenuViewController, didPickDocumentPicker documentPicker: UIDocumentPickerViewController) {
-        //show document picker
-        documentPicker.delegate = self
-
-        documentPicker.popoverPresentationController?.sourceView = self.view
-        documentPicker.popoverPresentationController?.sourceRect = CGRect(x: Double(self.view.bounds.size.width / 2.0), y: Double(self.view.bounds.size.height-45), width: 1.0, height: 1.0)
-
-        self.present(documentPicker, animated: true, completion: nil)
-    }
-}
-
-extension LibraryViewController: UIDocumentPickerDelegate {
-    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
-        //Documentation states that the file might not be imported due to being accessed from somewhere else
-        do {
-            try FileManager.default.attributesOfItem(atPath: url.path)
-        } catch {
-            self.showAlert("Error", message: "File import fail, try again later")
-
-            return
-        }
-
-        let trueName = url.lastPathComponent
-        var finalPath = self.documentsPath+"/"+(trueName)
-
-        if trueName.contains(" ") {
-            finalPath = finalPath.replacingOccurrences(of: " ", with: "_")
-        }
-
-        let fileURL = URL(fileURLWithPath: finalPath.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed)!)
-
-        do {
-            try FileManager.default.moveItem(at: url, to: fileURL)
-        } catch {
-            self.showAlert("Error", message: "File import fail, try again later")
-
-            return
-        }
-
-        self.loadFiles()
-    }
-}
-
-extension LibraryViewController: TableViewReorderDelegate {
-    func tableView(_ tableView: UITableView, reorderRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+extension LibraryViewController {
+    override func tableView(_ tableView: UITableView, reorderRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         guard destinationIndexPath.section == 0 else {
             return
         }
 
-        let book = self.items[sourceIndexPath.row]
+        let item = self.items[sourceIndexPath.row]
         self.library.removeFromItems(at: sourceIndexPath.row)
-        self.library.insertIntoItems(book, at: destinationIndexPath.row)
+        self.library.insertIntoItems(item, at: destinationIndexPath.row)
         DataManager.saveContext()
     }
 
-    func tableView(_ tableView: UITableView, canReorderRowAt indexPath: IndexPath) -> Bool {
-        return indexPath.section == 0
-    }
-
-    func tableView(_ tableView: UITableView, targetIndexPathForReorderFromRowAt sourceIndexPath: IndexPath, to proposedDestinationIndexPath: IndexPath, snapshot: UIView?) -> IndexPath {
-
-        guard proposedDestinationIndexPath.section == 0 else {
-            return sourceIndexPath
-        }
-
-        if let snapshot = snapshot {
-            UIView.animate(withDuration: 0.2) {
-                snapshot.transform = CGAffineTransform.identity
-            }
-        }
-
-        return proposedDestinationIndexPath
-    }
-
-    func tableView(_ tableView: UITableView, sourceIndexPath: IndexPath, overIndexPath: IndexPath, snapshot: UIView) {
-        guard overIndexPath.section == 0 else {
-            return
-        }
-
-        UIView.animate(withDuration: 0.2) {
-            snapshot.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
-        }
-    }
-
-    func tableViewDidFinishReordering(_ tableView: UITableView, from initialSourceIndexPath: IndexPath, to finalDestinationIndexPath: IndexPath, dropped overIndexPath: IndexPath?) {
+    override func tableViewDidFinishReordering(_ tableView: UITableView, from initialSourceIndexPath: IndexPath, to finalDestinationIndexPath: IndexPath, dropped overIndexPath: IndexPath?) {
         guard let overIndexPath = overIndexPath,
             overIndexPath.section == 0,
             let book = self.items[finalDestinationIndexPath.row] as? Book else {

@@ -41,6 +41,10 @@ class PlayerManager: NSObject {
         self.fileURL = book.fileURL
         self.identifier = book.identifier
 
+        //notify book is loading
+        let userInfo = ["book": book]
+        NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.loadingBook, object: nil, userInfo: userInfo)
+
         // load data on background thread
         DispatchQueue.global().async {
             // try loading the player

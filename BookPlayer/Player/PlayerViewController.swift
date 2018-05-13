@@ -131,11 +131,15 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         let blur = UIBlurEffect(style: colors.isDark ? UIBlurEffectStyle.dark : UIBlurEffectStyle.light)
         let blurView = UIVisualEffectView(effect: blur)
 
-        blurView.frame = backgroundImage.frame
+//        blurView.frame = backgroundImage.bounds
 
         self.backgroundImage.addSubview(blurView)
+        blurView.topAnchor.constraint(equalTo: self.backgroundImage.topAnchor).isActive = true
+        blurView.bottomAnchor.constraint(equalTo: self.backgroundImage.bottomAnchor).isActive = true
+        blurView.leadingAnchor.constraint(equalTo: self.backgroundImage.leadingAnchor).isActive = true
+        blurView.trailingAnchor.constraint(equalTo: self.backgroundImage.trailingAnchor).isActive = true
         self.backgroundImage.alpha = 0.2
-        self.backgroundImage.image = currentBook.artworkImage
+//        self.backgroundImage.image = currentBook.artworkImage
 
         self.expectedStatusBarStyle = colors.isDark ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
     }

@@ -161,7 +161,7 @@ class DataManager {
             }
         }
     }
-    
+
     class func createPlaylist(title: String, books: [Book]) -> Playlist {
         return Playlist(title: title, books: books, context: self.persistentContainer.viewContext)
     }

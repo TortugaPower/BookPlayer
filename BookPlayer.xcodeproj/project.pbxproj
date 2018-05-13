@@ -27,6 +27,9 @@
 		4165EE0B20A7A33500616EDF /* AddCellView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4165EE0920A7A33500616EDF /* AddCellView.xib */; };
 		4165EE0C20A7A33500616EDF /* BookCellView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4165EE0A20A7A33500616EDF /* BookCellView.xib */; };
 		4165EE0E20A7AEC600616EDF /* SwiftReorder.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4165EE0D20A7AEC600616EDF /* SwiftReorder.framework */; };
+		4165EE1020A7CBBE00616EDF /* PlaylistViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EE0F20A7CBBE00616EDF /* PlaylistViewController.swift */; };
+		4165EE1220A7D1E100616EDF /* RootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EE1120A7D1E100616EDF /* RootViewController.swift */; };
+		4165EE1420A7E8CC00616EDF /* BaseListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EE1320A7E8CC00616EDF /* BaseListViewController.swift */; };
 		416B640D1E72F362000E955A /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416B640C1E72F362000E955A /* Extensions.swift */; };
 		418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418B6CFB1D2707F800F974FB /* AppDelegate.swift */; };
 		418B6D031D2707F800F974FB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 418B6D011D2707F800F974FB /* Main.storyboard */; };
@@ -107,6 +110,9 @@
 		4165EE0920A7A33500616EDF /* AddCellView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AddCellView.xib; sourceTree = "<group>"; };
 		4165EE0A20A7A33500616EDF /* BookCellView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BookCellView.xib; sourceTree = "<group>"; };
 		4165EE0D20A7AEC600616EDF /* SwiftReorder.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftReorder.framework; path = Carthage/Build/iOS/SwiftReorder.framework; sourceTree = "<group>"; };
+		4165EE0F20A7CBBE00616EDF /* PlaylistViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistViewController.swift; sourceTree = "<group>"; };
+		4165EE1120A7D1E100616EDF /* RootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewController.swift; sourceTree = "<group>"; };
+		4165EE1320A7E8CC00616EDF /* BaseListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseListViewController.swift; sourceTree = "<group>"; };
 		416B640C1E72F362000E955A /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		418B6CF81D2707F800F974FB /* BookPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BookPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		418B6CFB1D2707F800F974FB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -257,8 +263,11 @@
 		C35E04F1207E8D0F007D3370 /* Library */ = {
 			isa = PBXGroup;
 			children = (
-				410D0FEE1EDDBC3300A52EB9 /* DataManager.swift */,
+				4165EE1120A7D1E100616EDF /* RootViewController.swift */,
+				4165EE1320A7E8CC00616EDF /* BaseListViewController.swift */,
 				4136163F1D2E21F000E48944 /* LibraryViewController.swift */,
+				4165EE0F20A7CBBE00616EDF /* PlaylistViewController.swift */,
+				410D0FEE1EDDBC3300A52EB9 /* DataManager.swift */,
 				C3FE94782080086800BCEA37 /* BookCellView.swift */,
 				4165EE0920A7A33500616EDF /* AddCellView.xib */,
 				4165EE0A20A7A33500616EDF /* BookCellView.xib */,
@@ -553,6 +562,7 @@
 				4165EE0420A743D500616EDF /* LibraryItem+CoreDataProperties.swift in Sources */,
 				C3A479132094C8C300D92122 /* rubberBandDistance.swift in Sources */,
 				C30CD2A1209791FA00258B09 /* UIColor+Sweetercolor.swift in Sources */,
+				4165EE1420A7E8CC00616EDF /* BaseListViewController.swift in Sources */,
 				C30EEEC02079645C00A4ED33 /* PlayerControlsViewController.swift in Sources */,
 				C318DDBC20A48D4700C3A17B /* BPMarqueeLabel.swift in Sources */,
 				C3A479152094CA3800D92122 /* UIImage+BookPlayer.swift in Sources */,
@@ -570,6 +580,7 @@
 				C3A479192094CAF300D92122 /* UIViewController+BookPlayer.swift in Sources */,
 				416B640D1E72F362000E955A /* Extensions.swift in Sources */,
 				4165EE0620A743D500616EDF /* LibraryItem+CoreDataClass.swift in Sources */,
+				4165EE1020A7CBBE00616EDF /* PlaylistViewController.swift in Sources */,
 				4165EE0020A743D500616EDF /* Book+CoreDataProperties.swift in Sources */,
 				C3FE94792080086800BCEA37 /* BookCellView.swift in Sources */,
 				C30B085F209654E3003F325B /* UIColor+BookPlayer.swift in Sources */,
@@ -579,6 +590,7 @@
 				4165EE0220A743D500616EDF /* Book+CoreDataClass.swift in Sources */,
 				410D0FED1EDCF4B000A52EB9 /* SettingsViewController.swift in Sources */,
 				C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */,
+				4165EE1220A7D1E100616EDF /* RootViewController.swift in Sources */,
 				C318DDB820A3A3F400C3A17B /* UIImageView+BookPlayer.swift in Sources */,
 				C32BE6B8207BF7A6006D07B9 /* Book.swift in Sources */,
 				4165EE0820A743D500616EDF /* Playlist+CoreDataProperties.swift in Sources */,
