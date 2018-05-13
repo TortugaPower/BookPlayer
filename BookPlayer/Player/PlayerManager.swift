@@ -101,8 +101,17 @@ class PlayerManager: NSObject {
 
         self.currentBook.currentTime = audioplayer.currentTime
         let percentage = round(self.currentBook.currentTime / self.currentBook.duration * 100)
+        let isPercentageDifferent = percentage != self.currentBook.percentCompleted
         self.currentBook.percentCompleted = percentage
         DataManager.saveContext()
+
+        // Notify
+        if isPercentageDifferent {
+            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil, userInfo: [
+                "percentCompletedString": self.currentBook.percentCompletedRoundedString,
+                "fileURL": self.fileURL
+                ] as [String: Any])
+        }
 
         MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
 
@@ -158,7 +167,6 @@ class PlayerManager: NSObject {
 
     var speed: Float {
         get {
-            print(self.identifier)
             let useGlobalSpeed = UserDefaults.standard.bool(forKey: UserDefaultsConstants.globalSpeedEnabled)
             let globalSpeed = UserDefaults.standard.float(forKey: "global_speed")
             let localSpeed = UserDefaults.standard.float(forKey: self.identifier+"_speed")

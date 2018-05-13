@@ -18,11 +18,15 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
 
     private weak var nowPlayingViewController: NowPlayingViewController?
 
-    var currentBooks: [Book] = []
-    // TableView's datasource
-    var bookArray = [Book]()
-
     var library: Library!
+
+    // TableView's datasource
+    var items: [LibraryItem] {
+        guard self.library != nil else {
+            return []
+        }
+        return self.library.items?.array as? [Book] ?? []
+    }
 
     // keep in memory current Documents folder
     let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
@@ -32,11 +36,12 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
             self.nowPlayingViewController = viewController
 
             self.nowPlayingViewController!.showPlayer = {
-                guard !self.currentBooks.isEmpty else {
+
+                guard PlayerManager.sharedInstance.currentBook != nil else {
                     return
                 }
 
-                self.play(books: self.currentBooks)
+                self.setupPlayer(book: PlayerManager.sharedInstance.currentBook)
             }
         }
     }
@@ -90,13 +95,12 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
         loadingWheel?.labelText = "Loading Books"
 
         DataManager.loadLibrary { (library) in
-            // swiftlint:disable force_cast
+
             self.library = library
-            self.bookArray = library.items?.array as! [Book]
             MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
 
             //show/hide instructions view
-            self.emptyListContainerView.isHidden = !self.bookArray.isEmpty
+            self.emptyListContainerView.isHidden = !self.items.isEmpty
             self.tableView.reloadData()
         }
     }
@@ -129,8 +133,11 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
                 return
         }
 
-        guard let index = (self.bookArray.index { (book) -> Bool in
-            return book.fileURL == fileURL
+        guard let index = (self.items.index { (item) -> Bool in
+            if let book = item as? Book {
+                return book.fileURL == fileURL
+            }
+            return false
         }), let cell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView else {
             return
         }
@@ -161,7 +168,7 @@ extension LibraryViewController: UITableViewDataSource {
             return 1
         }
 
-        return self.bookArray.count
+        return self.items.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -175,18 +182,21 @@ extension LibraryViewController: UITableViewDataSource {
                 return tableView.dequeueReusableCell(withIdentifier: "AddCellView", for: indexPath)
         }
 
-        let book = self.bookArray[indexPath.row]
+        let item = self.items[indexPath.row]
 
-        cell.titleLabel.text = book.title
-        cell.authorLabel.text = book.author
+        cell.titleLabel.text = item.title
+
+        if let book = item as? Book {
+            cell.authorLabel.text = book.author
+        }
 
         cell.selectionStyle = .none
 
         // NOTE: we should have a default image for artwork
-        cell.artworkImageView.image = book.artworkImage
+        cell.artworkImageView.image = item.artworkImage
 
         // Load stored percentage value
-        cell.completionLabel.text = book.percentCompletedRoundedString
+        cell.completionLabel.text = item.percentCompletedRoundedString
         cell.completionLabel.textColor = UIColor.lightGray
 
         return cell
@@ -215,19 +225,20 @@ extension LibraryViewController: UITableViewDelegate {
             }))
 
             alert.addAction(UIAlertAction(title: "Yes", style: .destructive, handler: { _ in
-                let book = self.bookArray[indexPath.row]
+                let item = self.items[indexPath.row]
 
                 do {
-                    self.library.removeFromItems(book)
+                    self.library.removeFromItems(item)
                     DataManager.saveContext()
 
-                    try FileManager.default.removeItem(at: book.fileURL)
+                    if let book = item as? Book {
+                        try FileManager.default.removeItem(at: book.fileURL)
+                    }
 
-                    self.bookArray.remove(at: indexPath.row)
                     tableView.beginUpdates()
                     tableView.deleteRows(at: [indexPath], with: .none)
                     tableView.endUpdates()
-                    self.emptyListContainerView.isHidden = !self.bookArray.isEmpty
+                    self.emptyListContainerView.isHidden = !self.items.isEmpty
                 } catch {
                     self.showAlert("Error", message: "There was an error deleting the book, please try again.")
                 }
@@ -302,20 +313,16 @@ extension LibraryViewController: UITableViewDelegate {
             return
         }
 
-        let books = Array(self.bookArray.suffix(from: indexPath.row))
+        let item = self.items[indexPath.row]
 
-        play(books: books)
-    }
-
-    func play(books: [Book]) {
-        guard !books.isEmpty else {
+        guard let book = item as? Book else {
             return
         }
 
-        self.currentBooks = books
+        self.play(book)
+    }
 
-        let book = currentBooks.first!
-
+    func play(_ book: Book) {
         setupPlayer(book: book)
         setupFooter(book: book)
     }
@@ -331,7 +338,7 @@ extension LibraryViewController: UITableViewDelegate {
         MBProgressHUD.showAdded(to: self.view, animated: true)
 
         // Replace player with new one
-        PlayerManager.shared.load(self.currentBooks) { (_) in
+        PlayerManager.shared.load([book]) { (_) in
             self.showPlayerView(book: book)
         }
     }
@@ -429,12 +436,10 @@ extension LibraryViewController: TableViewReorderDelegate {
             return
         }
 
-        let book = self.bookArray[sourceIndexPath.row]
+        let book = self.items[sourceIndexPath.row]
         self.library.removeFromItems(at: sourceIndexPath.row)
         self.library.insertIntoItems(book, at: destinationIndexPath.row)
         DataManager.saveContext()
-        self.bookArray.remove(at: sourceIndexPath.row)
-        self.bookArray.insert(book, at: destinationIndexPath.row)
     }
 
     func tableView(_ tableView: UITableView, canReorderRowAt indexPath: IndexPath) -> Bool {
