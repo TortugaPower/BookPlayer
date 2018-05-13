@@ -181,6 +181,38 @@ class PlayerManager: NSObject {
         }
     }
 
+    var rewindInterval: TimeInterval {
+        get {
+            if UserDefaults.standard.object(forKey: UserDefaultsConstants.rewindInterval) == nil {
+                return 30.0
+            }
+
+            return UserDefaults.standard.double(forKey: UserDefaultsConstants.rewindInterval)
+        }
+
+        set {
+            UserDefaults.standard.set(newValue, forKey: UserDefaultsConstants.rewindInterval)
+
+            MPRemoteCommandCenter.shared().skipBackwardCommand.preferredIntervals = [newValue] as [NSNumber]
+        }
+    }
+
+    var forwardInterval: TimeInterval {
+        get {
+            if UserDefaults.standard.object(forKey: UserDefaultsConstants.forwardInterval) == nil {
+                return 30.0
+            }
+
+            return UserDefaults.standard.double(forKey: UserDefaultsConstants.forwardInterval)
+        }
+
+        set {
+            UserDefaults.standard.set(newValue, forKey: UserDefaultsConstants.forwardInterval)
+
+            MPRemoteCommandCenter.shared().skipForwardCommand.preferredIntervals = [newValue] as [NSNumber]
+        }
+    }
+
     // MARK: Seek Controls
 
     func jumpTo(_ time: Double, fromEnd: Bool = false) {
@@ -204,11 +236,11 @@ class PlayerManager: NSObject {
     }
 
     func forward() {
-        self.jumpBy(30.0)
+        self.jumpBy(self.forwardInterval)
     }
 
     func rewind() {
-        self.jumpBy(-30.0)
+        self.jumpBy(-self.rewindInterval)
     }
 
     // MARK: Playback

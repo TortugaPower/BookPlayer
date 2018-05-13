@@ -88,11 +88,10 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         self.artwork.layer.shadowRadius = 12.0
         self.artwork.clipsToBounds = false
 
-        self.rewindIcon.title = "−30s"
-        self.forwardIcon.title = "+30s"
-
         self.rewindIcon.alpha = self.jumpIconAlpha
         self.forwardIcon.alpha = self.jumpIconAlpha
+
+        self.updateSkipButtons()
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPlay), name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
@@ -103,6 +102,11 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
+    }
+
+    func updateSkipButtons() {
+        self.rewindIcon.title = "−\(Int(PlayerManager.sharedInstance.rewindInterval.rounded()))s"
+        self.forwardIcon.title = "+\(Int(PlayerManager.sharedInstance.forwardInterval.rounded()))s"
     }
 
     func showPlayPauseButton(_ animated: Bool = true) {

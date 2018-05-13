@@ -16,6 +16,10 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     @IBOutlet weak var boostVolumeSwitch: UISwitch!
     @IBOutlet weak var globalSpeedSwitch: UISwitch!
     @IBOutlet weak var autoplaySwitch: UISwitch!
+    @IBOutlet weak var rewindIntervalLabel: UILabel!
+    @IBOutlet weak var forwardIntervalLabel: UILabel!
+
+    let durationFormatter: DateComponentsFormatter = DateComponentsFormatter()
 
     let supportSection: Int = 5
     let githubLinkPath: IndexPath = IndexPath(row: 0, section: 5)
@@ -36,24 +40,61 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        self.durationFormatter.unitsStyle = .full
+        self.durationFormatter.allowedUnits = [ .minute, .second ]
+        self.durationFormatter.collapsesLargestUnit = true
+
         self.smartRewindSwitch.addTarget(self, action: #selector(self.rewindToggleDidChange), for: .valueChanged)
         self.boostVolumeSwitch.addTarget(self, action: #selector(self.boostVolumeToggleDidChange), for: .valueChanged)
         self.globalSpeedSwitch.addTarget(self, action: #selector(self.globalSpeedToggleDidChange), for: .valueChanged)
         self.autoplaySwitch.addTarget(self, action: #selector(self.autoplayToggleDidChange), for: .valueChanged)
 
-        //Set initial switch positions
+        // Set initial switch positions
         self.smartRewindSwitch.setOn(UserDefaults.standard.bool(forKey: UserDefaultsConstants.smartRewindEnabled), animated: false)
         self.boostVolumeSwitch.setOn(UserDefaults.standard.bool(forKey: UserDefaultsConstants.boostVolumeEnabled), animated: false)
         self.globalSpeedSwitch.setOn(UserDefaults.standard.bool(forKey: UserDefaultsConstants.globalSpeedEnabled), animated: false)
         self.autoplaySwitch.setOn(UserDefaults.standard.bool(forKey: UserDefaultsConstants.autoplayEnabled), animated: false)
 
-        guard let version = Bundle.main.infoDictionary!["CFBundleShortVersionString"] as? String,
-            let build = Bundle.main.infoDictionary!["CFBundleVersion"] as? String else {
-                return
+        // Retrieve initial skip values from PlayerManager
+        self.rewindIntervalLabel.text = self.durationFormatter.string(from: PlayerManager.shared.rewindInterval)!
+        self.forwardIntervalLabel.text = self.durationFormatter.string(from: PlayerManager.shared.forwardInterval)!
+
+        guard let version = Bundle.main.infoDictionary!["CFBundleShortVersionString"] as? String, let build = Bundle.main.infoDictionary!["CFBundleVersion"] as? String else {
+            return
         }
 
         self.version = version
         self.build = build
+    }
+
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        guard let viewController = segue.destination as? SkipDurationViewController else {
+            return
+        }
+
+        viewController.durationFormatter = self.durationFormatter
+
+        if segue.identifier == "AdjustRewindIntervalSegue" {
+            viewController.title = "Rewind"
+            viewController.selectedInterval = PlayerManager.shared.rewindInterval
+            viewController.didSelectInterval = { selectedInterval in
+                PlayerManager.shared.rewindInterval = selectedInterval
+
+                print(selectedInterval, PlayerManager.shared.rewindInterval)
+
+                self.rewindIntervalLabel.text = self.durationFormatter.string(from: PlayerManager.shared.rewindInterval)!
+            }
+        }
+
+        if segue.identifier == "AdjustForwardIntervalSegue" {
+            viewController.title = "Forward"
+            viewController.selectedInterval = PlayerManager.shared.forwardInterval
+            viewController.didSelectInterval = { selectedInterval in
+                PlayerManager.shared.forwardInterval = selectedInterval
+
+                self.forwardIntervalLabel.text = self.durationFormatter.string(from: PlayerManager.shared.forwardInterval)!
+            }
+        }
     }
 
     @objc func rewindToggleDidChange() {
