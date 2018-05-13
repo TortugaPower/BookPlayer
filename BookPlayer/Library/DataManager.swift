@@ -165,4 +165,8 @@ class DataManager {
     class func createPlaylist(title: String, books: [Book]) -> Playlist {
         return Playlist(title: title, books: books, context: self.persistentContainer.viewContext)
     }
+
+    class func createBook(from fileURL: URL) -> Book {
+        return Book(from: fileURL, context: self.persistentContainer.viewContext)
+    }
 }

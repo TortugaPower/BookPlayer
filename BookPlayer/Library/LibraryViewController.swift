@@ -22,9 +22,11 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         self.navigationController!.interactivePopGestureRecognizer!.delegate = self
 
         // register for appDelegate openUrl notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.loadFiles), name: Notification.Name.AudiobookPlayer.openURL, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.loadFile), name: Notification.Name.AudiobookPlayer.openURL, object: nil)
 
-        self.loadFiles()
+        NotificationCenter.default.addObserver(self, selector: #selector(self.reloadData), name: Notification.Name.AudiobookPlayer.bookDeleted, object: nil)
+
+        self.loadLibrary()
     }
 
     // No longer need to deregister observers for iOS 9+!
@@ -39,7 +41,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
      *  Load local files and process them (rename them if necessary)
      *  Spaces in file names can cause side effects when trying to load the data
      */
-    override func loadFiles() {
+    func loadLibrary() {
         //load local files
         let loadingWheel = MBProgressHUD.showAdded(to: self.view, animated: true)
         loadingWheel?.labelText = "Loading Books"
@@ -55,8 +57,99 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         }
     }
 
+    override func loadFile(url: URL) {
+        let book = DataManager.createBook(from: url)
+        self.library.addToItems(book)
+        DataManager.saveContext()
+
+        self.tableView.reloadData()
+    }
+
+    @objc func openURL(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+            let fileURL = userInfo["fileURL"] as? URL else {
+                return
+        }
+
+        self.loadFile(url: fileURL)
+    }
+
+    @objc func reloadData() {
+        self.tableView.reloadData()
+    }
+
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         return navigationController!.viewControllers.count > 1
+    }
+
+    func handleDelete(book: Book, indexPath: IndexPath) {
+        let alert = UIAlertController(title: "Confirmation", message: "Are you sure you would like to remove this audiobook?", preferredStyle: .alert)
+
+        alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: { _ in
+            self.tableView.setEditing(false, animated: true)
+        }))
+
+        alert.addAction(UIAlertAction(title: "Yes", style: .destructive, handler: { _ in
+            do {
+                self.library.removeFromItems(book)
+                DataManager.saveContext()
+
+                try FileManager.default.removeItem(at: book.fileURL)
+
+                self.tableView.beginUpdates()
+                self.tableView.deleteRows(at: [indexPath], with: .none)
+                self.tableView.endUpdates()
+                self.emptyListContainerView.isHidden = !self.items.isEmpty
+            } catch {
+                self.showAlert("Error", message: "There was an error deleting the book, please try again.")
+            }
+        }))
+
+        alert.popoverPresentationController?.sourceView = self.view
+        alert.popoverPresentationController?.sourceRect = CGRect(x: Double(self.view.bounds.size.width / 2.0), y: Double(self.view.bounds.size.height-45), width: 1.0, height: 1.0)
+
+        self.present(alert, animated: true, completion: nil)
+    }
+
+    func handleDelete(playlist: Playlist, indexPath: IndexPath) {
+        let sheet = UIAlertController(title: "Delete Playlist", message: nil, preferredStyle: .actionSheet)
+
+        sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+
+        sheet.addAction(UIAlertAction(title: "Preserve books", style: .default, handler: { _ in
+            if let orderedSet = playlist.books {
+                self.library.addToItems(orderedSet)
+            }
+            self.library.removeFromItems(playlist)
+            DataManager.saveContext()
+
+            self.tableView.beginUpdates()
+            self.tableView.reloadSections(IndexSet(integer: 0), with: .fade)
+            self.tableView.endUpdates()
+            self.emptyListContainerView.isHidden = !self.items.isEmpty
+        }))
+
+        sheet.addAction(UIAlertAction(title: "Delete books too", style: .destructive, handler: { _ in
+            do {
+
+                self.library.removeFromItems(playlist)
+                DataManager.saveContext()
+
+                // swiftlint:disable force_cast
+                for book in playlist.books?.array as! [Book] {
+                    try FileManager.default.removeItem(at: book.fileURL)
+                }
+
+                self.tableView.beginUpdates()
+                self.tableView.deleteRows(at: [indexPath], with: .none)
+                self.tableView.endUpdates()
+                self.emptyListContainerView.isHidden = !self.items.isEmpty
+            } catch {
+                self.showAlert("Error", message: "There was an error deleting the book, please try again.")
+            }
+        }))
+
+        self.present(sheet, animated: true, completion: nil)
     }
 }
 
@@ -68,36 +161,15 @@ extension LibraryViewController {
         }
 
         let deleteAction = UITableViewRowAction(style: .default, title: "Delete") { (_, indexPath) in
-            let alert = UIAlertController(title: "Confirmation", message: "Are you sure you would like to remove this audiobook?", preferredStyle: .alert)
+            let item = self.items[indexPath.row]
 
-            alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: { _ in
-                tableView.setEditing(false, animated: true)
-            }))
+            guard let book = item as? Book else {
+                // swiftlint:disable force_cast
+                self.handleDelete(playlist: item as! Playlist, indexPath: indexPath)
+                return
+            }
 
-            alert.addAction(UIAlertAction(title: "Yes", style: .destructive, handler: { _ in
-                let item = self.items[indexPath.row]
-
-                do {
-                    self.library.removeFromItems(item)
-                    DataManager.saveContext()
-
-                    if let book = item as? Book {
-                        try FileManager.default.removeItem(at: book.fileURL)
-                    }
-
-                    tableView.beginUpdates()
-                    tableView.deleteRows(at: [indexPath], with: .none)
-                    tableView.endUpdates()
-                    self.emptyListContainerView.isHidden = !self.items.isEmpty
-                } catch {
-                    self.showAlert("Error", message: "There was an error deleting the book, please try again.")
-                }
-            }))
-
-            alert.popoverPresentationController?.sourceView = self.view
-            alert.popoverPresentationController?.sourceRect = CGRect(x: Double(self.view.bounds.size.width / 2.0), y: Double(self.view.bounds.size.height-45), width: 1.0, height: 1.0)
-
-            self.present(alert, animated: true, completion: nil)
+            self.handleDelete(book: book, indexPath: indexPath)
         }
 
         deleteAction.backgroundColor = UIColor.red

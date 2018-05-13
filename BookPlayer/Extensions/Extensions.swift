@@ -23,5 +23,6 @@ extension Notification.Name {
         public static let bookChange = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.book.change")
         public static let bookPlaying = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.book.playback")
         public static let skipIntervalsChange = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.settings.skip")
+        public static let bookDeleted = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.book.deleted")
     }
 }

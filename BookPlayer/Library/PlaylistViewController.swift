@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import MBProgressHUD
 
 class PlaylistViewController: BaseListViewController {
     override var items: [LibraryItem] {
@@ -20,8 +21,14 @@ class PlaylistViewController: BaseListViewController {
         self.navigationItem.title = playlist.title
     }
 
-    override func loadFiles() {
+    override func loadFile(url: URL) {
+        let book = DataManager.createBook(from: url)
+        self.playlist.addToBooks(book)
+        self.playlist.desc = "\(self.items.count) Files"
+        DataManager.saveContext()
 
+        NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookDeleted, object: nil)
+        self.tableView.reloadData()
     }
 }
 
@@ -53,5 +60,55 @@ extension PlaylistViewController {
         }
 
         self.setupPlayer(book: book)
+    }
+
+    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+        guard indexPath.section == 0,
+            let book = self.items[indexPath.row] as? Book else {
+            return nil
+        }
+
+        let deleteAction = UITableViewRowAction(style: .default, title: "Options") { (_, indexPath) in
+
+            let sheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+
+            sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+
+            sheet.addAction(UIAlertAction(title: "Remove Book from playlist", style: .default, handler: { _ in
+
+                self.playlist.removeFromBooks(book)
+                self.playlist.desc = "\(self.items.count) Files"
+                self.library.addToItems(book)
+                DataManager.saveContext()
+
+                self.tableView.beginUpdates()
+                self.tableView.deleteRows(at: [indexPath], with: .none)
+                self.tableView.endUpdates()
+                NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookDeleted, object: nil)
+            }))
+
+            sheet.addAction(UIAlertAction(title: "Delete Book", style: .destructive, handler: { _ in
+                do {
+                    self.playlist.removeFromBooks(book)
+                    self.playlist.desc = "\(self.items.count) Files"
+                    DataManager.saveContext()
+
+                    try FileManager.default.removeItem(at: book.fileURL)
+
+                    self.tableView.beginUpdates()
+                    self.tableView.deleteRows(at: [indexPath], with: .none)
+                    self.tableView.endUpdates()
+                    NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookDeleted, object: nil)
+                } catch {
+                    self.showAlert("Error", message: "There was an error deleting the book, please try again.")
+                }
+            }))
+
+            self.present(sheet, animated: true, completion: nil)
+        }
+
+        deleteAction.backgroundColor = UIColor.gray
+
+        return [deleteAction]
     }
 }

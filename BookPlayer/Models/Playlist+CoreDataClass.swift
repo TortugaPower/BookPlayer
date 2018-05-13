@@ -16,7 +16,7 @@ public class Playlist: LibraryItem {
         self.init(entity: entity, insertInto: context)
         self.identifier = title
         self.title = title
-        self.desc = "\(books.count) Books"
+        self.desc = "\(books.count) Files"
         self.addToBooks(NSOrderedSet(array: books))
     }
 }

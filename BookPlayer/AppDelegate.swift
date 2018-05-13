@@ -67,7 +67,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         do {
             try fmanager.moveItem(at: url, to: destinationURL)
             // In case the app was already running in background
-            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.openURL, object: nil)
+            let userInfo = ["fileURL": destinationURL]
+            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.openURL, object: nil, userInfo: userInfo)
         } catch {
             do {
                 try fmanager.removeItem(at: url)
@@ -115,14 +116,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // Playback may be interrupted by calls. Handle pause
     @objc func handleAudioInterruptions(_ notification: Notification) {
-        if PlayerManager.sharedInstance.isPlaying {
-            PlayerManager.sharedInstance.pause()
+        if PlayerManager.shared.isPlaying {
+            PlayerManager.shared.pause()
         }
     }
 
     // Handle audio route changes
     @objc func handleAudioRouteChange(_ notification: Notification) {
-        guard PlayerManager.sharedInstance.isPlaying,
+        guard PlayerManager.shared.isPlaying,
             let userInfo = notification.userInfo,
             let reasonValue = userInfo[AVAudioSessionRouteChangeReasonKey] as? UInt,
             let reason = AVAudioSessionRouteChangeReason(rawValue: reasonValue) else {
@@ -132,7 +133,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Pause playback if route changes due to a disconnect
         switch reason {
         case .oldDeviceUnavailable:
-            PlayerManager.sharedInstance.play()
+            PlayerManager.shared.play()
         default:
             break
         }
