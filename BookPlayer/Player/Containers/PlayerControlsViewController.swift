@@ -105,8 +105,8 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
     }
 
     func updateSkipButtons() {
-        self.rewindIcon.title = "−\(Int(PlayerManager.sharedInstance.rewindInterval.rounded()))s"
-        self.forwardIcon.title = "+\(Int(PlayerManager.sharedInstance.forwardInterval.rounded()))s"
+        self.rewindIcon.title = "−\(Int(PlayerManager.shared.rewindInterval.rounded()))s"
+        self.forwardIcon.title = "+\(Int(PlayerManager.shared.forwardInterval.rounded()))s"
     }
 
     func showPlayPauseButton(_ animated: Bool = true) {
