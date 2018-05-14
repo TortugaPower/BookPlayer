@@ -13,6 +13,7 @@
 		412451831D489204008AC0E5 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412451811D489204008AC0E5 /* Fabric.framework */; };
 		412451841D489204008AC0E5 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412451821D489204008AC0E5 /* Crashlytics.framework */; };
 		413616401D2E21F000E48944 /* LibraryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4136163F1D2E21F000E48944 /* LibraryViewController.swift */; };
+		4150F80320A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4150F80220A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework */; };
 		4165EDFE20A743D500616EDF /* Chapter+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF220A743D400616EDF /* Chapter+CoreDataClass.swift */; };
 		4165EDFF20A743D500616EDF /* Chapter+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF320A743D400616EDF /* Chapter+CoreDataProperties.swift */; };
 		4165EE0020A743D500616EDF /* Book+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF420A743D400616EDF /* Book+CoreDataProperties.swift */; };
@@ -96,6 +97,7 @@
 		412451811D489204008AC0E5 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
 		412451821D489204008AC0E5 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		4136163F1D2E21F000E48944 /* LibraryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryViewController.swift; sourceTree = "<group>"; };
+		4150F80220A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IDZSwiftCommonCrypto.framework; path = Carthage/Build/iOS/IDZSwiftCommonCrypto.framework; sourceTree = "<group>"; };
 		4165EDF220A743D400616EDF /* Chapter+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Chapter+CoreDataClass.swift"; sourceTree = "<group>"; };
 		4165EDF320A743D400616EDF /* Chapter+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Chapter+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		4165EDF420A743D400616EDF /* Book+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Book+CoreDataProperties.swift"; sourceTree = "<group>"; };
@@ -164,6 +166,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4150F80320A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework in Frameworks */,
 				C318DDBF20A4DC7500C3A17B /* DeviceKit.framework in Frameworks */,
 				41AB1C131D30298800AC1AA0 /* MBProgressHUD.framework in Frameworks */,
 				C30CD2A32097C49F00258B09 /* ColorCube.framework in Frameworks */,
@@ -238,6 +241,7 @@
 		41AABFFA1E705D18006BD2E0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4150F80220A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework */,
 				4165EE0D20A7AEC600616EDF /* SwiftReorder.framework */,
 				C318DDBE20A4DC7500C3A17B /* DeviceKit.framework */,
 				C30CD2A22097C49F00258B09 /* ColorCube.framework */,
@@ -263,11 +267,11 @@
 		C35E04F1207E8D0F007D3370 /* Library */ = {
 			isa = PBXGroup;
 			children = (
+				410D0FEE1EDDBC3300A52EB9 /* DataManager.swift */,
 				4165EE1120A7D1E100616EDF /* RootViewController.swift */,
 				4165EE1320A7E8CC00616EDF /* BaseListViewController.swift */,
 				4136163F1D2E21F000E48944 /* LibraryViewController.swift */,
 				4165EE0F20A7CBBE00616EDF /* PlaylistViewController.swift */,
-				410D0FEE1EDDBC3300A52EB9 /* DataManager.swift */,
 				C3FE94782080086800BCEA37 /* BookCellView.swift */,
 				4165EE0920A7A33500616EDF /* AddCellView.xib */,
 				4165EE0A20A7A33500616EDF /* BookCellView.xib */,
@@ -501,6 +505,7 @@
 				"$(SRCROOT)/Carthage/Build/iOS/ColorCube.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/DeviceKit.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/SwiftReorder.framework",
+				"$(SRCROOT)/Carthage/Build/iOS/IDZSwiftCommonCrypto.framework",
 			);
 			name = "Copy Frameworks managed by Carthage";
 			outputPaths = (
@@ -509,6 +514,7 @@
 				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/MBProgressHUD.framework",
 				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/DeviceKit.framework",
 				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/SwiftReorder.framework",
+				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/IDZSwiftCommonCrypto.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;

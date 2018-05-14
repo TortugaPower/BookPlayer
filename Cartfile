@@ -3,3 +3,4 @@ github "cbpowell/MarqueeLabel" ~> 3.1.4
 github "pixelogik/ColorCube" "master"
 github "dennisweissmann/DeviceKit" ~> 1.7
 github "GianniCarlo/SwiftReorder"
+github "iosdevzone/IDZSwiftCommonCrypto"

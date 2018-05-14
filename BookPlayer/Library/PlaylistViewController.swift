@@ -23,12 +23,11 @@ class PlaylistViewController: BaseListViewController {
 
     override func loadFile(url: URL) {
         let book = DataManager.createBook(from: url)
-        self.playlist.addToBooks(book)
-        self.playlist.desc = "\(self.items.count) Files"
-        DataManager.saveContext()
 
-        NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookDeleted, object: nil)
-        self.tableView.reloadData()
+        DataManager.insert([book], into: self.playlist) {
+            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookDeleted, object: nil)
+            self.tableView.reloadData()
+        }
     }
 }
 
@@ -77,7 +76,6 @@ extension PlaylistViewController {
             sheet.addAction(UIAlertAction(title: "Remove Book from playlist", style: .default, handler: { _ in
 
                 self.playlist.removeFromBooks(book)
-                self.playlist.desc = "\(self.items.count) Files"
                 self.library.addToItems(book)
                 DataManager.saveContext()
 
@@ -90,7 +88,6 @@ extension PlaylistViewController {
             sheet.addAction(UIAlertAction(title: "Delete Book", style: .destructive, handler: { _ in
                 do {
                     self.playlist.removeFromBooks(book)
-                    self.playlist.desc = "\(self.items.count) Files"
                     DataManager.saveContext()
 
                     try FileManager.default.removeItem(at: book.fileURL)

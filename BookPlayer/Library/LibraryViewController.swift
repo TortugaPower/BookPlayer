@@ -22,7 +22,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         self.navigationController!.interactivePopGestureRecognizer!.delegate = self
 
         // register for appDelegate openUrl notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.loadFile), name: Notification.Name.AudiobookPlayer.openURL, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.openURL(_:)), name: Notification.Name.AudiobookPlayer.openURL, object: nil)
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.reloadData), name: Notification.Name.AudiobookPlayer.bookDeleted, object: nil)
 
@@ -46,23 +46,34 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         let loadingWheel = MBProgressHUD.showAdded(to: self.view, animated: true)
         loadingWheel?.labelText = "Loading Books"
 
-        DataManager.loadLibrary { (library) in
+        self.library = DataManager.getLibrary()
 
-            self.library = library
-            MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
+        //show/hide instructions view
+        self.emptyListContainerView.isHidden = !self.items.isEmpty
+        self.tableView.reloadData()
 
-            //show/hide instructions view
-            self.emptyListContainerView.isHidden = !self.items.isEmpty
-            self.tableView.reloadData()
+        DataManager.processPendingFiles { (books) in
+            guard !books.isEmpty else {
+                MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
+                return
+            }
+            DataManager.insert(books, into: self.library) {
+                MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
+
+                //show/hide instructions view
+                self.emptyListContainerView.isHidden = !self.items.isEmpty
+                self.tableView.reloadData()
+            }
         }
     }
 
     override func loadFile(url: URL) {
         let book = DataManager.createBook(from: url)
-        self.library.addToItems(book)
-        DataManager.saveContext()
 
-        self.tableView.reloadData()
+        DataManager.insert([book], into: self.library) {
+            self.emptyListContainerView.isHidden = !self.items.isEmpty
+            self.tableView.reloadData()
+        }
     }
 
     @objc func openURL(_ notification: Notification) {
@@ -160,8 +171,14 @@ extension LibraryViewController {
             return nil
         }
 
-        let deleteAction = UITableViewRowAction(style: .default, title: "Delete") { (_, indexPath) in
-            let item = self.items[indexPath.row]
+        let item = self.items[indexPath.row]
+
+        let isPlaylist = item is Playlist
+
+        let title = isPlaylist ? "Options" : "Delete"
+        let color = isPlaylist ? UIColor.gray : UIColor.red
+
+        let deleteAction = UITableViewRowAction(style: .default, title: title) { (_, indexPath) in
 
             guard let book = item as? Book else {
                 // swiftlint:disable force_cast
@@ -172,7 +189,7 @@ extension LibraryViewController {
             self.handleDelete(book: book, indexPath: indexPath)
         }
 
-        deleteAction.backgroundColor = UIColor.red
+        deleteAction.backgroundColor = color
 
         return [deleteAction]
     }
@@ -266,7 +283,6 @@ extension LibraryViewController {
 
                 if let playlist = item as? Playlist {
                     playlist.addToBooks(book)
-                    playlist.desc = "\(playlist.books!.count) Books"
                 }
                 self.library.removeFromItems(at: finalDestinationIndexPath.row)
                 DataManager.saveContext()

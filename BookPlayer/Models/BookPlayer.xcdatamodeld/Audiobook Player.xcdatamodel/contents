@@ -2,6 +2,7 @@
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14133" systemVersion="17E202" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Book" representedClassName=".Book" parentEntity="LibraryItem" syncable="YES">
         <attribute name="author" attributeType="String" syncable="YES"/>
+        <attribute name="ext" attributeType="String" syncable="YES"/>
         <attribute name="usesDefaultArtwork" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES" syncable="YES"/>
         <relationship name="chapters" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Chapter" inverseName="book" inverseEntity="Chapter" syncable="YES"/>
         <relationship name="playlist" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Playlist" inverseName="books" inverseEntity="Playlist" syncable="YES"/>
@@ -30,7 +31,7 @@
         <relationship name="books" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Book" inverseName="playlist" inverseEntity="Book" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Book" positionX="-65" positionY="329" width="128" height="105"/>
+        <element name="Book" positionX="-65" positionY="329" width="128" height="120"/>
         <element name="Chapter" positionX="162" positionY="99" width="128" height="118"/>
         <element name="Library" positionX="160" positionY="9" width="128" height="58"/>
         <element name="LibraryItem" positionX="-63" positionY="-18" width="128" height="150"/>

@@ -71,6 +71,11 @@ class BaseListViewController: UIViewController {
             return
         }
 
+        guard book.exists else {
+            self.showAlert("Book missing!", message: "The book was erased from the file system, add the file back to play the book")
+            return
+        }
+
         MBProgressHUD.showAdded(to: self.view, animated: true)
 
         // Replace player with new one
@@ -139,7 +144,7 @@ extension BaseListViewController: UITableViewDataSource {
             cell.completionLabel.text = item.percentCompletedRoundedString
             cell.completionLabel.textColor = UIColor.lightGray
         } else if let playlist = item as? Playlist {
-            cell.authorLabel.text = playlist.desc
+            cell.authorLabel.text = playlist.info()
             cell.completionLabel.isHidden = true
         }
 
