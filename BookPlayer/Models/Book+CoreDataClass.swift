@@ -63,7 +63,12 @@ public class Book: LibraryItem {
         self.ext = fileURL.pathExtension
         self.duration = CMTimeGetSeconds(self.asset.duration)
 
-        self.artwork = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtwork, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? NSData
+        if let data = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtwork, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? NSData {
+            self.artwork = data
+            self.usesDefaultArtwork = false
+        } else {
+            self.usesDefaultArtwork = true
+        }
 
         self.setChapters(from: self.asset, context: context)
 
@@ -78,6 +83,7 @@ public class Book: LibraryItem {
     public override func awakeFromFetch() {
         super.awakeFromFetch()
         self.fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(self.filename)
+
         self.asset = AVAsset(url: self.fileURL)
     }
 }
