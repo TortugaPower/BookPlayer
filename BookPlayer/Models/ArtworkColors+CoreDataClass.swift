@@ -61,10 +61,7 @@ public class ArtworkColors: NSManagedObject {
 
             return color.overlayBlack
         }
-        print(colors[0].cssHex)
-        print(colors[1].cssHex)
-        print(colors[2].cssHex)
-        print(colors[3].cssHex)
+
         self.backgroundHex = colors[0].cssHex
         self.primaryHex = colors[1].cssHex
         self.secondaryHex = colors[2].cssHex

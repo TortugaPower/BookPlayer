@@ -117,7 +117,11 @@ class DataManager {
         let destinationURL = destinationFolder.appendingPathComponent(filename)
 
         do {
-            try FileManager.default.moveItem(at: origin, to: destinationURL)
+            if !FileManager.default.fileExists(atPath: destinationURL.path) {
+                try FileManager.default.moveItem(at: origin, to: destinationURL)
+            } else {
+                try FileManager.default.removeItem(at: origin)
+            }
         } catch {
             fatalError("Fail to move file from \(origin) to \(destinationURL)")
         }
@@ -160,7 +164,6 @@ class DataManager {
                 // autoreleasepool needed to avoid OOM crashes from the file manager
                 autoreleasepool { () -> Void in
                     let book = Book(from: fileURL, context: context)
-                    print(book.fileURL)
                     books.append(book)
                 }
             }
@@ -184,10 +187,15 @@ class DataManager {
                 book.identifier = hash
                 book.fileURL = destinationFolder.appendingPathComponent(book.filename)
 
-                if let index = library.index(of: book),
-                    let storedBook = library.getItem(at: index) as? Book {
-                    book.currentTime = storedBook.currentTime
-                    library.replaceItems(at: index, with: book)
+                //handle if book already exists in the library
+                if let index = library.index(of: book) {
+                    //handle if existing book is in a playlist
+                    if let storedPlaylist = library.getItem(at: index) as? Playlist,
+                        let indexBook = storedPlaylist.index(of: book),
+                        let storedBook = storedPlaylist.getBook(at: indexBook) {
+                        storedPlaylist.removeFromBooks(storedBook)
+                        library.addToItems(storedBook)
+                    }
                 } else {
                     library.addToItems(book)
                 }
@@ -201,7 +209,7 @@ class DataManager {
         }
     }
 
-    class func insert(_ books: [Book], into playlist: Playlist, completion:@escaping () -> Void) {
+    class func insert(_ books: [Book], into playlist: Playlist, library: Library, completion:@escaping () -> Void) {
 
         DispatchQueue.global().async {
             let destinationFolder = self.getProcessedFolderURL()
@@ -214,10 +222,19 @@ class DataManager {
                 book.identifier = hash
                 book.fileURL = destinationFolder.appendingPathComponent(book.filename)
 
-                if let index = playlist.index(of: book),
-                    let storedBook = playlist.getBook(at: index) {
-                    book.currentTime = storedBook.currentTime
-                    playlist.replaceBooks(at: index, with: book)
+                //handle if book already exists in the library
+                if let index = library.index(of: book) {
+                    //handle if existing book is in the library
+                    if let storedBook = library.getItem(at: index) as? Book {
+                        library.removeFromItems(storedBook)
+                        playlist.addToBooks(storedBook)
+                    } else //handle if existing book is in a playlist
+                        if let storedPlaylist = library.getItem(at: index) as? Playlist,
+                            let indexBook = storedPlaylist.index(of: book),
+                            let storedBook = storedPlaylist.getBook(at: indexBook) {
+                            storedPlaylist.removeFromBooks(storedBook)
+                            playlist.addToBooks(storedBook)
+                    }
                 } else {
                     playlist.addToBooks(book)
                 }

@@ -216,6 +216,13 @@ extension LibraryViewController {
                 })
                 playlistAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
                 playlistAlert.addAction(UIAlertAction(title: "Create", style: .default, handler: { (_) in
+                    let title = playlistAlert.textFields!.first!.text!
+                    
+                    let playlist = DataManager.createPlaylist(title: title, books: [])
+                    self.library.addToItems(playlist)
+                    DataManager.saveContext()
+                    
+                    self.tableView.reloadData()
                 }))
 
                 self.present(playlistAlert, animated: true, completion: nil)
