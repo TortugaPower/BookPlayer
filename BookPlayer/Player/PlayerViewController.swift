@@ -47,11 +47,17 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             self.progressViewController = viewController
         }
 
-        if segue.identifier == "ChapterSelectionSegue",
-            let navigationController = segue.destination as? UINavigationController,
-            let viewController = navigationController.viewControllers.first as? ChaptersViewController {
-                viewController.book = self.currentBook
+        if let navigationController = segue.destination as? UINavigationController,
+            let viewController = navigationController.viewControllers.first as? ChaptersViewController,
+            let currentChapter = self.currentBook.currentChapter {
+
+            viewController.chapters = self.currentBook.chapters
+            viewController.currentChapter = currentChapter
+            viewController.didSelectChapter = { selectedChapter in
+                // Don't set the chapter, set the new time which will set the chapter in didSet
+                PlayerManager.shared.jumpTo(selectedChapter.start)
             }
+        }
     }
 
     // Prevents dragging the view down from changing the safeAreaInsets.top
