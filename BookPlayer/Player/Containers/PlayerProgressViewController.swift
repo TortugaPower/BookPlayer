@@ -134,16 +134,19 @@ class PlayerProgressViewController: PlayerContainerViewController {
         if let currentChapter = book.currentChapter {
             currentTime = interval * currentChapter.duration + currentChapter.start
         }
+
         self.currentTime = self.currentTimeInContext()
 
         guard let touch = event.allTouches?.first else {
             return
         }
 
+        // @TODO: Handle has chapter + playing + currentChapter already switched
+
         // Update while dragging up until but not including the very end of the chapter.
         // Move to the end of the chapter if the drag ends at the very end of the slider.
         // This prevents dragging the slider to the end of the chapter from skipping chapter by chapter while the drag continues to fire.
-        if value < sender.maximumValue && touch.phase == .moved || value == sender.maximumValue && touch.phase == .ended {
+        if value < sender.maximumValue && touch.phase == .moved || (value == sender.maximumValue && touch.phase == .ended && PlayerManager.shared.currentTime <= self.currentTime) {
             PlayerManager.shared.jumpTo(currentTime)
         }
     }
