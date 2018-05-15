@@ -128,10 +128,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             return .success
         }
 
-        MPRemoteCommandCenter.shared().skipForwardCommand.preferredIntervals = [30]
+        MPRemoteCommandCenter.shared().skipForwardCommand.preferredIntervals = [PlayerManager.shared.forwardInterval] as [NSNumber]
         MPRemoteCommandCenter.shared().skipForwardCommand.addTarget(handler: skipForwardHandler)
 
-        MPRemoteCommandCenter.shared().skipBackwardCommand.preferredIntervals = [30]
+        MPRemoteCommandCenter.shared().skipBackwardCommand.preferredIntervals = [PlayerManager.shared.rewindInterval] as [NSNumber]
         MPRemoteCommandCenter.shared().nextTrackCommand.addTarget(handler: skipForwardHandler)
 
         MPRemoteCommandCenter.shared().seekForwardCommand.addTarget { (commandEvent) -> MPRemoteCommandHandlerStatus in

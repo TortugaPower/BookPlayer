@@ -35,6 +35,7 @@
 		C318DDBF20A4DC7500C3A17B /* DeviceKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C318DDBE20A4DC7500C3A17B /* DeviceKit.framework */; };
 		C32BE6B8207BF7A6006D07B9 /* Book.swift in Sources */ = {isa = PBXBuildFile; fileRef = C32BE6B7207BF7A6006D07B9 /* Book.swift */; };
 		C32BE6BA207BF80A006D07B9 /* Chapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C32BE6B9207BF80A006D07B9 /* Chapter.swift */; };
+		C359C30720A9F35B00A626E3 /* SkipDurationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C359C30620A9F35B00A626E3 /* SkipDurationViewController.swift */; };
 		C36C4D5C20A23E1800AFDB76 /* NowPlayingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C36C4D5B20A23E1800AFDB76 /* NowPlayingViewController.swift */; };
 		C37A6873209F0F830063AEAC /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = C37A6872209F0F830063AEAC /* Credits.html */; };
 		C37A6875209F13120063AEAC /* CreditsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37A6874209F13120063AEAC /* CreditsViewController.swift */; };
@@ -108,6 +109,7 @@
 		C318DDBE20A4DC7500C3A17B /* DeviceKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DeviceKit.framework; path = Carthage/Build/iOS/DeviceKit.framework; sourceTree = "<group>"; };
 		C32BE6B7207BF7A6006D07B9 /* Book.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Book.swift; sourceTree = "<group>"; };
 		C32BE6B9207BF80A006D07B9 /* Chapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chapter.swift; sourceTree = "<group>"; };
+		C359C30620A9F35B00A626E3 /* SkipDurationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkipDurationViewController.swift; sourceTree = "<group>"; };
 		C35BADE7206989E6007687C1 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		C35BADE8206989E6007687C1 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		C35BADE9206989E6007687C1 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .swiftlint.yml; sourceTree = "<group>"; };
@@ -240,6 +242,7 @@
 			children = (
 				410D0FEC1EDCF4B000A52EB9 /* SettingsViewController.swift */,
 				C37A6874209F13120063AEAC /* CreditsViewController.swift */,
+				C359C30620A9F35B00A626E3 /* SkipDurationViewController.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -460,7 +463,7 @@
 		};
 		C318DDBD20A4C47200C3A17B /* Increment Build Number */ = {
 			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 8;
 			files = (
 			);
 			inputPaths = (
@@ -468,7 +471,7 @@
 			name = "Increment Build Number";
 			outputPaths = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
+			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
 			shellScript = "buildNumber=$(/usr/libexec/PlistBuddy -c \"Print CFBundleVersion\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\")\nbuildNumber=$(($buildNumber + 1))\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"";
 			showEnvVarsInLog = 0;
@@ -512,6 +515,7 @@
 				C37A6875209F13120063AEAC /* CreditsViewController.swift in Sources */,
 				418B6D5D1D2CB76900F974FB /* PlayerViewController.swift in Sources */,
 				C3F69CD6209C4B7300DD9E8F /* ArtworkColors.swift in Sources */,
+				C359C30720A9F35B00A626E3 /* SkipDurationViewController.swift in Sources */,
 				C30EEEBE2079645C00A4ED33 /* PlayerProgressViewController.swift in Sources */,
 				C3AA3730207BF6C10004DCFD /* AVPlayerItem+BookPlayer.swift in Sources */,
 				C3A479192094CAF300D92122 /* UIViewController+BookPlayer.swift in Sources */,
