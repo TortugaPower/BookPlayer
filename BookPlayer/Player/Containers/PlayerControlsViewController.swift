@@ -59,7 +59,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
     var book: Book? {
         didSet {
-            self.artwork.image = self.book?.artworkImage
+            self.artwork.image = self.book?.artwork
         }
     }
 

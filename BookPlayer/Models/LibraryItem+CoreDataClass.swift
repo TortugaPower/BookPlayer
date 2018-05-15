@@ -12,9 +12,9 @@ import CoreData
 import UIKit
 
 public class LibraryItem: NSManagedObject {
-    var artworkImage: UIImage {
-        if let artwork = self.artwork {
-            return UIImage(data: artwork as Data)!
+    var artwork: UIImage {
+        if let artworkData = self.artworkData {
+            return UIImage(data: artworkData as Data)!
         } else {
             return #imageLiteral(resourceName: "defaultArtwork")
         }

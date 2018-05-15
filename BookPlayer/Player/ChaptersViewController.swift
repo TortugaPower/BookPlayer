@@ -11,6 +11,7 @@ import MediaPlayer
 
 class ChaptersViewController: UITableViewController {
     var chapters: [Chapter]!
+
     var currentChapter: Chapter!
     var didSelectChapter: ((_ selectedChapter: Chapter) -> Void)?
 

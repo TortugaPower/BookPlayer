@@ -71,7 +71,7 @@ class BaseListViewController: UIViewController {
             return
         }
 
-        guard book.exists else {
+        guard DataManager.exists(book) else {
             self.showAlert("Book missing!", message: "The book was erased from the file system, add the file back to play the book")
             return
         }
@@ -151,7 +151,7 @@ extension BaseListViewController: UITableViewDataSource {
         cell.selectionStyle = .none
 
         // NOTE: we should have a default image for artwork
-        cell.artworkImageView.image = item.artworkImage
+        cell.artworkImageView.image = item.artwork
 
         return cell
     }

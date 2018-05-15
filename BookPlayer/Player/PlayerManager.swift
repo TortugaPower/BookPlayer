@@ -37,7 +37,7 @@ class PlayerManager: NSObject {
 
         let book = books.first!
 
-        self.playerItem = AVPlayerItem(asset: book.asset)
+        self.playerItem = DataManager.playerItem(from: book)
         self.fileURL = book.fileURL
         self.identifier = book.identifier
 
@@ -79,7 +79,7 @@ class PlayerManager: NSObject {
                     MPMediaItemPropertyPlaybackDuration: audioplayer.duration
                 ]
 
-                nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: book.artworkImage)
+                nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: book.artwork)
 
                 MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
 
@@ -104,9 +104,8 @@ class PlayerManager: NSObject {
         }
 
         self.currentBook.currentTime = audioplayer.currentTime
-        let percentage = round(self.currentBook.currentTime / self.currentBook.duration * 100)
-        let isPercentageDifferent = percentage != self.currentBook.percentCompleted
-        self.currentBook.percentCompleted = percentage
+        let isPercentageDifferent = self.currentBook.percentage != self.currentBook.percentCompleted
+        self.currentBook.percentCompleted = self.currentBook.percentage
         DataManager.saveContext()
 
         // Notify

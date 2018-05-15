@@ -238,4 +238,13 @@ class DataManager {
     class func createBook(from fileURL: URL) -> Book {
         return Book(from: fileURL, context: self.persistentContainer.viewContext)
     }
+
+    class func exists(_ book: Book) -> Bool {
+        return FileManager.default.fileExists(atPath: book.fileURL.path)
+    }
+
+    class func playerItem(from book: Book) -> AVPlayerItem {
+        let asset = AVAsset(url: book.fileURL)
+        return AVPlayerItem(asset: asset)
+    }
 }

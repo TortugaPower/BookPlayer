@@ -59,6 +59,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
                 PlayerManager.shared.jumpTo(selectedChapter.start)
             }
         }
+
     }
 
     // Prevents dragging the view down from changing the safeAreaInsets.top
@@ -110,14 +111,13 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.metaViewController?.book = currentBook
         self.controlsViewController?.book = currentBook
         self.progressViewController?.book = currentBook
-        self.progressViewController?.currentTime = currentBook.currentTime
 
         self.speedButton.title = self.formatSpeed(PlayerManager.shared.speed)
 
         var colors = ArtworkColors()
 
         if !currentBook.usesDefaultArtwork {
-            colors = ArtworkColors(image: currentBook.artworkImage, darknessThreshold: self.darknessThreshold)
+            colors = ArtworkColors(image: currentBook.artwork, darknessThreshold: self.darknessThreshold)
         }
 
         self.view.backgroundColor = colors.background

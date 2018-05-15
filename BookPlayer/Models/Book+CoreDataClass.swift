@@ -13,7 +13,6 @@ import AVFoundation
 
 public class Book: LibraryItem {
     var fileURL: URL!
-    var asset: AVAsset!
     var currentChapter: Chapter!
     var displayTitle: String {
         return self.title
@@ -21,19 +20,17 @@ public class Book: LibraryItem {
     var filename: String {
         return self.identifier + ".\(self.ext!)"
     }
-    var exists: Bool {
-        return CMTimeGetSeconds(self.asset.duration) != 0
+    var percentage: Double {
+        return round(self.currentTime / self.duration * 100)
     }
 
     func setChapters(from asset: AVAsset, context: NSManagedObjectContext) {
-        let item = AVPlayerItem(asset: asset)
-
         for locale in asset.availableChapterLocales {
-            let chaptersMetadata = self.asset.chapterMetadataGroups(withTitleLocale: locale, containingItemsWithCommonKeys: [AVMetadataKey.commonKeyArtwork])
+            let chaptersMetadata = asset.chapterMetadataGroups(withTitleLocale: locale, containingItemsWithCommonKeys: [AVMetadataKey.commonKeyArtwork])
 
             for (index, chapterMetadata) in chaptersMetadata.enumerated() {
                 let chapterIndex = index + 1
-                let chapter = Chapter(from: item, context: context)
+                let chapter = Chapter(from: asset, context: context)
                 chapter.title = AVMetadataItem.metadataItems(
                     from: chapterMetadata.items,
                     withKey: AVMetadataKey.commonKeyTitle,
@@ -53,24 +50,24 @@ public class Book: LibraryItem {
         self.init(entity: entity, insertInto: context)
         self.fileURL = fileURL
         self.identifier = fileURL.lastPathComponent
-        self.asset = AVAsset(url: fileURL)
+        let asset = AVAsset(url: fileURL)
 
-        let titleFromMeta = AVMetadataItem.metadataItems(from: self.asset.metadata, withKey: AVMetadataKey.commonKeyTitle, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String
-        let authorFromMeta = AVMetadataItem.metadataItems(from: self.asset.metadata, withKey: AVMetadataKey.commonKeyArtist, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String
+        let titleFromMeta = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyTitle, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String
+        let authorFromMeta = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtist, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String
 
         self.title = titleFromMeta ?? fileURL.lastPathComponent.replacingOccurrences(of: "_", with: " ")
         self.author = authorFromMeta ?? "Unknown Author"
         self.ext = fileURL.pathExtension
-        self.duration = CMTimeGetSeconds(self.asset.duration)
+        self.duration = CMTimeGetSeconds(asset.duration)
 
         if let data = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtwork, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? NSData {
-            self.artwork = data
+            self.artworkData = data
             self.usesDefaultArtwork = false
         } else {
             self.usesDefaultArtwork = true
         }
 
-        self.setChapters(from: self.asset, context: context)
+        self.setChapters(from: asset, context: context)
 
         let storedTime = UserDefaults.standard.double(forKey: self.identifier)
         //migration of time
@@ -83,7 +80,5 @@ public class Book: LibraryItem {
     public override func awakeFromFetch() {
         super.awakeFromFetch()
         self.fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(self.filename)
-
-        self.asset = AVAsset(url: self.fileURL)
     }
 }

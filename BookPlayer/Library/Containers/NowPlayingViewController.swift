@@ -26,7 +26,7 @@ class NowPlayingViewController: PlayerContainerViewController, UIGestureRecogniz
 
     var book: Book? {
         didSet {
-            self.artwork.image = self.book?.artworkImage
+            self.artwork.image = self.book?.artwork
             self.authorLabel.text = self.book?.author
             self.titleLabel.text = self.book?.title
         }

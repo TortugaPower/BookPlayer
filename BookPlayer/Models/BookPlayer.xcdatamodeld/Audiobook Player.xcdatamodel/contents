@@ -12,19 +12,19 @@
         <attribute name="index" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="start" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="title" attributeType="String" syncable="YES"/>
-        <relationship name="book" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Book" inverseName="chapters" inverseEntity="Book" syncable="YES"/>
+        <relationship name="book" maxCount="1" deletionRule="Nullify" destinationEntity="Book" inverseName="chapters" inverseEntity="Book" syncable="YES"/>
     </entity>
     <entity name="Library" representedClassName=".Library" syncable="YES">
         <relationship name="items" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="LibraryItem" inverseName="library" inverseEntity="LibraryItem" syncable="YES"/>
     </entity>
     <entity name="LibraryItem" representedClassName=".LibraryItem" isAbstract="YES" syncable="YES">
-        <attribute name="artwork" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="artworkData" optional="YES" attributeType="Binary" syncable="YES"/>
         <attribute name="currentTime" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="duration" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="identifier" attributeType="String" syncable="YES"/>
         <attribute name="percentCompleted" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="title" attributeType="String" syncable="YES"/>
-        <relationship name="library" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Library" inverseName="items" inverseEntity="Library" syncable="YES"/>
+        <relationship name="library" maxCount="1" deletionRule="Nullify" destinationEntity="Library" inverseName="items" inverseEntity="Library" syncable="YES"/>
     </entity>
     <entity name="Playlist" representedClassName=".Playlist" parentEntity="LibraryItem" syncable="YES">
         <attribute name="desc" attributeType="String" syncable="YES"/>
@@ -32,7 +32,7 @@
     </entity>
     <elements>
         <element name="Book" positionX="-65" positionY="329" width="128" height="120"/>
-        <element name="Chapter" positionX="162" positionY="99" width="128" height="118"/>
+        <element name="Chapter" positionX="162" positionY="99" width="128" height="120"/>
         <element name="Library" positionX="160" positionY="9" width="128" height="58"/>
         <element name="LibraryItem" positionX="-63" positionY="-18" width="128" height="150"/>
         <element name="Playlist" positionX="16" positionY="207" width="128" height="73"/>

@@ -20,6 +20,6 @@ extension Chapter {
     @NSManaged public var start: Double
     @NSManaged public var duration: Double
     @NSManaged public var index: Int16
-    @NSManaged public var book: Book?
+    @NSManaged public var book: Book!
 
 }
