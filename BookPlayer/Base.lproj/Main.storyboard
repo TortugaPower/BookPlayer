@@ -400,34 +400,6 @@ Use with caution and care for your hearing.</string>
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
-                            <tableViewSection footerTitle="Automatically play the next item in the current list" id="upl-uP-LsM">
-                                <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="SSd-Le-24D">
-                                        <rect key="frame" x="0.0" y="506.33333333333337" width="375" height="44"/>
-                                        <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="SSd-Le-24D" id="Jdf-YX-dZq">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="43.666666666666664"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                            <subviews>
-                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="yH9-d3-OPy">
-                                                    <rect key="frame" x="310" y="6" width="51" height="31"/>
-                                                </switch>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Autoplay" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Oo3-iR-2bO">
-                                                    <rect key="frame" x="16" y="12" width="67" height="21"/>
-                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <nil key="textColor"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
-                                            </subviews>
-                                            <constraints>
-                                                <constraint firstAttribute="trailing" secondItem="yH9-d3-OPy" secondAttribute="trailing" constant="16" id="4WO-Ug-cS0"/>
-                                                <constraint firstItem="yH9-d3-OPy" firstAttribute="centerY" secondItem="Jdf-YX-dZq" secondAttribute="centerY" id="poC-u3-UZe"/>
-                                            </constraints>
-                                        </tableViewCellContentView>
-                                    </tableViewCell>
-                                </cells>
-                            </tableViewSection>
                             <tableViewSection headerTitle="Support" id="ayL-5Z-O5B">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" textLabel="ZIh-S5-rG2" detailTextLabel="2cd-u0-EbM" rowHeight="50" style="IBUITableViewCellStyleSubtitle" id="PcX-Q6-nTx">
@@ -527,7 +499,6 @@ Use with caution and care for your hearing.</string>
                     </navigationItem>
                     <size key="freeformSize" width="375" height="1000"/>
                     <connections>
-                        <outlet property="autoplaySwitch" destination="yH9-d3-OPy" id="SrK-2b-oUR"/>
                         <outlet property="boostVolumeSwitch" destination="7Ar-pG-gpq" id="1h4-Ix-h2p"/>
                         <outlet property="forwardIntervalLabel" destination="Da8-2T-k0b" id="T6T-gR-8Ew"/>
                         <outlet property="globalSpeedSwitch" destination="a2u-ef-Ser" id="DqM-OK-7Dj"/>

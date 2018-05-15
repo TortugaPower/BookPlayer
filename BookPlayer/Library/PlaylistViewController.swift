@@ -52,13 +52,11 @@ extension PlaylistViewController {
             return
         }
 
-        let item = self.items[indexPath.row]
-
-        guard let book = item as? Book else {
+        guard let books = Array(self.items.suffix(from: indexPath.row)) as? [Book] else {
             return
         }
 
-        self.setupPlayer(book: book)
+        self.setupPlayer(books: books)
     }
 
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {

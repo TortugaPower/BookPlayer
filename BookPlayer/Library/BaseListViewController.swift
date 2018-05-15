@@ -64,8 +64,9 @@ class BaseListViewController: UIViewController {
         }
     }
 
-    func setupPlayer(book: Book) {
+    func setupPlayer(books: [Book]) {
         // Make sure player is for a different book
+        let book = books.first!
         guard PlayerManager.shared.fileURL != book.fileURL else {
             showPlayerView(book: book)
             return
@@ -79,7 +80,7 @@ class BaseListViewController: UIViewController {
         MBProgressHUD.showAdded(to: self.view, animated: true)
 
         // Replace player with new one
-        PlayerManager.shared.load([book]) { (_) in
+        PlayerManager.shared.load(books) { (_) in
             self.showPlayerView(book: book)
             PlayerManager.shared.playPause()
         }

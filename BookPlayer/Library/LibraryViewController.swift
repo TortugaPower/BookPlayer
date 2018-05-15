@@ -249,7 +249,7 @@ extension LibraryViewController {
             return
         }
 
-        self.setupPlayer(book: book)
+        self.setupPlayer(books: [book])
     }
 }
 

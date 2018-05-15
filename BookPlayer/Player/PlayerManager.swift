@@ -364,12 +364,11 @@ extension PlayerManager: AVAudioPlayerDelegate {
 
         self.update()
 
-        guard UserDefaults.standard.bool(forKey: UserDefaultsConstants.autoplayEnabled),
-            self.currentBooks.count > 1 else {
+        let currentBooks = Array(PlayerManager.shared.currentBooks.dropFirst())
+
+        guard !currentBooks.isEmpty else {
             return
         }
-
-        let currentBooks = Array(PlayerManager.shared.currentBooks.dropFirst())
 
         load(currentBooks, completion: { (_) in
             let userInfo = ["books": currentBooks]

@@ -24,7 +24,7 @@ class RootViewController: UIViewController {
                     return
                 }
 
-                self.libraryViewController.setupPlayer(book: PlayerManager.shared.currentBook)
+                self.libraryViewController.setupPlayer(books: PlayerManager.shared.currentBooks)
             }
         } else if let navigationVC = segue.destination as? UINavigationController,
             let libraryVC = navigationVC.childViewControllers.first as? LibraryViewController {
@@ -52,6 +52,7 @@ class RootViewController: UIViewController {
         }
 
         setupFooter(book: currentBook)
+        PlayerManager.shared.play()
     }
 
     @objc func bookLoading(_ notification: Notification) {

@@ -15,7 +15,6 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     @IBOutlet weak var smartRewindSwitch: UISwitch!
     @IBOutlet weak var boostVolumeSwitch: UISwitch!
     @IBOutlet weak var globalSpeedSwitch: UISwitch!
-    @IBOutlet weak var autoplaySwitch: UISwitch!
     @IBOutlet weak var rewindIntervalLabel: UILabel!
     @IBOutlet weak var forwardIntervalLabel: UILabel!
 
@@ -47,13 +46,11 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         self.smartRewindSwitch.addTarget(self, action: #selector(self.rewindToggleDidChange), for: .valueChanged)
         self.boostVolumeSwitch.addTarget(self, action: #selector(self.boostVolumeToggleDidChange), for: .valueChanged)
         self.globalSpeedSwitch.addTarget(self, action: #selector(self.globalSpeedToggleDidChange), for: .valueChanged)
-        self.autoplaySwitch.addTarget(self, action: #selector(self.autoplayToggleDidChange), for: .valueChanged)
 
         // Set initial switch positions
         self.smartRewindSwitch.setOn(UserDefaults.standard.bool(forKey: UserDefaultsConstants.smartRewindEnabled), animated: false)
         self.boostVolumeSwitch.setOn(UserDefaults.standard.bool(forKey: UserDefaultsConstants.boostVolumeEnabled), animated: false)
         self.globalSpeedSwitch.setOn(UserDefaults.standard.bool(forKey: UserDefaultsConstants.globalSpeedEnabled), animated: false)
-        self.autoplaySwitch.setOn(UserDefaults.standard.bool(forKey: UserDefaultsConstants.autoplayEnabled), animated: false)
 
         // Retrieve initial skip values from PlayerManager
         self.rewindIntervalLabel.text = self.durationFormatter.string(from: PlayerManager.shared.rewindInterval)!
@@ -107,10 +104,6 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
 
     @objc func globalSpeedToggleDidChange() {
         UserDefaults.standard.set(self.globalSpeedSwitch.isOn, forKey: UserDefaultsConstants.globalSpeedEnabled)
-    }
-
-    @objc func autoplayToggleDidChange() {
-        UserDefaults.standard.set(self.autoplaySwitch.isOn, forKey: UserDefaultsConstants.autoplayEnabled)
     }
 
     @IBAction func done(_ sender: UIBarButtonItem) {
