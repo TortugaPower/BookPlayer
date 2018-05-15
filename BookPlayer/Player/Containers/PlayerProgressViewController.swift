@@ -121,21 +121,30 @@ class PlayerProgressViewController: PlayerContainerViewController {
         self.currentTime = self.currentTimeInContext()
     }
 
-    @IBAction func sliderValueChanged(_ sender: UISlider) {
+    @IBAction func sliderValueChanged(_ sender: UISlider, event: UIEvent) {
         guard let book = self.book else {
             return
         }
 
-        let value = TimeInterval(sender.value / sender.maximumValue)
+        let value = sender.value / sender.maximumValue
+        let interval = TimeInterval(value)
 
-        var currentTime = value * book.duration
+        var currentTime = interval * book.duration
 
         if let currentChapter = book.currentChapter {
-            currentTime = value * currentChapter.duration + currentChapter.start
+            currentTime = interval * currentChapter.duration + currentChapter.start
+        }
+        self.currentTime = self.currentTimeInContext()
+
+        guard let touch = event.allTouches?.first else {
+            return
         }
 
-        PlayerManager.shared.jumpTo(currentTime)
-
-        self.currentTime = self.currentTimeInContext()
+        // Update while dragging up until but not including the very end of the chapter.
+        // Move to the end of the chapter if the drag ends at the very end of the slider.
+        // This prevents dragging the slider to the end of the chapter from skipping chapter by chapter while the drag continues to fire.
+        if value < sender.maximumValue && touch.phase == .moved || value == sender.maximumValue && touch.phase == .ended {
+            PlayerManager.shared.jumpTo(currentTime)
+        }
     }
 }
