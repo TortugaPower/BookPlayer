@@ -29,17 +29,8 @@ class NowPlayingViewController: PlayerContainerViewController, UIGestureRecogniz
             self.artwork.image = self.book?.artwork
             self.authorLabel.text = self.book?.author
             self.titleLabel.text = self.book?.title
-        }
-    }
-
-    var colors: ArtworkColors? {
-        didSet {
-            guard let colors = self.colors else {
-                return
-            }
-
-            self.titleLabel.textColor = colors.primary
-            self.authorLabel.textColor = colors.secondary
+            self.titleLabel.textColor = self.book?.artworkColors.primary
+            self.authorLabel.textColor = self.book?.artworkColors.secondary
         }
     }
 

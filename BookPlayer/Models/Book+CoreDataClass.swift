@@ -2,7 +2,7 @@
 //  Book+CoreDataClass.swift
 //  BookPlayer
 //
-//  Created by Gianni Carlo on 5/9/18.
+//  Created by Gianni Carlo on 5/14/18.
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 //
@@ -60,12 +60,15 @@ public class Book: LibraryItem {
         self.ext = fileURL.pathExtension
         self.duration = CMTimeGetSeconds(asset.duration)
 
+        var colors: ArtworkColors!
         if let data = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtwork, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? NSData {
             self.artworkData = data
-            self.usesDefaultArtwork = false
+            colors = ArtworkColors(from: self.artwork, context: context)
         } else {
-            self.usesDefaultArtwork = true
+            colors = ArtworkColors(context: context)
         }
+
+        self.artworkColors = colors
 
         self.setChapters(from: asset, context: context)
 

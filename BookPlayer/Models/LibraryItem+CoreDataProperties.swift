@@ -22,6 +22,6 @@ extension LibraryItem {
     @NSManaged public var identifier: String!
     @NSManaged public var title: String!
     @NSManaged public var percentCompleted: Double
-    @NSManaged public var library: Library!
+    @NSManaged public var library: Library?
 
 }
