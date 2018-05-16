@@ -9,61 +9,48 @@
 import UIKit
 import MediaPlayer
 
-class ChaptersViewController: UIViewController {
-    @IBOutlet weak var tableView: UITableView!
-
-    var book: Book!
+class ChaptersViewController: UITableViewController {
+    var chapters: [Chapter]!
     var currentChapter: Chapter!
+    var didSelectChapter: ((_ selectedChapter: Chapter) -> Void)?
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        self.currentChapter = self.book.currentChapter
 
         self.tableView.tableFooterView = UIView()
         self.tableView.reloadData()
     }
 
-    @IBAction func done(_ sender: UIBarButtonItem) {
+    @IBAction func done(_ sender: UIBarButtonItem?) {
         self.dismiss(animated: true, completion: nil)
     }
-}
 
-extension ChaptersViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.book.chapters.count
+    // MARK: - Table view data source
+
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        return 1
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if let cell = tableView.dequeueReusableCell(withIdentifier: "ChapterViewCell", for: indexPath) as? ChapterViewCell {
-            let chapter = self.book.chapters[indexPath.row]
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return self.chapters.count
+    }
 
-            cell.titleLabel.text = chapter.title
-            cell.durationLabel.text = formatTime(chapter.start)
-            cell.titleLabel.highlightedTextColor = UIColor.black
-            cell.durationLabel.highlightedTextColor = UIColor.black
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "ChapterCell", for: indexPath)
+        let chapter = self.chapters[indexPath.row]
 
-            if self.book.currentChapter?.index == chapter.index {
-                tableView.selectRow(at: indexPath, animated: true, scrollPosition: .top)
-            }
+        cell.textLabel?.text = chapter.title
+        cell.detailTextLabel?.text = self.formatTime(chapter.start)
 
-            return cell
+        if self.currentChapter.index == chapter.index {
+            cell.accessoryType = .checkmark
         }
 
-        return UITableViewCell()
+        return cell
     }
-}
 
-extension ChaptersViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        // Don't set the chapter, set the new time which will set the chapter in didSet
-        PlayerManager.shared.jumpTo(self.book.chapters[indexPath.row].start)
-
-        self.dismiss(animated: true, completion: nil)
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        self.didSelectChapter?(self.chapters[indexPath.row])
+        self.done(nil)
     }
-}
-
-class ChapterViewCell: UITableViewCell {
-    @IBOutlet weak var titleLabel: UILabel!
-    @IBOutlet weak var durationLabel: UILabel!
 }

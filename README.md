@@ -17,6 +17,7 @@
 - Import books via AirDrop
 - Control audio playback from the lock screen or the control center
 - Maintain progress of your audiobooks
+- Supports books with Chapters
 - Delete uploaded books from the app
 - Jump to start of the current book
 - Mark book as finished
