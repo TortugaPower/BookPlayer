@@ -31,6 +31,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     private weak var progressViewController: PlayerProgressViewController?
 
     let darknessThreshold: CGFloat = 0.2
+    var expectedStatusBarStyle: UIStatusBarStyle = .default
 
     // MARK: Lifecycle
 
@@ -95,9 +96,13 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.pan.cancelsTouchesInView = true
 
         self.view.addGestureRecognizer(self.pan)
+
+        self.modalPresentationCapturesStatusBarAppearance = true
     }
 
     override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
         self.controlsViewController?.showPlayPauseButton(animated)
     }
 
@@ -131,12 +136,11 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.backgroundImage.alpha = 0.2
         self.backgroundImage.image = currentBook.artwork
 
-        // UIViewControllerBasedStatusBarAppearance does not seem to work for ViewControllers that are presented with Over Full Screen
-        UIApplication.shared.statusBarStyle = colors.isDark ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
+        self.expectedStatusBarStyle = colors.isDark ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
-        UIApplication.shared.statusBarStyle = UIStatusBarStyle.default
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return self.expectedStatusBarStyle
     }
 
     // MARK: Interface actions
