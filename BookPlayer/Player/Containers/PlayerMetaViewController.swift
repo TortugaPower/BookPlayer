@@ -45,7 +45,7 @@ class PlayerMetaViewController: PlayerContainerViewController {
         }
 
         self.chapterLabel.isEnabled = true
-        self.chapterLabel.text = currentChapter.title != "" ? currentChapter.title : "Chapter \(currentChapter.index) of \(book.chapters.count)"
+        self.chapterLabel.text = currentChapter.title != "" ? currentChapter.title : "Chapter \(currentChapter.index) of \(book.chapters?.count ?? 0)"
     }
 
     @objc func onPlayback(_ notification: Notification) {

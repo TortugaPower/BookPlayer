@@ -21,8 +21,8 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     let durationFormatter: DateComponentsFormatter = DateComponentsFormatter()
 
     let supportSection: Int = 5
-    let githubLinkPath: IndexPath = IndexPath(row: 0, section: 5)
-    let supportEmailPath: IndexPath = IndexPath(row: 1, section: 5)
+    let githubLinkPath: IndexPath = IndexPath(row: 0, section: 4)
+    let supportEmailPath: IndexPath = IndexPath(row: 1, section: 4)
 
     var version: String = "0.0.0"
     var build: String = "0"

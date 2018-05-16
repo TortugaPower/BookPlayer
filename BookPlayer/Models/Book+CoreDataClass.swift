@@ -13,7 +13,18 @@ import AVFoundation
 
 public class Book: LibraryItem {
     var fileURL: URL!
-    var currentChapter: Chapter!
+    var currentChapter: Chapter? {
+        guard let chapters = self.chapters?.array as? [Chapter],
+            !chapters.isEmpty else {
+            return nil
+        }
+
+        for chapter in chapters where chapter.start <= self.currentTime && chapter.end > self.currentTime {
+            return chapter
+        }
+
+        return nil
+    }
     var displayTitle: String {
         return self.title
     }
@@ -22,6 +33,10 @@ public class Book: LibraryItem {
     }
     var percentage: Double {
         return round(self.currentTime / self.duration * 100)
+    }
+
+    var hasChapters: Bool {
+        return !(self.chapters?.array.isEmpty ?? true)
     }
 
     func setChapters(from asset: AVAsset, context: NSManagedObjectContext) {

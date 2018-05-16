@@ -52,7 +52,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             let viewController = navigationController.viewControllers.first as? ChaptersViewController,
             let currentChapter = self.currentBook.currentChapter {
 
-            viewController.chapters = self.currentBook.chapters
+            viewController.chapters = self.currentBook.chapters?.array as? [Chapter]
             viewController.currentChapter = currentChapter
             viewController.didSelectChapter = { selectedChapter in
                 // Don't set the chapter, set the new time which will set the chapter in didSet

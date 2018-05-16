@@ -403,7 +403,7 @@ Use with caution and care for your hearing.</string>
                             <tableViewSection headerTitle="Support" id="ayL-5Z-O5B">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" textLabel="ZIh-S5-rG2" detailTextLabel="2cd-u0-EbM" rowHeight="50" style="IBUITableViewCellStyleSubtitle" id="PcX-Q6-nTx">
-                                        <rect key="frame" x="0.0" y="618.33333333333337" width="375" height="50"/>
+                                        <rect key="frame" x="0.0" y="526.33333333333337" width="375" height="50"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="PcX-Q6-nTx" id="Vnu-PP-RHh">
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="49.666666666666664"/>
@@ -431,7 +431,7 @@ Use with caution and care for your hearing.</string>
                                         </accessibility>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" textLabel="fjz-qr-8eq" detailTextLabel="q0Y-GP-ZUv" rowHeight="50" style="IBUITableViewCellStyleSubtitle" id="yry-fO-71W">
-                                        <rect key="frame" x="0.0" y="668.33333333333337" width="375" height="50"/>
+                                        <rect key="frame" x="0.0" y="576.33333333333337" width="375" height="50"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="yry-fO-71W" id="wVG-jM-nVz">
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="49.666666666666664"/>
@@ -463,7 +463,7 @@ Use with caution and care for your hearing.</string>
                             <tableViewSection id="Zgg-yq-5sL">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="krc-kL-l61" style="IBUITableViewCellStyleDefault" id="sgZ-av-Xee">
-                                        <rect key="frame" x="0.0" y="754.33333333333337" width="375" height="44"/>
+                                        <rect key="frame" x="0.0" y="662.33333333333337" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="sgZ-av-Xee" id="ZfA-JD-rX3">
                                             <rect key="frame" x="0.0" y="0.0" width="341" height="43.666666666666664"/>
@@ -479,7 +479,7 @@ Use with caution and care for your hearing.</string>
                                             </subviews>
                                         </tableViewCellContentView>
                                         <connections>
-                                            <segue destination="eTr-hb-OZz" kind="show" id="XrA-Gs-rs7"/>
+                                            <segue destination="eTr-hb-OZz" kind="show" identifier="CreditSegue" id="XrA-Gs-rs7"/>
                                         </connections>
                                     </tableViewCell>
                                 </cells>
@@ -550,7 +550,7 @@ Use with caution and care for your hearing.</string>
             <objects>
                 <tableViewController title="Direction" id="xfk-r8-Q1z" customClass="SkipDurationViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="iRa-Rg-G0f">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="594"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <prototypes>
@@ -603,8 +603,7 @@ Use with caution and care for your hearing.</string>
             <objects>
                 <tableViewController title="Chapters" id="WF1-Gp-YdY" customClass="ChaptersViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="FIY-RU-IvF">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
-
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="594"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <prototypes>
@@ -622,7 +621,7 @@ Use with caution and care for your hearing.</string>
                                             <color key="textColor" red="0.21568627450980393" green="0.27058823529411763" blue="0.30588235294117649" alpha="1" colorSpace="calibratedRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="00:00:00" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="J1f-oa-Dkk">
+                                        <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" layoutMarginsFollowReadableWidth="YES" insetsLayoutMarginsFromSafeArea="NO" text="00:00:00" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="J1f-oa-Dkk">
                                             <rect key="frame" x="287.66666666666669" y="11.999999999999998" width="71.333333333333329" height="20.333333333333332"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -648,7 +647,7 @@ Use with caution and care for your hearing.</string>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="I4g-27-wrP" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3159" y="167"/>
+            <point key="canvasLocation" x="3466" y="-89"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="tcl-rj-dcK">
@@ -906,7 +905,7 @@ Use with caution and care for your hearing.</string>
                     <navigationItem key="navigationItem" title="Playlist" id="izI-Pl-Rnt"/>
                     <connections>
                         <outlet property="tableView" destination="vLB-vm-W2L" id="upg-Nh-j6W"/>
-                        <segue destination="fCI-iy-utZ" kind="presentation" id="oGv-df-VfX"/>
+                        <segue destination="fCI-iy-utZ" kind="presentation" identifier="PlaylistPlayerSegue" id="oGv-df-VfX"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="6pz-s9-tbM" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -1052,7 +1051,7 @@ Use with caution and care for your hearing.</string>
                     <navigationItem key="navigationItem" title="Library" id="Y8z-FW-XvT">
                         <barButtonItem key="leftBarButtonItem" title="Settings" id="l9y-WJ-fVK">
                             <connections>
-                                <segue destination="1sN-GG-oUw" kind="presentation" id="Cy0-kJ-HUm"/>
+                                <segue destination="1sN-GG-oUw" kind="presentation" identifier="SettingsSegue" id="Cy0-kJ-HUm"/>
                             </connections>
                         </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" systemItem="organize" id="o3W-hw-LC5">
@@ -1064,8 +1063,8 @@ Use with caution and care for your hearing.</string>
                     <connections>
                         <outlet property="emptyListContainerView" destination="xYN-SW-g2w" id="Bgt-6L-28S"/>
                         <outlet property="tableView" destination="392-ii-NXF" id="A9h-ev-SKj"/>
-                        <segue destination="XZ8-Ha-OZN" kind="show" id="jLU-AX-Vgv"/>
-                        <segue destination="fCI-iy-utZ" kind="presentation" id="FDI-oa-SyR"/>
+                        <segue destination="XZ8-Ha-OZN" kind="show" identifier="PlaylistSegue" id="jLU-AX-Vgv"/>
+                        <segue destination="fCI-iy-utZ" kind="presentation" identifier="LIbraryPlayerSegue" id="FDI-oa-SyR"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Zg8-mX-TfF" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -1083,6 +1082,7 @@ Use with caution and care for your hearing.</string>
         <image name="toolbarIconTimer" width="24" height="24"/>
     </resources>
     <inferredMetricsTieBreakers>
+        <segue reference="65N-p2-GLp"/>
         <segue reference="FDI-oa-SyR"/>
     </inferredMetricsTieBreakers>
     <color key="tintColor" red="0.20392156862745098" green="0.53333333333333333" blue="0.81960784313725488" alpha="1" colorSpace="calibratedRGB"/>
