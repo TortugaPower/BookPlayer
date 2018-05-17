@@ -127,7 +127,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.backgroundImage.alpha = 0.2
 //        self.backgroundImage.image = currentBook.artworkImage
 
-        self.expectedStatusBarStyle = colors.isDark ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
+        self.expectedStatusBarStyle = currentBook.artworkColors.displayOnDark ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
