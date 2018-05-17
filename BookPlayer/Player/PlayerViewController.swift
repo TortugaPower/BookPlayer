@@ -52,13 +52,14 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             let viewController = navigationController.viewControllers.first as? ChaptersViewController,
             let currentChapter = self.currentBook.currentChapter {
 
-            viewController.chapters = self.currentBook.chapters
+            viewController.chapters = self.currentBook.chapters?.array as? [Chapter]
             viewController.currentChapter = currentChapter
             viewController.didSelectChapter = { selectedChapter in
                 // Don't set the chapter, set the new time which will set the chapter in didSet
                 PlayerManager.shared.jumpTo(selectedChapter.start)
             }
         }
+
     }
 
     // Prevents dragging the view down from changing the safeAreaInsets.top
@@ -113,28 +114,18 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
         self.speedButton.title = self.formatSpeed(PlayerManager.shared.speed)
 
-        var colors = ArtworkColors()
+        self.view.backgroundColor = currentBook.artworkColors.background
+        self.bottomToolbar.tintColor = currentBook.artworkColors.tertiary
+        self.closeButton.tintColor = currentBook.artworkColors.tertiary
 
-        if !currentBook.usesDefaultArtwork {
-            colors = ArtworkColors(image: currentBook.artwork, darknessThreshold: self.darknessThreshold)
-        }
-
-        self.view.backgroundColor = colors.background
-        self.bottomToolbar.tintColor = colors.tertiary
-        self.closeButton.tintColor = colors.tertiary
-
-        self.controlsViewController?.colors = colors
-        self.metaViewController?.colors = colors
-        self.progressViewController?.colors = colors
-
-        let blur = UIBlurEffect(style: colors.isDark ? UIBlurEffectStyle.dark : UIBlurEffectStyle.light)
+        let blur = UIBlurEffect(style: currentBook.artworkColors.displayOnDark ? UIBlurEffectStyle.dark : UIBlurEffectStyle.light)
         let blurView = UIVisualEffectView(effect: blur)
 
-        blurView.frame = backgroundImage.frame
+        blurView.frame = backgroundImage.bounds
 
         self.backgroundImage.addSubview(blurView)
         self.backgroundImage.alpha = 0.2
-        self.backgroundImage.image = currentBook.artwork
+//        self.backgroundImage.image = currentBook.artworkImage
 
         self.expectedStatusBarStyle = colors.isDark ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
     }

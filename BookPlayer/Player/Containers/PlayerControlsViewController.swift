@@ -60,19 +60,11 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
     var book: Book? {
         didSet {
             self.artwork.image = self.book?.artwork
-        }
-    }
 
-    var colors: ArtworkColors? {
-        didSet {
-            guard let colors = self.colors else {
-                return
-            }
+            self.rewindIcon.tintColor = self.book?.artworkColors.tertiary
+            self.forwardIcon.tintColor = self.book?.artworkColors.tertiary
 
-            self.rewindIcon.tintColor = colors.tertiary
-            self.forwardIcon.tintColor = colors.tertiary
-
-            self.artwork.layer.shadowOpacity = 0.1 + Float(1.0 - colors.background.luminance) * 0.3
+            self.artwork.layer.shadowOpacity = 0.1 + Float(1.0 - (self.book?.artworkColors.background.luminance)!) * 0.3
         }
     }
 

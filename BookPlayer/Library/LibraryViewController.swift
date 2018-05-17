@@ -9,71 +9,24 @@
 import UIKit
 import MediaPlayer
 import MBProgressHUD
+import SwiftReorder
 
-class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
+class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate {
+
     @IBOutlet weak var emptyListContainerView: UIView!
-    @IBOutlet weak var tableView: UITableView!
-    @IBOutlet private weak var nowPlayingBar: UIView!
-
-    private weak var nowPlayingViewController: NowPlayingViewController?
-
-    var currentBooks: [Book] = []
-    // TableView's datasource
-    var bookArray = [Book]()
-
-    // keep in memory current Documents folder
-    let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
-    let refreshControl = UIRefreshControl()
-
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if let viewController = segue.destination as? NowPlayingViewController {
-            self.nowPlayingViewController = viewController
-
-            self.nowPlayingViewController!.showPlayer = {
-                guard !self.currentBooks.isEmpty else {
-                    return
-                }
-
-                self.play(books: self.currentBooks)
-            }
-        }
-    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // pull-down-to-refresh support
-        self.refreshControl.attributedTitle = NSAttributedString(string: "Pull down to reload books")
-        self.refreshControl.addTarget(self, action: #selector(loadFiles), for: .valueChanged)
-        self.tableView.addSubview(self.refreshControl)
-
         // enables pop gesture on pushed controller
         self.navigationController!.interactivePopGestureRecognizer!.delegate = self
 
-        // fixed tableview having strange offset
-        self.edgesForExtendedLayout = UIRectEdge()
-
-        self.nowPlayingBar.isHidden = true
-
-        // register to audio-interruption notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioInterruptions(_:)), name: NSNotification.Name.AVAudioSessionInterruption, object: nil)
-
-        // register to audio-route-change notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioRouteChange(_:)), name: NSNotification.Name.AVAudioSessionRouteChange, object: nil)
-
         // register for appDelegate openUrl notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.loadFiles), name: Notification.Name.AudiobookPlayer.openURL, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.openURL(_:)), name: Notification.Name.AudiobookPlayer.openURL, object: nil)
 
-        // register for percentage change notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.updatePercentage(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.reloadData), name: Notification.Name.AudiobookPlayer.bookDeleted, object: nil)
 
-        // register notifications when the book is ready
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookReady), name: Notification.Name.AudiobookPlayer.bookReady, object: nil)
-
-        // register for book change notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: Notification.Name.AudiobookPlayer.bookChange, object: nil)
-
-        self.loadFiles()
+        self.loadLibrary()
     }
 
     // No longer need to deregister observers for iOS 9+!
@@ -84,308 +37,295 @@ class LibraryViewController: UIViewController, UIGestureRecognizerDelegate {
         UIApplication.shared.endReceivingRemoteControlEvents()
     }
 
-    // Playback may be interrupted by calls. Handle pause
-    @objc func handleAudioInterruptions(_ notification: Notification) {
-        if PlayerManager.shared.isPlaying {
-            PlayerManager.shared.pause()
-        }
-    }
-
-    // Handle audio route changes
-    @objc func handleAudioRouteChange(_ notification: Notification) {
-        guard PlayerManager.shared.isPlaying,
-            let userInfo = notification.userInfo,
-            let reasonValue = userInfo[AVAudioSessionRouteChangeReasonKey] as? UInt,
-            let reason = AVAudioSessionRouteChangeReason(rawValue: reasonValue) else {
-            return
-        }
-
-        // Pause playback if route changes due to a disconnect
-        switch reason {
-            case .oldDeviceUnavailable:
-                PlayerManager.shared.play()
-            default:
-                break
-        }
-    }
-
     /**
      *  Load local files and process them (rename them if necessary)
      *  Spaces in file names can cause side effects when trying to load the data
      */
-    @objc func loadFiles() {
+    func loadLibrary() {
         //load local files
         let loadingWheel = MBProgressHUD.showAdded(to: self.view, animated: true)
         loadingWheel?.labelText = "Loading Books"
 
-        DataManager.loadBooks { (books) in
-            self.bookArray = books
-            self.refreshControl.endRefreshing()
-            MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
+        self.library = DataManager.getLibrary()
 
-            //show/hide instructions view
-            self.emptyListContainerView.isHidden = !self.bookArray.isEmpty
+        //show/hide instructions view
+        self.emptyListContainerView.isHidden = !self.items.isEmpty
+        self.tableView.reloadData()
+
+        DataManager.processPendingFiles { (urls) in
+            guard !urls.isEmpty else {
+                MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
+                return
+            }
+
+            DataManager.insertBooks(from: urls, into: self.library) {
+                MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
+
+                //show/hide instructions view
+                self.emptyListContainerView.isHidden = !self.items.isEmpty
+                self.tableView.reloadData()
+            }
+        }
+    }
+
+    override func loadFile(urls: [URL]) {
+        DataManager.insertBooks(from: urls, into: self.library) {
+            MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
+            self.emptyListContainerView.isHidden = !self.items.isEmpty
             self.tableView.reloadData()
         }
+    }
+
+    @objc func openURL(_ notification: Notification) {
+        MBProgressHUD.showAdded(to: self.view, animated: true)
+
+        DataManager.processPendingFiles { (urls) in
+            self.loadFile(urls: urls)
+        }
+    }
+
+    @objc func reloadData() {
+        self.tableView.reloadData()
     }
 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         return navigationController!.viewControllers.count > 1
     }
 
-    @IBAction func didPressReload(_ sender: UIBarButtonItem) {
-        self.loadFiles()
+    func handleDelete(book: Book, indexPath: IndexPath) {
+        let alert = UIAlertController(title: "Confirmation", message: "Are you sure you would like to remove this audiobook?", preferredStyle: .alert)
+
+        alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: { _ in
+            self.tableView.setEditing(false, animated: true)
+        }))
+
+        alert.addAction(UIAlertAction(title: "Yes", style: .destructive, handler: { _ in
+            do {
+                self.library.removeFromItems(book)
+                DataManager.saveContext()
+
+                try FileManager.default.removeItem(at: book.fileURL)
+
+                self.tableView.beginUpdates()
+                self.tableView.deleteRows(at: [indexPath], with: .none)
+                self.tableView.endUpdates()
+                self.emptyListContainerView.isHidden = !self.items.isEmpty
+            } catch {
+                self.showAlert("Error", message: "There was an error deleting the book, please try again.")
+            }
+        }))
+
+        alert.popoverPresentationController?.sourceView = self.view
+        alert.popoverPresentationController?.sourceRect = CGRect(x: Double(self.view.bounds.size.width / 2.0), y: Double(self.view.bounds.size.height-45), width: 1.0, height: 1.0)
+
+        self.present(alert, animated: true, completion: nil)
     }
 
-    @IBAction func didPressPlay(_ sender: UIButton) {
-        PlayerManager.shared.play()
-    }
+    func handleDelete(playlist: Playlist, indexPath: IndexPath) {
+        let sheet = UIAlertController(title: "Delete Playlist", message: nil, preferredStyle: .actionSheet)
 
-    @objc func forwardPressed(_ sender: UIButton) {
-        PlayerManager.shared.forward()
-    }
+        sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
 
-    @objc func rewindPressed(_ sender: UIButton) {
-        PlayerManager.shared.rewind()
-    }
+        sheet.addAction(UIAlertAction(title: "Preserve books", style: .default, handler: { _ in
+            if let orderedSet = playlist.books {
+                self.library.addToItems(orderedSet)
+            }
+            self.library.removeFromItems(playlist)
+            DataManager.saveContext()
 
-    // Percentage callback
-    @objc func updatePercentage(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-            let fileURL = userInfo["fileURL"] as? URL,
-            let percentCompletedString = userInfo["percentCompletedString"] as? String else {
-                return
-        }
+            self.tableView.beginUpdates()
+            self.tableView.reloadSections(IndexSet(integer: 0), with: .fade)
+            self.tableView.endUpdates()
+            self.emptyListContainerView.isHidden = !self.items.isEmpty
+        }))
 
-        guard let index = (self.bookArray.index { (book) -> Bool in
-            return book.fileURL == fileURL
-        }), let cell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView else {
-            return
-        }
+        sheet.addAction(UIAlertAction(title: "Delete books too", style: .destructive, handler: { _ in
+            do {
 
-        cell.completionLabel.text = percentCompletedString
-    }
+                self.library.removeFromItems(playlist)
+                DataManager.saveContext()
 
-    @objc func bookReady() {
-        MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
-        PlayerManager.shared.playPause(autoplayed: true)
-    }
+                // swiftlint:disable force_cast
+                for book in playlist.books?.array as! [Book] {
+                    try FileManager.default.removeItem(at: book.fileURL)
+                }
 
-    @objc func bookChange(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-            let books = userInfo["books"] as? [Book],
-            let currentBook = books.first else {
-                return
-        }
+                self.tableView.beginUpdates()
+                self.tableView.deleteRows(at: [indexPath], with: .none)
+                self.tableView.endUpdates()
+                self.emptyListContainerView.isHidden = !self.items.isEmpty
+            } catch {
+                self.showAlert("Error", message: "There was an error deleting the book, please try again.")
+            }
+        }))
 
-        setupFooter(book: currentBook)
-    }
-
-}
-
-extension LibraryViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.bookArray.count
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if let cell = tableView.dequeueReusableCell(withIdentifier: "BookCellView", for: indexPath) as? BookCellView {
-            let book = self.bookArray[indexPath.row]
-
-            cell.titleLabel.text = book.title
-            cell.authorLabel.text = book.author
-
-            cell.selectionStyle = .none
-
-            // NOTE: we should have a default image for artwork
-            cell.artworkImageView.image = book.artwork
-
-            // Load stored percentage value
-            cell.completionLabel.text = book.percentCompletedRoundedString
-            cell.completionLabel.textColor = UIColor.lightGray
-
-            return cell
-        }
-
-        return UITableViewCell()
+        self.present(sheet, animated: true, completion: nil)
     }
 }
 
-extension LibraryViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, canFocusRowAt indexPath: IndexPath) -> Bool {
-        return true
-    }
+extension LibraryViewController {
 
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        let deleteAction = UITableViewRowAction(style: .default, title: "Delete") { (_, indexPath) in
-            let alert = UIAlertController(title: "Confirmation", message: "Are you sure you would like to remove this audiobook?", preferredStyle: .alert)
-
-            alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: { _ in
-                tableView.setEditing(false, animated: true)
-            }))
-
-            alert.addAction(UIAlertAction(title: "Yes", style: .destructive, handler: { _ in
-                let book = self.bookArray[indexPath.row]
-
-                do {
-                    try FileManager.default.removeItem(at: book.fileURL)
-
-                    self.bookArray.remove(at: indexPath.row)
-                    tableView.beginUpdates()
-                    tableView.deleteRows(at: [indexPath], with: .none)
-                    tableView.endUpdates()
-                    self.emptyListContainerView.isHidden = !self.bookArray.isEmpty
-                } catch {
-                    self.showAlert("Error", message: "There was an error deleting the book, please try again.")
-                }
-            }))
-
-            alert.popoverPresentationController?.sourceView = self.view
-            alert.popoverPresentationController?.sourceRect = CGRect(x: Double(self.view.bounds.size.width / 2.0), y: Double(self.view.bounds.size.height-45), width: 1.0, height: 1.0)
-
-            self.present(alert, animated: true, completion: nil)
+        guard indexPath.section == 0 else {
+            return nil
         }
 
-        deleteAction.backgroundColor = UIColor.red
+        let item = self.items[indexPath.row]
+
+        let isPlaylist = item is Playlist
+
+        let title = isPlaylist ? "Options" : "Delete"
+        let color = isPlaylist ? UIColor.gray : UIColor.red
+
+        let deleteAction = UITableViewRowAction(style: .default, title: title) { (_, indexPath) in
+
+            guard let book = item as? Book else {
+                // swiftlint:disable force_cast
+                self.handleDelete(playlist: item as! Playlist, indexPath: indexPath)
+                return
+            }
+
+            self.handleDelete(book: book, indexPath: indexPath)
+        }
+
+        deleteAction.backgroundColor = color
 
         return [deleteAction]
     }
 
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-    }
-
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 86
-    }
-
-    func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
-        guard let index = tableView.indexPathForSelectedRow else {
-            return indexPath
-        }
-
-        tableView.deselectRow(at: index, animated: true)
-
-        return indexPath
-    }
-
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let books = Array(self.bookArray.suffix(from: indexPath.row))
+        tableView.deselectRow(at: indexPath, animated: true)
 
-        play(books: books)
-    }
+        guard indexPath.section == 0 else {
+            let alertController = UIAlertController(title: nil, message: "You can also add files via AirDrop. Select BookPlayer from the list that appears when you send a file to your device", preferredStyle: .actionSheet)
+            alertController.addAction(UIAlertAction(title: "Import Files", style: .default) { (_) in
+                let providerList = UIDocumentMenuViewController(documentTypes: ["public.audio"], in: .import)
+                providerList.delegate = self
 
-    func play(books: [Book]) {
-        guard !books.isEmpty else {
+                providerList.popoverPresentationController?.sourceView = self.view
+                providerList.popoverPresentationController?.sourceRect = CGRect(x: Double(self.view.bounds.size.width / 2.0), y: Double(self.view.bounds.size.height-45), width: 1.0, height: 1.0)
+                self.present(providerList, animated: true, completion: nil)
+            })
+
+            alertController.addAction(UIAlertAction(title: "Create Playlist", style: .default) { (_) in
+
+                let playlistAlert = UIAlertController(title: "Create a New Playlist", message: "Files in playlists are automatically played one after the other", preferredStyle: .alert)
+                playlistAlert.addTextField(configurationHandler: { (textfield) in
+                    textfield.placeholder = "Name"
+                })
+                playlistAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+                playlistAlert.addAction(UIAlertAction(title: "Create", style: .default, handler: { (_) in
+                    let title = playlistAlert.textFields!.first!.text!
+
+                    let playlist = DataManager.createPlaylist(title: title, books: [])
+                    self.library.addToItems(playlist)
+                    DataManager.saveContext()
+
+                    self.tableView.reloadData()
+                }))
+
+                self.present(playlistAlert, animated: true, completion: nil)
+            })
+
+            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+
+            self.present(alertController, animated: true, completion: nil)
+
             return
         }
 
-        self.currentBooks = books
+        let item = self.items[indexPath.row]
 
-        let book = currentBooks.first!
+        guard let book = item as? Book else {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
 
-        setupPlayer(book: book)
-        setupFooter(book: book)
-    }
-
-    func setupPlayer(book: Book) {
-        // Make sure player is for a different book
-        guard PlayerManager.shared.fileURL != book.fileURL else {
-            showPlayerView(book: book)
-
+            if let playlist = item as? Playlist,
+                let playlistVC = storyboard.instantiateViewController(withIdentifier: "PlaylistViewController") as? PlaylistViewController {
+                playlistVC.library = self.library
+                playlistVC.playlist = playlist
+                self.navigationController?.pushViewController(playlistVC, animated: true)
+            }
             return
         }
 
-        MBProgressHUD.showAdded(to: self.view, animated: true)
-
-        // Replace player with new one
-        PlayerManager.shared.load(self.currentBooks) { (_) in
-            self.showPlayerView(book: book)
-        }
-    }
-
-    func setupFooter(book: Book) {
-        self.nowPlayingBar.isHidden = false
-        self.nowPlayingViewController?.book = book
-    }
-
-    func showPlayerView(book: Book) {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-
-        if let playerVC = storyboard.instantiateViewController(withIdentifier: "PlayerViewController") as? PlayerViewController {
-            playerVC.currentBook = book
-
-            self.present(playerVC, animated: true)
-        }
+        self.setupPlayer(books: [book])
     }
 }
 
-extension LibraryViewController: UIDocumentMenuDelegate {
-    @IBAction func didPressImportOptions(_ sender: UIBarButtonItem) {
-        let sheet = UIAlertController(title: "Import Books", message: nil, preferredStyle: .actionSheet)
-        let cancelButton = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-
-        let localButton = UIAlertAction(title: "From Local Apps", style: .default) { (_) in
-            let providerList = UIDocumentMenuViewController(documentTypes: ["public.audio"], in: .import)
-            providerList.delegate = self
-
-            providerList.popoverPresentationController?.sourceView = self.view
-            providerList.popoverPresentationController?.sourceRect = CGRect(x: Double(self.view.bounds.size.width / 2.0), y: Double(self.view.bounds.size.height-45), width: 1.0, height: 1.0)
-            self.present(providerList, animated: true, completion: nil)
-        }
-
-        let airdropButton = UIAlertAction(title: "AirDrop", style: .default) { (_) in
-            self.showAlert("AirDrop", message: "Make sure AirDrop is enabled.\n\nOnce you transfer the file to your device via AirDrop, choose 'BookPlayer' from the app list that will appear")
-        }
-
-        sheet.addAction(localButton)
-        sheet.addAction(airdropButton)
-        sheet.addAction(cancelButton)
-
-        sheet.popoverPresentationController?.sourceView = self.view
-        sheet.popoverPresentationController?.sourceRect = CGRect(x: Double(self.view.bounds.size.width / 2.0), y: Double(self.view.bounds.size.height-45), width: 1.0, height: 1.0)
-
-        self.present(sheet, animated: true, completion: nil)
-    }
-
-    func documentMenu(_ documentMenu: UIDocumentMenuViewController, didPickDocumentPicker documentPicker: UIDocumentPickerViewController) {
-        //show document picker
-        documentPicker.delegate = self
-
-        documentPicker.popoverPresentationController?.sourceView = self.view
-        documentPicker.popoverPresentationController?.sourceRect = CGRect(x: Double(self.view.bounds.size.width / 2.0), y: Double(self.view.bounds.size.height-45), width: 1.0, height: 1.0)
-
-        self.present(documentPicker, animated: true, completion: nil)
-    }
-}
-
-extension LibraryViewController: UIDocumentPickerDelegate {
-    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
-        //Documentation states that the file might not be imported due to being accessed from somewhere else
-        do {
-            try FileManager.default.attributesOfItem(atPath: url.path)
-        } catch {
-            self.showAlert("Error", message: "File import fail, try again later")
-
+extension LibraryViewController {
+    override func tableView(_ tableView: UITableView, reorderRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        guard destinationIndexPath.section == 0 else {
             return
         }
 
-        let trueName = url.lastPathComponent
-        var finalPath = self.documentsPath+"/"+(trueName)
+        let item = self.items[sourceIndexPath.row]
+        self.library.removeFromItems(at: sourceIndexPath.row)
+        self.library.insertIntoItems(item, at: destinationIndexPath.row)
+        DataManager.saveContext()
+    }
 
-        if trueName.contains(" ") {
-            finalPath = finalPath.replacingOccurrences(of: " ", with: "_")
+    override func tableViewDidFinishReordering(_ tableView: UITableView, from initialSourceIndexPath: IndexPath, to finalDestinationIndexPath: IndexPath, dropped overIndexPath: IndexPath?) {
+        guard let overIndexPath = overIndexPath,
+            overIndexPath.section == 0,
+            let book = self.items[finalDestinationIndexPath.row] as? Book else {
+                return
         }
 
-        let fileURL = URL(fileURLWithPath: finalPath.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed)!)
+        let item = self.items[overIndexPath.row]
+        let isPlaylist = item is Playlist
+        let title = isPlaylist
+            ? "Playlist"
+            : "Create a New Playlist"
+        let message = isPlaylist
+            ? "Add the book to \(item.title!)"
+            : "Files in playlists are automatically played one after the other"
 
-        do {
-            try FileManager.default.moveItem(at: url, to: fileURL)
-        } catch {
-            self.showAlert("Error", message: "File import fail, try again later")
+        let hoverAlert = UIAlertController(title: title, message: message, preferredStyle: .alert)
 
-            return
+        hoverAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+
+        if isPlaylist {
+            hoverAlert.addAction(UIAlertAction(title: "Add", style: .default, handler: { (_) in
+
+                if let playlist = item as? Playlist {
+                    playlist.addToBooks(book)
+                }
+                self.library.removeFromItems(at: finalDestinationIndexPath.row)
+                DataManager.saveContext()
+                self.tableView.beginUpdates()
+                self.tableView.deleteRows(at: [finalDestinationIndexPath], with: .fade)
+                self.tableView.reloadRows(at: [overIndexPath], with: .fade)
+                self.tableView.endUpdates()
+            }))
+        } else {
+            hoverAlert.addTextField(configurationHandler: { (textfield) in
+                textfield.placeholder = "Name"
+            })
+
+            hoverAlert.addAction(UIAlertAction(title: "Create", style: .default, handler: { (_) in
+                let title = hoverAlert.textFields!.first!.text!
+
+                let minIndex = min(finalDestinationIndexPath.row, overIndexPath.row)
+
+                //removing based on minIndex works because the cells are always adjacent
+                let book1 = self.items[minIndex]
+                self.library.removeFromItems(book1)
+                let book2 = self.items[minIndex]
+                self.library.removeFromItems(book2)
+
+                // swiftlint:disable force_cast
+                let books = [book1 as! Book, book2 as! Book]
+                let playlist = DataManager.createPlaylist(title: title, books: books)
+                self.library.insertIntoItems(playlist, at: minIndex)
+                DataManager.saveContext()
+
+                self.tableView.beginUpdates()
+                self.tableView.deleteRows(at: [IndexPath(row: minIndex, section: 0), IndexPath(row: minIndex + 1, section: 0)], with: .fade)
+                self.tableView.insertRows(at: [IndexPath(row: minIndex, section: 0)], with: .fade)
+                self.tableView.endUpdates()
+            }))
         }
 
-        self.loadFiles()
+        self.present(hoverAlert, animated: true, completion: nil)
     }
 }

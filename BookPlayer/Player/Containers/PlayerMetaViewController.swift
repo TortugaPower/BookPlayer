@@ -19,23 +19,15 @@ class PlayerMetaViewController: PlayerContainerViewController {
             self.authorLabel.text = self.book?.author
             self.titleLabel.text = self.book?.title
 
+            self.titleLabel.textColor = self.book?.artworkColors.primary
+            self.authorLabel.textColor = self.book?.artworkColors.secondary
+            self.chapterLabel.textColor = self.book?.artworkColors.tertiary
+
             self.setChapterLabel()
         }
     }
 
     var chapters: [Chapter]?
-
-    var colors: ArtworkColors? {
-        didSet {
-            guard let colors = self.colors else {
-                return
-            }
-
-            self.titleLabel.textColor = colors.primary
-            self.authorLabel.textColor = colors.secondary
-            self.chapterLabel.textColor = colors.tertiary
-        }
-    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -45,6 +37,7 @@ class PlayerMetaViewController: PlayerContainerViewController {
 
     private func setChapterLabel() {
         guard let book = self.book, book.hasChapters, let currentChapter = book.currentChapter else {
+
             self.chapterLabel.text = ""
             self.chapterLabel.isEnabled = false
 
@@ -52,7 +45,7 @@ class PlayerMetaViewController: PlayerContainerViewController {
         }
 
         self.chapterLabel.isEnabled = true
-        self.chapterLabel.text = currentChapter.title != "" ? currentChapter.title : "Chapter \(currentChapter.index) of \(book.chapters.count)"
+        self.chapterLabel.text = currentChapter.title != "" ? currentChapter.title : "Chapter \(currentChapter.index) of \(book.chapters?.count ?? 0)"
     }
 
     @objc func onPlayback(_ notification: Notification) {

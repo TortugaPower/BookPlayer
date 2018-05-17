@@ -42,6 +42,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // @TODO: Handle failing AVAudioSession
         }
 
+        // register to audio-interruption notifications
+        NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioInterruptions(_:)), name: NSNotification.Name.AVAudioSessionInterruption, object: nil)
+
+        // register to audio-route-change notifications
+        NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioRouteChange(_:)), name: NSNotification.Name.AVAudioSessionRouteChange, object: nil)
+
         // register for remote events
         self.registerRemoteEvents()
 
@@ -61,7 +67,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         do {
             try fmanager.moveItem(at: url, to: destinationURL)
             // In case the app was already running in background
-            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.openURL, object: nil)
+            let userInfo = ["fileURL": destinationURL]
+            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.openURL, object: nil, userInfo: userInfo)
         } catch {
             do {
                 try fmanager.removeItem(at: url)
@@ -105,6 +112,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    }
+
+    // Playback may be interrupted by calls. Handle pause
+    @objc func handleAudioInterruptions(_ notification: Notification) {
+        if PlayerManager.shared.isPlaying {
+            PlayerManager.shared.pause()
+        }
+    }
+
+    // Handle audio route changes
+    @objc func handleAudioRouteChange(_ notification: Notification) {
+        guard PlayerManager.shared.isPlaying,
+            let userInfo = notification.userInfo,
+            let reasonValue = userInfo[AVAudioSessionRouteChangeReasonKey] as? UInt,
+            let reason = AVAudioSessionRouteChangeReason(rawValue: reasonValue) else {
+                return
+        }
+
+        // Pause playback if route changes due to a disconnect
+        switch reason {
+        case .oldDeviceUnavailable:
+            PlayerManager.shared.play()
+        default:
+            break
+        }
     }
 
     // For now, seek forward/backward and next/previous track perform the same function

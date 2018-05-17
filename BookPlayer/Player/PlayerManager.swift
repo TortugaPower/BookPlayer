@@ -37,9 +37,13 @@ class PlayerManager: NSObject {
 
         let book = books.first!
 
-        self.playerItem = AVPlayerItem(asset: book.asset)
+        self.playerItem = DataManager.playerItem(from: book)
         self.fileURL = book.fileURL
         self.identifier = book.identifier
+
+        //notify book is loading
+        let userInfo = ["book": book]
+        NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.loadingBook, object: nil, userInfo: userInfo)
 
         // load data on background thread
         DispatchQueue.global().async {
@@ -65,8 +69,6 @@ class PlayerManager: NSObject {
             if UserDefaults.standard.bool(forKey: UserDefaultsConstants.boostVolumeEnabled) {
                 audioplayer.volume = 2.0
             }
-
-            book.chapters = self.playerItem.getChapters()
 
             //update UI on main thread
             DispatchQueue.main.async(execute: {
@@ -102,6 +104,17 @@ class PlayerManager: NSObject {
         }
 
         self.currentBook.currentTime = audioplayer.currentTime
+        let isPercentageDifferent = self.currentBook.percentage != self.currentBook.percentCompleted
+        self.currentBook.percentCompleted = self.currentBook.percentage
+        DataManager.saveContext()
+
+        // Notify
+        if isPercentageDifferent {
+            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil, userInfo: [
+                "percentCompletedString": self.currentBook.percentCompletedRoundedString,
+                "fileURL": self.fileURL
+                ] as [String: Any])
+        }
 
         MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
 
@@ -351,12 +364,11 @@ extension PlayerManager: AVAudioPlayerDelegate {
 
         self.update()
 
-        guard UserDefaults.standard.bool(forKey: UserDefaultsConstants.autoplayEnabled),
-            self.currentBooks.count > 1 else {
+        let currentBooks = Array(PlayerManager.shared.currentBooks.dropFirst())
+
+        guard !currentBooks.isEmpty else {
             return
         }
-
-        let currentBooks = Array(PlayerManager.shared.currentBooks.dropFirst())
 
         load(currentBooks, completion: { (_) in
             let userInfo = ["books": currentBooks]

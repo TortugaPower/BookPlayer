@@ -31,6 +31,12 @@ class PlayerProgressViewController: PlayerContainerViewController {
             return 0.0
         }
 
+        self.sliderMin.tintColor = book.artworkColors.secondary
+        self.sliderMax.tintColor = book.artworkColors.secondary
+        self.currentTimeLabel.textColor = book.artworkColors.secondary
+        self.maxTimeLabel.textColor = book.artworkColors.secondary
+        self.percentageLabel.textColor = book.artworkColors.primary
+
         return book.hasChapters ? book.currentChapter!.duration : book.duration
     }
 
@@ -49,20 +55,6 @@ class PlayerProgressViewController: PlayerContainerViewController {
             let width = self.view.bounds.width
 
             self.minTrackWidth.constant = (width - thumbWidth) * percentCompleted + thumbWidth / 2
-        }
-    }
-
-    var colors: ArtworkColors? {
-        didSet {
-            guard let colors = self.colors else {
-                return
-            }
-
-            self.sliderMin.tintColor = colors.secondary
-            self.sliderMax.tintColor = colors.secondary
-            self.currentTimeLabel.textColor = colors.secondary
-            self.maxTimeLabel.textColor = colors.secondary
-            self.percentageLabel.textColor = colors.primary
         }
     }
 
