@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import UIImageColors
 
 extension UIImage {
     func averageColor() -> UIColor {
