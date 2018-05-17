@@ -53,8 +53,6 @@
 		C318DDB820A3A3F400C3A17B /* UIImageView+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C318DDB720A3A3F400C3A17B /* UIImageView+BookPlayer.swift */; };
 		C318DDBC20A48D4700C3A17B /* BPMarqueeLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C318DDBB20A48D4700C3A17B /* BPMarqueeLabel.swift */; };
 		C318DDBF20A4DC7500C3A17B /* DeviceKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C318DDBE20A4DC7500C3A17B /* DeviceKit.framework */; };
-		C32BE6B8207BF7A6006D07B9 /* Book.swift in Sources */ = {isa = PBXBuildFile; fileRef = C32BE6B7207BF7A6006D07B9 /* Book.swift */; };
-		C32BE6BA207BF80A006D07B9 /* Chapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C32BE6B9207BF80A006D07B9 /* Chapter.swift */; };
 		C359C30720A9F35B00A626E3 /* SkipDurationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C359C30620A9F35B00A626E3 /* SkipDurationViewController.swift */; };
 		C36C4D5C20A23E1800AFDB76 /* NowPlayingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C36C4D5B20A23E1800AFDB76 /* NowPlayingViewController.swift */; };
 		C37A6873209F0F830063AEAC /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = C37A6872209F0F830063AEAC /* Credits.html */; };
@@ -146,8 +144,6 @@
 		C318DDB720A3A3F400C3A17B /* UIImageView+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+BookPlayer.swift"; sourceTree = "<group>"; };
 		C318DDBB20A48D4700C3A17B /* BPMarqueeLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPMarqueeLabel.swift; sourceTree = "<group>"; };
 		C318DDBE20A4DC7500C3A17B /* DeviceKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DeviceKit.framework; path = Carthage/Build/iOS/DeviceKit.framework; sourceTree = "<group>"; };
-		C32BE6B7207BF7A6006D07B9 /* Book.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Book.swift; sourceTree = "<group>"; };
-		C32BE6B9207BF80A006D07B9 /* Chapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chapter.swift; sourceTree = "<group>"; };
 		C359C30620A9F35B00A626E3 /* SkipDurationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkipDurationViewController.swift; sourceTree = "<group>"; };
 		C35BADE7206989E6007687C1 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		C35BADE8206989E6007687C1 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -327,8 +323,6 @@
 				4165EDF820A743D500616EDF /* LibraryItem+CoreDataProperties.swift */,
 				4165EDF720A743D400616EDF /* Playlist+CoreDataClass.swift */,
 				4165EDFD20A743D500616EDF /* Playlist+CoreDataProperties.swift */,
-				C32BE6B7207BF7A6006D07B9 /* Book.swift */,
-				C32BE6B9207BF80A006D07B9 /* Chapter.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -565,7 +559,6 @@
 				410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */,
 				D367F7681FA2A6F000FEDB37 /* Constants.swift in Sources */,
 				C30EEEC12079645C00A4ED33 /* PlayerMetaViewController.swift in Sources */,
-				C32BE6BA207BF80A006D07B9 /* Chapter.swift in Sources */,
 				41839AB320AA8B960047E55D /* ArtworkColors+CoreDataClass.swift in Sources */,
 				C3FE3F8220A090880055B9C6 /* limitPanAngle.swift in Sources */,
 				4165EE0520A743D500616EDF /* BookPlayer.xcdatamodeld in Sources */,
@@ -606,7 +599,6 @@
 				C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */,
 				4165EE1220A7D1E100616EDF /* RootViewController.swift in Sources */,
 				C318DDB820A3A3F400C3A17B /* UIImageView+BookPlayer.swift in Sources */,
-				C32BE6B8207BF7A6006D07B9 /* Book.swift in Sources */,
 				4165EE0820A743D500616EDF /* Playlist+CoreDataProperties.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

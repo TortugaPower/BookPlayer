@@ -11,21 +11,23 @@ import Foundation
 import CoreData
 
 public class Library: NSManagedObject {
-    func index(of book: Book) -> Int? {
+    func itemIndex(with url: URL) -> Int? {
+        let hash = url.deletingPathExtension().lastPathComponent
+
         guard let items = self.items?.array as? [LibraryItem] else {
             return nil
         }
 
         for (index, item) in items.enumerated() {
             if let storedBook = item as? Book,
-                book.identifier == storedBook.identifier {
+                storedBook.identifier == hash {
                 return index
             }
             //check if playlist
             if let playlist = item as? Playlist,
                 let storedBooks = playlist.books?.array as? [Book],
                 storedBooks.contains(where: { (storedBook) -> Bool in
-                    return book.identifier == storedBook.identifier
+                    return storedBook.identifier == hash
                 }) {
                 //check playlist books
                 return index

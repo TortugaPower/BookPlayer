@@ -11,13 +11,15 @@ import Foundation
 import CoreData
 
 public class Playlist: LibraryItem {
-    func index(of book: Book) -> Int? {
+    func itemIndex(with url: URL) -> Int? {
+        let hash = url.deletingPathExtension().lastPathComponent
+
         guard let books = self.books?.array as? [Book] else {
             return nil
         }
 
         return books.index { (storedBook) -> Bool in
-            return book.identifier == storedBook.identifier
+            return storedBook.identifier == hash
         }
     }
 

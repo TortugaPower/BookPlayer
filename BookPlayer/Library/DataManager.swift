@@ -105,7 +105,7 @@ class DataManager {
         return urls.filter({ !$0.hasDirectoryPath })
     }
 
-    private class func processFile(at origin: URL, destinationFolder: URL) -> String? {
+    private class func processFile(at origin: URL, destinationFolder: URL) -> URL? {
 
         guard let data = FileManager.default.contents(atPath: origin.path),
             let digest = Digest(algorithm: .md5).update(data: data)?.final() else {
@@ -113,7 +113,8 @@ class DataManager {
         }
 
         let hash = hexString(fromArray: digest)
-        let filename = hash + ".\(origin.pathExtension)"
+        let ext = origin.pathExtension
+        let filename = hash + ".\(ext)"
         let destinationURL = destinationFolder.appendingPathComponent(filename)
 
         do {
@@ -126,7 +127,7 @@ class DataManager {
             fatalError("Fail to move file from \(origin) to \(destinationURL)")
         }
 
-        return hash
+        return destinationURL
     }
 
     /**
@@ -148,55 +149,48 @@ class DataManager {
         return library
     }
 
-    class func processPendingFiles(completion:@escaping ([Book]) -> Void) {
-        var books = [Book]()
+    class func processPendingFiles(completion:@escaping ([URL]) -> Void) {
+        var bookUrls = [URL]()
 
         //get reference of all the files located inside the Documents folder
         guard let urls = self.getPendingFilesURL() else {
-            return completion(books)
+            return completion(bookUrls)
         }
 
         DispatchQueue.global().async {
             //iterate and process files
-            let context = self.persistentContainer.viewContext
+            let destinationFolder = self.getProcessedFolderURL()
 
             for fileURL in urls {
-                // autoreleasepool needed to avoid OOM crashes from the file manager
-                autoreleasepool { () -> Void in
-                    let book = Book(from: fileURL, context: context)
-                    books.append(book)
+                guard let bookUrl = self.processFile(at: fileURL, destinationFolder: destinationFolder) else {
+                    continue
                 }
+                bookUrls.append(bookUrl)
             }
 
             DispatchQueue.main.async {
-                completion(books)
+                completion(bookUrls)
             }
         }
     }
 
-    class func insert(_ books: [Book], into library: Library, completion:@escaping () -> Void) {
+    class func insertBooks(from urls: [URL], into library: Library, completion:@escaping () -> Void) {
 
         DispatchQueue.global().async {
-            let destinationFolder = self.getProcessedFolderURL()
+            let context = self.persistentContainer.viewContext
 
-            for book in books {
-                guard let hash = self.processFile(at: book.fileURL, destinationFolder: destinationFolder) else {
-                    continue
-                }
-
-                book.identifier = hash
-                book.fileURL = destinationFolder.appendingPathComponent(book.filename)
-
+            for url in urls {
                 //handle if book already exists in the library
-                if let index = library.index(of: book) {
+                if let index = library.itemIndex(with: url) {
                     //handle if existing book is in a playlist
                     if let storedPlaylist = library.getItem(at: index) as? Playlist,
-                        let indexBook = storedPlaylist.index(of: book),
+                        let indexBook = storedPlaylist.itemIndex(with: url),
                         let storedBook = storedPlaylist.getBook(at: indexBook) {
                         storedPlaylist.removeFromBooks(storedBook)
                         library.addToItems(storedBook)
                     }
                 } else {
+                    let book = Book(from: url, context: context)
                     library.addToItems(book)
                 }
             }
@@ -209,33 +203,27 @@ class DataManager {
         }
     }
 
-    class func insert(_ books: [Book], into playlist: Playlist, library: Library, completion:@escaping () -> Void) {
+    class func insertBooks(from urls: [URL], into playlist: Playlist, library: Library, completion:@escaping () -> Void) {
 
         DispatchQueue.global().async {
-            let destinationFolder = self.getProcessedFolderURL()
+            let context = self.persistentContainer.viewContext
 
-            for book in books {
-                guard let hash = self.processFile(at: book.fileURL, destinationFolder: destinationFolder) else {
-                    continue
-                }
-
-                book.identifier = hash
-                book.fileURL = destinationFolder.appendingPathComponent(book.filename)
-
+            for url in urls {
                 //handle if book already exists in the library
-                if let index = library.index(of: book) {
+                if let index = library.itemIndex(with: url) {
                     //handle if existing book is in the library
                     if let storedBook = library.getItem(at: index) as? Book {
                         library.removeFromItems(storedBook)
                         playlist.addToBooks(storedBook)
                     } else //handle if existing book is in a playlist
                         if let storedPlaylist = library.getItem(at: index) as? Playlist,
-                            let indexBook = storedPlaylist.index(of: book),
+                            let indexBook = storedPlaylist.itemIndex(with: url),
                             let storedBook = storedPlaylist.getBook(at: indexBook) {
                             storedPlaylist.removeFromBooks(storedBook)
                             playlist.addToBooks(storedBook)
                     }
                 } else {
+                    let book = Book(from: url, context: context)
                     playlist.addToBooks(book)
                 }
             }

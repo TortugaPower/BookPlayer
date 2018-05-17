@@ -21,10 +21,9 @@ class PlaylistViewController: BaseListViewController {
         self.navigationItem.title = playlist.title
     }
 
-    override func loadFile(url: URL) {
-        let book = DataManager.createBook(from: url)
-
-        DataManager.insert([book], into: self.playlist, library: self.library) {
+    override func loadFile(urls: [URL]) {
+        DataManager.insertBooks(from: urls, into: self.playlist, library: self.library) {
+            MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
             NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookDeleted, object: nil)
             self.tableView.reloadData()
         }

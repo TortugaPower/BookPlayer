@@ -37,7 +37,6 @@ class ChaptersViewController: UITableViewController {
         return self.chapters.count
     }
 
-
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ChapterCell", for: indexPath)
         let chapter = self.chapters[indexPath.row]

@@ -90,7 +90,7 @@ class BaseListViewController: UIViewController {
         MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
     }
 
-    @objc func loadFile(url: URL) {
+    @objc func loadFile(urls: [URL]) {
         fatalError("loadFiles must be overriden")
     }
 
@@ -288,6 +288,12 @@ extension BaseListViewController: UIDocumentPickerDelegate {
 
             return
         }
-        self.loadFile(url: fileURL)
+
+        MBProgressHUD.showAdded(to: self.view, animated: true)
+
+        DataManager.processPendingFiles { (urls) in
+            self.loadFile(urls: urls)
+        }
+
     }
 }

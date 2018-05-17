@@ -64,7 +64,8 @@ public class Book: LibraryItem {
         let entity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
         self.init(entity: entity, insertInto: context)
         self.fileURL = fileURL
-        self.identifier = fileURL.lastPathComponent
+        self.ext = fileURL.pathExtension
+        self.identifier = fileURL.deletingPathExtension().lastPathComponent
         let asset = AVAsset(url: fileURL)
 
         let titleFromMeta = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyTitle, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String
@@ -72,7 +73,6 @@ public class Book: LibraryItem {
 
         self.title = titleFromMeta ?? fileURL.lastPathComponent.replacingOccurrences(of: "_", with: " ")
         self.author = authorFromMeta ?? "Unknown Author"
-        self.ext = fileURL.pathExtension
         self.duration = CMTimeGetSeconds(asset.duration)
 
         var colors: ArtworkColors!

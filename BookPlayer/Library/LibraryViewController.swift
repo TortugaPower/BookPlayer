@@ -52,12 +52,13 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         self.emptyListContainerView.isHidden = !self.items.isEmpty
         self.tableView.reloadData()
 
-        DataManager.processPendingFiles { (books) in
-            guard !books.isEmpty else {
+        DataManager.processPendingFiles { (urls) in
+            guard !urls.isEmpty else {
                 MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
                 return
             }
-            DataManager.insert(books, into: self.library) {
+
+            DataManager.insertBooks(from: urls, into: self.library) {
                 MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
 
                 //show/hide instructions view
@@ -67,22 +68,20 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         }
     }
 
-    override func loadFile(url: URL) {
-        let book = DataManager.createBook(from: url)
-
-        DataManager.insert([book], into: self.library) {
+    override func loadFile(urls: [URL]) {
+        DataManager.insertBooks(from: urls, into: self.library) {
+            MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
             self.emptyListContainerView.isHidden = !self.items.isEmpty
             self.tableView.reloadData()
         }
     }
 
     @objc func openURL(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-            let fileURL = userInfo["fileURL"] as? URL else {
-                return
-        }
+        MBProgressHUD.showAdded(to: self.view, animated: true)
 
-        self.loadFile(url: fileURL)
+        DataManager.processPendingFiles { (urls) in
+            self.loadFile(urls: urls)
+        }
     }
 
     @objc func reloadData() {
@@ -217,11 +216,11 @@ extension LibraryViewController {
                 playlistAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
                 playlistAlert.addAction(UIAlertAction(title: "Create", style: .default, handler: { (_) in
                     let title = playlistAlert.textFields!.first!.text!
-                    
+
                     let playlist = DataManager.createPlaylist(title: title, books: [])
                     self.library.addToItems(playlist)
                     DataManager.saveContext()
-                    
+
                     self.tableView.reloadData()
                 }))
 
