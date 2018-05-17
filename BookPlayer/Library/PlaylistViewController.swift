@@ -10,13 +10,20 @@ import UIKit
 import MBProgressHUD
 
 class PlaylistViewController: BaseListViewController {
+    @IBOutlet private weak var emptyPlaylistPlaceholder: UIView!
+
+    var playlist: Playlist!
+
     override var items: [LibraryItem] {
         return self.playlist.books?.array as? [LibraryItem] ?? []
     }
-    var playlist: Playlist!
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        if !self.items.isEmpty {
+            self.emptyPlaylistPlaceholder.isHidden = true
+        }
 
         self.navigationItem.title = playlist.title
     }
@@ -65,26 +72,27 @@ extension PlaylistViewController {
         }
 
         let deleteAction = UITableViewRowAction(style: .default, title: "Options") { (_, indexPath) in
-
             let sheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
             sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
 
             sheet.addAction(UIAlertAction(title: "Remove Book from playlist", style: .default, handler: { _ in
-
                 self.playlist.removeFromBooks(book)
                 self.library.addToItems(book)
+
                 DataManager.saveContext()
 
                 self.tableView.beginUpdates()
                 self.tableView.deleteRows(at: [indexPath], with: .none)
                 self.tableView.endUpdates()
+
                 NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookDeleted, object: nil)
             }))
 
             sheet.addAction(UIAlertAction(title: "Delete Book", style: .destructive, handler: { _ in
                 do {
                     self.playlist.removeFromBooks(book)
+
                     DataManager.saveContext()
 
                     try FileManager.default.removeItem(at: book.fileURL)
@@ -92,6 +100,7 @@ extension PlaylistViewController {
                     self.tableView.beginUpdates()
                     self.tableView.deleteRows(at: [indexPath], with: .none)
                     self.tableView.endUpdates()
+
                     NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookDeleted, object: nil)
                 } catch {
                     self.showAlert("Error", message: "There was an error deleting the book, please try again.")

@@ -19,6 +19,7 @@ class BaseListViewController: UIViewController {
         guard self.library != nil else {
             return []
         }
+
         return self.library.items?.array as? [LibraryItem] ?? []
     }
 
@@ -32,9 +33,11 @@ class BaseListViewController: UIViewController {
 
         self.tableView.register(UINib(nibName: "BookCellView", bundle: nil), forCellReuseIdentifier: "BookCellView")
         self.tableView.register(UINib(nibName: "AddCellView", bundle: nil), forCellReuseIdentifier: "AddCellView")
+
         self.tableView.reorder.delegate = self
         self.tableView.reorder.cellScale = 1.05
         self.tableView.tableFooterView = UIView()
+
         // fixed tableview having strange offset
         self.edgesForExtendedLayout = UIRectEdge()
 
@@ -50,7 +53,13 @@ class BaseListViewController: UIViewController {
         providerList.delegate = self
 
         providerList.popoverPresentationController?.sourceView = self.view
-        providerList.popoverPresentationController?.sourceRect = CGRect(x: Double(self.view.bounds.size.width / 2.0), y: Double(self.view.bounds.size.height-45), width: 1.0, height: 1.0)
+        providerList.popoverPresentationController?.sourceRect = CGRect(
+            x: Double(self.view.bounds.size.width / 2.0),
+            y: Double(self.view.bounds.size.height-45),
+            width: 1.0,
+            height: 1.0
+        )
+
         self.present(providerList, animated: true, completion: nil)
     }
 
@@ -67,8 +76,10 @@ class BaseListViewController: UIViewController {
     func setupPlayer(books: [Book]) {
         // Make sure player is for a different book
         let book = books.first!
+
         guard PlayerManager.shared.fileURL != book.fileURL else {
             showPlayerView(book: book)
+
             return
         }
 
@@ -130,7 +141,7 @@ extension BaseListViewController: UITableViewDataSource {
 
         guard indexPath.section == 0,
             let cell = tableView.dequeueReusableCell(withIdentifier: "BookCellView", for: indexPath) as? BookCellView else {
-                //load add cell
+                // Load add cell
                 return tableView.dequeueReusableCell(withIdentifier: "AddCellView", for: indexPath)
         }
 
@@ -151,7 +162,7 @@ extension BaseListViewController: UITableViewDataSource {
 
         cell.selectionStyle = .none
 
-        // NOTE: we should have a default image for artwork
+        // NOTE: We should have a default image for artwork
         cell.artworkImageView.image = item.artwork
 
         return cell

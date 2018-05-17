@@ -31,6 +31,8 @@ class NowPlayingViewController: PlayerContainerViewController, UIGestureRecogniz
             self.titleLabel.text = self.book?.title
             self.titleLabel.textColor = self.book?.artworkColors.primary
             self.authorLabel.textColor = self.book?.artworkColors.secondary
+            self.playPauseButton.tintColor = self.book?.artworkColors.tertiary
+            self.background.backgroundColor = self.book?.artworkColors.background
         }
     }
 

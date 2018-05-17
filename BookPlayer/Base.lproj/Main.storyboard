@@ -28,7 +28,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tyE-SR-4fu" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-87" y="-423"/>
+            <point key="canvasLocation" x="-1158" y="154"/>
         </scene>
         <!--Audiobook lists-->
         <scene sceneID="cIo-ks-gCu">
@@ -39,7 +39,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dvy-x5-s6P">
-                                <rect key="frame" x="0.0" y="44" width="375" height="734"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                                 <connections>
                                     <segue destination="Him-vk-TAg" kind="embed" id="HlL-id-B7p"/>
                                 </connections>
@@ -57,11 +57,11 @@
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <color key="tintColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="Gny-cx-Bg7" firstAttribute="bottom" secondItem="dvy-x5-s6P" secondAttribute="bottom" id="A6v-oP-mhM"/>
-                            <constraint firstItem="dvy-x5-s6P" firstAttribute="trailing" secondItem="Gny-cx-Bg7" secondAttribute="trailing" id="CKz-Rc-yST"/>
+                            <constraint firstAttribute="bottom" secondItem="dvy-x5-s6P" secondAttribute="bottom" id="A6v-oP-mhM"/>
+                            <constraint firstItem="dvy-x5-s6P" firstAttribute="trailing" secondItem="EqL-FA-MOg" secondAttribute="trailing" id="CKz-Rc-yST"/>
                             <constraint firstItem="b0f-6G-C7c" firstAttribute="leading" secondItem="Gny-cx-Bg7" secondAttribute="leading" id="GzD-bs-V3J"/>
-                            <constraint firstItem="dvy-x5-s6P" firstAttribute="top" secondItem="Gny-cx-Bg7" secondAttribute="top" id="IMf-R8-Xlg"/>
-                            <constraint firstItem="dvy-x5-s6P" firstAttribute="leading" secondItem="Gny-cx-Bg7" secondAttribute="leading" id="Ig8-T5-6cK"/>
+                            <constraint firstItem="dvy-x5-s6P" firstAttribute="top" secondItem="EqL-FA-MOg" secondAttribute="top" id="IMf-R8-Xlg"/>
+                            <constraint firstItem="dvy-x5-s6P" firstAttribute="leading" secondItem="EqL-FA-MOg" secondAttribute="leading" id="Ig8-T5-6cK"/>
                             <constraint firstItem="Gny-cx-Bg7" firstAttribute="bottom" secondItem="b0f-6G-C7c" secondAttribute="bottom" id="Wjk-N5-XV4"/>
                             <constraint firstItem="b0f-6G-C7c" firstAttribute="trailing" secondItem="Gny-cx-Bg7" secondAttribute="trailing" id="kpn-MA-Up0"/>
                         </constraints>
@@ -73,12 +73,12 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="f5f-SL-iYr" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-847" y="246"/>
+            <point key="canvasLocation" x="-1954" y="154"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="Rnt-4P-Ygd">
             <objects>
-                <navigationController navigationBarHidden="YES" id="fCI-iy-utZ" sceneMemberID="viewController">
+                <navigationController modalPresentationStyle="overCurrentContext" navigationBarHidden="YES" id="fCI-iy-utZ" sceneMemberID="viewController">
                     <toolbarItems>
                         <barButtonItem title="Foo" id="2ev-Bd-I3K"/>
                     </toolbarItems>
@@ -94,18 +94,18 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="W0A-Po-9Wk" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="857" y="-413"/>
+            <point key="canvasLocation" x="473" y="153"/>
         </scene>
         <!--Player-->
         <scene sceneID="yUG-lL-AsK">
             <objects>
-                <viewController storyboardIdentifier="PlayerViewController" title="Player" modalPresentationStyle="overCurrentContext" id="JEX-9P-axG" customClass="PlayerViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="PlayerViewController" title="Player" modalPresentationStyle="currentContext" id="JEX-9P-axG" customClass="PlayerViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="svH-Pt-448">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="734"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" alpha="0.20000000000000001" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" insetsLayoutMarginsFromSafeArea="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CHt-hV-Yk6" userLabel="Background Image">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="734"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                             </imageView>
                             <button opaque="NO" alpha="0.33000000000000002" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mh3-69-jg9">
                                 <rect key="frame" x="0.0" y="44" width="375" height="44"/>
@@ -119,11 +119,11 @@
                                 </connections>
                             </button>
                             <view userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aS6-3N-Jjq" userLabel="A Spacer">
-                                <rect key="frame" x="0.0" y="88" width="375" height="23.666666666666671"/>
+                                <rect key="frame" x="0.0" y="88" width="375" height="44.666666666666657"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="sjB-UW-xiP" userLabel="Meta Container">
-                                <rect key="frame" x="0.0" y="111.66666666666669" width="375" height="63"/>
+                                <rect key="frame" x="0.0" y="132.66666666666666" width="375" height="63"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="63" id="Lnv-TH-fYd"/>
                                 </constraints>
@@ -132,11 +132,11 @@
                                 </connections>
                             </containerView>
                             <view userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="z3g-79-3mR" userLabel="B Spacer">
-                                <rect key="frame" x="0.0" y="174.66666666666666" width="375" height="12"/>
+                                <rect key="frame" x="0.0" y="195.66666666666666" width="375" height="22.666666666666657"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6es-ds-02X" userLabel="Controls Contrainer">
-                                <rect key="frame" x="0.0" y="186.66666666666663" width="375" height="375"/>
+                                <rect key="frame" x="0.0" y="218.33333333333337" width="375" height="375"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="6es-ds-02X" secondAttribute="height" multiplier="1:1" id="O5V-Tx-OHG"/>
                                 </constraints>
@@ -145,11 +145,11 @@
                                 </connections>
                             </containerView>
                             <view userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="MjT-9R-fmm" userLabel="C Spacer">
-                                <rect key="frame" x="0.0" y="608.66666666666663" width="375" height="47.333333333333371"/>
+                                <rect key="frame" x="0.0" y="640.33333333333337" width="375" height="88.666666666666629"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="black" translatesAutoresizingMaskIntoConstraints="NO" id="o75-2w-gMe">
-                                <rect key="frame" x="10" y="656" width="355" height="44"/>
+                                <rect key="frame" x="10" y="729" width="355" height="49"/>
                                 <viewLayoutGuide key="safeArea" id="2qG-fp-HSK"/>
                                 <items>
                                     <barButtonItem title="Speed" id="LX4-Gd-MX5">
@@ -185,7 +185,7 @@
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </toolbar>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dEm-lJ-I1w" userLabel="Progress Container">
-                                <rect key="frame" x="0.0" y="561.66666666666663" width="375" height="47"/>
+                                <rect key="frame" x="0.0" y="593.33333333333337" width="375" height="47"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="47" id="bNH-Mk-3mK"/>
                                 </constraints>
@@ -248,7 +248,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FJe-Yq-33r" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1713" y="-413"/>
+            <point key="canvasLocation" x="1366" y="154"/>
         </scene>
         <!--Settings-->
         <scene sceneID="GOZ-93-E2V">
@@ -490,7 +490,7 @@ Use with caution and care for your hearing.</string>
                             <outlet property="delegate" destination="Obf-Zy-aDj" id="nBd-Mh-KeJ"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Settings" id="ErB-1u-RVY">
+                    <navigationItem key="navigationItem" title="Settings" leftItemsSupplementBackButton="YES" id="ErB-1u-RVY">
                         <barButtonItem key="rightBarButtonItem" style="done" systemItem="done" id="4JM-Z4-dCS">
                             <connections>
                                 <action selector="done:" destination="Obf-Zy-aDj" id="yhS-od-rSP"/>
@@ -508,18 +508,18 @@ Use with caution and care for your hearing.</string>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="010-9W-Z0T" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="487" y="1173"/>
+            <point key="canvasLocation" x="473" y="957"/>
         </scene>
         <!--Credits-->
         <scene sceneID="dMs-na-OfN">
             <objects>
                 <viewController title="Credits" id="eTr-hb-OZz" customClass="CreditsViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="DOS-Ie-z6Q">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="594"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" showsHorizontalScrollIndicator="NO" bouncesZoom="NO" editable="NO" usesAttributedText="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0gZ-Hp-XwC">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="594"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <attributedString key="attributedText">
@@ -543,14 +543,14 @@ Use with caution and care for your hearing.</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="L2n-IZ-fOX" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2414" y="825"/>
+            <point key="canvasLocation" x="1366" y="1499"/>
         </scene>
         <!--Direction-->
         <scene sceneID="kaq-RQ-xRc">
             <objects>
                 <tableViewController title="Direction" id="xfk-r8-Q1z" customClass="SkipDurationViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="iRa-Rg-G0f">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="594"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <prototypes>
@@ -580,7 +580,7 @@ Use with caution and care for your hearing.</string>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="6RS-4d-lol" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2418" y="1490"/>
+            <point key="canvasLocation" x="1366" y="859"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="Sgz-Qg-U2r">
@@ -596,14 +596,14 @@ Use with caution and care for your hearing.</string>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ndh-8t-7fD" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-407" y="1105"/>
+            <point key="canvasLocation" x="-362" y="859"/>
         </scene>
         <!--Chapters-->
         <scene sceneID="r4K-D2-qsq">
             <objects>
                 <tableViewController title="Chapters" id="WF1-Gp-YdY" customClass="ChaptersViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="FIY-RU-IvF">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="594"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <prototypes>
@@ -637,7 +637,7 @@ Use with caution and care for your hearing.</string>
                             <outlet property="delegate" destination="WF1-Gp-YdY" id="5zo-5x-liu"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Chapters" id="6sa-tR-SsQ">
+                    <navigationItem key="navigationItem" title="Chapters" leftItemsSupplementBackButton="YES" id="6sa-tR-SsQ">
                         <barButtonItem key="rightBarButtonItem" style="done" systemItem="done" id="hiM-kC-riX">
                             <connections>
                                 <action selector="done:" destination="WF1-Gp-YdY" id="Hh9-7J-Gau"/>
@@ -647,7 +647,7 @@ Use with caution and care for your hearing.</string>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="I4g-27-wrP" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3466" y="-89"/>
+            <point key="canvasLocation" x="3118" y="486"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="tcl-rj-dcK">
@@ -663,7 +663,7 @@ Use with caution and care for your hearing.</string>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="5JU-ee-g1s" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2609" y="-88"/>
+            <point key="canvasLocation" x="2262" y="487"/>
         </scene>
         <!--Player Controls View Controller-->
         <scene sceneID="XWq-40-6nb">
@@ -746,7 +746,7 @@ Use with caution and care for your hearing.</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="xaz-oA-2kU" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2614" y="-887"/>
+            <point key="canvasLocation" x="2266" y="-311"/>
         </scene>
         <!--Player Meta View Controller-->
         <scene sceneID="VKo-r8-pZZ">
@@ -789,7 +789,7 @@ Use with caution and care for your hearing.</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="UJo-0R-cTE" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2614" y="-637"/>
+            <point key="canvasLocation" x="2266" y="-62"/>
         </scene>
         <!--Player Progress View Controller-->
         <scene sceneID="IVR-v9-a32">
@@ -874,14 +874,14 @@ Use with caution and care for your hearing.</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="LcB-rH-3vb" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2614" y="-508"/>
+            <point key="canvasLocation" x="2266" y="68"/>
         </scene>
         <!--Playlist-->
         <scene sceneID="Jy6-LH-O5h">
             <objects>
                 <viewController storyboardIdentifier="PlaylistViewController" id="XZ8-Ha-OZN" customClass="PlaylistViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="BcY-tC-kA6">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="594"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" layoutMarginsFollowReadableWidth="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="86" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="vLB-vm-W2L">
@@ -898,19 +898,43 @@ Use with caution and care for your hearing.</string>
                                     <outlet property="delegate" destination="XZ8-Ha-OZN" id="ENM-vK-yCY"/>
                                 </connections>
                             </tableView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="S0r-5S-fT7" userLabel="Empty Playlist Placeholder">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
+                                <subviews>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="emptyPlaylist" translatesAutoresizingMaskIntoConstraints="NO" id="hcW-Vv-6u7">
+                                        <rect key="frame" x="63" y="151.66666666666669" width="249" height="249"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="249" id="M3c-0J-Ojl"/>
+                                            <constraint firstAttribute="height" constant="249" id="S1o-Vm-xQT"/>
+                                        </constraints>
+                                    </imageView>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstItem="hcW-Vv-6u7" firstAttribute="centerX" secondItem="S0r-5S-fT7" secondAttribute="centerX" id="cnN-LB-Z1r"/>
+                                    <constraint firstItem="hcW-Vv-6u7" firstAttribute="centerY" secondItem="S0r-5S-fT7" secondAttribute="centerY" constant="-60" id="u2P-VJ-w5F"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="S0r-5S-fT7" firstAttribute="bottom" secondItem="CKb-uE-Rzm" secondAttribute="bottom" constant="34" id="0IG-bg-5mm"/>
+                            <constraint firstItem="S0r-5S-fT7" firstAttribute="leading" secondItem="CKb-uE-Rzm" secondAttribute="leading" id="Wb3-Xj-w85"/>
+                            <constraint firstItem="S0r-5S-fT7" firstAttribute="top" secondItem="CKb-uE-Rzm" secondAttribute="top" id="YnQ-N1-flI"/>
+                            <constraint firstItem="CKb-uE-Rzm" firstAttribute="trailing" secondItem="S0r-5S-fT7" secondAttribute="trailing" id="tMh-Cr-eDe"/>
+                        </constraints>
                         <viewLayoutGuide key="safeArea" id="CKb-uE-Rzm"/>
                     </view>
                     <navigationItem key="navigationItem" title="Playlist" id="izI-Pl-Rnt"/>
                     <connections>
+                        <outlet property="emptyPlaylistPlaceholder" destination="S0r-5S-fT7" id="dlr-Ts-xGW"/>
                         <outlet property="tableView" destination="vLB-vm-W2L" id="upg-Nh-j6W"/>
                         <segue destination="fCI-iy-utZ" kind="presentation" identifier="PlaylistPlayerSegue" id="oGv-df-VfX"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="6pz-s9-tbM" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="858" y="184"/>
+            <point key="canvasLocation" x="473" y="-556"/>
         </scene>
         <!--Now Playing View Controller-->
         <scene sceneID="jEq-1l-rlm">
@@ -994,18 +1018,18 @@ Use with caution and care for your hearing.</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="V8J-76-d47" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="486" y="595"/>
+            <point key="canvasLocation" x="-1953" y="617"/>
         </scene>
         <!--Library-->
         <scene sceneID="sOy-uz-Nh7">
             <objects>
                 <viewController storyboardIdentifier="LibraryViewController" id="Zuf-4A-dOY" customClass="LibraryViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="ceD-ne-FWj">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="594"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" layoutMarginsFollowReadableWidth="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="86" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="392-ii-NXF">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="594"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <view key="tableFooterView" contentMode="scaleToFill" id="Yqo-Ta-VrU" userLabel="Bottom Spacer">
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="78"/>
@@ -1018,10 +1042,10 @@ Use with caution and care for your hearing.</string>
                                 </connections>
                             </tableView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xYN-SW-g2w">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="594"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="emptyLibrary" translatesAutoresizingMaskIntoConstraints="NO" id="0RV-NO-MaQ">
-                                        <rect key="frame" x="63" y="112.66666666666666" width="249" height="248.99999999999997"/>
+                                        <rect key="frame" x="63" y="151.66666666666669" width="249" height="249"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="249" id="5na-dc-FrY"/>
                                             <constraint firstAttribute="width" constant="249" id="Wgm-0u-wJb"/>
@@ -1069,11 +1093,12 @@ Use with caution and care for your hearing.</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Zg8-mX-TfF" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-87" y="184"/>
+            <point key="canvasLocation" x="-361" y="154"/>
         </scene>
     </scenes>
     <resources>
         <image name="emptyLibrary" width="249" height="249"/>
+        <image name="emptyPlaylist" width="249" height="249"/>
         <image name="maskPlayerClose" width="40" height="14"/>
         <image name="nowPlayingPause" width="62" height="62"/>
         <image name="playerIconPlay" width="68" height="68"/>

@@ -25,6 +25,7 @@ class PlayerManager: NSObject {
 
     private var timer: Timer!
 
+    // swiftlint:disable:next function_body_length
     func load(_ books: [Book], completion:@escaping (AVAudioPlayer?) -> Void) {
         if let player = self.audioPlayer,
             let currentBooks = self.currentBooks,
@@ -79,7 +80,12 @@ class PlayerManager: NSObject {
                     MPMediaItemPropertyPlaybackDuration: audioplayer.duration
                 ]
 
-                nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: book.artwork)
+                nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(
+                    boundsSize: book.artwork.size,
+                    requestHandler: { (_) -> UIImage in
+                        return book.artwork
+                    }
+                )
 
                 MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
 
@@ -87,7 +93,7 @@ class PlayerManager: NSObject {
                     self.jumpTo(book.currentTime)
                 }
 
-                //set speed for player
+                // Set speed for player
                 audioplayer.rate = self.speed
 
                 NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookReady, object: nil)
@@ -104,8 +110,11 @@ class PlayerManager: NSObject {
         }
 
         self.currentBook.currentTime = audioplayer.currentTime
+
         let isPercentageDifferent = self.currentBook.percentage != self.currentBook.percentCompleted
+
         self.currentBook.percentCompleted = self.currentBook.percentage
+
         DataManager.saveContext()
 
         // Notify
@@ -113,7 +122,7 @@ class PlayerManager: NSObject {
             NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil, userInfo: [
                 "percentCompletedString": self.currentBook.percentCompletedRoundedString,
                 "fileURL": self.fileURL
-                ] as [String: Any])
+            ] as [String: Any])
         }
 
         MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
