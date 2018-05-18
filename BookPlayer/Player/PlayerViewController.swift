@@ -271,7 +271,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
                 let translation = gestureRecognizer.translation(in: self.view)
 
                 if translation.y > dismissThreshold {
-                    self.dismiss(animated: true, completion: nil)
+                    self.dismissPlayer()
 
                     return
                 }
