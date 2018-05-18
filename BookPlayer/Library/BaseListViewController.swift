@@ -36,7 +36,9 @@ class BaseListViewController: UIViewController {
 
         self.tableView.reorder.delegate = self
         self.tableView.reorder.cellScale = 1.05
-        self.tableView.tableFooterView = UIView()
+
+        // Remove the line after the last cell
+        self.tableView.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.size.width, height: 1))
 
         // fixed tableview having strange offset
         self.edgesForExtendedLayout = UIRectEdge()
@@ -164,6 +166,8 @@ extension BaseListViewController: UITableViewDataSource {
 
         // NOTE: We should have a default image for artwork
         cell.artworkImageView.image = item.artwork
+        cell.artworkImageView.layer.cornerRadius = 4.0
+        cell.artworkImageView.layer.masksToBounds = true
 
         return cell
     }

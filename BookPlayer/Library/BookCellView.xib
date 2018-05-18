@@ -6,42 +6,27 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
-        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <tableViewCell contentMode="scaleToFill" restorationIdentifier="BookCellView" selectionStyle="default" indentationWidth="10" reuseIdentifier="BookCellView" rowHeight="86" id="4fw-Bq-hyU" customClass="BookCellView" customModule="Audiobook_Player" customModuleProvider="target">
+        <tableViewCell contentMode="scaleToFill" restorationIdentifier="BookCellView" selectionStyle="default" indentationWidth="10" reuseIdentifier="BookCellView" rowHeight="86" id="4fw-Bq-hyU" customClass="BookCellView" customModule="BookPlayer" customModuleProvider="target">
             <rect key="frame" x="0.0" y="0.0" width="375" height="86"/>
             <autoresizingMask key="autoresizingMask"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="4fw-Bq-hyU" id="cUU-yJ-MnU">
                 <rect key="frame" x="0.0" y="0.0" width="375" height="85.5"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="3kC-6m-IJf">
-                        <rect key="frame" x="19" y="16" width="50" height="50"/>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defaultArtwork" translatesAutoresizingMaskIntoConstraints="NO" id="3kC-6m-IJf">
+                        <rect key="frame" x="16" y="18" width="50" height="50"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="50" id="LD8-Eg-YNe"/>
                             <constraint firstAttribute="width" constant="50" id="zo4-rD-Ned"/>
                         </constraints>
                     </imageView>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="The Wastelands" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RWS-bw-cRW">
-                        <rect key="frame" x="84" y="16" width="122.5" height="29"/>
-                        <constraints>
-                            <constraint firstAttribute="height" constant="29" id="RF0-uG-0KK"/>
-                        </constraints>
-                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                        <nil key="highlightedColor"/>
-                    </label>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Stephen King" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7zZ-yo-0dC">
-                        <rect key="frame" x="84" y="45" width="122.5" height="18"/>
-                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                        <color key="textColor" red="0.63137254899999995" green="0.63921568630000003" blue="0.64313725489999995" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                        <nil key="highlightedColor"/>
-                    </label>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="100%" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bpu-gO-KoJ">
-                        <rect key="frame" x="216.5" y="33" width="137.5" height="21"/>
+                        <rect key="frame" x="215.5" y="23" width="143.5" height="21"/>
                         <constraints>
                             <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="45" id="XJY-aC-hyA"/>
                         </constraints>
@@ -49,27 +34,37 @@
                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="The Wastelands" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RWS-bw-cRW">
+                        <rect key="frame" x="82" y="19" width="125.5" height="29"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="29" id="RF0-uG-0KK"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
+                        <color key="textColor" red="0.12156862745098039" green="0.14117647058823529" blue="0.14509803921568626" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Stephen King" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7zZ-yo-0dC">
+                        <rect key="frame" x="82" y="48" width="125.5" height="18"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="18" id="Vgg-Zm-YRD"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                        <color key="textColor" red="0.5607843137254902" green="0.55686274509803924" blue="0.58039215686274503" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
                 </subviews>
                 <constraints>
-                    <constraint firstItem="7zZ-yo-0dC" firstAttribute="top" secondItem="RWS-bw-cRW" secondAttribute="bottom" id="4cF-v7-50z"/>
-                    <constraint firstItem="Bpu-gO-KoJ" firstAttribute="centerY" secondItem="cUU-yJ-MnU" secondAttribute="centerY" id="5ul-EI-sQv"/>
-                    <constraint firstItem="3kC-6m-IJf" firstAttribute="leading" secondItem="cUU-yJ-MnU" secondAttribute="leading" constant="19" id="8YO-gM-WT0"/>
-                    <constraint firstItem="7zZ-yo-0dC" firstAttribute="trailing" secondItem="RWS-bw-cRW" secondAttribute="trailing" id="EaC-pM-4S4"/>
-                    <constraint firstAttribute="trailingMargin" secondItem="Bpu-gO-KoJ" secondAttribute="trailing" constant="5" id="ctA-ZI-lsn"/>
-                    <constraint firstItem="RWS-bw-cRW" firstAttribute="top" secondItem="3kC-6m-IJf" secondAttribute="top" id="fpC-BD-4sN"/>
-                    <constraint firstItem="Bpu-gO-KoJ" firstAttribute="leading" secondItem="RWS-bw-cRW" secondAttribute="trailing" constant="352" id="hCY-s8-Ujk"/>
-                    <constraint firstItem="7zZ-yo-0dC" firstAttribute="leading" secondItem="RWS-bw-cRW" secondAttribute="leading" id="i3G-RR-4l8"/>
-                    <constraint firstItem="3kC-6m-IJf" firstAttribute="top" secondItem="cUU-yJ-MnU" secondAttribute="top" constant="16" id="ofW-3F-bew"/>
-                    <constraint firstAttribute="trailing" secondItem="RWS-bw-cRW" secondAttribute="trailing" constant="100" id="swP-0i-nk3"/>
-                    <constraint firstItem="RWS-bw-cRW" firstAttribute="leading" secondItem="3kC-6m-IJf" secondAttribute="trailing" constant="15" id="tis-9M-Fhl"/>
-                    <constraint firstItem="Bpu-gO-KoJ" firstAttribute="leading" secondItem="RWS-bw-cRW" secondAttribute="trailing" constant="10" id="v7C-nr-eiB"/>
+                    <constraint firstItem="RWS-bw-cRW" firstAttribute="centerY" secondItem="cUU-yJ-MnU" secondAttribute="centerY" constant="-10" id="ICT-n3-FfX"/>
+                    <constraint firstItem="Bpu-gO-KoJ" firstAttribute="leading" secondItem="RWS-bw-cRW" secondAttribute="trailing" constant="8" id="L4z-Aw-YL6"/>
+                    <constraint firstItem="Bpu-gO-KoJ" firstAttribute="centerY" secondItem="RWS-bw-cRW" secondAttribute="centerY" id="QGI-XM-gS8"/>
+                    <constraint firstItem="RWS-bw-cRW" firstAttribute="leading" secondItem="3kC-6m-IJf" secondAttribute="trailing" constant="16" id="UO5-Rm-Z8M"/>
+                    <constraint firstItem="7zZ-yo-0dC" firstAttribute="top" secondItem="RWS-bw-cRW" secondAttribute="bottom" id="bkb-Am-hVm"/>
+                    <constraint firstAttribute="trailing" secondItem="Bpu-gO-KoJ" secondAttribute="trailing" constant="16" id="fdK-2J-jNr"/>
+                    <constraint firstItem="3kC-6m-IJf" firstAttribute="centerY" secondItem="cUU-yJ-MnU" secondAttribute="centerY" id="jSN-fH-XWc"/>
+                    <constraint firstItem="7zZ-yo-0dC" firstAttribute="leading" secondItem="RWS-bw-cRW" secondAttribute="leading" id="mNR-fx-aKg"/>
+                    <constraint firstItem="3kC-6m-IJf" firstAttribute="leading" secondItem="cUU-yJ-MnU" secondAttribute="leading" constant="16" id="yFI-1d-yGW"/>
+                    <constraint firstItem="7zZ-yo-0dC" firstAttribute="width" secondItem="RWS-bw-cRW" secondAttribute="width" id="zcg-Iy-KZv"/>
                 </constraints>
-                <variation key="default">
-                    <mask key="constraints">
-                        <exclude reference="swP-0i-nk3"/>
-                        <exclude reference="hCY-s8-Ujk"/>
-                    </mask>
-                </variation>
             </tableViewCellContentView>
             <connections>
                 <outlet property="artworkImageView" destination="3kC-6m-IJf" id="AgR-ku-gzP"/>
@@ -77,6 +72,10 @@
                 <outlet property="completionLabel" destination="Bpu-gO-KoJ" id="vSl-hY-Thi"/>
                 <outlet property="titleLabel" destination="RWS-bw-cRW" id="l6H-L8-OH7"/>
             </connections>
+            <point key="canvasLocation" x="24.5" y="52"/>
         </tableViewCell>
     </objects>
+    <resources>
+        <image name="defaultArtwork" width="325" height="325"/>
+    </resources>
 </document>
