@@ -18,11 +18,19 @@ class ChaptersViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        UIApplication.shared.statusBarStyle = .default
+
         self.tableView.tableFooterView = UIView()
         self.tableView.reloadData()
     }
 
     @IBAction func done(_ sender: UIBarButtonItem?) {
+        if UIApplication.shared.statusBarStyle == .default && PlayerManager.shared.currentBook.artworkColors.displayOnDark {
+            UIApplication.shared.statusBarStyle = .lightContent
+        } else {
+            UIApplication.shared.statusBarStyle = .default
+        }
+
         self.dismiss(animated: true, completion: nil)
     }
 
@@ -50,9 +58,9 @@ class ChaptersViewController: UITableViewController {
 
         return cell
     }
-
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.didSelectChapter?(self.chapters[indexPath.row])
+
         self.done(nil)
     }
 }
