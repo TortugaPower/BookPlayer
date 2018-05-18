@@ -30,11 +30,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         // Appearance
-        UINavigationBar.appearance().titleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.init(hex: "#37454E")]
+        UINavigationBar.appearance().titleTextAttributes = [
+            NSAttributedStringKey.foregroundColor: UIColor.init(hex: "#37454E")
+        ]
 
         if #available(iOS 11, *) {
-            UINavigationBar.appearance().largeTitleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.init(hex: "#37454E")]
+            UINavigationBar.appearance().largeTitleTextAttributes = [
+                NSAttributedStringKey.foregroundColor: UIColor.init(hex: "#37454E")
+            ]
         }
+
+        NotificationCenter.default.addObserver(self, selector: #selector(self.hideShowPlayer), name: NSNotification.Name.AudiobookPlayer.playerPresented, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.hideShowPlayer), name: NSNotification.Name.AudiobookPlayer.playerDismissed, object: nil)
 
         do {
             try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
@@ -112,6 +119,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    }
+
+    @objc func hideShowPlayer() {
+        if UIApplication.shared.statusBarStyle == .default && PlayerManager.shared.currentBook.artworkColors.displayOnDark {
+            UIApplication.shared.statusBarStyle = .lightContent
+        } else {
+            UIApplication.shared.statusBarStyle = .default
+        }
     }
 
     // Playback may be interrupted by calls. Handle pause
