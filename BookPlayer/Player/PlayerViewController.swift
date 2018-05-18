@@ -31,7 +31,6 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     private weak var progressViewController: PlayerProgressViewController?
 
     let darknessThreshold: CGFloat = 0.2
-    var expectedStatusBarStyle: UIStatusBarStyle = .default
 
     // MARK: Lifecycle
 
@@ -76,6 +75,8 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     override func viewDidLoad() {
+        NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.playerPresented, object: nil, userInfo: nil)
+
         super.viewDidLoad()
 
         self.setupView(book: self.currentBook!)
@@ -97,8 +98,6 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.pan.cancelsTouchesInView = true
 
         self.view.addGestureRecognizer(self.pan)
-
-        self.modalPresentationCapturesStatusBarAppearance = true
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -118,6 +117,12 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.bottomToolbar.tintColor = currentBook.artworkColors.tertiary
         self.closeButton.tintColor = currentBook.artworkColors.tertiary
 
+        if currentBook.usesDefaultArtwork {
+            self.backgroundImage.isHidden = true
+
+            return
+        }
+
         let blur = UIBlurEffect(style: currentBook.artworkColors.displayOnDark ? UIBlurEffectStyle.dark : UIBlurEffectStyle.light)
         let blurView = UIVisualEffectView(effect: blur)
 
@@ -125,19 +130,15 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
         self.backgroundImage.addSubview(blurView)
         self.backgroundImage.alpha = 0.2
-//        self.backgroundImage.image = currentBook.artworkImage
-
-        self.expectedStatusBarStyle = currentBook.artworkColors.displayOnDark ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
-    }
-
-    override var preferredStatusBarStyle: UIStatusBarStyle {
-        return self.expectedStatusBarStyle
+        self.backgroundImage.image = currentBook.artwork
     }
 
     // MARK: Interface actions
 
     @IBAction func dismissPlayer() {
         self.dismiss(animated: true, completion: nil)
+
+        NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.playerDismissed, object: nil, userInfo: nil)
     }
 
     // MARK: Toolbar actions
@@ -270,7 +271,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
                 let translation = gestureRecognizer.translation(in: self.view)
 
                 if translation.y > dismissThreshold {
-                    self.dismiss(animated: true, completion: nil)
+                    self.dismissPlayer()
 
                     return
                 }

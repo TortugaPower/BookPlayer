@@ -16,6 +16,7 @@ class DataManager {
     private class func getDocumentsFolderURL() -> URL {
         return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
     }
+
     class func getProcessedFolderURL() -> URL {
         let documentsURL = self.getDocumentsFolderURL()
         let folderName = "Processed"
@@ -37,7 +38,8 @@ class DataManager {
 
     private static var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "BookPlayer")
-        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+
+        container.loadPersistentStores(completionHandler: { (_, error) in
             if let error = error as NSError? {
                 /*
                  Typical reasons for an error here include:
@@ -50,11 +52,13 @@ class DataManager {
                 fatalError("Unresolved error \(error), \(error.userInfo)")
             }
         })
+
         return container
     }()
 
     class func saveContext () {
         let context = self.persistentContainer.viewContext
+
         if context.hasChanges {
             do {
                 try context.save()
@@ -62,6 +66,7 @@ class DataManager {
                 // Replace this implementation with code to handle the error appropriately.
                 // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
                 let nserror = error as NSError
+
                 fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
             }
         }
@@ -72,7 +77,8 @@ class DataManager {
      */
     private class func getPendingFilesURL() -> [URL]? {
         let documentsURL = self.getDocumentsFolderURL()
-        //get reference of all the files located inside the Documents folder
+
+        // Get reference of all the files located inside the Documents folder
         do {
             let urls = try FileManager.default.contentsOfDirectory(at: documentsURL, includingPropertiesForKeys: nil, options: .skipsSubdirectoryDescendants)
 
@@ -85,11 +91,12 @@ class DataManager {
     }
 
     private class func getProcessedFilesURL() -> [URL]? {
-        //get reference of all the files located inside the Documents folder
+        // Get reference of all the files located inside the Documents folder
         let processedFolderURL = self.getProcessedFolderURL()
 
         do {
             let urls = try FileManager.default.contentsOfDirectory(at: processedFolderURL, includingPropertiesForKeys: nil, options: .skipsSubdirectoryDescendants)
+
             return filterFiles(urls)
         } catch {
             fatalError("Error fetching pending file urls")
@@ -152,13 +159,13 @@ class DataManager {
     class func processPendingFiles(completion:@escaping ([URL]) -> Void) {
         var bookUrls = [URL]()
 
-        //get reference of all the files located inside the Documents folder
+        // Get reference of all the files located inside the Documents folder
         guard let urls = self.getPendingFilesURL() else {
             return completion(bookUrls)
         }
 
         DispatchQueue.global().async {
-            //iterate and process files
+            // Iterate and process files
             let destinationFolder = self.getProcessedFolderURL()
 
             for fileURL in urls {
@@ -180,9 +187,9 @@ class DataManager {
             let context = self.persistentContainer.viewContext
 
             for url in urls {
-                //handle if book already exists in the library
+                // Handle if book already exists in the library
                 if let index = library.itemIndex(with: url) {
-                    //handle if existing book is in a playlist
+                    // Handle if existing book is in a playlist
                     if let storedPlaylist = library.getItem(at: index) as? Playlist,
                         let indexBook = storedPlaylist.itemIndex(with: url),
                         let storedBook = storedPlaylist.getBook(at: indexBook) {
@@ -209,13 +216,13 @@ class DataManager {
             let context = self.persistentContainer.viewContext
 
             for url in urls {
-                //handle if book already exists in the library
+                // Handle if book already exists in the library
                 if let index = library.itemIndex(with: url) {
-                    //handle if existing book is in the library
+                    // Handle if existing book is in the library
                     if let storedBook = library.getItem(at: index) as? Book {
                         library.removeFromItems(storedBook)
                         playlist.addToBooks(storedBook)
-                    } else //handle if existing book is in a playlist
+                    } else // Handle if existing book is in a playlist
                         if let storedPlaylist = library.getItem(at: index) as? Playlist,
                             let indexBook = storedPlaylist.itemIndex(with: url),
                             let storedBook = storedPlaylist.getBook(at: indexBook) {

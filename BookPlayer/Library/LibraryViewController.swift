@@ -12,7 +12,6 @@ import MBProgressHUD
 import SwiftReorder
 
 class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate {
-
     @IBOutlet weak var emptyListContainerView: UIView!
 
     override func viewDidLoad() {
@@ -23,7 +22,6 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
 
         // register for appDelegate openUrl notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.openURL(_:)), name: Notification.Name.AudiobookPlayer.openURL, object: nil)
-
         NotificationCenter.default.addObserver(self, selector: #selector(self.reloadData), name: Notification.Name.AudiobookPlayer.bookDeleted, object: nil)
 
         self.loadLibrary()
@@ -264,6 +262,7 @@ extension LibraryViewController {
         DataManager.saveContext()
     }
 
+    // swiftlint:disable:next function_body_length
     override func tableViewDidFinishReordering(_ tableView: UITableView, from initialSourceIndexPath: IndexPath, to finalDestinationIndexPath: IndexPath, dropped overIndexPath: IndexPath?) {
         guard let overIndexPath = overIndexPath,
             overIndexPath.section == 0,
@@ -286,12 +285,14 @@ extension LibraryViewController {
 
         if isPlaylist {
             hoverAlert.addAction(UIAlertAction(title: "Add", style: .default, handler: { (_) in
-
                 if let playlist = item as? Playlist {
                     playlist.addToBooks(book)
                 }
+
                 self.library.removeFromItems(at: finalDestinationIndexPath.row)
+
                 DataManager.saveContext()
+
                 self.tableView.beginUpdates()
                 self.tableView.deleteRows(at: [finalDestinationIndexPath], with: .fade)
                 self.tableView.reloadRows(at: [overIndexPath], with: .fade)
@@ -309,14 +310,19 @@ extension LibraryViewController {
 
                 //removing based on minIndex works because the cells are always adjacent
                 let book1 = self.items[minIndex]
+
                 self.library.removeFromItems(book1)
+
                 let book2 = self.items[minIndex]
+
                 self.library.removeFromItems(book2)
 
                 // swiftlint:disable force_cast
                 let books = [book1 as! Book, book2 as! Book]
                 let playlist = DataManager.createPlaylist(title: title, books: books)
+
                 self.library.insertIntoItems(playlist, at: minIndex)
+
                 DataManager.saveContext()
 
                 self.tableView.beginUpdates()
