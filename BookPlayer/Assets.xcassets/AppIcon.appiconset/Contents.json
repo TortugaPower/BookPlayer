@@ -107,6 +107,18 @@
       "idiom" : "ios-marketing",
       "filename" : "Icon.png",
       "scale" : "1x"
+    },
+    {
+      "size" : "60x60",
+      "idiom" : "car",
+      "filename" : "icon_60pt@2x.png",
+      "scale" : "2x"
+    },
+    {
+      "size" : "60x60",
+      "idiom" : "car",
+      "filename" : "icon_60pt@3x.png",
+      "scale" : "3x"
     }
   ],
   "info" : {

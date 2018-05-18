@@ -18,15 +18,8 @@
                 <rect key="frame" x="0.0" y="0.0" width="375" height="85.5"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="nvo-CJ-He9">
-                        <rect key="frame" x="19" y="16" width="50" height="50"/>
-                        <constraints>
-                            <constraint firstAttribute="width" constant="50" id="CLQ-WB-uTy"/>
-                            <constraint firstAttribute="height" constant="50" id="KM5-FW-ahO"/>
-                        </constraints>
-                    </imageView>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Add" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lvt-wc-9ps">
-                        <rect key="frame" x="84" y="28.5" width="31" height="29"/>
+                        <rect key="frame" x="82" y="28.5" width="31" height="29"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="29" id="928-YH-MW3"/>
                         </constraints>
@@ -34,13 +27,20 @@
                         <color key="textColor" red="0.1647058824" green="0.51764705879999995" blue="0.82352941180000006" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
+                    <imageView userInteractionEnabled="NO" alpha="0.29999999999999999" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="listAdd" translatesAutoresizingMaskIntoConstraints="NO" id="nvo-CJ-He9">
+                        <rect key="frame" x="28" y="28" width="29" height="29"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="29" id="CLQ-WB-uTy"/>
+                            <constraint firstAttribute="height" constant="29" id="KM5-FW-ahO"/>
+                        </constraints>
+                    </imageView>
                 </subviews>
                 <constraints>
-                    <constraint firstItem="nvo-CJ-He9" firstAttribute="top" secondItem="Fzt-1y-g1F" secondAttribute="top" constant="16" id="83o-vk-E1d"/>
-                    <constraint firstItem="nvo-CJ-He9" firstAttribute="leading" secondItem="Fzt-1y-g1F" secondAttribute="leading" constant="19" id="Pbm-GM-zYo"/>
+                    <constraint firstItem="nvo-CJ-He9" firstAttribute="top" secondItem="Fzt-1y-g1F" secondAttribute="top" constant="28" id="83o-vk-E1d"/>
+                    <constraint firstItem="nvo-CJ-He9" firstAttribute="leading" secondItem="Fzt-1y-g1F" secondAttribute="leading" constant="28" id="Pbm-GM-zYo"/>
                     <constraint firstAttribute="trailing" secondItem="lvt-wc-9ps" secondAttribute="trailing" constant="100" id="ZrL-r5-eir"/>
                     <constraint firstItem="lvt-wc-9ps" firstAttribute="centerY" secondItem="Fzt-1y-g1F" secondAttribute="centerY" id="krE-KG-5ub"/>
-                    <constraint firstItem="lvt-wc-9ps" firstAttribute="leading" secondItem="nvo-CJ-He9" secondAttribute="trailing" constant="15" id="sRw-Tz-d7l"/>
+                    <constraint firstItem="lvt-wc-9ps" firstAttribute="leading" secondItem="nvo-CJ-He9" secondAttribute="trailing" constant="25" id="sRw-Tz-d7l"/>
                 </constraints>
                 <variation key="default">
                     <mask key="constraints">
@@ -50,4 +50,7 @@
             </tableViewCellContentView>
         </tableViewCell>
     </objects>
+    <resources>
+        <image name="listAdd" width="29" height="29"/>
+    </resources>
 </document>
