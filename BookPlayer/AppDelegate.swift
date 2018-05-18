@@ -15,6 +15,7 @@ import MediaPlayer
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
+    var wasPlayingBeforeInterruption: Bool = false
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
@@ -101,6 +102,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillEnterForeground(_ application: UIApplication) {
         // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
+
+        DispatchQueue.main.async {
+            if PlayerManager.shared.currentBook != nil && !PlayerManager.shared.isPlaying {
+                NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
+            }
+        }
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
@@ -131,8 +138,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // Playback may be interrupted by calls. Handle pause
     @objc func handleAudioInterruptions(_ notification: Notification) {
-        if PlayerManager.shared.isPlaying {
+        guard let userInfo = notification.userInfo,
+            let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
+            let type = AVAudioSessionInterruptionType(rawValue: typeValue) else {
+                return
+        }
+
+        if type == .began && PlayerManager.shared.isPlaying {
+            self.wasPlayingBeforeInterruption = true
             PlayerManager.shared.pause()
+        }
+
+        if type == .ended && self.wasPlayingBeforeInterruption {
+            PlayerManager.shared.play()
+            self.wasPlayingBeforeInterruption = false
         }
     }
 
