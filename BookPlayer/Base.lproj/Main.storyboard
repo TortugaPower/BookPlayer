@@ -99,7 +99,7 @@
         <!--Player-->
         <scene sceneID="yUG-lL-AsK">
             <objects>
-                <viewController storyboardIdentifier="PlayerViewController" title="Player" modalPresentationStyle="currentContext" id="JEX-9P-axG" customClass="PlayerViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="PlayerViewController" title="Player" modalPresentationStyle="overFullScreen" id="JEX-9P-axG" customClass="PlayerViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="svH-Pt-448">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
