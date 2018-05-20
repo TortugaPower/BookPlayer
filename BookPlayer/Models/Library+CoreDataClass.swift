@@ -44,4 +44,12 @@ public class Library: NSManagedObject {
 
         return items[index]
     }
+
+    func getItem(with url: URL) -> LibraryItem? {
+        guard let index = self.itemIndex(with: url) else {
+            return nil
+        }
+        return self.getItem(at: index)
+    }
+
 }
