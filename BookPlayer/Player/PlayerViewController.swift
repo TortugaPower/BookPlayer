@@ -117,6 +117,11 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.bottomToolbar.tintColor = currentBook.artworkColors.tertiary
         self.closeButton.tintColor = currentBook.artworkColors.tertiary
 
+        if !currentBook.hasChapters {
+            self.spaceBeforeChaptersButton.isEnabled = false
+            self.chaptersButton.isEnabled = false
+        }
+
         if currentBook.usesDefaultArtwork {
             self.backgroundImage.isHidden = true
 
