@@ -31,6 +31,13 @@ public class Playlist: LibraryItem {
         return books[index]
     }
 
+    func getBook(with url: URL) -> Book? {
+        guard let index = self.itemIndex(with: url) else {
+            return nil
+        }
+        return self.getBook(at: index)
+    }
+
     func info() -> String {
         let count = self.books?.array.count ?? 0
         return "\(count) Files"

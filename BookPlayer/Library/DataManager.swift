@@ -13,15 +13,18 @@ import CoreData
 import IDZSwiftCommonCrypto
 
 class DataManager {
-    private class func getDocumentsFolderURL() -> URL {
+    static let processedFolderName = "Processed"
+
+    // MARK: - Folder URLs
+
+    class func getDocumentsFolderURL() -> URL {
         return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
     }
 
     class func getProcessedFolderURL() -> URL {
         let documentsURL = self.getDocumentsFolderURL()
-        let folderName = "Processed"
 
-        let processedFolderURL = documentsURL.appendingPathComponent(folderName)
+        let processedFolderURL = documentsURL.appendingPathComponent(self.processedFolderName)
 
         if !FileManager.default.fileExists(atPath: processedFolderURL.path) {
             do {
@@ -41,14 +44,6 @@ class DataManager {
 
         container.loadPersistentStores(completionHandler: { (_, error) in
             if let error = error as NSError? {
-                /*
-                 Typical reasons for an error here include:
-                 * The parent directory does not exist, cannot be created, or disallows writing.
-                 * The persistent store is not accessible, due to permissions or data protection when the device is locked.
-                 * The device is out of space.
-                 * The store could not be migrated to the current model version.
-                 Check the error message to determine what the actual problem was.
-                 */
                 fatalError("Unresolved error \(error), \(error.userInfo)")
             }
         })
@@ -63,56 +58,43 @@ class DataManager {
             do {
                 try context.save()
             } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
                 let nserror = error as NSError
-
                 fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
             }
         }
     }
 
+    // MARK: - File processing
+
     /**
-     *  Return array of file URLs
+     Get url of files in a directory
+
+     - Parameter folder: The folder from which to get all the files urls
+     - Returns: Array of file-only `URL`, directories are excluded. It returns `nil` if the folder is empty.
      */
-    private class func getPendingFilesURL() -> [URL]? {
-        let documentsURL = self.getDocumentsFolderURL()
-
+    internal class func getFiles(from folder: URL) -> [URL]? {
         // Get reference of all the files located inside the Documents folder
-        do {
-            let urls = try FileManager.default.contentsOfDirectory(at: documentsURL, includingPropertiesForKeys: nil, options: .skipsSubdirectoryDescendants)
-
-            return filterFiles(urls)
-        } catch {
-            fatalError("Error fetching pending file urls")
+        guard let urls = try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil, options: .skipsSubdirectoryDescendants) else {
+            return nil
         }
 
-        return nil
-    }
-
-    private class func getProcessedFilesURL() -> [URL]? {
-        // Get reference of all the files located inside the Documents folder
-        let processedFolderURL = self.getProcessedFolderURL()
-
-        do {
-            let urls = try FileManager.default.contentsOfDirectory(at: processedFolderURL, includingPropertiesForKeys: nil, options: .skipsSubdirectoryDescendants)
-
-            return filterFiles(urls)
-        } catch {
-            fatalError("Error fetching pending file urls")
-        }
-
-        return nil
+        return filterFiles(urls)
     }
 
     /**
-     *  Return array of file URLs
+     Filter out folders from file URLs.
      */
-    private class func filterFiles(_ urls: [URL]) -> [URL] {
+    internal class func filterFiles(_ urls: [URL]) -> [URL] {
         return urls.filter({ !$0.hasDirectoryPath })
     }
 
-    private class func processFile(at origin: URL, destinationFolder: URL) -> URL? {
+    /**
+     Process file located at a specific `URL`, renames it with the hash and moves it to the specified folder. The new file maintains the extension of the original `URL`
+     - Parameter origin: File original location
+     - Parameter destinationFolder: File final location
+     - Returns: `URL` of the file's new location. Returns `nil` if hashing fails.
+     */
+    internal class func processFile(at origin: URL, destinationFolder: URL) -> URL? {
 
         guard let data = FileManager.default.contents(atPath: origin.path),
             let digest = Digest(algorithm: .md5).update(data: data)?.final() else {
@@ -138,29 +120,15 @@ class DataManager {
     }
 
     /**
-     *  Load local files and return array of Books
+     Process all the files in a folder and move them to the 'processed' folder (specified by the DataManager).
+     - Parameter folder: The folder which contents will be processed
+     - Parameter completion: Closure block which returns the array of new urls of the processed files
      */
-    class func getLibrary() -> Library {
-        var library: Library!
-
-        let context = self.persistentContainer.viewContext
-        let fetch: NSFetchRequest<Library> = Library.fetchRequest()
-
-        do {
-            library = try context.fetch(fetch).first ??
-                Library.create(in: context)
-        } catch {
-            fatalError("Failed to fetch library")
-        }
-
-        return library
-    }
-
-    class func processPendingFiles(completion:@escaping ([URL]) -> Void) {
+    internal class func processFiles(in folder: URL, completion:@escaping ([URL]) -> Void) {
         var bookUrls = [URL]()
 
         // Get reference of all the files located inside the Documents folder
-        guard let urls = self.getPendingFilesURL() else {
+        guard let urls = self.getFiles(from: folder) else {
             return completion(bookUrls)
         }
 
@@ -181,25 +149,85 @@ class DataManager {
         }
     }
 
-    class func insertBooks(from urls: [URL], into library: Library, completion:@escaping () -> Void) {
+    /**
+     Process all the files in the documents folder and move them to the 'processed' folder (specified by the DataManager).
+     - Parameter completion: Closure block which returns the array of new urls of the processed files
+     */
+    class func processPendingFiles(completion:@escaping ([URL]) -> Void) {
+        let documentsFolder = self.getDocumentsFolderURL()
+        self.processFiles(in: documentsFolder, completion: completion)
+    }
 
+    // MARK: - Models handler
+
+    /**
+     Gets the library for the App. There should be only one Library object at all times
+     */
+    class func getLibrary() -> Library {
+        var library: Library!
+
+        let context = self.persistentContainer.viewContext
+        let fetch: NSFetchRequest<Library> = Library.fetchRequest()
+
+        do {
+            library = try context.fetch(fetch).first ??
+                Library.create(in: context)
+        } catch {
+            fatalError("Failed to fetch library")
+        }
+
+        return library
+    }
+
+    /**
+     Creates a book for each URL and adds it to the specified playlist. If no playlist is specified, it will be added to the library.
+     
+     A book can't be in two places at once, so if it already existed, it will be removed from the original playlist or library, and it will be added to the new one.
+     
+     - Parameter urls: `Book`s will be created for each element in this array
+     - Parameter playlist: `Playlist` to which the created `Book` will be added
+     - Parameter library: `Library` to which the created `Book` will be added if the parameter `playlist` is nil
+     - Parameter completion: Closure fired after processing all the urls.
+     */
+    class func insertBooks(from urls: [URL], into playlist: Playlist?, or library: Library, completion:@escaping () -> Void) {
         DispatchQueue.global().async {
             let context = self.persistentContainer.viewContext
 
             for url in urls {
-                // Handle if book already exists in the library
-                if let index = library.itemIndex(with: url) {
-                    // Handle if existing book is in a playlist
-                    if let storedPlaylist = library.getItem(at: index) as? Playlist,
-                        let indexBook = storedPlaylist.itemIndex(with: url),
-                        let storedBook = storedPlaylist.getBook(at: indexBook) {
-                        storedPlaylist.removeFromBooks(storedBook)
-                        library.addToItems(storedBook)
-                    }
-                } else {
+                // Check if book exists in the library
+                guard let item = library.getItem(with: url) else {
                     let book = Book(from: url, context: context)
-                    library.addToItems(book)
+
+                    if let playlist = playlist {
+                        playlist.addToBooks(book)
+                    } else {
+                        library.addToItems(book)
+                    }
+
+                    continue
                 }
+
+                guard let storedPlaylist = item as? Playlist,
+                    let storedBook = storedPlaylist.getBook(with: url) else {
+                        // swiftlint:disable force_cast
+                        // Handle if item is a book
+                        let storedBook = item as! Book
+
+                        library.removeFromItems(storedBook)
+                        playlist?.addToBooks(storedBook)
+
+                        continue
+                }
+
+                // Handle if book already exists in the library
+                storedPlaylist.removeFromBooks(storedBook)
+
+                if let playlist = playlist {
+                    playlist.addToBooks(storedBook)
+                } else {
+                    library.addToItems(storedBook)
+                }
+
             }
 
             self.saveContext()
@@ -210,37 +238,26 @@ class DataManager {
         }
     }
 
-    class func insertBooks(from urls: [URL], into playlist: Playlist, library: Library, completion:@escaping () -> Void) {
+    /**
+     Creates a book for each URL and adds it to the library. A book can't be in two places at once, so it will be removed if it already existed in a playlist.
+     
+     - Parameter urls: `Book`s will be created for each element in this array
+     - Parameter library: `Library` to which the created `Book` will be added
+     - Parameter completion: Closure fired after processing all the urls.
+     */
+    class func insertBooks(from urls: [URL], into library: Library, completion:@escaping () -> Void) {
+        self.insertBooks(from: urls, into: nil, or: library, completion: completion)
+    }
 
-        DispatchQueue.global().async {
-            let context = self.persistentContainer.viewContext
-
-            for url in urls {
-                // Handle if book already exists in the library
-                if let index = library.itemIndex(with: url) {
-                    // Handle if existing book is in the library
-                    if let storedBook = library.getItem(at: index) as? Book {
-                        library.removeFromItems(storedBook)
-                        playlist.addToBooks(storedBook)
-                    } else // Handle if existing book is in a playlist
-                        if let storedPlaylist = library.getItem(at: index) as? Playlist,
-                            let indexBook = storedPlaylist.itemIndex(with: url),
-                            let storedBook = storedPlaylist.getBook(at: indexBook) {
-                            storedPlaylist.removeFromBooks(storedBook)
-                            playlist.addToBooks(storedBook)
-                    }
-                } else {
-                    let book = Book(from: url, context: context)
-                    playlist.addToBooks(book)
-                }
-            }
-
-            self.saveContext()
-
-            DispatchQueue.main.async {
-                completion()
-            }
-        }
+    /**
+     Creates a book for each URL and adds it to the specified playlist. A book can't be in two places at once, so it will be removed from the library if it already existed.
+     
+     - Parameter urls: `Book`s will be created for each element in this array
+     - Parameter playlist: `Playlist` to which the created `Book` will be added
+     - Parameter completion: Closure fired after processing all the urls.
+     */
+    class func insertBooks(from urls: [URL], into playlist: Playlist, completion:@escaping () -> Void) {
+        self.insertBooks(from: urls, into: playlist, or: playlist.library!, completion: completion)
     }
 
     class func createPlaylist(title: String, books: [Book]) -> Playlist {
@@ -249,6 +266,16 @@ class DataManager {
 
     class func createBook(from fileURL: URL) -> Book {
         return Book(from: fileURL, context: self.persistentContainer.viewContext)
+    }
+
+    internal class func insert(_ playlist: Playlist, into library: Library) {
+        library.addToItems(playlist)
+        self.saveContext()
+    }
+
+    internal class func delete(_ item: NSManagedObject) {
+        self.persistentContainer.viewContext.delete(item)
+        self.saveContext()
     }
 
     class func exists(_ book: Book) -> Bool {
