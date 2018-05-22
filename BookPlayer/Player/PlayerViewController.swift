@@ -55,7 +55,8 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             viewController.currentChapter = currentChapter
             viewController.didSelectChapter = { selectedChapter in
                 // Don't set the chapter, set the new time which will set the chapter in didSet
-                PlayerManager.shared.jumpTo(selectedChapter.start)
+                // Add a fraction of a second to make sure we start after the end of the previous chapter
+                PlayerManager.shared.jumpTo(selectedChapter.start + 0.01)
             }
         }
 
