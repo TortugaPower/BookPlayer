@@ -61,7 +61,6 @@
 		C3A479152094CA3800D92122 /* UIImage+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479142094CA3800D92122 /* UIImage+BookPlayer.swift */; };
 		C3A479192094CAF300D92122 /* UIViewController+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479182094CAF300D92122 /* UIViewController+BookPlayer.swift */; };
 		C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3EC372D206EE0650094B4E8 /* SleepTimer.swift */; };
-		C3F69CD6209C4B7300DD9E8F /* ArtworkColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F69CD5209C4B7300DD9E8F /* ArtworkColors.swift */; };
 		C3FE3F8220A090880055B9C6 /* limitPanAngle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FE3F8120A090880055B9C6 /* limitPanAngle.swift */; };
 		C3FE94792080086800BCEA37 /* BookCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FE94782080086800BCEA37 /* BookCellView.swift */; };
 		D367F7681FA2A6F000FEDB37 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = D367F7671FA2A6F000FEDB37 /* Constants.swift */; };
@@ -155,7 +154,6 @@
 		C3A479142094CA3800D92122 /* UIImage+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+BookPlayer.swift"; sourceTree = "<group>"; };
 		C3A479182094CAF300D92122 /* UIViewController+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+BookPlayer.swift"; sourceTree = "<group>"; };
 		C3EC372D206EE0650094B4E8 /* SleepTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepTimer.swift; sourceTree = "<group>"; };
-		C3F69CD5209C4B7300DD9E8F /* ArtworkColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtworkColors.swift; sourceTree = "<group>"; };
 		C3FE3F8120A090880055B9C6 /* limitPanAngle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = limitPanAngle.swift; sourceTree = "<group>"; };
 		C3FE94782080086800BCEA37 /* BookCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookCellView.swift; sourceTree = "<group>"; };
 		D367F7671FA2A6F000FEDB37 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
@@ -334,7 +332,6 @@
 				418B6D5C1D2CB76900F974FB /* PlayerViewController.swift */,
 				C3EC372D206EE0650094B4E8 /* SleepTimer.swift */,
 				41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */,
-				C3F69CD5209C4B7300DD9E8F /* ArtworkColors.swift */,
 				C30EEEB92079645C00A4ED33 /* Containers */,
 			);
 			path = Player;
@@ -580,7 +577,6 @@
 				C318D3AD208CF624000666F8 /* PlayerJumpIconView.swift in Sources */,
 				C37A6875209F13120063AEAC /* CreditsViewController.swift in Sources */,
 				418B6D5D1D2CB76900F974FB /* PlayerViewController.swift in Sources */,
-				C3F69CD6209C4B7300DD9E8F /* ArtworkColors.swift in Sources */,
 				C359C30720A9F35B00A626E3 /* SkipDurationViewController.swift in Sources */,
 				C30EEEBE2079645C00A4ED33 /* PlayerProgressViewController.swift in Sources */,
 				C3A479192094CAF300D92122 /* UIViewController+BookPlayer.swift in Sources */,
