@@ -267,60 +267,12 @@ class PlayerManager: NSObject {
 
     // MARK: Playback
 
-    func play(_ autoplay: Bool = false) {
-        self.playPause()
-
-        update()
-    }
-
-    func pause() {
+    func play(_ autoplayed: Bool = false) {
         guard let audioplayer = self.audioPlayer else {
             return
         }
 
         UserDefaults.standard.set(self.identifier, forKey: UserDefaultsConstants.lastPlayedBook)
-
-        // invalidate timer if needed
-        if self.timer != nil {
-            self.timer.invalidate()
-        }
-
-        // set pause state on player and control center
-        audioplayer.stop()
-
-        MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 0.0
-        MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
-
-        UserDefaults.standard.set(Date(), forKey: UserDefaultsConstants.lastPauseTime+"_\(self.identifier)")
-
-        do {
-            try AVAudioSession.sharedInstance().setActive(false)
-        } catch {
-            // @TODO: Handle error if AVAudioSession fails to become active again
-        }
-
-        DispatchQueue.main.async {
-            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
-        }
-
-        update()
-    }
-
-    // toggle play/pause of book
-    // @TODO: Replace with distinct play() and pause() methods
-    func playPause(autoplayed: Bool = false) {
-        guard let audioplayer = self.audioPlayer else {
-            return
-        }
-
-        UserDefaults.standard.set(self.identifier, forKey: UserDefaultsConstants.lastPlayedBook)
-
-        // pause player if it's playing
-        if audioplayer.isPlaying {
-            self.pause()
-
-            return
-        }
 
         do {
             try AVAudioSession.sharedInstance().setActive(true)
@@ -354,6 +306,56 @@ class PlayerManager: NSObject {
 
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
+        }
+
+        self.update()
+    }
+
+    func pause() {
+        guard let audioplayer = self.audioPlayer else {
+            return
+        }
+
+        UserDefaults.standard.set(self.identifier, forKey: UserDefaultsConstants.lastPlayedBook)
+
+        // invalidate timer if needed
+        if self.timer != nil {
+            self.timer.invalidate()
+        }
+
+        // set pause state on player and control center
+        audioplayer.stop()
+
+        MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 0.0
+        MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
+
+        UserDefaults.standard.set(Date(), forKey: UserDefaultsConstants.lastPauseTime+"_\(self.identifier)")
+
+        do {
+            try AVAudioSession.sharedInstance().setActive(false)
+        } catch {
+            // @TODO: Handle error if AVAudioSession fails to become active again
+        }
+
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
+        }
+
+        self.update()
+    }
+
+    // toggle play/pause of book
+    // @TODO: Replace with distinct play() and pause() methods
+    func playPause(autoplayed: Bool = false) {
+        guard let audioplayer = self.audioPlayer else {
+            return
+        }
+
+        // pause player if it's playing
+        if audioplayer.isPlaying {
+            self.pause()
+        } else {
+            self.play()
         }
     }
 
