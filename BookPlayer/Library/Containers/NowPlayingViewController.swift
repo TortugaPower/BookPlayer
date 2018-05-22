@@ -106,7 +106,7 @@ class NowPlayingViewController: PlayerContainerViewController, UIGestureRecogniz
             return
         }
 
-        self.view?.transform = CGAffineTransform(translationX: 0, y: min(translation, 0.0))
+        self.view?.transform = CGAffineTransform(translationX: 0, y: translation)
     }
 
     private func resetPlayerPosition() {
