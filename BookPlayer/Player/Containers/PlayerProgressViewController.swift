@@ -37,7 +37,11 @@ class PlayerProgressViewController: PlayerContainerViewController {
         self.maxTimeLabel.textColor = book.artworkColors.secondary
         self.percentageLabel.textColor = book.artworkColors.primary
 
-        return book.hasChapters ? book.currentChapter!.duration : book.duration
+        guard book.hasChapters, let duration = book.currentChapter?.duration else {
+            return book.duration
+        }
+
+        return duration
     }
 
     var currentTime: TimeInterval = 0.0 {
