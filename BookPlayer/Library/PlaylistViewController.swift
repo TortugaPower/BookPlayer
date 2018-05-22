@@ -91,6 +91,10 @@ extension PlaylistViewController {
 
             sheet.addAction(UIAlertAction(title: "Delete Book", style: .destructive, handler: { _ in
                 do {
+                    if book == PlayerManager.shared.currentBook {
+                        PlayerManager.shared.stop()
+                    }
+
                     self.playlist.removeFromBooks(book)
 
                     DataManager.saveContext()

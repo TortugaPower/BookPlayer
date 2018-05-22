@@ -99,7 +99,12 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
 
         alert.addAction(UIAlertAction(title: "Yes", style: .destructive, handler: { _ in
             do {
+                if book == PlayerManager.shared.currentBook {
+                    PlayerManager.shared.stop()
+                }
+
                 self.library.removeFromItems(book)
+
                 DataManager.saveContext()
 
                 try FileManager.default.removeItem(at: book.fileURL)

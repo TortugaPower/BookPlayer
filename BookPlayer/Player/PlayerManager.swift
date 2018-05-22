@@ -361,6 +361,8 @@ class PlayerManager: NSObject {
 
     func stop() {
         self.audioPlayer?.stop()
+
+        // TODO: This should also dimiss the mini player / send a notification that the current book was stoppped
     }
 }
 
