@@ -62,11 +62,34 @@ public class ArtworkColors: NSManagedObject {
             return color.overlayBlack
         }
 
-        self.backgroundHex = colors[0].cssHex
-        self.primaryHex = colors[1].cssHex
-        self.secondaryHex = colors[2].cssHex
-        self.tertiaryHex = colors[3].cssHex
-        self.displayOnDark = displayOnDark
+        self.setColorsFromArray(colors, displayOnDark: displayOnDark)
+    }
+
+    func setColorsFromArray(_ colors: [UIColor] = [], displayOnDark: Bool = false) {
+        var colorsToSet = Array(colors)
+        var displayOnDarkToSet = displayOnDark
+
+        if colorsToSet.isEmpty {
+            colorsToSet.append(UIColor(hex: "#EBECED"))
+            colorsToSet.append(UIColor(hex: "#696B6E"))
+            colorsToSet.append(UIColor(hex: "#3488D1"))
+            colorsToSet.append(UIColor(hex: "#9D9FA3"))
+
+            displayOnDarkToSet = false
+        } else if colorsToSet.count < 4 {
+            let placeholder = displayOnDarkToSet ? UIColor.white : UIColor.black
+
+            for _ in 1...(4 - colorsToSet.count) {
+                colorsToSet.append(placeholder)
+            }
+        }
+
+        self.backgroundHex = colorsToSet[0].cssHex
+        self.primaryHex = colorsToSet[1].cssHex
+        self.secondaryHex = colorsToSet[2].cssHex
+        self.tertiaryHex = colorsToSet[3].cssHex
+
+        self.displayOnDark = displayOnDarkToSet
     }
 
     // Default colors
@@ -74,10 +97,6 @@ public class ArtworkColors: NSManagedObject {
         let entity = NSEntityDescription.entity(forEntityName: "ArtworkColors", in: context)!
         self.init(entity: entity, insertInto: context)
 
-        self.backgroundHex = "#EBECED"
-        self.primaryHex = "#696B6E"
-        self.secondaryHex = "#3488D1"
-        self.tertiaryHex = "#9D9FA3"
-        self.displayOnDark = false
+        self.setColorsFromArray()
     }
 }
