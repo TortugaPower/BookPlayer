@@ -55,6 +55,7 @@ extension PlaylistViewController {
 
         guard indexPath.section == 0 else {
             self.presentImportFilesAlert()
+
             return
         }
 
@@ -66,17 +67,16 @@ extension PlaylistViewController {
     }
 
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        guard indexPath.section == 0,
-            let book = self.items[indexPath.row] as? Book else {
+        guard indexPath.section == 0, let book = self.items[indexPath.row] as? Book else {
             return nil
         }
 
         let deleteAction = UITableViewRowAction(style: .default, title: "Options") { (_, indexPath) in
-            let sheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+            let sheet = UIAlertController(title: "\(book.title!)", message: nil, preferredStyle: .alert)
 
             sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
 
-            sheet.addAction(UIAlertAction(title: "Remove Book from playlist", style: .default, handler: { _ in
+            sheet.addAction(UIAlertAction(title: "Remove from playlist", style: .default, handler: { _ in
                 self.playlist.removeFromBooks(book)
                 self.library.addToItems(book)
 
@@ -89,7 +89,7 @@ extension PlaylistViewController {
                 NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookDeleted, object: nil)
             }))
 
-            sheet.addAction(UIAlertAction(title: "Delete Book", style: .destructive, handler: { _ in
+            sheet.addAction(UIAlertAction(title: "Delete completely", style: .destructive, handler: { _ in
                 do {
                     if book == PlayerManager.shared.currentBook {
                         PlayerManager.shared.stop()
@@ -107,7 +107,7 @@ extension PlaylistViewController {
 
                     NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookDeleted, object: nil)
                 } catch {
-                    self.showAlert("Error", message: "There was an error deleting the book, please try again.")
+                    self.showAlert("Error", message: "There was an error deleting the file, please try again.")
                 }
             }))
 

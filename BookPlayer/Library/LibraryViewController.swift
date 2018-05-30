@@ -91,13 +91,13 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
     }
 
     func handleDelete(book: Book, indexPath: IndexPath) {
-        let alert = UIAlertController(title: "Confirmation", message: "Are you sure you would like to remove this audiobook?", preferredStyle: .alert)
+        let alert = UIAlertController(title: "Delete \(book.title!)?", message: "Do you really want to delete this book?", preferredStyle: .alert)
 
-        alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: { _ in
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in
             self.tableView.setEditing(false, animated: true)
         }))
 
-        alert.addAction(UIAlertAction(title: "Yes", style: .destructive, handler: { _ in
+        alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
             do {
                 if book == PlayerManager.shared.currentBook {
                     PlayerManager.shared.stop()
@@ -114,7 +114,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
                 self.tableView.endUpdates()
                 self.emptyListContainerView.isHidden = !self.items.isEmpty
             } catch {
-                self.showAlert("Error", message: "There was an error deleting the book, please try again.")
+                self.showAlert("Error", message: "There was an error deleting the file, please try again.")
             }
         }))
 
@@ -125,11 +125,15 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
     }
 
     func handleDelete(playlist: Playlist, indexPath: IndexPath) {
-        let sheet = UIAlertController(title: "Delete Playlist", message: nil, preferredStyle: .actionSheet)
+        let sheet = UIAlertController(
+            title: "Delete \(playlist.title!)?",
+            message: "Deleting only the playlist will move all its files back to the Library.",
+            preferredStyle: .alert
+        )
 
         sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
 
-        sheet.addAction(UIAlertAction(title: "Preserve books", style: .default, handler: { _ in
+        sheet.addAction(UIAlertAction(title: "Delete playlist only", style: .default, handler: { _ in
             if let orderedSet = playlist.books {
                 self.library.addToItems(orderedSet)
             }
@@ -142,7 +146,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             self.emptyListContainerView.isHidden = !self.items.isEmpty
         }))
 
-        sheet.addAction(UIAlertAction(title: "Delete books too", style: .destructive, handler: { _ in
+        sheet.addAction(UIAlertAction(title: "Delete both playlist and books", style: .destructive, handler: { _ in
             do {
 
                 self.library.removeFromItems(playlist)
@@ -164,27 +168,45 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
 
         self.present(sheet, animated: true, completion: nil)
     }
+
+    func presentCreatePlaylistAlert(_ namePlaceholder: String = "Name", handler: ((_ title: String) -> Void)?) {
+        let playlistAlert = UIAlertController(
+            title: "Create a new playlist",
+            message: "Files in playlists are automatically played one after the other",
+            preferredStyle: .alert
+        )
+
+        playlistAlert.addTextField(configurationHandler: { (textfield) in
+            textfield.placeholder = namePlaceholder
+        })
+
+        playlistAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        playlistAlert.addAction(UIAlertAction(title: "Create", style: .default, handler: { (_) in
+            let title = playlistAlert.textFields!.first!.text!
+
+            handler?(title)
+        }))
+
+        self.present(playlistAlert, animated: true, completion: nil)
+    }
 }
 
 extension LibraryViewController {
-
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
         guard indexPath.section == 0 else {
             return nil
         }
 
         let item = self.items[indexPath.row]
-
         let isPlaylist = item is Playlist
-
         let title = isPlaylist ? "Options" : "Delete"
         let color = isPlaylist ? UIColor.gray : UIColor.red
 
         let deleteAction = UITableViewRowAction(style: .default, title: title) { (_, indexPath) in
-
             guard let book = item as? Book else {
                 // swiftlint:disable force_cast
                 self.handleDelete(playlist: item as! Playlist, indexPath: indexPath)
+
                 return
             }
 
@@ -200,34 +222,26 @@ extension LibraryViewController {
         tableView.deselectRow(at: indexPath, animated: true)
 
         guard indexPath.section == 0 else {
-            let alertController = UIAlertController(title: nil, message: "You can also add files via AirDrop. Select BookPlayer from the list that appears when you send a file to your device", preferredStyle: .actionSheet)
-            alertController.addAction(UIAlertAction(title: "Import Files", style: .default) { (_) in
-                let providerList = UIDocumentMenuViewController(documentTypes: ["public.audio"], in: .import)
-                providerList.delegate = self
+            let alertController = UIAlertController(
+                title: nil,
+                message: "You can also add files via AirDrop. Send an audiobook file to your device and select BookPlayer from the list that appears.",
+                preferredStyle: .actionSheet
+            )
 
-                providerList.popoverPresentationController?.sourceView = self.view
-                providerList.popoverPresentationController?.sourceRect = CGRect(x: Double(self.view.bounds.size.width / 2.0), y: Double(self.view.bounds.size.height-45), width: 1.0, height: 1.0)
-                self.present(providerList, animated: true, completion: nil)
+            alertController.addAction(UIAlertAction(title: "Import files", style: .default) { (_) in
+                self.presentImportFilesAlert()
             })
 
-            alertController.addAction(UIAlertAction(title: "Create Playlist", style: .default) { (_) in
-
-                let playlistAlert = UIAlertController(title: "Create a New Playlist", message: "Files in playlists are automatically played one after the other", preferredStyle: .alert)
-                playlistAlert.addTextField(configurationHandler: { (textfield) in
-                    textfield.placeholder = "Name"
-                })
-                playlistAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-                playlistAlert.addAction(UIAlertAction(title: "Create", style: .default, handler: { (_) in
-                    let title = playlistAlert.textFields!.first!.text!
-
+            alertController.addAction(UIAlertAction(title: "Create playlist", style: .default) { (_) in
+                self.presentCreatePlaylistAlert(handler: { title in
                     let playlist = DataManager.createPlaylist(title: title, books: [])
+
                     self.library.addToItems(playlist)
+
                     DataManager.saveContext()
 
                     self.tableView.reloadData()
-                }))
-
-                self.present(playlistAlert, animated: true, completion: nil)
+                })
             })
 
             alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
@@ -242,12 +256,13 @@ extension LibraryViewController {
         guard let book = item as? Book else {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
 
-            if let playlist = item as? Playlist,
-                let playlistVC = storyboard.instantiateViewController(withIdentifier: "PlaylistViewController") as? PlaylistViewController {
+            if let playlist = item as? Playlist, let playlistVC = storyboard.instantiateViewController(withIdentifier: "PlaylistViewController") as? PlaylistViewController {
                 playlistVC.library = self.library
                 playlistVC.playlist = playlist
+
                 self.navigationController?.pushViewController(playlistVC, animated: true)
             }
+
             return
         }
 
@@ -262,34 +277,30 @@ extension LibraryViewController {
         }
 
         let item = self.items[sourceIndexPath.row]
+
         self.library.removeFromItems(at: sourceIndexPath.row)
         self.library.insertIntoItems(item, at: destinationIndexPath.row)
+
         DataManager.saveContext()
     }
 
-    // swiftlint:disable:next function_body_length
     override func tableViewDidFinishReordering(_ tableView: UITableView, from initialSourceIndexPath: IndexPath, to finalDestinationIndexPath: IndexPath, dropped overIndexPath: IndexPath?) {
-        guard let overIndexPath = overIndexPath,
-            overIndexPath.section == 0,
-            let book = self.items[finalDestinationIndexPath.row] as? Book else {
-                return
+        guard let overIndexPath = overIndexPath, overIndexPath.section == 0, let book = self.items[finalDestinationIndexPath.row] as? Book else {
+            return
         }
 
         let item = self.items[overIndexPath.row]
-        let isPlaylist = item is Playlist
-        let title = isPlaylist
-            ? "Playlist"
-            : "Create a New Playlist"
-        let message = isPlaylist
-            ? "Add the book to \(item.title!)"
-            : "Files in playlists are automatically played one after the other"
 
-        let hoverAlert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        if item is Playlist {
+            let alert = UIAlertController(
+                title: "Move to playlist",
+                message: "Do you want to move \(book.title!) to \(item.title!)?",
+                preferredStyle: .alert
+            )
 
-        hoverAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
 
-        if isPlaylist {
-            hoverAlert.addAction(UIAlertAction(title: "Add", style: .default, handler: { (_) in
+            alert.addAction(UIAlertAction(title: "Move", style: .default, handler: { (_) in
                 if let playlist = item as? Playlist {
                     playlist.addToBooks(book)
                 }
@@ -303,17 +314,13 @@ extension LibraryViewController {
                 self.tableView.reloadRows(at: [overIndexPath], with: .fade)
                 self.tableView.endUpdates()
             }))
+
+            self.present(alert, animated: true, completion: nil)
         } else {
-            hoverAlert.addTextField(configurationHandler: { (textfield) in
-                textfield.placeholder = "Name"
-            })
-
-            hoverAlert.addAction(UIAlertAction(title: "Create", style: .default, handler: { (_) in
-                let title = hoverAlert.textFields!.first!.text!
-
+            self.presentCreatePlaylistAlert(handler: { title in
                 let minIndex = min(finalDestinationIndexPath.row, overIndexPath.row)
 
-                //removing based on minIndex works because the cells are always adjacent
+                // Removing based on minIndex works because the cells are always adjacent
                 let book1 = self.items[minIndex]
 
                 self.library.removeFromItems(book1)
@@ -334,9 +341,7 @@ extension LibraryViewController {
                 self.tableView.deleteRows(at: [IndexPath(row: minIndex, section: 0), IndexPath(row: minIndex + 1, section: 0)], with: .fade)
                 self.tableView.insertRows(at: [IndexPath(row: minIndex, section: 0)], with: .fade)
                 self.tableView.endUpdates()
-            }))
+            })
         }
-
-        self.present(hoverAlert, animated: true, completion: nil)
     }
 }

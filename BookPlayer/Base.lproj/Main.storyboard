@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="1tN-zP-ONE">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="1tN-zP-ONE">
     <device id="retina5_9" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -1076,11 +1076,6 @@ Use with caution and care for your hearing.</string>
                         <barButtonItem key="leftBarButtonItem" title="Settings" id="l9y-WJ-fVK">
                             <connections>
                                 <segue destination="1sN-GG-oUw" kind="presentation" identifier="SettingsSegue" id="Cy0-kJ-HUm"/>
-                            </connections>
-                        </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" systemItem="organize" id="o3W-hw-LC5">
-                            <connections>
-                                <action selector="didPressImportOptions:" destination="Zuf-4A-dOY" id="kSB-pO-lo3"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
