@@ -9,8 +9,19 @@
 
 import Foundation
 import CoreData
+import UIKit
 
 public class Playlist: LibraryItem {
+    override var artwork: UIImage {
+        guard let books = self.books?.array as? [Book], let book = books.first(where: { (book) -> Bool in
+            return !book.usesDefaultArtwork
+        }) else {
+            return #imageLiteral(resourceName: "defaultPlaylist")
+        }
+
+        return book.artwork
+    }
+
     func itemIndex(with url: URL) -> Int? {
         let hash = url.deletingPathExtension().lastPathComponent
 
