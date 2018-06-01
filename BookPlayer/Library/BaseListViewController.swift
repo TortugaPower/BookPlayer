@@ -35,7 +35,13 @@ class BaseListViewController: UIViewController {
         self.tableView.register(UINib(nibName: "AddCellView", bundle: nil), forCellReuseIdentifier: "AddCellView")
 
         self.tableView.reorder.delegate = self
-        self.tableView.reorder.cellScale = 1.05
+        self.tableView.reorder.cellScale = 1.07
+
+        self.tableView.reorder.shadowColor = UIColor.black
+        self.tableView.reorder.shadowOffset = CGSize(width: 0.0, height: 3.0)
+        self.tableView.reorder.shadowOpacity = 0.25
+        self.tableView.reorder.shadowRadius = 8.0
+        self.tableView.reorder.animationDuration = 0.15
 
         // Remove the line after the last cell
         self.tableView.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.size.width, height: 1))
