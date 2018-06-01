@@ -65,7 +65,7 @@ class BaseListViewController: UIViewController {
     }
 
     func showPlayerView(book: Book) {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let storyboard = UIStoryboard(name: "Player", bundle: nil)
 
         if let playerVC = storyboard.instantiateViewController(withIdentifier: "PlayerViewController") as? PlayerViewController {
             playerVC.currentBook = book
@@ -86,6 +86,7 @@ class BaseListViewController: UIViewController {
 
         guard DataManager.exists(book) else {
             self.showAlert("File missing!", message: "This book’s file was removed from your device. Import the file again to play the book")
+
             return
         }
 
@@ -94,6 +95,7 @@ class BaseListViewController: UIViewController {
         // Replace player with new one
         PlayerManager.shared.load(books) { (_) in
             self.showPlayerView(book: book)
+
             PlayerManager.shared.playPause()
         }
     }

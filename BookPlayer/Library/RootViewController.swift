@@ -9,17 +9,15 @@
 import UIKit
 
 class RootViewController: UIViewController {
-    @IBOutlet private weak var nowPlayingBar: UIView!
+    @IBOutlet private weak var miniPlayerContainer: UIView!
 
-    private weak var nowPlayingViewController: NowPlayingViewController?
+    private weak var miniPlayerViewController: MiniPlayerViewController?
     private weak var libraryViewController: LibraryViewController!
 
-    var playerVisible: Bool = false
-
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if let viewController = segue.destination as? NowPlayingViewController {
-            self.nowPlayingViewController = viewController
-            self.nowPlayingViewController!.showPlayer = {
+        if let viewController = segue.destination as? MiniPlayerViewController {
+            self.miniPlayerViewController = viewController
+            self.miniPlayerViewController!.showPlayer = {
                 guard PlayerManager.shared.currentBook != nil else {
                     return
                 }
@@ -34,12 +32,12 @@ class RootViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.nowPlayingBar.isHidden = true
-        self.nowPlayingBar.layer.shadowColor = UIColor.black.cgColor
-        self.nowPlayingBar.layer.shadowOffset = CGSize(width: 0.0, height: 4.0)
-        self.nowPlayingBar.layer.shadowOpacity = 0.2
-        self.nowPlayingBar.layer.shadowRadius = 12.0
-        self.nowPlayingBar.clipsToBounds = false
+        self.miniPlayerContainer.isHidden = true
+        self.miniPlayerContainer.layer.shadowColor = UIColor.black.cgColor
+        self.miniPlayerContainer.layer.shadowOffset = CGSize(width: 0.0, height: 4.0)
+        self.miniPlayerContainer.layer.shadowOpacity = 0.2
+        self.miniPlayerContainer.layer.shadowRadius = 12.0
+        self.miniPlayerContainer.clipsToBounds = false
 
         // Register for book change notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: Notification.Name.AudiobookPlayer.bookChange, object: nil)
@@ -53,11 +51,9 @@ class RootViewController: UIViewController {
     }
 
     @objc func presentMiniPlayer() {
-        self.playerVisible = false
-
-        self.nowPlayingBar.transform = CGAffineTransform(translationX: 0, y: self.nowPlayingBar.bounds.height)
-        self.nowPlayingBar.alpha = 0.0
-        self.nowPlayingBar.isHidden = false
+        self.miniPlayerContainer.transform = CGAffineTransform(translationX: 0, y: self.miniPlayerContainer.bounds.height)
+        self.miniPlayerContainer.alpha = 0.0
+        self.miniPlayerContainer.isHidden = false
 
         UIView.animate(
             withDuration: 0.5,
@@ -66,18 +62,16 @@ class RootViewController: UIViewController {
             initialSpringVelocity: 1.5,
             options: .preferredFramesPerSecond60,
             animations: {
-                self.nowPlayingBar.transform = .identity
+                self.miniPlayerContainer.transform = .identity
             }
         )
 
         UIView.animate(withDuration: 0.3, delay: 0.0, options: .preferredFramesPerSecond60, animations: {
-            self.nowPlayingBar.alpha = 1.0
+            self.miniPlayerContainer.alpha = 1.0
         })
     }
 
     @objc func dismissMiniPlayer() {
-        self.playerVisible = true
-
         UIView.animate(
             withDuration: 0.25,
             delay: 0.0,
@@ -85,15 +79,15 @@ class RootViewController: UIViewController {
             initialSpringVelocity: 1.5,
             options: .preferredFramesPerSecond60,
             animations: {
-                self.nowPlayingBar.transform = CGAffineTransform(translationX: 0, y: self.nowPlayingBar.bounds.height)
+                self.miniPlayerContainer.transform = CGAffineTransform(translationX: 0, y: self.miniPlayerContainer.bounds.height)
             },
             completion: { _ in
-                self.nowPlayingBar.isHidden = true
+                self.miniPlayerContainer.isHidden = true
             }
         )
 
         UIView.animate(withDuration: 0.15, delay: 0.0, options: [.preferredFramesPerSecond60, .curveEaseIn], animations: {
-            self.nowPlayingBar.alpha = 0.0
+            self.miniPlayerContainer.alpha = 0.0
         })
     }
 
@@ -119,6 +113,6 @@ class RootViewController: UIViewController {
     }
 
     func setupFooter(book: Book) {
-        self.nowPlayingViewController?.book = book
+        self.miniPlayerViewController?.book = book
     }
 }
