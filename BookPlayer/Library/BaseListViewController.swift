@@ -51,16 +51,9 @@ class BaseListViewController: UIViewController {
     }
 
     func presentImportFilesAlert() {
-        let providerList = UIDocumentMenuViewController(documentTypes: ["public.audio"], in: .import)
-        providerList.delegate = self
+        let providerList = UIDocumentPickerViewController(documentTypes: ["public.audio"], in: .import)
 
-        providerList.popoverPresentationController?.sourceView = self.view
-        providerList.popoverPresentationController?.sourceRect = CGRect(
-            x: Double(self.view.bounds.size.width / 2.0),
-            y: Double(self.view.bounds.size.height-45),
-            width: 1.0,
-            height: 1.0
-        )
+        providerList.delegate = self
 
         self.present(providerList, animated: true, completion: nil)
     }
@@ -86,7 +79,7 @@ class BaseListViewController: UIViewController {
         }
 
         guard DataManager.exists(book) else {
-            self.showAlert("Book missing!", message: "The book was erased from the file system, add the file back to play the book")
+            self.showAlert("File missing!", message: "This book’s file was removed from your device. Import the file again to play the book")
             return
         }
 
@@ -215,7 +208,6 @@ extension BaseListViewController: TableViewReorderDelegate {
     }
 
     func tableView(_ tableView: UITableView, targetIndexPathForReorderFromRowAt sourceIndexPath: IndexPath, to proposedDestinationIndexPath: IndexPath, snapshot: UIView?) -> IndexPath {
-
         guard proposedDestinationIndexPath.section == 0 else {
             return sourceIndexPath
         }
@@ -234,61 +226,40 @@ extension BaseListViewController: TableViewReorderDelegate {
             return
         }
 
-        UIView.animate(withDuration: 0.2) {
-            snapshot.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
-        }
+        let scale: CGFloat = 0.90
+
+        UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveEaseOut, animations: {
+            snapshot.transform = CGAffineTransform(scaleX: scale, y: scale)
+        })
     }
 
     @objc func tableViewDidFinishReordering(_ tableView: UITableView, from initialSourceIndexPath: IndexPath, to finalDestinationIndexPath: IndexPath, dropped overIndexPath: IndexPath?) {}
 }
 
-extension BaseListViewController: UIDocumentMenuDelegate {
-    @IBAction func didPressImportOptions(_ sender: UIBarButtonItem) {
-        let sheet = UIAlertController(title: "Import Books", message: nil, preferredStyle: .actionSheet)
-        let cancelButton = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-
-        let localButton = UIAlertAction(title: "From Local Apps", style: .default) { (_) in
-            self.presentImportFilesAlert()
-        }
-
-        let airdropButton = UIAlertAction(title: "AirDrop", style: .default) { (_) in
-            self.showAlert("AirDrop", message: "Make sure AirDrop is enabled.\n\nOnce you transfer the file to your device via AirDrop, choose 'BookPlayer' from the app list that will appear")
-        }
-
-        sheet.addAction(localButton)
-        sheet.addAction(airdropButton)
-        sheet.addAction(cancelButton)
-
-        sheet.popoverPresentationController?.sourceView = self.view
-        sheet.popoverPresentationController?.sourceRect = CGRect(x: Double(self.view.bounds.size.width / 2.0), y: Double(self.view.bounds.size.height-45), width: 1.0, height: 1.0)
-
-        self.present(sheet, animated: true, completion: nil)
-    }
-
-    func documentMenu(_ documentMenu: UIDocumentMenuViewController, didPickDocumentPicker documentPicker: UIDocumentPickerViewController) {
-        //show document picker
-        documentPicker.delegate = self
-
-        documentPicker.popoverPresentationController?.sourceView = self.view
-        documentPicker.popoverPresentationController?.sourceRect = CGRect(x: Double(self.view.bounds.size.width / 2.0), y: Double(self.view.bounds.size.height-45), width: 1.0, height: 1.0)
-
-        self.present(documentPicker, animated: true, completion: nil)
-    }
-}
-
 extension BaseListViewController: UIDocumentPickerDelegate {
-    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
-        //Documentation states that the file might not be imported due to being accessed from somewhere else
+    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        guard let url = urls.first else {
+            return
+        }
+
+        // @TODO: Consider importing multiple files at once
+
+        self.addFileFromUrl(url)
+    }
+
+    func addFileFromUrl(_ url: URL) {
+        // Documentation states that the file might not be imported due to being accessed from somewhere else
+
         do {
             try FileManager.default.attributesOfItem(atPath: url.path)
         } catch {
-            self.showAlert("Error", message: "File import fail, try again later")
+            self.showAlert("Error", message: "There was an error reading the file, please try again.")
 
             return
         }
 
         let trueName = url.lastPathComponent
-        var finalPath = self.documentsPath+"/"+(trueName)
+        var finalPath = self.documentsPath + "/" + (trueName)
 
         if trueName.contains(" ") {
             finalPath = finalPath.replacingOccurrences(of: " ", with: "_")
@@ -299,7 +270,7 @@ extension BaseListViewController: UIDocumentPickerDelegate {
         do {
             try FileManager.default.moveItem(at: url, to: fileURL)
         } catch {
-            self.showAlert("Error", message: "File import fail, try again later")
+            self.showAlert("Error", message: "There was an error importing the file, please try again.")
 
             return
         }
@@ -309,6 +280,5 @@ extension BaseListViewController: UIDocumentPickerDelegate {
         DataManager.processPendingFiles { (urls) in
             self.loadFile(urls: urls)
         }
-
     }
 }
