@@ -23,4 +23,8 @@ extension UIColor {
 
         return String(format: "#%06x", rgb)
     }
+
+    static var tintColor: UIColor {
+        return UIColor(hex: "3488D1")
+    }
 }

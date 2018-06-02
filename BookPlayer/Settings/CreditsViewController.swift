@@ -37,8 +37,8 @@ class CreditsViewController: UIViewController {
             self.textView.attributedText = attributedString
 
             self.textView.linkTextAttributes = [
-                NSAttributedStringKey.foregroundColor.rawValue: UIColor(hex: "#3488D1"),
-                NSAttributedStringKey.underlineColor.rawValue: UIColor(hex: "#3488D1"),
+                NSAttributedStringKey.foregroundColor.rawValue: UIColor.tintColor,
+                NSAttributedStringKey.underlineColor.rawValue: UIColor.tintColor,
                 NSAttributedStringKey.underlineStyle.rawValue: NSUnderlineStyle.styleSingle.rawValue
             ]
         } catch {

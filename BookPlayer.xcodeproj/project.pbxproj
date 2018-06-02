@@ -57,6 +57,7 @@
 		C36C4D5C20A23E1800AFDB76 /* MiniPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C36C4D5B20A23E1800AFDB76 /* MiniPlayerViewController.swift */; };
 		C37A6873209F0F830063AEAC /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = C37A6872209F0F830063AEAC /* Credits.html */; };
 		C37A6875209F13120063AEAC /* CreditsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37A6874209F13120063AEAC /* CreditsViewController.swift */; };
+		C398559C20C492FF00BE9EC0 /* AddButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C398559B20C492FF00BE9EC0 /* AddButton.swift */; };
 		C3A479132094C8C300D92122 /* rubberBandDistance.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479122094C8C300D92122 /* rubberBandDistance.swift */; };
 		C3A479152094CA3800D92122 /* UIImage+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479142094CA3800D92122 /* UIImage+BookPlayer.swift */; };
 		C3A479192094CAF300D92122 /* UIViewController+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479182094CAF300D92122 /* UIViewController+BookPlayer.swift */; };
@@ -151,6 +152,7 @@
 		C36C4D5B20A23E1800AFDB76 /* MiniPlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MiniPlayerViewController.swift; sourceTree = "<group>"; };
 		C37A6872209F0F830063AEAC /* Credits.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = Credits.html; sourceTree = "<group>"; };
 		C37A6874209F13120063AEAC /* CreditsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreditsViewController.swift; sourceTree = "<group>"; };
+		C398559B20C492FF00BE9EC0 /* AddButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddButton.swift; sourceTree = "<group>"; };
 		C3A479122094C8C300D92122 /* rubberBandDistance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = rubberBandDistance.swift; sourceTree = "<group>"; };
 		C3A479142094CA3800D92122 /* UIImage+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+BookPlayer.swift"; sourceTree = "<group>"; };
 		C3A479182094CAF300D92122 /* UIViewController+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+BookPlayer.swift"; sourceTree = "<group>"; };
@@ -344,6 +346,7 @@
 		C3D3852E20C1F10F00A0ACC7 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				C398559B20C492FF00BE9EC0 /* AddButton.swift */,
 				C3FE94782080086800BCEA37 /* BookCellView.swift */,
 				4165EE0920A7A33500616EDF /* AddCellView.xib */,
 				4165EE0A20A7A33500616EDF /* BookCellView.xib */,
@@ -620,6 +623,7 @@
 				C36C4D5C20A23E1800AFDB76 /* MiniPlayerViewController.swift in Sources */,
 				41839AB820AA8C970047E55D /* Book+CoreDataProperties.swift in Sources */,
 				410D0FED1EDCF4B000A52EB9 /* SettingsViewController.swift in Sources */,
+				C398559C20C492FF00BE9EC0 /* AddButton.swift in Sources */,
 				C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */,
 				4165EE1220A7D1E100616EDF /* RootViewController.swift in Sources */,
 				C318DDB820A3A3F400C3A17B /* UIImageView+BookPlayer.swift in Sources */,
