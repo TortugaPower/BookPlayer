@@ -54,12 +54,13 @@
 		C318DDBC20A48D4700C3A17B /* BPMarqueeLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C318DDBB20A48D4700C3A17B /* BPMarqueeLabel.swift */; };
 		C318DDBF20A4DC7500C3A17B /* DeviceKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C318DDBE20A4DC7500C3A17B /* DeviceKit.framework */; };
 		C359C30720A9F35B00A626E3 /* SkipDurationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C359C30620A9F35B00A626E3 /* SkipDurationViewController.swift */; };
-		C36C4D5C20A23E1800AFDB76 /* NowPlayingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C36C4D5B20A23E1800AFDB76 /* NowPlayingViewController.swift */; };
+		C36C4D5C20A23E1800AFDB76 /* MiniPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C36C4D5B20A23E1800AFDB76 /* MiniPlayerViewController.swift */; };
 		C37A6873209F0F830063AEAC /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = C37A6872209F0F830063AEAC /* Credits.html */; };
 		C37A6875209F13120063AEAC /* CreditsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37A6874209F13120063AEAC /* CreditsViewController.swift */; };
 		C3A479132094C8C300D92122 /* rubberBandDistance.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479122094C8C300D92122 /* rubberBandDistance.swift */; };
 		C3A479152094CA3800D92122 /* UIImage+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479142094CA3800D92122 /* UIImage+BookPlayer.swift */; };
 		C3A479192094CAF300D92122 /* UIViewController+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479182094CAF300D92122 /* UIViewController+BookPlayer.swift */; };
+		C3D3852720C1E73E00A0ACC7 /* Player.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C3D3852620C1E73E00A0ACC7 /* Player.storyboard */; };
 		C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3EC372D206EE0650094B4E8 /* SleepTimer.swift */; };
 		C3FE3F8220A090880055B9C6 /* limitPanAngle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FE3F8120A090880055B9C6 /* limitPanAngle.swift */; };
 		C3FE94792080086800BCEA37 /* BookCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FE94782080086800BCEA37 /* BookCellView.swift */; };
@@ -147,12 +148,13 @@
 		C35BADE7206989E6007687C1 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		C35BADE8206989E6007687C1 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		C35BADE9206989E6007687C1 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .swiftlint.yml; sourceTree = "<group>"; };
-		C36C4D5B20A23E1800AFDB76 /* NowPlayingViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NowPlayingViewController.swift; sourceTree = "<group>"; };
+		C36C4D5B20A23E1800AFDB76 /* MiniPlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MiniPlayerViewController.swift; sourceTree = "<group>"; };
 		C37A6872209F0F830063AEAC /* Credits.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = Credits.html; sourceTree = "<group>"; };
 		C37A6874209F13120063AEAC /* CreditsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreditsViewController.swift; sourceTree = "<group>"; };
 		C3A479122094C8C300D92122 /* rubberBandDistance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = rubberBandDistance.swift; sourceTree = "<group>"; };
 		C3A479142094CA3800D92122 /* UIImage+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+BookPlayer.swift"; sourceTree = "<group>"; };
 		C3A479182094CAF300D92122 /* UIViewController+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+BookPlayer.swift"; sourceTree = "<group>"; };
+		C3D3852620C1E73E00A0ACC7 /* Player.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Player.storyboard; sourceTree = "<group>"; };
 		C3EC372D206EE0650094B4E8 /* SleepTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepTimer.swift; sourceTree = "<group>"; };
 		C3FE3F8120A090880055B9C6 /* limitPanAngle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = limitPanAngle.swift; sourceTree = "<group>"; };
 		C3FE94782080086800BCEA37 /* BookCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookCellView.swift; sourceTree = "<group>"; };
@@ -214,10 +216,11 @@
 				C3AA3732207BF7670004DCFD /* Models */,
 				C3EF535F20800D8B00B9629D /* Extensions */,
 				C3A479112094C8A800D92122 /* Utils */,
-				C318DDBB20A48D4700C3A17B /* BPMarqueeLabel.swift */,
+				C3D3852D20C1F0CA00A0ACC7 /* Views */,
 				D367F7671FA2A6F000FEDB37 /* Constants.swift */,
 				418B6CFB1D2707F800F974FB /* AppDelegate.swift */,
 				418B6D011D2707F800F974FB /* Main.storyboard */,
+				C3D3852620C1E73E00A0ACC7 /* Player.storyboard */,
 				418B6D061D2707F800F974FB /* LaunchScreen.storyboard */,
 				418B6D041D2707F800F974FB /* Assets.xcassets */,
 				419196341D47CC4E007A3AF3 /* BookPlayer.entitlements */,
@@ -257,7 +260,6 @@
 				C30EEEBC2079645C00A4ED33 /* PlayerControlsViewController.swift */,
 				C30EEEBD2079645C00A4ED33 /* PlayerMetaViewController.swift */,
 				C30EEEBA2079645C00A4ED33 /* PlayerProgressViewController.swift */,
-				C318D3AC208CF624000666F8 /* PlayerJumpIconView.swift */,
 			);
 			path = Containers;
 			sourceTree = "<group>";
@@ -270,9 +272,7 @@
 				4165EE1320A7E8CC00616EDF /* BaseListViewController.swift */,
 				4136163F1D2E21F000E48944 /* LibraryViewController.swift */,
 				4165EE0F20A7CBBE00616EDF /* PlaylistViewController.swift */,
-				C3FE94782080086800BCEA37 /* BookCellView.swift */,
-				4165EE0920A7A33500616EDF /* AddCellView.xib */,
-				4165EE0A20A7A33500616EDF /* BookCellView.xib */,
+				C3D3852E20C1F10F00A0ACC7 /* Views */,
 				C36C4D5820A23DF000AFDB76 /* Containers */,
 			);
 			path = Library;
@@ -291,7 +291,7 @@
 		C36C4D5820A23DF000AFDB76 /* Containers */ = {
 			isa = PBXGroup;
 			children = (
-				C36C4D5B20A23E1800AFDB76 /* NowPlayingViewController.swift */,
+				C36C4D5B20A23E1800AFDB76 /* MiniPlayerViewController.swift */,
 			);
 			path = Containers;
 			sourceTree = "<group>";
@@ -325,6 +325,32 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		C3D3852820C1EA7A00A0ACC7 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				C318D3AC208CF624000666F8 /* PlayerJumpIconView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		C3D3852D20C1F0CA00A0ACC7 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				C318DDBB20A48D4700C3A17B /* BPMarqueeLabel.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		C3D3852E20C1F10F00A0ACC7 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				C3FE94782080086800BCEA37 /* BookCellView.swift */,
+				4165EE0920A7A33500616EDF /* AddCellView.xib */,
+				4165EE0A20A7A33500616EDF /* BookCellView.xib */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		C3EC372A206EDB9A0094B4E8 /* Player */ = {
 			isa = PBXGroup;
 			children = (
@@ -332,6 +358,7 @@
 				418B6D5C1D2CB76900F974FB /* PlayerViewController.swift */,
 				C3EC372D206EE0650094B4E8 /* SleepTimer.swift */,
 				41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */,
+				C3D3852820C1EA7A00A0ACC7 /* Views */,
 				C30EEEB92079645C00A4ED33 /* Containers */,
 			);
 			path = Player;
@@ -341,11 +368,11 @@
 			isa = PBXGroup;
 			children = (
 				416B640C1E72F362000E955A /* Extensions.swift */,
-				C3A479142094CA3800D92122 /* UIImage+BookPlayer.swift */,
 				C30B085E209654E3003F325B /* UIColor+BookPlayer.swift */,
 				C30CD2A0209791FA00258B09 /* UIColor+Sweetercolor.swift */,
-				C3A479182094CAF300D92122 /* UIViewController+BookPlayer.swift */,
+				C3A479142094CA3800D92122 /* UIImage+BookPlayer.swift */,
 				C318DDB720A3A3F400C3A17B /* UIImageView+BookPlayer.swift */,
+				C3A479182094CAF300D92122 /* UIViewController+BookPlayer.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -459,6 +486,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				418B6D081D2707F800F974FB /* LaunchScreen.storyboard in Resources */,
+				C3D3852720C1E73E00A0ACC7 /* Player.storyboard in Resources */,
 				C37A6873209F0F830063AEAC /* Credits.html in Resources */,
 				418B6D051D2707F800F974FB /* Assets.xcassets in Resources */,
 				418B6D031D2707F800F974FB /* Main.storyboard in Resources */,
@@ -589,7 +617,7 @@
 				C30B085F209654E3003F325B /* UIColor+BookPlayer.swift in Sources */,
 				410D0FEF1EDDBC3300A52EB9 /* DataManager.swift in Sources */,
 				4165EDFF20A743D500616EDF /* Chapter+CoreDataProperties.swift in Sources */,
-				C36C4D5C20A23E1800AFDB76 /* NowPlayingViewController.swift in Sources */,
+				C36C4D5C20A23E1800AFDB76 /* MiniPlayerViewController.swift in Sources */,
 				41839AB820AA8C970047E55D /* Book+CoreDataProperties.swift in Sources */,
 				410D0FED1EDCF4B000A52EB9 /* SettingsViewController.swift in Sources */,
 				C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */,
