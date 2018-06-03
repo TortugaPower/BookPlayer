@@ -54,6 +54,17 @@ class BaseListViewController: UIViewController {
 
         // register for percentage change notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.updatePercentage(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
+
+        NotificationCenter.default.addObserver(self, selector: #selector(self.dismissMiniPlayer), name: Notification.Name.AudiobookPlayer.playerPresented, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.presentMiniPlayer), name: Notification.Name.AudiobookPlayer.playerDismissed, object: nil)
+    }
+
+    @objc func presentMiniPlayer() {
+        self.tableView.contentInset.bottom = 88.0
+    }
+
+    @objc func dismissMiniPlayer() {
+        self.tableView.contentInset.bottom = 0.0
     }
 
     func presentImportFilesAlert() {
