@@ -51,6 +51,7 @@ class ChaptersViewController: UITableViewController {
 
         cell.textLabel?.text = chapter.title
         cell.detailTextLabel?.text = self.formatTime(chapter.start)
+        cell.accessoryType = .none
 
         if self.currentChapter.index == chapter.index {
             cell.accessoryType = .checkmark
