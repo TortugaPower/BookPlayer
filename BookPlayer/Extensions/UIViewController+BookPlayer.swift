@@ -34,6 +34,16 @@ extension UIViewController {
         return durationFormatter.string(from: time)!
     }
 
+    func formatDuration(_ duration: TimeInterval, unitsStyle: DateComponentsFormatter.UnitsStyle = .short) -> String {
+        let durationFormatter = DateComponentsFormatter()
+
+        durationFormatter.unitsStyle = unitsStyle
+        durationFormatter.allowedUnits = [ .minute, .second ]
+        durationFormatter.collapsesLargestUnit = true
+
+        return durationFormatter.string(from: duration)!
+    }
+
     func formatSpeed(_ speed: Float) -> String {
         return (speed.truncatingRemainder(dividingBy: 1) == 0 ? "\(Int(speed))" : "\(speed)") + "×"
     }

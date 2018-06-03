@@ -18,8 +18,6 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     @IBOutlet weak var rewindIntervalLabel: UILabel!
     @IBOutlet weak var forwardIntervalLabel: UILabel!
 
-    let durationFormatter: DateComponentsFormatter = DateComponentsFormatter()
-
     let supportSection: Int = 5
     let githubLinkPath: IndexPath = IndexPath(row: 0, section: 4)
     let supportEmailPath: IndexPath = IndexPath(row: 1, section: 4)
@@ -39,10 +37,6 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.durationFormatter.unitsStyle = .full
-        self.durationFormatter.allowedUnits = [ .minute, .second ]
-        self.durationFormatter.collapsesLargestUnit = true
-
         self.smartRewindSwitch.addTarget(self, action: #selector(self.rewindToggleDidChange), for: .valueChanged)
         self.boostVolumeSwitch.addTarget(self, action: #selector(self.boostVolumeToggleDidChange), for: .valueChanged)
         self.globalSpeedSwitch.addTarget(self, action: #selector(self.globalSpeedToggleDidChange), for: .valueChanged)
@@ -53,8 +47,8 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         self.globalSpeedSwitch.setOn(UserDefaults.standard.bool(forKey: UserDefaultsConstants.globalSpeedEnabled), animated: false)
 
         // Retrieve initial skip values from PlayerManager
-        self.rewindIntervalLabel.text = self.durationFormatter.string(from: PlayerManager.shared.rewindInterval)!
-        self.forwardIntervalLabel.text = self.durationFormatter.string(from: PlayerManager.shared.forwardInterval)!
+        self.rewindIntervalLabel.text = self.formatDuration(PlayerManager.shared.rewindInterval)
+        self.forwardIntervalLabel.text = self.formatDuration(PlayerManager.shared.forwardInterval)
 
         guard let version = Bundle.main.infoDictionary!["CFBundleShortVersionString"] as? String, let build = Bundle.main.infoDictionary!["CFBundleVersion"] as? String else {
             return
@@ -69,8 +63,6 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
             return
         }
 
-        viewController.durationFormatter = self.durationFormatter
-
         if segue.identifier == "AdjustRewindIntervalSegue" {
             viewController.title = "Rewind"
             viewController.selectedInterval = PlayerManager.shared.rewindInterval
@@ -79,7 +71,7 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
 
                 print(selectedInterval, PlayerManager.shared.rewindInterval)
 
-                self.rewindIntervalLabel.text = self.durationFormatter.string(from: PlayerManager.shared.rewindInterval)!
+                self.rewindIntervalLabel.text = self.formatDuration(PlayerManager.shared.rewindInterval)
             }
         }
 
@@ -89,7 +81,7 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
             viewController.didSelectInterval = { selectedInterval in
                 PlayerManager.shared.forwardInterval = selectedInterval
 
-                self.forwardIntervalLabel.text = self.durationFormatter.string(from: PlayerManager.shared.forwardInterval)!
+                self.forwardIntervalLabel.text = self.formatDuration(PlayerManager.shared.forwardInterval)
             }
         }
     }

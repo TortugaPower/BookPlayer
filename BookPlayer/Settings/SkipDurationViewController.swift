@@ -26,7 +26,6 @@ class SkipDurationViewController: UITableViewController {
 
     var selectedInterval: TimeInterval!
     var didSelectInterval: ((_ selectedInterval: TimeInterval) -> Void)?
-    var durationFormatter: DateComponentsFormatter!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -53,7 +52,7 @@ class SkipDurationViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "IntervalCell", for: indexPath)
         let interval = self.intervals[indexPath.row]
 
-        cell.textLabel?.text = self.durationFormatter.string(from: interval)
+        cell.textLabel?.text = self.formatDuration(interval)
 
         if interval == self.selectedInterval {
             cell.accessoryType = .checkmark
