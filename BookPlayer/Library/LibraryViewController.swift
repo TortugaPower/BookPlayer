@@ -181,7 +181,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         })
 
         playlistAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-        playlistAlert.addAction(UIAlertAction(title: "Create", style: .default, handler: { (_) in
+        playlistAlert.addAction(UIAlertAction(title: "Create", style: .default, handler: { _ in
             let title = playlistAlert.textFields!.first!.text!
 
             handler?(title)
@@ -198,14 +198,15 @@ extension LibraryViewController {
         }
 
         let item = self.items[indexPath.row]
-        let isPlaylist = item is Playlist
-        let title = isPlaylist ? "Options" : "Delete"
-        let color = isPlaylist ? UIColor.gray : UIColor.red
 
-        let deleteAction = UITableViewRowAction(style: .default, title: title) { (_, indexPath) in
-            guard let book = item as? Book else {
-                // swiftlint:disable force_cast
-                self.handleDelete(playlist: item as! Playlist, indexPath: indexPath)
+        // "…" on a button indicates a follow up dialog instead of an immmediate action in macOS and iOS
+        let deleteAction = UITableViewRowAction(style: .default, title: "Delete…") { (_, indexPath) in
+            guard let book = self.items[indexPath.row] as? Book else {
+                guard let playlist = self.items[indexPath.row] as? Playlist else {
+                    return
+                }
+
+                self.handleDelete(playlist: playlist, indexPath: indexPath)
 
                 return
             }
@@ -213,7 +214,37 @@ extension LibraryViewController {
             self.handleDelete(book: book, indexPath: indexPath)
         }
 
-        deleteAction.backgroundColor = color
+        deleteAction.backgroundColor = .red
+
+        if item is Playlist {
+            let renameAction = UITableViewRowAction(style: .normal, title: "Rename") { (_, indexPath) in
+                guard let playlist = self.items[indexPath.row] as? Playlist else {
+                    return
+                }
+
+                let alert = UIAlertController(title: "Rename playlist", message: nil, preferredStyle: .alert)
+
+                alert.addTextField(configurationHandler: { (textfield) in
+                    textfield.placeholder = playlist.title
+                    textfield.text = playlist.title
+                })
+
+                alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+                alert.addAction(UIAlertAction(title: "Rename", style: .default) { _ in
+                    if let title = alert.textFields!.first!.text, title != playlist.title {
+                        playlist.title = title
+
+                        DataManager.saveContext()
+
+                        self.tableView.reloadData()
+                    }
+                })
+
+                self.present(alert, animated: true, completion: nil)
+            }
+
+            return [deleteAction, renameAction]
+        }
 
         return [deleteAction]
     }
