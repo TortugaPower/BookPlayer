@@ -6,8 +6,6 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
-        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
-        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -440,10 +438,10 @@ Use with caution and care for your hearing.</string>
                                 </connections>
                             </tableView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="S0r-5S-fT7" userLabel="Empty Playlist Placeholder">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="638"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="emptyPlaylist" translatesAutoresizingMaskIntoConstraints="NO" id="hcW-Vv-6u7">
-                                        <rect key="frame" x="63.333333333333343" y="138.33333333333331" width="249.00000000000003" height="249"/>
+                                        <rect key="frame" x="63.333333333333343" y="170.66666666666669" width="249.00000000000003" height="249"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="249" id="M3c-0J-Ojl"/>
                                             <constraint firstAttribute="height" constant="249" id="S1o-Vm-xQT"/>
@@ -457,22 +455,22 @@ Use with caution and care for your hearing.</string>
                                         <size key="shadowOffset" width="0.0" height="0.0"/>
                                     </label>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Yog-QU-sD5" userLabel="Spacer A">
-                                        <rect key="frame" x="16" y="51.999999999999993" width="343" height="86.333333333333314"/>
+                                        <rect key="frame" x="16" y="52.000000000000007" width="343" height="118.66666666666669"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pBP-Gg-zR3" userLabel="Spacer B">
-                                        <rect key="frame" x="16" y="485.33333333333343" width="343" height="116.66666666666669"/>
+                                        <rect key="frame" x="16" y="517.66666666666663" width="343" height="118.33333333333337"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
                                             <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="88" id="zxD-eK-nXJ"/>
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fo9-V8-z4c" userLabel="Spacer Label Counterweight">
-                                        <rect key="frame" x="16" y="602" width="343" height="36"/>
+                                        <rect key="frame" x="16" y="636" width="343" height="36"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </view>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3BN-um-QpR" customClass="AddButton" customModule="BookPlayer" customModuleProvider="target">
-                                        <rect key="frame" x="16" y="397.33333333333337" width="343" height="88"/>
+                                        <rect key="frame" x="16" y="429.66666666666663" width="343" height="88"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="88" id="ldL-uM-UOH"/>
                                         </constraints>
@@ -497,7 +495,7 @@ Use with caution and care for your hearing.</string>
                                     <constraint firstItem="pBP-Gg-zR3" firstAttribute="top" secondItem="3BN-um-QpR" secondAttribute="bottom" id="PyW-bb-RIi"/>
                                     <constraint firstItem="3BN-um-QpR" firstAttribute="leading" secondItem="S0r-5S-fT7" secondAttribute="leading" constant="16" id="V4Q-jY-5V4"/>
                                     <constraint firstItem="Yog-QU-sD5" firstAttribute="top" secondItem="l2v-hx-85C" secondAttribute="bottom" priority="750" id="Xv0-IS-auw"/>
-                                    <constraint firstItem="Yog-QU-sD5" firstAttribute="height" secondItem="pBP-Gg-zR3" secondAttribute="height" multiplier="0.74" priority="500" id="bpJ-fE-Cl8"/>
+                                    <constraint firstItem="Yog-QU-sD5" firstAttribute="height" secondItem="pBP-Gg-zR3" secondAttribute="height" priority="500" id="bpJ-fE-Cl8"/>
                                     <constraint firstItem="hcW-Vv-6u7" firstAttribute="centerX" secondItem="S0r-5S-fT7" secondAttribute="centerX" id="cnN-LB-Z1r"/>
                                     <constraint firstAttribute="bottom" secondItem="fo9-V8-z4c" secondAttribute="bottom" id="eQ4-c0-uQf"/>
                                     <constraint firstItem="Yog-QU-sD5" firstAttribute="leading" secondItem="S0r-5S-fT7" secondAttribute="leading" constant="16" id="f7K-9i-gk3"/>
@@ -575,7 +573,7 @@ Use with caution and care for your hearing.</string>
                                             <constraint firstAttribute="width" constant="62" id="Z7d-Hx-7G7"/>
                                             <constraint firstAttribute="height" constant="62" id="b2T-IK-SQp"/>
                                         </constraints>
-                                        <state key="normal" title="Button" image="nowPlayingPause"/>
+                                        <state key="normal" image="nowPlayingPause"/>
                                         <connections>
                                             <action selector="playPause" destination="Ty0-3T-NNc" eventType="touchUpInside" id="Ube-nV-F7k"/>
                                         </connections>

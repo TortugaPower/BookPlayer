@@ -135,8 +135,11 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         blurView.frame = backgroundImage.bounds
 
         self.backgroundImage.addSubview(blurView)
-        self.backgroundImage.alpha = currentBook.artworkColors.displayOnDark ? 0.7 : 0.2
         self.backgroundImage.image = currentBook.artwork
+
+        // Apply the blurred view in relation to the brightness and luminance of the background color.
+        // This makes darker backgrounds stay interesting
+        self.backgroundImage.alpha = 0.1 + min((1 - currentBook.artworkColors.background.luminance) * (1 - currentBook.artworkColors.background.brightness), 0.7)
     }
 
     // MARK: Interface actions
