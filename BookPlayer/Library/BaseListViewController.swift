@@ -54,6 +54,17 @@ class BaseListViewController: UIViewController {
 
         // register for percentage change notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.updatePercentage(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
+
+        NotificationCenter.default.addObserver(self, selector: #selector(self.dismissMiniPlayer), name: Notification.Name.AudiobookPlayer.playerPresented, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.presentMiniPlayer), name: Notification.Name.AudiobookPlayer.playerDismissed, object: nil)
+    }
+
+    @objc func presentMiniPlayer() {
+        self.tableView.contentInset.bottom = 88.0
+    }
+
+    @objc func dismissMiniPlayer() {
+        self.tableView.contentInset.bottom = 0.0
     }
 
     func presentImportFilesAlert() {
@@ -142,33 +153,23 @@ extension BaseListViewController: UITableViewDataSource {
             return spacer
         }
 
-        guard indexPath.section == 0,
-            let cell = tableView.dequeueReusableCell(withIdentifier: "BookCellView", for: indexPath) as? BookCellView else {
-                // Load add cell
-                return tableView.dequeueReusableCell(withIdentifier: "AddCellView", for: indexPath)
+        guard indexPath.section == 0, let cell = tableView.dequeueReusableCell(withIdentifier: "BookCellView", for: indexPath) as? BookCellView else {
+            // Load add cell
+            return tableView.dequeueReusableCell(withIdentifier: "AddCellView", for: indexPath)
         }
 
         let item = self.items[indexPath.row]
 
-        cell.titleLabel.text = item.title
+        cell.completionLabel.text = item.percentCompletedRoundedString
+        cell.artwork = item.artwork
+        cell.title = item.title
+        cell.isPlaylist = item is Playlist
 
         if let book = item as? Book {
-            cell.authorLabel.text = book.author
-
-            cell.completionLabel.isHidden = false
-            cell.completionLabel.text = item.percentCompletedRoundedString
-            cell.completionLabel.textColor = UIColor.lightGray
+            cell.subtitle = book.author
         } else if let playlist = item as? Playlist {
-            cell.authorLabel.text = playlist.info()
-            cell.completionLabel.isHidden = true
+            cell.subtitle = playlist.info()
         }
-
-        cell.selectionStyle = .none
-
-        // NOTE: We should have a default image for artwork
-        cell.artworkImageView.image = item.artwork
-        cell.artworkImageView.layer.cornerRadius = 4.0
-        cell.artworkImageView.layer.masksToBounds = true
 
         return cell
     }

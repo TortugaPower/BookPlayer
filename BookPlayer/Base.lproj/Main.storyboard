@@ -6,7 +6,6 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
-        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -430,15 +429,9 @@ Use with caution and care for your hearing.</string>
                         <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" layoutMarginsFollowReadableWidth="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="86" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="vLB-vm-W2L">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="594"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" layoutMarginsFollowReadableWidth="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="86" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="vLB-vm-W2L">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <view key="tableFooterView" contentMode="scaleToFill" id="ACb-zR-9j5" userLabel="Bottom Spacer">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="78"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                </view>
                                 <connections>
                                     <outlet property="dataSource" destination="XZ8-Ha-OZN" id="40o-Dz-ATL"/>
                                     <outlet property="delegate" destination="XZ8-Ha-OZN" id="ENM-vK-yCY"/>
@@ -465,8 +458,12 @@ Use with caution and care for your hearing.</string>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="S0r-5S-fT7" firstAttribute="bottom" secondItem="CKb-uE-Rzm" secondAttribute="bottom" constant="34" id="0IG-bg-5mm"/>
+                            <constraint firstItem="vLB-vm-W2L" firstAttribute="top" secondItem="CKb-uE-Rzm" secondAttribute="top" id="1rZ-tY-ufo"/>
+                            <constraint firstItem="CKb-uE-Rzm" firstAttribute="trailing" secondItem="vLB-vm-W2L" secondAttribute="trailing" id="Oet-9D-NVc"/>
+                            <constraint firstItem="vLB-vm-W2L" firstAttribute="bottom" secondItem="BcY-tC-kA6" secondAttribute="bottom" id="V3v-pU-nwy"/>
                             <constraint firstItem="S0r-5S-fT7" firstAttribute="leading" secondItem="CKb-uE-Rzm" secondAttribute="leading" id="Wb3-Xj-w85"/>
                             <constraint firstItem="S0r-5S-fT7" firstAttribute="top" secondItem="CKb-uE-Rzm" secondAttribute="top" id="YnQ-N1-flI"/>
+                            <constraint firstItem="vLB-vm-W2L" firstAttribute="leading" secondItem="CKb-uE-Rzm" secondAttribute="leading" id="Ywa-nX-tq3"/>
                             <constraint firstItem="CKb-uE-Rzm" firstAttribute="trailing" secondItem="S0r-5S-fT7" secondAttribute="trailing" id="tMh-Cr-eDe"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="CKb-uE-Rzm"/>
@@ -479,7 +476,7 @@ Use with caution and care for your hearing.</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="6pz-s9-tbM" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="473" y="153"/>
+            <point key="canvasLocation" x="472.80000000000001" y="152.95566502463055"/>
         </scene>
         <!--Mini Player View Controller-->
         <scene sceneID="jEq-1l-rlm">
@@ -492,10 +489,10 @@ Use with caution and care for your hearing.</string>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Sfc-n7-Zho" userLabel="Container">
                                 <rect key="frame" x="8" y="8" width="359" height="72"/>
                                 <subviews>
-                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VVl-ON-iS7">
-                                        <rect key="frame" x="10.999999999999996" y="11" width="49.666666666666657" height="50"/>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VVl-ON-iS7">
+                                        <rect key="frame" x="11" y="11" width="50" height="50"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" secondItem="VVl-ON-iS7" secondAttribute="height" multiplier="1:1" id="4Ml-hG-4CH"/>
+                                            <constraint firstAttribute="width" constant="50" id="B74-q5-Tva"/>
                                             <constraint firstAttribute="height" constant="50" id="QQc-Wc-jpc"/>
                                         </constraints>
                                     </imageView>
@@ -520,8 +517,8 @@ Use with caution and care for your hearing.</string>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fPh-z9-Tc5">
                                         <rect key="frame" x="292" y="5" width="62" height="62"/>
                                         <constraints>
+                                            <constraint firstAttribute="width" constant="62" id="Z7d-Hx-7G7"/>
                                             <constraint firstAttribute="height" constant="62" id="b2T-IK-SQp"/>
-                                            <constraint firstAttribute="width" secondItem="fPh-z9-Tc5" secondAttribute="height" multiplier="1:1" id="u2G-rO-8PO"/>
                                         </constraints>
                                         <state key="normal" title="Button" image="nowPlayingPause"/>
                                         <connections>
@@ -576,11 +573,6 @@ Use with caution and care for your hearing.</string>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" layoutMarginsFollowReadableWidth="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="86" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="392-ii-NXF">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <view key="tableFooterView" contentMode="scaleToFill" id="Yqo-Ta-VrU" userLabel="Bottom Spacer">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="78"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                </view>
                                 <connections>
                                     <outlet property="dataSource" destination="Zuf-4A-dOY" id="FHZ-Z9-5Zb"/>
                                     <outlet property="delegate" destination="Zuf-4A-dOY" id="TXU-91-dOe"/>
