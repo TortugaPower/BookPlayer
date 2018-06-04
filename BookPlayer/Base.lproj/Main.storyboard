@@ -443,37 +443,36 @@ Use with caution and care for your hearing.</string>
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="638"/>
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="emptyPlaylist" translatesAutoresizingMaskIntoConstraints="NO" id="hcW-Vv-6u7">
-                                        <rect key="frame" x="63.333333333333343" y="170.66666666666669" width="249.00000000000003" height="249"/>
+                                        <rect key="frame" x="63.333333333333343" y="138.33333333333331" width="249.00000000000003" height="249"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="249" id="M3c-0J-Ojl"/>
                                             <constraint firstAttribute="height" constant="249" id="S1o-Vm-xQT"/>
                                         </constraints>
                                     </imageView>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="l2v-hx-85C">
-                                        <rect key="frame" x="16" y="16" width="343" height="89.666666666666671"/>
-                                        <string key="text">Add files by dragging them on this playlist in the Library or by importing them directly into the playlist using the button below. If you import a file that already exists in the Library it will be moved into the playlist.</string>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="You can also moves files here by dragging them on this playlist in the Library." lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="l2v-hx-85C">
+                                        <rect key="frame" x="16" y="16" width="343" height="36"/>
                                         <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="15"/>
                                         <color key="textColor" red="0.42745098039215684" green="0.42745098039215684" blue="0.44705882352941173" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                         <size key="shadowOffset" width="0.0" height="0.0"/>
                                     </label>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Yog-QU-sD5" userLabel="Spacer A">
-                                        <rect key="frame" x="16" y="105.66666666666666" width="343" height="65"/>
+                                        <rect key="frame" x="16" y="51.999999999999993" width="343" height="86.333333333333314"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pBP-Gg-zR3" userLabel="Spacer B">
-                                        <rect key="frame" x="16" y="517.66666666666663" width="343" height="88"/>
+                                        <rect key="frame" x="16" y="485.33333333333343" width="343" height="116.66666666666669"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
                                             <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="88" id="zxD-eK-nXJ"/>
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fo9-V8-z4c" userLabel="Spacer Label Counterweight">
-                                        <rect key="frame" x="16" y="605.66666666666663" width="343" height="32.333333333333371"/>
+                                        <rect key="frame" x="16" y="602" width="343" height="36"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </view>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3BN-um-QpR" customClass="AddButton" customModule="BookPlayer" customModuleProvider="target">
-                                        <rect key="frame" x="16" y="429.66666666666663" width="343" height="88"/>
+                                        <rect key="frame" x="16" y="397.33333333333337" width="343" height="88"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="88" id="ldL-uM-UOH"/>
                                         </constraints>
