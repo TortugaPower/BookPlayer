@@ -6,7 +6,6 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
-        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -490,10 +489,10 @@ Use with caution and care for your hearing.</string>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Sfc-n7-Zho" userLabel="Container">
                                 <rect key="frame" x="8" y="8" width="359" height="72"/>
                                 <subviews>
-                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VVl-ON-iS7">
-                                        <rect key="frame" x="10.999999999999996" y="11" width="49.666666666666657" height="50"/>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VVl-ON-iS7">
+                                        <rect key="frame" x="11" y="11" width="50" height="50"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" secondItem="VVl-ON-iS7" secondAttribute="height" multiplier="1:1" id="4Ml-hG-4CH"/>
+                                            <constraint firstAttribute="width" constant="50" id="B74-q5-Tva"/>
                                             <constraint firstAttribute="height" constant="50" id="QQc-Wc-jpc"/>
                                         </constraints>
                                     </imageView>
@@ -518,8 +517,8 @@ Use with caution and care for your hearing.</string>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fPh-z9-Tc5">
                                         <rect key="frame" x="292" y="5" width="62" height="62"/>
                                         <constraints>
+                                            <constraint firstAttribute="width" constant="62" id="Z7d-Hx-7G7"/>
                                             <constraint firstAttribute="height" constant="62" id="b2T-IK-SQp"/>
-                                            <constraint firstAttribute="width" secondItem="fPh-z9-Tc5" secondAttribute="height" multiplier="1:1" id="u2G-rO-8PO"/>
                                         </constraints>
                                         <state key="normal" title="Button" image="nowPlayingPause"/>
                                         <connections>
