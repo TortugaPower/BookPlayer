@@ -50,7 +50,8 @@ class ChaptersViewController: UITableViewController {
         let chapter = self.chapters[indexPath.row]
 
         cell.textLabel?.text = chapter.title
-        cell.detailTextLabel?.text = self.formatTime(chapter.start)
+        cell.detailTextLabel?.text = "\(self.formatTime(chapter.start)) – \(self.formatDuration(chapter.duration, unitsStyle: .abbreviated))"
+        cell.accessoryType = .none
 
         if self.currentChapter.index == chapter.index {
             cell.accessoryType = .checkmark
