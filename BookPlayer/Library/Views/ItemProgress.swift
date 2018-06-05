@@ -44,8 +44,6 @@ class ItemProgress: UIView {
         let center = CGPoint(x: width * 0.5, y: height * 0.5)
         let scale = UIScreen.main.scale
 
-        print(self.value)
-
         if self.value < 1.0 {
             let lineWidth: CGFloat = 1.5
             var radius: CGFloat = diameter * 0.5 - lineWidth / 2
