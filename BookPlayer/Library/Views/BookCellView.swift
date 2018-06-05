@@ -12,8 +12,8 @@ class BookCellView: UITableViewCell {
     @IBOutlet private weak var artworkImageView: UIImageView!
     @IBOutlet private weak var titleLabel: UILabel!
     @IBOutlet private weak var subtitleLabel: UILabel!
-    @IBOutlet weak var completionLabel: UILabel!
-    @IBOutlet private weak var completionLabelTrailing: NSLayoutConstraint!
+    @IBOutlet private weak var progressTrailing: NSLayoutConstraint!
+    @IBOutlet weak var progressView: ItemProgress!
 
     var onArtworkTap: (() -> Void)?
 
@@ -47,20 +47,31 @@ class BookCellView: UITableViewCell {
         }
     }
 
+    var progress: Double {
+        get {
+            return self.progressView.value
+        }
+        set {
+            self.progressView.value = newValue
+        }
+    }
+
     var isPlaylist: Bool = false {
         didSet {
             if self.isPlaylist {
                 self.accessoryType = .disclosureIndicator
 
-                self.completionLabelTrailing.constant = 0
+                self.progressTrailing.constant = 0
 
-                self.completionLabel.isHidden = true
+                // @TODO: Remove and calculate accumulated playlist progress
+                self.progressView.isHidden = true
             } else {
                 self.accessoryType = .none
 
-                self.completionLabelTrailing.constant = 16.0
+                self.progressTrailing.constant = 16.0
 
-                self.completionLabel.isHidden = false
+                // @TODO: Remove and calculate accumulated playlist progress
+                self.progressView.isHidden = false
             }
         }
     }
