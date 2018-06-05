@@ -31,10 +31,10 @@ class PlayerProgressViewController: PlayerContainerViewController {
             return 0.0
         }
 
-        self.sliderMin.tintColor = book.artworkColors.secondary
-        self.sliderMax.tintColor = book.artworkColors.secondary
-        self.currentTimeLabel.textColor = book.artworkColors.secondary
-        self.maxTimeLabel.textColor = book.artworkColors.secondary
+        self.sliderMin.tintColor = book.artworkColors.tertiary
+        self.sliderMax.tintColor = book.artworkColors.tertiary
+        self.currentTimeLabel.textColor = book.artworkColors.tertiary
+        self.maxTimeLabel.textColor = book.artworkColors.tertiary
         self.percentageLabel.textColor = book.artworkColors.primary
 
         guard book.hasChapters, let duration = book.currentChapter?.duration else {

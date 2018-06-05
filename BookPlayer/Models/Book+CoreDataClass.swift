@@ -81,6 +81,7 @@ public class Book: LibraryItem {
             colors = ArtworkColors(from: self.artwork, context: context)
         } else {
             colors = ArtworkColors(context: context)
+            self.usesDefaultArtwork = true
         }
 
         self.artworkColors = colors

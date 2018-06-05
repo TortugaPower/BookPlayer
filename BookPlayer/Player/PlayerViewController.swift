@@ -115,8 +115,8 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.speedButton.title = self.formatSpeed(PlayerManager.shared.speed)
 
         self.view.backgroundColor = currentBook.artworkColors.background
-        self.bottomToolbar.tintColor = currentBook.artworkColors.tertiary
-        self.closeButton.tintColor = currentBook.artworkColors.tertiary
+        self.bottomToolbar.tintColor = currentBook.artworkColors.secondary
+        self.closeButton.tintColor = currentBook.artworkColors.secondary
 
         if !currentBook.hasChapters {
             self.spaceBeforeChaptersButton.isEnabled = false

@@ -70,10 +70,10 @@ public class ArtworkColors: NSManagedObject {
         var displayOnDarkToSet = displayOnDark
 
         if colorsToSet.isEmpty {
-            colorsToSet.append(UIColor(hex: "#EBECED"))
-            colorsToSet.append(UIColor(hex: "#696B6E"))
-            colorsToSet.append(UIColor(hex: "#3488D1"))
-            colorsToSet.append(UIColor(hex: "#9D9FA3"))
+            colorsToSet.append(UIColor(hex: "#FFFFFF")) // background
+            colorsToSet.append(UIColor(hex: "#37454E")) // primary
+            colorsToSet.append(UIColor(hex: "#3488D1")) // secondary
+            colorsToSet.append(UIColor(hex: "#7685B3")) // tertiary
 
             displayOnDarkToSet = false
         } else if colorsToSet.count < 4 {
