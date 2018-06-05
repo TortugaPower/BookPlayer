@@ -45,11 +45,6 @@
                             <constraint firstAttribute="width" constant="19" id="0cI-q3-r00"/>
                             <constraint firstAttribute="height" constant="19" id="seq-1U-hbH"/>
                         </constraints>
-                        <userDefinedRuntimeAttributes>
-                            <userDefinedRuntimeAttribute type="number" keyPath="value">
-                                <real key="value" value="1"/>
-                            </userDefinedRuntimeAttribute>
-                        </userDefinedRuntimeAttributes>
                     </view>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="weP-Z4-F5J">
                         <rect key="frame" x="16" y="13" width="50" height="50"/>
