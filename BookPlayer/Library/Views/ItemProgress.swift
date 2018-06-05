@@ -37,6 +37,8 @@ class ItemProgress: UIView {
 
     // swiftlint:disable:next function_body_length
     override func draw(_ rect: CGRect) {
+        self.layer.sublayers?.removeAll()
+
         let width = self.bounds.size.width
         let height = self.bounds.size.height
         let diameter = min(width, height)
