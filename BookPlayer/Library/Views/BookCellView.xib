@@ -51,10 +51,19 @@
                             </userDefinedRuntimeAttribute>
                         </userDefinedRuntimeAttributes>
                     </view>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="weP-Z4-F5J">
+                        <rect key="frame" x="16" y="13" width="50" height="50"/>
+                        <connections>
+                            <action selector="artworkButtonTapped:" destination="4fw-Bq-hyU" eventType="touchUpInside" id="Qbi-j3-5ee"/>
+                        </connections>
+                    </button>
                 </subviews>
                 <constraints>
+                    <constraint firstItem="weP-Z4-F5J" firstAttribute="width" secondItem="3kC-6m-IJf" secondAttribute="width" id="11w-Bt-EUI"/>
                     <constraint firstItem="Nkg-F5-bH6" firstAttribute="leading" secondItem="RWS-bw-cRW" secondAttribute="trailing" constant="16" id="B9C-BR-Cim"/>
+                    <constraint firstItem="weP-Z4-F5J" firstAttribute="height" secondItem="3kC-6m-IJf" secondAttribute="height" id="DoC-5k-yIp"/>
                     <constraint firstItem="RWS-bw-cRW" firstAttribute="centerY" secondItem="cUU-yJ-MnU" secondAttribute="centerY" constant="-11" id="ICT-n3-FfX"/>
+                    <constraint firstItem="weP-Z4-F5J" firstAttribute="centerY" secondItem="3kC-6m-IJf" secondAttribute="centerY" id="JnB-S2-bVa"/>
                     <constraint firstAttribute="trailing" secondItem="Nkg-F5-bH6" secondAttribute="trailing" constant="16" id="Su9-Ah-617"/>
                     <constraint firstItem="RWS-bw-cRW" firstAttribute="leading" secondItem="3kC-6m-IJf" secondAttribute="trailing" constant="16" id="UO5-Rm-Z8M"/>
                     <constraint firstItem="Nkg-F5-bH6" firstAttribute="centerY" secondItem="cUU-yJ-MnU" secondAttribute="centerY" id="aWv-8h-fY6"/>
@@ -62,6 +71,7 @@
                     <constraint firstItem="7zZ-yo-0dC" firstAttribute="trailing" secondItem="RWS-bw-cRW" secondAttribute="trailing" id="hq3-09-XVj"/>
                     <constraint firstItem="3kC-6m-IJf" firstAttribute="centerY" secondItem="cUU-yJ-MnU" secondAttribute="centerY" id="jSN-fH-XWc"/>
                     <constraint firstItem="7zZ-yo-0dC" firstAttribute="leading" secondItem="RWS-bw-cRW" secondAttribute="leading" id="mNR-fx-aKg"/>
+                    <constraint firstItem="weP-Z4-F5J" firstAttribute="centerX" secondItem="3kC-6m-IJf" secondAttribute="centerX" id="tsv-ES-hE1"/>
                     <constraint firstItem="3kC-6m-IJf" firstAttribute="leading" secondItem="cUU-yJ-MnU" secondAttribute="leading" constant="16" id="yFI-1d-yGW"/>
                     <constraint firstItem="7zZ-yo-0dC" firstAttribute="width" secondItem="RWS-bw-cRW" secondAttribute="width" id="zcg-Iy-KZv"/>
                 </constraints>
