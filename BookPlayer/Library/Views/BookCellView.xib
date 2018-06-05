@@ -47,13 +47,23 @@
                         <color key="textColor" red="0.5607843137254902" green="0.55686274509803924" blue="0.58039215686274503" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="C4T-mU-WIA">
+                        <rect key="frame" x="16" y="12" width="50" height="50"/>
+                        <connections>
+                            <action selector="artworkButtonTapped:" destination="4fw-Bq-hyU" eventType="touchUpInside" id="Jq4-ny-Z2t"/>
+                        </connections>
+                    </button>
                 </subviews>
                 <constraints>
                     <constraint firstItem="Bpu-gO-KoJ" firstAttribute="leading" secondItem="RWS-bw-cRW" secondAttribute="trailing" constant="16" id="0ZM-Qo-bVO"/>
+                    <constraint firstItem="C4T-mU-WIA" firstAttribute="width" secondItem="3kC-6m-IJf" secondAttribute="width" id="3ws-5r-1Cf"/>
                     <constraint firstItem="Bpu-gO-KoJ" firstAttribute="centerY" secondItem="cUU-yJ-MnU" secondAttribute="centerY" id="DEh-ax-8nl"/>
                     <constraint firstItem="RWS-bw-cRW" firstAttribute="centerY" secondItem="cUU-yJ-MnU" secondAttribute="centerY" constant="-11" id="ICT-n3-FfX"/>
+                    <constraint firstItem="C4T-mU-WIA" firstAttribute="leading" secondItem="3kC-6m-IJf" secondAttribute="trailing" constant="-50" id="IwF-Vh-E3I"/>
                     <constraint firstItem="RWS-bw-cRW" firstAttribute="leading" secondItem="3kC-6m-IJf" secondAttribute="trailing" constant="16" id="UO5-Rm-Z8M"/>
+                    <constraint firstItem="C4T-mU-WIA" firstAttribute="height" secondItem="3kC-6m-IJf" secondAttribute="height" id="aUX-hI-epi"/>
                     <constraint firstItem="7zZ-yo-0dC" firstAttribute="top" secondItem="RWS-bw-cRW" secondAttribute="bottom" constant="3" id="bkb-Am-hVm"/>
+                    <constraint firstItem="3kC-6m-IJf" firstAttribute="top" secondItem="C4T-mU-WIA" secondAttribute="bottom" constant="-49" id="egy-YK-bAt"/>
                     <constraint firstAttribute="trailing" secondItem="Bpu-gO-KoJ" secondAttribute="trailing" constant="16" id="fdK-2J-jNr"/>
                     <constraint firstItem="3kC-6m-IJf" firstAttribute="centerY" secondItem="cUU-yJ-MnU" secondAttribute="centerY" id="jSN-fH-XWc"/>
                     <constraint firstItem="7zZ-yo-0dC" firstAttribute="leading" secondItem="RWS-bw-cRW" secondAttribute="leading" id="mNR-fx-aKg"/>
