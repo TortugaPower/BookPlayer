@@ -13,6 +13,7 @@ import AVFoundation
 
 public class Book: LibraryItem {
     var fileURL: URL!
+
     var currentChapter: Chapter? {
         guard let chapters = self.chapters?.array as? [Chapter],
             !chapters.isEmpty else {
@@ -25,12 +26,15 @@ public class Book: LibraryItem {
 
         return nil
     }
+
     var displayTitle: String {
         return self.title
     }
+
     var filename: String {
         return self.identifier + ".\(self.ext!)"
     }
+
     var percentage: Double {
         return round(self.currentTime / self.duration * 100)
     }

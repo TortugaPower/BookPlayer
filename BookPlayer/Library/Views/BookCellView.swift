@@ -15,6 +15,8 @@ class BookCellView: UITableViewCell {
     @IBOutlet weak var completionLabel: UILabel!
     @IBOutlet private weak var completionLabelTrailing: NSLayoutConstraint!
 
+    var onArtworkTap: (() -> Void)?
+
     var artwork: UIImage? {
         get {
             return self.artworkImageView.image
@@ -78,5 +80,9 @@ class BookCellView: UITableViewCell {
     private func setup() {
         self.accessoryType = .none
         self.selectionStyle = .none
+    }
+
+    @IBAction func artworkButtonTapped(_ sender: Any) {
+        self.onArtworkTap?()
     }
 }

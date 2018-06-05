@@ -167,8 +167,14 @@ extension BaseListViewController: UITableViewDataSource {
 
         if let book = item as? Book {
             cell.subtitle = book.author
+            cell.onArtworkTap = { [weak self] in
+                self?.setupPlayer(books: [book])
+            }
         } else if let playlist = item as? Playlist {
             cell.subtitle = playlist.info()
+            cell.onArtworkTap = { [weak self] in
+                self?.setupPlayer(books: playlist.getRemainingBooks())
+            }
         }
 
         return cell
