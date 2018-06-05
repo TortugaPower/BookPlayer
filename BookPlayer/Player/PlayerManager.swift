@@ -18,18 +18,16 @@ class PlayerManager: NSObject {
     var fileURL: URL!
     var identifier: String!
 
-    var currentBooks: [Book]!
+    lazy var currentBooks = [Book]()
     var currentBook: Book! {
         return self.currentBooks.first
     }
 
     private var timer: Timer!
 
-    // swiftlint:disable:next function_body_length
     func load(_ books: [Book], completion:@escaping (AVAudioPlayer?) -> Void) {
         if let player = self.audioPlayer,
-            let currentBooks = self.currentBooks,
-            currentBooks.count == books.count { // @TODO : fix logic
+            self.currentBooks.count == books.count { // @TODO : fix logic
                 player.stop()
                 // notify?
         }
