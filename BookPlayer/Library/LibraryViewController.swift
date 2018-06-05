@@ -12,7 +12,7 @@ import MBProgressHUD
 import SwiftReorder
 
 class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate {
-    @IBOutlet weak var emptyListContainerView: UIView!
+    @IBOutlet weak var emptyLibraryPlaceholder: UIView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,7 +47,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         self.library = DataManager.getLibrary()
 
         //show/hide instructions view
-        self.emptyListContainerView.isHidden = !self.items.isEmpty
+        self.emptyLibraryPlaceholder.isHidden = !self.items.isEmpty
         self.tableView.reloadData()
 
         DataManager.processPendingFiles { (urls) in
@@ -60,7 +60,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
                 MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
 
                 //show/hide instructions view
-                self.emptyListContainerView.isHidden = !self.items.isEmpty
+                self.emptyLibraryPlaceholder.isHidden = !self.items.isEmpty
                 self.tableView.reloadData()
             }
         }
@@ -69,7 +69,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
     override func loadFile(urls: [URL]) {
         DataManager.insertBooks(from: urls, into: self.library) {
             MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
-            self.emptyListContainerView.isHidden = !self.items.isEmpty
+            self.emptyLibraryPlaceholder.isHidden = !self.items.isEmpty
             self.tableView.reloadData()
         }
     }
@@ -112,7 +112,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
                 self.tableView.beginUpdates()
                 self.tableView.deleteRows(at: [indexPath], with: .none)
                 self.tableView.endUpdates()
-                self.emptyListContainerView.isHidden = !self.items.isEmpty
+                self.emptyLibraryPlaceholder.isHidden = !self.items.isEmpty
             } catch {
                 self.showAlert("Error", message: "There was an error deleting the file, please try again.")
             }
@@ -143,7 +143,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             self.tableView.beginUpdates()
             self.tableView.reloadSections(IndexSet(integer: 0), with: .fade)
             self.tableView.endUpdates()
-            self.emptyListContainerView.isHidden = !self.items.isEmpty
+            self.emptyLibraryPlaceholder.isHidden = !self.items.isEmpty
         }))
 
         sheet.addAction(UIAlertAction(title: "Delete both playlist and books", style: .destructive, handler: { _ in
@@ -160,7 +160,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
                 self.tableView.beginUpdates()
                 self.tableView.deleteRows(at: [indexPath], with: .none)
                 self.tableView.endUpdates()
-                self.emptyListContainerView.isHidden = !self.items.isEmpty
+                self.emptyLibraryPlaceholder.isHidden = !self.items.isEmpty
             } catch {
                 self.showAlert("Error", message: "There was an error deleting the book, please try again.")
             }
@@ -188,6 +188,34 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         }))
 
         self.present(playlistAlert, animated: true, completion: nil)
+    }
+
+    @IBAction func addAction() {
+        let alertController = UIAlertController(
+            title: nil,
+            message: "You can also add files via AirDrop. Send an audiobook file to your device and select BookPlayer from the list that appears.",
+            preferredStyle: .actionSheet
+        )
+
+        alertController.addAction(UIAlertAction(title: "Import files", style: .default) { (_) in
+            self.presentImportFilesAlert()
+        })
+
+        alertController.addAction(UIAlertAction(title: "Create playlist", style: .default) { (_) in
+            self.presentCreatePlaylistAlert(handler: { title in
+                let playlist = DataManager.createPlaylist(title: title, books: [])
+
+                self.library.addToItems(playlist)
+
+                DataManager.saveContext()
+
+                self.tableView.reloadData()
+            })
+        })
+
+        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+
+        self.present(alertController, animated: true, completion: nil)
     }
 }
 
@@ -253,31 +281,7 @@ extension LibraryViewController {
         tableView.deselectRow(at: indexPath, animated: true)
 
         guard indexPath.section == 0 else {
-            let alertController = UIAlertController(
-                title: nil,
-                message: "You can also add files via AirDrop. Send an audiobook file to your device and select BookPlayer from the list that appears.",
-                preferredStyle: .actionSheet
-            )
-
-            alertController.addAction(UIAlertAction(title: "Import files", style: .default) { (_) in
-                self.presentImportFilesAlert()
-            })
-
-            alertController.addAction(UIAlertAction(title: "Create playlist", style: .default) { (_) in
-                self.presentCreatePlaylistAlert(handler: { title in
-                    let playlist = DataManager.createPlaylist(title: title, books: [])
-
-                    self.library.addToItems(playlist)
-
-                    DataManager.saveContext()
-
-                    self.tableView.reloadData()
-                })
-            })
-
-            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-
-            self.present(alertController, animated: true, completion: nil)
+            self.addAction()
 
             return
         }

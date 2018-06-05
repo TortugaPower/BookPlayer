@@ -111,7 +111,7 @@
                                 </cells>
                             </tableViewSection>
                             <tableViewSection id="B6i-M2-nWY">
-                                <string key="footerTitle">Doubles the volume. 
+                                <string key="footerTitle">Doubles the volume.
 Use with caution and care for your hearing.</string>
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="Rmd-i9-27M">
@@ -441,17 +441,70 @@ Use with caution and care for your hearing.</string>
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="emptyPlaylist" translatesAutoresizingMaskIntoConstraints="NO" id="hcW-Vv-6u7">
-                                        <rect key="frame" x="63.333333333333343" y="151.66666666666669" width="249.00000000000003" height="249"/>
+                                        <rect key="frame" x="63.333333333333343" y="170.66666666666669" width="249.00000000000003" height="249"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="249" id="M3c-0J-Ojl"/>
                                             <constraint firstAttribute="height" constant="249" id="S1o-Vm-xQT"/>
                                         </constraints>
                                     </imageView>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="You can also moves files here by dragging them on this playlist in the Library." lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="l2v-hx-85C">
+                                        <rect key="frame" x="16" y="16" width="343" height="36"/>
+                                        <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="15"/>
+                                        <color key="textColor" red="0.42745098039215684" green="0.42745098039215684" blue="0.44705882352941173" alpha="1" colorSpace="calibratedRGB"/>
+                                        <nil key="highlightedColor"/>
+                                        <size key="shadowOffset" width="0.0" height="0.0"/>
+                                    </label>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Yog-QU-sD5" userLabel="Spacer A">
+                                        <rect key="frame" x="16" y="52.000000000000007" width="343" height="118.66666666666669"/>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </view>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pBP-Gg-zR3" userLabel="Spacer B">
+                                        <rect key="frame" x="16" y="517.66666666666663" width="343" height="118.33333333333337"/>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="88" id="zxD-eK-nXJ"/>
+                                        </constraints>
+                                    </view>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fo9-V8-z4c" userLabel="Spacer Label Counterweight">
+                                        <rect key="frame" x="16" y="636" width="343" height="36"/>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </view>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3BN-um-QpR" customClass="AddButton" customModule="BookPlayer" customModuleProvider="target">
+                                        <rect key="frame" x="16" y="429.66666666666663" width="343" height="88"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="88" id="ldL-uM-UOH"/>
+                                        </constraints>
+                                        <state key="normal" title="Add files">
+                                            <color key="titleColor" red="0.1647058824" green="0.51764705879999995" blue="0.82352941180000006" alpha="1" colorSpace="calibratedRGB"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="addAction" destination="XZ8-Ha-OZN" eventType="touchUpInside" id="Hnd-1F-kbQ"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
+                                    <constraint firstItem="pBP-Gg-zR3" firstAttribute="leading" secondItem="S0r-5S-fT7" secondAttribute="leading" constant="16" id="6a0-yk-KjP"/>
+                                    <constraint firstItem="fo9-V8-z4c" firstAttribute="height" secondItem="l2v-hx-85C" secondAttribute="height" priority="250" id="9hV-XL-WRp"/>
+                                    <constraint firstAttribute="trailing" secondItem="fo9-V8-z4c" secondAttribute="trailing" constant="16" id="Anx-92-0w7"/>
+                                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="l2v-hx-85C" secondAttribute="bottom" id="H7N-Do-W1v"/>
+                                    <constraint firstItem="l2v-hx-85C" firstAttribute="top" secondItem="S0r-5S-fT7" secondAttribute="top" constant="16" id="I1b-Fu-vsk"/>
+                                    <constraint firstItem="hcW-Vv-6u7" firstAttribute="top" secondItem="Yog-QU-sD5" secondAttribute="bottom" id="IPP-YM-9k9"/>
+                                    <constraint firstItem="3BN-um-QpR" firstAttribute="top" secondItem="hcW-Vv-6u7" secondAttribute="bottom" constant="10" id="Njw-92-dkB"/>
+                                    <constraint firstItem="fo9-V8-z4c" firstAttribute="top" secondItem="pBP-Gg-zR3" secondAttribute="bottom" id="PMe-Z5-Ajj"/>
+                                    <constraint firstItem="pBP-Gg-zR3" firstAttribute="top" secondItem="3BN-um-QpR" secondAttribute="bottom" id="PyW-bb-RIi"/>
+                                    <constraint firstItem="3BN-um-QpR" firstAttribute="leading" secondItem="S0r-5S-fT7" secondAttribute="leading" constant="16" id="V4Q-jY-5V4"/>
+                                    <constraint firstItem="Yog-QU-sD5" firstAttribute="top" secondItem="l2v-hx-85C" secondAttribute="bottom" priority="750" id="Xv0-IS-auw"/>
+                                    <constraint firstItem="Yog-QU-sD5" firstAttribute="height" secondItem="pBP-Gg-zR3" secondAttribute="height" priority="500" id="bpJ-fE-Cl8"/>
                                     <constraint firstItem="hcW-Vv-6u7" firstAttribute="centerX" secondItem="S0r-5S-fT7" secondAttribute="centerX" id="cnN-LB-Z1r"/>
-                                    <constraint firstItem="hcW-Vv-6u7" firstAttribute="centerY" secondItem="S0r-5S-fT7" secondAttribute="centerY" constant="-60" id="u2P-VJ-w5F"/>
+                                    <constraint firstAttribute="bottom" secondItem="fo9-V8-z4c" secondAttribute="bottom" id="eQ4-c0-uQf"/>
+                                    <constraint firstItem="Yog-QU-sD5" firstAttribute="leading" secondItem="S0r-5S-fT7" secondAttribute="leading" constant="16" id="f7K-9i-gk3"/>
+                                    <constraint firstAttribute="trailing" secondItem="3BN-um-QpR" secondAttribute="trailing" constant="16" id="fWV-lo-AFc"/>
+                                    <constraint firstItem="l2v-hx-85C" firstAttribute="leading" secondItem="S0r-5S-fT7" secondAttribute="leading" constant="16" id="hFR-Sc-WLR"/>
+                                    <constraint firstAttribute="trailing" secondItem="pBP-Gg-zR3" secondAttribute="trailing" constant="16" id="mnc-mg-h8H"/>
+                                    <constraint firstItem="fo9-V8-z4c" firstAttribute="leading" secondItem="S0r-5S-fT7" secondAttribute="leading" constant="16" id="n0d-Xn-74W"/>
+                                    <constraint firstAttribute="trailing" secondItem="Yog-QU-sD5" secondAttribute="trailing" constant="16" id="oNE-FR-Md5"/>
+                                    <constraint firstAttribute="trailing" secondItem="l2v-hx-85C" secondAttribute="trailing" constant="16" id="thC-sB-Dyw"/>
                                 </constraints>
                             </view>
                         </subviews>
@@ -520,7 +573,7 @@ Use with caution and care for your hearing.</string>
                                             <constraint firstAttribute="width" constant="62" id="Z7d-Hx-7G7"/>
                                             <constraint firstAttribute="height" constant="62" id="b2T-IK-SQp"/>
                                         </constraints>
-                                        <state key="normal" title="Button" image="nowPlayingPause"/>
+                                        <state key="normal" image="nowPlayingPause"/>
                                         <connections>
                                             <action selector="playPause" destination="Ty0-3T-NNc" eventType="touchUpInside" id="Ube-nV-F7k"/>
                                         </connections>
@@ -581,18 +634,52 @@ Use with caution and care for your hearing.</string>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xYN-SW-g2w">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
                                 <subviews>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8XP-ZG-OgN" userLabel="Spacer A">
+                                        <rect key="frame" x="16" y="16" width="343" height="154.66666666666666"/>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </view>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="emptyLibrary" translatesAutoresizingMaskIntoConstraints="NO" id="0RV-NO-MaQ">
-                                        <rect key="frame" x="63.333333333333343" y="151.66666666666669" width="249.00000000000003" height="249"/>
+                                        <rect key="frame" x="63.333333333333343" y="170.66666666666669" width="249.00000000000003" height="249"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="249" id="5na-dc-FrY"/>
                                             <constraint firstAttribute="width" constant="249" id="Wgm-0u-wJb"/>
                                         </constraints>
                                     </imageView>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rr7-pJ-KIA" customClass="AddButton" customModule="BookPlayer" customModuleProvider="target">
+                                        <rect key="frame" x="16" y="429.66666666666663" width="343" height="88"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="88" id="7xB-jU-A2O"/>
+                                        </constraints>
+                                        <state key="normal" title="Add your first book">
+                                            <color key="titleColor" red="0.1647058824" green="0.51764705879999995" blue="0.82352941180000006" alpha="1" colorSpace="calibratedRGB"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="addAction" destination="Zuf-4A-dOY" eventType="touchUpInside" id="7mz-cF-NME"/>
+                                        </connections>
+                                    </button>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="oRg-bS-GGy" userLabel="Spacer B">
+                                        <rect key="frame" x="16" y="517.66666666666663" width="343" height="154.33333333333337"/>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="88" id="dT6-Zi-nDV"/>
+                                        </constraints>
+                                    </view>
                                 </subviews>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
+                                    <constraint firstAttribute="trailing" secondItem="8XP-ZG-OgN" secondAttribute="trailing" constant="16" id="0fe-7S-4cM"/>
+                                    <constraint firstItem="rr7-pJ-KIA" firstAttribute="leading" secondItem="xYN-SW-g2w" secondAttribute="leading" constant="16" id="Ai4-uL-hL9"/>
+                                    <constraint firstItem="rr7-pJ-KIA" firstAttribute="top" secondItem="0RV-NO-MaQ" secondAttribute="bottom" constant="10" id="HQy-Ia-Brw"/>
+                                    <constraint firstItem="0RV-NO-MaQ" firstAttribute="top" secondItem="8XP-ZG-OgN" secondAttribute="bottom" id="LKP-aj-5Bp"/>
+                                    <constraint firstItem="8XP-ZG-OgN" firstAttribute="leading" secondItem="xYN-SW-g2w" secondAttribute="leading" constant="16" id="Lk9-Ga-z3i"/>
+                                    <constraint firstItem="oRg-bS-GGy" firstAttribute="leading" secondItem="xYN-SW-g2w" secondAttribute="leading" constant="16" id="W4V-nC-iSJ"/>
+                                    <constraint firstItem="8XP-ZG-OgN" firstAttribute="top" secondItem="xYN-SW-g2w" secondAttribute="top" constant="16" id="Y0Z-cy-z8x"/>
+                                    <constraint firstAttribute="trailing" secondItem="rr7-pJ-KIA" secondAttribute="trailing" constant="16" id="cTY-qv-KUh"/>
                                     <constraint firstItem="0RV-NO-MaQ" firstAttribute="centerX" secondItem="xYN-SW-g2w" secondAttribute="centerX" id="iYA-W8-R4R"/>
-                                    <constraint firstItem="0RV-NO-MaQ" firstAttribute="centerY" secondItem="xYN-SW-g2w" secondAttribute="centerY" constant="-60" id="mIJ-Af-FIC"/>
+                                    <constraint firstItem="oRg-bS-GGy" firstAttribute="top" secondItem="rr7-pJ-KIA" secondAttribute="bottom" id="pGi-8H-kTC"/>
+                                    <constraint firstItem="oRg-bS-GGy" firstAttribute="height" secondItem="8XP-ZG-OgN" secondAttribute="height" id="rnp-CM-wQt"/>
+                                    <constraint firstAttribute="bottom" secondItem="oRg-bS-GGy" secondAttribute="bottom" id="t98-Wf-WNq"/>
+                                    <constraint firstAttribute="trailing" secondItem="oRg-bS-GGy" secondAttribute="trailing" constant="16" id="z7q-ef-9QZ"/>
                                 </constraints>
                             </view>
                         </subviews>
@@ -617,7 +704,7 @@ Use with caution and care for your hearing.</string>
                         </barButtonItem>
                     </navigationItem>
                     <connections>
-                        <outlet property="emptyListContainerView" destination="xYN-SW-g2w" id="Bgt-6L-28S"/>
+                        <outlet property="emptyLibraryPlaceholder" destination="xYN-SW-g2w" id="Bgt-6L-28S"/>
                         <outlet property="tableView" destination="392-ii-NXF" id="A9h-ev-SKj"/>
                         <segue destination="XZ8-Ha-OZN" kind="show" identifier="PlaylistSegue" id="jLU-AX-Vgv"/>
                     </connections>

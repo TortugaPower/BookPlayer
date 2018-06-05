@@ -23,4 +23,18 @@ extension UIColor {
 
         return String(format: "#%06x", rgb)
     }
+
+    static var tintColor: UIColor {
+        return UIColor(hex: "3488D1")
+    }
+
+    public var brightness: CGFloat {
+        var H: CGFloat = 0
+        var S: CGFloat = 0
+        var B: CGFloat = 0
+        var A: CGFloat = 0
+        self.getHue(&H, saturation: &S, brightness: &B, alpha: &A)
+
+        return B
+    }
 }

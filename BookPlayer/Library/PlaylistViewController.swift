@@ -35,6 +35,10 @@ class PlaylistViewController: BaseListViewController {
             self.tableView.reloadData()
         }
     }
+
+    @IBAction func addAction() {
+        self.presentImportFilesAlert()
+    }
 }
 
 extension PlaylistViewController {
