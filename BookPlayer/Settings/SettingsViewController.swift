@@ -69,8 +69,6 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
             viewController.didSelectInterval = { selectedInterval in
                 PlayerManager.shared.rewindInterval = selectedInterval
 
-                print(selectedInterval, PlayerManager.shared.rewindInterval)
-
                 self.rewindIntervalLabel.text = self.formatDuration(PlayerManager.shared.rewindInterval)
             }
         }

@@ -118,7 +118,7 @@ class PlayerManager: NSObject {
         // Notify
         if isPercentageDifferent {
             NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil, userInfo: [
-                "percentCompletedString": self.currentBook.percentCompletedRoundedString,
+                "progress": self.currentBook.percentCompleted / 100.0,
                 "fileURL": self.fileURL
             ] as [String: Any])
         }
@@ -360,7 +360,9 @@ class PlayerManager: NSObject {
     func stop() {
         self.audioPlayer?.stop()
 
-        // TODO: This should also dimiss the mini player / send a notification that the current book was stoppped
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookStopped, object: nil)
+        }
     }
 }
 

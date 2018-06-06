@@ -122,7 +122,7 @@ class BaseListViewController: UIViewController {
     @objc func updatePercentage(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
             let fileURL = userInfo["fileURL"] as? URL,
-            let percentCompletedString = userInfo["percentCompletedString"] as? String else {
+            let progress = userInfo["progress"] as? Double else {
                 return
         }
 
@@ -130,12 +130,13 @@ class BaseListViewController: UIViewController {
             if let book = item as? Book {
                 return book.fileURL == fileURL
             }
+
             return false
         }), let cell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView else {
             return
         }
 
-        cell.completionLabel.text = percentCompletedString
+        cell.progress = progress
     }
 }
 
@@ -160,7 +161,7 @@ extension BaseListViewController: UITableViewDataSource {
 
         let item = self.items[indexPath.row]
 
-        cell.completionLabel.text = item.percentCompletedRoundedString
+        cell.progress = item.percentCompleted / 100.0
         cell.artwork = item.artwork
         cell.title = item.title
         cell.isPlaylist = item is Playlist
