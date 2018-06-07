@@ -25,45 +25,33 @@ class PlayerManager: NSObject {
 
     private var timer: Timer!
 
-    func load(_ books: [Book], completion:@escaping (AVAudioPlayer?) -> Void) {
+    func load(_ books: [Book], completion:@escaping (Bool) -> Void) {
         if let player = self.audioPlayer,
             self.currentBooks.count == books.count { // @TODO : fix logic
                 player.stop()
                 // notify?
         }
 
-        self.currentBooks = books
-
         let book = books.first!
-
-        self.playerItem = DataManager.playerItem(from: book)
-        self.fileURL = book.fileURL
-        self.identifier = book.identifier
-
-        //notify book is loading
-        let userInfo = ["book": book]
-        NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.loadingBook, object: nil, userInfo: userInfo)
 
         // load data on background thread
         DispatchQueue.global().async {
             // try loading the player
-            do {
-                self.audioPlayer = try AVAudioPlayer(contentsOf: book.fileURL)
-            } catch {
-                NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.errorLoadingBook, object: nil)
-                completion(nil)
+            guard let audioplayer = try? AVAudioPlayer(contentsOf: book.fileURL) else {
+                DispatchQueue.main.async(execute: {
+                    completion(false)
+                })
                 return
             }
 
-            guard let audioplayer = self.audioPlayer else {
-                //notify error
-                NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.errorLoadingBook, object: nil)
-                completion(nil)
-                return
-            }
-
+            self.audioPlayer = audioplayer
             audioplayer.delegate = self
             audioplayer.enableRate = true
+
+            self.currentBooks = books
+            self.playerItem = DataManager.playerItem(from: book)
+            self.fileURL = book.fileURL
+            self.identifier = book.identifier
 
             if UserDefaults.standard.bool(forKey: UserDefaultsConstants.boostVolumeEnabled) {
                 audioplayer.volume = 2.0
@@ -94,9 +82,9 @@ class PlayerManager: NSObject {
                 // Set speed for player
                 audioplayer.rate = self.speed
 
-                NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookReady, object: nil)
+                NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookReady, object: nil, userInfo: ["book": book])
 
-                completion(audioplayer)
+                completion(true)
             })
         }
     }

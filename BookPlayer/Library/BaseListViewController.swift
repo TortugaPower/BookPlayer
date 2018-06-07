@@ -104,7 +104,12 @@ class BaseListViewController: UIViewController {
         MBProgressHUD.showAdded(to: self.view, animated: true)
 
         // Replace player with new one
-        PlayerManager.shared.load(books) { (_) in
+        PlayerManager.shared.load(books) { (loaded) in
+            guard loaded else {
+                MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
+                self.showAlert("File error!", message: "This book's file couldn't be loaded. Make sure you're not using files with DRM protection (like .aax files)")
+                return
+            }
             self.showPlayerView(book: book)
 
             PlayerManager.shared.playPause()
