@@ -43,7 +43,7 @@ class RootViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: Notification.Name.AudiobookPlayer.bookChange, object: nil)
 
         // Register for book loading notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookLoading(_:)), name: Notification.Name.AudiobookPlayer.loadingBook, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookReady(_:)), name: Notification.Name.AudiobookPlayer.bookReady, object: nil)
 
         //
         NotificationCenter.default.addObserver(self, selector: #selector(self.dismissMiniPlayer), name: Notification.Name.AudiobookPlayer.playerPresented, object: nil)
@@ -103,7 +103,7 @@ class RootViewController: UIViewController {
         PlayerManager.shared.play()
     }
 
-    @objc func bookLoading(_ notification: Notification) {
+    @objc func bookReady(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
             let book = userInfo["book"] as? Book else {
                 return
