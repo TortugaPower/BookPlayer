@@ -180,6 +180,22 @@ class DataManager {
     }
 
     /**
+     Gets a stored book from an identifier.
+     */
+    class func getBook(from identifier: String) -> Book? {
+
+        let context = self.persistentContainer.viewContext
+        let request: NSFetchRequest<Book> = Book.fetchRequest()
+        request.predicate = NSPredicate(format: "identifier = %@", identifier)
+
+        guard let book = try? context.fetch(request).first else {
+            return nil
+        }
+
+        return book
+    }
+
+    /**
      Creates a book for each URL and adds it to the specified playlist. If no playlist is specified, it will be added to the library.
      
      A book can't be in two places at once, so if it already existed, it will be removed from the original playlist or library, and it will be added to the new one.
