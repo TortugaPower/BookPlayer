@@ -118,6 +118,7 @@ class BaseListViewController: UIViewController {
 
     @objc func bookReady() {
         MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
+        self.tableView.reloadData()
     }
 
     @objc func loadFile(urls: [URL]) {
@@ -170,6 +171,8 @@ extension BaseListViewController: UITableViewDataSource {
         cell.artwork = item.artwork
         cell.title = item.title
         cell.isPlaylist = item is Playlist
+        cell.artworkButton.setImage(nil, for: .normal)
+        cell.titleColor = UIColor.black
 
         if let book = item as? Book {
             cell.subtitle = book.author

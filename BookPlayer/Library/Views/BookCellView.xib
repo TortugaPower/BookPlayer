@@ -48,6 +48,7 @@
                     </view>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="weP-Z4-F5J">
                         <rect key="frame" x="16" y="13" width="50" height="50"/>
+                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <connections>
                             <action selector="artworkButtonTapped:" destination="4fw-Bq-hyU" eventType="touchUpInside" id="Qbi-j3-5ee"/>
                         </connections>
@@ -72,6 +73,7 @@
                 </constraints>
             </tableViewCellContentView>
             <connections>
+                <outlet property="artworkButton" destination="weP-Z4-F5J" id="IdS-tc-798"/>
                 <outlet property="artworkImageView" destination="3kC-6m-IJf" id="AgR-ku-gzP"/>
                 <outlet property="progressTrailing" destination="Su9-Ah-617" id="Osb-qI-hpx"/>
                 <outlet property="progressView" destination="Nkg-F5-bH6" id="HiU-IX-RA1"/>
