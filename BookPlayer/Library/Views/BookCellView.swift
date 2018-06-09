@@ -14,6 +14,7 @@ class BookCellView: UITableViewCell {
     @IBOutlet private weak var subtitleLabel: UILabel!
     @IBOutlet private weak var progressTrailing: NSLayoutConstraint!
     @IBOutlet weak var progressView: ItemProgress!
+    @IBOutlet weak var artworkButton: UIButton!
 
     var onArtworkTap: (() -> Void)?
 
@@ -35,6 +36,15 @@ class BookCellView: UITableViewCell {
         }
         set {
             self.titleLabel.text = newValue
+        }
+    }
+    
+    var titleColor: UIColor! {
+        get {
+            return self.titleLabel.textColor
+        }
+        set {
+            self.titleLabel.textColor = newValue
         }
     }
 

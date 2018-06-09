@@ -306,6 +306,21 @@ extension LibraryViewController {
 }
 
 extension LibraryViewController {
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
+
+        guard let bookCell = cell as? BookCellView,
+            PlayerManager.shared.currentBook != nil,
+            let index = self.library.itemIndex(with: PlayerManager.shared.currentBook.fileURL),
+            index == indexPath.row else {
+                return cell
+        }
+
+        bookCell.titleColor = UIColor(red:0.37, green:0.64, blue:0.85, alpha:1.0)
+        bookCell.artworkButton.setImage(#imageLiteral(resourceName: "playerIconPlay"), for: .normal)
+
+        return bookCell
+    }
     override func tableView(_ tableView: UITableView, reorderRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         guard destinationIndexPath.section == 0 else {
             return
