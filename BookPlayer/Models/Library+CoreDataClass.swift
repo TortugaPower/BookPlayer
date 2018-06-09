@@ -12,7 +12,7 @@ import CoreData
 
 public class Library: NSManagedObject {
     func itemIndex(with url: URL) -> Int? {
-        let hash = url.deletingPathExtension().lastPathComponent
+        let hash = url.lastPathComponent
 
         guard let items = self.items?.array as? [LibraryItem] else {
             return nil

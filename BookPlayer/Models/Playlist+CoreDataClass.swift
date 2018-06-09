@@ -38,7 +38,7 @@ public class Playlist: LibraryItem {
     }
 
     func itemIndex(with url: URL) -> Int? {
-        let hash = url.deletingPathExtension().lastPathComponent
+        let hash = url.lastPathComponent
 
         guard let books = self.books?.array as? [Book] else {
             return nil
