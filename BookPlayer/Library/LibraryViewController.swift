@@ -25,6 +25,20 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         NotificationCenter.default.addObserver(self, selector: #selector(self.reloadData), name: Notification.Name.AudiobookPlayer.bookDeleted, object: nil)
 
         self.loadLibrary()
+
+        guard let identifier = UserDefaults.standard.string(forKey: UserDefaultsConstants.lastPlayedBook),
+            let lastPlayedBook = DataManager.getBook(from: identifier) else {
+                return
+        }
+
+        // Preload player
+        PlayerManager.shared.load([lastPlayedBook]) { (loaded) in
+            guard loaded else {
+                return
+            }
+
+            self.showPlayerView(book: lastPlayedBook)
+        }
     }
 
     // No longer need to deregister observers for iOS 9+!
