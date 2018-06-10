@@ -362,6 +362,8 @@ extension PlayerManager: AVAudioPlayerDelegate {
         }
 
         player.currentTime = player.duration
+        
+        UserDefaults.standard.removeObject(forKey: UserDefaultsConstants.lastPlayedBook)
 
         self.update()
 

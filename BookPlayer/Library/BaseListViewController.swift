@@ -57,6 +57,20 @@ class BaseListViewController: UIViewController {
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.dismissMiniPlayer), name: Notification.Name.AudiobookPlayer.playerPresented, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.presentMiniPlayer), name: Notification.Name.AudiobookPlayer.playerDismissed, object: nil)
+
+        guard let identifier = UserDefaults.standard.string(forKey: UserDefaultsConstants.lastPlayedBook),
+            let lastPlayedBook = DataManager.getBook(from: identifier) else {
+            return
+        }
+
+        // Preload player
+        PlayerManager.shared.load([lastPlayedBook]) { (loaded) in
+            guard loaded else {
+                return
+            }
+
+            self.showPlayerView(book: lastPlayedBook)
+        }
     }
 
     @objc func presentMiniPlayer() {

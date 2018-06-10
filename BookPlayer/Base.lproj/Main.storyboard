@@ -573,7 +573,7 @@ Use with caution and care for your hearing.</string>
                                             <constraint firstAttribute="width" constant="62" id="Z7d-Hx-7G7"/>
                                             <constraint firstAttribute="height" constant="62" id="b2T-IK-SQp"/>
                                         </constraints>
-                                        <state key="normal" image="nowPlayingPause"/>
+                                        <state key="normal" image="nowPlayingPlay"/>
                                         <connections>
                                             <action selector="playPause" destination="Ty0-3T-NNc" eventType="touchUpInside" id="Ube-nV-F7k"/>
                                         </connections>
@@ -717,7 +717,7 @@ Use with caution and care for your hearing.</string>
     <resources>
         <image name="emptyLibrary" width="249" height="249"/>
         <image name="emptyPlaylist" width="249" height="249"/>
-        <image name="nowPlayingPause" width="62" height="62"/>
+        <image name="nowPlayingPlay" width="62" height="62"/>
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="65N-p2-GLp"/>

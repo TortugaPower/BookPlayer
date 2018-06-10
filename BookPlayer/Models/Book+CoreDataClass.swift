@@ -12,7 +12,9 @@ import CoreData
 import AVFoundation
 
 public class Book: LibraryItem {
-    var fileURL: URL!
+    var fileURL: URL {
+        return DataManager.getProcessedFolderURL().appendingPathComponent(self.identifier)
+    }
 
     var currentChapter: Chapter? {
         guard let chapters = self.chapters?.array as? [Chapter],
@@ -29,10 +31,6 @@ public class Book: LibraryItem {
 
     var displayTitle: String {
         return self.title
-    }
-
-    var filename: String {
-        return self.identifier + ".\(self.ext!)"
     }
 
     var percentage: Double {
@@ -67,9 +65,8 @@ public class Book: LibraryItem {
     convenience init(from fileURL: URL, context: NSManagedObjectContext) {
         let entity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
         self.init(entity: entity, insertInto: context)
-        self.fileURL = fileURL
         self.ext = fileURL.pathExtension
-        self.identifier = fileURL.deletingPathExtension().lastPathComponent
+        self.identifier = fileURL.lastPathComponent
         let asset = AVAsset(url: fileURL)
 
         let titleFromMeta = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyTitle, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String
@@ -98,10 +95,5 @@ public class Book: LibraryItem {
             self.currentTime = storedTime
             UserDefaults.standard.removeObject(forKey: self.identifier)
         }
-    }
-
-    public override func awakeFromFetch() {
-        super.awakeFromFetch()
-        self.fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(self.filename)
     }
 }
