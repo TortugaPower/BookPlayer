@@ -38,7 +38,7 @@ class BookCellView: UITableViewCell {
             self.titleLabel.text = newValue
         }
     }
-    
+
     var titleColor: UIColor! {
         get {
             return self.titleLabel.textColor

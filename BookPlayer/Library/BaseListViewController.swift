@@ -57,6 +57,8 @@ class BaseListViewController: UIViewController {
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.dismissMiniPlayer), name: Notification.Name.AudiobookPlayer.playerPresented, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.presentMiniPlayer), name: Notification.Name.AudiobookPlayer.playerDismissed, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPlay), name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
 
         guard let identifier = UserDefaults.standard.string(forKey: UserDefaultsConstants.lastPlayedBook),
             let lastPlayedBook = DataManager.getBook(from: identifier) else {
@@ -71,6 +73,24 @@ class BaseListViewController: UIViewController {
 
             self.showPlayerView(book: lastPlayedBook)
         }
+    }
+
+    @objc func onBookPlay() {
+        guard let index = self.library.itemIndex(with: PlayerManager.shared.currentBook.fileURL),
+            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView else {
+                return
+        }
+
+        bookCell.artworkButton.setImage(#imageLiteral(resourceName: "playerIconPlay"), for: .normal)
+    }
+
+    @objc func onBookPause() {
+        guard let index = self.library.itemIndex(with: PlayerManager.shared.currentBook.fileURL),
+            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView else {
+                return
+        }
+
+        bookCell.artworkButton.setImage(#imageLiteral(resourceName: "playerIconPause"), for: .normal)
     }
 
     @objc func presentMiniPlayer() {
@@ -187,6 +207,7 @@ extension BaseListViewController: UITableViewDataSource {
         cell.isPlaylist = item is Playlist
         cell.artworkButton.setImage(nil, for: .normal)
         cell.titleColor = UIColor.black
+        cell.progressView.isHidden = item.currentTime == 0
 
         if let book = item as? Book {
             cell.subtitle = book.author
