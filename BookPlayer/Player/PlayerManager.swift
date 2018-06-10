@@ -25,6 +25,10 @@ class PlayerManager: NSObject {
 
     private var timer: Timer!
 
+    // 599 = 10 mins
+    private let smartRewindThreshold = 599.0
+    private let maxSmartRewind = 60.0
+
     func load(_ books: [Book], completion:@escaping (Bool) -> Void) {
         if let player = self.audioPlayer,
             self.currentBooks.count == books.count { // @TODO : fix logic
@@ -277,6 +281,18 @@ class PlayerManager: NSObject {
             audioplayer.currentTime = 0.0
         }
 
+        // Handle smart rewind.
+        if let lastPlayTime: Date = UserDefaults.standard.object(forKey: UserDefaultsConstants.lastPauseTime+"_\(self.identifier)") as? Date,
+            UserDefaults.standard.bool(forKey: UserDefaultsConstants.smartRewindEnabled) {
+
+            let timePassed = Date().timeIntervalSince(lastPlayTime)
+            let rewindTime = min(((timePassed * self.maxSmartRewind) / self.smartRewindThreshold), self.maxSmartRewind)
+
+            let newPlayerTime = max(audioplayer.currentTime - rewindTime, 0)
+            UserDefaults.standard.set(nil, forKey: UserDefaultsConstants.lastPauseTime+"_\(self.identifier)")
+            audioplayer.currentTime = newPlayerTime
+        }
+
         // create timer if needed
         if self.timer == nil || (self.timer != nil && !self.timer.isValid) {
             self.timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(update), userInfo: nil, repeats: true)
@@ -362,7 +378,7 @@ extension PlayerManager: AVAudioPlayerDelegate {
         }
 
         player.currentTime = player.duration
-        
+
         UserDefaults.standard.removeObject(forKey: UserDefaultsConstants.lastPlayedBook)
 
         self.update()
