@@ -39,6 +39,24 @@ class PlaylistViewController: BaseListViewController {
     @IBAction func addAction() {
         self.presentImportFilesAlert()
     }
+
+    @objc override func onBookPlay() {
+        guard let index = self.playlist.itemIndex(with: PlayerManager.shared.currentBook.fileURL),
+            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView else {
+                return
+        }
+
+        bookCell.artworkButton.setImage(#imageLiteral(resourceName: "playerIconPlay"), for: .normal)
+    }
+
+    @objc override func onBookPause() {
+        guard let index = self.playlist.itemIndex(with: PlayerManager.shared.currentBook.fileURL),
+            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView else {
+                return
+        }
+
+        bookCell.artworkButton.setImage(#imageLiteral(resourceName: "playerIconPause"), for: .normal)
+    }
 }
 
 extension PlaylistViewController {
@@ -52,7 +70,7 @@ extension PlaylistViewController {
                 return cell
         }
 
-        bookCell.titleColor = UIColor(red:0.37, green:0.64, blue:0.85, alpha:1.0)
+        bookCell.titleColor = UIColor(red: 0.37, green: 0.64, blue: 0.85, alpha: 1.0)
         bookCell.artworkButton.setImage(#imageLiteral(resourceName: "playerIconPlay"), for: .normal)
 
         return bookCell

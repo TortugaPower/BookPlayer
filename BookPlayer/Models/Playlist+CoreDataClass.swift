@@ -22,6 +22,22 @@ public class Playlist: LibraryItem {
         return book.artwork
     }
 
+    func totalPercentage() -> Double {
+        guard let books = self.books?.array as? [Book] else {
+            return 0.0
+        }
+
+        var totalDuration = 0.0
+        var totalProgress = 0.0
+
+        for book in books {
+            totalDuration += book.duration
+            totalProgress += book.currentTime
+        }
+
+        return totalProgress / totalDuration
+    }
+
     func getRemainingBooks() -> [Book] {
         guard
             let books = self.books?.array as? [Book], let firstUnfinishedBook = books.first(where: { (book) -> Bool in

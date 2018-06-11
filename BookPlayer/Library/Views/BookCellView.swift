@@ -38,7 +38,7 @@ class BookCellView: UITableViewCell {
             self.titleLabel.text = newValue
         }
     }
-    
+
     var titleColor: UIColor! {
         get {
             return self.titleLabel.textColor
@@ -72,16 +72,10 @@ class BookCellView: UITableViewCell {
                 self.accessoryType = .disclosureIndicator
 
                 self.progressTrailing.constant = 0
-
-                // @TODO: Remove and calculate accumulated playlist progress
-                self.progressView.isHidden = true
             } else {
                 self.accessoryType = .none
 
                 self.progressTrailing.constant = 16.0
-
-                // @TODO: Remove and calculate accumulated playlist progress
-                self.progressView.isHidden = false
             }
         }
     }

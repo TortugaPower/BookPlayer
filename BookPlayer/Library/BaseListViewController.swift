@@ -57,20 +57,26 @@ class BaseListViewController: UIViewController {
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.dismissMiniPlayer), name: Notification.Name.AudiobookPlayer.playerPresented, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.presentMiniPlayer), name: Notification.Name.AudiobookPlayer.playerDismissed, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPlay), name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
+    }
 
-        guard let identifier = UserDefaults.standard.string(forKey: UserDefaultsConstants.lastPlayedBook),
-            let lastPlayedBook = DataManager.getBook(from: identifier) else {
-            return
-        }
-
-        // Preload player
-        PlayerManager.shared.load([lastPlayedBook]) { (loaded) in
-            guard loaded else {
+    @objc func onBookPlay() {
+        guard let index = self.library.itemIndex(with: PlayerManager.shared.currentBook.fileURL),
+            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView else {
                 return
-            }
-
-            self.showPlayerView(book: lastPlayedBook)
         }
+
+        bookCell.artworkButton.setImage(#imageLiteral(resourceName: "playerIconPlay"), for: .normal)
+    }
+
+    @objc func onBookPause() {
+        guard let index = self.library.itemIndex(with: PlayerManager.shared.currentBook.fileURL),
+            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView else {
+                return
+        }
+
+        bookCell.artworkButton.setImage(#imageLiteral(resourceName: "playerIconPause"), for: .normal)
     }
 
     @objc func presentMiniPlayer() {
@@ -181,7 +187,6 @@ extension BaseListViewController: UITableViewDataSource {
 
         let item = self.items[indexPath.row]
 
-        cell.progress = item.percentCompleted / 100.0
         cell.artwork = item.artwork
         cell.title = item.title
         cell.isPlaylist = item is Playlist
@@ -190,11 +195,20 @@ extension BaseListViewController: UITableViewDataSource {
 
         if let book = item as? Book {
             cell.subtitle = book.author
+
+            cell.progressView.isHidden = book.currentTime == 0
+            cell.progress = item.percentCompleted / 100.0
+
             cell.onArtworkTap = { [weak self] in
                 self?.setupPlayer(books: [book])
             }
         } else if let playlist = item as? Playlist {
             cell.subtitle = playlist.info()
+
+            let totalPercentage = playlist.totalPercentage()
+            cell.progressView.isHidden = totalPercentage == 0
+            cell.progress = totalPercentage
+
             cell.onArtworkTap = { [weak self] in
                 self?.setupPlayer(books: playlist.getRemainingBooks())
             }

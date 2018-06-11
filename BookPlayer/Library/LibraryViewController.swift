@@ -25,6 +25,20 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         NotificationCenter.default.addObserver(self, selector: #selector(self.reloadData), name: Notification.Name.AudiobookPlayer.bookDeleted, object: nil)
 
         self.loadLibrary()
+
+        guard let identifier = UserDefaults.standard.string(forKey: UserDefaultsConstants.lastPlayedBook),
+            let lastPlayedBook = DataManager.getBook(from: identifier) else {
+                return
+        }
+
+        // Preload player
+        PlayerManager.shared.load([lastPlayedBook]) { (loaded) in
+            guard loaded else {
+                return
+            }
+
+            self.showPlayerView(book: lastPlayedBook)
+        }
     }
 
     // No longer need to deregister observers for iOS 9+!
@@ -316,7 +330,7 @@ extension LibraryViewController {
                 return cell
         }
 
-        bookCell.titleColor = UIColor(red:0.37, green:0.64, blue:0.85, alpha:1.0)
+        bookCell.titleColor = UIColor(red: 0.37, green: 0.64, blue: 0.85, alpha: 1.0)
         bookCell.artworkButton.setImage(#imageLiteral(resourceName: "playerIconPlay"), for: .normal)
 
         return bookCell
