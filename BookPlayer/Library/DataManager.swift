@@ -94,14 +94,26 @@ class DataManager {
      - Parameter destinationFolder: File final location
      - Returns: `URL` of the file's new location. Returns `nil` if hashing fails.
      */
-    internal class func processFile(at origin: URL, destinationFolder: URL) -> URL? {
-
-        guard let data = FileManager.default.contents(atPath: origin.path),
-            let digest = Digest(algorithm: .md5).update(data: data)?.final() else {
-                return nil
+    class func processFile(at origin: URL, destinationFolder: URL) -> URL? {
+        guard let inputStream = InputStream(url: origin) else {
+            return nil
         }
 
-        let hash = hexString(fromArray: digest)
+        inputStream.open()
+
+        let digest = Digest(algorithm: .md5)
+
+        while inputStream.hasBytesAvailable {
+            var inputBuffer = [UInt8](repeating: 0, count: 1024)
+            inputStream.read(&inputBuffer, maxLength: inputBuffer.count)
+            _ = digest.update(byteArray: inputBuffer)
+        }
+
+        inputStream.close()
+
+        let finalDigest = digest.final()
+
+        let hash = hexString(fromArray: finalDigest)
         let ext = origin.pathExtension
         let filename = hash + ".\(ext)"
         let destinationURL = destinationFolder.appendingPathComponent(filename)

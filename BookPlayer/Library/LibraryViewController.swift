@@ -89,11 +89,21 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
     }
 
     @objc func openURL(_ notification: Notification) {
-        MBProgressHUD.showAdded(to: self.view, animated: true)
-
-        DataManager.processPendingFiles { (urls) in
-            self.loadFile(urls: urls)
+        guard let userInfo = notification.userInfo,
+            let fileURL = userInfo["fileURL"] as? URL else {
+                return
         }
+
+        MBProgressHUD.showAdded(to: self.view, animated: true)
+        
+        let destinationFolder = DataManager.getProcessedFolderURL()
+        
+        guard let bookUrl = DataManager.processFile(at: fileURL, destinationFolder: destinationFolder) else {
+            MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
+            return
+        }
+        
+        self.loadFile(urls: [bookUrl])
     }
 
     @objc func reloadData() {
