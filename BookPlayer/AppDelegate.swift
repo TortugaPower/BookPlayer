@@ -65,27 +65,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey: Any] = [:]) -> Bool {
         // This function is called when the app is opened with a audio file url,
         // like when receiving files through AirDrop
-
-        let fmanager = FileManager.default
-        let filename = url.lastPathComponent
-        let documentsURL = fmanager.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let destinationURL = documentsURL.appendingPathComponent(filename)
-
-        // move file from Inbox to Document folder
-        do {
-            try fmanager.moveItem(at: url, to: destinationURL)
-            // In case the app was already running in background
-            let userInfo = ["fileURL": destinationURL]
-            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.openURL, object: nil, userInfo: userInfo)
-        } catch {
-            do {
-                try fmanager.removeItem(at: url)
-            } catch {
-                // @TODO: How should this case be handled?
-            }
-
-            return false
-        }
+        DataManager.processExternalFiles([url])
 
         return true
     }

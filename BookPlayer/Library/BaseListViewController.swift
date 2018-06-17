@@ -92,6 +92,10 @@ class BaseListViewController: UIViewController {
 
         providerList.delegate = self
 
+        if #available(iOS 11.0, *) {
+            providerList.allowsMultipleSelection = true
+        }
+
         self.present(providerList, animated: true, completion: nil)
     }
 
@@ -290,47 +294,6 @@ extension BaseListViewController: TableViewReorderDelegate {
 
 extension BaseListViewController: UIDocumentPickerDelegate {
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-        guard let url = urls.first else {
-            return
-        }
-
-        // @TODO: Consider importing multiple files at once
-
-        self.addFileFromUrl(url)
-    }
-
-    func addFileFromUrl(_ url: URL) {
-        // Documentation states that the file might not be imported due to being accessed from somewhere else
-
-        do {
-            try FileManager.default.attributesOfItem(atPath: url.path)
-        } catch {
-            self.showAlert("Error", message: "There was an error reading the file, please try again.")
-
-            return
-        }
-
-        let trueName = url.lastPathComponent
-        var finalPath = self.documentsPath + "/" + (trueName)
-
-        if trueName.contains(" ") {
-            finalPath = finalPath.replacingOccurrences(of: " ", with: "_")
-        }
-
-        let fileURL = URL(fileURLWithPath: finalPath.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed)!)
-
-        do {
-            try FileManager.default.moveItem(at: url, to: fileURL)
-        } catch {
-            self.showAlert("Error", message: "There was an error importing the file, please try again.")
-
-            return
-        }
-
-        MBProgressHUD.showAdded(to: self.view, animated: true)
-
-        DataManager.processPendingFiles { (urls) in
-            self.loadFile(urls: urls)
-        }
+        DataManager.processExternalFiles(urls)
     }
 }

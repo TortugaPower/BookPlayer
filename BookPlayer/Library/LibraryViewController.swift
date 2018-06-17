@@ -95,14 +95,14 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         }
 
         MBProgressHUD.showAdded(to: self.view, animated: true)
-        
+
         let destinationFolder = DataManager.getProcessedFolderURL()
-        
+
         guard let bookUrl = DataManager.processFile(at: fileURL, destinationFolder: destinationFolder) else {
             MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
             return
         }
-        
+
         self.loadFile(urls: [bookUrl])
     }
 

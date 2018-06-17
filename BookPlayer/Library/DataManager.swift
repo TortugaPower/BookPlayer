@@ -170,6 +170,30 @@ class DataManager {
         self.processFiles(in: documentsFolder, completion: completion)
     }
 
+    /**
+     Process 'external' files coming via AirDrop or importing files functionality
+     */
+    class func processExternalFiles(_ urls: [URL]) {
+        for url in urls {
+            let documentsURL = self.getDocumentsFolderURL()
+            let filename = url.lastPathComponent
+            let destinationURL = documentsURL.appendingPathComponent(filename)
+
+            // move file from Inbox to Document folder
+            do {
+                try FileManager.default.moveItem(at: url, to: destinationURL)
+                let userInfo = ["fileURL": destinationURL]
+                NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.openURL, object: nil, userInfo: userInfo)
+            } catch {
+                do {
+                    try FileManager.default.removeItem(at: url)
+                } catch {
+                    // @TODO: How should this case be handled?
+                }
+            }
+        }
+    }
+
     // MARK: - Models handler
 
     /**
