@@ -41,9 +41,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             ]
         }
 
-        NotificationCenter.default.addObserver(self, selector: #selector(self.hideShowPlayer), name: NSNotification.Name.AudiobookPlayer.playerPresented, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.hideShowPlayer), name: NSNotification.Name.AudiobookPlayer.playerDismissed, object: nil)
-
         do {
             try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
         } catch {
@@ -106,14 +103,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
-    }
-
-    @objc func hideShowPlayer() {
-        if UIApplication.shared.statusBarStyle == .default && PlayerManager.shared.currentBook.artworkColors.displayOnDark {
-            UIApplication.shared.statusBarStyle = .lightContent
-        } else {
-            UIApplication.shared.statusBarStyle = .default
-        }
     }
 
     // Playback may be interrupted by calls. Handle pause
