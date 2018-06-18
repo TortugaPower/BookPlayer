@@ -8,13 +8,19 @@
 
 import UIKit
 
+enum PlaybackState {
+    case Playing
+    case Paused
+    case Stopped
+}
+
 class BookCellView: UITableViewCell {
     @IBOutlet private weak var artworkImageView: UIImageView!
     @IBOutlet private weak var titleLabel: UILabel!
     @IBOutlet private weak var subtitleLabel: UILabel!
     @IBOutlet private weak var progressTrailing: NSLayoutConstraint!
-    @IBOutlet weak var progressView: ItemProgress!
-    @IBOutlet weak var artworkButton: UIButton!
+    @IBOutlet private weak var progressView: ItemProgress!
+    @IBOutlet private weak var artworkButton: UIButton!
 
     var onArtworkTap: (() -> Void)?
 
@@ -76,6 +82,19 @@ class BookCellView: UITableViewCell {
                 self.accessoryType = .none
 
                 self.progressTrailing.constant = 16.0
+            }
+        }
+    }
+
+    var playbackState: PlaybackState = PlaybackState.Stopped {
+        didSet {
+            switch playbackState {
+                case .Playing:
+                    self.artworkButton.setImage(#imageLiteral(resourceName: "playStatePlaying"), for: .normal)
+                case .Paused:
+                    self.artworkButton.setImage(#imageLiteral(resourceName: "playStatePaused"), for: .normal)
+                default:
+                    self.artworkButton.setImage(nil, for: .normal)
             }
         }
     }

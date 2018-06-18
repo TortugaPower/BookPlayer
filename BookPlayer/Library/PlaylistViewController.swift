@@ -47,7 +47,7 @@ class PlaylistViewController: BaseListViewController {
                 return
         }
 
-        bookCell.artworkButton.setImage(#imageLiteral(resourceName: "playerIconPlay"), for: .normal)
+        bookCell.playbackState = .Playing
     }
 
     @objc override func onBookPause() {
@@ -56,7 +56,7 @@ class PlaylistViewController: BaseListViewController {
                 return
         }
 
-        bookCell.artworkButton.setImage(#imageLiteral(resourceName: "playerIconPause"), for: .normal)
+        bookCell.playbackState = .Paused
     }
 
     override func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
@@ -79,7 +79,7 @@ extension PlaylistViewController {
         }
 
         bookCell.titleColor = UIColor(red: 0.37, green: 0.64, blue: 0.85, alpha: 1.0)
-        bookCell.artworkButton.setImage(#imageLiteral(resourceName: "playerIconPlay"), for: .normal)
+        bookCell.playbackState = .Playing
 
         return bookCell
     }
