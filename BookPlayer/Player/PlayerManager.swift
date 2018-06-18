@@ -10,6 +10,8 @@ import Foundation
 import AVFoundation
 import MediaPlayer
 
+// swiftlint:disable file_length
+
 class PlayerManager: NSObject {
     static let shared = PlayerManager()
 
@@ -325,13 +327,15 @@ class PlayerManager: NSObject {
             self.timer.invalidate()
         }
 
+        self.update()
+
         // set pause state on player and control center
-        audioplayer.stop()
+        audioplayer.pause()
 
         MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 0.0
         MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
 
-        UserDefaults.standard.set(Date(), forKey: UserDefaultsConstants.lastPauseTime+"_\(self.identifier)")
+        UserDefaults.standard.set(Date(), forKey: "\(UserDefaultsConstants.lastPauseTime)_\(self.identifier!)")
 
         do {
             try AVAudioSession.sharedInstance().setActive(false)
@@ -342,8 +346,6 @@ class PlayerManager: NSObject {
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
         }
-
-        self.update()
     }
 
     // toggle play/pause of book
