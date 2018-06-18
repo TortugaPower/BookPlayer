@@ -107,15 +107,16 @@ class ItemProgress: UIView {
         let height = self.bounds.size.height
         let diameter = min(width, height)
         let center = CGPoint(x: width * 0.5, y: height * 0.5)
+        let roundedValue = CGFloat(round(self.value * 1000) / 1000)
 
-        if self.value == 0 {
+        if roundedValue == 0 {
             // Hide progress if none
             self.pieOutline.isHidden = true
             self.pieBackground.isHidden = true
             self.pieSegment.isHidden = true
             self.completionBackground.isHidden = true
             self.completionCheckmark.isHidden = true
-        } else if self.value < 1.0 {
+        } else if roundedValue < 1.0 {
             // Show progress pie chart
             let lineWidth: CGFloat = 1.5
             var radius: CGFloat = diameter * 0.5 - lineWidth / 2
@@ -151,7 +152,7 @@ class ItemProgress: UIView {
                 withCenter: center,
                 radius: radius,
                 startAngle: -CGFloat.pi / 2,
-                endAngle: min(1.0, max(0.0, CGFloat(self.value))) * CGFloat.pi * 2 - CGFloat.pi / 2,
+                endAngle: min(1.0, max(0.0, roundedValue)) * CGFloat.pi * 2 - CGFloat.pi / 2,
                 clockwise: true
             )
             path.close()

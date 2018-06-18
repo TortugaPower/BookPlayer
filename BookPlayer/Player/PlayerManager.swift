@@ -95,24 +95,28 @@ class PlayerManager: NSObject {
 
     // called every second by the timer
     @objc func update() {
-        guard let audioplayer = self.audioPlayer else {
+        guard let audioplayer = self.audioPlayer, let book = self.currentBook else {
             return
         }
 
-        self.currentBook.currentTime = audioplayer.currentTime
+        book.currentTime = audioplayer.currentTime
 
-        let isPercentageDifferent = self.currentBook.percentage != self.currentBook.percentCompleted
+        let isPercentageDifferent = book.percentage != book.percentCompleted || (book.percentCompleted == 0 && book.progress > 0)
 
-        self.currentBook.percentCompleted = self.currentBook.percentage
+        book.percentCompleted = book.percentage
 
         DataManager.saveContext()
 
         // Notify
         if isPercentageDifferent {
-            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil, userInfo: [
-                "progress": self.currentBook.percentCompleted / 100.0,
+            NotificationCenter.default.post(
+                name: Notification.Name.AudiobookPlayer.updatePercentage,
+                object: nil,
+                userInfo: [
+                "progress": book.progress,
                 "fileURL": self.fileURL
-            ] as [String: Any])
+                ] as [String: Any]
+            )
         }
 
         MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
@@ -282,14 +286,16 @@ class PlayerManager: NSObject {
         }
 
         // Handle smart rewind.
-        if let lastPlayTime: Date = UserDefaults.standard.object(forKey: UserDefaultsConstants.lastPauseTime+"_\(self.identifier)") as? Date,
+        let lastPauseTimeKey = "\(UserDefaultsConstants.lastPauseTime)_\(self.identifier!)"
+
+        if let lastPlayTime: Date = UserDefaults.standard.object(forKey: lastPauseTimeKey) as? Date,
             UserDefaults.standard.bool(forKey: UserDefaultsConstants.smartRewindEnabled) {
 
             let timePassed = Date().timeIntervalSince(lastPlayTime)
             let rewindTime = min(((timePassed * self.maxSmartRewind) / self.smartRewindThreshold), self.maxSmartRewind)
 
             let newPlayerTime = max(audioplayer.currentTime - rewindTime, 0)
-            UserDefaults.standard.set(nil, forKey: UserDefaultsConstants.lastPauseTime+"_\(self.identifier)")
+            UserDefaults.standard.set(nil, forKey: lastPauseTimeKey)
             audioplayer.currentTime = newPlayerTime
         }
 

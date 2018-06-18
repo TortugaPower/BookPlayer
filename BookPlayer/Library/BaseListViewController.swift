@@ -220,7 +220,7 @@ extension BaseListViewController: UITableViewDataSource {
         if let book = item as? Book {
             cell.subtitle = book.author
 
-            cell.progress = item.percentCompleted / 100.0
+            cell.progress = item.currentTime / item.duration
 
             cell.onArtworkTap = { [weak self] in
                 self?.setupPlayer(books: [book])
