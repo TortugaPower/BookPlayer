@@ -94,57 +94,45 @@ class DataManager {
      - Parameter destinationFolder: File final location
      - Returns: `URL` of the file's new location. Returns `nil` if hashing fails.
      */
-    internal class func processFile(at origin: URL, destinationFolder: URL) -> URL? {
-
-        guard let data = FileManager.default.contents(atPath: origin.path),
-            let digest = Digest(algorithm: .md5).update(data: data)?.final() else {
-                return nil
-        }
-
-        let hash = hexString(fromArray: digest)
-        let ext = origin.pathExtension
-        let filename = hash + ".\(ext)"
-        let destinationURL = destinationFolder.appendingPathComponent(filename)
-
-        do {
-            if !FileManager.default.fileExists(atPath: destinationURL.path) {
-                try FileManager.default.moveItem(at: origin, to: destinationURL)
-            } else {
-                try FileManager.default.removeItem(at: origin)
-            }
-        } catch {
-            fatalError("Fail to move file from \(origin) to \(destinationURL)")
-        }
-
-        return destinationURL
-    }
-
-    /**
-     Process all the files in a folder and move them to the 'processed' folder (specified by the DataManager).
-     - Parameter folder: The folder which contents will be processed
-     - Parameter completion: Closure block which returns the array of new urls of the processed files
-     */
-    internal class func processFiles(in folder: URL, completion:@escaping ([URL]) -> Void) {
-        var bookUrls = [URL]()
-
-        // Get reference of all the files located inside the Documents folder
-        guard let urls = self.getFiles(from: folder) else {
-            return completion(bookUrls)
+    class func processFile(at origin: URL, destinationFolder: URL, completion:@escaping (URL?) -> Void) {
+        guard FileManager.default.fileExists(atPath: origin.path),
+            let inputStream = InputStream(url: origin) else {
+            completion(nil)
+            return
         }
 
         DispatchQueue.global().async {
-            // Iterate and process files
-            let destinationFolder = self.getProcessedFolderURL()
+            inputStream.open()
 
-            for fileURL in urls {
-                guard let bookUrl = self.processFile(at: fileURL, destinationFolder: destinationFolder) else {
-                    continue
+            let digest = Digest(algorithm: .md5)
+
+            while inputStream.hasBytesAvailable {
+                var inputBuffer = [UInt8](repeating: 0, count: 1024)
+                inputStream.read(&inputBuffer, maxLength: inputBuffer.count)
+                _ = digest.update(byteArray: inputBuffer)
+            }
+
+            inputStream.close()
+
+            let finalDigest = digest.final()
+
+            let hash = hexString(fromArray: finalDigest)
+            let ext = origin.pathExtension
+            let filename = hash + ".\(ext)"
+            let destinationURL = destinationFolder.appendingPathComponent(filename)
+
+            do {
+                if !FileManager.default.fileExists(atPath: destinationURL.path) {
+                    try FileManager.default.moveItem(at: origin, to: destinationURL)
+                } else {
+                    try FileManager.default.removeItem(at: origin)
                 }
-                bookUrls.append(bookUrl)
+            } catch {
+                fatalError("Fail to move file from \(origin) to \(destinationURL)")
             }
 
             DispatchQueue.main.async {
-                completion(bookUrls)
+                completion(destinationURL)
             }
         }
     }
@@ -153,9 +141,18 @@ class DataManager {
      Process all the files in the documents folder and move them to the 'processed' folder (specified by the DataManager).
      - Parameter completion: Closure block which returns the array of new urls of the processed files
      */
-    class func processPendingFiles(completion:@escaping ([URL]) -> Void) {
+    class func notifyPendingFiles() {
         let documentsFolder = self.getDocumentsFolderURL()
-        self.processFiles(in: documentsFolder, completion: completion)
+
+        // Get reference of all the files located inside the folder
+        guard let urls = self.getFiles(from: documentsFolder) else {
+            return
+        }
+
+        for url in urls {
+            let userInfo = ["fileURL": url]
+            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.libraryOpenURL, object: nil, userInfo: userInfo)
+        }
     }
 
     // MARK: - Models handler

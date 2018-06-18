@@ -21,8 +21,8 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         self.navigationController!.interactivePopGestureRecognizer!.delegate = self
 
         // register for appDelegate openUrl notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.openURL(_:)), name: Notification.Name.AudiobookPlayer.openURL, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.reloadData), name: Notification.Name.AudiobookPlayer.bookDeleted, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.openURL(_:)), name: Notification.Name.AudiobookPlayer.libraryOpenURL, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.reloadData), name: Notification.Name.AudiobookPlayer.reloadData, object: nil)
 
         self.loadLibrary()
 
@@ -54,30 +54,13 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
      *  Spaces in file names can cause side effects when trying to load the data
      */
     func loadLibrary() {
-        //load local files
-        let loadingWheel = MBProgressHUD.showAdded(to: self.view, animated: true)
-        loadingWheel?.labelText = "Loading Books"
-
         self.library = DataManager.getLibrary()
 
         //show/hide instructions view
         self.emptyLibraryPlaceholder.isHidden = !self.items.isEmpty
         self.tableView.reloadData()
 
-        DataManager.processPendingFiles { (urls) in
-            guard !urls.isEmpty else {
-                MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
-                return
-            }
-
-            DataManager.insertBooks(from: urls, into: self.library) {
-                MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
-
-                //show/hide instructions view
-                self.emptyLibraryPlaceholder.isHidden = !self.items.isEmpty
-                self.tableView.reloadData()
-            }
-        }
+        DataManager.notifyPendingFiles()
     }
 
     override func loadFile(urls: [URL]) {
@@ -85,14 +68,6 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
             self.emptyLibraryPlaceholder.isHidden = !self.items.isEmpty
             self.tableView.reloadData()
-        }
-    }
-
-    @objc func openURL(_ notification: Notification) {
-        MBProgressHUD.showAdded(to: self.view, animated: true)
-
-        DataManager.processPendingFiles { (urls) in
-            self.loadFile(urls: urls)
         }
     }
 

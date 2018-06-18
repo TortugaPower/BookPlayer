@@ -10,7 +10,8 @@ import UIKit
 
 extension Notification.Name {
     public struct AudiobookPlayer {
-        public static let openURL = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.openurl")
+        public static let libraryOpenURL = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.library.openurl")
+        public static let playlistOpenURL = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.playlist.openurl")
         public static let requestReview = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.requestreview")
         public static let updatePercentage = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.book.percentage")
         public static let updateChapter = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.book.chapter")
@@ -22,7 +23,7 @@ extension Notification.Name {
         public static let bookChange = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.book.change")
         public static let bookPlaying = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.book.playback")
         public static let skipIntervalsChange = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.settings.skip")
-        public static let bookDeleted = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.book.deleted")
+        public static let reloadData = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.reloaddata")
         public static let playerPresented = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.player.presented")
         public static let playerDismissed = Notification.Name(rawValue: "com.tortugapower.audiobookplayer.player.dismissed")
     }

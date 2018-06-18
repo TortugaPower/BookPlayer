@@ -21,18 +21,19 @@ class PlaylistViewController: BaseListViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        if !self.items.isEmpty {
-            self.emptyPlaylistPlaceholder.isHidden = true
-        }
+        self.emptyPlaylistPlaceholder.isHidden = !self.items.isEmpty
 
         self.navigationItem.title = playlist.title
+
+        NotificationCenter.default.addObserver(self, selector: #selector(self.openURL(_:)), name: Notification.Name.AudiobookPlayer.playlistOpenURL, object: nil)
     }
 
     override func loadFile(urls: [URL]) {
         DataManager.insertBooks(from: urls, into: self.playlist) {
-            MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
-            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookDeleted, object: nil)
+            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.reloadData, object: nil)
             self.tableView.reloadData()
+            self.emptyPlaylistPlaceholder.isHidden = !self.items.isEmpty
+            MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
         }
     }
 
@@ -56,6 +57,13 @@ class PlaylistViewController: BaseListViewController {
         }
 
         bookCell.artworkButton.setImage(#imageLiteral(resourceName: "playerIconPause"), for: .normal)
+    }
+
+    override func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        for url in urls {
+            let userInfo = ["fileURL": url]
+            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.playlistOpenURL, object: nil, userInfo: userInfo)
+        }
     }
 }
 
@@ -123,7 +131,7 @@ extension PlaylistViewController {
                 self.tableView.deleteRows(at: [indexPath], with: .none)
                 self.tableView.endUpdates()
 
-                NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookDeleted, object: nil)
+                NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.reloadData, object: nil)
             }))
 
             sheet.addAction(UIAlertAction(title: "Delete completely", style: .destructive, handler: { _ in
@@ -142,7 +150,7 @@ extension PlaylistViewController {
                     self.tableView.deleteRows(at: [indexPath], with: .none)
                     self.tableView.endUpdates()
 
-                    NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookDeleted, object: nil)
+                    NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.reloadData, object: nil)
                 } catch {
                     self.showAlert("Error", message: "There was an error deleting the file, please try again.")
                 }
