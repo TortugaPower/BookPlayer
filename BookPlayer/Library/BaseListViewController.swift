@@ -168,6 +168,25 @@ class BaseListViewController: UIViewController {
 
         cell.progress = progress
     }
+
+    @objc func openURL(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+            let fileURL = userInfo["fileURL"] as? URL else {
+                return
+        }
+
+        MBProgressHUD.showAdded(to: self.view, animated: true)
+
+        let destinationFolder = DataManager.getProcessedFolderURL()
+
+        DataManager.processFile(at: fileURL, destinationFolder: destinationFolder) { (bookUrl) in
+            guard let bookUrl = bookUrl else {
+                MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
+                return
+            }
+            self.loadFile(urls: [bookUrl])
+        }
+    }
 }
 
 extension BaseListViewController: UITableViewDataSource {
@@ -294,6 +313,9 @@ extension BaseListViewController: TableViewReorderDelegate {
 
 extension BaseListViewController: UIDocumentPickerDelegate {
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-        DataManager.processExternalFiles(urls)
+        for url in urls {
+            let userInfo = ["fileURL": url]
+            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.libraryOpenURL, object: nil, userInfo: userInfo)
+        }
     }
 }

@@ -35,6 +35,10 @@ public class Playlist: LibraryItem {
             totalProgress += book.currentTime
         }
 
+        guard totalDuration > 0 else {
+            return 0.0
+        }
+
         return totalProgress / totalDuration
     }
 
