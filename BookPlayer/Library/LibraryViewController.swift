@@ -306,7 +306,7 @@ extension LibraryViewController {
         }
 
         bookCell.titleColor = UIColor(red: 0.37, green: 0.64, blue: 0.85, alpha: 1.0)
-        bookCell.artworkButton.setImage(#imageLiteral(resourceName: "playerIconPlay"), for: .normal)
+        bookCell.playbackState = .Playing
 
         return bookCell
     }

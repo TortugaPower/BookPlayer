@@ -67,7 +67,7 @@ class BaseListViewController: UIViewController {
                 return
         }
 
-        bookCell.artworkButton.setImage(#imageLiteral(resourceName: "playerIconPlay"), for: .normal)
+        bookCell.playbackState = .Playing
     }
 
     @objc func onBookPause() {
@@ -76,7 +76,7 @@ class BaseListViewController: UIViewController {
                 return
         }
 
-        bookCell.artworkButton.setImage(#imageLiteral(resourceName: "playerIconPause"), for: .normal)
+        bookCell.playbackState = .Paused
     }
 
     @objc func presentMiniPlayer() {
@@ -213,13 +213,12 @@ extension BaseListViewController: UITableViewDataSource {
         cell.artwork = item.artwork
         cell.title = item.title
         cell.isPlaylist = item is Playlist
-        cell.artworkButton.setImage(nil, for: .normal)
+        cell.playbackState = .Stopped
         cell.titleColor = UIColor.black
 
         if let book = item as? Book {
             cell.subtitle = book.author
 
-            cell.progressView.isHidden = book.currentTime == 0
             cell.progress = item.percentCompleted / 100.0
 
             cell.onArtworkTap = { [weak self] in
@@ -228,9 +227,7 @@ extension BaseListViewController: UITableViewDataSource {
         } else if let playlist = item as? Playlist {
             cell.subtitle = playlist.info()
 
-            let totalPercentage = playlist.totalPercentage()
-            cell.progressView.isHidden = totalPercentage == 0
-            cell.progress = totalPercentage
+            cell.progress = playlist.totalPercentage()
 
             cell.onArtworkTap = { [weak self] in
                 self?.setupPlayer(books: playlist.getRemainingBooks())
