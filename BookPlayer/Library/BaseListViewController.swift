@@ -53,7 +53,7 @@ class BaseListViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookReady), name: Notification.Name.AudiobookPlayer.bookReady, object: nil)
 
         // register for percentage change notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.updatePercentage(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.updateProgress(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.dismissMiniPlayer), name: Notification.Name.AudiobookPlayer.playerPresented, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.presentMiniPlayer), name: Notification.Name.AudiobookPlayer.playerDismissed, object: nil)
@@ -71,7 +71,8 @@ class BaseListViewController: UIViewController {
     }
 
     @objc func onBookPause() {
-        guard let index = self.library.itemIndex(with: PlayerManager.shared.currentBook.fileURL),
+        guard let book = PlayerManager.shared.currentBook,
+            let index = self.library.itemIndex(with: book.fileURL),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView else {
                 return
         }
@@ -149,7 +150,7 @@ class BaseListViewController: UIViewController {
         fatalError("loadFiles must be overriden")
     }
 
-    @objc func updatePercentage(_ notification: Notification) {
+    @objc func updateProgress(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
             let fileURL = userInfo["fileURL"] as? URL,
             let progress = userInfo["progress"] as? Double else {
@@ -227,7 +228,7 @@ extension BaseListViewController: UITableViewDataSource {
         } else if let playlist = item as? Playlist {
             cell.subtitle = playlist.info()
 
-            cell.progress = playlist.totalPercentage()
+            cell.progress = playlist.totalProgress()
 
             cell.onArtworkTap = { [weak self] in
                 self?.setupPlayer(books: playlist.getRemainingBooks())

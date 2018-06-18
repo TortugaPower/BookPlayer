@@ -9,14 +9,20 @@
 import UIKit
 
 class ItemProgress: UIView {
+    private let pieOutline = CAShapeLayer()
+    private let pieBackground = CAShapeLayer()
+    private let pieSegment = CAShapeLayer()
+    private let completionBackground = CAShapeLayer()
+    private let completionCheckmark = CALayer()
+
+    var pieColor = UIColor(hex: "8F8E94")
+    var completionColor = UIColor.tintColor
+
     var value: Double = 0.0 {
         didSet {
             self.layer.setNeedsDisplay()
         }
     }
-
-    var color = UIColor(hex: "8F8E94")
-    var completionColor = UIColor.tintColor
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -30,59 +36,107 @@ class ItemProgress: UIView {
         self.setup()
     }
 
+    // swiftlint:disable:next function_body_length
     private func setup() {
         self.isOpaque = false
         self.backgroundColor = .clear
-    }
 
-    // swiftlint:disable:next function_body_length
-    override func draw(_ rect: CGRect) {
-        self.layer.sublayers?.removeAll()
-
+        // Setup layers
         let width = self.bounds.size.width
         let height = self.bounds.size.height
         let diameter = min(width, height)
         let bounds = CGRect(x: 0.0, y: 0.0, width: diameter, height: diameter)
-        let center = CGPoint(x: width * 0.5, y: height * 0.5)
         let scale = UIScreen.main.scale
 
-        if self.value < 1.0 {
+        self.pieOutline.frame = bounds
+        self.pieOutline.contentsScale = scale
+        self.pieOutline.allowsEdgeAntialiasing = true
+        self.pieOutline.backgroundColor = UIColor.clear.cgColor
+        self.pieOutline.fillColor = UIColor.clear.cgColor
+        self.pieOutline.strokeColor = self.pieColor.withAlpha(newAlpha: 0.5).cgColor
+        self.pieOutline.lineWidth = 1.5
+
+        self.layer.addSublayer(self.pieOutline)
+
+        self.pieBackground.frame = bounds
+        self.pieBackground.contentsScale = scale
+        self.pieBackground.allowsEdgeAntialiasing = true
+        self.pieBackground.backgroundColor = UIColor.clear.cgColor
+        self.pieBackground.fillColor = self.pieColor.withAlpha(newAlpha: 0.1).cgColor
+        self.pieBackground.strokeColor = UIColor.clear.cgColor
+        self.pieBackground.lineWidth = 0
+
+        self.layer.addSublayer(self.pieBackground)
+
+        self.pieSegment.frame = bounds
+        self.pieSegment.contentsScale = scale
+        self.pieSegment.allowsEdgeAntialiasing = true
+        self.pieSegment.backgroundColor = UIColor.clear.cgColor
+        self.pieSegment.fillColor = self.pieColor.withAlpha(newAlpha: 0.7).cgColor
+        self.pieSegment.strokeColor = UIColor.clear.cgColor
+        self.pieSegment.lineWidth = 0
+
+        self.layer.addSublayer(self.pieSegment)
+
+        self.completionBackground.frame = bounds
+        self.completionBackground.contentsScale = scale
+        self.completionBackground.allowsEdgeAntialiasing = true
+        self.completionBackground.backgroundColor = UIColor.clear.cgColor
+        self.completionBackground.fillColor = self.completionColor.cgColor
+        self.completionBackground.strokeColor = UIColor.clear.cgColor
+        self.completionBackground.lineWidth = 0
+
+        self.layer.addSublayer(self.completionBackground)
+
+        let mask = CALayer()
+
+        mask.frame = bounds
+        mask.contents = #imageLiteral(resourceName: "completionIndicatorDone").cgImage
+        mask.contentsGravity = kCAGravityResizeAspect
+
+        self.completionCheckmark.frame = bounds
+        self.completionCheckmark.mask = mask
+        self.completionCheckmark.backgroundColor = UIColor.white.cgColor
+
+        self.layer.addSublayer(self.completionCheckmark)
+    }
+
+    // swiftlint:disable:next function_body_length
+    override func draw(_ rect: CGRect) {
+        let width = self.bounds.size.width
+        let height = self.bounds.size.height
+        let diameter = min(width, height)
+        let center = CGPoint(x: width * 0.5, y: height * 0.5)
+
+        if self.value == 0 {
+            // Hide progress if none
+            self.pieOutline.isHidden = true
+            self.pieBackground.isHidden = true
+            self.pieSegment.isHidden = true
+            self.completionBackground.isHidden = true
+            self.completionCheckmark.isHidden = true
+        } else if self.value < 1.0 {
+            // Show progress pie chart
             let lineWidth: CGFloat = 1.5
             var radius: CGFloat = diameter * 0.5 - lineWidth / 2
 
-            let outerCircleLayer = CAShapeLayer()
+            self.pieOutline.isHidden = false
+            self.pieBackground.isHidden = false
+            self.pieSegment.isHidden = false
+            self.completionBackground.isHidden = true
+            self.completionCheckmark.isHidden = true
 
-            outerCircleLayer.frame = bounds
-            outerCircleLayer.contentsScale = scale
-            outerCircleLayer.allowsEdgeAntialiasing = true
-            outerCircleLayer.backgroundColor = UIColor.clear.cgColor
-            outerCircleLayer.fillColor = UIColor.clear.cgColor
-            outerCircleLayer.strokeColor = self.color.withAlpha(newAlpha: 0.5).cgColor
-            outerCircleLayer.lineWidth = lineWidth
-
-            outerCircleLayer.path = UIBezierPath(
+            self.pieOutline.path = UIBezierPath(
                 arcCenter: center,
                 radius: radius,
                 startAngle: 0,
                 endAngle: CGFloat.pi * 2,
                 clockwise: true
             ).cgPath
-
-            self.layer.addSublayer(outerCircleLayer)
-
-            let fillLayer = CAShapeLayer()
-
-            fillLayer.frame = bounds
-            fillLayer.contentsScale = scale
-            fillLayer.allowsEdgeAntialiasing = true
-            fillLayer.backgroundColor = UIColor.clear.cgColor
-            fillLayer.fillColor = self.color.withAlpha(newAlpha: 0.1).cgColor
-            fillLayer.strokeColor = UIColor.clear.cgColor
-            fillLayer.lineWidth = 0
 
             radius = diameter * 0.5 - lineWidth * 2
 
-            fillLayer.path = UIBezierPath(
+            self.pieBackground.path = UIBezierPath(
                 arcCenter: center,
                 radius: radius,
                 startAngle: 0,
@@ -90,70 +144,34 @@ class ItemProgress: UIView {
                 clockwise: true
             ).cgPath
 
-            self.layer.addSublayer(fillLayer)
+            let path = UIBezierPath()
 
-            let pieLayer = CAShapeLayer()
+            path.move(to: center)
+            path.addArc(
+                withCenter: center,
+                radius: radius,
+                startAngle: -CGFloat.pi / 2,
+                endAngle: min(1.0, max(0.0, CGFloat(self.value))) * CGFloat.pi * 2 - CGFloat.pi / 2,
+                clockwise: true
+            )
+            path.close()
 
-            pieLayer.frame = bounds
-            pieLayer.contentsScale = scale
-            pieLayer.allowsEdgeAntialiasing = true
-            pieLayer.backgroundColor = UIColor.clear.cgColor
-            pieLayer.fillColor = self.color.withAlpha(newAlpha: 0.7).cgColor
-            pieLayer.strokeColor = UIColor.clear.cgColor
-            pieLayer.lineWidth = 0
-            pieLayer.path = self.getSegmentPath(center, radius: radius, value: min(1.0, max(0.0, CGFloat(self.value))))
-
-            self.layer.addSublayer(pieLayer)
+            self.pieSegment.path = path.cgPath
         } else {
-            let fillLayer = CAShapeLayer()
+            // Show completion stateggg
+            self.pieOutline.isHidden = true
+            self.pieBackground.isHidden = true
+            self.pieSegment.isHidden = true
+            self.completionBackground.isHidden = false
+            self.completionCheckmark.isHidden = false
 
-            fillLayer.frame = bounds
-            fillLayer.contentsScale = scale
-            fillLayer.allowsEdgeAntialiasing = true
-            fillLayer.backgroundColor = UIColor.clear.cgColor
-            fillLayer.fillColor = self.completionColor.cgColor
-            fillLayer.strokeColor = UIColor.clear.cgColor
-            fillLayer.lineWidth = 0
-
-            fillLayer.path = UIBezierPath(
+            self.completionBackground.path = UIBezierPath(
                 arcCenter: center,
                 radius: diameter * 0.5,
                 startAngle: 0,
                 endAngle: CGFloat.pi * 2,
                 clockwise: true
             ).cgPath
-
-            self.layer.addSublayer(fillLayer)
-
-            let mask = CALayer()
-
-            mask.frame = bounds
-            mask.contents = #imageLiteral(resourceName: "completionIndicatorDone").cgImage
-            mask.contentsGravity = kCAGravityResizeAspect
-
-            let checkmark = CALayer()
-
-            checkmark.frame = bounds
-            checkmark.mask = mask
-            checkmark.backgroundColor = UIColor.white.cgColor
-
-            self.layer.addSublayer(checkmark)
         }
-    }
-
-    private func getSegmentPath(_ center: CGPoint = CGPoint(x: 0.5, y: 0.5), radius: CGFloat = 1.0, value: CGFloat = 0.0) -> CGPath {
-        let path = UIBezierPath()
-
-        path.move(to: center)
-        path.addArc(
-            withCenter: center,
-            radius: radius,
-            startAngle: -CGFloat.pi / 2,
-            endAngle: value * CGFloat.pi * 2 - CGFloat.pi / 2,
-            clockwise: true
-        )
-        path.close()
-
-        return path.cgPath
     }
 }

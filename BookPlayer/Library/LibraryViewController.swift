@@ -11,6 +11,8 @@ import MediaPlayer
 import MBProgressHUD
 import SwiftReorder
 
+// swiftlint:disable file_length
+
 class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate {
     @IBOutlet weak var emptyLibraryPlaceholder: UIView!
 
