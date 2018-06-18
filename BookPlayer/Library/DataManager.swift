@@ -95,7 +95,8 @@ class DataManager {
      - Returns: `URL` of the file's new location. Returns `nil` if hashing fails.
      */
     class func processFile(at origin: URL, destinationFolder: URL, completion:@escaping (URL?) -> Void) {
-        guard let inputStream = InputStream(url: origin) else {
+        guard FileManager.default.fileExists(atPath: origin.path),
+            let inputStream = InputStream(url: origin) else {
             completion(nil)
             return
         }

@@ -61,74 +61,38 @@ class GetFilesTests: DataManagerTests {
 
 // MARK: - processFiles()
 class ProcessFilesTests: DataManagerTests {
-    func testProcessFilesFromNilFolder() {
-        let nonExistingFolder = URL(fileURLWithPath: "derp")
-        DataManager.processFiles(in: nonExistingFolder) { (urls) in
-            XCTAssert(urls.isEmpty)
-        }
-    }
     func testProcessNoFiles() {
-        let documentsFolder = DataManager.getDocumentsFolderURL()
+        let nonExistingFile = URL(fileURLWithPath: "derp")
+        let destinationFolder = DataManager.getProcessedFolderURL()
 
-        DataManager.processFiles(in: documentsFolder) { (urls) in
-            XCTAssert(urls.isEmpty)
+        DataManager.processFile(at: nonExistingFile, destinationFolder: destinationFolder) { (url) in
+            XCTAssertNil(url)
         }
     }
-    func testProcessPendingOneFile() {
+
+    func testProcessOneFile() {
         let filename = "file.txt"
         let bookContents = "bookcontents".data(using: .utf8)!
         let documentsFolder = DataManager.getDocumentsFolderURL()
 
         // Add test file to Documents folder
-        let destination = self.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
+        let fileUrl = self.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
 
         let expectation = XCTestExpectation(description: "Processing pending files")
 
-        DataManager.processFiles(in: documentsFolder) { (urls) in
+        let destinationFolder = DataManager.getProcessedFolderURL()
+        DataManager.processFile(at: fileUrl, destinationFolder: destinationFolder) { (url) in
             // Test file should no longer be in the Documents folder
-            XCTAssert(!FileManager.default.fileExists(atPath: destination.path))
+            XCTAssert(!FileManager.default.fileExists(atPath: fileUrl.path))
 
-            let url = urls.first!
-
+            XCTAssertNotNil(url)
             // Name of processed file shouldn't be the same as the original
-            XCTAssert(url.lastPathComponent != filename)
+            XCTAssert(url!.lastPathComponent != filename)
+            // Test file exists in new location
+            XCTAssert(FileManager.default.fileExists(atPath: url!.path))
 
-            let content = FileManager.default.contents(atPath: url.path)!
+            let content = FileManager.default.contents(atPath: url!.path)!
             XCTAssert(content == bookContents)
-
-            expectation.fulfill()
-        }
-
-        wait(for: [expectation], timeout: 15)
-    }
-
-    func testProcessPendingMultipleFiles() {
-        // Add test file to Documents folder
-        let filename1 = "file1.txt"
-        let book1Contents = "book1contents".data(using: .utf8)!
-        let filename2 = "file2.txt"
-        let book2Contents = "book2contents".data(using: .utf8)!
-        let dataArray = [book1Contents, book2Contents]
-
-        let documentsFolder = DataManager.getDocumentsFolderURL()
-
-        let destination1 = self.generateTestFile(name: filename1, contents: book1Contents, destinationFolder: documentsFolder)
-        let destination2 = self.generateTestFile(name: filename2, contents: book2Contents, destinationFolder: documentsFolder)
-
-        let expectation = XCTestExpectation(description: "Processing pending files")
-
-        DataManager.processFiles(in: documentsFolder) { (urls) in
-            // Test files should no longer be in the Documents folder
-            XCTAssert(!FileManager.default.fileExists(atPath: destination1.path))
-            XCTAssert(!FileManager.default.fileExists(atPath: destination2.path))
-
-            // Count of returned urls should be the same as the number of test files generated
-            XCTAssert(urls.count == 2)
-
-            for url in urls {
-                let content = FileManager.default.contents(atPath: url.path)!
-                XCTAssertNotNil(dataArray.index(of: content))
-            }
 
             expectation.fulfill()
         }
