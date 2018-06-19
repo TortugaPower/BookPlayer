@@ -27,7 +27,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         self.loadLibrary()
 
         guard let identifier = UserDefaults.standard.string(forKey: UserDefaultsConstants.lastPlayedBook),
-            let lastPlayedBook = DataManager.getBook(from: identifier) else {
+            let lastPlayedBook = DataManager.getBook(with: identifier, from: self.library) else {
                 return
         }
 
@@ -37,7 +37,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
                 return
             }
 
-            self.showPlayerView(book: lastPlayedBook)
+            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.playerDismissed, object: nil, userInfo: nil)
         }
     }
 
