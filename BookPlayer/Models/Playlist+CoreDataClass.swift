@@ -60,12 +60,16 @@ public class Playlist: LibraryItem {
     func itemIndex(with url: URL) -> Int? {
         let hash = url.lastPathComponent
 
+        return itemIndex(with: hash)
+    }
+
+    func itemIndex(with identifier: String) -> Int? {
         guard let books = self.books?.array as? [Book] else {
             return nil
         }
 
         return books.index { (storedBook) -> Bool in
-            return storedBook.identifier == hash
+            return storedBook.identifier == identifier
         }
     }
 
@@ -79,6 +83,13 @@ public class Playlist: LibraryItem {
 
     func getBook(with url: URL) -> Book? {
         guard let index = self.itemIndex(with: url) else {
+            return nil
+        }
+        return self.getBook(at: index)
+    }
+
+    func getBook(with identifier: String) -> Book? {
+        guard let index = self.itemIndex(with: identifier) else {
             return nil
         }
         return self.getBook(at: index)

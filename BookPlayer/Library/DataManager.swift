@@ -179,17 +179,16 @@ class DataManager {
     /**
      Gets a stored book from an identifier.
      */
-    class func getBook(from identifier: String) -> Book? {
-
-        let context = self.persistentContainer.viewContext
-        let request: NSFetchRequest<Book> = Book.fetchRequest()
-        request.predicate = NSPredicate(format: "identifier = %@", identifier)
-
-        guard let book = try? context.fetch(request).first else {
+    class func getBook(with identifier: String, from library: Library) -> Book? {
+        guard let item = library.getItem(with: identifier) else {
             return nil
         }
 
-        return book
+        guard let playlist = item as? Playlist else {
+            return item as? Book
+        }
+
+        return playlist.getBook(with: identifier)
     }
 
     /**
