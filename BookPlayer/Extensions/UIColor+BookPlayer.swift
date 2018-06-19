@@ -28,6 +28,10 @@ extension UIColor {
         return UIColor(hex: "3488D1")
     }
 
+    static var textColor: UIColor {
+        return UIColor(hex: "37454E")
+    }
+
     public var brightness: CGFloat {
         var H: CGFloat = 0
         var S: CGFloat = 0

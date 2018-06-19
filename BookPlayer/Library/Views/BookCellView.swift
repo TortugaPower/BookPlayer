@@ -9,9 +9,9 @@
 import UIKit
 
 enum PlaybackState {
-    case Playing
-    case Paused
-    case Stopped
+    case playing
+    case paused
+    case stopped
 }
 
 class BookCellView: UITableViewCell {
@@ -42,15 +42,6 @@ class BookCellView: UITableViewCell {
         }
         set {
             self.titleLabel.text = newValue
-        }
-    }
-
-    var titleColor: UIColor! {
-        get {
-            return self.titleLabel.textColor
-        }
-        set {
-            self.titleLabel.textColor = newValue
         }
     }
 
@@ -86,15 +77,21 @@ class BookCellView: UITableViewCell {
         }
     }
 
-    var playbackState: PlaybackState = PlaybackState.Stopped {
+    var playbackState: PlaybackState = PlaybackState.stopped {
         didSet {
             switch playbackState {
-                case .Playing:
+                case .playing:
+                    self.artworkButton.backgroundColor = UIColor.tintColor.withAlpha(newAlpha: 0.3)
                     self.artworkButton.setImage(#imageLiteral(resourceName: "playStatePlaying"), for: .normal)
-                case .Paused:
+                    self.titleLabel.textColor = UIColor.tintColor
+                case .paused:
+                    self.artworkButton.backgroundColor = UIColor.tintColor.withAlpha(newAlpha: 0.3)
                     self.artworkButton.setImage(#imageLiteral(resourceName: "playStatePaused"), for: .normal)
+                    self.titleLabel.textColor = UIColor.tintColor
                 default:
+                    self.artworkButton.backgroundColor = UIColor.clear
                     self.artworkButton.setImage(nil, for: .normal)
+                    self.titleLabel.textColor = UIColor.textColor
             }
         }
     }
@@ -114,6 +111,16 @@ class BookCellView: UITableViewCell {
     private func setup() {
         self.accessoryType = .none
         self.selectionStyle = .none
+    }
+
+    override func willMove(toSuperview newSuperview: UIView?) {
+        super.willMove(toSuperview: newSuperview)
+
+        self.artworkImageView.layer.cornerRadius = 3.0
+        self.artworkImageView.layer.masksToBounds = true
+
+        self.artworkButton.layer.cornerRadius = 3.0
+        self.artworkButton.layer.masksToBounds = true
     }
 
     @IBAction func artworkButtonTapped(_ sender: Any) {

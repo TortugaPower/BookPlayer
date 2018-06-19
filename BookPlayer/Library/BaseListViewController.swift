@@ -67,7 +67,7 @@ class BaseListViewController: UIViewController {
                 return
         }
 
-        bookCell.playbackState = .Playing
+        bookCell.playbackState = .playing
     }
 
     @objc func onBookPause() {
@@ -77,7 +77,7 @@ class BaseListViewController: UIViewController {
                 return
         }
 
-        bookCell.playbackState = .Paused
+        bookCell.playbackState = .paused
     }
 
     @objc func presentMiniPlayer() {
@@ -214,8 +214,7 @@ extension BaseListViewController: UITableViewDataSource {
         cell.artwork = item.artwork
         cell.title = item.title
         cell.isPlaylist = item is Playlist
-        cell.playbackState = .Stopped
-        cell.titleColor = UIColor.black
+        cell.playbackState = .stopped
 
         if let book = item as? Book {
             cell.subtitle = book.author

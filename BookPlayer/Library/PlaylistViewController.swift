@@ -47,7 +47,7 @@ class PlaylistViewController: BaseListViewController {
                 return
         }
 
-        bookCell.playbackState = .Playing
+        bookCell.playbackState = .playing
     }
 
     @objc override func onBookPause() {
@@ -56,7 +56,7 @@ class PlaylistViewController: BaseListViewController {
                 return
         }
 
-        bookCell.playbackState = .Paused
+        bookCell.playbackState = .paused
     }
 
     override func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
@@ -78,8 +78,7 @@ extension PlaylistViewController {
                 return cell
         }
 
-        bookCell.titleColor = UIColor(red: 0.37, green: 0.64, blue: 0.85, alpha: 1.0)
-        bookCell.playbackState = .Playing
+        bookCell.playbackState = .playing
 
         return bookCell
     }
