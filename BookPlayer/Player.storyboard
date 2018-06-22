@@ -371,20 +371,23 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="47"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="c4L-kd-RV4">
-                                <rect key="frame" x="24.999999999999993" y="30" width="108.33333333333331" height="17"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00:00" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="c4L-kd-RV4">
+                                <rect key="frame" x="25" y="30" width="87" height="17"/>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="14"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="g9J-pR-opA">
-                                <rect key="frame" x="241.66666666666666" y="30" width="108.33333333333334" height="17"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00:00" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="g9J-pR-opA">
+                                <rect key="frame" x="263" y="30" width="87" height="17"/>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="14"/>
                                 <color key="textColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0%" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="53i-gI-UmW">
-                                <rect key="frame" x="133.33333333333334" y="30" width="108.33333333333334" height="17"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Chapter 999 of 999" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="53i-gI-UmW">
+                                <rect key="frame" x="112" y="30" width="151" height="17"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" priority="750" constant="151" id="S8e-03-iDZ"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="14"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
@@ -421,16 +424,15 @@
                             <constraint firstItem="53i-gI-UmW" firstAttribute="leading" secondItem="c4L-kd-RV4" secondAttribute="trailing" id="6Nw-QU-oUR"/>
                             <constraint firstItem="g9J-pR-opA" firstAttribute="leading" secondItem="53i-gI-UmW" secondAttribute="trailing" id="9lL-Ie-7BN"/>
                             <constraint firstItem="zXI-n5-n4Q" firstAttribute="leading" secondItem="Spw-go-Und" secondAttribute="trailing" constant="-3" id="BSp-de-a6X"/>
-                            <constraint firstItem="c4L-kd-RV4" firstAttribute="width" secondItem="53i-gI-UmW" secondAttribute="width" id="Ccn-nZ-cQ8"/>
                             <constraint firstItem="GDt-VI-IMf" firstAttribute="leading" secondItem="kSC-Jh-zQA" secondAttribute="leading" constant="1" id="Jdh-Vg-V1T"/>
                             <constraint firstItem="zXI-n5-n4Q" firstAttribute="centerY" secondItem="GDt-VI-IMf" secondAttribute="centerY" id="L0q-ag-ZZa"/>
                             <constraint firstItem="53i-gI-UmW" firstAttribute="top" secondItem="GDt-VI-IMf" secondAttribute="bottom" id="NtD-5g-YqW"/>
                             <constraint firstAttribute="top" secondItem="GDt-VI-IMf" secondAttribute="top" id="OgD-Aj-UV5"/>
                             <constraint firstAttribute="trailing" secondItem="GDt-VI-IMf" secondAttribute="trailing" constant="1" id="PcC-wC-pRe"/>
-                            <constraint firstItem="53i-gI-UmW" firstAttribute="width" secondItem="g9J-pR-opA" secondAttribute="width" id="PdE-ga-Zbn"/>
                             <constraint firstAttribute="trailing" secondItem="g9J-pR-opA" secondAttribute="trailing" constant="25" id="V0a-nV-vgh"/>
                             <constraint firstItem="g9J-pR-opA" firstAttribute="top" secondItem="GDt-VI-IMf" secondAttribute="bottom" id="dkf-FV-B1U"/>
                             <constraint firstItem="Spw-go-Und" firstAttribute="centerY" secondItem="GDt-VI-IMf" secondAttribute="centerY" id="l8z-Hn-i6x"/>
+                            <constraint firstItem="c4L-kd-RV4" firstAttribute="width" secondItem="g9J-pR-opA" secondAttribute="width" id="qql-s0-XIm"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="evB-hH-RSg"/>
                     </view>
@@ -447,7 +449,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="E7Z-Ee-j3p" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2382" y="337"/>
+            <point key="canvasLocation" x="2381.5999999999999" y="336.57635467980299"/>
         </scene>
     </scenes>
     <resources>
