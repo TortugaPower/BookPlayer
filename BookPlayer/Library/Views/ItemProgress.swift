@@ -15,8 +15,23 @@ class ItemProgress: UIView {
     private let completionBackground = CAShapeLayer()
     private let completionCheckmark = CALayer()
 
-    var pieColor = UIColor(hex: "8F8E94")
-    var completionColor = UIColor.tintColor
+    var pieColor = UIColor(hex: "8F8E94") {
+        didSet {
+            self.pieOutline.strokeColor = self.pieColor.withAlpha(newAlpha: 0.5).cgColor
+            self.pieBackground.fillColor = self.pieColor.withAlpha(newAlpha: 0.1).cgColor
+            self.pieSegment.fillColor = self.pieColor.withAlpha(newAlpha: 0.7).cgColor
+
+            self.layer.setNeedsDisplay()
+        }
+    }
+
+    var completionColor = UIColor.tintColor {
+        didSet {
+            self.completionBackground.fillColor = self.completionColor.cgColor
+
+            self.layer.setNeedsDisplay()
+        }
+    }
 
     var value: Double = 0.0 {
         didSet {
