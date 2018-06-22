@@ -213,8 +213,8 @@ extension BaseListViewController: UITableViewDataSource {
 
         cell.artwork = item.artwork
         cell.title = item.title
-        cell.isPlaylist = item is Playlist
         cell.playbackState = .stopped
+        cell.type = item is Playlist ? .playlist : .book
 
         if let book = item as? Book {
             cell.subtitle = book.author

@@ -71,11 +71,16 @@ extension PlaylistViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
 
-        guard let bookCell = cell as? BookCellView,
-            PlayerManager.shared.currentBook != nil,
+        guard let bookCell = cell as? BookCellView else {
+            return cell
+        }
+
+        bookCell.type = .file
+
+        guard PlayerManager.shared.currentBook != nil,
             let index = self.playlist.itemIndex(with: PlayerManager.shared.currentBook.fileURL),
             index == indexPath.row else {
-                return cell
+                return bookCell
         }
 
         bookCell.playbackState = .playing
