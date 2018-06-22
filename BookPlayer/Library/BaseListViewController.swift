@@ -218,15 +218,13 @@ extension BaseListViewController: UITableViewDataSource {
 
         if let book = item as? Book {
             cell.subtitle = book.author
-
-            cell.progress = item.currentTime / item.duration
+            cell.progress = book.progress
 
             cell.onArtworkTap = { [weak self] in
                 self?.setupPlayer(books: [book])
             }
         } else if let playlist = item as? Playlist {
             cell.subtitle = playlist.info()
-
             cell.progress = playlist.totalProgress()
 
             cell.onArtworkTap = { [weak self] in
