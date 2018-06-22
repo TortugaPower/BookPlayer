@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14269.12" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina5_9" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14252.5"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -33,11 +35,11 @@
                                 </connections>
                             </button>
                             <view userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yd3-5B-2dw" userLabel="A Spacer">
-                                <rect key="frame" x="0.0" y="88" width="375" height="55.666666666666657"/>
+                                <rect key="frame" x="0.0" y="88" width="375" height="46"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9Od-bi-f9L" userLabel="Meta Container">
-                                <rect key="frame" x="0.0" y="143.66666666666666" width="375" height="63"/>
+                                <rect key="frame" x="0.0" y="134" width="375" height="63"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="63" id="BbS-cw-NAL"/>
                                 </constraints>
@@ -46,11 +48,11 @@
                                 </connections>
                             </containerView>
                             <view userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xRJ-B7-BuP" userLabel="B Spacer">
-                                <rect key="frame" x="0.0" y="206.66666666666666" width="375" height="28"/>
+                                <rect key="frame" x="0.0" y="197" width="375" height="23"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XWJ-W6-gno" userLabel="Controls Contrainer">
-                                <rect key="frame" x="0.0" y="234.66666666666663" width="375" height="375"/>
+                                <rect key="frame" x="0.0" y="220" width="375" height="375"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="XWJ-W6-gno" secondAttribute="height" multiplier="1:1" id="DWR-i3-tsa"/>
                                 </constraints>
@@ -59,11 +61,14 @@
                                 </connections>
                             </containerView>
                             <view userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Udu-jl-e5s" userLabel="C Spacer">
-                                <rect key="frame" x="0.0" y="656.66666666666663" width="375" height="111.33333333333337"/>
+                                <rect key="frame" x="0.0" y="642" width="375" height="92"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="black" translatesAutoresizingMaskIntoConstraints="NO" id="AqX-H1-RbL">
-                                <rect key="frame" x="10" y="768" width="355" height="44"/>
+                                <rect key="frame" x="10" y="734" width="355" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="q0a-pi-2KN"/>
+                                </constraints>
                                 <viewLayoutGuide key="safeArea" id="H0f-cy-Spe"/>
                                 <items>
                                     <barButtonItem title="Speed" id="c1l-Kk-Q62">
@@ -99,7 +104,7 @@
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </toolbar>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dbK-bB-fyY" userLabel="Progress Container">
-                                <rect key="frame" x="0.0" y="609.66666666666663" width="375" height="47"/>
+                                <rect key="frame" x="0.0" y="595" width="375" height="47"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="47" id="fos-xH-fN8"/>
                                 </constraints>
