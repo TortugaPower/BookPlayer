@@ -135,6 +135,15 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         // Apply the blurred view in relation to the brightness and luminance of the background color.
         // This makes darker backgrounds stay interesting
         self.backgroundImage.alpha = 0.1 + min((1 - currentBook.artworkColors.background.luminance) * (1 - currentBook.artworkColors.background.brightness), 0.7)
+
+        // Solution thanks to https://forums.developer.apple.com/thread/63166#180445
+        self.modalPresentationCapturesStatusBarAppearance = true
+
+        self.setNeedsStatusBarAppearanceUpdate()
+    }
+
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return currentBook.artworkColors.displayOnDark ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
     }
 
     // MARK: - Interface actions
