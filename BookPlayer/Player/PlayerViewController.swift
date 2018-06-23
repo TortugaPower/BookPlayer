@@ -28,7 +28,6 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
     private weak var controlsViewController: PlayerControlsViewController?
     private weak var metaViewController: PlayerMetaViewController?
-    private weak var progressViewController: PlayerProgressViewController?
 
     let darknessThreshold: CGFloat = 0.2
 
@@ -41,10 +40,6 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
         if let viewController = segue.destination as? PlayerMetaViewController {
             self.metaViewController = viewController
-        }
-
-        if let viewController = segue.destination as? PlayerProgressViewController {
-            self.progressViewController = viewController
         }
 
         if let navigationController = segue.destination as? UINavigationController,
@@ -111,7 +106,6 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     func setupView(book currentBook: Book) {
         self.metaViewController?.book = currentBook
         self.controlsViewController?.book = currentBook
-        self.progressViewController?.book = currentBook
 
         self.speedButton.title = self.formatSpeed(PlayerManager.shared.speed)
 
