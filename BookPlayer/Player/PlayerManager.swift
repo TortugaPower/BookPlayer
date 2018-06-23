@@ -10,15 +10,11 @@ import Foundation
 import AVFoundation
 import MediaPlayer
 
-// swiftlint:disable file_length
-
 class PlayerManager: NSObject {
     static let shared = PlayerManager()
 
     var audioPlayer: AVAudioPlayer?
     private var playerItem: AVPlayerItem!
-    var fileURL: URL!
-    var identifier: String!
 
     lazy var currentBooks = [Book]()
     var currentBook: Book! {
@@ -56,8 +52,6 @@ class PlayerManager: NSObject {
 
             self.currentBooks = books
             self.playerItem = DataManager.playerItem(from: book)
-            self.fileURL = book.fileURL
-            self.identifier = book.identifier
 
             if UserDefaults.standard.bool(forKey: UserDefaultsConstants.boostVolumeEnabled) {
                 audioplayer.volume = 2.0
@@ -116,7 +110,7 @@ class PlayerManager: NSObject {
                 object: nil,
                 userInfo: [
                 "progress": book.progress,
-                "fileURL": self.fileURL
+                "fileURL": book.fileURL
                 ] as [String: Any]
             )
         }
@@ -136,7 +130,7 @@ class PlayerManager: NSObject {
 
         let userInfo = [
             "time": currentTime,
-            "fileURL": self.currentBooks.first!.fileURL
+            "fileURL": book.fileURL
             ] as [String: Any]
 
         // notify
@@ -177,7 +171,7 @@ class PlayerManager: NSObject {
         get {
             let useGlobalSpeed = UserDefaults.standard.bool(forKey: UserDefaultsConstants.globalSpeedEnabled)
             let globalSpeed = UserDefaults.standard.float(forKey: "global_speed")
-            let localSpeed = UserDefaults.standard.float(forKey: self.identifier+"_speed")
+            let localSpeed = UserDefaults.standard.float(forKey: self.currentBook.identifier+"_speed")
             let speed = useGlobalSpeed ? globalSpeed : localSpeed
 
             return speed > 0 ? speed : 1.0
@@ -188,7 +182,7 @@ class PlayerManager: NSObject {
                 return
             }
 
-            UserDefaults.standard.set(newValue, forKey: self.identifier+"_speed")
+            UserDefaults.standard.set(newValue, forKey: self.currentBook.identifier+"_speed")
 
             // set global speed
             if UserDefaults.standard.bool(forKey: UserDefaultsConstants.globalSpeedEnabled) {
@@ -268,7 +262,7 @@ class PlayerManager: NSObject {
             return
         }
 
-        UserDefaults.standard.set(self.identifier, forKey: UserDefaultsConstants.lastPlayedBook)
+        UserDefaults.standard.set(self.currentBook.identifier, forKey: UserDefaultsConstants.lastPlayedBook)
 
         do {
             try AVAudioSession.sharedInstance().setActive(true)
@@ -288,7 +282,7 @@ class PlayerManager: NSObject {
         }
 
         // Handle smart rewind.
-        let lastPauseTimeKey = "\(UserDefaultsConstants.lastPauseTime)_\(self.identifier!)"
+        let lastPauseTimeKey = "\(UserDefaultsConstants.lastPauseTime)_\(self.currentBook.identifier!)"
 
         if let lastPlayTime: Date = UserDefaults.standard.object(forKey: lastPauseTimeKey) as? Date,
             UserDefaults.standard.bool(forKey: UserDefaultsConstants.smartRewindEnabled) {
@@ -326,7 +320,7 @@ class PlayerManager: NSObject {
             return
         }
 
-        UserDefaults.standard.set(self.identifier, forKey: UserDefaultsConstants.lastPlayedBook)
+        UserDefaults.standard.set(self.currentBook.identifier, forKey: UserDefaultsConstants.lastPlayedBook)
 
         // invalidate timer if needed
         if self.timer != nil {
@@ -341,7 +335,7 @@ class PlayerManager: NSObject {
         MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 0.0
         MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
 
-        UserDefaults.standard.set(Date(), forKey: "\(UserDefaultsConstants.lastPauseTime)_\(self.identifier!)")
+        UserDefaults.standard.set(Date(), forKey: "\(UserDefaultsConstants.lastPauseTime)_\(self.currentBook.identifier!)")
 
         do {
             try AVAudioSession.sharedInstance().setActive(false)

@@ -114,7 +114,7 @@ class BaseListViewController: UIViewController {
         // Make sure player is for a different book
         let book = books.first!
 
-        guard PlayerManager.shared.fileURL != book.fileURL else {
+        guard PlayerManager.shared.currentBook == nil || PlayerManager.shared.currentBook.fileURL != book.fileURL else {
             showPlayerView(book: book)
 
             return
