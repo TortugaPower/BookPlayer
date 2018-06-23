@@ -40,7 +40,7 @@ class ChaptersViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ChapterCell", for: indexPath)
         let chapter = self.chapters[indexPath.row]
 
-        cell.textLabel?.text = chapter.title
+        cell.textLabel?.text = chapter.title == "" ? "Chapter \(indexPath.row + 1)" : chapter.title
         cell.detailTextLabel?.text = "\(self.formatTime(chapter.start)) – \(self.formatDuration(chapter.duration, unitsStyle: .abbreviated))"
         cell.accessoryType = .none
 
@@ -50,6 +50,7 @@ class ChaptersViewController: UITableViewController {
 
         return cell
     }
+
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.didSelectChapter?(self.chapters[indexPath.row])
 
