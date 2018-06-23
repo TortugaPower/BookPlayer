@@ -93,17 +93,14 @@ class BookCellView: UITableViewCell {
             switch self.playbackState {
                 case .playing:
                     self.artworkButton.backgroundColor = UIColor.tintColor.withAlpha(newAlpha: 0.3)
-                    self.artworkButton.setImage(#imageLiteral(resourceName: "playStatePlaying"), for: .normal)
                     self.titleLabel.textColor = UIColor.tintColor
                     self.progressView.pieColor = UIColor.tintColor
                 case .paused:
                     self.artworkButton.backgroundColor = UIColor.tintColor.withAlpha(newAlpha: 0.3)
-                    self.artworkButton.setImage(#imageLiteral(resourceName: "playStatePaused"), for: .normal)
                     self.titleLabel.textColor = UIColor.tintColor
                     self.progressView.pieColor = UIColor.tintColor
                 default:
                     self.artworkButton.backgroundColor = UIColor.clear
-                    self.artworkButton.setImage(nil, for: .normal)
                     self.titleLabel.textColor = UIColor.textColor
                     self.progressView.pieColor = UIColor(hex: "8F8E94")
             }

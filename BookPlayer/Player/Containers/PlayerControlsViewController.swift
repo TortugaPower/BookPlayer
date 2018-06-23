@@ -9,236 +9,183 @@
 import UIKit
 
 class PlayerControlsViewController: PlayerContainerViewController, UIGestureRecognizerDelegate {
-    @IBOutlet private weak var artworkView: UIView!
-    @IBOutlet private weak var artwork: UIImageView!
-    @IBOutlet private weak var playPauseButton: UIButton!
-    @IBOutlet private weak var rewindIcon: PlayerRewindIconView!
-    @IBOutlet private weak var forwardIcon: PlayerForwardIconView!
-    @IBOutlet private weak var artworkHeight: NSLayoutConstraint!
+    @IBOutlet private weak var artworkControl: ArtworkControl!
     @IBOutlet private weak var artworkHorizontal: NSLayoutConstraint!
-    @IBOutlet private weak var forwardIconHorizontal: NSLayoutConstraint!
-    @IBOutlet private weak var rewindIconHorizontal: NSLayoutConstraint!
-
-    private let playImage = UIImage(named: "playerIconPlay")
-    private let pauseImage = UIImage(named: "playerIconPause")
-    private var pan: UIPanGestureRecognizer!
-    private var originalHeight: CGFloat!
-    private let jumpIconAlpha: CGFloat = 0.15
-    private var triggeredPanAction: Bool = false
-
-    // Based on the design files for iPhone X where the regular artwork is 325dp and the paused state is 255dp in width
-    private let artworkScalePaused: CGFloat = 255.0 / 325.0
-    private let jumpIconOffsetPlaying: CGFloat = 25.0
-    private let jumpIconOffsetPaused: CGFloat = 15.0
-
-    private var isPlaying: Bool = false {
-        didSet {
-            self.playPauseButton.setImage(self.isPlaying ? self.pauseImage : self.playImage, for: UIControlState())
-
-            self.view.layoutIfNeeded()
-            self.artworkHeight.constant = self.isPlaying ? self.originalHeight : self.originalHeight * self.artworkScalePaused
-            self.forwardIconHorizontal.constant = self.isPlaying ? self.jumpIconOffsetPlaying : self.jumpIconOffsetPaused
-            self.rewindIconHorizontal.constant = self.isPlaying ? self.jumpIconOffsetPlaying : self.jumpIconOffsetPaused
-            self.view.setNeedsLayout()
-
-            UIView.animate(
-                withDuration: 0.25,
-                delay: 0.0,
-                usingSpringWithDamping: 0.6,
-                initialSpringVelocity: 1.4,
-                options: .preferredFramesPerSecond60,
-                animations: {
-                    self.artwork.mask?.frame = self.artwork.bounds
-                    self.view.layoutIfNeeded()
-                }
-            )
-
-            self.showPlayPauseButton()
-        }
-    }
+    @IBOutlet private weak var progressSlider: ProgressSlider!
+    @IBOutlet private weak var currentTimeLabel: UILabel!
+    @IBOutlet private weak var maxTimeLabel: UILabel!
+    @IBOutlet private weak var progressLabel: UILabel!
 
     var book: Book? {
         didSet {
-            self.artwork.image = self.book?.artwork
+            guard let book = self.book else {
+                return
+            }
 
-            self.rewindIcon.tintColor = self.book?.artworkColors.tertiary
-            self.forwardIcon.tintColor = self.book?.artworkColors.tertiary
+            self.artworkControl.artwork = book.artwork
+            self.artworkControl.shadowOpacity = 0.1 + (1.0 - book.artworkColors.background.brightness) * 0.3
+            self.artworkControl.iconColor = book.artworkColors.tertiary
 
-            self.artwork.layer.shadowOpacity = 0.1 + Float(1.0 - (self.book?.artworkColors.background.luminance)!) * 0.3
+            self.progressSlider.minimumTrackTintColor = book.artworkColors.tertiary
+            self.progressSlider.maximumTrackTintColor = book.artworkColors.tertiary.withAlpha(newAlpha: 0.3)
+
+            self.currentTimeLabel.textColor = book.artworkColors.tertiary
+            self.maxTimeLabel.textColor = book.artworkColors.tertiary
+            self.progressLabel.textColor = book.artworkColors.primary
+
+            self.setProgress()
         }
     }
+
+    private var currentTimeInContext: TimeInterval {
+        guard let book = self.book else {
+            return 0.0
+        }
+
+        guard book.hasChapters, let start = book.currentChapter?.start else {
+            return book.currentTime
+        }
+
+        return book.currentTime - start
+    }
+
+    private var maxTimeInContext: TimeInterval {
+        guard let book = self.book else {
+            return 0.0
+        }
+
+        guard book.hasChapters, let duration = book.currentChapter?.duration else {
+            return book.duration
+        }
+
+        return duration
+    }
+
+    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.originalHeight = self.artworkHeight.constant
-        self.isPlaying = PlayerManager.shared.isPlaying
+        self.artworkControl.isPlaying = PlayerManager.shared.isPlaying
+        self.artworkControl.onPlayPause = { control in
+            PlayerManager.shared.playPause()
 
-        self.artwork.layer.shadowColor = UIColor.black.cgColor
-        self.artwork.layer.shadowOffset = CGSize(width: 0.0, height: 4.0)
-        self.artwork.layer.shadowOpacity = 0.2
-        self.artwork.layer.shadowRadius = 12.0
-        self.artwork.clipsToBounds = false
-
-        self.rewindIcon.alpha = self.jumpIconAlpha
-        self.forwardIcon.alpha = self.jumpIconAlpha
-
-        self.updateSkipButtons()
+            control.isPlaying = PlayerManager.shared.isPlaying
+        }
+        self.artworkControl.onRewind = { _ in
+            PlayerManager.shared.rewind()
+        }
+        self.artworkControl.onForward = { _ in
+            PlayerManager.shared.forward()
+        }
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPlay), name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
-
-        self.setupGestures()
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onPlayback), name: Notification.Name.AudiobookPlayer.bookPlaying, object: nil)
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
 
-    func updateSkipButtons() {
-        self.rewindIcon.title = "−\(Int(PlayerManager.shared.rewindInterval.rounded()))s"
-        self.forwardIcon.title = "+\(Int(PlayerManager.shared.forwardInterval.rounded()))s"
-    }
+    // MARK: - Notification Handlers
 
-    func showPlayPauseButton(_ animated: Bool = true) {
-        let fadeIn = {
-            self.playPauseButton.alpha = 1.0
-        }
-
-        let fadeOut = {
-            self.playPauseButton.alpha = 0.05
-        }
-
-        if animated || self.playPauseButton.alpha < 1.0 {
-            UIView.animate(withDuration: 0.3, delay: 0, options: .allowUserInteraction, animations: fadeIn, completion: { (_: Bool) in
-                UIView.animate(withDuration: 0.3, delay: 2.2, options: .allowUserInteraction, animations: fadeOut, completion: nil)
-            })
-        } else {
-            UIView.animate(withDuration: 0.3, delay: 2.2, options: .allowUserInteraction, animations: fadeOut, completion: nil)
-        }
-    }
-
-    // toggle play/pause of book
-    @IBAction private func play(_ sender: Any) {
-        PlayerManager.shared.playPause()
-
-        self.isPlaying = PlayerManager.shared.isPlaying
+    @objc func onPlayback() {
+        self.setProgress()
     }
 
     @objc private func onBookPlay() {
-        self.isPlaying = true
+        self.artworkControl.isPlaying = true
     }
 
     @objc private func onBookPause() {
-        self.isPlaying = false
+        self.artworkControl.isPlaying = false
     }
 
-    // MARK: Gesture recognizers
+    // MARK: - Public API
 
-    private func setupGestures() {
-        self.pan = UIPanGestureRecognizer(target: self, action: #selector(panAction))
-        self.pan.delegate = self
-        self.pan.maximumNumberOfTouches = 1
-        self.pan.cancelsTouchesInView = true
-
-        self.view.addGestureRecognizer(self.pan!)
+    func showPlayPauseButton(_ animated: Bool = true) {
+        self.artworkControl.showPlayPauseButton(animated)
     }
 
-    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        if gestureRecognizer == self.pan {
-            return limitPanAngle(self.pan, degreesOfFreedom: 45.01, comparator: .lessThan)
-        }
+    // MARK: - Helpers
 
-        return true
-    }
+    private func setProgress() {
+        guard let book = self.book else {
+            self.progressLabel.text = ""
 
-    private func updateArtworkViewForTranslation(_ xTranslation: CGFloat) {
-        let sign: CGFloat = xTranslation < 0 ? -1 : 1
-        let width: CGFloat = self.rewindIcon.bounds.width
-        let actionThreshold: CGFloat = width - 10.0
-        let maximumPull: CGFloat = width + 5.0
-        let translation: CGFloat = rubberBandDistance(fabs(xTranslation), dimension: width * 2 + 10.0, constant: 0.6)
-
-        self.artworkHorizontal.constant = translation * sign
-
-        let alpha: CGFloat = self.jumpIconAlpha + min(translation / actionThreshold, 1.0) * (1.0 - self.jumpIconAlpha)
-
-        if !self.triggeredPanAction {
-            if xTranslation > 0 {
-                self.rewindIcon.alpha = alpha
-            } else {
-                self.forwardIcon.alpha = alpha
-            }
-        }
-
-        if translation > actionThreshold && !self.triggeredPanAction {
-            if #available(iOS 10.0, *) {
-                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-            }
-
-            UIView.animate(withDuration: 0.20, delay: 0.0, options: .curveEaseIn, animations: {
-                self.rewindIcon.alpha = self.jumpIconAlpha
-                self.forwardIcon.alpha = self.jumpIconAlpha
-            })
-
-            if sign < 0 {
-                PlayerManager.shared.forward()
-            } else {
-                PlayerManager.shared.rewind()
-            }
-
-            self.triggeredPanAction = true
-        }
-
-        if translation > maximumPull {
-            self.resetArtworkViewHorizontalConstraintAnimated()
-
-            self.pan.isEnabled = false
-            self.pan.isEnabled = true
-        }
-    }
-
-    func resetArtworkViewHorizontalConstraintAnimated() {
-        self.artworkHorizontal.constant = 0.0
-
-        UIView.animate(
-            withDuration: 0.3,
-            delay: 0.0,
-            usingSpringWithDamping: 0.7,
-            initialSpringVelocity: 1.5,
-            options: .preferredFramesPerSecond60,
-            animations: {
-                self.view.layoutIfNeeded()
-            }
-        )
-
-        UIView.animate(withDuration: 0.20, delay: 0.10, options: .curveEaseOut, animations: {
-            self.rewindIcon.alpha = self.jumpIconAlpha
-            self.forwardIcon.alpha = self.jumpIconAlpha
-        })
-
-        self.triggeredPanAction = false
-    }
-
-    @objc private func panAction(gestureRecognizer: UIPanGestureRecognizer) {
-        guard gestureRecognizer.isEqual(self.pan) else {
             return
         }
 
-        switch gestureRecognizer.state {
-            case .began:
-                gestureRecognizer.setTranslation(CGPoint(x: 0, y: 0), in: self.artworkView.superview)
+        self.maxTimeLabel.text = self.formatTime(self.maxTimeInContext)
 
-            case .changed:
-                let translation = gestureRecognizer.translation(in: self.artworkView)
+        if !self.progressSlider.isTracking {
+            self.currentTimeLabel.text = self.formatTime(self.currentTimeInContext)
+        }
 
-                self.updateArtworkViewForTranslation(translation.x)
+        guard book.hasChapters, let chapters = book.chapters, let currentChapter = book.currentChapter else {
+            if !self.progressSlider.isTracking {
+                self.progressLabel.text = "\(Int(round(book.progress * 100)))%"
 
-            case .ended, .cancelled, .failed:
-                self.resetArtworkViewHorizontalConstraintAnimated()
+                self.progressSlider.value = Float(book.progress)
+                self.progressSlider.setNeedsDisplay()
+            }
 
-            case .possible: break
+            return
+        }
+
+        self.progressLabel.isHidden = false
+        self.progressLabel.text = "Chapter \(currentChapter.index) of \(chapters.count)"
+
+        if !self.progressSlider.isTracking {
+            self.progressSlider.value = Float((book.currentTime - currentChapter.start) / currentChapter.duration)
+            self.progressSlider.setNeedsDisplay()
+        }
+    }
+
+    // MARK: - Storyboard Actions
+
+    var chapterBeforeSliderValueChange: Chapter?
+
+    @IBAction func sliderDown(_ sender: UISlider, event: UIEvent) {
+        self.chapterBeforeSliderValueChange = self.book?.currentChapter
+    }
+
+    @IBAction func sliderUp(_ sender: UISlider, event: UIEvent) {
+        guard let book = self.book else {
+            return
+        }
+
+        // Setting progress here instead of in `sliderValueChanged` to only register the value when the interaction
+        // has ended, while still previwing the expected new time and progress in labels and display
+        var newTime = TimeInterval(sender.value) * book.duration
+
+        if let currentChapter = book.currentChapter {
+            newTime = currentChapter.start + TimeInterval(sender.value) * currentChapter.duration
+        }
+
+        PlayerManager.shared.jumpTo(newTime)
+    }
+
+    @IBAction func sliderValueChanged(_ sender: UISlider, event: UIEvent) {
+        // This should be in ProgressSlider, but how to achieve that escapes my knowledge
+        self.progressSlider.setNeedsDisplay()
+
+        guard let book = self.book else {
+            return
+        }
+
+        var newTimeToDisplay = TimeInterval(sender.value) * book.duration
+
+        if let currentChapter = self.chapterBeforeSliderValueChange {
+            newTimeToDisplay = TimeInterval(sender.value) * currentChapter.duration
+        }
+
+        self.currentTimeLabel.text = self.formatTime(newTimeToDisplay)
+
+        if !book.hasChapters {
+            self.progressLabel.text = "\(Int(round(sender.value * 100)))%"
         }
     }
 }

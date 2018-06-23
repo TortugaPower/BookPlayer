@@ -8,7 +8,7 @@
 
 import UIKit
 
-class PlayerJumpIconView: UIView {
+class PlayerJumpIcon: UIView {
     private var backgroundImageView: UIImageView!
     private var label: UILabel!
 
@@ -39,7 +39,7 @@ class PlayerJumpIconView: UIView {
         self.setup()
     }
 
-    private func setup() {
+    fileprivate func setup() {
         self.backgroundColor = .clear
 
         self.backgroundImageView = UIImageView(image: self.backgroundImage)
@@ -57,7 +57,7 @@ class PlayerJumpIconView: UIView {
     }
 }
 
-class PlayerForwardIconView: PlayerJumpIconView {
+class PlayerJumpIconForward: PlayerJumpIcon {
     override var backgroundImage: UIImage {
         get {
             return #imageLiteral(resourceName: "playerIconForward")
@@ -66,9 +66,16 @@ class PlayerForwardIconView: PlayerJumpIconView {
             super.backgroundImage = newValue
         }
     }
+
+    override func setup() {
+        super.setup()
+
+        self.title = "+\(Int(PlayerManager.shared.forwardInterval.rounded()))s"
+    }
+
 }
 
-class PlayerRewindIconView: PlayerJumpIconView {
+class PlayerJumpIconRewind: PlayerJumpIcon {
     override var backgroundImage: UIImage {
         get {
             return #imageLiteral(resourceName: "playerIconRewind")
@@ -76,5 +83,11 @@ class PlayerRewindIconView: PlayerJumpIconView {
         set {
             super.backgroundImage = newValue
         }
+    }
+
+    override func setup() {
+        super.setup()
+
+        self.title = "−\(Int(PlayerManager.shared.rewindInterval.rounded()))s"
     }
 }

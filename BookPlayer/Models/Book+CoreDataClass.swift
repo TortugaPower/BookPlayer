@@ -17,8 +17,7 @@ public class Book: LibraryItem {
     }
 
     var currentChapter: Chapter? {
-        guard let chapters = self.chapters?.array as? [Chapter],
-            !chapters.isEmpty else {
+        guard let chapters = self.chapters?.array as? [Chapter], !chapters.isEmpty else {
             return nil
         }
 
@@ -52,11 +51,12 @@ public class Book: LibraryItem {
             for (index, chapterMetadata) in chaptersMetadata.enumerated() {
                 let chapterIndex = index + 1
                 let chapter = Chapter(from: asset, context: context)
+
                 chapter.title = AVMetadataItem.metadataItems(
                     from: chapterMetadata.items,
                     withKey: AVMetadataKey.commonKeyTitle,
                     keySpace: AVMetadataKeySpace.common
-                    ).first?.value?.copy(with: nil) as? String ?? "Chapter \(chapterIndex)"
+                ).first?.value?.copy(with: nil) as? String ?? ""
                 chapter.start = CMTimeGetSeconds(chapterMetadata.timeRange.start)
                 chapter.duration = CMTimeGetSeconds(chapterMetadata.timeRange.duration)
                 chapter.index = Int16(chapterIndex)
