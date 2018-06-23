@@ -56,6 +56,7 @@
 		C33E843C20C6E179004A0489 /* ItemProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = C33E843B20C6E179004A0489 /* ItemProgress.swift */; };
 		C359C30720A9F35B00A626E3 /* SkipDurationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C359C30620A9F35B00A626E3 /* SkipDurationViewController.swift */; };
 		C36C4D5C20A23E1800AFDB76 /* MiniPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C36C4D5B20A23E1800AFDB76 /* MiniPlayerViewController.swift */; };
+		C375AF1720DD81F800AC034D /* ProgressSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C375AF1620DD81F800AC034D /* ProgressSlider.swift */; };
 		C37A6873209F0F830063AEAC /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = C37A6872209F0F830063AEAC /* Credits.html */; };
 		C37A6875209F13120063AEAC /* CreditsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37A6874209F13120063AEAC /* CreditsViewController.swift */; };
 		C398559C20C492FF00BE9EC0 /* AddButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C398559B20C492FF00BE9EC0 /* AddButton.swift */; };
@@ -152,6 +153,7 @@
 		C35BADE8206989E6007687C1 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		C35BADE9206989E6007687C1 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .swiftlint.yml; sourceTree = "<group>"; };
 		C36C4D5B20A23E1800AFDB76 /* MiniPlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MiniPlayerViewController.swift; sourceTree = "<group>"; };
+		C375AF1620DD81F800AC034D /* ProgressSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressSlider.swift; sourceTree = "<group>"; };
 		C37A6872209F0F830063AEAC /* Credits.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = Credits.html; sourceTree = "<group>"; };
 		C37A6874209F13120063AEAC /* CreditsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreditsViewController.swift; sourceTree = "<group>"; };
 		C398559B20C492FF00BE9EC0 /* AddButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddButton.swift; sourceTree = "<group>"; };
@@ -333,6 +335,7 @@
 			isa = PBXGroup;
 			children = (
 				C318D3AC208CF624000666F8 /* PlayerJumpIcon.swift */,
+				C375AF1620DD81F800AC034D /* ProgressSlider.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -614,6 +617,7 @@
 				C359C30720A9F35B00A626E3 /* SkipDurationViewController.swift in Sources */,
 				C30EEEBE2079645C00A4ED33 /* PlayerProgressViewController.swift in Sources */,
 				C3A479192094CAF300D92122 /* UIViewController+BookPlayer.swift in Sources */,
+				C375AF1720DD81F800AC034D /* ProgressSlider.swift in Sources */,
 				416B640D1E72F362000E955A /* Extensions.swift in Sources */,
 				4165EE0620A743D500616EDF /* LibraryItem+CoreDataClass.swift in Sources */,
 				41839AB720AA8C970047E55D /* Book+CoreDataClass.swift in Sources */,
