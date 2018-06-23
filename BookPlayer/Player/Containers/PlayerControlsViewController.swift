@@ -26,8 +26,6 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
             self.artworkControl.shadowOpacity = 0.1 + (1.0 - book.artworkColors.background.brightness) * 0.3
             self.artworkControl.iconColor = book.artworkColors.tertiary
 
-            self.maxTimeLabel.text = self.formatTime(self.maxTime)
-
             self.progressSlider.minimumTrackTintColor = book.artworkColors.tertiary
             self.progressSlider.maximumTrackTintColor = book.artworkColors.tertiary.withAlpha(newAlpha: 0.3)
 
@@ -39,7 +37,19 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         }
     }
 
-    private var maxTime: TimeInterval {
+    private var currentTimeInContext: TimeInterval {
+        guard let book = self.book else {
+            return 0.0
+        }
+
+        guard book.hasChapters, let start = book.currentChapter?.start else {
+            return book.currentTime
+        }
+
+        return book.currentTime - start
+    }
+
+    private var maxTimeInContext: TimeInterval {
         guard let book = self.book else {
             return 0.0
         }
@@ -49,28 +59,6 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         }
 
         return duration
-    }
-
-    private var currentTime: TimeInterval = 0.0 {
-        didSet {
-            guard let book = self.book else {
-                return
-            }
-
-            self.currentTimeLabel.text = self.formatTime(self.currentTime)
-            self.maxTimeLabel.text = self.formatTime(self.maxTime)
-
-            guard let currentChapter = book.currentChapter else {
-                self.progressSlider.value = Float(book.progress)
-
-                return
-            }
-
-            self.progressSlider.value = Float((book.currentTime - currentChapter.start) / currentChapter.duration)
-
-            // This should be in ProgressSlider, but how to achieve that escapes my knowledge
-            self.progressSlider.setNeedsDisplay()
-        }
     }
 
     // MARK: - Lifecycle
@@ -101,43 +89,6 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         super.didReceiveMemoryWarning()
     }
 
-    // MARK: - Helpers
-
-    func showPlayPauseButton(_ animated: Bool = true) {
-        self.artworkControl.showPlayPauseButton(animated)
-    }
-
-    private func currentTimeInContext() -> TimeInterval {
-        guard let book = self.book else {
-            return 0.0
-        }
-
-        guard let currentChapter = book.currentChapter else {
-            return book.currentTime
-        }
-
-        return book.currentTime - currentChapter.start
-    }
-
-    private func setProgress() {
-        guard let book = self.book else {
-            self.progressLabel.text = ""
-
-            return
-        }
-
-        self.currentTime = self.currentTimeInContext()
-
-        guard book.hasChapters, let chapters = book.chapters, let currentChapter = book.currentChapter else {
-            self.progressLabel.text = book.percentCompletedRoundedString
-
-            return
-        }
-
-        self.progressLabel.isHidden = false
-        self.progressLabel.text = "Chapter \(currentChapter.index) of \(chapters.count)"
-    }
-
     // MARK: - Notification Handlers
 
     @objc func onPlayback() {
@@ -152,47 +103,89 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         self.artworkControl.isPlaying = false
     }
 
-    // MARK: - Storyboard Actions
+    // MARK: - Public API
 
-    @IBAction func sliderDown(_ sender: UISlider, event: UIEvent) {
-        //
+    func showPlayPauseButton(_ animated: Bool = true) {
+        self.artworkControl.showPlayPauseButton(animated)
     }
 
+    // MARK: - Helpers
+
+    private func setProgress() {
+        guard let book = self.book else {
+            self.progressLabel.text = ""
+
+            return
+        }
+
+        self.maxTimeLabel.text = self.formatTime(self.maxTimeInContext)
+
+        if !self.progressSlider.isTracking {
+            self.currentTimeLabel.text = self.formatTime(self.currentTimeInContext)
+        }
+
+        guard book.hasChapters, let chapters = book.chapters, let currentChapter = book.currentChapter else {
+            if !self.progressSlider.isTracking {
+                self.progressLabel.text = "\(Int(round(book.progress * 100)))%"
+
+                self.progressSlider.value = Float(book.progress)
+                self.progressSlider.setNeedsDisplay()
+            }
+
+            return
+        }
+
+        self.progressLabel.isHidden = false
+        self.progressLabel.text = "Chapter \(currentChapter.index) of \(chapters.count)"
+
+        if !self.progressSlider.isTracking {
+            self.progressSlider.value = Float((book.currentTime - currentChapter.start) / currentChapter.duration)
+            self.progressSlider.setNeedsDisplay()
+        }
+    }
+
+    // MARK: - Storyboard Actions
+
+    var chapterBeforeSliderValueChange: Chapter?
+
+    @IBAction func sliderDown(_ sender: UISlider, event: UIEvent) {
+        self.chapterBeforeSliderValueChange = self.book?.currentChapter
+    }
 
     @IBAction func sliderUp(_ sender: UISlider, event: UIEvent) {
-        //
+        guard let book = self.book else {
+            return
+        }
+
+        // Setting progress here instead of in `sliderValueChanged` to only register the value when the interaction
+        // has ended, while still previwing the expected new time and progress in labels and display
+        var newTime = TimeInterval(sender.value) * book.duration
+
+        if let currentChapter = book.currentChapter {
+            newTime = currentChapter.start + TimeInterval(sender.value) * currentChapter.duration
+        }
+
+        PlayerManager.shared.jumpTo(newTime)
     }
 
     @IBAction func sliderValueChanged(_ sender: UISlider, event: UIEvent) {
+        // This should be in ProgressSlider, but how to achieve that escapes my knowledge
         self.progressSlider.setNeedsDisplay()
 
         guard let book = self.book else {
             return
         }
 
-        let value = sender.value / sender.maximumValue
+        var newTimeToDisplay = TimeInterval(sender.value) * book.duration
 
-
-        let interval = TimeInterval(value)
-        var currentTime = interval * book.duration
-
-        if let currentChapter = book.currentChapter {
-            currentTime = interval * currentChapter.duration + currentChapter.start
+        if let currentChapter = self.chapterBeforeSliderValueChange {
+            newTimeToDisplay = TimeInterval(sender.value) * currentChapter.duration
         }
 
-        self.currentTime = self.currentTimeInContext()
+        self.currentTimeLabel.text = self.formatTime(newTimeToDisplay)
 
-        guard let touch = event.allTouches?.first else {
-            return
-        }
-
-        // @TODO: Handle has chapter + playing + currentChapter already switched
-
-        // Update while dragging up until but not including the very end of the chapter.
-        // Move to the end of the chapter if the drag ends at the very end of the slider.
-        // This prevents dragging the slider to the end of the chapter from skipping chapter by chapter while the drag continues to fire.
-        if value < sender.maximumValue && touch.phase == .moved || (value == sender.maximumValue && touch.phase == .ended && PlayerManager.shared.currentTime <= self.currentTime) {
-            PlayerManager.shared.jumpTo(currentTime)
+        if !book.hasChapters {
+            self.progressLabel.text = "\(Int(round(sender.value * 100)))%"
         }
     }
 }
