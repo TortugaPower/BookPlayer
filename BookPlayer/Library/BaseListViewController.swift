@@ -62,7 +62,8 @@ class BaseListViewController: UIViewController {
     }
 
     @objc func onBookPlay() {
-        guard let index = self.library.itemIndex(with: PlayerManager.shared.currentBook.fileURL),
+        guard let currentBook = PlayerManager.shared.currentBook,
+            let index = self.library.itemIndex(with: currentBook.fileURL),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView else {
                 return
         }
@@ -114,11 +115,17 @@ class BaseListViewController: UIViewController {
         // Make sure player is for a different book
         let book = books.first!
 
-        guard PlayerManager.shared.currentBook == nil || PlayerManager.shared.currentBook.fileURL != book.fileURL else {
-            showPlayerView(book: book)
-
+        guard let currentBook = PlayerManager.shared.currentBook, currentBook.fileURL == book.fileURL else {
+            //handle loading new player
+            loadPlayer(books: books)
             return
         }
+
+        showPlayerView(book: book)
+    }
+
+    func loadPlayer(books: [Book]) {
+        guard let book = books.first else { return }
 
         guard DataManager.exists(book) else {
             self.showAlert("File missing!", message: "This book’s file was removed from your device. Import the file again to play the book")

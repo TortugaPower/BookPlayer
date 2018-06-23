@@ -291,8 +291,8 @@ extension LibraryViewController {
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
 
         guard let bookCell = cell as? BookCellView,
-            PlayerManager.shared.currentBook != nil,
-            let index = self.library.itemIndex(with: PlayerManager.shared.currentBook.fileURL),
+            let currentBook = PlayerManager.shared.currentBook,
+            let index = self.library.itemIndex(with: currentBook.fileURL),
             index == indexPath.row else {
                 return cell
         }

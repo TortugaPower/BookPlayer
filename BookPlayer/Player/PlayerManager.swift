@@ -16,9 +16,9 @@ class PlayerManager: NSObject {
     var audioPlayer: AVAudioPlayer?
     private var playerItem: AVPlayerItem!
 
-    lazy var currentBooks = [Book]()
-    var currentBook: Book! {
-        return self.currentBooks.first
+    var currentBooks: [Book]?
+    var currentBook: Book? {
+        return self.currentBooks?.first
     }
 
     private var timer: Timer!
@@ -28,19 +28,20 @@ class PlayerManager: NSObject {
     private let maxSmartRewind = 60.0
 
     func load(_ books: [Book], completion:@escaping (Bool) -> Void) {
-        if let player = self.audioPlayer,
-            self.currentBooks.count == books.count { // @TODO : fix logic
-                player.stop()
-                // notify?
+
+        guard let book = books.first else {
+            completion(false)
+            return
         }
 
-        let book = books.first!
+        self.currentBooks = books
 
         // load data on background thread
         DispatchQueue.global().async {
             // try loading the player
             guard let audioplayer = try? AVAudioPlayer(contentsOf: book.fileURL) else {
                 DispatchQueue.main.async(execute: {
+                    self.currentBooks = nil
                     completion(false)
                 })
                 return
@@ -50,7 +51,6 @@ class PlayerManager: NSObject {
             audioplayer.delegate = self
             audioplayer.enableRate = true
 
-            self.currentBooks = books
             self.playerItem = DataManager.playerItem(from: book)
 
             if UserDefaults.standard.bool(forKey: UserDefaultsConstants.boostVolumeEnabled) {
@@ -163,7 +163,7 @@ class PlayerManager: NSObject {
 
             player.currentTime = newValue
 
-            self.currentBook.currentTime = newValue
+            self.currentBook?.currentTime = newValue
         }
     }
 
@@ -171,18 +171,18 @@ class PlayerManager: NSObject {
         get {
             let useGlobalSpeed = UserDefaults.standard.bool(forKey: UserDefaultsConstants.globalSpeedEnabled)
             let globalSpeed = UserDefaults.standard.float(forKey: "global_speed")
-            let localSpeed = UserDefaults.standard.float(forKey: self.currentBook.identifier+"_speed")
+            let localSpeed = UserDefaults.standard.float(forKey: self.currentBook!.identifier+"_speed")
             let speed = useGlobalSpeed ? globalSpeed : localSpeed
 
             return speed > 0 ? speed : 1.0
         }
 
         set {
-            guard let audioPlayer = self.audioPlayer else {
+            guard let audioPlayer = self.audioPlayer, let currentBook = self.currentBook else {
                 return
             }
 
-            UserDefaults.standard.set(newValue, forKey: self.currentBook.identifier+"_speed")
+            UserDefaults.standard.set(newValue, forKey: currentBook.identifier+"_speed")
 
             // set global speed
             if UserDefaults.standard.bool(forKey: UserDefaultsConstants.globalSpeedEnabled) {
@@ -258,11 +258,11 @@ class PlayerManager: NSObject {
     // MARK: Playback
 
     func play(_ autoplayed: Bool = false) {
-        guard let audioplayer = self.audioPlayer else {
+        guard let currentBook = self.currentBook, let audioplayer = self.audioPlayer else {
             return
         }
 
-        UserDefaults.standard.set(self.currentBook.identifier, forKey: UserDefaultsConstants.lastPlayedBook)
+        UserDefaults.standard.set(currentBook.identifier, forKey: UserDefaultsConstants.lastPlayedBook)
 
         do {
             try AVAudioSession.sharedInstance().setActive(true)
@@ -282,7 +282,7 @@ class PlayerManager: NSObject {
         }
 
         // Handle smart rewind.
-        let lastPauseTimeKey = "\(UserDefaultsConstants.lastPauseTime)_\(self.currentBook.identifier!)"
+        let lastPauseTimeKey = "\(UserDefaultsConstants.lastPauseTime)_\(currentBook.identifier!)"
 
         if let lastPlayTime: Date = UserDefaults.standard.object(forKey: lastPauseTimeKey) as? Date,
             UserDefaults.standard.bool(forKey: UserDefaultsConstants.smartRewindEnabled) {
@@ -316,11 +316,11 @@ class PlayerManager: NSObject {
     }
 
     func pause() {
-        guard let audioplayer = self.audioPlayer else {
+        guard let audioplayer = self.audioPlayer, let currentBook = self.currentBook else {
             return
         }
 
-        UserDefaults.standard.set(self.currentBook.identifier, forKey: UserDefaultsConstants.lastPlayedBook)
+        UserDefaults.standard.set(currentBook.identifier, forKey: UserDefaultsConstants.lastPlayedBook)
 
         // invalidate timer if needed
         if self.timer != nil {
@@ -335,7 +335,7 @@ class PlayerManager: NSObject {
         MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 0.0
         MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
 
-        UserDefaults.standard.set(Date(), forKey: "\(UserDefaultsConstants.lastPauseTime)_\(self.currentBook.identifier!)")
+        UserDefaults.standard.set(Date(), forKey: "\(UserDefaultsConstants.lastPauseTime)_\(currentBook.identifier!)")
 
         do {
             try AVAudioSession.sharedInstance().setActive(false)
@@ -375,9 +375,7 @@ class PlayerManager: NSObject {
 extension PlayerManager: AVAudioPlayerDelegate {
     // leave the slider at max
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        guard flag else {
-            return
-        }
+        guard flag else { return }
 
         player.currentTime = player.duration
 
@@ -385,11 +383,12 @@ extension PlayerManager: AVAudioPlayerDelegate {
 
         self.update()
 
-        let currentBooks = Array(PlayerManager.shared.currentBooks.dropFirst())
-
-        guard !currentBooks.isEmpty else {
+        guard let slicedCurrentBooks = self.currentBooks?.dropFirst(),
+            !slicedCurrentBooks.isEmpty else {
             return
         }
+
+        let currentBooks = Array(slicedCurrentBooks)
 
         load(currentBooks, completion: { (_) in
             let userInfo = ["books": currentBooks]

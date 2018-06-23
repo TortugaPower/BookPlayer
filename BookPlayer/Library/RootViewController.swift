@@ -18,11 +18,11 @@ class RootViewController: UIViewController {
         if let viewController = segue.destination as? MiniPlayerViewController {
             self.miniPlayerViewController = viewController
             self.miniPlayerViewController!.showPlayer = {
-                guard PlayerManager.shared.currentBook != nil else {
+                guard let currentBooks = PlayerManager.shared.currentBooks else {
                     return
                 }
 
-                self.libraryViewController.setupPlayer(books: PlayerManager.shared.currentBooks)
+                self.libraryViewController.setupPlayer(books: currentBooks)
             }
         } else if let navigationVC = segue.destination as? UINavigationController, let libraryVC = navigationVC.childViewControllers.first as? LibraryViewController {
             self.libraryViewController = libraryVC
