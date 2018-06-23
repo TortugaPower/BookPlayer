@@ -49,7 +49,7 @@
 		C30EEEBF2079645C00A4ED33 /* PlayerContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30EEEBB2079645C00A4ED33 /* PlayerContainerViewController.swift */; };
 		C30EEEC02079645C00A4ED33 /* PlayerControlsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30EEEBC2079645C00A4ED33 /* PlayerControlsViewController.swift */; };
 		C30EEEC12079645C00A4ED33 /* PlayerMetaViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30EEEBD2079645C00A4ED33 /* PlayerMetaViewController.swift */; };
-		C318D3AD208CF624000666F8 /* PlayerJumpIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C318D3AC208CF624000666F8 /* PlayerJumpIconView.swift */; };
+		C318D3AD208CF624000666F8 /* PlayerJumpIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = C318D3AC208CF624000666F8 /* PlayerJumpIcon.swift */; };
 		C318DDB820A3A3F400C3A17B /* UIImageView+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C318DDB720A3A3F400C3A17B /* UIImageView+BookPlayer.swift */; };
 		C318DDBC20A48D4700C3A17B /* BPMarqueeLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C318DDBB20A48D4700C3A17B /* BPMarqueeLabel.swift */; };
 		C318DDBF20A4DC7500C3A17B /* DeviceKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C318DDBE20A4DC7500C3A17B /* DeviceKit.framework */; };
@@ -142,7 +142,7 @@
 		C30EEEBD2079645C00A4ED33 /* PlayerMetaViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerMetaViewController.swift; sourceTree = "<group>"; };
 		C30EEEC3207A7CCE00A4ED33 /* Cartfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Cartfile; sourceTree = SOURCE_ROOT; };
 		C30EEEC4207A7CD500A4ED33 /* Cartfile.resolved */ = {isa = PBXFileReference; lastKnownFileType = text; path = Cartfile.resolved; sourceTree = SOURCE_ROOT; };
-		C318D3AC208CF624000666F8 /* PlayerJumpIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerJumpIconView.swift; sourceTree = "<group>"; };
+		C318D3AC208CF624000666F8 /* PlayerJumpIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerJumpIcon.swift; sourceTree = "<group>"; };
 		C318DDB720A3A3F400C3A17B /* UIImageView+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+BookPlayer.swift"; sourceTree = "<group>"; };
 		C318DDBB20A48D4700C3A17B /* BPMarqueeLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPMarqueeLabel.swift; sourceTree = "<group>"; };
 		C318DDBE20A4DC7500C3A17B /* DeviceKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DeviceKit.framework; path = Carthage/Build/iOS/DeviceKit.framework; sourceTree = "<group>"; };
@@ -332,7 +332,7 @@
 		C3D3852820C1EA7A00A0ACC7 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				C318D3AC208CF624000666F8 /* PlayerJumpIconView.swift */,
+				C318D3AC208CF624000666F8 /* PlayerJumpIcon.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -608,7 +608,7 @@
 				418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */,
 				4165EDFE20A743D500616EDF /* Chapter+CoreDataClass.swift in Sources */,
 				C30EEEBF2079645C00A4ED33 /* PlayerContainerViewController.swift in Sources */,
-				C318D3AD208CF624000666F8 /* PlayerJumpIconView.swift in Sources */,
+				C318D3AD208CF624000666F8 /* PlayerJumpIcon.swift in Sources */,
 				C37A6875209F13120063AEAC /* CreditsViewController.swift in Sources */,
 				418B6D5D1D2CB76900F974FB /* PlayerViewController.swift in Sources */,
 				C359C30720A9F35B00A626E3 /* SkipDurationViewController.swift in Sources */,
