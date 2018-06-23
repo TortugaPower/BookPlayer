@@ -42,7 +42,8 @@ class PlaylistViewController: BaseListViewController {
     }
 
     @objc override func onBookPlay() {
-        guard let index = self.playlist.itemIndex(with: PlayerManager.shared.currentBook.fileURL),
+        guard let currentBook = PlayerManager.shared.currentBook,
+            let index = self.playlist.itemIndex(with: currentBook.fileURL),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView else {
                 return
         }
@@ -51,7 +52,8 @@ class PlaylistViewController: BaseListViewController {
     }
 
     @objc override func onBookPause() {
-        guard let index = self.playlist.itemIndex(with: PlayerManager.shared.currentBook.fileURL),
+        guard let currentBook = PlayerManager.shared.currentBook,
+            let index = self.playlist.itemIndex(with: currentBook.fileURL),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView else {
                 return
         }
@@ -77,8 +79,8 @@ extension PlaylistViewController {
 
         bookCell.type = .file
 
-        guard PlayerManager.shared.currentBook != nil,
-            let index = self.playlist.itemIndex(with: PlayerManager.shared.currentBook.fileURL),
+        guard let currentBook = PlayerManager.shared.currentBook,
+            let index = self.playlist.itemIndex(with: currentBook.fileURL),
             index == indexPath.row else {
                 return bookCell
         }
