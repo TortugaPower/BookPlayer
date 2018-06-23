@@ -41,9 +41,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             ]
         }
 
-        NotificationCenter.default.addObserver(self, selector: #selector(self.hideShowPlayer), name: NSNotification.Name.AudiobookPlayer.playerPresented, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.hideShowPlayer), name: NSNotification.Name.AudiobookPlayer.playerDismissed, object: nil)
-
         do {
             try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
         } catch {
@@ -57,7 +54,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioRouteChange(_:)), name: NSNotification.Name.AVAudioSessionRouteChange, object: nil)
 
         // register for remote events
-        self.registerRemoteEvents()
+        self.setupMPRemoteCommands()
 
         return true
     }
@@ -108,14 +105,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
 
-    @objc func hideShowPlayer() {
-        if UIApplication.shared.statusBarStyle == .default && PlayerManager.shared.currentBook.artworkColors.displayOnDark {
-            UIApplication.shared.statusBarStyle = .lightContent
-        } else {
-            UIApplication.shared.statusBarStyle = .default
-        }
-    }
-
     // Playback may be interrupted by calls. Handle pause
     @objc func handleAudioInterruptions(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
@@ -154,31 +143,38 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     // For now, seek forward/backward and next/previous track perform the same function
-    func registerRemoteEvents() {
-        let togglePlayPauseHandler: (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus = { (_) -> MPRemoteCommandHandlerStatus in
+    func setupMPRemoteCommands() {
+        // Play / Pause
+        MPRemoteCommandCenter.shared().togglePlayPauseCommand.isEnabled = true
+        MPRemoteCommandCenter.shared().togglePlayPauseCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
             PlayerManager.shared.playPause()
             return .success
         }
 
-        MPRemoteCommandCenter.shared().togglePlayPauseCommand.isEnabled = true
-        MPRemoteCommandCenter.shared().togglePlayPauseCommand.addTarget(handler: togglePlayPauseHandler)
-
         MPRemoteCommandCenter.shared().playCommand.isEnabled = true
-        MPRemoteCommandCenter.shared().playCommand.addTarget(handler: togglePlayPauseHandler)
+        MPRemoteCommandCenter.shared().playCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
+            PlayerManager.shared.play()
+            return .success
+        }
 
         MPRemoteCommandCenter.shared().pauseCommand.isEnabled = true
-        MPRemoteCommandCenter.shared().pauseCommand.addTarget(handler: togglePlayPauseHandler)
+        MPRemoteCommandCenter.shared().pauseCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
+            PlayerManager.shared.pause()
+            return .success
+        }
 
-        let skipForwardHandler: (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus = { (commandEvent) -> MPRemoteCommandHandlerStatus in
+        // Forward
+        MPRemoteCommandCenter.shared().skipForwardCommand.preferredIntervals = [NSNumber(value: PlayerManager.shared.forwardInterval)]
+
+        MPRemoteCommandCenter.shared().skipForwardCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
             PlayerManager.shared.forward()
             return .success
         }
 
-        MPRemoteCommandCenter.shared().skipForwardCommand.preferredIntervals = [PlayerManager.shared.forwardInterval] as [NSNumber]
-        MPRemoteCommandCenter.shared().skipForwardCommand.addTarget(handler: skipForwardHandler)
-
-        MPRemoteCommandCenter.shared().skipBackwardCommand.preferredIntervals = [PlayerManager.shared.rewindInterval] as [NSNumber]
-        MPRemoteCommandCenter.shared().nextTrackCommand.addTarget(handler: skipForwardHandler)
+        MPRemoteCommandCenter.shared().nextTrackCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
+            PlayerManager.shared.forward()
+            return .success
+        }
 
         MPRemoteCommandCenter.shared().seekForwardCommand.addTarget { (commandEvent) -> MPRemoteCommandHandlerStatus in
             guard let cmd = commandEvent as? MPSeekCommandEvent, cmd.type == .endSeeking else {
@@ -187,24 +183,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
             // End seeking
             PlayerManager.shared.forward()
-
             return .success
         }
 
-        let skipBackwardHandler: (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus = { (commandEvent) -> MPRemoteCommandHandlerStatus in
+        // Rewind
+        MPRemoteCommandCenter.shared().skipBackwardCommand.preferredIntervals = [NSNumber(value: PlayerManager.shared.rewindInterval)]
+
+        MPRemoteCommandCenter.shared().skipBackwardCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
             PlayerManager.shared.rewind()
-
             return .success
         }
 
-        MPRemoteCommandCenter.shared().skipBackwardCommand.addTarget(handler: skipBackwardHandler)
-        MPRemoteCommandCenter.shared().previousTrackCommand.addTarget(handler: skipBackwardHandler)
+        MPRemoteCommandCenter.shared().previousTrackCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
+            PlayerManager.shared.rewind()
+            return .success
+        }
 
         MPRemoteCommandCenter.shared().seekBackwardCommand.addTarget { (commandEvent) -> MPRemoteCommandHandlerStatus in
-            guard let cmd = commandEvent as? MPSeekCommandEvent,
-                cmd.type == .endSeeking else { return .success }
+            guard let cmd = commandEvent as? MPSeekCommandEvent, cmd.type == .endSeeking else {
+                return .success
+            }
 
-            //end seeking
+            // End seeking
             PlayerManager.shared.rewind()
             return .success
         }

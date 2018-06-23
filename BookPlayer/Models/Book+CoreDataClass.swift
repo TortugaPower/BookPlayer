@@ -33,8 +33,12 @@ public class Book: LibraryItem {
         return self.title
     }
 
+    var progress: Double {
+        return self.currentTime / self.duration
+    }
+
     var percentage: Double {
-        return round(self.currentTime / self.duration * 100)
+        return round(self.progress * 100)
     }
 
     var hasChapters: Bool {

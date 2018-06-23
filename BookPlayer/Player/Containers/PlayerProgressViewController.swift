@@ -12,17 +12,17 @@ class PlayerProgressViewController: PlayerContainerViewController {
     @IBOutlet private weak var progressSlider: UISlider!
     @IBOutlet private weak var currentTimeLabel: UILabel!
     @IBOutlet private weak var maxTimeLabel: UILabel!
-    @IBOutlet private weak var percentageLabel: UILabel!
+    @IBOutlet private weak var progressLabel: UILabel!
     @IBOutlet weak var sliderMin: UIImageView!
     @IBOutlet weak var sliderMax: UIImageView!
     @IBOutlet weak var minTrackWidth: NSLayoutConstraint!
 
     var book: Book? {
         didSet {
-            self.setPercentage()
-
             self.currentTime = self.currentTimeInContext()
             self.maxTimeLabel.text = self.formatTime(self.maxTime)
+
+            self.setProgress()
         }
     }
 
@@ -35,7 +35,7 @@ class PlayerProgressViewController: PlayerContainerViewController {
         self.sliderMax.tintColor = book.artworkColors.tertiary
         self.currentTimeLabel.textColor = book.artworkColors.tertiary
         self.maxTimeLabel.textColor = book.artworkColors.tertiary
-        self.percentageLabel.textColor = book.artworkColors.primary
+        self.progressLabel.textColor = book.artworkColors.primary
 
         guard book.hasChapters, let duration = book.currentChapter?.duration else {
             return book.duration
@@ -102,8 +102,6 @@ class PlayerProgressViewController: PlayerContainerViewController {
             return
         }
 
-        self.percentageLabel.text = book.percentCompletedRoundedString
-
         guard let currentChapter = book.currentChapter else {
             self.progressSlider.value = Float(book.percentCompleted / 100)
 
@@ -113,8 +111,27 @@ class PlayerProgressViewController: PlayerContainerViewController {
         self.progressSlider.value = Float((book.currentTime - currentChapter.start) / currentChapter.duration)
     }
 
+    private func setProgress() {
+        guard let book = self.book else {
+            self.progressLabel.text = ""
+
+            return
+        }
+
+        guard book.hasChapters, let chapters = book.chapters, let currentChapter = book.currentChapter else {
+            self.progressLabel.text = book.percentCompletedRoundedString
+
+            return
+        }
+
+        self.progressLabel.isHidden = false
+        self.progressLabel.text = "Chapter \(currentChapter.index) of \(chapters.count)"
+    }
+
     @objc func onPlayback() {
         self.currentTime = self.currentTimeInContext()
+
+        self.setProgress()
     }
 
     @IBAction func sliderValueChanged(_ sender: UISlider, event: UIEvent) {

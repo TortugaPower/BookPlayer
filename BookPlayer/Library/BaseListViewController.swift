@@ -53,7 +53,7 @@ class BaseListViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookReady), name: Notification.Name.AudiobookPlayer.bookReady, object: nil)
 
         // register for percentage change notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.updatePercentage(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.updateProgress(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.dismissMiniPlayer), name: Notification.Name.AudiobookPlayer.playerPresented, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.presentMiniPlayer), name: Notification.Name.AudiobookPlayer.playerDismissed, object: nil)
@@ -67,16 +67,17 @@ class BaseListViewController: UIViewController {
                 return
         }
 
-        bookCell.playbackState = .Playing
+        bookCell.playbackState = .playing
     }
 
     @objc func onBookPause() {
-        guard let index = self.library.itemIndex(with: PlayerManager.shared.currentBook.fileURL),
+        guard let book = PlayerManager.shared.currentBook,
+            let index = self.library.itemIndex(with: book.fileURL),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView else {
                 return
         }
 
-        bookCell.playbackState = .Paused
+        bookCell.playbackState = .paused
     }
 
     @objc func presentMiniPlayer() {
@@ -149,7 +150,7 @@ class BaseListViewController: UIViewController {
         fatalError("loadFiles must be overriden")
     }
 
-    @objc func updatePercentage(_ notification: Notification) {
+    @objc func updateProgress(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
             let fileURL = userInfo["fileURL"] as? URL,
             let progress = userInfo["progress"] as? Double else {
@@ -212,22 +213,19 @@ extension BaseListViewController: UITableViewDataSource {
 
         cell.artwork = item.artwork
         cell.title = item.title
-        cell.isPlaylist = item is Playlist
-        cell.playbackState = .Stopped
-        cell.titleColor = UIColor.black
+        cell.playbackState = .stopped
+        cell.type = item is Playlist ? .playlist : .book
 
         if let book = item as? Book {
             cell.subtitle = book.author
-
-            cell.progress = item.percentCompleted / 100.0
+            cell.progress = book.progress
 
             cell.onArtworkTap = { [weak self] in
                 self?.setupPlayer(books: [book])
             }
         } else if let playlist = item as? Playlist {
             cell.subtitle = playlist.info()
-
-            cell.progress = playlist.totalPercentage()
+            cell.progress = playlist.totalProgress()
 
             cell.onArtworkTap = { [weak self] in
                 self?.setupPlayer(books: playlist.getRemainingBooks())

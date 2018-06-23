@@ -32,7 +32,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
     let darknessThreshold: CGFloat = 0.2
 
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let viewController = segue.destination as? PlayerControlsViewController {
@@ -86,6 +86,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.bottomToolbar.setBackgroundImage(UIImage(), forToolbarPosition: .any, barMetrics: .default)
         self.bottomToolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
         self.sleepLabel.title = ""
+        self.speedButton.setTitleTextAttributes([NSAttributedStringKey.font: UIFont.systemFont(ofSize: 18.0, weight: .semibold)], for: .normal)
 
         // Observers
         NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: Notification.Name.AudiobookPlayer.requestReview, object: nil)
@@ -142,7 +143,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.backgroundImage.alpha = 0.1 + min((1 - currentBook.artworkColors.background.luminance) * (1 - currentBook.artworkColors.background.brightness), 0.7)
     }
 
-    // MARK: Interface actions
+    // MARK: - Interface actions
 
     @IBAction func dismissPlayer() {
         self.dismiss(animated: true, completion: nil)
@@ -150,7 +151,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.playerDismissed, object: nil, userInfo: nil)
     }
 
-    // MARK: Toolbar actions
+    // MARK: - Toolbar actions
 
     @IBAction func setSpeed() {
         let actionSheet = UIAlertController(title: nil, message: "Set playback speed", preferredStyle: .actionSheet)
@@ -215,7 +216,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.present(actionSheet, animated: true, completion: nil)
     }
 
-    // MARK: Other Methods
+    // MARK: - Other Methods
 
     @objc func requestReview() {
         // don't do anything if flag isn't true
@@ -245,7 +246,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.setupView(book: book)
     }
 
-    // MARK: Gesture recognizers
+    // MARK: - Gesture recognizers
 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         if gestureRecognizer == self.pan {

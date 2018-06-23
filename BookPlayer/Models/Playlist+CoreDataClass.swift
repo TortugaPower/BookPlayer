@@ -22,7 +22,7 @@ public class Playlist: LibraryItem {
         return book.artwork
     }
 
-    func totalPercentage() -> Double {
+    func totalProgress() -> Double {
         guard let books = self.books?.array as? [Book] else {
             return 0.0
         }

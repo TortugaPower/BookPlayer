@@ -47,7 +47,7 @@ class PlaylistViewController: BaseListViewController {
                 return
         }
 
-        bookCell.playbackState = .Playing
+        bookCell.playbackState = .playing
     }
 
     @objc override func onBookPause() {
@@ -56,7 +56,7 @@ class PlaylistViewController: BaseListViewController {
                 return
         }
 
-        bookCell.playbackState = .Paused
+        bookCell.playbackState = .paused
     }
 
     override func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
@@ -71,15 +71,19 @@ extension PlaylistViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
 
-        guard let bookCell = cell as? BookCellView,
-            PlayerManager.shared.currentBook != nil,
-            let index = self.playlist.itemIndex(with: PlayerManager.shared.currentBook.fileURL),
-            index == indexPath.row else {
-                return cell
+        guard let bookCell = cell as? BookCellView else {
+            return cell
         }
 
-        bookCell.titleColor = UIColor(red: 0.37, green: 0.64, blue: 0.85, alpha: 1.0)
-        bookCell.playbackState = .Playing
+        bookCell.type = .file
+
+        guard PlayerManager.shared.currentBook != nil,
+            let index = self.playlist.itemIndex(with: PlayerManager.shared.currentBook.fileURL),
+            index == indexPath.row else {
+                return bookCell
+        }
+
+        bookCell.playbackState = .playing
 
         return bookCell
     }

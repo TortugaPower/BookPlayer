@@ -9,9 +9,15 @@
 import UIKit
 
 enum PlaybackState {
-    case Playing
-    case Paused
-    case Stopped
+    case playing
+    case paused
+    case stopped
+}
+
+enum BookCellType {
+    case book
+    case playlist
+    case file // in a playlist
 }
 
 class BookCellView: UITableViewCell {
@@ -45,15 +51,6 @@ class BookCellView: UITableViewCell {
         }
     }
 
-    var titleColor: UIColor! {
-        get {
-            return self.titleLabel.textColor
-        }
-        set {
-            self.titleLabel.textColor = newValue
-        }
-    }
-
     var subtitle: String? {
         get {
             return self.subtitleLabel.text
@@ -72,29 +69,43 @@ class BookCellView: UITableViewCell {
         }
     }
 
-    var isPlaylist: Bool = false {
+    var type: BookCellType = .book {
         didSet {
-            if self.isPlaylist {
-                self.accessoryType = .disclosureIndicator
+            switch self.type {
+                case .file:
+                    self.accessoryType = .none
 
-                self.progressTrailing.constant = 0
-            } else {
-                self.accessoryType = .none
+                    self.progressTrailing.constant = 11.0
+                case .playlist:
+                    self.accessoryType = .disclosureIndicator
 
-                self.progressTrailing.constant = 16.0
+                    self.progressTrailing.constant = -5.0
+                default:
+                    self.accessoryType = .none
+
+                    self.progressTrailing.constant = 29.0 // Disclosure indicator offset
             }
         }
     }
 
-    var playbackState: PlaybackState = PlaybackState.Stopped {
+    var playbackState: PlaybackState = PlaybackState.stopped {
         didSet {
-            switch playbackState {
-                case .Playing:
+            switch self.playbackState {
+                case .playing:
+                    self.artworkButton.backgroundColor = UIColor.tintColor.withAlpha(newAlpha: 0.3)
                     self.artworkButton.setImage(#imageLiteral(resourceName: "playStatePlaying"), for: .normal)
-                case .Paused:
+                    self.titleLabel.textColor = UIColor.tintColor
+                    self.progressView.pieColor = UIColor.tintColor
+                case .paused:
+                    self.artworkButton.backgroundColor = UIColor.tintColor.withAlpha(newAlpha: 0.3)
                     self.artworkButton.setImage(#imageLiteral(resourceName: "playStatePaused"), for: .normal)
+                    self.titleLabel.textColor = UIColor.tintColor
+                    self.progressView.pieColor = UIColor.tintColor
                 default:
+                    self.artworkButton.backgroundColor = UIColor.clear
                     self.artworkButton.setImage(nil, for: .normal)
+                    self.titleLabel.textColor = UIColor.textColor
+                    self.progressView.pieColor = UIColor(hex: "8F8E94")
             }
         }
     }
@@ -114,6 +125,16 @@ class BookCellView: UITableViewCell {
     private func setup() {
         self.accessoryType = .none
         self.selectionStyle = .none
+    }
+
+    override func willMove(toSuperview newSuperview: UIView?) {
+        super.willMove(toSuperview: newSuperview)
+
+        self.artworkImageView.layer.cornerRadius = 3.0
+        self.artworkImageView.layer.masksToBounds = true
+
+        self.artworkButton.layer.cornerRadius = 3.0
+        self.artworkButton.layer.masksToBounds = true
     }
 
     @IBAction func artworkButtonTapped(_ sender: Any) {
