@@ -139,25 +139,21 @@ extension PlaylistViewController {
             }))
 
             sheet.addAction(UIAlertAction(title: "Delete completely", style: .destructive, handler: { _ in
-                do {
-                    if book == PlayerManager.shared.currentBook {
-                        PlayerManager.shared.stop()
-                    }
-
-                    self.playlist.removeFromBooks(book)
-
-                    DataManager.saveContext()
-
-                    try FileManager.default.removeItem(at: book.fileURL)
-
-                    self.tableView.beginUpdates()
-                    self.tableView.deleteRows(at: [indexPath], with: .none)
-                    self.tableView.endUpdates()
-
-                    NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.reloadData, object: nil)
-                } catch {
-                    self.showAlert("Error", message: "There was an error deleting the file, please try again.")
+                if book == PlayerManager.shared.currentBook {
+                    PlayerManager.shared.stop()
                 }
+
+                self.playlist.removeFromBooks(book)
+
+                DataManager.saveContext()
+
+                try? FileManager.default.removeItem(at: book.fileURL)
+
+                self.tableView.beginUpdates()
+                self.tableView.deleteRows(at: [indexPath], with: .none)
+                self.tableView.endUpdates()
+
+                NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.reloadData, object: nil)
             }))
 
             self.present(sheet, animated: true, completion: nil)

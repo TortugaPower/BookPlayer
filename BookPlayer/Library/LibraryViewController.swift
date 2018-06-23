@@ -87,24 +87,20 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         }))
 
         alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
-            do {
-                if book == PlayerManager.shared.currentBook {
-                    PlayerManager.shared.stop()
-                }
-
-                self.library.removeFromItems(book)
-
-                DataManager.saveContext()
-
-                try FileManager.default.removeItem(at: book.fileURL)
-
-                self.tableView.beginUpdates()
-                self.tableView.deleteRows(at: [indexPath], with: .none)
-                self.tableView.endUpdates()
-                self.emptyLibraryPlaceholder.isHidden = !self.items.isEmpty
-            } catch {
-                self.showAlert("Error", message: "There was an error deleting the file, please try again.")
+            if book == PlayerManager.shared.currentBook {
+                PlayerManager.shared.stop()
             }
+
+            self.library.removeFromItems(book)
+
+            DataManager.saveContext()
+
+            try? FileManager.default.removeItem(at: book.fileURL)
+
+            self.tableView.beginUpdates()
+            self.tableView.deleteRows(at: [indexPath], with: .none)
+            self.tableView.endUpdates()
+            self.emptyLibraryPlaceholder.isHidden = !self.items.isEmpty
         }))
 
         alert.popoverPresentationController?.sourceView = self.view
@@ -136,23 +132,18 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         }))
 
         sheet.addAction(UIAlertAction(title: "Delete both playlist and books", style: .destructive, handler: { _ in
-            do {
+            self.library.removeFromItems(playlist)
+            DataManager.saveContext()
 
-                self.library.removeFromItems(playlist)
-                DataManager.saveContext()
-
-                // swiftlint:disable force_cast
-                for book in playlist.books?.array as! [Book] {
-                    try FileManager.default.removeItem(at: book.fileURL)
-                }
-
-                self.tableView.beginUpdates()
-                self.tableView.deleteRows(at: [indexPath], with: .none)
-                self.tableView.endUpdates()
-                self.emptyLibraryPlaceholder.isHidden = !self.items.isEmpty
-            } catch {
-                self.showAlert("Error", message: "There was an error deleting the book, please try again.")
+            // swiftlint:disable force_cast
+            for book in playlist.books?.array as! [Book] {
+                try? FileManager.default.removeItem(at: book.fileURL)
             }
+
+            self.tableView.beginUpdates()
+            self.tableView.deleteRows(at: [indexPath], with: .none)
+            self.tableView.endUpdates()
+            self.emptyLibraryPlaceholder.isHidden = !self.items.isEmpty
         }))
 
         self.present(sheet, animated: true, completion: nil)
@@ -199,6 +190,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
                 DataManager.saveContext()
 
                 self.tableView.reloadData()
+                self.emptyLibraryPlaceholder.isHidden = true
             })
         })
 
