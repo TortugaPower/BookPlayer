@@ -71,15 +71,11 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
                 animations: {
                     if self.isPlaying {
                         self.artworkImage.transform = .identity
-
-                        self.rewindIcon.transform = CGAffineTransform(translationX: self.jumpIconOffset, y: 0.0)
-                        self.forwardIcon.transform = CGAffineTransform(translationX: -self.jumpIconOffset, y: 0.0)
                     } else {
                         self.artworkImage.transform = CGAffineTransform(scaleX: self.artworkScalePaused, y: self.artworkScalePaused)
-
-                        self.rewindIcon.transform = .identity
-                        self.forwardIcon.transform = .identity
                     }
+
+                    self.setTransformForJumpIcons()
                 }
             )
 
@@ -158,6 +154,16 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         super.layoutSubviews()
     }
 
+    func setTransformForJumpIcons() {
+        if self.isPlaying {
+            self.rewindIcon.transform = CGAffineTransform(translationX: self.jumpIconOffset, y: 0.0)
+            self.forwardIcon.transform = CGAffineTransform(translationX: -self.jumpIconOffset, y: 0.0)
+        } else {
+            self.rewindIcon.transform = .identity
+            self.forwardIcon.transform = .identity
+        }
+    }
+
     // MARK: - Actions
 
     @objc private func playPauseButtonTouchUpInside() {
@@ -203,13 +209,17 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
 
         self.artworkContainer.transform = CGAffineTransform(translationX: translation * sign, y: 0)
 
-        let alpha: CGFloat = self.jumpIconAlpha + min(translation / actionThreshold, 1.0) * (1.0 - self.jumpIconAlpha)
+        let factor: CGFloat = min(translation / actionThreshold, 1.0)
+        let alpha: CGFloat = self.jumpIconAlpha + (1.0 - self.jumpIconAlpha) * factor
+        let offset: CGFloat = self.isPlaying ? self.jumpIconOffset * (1 - factor) : 0.0
 
         if !self.triggeredPanAction {
             if xTranslation > 0 {
                 self.rewindIcon.alpha = alpha
+                self.rewindIcon.transform = CGAffineTransform(translationX: offset, y: 0.0)
             } else {
                 self.forwardIcon.alpha = alpha
+                self.forwardIcon.transform = CGAffineTransform(translationX: -offset, y: 0.0)
             }
         }
 
@@ -252,9 +262,11 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
             }
         )
 
-        UIView.animate(withDuration: 0.20, delay: 0.10, options: .curveEaseOut, animations: {
+        UIView.animate(withDuration: 0.1, delay: 0.10, options: .curveEaseIn, animations: {
             self.rewindIcon.alpha = self.jumpIconAlpha
             self.forwardIcon.alpha = self.jumpIconAlpha
+
+            self.setTransformForJumpIcons()
         })
 
         self.triggeredPanAction = false

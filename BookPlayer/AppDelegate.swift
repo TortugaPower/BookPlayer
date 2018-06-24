@@ -108,7 +108,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let type = AVAudioSessionInterruptionType(rawValue: typeValue) else {
                 return
         }
-        
+
         switch type {
         case .began:
             if PlayerManager.shared.isPlaying {
@@ -118,7 +118,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else {
                 return
             }
-            
+
             let options = AVAudioSessionInterruptionOptions(rawValue: optionsValue)
             if options.contains(.shouldResume) {
                 PlayerManager.shared.play()
