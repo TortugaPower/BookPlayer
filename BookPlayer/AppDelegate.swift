@@ -41,11 +41,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             ]
         }
 
-        do {
-            try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
-        } catch {
-            // @TODO: Handle failing AVAudioSession
-        }
+        try? AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, mode: AVAudioSessionModeSpokenAudio, options: [])
 
         // register to audio-interruption notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioInterruptions(_:)), name: NSNotification.Name.AVAudioSessionInterruption, object: nil)
@@ -112,15 +108,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let type = AVAudioSessionInterruptionType(rawValue: typeValue) else {
                 return
         }
-
-        if type == .began && PlayerManager.shared.isPlaying {
-            self.wasPlayingBeforeInterruption = true
-            PlayerManager.shared.pause()
-        }
-
-        if type == .ended && self.wasPlayingBeforeInterruption {
-            PlayerManager.shared.play()
-            self.wasPlayingBeforeInterruption = false
+        
+        switch type {
+        case .began:
+            if PlayerManager.shared.isPlaying {
+                PlayerManager.shared.pause()
+            }
+        case .ended:
+            guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else {
+                return
+            }
+            
+            let options = AVAudioSessionInterruptionOptions(rawValue: optionsValue)
+            if options.contains(.shouldResume) {
+                PlayerManager.shared.play()
+            }
         }
     }
 

@@ -185,7 +185,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             },
             onEnd: { (_ cancelled: Bool) -> Void in
                 if !cancelled {
-                    PlayerManager.shared.stop()
+                    PlayerManager.shared.pause()
                 }
 
                 self.sleepLabel.title = ""
