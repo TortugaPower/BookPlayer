@@ -10,6 +10,8 @@ import Foundation
 import AVFoundation
 import MediaPlayer
 
+// swiftlint:disable file_length
+
 class PlayerManager: NSObject {
     static let shared = PlayerManager()
 
@@ -28,7 +30,6 @@ class PlayerManager: NSObject {
     private let maxSmartRewind = 30.0
 
     func load(_ books: [Book], completion:@escaping (Bool) -> Void) {
-
         guard let book = books.first else {
             completion(false)
             return
@@ -36,7 +37,7 @@ class PlayerManager: NSObject {
 
         self.currentBooks = books
 
-        // load data on background thread
+        // Load data on background thread
         DispatchQueue.global().async {
             // try loading the player
             guard let audioplayer = try? AVAudioPlayer(contentsOf: book.fileURL) else {
@@ -48,6 +49,7 @@ class PlayerManager: NSObject {
             }
 
             self.audioPlayer = audioplayer
+
             audioplayer.delegate = self
             audioplayer.enableRate = true
 
@@ -57,9 +59,9 @@ class PlayerManager: NSObject {
                 audioplayer.volume = 2.0
             }
 
-            //update UI on main thread
+            // Update UI on main thread
             DispatchQueue.main.async(execute: {
-                //set book metadata for lockscreen and control center
+                // Set book metadata for lockscreen and control center
                 var nowPlayingInfo: [String: Any] = [
                     MPMediaItemPropertyTitle: book.title,
                     MPMediaItemPropertyArtist: book.author,
@@ -89,7 +91,7 @@ class PlayerManager: NSObject {
         }
     }
 
-    // called every second by the timer
+    // Called every second by the timer
     @objc func update() {
         guard let audioplayer = self.audioPlayer, let book = self.currentBook else {
             return
@@ -133,11 +135,11 @@ class PlayerManager: NSObject {
             "fileURL": book.fileURL
             ] as [String: Any]
 
-        // notify
+        // Notify
         NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookPlaying, object: nil, userInfo: userInfo)
     }
 
-    // MARK: Player states
+    // MARK: - Player states
 
     var isLoaded: Bool {
         return self.audioPlayer != nil
@@ -225,15 +227,15 @@ class PlayerManager: NSObject {
         }
     }
 
-    // MARK: Seek Controls
+    // MARK: - Seek Controls
 
     func jumpTo(_ time: Double, fromEnd: Bool = false) {
         guard let player = self.audioPlayer else {
             return
         }
 
-        player.currentTime = fromEnd ? player.duration - time : time
-        
+        player.currentTime = min(max(fromEnd ? player.duration - time : time, 0), player.duration)
+
         if !self.isPlaying, let currentBook = self.currentBook {
             UserDefaults.standard.set(Date(), forKey: "\(UserDefaultsConstants.lastPauseTime)_\(currentBook.identifier!)")
         }
@@ -259,7 +261,7 @@ class PlayerManager: NSObject {
         self.jumpBy(-self.rewindInterval)
     }
 
-    // MARK: Playback
+    // MARK: - Playback
 
     func play(_ autoplayed: Bool = false) {
         guard let currentBook = self.currentBook, let audioplayer = self.audioPlayer else {
@@ -280,33 +282,37 @@ class PlayerManager: NSObject {
             return
         }
 
-        // if book is completed, reset to start
+        // If book is completed, reset to start
         if completed {
             audioplayer.currentTime = 0.0
         }
 
         // Handle smart rewind.
         let lastPauseTimeKey = "\(UserDefaultsConstants.lastPauseTime)_\(currentBook.identifier!)"
+        let smartRewindEnabled = UserDefaults.standard.bool(forKey: UserDefaultsConstants.smartRewindEnabled)
 
-        if let lastPlayTime: Date = UserDefaults.standard.object(forKey: lastPauseTimeKey) as? Date,
-            UserDefaults.standard.bool(forKey: UserDefaultsConstants.smartRewindEnabled) {
-
+        if smartRewindEnabled, let lastPlayTime: Date = UserDefaults.standard.object(forKey: lastPauseTimeKey) as? Date {
             let timePassed = Date().timeIntervalSince(lastPlayTime)
-            let rewindTime = min(((timePassed * self.maxSmartRewind) / self.smartRewindThreshold), self.maxSmartRewind)
+            let timePassedLimited = min(max(timePassed, 0), self.smartRewindThreshold)
+            let delta = timePassedLimited / self.smartRewindThreshold
 
+            // Using a cubic curve to soften the rewind effect for lower values and strengthen it for higher
+            let rewindTime = pow(delta, 3) * self.maxSmartRewind
             let newPlayerTime = max(audioplayer.currentTime - rewindTime, 0)
+
             UserDefaults.standard.set(nil, forKey: lastPauseTimeKey)
+
             audioplayer.currentTime = newPlayerTime
         }
 
-        // create timer if needed
+        // Create timer if needed
         if self.timer == nil || (self.timer != nil && !self.timer.isValid) {
             self.timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(update), userInfo: nil, repeats: true)
 
             RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
         }
 
-        // set play state on player and control center
+        // Set play state on player and control center
         audioplayer.play()
 
         MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 1.0
@@ -326,14 +332,14 @@ class PlayerManager: NSObject {
 
         UserDefaults.standard.set(currentBook.identifier, forKey: UserDefaultsConstants.lastPlayedBook)
 
-        // invalidate timer if needed
+        // Invalidate timer if needed
         if self.timer != nil {
             self.timer.invalidate()
         }
 
         self.update()
 
-        // set pause state on player and control center
+        // Set pause state on player and control center
         audioplayer.pause()
 
         MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 0.0
@@ -352,14 +358,13 @@ class PlayerManager: NSObject {
         }
     }
 
-    // toggle play/pause of book
-    // @TODO: Replace with distinct play() and pause() methods
+    // Toggle play/pause of book
     func playPause(autoplayed: Bool = false) {
         guard let audioplayer = self.audioPlayer else {
             return
         }
 
-        // pause player if it's playing
+        // Pause player if it's playing
         if audioplayer.isPlaying {
             self.pause()
         } else {
@@ -376,8 +381,10 @@ class PlayerManager: NSObject {
     }
 }
 
+// MARK: -
+
 extension PlayerManager: AVAudioPlayerDelegate {
-    // leave the slider at max
+    // Leave the slider at max
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         guard flag else { return }
 
