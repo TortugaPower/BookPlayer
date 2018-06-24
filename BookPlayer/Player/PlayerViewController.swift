@@ -203,12 +203,12 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
         actionSheet.addAction(UIAlertAction(title: "Jump To Start", style: .default, handler: { _ in
-            PlayerManager.shared.stop()
+            PlayerManager.shared.pause()
             PlayerManager.shared.jumpTo(0.0)
         }))
 
         actionSheet.addAction(UIAlertAction(title: "Mark as Finished", style: .default, handler: { _ in
-            PlayerManager.shared.stop()
+            PlayerManager.shared.pause()
             PlayerManager.shared.jumpTo(0.0, fromEnd: true)
 
             self.requestReview()
