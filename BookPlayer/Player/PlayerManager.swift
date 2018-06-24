@@ -232,8 +232,8 @@ class PlayerManager: NSObject {
             return
         }
 
-        player.currentTime = fromEnd ? player.duration - time : time
-        
+        player.currentTime = min(max(fromEnd ? player.duration - time : time, 0), player.duration)
+
         if !self.isPlaying, let currentBook = self.currentBook {
             UserDefaults.standard.set(Date(), forKey: "\(UserDefaultsConstants.lastPauseTime)_\(currentBook.identifier!)")
         }
