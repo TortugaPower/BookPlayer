@@ -10,6 +10,8 @@ import Foundation
 import AVFoundation
 import MediaPlayer
 
+// swiftlint:disable file_length
+
 class PlayerManager: NSObject {
     static let shared = PlayerManager()
 
@@ -287,15 +289,19 @@ class PlayerManager: NSObject {
 
         // Handle smart rewind.
         let lastPauseTimeKey = "\(UserDefaultsConstants.lastPauseTime)_\(currentBook.identifier!)"
+        let smartRewindEnabled = UserDefaults.standard.bool(forKey: UserDefaultsConstants.smartRewindEnabled)
 
-        if let lastPlayTime: Date = UserDefaults.standard.object(forKey: lastPauseTimeKey) as? Date,
-            UserDefaults.standard.bool(forKey: UserDefaultsConstants.smartRewindEnabled) {
-
+        if smartRewindEnabled, let lastPlayTime: Date = UserDefaults.standard.object(forKey: lastPauseTimeKey) as? Date {
             let timePassed = Date().timeIntervalSince(lastPlayTime)
-            let rewindTime = min(((timePassed * self.maxSmartRewind) / self.smartRewindThreshold), self.maxSmartRewind)
+            let timePassedLimited = min(max(timePassed, 0), self.smartRewindThreshold)
+            let delta = timePassedLimited / self.smartRewindThreshold
 
+            // Using a cubic curve to soften the rewind effect for lower values and strengthen it for higher
+            let rewindTime = pow(delta, 3) * self.maxSmartRewind
             let newPlayerTime = max(audioplayer.currentTime - rewindTime, 0)
+
             UserDefaults.standard.set(nil, forKey: lastPauseTimeKey)
+
             audioplayer.currentTime = newPlayerTime
         }
 
