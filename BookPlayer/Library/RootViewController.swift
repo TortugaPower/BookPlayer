@@ -8,11 +8,15 @@
 
 import UIKit
 
-class RootViewController: UIViewController {
+class RootViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet private weak var miniPlayerContainer: UIView!
 
     private weak var miniPlayerViewController: MiniPlayerViewController?
     private weak var libraryViewController: LibraryViewController!
+
+    private var pan: UIPanGestureRecognizer!
+
+    // MARK: - Lifecycle
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let viewController = segue.destination as? MiniPlayerViewController {
@@ -39,18 +43,27 @@ class RootViewController: UIViewController {
         self.miniPlayerContainer.layer.shadowRadius = 12.0
         self.miniPlayerContainer.clipsToBounds = false
 
-        // Register for book change notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: Notification.Name.AudiobookPlayer.bookChange, object: nil)
-
-        // Register for book loading notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookReady(_:)), name: Notification.Name.AudiobookPlayer.bookReady, object: nil)
-
-        //
         NotificationCenter.default.addObserver(self, selector: #selector(self.dismissMiniPlayer), name: Notification.Name.AudiobookPlayer.playerPresented, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.presentMiniPlayer), name: Notification.Name.AudiobookPlayer.playerDismissed, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPlay), name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.dismissMiniPlayer), name: Notification.Name.AudiobookPlayer.bookStopped, object: nil)
+
+        // Gestures
+        self.pan = UIPanGestureRecognizer(target: self, action: #selector(panAction))
+        self.pan.delegate = self
+        self.pan.maximumNumberOfTouches = 1
+        self.pan.cancelsTouchesInView = true
+
+        self.view.addGestureRecognizer(self.pan)
     }
 
-    @objc func presentMiniPlayer() {
+    // MARK: -
+
+    @objc private func presentMiniPlayer() {
         self.miniPlayerContainer.transform = CGAffineTransform(translationX: 0, y: self.miniPlayerContainer.bounds.height)
         self.miniPlayerContainer.alpha = 0.0
         self.miniPlayerContainer.isHidden = false
@@ -71,7 +84,7 @@ class RootViewController: UIViewController {
         })
     }
 
-    @objc func dismissMiniPlayer() {
+    @objc private func dismissMiniPlayer() {
         UIView.animate(
             withDuration: 0.25,
             delay: 0.0,
@@ -91,28 +104,94 @@ class RootViewController: UIViewController {
         })
     }
 
-    @objc func bookChange(_ notification: Notification) {
+    @objc private func bookChange(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
             let books = userInfo["books"] as? [Book],
             let currentBook = books.first else {
                 return
         }
 
-        setupFooter(book: currentBook)
+        setupMiniPlayer(book: currentBook)
 
         PlayerManager.shared.play()
     }
 
-    @objc func bookReady(_ notification: Notification) {
+    @objc private func bookReady(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
             let book = userInfo["book"] as? Book else {
                 return
         }
 
-        setupFooter(book: book)
+        setupMiniPlayer(book: book)
     }
 
-    func setupFooter(book: Book) {
+    @objc private func onBookPlay() {
+        self.pan.isEnabled = false
+    }
+
+    @objc private func onBookPause() {
+        // Only enable the gesture to dismiss the Mini Player when the book is paused
+        self.pan.isEnabled = true
+    }
+
+    // MARK: - Helpers
+
+    private func setupMiniPlayer(book: Book) {
         self.miniPlayerViewController?.book = book
+    }
+
+    // MARK: - Gesture recognizers
+
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        if gestureRecognizer == self.pan {
+            return limitPanAngle(self.pan, degreesOfFreedom: 45.0, comparator: .greaterThan)
+        }
+
+        return true
+    }
+
+    private func updatePresentedViewForTranslation(_ yTranslation: CGFloat) {
+        let translation: CGFloat = rubberBandDistance(yTranslation, dimension: self.view.frame.height, constant: 0.55)
+
+        self.miniPlayerContainer?.transform = CGAffineTransform(translationX: 0, y: max(translation, 0.0))
+    }
+
+    @objc private func panAction(gestureRecognizer: UIPanGestureRecognizer) {
+        guard gestureRecognizer.isEqual(self.pan) else {
+            return
+        }
+
+        switch gestureRecognizer.state {
+            case .began:
+                gestureRecognizer.setTranslation(CGPoint(x: 0, y: 0), in: self.view.superview)
+
+            case .changed:
+                let translation = gestureRecognizer.translation(in: self.view)
+
+                self.updatePresentedViewForTranslation(translation.y)
+
+            case .ended, .cancelled, .failed:
+                let dismissThreshold: CGFloat = self.miniPlayerContainer.bounds.height / 2
+                let translation = gestureRecognizer.translation(in: self.view)
+
+                if translation.y > dismissThreshold {
+                    PlayerManager.shared.stop()
+
+                    return
+                }
+
+                UIView.animate(
+                    withDuration: 0.3,
+                    delay: 0.0,
+                    usingSpringWithDamping: 0.75,
+                    initialSpringVelocity: 1.5,
+                    options: .preferredFramesPerSecond60,
+                    animations: {
+                        self.miniPlayerContainer?.transform = .identity
+                    }
+                )
+
+            default: break
+        }
     }
 }

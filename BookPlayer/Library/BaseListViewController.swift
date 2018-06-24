@@ -59,26 +59,44 @@ class BaseListViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(self.presentMiniPlayer), name: Notification.Name.AudiobookPlayer.playerDismissed, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPlay), name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookStop(_:)), name: Notification.Name.AudiobookPlayer.bookStopped, object: nil)
     }
 
     @objc func onBookPlay() {
-        guard let currentBook = PlayerManager.shared.currentBook,
+        guard
+            let currentBook = PlayerManager.shared.currentBook,
             let index = self.library.itemIndex(with: currentBook.fileURL),
-            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView else {
-                return
+            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView
+        else {
+            return
         }
 
         bookCell.playbackState = .playing
     }
 
     @objc func onBookPause() {
-        guard let book = PlayerManager.shared.currentBook,
+        guard
+            let book = PlayerManager.shared.currentBook,
             let index = self.library.itemIndex(with: book.fileURL),
-            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView else {
-                return
+            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView
+        else {
+            return
         }
 
         bookCell.playbackState = .paused
+    }
+
+    @objc func onBookStop(_ notification: Notification) {
+        guard
+            let userInfo = notification.userInfo,
+            let book = userInfo["book"] as? Book,
+            let index = self.library.itemIndex(with: book.fileURL),
+            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView
+        else {
+            return
+        }
+
+        bookCell.playbackState = .stopped
     }
 
     @objc func presentMiniPlayer() {
@@ -116,12 +134,13 @@ class BaseListViewController: UIViewController {
         let book = books.first!
 
         guard let currentBook = PlayerManager.shared.currentBook, currentBook.fileURL == book.fileURL else {
-            //handle loading new player
-            loadPlayer(books: books)
+            // Handle loading new player
+            self.loadPlayer(books: books)
+
             return
         }
 
-        showPlayerView(book: book)
+        self.showPlayerView(book: book)
     }
 
     func loadPlayer(books: [Book]) {
