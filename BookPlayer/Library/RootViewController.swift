@@ -45,7 +45,6 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: Notification.Name.AudiobookPlayer.bookChange, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookReady(_:)), name: Notification.Name.AudiobookPlayer.bookReady, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookDeleted(_:)), name: Notification.Name.AudiobookPlayer.bookDeleted, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.dismissMiniPlayer), name: Notification.Name.AudiobookPlayer.playerPresented, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.presentMiniPlayer), name: Notification.Name.AudiobookPlayer.playerDismissed, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPlay), name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
@@ -124,14 +123,6 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
         }
 
         setupMiniPlayer(book: book)
-    }
-
-    @objc private func bookDeleted(_ notification: Notification) {
-        guard let userInfo = notification.userInfo else {
-            return
-        }
-
-        print(userInfo)
     }
 
     @objc private func onBookPlay() {
