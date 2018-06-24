@@ -90,20 +90,22 @@ class BookCellView: UITableViewCell {
 
     var playbackState: PlaybackState = PlaybackState.stopped {
         didSet {
-            switch self.playbackState {
-                case .playing:
-                    self.artworkButton.backgroundColor = UIColor.tintColor.withAlpha(newAlpha: 0.3)
-                    self.titleLabel.textColor = UIColor.tintColor
-                    self.progressView.pieColor = UIColor.tintColor
-                case .paused:
-                    self.artworkButton.backgroundColor = UIColor.tintColor.withAlpha(newAlpha: 0.3)
-                    self.titleLabel.textColor = UIColor.tintColor
-                    self.progressView.pieColor = UIColor.tintColor
-                default:
-                    self.artworkButton.backgroundColor = UIColor.clear
-                    self.titleLabel.textColor = UIColor.textColor
-                    self.progressView.pieColor = UIColor(hex: "8F8E94")
-            }
+            UIView.animate(withDuration: 0.1, animations: {
+                switch self.playbackState {
+                    case .playing:
+                        self.artworkButton.backgroundColor = UIColor.tintColor.withAlpha(newAlpha: 0.3)
+                        self.titleLabel.textColor = UIColor.tintColor
+                        self.progressView.pieColor = UIColor.tintColor
+                    case .paused:
+                        self.artworkButton.backgroundColor = UIColor.tintColor.withAlpha(newAlpha: 0.3)
+                        self.titleLabel.textColor = UIColor.tintColor
+                        self.progressView.pieColor = UIColor.tintColor
+                    default:
+                        self.artworkButton.backgroundColor = UIColor.clear
+                        self.titleLabel.textColor = UIColor.textColor
+                        self.progressView.pieColor = UIColor(hex: "8F8E94")
+                }
+            })
         }
     }
 
