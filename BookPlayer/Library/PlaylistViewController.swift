@@ -42,23 +42,40 @@ class PlaylistViewController: BaseListViewController {
     }
 
     @objc override func onBookPlay() {
-        guard let currentBook = PlayerManager.shared.currentBook,
+        guard
+            let currentBook = PlayerManager.shared.currentBook,
             let index = self.playlist.itemIndex(with: currentBook.fileURL),
-            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView else {
-                return
+            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView
+        else {
+            return
         }
 
         bookCell.playbackState = .playing
     }
 
     @objc override func onBookPause() {
-        guard let currentBook = PlayerManager.shared.currentBook,
+        guard
+            let currentBook = PlayerManager.shared.currentBook,
             let index = self.playlist.itemIndex(with: currentBook.fileURL),
-            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView else {
-                return
+            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView
+        else {
+            return
         }
 
         bookCell.playbackState = .paused
+    }
+
+    @objc override func onBookStop(_ notification: Notification) {
+        guard
+            let userInfo = notification.userInfo,
+            let book = userInfo["book"] as? Book,
+            let index = self.playlist.itemIndex(with: book.fileURL),
+            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView
+        else {
+            return
+        }
+
+        bookCell.playbackState = .stopped
     }
 
     override func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {

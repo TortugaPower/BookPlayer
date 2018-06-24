@@ -63,20 +63,24 @@ class BaseListViewController: UIViewController {
     }
 
     @objc func onBookPlay() {
-        guard let currentBook = PlayerManager.shared.currentBook,
+        guard
+            let currentBook = PlayerManager.shared.currentBook,
             let index = self.library.itemIndex(with: currentBook.fileURL),
-            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView else {
-                return
+            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView
+        else {
+            return
         }
 
         bookCell.playbackState = .playing
     }
 
     @objc func onBookPause() {
-        guard let book = PlayerManager.shared.currentBook,
+        guard
+            let book = PlayerManager.shared.currentBook,
             let index = self.library.itemIndex(with: book.fileURL),
-            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView else {
-                return
+            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView
+        else {
+            return
         }
 
         bookCell.playbackState = .paused
