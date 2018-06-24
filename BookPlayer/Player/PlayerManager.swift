@@ -25,7 +25,7 @@ class PlayerManager: NSObject {
 
     // 599 = 10 mins
     private let smartRewindThreshold = 599.0
-    private let maxSmartRewind = 60.0
+    private let maxSmartRewind = 30.0
 
     func load(_ books: [Book], completion:@escaping (Bool) -> Void) {
 
@@ -233,6 +233,10 @@ class PlayerManager: NSObject {
         }
 
         player.currentTime = fromEnd ? player.duration - time : time
+        
+        if !self.isPlaying, let currentBook = self.currentBook {
+            UserDefaults.standard.set(Date(), forKey: "\(UserDefaultsConstants.lastPauseTime)_\(currentBook.identifier!)")
+        }
 
         update()
     }
