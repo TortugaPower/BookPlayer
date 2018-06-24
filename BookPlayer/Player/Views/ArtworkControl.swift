@@ -10,7 +10,7 @@ import UIKit
 
 class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     private var playPauseButton: UIButton!
-    private var artworkImage: UIImageView!
+    private var artworkImage: BPArtworkView!
     private let playImage = UIImage(named: "playerIconPlay")
     private let pauseImage = UIImage(named: "playerIconPause")
     private var rewindIcon: PlayerJumpIconRewind!
@@ -124,7 +124,7 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
 
         self.artworkContainer = UIView(frame: self.bounds)
 
-        self.artworkImage = UIImageView(frame: self.bounds)
+        self.artworkImage = BPArtworkView(frame: self.bounds)
         self.artworkImage.clipsToBounds = false
         self.artworkImage.contentMode = .scaleAspectFit
         self.artworkImage.layer.cornerRadius = 6.0
