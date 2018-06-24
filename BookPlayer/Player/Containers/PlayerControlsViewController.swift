@@ -144,15 +144,44 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         }
     }
 
+    func transformArtworkView(_ value: CGFloat) {
+        var transform = CATransform3DIdentity
+
+        transform.m34 = 1.0 / 1000.0
+        transform = CATransform3DRotate(transform, CGFloat.pi / 180 * 10, 0.5, (-value + 0.5) * 2, 0)
+
+        self.artworkControl.layer.transform = transform
+    }
+
     // MARK: - Storyboard Actions
 
     var chapterBeforeSliderValueChange: Chapter?
 
     @IBAction func sliderDown(_ sender: UISlider, event: UIEvent) {
+        self.artworkControl.isUserInteractionEnabled = false
+        self.artworkControl.setAnchorPoint(anchorPoint: CGPoint(x: 0.5, y: 0.3))
+
+        UIView.animate(withDuration: 0.3, delay: 0.0, options: [.curveEaseOut, .beginFromCurrentState], animations: {
+            self.transformArtworkView(CGFloat(self.progressSlider.value))
+        })
+
         self.chapterBeforeSliderValueChange = self.book?.currentChapter
     }
 
     @IBAction func sliderUp(_ sender: UISlider, event: UIEvent) {
+        self.artworkControl.isUserInteractionEnabled = true
+
+        // Adjust the animation duration based on the distance of the thumb to the slider's center
+        // This way the corners which look further away take a little longer to rest
+        let duration = TimeInterval(fabs(sender.value * 2 - 1) * 0.15 + 0.15)
+
+        UIView.animate(withDuration: duration, delay: 0.0, options: [.curveEaseIn, .beginFromCurrentState], animations: {
+            self.artworkControl.layer.transform = CATransform3DIdentity
+        }, completion: { _ in
+            self.artworkControl.layer.zPosition = 0
+            self.artworkControl.setAnchorPoint(anchorPoint: CGPoint(x: 0.5, y: 0.5))
+        })
+
         guard let book = self.book else {
             return
         }
@@ -171,6 +200,8 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
     @IBAction func sliderValueChanged(_ sender: UISlider, event: UIEvent) {
         // This should be in ProgressSlider, but how to achieve that escapes my knowledge
         self.progressSlider.setNeedsDisplay()
+
+        self.transformArtworkView(CGFloat(sender.value))
 
         guard let book = self.book else {
             return
