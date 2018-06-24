@@ -21,7 +21,7 @@ enum BookCellType {
 }
 
 class BookCellView: UITableViewCell {
-    @IBOutlet private weak var artworkImageView: UIImageView!
+    @IBOutlet private weak var artworkImageView: BPArtworkView!
     @IBOutlet private weak var titleLabel: UILabel!
     @IBOutlet private weak var subtitleLabel: UILabel!
     @IBOutlet private weak var progressTrailing: NSLayoutConstraint!
@@ -35,9 +35,6 @@ class BookCellView: UITableViewCell {
             return self.artworkImageView.image
         }
         set {
-            self.artworkImageView.layer.cornerRadius = 4.0
-            self.artworkImageView.layer.masksToBounds = true
-
             self.artworkImageView.image = newValue
         }
     }
@@ -127,10 +124,7 @@ class BookCellView: UITableViewCell {
     override func willMove(toSuperview newSuperview: UIView?) {
         super.willMove(toSuperview: newSuperview)
 
-        self.artworkImageView.layer.cornerRadius = 3.0
-        self.artworkImageView.layer.masksToBounds = true
-
-        self.artworkButton.layer.cornerRadius = 3.0
+        self.artworkButton.layer.cornerRadius = 4.0
         self.artworkButton.layer.masksToBounds = true
     }
 

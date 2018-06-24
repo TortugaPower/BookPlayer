@@ -18,7 +18,7 @@
                 <rect key="frame" x="0.0" y="0.0" width="375" height="75.5"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defaultArtwork" translatesAutoresizingMaskIntoConstraints="NO" id="3kC-6m-IJf">
+                    <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defaultArtwork" translatesAutoresizingMaskIntoConstraints="NO" id="3kC-6m-IJf" customClass="BPArtworkView" customModule="BookPlayer" customModuleProvider="target">
                         <rect key="frame" x="16" y="13" width="50" height="50"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="50" id="LD8-Eg-YNe"/>

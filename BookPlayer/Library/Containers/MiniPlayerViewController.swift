@@ -38,7 +38,7 @@ class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecogniz
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.background.mask = UIImageView.squircleMask(frame: self.background.bounds)
+        self.background.layer.cornerRadius = 13.0
 
         self.tap = UITapGestureRecognizer(target: self, action: #selector(tapAction))
         self.tap.cancelsTouchesInView = true
