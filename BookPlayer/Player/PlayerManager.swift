@@ -373,18 +373,29 @@ class PlayerManager: NSObject {
     }
 
     func stop() {
+        self.audioPlayer?.stop()
+
         guard let book = self.currentBook else {
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(
+                    name: Notification.Name.AudiobookPlayer.bookStopped,
+                    object: nil
+                )
+            }
+
             return
         }
 
-        self.audioPlayer?.stop()
+        let userInfo = ["book": book]
 
         self.currentBooks = []
 
-        let userInfo = ["book": book]
-
         DispatchQueue.main.async {
-            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookStopped, object: nil, userInfo: userInfo)
+            NotificationCenter.default.post(
+                name: Notification.Name.AudiobookPlayer.bookStopped,
+                object: nil,
+                userInfo: userInfo
+            )
         }
     }
 }
