@@ -6,6 +6,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <capability name="Alignment constraints with different attributes" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -61,20 +62,22 @@
                     <constraint firstItem="RWS-bw-cRW" firstAttribute="centerY" secondItem="cUU-yJ-MnU" secondAttribute="centerY" constant="-11" id="ICT-n3-FfX"/>
                     <constraint firstItem="weP-Z4-F5J" firstAttribute="centerY" secondItem="3kC-6m-IJf" secondAttribute="centerY" id="JnB-S2-bVa"/>
                     <constraint firstAttribute="trailing" secondItem="Nkg-F5-bH6" secondAttribute="trailing" constant="16" id="Su9-Ah-617"/>
-                    <constraint firstItem="RWS-bw-cRW" firstAttribute="leading" secondItem="3kC-6m-IJf" secondAttribute="trailing" constant="16" id="UO5-Rm-Z8M"/>
                     <constraint firstItem="Nkg-F5-bH6" firstAttribute="centerY" secondItem="cUU-yJ-MnU" secondAttribute="centerY" id="aWv-8h-fY6"/>
                     <constraint firstItem="7zZ-yo-0dC" firstAttribute="top" secondItem="RWS-bw-cRW" secondAttribute="bottom" constant="3" id="bkb-Am-hVm"/>
                     <constraint firstItem="7zZ-yo-0dC" firstAttribute="trailing" secondItem="RWS-bw-cRW" secondAttribute="trailing" id="hq3-09-XVj"/>
                     <constraint firstItem="3kC-6m-IJf" firstAttribute="centerY" secondItem="cUU-yJ-MnU" secondAttribute="centerY" id="jSN-fH-XWc"/>
                     <constraint firstItem="7zZ-yo-0dC" firstAttribute="leading" secondItem="RWS-bw-cRW" secondAttribute="leading" id="mNR-fx-aKg"/>
+                    <constraint firstItem="RWS-bw-cRW" firstAttribute="leading" secondItem="cUU-yJ-MnU" secondAttribute="leading" constant="82" id="ns3-fu-OyM"/>
                     <constraint firstItem="weP-Z4-F5J" firstAttribute="centerX" secondItem="3kC-6m-IJf" secondAttribute="centerX" id="tsv-ES-hE1"/>
-                    <constraint firstItem="3kC-6m-IJf" firstAttribute="leading" secondItem="cUU-yJ-MnU" secondAttribute="leading" constant="16" id="yFI-1d-yGW"/>
+                    <constraint firstItem="3kC-6m-IJf" firstAttribute="centerX" secondItem="cUU-yJ-MnU" secondAttribute="leading" constant="41" id="yFI-1d-yGW"/>
                     <constraint firstItem="7zZ-yo-0dC" firstAttribute="width" secondItem="RWS-bw-cRW" secondAttribute="width" id="zcg-Iy-KZv"/>
                 </constraints>
             </tableViewCellContentView>
             <connections>
                 <outlet property="artworkButton" destination="weP-Z4-F5J" id="IdS-tc-798"/>
-                <outlet property="artworkImageView" destination="3kC-6m-IJf" id="AgR-ku-gzP"/>
+                <outlet property="artworkHeight" destination="LD8-Eg-YNe" id="utQ-dF-ve5"/>
+                <outlet property="artworkView" destination="3kC-6m-IJf" id="AgR-ku-gzP"/>
+                <outlet property="artworkWidth" destination="zo4-rD-Ned" id="V2J-c2-uiC"/>
                 <outlet property="progressTrailing" destination="Su9-Ah-617" id="Osb-qI-hpx"/>
                 <outlet property="progressView" destination="Nkg-F5-bH6" id="HiU-IX-RA1"/>
                 <outlet property="subtitleLabel" destination="7zZ-yo-0dC" id="usK-11-1gM"/>
