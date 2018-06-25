@@ -1,3 +1,6 @@
-github "ViccAlexander/Chameleon"
 github "jdg/MBProgressHUD" ~> 0.9.2
-github "HarshilShah/DeckTransition" ~> 1.4.0
+github "cbpowell/MarqueeLabel" ~> 3.1.6
+github "pixelogik/ColorCube" "master"
+github "dennisweissmann/DeviceKit" ~> 1.7
+github "GianniCarlo/SwiftReorder"
+github "iosdevzone/IDZSwiftCommonCrypto"

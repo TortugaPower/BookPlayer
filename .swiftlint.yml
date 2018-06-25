@@ -6,3 +6,4 @@ disabled_rules:
   - line_length
   - type_name
   - switch_case_alignment
+  - identifier_name

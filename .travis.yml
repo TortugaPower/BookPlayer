@@ -1,0 +1,12 @@
+language: swift
+osx_image: xcode9.3
+before_install:
+  - brew update
+  - brew outdated carthage || brew upgrade carthage
+before_script:
+  # bootstrap the dependencies for the project
+  # you can remove if you don't have dependencies
+  - carthage bootstrap
+script:
+  - swiftlint 
+  - xcodebuild -project BookPlayer.xcodeproj -scheme BookPlayer -destination 'platform=iOS Simulator,OS=11.3,name=iPhone 5s' test
