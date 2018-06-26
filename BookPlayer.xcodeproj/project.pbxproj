@@ -43,6 +43,7 @@
 		41B2AC8E1D43CCE8005382A9 /* ChaptersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */; };
 		41C3CF7E20AEA5E5007C3EF4 /* DataManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */; };
 		C30B085F209654E3003F325B /* UIColor+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30B085E209654E3003F325B /* UIColor+BookPlayer.swift */; };
+		C30B66AE20E2D8CF00FC0030 /* ArtworkControl.xib in Resources */ = {isa = PBXBuildFile; fileRef = C30B66AD20E2D8CF00FC0030 /* ArtworkControl.xib */; };
 		C30CD2A1209791FA00258B09 /* UIColor+Sweetercolor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30CD2A0209791FA00258B09 /* UIColor+Sweetercolor.swift */; };
 		C30CD2A32097C49F00258B09 /* ColorCube.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C30CD2A22097C49F00258B09 /* ColorCube.framework */; };
 		C30EEEBF2079645C00A4ED33 /* PlayerContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30EEEBB2079645C00A4ED33 /* PlayerContainerViewController.swift */; };
@@ -136,6 +137,7 @@
 		41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChaptersViewController.swift; sourceTree = "<group>"; };
 		41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManagerTests.swift; sourceTree = "<group>"; };
 		C30B085E209654E3003F325B /* UIColor+BookPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+BookPlayer.swift"; sourceTree = "<group>"; };
+		C30B66AD20E2D8CF00FC0030 /* ArtworkControl.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ArtworkControl.xib; sourceTree = "<group>"; };
 		C30CD2A0209791FA00258B09 /* UIColor+Sweetercolor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+Sweetercolor.swift"; sourceTree = "<group>"; };
 		C30CD2A22097C49F00258B09 /* ColorCube.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ColorCube.framework; path = Carthage/Build/iOS/ColorCube.framework; sourceTree = "<group>"; };
 		C30EEEBB2079645C00A4ED33 /* PlayerContainerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerContainerViewController.swift; sourceTree = "<group>"; };
@@ -337,6 +339,7 @@
 				C318D3AC208CF624000666F8 /* PlayerJumpIcon.swift */,
 				C375AF1620DD81F800AC034D /* ProgressSlider.swift */,
 				C375AF1820DD99E000AC034D /* ArtworkControl.swift */,
+				C30B66AD20E2D8CF00FC0030 /* ArtworkControl.xib */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -501,6 +504,7 @@
 				418B6D051D2707F800F974FB /* Assets.xcassets in Resources */,
 				418B6D031D2707F800F974FB /* Main.storyboard in Resources */,
 				4165EE0B20A7A33500616EDF /* AddCellView.xib in Resources */,
+				C30B66AE20E2D8CF00FC0030 /* ArtworkControl.xib in Resources */,
 				4165EE0C20A7A33500616EDF /* BookCellView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

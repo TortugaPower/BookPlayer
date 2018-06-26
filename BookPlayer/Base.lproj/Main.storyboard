@@ -6,6 +6,8 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -441,10 +443,9 @@ Use with caution and care for your hearing.</string>
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="emptyPlaylist" translatesAutoresizingMaskIntoConstraints="NO" id="hcW-Vv-6u7">
-                                        <rect key="frame" x="63" y="170.66666666666669" width="249" height="249"/>
+                                        <rect key="frame" x="63" y="140" width="249" height="248.66666666666663"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" constant="249" id="M3c-0J-Ojl"/>
-                                            <constraint firstAttribute="height" constant="249" id="S1o-Vm-xQT"/>
+                                            <constraint firstAttribute="width" secondItem="hcW-Vv-6u7" secondAttribute="height" multiplier="1:1" id="xhU-B2-JwT"/>
                                         </constraints>
                                     </imageView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="You can also moves files here by dragging them on this playlist in the Library." lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="l2v-hx-85C">
@@ -455,11 +456,11 @@ Use with caution and care for your hearing.</string>
                                         <size key="shadowOffset" width="0.0" height="0.0"/>
                                     </label>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Yog-QU-sD5" userLabel="Spacer A">
-                                        <rect key="frame" x="16" y="52.000000000000007" width="343" height="118.66666666666669"/>
+                                        <rect key="frame" x="16" y="52" width="343" height="88"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pBP-Gg-zR3" userLabel="Spacer B">
-                                        <rect key="frame" x="16" y="517.66666666666663" width="343" height="118.33333333333337"/>
+                                        <rect key="frame" x="16" y="486.66666666666657" width="343" height="149.33333333333331"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
                                             <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="88" id="zxD-eK-nXJ"/>
@@ -470,7 +471,7 @@ Use with caution and care for your hearing.</string>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </view>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3BN-um-QpR" customClass="AddButton" customModule="BookPlayer" customModuleProvider="target">
-                                        <rect key="frame" x="16" y="429.66666666666663" width="343" height="88"/>
+                                        <rect key="frame" x="16" y="398.66666666666663" width="343" height="88"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="88" id="ldL-uM-UOH"/>
                                         </constraints>
@@ -495,7 +496,8 @@ Use with caution and care for your hearing.</string>
                                     <constraint firstItem="pBP-Gg-zR3" firstAttribute="top" secondItem="3BN-um-QpR" secondAttribute="bottom" id="PyW-bb-RIi"/>
                                     <constraint firstItem="3BN-um-QpR" firstAttribute="leading" secondItem="S0r-5S-fT7" secondAttribute="leading" constant="16" id="V4Q-jY-5V4"/>
                                     <constraint firstItem="Yog-QU-sD5" firstAttribute="top" secondItem="l2v-hx-85C" secondAttribute="bottom" priority="750" id="Xv0-IS-auw"/>
-                                    <constraint firstItem="Yog-QU-sD5" firstAttribute="height" secondItem="pBP-Gg-zR3" secondAttribute="height" priority="500" id="bpJ-fE-Cl8"/>
+                                    <constraint firstItem="Yog-QU-sD5" firstAttribute="height" secondItem="pBP-Gg-zR3" secondAttribute="height" multiplier="0.59" priority="500" id="bpJ-fE-Cl8"/>
+                                    <constraint firstItem="hcW-Vv-6u7" firstAttribute="width" secondItem="S0r-5S-fT7" secondAttribute="width" constant="-126" id="c3l-DH-HUP"/>
                                     <constraint firstItem="hcW-Vv-6u7" firstAttribute="centerX" secondItem="S0r-5S-fT7" secondAttribute="centerX" id="cnN-LB-Z1r"/>
                                     <constraint firstAttribute="bottom" secondItem="fo9-V8-z4c" secondAttribute="bottom" id="eQ4-c0-uQf"/>
                                     <constraint firstItem="Yog-QU-sD5" firstAttribute="leading" secondItem="S0r-5S-fT7" secondAttribute="leading" constant="16" id="f7K-9i-gk3"/>
@@ -635,18 +637,17 @@ Use with caution and care for your hearing.</string>
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8XP-ZG-OgN" userLabel="Spacer A">
-                                        <rect key="frame" x="16" y="16" width="343" height="154.66666666666666"/>
+                                        <rect key="frame" x="16" y="16.000000000000007" width="343" height="123.66666666666669"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </view>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="emptyLibrary" translatesAutoresizingMaskIntoConstraints="NO" id="0RV-NO-MaQ">
-                                        <rect key="frame" x="63" y="170.66666666666669" width="249" height="249"/>
+                                        <rect key="frame" x="63" y="139.66666666666669" width="249" height="249"/>
                                         <constraints>
-                                            <constraint firstAttribute="height" constant="249" id="5na-dc-FrY"/>
-                                            <constraint firstAttribute="width" constant="249" id="Wgm-0u-wJb"/>
+                                            <constraint firstAttribute="width" secondItem="0RV-NO-MaQ" secondAttribute="height" multiplier="1:1" id="s1a-a6-qNW"/>
                                         </constraints>
                                     </imageView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rr7-pJ-KIA" customClass="AddButton" customModule="BookPlayer" customModuleProvider="target">
-                                        <rect key="frame" x="16" y="429.66666666666663" width="343" height="88"/>
+                                        <rect key="frame" x="16" y="398.66666666666663" width="343" height="88"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="88" id="7xB-jU-A2O"/>
                                         </constraints>
@@ -658,7 +659,7 @@ Use with caution and care for your hearing.</string>
                                         </connections>
                                     </button>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="oRg-bS-GGy" userLabel="Spacer B">
-                                        <rect key="frame" x="16" y="517.66666666666663" width="343" height="154.33333333333337"/>
+                                        <rect key="frame" x="16" y="486.66666666666657" width="343" height="185.33333333333331"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
                                             <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="88" id="dT6-Zi-nDV"/>
@@ -677,7 +678,7 @@ Use with caution and care for your hearing.</string>
                                     <constraint firstAttribute="trailing" secondItem="rr7-pJ-KIA" secondAttribute="trailing" constant="16" id="cTY-qv-KUh"/>
                                     <constraint firstItem="0RV-NO-MaQ" firstAttribute="centerX" secondItem="xYN-SW-g2w" secondAttribute="centerX" id="iYA-W8-R4R"/>
                                     <constraint firstItem="oRg-bS-GGy" firstAttribute="top" secondItem="rr7-pJ-KIA" secondAttribute="bottom" id="pGi-8H-kTC"/>
-                                    <constraint firstItem="oRg-bS-GGy" firstAttribute="height" secondItem="8XP-ZG-OgN" secondAttribute="height" id="rnp-CM-wQt"/>
+                                    <constraint firstItem="oRg-bS-GGy" firstAttribute="height" secondItem="8XP-ZG-OgN" secondAttribute="height" multiplier="1.5" priority="250" id="rnp-CM-wQt"/>
                                     <constraint firstAttribute="bottom" secondItem="oRg-bS-GGy" secondAttribute="bottom" id="t98-Wf-WNq"/>
                                     <constraint firstAttribute="trailing" secondItem="oRg-bS-GGy" secondAttribute="trailing" constant="16" id="z7q-ef-9QZ"/>
                                 </constraints>
@@ -688,6 +689,7 @@ Use with caution and care for your hearing.</string>
                             <constraint firstAttribute="bottom" secondItem="392-ii-NXF" secondAttribute="bottom" id="0zf-Aj-DJA"/>
                             <constraint firstItem="xYN-SW-g2w" firstAttribute="bottom" secondItem="392-ii-NXF" secondAttribute="bottom" id="DD7-jS-TbF"/>
                             <constraint firstAttribute="trailing" secondItem="392-ii-NXF" secondAttribute="trailing" id="DQ8-gC-QLN"/>
+                            <constraint firstItem="0RV-NO-MaQ" firstAttribute="width" secondItem="ceD-ne-FWj" secondAttribute="width" constant="-126" id="IIf-I7-OSD"/>
                             <constraint firstItem="xYN-SW-g2w" firstAttribute="trailing" secondItem="392-ii-NXF" secondAttribute="trailing" id="IZQ-rg-OnV"/>
                             <constraint firstItem="392-ii-NXF" firstAttribute="leading" secondItem="ceD-ne-FWj" secondAttribute="leading" id="Qpx-IF-48v"/>
                             <constraint firstItem="xYN-SW-g2w" firstAttribute="leading" secondItem="392-ii-NXF" secondAttribute="leading" id="R8i-AR-BXz"/>

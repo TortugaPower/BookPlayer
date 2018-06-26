@@ -127,7 +127,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         let blur = UIBlurEffect(style: currentBook.artworkColors.displayOnDark ? UIBlurEffectStyle.dark : UIBlurEffectStyle.light)
         let blurView = UIVisualEffectView(effect: blur)
 
-        blurView.frame = backgroundImage.bounds
+        blurView.frame = self.view.bounds
 
         self.backgroundImage.addSubview(blurView)
         self.backgroundImage.image = currentBook.artwork
