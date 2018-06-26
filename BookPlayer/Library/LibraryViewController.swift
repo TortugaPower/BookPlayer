@@ -27,12 +27,21 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         self.loadLibrary()
 
         guard let identifier = UserDefaults.standard.string(forKey: UserDefaultsConstants.lastPlayedBook),
-            let lastPlayedBook = DataManager.getBook(with: identifier, from: self.library) else {
+            let item = self.library.getItem(with: identifier) else {
                 return
         }
 
+        var books = [Book]()
+
+        if let playlist = item as? Playlist,
+            let index = playlist.itemIndex(with: identifier) {
+            books = playlist.getBooks(from: index)
+        } else if let lastPlayedBook = item as? Book {
+            books.append(lastPlayedBook)
+        }
+
         // Preload player
-        PlayerManager.shared.load([lastPlayedBook]) { (loaded) in
+        PlayerManager.shared.load(books) { (loaded) in
             guard loaded else {
                 return
             }

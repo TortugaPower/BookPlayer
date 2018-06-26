@@ -57,6 +57,15 @@ public class Playlist: LibraryItem {
         return remainingBooks
     }
 
+    func getBooks(from index: Int) -> [Book] {
+        guard
+            let books = self.books?.array as? [Book]
+        else {
+            return []
+        }
+        return Array(books.suffix(from: index))
+    }
+
     func itemIndex(with url: URL) -> Int? {
         let hash = url.lastPathComponent
 
