@@ -144,6 +144,29 @@ class InsertBooksTests: DataManagerTests {
         wait(for: [expectation], timeout: 15)
     }
 
+    func testInsertSameBookInLibrary() {
+        let library = DataManager.getLibrary()
+
+        let filename = "file.txt"
+        let bookContents = "bookcontents".data(using: .utf8)!
+        let documentsFolder = DataManager.getDocumentsFolderURL()
+
+        // Add test file to Documents folder
+        let fileUrl = self.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
+
+        let expectation = XCTestExpectation(description: "Insert books into library")
+
+        DataManager.insertBooks(from: [fileUrl], into: library) {
+            XCTAssert(library.items?.count == 1)
+            DataManager.insertBooks(from: [fileUrl], into: library) {
+                XCTAssert(library.items?.count == 1)
+                expectation.fulfill()
+            }
+        }
+
+        wait(for: [expectation], timeout: 15)
+    }
+
     func testInsertMultipleBooksInLibrary() {
         let library = DataManager.getLibrary()
 

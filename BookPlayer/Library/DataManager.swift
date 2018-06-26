@@ -225,8 +225,10 @@ class DataManager {
                         // Handle if item is a book
                         let storedBook = item as! Book
 
-                        library.removeFromItems(storedBook)
-                        playlist?.addToBooks(storedBook)
+                        if let playlist = playlist {
+                            library.removeFromItems(storedBook)
+                            playlist.addToBooks(storedBook)
+                        }
 
                         continue
                 }
