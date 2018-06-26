@@ -8,8 +8,6 @@
 
 import UIKit
 import AVFoundation
-import Fabric
-import Crashlytics
 import MediaPlayer
 
 @UIApplicationMain
@@ -19,8 +17,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        Fabric.with([Crashlytics.self])
-
         let defaults: UserDefaults = UserDefaults.standard
 
         // Perfrom first launch setup
