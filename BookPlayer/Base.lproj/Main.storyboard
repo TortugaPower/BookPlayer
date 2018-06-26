@@ -6,6 +6,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <capability name="Alignment constraints with different attributes" minToolsVersion="5.1"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
@@ -123,9 +124,8 @@ Use with caution and care for your hearing.</string>
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="43.666666666666664"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7Ar-pG-gpq">
-                                                    <rect key="frame" x="312" y="6" width="49" height="31"/>
-                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7Ar-pG-gpq">
+                                                    <rect key="frame" x="310" y="6" width="51" height="31"/>
                                                 </switch>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Boost Volume" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6V2-Er-pk0">
                                                     <rect key="frame" x="16" y="12" width="106" height="21"/>
@@ -135,6 +135,10 @@ Use with caution and care for your hearing.</string>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>
+                                            <constraints>
+                                                <constraint firstItem="7Ar-pG-gpq" firstAttribute="centerY" secondItem="Ptk-qm-LCx" secondAttribute="centerY" id="3Y1-JA-QMg"/>
+                                                <constraint firstAttribute="trailing" secondItem="7Ar-pG-gpq" secondAttribute="trailing" constant="16" id="kTu-dg-EYL"/>
+                                            </constraints>
                                         </tableViewCellContentView>
                                     </tableViewCell>
                                 </cells>
@@ -541,7 +545,7 @@ Use with caution and care for your hearing.</string>
                         <rect key="frame" x="0.0" y="0.0" width="375" height="88"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Sfc-n7-Zho" userLabel="Container">
+                            <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Sfc-n7-Zho" userLabel="Container">
                                 <rect key="frame" x="8" y="8" width="359" height="72"/>
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VVl-ON-iS7" customClass="BPArtworkView" customModule="BookPlayer" customModuleProvider="target">
@@ -552,7 +556,7 @@ Use with caution and care for your hearing.</string>
                                         </constraints>
                                     </imageView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jDQ-kp-Eg6" customClass="BPMarqueeLabel" customModule="BookPlayer" customModuleProvider="target">
-                                        <rect key="frame" x="61" y="11" width="231" height="24"/>
+                                        <rect key="frame" x="60" y="11" width="232" height="24"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="24" id="pg7-bG-J8J"/>
                                         </constraints>
@@ -561,7 +565,7 @@ Use with caution and care for your hearing.</string>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Author" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wl3-k5-zZi" customClass="BPMarqueeLabel" customModule="BookPlayer" customModuleProvider="target">
-                                        <rect key="frame" x="61" y="37" width="231" height="24"/>
+                                        <rect key="frame" x="60" y="37" width="232" height="24"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="24" id="Pg5-zp-ISQ"/>
                                         </constraints>
@@ -584,13 +588,13 @@ Use with caution and care for your hearing.</string>
                                 <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                                 <constraints>
                                     <constraint firstAttribute="trailing" secondItem="fPh-z9-Tc5" secondAttribute="trailing" constant="5" id="3s9-EO-WVk"/>
-                                    <constraint firstItem="wl3-k5-zZi" firstAttribute="leading" secondItem="VVl-ON-iS7" secondAttribute="trailing" id="4Kr-s4-L1O"/>
                                     <constraint firstAttribute="height" constant="72" id="FwT-fW-vJb"/>
-                                    <constraint firstItem="VVl-ON-iS7" firstAttribute="leading" secondItem="Sfc-n7-Zho" secondAttribute="leading" constant="11" id="UaH-So-0Pq"/>
+                                    <constraint firstItem="jDQ-kp-Eg6" firstAttribute="leading" secondItem="Sfc-n7-Zho" secondAttribute="leading" constant="60" id="MpU-Bo-Zj3"/>
+                                    <constraint firstItem="VVl-ON-iS7" firstAttribute="centerX" secondItem="Sfc-n7-Zho" secondAttribute="leading" constant="36" id="UaH-So-0Pq"/>
                                     <constraint firstItem="wl3-k5-zZi" firstAttribute="bottom" secondItem="VVl-ON-iS7" secondAttribute="bottom" id="cPW-bO-fm8"/>
-                                    <constraint firstItem="jDQ-kp-Eg6" firstAttribute="leading" secondItem="VVl-ON-iS7" secondAttribute="trailing" id="dQl-AX-Hq0"/>
                                     <constraint firstItem="fPh-z9-Tc5" firstAttribute="leading" secondItem="wl3-k5-zZi" secondAttribute="trailing" id="iUm-tS-g3c"/>
                                     <constraint firstItem="fPh-z9-Tc5" firstAttribute="centerY" secondItem="Sfc-n7-Zho" secondAttribute="centerY" id="oFL-Rk-XjB"/>
+                                    <constraint firstItem="wl3-k5-zZi" firstAttribute="leading" secondItem="jDQ-kp-Eg6" secondAttribute="leading" id="qEu-2j-aFG"/>
                                     <constraint firstItem="jDQ-kp-Eg6" firstAttribute="top" secondItem="VVl-ON-iS7" secondAttribute="top" id="qbL-fE-2Qf"/>
                                     <constraint firstItem="fPh-z9-Tc5" firstAttribute="leading" secondItem="jDQ-kp-Eg6" secondAttribute="trailing" id="vMM-VE-xgM"/>
                                     <constraint firstItem="VVl-ON-iS7" firstAttribute="centerY" secondItem="Sfc-n7-Zho" secondAttribute="centerY" id="wTn-m4-kuf"/>
@@ -607,6 +611,8 @@ Use with caution and care for your hearing.</string>
                     </view>
                     <connections>
                         <outlet property="artwork" destination="VVl-ON-iS7" id="dxh-IM-pw8"/>
+                        <outlet property="artworkHeight" destination="QQc-Wc-jpc" id="eVp-sg-UIt"/>
+                        <outlet property="artworkWidth" destination="B74-q5-Tva" id="ytm-c2-yZr"/>
                         <outlet property="authorLabel" destination="wl3-k5-zZi" id="hUQ-6p-Zko"/>
                         <outlet property="background" destination="Sfc-n7-Zho" id="Hoy-xm-3AC"/>
                         <outlet property="playPauseButton" destination="fPh-z9-Tc5" id="y5s-i9-ll4"/>
@@ -615,7 +621,7 @@ Use with caution and care for your hearing.</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="V8J-76-d47" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1953" y="617"/>
+            <point key="canvasLocation" x="-1954.4000000000001" y="616.99507389162568"/>
         </scene>
         <!--Library-->
         <scene sceneID="sOy-uz-Nh7">

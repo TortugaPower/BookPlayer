@@ -17,6 +17,8 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
 
     @IBOutlet private weak var artworkContainer: UIView!
     @IBOutlet private weak var artworkImage: BPArtworkView!
+    @IBOutlet weak var artworkWidth: NSLayoutConstraint!
+    @IBOutlet weak var artworkHeight: NSLayoutConstraint!
 
     private let playImage = UIImage(named: "playerIconPlay")
     private let pauseImage = UIImage(named: "playerIconPause")
@@ -58,10 +60,23 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         get {
             return self.artworkImage.image
         }
+
         set {
             self.artworkImage.image = newValue
 
-            self.artworkImage.resizeToFit()
+            let ratio = self.artworkImage.imageRatio
+            let base = min(self.artworkContainer.bounds.width, self.artworkContainer.bounds.height)
+
+            if ratio > 1 {
+                self.artworkHeight.constant = base
+                self.artworkWidth.constant = base / ratio
+            } else if ratio < 1 {
+                self.artworkHeight.constant = base * ratio
+                self.artworkWidth.constant = base
+            } else {
+                self.artworkHeight.constant = base
+                self.artworkWidth.constant = base
+            }
         }
     }
 
@@ -148,7 +163,7 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     }
 
     override func layoutIfNeeded() {
-        print("foo")
+
     }
 
     func setTransformForJumpIcons() {

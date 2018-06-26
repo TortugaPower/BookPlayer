@@ -37,16 +37,4 @@ class BPArtworkView: UIImageView {
         self.layer.borderWidth = 0.5
         self.layer.borderColor = UIColor.textColor.withAlphaComponent(0.2).cgColor
     }
-
-    func resizeToFit() {
-        var newBounds = self.bounds
-
-        if self.imageRatio > 1 {
-            newBounds.size.height /= self.imageRatio
-        } else if self.imageRatio < 1 {
-            newBounds.size.width *= self.imageRatio
-        }
-
-        self.bounds = newBounds
-    }
 }

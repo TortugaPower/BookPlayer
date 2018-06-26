@@ -11,10 +11,12 @@ import MarqueeLabelSwift
 
 class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecognizerDelegate {
     @IBOutlet private weak var background: UIView!
-    @IBOutlet private weak var artwork: UIImageView!
+    @IBOutlet private weak var artwork: BPArtworkView!
     @IBOutlet private weak var titleLabel: BPMarqueeLabel!
     @IBOutlet private weak var authorLabel: BPMarqueeLabel!
-    @IBOutlet weak var playPauseButton: UIButton!
+    @IBOutlet private weak var playPauseButton: UIButton!
+    @IBOutlet weak var artworkWidth: NSLayoutConstraint!
+    @IBOutlet weak var artworkHeight: NSLayoutConstraint!
 
     private let playImage = UIImage(named: "nowPlayingPlay")
     private let pauseImage = UIImage(named: "nowPlayingPause")
@@ -25,13 +27,32 @@ class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecogniz
 
     var book: Book? {
         didSet {
-            self.artwork.image = self.book?.artwork
-            self.authorLabel.text = self.book?.author
-            self.titleLabel.text = self.book?.title
-            self.titleLabel.textColor = self.book?.artworkColors.primary
-            self.authorLabel.textColor = self.book?.artworkColors.secondary
-            self.playPauseButton.tintColor = self.book?.artworkColors.tertiary
-            self.background.backgroundColor = self.book?.artworkColors.background
+            self.view.setNeedsLayout()
+
+            guard let book = self.book else {
+                return
+            }
+
+            self.artwork.image = book.artwork
+            self.authorLabel.text = book.author
+            self.titleLabel.text = book.title
+            self.titleLabel.textColor = book.artworkColors.primary
+            self.authorLabel.textColor = book.artworkColors.secondary
+            self.playPauseButton.tintColor = book.artworkColors.tertiary
+            self.background.backgroundColor = book.artworkColors.background
+
+            let ratio = self.artwork.imageRatio
+
+            if ratio > 1 {
+                self.artworkHeight.constant = 50.0 / ratio
+                self.artworkWidth.constant = 50.0
+            } else if ratio < 1 {
+                self.artworkHeight.constant = 50.0
+                self.artworkWidth.constant = 50.0 * ratio
+            } else {
+                self.artworkHeight.constant = 50.0
+                self.artworkWidth.constant = 50.0
+            }
         }
     }
 

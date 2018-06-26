@@ -13,7 +13,9 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ArtworkControl" customModule="BookPlayer" customModuleProvider="target">
             <connections>
                 <outlet property="artworkContainer" destination="38X-b3-v6y" id="c5d-R2-E1L"/>
+                <outlet property="artworkHeight" destination="xjb-vW-MYb" id="vcC-I1-Wkl"/>
                 <outlet property="artworkImage" destination="b1B-eO-wd8" id="4zU-us-epG"/>
+                <outlet property="artworkWidth" destination="Gax-Jk-fXg" id="Zwj-72-qsZ"/>
                 <outlet property="contentView" destination="iN0-l3-epB" id="voY-pw-1zj"/>
                 <outlet property="forwardIcon" destination="6cy-7G-42S" id="NVB-er-7r7"/>
                 <outlet property="playPauseButton" destination="eBX-C3-3ce" id="Owy-s4-dRu"/>
@@ -46,6 +48,10 @@
                     <subviews>
                         <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="b1B-eO-wd8" customClass="BPArtworkView" customModule="BookPlayer" customModuleProvider="target">
                             <rect key="frame" x="0.0" y="0.0" width="325" height="325"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="325" id="Gax-Jk-fXg"/>
+                                <constraint firstAttribute="width" constant="325" id="xjb-vW-MYb"/>
+                            </constraints>
                         </imageView>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eBX-C3-3ce">
                             <rect key="frame" x="0.0" y="0.0" width="325" height="325"/>
@@ -62,10 +68,8 @@
                         <constraint firstItem="eBX-C3-3ce" firstAttribute="height" secondItem="38X-b3-v6y" secondAttribute="height" id="6Ck-Qq-gnO"/>
                         <constraint firstItem="eBX-C3-3ce" firstAttribute="width" secondItem="38X-b3-v6y" secondAttribute="width" id="BhJ-SY-3ph"/>
                         <constraint firstItem="eBX-C3-3ce" firstAttribute="top" secondItem="38X-b3-v6y" secondAttribute="top" id="LzI-C4-pQD"/>
-                        <constraint firstItem="b1B-eO-wd8" firstAttribute="width" secondItem="38X-b3-v6y" secondAttribute="width" id="VgC-cg-Qt0"/>
                         <constraint firstItem="b1B-eO-wd8" firstAttribute="centerY" secondItem="38X-b3-v6y" secondAttribute="centerY" id="bcV-fF-bGn"/>
                         <constraint firstAttribute="bottom" secondItem="eBX-C3-3ce" secondAttribute="bottom" id="fIa-eP-dcv"/>
-                        <constraint firstItem="b1B-eO-wd8" firstAttribute="height" secondItem="38X-b3-v6y" secondAttribute="height" id="fhh-Go-Ksf"/>
                     </constraints>
                 </view>
             </subviews>
