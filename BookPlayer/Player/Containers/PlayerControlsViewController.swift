@@ -25,6 +25,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
             self.artworkControl.artwork = book.artwork
             self.artworkControl.shadowOpacity = 0.1 + (1.0 - book.artworkColors.background.brightness) * 0.3
             self.artworkControl.iconColor = book.artworkColors.tertiary
+            self.artworkControl.borderColor = book.artworkColors.tertiary
 
             self.progressSlider.minimumTrackTintColor = book.artworkColors.tertiary
             self.progressSlider.maximumTrackTintColor = book.artworkColors.tertiary.withAlpha(newAlpha: 0.3)

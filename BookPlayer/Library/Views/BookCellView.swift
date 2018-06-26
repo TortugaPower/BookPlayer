@@ -21,21 +21,33 @@ enum BookCellType {
 }
 
 class BookCellView: UITableViewCell {
-    @IBOutlet private weak var artworkImageView: BPArtworkView!
+    @IBOutlet private weak var artworkView: BPArtworkView!
     @IBOutlet private weak var titleLabel: UILabel!
     @IBOutlet private weak var subtitleLabel: UILabel!
     @IBOutlet private weak var progressTrailing: NSLayoutConstraint!
     @IBOutlet private weak var progressView: ItemProgress!
     @IBOutlet private weak var artworkButton: UIButton!
+    @IBOutlet weak var artworkWidth: NSLayoutConstraint!
+    @IBOutlet weak var artworkHeight: NSLayoutConstraint!
 
     var onArtworkTap: (() -> Void)?
 
     var artwork: UIImage? {
         get {
-            return self.artworkImageView.image
+            return self.artworkView.image
         }
         set {
-            self.artworkImageView.image = newValue
+            self.artworkView.image = newValue
+
+            let ratio = self.artworkView.imageRatio
+
+            if ratio > 1 {
+                self.artworkHeight.constant = 50.0 / ratio
+                self.artworkWidth.constant = 50.0
+            } else if ratio < 1 {
+                self.artworkHeight.constant = 50.0
+                self.artworkWidth.constant = 50.0 * ratio
+            }
         }
     }
 
