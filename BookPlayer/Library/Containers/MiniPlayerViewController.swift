@@ -10,13 +10,14 @@ import UIKit
 import MarqueeLabelSwift
 
 class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecognizerDelegate {
-    @IBOutlet private weak var background: UIView!
+    @IBOutlet private weak var miniPlayerBlur: UIVisualEffectView!
+    @IBOutlet private weak var miniPlayerContainer: UIView!
     @IBOutlet private weak var artwork: BPArtworkView!
     @IBOutlet private weak var titleLabel: BPMarqueeLabel!
     @IBOutlet private weak var authorLabel: BPMarqueeLabel!
     @IBOutlet private weak var playPauseButton: UIButton!
-    @IBOutlet weak var artworkWidth: NSLayoutConstraint!
-    @IBOutlet weak var artworkHeight: NSLayoutConstraint!
+    @IBOutlet private weak var artworkWidth: NSLayoutConstraint!
+    @IBOutlet private weak var artworkHeight: NSLayoutConstraint!
 
     private let playImage = UIImage(named: "nowPlayingPlay")
     private let pauseImage = UIImage(named: "nowPlayingPause")
@@ -39,7 +40,8 @@ class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecogniz
             self.titleLabel.textColor = book.artworkColors.primary
             self.authorLabel.textColor = book.artworkColors.secondary
             self.playPauseButton.tintColor = book.artworkColors.tertiary
-            self.background.backgroundColor = book.artworkColors.background
+            self.miniPlayerContainer.backgroundColor = book.artworkColors.background.withAlphaComponent(book.artworkColors.displayOnDark ? 0.6 : 0.8)
+            self.miniPlayerBlur.effect = book.artworkColors.displayOnDark ? UIBlurEffect(style: UIBlurEffectStyle.dark) : UIBlurEffect(style: UIBlurEffectStyle.light)
 
             let ratio = self.artwork.imageRatio
 
@@ -51,7 +53,8 @@ class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecogniz
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.background.layer.cornerRadius = 13.0
+        self.miniPlayerBlur.layer.cornerRadius = 13.0
+        self.miniPlayerBlur.layer.masksToBounds = true
 
         self.tap = UITapGestureRecognizer(target: self, action: #selector(tapAction))
         self.tap.cancelsTouchesInView = true
