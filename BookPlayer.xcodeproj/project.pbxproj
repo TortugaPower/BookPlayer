@@ -10,7 +10,6 @@
 		410D0FED1EDCF4B000A52EB9 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D0FEC1EDCF4B000A52EB9 /* SettingsViewController.swift */; };
 		410D0FEF1EDDBC3300A52EB9 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D0FEE1EDDBC3300A52EB9 /* DataManager.swift */; };
 		410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D0FF01EDF659900A52EB9 /* PlayerManager.swift */; };
-		412451831D489204008AC0E5 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412451811D489204008AC0E5 /* Fabric.framework */; };
 		412451841D489204008AC0E5 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412451821D489204008AC0E5 /* Crashlytics.framework */; };
 		413616401D2E21F000E48944 /* LibraryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4136163F1D2E21F000E48944 /* LibraryViewController.swift */; };
 		4150F80320A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4150F80220A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework */; };
@@ -99,7 +98,6 @@
 		410D0FEC1EDCF4B000A52EB9 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		410D0FEE1EDDBC3300A52EB9 /* DataManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		410D0FF01EDF659900A52EB9 /* PlayerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerManager.swift; sourceTree = "<group>"; };
-		412451811D489204008AC0E5 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
 		412451821D489204008AC0E5 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		4136163F1D2E21F000E48944 /* LibraryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryViewController.swift; sourceTree = "<group>"; };
 		4150F80220A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IDZSwiftCommonCrypto.framework; path = Carthage/Build/iOS/IDZSwiftCommonCrypto.framework; sourceTree = "<group>"; };
@@ -182,7 +180,6 @@
 				C30CD2A32097C49F00258B09 /* ColorCube.framework in Frameworks */,
 				4165EE0E20A7AEC600616EDF /* SwiftReorder.framework in Frameworks */,
 				412451841D489204008AC0E5 /* Crashlytics.framework in Frameworks */,
-				412451831D489204008AC0E5 /* Fabric.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -257,7 +254,6 @@
 				4165EE0D20A7AEC600616EDF /* SwiftReorder.framework */,
 				C318DDBE20A4DC7500C3A17B /* DeviceKit.framework */,
 				C30CD2A22097C49F00258B09 /* ColorCube.framework */,
-				412451811D489204008AC0E5 /* Fabric.framework */,
 				412451821D489204008AC0E5 /* Crashlytics.framework */,
 				41AB1C121D30298800AC1AA0 /* MBProgressHUD.framework */,
 			);
@@ -416,7 +412,6 @@
 				418B6CF51D2707F800F974FB /* Frameworks */,
 				418B6CF61D2707F800F974FB /* Resources */,
 				413616421D30100100E48944 /* Copy Frameworks managed by Carthage */,
-				412451801D4891EF008AC0E5 /* Fabric */,
 				41B955451F9E552B000C9231 /* Embed Frameworks */,
 			);
 			buildRules = (
@@ -520,20 +515,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		412451801D4891EF008AC0E5 /* Fabric */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = Fabric;
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "./Fabric.framework/run fff3f019692513e38df260d5e737614c67a35eaa 0976c00131dd6676fe42981de5bdda9a9ee35f1ac0425c43c0bd56aaf385198e";
-		};
 		413616421D30100100E48944 /* Copy Frameworks managed by Carthage */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;

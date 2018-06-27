@@ -37,20 +37,6 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>75</string>
-	<key>Fabric</key>
-	<dict>
-		<key>APIKey</key>
-		<string>fff3f019692513e38df260d5e737614c67a35eaa</string>
-		<key>Kits</key>
-		<array>
-			<dict>
-				<key>KitInfo</key>
-				<dict/>
-				<key>KitName</key>
-				<string>Crashlytics</string>
-			</dict>
-		</array>
-	</dict>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSMicrophoneUsageDescription</key>
