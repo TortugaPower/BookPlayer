@@ -41,16 +41,8 @@ class BookCellView: UITableViewCell {
 
             let ratio = self.artworkView.imageRatio
 
-            if ratio > 1 {
-                self.artworkHeight.constant = 50.0 / ratio
-                self.artworkWidth.constant = 50.0
-            } else if ratio < 1 {
-                self.artworkHeight.constant = 50.0
-                self.artworkWidth.constant = 50.0 * ratio
-            } else {
-                self.artworkHeight.constant = 50.0
-                self.artworkWidth.constant = 50.0
-            }
+            self.artworkHeight.constant = ratio > 1 ? 50.0 / ratio : 50.0
+            self.artworkWidth.constant = ratio < 1 ? 50.0 * ratio : 50.0
         }
     }
 

@@ -67,16 +67,8 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
             let ratio = self.artworkImage.imageRatio
             let base = min(self.artworkContainer.bounds.width, self.artworkContainer.bounds.height)
 
-            if ratio > 1 {
-                self.artworkHeight.constant = base
-                self.artworkWidth.constant = base / ratio
-            } else if ratio < 1 {
-                self.artworkHeight.constant = base * ratio
-                self.artworkWidth.constant = base
-            } else {
-                self.artworkHeight.constant = base
-                self.artworkWidth.constant = base
-            }
+            self.artworkHeight.constant = ratio < 1 ? base * ratio : base
+            self.artworkWidth.constant = ratio > 1 ? base / ratio : base
         }
     }
 
