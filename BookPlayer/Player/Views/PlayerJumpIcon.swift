@@ -45,7 +45,7 @@ class PlayerJumpIcon: UIView {
         self.backgroundImageView = UIImageView(image: self.backgroundImage)
         self.backgroundImageView.tintColor = self.tintColor
 
-        self.label = UILabel(frame: self.bounds.insetBy(dx: 10.0, dy: 10.0))
+        self.label = UILabel()
         self.label.allowsDefaultTighteningForTruncation = true
         self.label.adjustsFontSizeToFitWidth = true
         self.label.font = UIFont.systemFont(ofSize: 14.0, weight: .bold)
@@ -54,6 +54,10 @@ class PlayerJumpIcon: UIView {
 
         self.addSubview(self.backgroundImageView)
         self.addSubview(self.label)
+    }
+
+    override func layoutSubviews() {
+        self.label.frame = self.bounds.insetBy(dx: 10.0, dy: 10.0)
     }
 }
 

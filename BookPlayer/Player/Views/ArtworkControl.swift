@@ -9,12 +9,20 @@
 import UIKit
 
 class ArtworkControl: UIView, UIGestureRecognizerDelegate {
-    private var playPauseButton: UIButton!
-    private var artworkImage: BPArtworkView!
+    @IBOutlet var contentView: UIView!
+
+    @IBOutlet private weak var rewindIcon: PlayerJumpIconRewind!
+    @IBOutlet private weak var forwardIcon: PlayerJumpIconForward!
+    @IBOutlet private weak var playPauseButton: UIButton!
+
+    @IBOutlet private weak var artworkContainer: UIView!
+    @IBOutlet private weak var artworkImage: BPArtworkView!
+    @IBOutlet weak var artworkWidth: NSLayoutConstraint!
+    @IBOutlet weak var artworkHeight: NSLayoutConstraint!
+
     private let playImage = UIImage(named: "playerIconPlay")
     private let pauseImage = UIImage(named: "playerIconPause")
-    private var rewindIcon: PlayerJumpIconRewind!
-    private var forwardIcon: PlayerJumpIconForward!
+
     private var pan: UIPanGestureRecognizer!
 
     // Based on the design files for iPhone X where the regular artwork is 325dp and the paused state is 255dp in width
@@ -22,8 +30,6 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     private let jumpIconAlpha: CGFloat = 0.15
     private let jumpIconOffset: CGFloat = 25.0
     private var triggeredPanAction: Bool = false
-
-    var artworkContainer: UIView!
 
     var onPlayPause: ((ArtworkControl) -> Void)?
     var onRewind: ((ArtworkControl) -> Void)?
@@ -54,10 +60,15 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         get {
             return self.artworkImage.image
         }
+
         set {
             self.artworkImage.image = newValue
 
-            self.artworkImage.resizeToFit()
+            let ratio = self.artworkImage.imageRatio
+            let base = min(self.artworkContainer.bounds.width, self.artworkContainer.bounds.height)
+
+            self.artworkHeight.constant = ratio < 1 ? base * ratio : base
+            self.artworkWidth.constant = ratio > 1 ? base / ratio : base
         }
     }
 
@@ -110,48 +121,29 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     }
 
     private func setup() {
-        // View & Subviews
         self.backgroundColor = .clear
 
-        self.layer.shadowColor = UIColor.black.cgColor
-        self.layer.shadowOffset = CGSize(width: 0.0, height: 4.0)
-        self.layer.shadowOpacity = 0.15
-        self.layer.shadowRadius = 12.0
+        // Load & setup xib
+        Bundle.main.loadNibNamed("ArtworkControl", owner: self, options: nil)
 
-        let iconSize: CGFloat = 60.0
-        let iconY: CGFloat =  (self.bounds.height - iconSize) / 2
-        let iconOffset: CGFloat = 5.0
+        self.addSubview(self.contentView)
 
-        self.rewindIcon = PlayerJumpIconRewind(frame: CGRect(
-            x: -iconOffset,
-            y: iconY, width: iconSize, height: iconSize
-        ))
-        self.forwardIcon = PlayerJumpIconForward(frame: CGRect(
-            x: self.bounds.width - iconSize + iconOffset,
-            y: iconY, width: iconSize, height: iconSize
-        ))
+        self.contentView.frame = self.bounds
+        self.contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+
+        // View & Subviews
+        self.artworkContainer.layer.shadowColor = UIColor.black.cgColor
+        self.artworkContainer.layer.shadowOffset = CGSize(width: 0.0, height: 4.0)
+        self.artworkContainer.layer.shadowOpacity = 0.15
+        self.artworkContainer.layer.shadowRadius = 12.0
 
         self.rewindIcon.alpha = self.jumpIconAlpha
         self.forwardIcon.alpha = self.jumpIconAlpha
 
-        self.artworkContainer = UIView(frame: self.bounds)
-
-        self.artworkImage = BPArtworkView(frame: self.bounds)
         self.artworkImage.clipsToBounds = false
         self.artworkImage.contentMode = .scaleAspectFit
         self.artworkImage.layer.cornerRadius = 6.0
         self.artworkImage.layer.masksToBounds = true
-
-        self.playPauseButton = UIButton(frame: self.bounds)
-        self.playPauseButton.addTarget(self, action: #selector(playPauseButtonTouchUpInside), for: .touchUpInside)
-        self.playPauseButton.adjustsImageWhenHighlighted = false
-
-        self.addSubview(self.rewindIcon)
-        self.addSubview(self.forwardIcon)
-        self.addSubview(self.artworkContainer)
-
-        self.artworkContainer.addSubview(self.artworkImage)
-        self.artworkContainer.addSubview(self.playPauseButton)
 
         // Gestures
         self.pan = UIPanGestureRecognizer(target: self, action: #selector(panAction))
@@ -162,8 +154,8 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         self.addGestureRecognizer(self.pan!)
     }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
+    override func layoutIfNeeded() {
+
     }
 
     func setTransformForJumpIcons() {
@@ -178,7 +170,7 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
 
     // MARK: - Actions
 
-    @objc private func playPauseButtonTouchUpInside() {
+    @IBAction private func playPauseButtonTouchUpInside() {
         self.onPlayPause?(self)
     }
 

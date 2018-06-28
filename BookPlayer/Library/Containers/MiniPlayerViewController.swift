@@ -10,11 +10,14 @@ import UIKit
 import MarqueeLabelSwift
 
 class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecognizerDelegate {
-    @IBOutlet private weak var background: UIView!
-    @IBOutlet private weak var artwork: UIImageView!
+    @IBOutlet private weak var miniPlayerBlur: UIVisualEffectView!
+    @IBOutlet private weak var miniPlayerContainer: UIView!
+    @IBOutlet private weak var artwork: BPArtworkView!
     @IBOutlet private weak var titleLabel: BPMarqueeLabel!
     @IBOutlet private weak var authorLabel: BPMarqueeLabel!
-    @IBOutlet weak var playPauseButton: UIButton!
+    @IBOutlet private weak var playPauseButton: UIButton!
+    @IBOutlet private weak var artworkWidth: NSLayoutConstraint!
+    @IBOutlet private weak var artworkHeight: NSLayoutConstraint!
 
     private let playImage = UIImage(named: "nowPlayingPlay")
     private let pauseImage = UIImage(named: "nowPlayingPause")
@@ -25,20 +28,33 @@ class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecogniz
 
     var book: Book? {
         didSet {
-            self.artwork.image = self.book?.artwork
-            self.authorLabel.text = self.book?.author
-            self.titleLabel.text = self.book?.title
-            self.titleLabel.textColor = self.book?.artworkColors.primary
-            self.authorLabel.textColor = self.book?.artworkColors.secondary
-            self.playPauseButton.tintColor = self.book?.artworkColors.tertiary
-            self.background.backgroundColor = self.book?.artworkColors.background
+            self.view.setNeedsLayout()
+
+            guard let book = self.book else {
+                return
+            }
+
+            self.artwork.image = book.artwork
+            self.authorLabel.text = book.author
+            self.titleLabel.text = book.title
+            self.titleLabel.textColor = book.artworkColors.primary
+            self.authorLabel.textColor = book.artworkColors.secondary
+            self.playPauseButton.tintColor = book.artworkColors.tertiary
+            self.miniPlayerContainer.backgroundColor = book.artworkColors.background.withAlphaComponent(book.artworkColors.displayOnDark ? 0.6 : 0.8)
+            self.miniPlayerBlur.effect = book.artworkColors.displayOnDark ? UIBlurEffect(style: UIBlurEffectStyle.dark) : UIBlurEffect(style: UIBlurEffectStyle.light)
+
+            let ratio = self.artwork.imageRatio
+
+            self.artworkHeight.constant = ratio > 1 ? 50.0 / ratio : 50.0
+            self.artworkWidth.constant = ratio < 1 ? 50.0 * ratio : 50.0
         }
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.background.layer.cornerRadius = 13.0
+        self.miniPlayerBlur.layer.cornerRadius = 13.0
+        self.miniPlayerBlur.layer.masksToBounds = true
 
         self.tap = UITapGestureRecognizer(target: self, action: #selector(tapAction))
         self.tap.cancelsTouchesInView = true
