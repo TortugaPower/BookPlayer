@@ -72,7 +72,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         DataManager.notifyPendingFiles()
     }
 
-    override func loadFile(urls: [URL]) {
+    override func loadFile(urls: [BookURL]) {
         DataManager.insertBooks(from: urls, into: self.library) {
             MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
             self.emptyLibraryPlaceholder.isHidden = !self.items.isEmpty

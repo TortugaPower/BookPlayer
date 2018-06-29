@@ -196,19 +196,20 @@ class DataManager {
      
      A book can't be in two places at once, so if it already existed, it will be removed from the original playlist or library, and it will be added to the new one.
      
-     - Parameter urls: `Book`s will be created for each element in this array
+     - Parameter bookUrls: `Book`s will be created for each element in this array
      - Parameter playlist: `Playlist` to which the created `Book` will be added
      - Parameter library: `Library` to which the created `Book` will be added if the parameter `playlist` is nil
      - Parameter completion: Closure fired after processing all the urls.
      */
-    class func insertBooks(from urls: [URL], into playlist: Playlist?, or library: Library, completion:@escaping () -> Void) {
+    class func insertBooks(from bookUrls: [BookURL], into playlist: Playlist?, or library: Library, completion:@escaping () -> Void) {
         DispatchQueue.global().async {
             let context = self.persistentContainer.viewContext
 
-            for url in urls {
+            for bookUrl in bookUrls {
+                let url = bookUrl.processed
                 // Check if book exists in the library
                 guard let item = library.getItem(with: url) else {
-                    let book = Book(from: url, context: context)
+                    let book = Book(from: bookUrl, context: context)
 
                     if let playlist = playlist {
                         playlist.addToBooks(book)
@@ -255,31 +256,31 @@ class DataManager {
     /**
      Creates a book for each URL and adds it to the library. A book can't be in two places at once, so it will be removed if it already existed in a playlist.
      
-     - Parameter urls: `Book`s will be created for each element in this array
+     - Parameter bookUrls: `Book`s will be created for each element in this array
      - Parameter library: `Library` to which the created `Book` will be added
      - Parameter completion: Closure fired after processing all the urls.
      */
-    class func insertBooks(from urls: [URL], into library: Library, completion:@escaping () -> Void) {
-        self.insertBooks(from: urls, into: nil, or: library, completion: completion)
+    class func insertBooks(from bookUrls: [BookURL], into library: Library, completion:@escaping () -> Void) {
+        self.insertBooks(from: bookUrls, into: nil, or: library, completion: completion)
     }
 
     /**
      Creates a book for each URL and adds it to the specified playlist. A book can't be in two places at once, so it will be removed from the library if it already existed.
      
-     - Parameter urls: `Book`s will be created for each element in this array
+     - Parameter bookUrls: `Book`s will be created for each element in this array
      - Parameter playlist: `Playlist` to which the created `Book` will be added
      - Parameter completion: Closure fired after processing all the urls.
      */
-    class func insertBooks(from urls: [URL], into playlist: Playlist, completion:@escaping () -> Void) {
-        self.insertBooks(from: urls, into: playlist, or: playlist.library!, completion: completion)
+    class func insertBooks(from bookUrls: [BookURL], into playlist: Playlist, completion:@escaping () -> Void) {
+        self.insertBooks(from: bookUrls, into: playlist, or: playlist.library!, completion: completion)
     }
 
     class func createPlaylist(title: String, books: [Book]) -> Playlist {
         return Playlist(title: title, books: books, context: self.persistentContainer.viewContext)
     }
 
-    class func createBook(from fileURL: URL) -> Book {
-        return Book(from: fileURL, context: self.persistentContainer.viewContext)
+    class func createBook(from bookUrl: BookURL) -> Book {
+        return Book(from: bookUrl, context: self.persistentContainer.viewContext)
     }
 
     internal class func insert(_ playlist: Playlist, into library: Library) {

@@ -132,10 +132,11 @@ class InsertBooksTests: DataManagerTests {
 
         // Add test file to Documents folder
         let fileUrl = self.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
+        let bookUrl = BookURL(original: fileUrl, processed: fileUrl)
 
         let expectation = XCTestExpectation(description: "Insert books into library")
 
-        DataManager.insertBooks(from: [fileUrl], into: library) {
+        DataManager.insertBooks(from: [bookUrl], into: library) {
 
             XCTAssert(library.items?.count == 1)
             expectation.fulfill()
@@ -153,12 +154,13 @@ class InsertBooksTests: DataManagerTests {
 
         // Add test file to Documents folder
         let fileUrl = self.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
+        let bookUrl = BookURL(original: fileUrl, processed: fileUrl)
 
         let expectation = XCTestExpectation(description: "Insert books into library")
 
-        DataManager.insertBooks(from: [fileUrl], into: library) {
+        DataManager.insertBooks(from: [bookUrl], into: library) {
             XCTAssert(library.items?.count == 1)
-            DataManager.insertBooks(from: [fileUrl], into: library) {
+            DataManager.insertBooks(from: [bookUrl], into: library) {
                 XCTAssert(library.items?.count == 1)
                 expectation.fulfill()
             }
@@ -178,11 +180,13 @@ class InsertBooksTests: DataManagerTests {
 
         // Add test files to Documents folder
         let file1Url = self.generateTestFile(name: filename1, contents: book1Contents, destinationFolder: documentsFolder)
+        let book1Url = BookURL(original: file1Url, processed: file1Url)
         let file2Url = self.generateTestFile(name: filename2, contents: book2Contents, destinationFolder: documentsFolder)
+        let book2Url = BookURL(original: file2Url, processed: file2Url)
 
         let expectation = XCTestExpectation(description: "Insert books into library")
 
-        DataManager.insertBooks(from: [file1Url, file2Url], into: library) {
+        DataManager.insertBooks(from: [book1Url, book2Url], into: library) {
 
             XCTAssert(library.items?.count == 2)
             expectation.fulfill()
@@ -219,13 +223,14 @@ class InsertBooksTests: DataManagerTests {
 
         // Add test file to Documents folder
         let fileUrl = self.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
+        let bookUrl = BookURL(original: fileUrl, processed: fileUrl)
 
         let expectation = XCTestExpectation(description: "Insert books into library")
 
         DataManager.insert(playlist, into: library)
         XCTAssert(library.items?.count == 1)
 
-        DataManager.insertBooks(from: [fileUrl], into: playlist) {
+        DataManager.insertBooks(from: [bookUrl], into: playlist) {
             XCTAssert(library.items?.count == 1)
             XCTAssert(playlist.books?.count == 1)
 
@@ -247,14 +252,16 @@ class InsertBooksTests: DataManagerTests {
 
         // Add test files to Documents folder
         let file1Url = self.generateTestFile(name: filename1, contents: book1Contents, destinationFolder: documentsFolder)
+        let book1Url = BookURL(original: file1Url, processed: file1Url)
         let file2Url = self.generateTestFile(name: filename2, contents: book2Contents, destinationFolder: documentsFolder)
+        let book2Url = BookURL(original: file2Url, processed: file2Url)
 
         DataManager.insert(playlist, into: library)
         XCTAssert(library.items?.count == 1)
 
         let expectation = XCTestExpectation(description: "Insert books into library")
 
-        DataManager.insertBooks(from: [file1Url, file2Url], into: playlist) {
+        DataManager.insertBooks(from: [book1Url, book2Url], into: playlist) {
 
             XCTAssert(library.items?.count == 1)
             XCTAssert(playlist.books?.count == 2)
@@ -275,17 +282,18 @@ class InsertBooksTests: DataManagerTests {
 
         // Add test file to Documents folder
         let fileUrl = self.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
+        let bookUrl = BookURL(original: fileUrl, processed: fileUrl)
 
         let expectation = XCTestExpectation(description: "Insert books into library")
 
         DataManager.insert(playlist, into: library)
         XCTAssert(library.items?.count == 1)
 
-        DataManager.insertBooks(from: [fileUrl], into: library) {
+        DataManager.insertBooks(from: [bookUrl], into: library) {
             XCTAssert(library.items?.count == 2)
             XCTAssert(playlist.books?.count == 0)
 
-            DataManager.insertBooks(from: [fileUrl], into: playlist, completion: {
+            DataManager.insertBooks(from: [bookUrl], into: playlist, completion: {
                 XCTAssert(library.items?.count == 1)
                 XCTAssert(playlist.books?.count == 1)
 
@@ -306,17 +314,18 @@ class InsertBooksTests: DataManagerTests {
 
         // Add test file to Documents folder
         let fileUrl = self.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
+        let bookUrl = BookURL(original: fileUrl, processed: fileUrl)
 
         let expectation = XCTestExpectation(description: "Insert books into library")
 
         DataManager.insert(playlist, into: library)
         XCTAssert(library.items?.count == 1)
 
-        DataManager.insertBooks(from: [fileUrl], into: playlist) {
+        DataManager.insertBooks(from: [bookUrl], into: playlist) {
             XCTAssert(library.items?.count == 1)
             XCTAssert(playlist.books?.count == 1)
 
-            DataManager.insertBooks(from: [fileUrl], into: library, completion: {
+            DataManager.insertBooks(from: [bookUrl], into: library, completion: {
                 XCTAssert(library.items?.count == 2)
                 XCTAssert(playlist.books?.count == 0)
 
@@ -338,6 +347,7 @@ class InsertBooksTests: DataManagerTests {
 
         // Add test file to Documents folder
         let fileUrl = self.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
+        let bookUrl = BookURL(original: fileUrl, processed: fileUrl)
 
         let expectation = XCTestExpectation(description: "Insert books into library")
 
@@ -345,12 +355,12 @@ class InsertBooksTests: DataManagerTests {
         DataManager.insert(playlist2, into: library)
         XCTAssert(library.items?.count == 2)
 
-        DataManager.insertBooks(from: [fileUrl], into: playlist1) {
+        DataManager.insertBooks(from: [bookUrl], into: playlist1) {
             XCTAssert(library.items?.count == 2)
             XCTAssert(playlist1.books?.count == 1)
             XCTAssert(playlist2.books?.count == 0)
 
-            DataManager.insertBooks(from: [fileUrl], into: playlist2, completion: {
+            DataManager.insertBooks(from: [bookUrl], into: playlist2, completion: {
                 XCTAssert(library.items?.count == 2)
                 XCTAssert(playlist1.books?.count == 0)
                 XCTAssert(playlist2.books?.count == 1)
