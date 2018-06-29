@@ -11,6 +11,11 @@ import Foundation
 import CoreData
 import AVFoundation
 
+struct BookURL {
+    var original: URL
+    var processed: URL
+}
+
 public class Book: LibraryItem {
     var fileURL: URL {
         return DataManager.getProcessedFolderURL().appendingPathComponent(self.identifier)
@@ -66,9 +71,10 @@ public class Book: LibraryItem {
         }
     }
 
-    convenience init(from fileURL: URL, context: NSManagedObjectContext) {
+    convenience init(from bookUrl: BookURL, context: NSManagedObjectContext) {
         let entity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
         self.init(entity: entity, insertInto: context)
+        let fileURL = bookUrl.processed
         self.ext = fileURL.pathExtension
         self.identifier = fileURL.lastPathComponent
         let asset = AVAsset(url: fileURL)
@@ -76,7 +82,7 @@ public class Book: LibraryItem {
         let titleFromMeta = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyTitle, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String
         let authorFromMeta = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtist, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String
 
-        self.title = titleFromMeta ?? fileURL.lastPathComponent.replacingOccurrences(of: "_", with: " ")
+        self.title = titleFromMeta ?? bookUrl.original.lastPathComponent.replacingOccurrences(of: "_", with: " ")
         self.author = authorFromMeta ?? "Unknown Author"
         self.duration = CMTimeGetSeconds(asset.duration)
 

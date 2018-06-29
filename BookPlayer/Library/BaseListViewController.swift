@@ -172,7 +172,7 @@ class BaseListViewController: UIViewController {
         self.tableView.reloadData()
     }
 
-    @objc func loadFile(urls: [URL]) {
+    func loadFile(urls: [BookURL]) {
         fatalError("loadFiles must be overriden")
     }
 
@@ -206,11 +206,13 @@ class BaseListViewController: UIViewController {
 
         let destinationFolder = DataManager.getProcessedFolderURL()
 
-        DataManager.processFile(at: fileURL, destinationFolder: destinationFolder) { (bookUrl) in
-            guard let bookUrl = bookUrl else {
+        DataManager.processFile(at: fileURL, destinationFolder: destinationFolder) { (processedURL) in
+            guard let processedURL = processedURL else {
                 MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
                 return
             }
+
+            let bookUrl = BookURL(original: fileURL, processed: processedURL)
             self.loadFile(urls: [bookUrl])
         }
     }

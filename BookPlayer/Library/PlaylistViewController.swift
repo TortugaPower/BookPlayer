@@ -28,7 +28,7 @@ class PlaylistViewController: BaseListViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(self.openURL(_:)), name: Notification.Name.AudiobookPlayer.playlistOpenURL, object: nil)
     }
 
-    override func loadFile(urls: [URL]) {
+    override func loadFile(urls: [BookURL]) {
         DataManager.insertBooks(from: urls, into: self.playlist) {
             NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.reloadData, object: nil)
             self.tableView.reloadData()
