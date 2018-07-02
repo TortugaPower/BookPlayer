@@ -29,11 +29,12 @@ class PlaylistViewController: BaseListViewController {
     }
 
     override func loadFile(urls: [BookURL]) {
-        DataManager.insertBooks(from: urls, into: self.playlist) {
-            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.reloadData, object: nil)
-            self.tableView.reloadData()
-            self.emptyPlaylistPlaceholder.isHidden = !self.items.isEmpty
-            MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
+        self.queue.addOperation {
+            DataManager.insertBooks(from: urls, into: self.playlist) {
+                NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.reloadData, object: nil)
+                self.tableView.reloadData()
+                self.emptyPlaylistPlaceholder.isHidden = !self.items.isEmpty
+            }
         }
     }
 

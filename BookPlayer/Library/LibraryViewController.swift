@@ -73,10 +73,11 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
     }
 
     override func loadFile(urls: [BookURL]) {
-        DataManager.insertBooks(from: urls, into: self.library) {
-            MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
-            self.emptyLibraryPlaceholder.isHidden = !self.items.isEmpty
-            self.tableView.reloadData()
+        self.queue.addOperation {
+            DataManager.insertBooks(from: urls, into: self.library) {
+                self.emptyLibraryPlaceholder.isHidden = !self.items.isEmpty
+                self.tableView.reloadData()
+            }
         }
     }
 
