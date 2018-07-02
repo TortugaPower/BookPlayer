@@ -19,6 +19,8 @@
                 <outlet property="contentView" destination="iN0-l3-epB" id="voY-pw-1zj"/>
                 <outlet property="forwardIcon" destination="6cy-7G-42S" id="NVB-er-7r7"/>
                 <outlet property="playPauseButton" destination="eBX-C3-3ce" id="Owy-s4-dRu"/>
+                <outlet property="playPauseButtonHeight" destination="6Ck-Qq-gnO" id="CgN-pl-WUu"/>
+                <outlet property="playPauseButtonWidth" destination="BhJ-SY-3ph" id="5Nb-AQ-LNs"/>
                 <outlet property="rewindIcon" destination="5e7-tW-iQd" id="o4s-xk-HQZ"/>
             </connections>
         </placeholder>
@@ -62,18 +64,15 @@
                         </button>
                     </subviews>
                     <constraints>
-                        <constraint firstItem="eBX-C3-3ce" firstAttribute="leading" secondItem="38X-b3-v6y" secondAttribute="leading" id="23o-eW-dwE"/>
-                        <constraint firstAttribute="trailing" secondItem="eBX-C3-3ce" secondAttribute="trailing" id="2ta-Qm-Azo"/>
                         <constraint firstItem="b1B-eO-wd8" firstAttribute="centerX" secondItem="38X-b3-v6y" secondAttribute="centerX" id="623-gb-h8J"/>
-                        <constraint firstItem="eBX-C3-3ce" firstAttribute="height" secondItem="38X-b3-v6y" secondAttribute="height" id="6Ck-Qq-gnO"/>
-                        <constraint firstItem="eBX-C3-3ce" firstAttribute="width" secondItem="38X-b3-v6y" secondAttribute="width" id="BhJ-SY-3ph"/>
-                        <constraint firstItem="eBX-C3-3ce" firstAttribute="top" secondItem="38X-b3-v6y" secondAttribute="top" id="LzI-C4-pQD"/>
+                        <constraint firstItem="eBX-C3-3ce" firstAttribute="height" secondItem="b1B-eO-wd8" secondAttribute="height" id="6Ck-Qq-gnO"/>
+                        <constraint firstItem="eBX-C3-3ce" firstAttribute="width" secondItem="b1B-eO-wd8" secondAttribute="width" priority="750" id="BhJ-SY-3ph"/>
                         <constraint firstItem="b1B-eO-wd8" firstAttribute="centerY" secondItem="38X-b3-v6y" secondAttribute="centerY" id="bcV-fF-bGn"/>
-                        <constraint firstAttribute="bottom" secondItem="eBX-C3-3ce" secondAttribute="bottom" id="fIa-eP-dcv"/>
                     </constraints>
                 </view>
             </subviews>
             <constraints>
+                <constraint firstItem="eBX-C3-3ce" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" id="09S-XA-Xvg"/>
                 <constraint firstItem="38X-b3-v6y" firstAttribute="height" secondItem="iN0-l3-epB" secondAttribute="height" id="24y-oW-qiT"/>
                 <constraint firstItem="38X-b3-v6y" firstAttribute="centerX" secondItem="vUN-kp-3ea" secondAttribute="centerX" id="4pK-UC-UFU"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="6cy-7G-42S" secondAttribute="trailing" id="8rK-lS-9RU"/>
@@ -82,6 +81,7 @@
                 <constraint firstItem="5e7-tW-iQd" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" id="Ybi-fz-Sbn"/>
                 <constraint firstItem="5e7-tW-iQd" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="eW5-rK-FxM"/>
                 <constraint firstItem="38X-b3-v6y" firstAttribute="width" secondItem="iN0-l3-epB" secondAttribute="width" id="fPh-xl-Sdg"/>
+                <constraint firstItem="eBX-C3-3ce" firstAttribute="centerX" secondItem="vUN-kp-3ea" secondAttribute="centerX" id="spx-FO-obt"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
