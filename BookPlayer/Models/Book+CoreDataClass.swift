@@ -99,11 +99,12 @@ public class Book: LibraryItem {
 
         self.setChapters(from: asset, context: context)
 
-        let storedTime = UserDefaults.standard.double(forKey: self.identifier)
+        let legacyIdentifier = bookUrl.original.lastPathComponent
+        let storedTime = UserDefaults.standard.double(forKey: legacyIdentifier)
         //migration of time
         if storedTime > 0 {
             self.currentTime = storedTime
-            UserDefaults.standard.removeObject(forKey: self.identifier)
+            UserDefaults.standard.removeObject(forKey: legacyIdentifier)
         }
     }
 }

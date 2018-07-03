@@ -202,7 +202,6 @@ class DataManager {
      - Parameter completion: Closure fired after processing all the urls.
      */
     class func insertBooks(from bookUrls: [BookURL], into playlist: Playlist?, or library: Library, completion:@escaping () -> Void) {
-        DispatchQueue.global().async {
             let context = self.persistentContainer.viewContext
 
             for bookUrl in bookUrls {
@@ -250,7 +249,6 @@ class DataManager {
             DispatchQueue.main.async {
                 completion()
             }
-        }
     }
 
     /**

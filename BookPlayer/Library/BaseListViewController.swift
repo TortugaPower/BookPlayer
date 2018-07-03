@@ -23,6 +23,9 @@ class BaseListViewController: UIViewController {
         return self.library.items?.array as? [LibraryItem] ?? []
     }
 
+    let queue = OperationQueue()
+    var token: NSKeyValueObservation?
+
     @IBOutlet weak var tableView: UITableView!
 
     // keep in memory current Documents folder
@@ -30,6 +33,17 @@ class BaseListViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        self.queue.maxConcurrentOperationCount = 1
+        self.token = self.queue.observe(\.operationCount) { (opQueue, change) in
+            guard opQueue.operationCount == 0 else {
+                return
+            }
+
+            DispatchQueue.main.async {
+                MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
+            }
+        }
 
         self.tableView.register(UINib(nibName: "BookCellView", bundle: nil), forCellReuseIdentifier: "BookCellView")
         self.tableView.register(UINib(nibName: "AddCellView", bundle: nil), forCellReuseIdentifier: "AddCellView")
