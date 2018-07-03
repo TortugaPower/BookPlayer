@@ -105,7 +105,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        if !UserDefaults.standard.bool(forKey: UserDefaultsConstants.artworkJumpControlsUsed) {
+        if !self.artworkJumpControlsUsed {
             self.artworkControl.nudgeArtworkViewAnimated(0.5, duration: 0.3)
         }
     }

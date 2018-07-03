@@ -160,14 +160,11 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         self.pan = UIPanGestureRecognizer(target: self, action: #selector(panAction))
         self.pan.delegate = self
         self.pan.maximumNumberOfTouches = 1
-        self.pan.cancelsTouchesInView = true
 
         self.addGestureRecognizer(self.pan!)
 
         self.tap = UITapGestureRecognizer(target: self, action: #selector(tapAction))
         self.tap.delegate = self
-        self.tap.numberOfTapsRequired = 1
-        self.tap.numberOfTouchesRequired = 1
 
         self.addGestureRecognizer(self.tap)
     }
