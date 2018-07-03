@@ -62,10 +62,18 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         return duration
     }
 
+    private var artworkJumpControlsUsed: Bool = false {
+        didSet {
+            UserDefaults.standard.set(self.artworkJumpControlsUsed, forKey: UserDefaultsConstants.artworkJumpControlsUsed)
+        }
+    }
+
     // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        self.artworkJumpControlsUsed = UserDefaults.standard.bool(forKey: UserDefaultsConstants.artworkJumpControlsUsed)
 
         self.artworkControl.isPlaying = PlayerManager.shared.isPlaying
         self.artworkControl.onPlayPause = { control in
@@ -75,9 +83,17 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         }
         self.artworkControl.onRewind = { _ in
             PlayerManager.shared.rewind()
+
+            if !self.artworkJumpControlsUsed {
+                self.artworkJumpControlsUsed = true
+            }
         }
         self.artworkControl.onForward = { _ in
             PlayerManager.shared.forward()
+
+            if !self.artworkJumpControlsUsed {
+                self.artworkJumpControlsUsed = true
+            }
         }
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPlay), name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
@@ -86,8 +102,12 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         NotificationCenter.default.addObserver(self, selector: #selector(self.onPlayback), name: Notification.Name.AudiobookPlayer.bookPlaying, object: nil)
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        if !self.artworkJumpControlsUsed {
+            self.artworkControl.nudgeArtworkViewAnimated(0.5, duration: 0.3)
+        }
     }
 
     // MARK: - Notification Handlers

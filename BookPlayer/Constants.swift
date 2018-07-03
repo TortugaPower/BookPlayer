@@ -18,4 +18,6 @@ struct UserDefaultsConstants {
 
     static let rewindInterval = "userSettingsRewindInterval"
     static let forwardInterval = "userSettingsForwardInterval"
+
+    static let artworkJumpControlsUsed = "userSettingsArtworkJumpControlsUsed"
 }

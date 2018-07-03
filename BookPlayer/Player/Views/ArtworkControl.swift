@@ -19,11 +19,14 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     @IBOutlet private weak var artworkImage: BPArtworkView!
     @IBOutlet weak var artworkWidth: NSLayoutConstraint!
     @IBOutlet weak var artworkHeight: NSLayoutConstraint!
+    @IBOutlet weak var playPauseButtonWidth: NSLayoutConstraint!
+    @IBOutlet weak var playPauseButtonHeight: NSLayoutConstraint!
 
     private let playImage = UIImage(named: "playerIconPlay")
     private let pauseImage = UIImage(named: "playerIconPause")
 
     private var pan: UIPanGestureRecognizer!
+    private var tap: UITapGestureRecognizer!
 
     // Based on the design files for iPhone X where the regular artwork is 325dp and the paused state is 255dp in width
     private let artworkScalePaused: CGFloat = 255.0 / 325.0
@@ -85,6 +88,11 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         didSet {
             self.playPauseButton.setImage(self.isPlaying ? self.pauseImage : self.playImage, for: UIControlState())
 
+            let scale = self.isPlaying ? 1.0 : self.artworkScalePaused
+
+            self.playPauseButtonWidth.constant = self.artworkWidth.constant * scale - self.artworkWidth.constant
+            self.playPauseButtonHeight.constant = self.artworkHeight.constant * scale - self.artworkHeight.constant
+
             UIView.animate(
                 withDuration: 0.25,
                 delay: 0.0,
@@ -92,11 +100,9 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
                 initialSpringVelocity: 1.4,
                 options: .preferredFramesPerSecond60,
                 animations: {
-                    if self.isPlaying {
-                        self.artworkImage.transform = .identity
-                    } else {
-                        self.artworkImage.transform = CGAffineTransform(scaleX: self.artworkScalePaused, y: self.artworkScalePaused)
-                    }
+                    self.artworkImage.transform = CGAffineTransform(scaleX: scale, y: scale)
+
+                    self.playPauseButton.layoutIfNeeded()
 
                     self.setTransformForJumpIcons()
                 }
@@ -145,17 +151,22 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         self.artworkImage.layer.cornerRadius = 6.0
         self.artworkImage.layer.masksToBounds = true
 
+        let scale = self.isPlaying ? 1.0 : self.artworkScalePaused
+
+        self.playPauseButtonWidth.constant = self.artworkWidth.constant * scale - self.artworkWidth.constant
+        self.playPauseButtonHeight.constant = self.artworkHeight.constant * scale - self.artworkHeight.constant
+
         // Gestures
         self.pan = UIPanGestureRecognizer(target: self, action: #selector(panAction))
         self.pan.delegate = self
         self.pan.maximumNumberOfTouches = 1
-        self.pan.cancelsTouchesInView = true
 
         self.addGestureRecognizer(self.pan!)
-    }
 
-    override func layoutIfNeeded() {
+        self.tap = UITapGestureRecognizer(target: self, action: #selector(tapAction))
+        self.tap.delegate = self
 
+        self.addGestureRecognizer(self.tap)
     }
 
     func setTransformForJumpIcons() {
@@ -254,7 +265,7 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         }
     }
 
-    func resetArtworkViewHorizontalConstraintAnimated() {
+    private func resetArtworkViewHorizontalConstraintAnimated() {
         UIView.animate(
             withDuration: 0.3,
             delay: 0.0,
@@ -276,6 +287,14 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         self.triggeredPanAction = false
     }
 
+    func nudgeArtworkViewAnimated(_ direction: CGFloat = 1.0, duration: TimeInterval = 0.15) {
+        UIView.animate(withDuration: duration, delay: 0.0, options: .curveEaseOut, animations: {
+            self.updateArtworkViewForTranslation(self.jumpIconOffset * direction)
+        }, completion: { _ in
+            self.resetArtworkViewHorizontalConstraintAnimated()
+        })
+    }
+
     @objc private func panAction(gestureRecognizer: UIPanGestureRecognizer) {
         guard gestureRecognizer.isEqual(self.pan) else {
             return
@@ -294,6 +313,23 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
                 self.resetArtworkViewHorizontalConstraintAnimated()
 
             case .possible: break
+        }
+    }
+
+    @objc private func tapAction(gestureRecognizer: UITapGestureRecognizer) {
+        guard gestureRecognizer.isEqual(self.tap) else {
+            return
+        }
+
+        if gestureRecognizer.state == .ended {
+            let touch = gestureRecognizer.location(in: self)
+            let inset = -self.jumpIconOffset
+
+            if self.rewindIcon.frame.insetBy(dx: inset, dy: inset).contains(touch) {
+                self.nudgeArtworkViewAnimated(0.5)
+            } else if self.forwardIcon.frame.insetBy(dx: inset, dy: inset).contains(touch) {
+                self.nudgeArtworkViewAnimated(-0.5)
+            }
         }
     }
 }
