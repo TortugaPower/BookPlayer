@@ -209,7 +209,8 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
         actionSheet.addAction(UIAlertAction(title: "Mark as Finished", style: .default, handler: { _ in
             PlayerManager.shared.pause()
-            PlayerManager.shared.jumpTo(0.0, fromEnd: true)
+            // Player resets back to 0.0 if currentTime is set to player's duration
+            PlayerManager.shared.jumpTo(0.1, fromEnd: true)
 
             self.requestReview()
         }))
