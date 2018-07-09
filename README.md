@@ -1,25 +1,20 @@
-![BookPlayer](./.github/readme-header.png)
+[![BookPlayer - A wonderful player for your M4B/M4A/MP3 based audiobooks.](./.github/readme-header@2x.png)](https://itunes.apple.com/us/app/bookplayer-audio-book-player/id1138219998?ls=1&amp;mt=8)
 
-<p align="center">A wonderful player for your DRM-free audiobooks made in Swift and your help.</p>
 <p align="center">
     <a href="https://itunes.apple.com/us/app/bookplayer-audio-book-player/id1138219998?ls=1&amp;mt=8">
         <img src="./.github/app-store-badge.svg" alt="Download on the App Store">
     </a>
 </p>
-<p align="center">
-    <img src="./.github/list_screenshot.png" width="350" />
-    <img src="./.github/player_screenshot.png" width="350" />
-</p>
 
-
+[![Four screenshots of BookPlayer on the iPhone X. Showing Player, Import options, the Library and, a playlist](./.github/readme-screenshots@2x.png)](https://itunes.apple.com/us/app/bookplayer-audio-book-player/id1138219998?ls=1&amp;mt=8)
 
 ## Features
 
 ### Import
 
-- Using [AirDrop](https://support.apple.com/en-us/HT204144#receive)
+- Using [AirDrop](https://support.apple.com/en-us/HT204144#receive)  from your Mac or iOS device
 - From [Files](https://support.apple.com/en-us/ht206481) and other apps on your device
-- Via [File Sharing](https://support.apple.com/en-us/HT201301) in iTunes
+- Via [File Sharing](https://support.apple.com/en-us/HT201301) in iTunes on your Mac or PC
 
 ### Manage 
 
@@ -37,8 +32,8 @@
 - Play and navigate books with Chapters
 - Jump to start of the current book
 - Change playback speed
-- Smart rewind: Automatically go back when the player was paused for a bit longer
-- Volume Boost: Doubles the volume
+- Smart rewind
+- Volume Boost
 - Support for remote events from headset buttons and the lock screen
 - Sleep timer with adjustable duration
 
@@ -51,6 +46,8 @@ See [our Roadmap on GitHub](https://github.com/GianniCarlo/Audiobook-Player/proj
 ## Contributing
 
 Pull requests and ideas are always welcomed. Please [open an issue](https://github.com/GianniCarlo/Audiobook-Player/issues/new) if you have any suggestions or found a bug. 👍 See our [Contribution Guidelines](./CONTRIBUTING.md) for details.
+
+If you enjoy BookPlayer, we would be glad if you consider writing a review on the [App Store.](https://itunes.apple.com/us/app/bookplayer-audio-book-player/id1138219998?ls=1&amp;mt=8)
 
 ### Maintainers
 
