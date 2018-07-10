@@ -85,7 +85,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                         <sections>
-                            <tableViewSection footerTitle="Rewind 60 seconds after being paused for 10 minutes." id="hFg-8W-o0V">
+                            <tableViewSection footerTitle="Rewind 30 seconds after being paused for 10 minutes." id="hFg-8W-o0V">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" id="H9n-PB-WOS">
                                         <rect key="frame" x="0.0" y="35" width="375" height="44"/>
