@@ -120,6 +120,20 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
     }
 
     func handleDelete(playlist: Playlist, indexPath: IndexPath) {
+        if playlist.books?.count == 0 {
+            self.library.removeFromItems(playlist)
+
+            DataManager.saveContext()
+
+            self.tableView.beginUpdates()
+            self.tableView.deleteRows(at: [indexPath], with: .none)
+            self.tableView.endUpdates()
+
+            self.emptyLibraryPlaceholder.isHidden = !self.items.isEmpty
+
+            return
+        }
+
         let sheet = UIAlertController(
             title: "Delete \(playlist.title!)?",
             message: "Deleting only the playlist will move all its files back to the Library.",
@@ -132,6 +146,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             if let orderedSet = playlist.books {
                 self.library.addToItems(orderedSet)
             }
+
             self.library.removeFromItems(playlist)
             DataManager.saveContext()
 
@@ -143,6 +158,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
 
         sheet.addAction(UIAlertAction(title: "Delete both playlist and books", style: .destructive, handler: { _ in
             self.library.removeFromItems(playlist)
+
             DataManager.saveContext()
 
             // swiftlint:disable force_cast
@@ -219,7 +235,14 @@ extension LibraryViewController {
         let item = self.items[indexPath.row]
 
         // "…" on a button indicates a follow up dialog instead of an immmediate action in macOS and iOS
-        let deleteAction = UITableViewRowAction(style: .default, title: "Delete…") { (_, indexPath) in
+        var title = "Delete…"
+
+        // Remove the dots if trying to delete an empty playlist
+        if item is Playlist {
+            title = ((item as! Playlist).books?.count ?? 0) > 0 ? title : "Delete"
+        }
+
+        let deleteAction = UITableViewRowAction(style: .default, title: title) { (_, indexPath) in
             guard let book = self.items[indexPath.row] as? Book else {
                 guard let playlist = self.items[indexPath.row] as? Playlist else {
                     return
