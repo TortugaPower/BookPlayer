@@ -16,6 +16,10 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
 
     private var pan: UIPanGestureRecognizer!
 
+    var miniPlayerIsHidden: Bool {
+        return self.miniPlayerContainer.isHidden
+    }
+
     // MARK: - Lifecycle
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
