@@ -35,7 +35,8 @@ class BaseListViewController: UIViewController {
         super.viewDidLoad()
 
         self.queue.maxConcurrentOperationCount = 1
-        self.token = self.queue.observe(\.operationCount) { (opQueue, change) in
+
+        self.token = self.queue.observe(\.operationCount) { (opQueue, _) in
             guard opQueue.operationCount == 0 else {
                 return
             }
@@ -57,20 +58,19 @@ class BaseListViewController: UIViewController {
         self.tableView.reorder.shadowRadius = 8.0
         self.tableView.reorder.animationDuration = 0.15
 
+        // The bottom offset has to be adjusted for the miniplayer as the notification doing this would be sent before the current VC was created
+        self.adjustBottomOffsetForMiniPlayer()
+
         // Remove the line after the last cell
         self.tableView.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.size.width, height: 1))
 
-        // fixed tableview having strange offset
+        // Fixed tableview having strange offset
         self.edgesForExtendedLayout = UIRectEdge()
 
-        // register notifications when the book is ready
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookReady), name: Notification.Name.AudiobookPlayer.bookReady, object: nil)
-
-        // register for percentage change notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.updateProgress(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
-
-        NotificationCenter.default.addObserver(self, selector: #selector(self.dismissMiniPlayer), name: Notification.Name.AudiobookPlayer.playerPresented, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.presentMiniPlayer), name: Notification.Name.AudiobookPlayer.playerDismissed, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.adjustBottomOffsetForMiniPlayer), name: Notification.Name.AudiobookPlayer.playerPresented, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.adjustBottomOffsetForMiniPlayer), name: Notification.Name.AudiobookPlayer.playerDismissed, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPlay), name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookStop(_:)), name: Notification.Name.AudiobookPlayer.bookStopped, object: nil)
@@ -113,12 +113,10 @@ class BaseListViewController: UIViewController {
         bookCell.playbackState = .stopped
     }
 
-    @objc func presentMiniPlayer() {
-        self.tableView.contentInset.bottom = 88.0
-    }
-
-    @objc func dismissMiniPlayer() {
-        self.tableView.contentInset.bottom = 0.0
+    @objc func adjustBottomOffsetForMiniPlayer() {
+        if let rootViewController = self.parent?.parent as? RootViewController {
+            self.tableView.contentInset.bottom = rootViewController.miniPlayerIsHidden ? 0.0 : 88.0
+        }
     }
 
     func presentImportFilesAlert() {
