@@ -144,6 +144,11 @@ class BaseListViewController: UIViewController {
     }
 
     func setupPlayer(books: [Book]) {
+        // Stop setup if no books are passed
+        if books.isEmpty {
+            return
+        }
+
         // Make sure player is for a different book
         let book = books.first!
 
