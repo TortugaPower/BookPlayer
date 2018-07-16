@@ -10,7 +10,7 @@ import UIKit
 import MBProgressHUD
 
 class PlaylistViewController: BaseListViewController {
-    @IBOutlet private weak var emptyPlaylistPlaceholder: UIView!
+    @IBOutlet private weak var emptyStatePlaceholder: UIView!
 
     var playlist: Playlist!
 
@@ -21,11 +21,23 @@ class PlaylistViewController: BaseListViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.emptyPlaylistPlaceholder.isHidden = !self.items.isEmpty
+        self.toggleEmptyStateView()
 
         self.navigationItem.title = playlist.title
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.openURL(_:)), name: Notification.Name.AudiobookPlayer.playlistOpenURL, object: nil)
+    }
+
+    fileprivate func toggleEmptyStateView() {
+        guard let placeholder = self.emptyStatePlaceholder else {
+            return
+        }
+
+        if self.items.isEmpty {
+            self.view.addSubview(placeholder)
+        } else {
+            placeholder.removeFromSuperview()
+        }
     }
 
     override func loadFile(urls: [BookURL]) {
@@ -33,7 +45,8 @@ class PlaylistViewController: BaseListViewController {
             DataManager.insertBooks(from: urls, into: self.playlist) {
                 NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.reloadData, object: nil)
                 self.tableView.reloadData()
-                self.emptyPlaylistPlaceholder.isHidden = !self.items.isEmpty
+
+                self.toggleEmptyStateView()
             }
         }
     }
@@ -155,6 +168,8 @@ extension PlaylistViewController {
                 self.tableView.deleteRows(at: [indexPath], with: .none)
                 self.tableView.endUpdates()
 
+                self.toggleEmptyStateView()
+
                 NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.reloadData, object: nil)
             }))
 
@@ -172,6 +187,8 @@ extension PlaylistViewController {
                 self.tableView.beginUpdates()
                 self.tableView.deleteRows(at: [indexPath], with: .none)
                 self.tableView.endUpdates()
+
+                self.toggleEmptyStateView()
 
                 NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.reloadData, object: nil)
             }))
