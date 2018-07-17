@@ -9,16 +9,30 @@
 import UIKit
 
 extension UIImage {
-    func averageColor() -> UIColor {
+    func averageColor() -> UIColor? {
         var bitmap = [UInt8](repeating: 0, count: 4)
+        var inputImage: CIImage
+
+        if let ciImage = self.ciImage {
+            inputImage = ciImage
+        } else if let cgImage = self.cgImage {
+            inputImage = CoreImage.CIImage(cgImage: cgImage)
+        } else {
+            return nil
+        }
 
         // Get average color.
         let context = CIContext()
-        let inputImage: CIImage = ciImage ?? CoreImage.CIImage(cgImage: cgImage!)
         let extent = inputImage.extent
         let inputExtent = CIVector(x: extent.origin.x, y: extent.origin.y, z: extent.size.width, w: extent.size.height)
-        let filter = CIFilter(name: "CIAreaAverage", withInputParameters: [kCIInputImageKey: inputImage, kCIInputExtentKey: inputExtent])!
-        let outputImage = filter.outputImage!
+
+        guard
+            let filter = CIFilter(name: "CIAreaAverage", withInputParameters: [kCIInputImageKey: inputImage, kCIInputExtentKey: inputExtent]),
+            let outputImage = filter.outputImage
+        else {
+            return nil
+        }
+
         let outputExtent = outputImage.extent
 
         assert(outputExtent.size.width == 1 && outputExtent.size.height == 1)
