@@ -11,11 +11,7 @@ import MediaPlayer
 import MBProgressHUD
 import SwiftReorder
 
-// swiftlint:disable file_length
-
 class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate {
-    @IBOutlet private weak var emptyStatePlaceholder: UIView!
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -58,18 +54,6 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         //for iOS 8
         NotificationCenter.default.removeObserver(self)
         UIApplication.shared.endReceivingRemoteControlEvents()
-    }
-
-    fileprivate func toggleEmptyStateView() {
-        guard let placeholder = self.emptyStatePlaceholder else {
-            return
-        }
-
-        if self.items.isEmpty {
-            self.view.addSubview(placeholder)
-        } else {
-            placeholder.removeFromSuperview()
-        }
     }
 
     /**

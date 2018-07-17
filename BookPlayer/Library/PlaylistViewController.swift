@@ -10,8 +10,6 @@ import UIKit
 import MBProgressHUD
 
 class PlaylistViewController: BaseListViewController {
-    @IBOutlet private weak var emptyStatePlaceholder: UIView!
-
     var playlist: Playlist!
 
     override var items: [LibraryItem] {
@@ -26,18 +24,6 @@ class PlaylistViewController: BaseListViewController {
         self.navigationItem.title = playlist.title
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.openURL(_:)), name: Notification.Name.AudiobookPlayer.playlistOpenURL, object: nil)
-    }
-
-    fileprivate func toggleEmptyStateView() {
-        guard let placeholder = self.emptyStatePlaceholder else {
-            return
-        }
-
-        if self.items.isEmpty {
-            self.view.addSubview(placeholder)
-        } else {
-            placeholder.removeFromSuperview()
-        }
     }
 
     override func loadFile(urls: [BookURL]) {

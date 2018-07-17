@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="1tN-zP-ONE">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
     <dependencies>
+        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
         <capability name="Alignment constraints with different attributes" minToolsVersion="5.1"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
@@ -16,7 +20,7 @@
                     <simulatedStatusBarMetrics key="simulatedStatusBarMetrics" statusBarStyle="lightContent"/>
                     <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" largeTitles="YES" id="il0-XD-ghB">
-                        <rect key="frame" x="0.0" y="44" width="375" height="96"/>
+                        <rect key="frame" x="0.0" y="20" width="375" height="96"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>
@@ -32,17 +36,17 @@
             <objects>
                 <viewController storyboardIdentifier="RootViewController" title="Audiobook lists" id="1tN-zP-ONE" customClass="RootViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="EqL-FA-MOg">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dvy-x5-s6P">
-                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <connections>
                                     <segue destination="Him-vk-TAg" kind="embed" id="HlL-id-B7p"/>
                                 </connections>
                             </containerView>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="b0f-6G-C7c">
-                                <rect key="frame" x="0.0" y="512" width="600" height="88"/>
+                                <rect key="frame" x="0.0" y="579" width="375" height="88"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="88" id="0k2-Tp-H9K"/>
                                 </constraints>
@@ -77,7 +81,7 @@
             <objects>
                 <tableViewController id="Obf-Zy-aDj" customClass="SettingsViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="grouped" separatorStyle="default" rowHeight="44" sectionHeaderHeight="18" sectionFooterHeight="18" id="s9V-BX-jf4">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="1000"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="936"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                         <sections>
@@ -340,11 +344,11 @@ Use with caution and care for your hearing.</string>
             <objects>
                 <viewController title="Credits" id="eTr-hb-OZz" customClass="CreditsViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="DOS-Ie-z6Q">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="603"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" showsHorizontalScrollIndicator="NO" bouncesZoom="NO" editable="NO" usesAttributedText="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0gZ-Hp-XwC">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="603"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <attributedString key="attributedText">
@@ -375,7 +379,7 @@ Use with caution and care for your hearing.</string>
             <objects>
                 <tableViewController title="Direction" id="xfk-r8-Q1z" customClass="SkipDurationViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="iRa-Rg-G0f">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="603"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <prototypes>
@@ -412,7 +416,7 @@ Use with caution and care for your hearing.</string>
             <objects>
                 <navigationController id="1sN-GG-oUw" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translucent="NO" id="VaH-zu-yOi">
-                        <rect key="frame" x="0.0" y="44" width="375" height="44"/>
+                        <rect key="frame" x="0.0" y="20" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>
@@ -428,11 +432,11 @@ Use with caution and care for your hearing.</string>
             <objects>
                 <viewController storyboardIdentifier="PlaylistViewController" id="XZ8-Ha-OZN" customClass="PlaylistViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="BcY-tC-kA6">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="603"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" layoutMarginsFollowReadableWidth="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="86" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="vLB-vm-W2L">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="748"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="603"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <connections>
                                     <outlet property="dataSource" destination="XZ8-Ha-OZN" id="40o-Dz-ATL"/>
@@ -451,7 +455,7 @@ Use with caution and care for your hearing.</string>
                     </view>
                     <navigationItem key="navigationItem" title="Playlist" largeTitleDisplayMode="never" id="izI-Pl-Rnt"/>
                     <connections>
-                        <outlet property="emptyStatePlaceholder" destination="S0r-5S-fT7" id="dlr-Ts-xGW"/>
+                        <outlet property="emptyStatePlaceholder" destination="S0r-5S-fT7" id="d1Y-st-qzo"/>
                         <outlet property="tableView" destination="vLB-vm-W2L" id="upg-Nh-j6W"/>
                     </connections>
                 </viewController>
@@ -641,11 +645,11 @@ Use with caution and care for your hearing.</string>
             <objects>
                 <viewController storyboardIdentifier="LibraryViewController" id="Zuf-4A-dOY" customClass="LibraryViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="ceD-ne-FWj">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="551"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" layoutMarginsFollowReadableWidth="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="86" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="392-ii-NXF">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="696"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="551"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <connections>
                                     <outlet property="dataSource" destination="Zuf-4A-dOY" id="FHZ-Z9-5Zb"/>
@@ -670,7 +674,7 @@ Use with caution and care for your hearing.</string>
                         </barButtonItem>
                     </navigationItem>
                     <connections>
-                        <outlet property="emptyStatePlaceholder" destination="xYN-SW-g2w" id="Bgt-6L-28S"/>
+                        <outlet property="emptyStatePlaceholder" destination="xYN-SW-g2w" id="DGN-cI-ss6"/>
                         <outlet property="tableView" destination="392-ii-NXF" id="A9h-ev-SKj"/>
                         <segue destination="XZ8-Ha-OZN" kind="show" identifier="PlaylistSegue" id="jLU-AX-Vgv"/>
                     </connections>
