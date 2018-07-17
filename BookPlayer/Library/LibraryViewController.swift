@@ -11,6 +11,8 @@ import MediaPlayer
 import MBProgressHUD
 import SwiftReorder
 
+// swiftlint:disable file_length
+
 class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -109,6 +111,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             self.tableView.beginUpdates()
             self.tableView.deleteRows(at: [indexPath], with: .none)
             self.tableView.endUpdates()
+
             self.toggleEmptyStateView()
         }))
 
@@ -128,7 +131,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             self.tableView.deleteRows(at: [indexPath], with: .none)
             self.tableView.endUpdates()
 
-            self.emptyLibraryPlaceholder.isHidden = !self.items.isEmpty
+            self.toggleEmptyStateView()
 
             return
         }

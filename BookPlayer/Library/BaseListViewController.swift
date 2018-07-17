@@ -68,6 +68,10 @@ class BaseListViewController: UIViewController {
         // Fixed tableview having strange offset
         self.edgesForExtendedLayout = UIRectEdge()
 
+        // Prepare empty states
+        self.view.addSubview(self.emptyStatePlaceholder)
+        self.toggleEmptyStateView()
+
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookReady), name: Notification.Name.AudiobookPlayer.bookReady, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.updateProgress(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.adjustBottomOffsetForMiniPlayer), name: Notification.Name.AudiobookPlayer.playerPresented, object: nil)
@@ -121,15 +125,7 @@ class BaseListViewController: UIViewController {
     }
 
     func toggleEmptyStateView() {
-        guard let placeholder = self.emptyStatePlaceholder else {
-            return
-        }
-
-        if self.items.isEmpty {
-            self.view.addSubview(placeholder)
-        } else {
-            placeholder.removeFromSuperview()
-        }
+        self.emptyStatePlaceholder.isHidden = !self.items.isEmpty
     }
 
     func presentImportFilesAlert() {
