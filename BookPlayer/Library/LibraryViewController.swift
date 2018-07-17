@@ -120,7 +120,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
     }
 
     func handleDelete(playlist: Playlist, indexPath: IndexPath) {
-        if playlist.books?.count == 0 {
+        guard playlist.hasBooks() else {
             self.library.removeFromItems(playlist)
 
             DataManager.saveContext()
@@ -238,8 +238,8 @@ extension LibraryViewController {
         var title = "Delete…"
 
         // Remove the dots if trying to delete an empty playlist
-        if item is Playlist {
-            title = ((item as! Playlist).books?.count ?? 0) > 0 ? title : "Delete"
+        if let playlist = item as? Playlist {
+            title = playlist.hasBooks() ? title: "Delete"
         }
 
         let deleteAction = UITableViewRowAction(style: .default, title: title) { (_, indexPath) in
