@@ -42,6 +42,14 @@ public class Playlist: LibraryItem {
         return totalProgress / totalDuration
     }
 
+    func hasBooks() -> Bool {
+        guard let books = self.books else {
+            return false
+        }
+
+        return books.count > 0
+    }
+
     func getRemainingBooks() -> [Book] {
         guard
             let books = self.books?.array as? [Book], let firstUnfinishedBook = books.first(where: { (book) -> Bool in
