@@ -10,8 +10,6 @@ import UIKit
 import MBProgressHUD
 
 class PlaylistViewController: BaseListViewController {
-    @IBOutlet private weak var emptyPlaylistPlaceholder: UIView!
-
     var playlist: Playlist!
 
     override var items: [LibraryItem] {
@@ -21,7 +19,7 @@ class PlaylistViewController: BaseListViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.emptyPlaylistPlaceholder.isHidden = !self.items.isEmpty
+        self.toggleEmptyStateView()
 
         self.navigationItem.title = playlist.title
 
@@ -33,7 +31,8 @@ class PlaylistViewController: BaseListViewController {
             DataManager.insertBooks(from: urls, into: self.playlist) {
                 NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.reloadData, object: nil)
                 self.tableView.reloadData()
-                self.emptyPlaylistPlaceholder.isHidden = !self.items.isEmpty
+
+                self.toggleEmptyStateView()
             }
         }
     }
@@ -155,6 +154,8 @@ extension PlaylistViewController {
                 self.tableView.deleteRows(at: [indexPath], with: .none)
                 self.tableView.endUpdates()
 
+                self.toggleEmptyStateView()
+
                 NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.reloadData, object: nil)
             }))
 
@@ -172,6 +173,8 @@ extension PlaylistViewController {
                 self.tableView.beginUpdates()
                 self.tableView.deleteRows(at: [indexPath], with: .none)
                 self.tableView.endUpdates()
+
+                self.toggleEmptyStateView()
 
                 NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.reloadData, object: nil)
             }))

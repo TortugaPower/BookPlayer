@@ -11,9 +11,9 @@ import MediaPlayer
 import MBProgressHUD
 import SwiftReorder
 
-class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate {
-    @IBOutlet weak var emptyLibraryPlaceholder: UIView!
+// swiftlint:disable file_length
 
+class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -65,8 +65,8 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
     func loadLibrary() {
         self.library = DataManager.getLibrary()
 
-        //show/hide instructions view
-        self.emptyLibraryPlaceholder.isHidden = !self.items.isEmpty
+        self.toggleEmptyStateView()
+
         self.tableView.reloadData()
 
         DataManager.notifyPendingFiles()
@@ -75,7 +75,8 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
     override func loadFile(urls: [BookURL]) {
         self.queue.addOperation {
             DataManager.insertBooks(from: urls, into: self.library) {
-                self.emptyLibraryPlaceholder.isHidden = !self.items.isEmpty
+                self.toggleEmptyStateView()
+
                 self.tableView.reloadData()
             }
         }
@@ -110,7 +111,8 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             self.tableView.beginUpdates()
             self.tableView.deleteRows(at: [indexPath], with: .none)
             self.tableView.endUpdates()
-            self.emptyLibraryPlaceholder.isHidden = !self.items.isEmpty
+
+            self.toggleEmptyStateView()
         }))
 
         alert.popoverPresentationController?.sourceView = self.view
@@ -129,7 +131,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             self.tableView.deleteRows(at: [indexPath], with: .none)
             self.tableView.endUpdates()
 
-            self.emptyLibraryPlaceholder.isHidden = !self.items.isEmpty
+            self.toggleEmptyStateView()
 
             return
         }
@@ -153,7 +155,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             self.tableView.beginUpdates()
             self.tableView.reloadSections(IndexSet(integer: 0), with: .fade)
             self.tableView.endUpdates()
-            self.emptyLibraryPlaceholder.isHidden = !self.items.isEmpty
+            self.toggleEmptyStateView()
         }))
 
         sheet.addAction(UIAlertAction(title: "Delete both playlist and books", style: .destructive, handler: { _ in
@@ -169,7 +171,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             self.tableView.beginUpdates()
             self.tableView.deleteRows(at: [indexPath], with: .none)
             self.tableView.endUpdates()
-            self.emptyLibraryPlaceholder.isHidden = !self.items.isEmpty
+            self.toggleEmptyStateView()
         }))
 
         self.present(sheet, animated: true, completion: nil)
@@ -216,7 +218,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
                 DataManager.saveContext()
 
                 self.tableView.reloadData()
-                self.emptyLibraryPlaceholder.isHidden = true
+                self.toggleEmptyStateView()
             })
         })
 
@@ -334,6 +336,7 @@ extension LibraryViewController {
 
         return bookCell
     }
+
     override func tableView(_ tableView: UITableView, reorderRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         guard destinationIndexPath.section == 0 else {
             return

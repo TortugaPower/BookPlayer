@@ -12,6 +12,8 @@ import MBProgressHUD
 import SwiftReorder
 
 class BaseListViewController: UIViewController {
+    @IBOutlet weak var emptyStatePlaceholder: UIView!
+
     var library: Library!
 
     // TableView's datasource
@@ -51,7 +53,6 @@ class BaseListViewController: UIViewController {
 
         self.tableView.reorder.delegate = self
         self.tableView.reorder.cellScale = 1.07
-
         self.tableView.reorder.shadowColor = UIColor.black
         self.tableView.reorder.shadowOffset = CGSize(width: 0.0, height: 3.0)
         self.tableView.reorder.shadowOpacity = 0.25
@@ -66,6 +67,10 @@ class BaseListViewController: UIViewController {
 
         // Fixed tableview having strange offset
         self.edgesForExtendedLayout = UIRectEdge()
+
+        // Prepare empty states
+        self.view.addSubview(self.emptyStatePlaceholder)
+        self.toggleEmptyStateView()
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookReady), name: Notification.Name.AudiobookPlayer.bookReady, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.updateProgress(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
@@ -117,6 +122,10 @@ class BaseListViewController: UIViewController {
         if let rootViewController = self.parent?.parent as? RootViewController {
             self.tableView.contentInset.bottom = rootViewController.miniPlayerIsHidden ? 0.0 : 88.0
         }
+    }
+
+    func toggleEmptyStateView() {
+        self.emptyStatePlaceholder.isHidden = !self.items.isEmpty
     }
 
     func presentImportFilesAlert() {
