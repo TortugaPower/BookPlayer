@@ -97,17 +97,19 @@
                                                 <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="GRM-ck-C3M">
                                                     <rect key="frame" x="310" y="6.5" width="51" height="31"/>
                                                 </switch>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Smart Rewind" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="91L-H1-SIU">
-                                                    <rect key="frame" x="16" y="12" width="111" height="21"/>
-                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Smart Rewind" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="91L-H1-SIU">
+                                                    <rect key="frame" x="16" y="12" width="286" height="21"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>
                                             <constraints>
+                                                <constraint firstItem="GRM-ck-C3M" firstAttribute="leading" secondItem="91L-H1-SIU" secondAttribute="trailing" constant="8" id="7IB-KG-cHs"/>
                                                 <constraint firstAttribute="trailing" secondItem="GRM-ck-C3M" secondAttribute="trailing" constant="16" id="9Sb-aX-4dG"/>
+                                                <constraint firstItem="91L-H1-SIU" firstAttribute="leading" secondItem="T2l-f0-ioE" secondAttribute="leading" constant="16" id="YtE-B9-4tl"/>
                                                 <constraint firstItem="GRM-ck-C3M" firstAttribute="centerY" secondItem="T2l-f0-ioE" secondAttribute="centerY" id="gFp-3V-qyC"/>
+                                                <constraint firstItem="91L-H1-SIU" firstAttribute="centerY" secondItem="T2l-f0-ioE" secondAttribute="centerY" id="hcu-i1-Szf"/>
                                             </constraints>
                                         </tableViewCellContentView>
                                     </tableViewCell>
@@ -127,9 +129,8 @@ Use with caution and care for your hearing.</string>
                                                 <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7Ar-pG-gpq">
                                                     <rect key="frame" x="310" y="6" width="51" height="31"/>
                                                 </switch>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Boost Volume" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6V2-Er-pk0">
-                                                    <rect key="frame" x="16" y="12" width="106" height="21"/>
-                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Boost Volume" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6V2-Er-pk0">
+                                                    <rect key="frame" x="16" y="12" width="286" height="21"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
@@ -137,7 +138,10 @@ Use with caution and care for your hearing.</string>
                                             </subviews>
                                             <constraints>
                                                 <constraint firstItem="7Ar-pG-gpq" firstAttribute="centerY" secondItem="Ptk-qm-LCx" secondAttribute="centerY" id="3Y1-JA-QMg"/>
+                                                <constraint firstItem="6V2-Er-pk0" firstAttribute="leading" secondItem="Ptk-qm-LCx" secondAttribute="leading" constant="16" id="GIh-Mx-BsJ"/>
+                                                <constraint firstItem="6V2-Er-pk0" firstAttribute="centerY" secondItem="Ptk-qm-LCx" secondAttribute="centerY" id="bbV-Qv-FIV"/>
                                                 <constraint firstAttribute="trailing" secondItem="7Ar-pG-gpq" secondAttribute="trailing" constant="16" id="kTu-dg-EYL"/>
+                                                <constraint firstItem="7Ar-pG-gpq" firstAttribute="leading" secondItem="6V2-Er-pk0" secondAttribute="trailing" constant="8" id="u3d-xh-Ww7"/>
                                             </constraints>
                                         </tableViewCellContentView>
                                     </tableViewCell>
@@ -155,9 +159,8 @@ Use with caution and care for your hearing.</string>
                                                 <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="a2u-ef-Ser">
                                                     <rect key="frame" x="310" y="6.5" width="51" height="31"/>
                                                 </switch>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Global Speed Control" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1jI-r7-r0u">
-                                                    <rect key="frame" x="16" y="12" width="163" height="21"/>
-                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Global Speed Control" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1jI-r7-r0u">
+                                                    <rect key="frame" x="16" y="12" width="286" height="21"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
@@ -165,7 +168,10 @@ Use with caution and care for your hearing.</string>
                                             </subviews>
                                             <constraints>
                                                 <constraint firstItem="a2u-ef-Ser" firstAttribute="centerY" secondItem="7Ka-LA-7va" secondAttribute="centerY" id="49Q-90-wku"/>
+                                                <constraint firstItem="1jI-r7-r0u" firstAttribute="leading" secondItem="7Ka-LA-7va" secondAttribute="leading" constant="16" id="AFZ-Vl-rYV"/>
+                                                <constraint firstItem="1jI-r7-r0u" firstAttribute="centerY" secondItem="7Ka-LA-7va" secondAttribute="centerY" id="LcC-VH-sgR"/>
                                                 <constraint firstAttribute="trailing" secondItem="a2u-ef-Ser" secondAttribute="trailing" constant="16" id="g9e-0q-vFF"/>
+                                                <constraint firstItem="a2u-ef-Ser" firstAttribute="leading" secondItem="1jI-r7-r0u" secondAttribute="trailing" constant="8" id="j7J-ve-6rl"/>
                                             </constraints>
                                         </tableViewCellContentView>
                                     </tableViewCell>
@@ -337,7 +343,7 @@ Use with caution and care for your hearing.</string>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="010-9W-Z0T" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="473" y="957"/>
+            <point key="canvasLocation" x="472.80000000000001" y="956.22188905547239"/>
         </scene>
         <!--Credits-->
         <scene sceneID="dMs-na-OfN">

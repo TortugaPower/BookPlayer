@@ -77,7 +77,7 @@
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="KGD-om-Msu"/>
-                                    <barButtonItem title="Timer" image="toolbarIconTimer" id="FYz-g6-orv">
+                                    <barButtonItem title="Timer" image="toolbarIconTimer" largeContentSizeImage="toolbarIconTimer" width="23" id="FYz-g6-orv">
                                         <connections>
                                             <action selector="setSleepTimer" destination="Sd0-Pz-hUD" id="HtO-Yt-R1e"/>
                                         </connections>
@@ -88,14 +88,14 @@
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="1HZ-gc-6DC"/>
-                                    <barButtonItem title="Chapters" image="toolbarIconChapters" id="NBy-Nn-5LY">
+                                    <barButtonItem title="Chapters" image="toolbarIconChapters" largeContentSizeImage="toolbarIconChapters" id="NBy-Nn-5LY">
                                         <connections>
                                             <action selector="didSelectChapter:" destination="Sd0-Pz-hUD" id="Ybs-R7-348"/>
                                             <segue destination="wJP-at-zgg" kind="presentation" identifier="ChapterSelectionSegue" id="YGU-7Y-fWR"/>
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="M8S-cO-boc"/>
-                                    <barButtonItem title="More" image="toolbarIconMore" id="Fsd-fw-HAo">
+                                    <barButtonItem title="More" image="toolbarIconMore" largeContentSizeImage="toolbarIconMore" id="Fsd-fw-HAo">
                                         <connections>
                                             <action selector="showMore" destination="Sd0-Pz-hUD" id="Ddo-nq-AC9"/>
                                         </connections>
