@@ -11,6 +11,10 @@ import Foundation
 import CoreData
 import ColorCube
 
+enum ArtworkColorsError: Error {
+    case averageColorFailed
+}
+
 public class ArtworkColors: NSManagedObject {
     var background: UIColor {
         return UIColor(hex: self.backgroundHex)
@@ -25,44 +29,49 @@ public class ArtworkColors: NSManagedObject {
         return UIColor(hex: self.tertiaryHex)
     }
     // W3C recommends contrast values larger 4 or 7 (strict), but 3.0 should be fine for our use case
-    convenience init(from image: UIImage,
-                     context: NSManagedObjectContext,
-                     darknessThreshold: CGFloat = 0.2,
-                     minimumContrastRatio: CGFloat = 3.0) {
-        let entity = NSEntityDescription.entity(forEntityName: "ArtworkColors", in: context)!
-        self.init(entity: entity, insertInto: context)
+    convenience init(from image: UIImage, context: NSManagedObjectContext, darknessThreshold: CGFloat = 0.2, minimumContrastRatio: CGFloat = 3.0) {
+        do {
+            let entity = NSEntityDescription.entity(forEntityName: "ArtworkColors", in: context)!
 
-        let colorCube = CCColorCube()
-        var colors: [UIColor] = colorCube.extractColors(from: image, flags: CCOnlyDistinctColors, count: 4)!
+            self.init(entity: entity, insertInto: context)
 
-        let averageColor = image.averageColor()
-        let displayOnDark = averageColor.luminance < darknessThreshold
+            let colorCube = CCColorCube()
+            var colors: [UIColor] = colorCube.extractColors(from: image, flags: CCOnlyDistinctColors, count: 4)!
 
-        colors.sort { (color1: UIColor, color2: UIColor) -> Bool in
-            if displayOnDark {
-                return color1.isDarker(than: color2)
+            guard let averageColor = image.averageColor() else {
+                throw ArtworkColorsError.averageColorFailed
             }
 
-            return color1.isLighter(than: color2)
+            let displayOnDark = averageColor.luminance < darknessThreshold
+
+            colors.sort { (color1: UIColor, color2: UIColor) -> Bool in
+                if displayOnDark {
+                    return color1.isDarker(than: color2)
+                }
+
+                return color1.isLighter(than: color2)
+            }
+
+            let backgroundColor: UIColor = colors[0]
+
+            colors = colors.map { (color: UIColor) -> UIColor in
+                let ratio = color.contrastRatio(with: backgroundColor)
+
+                if ratio > minimumContrastRatio || color == backgroundColor {
+                    return color
+                }
+
+                if displayOnDark {
+                    return color.overlayWhite
+                }
+
+                return color.overlayBlack
+            }
+
+            self.setColorsFromArray(colors, displayOnDark: displayOnDark)
+        } catch {
+            self.setColorsFromArray()
         }
-
-        let backgroundColor: UIColor = colors[0]
-
-        colors = colors.map { (color: UIColor) -> UIColor in
-            let ratio = color.contrastRatio(with: backgroundColor)
-
-            if ratio > minimumContrastRatio || color == backgroundColor {
-                return color
-            }
-
-            if displayOnDark {
-                return color.overlayWhite
-            }
-
-            return color.overlayBlack
-        }
-
-        self.setColorsFromArray(colors, displayOnDark: displayOnDark)
     }
 
     func setColorsFromArray(_ colors: [UIColor] = [], displayOnDark: Bool = false) {
