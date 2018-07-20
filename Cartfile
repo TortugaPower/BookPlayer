@@ -4,3 +4,4 @@ github "pixelogik/ColorCube" "master"
 github "dennisweissmann/DeviceKit" ~> 1.7
 github "GianniCarlo/SwiftReorder"
 github "iosdevzone/IDZSwiftCommonCrypto"
+github "GianniCarlo/DirectoryWatcher"
