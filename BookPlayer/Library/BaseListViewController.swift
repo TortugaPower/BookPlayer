@@ -25,6 +25,8 @@ class BaseListViewController: UIViewController {
         return self.library.items?.array as? [LibraryItem] ?? []
     }
 
+    var processingUrls = [URL]()
+
     let queue = OperationQueue()
     var token: NSKeyValueObservation?
 
@@ -224,10 +226,12 @@ class BaseListViewController: UIViewController {
 
     @objc func openURL(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
-            let fileURL = userInfo["fileURL"] as? URL else {
+            let fileURL = userInfo["fileURL"] as? URL,
+            !self.processingUrls.contains(fileURL) else {
                 return
         }
 
+        self.processingUrls.append(fileURL)
         MBProgressHUD.showAdded(to: self.view, animated: true)
 
         let destinationFolder = DataManager.getProcessedFolderURL()
@@ -240,6 +244,10 @@ class BaseListViewController: UIViewController {
 
             let bookUrl = BookURL(original: fileURL, processed: processedURL)
             self.loadFile(urls: [bookUrl])
+
+            if let index = self.processingUrls.index(where: { $0 == fileURL }) {
+                self.processingUrls.remove(at: index)
+            }
         }
     }
 }
