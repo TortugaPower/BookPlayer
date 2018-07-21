@@ -53,6 +53,8 @@
 		C318D3AD208CF624000666F8 /* PlayerJumpIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = C318D3AC208CF624000666F8 /* PlayerJumpIcon.swift */; };
 		C318DDBC20A48D4700C3A17B /* BPMarqueeLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C318DDBB20A48D4700C3A17B /* BPMarqueeLabel.swift */; };
 		C318DDBF20A4DC7500C3A17B /* DeviceKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C318DDBE20A4DC7500C3A17B /* DeviceKit.framework */; };
+		C31D8CFD2103BEE80010BAAC /* ImportCellView.xib in Resources */ = {isa = PBXBuildFile; fileRef = C31D8CFC2103BEE80010BAAC /* ImportCellView.xib */; };
+		C31D8CFF2103BF1F0010BAAC /* ImportCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31D8CFE2103BF1F0010BAAC /* ImportCellView.swift */; };
 		C33E843C20C6E179004A0489 /* ItemProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = C33E843B20C6E179004A0489 /* ItemProgress.swift */; };
 		C359C30720A9F35B00A626E3 /* SkipDurationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C359C30620A9F35B00A626E3 /* SkipDurationViewController.swift */; };
 		C36C4D5C20A23E1800AFDB76 /* MiniPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C36C4D5B20A23E1800AFDB76 /* MiniPlayerViewController.swift */; };
@@ -150,6 +152,8 @@
 		C318D3AC208CF624000666F8 /* PlayerJumpIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerJumpIcon.swift; sourceTree = "<group>"; };
 		C318DDBB20A48D4700C3A17B /* BPMarqueeLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPMarqueeLabel.swift; sourceTree = "<group>"; };
 		C318DDBE20A4DC7500C3A17B /* DeviceKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DeviceKit.framework; path = Carthage/Build/iOS/DeviceKit.framework; sourceTree = "<group>"; };
+		C31D8CFC2103BEE80010BAAC /* ImportCellView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ImportCellView.xib; sourceTree = "<group>"; };
+		C31D8CFE2103BF1F0010BAAC /* ImportCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportCellView.swift; sourceTree = "<group>"; };
 		C33E843B20C6E179004A0489 /* ItemProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemProgress.swift; sourceTree = "<group>"; };
 		C359C30620A9F35B00A626E3 /* SkipDurationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkipDurationViewController.swift; sourceTree = "<group>"; };
 		C35BADE7206989E6007687C1 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
@@ -362,9 +366,11 @@
 			children = (
 				C398559B20C492FF00BE9EC0 /* AddButton.swift */,
 				C3FE94782080086800BCEA37 /* BookCellView.swift */,
+				C31D8CFE2103BF1F0010BAAC /* ImportCellView.swift */,
 				C33E843B20C6E179004A0489 /* ItemProgress.swift */,
 				4165EE0920A7A33500616EDF /* AddCellView.xib */,
 				4165EE0A20A7A33500616EDF /* BookCellView.xib */,
+				C31D8CFC2103BEE80010BAAC /* ImportCellView.xib */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -501,6 +507,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C31D8CFD2103BEE80010BAAC /* ImportCellView.xib in Resources */,
 				418B6D081D2707F800F974FB /* LaunchScreen.storyboard in Resources */,
 				C3D3852720C1E73E00A0ACC7 /* Player.storyboard in Resources */,
 				C37A6873209F0F830063AEAC /* Credits.html in Resources */,
@@ -593,6 +600,7 @@
 				413616401D2E21F000E48944 /* LibraryViewController.swift in Sources */,
 				418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */,
 				4165EDFE20A743D500616EDF /* Chapter+CoreDataClass.swift in Sources */,
+				C31D8CFF2103BF1F0010BAAC /* ImportCellView.swift in Sources */,
 				C30EEEBF2079645C00A4ED33 /* PlayerContainerViewController.swift in Sources */,
 				C318D3AD208CF624000666F8 /* PlayerJumpIcon.swift in Sources */,
 				C37A6875209F13120063AEAC /* CreditsViewController.swift in Sources */,
