@@ -9,11 +9,13 @@
 import UIKit
 import AVFoundation
 import MediaPlayer
+import DirectoryWatcher
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     var wasPlayingBeforeInterruption: Bool = false
+    var watcher: DirectoryWatcher?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
@@ -47,6 +49,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // register for remote events
         self.setupMPRemoteCommands()
+        // register document's folder listener
+        self.setupDocumentListener()
 
         return true
     }
@@ -205,6 +209,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // End seeking
             PlayerManager.shared.rewind()
             return .success
+        }
+    }
+
+    func setupDocumentListener() {
+        let documentsUrl = DataManager.getDocumentsFolderURL()
+        self.watcher = DirectoryWatcher.watch(documentsUrl) {
+            DataManager.notifyPendingFiles()
         }
     }
 }
