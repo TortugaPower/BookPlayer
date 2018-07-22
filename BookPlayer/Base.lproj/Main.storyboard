@@ -85,7 +85,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                         <sections>
-                            <tableViewSection footerTitle="Automatically play the next book in the Library, skipping playlists." id="YLy-Rk-fIy">
+                            <tableViewSection footerTitle="Continue playback with the next item in the Library" id="YLy-Rk-fIy">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" id="f1p-yi-x9V">
                                         <rect key="frame" x="0.0" y="35" width="375" height="44"/>
@@ -118,7 +118,7 @@
                             <tableViewSection footerTitle="Rewind 30 seconds after being paused for 10 minutes." id="hFg-8W-o0V">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" id="H9n-PB-WOS">
-                                        <rect key="frame" x="0.0" y="143" width="375" height="44"/>
+                                        <rect key="frame" x="0.0" y="127" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="H9n-PB-WOS" id="T2l-f0-ioE">
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
@@ -150,7 +150,7 @@
 Use with caution and care for your hearing.</string>
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="Rmd-i9-27M">
-                                        <rect key="frame" x="0.0" y="235" width="375" height="44"/>
+                                        <rect key="frame" x="0.0" y="219" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Rmd-i9-27M" id="Ptk-qm-LCx">
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
@@ -180,7 +180,7 @@ Use with caution and care for your hearing.</string>
                             <tableViewSection footerTitle="Set speed across all books" id="m1C-Hc-XNX">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="D6c-Xu-4Yz">
-                                        <rect key="frame" x="0.0" y="343" width="375" height="44"/>
+                                        <rect key="frame" x="0.0" y="327" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="D6c-Xu-4Yz" id="7Ka-LA-7va">
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
@@ -210,7 +210,7 @@ Use with caution and care for your hearing.</string>
                             <tableViewSection headerTitle="Skip intervals" footerTitle="Adjust the amount skipped when dragging the album cover or using the buttons in the control center." id="c3d-4x-D7h">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="none" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" textLabel="kzd-Ve-2tk" detailTextLabel="YHN-bf-bbj" style="IBUITableViewCellStyleValue1" id="2Zw-Ec-cPD">
-                                        <rect key="frame" x="0.0" y="462.5" width="375" height="44"/>
+                                        <rect key="frame" x="0.0" y="446.5" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="2Zw-Ec-cPD" id="KC5-ZM-Cer">
                                             <rect key="frame" x="0.0" y="0.0" width="341" height="43.5"/>
@@ -237,7 +237,7 @@ Use with caution and care for your hearing.</string>
                                         </connections>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="none" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" textLabel="0Ag-hn-3yj" detailTextLabel="Da8-2T-k0b" style="IBUITableViewCellStyleValue1" id="NH7-Ub-4B0">
-                                        <rect key="frame" x="0.0" y="506.5" width="375" height="44"/>
+                                        <rect key="frame" x="0.0" y="490.5" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="NH7-Ub-4B0" id="XzD-v6-EnJ">
                                             <rect key="frame" x="0.0" y="0.0" width="341" height="43.5"/>
@@ -268,7 +268,7 @@ Use with caution and care for your hearing.</string>
                             <tableViewSection headerTitle="Support" id="ayL-5Z-O5B">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" textLabel="ZIh-S5-rG2" detailTextLabel="2cd-u0-EbM" rowHeight="50" style="IBUITableViewCellStyleSubtitle" id="PcX-Q6-nTx">
-                                        <rect key="frame" x="0.0" y="634.5" width="375" height="50"/>
+                                        <rect key="frame" x="0.0" y="618.5" width="375" height="50"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="PcX-Q6-nTx" id="Vnu-PP-RHh">
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="49.5"/>
@@ -296,7 +296,7 @@ Use with caution and care for your hearing.</string>
                                         </accessibility>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" textLabel="fjz-qr-8eq" detailTextLabel="q0Y-GP-ZUv" rowHeight="50" style="IBUITableViewCellStyleSubtitle" id="yry-fO-71W">
-                                        <rect key="frame" x="0.0" y="684.5" width="375" height="50"/>
+                                        <rect key="frame" x="0.0" y="668.5" width="375" height="50"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="yry-fO-71W" id="wVG-jM-nVz">
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="49.5"/>
@@ -328,7 +328,7 @@ Use with caution and care for your hearing.</string>
                             <tableViewSection id="Zgg-yq-5sL">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="krc-kL-l61" style="IBUITableViewCellStyleDefault" id="sgZ-av-Xee">
-                                        <rect key="frame" x="0.0" y="770.5" width="375" height="44"/>
+                                        <rect key="frame" x="0.0" y="754.5" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="sgZ-av-Xee" id="ZfA-JD-rX3">
                                             <rect key="frame" x="0.0" y="0.0" width="341" height="43.5"/>

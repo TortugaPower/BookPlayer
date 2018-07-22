@@ -11,6 +11,8 @@ import MediaPlayer
 import MBProgressHUD
 import SwiftReorder
 
+// swiftlint:disable file_length
+
 class BaseListViewController: UIViewController {
     @IBOutlet weak var emptyStatePlaceholder: UIView!
 
@@ -152,23 +154,57 @@ class BaseListViewController: UIViewController {
         }
     }
 
-    func setupPlayer(books: [Book]) {
-        // Stop setup if no books are passed
+    func queueBooksForPlayback(_ startItem: LibraryItem, forceAutoplay: Bool = false) -> [Book] {
+        var books = [Book]()
+        let isPlaylist = startItem is Playlist
+        let shouldAutoplayLibrary = UserDefaults.standard.bool(forKey: UserDefaultsConstants.autoplayEnabled)
+        let shouldAutoplay = (isPlaylist || shouldAutoplayLibrary || forceAutoplay)
+
+        guard let book = startItem as? Book else {
+            return books
+        }
+
+        books.append(book)
+
+        guard
+            shouldAutoplay,
+            let remainingItems = self.items.split(whereSeparator: { $0 == startItem }).last
+            else {
+                return books
+        }
+
+        for item in remainingItems {
+            if let playlist = item as? Playlist, let playlistBooks = playlist.books?.array as? [Book] {
+                for book in playlistBooks {
+                    books.append(book)
+                }
+            } else if let book = item as? Book {
+                books.append(book)
+            }
+        }
+
+        return books
+    }
+
+    func setupPlayer(books: [Book] = []) {
+        // Stop setup if no books were found
         if books.isEmpty {
             return
         }
 
         // Make sure player is for a different book
-        let book = books.first!
-
-        guard let currentBook = PlayerManager.shared.currentBook, currentBook.fileURL == book.fileURL else {
+        guard
+            let firstBook = books.first,
+            let currentBook = PlayerManager.shared.currentBook,
+            currentBook == firstBook
+        else {
             // Handle loading new player
             self.loadPlayer(books: books)
 
             return
         }
 
-        self.showPlayerView(book: book)
+        self.showPlayerView(book: currentBook)
     }
 
     func loadPlayer(books: [Book]) {
@@ -283,7 +319,11 @@ extension BaseListViewController: UITableViewDataSource {
             cell.progress = book.progress
 
             cell.onArtworkTap = { [weak self] in
-                self?.setupPlayer(books: [book])
+                guard let books = self?.queueBooksForPlayback(item) else {
+                    return
+                }
+
+                self?.setupPlayer(books: books)
             }
         } else if let playlist = item as? Playlist {
             cell.subtitle = playlist.info()

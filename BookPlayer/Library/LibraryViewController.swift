@@ -37,7 +37,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             let index = playlist.itemIndex(with: identifier) {
             books = playlist.getBooks(from: index)
         } else if let lastPlayedBook = item as? Book {
-            books.append(lastPlayedBook)
+            books = self.queueBooksForPlayback(lastPlayedBook)
         }
 
         // Preload player
@@ -302,22 +302,30 @@ extension LibraryViewController {
             return
         }
 
-        let item = self.items[indexPath.row]
-
-        guard let book = item as? Book else {
-            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-
-            if let playlist = item as? Playlist, let playlistVC = storyboard.instantiateViewController(withIdentifier: "PlaylistViewController") as? PlaylistViewController {
-                playlistVC.library = self.library
-                playlistVC.playlist = playlist
-
-                self.navigationController?.pushViewController(playlistVC, animated: true)
-            }
+        if let playlist = self.items[indexPath.row] as? Playlist {
+            self.presentPlaylist(playlist)
 
             return
         }
 
-        self.setupPlayer(books: [book])
+        if let book = self.items[indexPath.row] as? Book {
+            let books = self.queueBooksForPlayback(book)
+
+            self.setupPlayer(books: books)
+        }
+    }
+
+    private func presentPlaylist(_ playlist: Playlist) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+
+        guard let playlistVC = storyboard.instantiateViewController(withIdentifier: "PlaylistViewController") as? PlaylistViewController else {
+            return
+        }
+
+        playlistVC.library = self.library
+        playlistVC.playlist = playlist
+
+        self.navigationController?.pushViewController(playlistVC, animated: true)
     }
 }
 
