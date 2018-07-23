@@ -175,9 +175,7 @@ class BaseListViewController: UIViewController {
 
         for item in remainingItems {
             if let playlist = item as? Playlist, let playlistBooks = playlist.books?.array as? [Book] {
-                for book in playlistBooks {
-                    books.append(book)
-                }
+                books.append(contentsOf: playlistBooks)
             } else if let book = item as? Book {
                 books.append(book)
             }
