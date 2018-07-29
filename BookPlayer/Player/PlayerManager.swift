@@ -406,17 +406,20 @@ extension PlayerManager: AVAudioPlayerDelegate {
 
         self.update()
 
-        guard let slicedCurrentBooks = self.currentBooks?.dropFirst(),
-            !slicedCurrentBooks.isEmpty else {
+        guard let slicedCurrentBooks = self.currentBooks?.dropFirst(), !slicedCurrentBooks.isEmpty else {
             return
         }
 
         let currentBooks = Array(slicedCurrentBooks)
 
-        load(currentBooks, completion: { (_) in
+        self.load(currentBooks, completion: { (_) in
             let userInfo = ["books": currentBooks]
 
-            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookChange, object: nil, userInfo: userInfo)
+            NotificationCenter.default.post(
+                name: Notification.Name.AudiobookPlayer.bookChange,
+                object: nil,
+                userInfo: userInfo
+            )
         })
     }
 }

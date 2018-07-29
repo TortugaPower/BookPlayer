@@ -49,6 +49,12 @@ public class Book: LibraryItem {
         return !(self.chapters?.array.isEmpty ?? true)
     }
 
+    // TODO: This is a makeshift version of a proper completion property.
+    // See https://github.com/TortugaPower/BookPlayer/issues/201
+    var isCompleted: Bool {
+        return round(self.currentTime) >= round(self.duration)
+    }
+
     func setChapters(from asset: AVAsset, context: NSManagedObjectContext) {
         for locale in asset.availableChapterLocales {
             let chaptersMetadata = asset.chapterMetadataGroups(withTitleLocale: locale, containingItemsWithCommonKeys: [AVMetadataKey.commonKeyArtwork])

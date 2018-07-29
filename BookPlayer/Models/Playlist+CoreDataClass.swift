@@ -52,9 +52,7 @@ public class Playlist: LibraryItem {
 
     func getRemainingBooks() -> [Book] {
         guard
-            let books = self.books?.array as? [Book], let firstUnfinishedBook = books.first(where: { (book) -> Bool in
-                return round(book.currentTime) < round(book.duration)
-            }),
+            let books = self.books?.array as? [Book], let firstUnfinishedBook = books.first(where: { !$0.isCompleted }),
             let count = books.index(of: firstUnfinishedBook),
             let slice = self.books?.array.dropFirst(count),
             let remainingBooks = Array(slice) as? [Book]

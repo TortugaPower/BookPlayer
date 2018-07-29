@@ -156,15 +156,16 @@ class BaseListViewController: UIViewController {
 
     func queueBooksForPlayback(_ startItem: LibraryItem, forceAutoplay: Bool = false) -> [Book] {
         var books = [Book]()
-        let isPlaylist = startItem is Playlist
         let shouldAutoplayLibrary = UserDefaults.standard.bool(forKey: UserDefaultsConstants.autoplayEnabled)
-        let shouldAutoplay = (isPlaylist || shouldAutoplayLibrary || forceAutoplay)
+        let shouldAutoplay = shouldAutoplayLibrary || forceAutoplay
 
-        guard let book = startItem as? Book else {
-            return books
+        if let book = startItem as? Book {
+            books.append(book)
         }
 
-        books.append(book)
+        if let playlist = startItem as? Playlist {
+            books.append(contentsOf: playlist.getRemainingBooks())
+        }
 
         guard
             shouldAutoplay,
@@ -300,8 +301,10 @@ extension BaseListViewController: UITableViewDataSource {
             return spacer
         }
 
-        guard indexPath.section == 0, let cell = tableView.dequeueReusableCell(withIdentifier: "BookCellView", for: indexPath) as? BookCellView else {
-            // Load add cell
+        guard
+            indexPath.section == 0,
+            let cell = tableView.dequeueReusableCell(withIdentifier: "BookCellView", for: indexPath) as? BookCellView
+        else {
             return tableView.dequeueReusableCell(withIdentifier: "AddCellView", for: indexPath)
         }
 
@@ -312,24 +315,20 @@ extension BaseListViewController: UITableViewDataSource {
         cell.playbackState = .stopped
         cell.type = item is Playlist ? .playlist : .book
 
+        cell.onArtworkTap = { [weak self] in
+            guard let books = self?.queueBooksForPlayback(item) else {
+                return
+            }
+
+            self?.setupPlayer(books: books)
+        }
+
         if let book = item as? Book {
             cell.subtitle = book.author
             cell.progress = book.progress
-
-            cell.onArtworkTap = { [weak self] in
-                guard let books = self?.queueBooksForPlayback(item) else {
-                    return
-                }
-
-                self?.setupPlayer(books: books)
-            }
         } else if let playlist = item as? Playlist {
             cell.subtitle = playlist.info()
             cell.progress = playlist.totalProgress()
-
-            cell.onArtworkTap = { [weak self] in
-                self?.setupPlayer(books: playlist.getRemainingBooks())
-            }
         }
 
         return cell
