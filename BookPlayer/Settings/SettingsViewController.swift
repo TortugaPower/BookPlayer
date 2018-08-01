@@ -12,6 +12,7 @@ import SafariServices
 import DeviceKit
 
 class SettingsViewController: UITableViewController, MFMailComposeViewControllerDelegate {
+    @IBOutlet weak var autoplayLibrarySwitch: UISwitch!
     @IBOutlet weak var smartRewindSwitch: UISwitch!
     @IBOutlet weak var boostVolumeSwitch: UISwitch!
     @IBOutlet weak var globalSpeedSwitch: UISwitch!
@@ -37,11 +38,13 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        self.autoplayLibrarySwitch.addTarget(self, action: #selector(self.autoplayToggleDidChange), for: .valueChanged)
         self.smartRewindSwitch.addTarget(self, action: #selector(self.rewindToggleDidChange), for: .valueChanged)
         self.boostVolumeSwitch.addTarget(self, action: #selector(self.boostVolumeToggleDidChange), for: .valueChanged)
         self.globalSpeedSwitch.addTarget(self, action: #selector(self.globalSpeedToggleDidChange), for: .valueChanged)
 
         // Set initial switch positions
+        self.autoplayLibrarySwitch.setOn(UserDefaults.standard.bool(forKey: UserDefaultsConstants.autoplayEnabled), animated: false)
         self.smartRewindSwitch.setOn(UserDefaults.standard.bool(forKey: UserDefaultsConstants.smartRewindEnabled), animated: false)
         self.boostVolumeSwitch.setOn(UserDefaults.standard.bool(forKey: UserDefaultsConstants.boostVolumeEnabled), animated: false)
         self.globalSpeedSwitch.setOn(UserDefaults.standard.bool(forKey: UserDefaultsConstants.globalSpeedEnabled), animated: false)
@@ -50,7 +53,10 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         self.rewindIntervalLabel.text = self.formatDuration(PlayerManager.shared.rewindInterval)
         self.forwardIntervalLabel.text = self.formatDuration(PlayerManager.shared.forwardInterval)
 
-        guard let version = Bundle.main.infoDictionary!["CFBundleShortVersionString"] as? String, let build = Bundle.main.infoDictionary!["CFBundleVersion"] as? String else {
+        guard
+            let version = Bundle.main.infoDictionary!["CFBundleShortVersionString"] as? String,
+            let build = Bundle.main.infoDictionary!["CFBundleVersion"] as? String
+        else {
             return
         }
 
@@ -82,6 +88,10 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
                 self.forwardIntervalLabel.text = self.formatDuration(PlayerManager.shared.forwardInterval)
             }
         }
+    }
+
+    @objc func autoplayToggleDidChange() {
+        UserDefaults.standard.set(self.autoplayLibrarySwitch.isOn, forKey: UserDefaultsConstants.autoplayEnabled)
     }
 
     @objc func rewindToggleDidChange() {
