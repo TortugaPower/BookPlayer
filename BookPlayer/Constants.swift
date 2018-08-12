@@ -15,6 +15,7 @@ struct UserDefaultsConstants {
     static let boostVolumeEnabled = "userSettingsBoostVolume"
     static let globalSpeedEnabled = "userSettingsGlobalSpeed"
     static let autoplayEnabled = "userSettingsAutoplay"
+    static let autolockDisabled = "userSettingsDisableAutolock"
 
     static let rewindInterval = "userSettingsRewindInterval"
     static let forwardInterval = "userSettingsForwardInterval"

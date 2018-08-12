@@ -16,6 +16,7 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     @IBOutlet weak var smartRewindSwitch: UISwitch!
     @IBOutlet weak var boostVolumeSwitch: UISwitch!
     @IBOutlet weak var globalSpeedSwitch: UISwitch!
+    @IBOutlet weak var disableAutolockSwitch: UISwitch!
     @IBOutlet weak var rewindIntervalLabel: UILabel!
     @IBOutlet weak var forwardIntervalLabel: UILabel!
 
@@ -42,12 +43,14 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         self.smartRewindSwitch.addTarget(self, action: #selector(self.rewindToggleDidChange), for: .valueChanged)
         self.boostVolumeSwitch.addTarget(self, action: #selector(self.boostVolumeToggleDidChange), for: .valueChanged)
         self.globalSpeedSwitch.addTarget(self, action: #selector(self.globalSpeedToggleDidChange), for: .valueChanged)
+        self.disableAutolockSwitch.addTarget(self, action: #selector(self.disableAutolockDidChange), for: .valueChanged)
 
         // Set initial switch positions
         self.autoplayLibrarySwitch.setOn(UserDefaults.standard.bool(forKey: UserDefaultsConstants.autoplayEnabled), animated: false)
         self.smartRewindSwitch.setOn(UserDefaults.standard.bool(forKey: UserDefaultsConstants.smartRewindEnabled), animated: false)
         self.boostVolumeSwitch.setOn(UserDefaults.standard.bool(forKey: UserDefaultsConstants.boostVolumeEnabled), animated: false)
         self.globalSpeedSwitch.setOn(UserDefaults.standard.bool(forKey: UserDefaultsConstants.globalSpeedEnabled), animated: false)
+        self.disableAutolockSwitch.setOn(UserDefaults.standard.bool(forKey: UserDefaultsConstants.autolockDisabled), animated: false)
 
         // Retrieve initial skip values from PlayerManager
         self.rewindIntervalLabel.text = self.formatDuration(PlayerManager.shared.rewindInterval)
@@ -104,6 +107,10 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
 
     @objc func globalSpeedToggleDidChange() {
         UserDefaults.standard.set(self.globalSpeedSwitch.isOn, forKey: UserDefaultsConstants.globalSpeedEnabled)
+    }
+
+    @objc func disableAutolockDidChange() {
+        UserDefaults.standard.set(self.disableAutolockSwitch.isOn, forKey: UserDefaultsConstants.autolockDisabled)
     }
 
     @IBAction func done(_ sender: UIBarButtonItem) {
