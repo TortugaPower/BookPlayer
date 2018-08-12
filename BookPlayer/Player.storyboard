@@ -71,31 +71,31 @@
                                 </constraints>
                                 <viewLayoutGuide key="safeArea" id="H0f-cy-Spe"/>
                                 <items>
-                                    <barButtonItem title="Speed" id="c1l-Kk-Q62">
+                                    <barButtonItem tag="100" title="Speed" id="c1l-Kk-Q62">
                                         <connections>
                                             <action selector="setSpeed" destination="Sd0-Pz-hUD" id="qt0-Xn-TaC"/>
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="KGD-om-Msu"/>
-                                    <barButtonItem title="Timer" image="toolbarIconTimer" largeContentSizeImage="toolbarIconTimer" width="23" id="FYz-g6-orv">
+                                    <barButtonItem tag="200" title="Timer" image="toolbarIconTimer" largeContentSizeImage="toolbarIconTimer" width="23" id="FYz-g6-orv">
                                         <connections>
                                             <action selector="setSleepTimer" destination="Sd0-Pz-hUD" id="HtO-Yt-R1e"/>
                                         </connections>
                                     </barButtonItem>
-                                    <barButtonItem title="00:00" id="mSM-I9-iUa">
+                                    <barButtonItem tag="210" title="00:00" id="mSM-I9-iUa">
                                         <connections>
                                             <action selector="setSleepTimer" destination="Sd0-Pz-hUD" id="wka-n4-n5D"/>
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="1HZ-gc-6DC"/>
-                                    <barButtonItem title="Chapters" image="toolbarIconChapters" largeContentSizeImage="toolbarIconChapters" id="NBy-Nn-5LY">
+                                    <barButtonItem tag="300" title="Chapters" image="toolbarIconChapters" largeContentSizeImage="toolbarIconChapters" id="NBy-Nn-5LY">
                                         <connections>
                                             <action selector="didSelectChapter:" destination="Sd0-Pz-hUD" id="Ybs-R7-348"/>
                                             <segue destination="wJP-at-zgg" kind="presentation" identifier="ChapterSelectionSegue" id="YGU-7Y-fWR"/>
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="M8S-cO-boc"/>
-                                    <barButtonItem title="More" image="toolbarIconMore" largeContentSizeImage="toolbarIconMore" id="Fsd-fw-HAo">
+                                    <barButtonItem tag="400" title="More" image="toolbarIconMore" largeContentSizeImage="toolbarIconMore" id="Fsd-fw-HAo">
                                         <connections>
                                             <action selector="showMore" destination="Sd0-Pz-hUD" id="Ddo-nq-AC9"/>
                                         </connections>
@@ -150,7 +150,6 @@
                         <outlet property="closeButtonTop" destination="FSk-a6-cK0" id="shF-ng-l4E"/>
                         <outlet property="sleepButton" destination="FYz-g6-orv" id="cSZ-sb-NnH"/>
                         <outlet property="sleepLabel" destination="mSM-I9-iUa" id="KgX-aa-gAF"/>
-                        <outlet property="spaceBeforeChaptersButton" destination="1HZ-gc-6DC" id="m08-Mj-jFd"/>
                         <outlet property="speedButton" destination="c1l-Kk-Q62" id="ulh-iS-ELR"/>
                     </connections>
                 </viewController>

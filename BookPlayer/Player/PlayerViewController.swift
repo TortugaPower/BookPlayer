@@ -10,6 +10,7 @@ import UIKit
 import AVFoundation
 import MediaPlayer
 import StoreKit
+import AVKit
 
 class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet private weak var closeButton: UIButton!
@@ -17,8 +18,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet private weak var bottomToolbar: UIToolbar!
     @IBOutlet private weak var speedButton: UIBarButtonItem!
     @IBOutlet private weak var sleepButton: UIBarButtonItem!
-    @IBOutlet private weak var sleepLabel: UIBarButtonItem!
-    @IBOutlet private weak var spaceBeforeChaptersButton: UIBarButtonItem!
+    @IBOutlet private var sleepLabel: UIBarButtonItem!
     @IBOutlet private weak var chaptersButton: UIBarButtonItem!
     @IBOutlet private weak var backgroundImage: UIImageView!
 
@@ -127,10 +127,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.bottomToolbar.tintColor = currentBook.artworkColors.secondary
         self.closeButton.tintColor = currentBook.artworkColors.secondary
 
-        if !currentBook.hasChapters {
-            self.spaceBeforeChaptersButton.isEnabled = false
-            self.chaptersButton.isEnabled = false
-        }
+        self.updateToolbar()
 
         if currentBook.usesDefaultArtwork {
             self.backgroundImage.isHidden = true
@@ -156,6 +153,48 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.setNeedsStatusBarAppearanceUpdate()
     }
 
+    func updateToolbar(_ showTimerLabel: Bool = false, animated: Bool = false) {
+        guard var items = self.bottomToolbar.items else {
+            return
+        }
+
+        items = items.filter({ $0.tag > 0 })
+
+        if !currentBook.hasChapters, let index = items.index(of: self.chaptersButton) {
+            items.remove(at: index)
+        }
+
+        if #available(iOS 11, *) {
+            let avRoutePickerBarButtonItem = UIBarButtonItem(
+                customView: AVRoutePickerView(
+                    frame: CGRect(x: 0.0, y: 0.0, width: 20.0, height: 20.0)
+                )
+            )
+
+            items.insert(avRoutePickerBarButtonItem, at: items.count - 1)
+        }
+
+        if !showTimerLabel, let index = items.index(of: self.sleepLabel) {
+            items.remove(at: index)
+        }
+
+        if showTimerLabel, let index = items.index(of: self.sleepButton) {
+            items.insert(self.sleepLabel, at: index + 1)
+        }
+
+        // Recreate spacers
+        let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+
+        items = Array(items.map({ [$0] }).joined(separator: [spacer]))
+
+        // Remove spacer after timer button
+        if showTimerLabel, let index = items.index(of: self.sleepButton) {
+            items.remove(at: index + 1)
+        }
+
+        self.bottomToolbar.setItems(items, animated: animated)
+    }
+
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return currentBook.artworkColors.displayOnDark ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
     }
@@ -172,7 +211,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
     @IBAction func setSpeed() {
         let actionSheet = UIAlertController(title: nil, message: "Set playback speed", preferredStyle: .actionSheet)
-        let speedOptions: [Float] = [2.5, 2, 1.5, 1.25, 1, 0.75]
+        let speedOptions: [Float] = [2.5, 2, 1.75, 1.5, 1.25, 1, 0.75]
 
         for speed in speedOptions {
             if speed == PlayerManager.shared.speed {
@@ -193,7 +232,9 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
     @IBAction func setSleepTimer() {
         let actionSheet = SleepTimer.shared.actionSheet(
-            onStart: { },
+            onStart: {
+                self.updateToolbar(true, animated: true)
+            },
             onProgress: { (timeLeft: Double) -> Void in
                 self.sleepLabel.title = SleepTimer.shared.durationFormatter.string(from: timeLeft)
             },
@@ -203,6 +244,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
                 }
 
                 self.sleepLabel.title = ""
+                self.updateToolbar(false, animated: true)
             }
         )
 
