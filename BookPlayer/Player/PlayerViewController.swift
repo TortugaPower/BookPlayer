@@ -103,6 +103,20 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.controlsViewController?.showPlayPauseButton(animated)
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        if UserDefaults.standard.bool(forKey: UserDefaultsConstants.autolockDisabled) {
+            UIApplication.shared.isIdleTimerDisabled = true
+        }
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        UIApplication.shared.isIdleTimerDisabled = false
+    }
+
+    deinit {
+        UIApplication.shared.isIdleTimerDisabled = false
+    }
+
     func setupView(book currentBook: Book) {
         self.metaViewController?.book = currentBook
         self.controlsViewController?.book = currentBook
