@@ -148,9 +148,9 @@
                         <outlet property="chaptersButton" destination="NBy-Nn-5LY" id="ySc-5s-lez"/>
                         <outlet property="closeButton" destination="UQ3-tH-RXC" id="V9f-G1-nX8"/>
                         <outlet property="closeButtonTop" destination="FSk-a6-cK0" id="shF-ng-l4E"/>
+                        <outlet property="moreButton" destination="Fsd-fw-HAo" id="5SH-yk-QTw"/>
                         <outlet property="sleepButton" destination="FYz-g6-orv" id="cSZ-sb-NnH"/>
                         <outlet property="sleepLabel" destination="mSM-I9-iUa" id="KgX-aa-gAF"/>
-                        <outlet property="spaceBeforeChaptersButton" destination="1HZ-gc-6DC" id="m08-Mj-jFd"/>
                         <outlet property="speedButton" destination="c1l-Kk-Q62" id="ulh-iS-ELR"/>
                     </connections>
                 </viewController>
