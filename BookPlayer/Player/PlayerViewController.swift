@@ -20,6 +20,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet private weak var sleepButton: UIBarButtonItem!
     @IBOutlet private var sleepLabel: UIBarButtonItem!
     @IBOutlet private weak var chaptersButton: UIBarButtonItem!
+    @IBOutlet private weak var moreButton: UIBarButtonItem!
     @IBOutlet private weak var backgroundImage: UIImageView!
 
     var currentBook: Book!
@@ -154,14 +155,22 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     func updateToolbar(_ showTimerLabel: Bool = false, animated: Bool = false) {
-        guard var items = self.bottomToolbar.items else {
-            return
+        let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+
+        var items: [UIBarButtonItem] = [
+            self.speedButton,
+            spacer,
+            self.sleepButton
+        ]
+
+        if showTimerLabel {
+            items.append(self.sleepLabel)
         }
 
-        items = items.filter({ $0.tag > 0 })
 
-        if !currentBook.hasChapters, let index = items.index(of: self.chaptersButton) {
-            items.remove(at: index)
+        if currentBook.hasChapters {
+            items.append(spacer)
+            items.append(self.chaptersButton)
         }
 
         if #available(iOS 11, *) {
@@ -171,26 +180,12 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
                 )
             )
 
-            items.insert(avRoutePickerBarButtonItem, at: items.count - 1)
+            items.append(spacer)
+            items.append(avRoutePickerBarButtonItem)
         }
 
-        if !showTimerLabel, let index = items.index(of: self.sleepLabel) {
-            items.remove(at: index)
-        }
-
-        if showTimerLabel, let index = items.index(of: self.sleepButton) {
-            items.insert(self.sleepLabel, at: index + 1)
-        }
-
-        // Recreate spacers
-        let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-
-        items = Array(items.map({ [$0] }).joined(separator: [spacer]))
-
-        // Remove spacer after timer button
-        if showTimerLabel, let index = items.index(of: self.sleepButton) {
-            items.remove(at: index + 1)
-        }
+        items.append(spacer)
+        items.append(self.moreButton)
 
         self.bottomToolbar.setItems(items, animated: animated)
     }
