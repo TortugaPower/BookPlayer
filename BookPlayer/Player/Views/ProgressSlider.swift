@@ -9,6 +9,18 @@
 import UIKit
 
 class ProgressSlider: UISlider {
+
+    override var accessibilityLabel: String? {
+        get {
+            let value = Int(round(self.value * 100))
+            return "\(value)% Complete"
+        }
+
+        set {
+            self.accessibilityLabel = newValue
+        }
+    }
+
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
 

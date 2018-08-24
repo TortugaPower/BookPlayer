@@ -24,6 +24,7 @@ class PlayerMetaViewController: PlayerContainerViewController {
             self.chapterLabel.textColor = self.book?.artworkColors.tertiary
 
             self.setChapterLabel()
+            self.setAccessibilityLabel()
         }
     }
 
@@ -50,5 +51,12 @@ class PlayerMetaViewController: PlayerContainerViewController {
 
     @objc func onPlayback(_ notification: Notification) {
         self.setChapterLabel()
+    }
+
+    private func setAccessibilityLabel() {
+        guard let book = book else {
+            return accessibilityHint = "Player data unavailable"
+        }
+        authorLabel.accessibilityLabel = VoiceOverService().playerMetaText(book: book)
     }
 }
