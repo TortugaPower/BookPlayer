@@ -10,31 +10,24 @@ class VoiceOverServiceTest: XCTestCase {
     }
 
     func testRewindText() {
-        let intervals: [Double] = [60.0, 90.0, 120.0]
-        let conversionTexts = [
-            "Rewind 1 minute ",
-            "Rewind 1 minute 30 seconds",
-            "Rewind 2 minutes "
-        ]
-
-        intervals.enumerated().forEach { (offset, element) in
-            PlayerManager.shared.rewindInterval = element
-            XCTAssert(VoiceOverService.rewindText() == conversionTexts[offset])
-        }
+        PlayerManager.shared.forwardInterval = 60
+        XCTAssert(VoiceOverService.fastForwardText() == "Rewind 1 minute")
     }
 
     func testForwardText() {
-        let intervals: [Double] = [60.0, 90.0, 120.0]
-        let conversionTexts = [
-            "Fast Forward 1 minute ",
-            "Fast Forward 1 minute 30 seconds",
-            "Fast Forward 2 minutes "
-        ]
+        PlayerManager.shared.forwardInterval = 60
+        XCTAssert(VoiceOverService.fastForwardText() == "Fast Forward 1 minute")
 
-        intervals.enumerated().forEach { (offset, element) in
-            PlayerManager.shared.forwardInterval = element
-            XCTAssert(VoiceOverService.fastForwardText() == conversionTexts[offset])
-        }
+        PlayerManager.shared.forwardInterval = 90
+        XCTAssert(VoiceOverService.fastForwardText() == "Fast Forward 1 minute 30 seconds")
+
+        PlayerManager.shared.forwardInterval = 120
+        XCTAssert(VoiceOverService.fastForwardText() == "Fast Forward 2 minutes")
+    }
+
+    func testSecondsToMinutes() {
+        XCTAssert(VoiceOverService.secondsToMinutes(7952) == "2 hours 12 minutes 32 seconds")
+        XCTAssert(VoiceOverService.secondsToMinutes(3661) == "1 hour 1 minute 1 second")
     }
 
     func testPerformanceExample() {

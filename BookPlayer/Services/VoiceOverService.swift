@@ -66,19 +66,24 @@ class VoiceOverService {
         return "Fast Forward " + self.secondsToMinutes(PlayerManager.shared.forwardInterval.rounded())
     }
 
-    private static func secondsToMinutes(_ interval: TimeInterval) -> String {
-        let minutes = pluralization(amount: Int((interval / 60.0).rounded(.towardZero)), interval: .minute)
-        let seconds = pluralization(amount: Int(round(interval.truncatingRemainder(dividingBy: 60))), interval: .second)
+    public static func secondsToMinutes(_ interval: TimeInterval) -> String {
+        let hours = (interval / 3600.0).rounded(.towardZero)
+        let minutes = ((interval.truncatingRemainder(dividingBy: 3600)) / 60).rounded(.towardZero)
+        let seconds = ((interval.truncatingRemainder(dividingBy: 60)).truncatingRemainder(dividingBy: 60)).rounded()
 
-        return "\(minutes) \(seconds)"
+        let hoursText = pluralization(amount: Int(hours), interval: .hour)
+        let minutesText = pluralization(amount: Int(minutes), interval: .minute)
+        let secondsText = pluralization(amount: Int(seconds), interval: .second)
+
+        return String("\(hoursText)\(minutesText)\(secondsText)".dropLast())
     }
 
     private static func pluralization(amount: Int, interval: TimeUnit) -> String {
         switch amount {
         case 1:
-            return "\(amount) \(interval.rawValue)"
+            return "\(amount) \(interval.rawValue) "
         case amount where amount > 1:
-            return "\(amount) \(interval.rawValue)s"
+            return "\(amount) \(interval.rawValue)s "
         default:
             return ""
         }
@@ -88,4 +93,5 @@ class VoiceOverService {
 fileprivate enum TimeUnit: String {
     case minute
     case second
+    case hour
 }

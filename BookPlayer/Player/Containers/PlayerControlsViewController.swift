@@ -140,11 +140,11 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         }
 
         self.maxTimeLabel.text = self.formatTime(self.maxTimeInContext)
-        self.maxTimeLabel.accessibilityLabel = String(describing: "Chapter length " + self.formatTime(self.maxTimeInContext))
+        self.maxTimeLabel.accessibilityLabel = String(describing: "Chapter length " + VoiceOverService.secondsToMinutes(maxTimeInContext))
 
         if !self.progressSlider.isTracking {
             self.currentTimeLabel.text = self.formatTime(self.currentTimeInContext)
-            self.currentTimeLabel.accessibilityLabel = String(describing: "Current Chapter Time: " + self.formatTime(self.currentTimeInContext))
+            self.currentTimeLabel.accessibilityLabel = String(describing: "Current Chapter Time: " + VoiceOverService.secondsToMinutes(currentTimeInContext))
         }
 
         guard book.hasChapters, let chapters = book.chapters, let currentChapter = book.currentChapter else {
