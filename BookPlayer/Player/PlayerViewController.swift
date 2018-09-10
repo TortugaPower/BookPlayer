@@ -72,7 +72,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     override func viewDidLoad() {
-        NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.playerPresented, object: nil, userInfo: nil)
+        NotificationCenter.default.post(name: .playerPresented, object: nil, userInfo: nil)
 
         super.viewDidLoad()
 
@@ -85,9 +85,9 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.speedButton.setTitleTextAttributes([NSAttributedStringKey.font: UIFont.systemFont(ofSize: 18.0, weight: .semibold)], for: .normal)
 
         // Observers
-        NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: Notification.Name.AudiobookPlayer.requestReview, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: Notification.Name.AudiobookPlayer.bookChange, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: .requestReview, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: .bookEnd, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: .bookChange, object: nil)
 
         // Gestures
         self.pan = UIPanGestureRecognizer(target: self, action: #selector(panAction))
@@ -201,7 +201,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBAction func dismissPlayer() {
         self.dismiss(animated: true, completion: nil)
 
-        NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.playerDismissed, object: nil, userInfo: nil)
+        NotificationCenter.default.post(name: .playerDismissed, object: nil, userInfo: nil)
     }
 
     // MARK: - Toolbar actions

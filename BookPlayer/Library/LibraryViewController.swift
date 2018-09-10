@@ -21,8 +21,8 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         self.navigationController!.interactivePopGestureRecognizer!.delegate = self
 
         // register for appDelegate openUrl notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.openURL(_:)), name: Notification.Name.AudiobookPlayer.libraryOpenURL, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.reloadData), name: Notification.Name.AudiobookPlayer.reloadData, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.openURL(_:)), name: .libraryOpenURL, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.reloadData), name: .reloadData, object: nil)
 
         self.loadLibrary()
 
@@ -46,7 +46,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
                 return
             }
 
-            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.playerDismissed, object: nil, userInfo: nil)
+            NotificationCenter.default.post(name: .playerDismissed, object: nil, userInfo: nil)
         }
         setupCustomRotors()
     }

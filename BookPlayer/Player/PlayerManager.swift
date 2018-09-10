@@ -77,7 +77,7 @@ class PlayerManager: NSObject {
                 // Set speed for player
                 audioplayer.rate = self.speed
 
-                NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookReady, object: nil, userInfo: ["book": book])
+                NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["book": book])
 
                 completion(true)
             })
@@ -101,7 +101,7 @@ class PlayerManager: NSObject {
         // Notify
         if isPercentageDifferent {
             NotificationCenter.default.post(
-                name: Notification.Name.AudiobookPlayer.updatePercentage,
+                name: .updatePercentage,
                 object: nil,
                 userInfo: [
                 "progress": book.progress,
@@ -121,7 +121,7 @@ class PlayerManager: NSObject {
 
             // Once book a book is finished, ask for a review
             UserDefaults.standard.set(true, forKey: "ask_review")
-            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
+            NotificationCenter.default.post(name: .bookEnd, object: nil)
         }
 
         let userInfo = [
@@ -130,7 +130,7 @@ class PlayerManager: NSObject {
             ] as [String: Any]
 
         // Notify
-        NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookPlaying, object: nil, userInfo: userInfo)
+        NotificationCenter.default.post(name: .bookPlaying, object: nil, userInfo: userInfo)
     }
 
     // MARK: - Player states
@@ -323,7 +323,7 @@ class PlayerManager: NSObject {
         MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
 
         DispatchQueue.main.async {
-            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
+            NotificationCenter.default.post(name: .bookPlayed, object: nil)
         }
 
         self.update()
@@ -359,7 +359,7 @@ class PlayerManager: NSObject {
         }
 
         DispatchQueue.main.async {
-            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
+            NotificationCenter.default.post(name: .bookPaused, object: nil)
         }
     }
 
@@ -390,7 +390,7 @@ class PlayerManager: NSObject {
 
         DispatchQueue.main.async {
             NotificationCenter.default.post(
-                name: Notification.Name.AudiobookPlayer.bookStopped,
+                name: .bookStopped,
                 object: nil,
                 userInfo: userInfo
             )
@@ -423,7 +423,7 @@ extension PlayerManager: AVAudioPlayerDelegate {
             let userInfo = ["books": currentBooks]
 
             NotificationCenter.default.post(
-                name: Notification.Name.AudiobookPlayer.bookChange,
+                name: .bookChange,
                 object: nil,
                 userInfo: userInfo
             )

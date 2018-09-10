@@ -172,7 +172,7 @@ class DataManager {
 
         for url in urls {
             let userInfo = ["fileURL": url]
-            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.libraryOpenURL, object: nil, userInfo: userInfo)
+            NotificationCenter.default.post(name: .libraryOpenURL, object: nil, userInfo: userInfo)
         }
     }
 

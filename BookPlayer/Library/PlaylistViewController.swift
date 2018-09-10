@@ -23,13 +23,13 @@ class PlaylistViewController: BaseListViewController {
 
         self.navigationItem.title = playlist.title
 
-        NotificationCenter.default.addObserver(self, selector: #selector(self.openURL(_:)), name: Notification.Name.AudiobookPlayer.playlistOpenURL, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.openURL(_:)), name: .playlistOpenURL, object: nil)
     }
 
     override func loadFile(urls: [BookURL]) {
         self.queue.addOperation {
             DataManager.insertBooks(from: urls, into: self.playlist) {
-                NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.reloadData, object: nil)
+                NotificationCenter.default.post(name: .reloadData, object: nil)
                 self.tableView.reloadData()
 
                 self.toggleEmptyStateView()
@@ -81,7 +81,7 @@ class PlaylistViewController: BaseListViewController {
     override func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         for url in urls {
             let userInfo = ["fileURL": url]
-            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.playlistOpenURL, object: nil, userInfo: userInfo)
+            NotificationCenter.default.post(name: .playlistOpenURL, object: nil, userInfo: userInfo)
         }
     }
 }
@@ -154,7 +154,7 @@ extension PlaylistViewController {
 
                 self.toggleEmptyStateView()
 
-                NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.reloadData, object: nil)
+                NotificationCenter.default.post(name: .reloadData, object: nil)
             }))
 
             sheet.addAction(UIAlertAction(title: "Delete completely", style: .destructive, handler: { _ in
@@ -174,7 +174,7 @@ extension PlaylistViewController {
 
                 self.toggleEmptyStateView()
 
-                NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.reloadData, object: nil)
+                NotificationCenter.default.post(name: .reloadData, object: nil)
             }))
 
             self.present(sheet, animated: true, completion: nil)

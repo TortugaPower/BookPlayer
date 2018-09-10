@@ -66,7 +66,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // This function is called when the app is opened with a audio file url,
         // like when receiving files through AirDrop
         let userInfo = ["fileURL": url]
-        NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.libraryOpenURL, object: nil, userInfo: userInfo)
+        NotificationCenter.default.post(name: .libraryOpenURL, object: nil, userInfo: userInfo)
 
         return true
     }
@@ -86,7 +86,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         DispatchQueue.main.async {
             if !PlayerManager.shared.isPlaying {
-                NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
+                NotificationCenter.default.post(name: .bookPaused, object: nil)
             }
         }
     }
@@ -101,7 +101,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         // Notify controller to see if it should ask for review
-        NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.requestReview, object: nil)
+        NotificationCenter.default.post(name: .requestReview, object: nil)
     }
 
     func applicationWillTerminate(_ application: UIApplication) {
