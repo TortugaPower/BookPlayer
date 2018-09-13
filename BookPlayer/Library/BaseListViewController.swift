@@ -10,6 +10,8 @@ import UIKit
 import MediaPlayer
 import SwiftReorder
 
+// swiftlint:disable file_length
+
 class BaseListViewController: UIViewController {
     @IBOutlet weak var emptyStatePlaceholder: UIView!
     @IBOutlet weak var loadingContainerView: UIView!

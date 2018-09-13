@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import MBProgressHUD
 
 class PlaylistViewController: BaseListViewController {
     var playlist: Playlist!
