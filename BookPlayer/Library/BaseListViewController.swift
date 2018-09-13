@@ -59,6 +59,7 @@ class BaseListViewController: UIViewController {
 
         // Prepare empty states
         self.view.addSubview(self.emptyStatePlaceholder)
+        self.view.bringSubview(toFront: self.loadingContainerView)
         self.toggleEmptyStateView()
         self.showLoadView(false)
 

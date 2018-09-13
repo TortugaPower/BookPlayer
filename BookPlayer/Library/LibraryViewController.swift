@@ -79,6 +79,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
                 self.tableView.beginUpdates()
                 self.tableView.reloadSections(IndexSet(0...0), with: .fade)
                 self.tableView.endUpdates()
+                self.toggleEmptyStateView()
             }
             return
         }
@@ -91,6 +92,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
                 self.tableView.beginUpdates()
                 self.tableView.reloadSections(IndexSet(0...0), with: .fade)
                 self.tableView.endUpdates()
+                self.toggleEmptyStateView()
             }
         })
 

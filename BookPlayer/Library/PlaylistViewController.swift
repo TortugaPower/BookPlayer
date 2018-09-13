@@ -29,6 +29,7 @@ class PlaylistViewController: BaseListViewController {
             self.tableView.beginUpdates()
             self.tableView.reloadSections(IndexSet(0...0), with: .fade)
             self.tableView.endUpdates()
+            self.toggleEmptyStateView()
             NotificationCenter.default.post(name: .reloadData, object: nil)
         }
     }
