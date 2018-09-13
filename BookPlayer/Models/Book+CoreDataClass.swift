@@ -77,10 +77,10 @@ public class Book: LibraryItem {
         }
     }
 
-    convenience init(from bookUrl: BookURL, context: NSManagedObjectContext) {
+    convenience init(from bookUrl: FileItem, context: NSManagedObjectContext) {
         let entity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
         self.init(entity: entity, insertInto: context)
-        let fileURL = bookUrl.processed
+        let fileURL = bookUrl.processedUrl!
         self.ext = fileURL.pathExtension
         self.identifier = fileURL.lastPathComponent
         let asset = AVAsset(url: fileURL)
@@ -88,7 +88,7 @@ public class Book: LibraryItem {
         let titleFromMeta = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyTitle, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String
         let authorFromMeta = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtist, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String
 
-        self.title = titleFromMeta ?? bookUrl.original.lastPathComponent.replacingOccurrences(of: "_", with: " ")
+        self.title = titleFromMeta ?? bookUrl.originalUrl.lastPathComponent.replacingOccurrences(of: "_", with: " ")
         self.author = authorFromMeta ?? "Unknown Author"
         self.duration = CMTimeGetSeconds(asset.duration)
 
@@ -105,7 +105,7 @@ public class Book: LibraryItem {
 
         self.setChapters(from: asset, context: context)
 
-        let legacyIdentifier = bookUrl.original.lastPathComponent
+        let legacyIdentifier = bookUrl.originalUrl.lastPathComponent
         let storedTime = UserDefaults.standard.double(forKey: legacyIdentifier)
         //migration of time
         if storedTime > 0 {

@@ -8,7 +8,6 @@
 
 import UIKit
 import MediaPlayer
-import MBProgressHUD
 import SwiftReorder
 
 // swiftlint:disable file_length
@@ -21,7 +20,6 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         self.navigationController!.interactivePopGestureRecognizer!.delegate = self
 
         // register for appDelegate openUrl notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.openURL(_:)), name: .libraryOpenURL, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.reloadData), name: .reloadData, object: nil)
 
         self.loadLibrary()
@@ -73,22 +71,73 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         DataManager.notifyPendingFiles()
     }
 
-    override func loadFile(urls: [BookURL]) {
-        self.queue.addOperation {
-            DataManager.insertBooks(from: urls, into: self.library) {
-                self.toggleEmptyStateView()
+    override func handleOperationCompletion(_ files: [FileItem]) {
 
-                self.tableView.reloadData()
+        guard files.count > 1 else {
+            DataManager.insertBooks(from: files, into: self.library) {
+                self.showLoadView(false)
+                self.tableView.beginUpdates()
+                self.tableView.reloadSections(IndexSet(0...0), with: .fade)
+                self.tableView.endUpdates()
             }
+            return
         }
-    }
 
-    @objc func reloadData() {
-        self.tableView.reloadData()
+        let alert = UIAlertController(title: "Import \(files.count) files into", message: nil, preferredStyle: .alert)
+
+        alert.addAction(UIAlertAction(title: "Library", style: .default) { (_) in
+            DataManager.insertBooks(from: files, into: self.library) {
+                self.showLoadView(false)
+                self.tableView.beginUpdates()
+                self.tableView.reloadSections(IndexSet(0...0), with: .fade)
+                self.tableView.endUpdates()
+            }
+        })
+
+        alert.addAction(UIAlertAction(title: "New Playlist", style: .default) { (_) in
+            var placeholder = "New Playlist"
+
+            if let file = files.first {
+                placeholder = file.originalUrl.deletingPathExtension().lastPathComponent
+            }
+
+            self.presentCreatePlaylistAlert(placeholder, handler: { (title) in
+                let playlist = DataManager.createPlaylist(title: title, books: [])
+
+                self.library.addToItems(playlist)
+
+                DataManager.insertBooks(from: files, into: playlist) {
+                    DataManager.saveContext()
+
+                    self.showLoadView(false)
+                    self.tableView.beginUpdates()
+                    self.tableView.reloadSections(IndexSet(0...0), with: .fade)
+                    self.tableView.endUpdates()
+
+                    self.toggleEmptyStateView()
+                }
+
+            })
+        })
+
+        self.present(alert, animated: true, completion: nil)
     }
 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         return navigationController!.viewControllers.count > 1
+    }
+
+    private func presentPlaylist(_ playlist: Playlist) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+
+        guard let playlistVC = storyboard.instantiateViewController(withIdentifier: "PlaylistViewController") as? PlaylistViewController else {
+            return
+        }
+
+        playlistVC.library = self.library
+        playlistVC.playlist = playlist
+
+        self.navigationController?.pushViewController(playlistVC, animated: true)
     }
 
     func handleDelete(book: Book, indexPath: IndexPath) {
@@ -154,7 +203,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             DataManager.saveContext()
 
             self.tableView.beginUpdates()
-            self.tableView.reloadSections(IndexSet(integer: 0), with: .fade)
+            self.tableView.reloadSections(IndexSet(integer: Section.library.rawValue), with: .fade)
             self.tableView.endUpdates()
             self.toggleEmptyStateView()
         }))
@@ -178,7 +227,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         self.present(sheet, animated: true, completion: nil)
     }
 
-    func presentCreatePlaylistAlert(_ namePlaceholder: String = "Name", handler: ((_ title: String) -> Void)?) {
+    func presentCreatePlaylistAlert(_ namePlaceholder: String = "Playlist Name", handler: ((_ title: String) -> Void)?) {
         let playlistAlert = UIAlertController(
             title: "Create a new playlist",
             message: "Files in playlists are automatically played one after the other",
@@ -186,7 +235,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         )
 
         playlistAlert.addTextField(configurationHandler: { (textfield) in
-            textfield.placeholder = namePlaceholder
+            textfield.text = namePlaceholder
         })
 
         playlistAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
@@ -196,9 +245,20 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             handler?(title)
         }))
 
-        self.present(playlistAlert, animated: true, completion: nil)
+        self.present(playlistAlert, animated: true) {
+            guard let textfield = playlistAlert.textFields?.first else { return }
+            textfield.becomeFirstResponder()
+            textfield.selectedTextRange = textfield.textRange(from: textfield.beginningOfDocument, to: textfield.endOfDocument)
+        }
     }
 
+    // MARK: - Callback events
+
+    @objc func reloadData() {
+        self.tableView.reloadData()
+    }
+
+    // MARK: - IBActions
     @IBAction func addAction() {
         let alertController = UIAlertController(
             title: nil,
@@ -260,9 +320,10 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
     }
 }
 
+// MARK: - TableView Delegate
 extension LibraryViewController {
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        guard indexPath.section == 0 else {
+        guard indexPath.sectionValue == .library else {
             return nil
         }
 
@@ -328,8 +389,10 @@ extension LibraryViewController {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        guard indexPath.section == 0 else {
-            self.addAction()
+        guard indexPath.sectionValue == .library else {
+            if indexPath.sectionValue == .add {
+                self.addAction()
+            }
 
             return
         }
@@ -346,21 +409,9 @@ extension LibraryViewController {
             self.setupPlayer(books: books)
         }
     }
-
-    private func presentPlaylist(_ playlist: Playlist) {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-
-        guard let playlistVC = storyboard.instantiateViewController(withIdentifier: "PlaylistViewController") as? PlaylistViewController else {
-            return
-        }
-
-        playlistVC.library = self.library
-        playlistVC.playlist = playlist
-
-        self.navigationController?.pushViewController(playlistVC, animated: true)
-    }
 }
 
+// MARK: - TableView DataSource
 extension LibraryViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
@@ -376,9 +427,12 @@ extension LibraryViewController {
 
         return bookCell
     }
+}
 
+// MARK: - Reorder Delegate
+extension LibraryViewController {
     override func tableView(_ tableView: UITableView, reorderRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        guard destinationIndexPath.section == 0 else {
+        guard destinationIndexPath.sectionValue == .library else {
             return
         }
 
@@ -391,7 +445,7 @@ extension LibraryViewController {
     }
 
     override func tableViewDidFinishReordering(_ tableView: UITableView, from initialSourceIndexPath: IndexPath, to finalDestinationIndexPath: IndexPath, dropped overIndexPath: IndexPath?) {
-        guard let overIndexPath = overIndexPath, overIndexPath.section == 0, let book = self.items[finalDestinationIndexPath.row] as? Book else {
+        guard let overIndexPath = overIndexPath, overIndexPath.sectionValue == .library, let book = self.items[finalDestinationIndexPath.row] as? Book else {
             return
         }
 
@@ -444,8 +498,8 @@ extension LibraryViewController {
                 DataManager.saveContext()
 
                 self.tableView.beginUpdates()
-                self.tableView.deleteRows(at: [IndexPath(row: minIndex, section: 0), IndexPath(row: minIndex + 1, section: 0)], with: .fade)
-                self.tableView.insertRows(at: [IndexPath(row: minIndex, section: 0)], with: .fade)
+                self.tableView.deleteRows(at: [IndexPath(row: minIndex, section: .library), IndexPath(row: minIndex + 1, section: .library)], with: .fade)
+                self.tableView.insertRows(at: [IndexPath(row: minIndex, section: .library)], with: .fade)
                 self.tableView.endUpdates()
             })
         }
