@@ -14,6 +14,8 @@
 		413616401D2E21F000E48944 /* LibraryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4136163F1D2E21F000E48944 /* LibraryViewController.swift */; };
 		4150F80320A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4150F80220A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework */; };
 		4163E3112148606600072AA2 /* FileItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E3102148606600072AA2 /* FileItem.swift */; };
+		4163E313214AC43000072AA2 /* ImportOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E312214AC43000072AA2 /* ImportOperationTests.swift */; };
+		4163E315214ACB4300072AA2 /* DataTestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E314214ACB4300072AA2 /* DataTestUtils.swift */; };
 		4165EDFE20A743D500616EDF /* Chapter+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF220A743D400616EDF /* Chapter+CoreDataClass.swift */; };
 		4165EDFF20A743D500616EDF /* Chapter+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF320A743D400616EDF /* Chapter+CoreDataProperties.swift */; };
 		4165EE0120A743D500616EDF /* Library+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF520A743D400616EDF /* Library+CoreDataProperties.swift */; };
@@ -109,6 +111,8 @@
 		4136163F1D2E21F000E48944 /* LibraryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryViewController.swift; sourceTree = "<group>"; };
 		4150F80220A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IDZSwiftCommonCrypto.framework; path = Carthage/Build/iOS/IDZSwiftCommonCrypto.framework; sourceTree = "<group>"; };
 		4163E3102148606600072AA2 /* FileItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileItem.swift; sourceTree = "<group>"; };
+		4163E312214AC43000072AA2 /* ImportOperationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportOperationTests.swift; sourceTree = "<group>"; };
+		4163E314214ACB4300072AA2 /* DataTestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTestUtils.swift; sourceTree = "<group>"; };
 		4165EDF220A743D400616EDF /* Chapter+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Chapter+CoreDataClass.swift"; sourceTree = "<group>"; };
 		4165EDF320A743D400616EDF /* Chapter+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Chapter+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		4165EDF520A743D400616EDF /* Library+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Library+CoreDataProperties.swift"; sourceTree = "<group>"; };
@@ -267,6 +271,8 @@
 			isa = PBXGroup;
 			children = (
 				69343D34213A079B000C425E /* Services */,
+				4163E314214ACB4300072AA2 /* DataTestUtils.swift */,
+				4163E312214AC43000072AA2 /* ImportOperationTests.swift */,
 				41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */,
 				41A6A87420DEECC400B2C621 /* PlaylistTests.swift */,
 				418B6D141D2707F800F974FB /* Info.plist */,
@@ -670,7 +676,9 @@
 			files = (
 				69343D36213A07B4000C425E /* VoiceOverServiceTest.swift in Sources */,
 				41C3CF7E20AEA5E5007C3EF4 /* DataManagerTests.swift in Sources */,
+				4163E315214ACB4300072AA2 /* DataTestUtils.swift in Sources */,
 				41A6A87520DEECC400B2C621 /* PlaylistTests.swift in Sources */,
+				4163E313214AC43000072AA2 /* ImportOperationTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

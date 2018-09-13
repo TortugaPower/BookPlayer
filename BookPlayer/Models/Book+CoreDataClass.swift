@@ -11,11 +11,6 @@ import Foundation
 import CoreData
 import AVFoundation
 
-struct BookURL {
-    var original: URL
-    var processed: URL
-}
-
 public class Book: LibraryItem {
     var fileURL: URL {
         return DataManager.getProcessedFolderURL().appendingPathComponent(self.identifier)

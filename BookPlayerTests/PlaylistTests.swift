@@ -16,7 +16,7 @@ class PlaylistTests: XCTestCase {
 
     func generateBook(title: String, duration: Double) -> Book {
         let dummyUrl = URL(fileURLWithPath: title)
-        let bookUrl = BookURL(original: dummyUrl, processed: dummyUrl)
+        let bookUrl = FileItem(originalUrl: dummyUrl, processedUrl: dummyUrl, destinationFolder: dummyUrl)
         let book = DataManager.createBook(from: bookUrl)
         book.duration = duration
 
