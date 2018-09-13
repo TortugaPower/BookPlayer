@@ -9,8 +9,9 @@
 import UIKit
 
 extension Notification.Name {
-    public static let libraryOpenURL = Notification.Name("com.tortugapower.audiobookplayer.library.openurl")
-    public static let playlistOpenURL = Notification.Name("com.tortugapower.audiobookplayer.playlist.openurl")
+    public static let processingFile = Notification.Name("com.tortugapower.audiobookplayer.file.process")
+    public static let newFileUrl = Notification.Name("com.tortugapower.audiobookplayer.file.new")
+    public static let importOperation = Notification.Name("com.tortugapower.audiobookplayer.operation.new")
     public static let requestReview = Notification.Name("com.tortugapower.audiobookplayer.requestreview")
     public static let updatePercentage = Notification.Name("com.tortugapower.audiobookplayer.book.percentage")
     public static let updateChapter = Notification.Name("com.tortugapower.audiobookplayer.book.chapter")
