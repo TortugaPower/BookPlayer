@@ -58,8 +58,6 @@ class BaseListViewController: UIViewController {
         self.edgesForExtendedLayout = UIRectEdge()
 
         // Prepare empty states
-        self.view.addSubview(self.emptyStatePlaceholder)
-        self.view.bringSubview(toFront: self.loadingContainerView)
         self.toggleEmptyStateView()
         self.showLoadView(false)
 

@@ -229,7 +229,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         self.present(sheet, animated: true, completion: nil)
     }
 
-    func presentCreatePlaylistAlert(_ namePlaceholder: String = "Playlist Name", handler: ((_ title: String) -> Void)?) {
+    func presentCreatePlaylistAlert(_ namePlaceholder: String = "New Playlist", handler: ((_ title: String) -> Void)?) {
         let playlistAlert = UIAlertController(
             title: "Create a new playlist",
             message: "Files in playlists are automatically played one after the other",
