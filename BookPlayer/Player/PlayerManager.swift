@@ -141,6 +141,14 @@ class PlayerManager: NSObject {
 
     // MARK: - Player states
 
+    var boostVolume: Bool = false {
+        didSet {
+            self.audioPlayer?.volume = self.boostVolume
+                ? 2.0
+                : 1.0
+        }
+    }
+
     var isLoaded: Bool {
         return self.audioPlayer != nil
     }

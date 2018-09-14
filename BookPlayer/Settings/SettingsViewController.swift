@@ -103,6 +103,7 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
 
     @objc func boostVolumeToggleDidChange() {
         UserDefaults.standard.set(self.boostVolumeSwitch.isOn, forKey: UserDefaultsConstants.boostVolumeEnabled)
+        PlayerManager.shared.boostVolume = self.boostVolumeSwitch.isOn
     }
 
     @objc func globalSpeedToggleDidChange() {
