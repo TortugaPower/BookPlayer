@@ -24,15 +24,13 @@ class PlaylistViewController: BaseListViewController {
     }
 
     override func handleOperationCompletion(_ files: [FileItem]) {
+        DataManager.insertBooks(from: files, into: self.playlist) {
+            self.reloadData()
+        }
+
         guard files.count > 1 else {
-            DataManager.insertBooks(from: files, into: self.playlist) {
-                self.showLoadView(false)
-                self.tableView.beginUpdates()
-                self.tableView.reloadSections(IndexSet(0...0), with: .fade)
-                self.tableView.endUpdates()
-                self.toggleEmptyStateView()
-                NotificationCenter.default.post(name: .reloadData, object: nil)
-            }
+            self.showLoadView(false)
+            NotificationCenter.default.post(name: .reloadData, object: nil)
             return
         }
 
@@ -41,23 +39,14 @@ class PlaylistViewController: BaseListViewController {
         alert.addAction(UIAlertAction(title: "Library", style: .default) { (_) in
             DataManager.insertBooks(from: files, into: self.library) {
                 self.showLoadView(false)
-                self.tableView.beginUpdates()
-                self.tableView.reloadSections(IndexSet(0...0), with: .fade)
-                self.tableView.endUpdates()
-                self.toggleEmptyStateView()
+                self.reloadData()
                 NotificationCenter.default.post(name: .reloadData, object: nil)
             }
         })
 
         alert.addAction(UIAlertAction(title: "Current Playlist", style: .default) { (_) in
-            DataManager.insertBooks(from: files, into: self.playlist) {
-                self.showLoadView(false)
-                self.tableView.beginUpdates()
-                self.tableView.reloadSections(IndexSet(0...0), with: .fade)
-                self.tableView.endUpdates()
-                self.toggleEmptyStateView()
-                NotificationCenter.default.post(name: .reloadData, object: nil)
-            }
+            self.showLoadView(false)
+            NotificationCenter.default.post(name: .reloadData, object: nil)
         })
 
         let vc = self.presentedViewController ?? self
@@ -176,11 +165,7 @@ extension PlaylistViewController {
 
                 DataManager.saveContext()
 
-                self.tableView.beginUpdates()
-                self.tableView.deleteRows(at: [indexPath], with: .none)
-                self.tableView.endUpdates()
-
-                self.toggleEmptyStateView()
+                self.deleteRows(at: [indexPath])
 
                 NotificationCenter.default.post(name: .reloadData, object: nil)
             }))
@@ -196,11 +181,7 @@ extension PlaylistViewController {
 
                 try? FileManager.default.removeItem(at: book.fileURL)
 
-                self.tableView.beginUpdates()
-                self.tableView.deleteRows(at: [indexPath], with: .none)
-                self.tableView.endUpdates()
-
-                self.toggleEmptyStateView()
+                self.deleteRows(at: [indexPath])
 
                 NotificationCenter.default.post(name: .reloadData, object: nil)
             }))

@@ -197,7 +197,20 @@ class BaseListViewController: UIViewController {
         fatalError("handleOperationCompletion must be overriden")
     }
 
+    func deleteRows(at indexPaths: [IndexPath]) {
+        self.tableView.beginUpdates()
+        self.tableView.deleteRows(at: indexPaths, with: .none)
+        self.tableView.endUpdates()
+        self.toggleEmptyStateView()
+    }
+
     // MARK: - Callback events
+    @objc func reloadData() {
+        self.tableView.beginUpdates()
+        self.tableView.reloadSections(IndexSet(integer: Section.library.rawValue), with: .none)
+        self.tableView.endUpdates()
+        self.toggleEmptyStateView()
+    }
 
     @objc func onNewFileUrl() {
         guard self.loadingContainerView.isHidden else { return }
@@ -229,7 +242,7 @@ class BaseListViewController: UIViewController {
                 return
         }
 
-        self.loadingTitleLabel.text = "Processing \(operation.files.count) files"
+        self.loadingTitleLabel.text = "Processing \(operation.files.count) file(s)"
 
         operation.completionBlock = {
             DispatchQueue.main.async {

@@ -72,28 +72,19 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
     }
 
     override func handleOperationCompletion(_ files: [FileItem]) {
+        DataManager.insertBooks(from: files, into: self.library) {
+            self.reloadData()
+        }
 
         guard files.count > 1 else {
-            DataManager.insertBooks(from: files, into: self.library) {
-                self.showLoadView(false)
-                self.tableView.beginUpdates()
-                self.tableView.reloadSections(IndexSet(0...0), with: .fade)
-                self.tableView.endUpdates()
-                self.toggleEmptyStateView()
-            }
+            self.showLoadView(false)
             return
         }
 
         let alert = UIAlertController(title: "Import \(files.count) files into", message: nil, preferredStyle: .alert)
 
         alert.addAction(UIAlertAction(title: "Library", style: .default) { (_) in
-            DataManager.insertBooks(from: files, into: self.library) {
-                self.showLoadView(false)
-                self.tableView.beginUpdates()
-                self.tableView.reloadSections(IndexSet(0...0), with: .fade)
-                self.tableView.endUpdates()
-                self.toggleEmptyStateView()
-            }
+            self.showLoadView(false)
         })
 
         alert.addAction(UIAlertAction(title: "New Playlist", style: .default) { (_) in
@@ -112,11 +103,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
                     DataManager.saveContext()
 
                     self.showLoadView(false)
-                    self.tableView.beginUpdates()
-                    self.tableView.reloadSections(IndexSet(0...0), with: .fade)
-                    self.tableView.endUpdates()
-
-                    self.toggleEmptyStateView()
+                    self.reloadData()
                 }
 
             })
@@ -162,11 +149,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
 
             try? FileManager.default.removeItem(at: book.fileURL)
 
-            self.tableView.beginUpdates()
-            self.tableView.deleteRows(at: [indexPath], with: .none)
-            self.tableView.endUpdates()
-
-            self.toggleEmptyStateView()
+            self.deleteRows(at: [indexPath])
         }))
 
         alert.popoverPresentationController?.sourceView = self.view
@@ -181,12 +164,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
 
             DataManager.saveContext()
 
-            self.tableView.beginUpdates()
-            self.tableView.deleteRows(at: [indexPath], with: .none)
-            self.tableView.endUpdates()
-
-            self.toggleEmptyStateView()
-
+            self.deleteRows(at: [indexPath])
             return
         }
 
@@ -207,7 +185,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             DataManager.saveContext()
 
             self.tableView.beginUpdates()
-            self.tableView.reloadSections(IndexSet(integer: Section.library.rawValue), with: .fade)
+            self.tableView.reloadSections(IndexSet(integer: Section.library.rawValue), with: .none)
             self.tableView.endUpdates()
             self.toggleEmptyStateView()
         }))
@@ -222,10 +200,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
                 try? FileManager.default.removeItem(at: book.fileURL)
             }
 
-            self.tableView.beginUpdates()
-            self.tableView.deleteRows(at: [indexPath], with: .none)
-            self.tableView.endUpdates()
-            self.toggleEmptyStateView()
+            self.deleteRows(at: [indexPath])
         }))
 
         self.present(sheet, animated: true, completion: nil)
@@ -258,12 +233,6 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         }
     }
 
-    // MARK: - Callback events
-
-    @objc func reloadData() {
-        self.tableView.reloadData()
-    }
-
     // MARK: - IBActions
     @IBAction func addAction() {
         let alertController = UIAlertController(
@@ -281,11 +250,9 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
                 let playlist = DataManager.createPlaylist(title: title, books: [])
 
                 self.library.addToItems(playlist)
-
                 DataManager.saveContext()
 
-                self.tableView.reloadData()
-                self.toggleEmptyStateView()
+                self.reloadData()
             })
         })
 
@@ -378,8 +345,7 @@ extension LibraryViewController {
                         playlist.title = title
 
                         DataManager.saveContext()
-
-                        self.tableView.reloadData()
+                        self.tableView.reloadRows(at: [indexPath], with: .none)
                     }
                 })
 
@@ -483,11 +449,12 @@ extension LibraryViewController {
 
             self.present(alert, animated: true, completion: nil)
         } else {
-            self.presentCreatePlaylistAlert(handler: { title in
-                let minIndex = min(finalDestinationIndexPath.row, overIndexPath.row)
+            let minIndex = min(finalDestinationIndexPath.row, overIndexPath.row)
 
-                // Removing based on minIndex works because the cells are always adjacent
-                let book1 = self.items[minIndex]
+            // Removing based on minIndex works because the cells are always adjacent
+            let book1 = self.items[minIndex]
+
+            self.presentCreatePlaylistAlert(book1.title, handler: { title in
 
                 self.library.removeFromItems(book1)
 
