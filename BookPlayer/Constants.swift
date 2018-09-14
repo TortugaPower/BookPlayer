@@ -13,6 +13,8 @@ enum Constants {
         case lastPlayedBook = "userSettingsLastPlayedBook"
 
         // User preferences
+        case chapterContextEnabled = "userSettingsChapterContext"
+        case remainingTimeEnabled = "userSettingsRemainingTime"
         case smartRewindEnabled = "userSettingsSmartRewind"
         case boostVolumeEnabled = "userSettingsBoostVolume"
         case globalSpeedEnabled = "userSettingsGlobalSpeed"

@@ -24,6 +24,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Perfrom first launch setup
         if !defaults.bool(forKey: Constants.UserDefaults.completedFirstLaunch.rawValue) {
             // Set default settings
+            defaults.set(true, forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
             defaults.set(true, forKey: Constants.UserDefaults.smartRewindEnabled.rawValue)
             defaults.set(true, forKey: Constants.UserDefaults.completedFirstLaunch.rawValue)
         }

@@ -90,7 +90,7 @@ class VoiceOverService {
     }
 }
 
-fileprivate enum TimeUnit: String {
+private enum TimeUnit: String {
     case minute
     case second
     case hour
