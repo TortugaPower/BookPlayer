@@ -122,7 +122,9 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             })
         })
 
-        self.present(alert, animated: true, completion: nil)
+        let vc = self.presentedViewController ?? self
+
+        vc.present(alert, animated: true, completion: nil)
     }
 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -247,7 +249,9 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             handler?(title)
         }))
 
-        self.present(playlistAlert, animated: true) {
+        let vc = self.presentedViewController ?? self
+
+        vc.present(playlistAlert, animated: true) {
             guard let textfield = playlistAlert.textFields?.first else { return }
             textfield.becomeFirstResponder()
             textfield.selectedTextRange = textfield.textRange(from: textfield.beginningOfDocument, to: textfield.endOfDocument)

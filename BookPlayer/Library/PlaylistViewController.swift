@@ -24,14 +24,45 @@ class PlaylistViewController: BaseListViewController {
     }
 
     override func handleOperationCompletion(_ files: [FileItem]) {
-        DataManager.insertBooks(from: files, into: self.playlist) {
-            self.showLoadView(false)
-            self.tableView.beginUpdates()
-            self.tableView.reloadSections(IndexSet(0...0), with: .fade)
-            self.tableView.endUpdates()
-            self.toggleEmptyStateView()
-            NotificationCenter.default.post(name: .reloadData, object: nil)
+        guard files.count > 1 else {
+            DataManager.insertBooks(from: files, into: self.playlist) {
+                self.showLoadView(false)
+                self.tableView.beginUpdates()
+                self.tableView.reloadSections(IndexSet(0...0), with: .fade)
+                self.tableView.endUpdates()
+                self.toggleEmptyStateView()
+                NotificationCenter.default.post(name: .reloadData, object: nil)
+            }
+            return
         }
+
+        let alert = UIAlertController(title: "Import \(files.count) files into", message: nil, preferredStyle: .alert)
+
+        alert.addAction(UIAlertAction(title: "Library", style: .default) { (_) in
+            DataManager.insertBooks(from: files, into: self.library) {
+                self.showLoadView(false)
+                self.tableView.beginUpdates()
+                self.tableView.reloadSections(IndexSet(0...0), with: .fade)
+                self.tableView.endUpdates()
+                self.toggleEmptyStateView()
+                NotificationCenter.default.post(name: .reloadData, object: nil)
+            }
+        })
+
+        alert.addAction(UIAlertAction(title: "Current Playlist", style: .default) { (_) in
+            DataManager.insertBooks(from: files, into: self.playlist) {
+                self.showLoadView(false)
+                self.tableView.beginUpdates()
+                self.tableView.reloadSections(IndexSet(0...0), with: .fade)
+                self.tableView.endUpdates()
+                self.toggleEmptyStateView()
+                NotificationCenter.default.post(name: .reloadData, object: nil)
+            }
+        })
+
+        let vc = self.presentedViewController ?? self
+
+        vc.present(alert, animated: true, completion: nil)
     }
 
     // MARK: - Callback events
