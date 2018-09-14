@@ -13,10 +13,18 @@ import UIKit
 
 public class LibraryItem: NSManagedObject {
     var artwork: UIImage {
-        if let artworkData = self.artworkData {
-            return UIImage(data: artworkData as Data)!
-        } else {
-            return #imageLiteral(resourceName: "defaultArtwork")
+        if let cachedArtwork = self.cachedArtwork {
+            return cachedArtwork
         }
+
+        guard let artworkData = self.artworkData else {
+            return #imageLiteral(resourceName: "defaultArtwork")
+
+        }
+
+        self.cachedArtwork = UIImage(data: artworkData as Data)
+        return self.cachedArtwork!
     }
+
+    var cachedArtwork: UIImage?
 }
