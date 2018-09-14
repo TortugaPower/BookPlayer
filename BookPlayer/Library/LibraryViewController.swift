@@ -26,7 +26,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
 
         self.loadLibrary()
 
-        guard let identifier = UserDefaults.standard.string(forKey: UserDefaultsConstants.lastPlayedBook),
+        guard let identifier = UserDefaults.standard.string(forKey: Constants.UserDefaults.lastPlayedBook.rawValue),
             let item = self.library.getItem(with: identifier) else {
                 return
         }
