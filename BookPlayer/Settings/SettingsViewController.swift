@@ -46,11 +46,11 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         self.disableAutolockSwitch.addTarget(self, action: #selector(self.disableAutolockDidChange), for: .valueChanged)
 
         // Set initial switch positions
-        self.autoplayLibrarySwitch.setOn(UserDefaults.standard.bool(forKey: UserDefaultsConstants.autoplayEnabled), animated: false)
-        self.smartRewindSwitch.setOn(UserDefaults.standard.bool(forKey: UserDefaultsConstants.smartRewindEnabled), animated: false)
-        self.boostVolumeSwitch.setOn(UserDefaults.standard.bool(forKey: UserDefaultsConstants.boostVolumeEnabled), animated: false)
-        self.globalSpeedSwitch.setOn(UserDefaults.standard.bool(forKey: UserDefaultsConstants.globalSpeedEnabled), animated: false)
-        self.disableAutolockSwitch.setOn(UserDefaults.standard.bool(forKey: UserDefaultsConstants.autolockDisabled), animated: false)
+        self.autoplayLibrarySwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue), animated: false)
+        self.smartRewindSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.smartRewindEnabled.rawValue), animated: false)
+        self.boostVolumeSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue), animated: false)
+        self.globalSpeedSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue), animated: false)
+        self.disableAutolockSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue), animated: false)
 
         // Retrieve initial skip values from PlayerManager
         self.rewindIntervalLabel.text = self.formatDuration(PlayerManager.shared.rewindInterval)
@@ -94,23 +94,24 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     }
 
     @objc func autoplayToggleDidChange() {
-        UserDefaults.standard.set(self.autoplayLibrarySwitch.isOn, forKey: UserDefaultsConstants.autoplayEnabled)
+        UserDefaults.standard.set(self.autoplayLibrarySwitch.isOn, forKey: Constants.UserDefaults.autoplayEnabled.rawValue)
     }
 
     @objc func rewindToggleDidChange() {
-        UserDefaults.standard.set(self.smartRewindSwitch.isOn, forKey: UserDefaultsConstants.smartRewindEnabled)
+        UserDefaults.standard.set(self.smartRewindSwitch.isOn, forKey: Constants.UserDefaults.smartRewindEnabled.rawValue)
     }
 
     @objc func boostVolumeToggleDidChange() {
-        UserDefaults.standard.set(self.boostVolumeSwitch.isOn, forKey: UserDefaultsConstants.boostVolumeEnabled)
+        UserDefaults.standard.set(self.boostVolumeSwitch.isOn, forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
+        PlayerManager.shared.boostVolume = self.boostVolumeSwitch.isOn
     }
 
     @objc func globalSpeedToggleDidChange() {
-        UserDefaults.standard.set(self.globalSpeedSwitch.isOn, forKey: UserDefaultsConstants.globalSpeedEnabled)
+        UserDefaults.standard.set(self.globalSpeedSwitch.isOn, forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue)
     }
 
     @objc func disableAutolockDidChange() {
-        UserDefaults.standard.set(self.disableAutolockSwitch.isOn, forKey: UserDefaultsConstants.autolockDisabled)
+        UserDefaults.standard.set(self.disableAutolockSwitch.isOn, forKey: Constants.UserDefaults.autolockDisabled.rawValue)
     }
 
     @IBAction func done(_ sender: UIBarButtonItem) {

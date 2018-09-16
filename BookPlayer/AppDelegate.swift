@@ -22,10 +22,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let defaults: UserDefaults = UserDefaults.standard
 
         // Perfrom first launch setup
-        if !defaults.bool(forKey: UserDefaultsConstants.completedFirstLaunch) {
+        if !defaults.bool(forKey: Constants.UserDefaults.completedFirstLaunch.rawValue) {
             // Set default settings
-            defaults.set(true, forKey: UserDefaultsConstants.smartRewindEnabled)
-            defaults.set(true, forKey: UserDefaultsConstants.completedFirstLaunch)
+            defaults.set(true, forKey: Constants.UserDefaults.smartRewindEnabled.rawValue)
+            defaults.set(true, forKey: Constants.UserDefaults.completedFirstLaunch.rawValue)
         }
 
         // Appearance

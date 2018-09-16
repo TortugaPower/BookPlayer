@@ -105,7 +105,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     override func viewDidAppear(_ animated: Bool) {
-        if UserDefaults.standard.bool(forKey: UserDefaultsConstants.autolockDisabled) {
+        if UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue) {
             UIApplication.shared.isIdleTimerDisabled = true
         }
     }
@@ -166,7 +166,6 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         if showTimerLabel {
             items.append(self.sleepLabel)
         }
-
 
         if currentBook.hasChapters {
             items.append(spacer)

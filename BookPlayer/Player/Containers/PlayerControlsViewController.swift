@@ -64,7 +64,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
     private var artworkJumpControlsUsed: Bool = false {
         didSet {
-            UserDefaults.standard.set(self.artworkJumpControlsUsed, forKey: UserDefaultsConstants.artworkJumpControlsUsed)
+            UserDefaults.standard.set(self.artworkJumpControlsUsed, forKey: Constants.UserDefaults.artworkJumpControlsUsed.rawValue)
         }
     }
 
@@ -73,7 +73,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.artworkJumpControlsUsed = UserDefaults.standard.bool(forKey: UserDefaultsConstants.artworkJumpControlsUsed)
+        self.artworkJumpControlsUsed = UserDefaults.standard.bool(forKey: Constants.UserDefaults.artworkJumpControlsUsed.rawValue)
 
         self.artworkControl.isPlaying = PlayerManager.shared.isPlaying
         self.artworkControl.onPlayPause = { control in

@@ -156,7 +156,7 @@ class BaseListViewController: UIViewController {
 
     func queueBooksForPlayback(_ startItem: LibraryItem, forceAutoplay: Bool = false) -> [Book] {
         var books = [Book]()
-        let shouldAutoplayLibrary = UserDefaults.standard.bool(forKey: UserDefaultsConstants.autoplayEnabled)
+        let shouldAutoplayLibrary = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue)
         let shouldAutoplay = shouldAutoplayLibrary || forceAutoplay
 
         if let book = startItem as? Book {
