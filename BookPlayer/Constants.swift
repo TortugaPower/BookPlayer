@@ -8,6 +8,7 @@ enum Constants {
     enum UserDefaults: String {
         // Application information
         case completedFirstLaunch = "userSettingsCompletedFirstLaunch"
+        case fileProtectionMigration = "userSettingsFileProtectionMigration"
         case lastPauseTime = "userSettingsLastPauseTime"
         case lastPlayedBook = "userSettingsLastPlayedBook"
 

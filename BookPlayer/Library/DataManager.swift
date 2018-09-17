@@ -67,6 +67,26 @@ class DataManager {
     // MARK: - File processing
 
     /**
+     Remove file protection for processed folder so that when the app is on the background and the iPhone is locked, autoplay still works
+     */
+    class func makeFilesPublic() {
+        let processedFolder = self.getProcessedFolderURL()
+
+        guard let files = self.getFiles(from: processedFolder) else { return }
+
+        for file in files {
+            self.makeFilePublic(file as NSURL)
+        }
+    }
+
+    /**
+     Remove file protection for one file
+     */
+    class func makeFilePublic(_ file: NSURL) {
+        try? file.setResourceValue(URLFileProtection.completeUntilFirstUserAuthentication, forKey: .fileProtectionKey)
+    }
+
+    /**
      Get url of files in a directory
 
      - Parameter folder: The folder from which to get all the files urls
@@ -124,6 +144,7 @@ class DataManager {
             do {
                 if !FileManager.default.fileExists(atPath: destinationURL.path) {
                     try FileManager.default.moveItem(at: origin, to: destinationURL)
+                    self.makeFilePublic(destinationURL as NSURL)
                 } else {
                     try FileManager.default.removeItem(at: origin)
                 }
