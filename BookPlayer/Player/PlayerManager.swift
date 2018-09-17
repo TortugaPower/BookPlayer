@@ -16,12 +16,13 @@ class PlayerManager: NSObject {
     static let shared = PlayerManager()
 
     private var audioPlayer: AVAudioPlayer?
-    private var playerItem: AVPlayerItem!
 
     var currentBooks: [Book]?
     var currentBook: Book? {
         return self.currentBooks?.first
     }
+
+    private var nowPlayingInfo = [String: Any]()
 
     private var timer: Timer!
 
@@ -49,27 +50,24 @@ class PlayerManager: NSObject {
             audioplayer.delegate = self
             audioplayer.enableRate = true
 
-            self.playerItem = DataManager.playerItem(from: book)
-
             self.boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
 
             // Update UI on main thread
             DispatchQueue.main.async(execute: {
                 // Set book metadata for lockscreen and control center
-                var nowPlayingInfo: [String: Any] = [
+                self.nowPlayingInfo = [
                     MPMediaItemPropertyTitle: book.title,
                     MPMediaItemPropertyArtist: book.author,
                     MPMediaItemPropertyPlaybackDuration: audioplayer.duration
                 ]
 
-                nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(
+                self.nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(
                     boundsSize: book.artwork.size,
                     requestHandler: { (_) -> UIImage in
                         return book.artwork
-                    }
-                )
+                })
 
-                MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+                MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
 
                 if book.currentTime > 0.0 {
                     self.jumpTo(book.currentTime)
@@ -111,7 +109,8 @@ class PlayerManager: NSObject {
             )
         }
 
-        MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
+        self.nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
 
         // stop timer if the book is finished
         if Int(audioplayer.currentTime) == Int(audioplayer.duration) {
@@ -318,8 +317,9 @@ class PlayerManager: NSObject {
         // Set play state on player and control center
         audioplayer.play()
 
-        MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 1.0
-        MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
+        self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 1.0
+        self.nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
 
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
@@ -345,8 +345,9 @@ class PlayerManager: NSObject {
         // Set pause state on player and control center
         audioplayer.pause()
 
-        MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 0.0
-        MPNowPlayingInfoCenter.default().nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
+        self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0.0
+        self.nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
 
         UserDefaults.standard.set(Date(), forKey: "\(Constants.UserDefaults.lastPauseTime)_\(currentBook.identifier!)")
 
@@ -396,7 +397,7 @@ class PlayerManager: NSObject {
     }
 }
 
-// MARK: -
+// MARK: - AVAudioPlayer Delegate
 
 extension PlayerManager: AVAudioPlayerDelegate {
     // Leave the slider at max
@@ -415,7 +416,9 @@ extension PlayerManager: AVAudioPlayerDelegate {
 
         let currentBooks = Array(slicedCurrentBooks)
 
-        self.load(currentBooks, completion: { (_) in
+        self.load(currentBooks, completion: { (success) in
+            guard success else { return }
+
             let userInfo = ["books": currentBooks]
 
             NotificationCenter.default.post(
