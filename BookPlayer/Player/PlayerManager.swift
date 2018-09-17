@@ -26,6 +26,8 @@ class PlayerManager: NSObject {
 
     private var timer: Timer!
 
+    private let queue = OperationQueue()
+
     func load(_ books: [Book], completion:@escaping (Bool) -> Void) {
         guard let book = books.first else {
             completion(false)
@@ -34,8 +36,7 @@ class PlayerManager: NSObject {
 
         self.currentBooks = books
 
-        // Load data on background thread
-        DispatchQueue.global().async {
+        queue.addOperation {
             // try loading the player
             guard let audioplayer = try? AVAudioPlayer(contentsOf: book.fileURL) else {
                 DispatchQueue.main.async(execute: {
