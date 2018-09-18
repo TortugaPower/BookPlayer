@@ -361,4 +361,8 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             default: break
         }
     }
+    override func accessibilityPerformEscape() -> Bool {
+        dismissPlayer()
+        return true
+    }
 }
