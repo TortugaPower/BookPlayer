@@ -147,7 +147,7 @@ class BookCellView: UITableViewCell {
 extension BookCellView {
     private func setAccessibilityLabels() {
         let voiceOverService = VoiceOverService()
-        artwork?.accessibilityLabel = "Artwork"
+        isAccessibilityElement = true
         accessibilityLabel = voiceOverService.bookCellView(type: type,
                                                            title: title,
                                                            subtitle: subtitle,

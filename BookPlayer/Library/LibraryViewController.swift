@@ -48,6 +48,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
 
             NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.playerDismissed, object: nil, userInfo: nil)
         }
+        setupCustomRotors()
     }
 
     // No longer need to deregister observers for iOS 9+!
@@ -226,6 +227,35 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
 
         self.present(alertController, animated: true, completion: nil)
     }
+    
+    // MARK: Accessibility
+    private func setupCustomRotors() {
+        let playListRotor = UIAccessibilityCustomRotor.init(name: "Playlists") { (predicate) -> UIAccessibilityCustomRotorItemResult? in
+            let forward: Bool = (predicate.searchDirection  == .next)
+
+            let playListCells = self.tableView.visibleCells.filter({ (cell) -> Bool in
+                guard let cell = cell as? BookCellView else { return false }
+                return cell.type == .playlist
+            })
+            
+            var currentIndex = forward ? -1 : playListCells.count
+//
+            if let currentElement = predicate.currentItem.targetElement {
+                if let cell = currentElement as? BookCellView {
+                    currentIndex = playListCells.firstIndex(of: cell) ?? currentIndex
+                }
+            }
+            let nextIndex = forward ? currentIndex + 1 : currentIndex - 1
+
+            while nextIndex >= 0 && nextIndex < playListCells.count {
+                let cell = playListCells[nextIndex]
+                return UIAccessibilityCustomRotorItemResult(targetElement: cell, targetRange: nil)
+            }
+            return nil
+        }
+        accessibilityCustomRotors = [playListRotor]
+    }
+
 }
 
 extension LibraryViewController {
