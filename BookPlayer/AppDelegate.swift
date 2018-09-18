@@ -138,7 +138,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Pause playback if route changes due to a disconnect
         switch reason {
         case .oldDeviceUnavailable:
-            PlayerManager.shared.pause()
+            DispatchQueue.main.async {
+                PlayerManager.shared.pause()
+            }
         default:
             break
         }
