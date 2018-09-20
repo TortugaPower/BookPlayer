@@ -44,6 +44,13 @@
 		418B6D081D2707F800F974FB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 418B6D061D2707F800F974FB /* LaunchScreen.storyboard */; };
 		418B6D5D1D2CB76900F974FB /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418B6D5C1D2CB76900F974FB /* PlayerViewController.swift */; };
 		4197240021874D5F00AB1190 /* UserActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419723FF21874D5F00AB1190 /* UserActivityManager.swift */; };
+		41A392AC215431790025F38F /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 41A392AA215431790025F38F /* Interface.storyboard */; };
+		41A392AE2154317A0025F38F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 41A392AD2154317A0025F38F /* Assets.xcassets */; };
+		41A392B52154317B0025F38F /* BookPlayerWatch Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 41A392B42154317A0025F38F /* BookPlayerWatch Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		41A392BA2154317B0025F38F /* InterfaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A392B92154317B0025F38F /* InterfaceController.swift */; };
+		41A392BC2154317B0025F38F /* ExtensionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A392BB2154317B0025F38F /* ExtensionDelegate.swift */; };
+		41A392BE2154317B0025F38F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 41A392BD2154317B0025F38F /* Assets.xcassets */; };
+		41A392C22154317B0025F38F /* BookPlayerWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 41A392A8215431790025F38F /* BookPlayerWatch.app */; };
 		41A6A87520DEECC400B2C621 /* PlaylistTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A6A87420DEECC400B2C621 /* PlaylistTests.swift */; };
 		41B2AC8E1D43CCE8005382A9 /* ChaptersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */; };
 		41C3CF7E20AEA5E5007C3EF4 /* DataManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */; };
@@ -103,9 +110,45 @@
 			remoteGlobalIDString = 418B6CF71D2707F800F974FB;
 			remoteInfo = "Audiobook Player";
 		};
+		41A392B62154317B0025F38F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 418B6CF01D2707F700F974FB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 41A392B32154317A0025F38F;
+			remoteInfo = "BookPlayerWatch Extension";
+		};
+		41A392C02154317B0025F38F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 418B6CF01D2707F700F974FB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 41A392A7215431790025F38F;
+			remoteInfo = BookPlayerWatch;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		41A392CA2154317B0025F38F /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				41A392B52154317B0025F38F /* BookPlayerWatch Extension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		41A392CC2154317B0025F38F /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				41A392C22154317B0025F38F /* BookPlayerWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		41D4F2C92101464D009F1B1E /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -163,6 +206,17 @@
 		418B6D5C1D2CB76900F974FB /* PlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerViewController.swift; sourceTree = "<group>"; };
 		419196341D47CC4E007A3AF3 /* BookPlayer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BookPlayer.entitlements; sourceTree = "<group>"; };
 		419723FF21874D5F00AB1190 /* UserActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserActivityManager.swift; sourceTree = "<group>"; };
+		41A392A8215431790025F38F /* BookPlayerWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BookPlayerWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		41A392AB215431790025F38F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
+		41A392AD2154317A0025F38F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		41A392AF2154317A0025F38F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		41A392B42154317A0025F38F /* BookPlayerWatch Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "BookPlayerWatch Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		41A392B92154317B0025F38F /* InterfaceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterfaceController.swift; sourceTree = "<group>"; };
+		41A392BB2154317B0025F38F /* ExtensionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionDelegate.swift; sourceTree = "<group>"; };
+		41A392BD2154317B0025F38F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		41A392BF2154317B0025F38F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		41A392CD215431D40025F38F /* BookPlayerWatch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BookPlayerWatch.entitlements; sourceTree = "<group>"; };
+		41A392CE215431D80025F38F /* BookPlayerWatch Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "BookPlayerWatch Extension.entitlements"; sourceTree = "<group>"; };
 		41A6A87420DEECC400B2C621 /* PlaylistTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlaylistTests.swift; sourceTree = "<group>"; };
 		41AB1C121D30298800AC1AA0 /* MBProgressHUD.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MBProgressHUD.framework; path = Carthage/Build/iOS/MBProgressHUD.framework; sourceTree = "<group>"; };
 		41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChaptersViewController.swift; sourceTree = "<group>"; };
@@ -242,6 +296,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		41A392B12154317A0025F38F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -271,6 +332,8 @@
 				418B6CFA1D2707F800F974FB /* BookPlayer */,
 				418B6D111D2707F800F974FB /* BookPlayerTests */,
 				417D67CF215D39C5000E64F0 /* BookPlayerUITests */,
+				41A392A9215431790025F38F /* BookPlayerWatch */,
+				41A392B82154317B0025F38F /* BookPlayerWatch Extension */,
 				418B6CF91D2707F800F974FB /* Products */,
 				41AABFFA1E705D18006BD2E0 /* Frameworks */,
 			);
@@ -282,6 +345,8 @@
 				418B6CF81D2707F800F974FB /* BookPlayer.app */,
 				418B6D0E1D2707F800F974FB /* BookPlayerTests.xctest */,
 				417D67CE215D39C5000E64F0 /* BookPlayerUITests.xctest */,
+				41A392A8215431790025F38F /* BookPlayerWatch.app */,
+				41A392B42154317A0025F38F /* BookPlayerWatch Extension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -322,6 +387,29 @@
 				418B6D141D2707F800F974FB /* Info.plist */,
 			);
 			path = BookPlayerTests;
+			sourceTree = "<group>";
+		};
+		41A392A9215431790025F38F /* BookPlayerWatch */ = {
+			isa = PBXGroup;
+			children = (
+				41A392CD215431D40025F38F /* BookPlayerWatch.entitlements */,
+				41A392AA215431790025F38F /* Interface.storyboard */,
+				41A392AD2154317A0025F38F /* Assets.xcassets */,
+				41A392AF2154317A0025F38F /* Info.plist */,
+			);
+			path = BookPlayerWatch;
+			sourceTree = "<group>";
+		};
+		41A392B82154317B0025F38F /* BookPlayerWatch Extension */ = {
+			isa = PBXGroup;
+			children = (
+				41A392CE215431D80025F38F /* BookPlayerWatch Extension.entitlements */,
+				41A392B92154317B0025F38F /* InterfaceController.swift */,
+				41A392BB2154317B0025F38F /* ExtensionDelegate.swift */,
+				41A392BD2154317B0025F38F /* Assets.xcassets */,
+				41A392BF2154317B0025F38F /* Info.plist */,
+			);
+			path = "BookPlayerWatch Extension";
 			sourceTree = "<group>";
 		};
 		41AABFFA1E705D18006BD2E0 /* Frameworks */ = {
@@ -543,10 +631,12 @@
 				418B6CF61D2707F800F974FB /* Resources */,
 				413616421D30100100E48944 /* Copy Frameworks managed by Carthage */,
 				41D4F2C92101464D009F1B1E /* Embed Frameworks */,
+				41A392CC2154317B0025F38F /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				41A392C12154317B0025F38F /* PBXTargetDependency */,
 			);
 			name = BookPlayer;
 			productName = "Audiobook Player";
@@ -570,6 +660,40 @@
 			productName = "Audiobook PlayerTests";
 			productReference = 418B6D0E1D2707F800F974FB /* BookPlayerTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		41A392A7215431790025F38F /* BookPlayerWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 41A392CB2154317B0025F38F /* Build configuration list for PBXNativeTarget "BookPlayerWatch" */;
+			buildPhases = (
+				41A392A6215431790025F38F /* Resources */,
+				41A392CA2154317B0025F38F /* Embed App Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				41A392B72154317B0025F38F /* PBXTargetDependency */,
+			);
+			name = BookPlayerWatch;
+			productName = BookPlayerWatch;
+			productReference = 41A392A8215431790025F38F /* BookPlayerWatch.app */;
+			productType = "com.apple.product-type.application.watchapp2";
+		};
+		41A392B32154317A0025F38F /* BookPlayerWatch Extension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 41A392C92154317B0025F38F /* Build configuration list for PBXNativeTarget "BookPlayerWatch Extension" */;
+			buildPhases = (
+				41A392B02154317A0025F38F /* Sources */,
+				41A392B12154317A0025F38F /* Frameworks */,
+				41A392B22154317A0025F38F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "BookPlayerWatch Extension";
+			productName = "BookPlayerWatch Extension";
+			productReference = 41A392B42154317A0025F38F /* BookPlayerWatch Extension.appex */;
+			productType = "com.apple.product-type.watchkit2-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -611,6 +735,26 @@
 						LastSwiftMigration = 0900;
 						TestTargetID = 418B6CF71D2707F800F974FB;
 					};
+					41A392A7215431790025F38F = {
+						CreatedOnToolsVersion = 10.0;
+						DevelopmentTeam = S7TJSJXWUZ;
+						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+						};
+					};
+					41A392B32154317A0025F38F = {
+						CreatedOnToolsVersion = 10.0;
+						DevelopmentTeam = S7TJSJXWUZ;
+						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+						};
+					};
 				};
 			};
 			buildConfigurationList = 418B6CF31D2707F700F974FB /* Build configuration list for PBXProject "BookPlayer" */;
@@ -629,6 +773,8 @@
 				418B6CF71D2707F800F974FB /* BookPlayer */,
 				418B6D0D1D2707F800F974FB /* BookPlayerTests */,
 				417D67CD215D39C5000E64F0 /* BookPlayerUITests */,
+				41A392A7215431790025F38F /* BookPlayerWatch */,
+				41A392B32154317A0025F38F /* BookPlayerWatch Extension */,
 			);
 		};
 /* End PBXProject section */
@@ -661,6 +807,23 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		41A392A6215431790025F38F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				41A392AE2154317A0025F38F /* Assets.xcassets in Resources */,
+				41A392AC215431790025F38F /* Interface.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		41A392B22154317A0025F38F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				41A392BE2154317B0025F38F /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -814,6 +977,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		41A392B02154317A0025F38F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				41A392BC2154317B0025F38F /* ExtensionDelegate.swift in Sources */,
+				41A392BA2154317B0025F38F /* InterfaceController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -826,6 +998,16 @@
 			isa = PBXTargetDependency;
 			target = 418B6CF71D2707F800F974FB /* BookPlayer */;
 			targetProxy = 418B6D0F1D2707F800F974FB /* PBXContainerItemProxy */;
+		};
+		41A392B72154317B0025F38F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 41A392B32154317A0025F38F /* BookPlayerWatch Extension */;
+			targetProxy = 41A392B62154317B0025F38F /* PBXContainerItemProxy */;
+		};
+		41A392C12154317B0025F38F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 41A392A7215431790025F38F /* BookPlayerWatch */;
+			targetProxy = 41A392C02154317B0025F38F /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -844,6 +1026,14 @@
 				418B6D071D2707F800F974FB /* Base */,
 			);
 			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		41A392AA215431790025F38F /* Interface.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				41A392AB215431790025F38F /* Base */,
+			);
+			name = Interface.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -1115,6 +1305,172 @@
 			};
 			name = Release;
 		};
+		41A392C32154317B0025F38F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = BookPlayerWatch/BookPlayerWatch.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				IBSC_MODULE = BookPlayerWatch_Extension;
+				INFOPLIST_FILE = BookPlayerWatch/Info.plist;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 5.0;
+			};
+			name = Debug;
+		};
+		41A392C42154317B0025F38F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = BookPlayerWatch/BookPlayerWatch.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				IBSC_MODULE = BookPlayerWatch_Extension;
+				INFOPLIST_FILE = BookPlayerWatch/Info.plist;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 5.0;
+			};
+			name = Release;
+		};
+		41A392C52154317B0025F38F /* Beta */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = BookPlayerWatch/BookPlayerWatch.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = E7ZXX8R29L;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				IBSC_MODULE = BookPlayerWatch_Extension;
+				INFOPLIST_FILE = BookPlayerWatch/Info.plist;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 5.0;
+			};
+			name = Beta;
+		};
+		41A392C62154317B0025F38F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = "BookPlayerWatch Extension/BookPlayerWatch Extension.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "BookPlayerWatch Extension/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp.watchkitextension;
+				PRODUCT_NAME = "${TARGET_NAME}";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 5.0;
+			};
+			name = Debug;
+		};
+		41A392C72154317B0025F38F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = "BookPlayerWatch Extension/BookPlayerWatch Extension.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "BookPlayerWatch Extension/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp.watchkitextension;
+				PRODUCT_NAME = "${TARGET_NAME}";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 5.0;
+			};
+			name = Release;
+		};
+		41A392C82154317B0025F38F /* Beta */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = "BookPlayerWatch Extension/BookPlayerWatch Extension.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "BookPlayerWatch Extension/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp.watchkitextension;
+				PRODUCT_NAME = "${TARGET_NAME}";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 5.0;
+			};
+			name = Beta;
+		};
 		C30C6B8820C68EDD0085218A /* Beta */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1247,6 +1603,26 @@
 				418B6D1B1D2707F800F974FB /* Debug */,
 				418B6D1C1D2707F800F974FB /* Release */,
 				C30C6B8A20C68EDD0085218A /* Beta */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		41A392C92154317B0025F38F /* Build configuration list for PBXNativeTarget "BookPlayerWatch Extension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				41A392C62154317B0025F38F /* Debug */,
+				41A392C72154317B0025F38F /* Release */,
+				41A392C82154317B0025F38F /* Beta */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		41A392CB2154317B0025F38F /* Build configuration list for PBXNativeTarget "BookPlayerWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				41A392C32154317B0025F38F /* Debug */,
+				41A392C42154317B0025F38F /* Release */,
+				41A392C52154317B0025F38F /* Beta */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
