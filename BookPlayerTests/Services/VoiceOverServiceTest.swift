@@ -10,8 +10,8 @@ class VoiceOverServiceTest: XCTestCase {
     }
 
     func testRewindText() {
-        PlayerManager.shared.forwardInterval = 60
-        XCTAssert(VoiceOverService.fastForwardText() == "Rewind 1 minute")
+        PlayerManager.shared.rewindInterval = 60
+        XCTAssert(VoiceOverService.rewindText() == "Rewind 1 minute")
     }
 
     func testForwardText() {
