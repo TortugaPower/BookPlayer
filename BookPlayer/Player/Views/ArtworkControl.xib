@@ -32,6 +32,10 @@
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6cy-7G-42S" customClass="PlayerJumpIconForward" customModule="BookPlayer" customModuleProvider="target">
                     <rect key="frame" x="265" y="132" width="60" height="60"/>
                     <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <accessibility key="accessibilityConfiguration">
+                        <accessibilityTraits key="traits" button="YES"/>
+                        <bool key="isElement" value="YES"/>
+                    </accessibility>
                     <constraints>
                         <constraint firstAttribute="width" constant="60" id="dgq-OZ-uxR"/>
                         <constraint firstAttribute="height" constant="60" id="ycb-cQ-Ea2"/>
@@ -40,6 +44,10 @@
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5e7-tW-iQd" customClass="PlayerJumpIconRewind" customModule="BookPlayer" customModuleProvider="target">
                     <rect key="frame" x="0.0" y="132" width="60" height="60"/>
                     <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <accessibility key="accessibilityConfiguration">
+                        <accessibilityTraits key="traits" button="YES"/>
+                        <bool key="isElement" value="YES"/>
+                    </accessibility>
                     <constraints>
                         <constraint firstAttribute="width" constant="60" id="3hy-qn-oEo"/>
                         <constraint firstAttribute="height" constant="60" id="wXB-PZ-nzC"/>
@@ -57,6 +65,10 @@
                         </imageView>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eBX-C3-3ce">
                             <rect key="frame" x="0.0" y="0.0" width="325" height="325"/>
+                            <accessibility key="accessibilityConfiguration" label="Play Pause">
+                                <accessibilityTraits key="traits" none="YES"/>
+                                <bool key="isElement" value="NO"/>
+                            </accessibility>
                             <state key="normal" image="playerIconPlay"/>
                             <connections>
                                 <action selector="playPauseButtonTouchUpInside" destination="-1" eventType="touchUpInside" id="aYb-Av-VpV"/>

@@ -47,6 +47,7 @@ class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecogniz
 
             self.artworkHeight.constant = ratio > 1 ? 50.0 / ratio : 50.0
             self.artworkWidth.constant = ratio < 1 ? 50.0 * ratio : 50.0
+            setVoiceOverLabels()
         }
     }
 
@@ -70,10 +71,12 @@ class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecogniz
 
     @objc private func onBookPlay() {
         self.playPauseButton.setImage(self.pauseImage, for: UIControlState())
+        self.playPauseButton.accessibilityHint = "Tap to Pause"
     }
 
     @objc private func onBookPause() {
         self.playPauseButton.setImage(self.playImage, for: UIControlState())
+        self.playPauseButton.accessibilityHint = "Tap to Play"
     }
 
     // MARK: Actions
@@ -86,5 +89,15 @@ class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecogniz
 
     @objc func tapAction() {
         self.showPlayer?()
+    }
+
+    // MARK: - Voiceover
+
+    private func setVoiceOverLabels() {
+        let voiceOverTitle = titleLabel.text ?? "No Title"
+        let voiceOverSubtitle = authorLabel.text ?? "No Author"
+        titleLabel.accessibilityLabel = "Currently Playing \(voiceOverTitle) by \(voiceOverSubtitle)"
+        accessibilityHint = "Miniplayer"
+        playPauseButton.accessibilityHint = "Tap to Play"
     }
 }

@@ -123,6 +123,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.controlsViewController?.book = currentBook
 
         self.speedButton.title = self.formatSpeed(PlayerManager.shared.speed)
+        self.speedButton.accessibilityLabel = String(describing: self.formatSpeed(PlayerManager.shared.speed) + " speed")
 
         self.view.backgroundColor = currentBook.artworkColors.background
         self.bottomToolbar.tintColor = currentBook.artworkColors.secondary
@@ -179,6 +180,8 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
                 )
             )
 
+            avRoutePickerBarButtonItem.isAccessibilityElement = true
+            avRoutePickerBarButtonItem.accessibilityLabel = "Audio Source"
             items.append(spacer)
             items.append(avRoutePickerBarButtonItem)
         }
@@ -231,6 +234,9 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             },
             onProgress: { (timeLeft: Double) -> Void in
                 self.sleepLabel.title = SleepTimer.shared.durationFormatter.string(from: timeLeft)
+                if let timeLeft = SleepTimer.shared.durationFormatter.string(from: timeLeft) {
+                    self.sleepLabel.accessibilityLabel = String(describing: timeLeft + " remaining until sleep")
+                }
             },
             onEnd: { (_ cancelled: Bool) -> Void in
                 if !cancelled {
@@ -353,5 +359,9 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
             default: break
         }
+    }
+    override func accessibilityPerformEscape() -> Bool {
+        dismissPlayer()
+        return true
     }
 }
