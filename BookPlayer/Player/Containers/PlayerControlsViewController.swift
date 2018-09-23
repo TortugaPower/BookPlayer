@@ -75,6 +75,21 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         return time
     }
 
+    private var durationTimeInContext: TimeInterval {
+        guard let book = self.book else {
+            return 0.0
+        }
+
+        guard
+            self.prefersChapterContext,
+            book.hasChapters,
+            let duration = book.currentChapter?.duration else {
+                return book.duration
+        }
+
+        return duration
+    }
+
     private var artworkJumpControlsUsed: Bool = false {
         didSet {
             UserDefaults.standard.set(self.artworkJumpControlsUsed, forKey: Constants.UserDefaults.artworkJumpControlsUsed.rawValue)
@@ -156,12 +171,14 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
             return
         }
 
-        self.maxTimeButton.setTitle(self.formatTime(self.maxTimeInContext), for: .normal)
-        self.maxTimeButton.accessibilityLabel = String(describing: "Chapter length " + VoiceOverService.secondsToMinutes(maxTimeInContext))
-
         if !self.progressSlider.isTracking {
             self.currentTimeLabel.text = self.formatTime(self.currentTimeInContext)
             self.currentTimeLabel.accessibilityLabel = String(describing: "Current Chapter Time: " + VoiceOverService.secondsToMinutes(currentTimeInContext))
+            self.maxTimeButton.setTitle(self.formatTime(self.maxTimeInContext), for: .normal)
+            let prefix = self.prefersRemainingTime
+                ? "Remaining Chapter Time: "
+                : "Chapter duration: "
+            self.maxTimeButton.accessibilityLabel = String(describing: prefix + VoiceOverService.secondsToMinutes(maxTimeInContext))
         }
 
         guard
@@ -174,6 +191,10 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
                 self.progressSlider.value = Float(book.progress)
                 self.progressSlider.setNeedsDisplay()
+                let prefix = self.prefersRemainingTime
+                    ? "Remaining Book Time: "
+                    : "Book duration: "
+                self.maxTimeButton.accessibilityLabel = String(describing: prefix + VoiceOverService.secondsToMinutes(maxTimeInContext))
             }
 
             return
@@ -273,6 +294,10 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
         if !book.hasChapters || !self.prefersChapterContext {
             self.progressButton.setTitle("\(Int(round(sender.value * 100)))%", for: .normal)
+        }
+
+        if self.prefersRemainingTime {
+            self.maxTimeButton.setTitle(self.formatTime(newTimeToDisplay - self.durationTimeInContext), for: .normal)
         }
     }
 }

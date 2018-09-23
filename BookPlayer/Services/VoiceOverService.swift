@@ -67,9 +67,10 @@ class VoiceOverService {
     }
 
     public static func secondsToMinutes(_ interval: TimeInterval) -> String {
-        let hours = (interval / 3600.0).rounded(.towardZero)
-        let minutes = ((interval.truncatingRemainder(dividingBy: 3600)) / 60).rounded(.towardZero)
-        let seconds = ((interval.truncatingRemainder(dividingBy: 60)).truncatingRemainder(dividingBy: 60)).rounded()
+        let absInterval = abs(interval)
+        let hours = (absInterval / 3600.0).rounded(.towardZero)
+        let minutes = ((absInterval.truncatingRemainder(dividingBy: 3600)) / 60).rounded(.towardZero)
+        let seconds = ((absInterval.truncatingRemainder(dividingBy: 60)).truncatingRemainder(dividingBy: 60)).rounded()
 
         let hoursText = pluralization(amount: Int(hours), interval: .hour)
         let minutesText = pluralization(amount: Int(minutes), interval: .minute)
