@@ -72,8 +72,9 @@ Managed with [Carthage](https://github.com/Carthage/Carthage)
 - [ColorCube](https://github.com/pixelogik/ColorCube) for extracting artwork colors
 - [DeviceKit](https://github.com/dennisweissmann/DeviceKit) for device information used in support requests
 - [MarqueeLabel](https://github.com/cbpowell/MarqueeLabel) for scrolling labels
-- [MBProgressHUD](https://github.com/jdg/MBProgressHUD) for loading wheels
+- [DirectoryWatcher](https://github.com/GianniCarlo/DirectoryWatcher) for events on the document's folder
 - [Sweetercolor](https://github.com/jathu/sweetercolor) for handling artwork colors
+- [SwiftReorder](https://github.com/GianniCarlo/SwiftReorder) for drag-and-drop on the UITableView
 
 Managed with [Homebrew](https://brew.sh)
 

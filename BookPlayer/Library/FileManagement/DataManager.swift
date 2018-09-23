@@ -15,6 +15,9 @@ import IDZSwiftCommonCrypto
 class DataManager {
     static let processedFolderName = "Processed"
 
+    static let importer = ImportManager()
+    static let queue = OperationQueue()
+
     // MARK: - Folder URLs
 
     class func getDocumentsFolderURL() -> URL {
@@ -35,6 +38,25 @@ class DataManager {
         }
 
         return processedFolderURL
+    }
+
+    // MARK: - Operations
+    class func start(_ operation: Operation) {
+        self.queue.addOperation(operation)
+    }
+
+    class func isProcessingFiles() -> Bool {
+        return !self.queue.operations.isEmpty
+    }
+
+    class func countOfProcessingFiles() -> Int {
+        var count = 0
+        // swiftlint:disable force_cast
+        for operation in self.queue.operations as! [ImportOperation] {
+            count += operation.files.count
+        }
+        // swiftlint:enable force_cast
+        return count
     }
 
     // MARK: - Core Data stack
@@ -92,7 +114,7 @@ class DataManager {
      - Parameter folder: The folder from which to get all the files urls
      - Returns: Array of file-only `URL`, directories are excluded. It returns `nil` if the folder is empty.
      */
-    internal class func getFiles(from folder: URL) -> [URL]? {
+    class func getFiles(from folder: URL) -> [URL]? {
         // Get reference of all the files located inside the Documents folder
         guard let urls = try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil, options: .skipsSubdirectoryDescendants) else {
             return nil
@@ -104,63 +126,29 @@ class DataManager {
     /**
      Filter out folders from file URLs.
      */
-    internal class func filterFiles(_ urls: [URL]) -> [URL] {
+    private class func filterFiles(_ urls: [URL]) -> [URL] {
         return urls.filter({ !$0.hasDirectoryPath })
     }
 
     /**
-     Process file located at a specific `URL`, renames it with the hash and moves it to the specified folder. The new file maintains the extension of the original `URL`
+     Notifies the ImportManager about the new file
      - Parameter origin: File original location
-     - Parameter destinationFolder: File final location
-     - Returns: `URL` of the file's new location. Returns `nil` if hashing fails.
      */
-    class func processFile(at origin: URL, destinationFolder: URL, completion:@escaping (URL?) -> Void) {
-        guard FileManager.default.fileExists(atPath: origin.path),
-            let inputStream = InputStream(url: origin) else {
-            completion(nil)
-            return
-        }
-
-        DispatchQueue.global().async {
-            inputStream.open()
-
-            let digest = Digest(algorithm: .md5)
-
-            while inputStream.hasBytesAvailable {
-                var inputBuffer = [UInt8](repeating: 0, count: 1024)
-                inputStream.read(&inputBuffer, maxLength: inputBuffer.count)
-                _ = digest.update(byteArray: inputBuffer)
-            }
-
-            inputStream.close()
-
-            let finalDigest = digest.final()
-
-            let hash = hexString(fromArray: finalDigest)
-            let ext = origin.pathExtension
-            let filename = hash + ".\(ext)"
-            let destinationURL = destinationFolder.appendingPathComponent(filename)
-
-            do {
-                if !FileManager.default.fileExists(atPath: destinationURL.path) {
-                    try FileManager.default.moveItem(at: origin, to: destinationURL)
-                    self.makeFilePublic(destinationURL as NSURL)
-                } else {
-                    try FileManager.default.removeItem(at: origin)
-                }
-            } catch {
-                fatalError("Fail to move file from \(origin) to \(destinationURL)")
-            }
-
-            DispatchQueue.main.async {
-                completion(destinationURL)
-            }
-        }
+    class func processFile(at origin: URL) {
+        self.processFile(at: origin, destinationFolder: self.getProcessedFolderURL())
     }
 
     /**
-     Process all the files in the documents folder and move them to the 'processed' folder (specified by the DataManager).
-     - Parameter completion: Closure block which returns the array of new urls of the processed files
+     Notifies the ImportManager about the new file
+     - Parameter origin: File original location
+     - Parameter destinationFolder: File final location
+     */
+    class func processFile(at origin: URL, destinationFolder: URL) {
+        self.importer.process(origin, destinationFolder: destinationFolder)
+    }
+
+    /**
+     Find all the files in the documents folder and send notifications about their existence.
      */
     class func notifyPendingFiles() {
         let documentsFolder = self.getDocumentsFolderURL()
@@ -170,9 +158,10 @@ class DataManager {
             return
         }
 
+        let processedFolder = self.getProcessedFolderURL()
+
         for url in urls {
-            let userInfo = ["fileURL": url]
-            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.libraryOpenURL, object: nil, userInfo: userInfo)
+            self.processFile(at: url, destinationFolder: processedFolder)
         }
     }
 
@@ -217,59 +206,61 @@ class DataManager {
      
      A book can't be in two places at once, so if it already existed, it will be removed from the original playlist or library, and it will be added to the new one.
      
-     - Parameter bookUrls: `Book`s will be created for each element in this array
+     - Parameter files: `Book`s will be created for each element in this array
      - Parameter playlist: `Playlist` to which the created `Book` will be added
      - Parameter library: `Library` to which the created `Book` will be added if the parameter `playlist` is nil
      - Parameter completion: Closure fired after processing all the urls.
      */
-    class func insertBooks(from bookUrls: [BookURL], into playlist: Playlist?, or library: Library, completion:@escaping () -> Void) {
-            let context = self.persistentContainer.viewContext
+    class func insertBooks(from files: [FileItem], into playlist: Playlist?, or library: Library, completion:@escaping () -> Void) {
+        let context = self.persistentContainer.viewContext
 
-            for bookUrl in bookUrls {
-                let url = bookUrl.processed
-                // Check if book exists in the library
-                guard let item = library.getItem(with: url) else {
-                    let book = Book(from: bookUrl, context: context)
+        for file in files {
+            // TODO: do something about unprocessed URLs
+            guard let url = file.processedUrl else { continue }
+
+            // Check if book exists in the library
+            guard  let item = library.getItem(with: url) else {
+                let book = Book(from: file, context: context)
+
+                if let playlist = playlist {
+                    playlist.addToBooks(book)
+                } else {
+                    library.addToItems(book)
+                }
+
+                continue
+            }
+
+            guard let storedPlaylist = item as? Playlist,
+                let storedBook = storedPlaylist.getBook(with: url) else {
+                    // swiftlint:disable force_cast
+                    // Handle if item is a book
+                    let storedBook = item as! Book
 
                     if let playlist = playlist {
-                        playlist.addToBooks(book)
-                    } else {
-                        library.addToItems(book)
+                        library.removeFromItems(storedBook)
+                        playlist.addToBooks(storedBook)
                     }
 
                     continue
-                }
-
-                guard let storedPlaylist = item as? Playlist,
-                    let storedBook = storedPlaylist.getBook(with: url) else {
-                        // swiftlint:disable force_cast
-                        // Handle if item is a book
-                        let storedBook = item as! Book
-
-                        if let playlist = playlist {
-                            library.removeFromItems(storedBook)
-                            playlist.addToBooks(storedBook)
-                        }
-
-                        continue
-                }
-
-                // Handle if book already exists in the library
-                storedPlaylist.removeFromBooks(storedBook)
-
-                if let playlist = playlist {
-                    playlist.addToBooks(storedBook)
-                } else {
-                    library.addToItems(storedBook)
-                }
-
             }
 
-            self.saveContext()
+            // Handle if book already exists in the library
+            storedPlaylist.removeFromBooks(storedBook)
 
-            DispatchQueue.main.async {
-                completion()
+            if let playlist = playlist {
+                playlist.addToBooks(storedBook)
+            } else {
+                library.addToItems(storedBook)
             }
+
+        }
+
+        self.saveContext()
+
+        DispatchQueue.main.async {
+            completion()
+        }
     }
 
     /**
@@ -279,8 +270,8 @@ class DataManager {
      - Parameter library: `Library` to which the created `Book` will be added
      - Parameter completion: Closure fired after processing all the urls.
      */
-    class func insertBooks(from bookUrls: [BookURL], into library: Library, completion:@escaping () -> Void) {
-        self.insertBooks(from: bookUrls, into: nil, or: library, completion: completion)
+    class func insertBooks(from files: [FileItem], into library: Library, completion:@escaping () -> Void) {
+        self.insertBooks(from: files, into: nil, or: library, completion: completion)
     }
 
     /**
@@ -290,16 +281,16 @@ class DataManager {
      - Parameter playlist: `Playlist` to which the created `Book` will be added
      - Parameter completion: Closure fired after processing all the urls.
      */
-    class func insertBooks(from bookUrls: [BookURL], into playlist: Playlist, completion:@escaping () -> Void) {
-        self.insertBooks(from: bookUrls, into: playlist, or: playlist.library!, completion: completion)
+    class func insertBooks(from files: [FileItem], into playlist: Playlist, completion:@escaping () -> Void) {
+        self.insertBooks(from: files, into: playlist, or: playlist.library!, completion: completion)
     }
 
     class func createPlaylist(title: String, books: [Book]) -> Playlist {
         return Playlist(title: title, books: books, context: self.persistentContainer.viewContext)
     }
 
-    class func createBook(from bookUrl: BookURL) -> Book {
-        return Book(from: bookUrl, context: self.persistentContainer.viewContext)
+    class func createBook(from file: FileItem) -> Book {
+        return Book(from: file, context: self.persistentContainer.viewContext)
     }
 
     internal class func insert(_ playlist: Playlist, into library: Library) {
