@@ -8,6 +8,7 @@
 
 import UIKit
 
+// swiftlint:disable type_body_length
 class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     @IBOutlet var contentView: UIView!
 
