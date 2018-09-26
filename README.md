@@ -36,6 +36,7 @@
 - Volume Boost
 - Support for remote events from headset buttons and the lock screen
 - Sleep timer with adjustable duration
+- Support for VoiceOver
 
 ### Upcoming features
 
@@ -60,6 +61,7 @@ If you enjoy BookPlayer, we would be glad if you consider writing a review on th
 - [@e7mac](https://github.com/e7mac) - Speed control, Autoplay
 - [@gpambrozio](https://github.com/gpambrozio) - Volume Boost
 - [@vab9](https://github.com/vab9) - AirDrop Support
+- [@ryantstone](https://github.com/ryantstone) - VoiceOver Support
 
 A full list of all contributors can be found [on GitHub.](https://github.com/GianniCarlo/Audiobook-Player/graphs/contributors)
 
