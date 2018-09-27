@@ -8,6 +8,7 @@
 
 import UIKit
 
+// swiftlint:disable type_body_length
 class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     @IBOutlet var contentView: UIView!
 
@@ -126,6 +127,11 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         self.setup()
     }
 
+    override func willMove(toSuperview newSuperview: UIView?) {
+        super.willMove(toSuperview: newSuperview)
+        setupAccessibilityLabels()
+    }
+
     private func setup() {
         self.backgroundColor = .clear
 
@@ -177,6 +183,21 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
             self.rewindIcon.transform = .identity
             self.forwardIcon.transform = .identity
         }
+    }
+
+    // Voiceover
+    private func setupAccessibilityLabels() {
+        isAccessibilityElement = false
+        playPauseButton.isAccessibilityElement = true
+        playPauseButton.accessibilityLabel = "Play Pause"
+        playPauseButton.accessibilityTraits = super.accessibilityTraits | UIAccessibilityTraitButton
+        rewindIcon.accessibilityLabel = VoiceOverService.rewindText()
+        forwardIcon.accessibilityLabel = VoiceOverService.fastForwardText()
+        accessibilityElements = [
+            playPauseButton,
+            rewindIcon,
+            forwardIcon
+        ]
     }
 
     // MARK: - Actions

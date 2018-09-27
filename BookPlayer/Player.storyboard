@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14313.18" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina5_9" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
-        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
-        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14283.14"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -25,6 +23,7 @@
                             </imageView>
                             <button opaque="NO" alpha="0.33000001311302185" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UQ3-tH-RXC">
                                 <rect key="frame" x="0.0" y="44" width="375" height="44"/>
+                                <accessibility key="accessibilityConfiguration" label="Dismiss Player"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="44" id="ojJ-Qy-esP"/>
                                 </constraints>
@@ -35,11 +34,11 @@
                                 </connections>
                             </button>
                             <view userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yd3-5B-2dw" userLabel="A Spacer">
-                                <rect key="frame" x="0.0" y="88" width="375" height="51.666666666666657"/>
+                                <rect key="frame" x="0.0" y="88" width="375" height="52"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9Od-bi-f9L" userLabel="Meta Container">
-                                <rect key="frame" x="0.0" y="139.66666666666666" width="375" height="63"/>
+                                <rect key="frame" x="0.0" y="140" width="375" height="63"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="63" id="BbS-cw-NAL"/>
                                 </constraints>
@@ -48,20 +47,11 @@
                                 </connections>
                             </containerView>
                             <view userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xRJ-B7-BuP" userLabel="B Spacer">
-                                <rect key="frame" x="0.0" y="202.66666666666666" width="375" height="20.666666666666657"/>
+                                <rect key="frame" x="0.0" y="203" width="375" height="20.666666666666657"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
-                            <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XWJ-W6-gno" userLabel="Controls Contrainer">
-                                <rect key="frame" x="0.0" y="223.33333333333337" width="375" height="422"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" secondItem="XWJ-W6-gno" secondAttribute="height" multiplier="1:1" constant="-47" id="DWR-i3-tsa"/>
-                                </constraints>
-                                <connections>
-                                    <segue destination="68B-o2-0YS" kind="embed" id="wI0-FH-bve"/>
-                                </connections>
-                            </containerView>
                             <view userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Udu-jl-e5s" userLabel="C Spacer">
-                                <rect key="frame" x="0.0" y="645.33333333333337" width="375" height="88.666666666666629"/>
+                                <rect key="frame" x="0.0" y="645.66666666666663" width="375" height="88.333333333333371"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="black" translatesAutoresizingMaskIntoConstraints="NO" id="AqX-H1-RbL">
@@ -77,7 +67,7 @@
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="KGD-om-Msu"/>
-                                    <barButtonItem title="Timer" image="toolbarIconTimer" id="FYz-g6-orv">
+                                    <barButtonItem title="Timer" image="toolbarIconTimer" largeContentSizeImage="toolbarIconTimer" width="23" id="FYz-g6-orv">
                                         <connections>
                                             <action selector="setSleepTimer" destination="Sd0-Pz-hUD" id="HtO-Yt-R1e"/>
                                         </connections>
@@ -88,14 +78,14 @@
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="1HZ-gc-6DC"/>
-                                    <barButtonItem title="Chapters" image="toolbarIconChapters" id="NBy-Nn-5LY">
+                                    <barButtonItem title="Chapters" image="toolbarIconChapters" largeContentSizeImage="toolbarIconChapters" id="NBy-Nn-5LY">
                                         <connections>
                                             <action selector="didSelectChapter:" destination="Sd0-Pz-hUD" id="Ybs-R7-348"/>
                                             <segue destination="wJP-at-zgg" kind="presentation" identifier="ChapterSelectionSegue" id="YGU-7Y-fWR"/>
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="M8S-cO-boc"/>
-                                    <barButtonItem title="More" image="toolbarIconMore" id="Fsd-fw-HAo">
+                                    <barButtonItem title="More" image="toolbarIconMore" largeContentSizeImage="toolbarIconMore" id="Fsd-fw-HAo">
                                         <connections>
                                             <action selector="showMore" destination="Sd0-Pz-hUD" id="Ddo-nq-AC9"/>
                                         </connections>
@@ -103,6 +93,15 @@
                                 </items>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </toolbar>
+                            <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XWJ-W6-gno" userLabel="Controls Contrainer">
+                                <rect key="frame" x="0.0" y="223.66666666666663" width="375" height="422"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="XWJ-W6-gno" secondAttribute="height" multiplier="1:1" constant="-47" id="DWR-i3-tsa"/>
+                                </constraints>
+                                <connections>
+                                    <segue destination="68B-o2-0YS" kind="embed" id="wI0-FH-bve"/>
+                                </connections>
+                            </containerView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
@@ -148,9 +147,9 @@
                         <outlet property="chaptersButton" destination="NBy-Nn-5LY" id="ySc-5s-lez"/>
                         <outlet property="closeButton" destination="UQ3-tH-RXC" id="V9f-G1-nX8"/>
                         <outlet property="closeButtonTop" destination="FSk-a6-cK0" id="shF-ng-l4E"/>
+                        <outlet property="moreButton" destination="Fsd-fw-HAo" id="5SH-yk-QTw"/>
                         <outlet property="sleepButton" destination="FYz-g6-orv" id="cSZ-sb-NnH"/>
                         <outlet property="sleepLabel" destination="mSM-I9-iUa" id="KgX-aa-gAF"/>
-                        <outlet property="spaceBeforeChaptersButton" destination="1HZ-gc-6DC" id="m08-Mj-jFd"/>
                         <outlet property="speedButton" destination="c1l-Kk-Q62" id="ulh-iS-ELR"/>
                     </connections>
                 </viewController>
@@ -163,7 +162,7 @@
             <objects>
                 <tableViewController title="Chapters" id="sFu-g1-bMf" customClass="ChaptersViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="Kdf-GY-XM6">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="672"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="724"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <prototypes>
@@ -213,8 +212,8 @@
         <scene sceneID="8hE-1K-H9j">
             <objects>
                 <navigationController id="wJP-at-zgg" sceneMemberID="viewController">
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translucent="NO" largeTitles="YES" id="Ll2-cb-4kv">
-                        <rect key="frame" x="0.0" y="44" width="375" height="96"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translucent="NO" id="Ll2-cb-4kv">
+                        <rect key="frame" x="0.0" y="44" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>
@@ -236,6 +235,9 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="vz5-r9-Aky" userLabel="Artwork View" customClass="ArtworkControl" customModule="BookPlayer" customModuleProvider="target">
                                 <rect key="frame" x="25" y="25" width="325" height="325"/>
                                 <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                                <accessibility key="accessibilityConfiguration" label="Play Pause">
+                                    <bool key="isElement" value="NO"/>
+                                </accessibility>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="vz5-r9-Aky" secondAttribute="height" multiplier="1:1" id="m3g-oX-cWP"/>
                                 </constraints>
@@ -246,9 +248,21 @@
                                     <constraint firstAttribute="width" secondItem="gcR-RG-Gq3" secondAttribute="height" multiplier="375:25" id="vrD-Wg-hQo"/>
                                 </constraints>
                             </view>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="00:00:00" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pew-fS-sdj">
+                                <rect key="frame" x="25" y="395" width="87" height="25"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="25" id="X18-r3-mZ2"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="14"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                             <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="H18-ma-bZ0" customClass="ProgressSlider" customModule="BookPlayer" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="365" width="375" height="31"/>
+                                <rect key="frame" x="0.0" y="375" width="375" height="21"/>
                                 <color key="tintColor" red="0.20392156859999999" green="0.53333333329999999" blue="0.81960784310000001" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="20" id="ysd-UO-C4a"/>
+                                </constraints>
                                 <connections>
                                     <action selector="sliderDown:event:" destination="68B-o2-0YS" eventType="touchDown" id="Ixp-Ja-Gtu"/>
                                     <action selector="sliderUp:event:" destination="68B-o2-0YS" eventType="touchUpOutside" id="5zH-ZX-njh"/>
@@ -256,48 +270,53 @@
                                     <action selector="sliderValueChanged:event:" destination="68B-o2-0YS" eventType="valueChanged" id="IoN-f2-wvp"/>
                                 </connections>
                             </slider>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="00:00:00" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pew-fS-sdj">
-                                <rect key="frame" x="24.999999999999993" y="395" width="87.333333333333314" height="17"/>
-                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="14"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="00:00:00" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QTx-fQ-j4r">
-                                <rect key="frame" x="263" y="395" width="86.666666666666686" height="17"/>
-                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="14"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Chapter 999 of 999" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Gof-rE-l9F">
-                                <rect key="frame" x="112.33333333333331" y="395" width="151" height="17"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2By-Fa-Kn1">
+                                <rect key="frame" x="263" y="395" width="87" height="25"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" priority="250" constant="151" id="qbO-8v-Ojc"/>
+                                    <constraint firstAttribute="height" constant="25" id="Y6E-EF-Yub"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="14"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
+                                <state key="normal" title="00:00:00">
+                                    <color key="titleColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="toggleMaxTime:" destination="68B-o2-0YS" eventType="touchUpInside" id="WMV-eF-Hoa"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LW8-1K-wDU">
+                                <rect key="frame" x="112" y="395" width="151" height="25"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" priority="250" constant="151" id="KKZ-pe-pby"/>
+                                    <constraint firstAttribute="height" constant="25" id="h0a-yl-Lzb"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="14"/>
+                                <state key="normal" title="Chapter 999 of 999">
+                                    <color key="titleColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="toggleProgressState:" destination="68B-o2-0YS" eventType="touchUpInside" id="Pco-M6-Do4"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="vz5-r9-Aky" firstAttribute="width" secondItem="ssf-c8-jCZ" secondAttribute="width" constant="-50" id="0nz-kl-ENO"/>
                             <constraint firstAttribute="top" secondItem="vz5-r9-Aky" secondAttribute="top" constant="-25" id="1XY-T6-zwT"/>
+                            <constraint firstItem="LW8-1K-wDU" firstAttribute="leading" secondItem="pew-fS-sdj" secondAttribute="trailing" id="4F8-1g-dXQ"/>
                             <constraint firstItem="pew-fS-sdj" firstAttribute="top" secondItem="H18-ma-bZ0" secondAttribute="bottom" id="4v0-4T-fQD"/>
-                            <constraint firstItem="H18-ma-bZ0" firstAttribute="top" secondItem="gcR-RG-Gq3" secondAttribute="bottom" constant="-10" id="7J6-pY-7OD"/>
-                            <constraint firstItem="pew-fS-sdj" firstAttribute="width" secondItem="QTx-fQ-j4r" secondAttribute="width" id="Kcz-V4-Jjt"/>
-                            <constraint firstItem="QTx-fQ-j4r" firstAttribute="top" secondItem="H18-ma-bZ0" secondAttribute="bottom" id="L04-fk-nNL"/>
+                            <constraint firstItem="H18-ma-bZ0" firstAttribute="top" secondItem="gcR-RG-Gq3" secondAttribute="bottom" id="7J6-pY-7OD"/>
+                            <constraint firstItem="LW8-1K-wDU" firstAttribute="top" secondItem="H18-ma-bZ0" secondAttribute="bottom" id="FbH-td-CoD"/>
+                            <constraint firstItem="2By-Fa-Kn1" firstAttribute="leading" secondItem="LW8-1K-wDU" secondAttribute="trailing" id="JUB-Ba-1Z3"/>
                             <constraint firstItem="gcR-RG-Gq3" firstAttribute="width" secondItem="ssf-c8-jCZ" secondAttribute="width" id="P6V-BF-4mf"/>
                             <constraint firstItem="H18-ma-bZ0" firstAttribute="leading" secondItem="fdI-xo-0K2" secondAttribute="leading" constant="2" id="QB0-EO-jhz"/>
-                            <constraint firstItem="Gof-rE-l9F" firstAttribute="top" secondItem="H18-ma-bZ0" secondAttribute="bottom" id="QMY-Lu-G0U"/>
                             <constraint firstItem="fdI-xo-0K2" firstAttribute="trailing" secondItem="H18-ma-bZ0" secondAttribute="trailing" constant="2" id="ULW-oA-q4y"/>
+                            <constraint firstItem="2By-Fa-Kn1" firstAttribute="top" secondItem="H18-ma-bZ0" secondAttribute="bottom" id="VBN-NU-1aI"/>
                             <constraint firstItem="gcR-RG-Gq3" firstAttribute="top" secondItem="vz5-r9-Aky" secondAttribute="bottom" id="WqH-5Y-92m"/>
-                            <constraint firstItem="vz5-r9-Aky" firstAttribute="bottom" secondItem="ssf-c8-jCZ" secondAttribute="bottom" priority="750" constant="-72" id="XRd-yW-NqB"/>
-                            <constraint firstItem="QTx-fQ-j4r" firstAttribute="leading" secondItem="Gof-rE-l9F" secondAttribute="trailing" id="aN6-cq-tjX"/>
                             <constraint firstItem="gcR-RG-Gq3" firstAttribute="centerX" secondItem="fdI-xo-0K2" secondAttribute="centerX" id="bq4-er-vcQ"/>
-                            <constraint firstItem="fdI-xo-0K2" firstAttribute="trailing" secondItem="QTx-fQ-j4r" secondAttribute="trailing" constant="25" id="fiP-SA-ujM"/>
+                            <constraint firstItem="fdI-xo-0K2" firstAttribute="trailing" secondItem="2By-Fa-Kn1" secondAttribute="trailing" constant="25" id="eMt-ww-NiK"/>
+                            <constraint firstItem="2By-Fa-Kn1" firstAttribute="width" secondItem="pew-fS-sdj" secondAttribute="width" id="lOR-vA-oyE"/>
                             <constraint firstItem="pew-fS-sdj" firstAttribute="leading" secondItem="fdI-xo-0K2" secondAttribute="leading" constant="25" id="ld0-98-w3v"/>
                             <constraint firstItem="vz5-r9-Aky" firstAttribute="centerX" secondItem="ssf-c8-jCZ" secondAttribute="centerX" id="mMH-sg-q3r"/>
-                            <constraint firstItem="Gof-rE-l9F" firstAttribute="leading" secondItem="pew-fS-sdj" secondAttribute="trailing" id="wlO-tb-kaQ"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="fdI-xo-0K2"/>
                     </view>
@@ -306,8 +325,8 @@
                         <outlet property="artworkControl" destination="vz5-r9-Aky" id="q8k-ad-2YL"/>
                         <outlet property="artworkHorizontal" destination="mMH-sg-q3r" id="fzs-5P-SkK"/>
                         <outlet property="currentTimeLabel" destination="pew-fS-sdj" id="8kJ-nc-syL"/>
-                        <outlet property="maxTimeLabel" destination="QTx-fQ-j4r" id="zNW-O3-lVp"/>
-                        <outlet property="progressLabel" destination="Gof-rE-l9F" id="ifK-26-YEv"/>
+                        <outlet property="maxTimeButton" destination="2By-Fa-Kn1" id="gNd-fx-Q8v"/>
+                        <outlet property="progressButton" destination="LW8-1K-wDU" id="WEe-G5-vHc"/>
                         <outlet property="progressSlider" destination="H18-ma-bZ0" id="V6t-wD-E5s"/>
                     </connections>
                 </viewController>
@@ -333,6 +352,9 @@
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Title" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="AFC-CW-CmP" customClass="BPMarqueeLabel" customModule="BookPlayer">
                                 <rect key="frame" x="5" y="21" width="365" height="21"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                                <accessibility key="accessibilityConfiguration">
+                                    <bool key="isElement" value="NO"/>
+                                </accessibility>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="14"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
@@ -340,6 +362,9 @@
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Chapter" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Dum-h3-A0j" customClass="BPMarqueeLabel" customModule="BookPlayer">
                                 <rect key="frame" x="5" y="42" width="365" height="21"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                                <accessibility key="accessibilityConfiguration">
+                                    <bool key="isElement" value="NO"/>
+                                </accessibility>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="14"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>

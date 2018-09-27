@@ -8,10 +8,18 @@
 
 import UIKit
 import MediaPlayer
-import MBProgressHUD
 import SwiftReorder
 
+// swiftlint:disable file_length
+
 class BaseListViewController: UIViewController {
+    @IBOutlet weak var emptyStatePlaceholder: UIView!
+    @IBOutlet weak var loadingContainerView: UIView!
+    @IBOutlet weak var loadingTitleLabel: UILabel!
+    @IBOutlet weak var loadingSubtitleLabel: UILabel!
+    @IBOutlet weak var loadingHeightConstraintView: NSLayoutConstraint!
+    @IBOutlet weak var tableView: UITableView!
+
     var library: Library!
 
     // TableView's datasource
@@ -23,102 +31,71 @@ class BaseListViewController: UIViewController {
         return self.library.items?.array as? [LibraryItem] ?? []
     }
 
-    let queue = OperationQueue()
-    var token: NSKeyValueObservation?
-
-    @IBOutlet weak var tableView: UITableView!
-
     // keep in memory current Documents folder
     let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.queue.maxConcurrentOperationCount = 1
-        self.token = self.queue.observe(\.operationCount) { (opQueue, change) in
-            guard opQueue.operationCount == 0 else {
-                return
-            }
-
-            DispatchQueue.main.async {
-                MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
-            }
-        }
-
         self.tableView.register(UINib(nibName: "BookCellView", bundle: nil), forCellReuseIdentifier: "BookCellView")
         self.tableView.register(UINib(nibName: "AddCellView", bundle: nil), forCellReuseIdentifier: "AddCellView")
 
         self.tableView.reorder.delegate = self
         self.tableView.reorder.cellScale = 1.07
-
         self.tableView.reorder.shadowColor = UIColor.black
         self.tableView.reorder.shadowOffset = CGSize(width: 0.0, height: 3.0)
         self.tableView.reorder.shadowOpacity = 0.25
         self.tableView.reorder.shadowRadius = 8.0
         self.tableView.reorder.animationDuration = 0.15
 
+        // The bottom offset has to be adjusted for the miniplayer as the notification doing this would be sent before the current VC was created
+        self.adjustBottomOffsetForMiniPlayer()
+
         // Remove the line after the last cell
         self.tableView.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.size.width, height: 1))
 
-        // fixed tableview having strange offset
+        // Fixed tableview having strange offset
         self.edgesForExtendedLayout = UIRectEdge()
 
-        // register notifications when the book is ready
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookReady), name: Notification.Name.AudiobookPlayer.bookReady, object: nil)
+        // Prepare empty states
+        self.toggleEmptyStateView()
+        self.showLoadView(false)
 
-        // register for percentage change notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.updateProgress(_:)), name: Notification.Name.AudiobookPlayer.updatePercentage, object: nil)
-
-        NotificationCenter.default.addObserver(self, selector: #selector(self.dismissMiniPlayer), name: Notification.Name.AudiobookPlayer.playerPresented, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.presentMiniPlayer), name: Notification.Name.AudiobookPlayer.playerDismissed, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPlay), name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookStop(_:)), name: Notification.Name.AudiobookPlayer.bookStopped, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookReady), name: .bookReady, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.updateProgress(_:)), name: .updatePercentage, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.adjustBottomOffsetForMiniPlayer), name: .playerPresented, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.adjustBottomOffsetForMiniPlayer), name: .playerDismissed, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPlay), name: .bookPlayed, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: .bookPaused, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookStop(_:)), name: .bookStopped, object: nil)
     }
 
-    @objc func onBookPlay() {
-        guard
-            let currentBook = PlayerManager.shared.currentBook,
-            let index = self.library.itemIndex(with: currentBook.fileURL),
-            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView
-        else {
-            return
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onProcessingFile(_:)), name: .processingFile, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onNewFileUrl), name: .newFileUrl, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onNewOperation(_:)), name: .importOperation, object: nil)
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        NotificationCenter.default.removeObserver(self, name: .processingFile, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .newFileUrl, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .importOperation, object: nil)
+    }
+
+    func showLoadView(_ flag: Bool) {
+        self.loadingHeightConstraintView.constant = flag
+            ? 65
+            : 0
+        UIView.animate(withDuration: 0.5) {
+            self.loadingContainerView.isHidden = !flag
+            self.view.layoutIfNeeded()
         }
-
-        bookCell.playbackState = .playing
     }
 
-    @objc func onBookPause() {
-        guard
-            let book = PlayerManager.shared.currentBook,
-            let index = self.library.itemIndex(with: book.fileURL),
-            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView
-        else {
-            return
-        }
-
-        bookCell.playbackState = .paused
-    }
-
-    @objc func onBookStop(_ notification: Notification) {
-        guard
-            let userInfo = notification.userInfo,
-            let book = userInfo["book"] as? Book,
-            let index = self.library.itemIndex(with: book.fileURL),
-            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView
-        else {
-            return
-        }
-
-        bookCell.playbackState = .stopped
-    }
-
-    @objc func presentMiniPlayer() {
-        self.tableView.contentInset.bottom = 88.0
-    }
-
-    @objc func dismissMiniPlayer() {
-        self.tableView.contentInset.bottom = 0.0
+    func toggleEmptyStateView() {
+        self.emptyStatePlaceholder.isHidden = !self.items.isEmpty
     }
 
     func presentImportFilesAlert() {
@@ -143,18 +120,56 @@ class BaseListViewController: UIViewController {
         }
     }
 
-    func setupPlayer(books: [Book]) {
-        // Make sure player is for a different book
-        let book = books.first!
+    func queueBooksForPlayback(_ startItem: LibraryItem, forceAutoplay: Bool = false) -> [Book] {
+        var books = [Book]()
+        let shouldAutoplayLibrary = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue)
+        let shouldAutoplay = shouldAutoplayLibrary || forceAutoplay
 
-        guard let currentBook = PlayerManager.shared.currentBook, currentBook.fileURL == book.fileURL else {
+        if let book = startItem as? Book {
+            books.append(book)
+        }
+
+        if let playlist = startItem as? Playlist {
+            books.append(contentsOf: playlist.getRemainingBooks())
+        }
+
+        guard
+            shouldAutoplay,
+            let remainingItems = self.items.split(whereSeparator: { $0 == startItem }).last
+            else {
+                return books
+        }
+
+        for item in remainingItems {
+            if let playlist = item as? Playlist {
+                books.append(contentsOf: playlist.getRemainingBooks())
+            } else if let book = item as? Book, !book.isCompleted {
+                books.append(book)
+            }
+        }
+
+        return books
+    }
+
+    func setupPlayer(books: [Book] = []) {
+        // Stop setup if no books were found
+        if books.isEmpty {
+            return
+        }
+
+        // Make sure player is for a different book
+        guard
+            let firstBook = books.first,
+            let currentBook = PlayerManager.shared.currentBook,
+            currentBook == firstBook
+        else {
             // Handle loading new player
             self.loadPlayer(books: books)
 
             return
         }
 
-        self.showPlayerView(book: book)
+        self.showPlayerView(book: currentBook)
     }
 
     func loadPlayer(books: [Book]) {
@@ -166,12 +181,9 @@ class BaseListViewController: UIViewController {
             return
         }
 
-        MBProgressHUD.showAdded(to: self.view, animated: true)
-
         // Replace player with new one
         PlayerManager.shared.load(books) { (loaded) in
             guard loaded else {
-                MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
                 self.showAlert("File error!", message: "This book's file couldn't be loaded. Make sure you're not using files with DRM protection (like .aax files)")
                 return
             }
@@ -181,13 +193,105 @@ class BaseListViewController: UIViewController {
         }
     }
 
+    func handleOperationCompletion(_ files: [FileItem]) {
+        fatalError("handleOperationCompletion must be overriden")
+    }
+
+    func deleteRows(at indexPaths: [IndexPath]) {
+        self.tableView.beginUpdates()
+        self.tableView.deleteRows(at: indexPaths, with: .none)
+        self.tableView.endUpdates()
+        self.toggleEmptyStateView()
+    }
+
+    // MARK: - Callback events
+    @objc func reloadData() {
+        self.tableView.beginUpdates()
+        self.tableView.reloadSections(IndexSet(integer: Section.library.rawValue), with: .none)
+        self.tableView.endUpdates()
+        self.toggleEmptyStateView()
+    }
+
+    @objc func onNewFileUrl() {
+        guard self.loadingContainerView.isHidden else { return }
+
+        self.loadingTitleLabel.text = "Preparing to import files"
+        self.loadingSubtitleLabel.isHidden = true
+        self.showLoadView(true)
+    }
+
+    // This is called from a background thread inside an ImportOperation
+    @objc func onProcessingFile(_ notification: Notification) {
+        guard
+            let userInfo = notification.userInfo,
+            let filename = userInfo["filename"] as? String else {
+                return
+        }
+
+        DispatchQueue.main.async {
+            self.loadingSubtitleLabel.text = filename
+            self.loadingSubtitleLabel.isHidden = false
+        }
+    }
+
+    @objc func onNewOperation(_ notification: Notification) {
+        guard
+            let userInfo = notification.userInfo,
+            let operation = userInfo["operation"] as? ImportOperation
+            else {
+                return
+        }
+
+        self.loadingTitleLabel.text = "Processing \(operation.files.count) file(s)"
+
+        operation.completionBlock = {
+            DispatchQueue.main.async {
+                self.handleOperationCompletion(operation.files)
+            }
+        }
+
+        DataManager.start(operation)
+    }
+
     @objc func bookReady() {
-        MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
         self.tableView.reloadData()
     }
 
-    func loadFile(urls: [BookURL]) {
-        fatalError("loadFiles must be overriden")
+    @objc func onBookPlay() {
+        guard
+            let currentBook = PlayerManager.shared.currentBook,
+            let index = self.library.itemIndex(with: currentBook.fileURL),
+            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .library)) as? BookCellView
+            else {
+                return
+        }
+
+        bookCell.playbackState = .playing
+    }
+
+    @objc func onBookPause() {
+        guard
+            let book = PlayerManager.shared.currentBook,
+            let index = self.library.itemIndex(with: book.fileURL),
+            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .library)) as? BookCellView
+            else {
+                return
+        }
+
+        bookCell.playbackState = .paused
+    }
+
+    @objc func onBookStop(_ notification: Notification) {
+        guard
+            let userInfo = notification.userInfo,
+            let book = userInfo["book"] as? Book,
+            let index = self.library.itemIndex(with: book.fileURL),
+            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .library)) as? BookCellView
+            else {
+                return
+        }
+
+        bookCell.playbackState = .stopped
     }
 
     @objc func updateProgress(_ notification: Notification) {
@@ -203,42 +307,26 @@ class BaseListViewController: UIViewController {
             }
 
             return false
-        }), let cell = self.tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? BookCellView else {
+        }), let cell = self.tableView.cellForRow(at: IndexPath(row: index, section: .library)) as? BookCellView else {
             return
         }
 
         cell.progress = progress
     }
 
-    @objc func openURL(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-            let fileURL = userInfo["fileURL"] as? URL else {
-                return
-        }
-
-        MBProgressHUD.showAdded(to: self.view, animated: true)
-
-        let destinationFolder = DataManager.getProcessedFolderURL()
-
-        DataManager.processFile(at: fileURL, destinationFolder: destinationFolder) { (processedURL) in
-            guard let processedURL = processedURL else {
-                MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
-                return
-            }
-
-            let bookUrl = BookURL(original: fileURL, processed: processedURL)
-            self.loadFile(urls: [bookUrl])
+    @objc func adjustBottomOffsetForMiniPlayer() {
+        if let rootViewController = self.parent?.parent as? RootViewController {
+            self.tableView.contentInset.bottom = rootViewController.miniPlayerIsHidden ? 0.0 : 88.0
         }
     }
 }
 
+// MARK: - TableView DataSource
 extension BaseListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard section == 0 else {
-            return 1
-        }
-
-        return self.items.count
+        return section == Section.library.rawValue
+            ? self.items.count
+            : 1
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -246,8 +334,8 @@ extension BaseListViewController: UITableViewDataSource {
             return spacer
         }
 
-        guard indexPath.section == 0, let cell = tableView.dequeueReusableCell(withIdentifier: "BookCellView", for: indexPath) as? BookCellView else {
-            // Load add cell
+        guard indexPath.sectionValue != .add,
+            let cell = tableView.dequeueReusableCell(withIdentifier: "BookCellView", for: indexPath) as? BookCellView else {
             return tableView.dequeueReusableCell(withIdentifier: "AddCellView", for: indexPath)
         }
 
@@ -258,30 +346,31 @@ extension BaseListViewController: UITableViewDataSource {
         cell.playbackState = .stopped
         cell.type = item is Playlist ? .playlist : .book
 
+        cell.onArtworkTap = { [weak self] in
+            guard let books = self?.queueBooksForPlayback(item) else {
+                return
+            }
+
+            self?.setupPlayer(books: books)
+        }
+
         if let book = item as? Book {
             cell.subtitle = book.author
             cell.progress = book.progress
-
-            cell.onArtworkTap = { [weak self] in
-                self?.setupPlayer(books: [book])
-            }
         } else if let playlist = item as? Playlist {
             cell.subtitle = playlist.info()
             cell.progress = playlist.totalProgress()
-
-            cell.onArtworkTap = { [weak self] in
-                self?.setupPlayer(books: playlist.getRemainingBooks())
-            }
         }
 
         return cell
     }
 
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
+        return Section.total.rawValue
     }
 }
 
+// MARK: - TableView Delegate
 extension BaseListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, canFocusRowAt indexPath: IndexPath) -> Bool {
         return true
@@ -291,7 +380,7 @@ extension BaseListViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCellEditingStyle {
-        guard indexPath.section == 0 else {
+        guard indexPath.sectionValue == .library else {
             return .insert
         }
         return .delete
@@ -312,15 +401,16 @@ extension BaseListViewController: UITableViewDelegate {
     }
 }
 
+// MARK: - Reorder Delegate
 extension BaseListViewController: TableViewReorderDelegate {
     @objc func tableView(_ tableView: UITableView, reorderRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {}
 
     func tableView(_ tableView: UITableView, canReorderRowAt indexPath: IndexPath) -> Bool {
-        return indexPath.section == 0
+        return indexPath.sectionValue == .library
     }
 
     func tableView(_ tableView: UITableView, targetIndexPathForReorderFromRowAt sourceIndexPath: IndexPath, to proposedDestinationIndexPath: IndexPath, snapshot: UIView?) -> IndexPath {
-        guard proposedDestinationIndexPath.section == 0 else {
+        guard proposedDestinationIndexPath.sectionValue == .library else {
             return sourceIndexPath
         }
 
@@ -334,7 +424,7 @@ extension BaseListViewController: TableViewReorderDelegate {
     }
 
     func tableView(_ tableView: UITableView, sourceIndexPath: IndexPath, overIndexPath: IndexPath, snapshot: UIView) {
-        guard overIndexPath.section == 0 else {
+        guard overIndexPath.sectionValue == .library else {
             return
         }
 
@@ -348,11 +438,11 @@ extension BaseListViewController: TableViewReorderDelegate {
     @objc func tableViewDidFinishReordering(_ tableView: UITableView, from initialSourceIndexPath: IndexPath, to finalDestinationIndexPath: IndexPath, dropped overIndexPath: IndexPath?) {}
 }
 
+// MARK: DocumentPicker Delegate
 extension BaseListViewController: UIDocumentPickerDelegate {
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         for url in urls {
-            let userInfo = ["fileURL": url]
-            NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.libraryOpenURL, object: nil, userInfo: userInfo)
+            DataManager.processFile(at: url)
         }
     }
 }

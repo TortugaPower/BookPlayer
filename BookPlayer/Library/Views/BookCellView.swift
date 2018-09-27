@@ -70,6 +70,7 @@ class BookCellView: UITableViewCell {
         }
         set {
             self.progressView.value = newValue
+            setAccessibilityLabels()
         }
     }
 
@@ -139,5 +140,17 @@ class BookCellView: UITableViewCell {
 
     @IBAction func artworkButtonTapped(_ sender: Any) {
         self.onArtworkTap?()
+    }
+}
+
+// MARK: - Voiceover
+extension BookCellView {
+    private func setAccessibilityLabels() {
+        let voiceOverService = VoiceOverService()
+        isAccessibilityElement = true
+        accessibilityLabel = voiceOverService.bookCellView(type: type,
+                                                           title: title,
+                                                           subtitle: subtitle,
+                                                           progress: progress)
     }
 }

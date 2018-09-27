@@ -27,7 +27,7 @@ extension UIViewController {
         durationFormatter.zeroFormattingBehavior = .pad
         durationFormatter.collapsesLargestUnit = false
 
-        if time > 3599.0 {
+        if abs(time) > 3599.0 {
             durationFormatter.allowedUnits = [ .hour, .minute, .second ]
         }
 

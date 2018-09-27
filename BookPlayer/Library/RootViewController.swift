@@ -16,6 +16,10 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
 
     private var pan: UIPanGestureRecognizer!
 
+    var miniPlayerIsHidden: Bool {
+        return self.miniPlayerContainer.isHidden
+    }
+
     // MARK: - Lifecycle
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -43,14 +47,14 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
         self.miniPlayerContainer.layer.shadowRadius = 12.0
         self.miniPlayerContainer.clipsToBounds = false
 
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: Notification.Name.AudiobookPlayer.bookChange, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookReady(_:)), name: Notification.Name.AudiobookPlayer.bookReady, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.dismissMiniPlayer), name: Notification.Name.AudiobookPlayer.playerPresented, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.presentMiniPlayer), name: Notification.Name.AudiobookPlayer.playerDismissed, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPlay), name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.dismissMiniPlayer), name: Notification.Name.AudiobookPlayer.bookStopped, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: .bookChange, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookReady(_:)), name: .bookReady, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.dismissMiniPlayer), name: .playerPresented, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.presentMiniPlayer), name: .playerDismissed, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPlay), name: .bookPlayed, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: .bookPaused, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: .bookEnd, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.dismissMiniPlayer), name: .bookStopped, object: nil)
 
         // Gestures
         self.pan = UIPanGestureRecognizer(target: self, action: #selector(panAction))

@@ -47,6 +47,7 @@ class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecogniz
 
             self.artworkHeight.constant = ratio > 1 ? 50.0 / ratio : 50.0
             self.artworkWidth.constant = ratio < 1 ? 50.0 * ratio : 50.0
+            setVoiceOverLabels()
         }
     }
 
@@ -61,19 +62,21 @@ class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecogniz
 
         self.view.addGestureRecognizer(self.tap)
 
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPlay), name: Notification.Name.AudiobookPlayer.bookPlayed, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: Notification.Name.AudiobookPlayer.bookEnd, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPlay), name: .bookPlayed, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: .bookPaused, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: .bookEnd, object: nil)
     }
 
     // MARK: Notification handlers
 
     @objc private func onBookPlay() {
         self.playPauseButton.setImage(self.pauseImage, for: UIControlState())
+        self.playPauseButton.accessibilityHint = "Tap to Pause"
     }
 
     @objc private func onBookPause() {
         self.playPauseButton.setImage(self.playImage, for: UIControlState())
+        self.playPauseButton.accessibilityHint = "Tap to Play"
     }
 
     // MARK: Actions
@@ -86,5 +89,15 @@ class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecogniz
 
     @objc func tapAction() {
         self.showPlayer?()
+    }
+
+    // MARK: - Voiceover
+
+    private func setVoiceOverLabels() {
+        let voiceOverTitle = titleLabel.text ?? "No Title"
+        let voiceOverSubtitle = authorLabel.text ?? "No Author"
+        titleLabel.accessibilityLabel = "Currently Playing \(voiceOverTitle) by \(voiceOverSubtitle)"
+        accessibilityHint = "Miniplayer"
+        playPauseButton.accessibilityHint = "Tap to Play"
     }
 }

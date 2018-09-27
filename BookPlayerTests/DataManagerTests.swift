@@ -15,27 +15,7 @@ class DataManagerTests: XCTestCase {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
         let documentsFolder = DataManager.getDocumentsFolderURL()
-        self.clearFolderContents(url: documentsFolder)
-    }
-
-    func generateTestFile(name: String, contents: Data, destinationFolder: URL) -> URL {
-        let destination = destinationFolder.appendingPathComponent(name)
-
-        XCTAssertNoThrow(try contents.write(to: destination))
-        XCTAssert(FileManager.default.fileExists(atPath: destination.path))
-
-        return destination
-    }
-
-    func clearFolderContents(url: URL) {
-        do {
-            let urls = try FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: nil, options: .skipsHiddenFiles)
-            for url in urls {
-                try FileManager.default.removeItem(at: url)
-            }
-        } catch {
-            print("Exception while clearing folder contents")
-        }
+        DataTestUtils.clearFolderContents(url: documentsFolder)
     }
 }
 
@@ -52,7 +32,7 @@ class GetFilesTests: DataManagerTests {
         let bookContents = "bookcontents".data(using: .utf8)!
         let documentsFolder = DataManager.getDocumentsFolderURL()
 
-        _ = self.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
+        _ = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
 
         let urls = DataManager.getFiles(from: documentsFolder)!
         XCTAssert(urls.count == 1)
@@ -61,14 +41,6 @@ class GetFilesTests: DataManagerTests {
 
 // MARK: - processFiles()
 class ProcessFilesTests: DataManagerTests {
-    func testProcessNoFiles() {
-        let nonExistingFile = URL(fileURLWithPath: "derp")
-        let destinationFolder = DataManager.getProcessedFolderURL()
-
-        DataManager.processFile(at: nonExistingFile, destinationFolder: destinationFolder) { (url) in
-            XCTAssertNil(url)
-        }
-    }
 
     func testProcessOneFile() {
         let filename = "file.txt"
@@ -76,28 +48,15 @@ class ProcessFilesTests: DataManagerTests {
         let documentsFolder = DataManager.getDocumentsFolderURL()
 
         // Add test file to Documents folder
-        let fileUrl = self.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
+        let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
 
-        let expectation = XCTestExpectation(description: "Processing pending files")
+        let promiseNewUrl = expectation(forNotification: .newFileUrl, object: nil)
+        let promiseOperation = expectation(forNotification: .importOperation, object: nil)
 
         let destinationFolder = DataManager.getProcessedFolderURL()
-        DataManager.processFile(at: fileUrl, destinationFolder: destinationFolder) { (url) in
-            // Test file should no longer be in the Documents folder
-            XCTAssert(!FileManager.default.fileExists(atPath: fileUrl.path))
+        DataManager.processFile(at: fileUrl, destinationFolder: destinationFolder)
 
-            XCTAssertNotNil(url)
-            // Name of processed file shouldn't be the same as the original
-            XCTAssert(url!.lastPathComponent != filename)
-            // Test file exists in new location
-            XCTAssert(FileManager.default.fileExists(atPath: url!.path))
-
-            let content = FileManager.default.contents(atPath: url!.path)!
-            XCTAssert(content == bookContents)
-
-            expectation.fulfill()
-        }
-
-        wait(for: [expectation], timeout: 15)
+        wait(for: [promiseNewUrl, promiseOperation], timeout: 15)
     }
 }
 
@@ -131,13 +90,13 @@ class InsertBooksTests: DataManagerTests {
         let documentsFolder = DataManager.getDocumentsFolderURL()
 
         // Add test file to Documents folder
-        let fileUrl = self.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
-        let bookUrl = BookURL(original: fileUrl, processed: fileUrl)
+        let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
+
+        let bookUrl = FileItem(originalUrl: fileUrl, processedUrl: fileUrl, destinationFolder: documentsFolder)
 
         let expectation = XCTestExpectation(description: "Insert books into library")
 
         DataManager.insertBooks(from: [bookUrl], into: library) {
-
             XCTAssert(library.items?.count == 1)
             expectation.fulfill()
         }
@@ -153,8 +112,8 @@ class InsertBooksTests: DataManagerTests {
         let documentsFolder = DataManager.getDocumentsFolderURL()
 
         // Add test file to Documents folder
-        let fileUrl = self.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
-        let bookUrl = BookURL(original: fileUrl, processed: fileUrl)
+        let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
+        let bookUrl = FileItem(originalUrl: fileUrl, processedUrl: fileUrl, destinationFolder: documentsFolder)
 
         let expectation = XCTestExpectation(description: "Insert books into library")
 
@@ -179,10 +138,10 @@ class InsertBooksTests: DataManagerTests {
         let documentsFolder = DataManager.getDocumentsFolderURL()
 
         // Add test files to Documents folder
-        let file1Url = self.generateTestFile(name: filename1, contents: book1Contents, destinationFolder: documentsFolder)
-        let book1Url = BookURL(original: file1Url, processed: file1Url)
-        let file2Url = self.generateTestFile(name: filename2, contents: book2Contents, destinationFolder: documentsFolder)
-        let book2Url = BookURL(original: file2Url, processed: file2Url)
+        let file1Url = DataTestUtils.generateTestFile(name: filename1, contents: book1Contents, destinationFolder: documentsFolder)
+        let book1Url = FileItem(originalUrl: file1Url, processedUrl: file1Url, destinationFolder: documentsFolder)
+        let file2Url = DataTestUtils.generateTestFile(name: filename2, contents: book2Contents, destinationFolder: documentsFolder)
+        let book2Url = FileItem(originalUrl: file2Url, processedUrl: file2Url, destinationFolder: documentsFolder)
 
         let expectation = XCTestExpectation(description: "Insert books into library")
 
@@ -222,8 +181,8 @@ class InsertBooksTests: DataManagerTests {
         let documentsFolder = DataManager.getDocumentsFolderURL()
 
         // Add test file to Documents folder
-        let fileUrl = self.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
-        let bookUrl = BookURL(original: fileUrl, processed: fileUrl)
+        let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
+        let bookUrl = FileItem(originalUrl: fileUrl, processedUrl: fileUrl, destinationFolder: documentsFolder)
 
         let expectation = XCTestExpectation(description: "Insert books into library")
 
@@ -251,10 +210,10 @@ class InsertBooksTests: DataManagerTests {
         let documentsFolder = DataManager.getDocumentsFolderURL()
 
         // Add test files to Documents folder
-        let file1Url = self.generateTestFile(name: filename1, contents: book1Contents, destinationFolder: documentsFolder)
-        let book1Url = BookURL(original: file1Url, processed: file1Url)
-        let file2Url = self.generateTestFile(name: filename2, contents: book2Contents, destinationFolder: documentsFolder)
-        let book2Url = BookURL(original: file2Url, processed: file2Url)
+        let file1Url = DataTestUtils.generateTestFile(name: filename1, contents: book1Contents, destinationFolder: documentsFolder)
+        let book1Url = FileItem(originalUrl: file1Url, processedUrl: file1Url, destinationFolder: documentsFolder)
+        let file2Url = DataTestUtils.generateTestFile(name: filename2, contents: book2Contents, destinationFolder: documentsFolder)
+        let book2Url = FileItem(originalUrl: file2Url, processedUrl: file2Url, destinationFolder: documentsFolder)
 
         DataManager.insert(playlist, into: library)
         XCTAssert(library.items?.count == 1)
@@ -281,8 +240,8 @@ class InsertBooksTests: DataManagerTests {
         let documentsFolder = DataManager.getDocumentsFolderURL()
 
         // Add test file to Documents folder
-        let fileUrl = self.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
-        let bookUrl = BookURL(original: fileUrl, processed: fileUrl)
+        let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
+        let bookUrl = FileItem(originalUrl: fileUrl, processedUrl: fileUrl, destinationFolder: documentsFolder)
 
         let expectation = XCTestExpectation(description: "Insert books into library")
 
@@ -313,8 +272,8 @@ class InsertBooksTests: DataManagerTests {
         let documentsFolder = DataManager.getDocumentsFolderURL()
 
         // Add test file to Documents folder
-        let fileUrl = self.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
-        let bookUrl = BookURL(original: fileUrl, processed: fileUrl)
+        let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
+        let bookUrl = FileItem(originalUrl: fileUrl, processedUrl: fileUrl, destinationFolder: documentsFolder)
 
         let expectation = XCTestExpectation(description: "Insert books into library")
 
@@ -346,8 +305,8 @@ class InsertBooksTests: DataManagerTests {
         let documentsFolder = DataManager.getDocumentsFolderURL()
 
         // Add test file to Documents folder
-        let fileUrl = self.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
-        let bookUrl = BookURL(original: fileUrl, processed: fileUrl)
+        let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
+        let bookUrl = FileItem(originalUrl: fileUrl, processedUrl: fileUrl, destinationFolder: documentsFolder)
 
         let expectation = XCTestExpectation(description: "Insert books into library")
 

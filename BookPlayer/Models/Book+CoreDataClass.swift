@@ -11,11 +11,6 @@ import Foundation
 import CoreData
 import AVFoundation
 
-struct BookURL {
-    var original: URL
-    var processed: URL
-}
-
 public class Book: LibraryItem {
     var fileURL: URL {
         return DataManager.getProcessedFolderURL().appendingPathComponent(self.identifier)
@@ -49,6 +44,12 @@ public class Book: LibraryItem {
         return !(self.chapters?.array.isEmpty ?? true)
     }
 
+    // TODO: This is a makeshift version of a proper completion property.
+    // See https://github.com/TortugaPower/BookPlayer/issues/201
+    var isCompleted: Bool {
+        return round(self.currentTime) >= round(self.duration)
+    }
+
     func setChapters(from asset: AVAsset, context: NSManagedObjectContext) {
         for locale in asset.availableChapterLocales {
             let chaptersMetadata = asset.chapterMetadataGroups(withTitleLocale: locale, containingItemsWithCommonKeys: [AVMetadataKey.commonKeyArtwork])
@@ -71,10 +72,10 @@ public class Book: LibraryItem {
         }
     }
 
-    convenience init(from bookUrl: BookURL, context: NSManagedObjectContext) {
+    convenience init(from bookUrl: FileItem, context: NSManagedObjectContext) {
         let entity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
         self.init(entity: entity, insertInto: context)
-        let fileURL = bookUrl.processed
+        let fileURL = bookUrl.processedUrl!
         self.ext = fileURL.pathExtension
         self.identifier = fileURL.lastPathComponent
         let asset = AVAsset(url: fileURL)
@@ -82,7 +83,7 @@ public class Book: LibraryItem {
         let titleFromMeta = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyTitle, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String
         let authorFromMeta = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtist, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String
 
-        self.title = titleFromMeta ?? bookUrl.original.lastPathComponent.replacingOccurrences(of: "_", with: " ")
+        self.title = titleFromMeta ?? bookUrl.originalUrl.lastPathComponent.replacingOccurrences(of: "_", with: " ")
         self.author = authorFromMeta ?? "Unknown Author"
         self.duration = CMTimeGetSeconds(asset.duration)
 
@@ -99,7 +100,7 @@ public class Book: LibraryItem {
 
         self.setChapters(from: asset, context: context)
 
-        let legacyIdentifier = bookUrl.original.lastPathComponent
+        let legacyIdentifier = bookUrl.originalUrl.lastPathComponent
         let storedTime = UserDefaults.standard.double(forKey: legacyIdentifier)
         //migration of time
         if storedTime > 0 {

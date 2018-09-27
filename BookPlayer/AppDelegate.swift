@@ -9,21 +9,30 @@
 import UIKit
 import AVFoundation
 import MediaPlayer
+import DirectoryWatcher
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     var wasPlayingBeforeInterruption: Bool = false
+    var watcher: DirectoryWatcher?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         let defaults: UserDefaults = UserDefaults.standard
 
         // Perfrom first launch setup
-        if !defaults.bool(forKey: UserDefaultsConstants.completedFirstLaunch) {
+        if !defaults.bool(forKey: Constants.UserDefaults.completedFirstLaunch.rawValue) {
             // Set default settings
-            defaults.set(true, forKey: UserDefaultsConstants.smartRewindEnabled)
-            defaults.set(true, forKey: UserDefaultsConstants.completedFirstLaunch)
+            defaults.set(true, forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
+            defaults.set(true, forKey: Constants.UserDefaults.smartRewindEnabled.rawValue)
+            defaults.set(true, forKey: Constants.UserDefaults.completedFirstLaunch.rawValue)
+        }
+
+        // Migrate file security to make autoplay on background work
+        if !defaults.bool(forKey: Constants.UserDefaults.fileProtectionMigration.rawValue) {
+            DataManager.makeFilesPublic()
+            defaults.set(true, forKey: Constants.UserDefaults.fileProtectionMigration.rawValue)
         }
 
         // Appearance
@@ -47,6 +56,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // register for remote events
         self.setupMPRemoteCommands()
+        // register document's folder listener
+        self.setupDocumentListener()
 
         return true
     }
@@ -54,8 +65,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey: Any] = [:]) -> Bool {
         // This function is called when the app is opened with a audio file url,
         // like when receiving files through AirDrop
-        let userInfo = ["fileURL": url]
-        NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.libraryOpenURL, object: nil, userInfo: userInfo)
+        DataManager.processFile(at: url)
 
         return true
     }
@@ -75,7 +85,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         DispatchQueue.main.async {
             if !PlayerManager.shared.isPlaying {
-                NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.bookPaused, object: nil)
+                NotificationCenter.default.post(name: .bookPaused, object: nil)
             }
         }
     }
@@ -90,7 +100,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         // Notify controller to see if it should ask for review
-        NotificationCenter.default.post(name: Notification.Name.AudiobookPlayer.requestReview, object: nil)
+        NotificationCenter.default.post(name: .requestReview, object: nil)
     }
 
     func applicationWillTerminate(_ application: UIApplication) {
@@ -134,7 +144,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Pause playback if route changes due to a disconnect
         switch reason {
         case .oldDeviceUnavailable:
-            PlayerManager.shared.pause()
+            DispatchQueue.main.async {
+                PlayerManager.shared.pause()
+            }
         default:
             break
         }
@@ -205,6 +217,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // End seeking
             PlayerManager.shared.rewind()
             return .success
+        }
+    }
+
+    func setupDocumentListener() {
+        let documentsUrl = DataManager.getDocumentsFolderURL()
+        self.watcher = DirectoryWatcher.watch(documentsUrl) {
+            DataManager.notifyPendingFiles()
         }
     }
 }
