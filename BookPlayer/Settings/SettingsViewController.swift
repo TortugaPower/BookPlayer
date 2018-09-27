@@ -21,8 +21,8 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     @IBOutlet weak var forwardIntervalLabel: UILabel!
 
     let supportSection: Int = 5
-    let githubLinkPath: IndexPath = IndexPath(row: 0, section: 4)
-    let supportEmailPath: IndexPath = IndexPath(row: 1, section: 4)
+    let githubLinkPath: IndexPath = IndexPath(row: 0, section: 6)
+    let supportEmailPath: IndexPath = IndexPath(row: 1, section: 6)
 
     var version: String = "0.0.0"
     var build: String = "0"
