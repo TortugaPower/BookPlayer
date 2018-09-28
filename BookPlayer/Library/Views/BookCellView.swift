@@ -69,7 +69,9 @@ class BookCellView: UITableViewCell {
             return self.progressView.value
         }
         set {
-            self.progressView.value = newValue
+            self.progressView.value = newValue.isNaN
+                ? 0.0
+                : newValue
             setAccessibilityLabels()
         }
     }
