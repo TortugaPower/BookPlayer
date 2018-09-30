@@ -11,6 +11,7 @@ import AVKit
 import MediaPlayer
 import StoreKit
 import UIKit
+import BookPlayerKit
 
 class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet private weak var closeButton: UIButton!

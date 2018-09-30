@@ -9,6 +9,7 @@
 import MediaPlayer
 import SwiftReorder
 import UIKit
+import BookPlayerKit
 
 // swiftlint:disable file_length
 
@@ -140,7 +141,7 @@ class BaseListViewController: UIViewController {
     }
 
     func loadPlayer(book: Book) {
-        guard DataManager.exists(book) else {
+        guard ImportManager.shared.exists(book) else {
             self.showAlert("File missing!", message: "This book’s file was removed from your device. Import the file again to play the book")
 
             return
@@ -454,7 +455,7 @@ extension BaseListViewController: TableViewReorderDelegate {
 extension BaseListViewController: UIDocumentPickerDelegate {
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         for url in urls {
-            DataManager.processFile(at: url)
+            ImportManager.shared.process(url)
         }
     }
 }

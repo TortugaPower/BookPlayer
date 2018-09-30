@@ -8,18 +8,17 @@
 
 import Foundation
 
-class FileItem {
-    var originalUrl: URL
-    var processedUrl: URL?
-    var destinationFolder: URL
+public class FileItem {
+    public var originalUrl: URL
+    public var processedUrl: URL?
+    public var destinationFolder: URL
 
-    init(originalUrl: URL, processedUrl: URL?, destinationFolder: URL) {
+    public init(originalUrl: URL, processedUrl: URL?, destinationFolder: URL) {
         self.originalUrl = originalUrl
         self.processedUrl = processedUrl
         self.destinationFolder = destinationFolder
     }
-
-    convenience init(_ url: URL, destinationFolder: URL) {
+    public convenience init(_ url: URL, destinationFolder: URL) {
         self.init(originalUrl: url, processedUrl: nil, destinationFolder: destinationFolder)
     }
 }

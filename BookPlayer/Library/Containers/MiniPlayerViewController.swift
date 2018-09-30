@@ -8,6 +8,7 @@
 
 import MarqueeLabelSwift
 import UIKit
+import BookPlayerKit
 
 class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecognizerDelegate {
     @IBOutlet private weak var miniPlayerBlur: UIVisualEffectView!

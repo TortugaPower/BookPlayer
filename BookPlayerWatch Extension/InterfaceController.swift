@@ -8,6 +8,8 @@
 
 import WatchKit
 import Foundation
+import BookPlayerKitWatch
+import AVFoundation
 
 class InterfaceController: WKInterfaceController {
 

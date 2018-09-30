@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import BookPlayerKit
 
 class BookActivityItemProvider: UIActivityItemProvider {
     var book: Book

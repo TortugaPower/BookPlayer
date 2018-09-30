@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14315.18" systemVersion="17G65" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="ArtworkColors" representedClassName="ArtworkColors" syncable="YES">
+        <attribute name="backgroundHex" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="displayOnDark" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="primaryHex" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="secondaryHex" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="tertiaryHex" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="book" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Book" inverseName="artworkColors" inverseEntity="Book" syncable="YES"/>
+    </entity>
+    <entity name="Book" representedClassName="Book" parentEntity="LibraryItem" syncable="YES">
+        <attribute name="author" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="ext" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="usesDefaultArtwork" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
+        <relationship name="artworkColors" maxCount="1" deletionRule="Nullify" destinationEntity="ArtworkColors" inverseName="book" inverseEntity="ArtworkColors" syncable="YES"/>
+        <relationship name="chapters" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Chapter" inverseName="book" inverseEntity="Chapter" syncable="YES"/>
+        <relationship name="playlist" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Playlist" inverseName="books" inverseEntity="Playlist" syncable="YES"/>
+    </entity>
+    <entity name="Chapter" representedClassName="Chapter" syncable="YES">
+        <attribute name="duration" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="index" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="start" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="book" maxCount="1" deletionRule="Nullify" destinationEntity="Book" inverseName="chapters" inverseEntity="Book" syncable="YES"/>
+    </entity>
+    <entity name="Library" representedClassName="Library" syncable="YES">
+        <relationship name="items" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="LibraryItem" inverseName="library" inverseEntity="LibraryItem" syncable="YES"/>
+    </entity>
+    <entity name="LibraryItem" representedClassName="LibraryItem" isAbstract="YES" syncable="YES">
+        <attribute name="artworkData" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="currentTime" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="duration" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="identifier" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="percentCompleted" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="library" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Library" inverseName="items" inverseEntity="Library" syncable="YES"/>
+    </entity>
+    <entity name="Playlist" representedClassName="Playlist" parentEntity="LibraryItem" syncable="YES">
+        <attribute name="desc" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="books" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Book" inverseName="playlist" inverseEntity="Book" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="ArtworkColors" positionX="-63" positionY="-18" width="128" height="135"/>
+        <element name="Book" positionX="-36" positionY="9" width="128" height="135"/>
+        <element name="Chapter" positionX="-18" positionY="27" width="128" height="120"/>
+        <element name="Library" positionX="-54" positionY="-9" width="128" height="60"/>
+        <element name="LibraryItem" positionX="0" positionY="45" width="128" height="150"/>
+        <element name="Playlist" positionX="18" positionY="108" width="128" height="75"/>
+    </elements>
+</model>

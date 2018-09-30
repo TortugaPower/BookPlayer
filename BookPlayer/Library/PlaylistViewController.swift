@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import BookPlayerKit
 
 class PlaylistViewController: BaseListViewController {
     var playlist: Playlist!
@@ -24,7 +25,7 @@ class PlaylistViewController: BaseListViewController {
     }
 
     override func handleOperationCompletion(_ files: [FileItem]) {
-        DataManager.insertBooks(from: files, into: self.playlist) {
+        ImportManager.shared.insertBooks(from: files, into: self.playlist) {
             self.reloadData()
         }
 
@@ -37,7 +38,7 @@ class PlaylistViewController: BaseListViewController {
         let alert = UIAlertController(title: "Import \(files.count) files into", message: nil, preferredStyle: .alert)
 
         alert.addAction(UIAlertAction(title: "Library", style: .default) { _ in
-            DataManager.insertBooks(from: files, into: self.library) {
+            ImportManager.shared.insertBooks(from: files, into: self.library) {
                 self.showLoadView(false)
                 self.reloadData()
                 NotificationCenter.default.post(name: .reloadData, object: nil)
@@ -113,7 +114,7 @@ extension PlaylistViewController {
     override func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         for url in urls {
             // context put in playlist
-            DataManager.processFile(at: url)
+            ImportManager.shared.process(url)
         }
     }
 }

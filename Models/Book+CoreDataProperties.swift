@@ -1,8 +1,8 @@
 //
 //  Book+CoreDataProperties.swift
-//  BookPlayer
+//  BookPlayerKit
 //
-//  Created by Gianni Carlo on 5/14/18.
+//  Created by Gianni Carlo on 9/21/18.
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 //
@@ -18,9 +18,9 @@ extension Book {
     @NSManaged public var author: String!
     @NSManaged public var ext: String!
     @NSManaged public var usesDefaultArtwork: Bool
+    @NSManaged public var artworkColors: ArtworkColors!
     @NSManaged public var chapters: NSOrderedSet?
     @NSManaged public var playlist: Playlist?
-    @NSManaged public var artworkColors: ArtworkColors!
 }
 
 // MARK: Generated accessors for chapters

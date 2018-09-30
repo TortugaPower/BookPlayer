@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import BookPlayerKit
 
 class RootViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet private weak var miniPlayerContainer: UIView!

@@ -9,6 +9,7 @@
 import MediaPlayer
 import SwiftReorder
 import UIKit
+import BookPlayerKit
 
 // swiftlint:disable file_length
 
@@ -51,7 +52,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
 
         self.tableView.reloadData()
 
-        DataManager.notifyPendingFiles()
+        ImportManager.shared.notifyPendingFiles()
     }
 
     func loadLastBook() {
@@ -107,7 +108,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
     }
 
     override func handleOperationCompletion(_ files: [FileItem]) {
-        DataManager.insertBooks(from: files, into: self.library) {
+        ImportManager.shared.insertBooks(from: files, into: self.library) {
             self.reloadData()
         }
 
@@ -130,11 +131,11 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             }
 
             self.presentCreatePlaylistAlert(placeholder, handler: { title in
-                let playlist = DataManager.createPlaylist(title: title, books: [])
+                let playlist = ImportManager.shared.createPlaylist(title: title, books: [])
 
                 self.library.addToItems(playlist)
 
-                DataManager.insertBooks(from: files, into: playlist) {
+                ImportManager.shared.insertBooks(from: files, into: playlist) {
                     DataManager.saveContext()
 
                     self.showLoadView(false)
@@ -280,7 +281,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
 
         alertController.addAction(UIAlertAction(title: "Create playlist", style: .default) { _ in
             self.presentCreatePlaylistAlert(handler: { title in
-                let playlist = DataManager.createPlaylist(title: title, books: [])
+                let playlist = ImportManager.shared.createPlaylist(title: title, books: [])
 
                 self.library.addToItems(playlist)
                 DataManager.saveContext()
@@ -516,7 +517,7 @@ extension LibraryViewController {
 
                 // swiftlint:disable force_cast
                 let books = [book1 as! Book, book2 as! Book]
-                let playlist = DataManager.createPlaylist(title: title, books: books)
+                let playlist = ImportManager.shared.createPlaylist(title: title, books: books)
 
                 self.library.insertIntoItems(playlist, at: minIndex)
 

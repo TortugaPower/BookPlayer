@@ -9,6 +9,7 @@
 import Foundation
 import IDZSwiftCommonCrypto
 import ZIPFoundation
+import BookPlayerKit
 
 /**
  Process files located at a specific `URL`, renames it with the hash and moves it to the specified destination folder.

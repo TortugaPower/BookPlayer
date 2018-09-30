@@ -1,8 +1,8 @@
 //
 //  Playlist+CoreDataClass.swift
-//  BookPlayer
+//  BookPlayerKit
 //
-//  Created by Gianni Carlo on 5/9/18.
+//  Created by Gianni Carlo on 9/21/18.
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 //
@@ -11,10 +11,9 @@ import CoreData
 import Foundation
 import UIKit
 
+@objc(Playlist)
 public class Playlist: LibraryItem {
-    // MARK: - Properties
-
-    override var artwork: UIImage {
+    override public var artwork: UIImage {
         guard let books = self.books?.array as? [Book], let book = books.first(where: { (book) -> Bool in
             !book.usesDefaultArtwork
         }) else {
@@ -61,7 +60,7 @@ public class Playlist: LibraryItem {
         return totalDuration
     }
 
-    func totalProgress() -> Double {
+    public func totalProgress() -> Double {
         guard let books = self.books?.array as? [Book] else {
             return 0.0
         }
@@ -81,7 +80,7 @@ public class Playlist: LibraryItem {
         return totalProgress / totalDuration
     }
 
-    func hasBooks() -> Bool {
+    public func hasBooks() -> Bool {
         guard let books = self.books else {
             return false
         }
@@ -89,13 +88,13 @@ public class Playlist: LibraryItem {
         return books.count > 0
     }
 
-    func itemIndex(with url: URL) -> Int? {
+    public func itemIndex(with url: URL) -> Int? {
         let hash = url.lastPathComponent
 
         return self.itemIndex(with: hash)
     }
 
-    func itemIndex(with identifier: String) -> Int? {
+    public func itemIndex(with identifier: String) -> Int? {
         guard let books = self.books?.array as? [Book] else {
             return nil
         }
@@ -113,7 +112,7 @@ public class Playlist: LibraryItem {
         return books[index]
     }
 
-    func getBook(with url: URL) -> Book? {
+    public func getBook(with url: URL) -> Book? {
         guard let index = self.itemIndex(with: url) else {
             return nil
         }
@@ -159,7 +158,7 @@ public class Playlist: LibraryItem {
         return nextBook
     }
 
-    func info() -> String {
+    public func info() -> String {
         let count = self.books?.array.count ?? 0
 
         return "\(count) Files"

@@ -24,11 +24,11 @@ extension UIColor {
         return String(format: "#%06x", rgb)
     }
 
-    static var tintColor: UIColor {
+    public static var tintColor: UIColor {
         return UIColor(hex: "3488D1")
     }
 
-    static var textColor: UIColor {
+    public static var textColor: UIColor {
         return UIColor(hex: "37454E")
     }
 

@@ -8,6 +8,7 @@
 
 import MediaPlayer
 import UIKit
+import BookPlayerKit
 
 class ChaptersViewController: UITableViewController {
     var chapters: [Chapter]!

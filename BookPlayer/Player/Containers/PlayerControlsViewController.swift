@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import BookPlayerKit
 
 class PlayerControlsViewController: PlayerContainerViewController, UIGestureRecognizerDelegate {
     @IBOutlet private weak var artworkControl: ArtworkControl!

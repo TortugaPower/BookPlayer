@@ -1,8 +1,8 @@
 //
 //  Chapter+CoreDataProperties.swift
-//  BookPlayer
+//  BookPlayerKit
 //
-//  Created by Gianni Carlo on 5/9/18.
+//  Created by Gianni Carlo on 9/21/18.
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 //
@@ -15,9 +15,9 @@ extension Chapter {
         return NSFetchRequest<Chapter>(entityName: "Chapter")
     }
 
-    @NSManaged public var title: String!
-    @NSManaged public var start: Double
     @NSManaged public var duration: Double
     @NSManaged public var index: Int16
+    @NSManaged public var start: Double
+    @NSManaged public var title: String!
     @NSManaged public var book: Book!
 }

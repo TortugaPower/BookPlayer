@@ -1,57 +1,19 @@
 //
-//  Book+CoreDataClass.swift
+//  Book+AVFoundation.swift
 //  BookPlayer
 //
-//  Created by Gianni Carlo on 5/14/18.
+//  Created by Gianni Carlo on 9/20/18.
 //  Copyright © 2018 Tortuga Power. All rights reserved.
-//
 //
 
 import AVFoundation
 import CoreData
 import Foundation
+import BookPlayerKit
 
-public class Book: LibraryItem {
+extension Book {
     var fileURL: URL {
-        return DataManager.getProcessedFolderURL().appendingPathComponent(self.identifier)
-    }
-
-    var filename: String {
-        return self.title + "." + self.ext
-    }
-
-    var currentChapter: Chapter? {
-        guard let chapters = self.chapters?.array as? [Chapter], !chapters.isEmpty else {
-            return nil
-        }
-
-        for chapter in chapters where chapter.start <= self.currentTime && chapter.end > self.currentTime {
-            return chapter
-        }
-
-        return nil
-    }
-
-    var displayTitle: String {
-        return self.title
-    }
-
-    var progress: Double {
-        return self.currentTime / self.duration
-    }
-
-    var percentage: Double {
-        return round(self.progress * 100)
-    }
-
-    var hasChapters: Bool {
-        return !(self.chapters?.array.isEmpty ?? true)
-    }
-
-    // TODO: This is a makeshift version of a proper completion property.
-    // See https://github.com/TortugaPower/BookPlayer/issues/201
-    override var isCompleted: Bool {
-        return Int(round(self.currentTime)) == Int(round(self.duration))
+        return ImportManager.shared.getProcessedFolderURL().appendingPathComponent(self.identifier)
     }
 
     func setChapters(from asset: AVAsset, context: NSManagedObjectContext) {
@@ -62,9 +24,11 @@ public class Book: LibraryItem {
                 let chapterIndex = index + 1
                 let chapter = Chapter(from: asset, context: context)
 
-                chapter.title = AVMetadataItem.metadataItems(from: chapterMetadata.items,
-                                                             withKey: AVMetadataKey.commonKeyTitle,
-                                                             keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String ?? ""
+                chapter.title = AVMetadataItem.metadataItems(
+                    from: chapterMetadata.items,
+                    withKey: AVMetadataKey.commonKeyTitle,
+                    keySpace: AVMetadataKeySpace.common
+                    ).first?.value?.copy(with: nil) as? String ?? ""
                 chapter.start = CMTimeGetSeconds(chapterMetadata.timeRange.start)
                 chapter.duration = CMTimeGetSeconds(chapterMetadata.timeRange.duration)
                 chapter.index = Int16(chapterIndex)

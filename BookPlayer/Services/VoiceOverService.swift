@@ -1,4 +1,5 @@
 import Foundation
+import BookPlayerKit
 
 class VoiceOverService {
     var title: String?

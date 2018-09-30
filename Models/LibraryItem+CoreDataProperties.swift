@@ -1,8 +1,8 @@
 //
 //  LibraryItem+CoreDataProperties.swift
-//  BookPlayer
+//  BookPlayerKit
 //
-//  Created by Gianni Carlo on 5/9/18.
+//  Created by Gianni Carlo on 9/21/18.
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 //
@@ -19,8 +19,8 @@ extension LibraryItem {
     @NSManaged public var currentTime: Double
     @NSManaged public var duration: Double
     @NSManaged public var identifier: String!
-    @NSManaged public var title: String!
     @NSManaged public var percentCompleted: Double
+    @NSManaged public var title: String!
     @NSManaged public var library: Library?
     @NSManaged public var originalFileName: String?
 }

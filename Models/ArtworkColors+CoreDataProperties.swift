@@ -1,8 +1,8 @@
 //
 //  ArtworkColors+CoreDataProperties.swift
-//  BookPlayer
+//  BookPlayerKit
 //
-//  Created by Gianni Carlo on 5/14/18.
+//  Created by Gianni Carlo on 9/21/18.
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 //
@@ -16,8 +16,10 @@ extension ArtworkColors {
     }
 
     @NSManaged public var backgroundHex: String!
+    @NSManaged public var displayOnDark: Bool
     @NSManaged public var primaryHex: String!
     @NSManaged public var secondaryHex: String!
     @NSManaged public var tertiaryHex: String!
-    @NSManaged public var displayOnDark: Bool
+    @NSManaged public var book: Book?
+
 }

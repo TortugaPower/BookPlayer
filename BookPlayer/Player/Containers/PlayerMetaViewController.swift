@@ -8,6 +8,7 @@
 
 import MarqueeLabelSwift
 import UIKit
+import BookPlayerKit
 
 class PlayerMetaViewController: PlayerContainerViewController {
     @IBOutlet private weak var authorLabel: BPMarqueeLabel!

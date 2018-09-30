@@ -17,7 +17,7 @@ extension UIColor {
         - parameter hex:     The hex color, i.e. "FF0072" or "#FF0072".
         - parameter alpha:   The opacity of the color, value between [0,1]. Optional. Default: 1
     */
-    convenience init(hex: String, alpha: CGFloat = 1) {
+    public convenience init(hex: String, alpha: CGFloat = 1) {
         var hex = hex.replacingOccurrences(of: "#", with: "")
 
         guard hex.count == 3 || hex.count == 6 else {
@@ -51,7 +51,7 @@ extension UIColor {
         - parameter b:   Blue value between [0, 1] OR [0, 255].
         - parameter a:   The opacity of the color, value between [0, 1]. Optional. Default: 1
     */
-    convenience init(r: CGFloat, g: CGFloat, b: CGFloat, a: CGFloat = 1) {
+    public convenience init(r: CGFloat, g: CGFloat, b: CGFloat, a: CGFloat = 1) {
         if (1 < r) || (1 < g) || (1 < b) {
             self.init(red: r / 255, green: g / 255, blue: b / 255, alpha: a)
         } else {
@@ -67,7 +67,7 @@ extension UIColor {
         - parameter b:   Brightness value between [0, 1] OR [0, 100].
         - parameter a:   The opacity of the color, value between [0,1]. Optional. Default: 1
     */
-    convenience init(h: CGFloat, s: CGFloat, b: CGFloat, a: CGFloat = 1) {
+    public convenience init(h: CGFloat, s: CGFloat, b: CGFloat, a: CGFloat = 1) {
         if (1 < h) || (1 < s) || (1 < b) {
             self.init(hue: h / 360, saturation: s / 100, brightness: b / 100, alpha: a)
         } else {
@@ -78,21 +78,21 @@ extension UIColor {
     /**
         Return a *true* black color
     */
-    class func black() -> UIColor {
+    public class func black() -> UIColor {
         return UIColor(r: 0, g: 0, b: 0, a: 1)
     }
 
     /**
      Return a white color
     */
-    class func white() -> UIColor {
+    public class func white() -> UIColor {
         return UIColor(r: 1, g: 1, b: 1, a: 1)
     }
 
     /**
         Create a random color.
     */
-    class func random() -> UIColor {
+    public class func random() -> UIColor {
         // Random hue
         let H = CGFloat(arc4random_uniform(360))
         // Limit saturation to [70, 100]
@@ -112,7 +112,7 @@ extension UIColor {
         - returns: A boolean, true if same (or very similar for strict) and false otherwize
 
      */
-    func isEqual(to color: UIColor, strict: Bool = true) -> Bool {
+    public func isEqual(to color: UIColor, strict: Bool = true) -> Bool {
         if strict {
             return self.isEqual(color)
         } else {
@@ -133,7 +133,7 @@ extension UIColor {
 
         - returns: An array of four CGFloat numbers from [0, 1] representing RGBA respectively.
     */
-    var RGBA: [CGFloat] {
+    public var RGBA: [CGFloat] {
         var R: CGFloat = 0
         var G: CGFloat = 0
         var B: CGFloat = 0
@@ -147,7 +147,7 @@ extension UIColor {
 
         - returns: An array of four CGFloat numbers from [0, 255] representing RGBA respectively.
     */
-    var RGBA_8Bit: [CGFloat] {
+    public var RGBA_8Bit: [CGFloat] {
         let RGBA = self.RGBA
         return [round(RGBA[0] * 255), round(RGBA[1] * 255), round(RGBA[2] * 255), RGBA[3]]
     }
@@ -157,7 +157,7 @@ extension UIColor {
 
         - returns: An array of four CGFloat numbers from [0, 255] representing HSBA respectively.
     */
-    var HSBA: [CGFloat] {
+    public var HSBA: [CGFloat] {
         var H: CGFloat = 0
         var S: CGFloat = 0
         var B: CGFloat = 0
@@ -171,7 +171,7 @@ extension UIColor {
 
         - returns: An array of four CGFloat numbers representing HSBA respectively. Ranges: H[0,360], S[0,100], B[0,100], A[0,1]
     */
-    var HSBA_8Bit: [CGFloat] {
+    public var HSBA_8Bit: [CGFloat] {
         let HSBA = self.HSBA
         return [round(HSBA[0] * 360), round(HSBA[1] * 100), round(HSBA[2] * 100), HSBA[3]]
     }
@@ -181,7 +181,7 @@ extension UIColor {
 
         - returns: An array of three CGFloat numbers representing XYZ respectively.
     */
-    var XYZ: [CGFloat] {
+    public var XYZ: [CGFloat] {
         // http://www.easyrgb.com/index.php?X=MATH&H=02#text2
 
         let RGBA = self.RGBA
@@ -206,7 +206,7 @@ extension UIColor {
 
         - returns: An array of three CGFloat numbers representing LAB respectively.
     */
-    var LAB: [CGFloat] {
+    public var LAB: [CGFloat] {
         // http://www.easyrgb.com/index.php?X=MATH&H=07#text7
 
         let XYZ = self.XYZ
@@ -232,7 +232,7 @@ extension UIColor {
 
         - returns: A CGFloat representing the relative luminosity.
     */
-    var luminance: CGFloat {
+    public var luminance: CGFloat {
         // http://www.w3.org/WAI/GL/WCAG20-TECHS/G18.html
 
         let RGBA = self.RGBA
@@ -249,7 +249,7 @@ extension UIColor {
 
         - returns: A boolean: true if it is dark and false if it is not dark.
     */
-    var isDark: Bool {
+    public var isDark: Bool {
         return self.luminance < 0.5
     }
 
@@ -258,7 +258,7 @@ extension UIColor {
 
         - returns: A boolean: true if it is light and false if it is not light.
     */
-    var isLight: Bool {
+    public var isLight: Bool {
         return !self.isDark
     }
 
@@ -269,7 +269,7 @@ extension UIColor {
 
         - returns: A boolean: true if this colors is darker than the compared color and false if otherwise.
     */
-    func isDarker(than color: UIColor) -> Bool {
+    public func isDarker(than color: UIColor) -> Bool {
         return self.luminance < color.luminance
     }
 
@@ -280,7 +280,7 @@ extension UIColor {
 
         - returns: A boolean: true if this colors is lighter than the compared color and false if otherwise.
     */
-    func isLighter(than color: UIColor) -> Bool {
+    public func isLighter(than color: UIColor) -> Bool {
         return !self.isDarker(than: color)
     }
 
@@ -289,7 +289,7 @@ extension UIColor {
 
         - returns: A boolean: true if this color is black or white and false otherwise.
     */
-    var isBlackOrWhite: Bool {
+    public var isBlackOrWhite: Bool {
         let RGBA = self.RGBA
         let isBlack = RGBA[0] < 0.09 && RGBA[1] < 0.09 && RGBA[2] < 0.09
         let isWhite = RGBA[0] > 0.91 && RGBA[1] > 0.91 && RGBA[2] > 0.91
@@ -304,7 +304,7 @@ extension UIColor {
 
         - returns: A CGFloat representing the deltaE
     */
-    func CIE94(compare color: UIColor) -> CGFloat {
+    public func CIE94(compare color: UIColor) -> CGFloat {
         // https://en.wikipedia.org/wiki/Color_difference#CIE94
 
         let k_L: CGFloat = 1
@@ -350,7 +350,7 @@ extension UIColor {
 
         - returns: A CGFloat representing the deltaE
     */
-    func CIEDE2000(compare color: UIColor) -> CGFloat {
+    public func CIEDE2000(compare color: UIColor) -> CGFloat {
         // CIEDE2000, Sharma 2004 -> http://www.ece.rochester.edu/~gsharma/ciede2000/ciede2000noteCRNA.pdf
 
         func rad2deg(r: CGFloat) -> CGFloat {
@@ -390,7 +390,7 @@ extension UIColor {
         var h_p: CGFloat = 0
         if (C_1_p * C_2_p) == 0 {
             h_p = 0
-        } else if fabs(h_2_p - h_1_p) <= 180 {
+        } else if abs(h_2_p - h_1_p) <= 180 {
             h_p = h_2_p - h_1_p
         } else if (h_2_p - h_1_p) > 180 {
             h_p = h_2_p - h_1_p - 360
@@ -446,7 +446,7 @@ extension UIColor {
 
         - returns: A CGFloat representing the contrast ratio of the two colors.
     */
-    func contrastRatio(with color: UIColor) -> CGFloat {
+    public func contrastRatio(with color: UIColor) -> CGFloat {
         // http://www.w3.org/WAI/GL/WCAG20-TECHS/G18.html
 
         let L1 = self.luminance
@@ -467,7 +467,7 @@ extension UIColor {
 
         - returns: a boolean, true of the two colors are contrasting, false otherwise.
      */
-    func isContrasting(with color: UIColor, strict: Bool = false) -> Bool {
+    public func isContrasting(with color: UIColor, strict: Bool = false) -> Bool {
         // http://www.w3.org/TR/2008/REC-WCAG20-20081211/#visual-audio-contrast-contrast
 
         let ratio = self.contrastRatio(with: color)
@@ -479,7 +479,7 @@ extension UIColor {
 
         - returns: A UIColor, either black or white to contrast against this color.
     */
-    var fullContrastColor: UIColor {
+    public var fullContrastColor: UIColor {
         let RGBA = self.RGBA
         let delta = (0.299 * RGBA[0]) + (0.587 * RGBA[1]) + (0.114 * RGBA[2])
 
@@ -493,7 +493,7 @@ extension UIColor {
 
         - returns: A UIColor clone with the new alpha.
     */
-    func withAlpha(newAlpha: CGFloat) -> UIColor {
+    public func withAlpha(newAlpha: CGFloat) -> UIColor {
         return self.withAlphaComponent(newAlpha)
     }
 
@@ -505,7 +505,7 @@ extension UIColor {
 
         - returns: A UIColor with the applied overlay.
     */
-    func overlay(with color: UIColor) -> UIColor {
+    public func overlay(with color: UIColor) -> UIColor {
         let mainRGBA = self.RGBA
         let maskRGBA = color.RGBA
 
@@ -528,7 +528,7 @@ extension UIColor {
 
         - returns: A UIColor with a black overlay.
     */
-    var overlayBlack: UIColor {
+    public var overlayBlack: UIColor {
         return self.overlay(with: UIColor.black())
     }
 
@@ -537,7 +537,7 @@ extension UIColor {
 
         - returns: A UIColor with a white overlay.
     */
-    var overlayWhite: UIColor {
+    public var overlayWhite: UIColor {
         return self.overlay(with: UIColor.white())
     }
 
@@ -549,7 +549,7 @@ extension UIColor {
 
         - returns: A UIColor with the applied multiply blend mode.
     */
-    func multiply(with color: UIColor) -> UIColor {
+    public func multiply(with color: UIColor) -> UIColor {
         let mainRGBA = self.RGBA
         let maskRGBA = color.RGBA
 
@@ -567,7 +567,7 @@ extension UIColor {
 
         - returns: A UIColor with the applied screen blend mode.
     */
-    func screen(with color: UIColor) -> UIColor {
+    public func screen(with color: UIColor) -> UIColor {
         let mainRGBA = self.RGBA
         let maskRGBA = color.RGBA
 
@@ -597,7 +597,7 @@ extension UIColor {
 
         - returns: A complement UIColor.
     */
-    var complement: UIColor {
+    public var complement: UIColor {
         return self.harmony(hueIncrement: 180)
     }
 }

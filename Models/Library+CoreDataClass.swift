@@ -1,8 +1,8 @@
 //
-//  LibraryCoreDataClass.swift
-//  BookPlayer
+//  Library+CoreDataClass.swift
+//  BookPlayerKit
 //
-//  Created by Gianni Carlo on 5/9/18.
+//  Created by Gianni Carlo on 9/21/18.
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 //
@@ -10,6 +10,7 @@
 import CoreData
 import Foundation
 
+@objc(Library)
 public class Library: NSManagedObject {
     func itemIndex(with identifier: String) -> Int? {
         guard let items = self.items?.array as? [LibraryItem] else {
@@ -37,7 +38,7 @@ public class Library: NSManagedObject {
         return nil
     }
 
-    func itemIndex(with url: URL) -> Int? {
+    public func itemIndex(with url: URL) -> Int? {
         let hash = url.lastPathComponent
 
         return self.itemIndex(with: hash)
@@ -51,7 +52,7 @@ public class Library: NSManagedObject {
         return items[index]
     }
 
-    func getItem(with url: URL) -> LibraryItem? {
+    public func getItem(with url: URL) -> LibraryItem? {
         guard let index = self.itemIndex(with: url) else {
             return nil
         }
@@ -59,7 +60,7 @@ public class Library: NSManagedObject {
         return self.getItem(at: index)
     }
 
-    func getItem(with identifier: String) -> LibraryItem? {
+    public func getItem(with identifier: String) -> LibraryItem? {
         guard let index = self.itemIndex(with: identifier) else {
             return nil
         }
