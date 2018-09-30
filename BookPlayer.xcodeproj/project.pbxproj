@@ -46,6 +46,7 @@
 		41A6A87520DEECC400B2C621 /* PlaylistTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A6A87420DEECC400B2C621 /* PlaylistTests.swift */; };
 		41B2AC8E1D43CCE8005382A9 /* ChaptersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */; };
 		41C3CF7E20AEA5E5007C3EF4 /* DataManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */; };
+		41D39D41215F177D00B65290 /* BookActivityItemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D39D40215F177D00B65290 /* BookActivityItemProvider.swift */; };
 		41D4F2EB2101A278009F1B1E /* DirectoryWatcher.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41D4F2EA2101A278009F1B1E /* DirectoryWatcher.framework */; };
 		41D4F2EF21053944009F1B1E /* IndexPath+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D4F2EE21053944009F1B1E /* IndexPath+BookPlayer.swift */; };
 		41E34E502138EA8200A3997C /* ImportOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41E34E4F2138EA8200A3997C /* ImportOperation.swift */; };
@@ -159,6 +160,7 @@
 		41AB1C121D30298800AC1AA0 /* MBProgressHUD.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MBProgressHUD.framework; path = Carthage/Build/iOS/MBProgressHUD.framework; sourceTree = "<group>"; };
 		41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChaptersViewController.swift; sourceTree = "<group>"; };
 		41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManagerTests.swift; sourceTree = "<group>"; };
+		41D39D40215F177D00B65290 /* BookActivityItemProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookActivityItemProvider.swift; sourceTree = "<group>"; };
 		41D4F2EA2101A278009F1B1E /* DirectoryWatcher.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DirectoryWatcher.framework; path = Carthage/Build/iOS/DirectoryWatcher.framework; sourceTree = "<group>"; };
 		41D4F2EE21053944009F1B1E /* IndexPath+BookPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "IndexPath+BookPlayer.swift"; sourceTree = "<group>"; };
 		41E34E4F2138EA8200A3997C /* ImportOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportOperation.swift; sourceTree = "<group>"; };
@@ -407,6 +409,7 @@
 				4165EDF720A743D400616EDF /* Playlist+CoreDataClass.swift */,
 				4165EDFD20A743D500616EDF /* Playlist+CoreDataProperties.swift */,
 				4163E3102148606600072AA2 /* FileItem.swift */,
+				41D39D40215F177D00B65290 /* BookActivityItemProvider.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -722,6 +725,7 @@
 				41839AB720AA8C970047E55D /* Book+CoreDataClass.swift in Sources */,
 				4163E3112148606600072AA2 /* FileItem.swift in Sources */,
 				C39401E920DEE83200F3DC71 /* UIView+BookPlayer.swift in Sources */,
+				41D39D41215F177D00B65290 /* BookActivityItemProvider.swift in Sources */,
 				4165EE1020A7CBBE00616EDF /* PlaylistViewController.swift in Sources */,
 				41839AB420AA8B960047E55D /* ArtworkColors+CoreDataProperties.swift in Sources */,
 				C3FE94792080086800BCEA37 /* BookCellView.swift in Sources */,

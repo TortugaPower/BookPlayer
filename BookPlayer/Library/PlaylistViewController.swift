@@ -159,6 +159,17 @@ extension PlaylistViewController {
 
             sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
 
+            sheet.addAction(UIAlertAction(title: "Export item", style: .default, handler: { _ in
+
+                let bookProvider = BookActivityItemProvider(book)
+
+                let shareController = UIActivityViewController(activityItems: [bookProvider], applicationActivities: nil)
+
+                shareController.excludedActivityTypes = [.copyToPasteboard]
+
+                self.present(shareController, animated: true, completion: nil)
+            }))
+
             sheet.addAction(UIAlertAction(title: "Remove from playlist", style: .default, handler: { _ in
                 self.playlist.removeFromBooks(book)
                 self.library.addToItems(book)
