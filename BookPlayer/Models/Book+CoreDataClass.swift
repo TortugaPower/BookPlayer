@@ -16,6 +16,10 @@ public class Book: LibraryItem {
         return DataManager.getProcessedFolderURL().appendingPathComponent(self.identifier)
     }
 
+    var filename: String {
+        return self.title + "." + self.ext
+    }
+
     var currentChapter: Chapter? {
         guard let chapters = self.chapters?.array as? [Chapter], !chapters.isEmpty else {
             return nil

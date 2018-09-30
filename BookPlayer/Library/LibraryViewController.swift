@@ -355,7 +355,21 @@ extension LibraryViewController {
             return [deleteAction, renameAction]
         }
 
-        return [deleteAction]
+        let exportAction = UITableViewRowAction(style: .normal, title: "Export") { (_, indexPath) in
+            guard let book = self.items[indexPath.row] as? Book else {
+                return
+            }
+
+            let bookProvider = BookActivityItemProvider(book)
+
+            let shareController = UIActivityViewController(activityItems: [bookProvider], applicationActivities: nil)
+
+            shareController.excludedActivityTypes = [.copyToPasteboard]
+
+            self.present(shareController, animated: true, completion: nil)
+        }
+
+        return [deleteAction, exportAction]
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
