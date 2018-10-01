@@ -490,5 +490,7 @@ extension LibraryViewController {
                 self.tableView.endUpdates()
             })
         }
+
+        CarPlayManager.shared.reload()
     }
 }

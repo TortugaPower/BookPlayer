@@ -15,6 +15,8 @@ import MediaPlayer
 class PlayerManager: NSObject {
     static let shared = PlayerManager()
 
+    static let speedOptions: [Float] = [2.5, 2, 1.5, 1.25, 1, 0.75]
+
     private var audioPlayer: AVAudioPlayer?
 
     var currentBooks: [Book]?
@@ -59,7 +61,9 @@ class PlayerManager: NSObject {
                 self.nowPlayingInfo = [
                     MPMediaItemPropertyTitle: book.title,
                     MPMediaItemPropertyArtist: book.author,
-                    MPMediaItemPropertyPlaybackDuration: audioplayer.duration
+                    MPMediaItemPropertyPlaybackDuration: audioplayer.duration,
+                    MPNowPlayingInfoPropertyDefaultPlaybackRate: self.speed,
+                    MPNowPlayingInfoPropertyPlaybackProgress: audioplayer.currentTime / audioplayer.duration
                 ]
 
                 self.nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(
@@ -78,6 +82,10 @@ class PlayerManager: NSObject {
                 audioplayer.rate = self.speed
 
                 NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["book": book])
+
+                if #available(iOS 11.0, *) {
+                    MPNowPlayingInfoCenter.default().playbackState = self.isPlaying ? MPNowPlayingPlaybackState.playing : MPNowPlayingPlaybackState.paused
+                }
 
                 completion(true)
             })

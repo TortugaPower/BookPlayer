@@ -22,6 +22,24 @@ public class Playlist: LibraryItem {
         return book.artwork
     }
 
+    func totalDuration() -> Double {
+        guard let books = self.books?.array as? [Book] else {
+            return 0.0
+        }
+
+        var totalDuration = 0.0
+
+        for book in books {
+            totalDuration += book.duration
+        }
+
+        guard totalDuration > 0 else {
+            return 0.0
+        }
+
+        return totalDuration
+    }
+
     func totalProgress() -> Double {
         guard let books = self.books?.array as? [Book] else {
             return 0.0
@@ -40,6 +58,10 @@ public class Playlist: LibraryItem {
         }
 
         return totalProgress / totalDuration
+    }
+
+    override var isCompleted: Bool {
+        return round(self.totalProgress()) >= round(self.totalDuration())
     }
 
     func hasBooks() -> Bool {

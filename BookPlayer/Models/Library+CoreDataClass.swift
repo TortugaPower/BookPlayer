@@ -62,4 +62,24 @@ public class Library: NSManagedObject {
         }
         return self.getItem(at: index)
     }
+
+    func getItem(at indexPath: IndexPath) -> LibraryItem? {
+        if indexPath.indices.count == 0 {
+            return nil
+        }
+
+        guard let item = self.getItem(at: indexPath[0]) else {
+            return nil
+        }
+
+        guard
+            indexPath.indices.count == 2,
+            let playlist = item as? Playlist,
+            let book = playlist.getBook(at: indexPath[1])
+            else {
+                return item
+        }
+
+        return book
+    }
 }

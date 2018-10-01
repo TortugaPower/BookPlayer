@@ -59,6 +59,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // register document's folder listener
         self.setupDocumentListener()
 
+        // register for CarPlay
+        self.setupCarPlay()
+
         return true
     }
 
@@ -218,6 +221,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             PlayerManager.shared.rewind()
             return .success
         }
+
+        //
+        /*
+        let speedOptions = PlayerManager.speedOptions.reversed().map({ (option) -> NSNumber in
+            return NSNumber(value: option)
+        })
+
+        MPRemoteCommandCenter.shared().changePlaybackRateCommand.supportedPlaybackRates = speedOptions
+
+        MPRemoteCommandCenter.shared().changePlaybackRateCommand.addTarget { (commandEvent) -> MPRemoteCommandHandlerStatus in
+            guard let cmd = commandEvent as? MPChangePlaybackRateCommandEvent else {
+                return .success
+            }
+
+            PlayerManager.shared.speed = cmd.playbackRate
+
+            return .success
+        }
+         */
     }
 
     func setupDocumentListener() {
@@ -225,5 +247,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.watcher = DirectoryWatcher.watch(documentsUrl) {
             DataManager.notifyPendingFiles()
         }
+    }
+
+    func setupCarPlay() {
+        MPPlayableContentManager.shared().dataSource = CarPlayManager.shared
+        MPPlayableContentManager.shared().delegate = CarPlayManager.shared
     }
 }

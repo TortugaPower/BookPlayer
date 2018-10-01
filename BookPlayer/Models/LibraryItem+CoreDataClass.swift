@@ -27,4 +27,8 @@ public class LibraryItem: NSManagedObject {
     }
 
     var cachedArtwork: UIImage?
+
+    var isCompleted: Bool {
+        return false
+    }
 }

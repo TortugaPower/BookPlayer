@@ -76,6 +76,7 @@
 		C3A479152094CA3800D92122 /* UIImage+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479142094CA3800D92122 /* UIImage+BookPlayer.swift */; };
 		C3A479192094CAF300D92122 /* UIViewController+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479182094CAF300D92122 /* UIViewController+BookPlayer.swift */; };
 		C3D3852720C1E73E00A0ACC7 /* Player.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C3D3852620C1E73E00A0ACC7 /* Player.storyboard */; };
+		C3D8ABC7215D422F005D06AF /* CarPlayManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3D8ABC6215D422F005D06AF /* CarPlayManager.swift */; };
 		C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3EC372D206EE0650094B4E8 /* SleepTimer.swift */; };
 		C3FA301E20E0024900393DDA /* BPArtworkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FA301D20E0024900393DDA /* BPArtworkView.swift */; };
 		C3FE3F8220A090880055B9C6 /* limitPanAngle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FE3F8120A090880055B9C6 /* limitPanAngle.swift */; };
@@ -196,6 +197,7 @@
 		C3A479142094CA3800D92122 /* UIImage+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+BookPlayer.swift"; sourceTree = "<group>"; };
 		C3A479182094CAF300D92122 /* UIViewController+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+BookPlayer.swift"; sourceTree = "<group>"; };
 		C3D3852620C1E73E00A0ACC7 /* Player.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Player.storyboard; sourceTree = "<group>"; };
+		C3D8ABC6215D422F005D06AF /* CarPlayManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarPlayManager.swift; sourceTree = "<group>"; };
 		C3EC372D206EE0650094B4E8 /* SleepTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepTimer.swift; sourceTree = "<group>"; };
 		C3FA301D20E0024900393DDA /* BPArtworkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPArtworkView.swift; sourceTree = "<group>"; };
 		C3FE3F8120A090880055B9C6 /* limitPanAngle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = limitPanAngle.swift; sourceTree = "<group>"; };
@@ -333,6 +335,7 @@
 			isa = PBXGroup;
 			children = (
 				69343D322133844D000C425E /* VoiceOverService.swift */,
+				C3D8ABC6215D422F005D06AF /* CarPlayManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -567,6 +570,7 @@
 						CreatedOnToolsVersion = 7.3;
 						DevelopmentTeam = S7TJSJXWUZ;
 						LastSwiftMigration = 0900;
+						ProvisioningStyle = Manual;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -746,6 +750,7 @@
 				C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */,
 				4165EE1220A7D1E100616EDF /* RootViewController.swift in Sources */,
 				4165EE0820A743D500616EDF /* Playlist+CoreDataProperties.swift in Sources */,
+				C3D8ABC7215D422F005D06AF /* CarPlayManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -986,6 +991,7 @@
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CODE_SIGN_ENTITLEMENTS = BookPlayer/BookPlayer.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = S7TJSJXWUZ;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -998,6 +1004,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer;
 				PRODUCT_NAME = BookPlayer;
+				PROVISIONING_PROFILE_SPECIFIER = "BookPlayer 3 with CarPlay";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_VERSION = 4.0;
@@ -1013,6 +1020,7 @@
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CODE_SIGN_ENTITLEMENTS = BookPlayer/BookPlayer.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = S7TJSJXWUZ;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1024,6 +1032,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer;
 				PRODUCT_NAME = BookPlayer;
+				PROVISIONING_PROFILE_SPECIFIER = "BookPlayer 3 with CarPlay";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = RELEASE;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
@@ -1121,6 +1130,7 @@
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CODE_SIGN_ENTITLEMENTS = BookPlayer/BookPlayer.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = S7TJSJXWUZ;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1132,6 +1142,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer;
 				PRODUCT_NAME = BookPlayer;
+				PROVISIONING_PROFILE_SPECIFIER = "BookPlayer 3 with CarPlay";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = RELEASE;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;

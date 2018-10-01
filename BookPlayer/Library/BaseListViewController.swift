@@ -210,6 +210,8 @@ class BaseListViewController: UIViewController {
         self.tableView.reloadSections(IndexSet(integer: Section.library.rawValue), with: .none)
         self.tableView.endUpdates()
         self.toggleEmptyStateView()
+
+        CarPlayManager.shared.reload()
     }
 
     @objc func onNewFileUrl() {
@@ -435,7 +437,9 @@ extension BaseListViewController: TableViewReorderDelegate {
         })
     }
 
-    @objc func tableViewDidFinishReordering(_ tableView: UITableView, from initialSourceIndexPath: IndexPath, to finalDestinationIndexPath: IndexPath, dropped overIndexPath: IndexPath?) {}
+    @objc func tableViewDidFinishReordering(_ tableView: UITableView, from initialSourceIndexPath: IndexPath, to finalDestinationIndexPath: IndexPath, dropped overIndexPath: IndexPath?) {
+        CarPlayManager.shared.reload()
+    }
 }
 
 // MARK: DocumentPicker Delegate

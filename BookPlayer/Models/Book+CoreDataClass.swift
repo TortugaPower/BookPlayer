@@ -50,7 +50,7 @@ public class Book: LibraryItem {
 
     // TODO: This is a makeshift version of a proper completion property.
     // See https://github.com/TortugaPower/BookPlayer/issues/201
-    var isCompleted: Bool {
+    override var isCompleted: Bool {
         return round(self.currentTime) >= round(self.duration)
     }
 
