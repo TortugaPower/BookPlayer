@@ -49,7 +49,7 @@
 		41D4F2EB2101A278009F1B1E /* DirectoryWatcher.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41D4F2EA2101A278009F1B1E /* DirectoryWatcher.framework */; };
 		41D4F2EF21053944009F1B1E /* IndexPath+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D4F2EE21053944009F1B1E /* IndexPath+BookPlayer.swift */; };
 		41E34E502138EA8200A3997C /* ImportOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41E34E4F2138EA8200A3997C /* ImportOperation.swift */; };
-		5CBB29542163A33800E3A9FF /* ZIPFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5CBB29522163A17F00E3A9FF /* ZIPFoundation.framework */; };
+		5CBB29552163E57300E3A9FF /* ZIPFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5CBB29522163A17F00E3A9FF /* ZIPFoundation.framework */; };
 		69343D332133844D000C425E /* VoiceOverService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69343D322133844D000C425E /* VoiceOverService.swift */; };
 		69343D36213A07B4000C425E /* VoiceOverServiceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69343D35213A07B4000C425E /* VoiceOverServiceTest.swift */; };
 		C30B085F209654E3003F325B /* UIColor+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30B085E209654E3003F325B /* UIColor+BookPlayer.swift */; };
@@ -219,7 +219,7 @@
 				C30CD2A32097C49F00258B09 /* ColorCube.framework in Frameworks */,
 				4165EE0E20A7AEC600616EDF /* SwiftReorder.framework in Frameworks */,
 				412451841D489204008AC0E5 /* Crashlytics.framework in Frameworks */,
-				5CBB29542163A33800E3A9FF /* ZIPFoundation.framework in Frameworks */,
+				5CBB29552163E57300E3A9FF /* ZIPFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -645,6 +645,7 @@
 				"$(SRCROOT)/Carthage/Build/iOS/SwiftReorder.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/IDZSwiftCommonCrypto.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/DirectoryWatcher.framework",
+				"$(SRCROOT)/Carthage/Build/iOS/ZIPFoundation.framework",
 			);
 			name = "Copy Frameworks managed by Carthage";
 			outputPaths = (
@@ -654,6 +655,7 @@
 				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/SwiftReorder.framework",
 				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/IDZSwiftCommonCrypto.framework",
 				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/DirectoryWatcher.framework",
+				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/ZIPFoundation.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
