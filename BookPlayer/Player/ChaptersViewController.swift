@@ -41,7 +41,7 @@ class ChaptersViewController: UITableViewController {
         let chapter = self.chapters[indexPath.row]
 
         cell.textLabel?.text = chapter.title == "" ? "Chapter \(indexPath.row + 1)" : chapter.title
-        cell.detailTextLabel?.text = "\(self.formatTime(chapter.start)) – \(self.formatDuration(chapter.duration, unitsStyle: .abbreviated))"
+        cell.detailTextLabel?.text = "Start: \(self.formatTime(chapter.start)) - Duration: \(self.formatTime(chapter.duration))"
         cell.accessoryType = .none
 
         if self.currentChapter.index == chapter.index {
