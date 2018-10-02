@@ -8,6 +8,7 @@
 
 import Foundation
 import IDZSwiftCommonCrypto
+import ZIPFoundation
 
 /**
  Process files located at a specific `URL`, renames it with the hash and moves it to the specified destination folder.
@@ -29,6 +30,20 @@ class ImportOperation: Operation {
             }
 
             NotificationCenter.default.post(name: .processingFile, object: self, userInfo: ["filename": file.originalUrl.lastPathComponent])
+
+            if file.originalUrl.lastPathComponent == "zip" {
+                inputStream.open()
+                let fileManager = FileManager()
+                let currentWorkingPath = fileManager.currentDirectoryPath
+                var destinationURL = URL(fileURLWithPath: currentWorkingPath)
+                destinationURL.appendPathComponent("directory")
+                do {
+                    try fileManager.createDirectory(at: destinationURL, withIntermediateDirectories: true, attributes: nil)
+                    try fileManager.unzipItem(at: file.originalUrl, to: destinationURL)
+                } catch {
+                    print("Extraction of ZIP archive failed with error:\(error)")
+                }
+            }
 
             inputStream.open()
 

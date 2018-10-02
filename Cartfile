@@ -4,3 +4,4 @@ github "dennisweissmann/DeviceKit" ~> 1.7
 github "GianniCarlo/SwiftReorder"
 github "iosdevzone/IDZSwiftCommonCrypto"
 github "GianniCarlo/DirectoryWatcher"
+github "weichsel/ZIPFoundation" ~> 0.9
