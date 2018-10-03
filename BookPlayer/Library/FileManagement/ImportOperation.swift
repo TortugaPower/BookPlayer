@@ -31,15 +31,12 @@ class ImportOperation: Operation {
 
             NotificationCenter.default.post(name: .processingFile, object: self, userInfo: ["filename": file.originalUrl.lastPathComponent])
 
-            if file.originalUrl.lastPathComponent == "zip" {
-                inputStream.open()
-                let fileManager = FileManager()
-                let currentWorkingPath = fileManager.currentDirectoryPath
-                var destinationURL = URL(fileURLWithPath: currentWorkingPath)
-                destinationURL.appendPathComponent("directory")
+            if file.originalUrl.pathExtension == "zip" {
+                let destinationURLZip = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                print("trying to unzip file to:\(destinationURLZip)")
                 do {
-                    try fileManager.createDirectory(at: destinationURL, withIntermediateDirectories: true, attributes: nil)
-                    try fileManager.unzipItem(at: file.originalUrl, to: destinationURL)
+                    try FileManager.default.createDirectory(at: destinationURLZip, withIntermediateDirectories: true, attributes: nil)
+                    try FileManager.default.unzipItem(at: file.originalUrl, to: destinationURLZip)
                 } catch {
                     print("Extraction of ZIP archive failed with error:\(error)")
                 }
