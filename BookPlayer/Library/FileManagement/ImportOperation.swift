@@ -31,14 +31,49 @@ class ImportOperation: Operation {
 
             NotificationCenter.default.post(name: .processingFile, object: self, userInfo: ["filename": file.originalUrl.lastPathComponent])
 
+            // Unzip if needed to a temp directory
             if file.originalUrl.pathExtension == "zip" {
-                let destinationURLZip = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                print("trying to unzip file to:\(destinationURLZip)")
+                let tempURL = file.destinationFolder.appendingPathComponent("tmp")
+
                 do {
-                    try FileManager.default.createDirectory(at: destinationURLZip, withIntermediateDirectories: true, attributes: nil)
-                    try FileManager.default.unzipItem(at: file.originalUrl, to: destinationURLZip)
+                    try FileManager.default.createDirectory(at: tempURL, withIntermediateDirectories: true, attributes: nil)
+                    try FileManager.default.unzipItem(at: file.originalUrl, to: tempURL)
+
                 } catch {
                     print("Extraction of ZIP archive failed with error:\(error)")
+                }
+
+                do {
+                    let fileManager = FileManager.default
+
+                    do {
+                        let resourceKeys: [URLResourceKey] = [.creationDateKey, .isDirectoryKey]
+                        let enumerator = fileManager.enumerator(at: tempURL,
+                                                                        includingPropertiesForKeys: resourceKeys,
+                                                                        options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
+                                                                            print("directoryEnumerator error at \(url): ", error)
+                                                                            return true
+                        })!
+
+                        for case let fileURL as URL in enumerator {
+                            if fileURL.pathExtension == "mp3" || fileURL.pathExtension == "m4a" || fileURL.pathExtension == "m4b" {
+                                print(fileURL)
+                                let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                                let destinationURL = documentsURL.appendingPathComponent(fileURL.lastPathComponent)
+                                try FileManager.default.moveItem(at: fileURL, to: destinationURL)
+                            }
+                        }
+                    } catch {
+                        print(error)
+                    }
+
+                    // Delete temp folder
+                    do {
+                        try FileManager.default.removeItem(at: tempURL)
+                        print("tmp url deleted: \(tempURL)")
+                    } catch {
+                        print("Error deleting temp directory:\(error)")
+                    }
                 }
             }
 
