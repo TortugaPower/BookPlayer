@@ -22,59 +22,65 @@ class ImportOperation: Operation {
         self.files = files
     }
 
+    func handleZip(file: FileItem) {
+        // Unzip to a temp directory
+        if file.originalUrl.pathExtension == "zip" {
+            let tempURL = file.destinationFolder.appendingPathComponent("tmp")
+
+            do {
+                try FileManager.default.createDirectory(at: tempURL, withIntermediateDirectories: true, attributes: nil)
+                try FileManager.default.unzipItem(at: file.originalUrl, to: tempURL)
+
+            } catch {
+                print("Extraction of ZIP archive failed with error:\(error)")
+            }
+
+            do {
+                let fileManager = FileManager.default
+
+                do {
+                    let resourceKeys: [URLResourceKey] = [.creationDateKey, .isDirectoryKey]
+                    let enumerator = fileManager.enumerator(at: tempURL,
+                                                            includingPropertiesForKeys: resourceKeys,
+                                                            options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
+                                                                print("directoryEnumerator error at \(url): ", error)
+                                                                return true
+                    })!
+
+                    for case let fileURL as URL in enumerator {
+                        if fileURL.pathExtension == "mp3" || fileURL.pathExtension == "m4a" || fileURL.pathExtension == "m4b" {
+                            let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                            let destinationURL = documentsURL.appendingPathComponent(fileURL.lastPathComponent)
+                            try FileManager.default.moveItem(at: fileURL, to: destinationURL)
+                        }
+                    }
+                } catch {
+                    print(error)
+                }
+
+                // Delete temp directory
+                do {
+                    try FileManager.default.removeItem(at: tempURL)
+                } catch {
+                    print("Error deleting temp directory:\(error)")
+                }
+            }
+        }
+    }
+
     override func main() {
         for file in self.files {
-            guard FileManager.default.fileExists(atPath: file.originalUrl.path),
-                let inputStream = InputStream(url: file.originalUrl) else {
-                    continue
-            }
 
             NotificationCenter.default.post(name: .processingFile, object: self, userInfo: ["filename": file.originalUrl.lastPathComponent])
 
-            // Unzip if needed to a temp directory
-            if file.originalUrl.pathExtension == "zip" {
-                let tempURL = file.destinationFolder.appendingPathComponent("tmp")
+            guard file.originalUrl.pathExtension != "zip" else {
+                handleZip(file: file)
+                continue
+            }
 
-                do {
-                    try FileManager.default.createDirectory(at: tempURL, withIntermediateDirectories: true, attributes: nil)
-                    try FileManager.default.unzipItem(at: file.originalUrl, to: tempURL)
-
-                } catch {
-                    print("Extraction of ZIP archive failed with error:\(error)")
-                }
-
-                do {
-                    let fileManager = FileManager.default
-
-                    do {
-                        let resourceKeys: [URLResourceKey] = [.creationDateKey, .isDirectoryKey]
-                        let enumerator = fileManager.enumerator(at: tempURL,
-                                                                        includingPropertiesForKeys: resourceKeys,
-                                                                        options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
-                                                                            print("directoryEnumerator error at \(url): ", error)
-                                                                            return true
-                        })!
-
-                        for case let fileURL as URL in enumerator {
-                            if fileURL.pathExtension == "mp3" || fileURL.pathExtension == "m4a" || fileURL.pathExtension == "m4b" {
-                                print(fileURL)
-                                let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                                let destinationURL = documentsURL.appendingPathComponent(fileURL.lastPathComponent)
-                                try FileManager.default.moveItem(at: fileURL, to: destinationURL)
-                            }
-                        }
-                    } catch {
-                        print(error)
-                    }
-
-                    // Delete temp folder
-                    do {
-                        try FileManager.default.removeItem(at: tempURL)
-                        print("tmp url deleted: \(tempURL)")
-                    } catch {
-                        print("Error deleting temp directory:\(error)")
-                    }
-                }
+            guard FileManager.default.fileExists(atPath: file.originalUrl.path),
+                let inputStream = InputStream(url: file.originalUrl) else {
+                    continue
             }
 
             inputStream.open()
