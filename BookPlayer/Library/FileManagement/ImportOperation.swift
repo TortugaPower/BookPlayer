@@ -8,6 +8,7 @@
 
 import Foundation
 import IDZSwiftCommonCrypto
+import ZIPFoundation
 
 /**
  Process files located at a specific `URL`, renames it with the hash and moves it to the specified destination folder.
@@ -21,14 +22,56 @@ class ImportOperation: Operation {
         self.files = files
     }
 
+    func handleZip(file: FileItem) {
+        // Unzip to a temp directory
+        if file.originalUrl.pathExtension == "zip" {
+            let tempURL = file.destinationFolder.appendingPathComponent("tmp")
+
+            do {
+                try FileManager.default.createDirectory(at: tempURL, withIntermediateDirectories: true, attributes: nil)
+                try FileManager.default.unzipItem(at: file.originalUrl, to: tempURL)
+
+            } catch {
+                print("Extraction of ZIP archive failed with error:\(error)")
+                return
+            }
+
+            let fileManager = FileManager.default
+            let resourceKeys: [URLResourceKey] = [.creationDateKey, .isDirectoryKey]
+            let enumerator = fileManager.enumerator(at: tempURL,
+                                                    includingPropertiesForKeys: resourceKeys,
+                                                    options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
+                                                        print("directoryEnumerator error at \(url): ", error)
+                                                        return true
+            })!
+
+            for case let fileURL as URL in enumerator {
+                if fileURL.pathExtension == "mp3" || fileURL.pathExtension == "m4a" || fileURL.pathExtension == "m4b" {
+                    let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                    let destinationURL = documentsURL.appendingPathComponent(fileURL.lastPathComponent)
+                    try? FileManager.default.moveItem(at: fileURL, to: destinationURL)
+                }
+            }
+
+            // Delete temp directory
+            try? FileManager.default.removeItem(at: tempURL)
+        }
+    }
+
     override func main() {
         for file in self.files {
+
+            NotificationCenter.default.post(name: .processingFile, object: self, userInfo: ["filename": file.originalUrl.lastPathComponent])
+
+            guard file.originalUrl.pathExtension != "zip" else {
+                handleZip(file: file)
+                continue
+            }
+
             guard FileManager.default.fileExists(atPath: file.originalUrl.path),
                 let inputStream = InputStream(url: file.originalUrl) else {
                     continue
             }
-
-            NotificationCenter.default.post(name: .processingFile, object: self, userInfo: ["filename": file.originalUrl.lastPathComponent])
 
             inputStream.open()
 
