@@ -33,38 +33,28 @@ class ImportOperation: Operation {
 
             } catch {
                 print("Extraction of ZIP archive failed with error:\(error)")
+                return
             }
 
-            do {
-                let fileManager = FileManager.default
+            let fileManager = FileManager.default
+            let resourceKeys: [URLResourceKey] = [.creationDateKey, .isDirectoryKey]
+            let enumerator = fileManager.enumerator(at: tempURL,
+                                                    includingPropertiesForKeys: resourceKeys,
+                                                    options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
+                                                        print("directoryEnumerator error at \(url): ", error)
+                                                        return true
+            })!
 
-                do {
-                    let resourceKeys: [URLResourceKey] = [.creationDateKey, .isDirectoryKey]
-                    let enumerator = fileManager.enumerator(at: tempURL,
-                                                            includingPropertiesForKeys: resourceKeys,
-                                                            options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
-                                                                print("directoryEnumerator error at \(url): ", error)
-                                                                return true
-                    })!
-
-                    for case let fileURL as URL in enumerator {
-                        if fileURL.pathExtension == "mp3" || fileURL.pathExtension == "m4a" || fileURL.pathExtension == "m4b" {
-                            let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                            let destinationURL = documentsURL.appendingPathComponent(fileURL.lastPathComponent)
-                            try FileManager.default.moveItem(at: fileURL, to: destinationURL)
-                        }
-                    }
-                } catch {
-                    print(error)
-                }
-
-                // Delete temp directory
-                do {
-                    try FileManager.default.removeItem(at: tempURL)
-                } catch {
-                    print("Error deleting temp directory:\(error)")
+            for case let fileURL as URL in enumerator {
+                if fileURL.pathExtension == "mp3" || fileURL.pathExtension == "m4a" || fileURL.pathExtension == "m4b" {
+                    let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                    let destinationURL = documentsURL.appendingPathComponent(fileURL.lastPathComponent)
+                    try? FileManager.default.moveItem(at: fileURL, to: destinationURL)
                 }
             }
+
+            // Delete temp directory
+            try? FileManager.default.removeItem(at: tempURL)
         }
     }
 
