@@ -11,7 +11,6 @@ import Foundation
 import CoreData
 
 public class Library: NSManagedObject {
-
     func itemIndex(with identifier: String) -> Int? {
         guard let items = self.items?.array as? [LibraryItem] else {
             return nil
@@ -81,5 +80,44 @@ public class Library: NSManagedObject {
         }
 
         return book
+    }
+
+    func queueItemsForPlayback(from startItem: LibraryItem, forceAutoplay: Bool = false) -> [Book] {
+        var books = [Book]()
+
+        let shouldAutoplayLibrary = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue)
+        let shouldAutoplay = shouldAutoplayLibrary || forceAutoplay
+
+        if let playlist = startItem as? Playlist {
+            books.append(contentsOf: playlist.getRemainingBooks())
+        }
+
+        var selectedItem = startItem
+
+        if let book = selectedItem as? Book {
+            books.append(book)
+
+            if let playlist = book.playlist {
+                selectedItem = playlist
+            }
+        }
+
+        guard
+            shouldAutoplay,
+            let items = self.items?.array as? [LibraryItem],
+            let remainingItems = items.split(whereSeparator: { $0 == selectedItem }).last
+            else {
+                return books
+        }
+
+        for item in remainingItems {
+            if let playlist = item as? Playlist {
+                books.append(contentsOf: playlist.getRemainingBooks())
+            } else if let book = item as? Book, !book.isCompleted {
+                books.append(book)
+            }
+        }
+
+        return books
     }
 }

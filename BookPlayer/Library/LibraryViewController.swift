@@ -31,11 +31,10 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
 
         var books = [Book]()
 
-        if let playlist = item as? Playlist,
-            let index = playlist.itemIndex(with: identifier) {
+        if let playlist = item as? Playlist, let index = playlist.itemIndex(with: identifier) {
             books = playlist.getBooks(from: index)
         } else if let lastPlayedBook = item as? Book {
-            books = self.queueBooksForPlayback(lastPlayedBook)
+            books = self.library.queueItemsForPlayback(from: lastPlayedBook)
         }
 
         // Preload player
@@ -390,7 +389,7 @@ extension LibraryViewController {
         }
 
         if let book = self.items[indexPath.row] as? Book {
-            let books = self.queueBooksForPlayback(book)
+            let books = self.library.queueItemsForPlayback(from: book)
 
             self.setupPlayer(books: books)
         }

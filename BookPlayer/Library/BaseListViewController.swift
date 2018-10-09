@@ -120,37 +120,6 @@ class BaseListViewController: UIViewController {
         }
     }
 
-    func queueBooksForPlayback(_ startItem: LibraryItem, forceAutoplay: Bool = false) -> [Book] {
-        var books = [Book]()
-        let shouldAutoplayLibrary = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue)
-        let shouldAutoplay = shouldAutoplayLibrary || forceAutoplay
-
-        if let book = startItem as? Book {
-            books.append(book)
-        }
-
-        if let playlist = startItem as? Playlist {
-            books.append(contentsOf: playlist.getRemainingBooks())
-        }
-
-        guard
-            shouldAutoplay,
-            let remainingItems = self.items.split(whereSeparator: { $0 == startItem }).last
-            else {
-                return books
-        }
-
-        for item in remainingItems {
-            if let playlist = item as? Playlist {
-                books.append(contentsOf: playlist.getRemainingBooks())
-            } else if let book = item as? Book, !book.isCompleted {
-                books.append(book)
-            }
-        }
-
-        return books
-    }
-
     func setupPlayer(books: [Book] = []) {
         // Stop setup if no books were found
         if books.isEmpty {
@@ -349,7 +318,7 @@ extension BaseListViewController: UITableViewDataSource {
         cell.type = item is Playlist ? .playlist : .book
 
         cell.onArtworkTap = { [weak self] in
-            guard let books = self?.queueBooksForPlayback(item) else {
+            guard let books = self?.library.queueItemsForPlayback(from: item) else {
                 return
             }
 

@@ -144,7 +144,7 @@ extension PlaylistViewController {
             return
         }
 
-        let books = self.queueBooksForPlayback(self.items[indexPath.row], forceAutoplay: true)
+        let books = self.library.queueItemsForPlayback(from: self.items[indexPath.row], forceAutoplay: true)
 
         self.setupPlayer(books: books)
     }

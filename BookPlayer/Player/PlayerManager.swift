@@ -10,7 +10,7 @@ import Foundation
 import AVFoundation
 import MediaPlayer
 
-// swiftlint:disable file_length
+// swiftlint:disable file_length type_body_length
 
 class PlayerManager: NSObject {
     static let shared = PlayerManager()
