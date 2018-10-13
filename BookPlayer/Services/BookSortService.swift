@@ -14,8 +14,7 @@ final class BookSortService {
             let sortedBooks = try sortByMetadata()
             return sortedBooks
         case .fileName:
-            return []
-//            return sortByTitle()
+            return sortByTitle()
         }
     }
 
@@ -29,8 +28,10 @@ final class BookSortService {
         return sortedBooks
     }
 
-    private func sortByTitle() {
-
+    private func sortByTitle() -> [Book] {
+        return books.sorted(by: { (lhs, rhs) -> Bool in
+            return lhs.title < rhs.title
+        })
     }
 }
 
