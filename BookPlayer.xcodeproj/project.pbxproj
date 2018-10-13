@@ -57,6 +57,7 @@
 		41219BF12155EC9600B19BD5 /* UIColor+Sweetercolor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41219BB72155A69100B19BD5 /* UIColor+Sweetercolor.swift */; };
 		41219BF32155EF9B00B19BD5 /* BookPlayerKit.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 41219B9B2155A53800B19BD5 /* BookPlayerKit.xcdatamodeld */; };
 		412451841D489204008AC0E5 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412451821D489204008AC0E5 /* Crashlytics.framework */; };
+		4135407C21722D2100C38F4D /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4135407B21722D2100C38F4D /* ComplicationController.swift */; };
 		4150F80320A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4150F80220A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework */; };
 		4163E313214AC43000072AA2 /* ImportOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E312214AC43000072AA2 /* ImportOperationTests.swift */; };
 		4163E315214ACB4300072AA2 /* DataTestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E314214ACB4300072AA2 /* DataTestUtils.swift */; };
@@ -256,6 +257,7 @@
 		41219BD52155EC4100B19BD5 /* BookPlayerKitWatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BookPlayerKitWatch.h; sourceTree = "<group>"; };
 		41219BD62155EC4100B19BD5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		412451821D489204008AC0E5 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
+		4135407B21722D2100C38F4D /* ComplicationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComplicationController.swift; sourceTree = "<group>"; };
 		4136163F1D2E21F000E48944 /* LibraryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryViewController.swift; sourceTree = "<group>"; };
 		4150F80220A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IDZSwiftCommonCrypto.framework; path = Carthage/Build/iOS/IDZSwiftCommonCrypto.framework; sourceTree = "<group>"; };
 		4163E312214AC43000072AA2 /* ImportOperationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportOperationTests.swift; sourceTree = "<group>"; };
@@ -556,6 +558,7 @@
 				41A392CE215431D80025F38F /* BookPlayerWatch Extension.entitlements */,
 				41A392B92154317B0025F38F /* InterfaceController.swift */,
 				41A392BB2154317B0025F38F /* ExtensionDelegate.swift */,
+				4135407B21722D2100C38F4D /* ComplicationController.swift */,
 				41A392BD2154317B0025F38F /* Assets.xcassets */,
 				41A392BF2154317B0025F38F /* Info.plist */,
 			);
@@ -1251,6 +1254,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				41A392BC2154317B0025F38F /* ExtensionDelegate.swift in Sources */,
+				4135407C21722D2100C38F4D /* ComplicationController.swift in Sources */,
 				41219BF32155EF9B00B19BD5 /* BookPlayerKit.xcdatamodeld in Sources */,
 				41A392BA2154317B0025F38F /* InterfaceController.swift in Sources */,
 			);
