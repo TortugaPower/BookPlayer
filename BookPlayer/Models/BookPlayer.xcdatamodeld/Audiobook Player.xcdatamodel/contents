@@ -11,6 +11,7 @@
     <entity name="Book" representedClassName=".Book" parentEntity="LibraryItem" syncable="YES">
         <attribute name="author" attributeType="String" syncable="YES"/>
         <attribute name="ext" attributeType="String" syncable="YES"/>
+        <attribute name="originalFileName" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="usesDefaultArtwork" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES" syncable="YES"/>
         <relationship name="artworkColors" maxCount="1" deletionRule="Nullify" destinationEntity="ArtworkColors" inverseName="book" inverseEntity="ArtworkColors" syncable="YES"/>
         <relationship name="chapters" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Chapter" inverseName="book" inverseEntity="Chapter" syncable="YES"/>

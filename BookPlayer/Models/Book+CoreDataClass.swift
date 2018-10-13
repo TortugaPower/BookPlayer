@@ -90,6 +90,7 @@ public class Book: LibraryItem {
         self.title = titleFromMeta ?? bookUrl.originalUrl.lastPathComponent.replacingOccurrences(of: "_", with: " ")
         self.author = authorFromMeta ?? "Unknown Author"
         self.duration = CMTimeGetSeconds(asset.duration)
+        self.originalFileName = bookUrl.originalUrl.lastPathComponent
 
         var colors: ArtworkColors!
         if let data = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtwork, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? NSData {
