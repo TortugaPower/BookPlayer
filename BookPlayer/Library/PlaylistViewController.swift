@@ -10,7 +10,23 @@ import UIKit
 
 class PlaylistViewController: BaseListViewController {
     var playlist: Playlist!
+    @IBAction func didTapSort(_ sender: Any) {
+        let alert = UIAlertController(title: "Sort Files", message: "Sort Playlist files by", preferredStyle: .actionSheet)
+        alert.addAction(UIAlertAction(title: "Title", style: .default, handler: { (action) in
 
+        }))
+
+        alert.addAction(UIAlertAction(title: "File Name", style: .default, handler: { (action) in
+            print("file name")
+        }))
+
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
+            alert.dismiss(animated: true, completion: nil)
+        }))
+
+        present(alert, animated: true, completion: nil)
+    }
+    
     override var items: [LibraryItem] {
         return self.playlist.books?.array as? [LibraryItem] ?? []
     }
