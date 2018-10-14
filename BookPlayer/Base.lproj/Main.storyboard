@@ -647,7 +647,21 @@ Use with caution and care for your hearing.</string>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="CKb-uE-Rzm"/>
                     </view>
-                    <navigationItem key="navigationItem" title="Playlist" largeTitleDisplayMode="never" id="izI-Pl-Rnt"/>
+                    <navigationItem key="navigationItem" title="Playlist" largeTitleDisplayMode="never" id="izI-Pl-Rnt">
+                        <barButtonItem key="rightBarButtonItem" id="Diz-tw-gf9">
+                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="D0b-uI-aqp">
+                                <rect key="frame" x="276" y="7" width="83" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Sort"/>
+                                <connections>
+                                    <action selector="didTapSort:" destination="XZ8-Ha-OZN" eventType="touchUpInside" id="Ag2-Id-FzI"/>
+                                </connections>
+                            </button>
+                            <connections>
+                                <action selector="didTapSort:" destination="XZ8-Ha-OZN" id="gxH-1G-r7Q"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="emptyStatePlaceholder" destination="S0r-5S-fT7" id="d1Y-st-qzo"/>
                         <outlet property="loadingContainerView" destination="UeG-Sn-DHx" id="U62-78-m6K"/>
