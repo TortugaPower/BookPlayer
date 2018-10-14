@@ -10,42 +10,7 @@ import UIKit
 
 class PlaylistViewController: BaseListViewController {
     var playlist: Playlist!
-    @IBAction func didTapSort(_ sender: Any) {
-        let alert = UIAlertController(title: "Sort Files", message: "Sort Playlist files by", preferredStyle: .actionSheet)
-        alert.addAction(UIAlertAction(title: "Title", style: .default, handler: { (action) in
-            guard let books = self.playlist.books else { return }
-            do {
-                let sortedBooks = try BookSortService.init(books: books).perform(filter: .metadataTitle)
-                self.playlist.books = sortedBooks
-                DataManager.saveContext()
-                self.tableView.reloadData()
-            } catch {
-                print(error)
-            }
 
-        }))
-
-        alert.addAction(UIAlertAction(title: "File Name", style: .default, handler: { (action) in
-
-            guard let books = self.playlist.books else { return }
-            do {
-                let sortedBooks = try BookSortService.init(books: books).perform(filter: .fileName)
-                self.playlist.books = sortedBooks
-                DataManager.saveContext()
-                self.tableView.reloadData()
-            } catch {
-                print(error)
-            }
-
-        }))
-
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
-            alert.dismiss(animated: true, completion: nil)
-        }))
-
-        present(alert, animated: true, completion: nil)
-    }
-    
     override var items: [LibraryItem] {
         return self.playlist.books?.array as? [LibraryItem] ?? []
     }
@@ -54,7 +19,7 @@ class PlaylistViewController: BaseListViewController {
         super.viewDidLoad()
 
         self.toggleEmptyStateView()
-
+        self.playlist.delegate = self
         self.navigationItem.title = playlist.title
     }
 
@@ -131,6 +96,26 @@ class PlaylistViewController: BaseListViewController {
     @IBAction func addAction() {
         self.presentImportFilesAlert()
     }
+
+    @IBAction func didTapSort(_ sender: Any) {
+        let alert = UIAlertController(title: "Sort Files", message: "Sort Playlist files by", preferredStyle: .actionSheet)
+        alert.addAction(UIAlertAction(title: "Title", style: .default, handler: { (action) in
+            self.playlist.sort(by: .metadataTitle)
+            self.tableView.reloadData()
+        }))
+
+        alert.addAction(UIAlertAction(title: "File Name", style: .default, handler: { (action) in
+            self.playlist.sort(by: .fileName)
+            self.tableView.reloadData()
+        }))
+
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
+            alert.dismiss(animated: true, completion: nil)
+        }))
+
+        present(alert, animated: true, completion: nil)
+    }
+
 }
 
 // MARK: - DocumentPicker Delegate
@@ -253,5 +238,16 @@ extension PlaylistViewController {
         self.playlist.removeFromBooks(at: sourceIndexPath.row)
         self.playlist.insertIntoBooks(book, at: destinationIndexPath.row)
         DataManager.saveContext()
+    }
+}
+
+// MARK: - Playlist Sort Delegate
+extension PlaylistViewController: PlaylistSortDelegate {
+    func sortDidFail(error: Error) {
+        let alert       = UIAlertController(title: "Error",
+                                            message: "Sorting is unsupported. Please re-import files",
+                                            preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: nil))
+        self.present(alert, animated: true, completion: nil)
     }
 }

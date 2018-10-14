@@ -35,3 +35,8 @@ enum SortError: Error {
     case missingOriginalFilename,
          invalidType
 }
+
+enum PlayListSortOrder {
+    case metadataTitle,
+         fileName
+}

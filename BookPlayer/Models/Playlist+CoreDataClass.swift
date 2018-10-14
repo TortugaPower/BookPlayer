@@ -12,6 +12,9 @@ import CoreData
 import UIKit
 
 public class Playlist: LibraryItem {
+
+    weak var delegate: PlaylistSortDelegate?
+
     override var artwork: UIImage {
         guard let books = self.books?.array as? [Book], let book = books.first(where: { (book) -> Bool in
             return !book.usesDefaultArtwork
@@ -123,4 +126,18 @@ public class Playlist: LibraryItem {
         self.desc = "\(books.count) Files"
         self.addToBooks(NSOrderedSet(array: books))
     }
+
+    func sort(by sortType: PlayListSortOrder) {
+        do {
+            guard let books = books else { return }
+            self.books      = try BookSortService.init(books: books).perform(filter: sortType)
+            DataManager.saveContext()
+        } catch {
+            delegate?.sortDidFail(error: error)
+        }
+    }
+}
+
+protocol PlaylistSortDelegate: AnyObject {
+    func sortDidFail(error: Error)
 }
