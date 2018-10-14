@@ -13,11 +13,30 @@ class PlaylistViewController: BaseListViewController {
     @IBAction func didTapSort(_ sender: Any) {
         let alert = UIAlertController(title: "Sort Files", message: "Sort Playlist files by", preferredStyle: .actionSheet)
         alert.addAction(UIAlertAction(title: "Title", style: .default, handler: { (action) in
+            guard let books = self.playlist.books else { return }
+            do {
+                let sortedBooks = try BookSortService.init(books: books).perform(filter: .metadataTitle)
+                self.playlist.books = sortedBooks
+                DataManager.saveContext()
+                self.tableView.reloadData()
+            } catch {
+                print(error)
+            }
 
         }))
 
         alert.addAction(UIAlertAction(title: "File Name", style: .default, handler: { (action) in
-            print("file name")
+
+            guard let books = self.playlist.books else { return }
+            do {
+                let sortedBooks = try BookSortService.init(books: books).perform(filter: .fileName)
+                self.playlist.books = sortedBooks
+                DataManager.saveContext()
+                self.tableView.reloadData()
+            } catch {
+                print(error)
+            }
+
         }))
 
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
