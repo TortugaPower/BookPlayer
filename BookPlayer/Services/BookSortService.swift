@@ -11,40 +11,24 @@ final class BookSortService {
     public func perform(filter type: PlayListSortOrder) throws -> NSOrderedSet {
         switch type {
         case .metadataTitle:
-            let sortedBooks = try sortByMetadata()
+            let sortedBooks = try sortByTitle()
             return sortedBooks
         case .fileName:
-            return []
-//            return sortByTitle()
+            return try sortByFileName()
         }
     }
 
-    private func sortByMetadata() throws -> NSOrderedSet {
-//        let sortedBooks = try books.sorted(by: { (lhs, rhs) -> Bool in
-//            guard let lhsBook = lhs as? Book, let rhsBook = rhs as? Book else {
-//                throw SortError.invalidType
-//            }
-//
-//            guard let lhsName = lhsBook.originalFileName, let rhsName = rhsBook.originalFileName else {
-//                throw SortError.missingOriginalFilename
-//            }
-//            return lhsName < rhsName
-//        })
-//        return sortedBooks
+    private func sortByTitle() throws -> NSOrderedSet {
+        let sortDescriptor = NSSortDescriptor(key: "title", ascending: true)
+        let sortedBooks = books.sortedArray(using: [sortDescriptor])
+        return NSOrderedSet(array: sortedBooks)
+    }
+
+    private func sortByFileName() throws -> NSOrderedSet {
         let sortDescriptor = NSSortDescriptor(key: "originalFileName", ascending: true)
         let sortedBooks = books.sortedArray(using: [sortDescriptor])
         return NSOrderedSet(array: sortedBooks)
-//        return sortedBooks.
     }
-
-//    private func sortByTitle() throws -> NSOrderedSet {
-//        return try books.sorted(by: { (lhs, rhs) -> Bool in
-//            guard let lhsBook = lhs as? Book, let rhsBook = rhs as? Book else {
-//                throw SortError.invalidType
-//            }
-//            return lhs.title < rhs.title
-//        })
-//    }
 }
 
 enum SortError: Error {
