@@ -40,12 +40,12 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             case let urlSessionTask as WKURLSessionRefreshBackgroundTask:
                 // Be sure to complete the URL session task once you’re done.
                 urlSessionTask.setTaskCompletedWithSnapshot(false)
-            case let relevantShortcutTask as WKRelevantShortcutRefreshBackgroundTask:
-                // Be sure to complete the relevant-shortcut task once you're done.
-                relevantShortcutTask.setTaskCompletedWithSnapshot(false)
-            case let intentDidRunTask as WKIntentDidRunRefreshBackgroundTask:
-                // Be sure to complete the intent-did-run task once you're done.
-                intentDidRunTask.setTaskCompletedWithSnapshot(false)
+//            case let relevantShortcutTask as WKRelevantShortcutRefreshBackgroundTask:
+//                // Be sure to complete the relevant-shortcut task once you're done.
+//                relevantShortcutTask.setTaskCompletedWithSnapshot(false)
+//            case let intentDidRunTask as WKIntentDidRunRefreshBackgroundTask:
+//                // Be sure to complete the intent-did-run task once you're done.
+//                intentDidRunTask.setTaskCompletedWithSnapshot(false)
             default:
                 // make sure to complete unhandled task types
                 task.setTaskCompletedWithSnapshot(false)

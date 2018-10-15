@@ -1,22 +1,23 @@
 //
-//  InterfaceController.swift
+//  PlayerInterfaceController.swift
 //  BookPlayerWatch Extension
 //
-//  Created by Gianni Carlo on 9/20/18.
+//  Created by Gianni Carlo on 10/14/18.
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
 import WatchKit
-import Foundation
-import BookPlayerKitWatch
-import AVFoundation
 
-class InterfaceController: WKInterfaceController {
-
+class PlayerInterfaceController: WKInterfaceController {
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
 
         // Configure interface objects here.
+        NotificationCenter.default.addObserver(self, selector: #selector(self.derp), name: NSNotification.Name(rawValue: "derp"), object: nil)
+    }
+
+    @objc func derp() {
+        super.becomeCurrentPage()
     }
 
     override func willActivate() {
@@ -28,5 +29,4 @@ class InterfaceController: WKInterfaceController {
         // This method is called when watch view controller is no longer visible
         super.didDeactivate()
     }
-
 }
