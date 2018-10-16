@@ -128,12 +128,15 @@ public class Playlist: LibraryItem {
     }
 
     override func getBookToPlay() -> Book? {
-        guard
-            let books = self.books?.array as? [Book],
-            let firstUnfinishedBook = books.first(where: { !$0.isCompleted })
-            else { return nil }
+        guard let books = self.books else { return nil }
 
-        return firstUnfinishedBook
+        for item in books {
+            guard let book = item as? Book, !book.isCompleted else { continue }
+
+            return book
+        }
+
+        return nil
     }
 
     func getNextBook(after book: Book) -> Book? {

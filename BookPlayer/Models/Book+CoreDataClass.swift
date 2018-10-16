@@ -51,7 +51,7 @@ public class Book: LibraryItem {
     // TODO: This is a makeshift version of a proper completion property.
     // See https://github.com/TortugaPower/BookPlayer/issues/201
     override var isCompleted: Bool {
-        return round(self.currentTime) >= round(self.duration)
+        return Int(round(self.currentTime)) == Int(round(self.duration))
     }
 
     func setChapters(from asset: AVAsset, context: NSManagedObjectContext) {
