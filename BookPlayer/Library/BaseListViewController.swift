@@ -6,9 +6,9 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
-import UIKit
 import MediaPlayer
 import SwiftReorder
+import UIKit
 
 // swiftlint:disable file_length
 
@@ -120,20 +120,14 @@ class BaseListViewController: UIViewController {
         }
     }
 
-    func setupPlayer(books: [Book] = []) {
-        // Stop setup if no books were found
-        if books.isEmpty {
-            return
-        }
-
+    func setupPlayer(book: Book) {
         // Make sure player is for a different book
         guard
-            let firstBook = books.first,
             let currentBook = PlayerManager.shared.currentBook,
-            currentBook == firstBook
+            currentBook == book
         else {
             // Handle loading new player
-            self.loadPlayer(books: books)
+            self.loadPlayer(book: book)
 
             return
         }
@@ -141,9 +135,7 @@ class BaseListViewController: UIViewController {
         self.showPlayerView(book: currentBook)
     }
 
-    func loadPlayer(books: [Book]) {
-        guard let book = books.first else { return }
-
+    func loadPlayer(book: Book) {
         guard DataManager.exists(book) else {
             self.showAlert("File missing!", message: "This book’s file was removed from your device. Import the file again to play the book")
 
@@ -151,11 +143,12 @@ class BaseListViewController: UIViewController {
         }
 
         // Replace player with new one
-        PlayerManager.shared.load(books) { (loaded) in
+        PlayerManager.shared.load(book) { loaded in
             guard loaded else {
                 self.showAlert("File error!", message: "This book's file couldn't be loaded. Make sure you're not using files with DRM protection (like .aax files)")
                 return
             }
+
             self.showPlayerView(book: book)
 
             PlayerManager.shared.playPause()
@@ -174,6 +167,7 @@ class BaseListViewController: UIViewController {
     }
 
     // MARK: - Callback events
+
     @objc func reloadData() {
         self.tableView.beginUpdates()
         self.tableView.reloadSections(IndexSet(integer: Section.library.rawValue), with: .none)
@@ -196,7 +190,7 @@ class BaseListViewController: UIViewController {
         guard
             let userInfo = notification.userInfo,
             let filename = userInfo["filename"] as? String else {
-                return
+            return
         }
 
         DispatchQueue.main.async {
@@ -209,8 +203,8 @@ class BaseListViewController: UIViewController {
         guard
             let userInfo = notification.userInfo,
             let operation = userInfo["operation"] as? ImportOperation
-            else {
-                return
+        else {
+            return
         }
 
         self.loadingTitleLabel.text = "Processing \(operation.files.count) file(s)"
@@ -233,8 +227,8 @@ class BaseListViewController: UIViewController {
             let currentBook = PlayerManager.shared.currentBook,
             let index = self.library.itemIndex(with: currentBook.fileURL),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .library)) as? BookCellView
-            else {
-                return
+        else {
+            return
         }
 
         bookCell.playbackState = .playing
@@ -245,8 +239,8 @@ class BaseListViewController: UIViewController {
             let book = PlayerManager.shared.currentBook,
             let index = self.library.itemIndex(with: book.fileURL),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .library)) as? BookCellView
-            else {
-                return
+        else {
+            return
         }
 
         bookCell.playbackState = .paused
@@ -258,8 +252,8 @@ class BaseListViewController: UIViewController {
             let book = userInfo["book"] as? Book,
             let index = self.library.itemIndex(with: book.fileURL),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .library)) as? BookCellView
-            else {
-                return
+        else {
+            return
         }
 
         bookCell.playbackState = .stopped
@@ -269,7 +263,7 @@ class BaseListViewController: UIViewController {
         guard let userInfo = notification.userInfo,
             let fileURL = userInfo["fileURL"] as? URL,
             let progress = userInfo["progress"] as? Double else {
-                return
+            return
         }
 
         guard let index = (self.items.index { (item) -> Bool in
@@ -293,6 +287,7 @@ class BaseListViewController: UIViewController {
 }
 
 // MARK: - TableView DataSource
+
 extension BaseListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return section == Section.library.rawValue
@@ -318,11 +313,9 @@ extension BaseListViewController: UITableViewDataSource {
         cell.type = item is Playlist ? .playlist : .book
 
         cell.onArtworkTap = { [weak self] in
-            guard let books = self?.library.queueItemsForPlayback(from: item) else {
-                return
-            }
+            guard let book = item.getBookToPlay() else { return }
 
-            self?.setupPlayer(books: books)
+            self?.setupPlayer(book: book)
         }
 
         if let book = item as? Book {
@@ -342,6 +335,7 @@ extension BaseListViewController: UITableViewDataSource {
 }
 
 // MARK: - TableView Delegate
+
 extension BaseListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, canFocusRowAt indexPath: IndexPath) -> Bool {
         return true
@@ -373,6 +367,7 @@ extension BaseListViewController: UITableViewDelegate {
 }
 
 // MARK: - Reorder Delegate
+
 extension BaseListViewController: TableViewReorderDelegate {
     @objc func tableView(_ tableView: UITableView, reorderRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {}
 
@@ -412,6 +407,7 @@ extension BaseListViewController: TableViewReorderDelegate {
 }
 
 // MARK: DocumentPicker Delegate
+
 extension BaseListViewController: UIDocumentPickerDelegate {
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         for url in urls {

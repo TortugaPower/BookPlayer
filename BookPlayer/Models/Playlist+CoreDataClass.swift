@@ -7,11 +7,13 @@
 //
 //
 
-import Foundation
 import CoreData
+import Foundation
 import UIKit
 
 public class Playlist: LibraryItem {
+    // MARK: - Properties
+
     override var artwork: UIImage {
         guard let books = self.books?.array as? [Book], let book = books.first(where: { (book) -> Bool in
             return !book.usesDefaultArtwork
@@ -21,6 +23,23 @@ public class Playlist: LibraryItem {
 
         return book.artwork
     }
+
+    override var isCompleted: Bool {
+        return round(self.totalProgress()) >= round(self.totalDuration())
+    }
+
+    // MARK: - Init
+
+    convenience init(title: String, books: [Book], context: NSManagedObjectContext) {
+        let entity = NSEntityDescription.entity(forEntityName: "Playlist", in: context)!
+        self.init(entity: entity, insertInto: context)
+        identifier = title
+        self.title = title
+        desc = "\(books.count) Files"
+        addToBooks(NSOrderedSet(array: books))
+    }
+
+    // MARK: - Methods
 
     func totalDuration() -> Double {
         guard let books = self.books?.array as? [Book] else {
@@ -60,10 +79,6 @@ public class Playlist: LibraryItem {
         return totalProgress / totalDuration
     }
 
-    override var isCompleted: Bool {
-        return round(self.totalProgress()) >= round(self.totalDuration())
-    }
-
     func hasBooks() -> Bool {
         guard let books = self.books else {
             return false
@@ -72,32 +87,10 @@ public class Playlist: LibraryItem {
         return books.count > 0
     }
 
-    func getRemainingBooks() -> [Book] {
-        guard
-            let books = self.books?.array as? [Book], let firstUnfinishedBook = books.first(where: { !$0.isCompleted }),
-            let count = books.index(of: firstUnfinishedBook),
-            let slice = self.books?.array.dropFirst(count),
-            let remainingBooks = Array(slice) as? [Book]
-        else {
-            return []
-        }
-
-        return remainingBooks
-    }
-
-    func getBooks(from index: Int) -> [Book] {
-        guard
-            let books = self.books?.array as? [Book]
-        else {
-            return []
-        }
-        return Array(books.suffix(from: index))
-    }
-
     func itemIndex(with url: URL) -> Int? {
         let hash = url.lastPathComponent
 
-        return itemIndex(with: hash)
+        return self.itemIndex(with: hash)
     }
 
     func itemIndex(with identifier: String) -> Int? {
@@ -106,7 +99,7 @@ public class Playlist: LibraryItem {
         }
 
         return books.index { (storedBook) -> Bool in
-            return storedBook.identifier == identifier
+            storedBook.identifier == identifier
         }
     }
 
@@ -122,6 +115,7 @@ public class Playlist: LibraryItem {
         guard let index = self.itemIndex(with: url) else {
             return nil
         }
+
         return self.getBook(at: index)
     }
 
@@ -129,20 +123,41 @@ public class Playlist: LibraryItem {
         guard let index = self.itemIndex(with: identifier) else {
             return nil
         }
+
         return self.getBook(at: index)
+    }
+
+    override func getBookToPlay() -> Book? {
+        guard
+            let books = self.books?.array as? [Book],
+            let firstUnfinishedBook = books.first(where: { !$0.isCompleted })
+            else { return nil }
+
+        return firstUnfinishedBook
+    }
+
+    func getNextBook(after book: Book) -> Book? {
+        guard let books = self.books?.array as? [Book] else { return nil }
+
+        if let index = books.firstIndex(of: book), index + 1 <= books.count {
+            return books[index + 1]
+        }
+
+        return nil
+    }
+
+    func getNextUnfinishedBook() -> Book? {
+        guard
+            let books = self.books?.array as? [Book],
+            let firstUnfinishedBook = books.first(where: { !$0.isCompleted })
+            else { return nil }
+
+        return firstUnfinishedBook
     }
 
     func info() -> String {
         let count = self.books?.array.count ?? 0
-        return "\(count) Files"
-    }
 
-    convenience init(title: String, books: [Book], context: NSManagedObjectContext) {
-        let entity = NSEntityDescription.entity(forEntityName: "Playlist", in: context)!
-        self.init(entity: entity, insertInto: context)
-        self.identifier = title
-        self.title = title
-        self.desc = "\(books.count) Files"
-        self.addToBooks(NSOrderedSet(array: books))
+        return "\(count) Files"
     }
 }

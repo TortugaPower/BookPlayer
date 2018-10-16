@@ -7,9 +7,9 @@
 //
 //
 
-import Foundation
-import CoreData
 import AVFoundation
+import CoreData
+import Foundation
 
 public class Book: LibraryItem {
     var fileURL: URL {
@@ -106,10 +106,41 @@ public class Book: LibraryItem {
 
         let legacyIdentifier = bookUrl.originalUrl.lastPathComponent
         let storedTime = UserDefaults.standard.double(forKey: legacyIdentifier)
-        //migration of time
+
+        // migration of time
         if storedTime > 0 {
             self.currentTime = storedTime
             UserDefaults.standard.removeObject(forKey: legacyIdentifier)
         }
+    }
+
+    override func getBookToPlay() -> Book? {
+        return self
+    }
+
+    func nextBook() -> Book? {
+        if
+            let playlist = self.playlist,
+            let next = playlist.getNextBook(after: self) {
+            return next
+        }
+
+        if !UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue) {
+            return nil
+        }
+
+        guard let library = self.library else { return nil }
+
+        let nextItem = library.getNextItem(after: self.playlist ?? self)
+
+        if let book = nextItem as? Book {
+            return book
+        }
+
+        if let playlist = nextItem as? Playlist {
+            return playlist.getNextUnfinishedBook()
+        }
+
+        return nil
     }
 }

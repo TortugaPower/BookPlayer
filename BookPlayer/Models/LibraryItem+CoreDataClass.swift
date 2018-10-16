@@ -7,8 +7,8 @@
 //
 //
 
-import Foundation
 import CoreData
+import Foundation
 import UIKit
 
 public class LibraryItem: NSManagedObject {
@@ -19,7 +19,6 @@ public class LibraryItem: NSManagedObject {
 
         guard let artworkData = self.artworkData else {
             return #imageLiteral(resourceName: "defaultArtwork")
-
         }
 
         self.cachedArtwork = UIImage(data: artworkData as Data)
@@ -30,5 +29,9 @@ public class LibraryItem: NSManagedObject {
 
     var isCompleted: Bool {
         return false
+    }
+
+    func getBookToPlay() -> Book? {
+        return nil
     }
 }

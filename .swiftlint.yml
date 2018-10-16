@@ -7,3 +7,4 @@ disabled_rules:
   - type_name
   - switch_case_alignment
   - identifier_name
+  - trailing_comma

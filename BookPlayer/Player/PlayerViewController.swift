@@ -294,10 +294,11 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     @objc func bookChange(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-            let books = userInfo["books"] as? [Book],
-            let book = books.first else {
-                return
+        guard
+            let userInfo = notification.userInfo,
+            let book = userInfo["book"] as? Book
+        else {
+            return
         }
 
         self.currentBook = book

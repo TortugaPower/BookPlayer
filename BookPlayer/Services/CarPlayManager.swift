@@ -84,9 +84,7 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
             return
         }
 
-        let books = [book]
-
-        PlayerManager.shared.load(books) { (loaded) in
+        PlayerManager.shared.load(book) { (loaded) in
             guard loaded else {
                 completionHandler(BookPlayerError.UnableToLoadBooks("Unable to load books"))
 
