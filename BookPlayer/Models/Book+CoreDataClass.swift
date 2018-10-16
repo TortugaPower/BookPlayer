@@ -125,11 +125,12 @@ public class Book: LibraryItem {
             return next
         }
 
-        if !UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue) {
+        guard
+            UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue),
+            let library = self.library
+        else {
             return nil
         }
-
-        guard let library = self.library else { return nil }
 
         let nextItem = library.getNextItem(after: self.playlist ?? self)
 
@@ -137,8 +138,8 @@ public class Book: LibraryItem {
             return book
         }
 
-        if let playlist = nextItem as? Playlist {
-            return playlist.getNextUnfinishedBook()
+        if let playlist = nextItem as? Playlist, let book = playlist.getBookToPlay() {
+            return book
         }
 
         return nil

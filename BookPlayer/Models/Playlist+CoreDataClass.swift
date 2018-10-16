@@ -146,15 +146,6 @@ public class Playlist: LibraryItem {
         return nil
     }
 
-    func getNextUnfinishedBook() -> Book? {
-        guard
-            let books = self.books?.array as? [Book],
-            let firstUnfinishedBook = books.first(where: { !$0.isCompleted })
-            else { return nil }
-
-        return firstUnfinishedBook
-    }
-
     func info() -> String {
         let count = self.books?.array.count ?? 0
 
