@@ -109,9 +109,7 @@ class PlaylistViewController: BaseListViewController {
             self.tableView.reloadData()
         }))
 
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
-            alert.dismiss(animated: true, completion: nil)
-        }))
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
 
         present(alert, animated: true, completion: nil)
     }
