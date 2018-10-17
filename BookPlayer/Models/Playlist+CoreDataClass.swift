@@ -130,7 +130,7 @@ public class Playlist: LibraryItem {
     func sort(by sortType: PlayListSortOrder) {
         do {
             guard let books = books else { return }
-            self.books      = try BookSortService.init(books: books).perform(filter: sortType)
+            self.books      = try BookSortService.sort(books, by: sortType)
             DataManager.saveContext()
         } catch {
             delegate?.sortDidFail(error: error)

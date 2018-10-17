@@ -1,30 +1,23 @@
 import Foundation
 
 final class BookSortService {
-
-    var books: NSOrderedSet
-
-    init(books: NSOrderedSet) {
-        self.books = books
-    }
-
-    public func perform(filter type: PlayListSortOrder) throws -> NSOrderedSet {
+    public static func sort(_ books: NSOrderedSet, by type: PlayListSortOrder) throws -> NSOrderedSet {
         switch type {
         case .metadataTitle:
-            let sortedBooks = try sortByTitle()
+            let sortedBooks = try BookSortService.sortByTitle(books)
             return sortedBooks
         case .fileName:
-            return try sortByFileName()
+            return try BookSortService.sortByFileName(books)
         }
     }
 
-    private func sortByTitle() throws -> NSOrderedSet {
+    private static func sortByTitle(_ books: NSOrderedSet) throws -> NSOrderedSet {
         let sortDescriptor = NSSortDescriptor(key: "title", ascending: true)
         let sortedBooks = books.sortedArray(using: [sortDescriptor])
         return NSOrderedSet(array: sortedBooks)
     }
 
-    private func sortByFileName() throws -> NSOrderedSet {
+    private static func sortByFileName(_ books: NSOrderedSet) throws -> NSOrderedSet {
         let sortDescriptor = NSSortDescriptor(key: "originalFileName", ascending: true)
         let sortedBooks = books.sortedArray(using: [sortDescriptor])
         return NSOrderedSet(array: sortedBooks)

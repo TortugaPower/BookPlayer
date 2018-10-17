@@ -22,7 +22,7 @@ class BookSortServiceTest: XCTestCase {
 
     func testSortByFileName() {
         // swiftlint:disable force_try
-        let sortedBooks = try! BookSortService(books: booksByFile!).perform(filter: .metadataTitle)
+        let sortedBooks = try! BookSortService.sort(booksByFile!, by: .fileName)
         let bookNames = sortedBooks.map { (book) -> String in
             guard let book = book as? Book else { return "" }
             return book.originalFileName!
