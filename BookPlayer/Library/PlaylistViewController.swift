@@ -19,7 +19,6 @@ class PlaylistViewController: BaseListViewController {
         super.viewDidLoad()
 
         self.toggleEmptyStateView()
-        self.playlist.delegate = self
         self.navigationItem.title = playlist.title
     }
 
@@ -100,13 +99,21 @@ class PlaylistViewController: BaseListViewController {
     @IBAction func didTapSort(_ sender: Any) {
         let alert = UIAlertController(title: "Sort Files", message: nil, preferredStyle: .actionSheet)
         alert.addAction(UIAlertAction(title: "Title", style: .default, handler: { (action) in
-            self.playlist.sort(by: .metadataTitle)
-            self.tableView.reloadData()
+            do {
+                try self.playlist.sort(by: .metadataTitle)
+                self.tableView.reloadData()
+            } catch {
+                self.displaySortFailureAlert()
+            }
         }))
 
         alert.addAction(UIAlertAction(title: "File Name", style: .default, handler: { (action) in
-            self.playlist.sort(by: .fileName)
-            self.tableView.reloadData()
+            do {
+                try self.playlist.sort(by: .fileName)
+                self.tableView.reloadData()
+            } catch {
+                self.displaySortFailureAlert()
+            }
         }))
 
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
@@ -114,6 +121,14 @@ class PlaylistViewController: BaseListViewController {
         present(alert, animated: true, completion: nil)
     }
 
+    // MARK: - Methods
+    private func displaySortFailureAlert() {
+        let alert       = UIAlertController(title: "Error",
+                                            message: "Sorting is unsupported. Please re-import files",
+                                            preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: nil))
+        self.present(alert, animated: true, completion: nil)
+    }
 }
 
 // MARK: - DocumentPicker Delegate
@@ -236,16 +251,5 @@ extension PlaylistViewController {
         self.playlist.removeFromBooks(at: sourceIndexPath.row)
         self.playlist.insertIntoBooks(book, at: destinationIndexPath.row)
         DataManager.saveContext()
-    }
-}
-
-// MARK: - Playlist Sort Delegate
-extension PlaylistViewController: PlaylistSortDelegate {
-    func sortDidFail(error: Error) {
-        let alert       = UIAlertController(title: "Error",
-                                            message: "Sorting is unsupported. Please re-import files",
-                                            preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: nil))
-        self.present(alert, animated: true, completion: nil)
     }
 }
