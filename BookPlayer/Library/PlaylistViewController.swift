@@ -98,7 +98,7 @@ class PlaylistViewController: BaseListViewController {
     }
 
     @IBAction func didTapSort(_ sender: Any) {
-        let alert = UIAlertController(title: "Sort Files", message: "Sort Playlist files by", preferredStyle: .actionSheet)
+        let alert = UIAlertController(title: "Sort Files", message: nil, preferredStyle: .actionSheet)
         alert.addAction(UIAlertAction(title: "Title", style: .default, handler: { (action) in
             self.playlist.sort(by: .metadataTitle)
             self.tableView.reloadData()
