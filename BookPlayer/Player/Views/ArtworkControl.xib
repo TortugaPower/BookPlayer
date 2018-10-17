@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ArtworkControl" customModule="BookPlayer" customModuleProvider="target">
+            <connections>
+                <outlet property="artworkContainer" destination="38X-b3-v6y" id="c5d-R2-E1L"/>
+                <outlet property="artworkHeight" destination="xjb-vW-MYb" id="vcC-I1-Wkl"/>
+                <outlet property="artworkImage" destination="b1B-eO-wd8" id="4zU-us-epG"/>
+                <outlet property="artworkWidth" destination="Gax-Jk-fXg" id="Zwj-72-qsZ"/>
+                <outlet property="contentView" destination="iN0-l3-epB" id="voY-pw-1zj"/>
+                <outlet property="forwardIcon" destination="6cy-7G-42S" id="NVB-er-7r7"/>
+                <outlet property="playPauseButton" destination="eBX-C3-3ce" id="Owy-s4-dRu"/>
+                <outlet property="playPauseButtonHeight" destination="6Ck-Qq-gnO" id="CgN-pl-WUu"/>
+                <outlet property="playPauseButtonWidth" destination="BhJ-SY-3ph" id="5Nb-AQ-LNs"/>
+                <outlet property="rewindIcon" destination="5e7-tW-iQd" id="o4s-xk-HQZ"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="325" height="325"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6cy-7G-42S" customClass="PlayerJumpIconForward" customModule="BookPlayer" customModuleProvider="target">
+                    <rect key="frame" x="265" y="132" width="60" height="60"/>
+                    <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <accessibility key="accessibilityConfiguration">
+                        <accessibilityTraits key="traits" button="YES"/>
+                        <bool key="isElement" value="YES"/>
+                    </accessibility>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="60" id="dgq-OZ-uxR"/>
+                        <constraint firstAttribute="height" constant="60" id="ycb-cQ-Ea2"/>
+                    </constraints>
+                </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5e7-tW-iQd" customClass="PlayerJumpIconRewind" customModule="BookPlayer" customModuleProvider="target">
+                    <rect key="frame" x="0.0" y="132" width="60" height="60"/>
+                    <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <accessibility key="accessibilityConfiguration">
+                        <accessibilityTraits key="traits" button="YES"/>
+                        <bool key="isElement" value="YES"/>
+                    </accessibility>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="60" id="3hy-qn-oEo"/>
+                        <constraint firstAttribute="height" constant="60" id="wXB-PZ-nzC"/>
+                    </constraints>
+                </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="38X-b3-v6y">
+                    <rect key="frame" x="0.0" y="0.0" width="325" height="325"/>
+                    <subviews>
+                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="b1B-eO-wd8" customClass="BPArtworkView" customModule="BookPlayer" customModuleProvider="target">
+                            <rect key="frame" x="0.0" y="0.0" width="325" height="325"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="325" id="Gax-Jk-fXg"/>
+                                <constraint firstAttribute="width" constant="325" id="xjb-vW-MYb"/>
+                            </constraints>
+                        </imageView>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eBX-C3-3ce">
+                            <rect key="frame" x="0.0" y="0.0" width="325" height="325"/>
+                            <accessibility key="accessibilityConfiguration" label="Play Pause">
+                                <accessibilityTraits key="traits" none="YES"/>
+                                <bool key="isElement" value="NO"/>
+                            </accessibility>
+                            <state key="normal" image="playerIconPlay"/>
+                            <connections>
+                                <action selector="playPauseButtonTouchUpInside" destination="-1" eventType="touchUpInside" id="aYb-Av-VpV"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <constraints>
+                        <constraint firstItem="b1B-eO-wd8" firstAttribute="centerX" secondItem="38X-b3-v6y" secondAttribute="centerX" id="623-gb-h8J"/>
+                        <constraint firstItem="eBX-C3-3ce" firstAttribute="height" secondItem="b1B-eO-wd8" secondAttribute="height" id="6Ck-Qq-gnO"/>
+                        <constraint firstItem="eBX-C3-3ce" firstAttribute="width" secondItem="b1B-eO-wd8" secondAttribute="width" priority="750" id="BhJ-SY-3ph"/>
+                        <constraint firstItem="b1B-eO-wd8" firstAttribute="centerY" secondItem="38X-b3-v6y" secondAttribute="centerY" id="bcV-fF-bGn"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <constraints>
+                <constraint firstItem="eBX-C3-3ce" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" id="09S-XA-Xvg"/>
+                <constraint firstItem="38X-b3-v6y" firstAttribute="height" secondItem="iN0-l3-epB" secondAttribute="height" id="24y-oW-qiT"/>
+                <constraint firstItem="38X-b3-v6y" firstAttribute="centerX" secondItem="vUN-kp-3ea" secondAttribute="centerX" id="4pK-UC-UFU"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="6cy-7G-42S" secondAttribute="trailing" id="8rK-lS-9RU"/>
+                <constraint firstItem="38X-b3-v6y" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" id="8wD-hf-C2N"/>
+                <constraint firstItem="6cy-7G-42S" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" id="Hft-eE-Q2J"/>
+                <constraint firstItem="5e7-tW-iQd" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" id="Ybi-fz-Sbn"/>
+                <constraint firstItem="5e7-tW-iQd" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="eW5-rK-FxM"/>
+                <constraint firstItem="38X-b3-v6y" firstAttribute="width" secondItem="iN0-l3-epB" secondAttribute="width" id="fPh-xl-Sdg"/>
+                <constraint firstItem="eBX-C3-3ce" firstAttribute="centerX" secondItem="vUN-kp-3ea" secondAttribute="centerX" id="spx-FO-obt"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+            <point key="canvasLocation" x="-20.5" y="-220.5"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="playerIconPlay" width="68" height="68"/>
+    </resources>
+</document>

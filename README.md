@@ -1,45 +1,89 @@
-# Audiobook-Player
-Player made in Swift for your DRM-free audiobooks. Now available in the [Appstore!](https://itunes.apple.com/us/app/bookplayer-audio-book-player/id1138219998?ls=1&mt=8)
+[![BookPlayer - A wonderful player for your M4B/M4A/MP3 based audiobooks.](./.github/readme-header@2x.png)](https://itunes.apple.com/us/app/bookplayer-audio-book-player/id1138219998?ls=1&amp;mt=8)
 
-<img src="https://raw.githubusercontent.com/GianniCarlo/Audiobook-Player/master/Assets/list_screenshot.png" width="350"/>
-<img src="https://raw.githubusercontent.com/GianniCarlo/Audiobook-Player/master/Assets/player_screenshot.png" width="350"/>
+<p align="center">
+    <a href="https://itunes.apple.com/us/app/bookplayer-audio-book-player/id1138219998?ls=1&amp;mt=8">
+        <img src="./.github/app-store-badge.svg" alt="Download on the App Store">
+    </a>
+</p>
 
-# Features
-- Upload your DRM-free audiobooks to your phone via file sharing in iTunes
+[![Four screenshots of BookPlayer on the iPhone X. Showing Player, Import options, the Library and, a playlist](./.github/readme-screenshots@2x.png)](https://itunes.apple.com/us/app/bookplayer-audio-book-player/id1138219998?ls=1&amp;mt=8)
+
+## Features
+
+### Import
+
+- Using [AirDrop](https://support.apple.com/en-us/HT204144#receive)  from your Mac or iOS device
+- From [Files](https://support.apple.com/en-us/ht206481) and other apps on your device
+- Via [File Sharing](https://support.apple.com/en-us/HT201301) in iTunes on your Mac or PC
+
+### Manage 
+
+- Maintain and see progress of your books
+- Mark books as finished
+- Drag & Drop to sort your library
+- Create playlists
+    - Automatically play items in turn
+    - Play the first unfinished file by tapping on the playlist artwork
+    - Move files to playlists from the library or import them directly
+
+### Listen
+
 - Control audio playback from the lock screen or the control center
-- Maintain progress of your audiobooks
-- Delete uploaded books from the app
-- Jump to start of book button
-- Mark book as finished button
-- Smart Speed control for the player
-- Load books from apps in the phone (e.g. dropbox)
-- Import books via AirDrop (Thanks [vab9](https://github.com/vab9))
-- Smart rewind (Thanks [bryanrezende](https://github.com/bryanrezende))
+- Play and navigate books with Chapters
+- Jump to start of the current book
+- Change playback speed
+- Smart rewind
+- Volume Boost
+- Support for remote events from headset buttons and the lock screen
+- Sleep timer with adjustable duration
+- Support for VoiceOver
 
-# Upcoming features
-- Stream books from online services like Dropbox
+### Upcoming features
 
-# Contributing
-Pull requests regarding upcoming features (or bugs) are welcomed. Any suggestion or bug please open up an issue 👍
+See [our Roadmap on GitHub](https://github.com/GianniCarlo/Audiobook-Player/projects/1) for details
 
-# Dependencies
+
+
+## Contributing
+
+Pull requests and ideas are always welcomed. Please [open an issue](https://github.com/GianniCarlo/Audiobook-Player/issues/new) if you have any suggestions or found a bug. 👍 See our [Contribution Guidelines](./CONTRIBUTING.md) for details.
+
+If you enjoy BookPlayer, we would be glad if you consider writing a review on the [App Store.](https://itunes.apple.com/us/app/bookplayer-audio-book-player/id1138219998?ls=1&amp;mt=8)
+
+### Maintainers
+
+- [@GianniCarlo](https://github.com/GianniCarlo) - Original Idea & Creation
+- [@pichfl](https://github.com/pichfl) - UI Design & Artwork
+
+### Contributors
+
+- [@bryanrezende](https://github.com/bryanrezende) - Smart rewind
+- [@e7mac](https://github.com/e7mac) - Speed control, Autoplay
+- [@gpambrozio](https://github.com/gpambrozio) - Volume Boost
+- [@vab9](https://github.com/vab9) - AirDrop Support
+- [@ryantstone](https://github.com/ryantstone) - VoiceOver Support
+
+A full list of all contributors can be found [on GitHub.](https://github.com/GianniCarlo/Audiobook-Player/graphs/contributors)
+
+
+
+## Dependencies
+
 Managed with [Carthage](https://github.com/Carthage/Carthage)
-- [Chameleon](https://github.com/ViccAlexander/Chameleon) for colors
-- [MBProgressHUD](https://github.com/jdg/MBProgressHUD) for loading wheels
-- [DeckTransition](https://github.com/HarshilShah/DeckTransition) for modal presentations (like music app)
 
-# Credits
-- Large Play image made by [Vectors Market](http://www.flaticon.com/authors/vectors-market) from [www.flaticon.com](http://www.flaticon.com)
-- Large Pause image made by [Vectors Market](http://www.flaticon.com/authors/vectors-market) from [www.flaticon.com](http://www.flaticon.com)
-- Skip time image made by [Vaadin](http://www.flaticon.com/authors/vaadin) from [www.flaticon.com](http://www.flaticon.com)
-- Small Play image made by [Madebyoliver](http://www.flaticon.com/authors/madebyoliver) from [www.flaticon.com](http://www.flaticon.com)
-- Small Pause image made by [Hanan](http://www.flaticon.com/authors/hanan) from [www.flaticon.com](http://www.flaticon.com)
-- Small Double right arrows image made by [Freepik](http://www.flaticon.com/authors/freepik) from [www.flaticon.com](http://www.flaticon.com)
-- Book image (part of app icon) made by [Freepik](http://www.flaticon.com/authors/freepik) from [www.flaticon.com](http://www.flaticon.com)
-- Moon image made by [VectorSqure](http://www.iconfinder.com/vectorsquare) from [www.iconfinder.com](http://www.iconfinder.com)
-- Speaker image (part of app icon) made by [Madebyoliver](http://www.flaticon.com/authors/madebyoliver) from [www.flaticon.com](http://www.flaticon.com)
-- Three squares image made by [Vaadin](http://www.flaticon.com/authors/vaadin) from [www.flaticon.com](http://www.flaticon.com)
-- App icon and screenshot template generator from https://appicontemplate.com/
+- [ColorCube](https://github.com/pixelogik/ColorCube) for extracting artwork colors
+- [DeviceKit](https://github.com/dennisweissmann/DeviceKit) for device information used in support requests
+- [MarqueeLabel](https://github.com/cbpowell/MarqueeLabel) for scrolling labels
+- [DirectoryWatcher](https://github.com/GianniCarlo/DirectoryWatcher) for events on the document's folder
+- [Sweetercolor](https://github.com/jathu/sweetercolor) for handling artwork colors
+- [SwiftReorder](https://github.com/GianniCarlo/SwiftReorder) for drag-and-drop on the UITableView
 
-# License
+Managed with [Homebrew](https://brew.sh)
+
+- [SwiftLint](https://github.com/realm/SwiftLint)
+
+
+
+## License
+
 Licensed under [GNU GPL v. 3.0](https://opensource.org/licenses/GPL-3.0). See `LICENSE` for details.
