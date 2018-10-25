@@ -48,6 +48,11 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
     func loadLibrary() {
         self.library = DataManager.getLibrary()
 
+        WatchConnectivityService.shared.startSession()
+//        DispatchQueue.main.asyncAfter(deadline: (.now() + 1.0)) {
+//            try? WatchConnectivityService.shared.updateApplicationContext(["library": self.library])
+//        }
+
         self.toggleEmptyStateView()
 
         self.tableView.reloadData()

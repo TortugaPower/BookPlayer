@@ -42,3 +42,8 @@ extension UIColor {
         return B
     }
 }
+
+
+extension Notification.Name {
+    public static let syncWatch = Notification.Name("com.tortugapower.audiobookplayer.watch.sync")
+}

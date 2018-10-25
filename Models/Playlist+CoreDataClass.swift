@@ -171,4 +171,36 @@ extension Playlist: Sortable {
         self.books = try BookSortService.sort(books, by: sortType)
         DataManager.saveContext()
     }
+
+    enum CodingKeys: String, CodingKey {
+        case title, desc, books, library
+    }
+
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(title, forKey: .title)
+        try container.encode(desc, forKey: .desc)
+        try container.encode(library, forKey: .library)
+
+        if let booksArray = self.books?.array as? [Book] {
+            try container.encode(booksArray, forKey: .books)
+        }
+    }
+
+    public required convenience init(from decoder: Decoder) throws {
+        // Create NSEntityDescription with NSManagedObjectContext
+        guard let contextUserInfoKey = CodingUserInfoKey.context,
+            let managedObjectContext = decoder.userInfo[contextUserInfoKey] as? NSManagedObjectContext,
+            let entity = NSEntityDescription.entity(forEntityName: "Playlist", in: managedObjectContext) else {
+                fatalError("Failed to decode Playlist!")
+        }
+        self.init(entity: entity, insertInto: nil)
+
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        title = try values.decode(String.self, forKey: .title)
+        desc = try values.decode(String.self, forKey: .desc)
+        library = try values.decode(Library.self, forKey: .library)
+        let booksArray = try values.decode(Array<Book>.self, forKey: .books)
+        books = NSOrderedSet(array: booksArray)
+    }
 }

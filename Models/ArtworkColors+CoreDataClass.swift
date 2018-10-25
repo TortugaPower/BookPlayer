@@ -16,7 +16,7 @@ public enum ArtworkColorsError: Error {
 }
 
 @objc(ArtworkColors)
-public class ArtworkColors: NSManagedObject {
+public class ArtworkColors: NSManagedObject, Codable {
     public var background: UIColor {
         return UIColor(hex: self.backgroundHex)
     }
@@ -63,5 +63,35 @@ public class ArtworkColors: NSManagedObject {
         self.init(entity: entity, insertInto: context)
 
         self.setColorsFromArray()
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case backgroundHex, displayOnDark, primaryHex, secondaryHex, tertiaryHex
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(backgroundHex, forKey: .backgroundHex)
+        try container.encode(displayOnDark, forKey: .displayOnDark)
+        try container.encode(primaryHex, forKey: .primaryHex)
+        try container.encode(secondaryHex, forKey: .secondaryHex)
+        try container.encode(tertiaryHex, forKey: .tertiaryHex)
+    }
+
+    public required convenience init(from decoder: Decoder) throws {
+        // Create NSEntityDescription with NSManagedObjectContext
+        guard let contextUserInfoKey = CodingUserInfoKey.context,
+            let managedObjectContext = decoder.userInfo[contextUserInfoKey] as? NSManagedObjectContext,
+            let entity = NSEntityDescription.entity(forEntityName: "ArtworkColors", in: managedObjectContext) else {
+                fatalError("Failed to decode Library")
+        }
+        self.init(entity: entity, insertInto: nil)
+
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        backgroundHex = try values.decode(String.self, forKey: .backgroundHex)
+        displayOnDark = try values.decode(Bool.self, forKey: .displayOnDark)
+        primaryHex = try values.decode(String.self, forKey: .primaryHex)
+        secondaryHex = try values.decode(String.self, forKey: .secondaryHex)
+        tertiaryHex = try values.decode(String.self, forKey: .tertiaryHex)
     }
 }

@@ -12,7 +12,7 @@ import Foundation
 import UIKit
 
 @objc(LibraryItem)
-public class LibraryItem: NSManagedObject {
+public class LibraryItem: NSManagedObject, Codable {
     public var artwork: UIImage {
         if let cachedArtwork = self.cachedArtwork {
             return cachedArtwork
@@ -34,5 +34,11 @@ public class LibraryItem: NSManagedObject {
 
     func getBookToPlay() -> Book? {
         return nil
+    public func encode(to encoder: Encoder) throws {
+        fatalError("LibraryItem is an abstract class, override this function in the subclass")
+    }
+
+    public required convenience init(from decoder: Decoder) throws {
+        fatalError("LibraryItem is an abstract class, override this function in the subclass")
     }
 }

@@ -55,7 +55,7 @@ extension Book {
         self.originalFileName = bookUrl.originalUrl.lastPathComponent
 
         var colors: ArtworkColors!
-        if let data = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtwork, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? NSData {
+        if let data = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtwork, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? Data {
             self.artworkData = data
             colors = ArtworkColors(from: self.artwork, context: context)
         } else {

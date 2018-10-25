@@ -15,7 +15,7 @@ extension LibraryItem {
         return NSFetchRequest<LibraryItem>(entityName: "LibraryItem")
     }
 
-    @NSManaged public var artworkData: NSData?
+    @NSManaged public var artworkData: Data?
     @NSManaged public var currentTime: Double
     @NSManaged public var duration: Double
     @NSManaged public var identifier: String!

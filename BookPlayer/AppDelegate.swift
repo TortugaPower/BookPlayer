@@ -10,6 +10,7 @@ import AVFoundation
 import DirectoryWatcher
 import MediaPlayer
 import UIKit
+import BookPlayerKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -107,6 +108,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+
+        WatchConnectivityService.shared.startSession()
+        let library = DataManager.getLibrary()
+
+        if let jsonData = try? JSONEncoder().encode(library) {
+            let derp = ByteCountFormatter()
+            derp.allowedUnits = [.useKB]
+            derp.countStyle = .file
+            let derpi = derp.string(fromByteCount: Int64(jsonData.count))
+            print(derpi)
+            try? WatchConnectivityService.shared.updateApplicationContext(["library": jsonData])
+        }
 
         // Check if the app is on the PlayerViewController
         // TODO: Check if this still works as expected given the new storyboard structure

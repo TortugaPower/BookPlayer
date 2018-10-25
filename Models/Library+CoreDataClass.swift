@@ -11,7 +11,7 @@ import CoreData
 import Foundation
 
 @objc(Library)
-public class Library: NSManagedObject {
+public class Library: NSManagedObject, Codable {
     func itemIndex(with identifier: String) -> Int? {
         guard let items = self.items?.array as? [LibraryItem] else {
             return nil
@@ -78,6 +78,57 @@ public class Library: NSManagedObject {
         }
 
         return nil
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case items, books, playlists
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        guard let itemsArray = self.items?.array as? [LibraryItem] else { return }
+
+        let books = itemsArray.filter { (item) -> Bool in
+            return item is Book
+        }
+
+        let playlists = itemsArray.filter { (item) -> Bool in
+            return item is Playlist
+        }
+
+        if let books = books as? [Book], !books.isEmpty {
+            try container.encode(books, forKey: .books)
+        }
+
+        if let playlists = playlists as? [Playlist], !playlists.isEmpty {
+            try container.encode(playlists, forKey: .playlists)
+        }
+    }
+
+    public required convenience init(from decoder: Decoder) throws {
+        // Create NSEntityDescription with NSManagedObjectContext
+        guard let contextUserInfoKey = CodingUserInfoKey.context,
+            let managedObjectContext = decoder.userInfo[contextUserInfoKey] as? NSManagedObjectContext,
+            let entity = NSEntityDescription.entity(forEntityName: "Library", in: managedObjectContext) else {
+                fatalError("Failed to decode Library")
+        }
+        self.init(entity: entity, insertInto: nil)
+
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+
+        var books = [Book]()
+        var playlists = [Playlist]()
+        do {
+            books = try values.decode(Array<Book>.self, forKey: .books)
+            playlists = try values.decode(Array<Playlist>.self, forKey: .playlists)
+        } catch {
+            print(error)
+        }
+
+        var derp: [LibraryItem] = books
+        derp.append(contentsOf: playlists)
+        items = NSOrderedSet(array: derp)
     }
 }
 

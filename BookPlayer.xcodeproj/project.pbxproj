@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		410D0FED1EDCF4B000A52EB9 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D0FEC1EDCF4B000A52EB9 /* SettingsViewController.swift */; };
 		410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D0FF01EDF659900A52EB9 /* PlayerManager.swift */; };
+		411EE7C7217AF964004C86E7 /* WatchConnectivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 411EE7C6217AF964004C86E7 /* WatchConnectivityService.swift */; };
+		411EE7C9217AFE65004C86E7 /* WatchConnectivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 411EE7C8217AFE65004C86E7 /* WatchConnectivityService.swift */; };
 		41219B04215443B300B19BD5 /* BookPlayerKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41219AFB215443B300B19BD5 /* BookPlayerKit.framework */; };
 		41219B0B215443B300B19BD5 /* BookPlayerKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41219B0A215443B300B19BD5 /* BookPlayerKitTests.swift */; };
 		41219B0D215443B300B19BD5 /* BookPlayerKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 41219AFD215443B300B19BD5 /* BookPlayerKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -230,6 +232,8 @@
 		410D0FEC1EDCF4B000A52EB9 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		410D0FEE1EDDBC3300A52EB9 /* DataManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		410D0FF01EDF659900A52EB9 /* PlayerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerManager.swift; sourceTree = "<group>"; };
+		411EE7C6217AF964004C86E7 /* WatchConnectivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchConnectivityService.swift; sourceTree = "<group>"; };
+		411EE7C8217AFE65004C86E7 /* WatchConnectivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchConnectivityService.swift; sourceTree = "<group>"; };
 		41219AFB215443B300B19BD5 /* BookPlayerKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = BookPlayerKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		41219AFD215443B300B19BD5 /* BookPlayerKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BookPlayerKit.h; sourceTree = "<group>"; };
 		41219AFE215443B300B19BD5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -567,6 +571,7 @@
 				4135407B21722D2100C38F4D /* ComplicationController.swift */,
 				41A392BD2154317B0025F38F /* Assets.xcassets */,
 				41A392BF2154317B0025F38F /* Info.plist */,
+				411EE7C8217AFE65004C86E7 /* WatchConnectivityService.swift */,
 			);
 			path = "BookPlayerWatch Extension";
 			sourceTree = "<group>";
@@ -600,6 +605,7 @@
 				69343D322133844D000C425E /* VoiceOverService.swift */,
 				69225C4E2159C2650004739E /* BookSortService+SortError+PlayListSortOrder.swift */,
 				419723FF21874D5F00AB1190 /* UserActivityManager.swift */,
+				411EE7C6217AF964004C86E7 /* WatchConnectivityService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -1216,6 +1222,7 @@
 				C3A479152094CA3800D92122 /* UIImage+BookPlayer.swift in Sources */,
 				418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */,
 				C30EEEBF2079645C00A4ED33 /* PlayerContainerViewController.swift in Sources */,
+				411EE7C7217AF964004C86E7 /* WatchConnectivityService.swift in Sources */,
 				C318D3AD208CF624000666F8 /* PlayerJumpIcon.swift in Sources */,
 				C37A6875209F13120063AEAC /* CreditsViewController.swift in Sources */,
 				4197240021874D5F00AB1190 /* UserActivityManager.swift in Sources */,
@@ -1265,6 +1272,7 @@
 				4135407E2172B76F00C38F4D /* ItemRow.swift in Sources */,
 				41219BF32155EF9B00B19BD5 /* BookPlayerKit.xcdatamodeld in Sources */,
 				41A392BA2154317B0025F38F /* LibraryInterfaceController.swift in Sources */,
+				411EE7C9217AFE65004C86E7 /* WatchConnectivityService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

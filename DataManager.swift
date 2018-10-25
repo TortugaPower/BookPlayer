@@ -56,6 +56,10 @@ public class DataManager {
         return self.persistentContainer.viewContext
     }
 
+    public class func getBackgroundContext() -> NSManagedObjectContext {
+        return self.persistentContainer.newBackgroundContext()
+    }
+
     public class func saveContext () {
         let context = self.persistentContainer.viewContext
 

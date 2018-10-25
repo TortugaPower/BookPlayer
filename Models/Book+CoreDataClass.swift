@@ -49,4 +49,51 @@ public class Book: LibraryItem {
     public var isCompleted: Bool {
         return round(self.currentTime) >= round(self.duration)
     }
+
+    enum CodingKeys: String, CodingKey {
+        case currentTime, duration, identifier, percentCompleted, title, author, ext, usesDefaultArtwork, artworkColors, chapters, playlist
+    }
+
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(currentTime, forKey: .currentTime)
+        try container.encode(duration, forKey: .duration)
+        try container.encode(identifier, forKey: .identifier)
+        try container.encode(percentCompleted, forKey: .percentCompleted)
+        try container.encode(title, forKey: .title)
+        try container.encode(author, forKey: .author)
+        try container.encode(ext, forKey: .ext)
+        try container.encode(usesDefaultArtwork, forKey: .usesDefaultArtwork)
+        try container.encode(artworkColors, forKey: .artworkColors)
+        if let chaptersArray = self.chapters?.array as? [Chapter] {
+            try container.encode(chaptersArray, forKey: .chapters)
+        }
+    }
+
+    public required convenience init(from decoder: Decoder) throws {
+        // Create NSEntityDescription with NSManagedObjectContext
+        guard let contextUserInfoKey = CodingUserInfoKey.context,
+            let managedObjectContext = decoder.userInfo[contextUserInfoKey] as? NSManagedObjectContext,
+            let entity = NSEntityDescription.entity(forEntityName: "Book", in: managedObjectContext) else {
+                fatalError("Failed to decode Book!")
+        }
+        self.init(entity: entity, insertInto: nil)
+
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        currentTime = try values.decode(Double.self, forKey: .currentTime)
+        duration = try values.decode(Double.self, forKey: .duration)
+        identifier = try values.decode(String.self, forKey: .identifier)
+        percentCompleted = try values.decode(Double.self, forKey: .percentCompleted)
+        title = try values.decode(String.self, forKey: .title)
+        author = try values.decode(String.self, forKey: .author)
+        ext = try values.decode(String.self, forKey: .ext)
+        usesDefaultArtwork = try values.decode(Bool.self, forKey: .usesDefaultArtwork)
+        artworkColors = try values.decode(ArtworkColors.self, forKey: .artworkColors)
+        let chaptersArray = try values.decode(Array<Chapter>.self, forKey: .chapters)
+        chapters = NSOrderedSet(array: chaptersArray)
+    }
+}
+
+extension CodingUserInfoKey {
+    public static let context = CodingUserInfoKey(rawValue: "context")
 }

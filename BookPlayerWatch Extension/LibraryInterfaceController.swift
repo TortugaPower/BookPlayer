@@ -10,6 +10,7 @@ import WatchKit
 import Foundation
 import BookPlayerKitWatch
 import AVFoundation
+import WatchConnectivity
 
 class LibraryInterfaceController: WKInterfaceController {
     @IBOutlet weak var playlistHeader: WKInterfaceGroup!
@@ -17,34 +18,35 @@ class LibraryInterfaceController: WKInterfaceController {
     @IBOutlet var spacerGroupView: WKInterfaceGroup!
     @IBOutlet weak var playlistTableView: WKInterfaceTable!
 
-    var items = ["Neverwhere", "D.O.D.O", "a", "a", "a", "a", "a"]
+    var watchSession = WCSession.default
+
+    var items = [LibraryItem]()
     var playlist = ["Part 1", "Part 2", "Part 3", "Part 4", "Part 5", "Part 4", "Part 5"]
 
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
 
+        watchSession.delegate = self
+        watchSession.activate()
         self.setupTable()
-    }
-
-    override func willActivate() {
-        // This method is called when watch view controller is about to be visible to user
-        super.willActivate()
-    }
-
-    override func didDeactivate() {
-        // This method is called when watch view controller is no longer visible
-        super.didDeactivate()
     }
 
     func setupTable() {
         self.libraryTableView.setNumberOfRows(self.items.count, withRowType: "LibraryRow")
+        print(self.items.count)
 
-        for (index, item) in self.items.enumerated() {
+        if let book = self.items.first as? Book,
+            let row = self.libraryTableView.rowController(at: 0) as? ItemRow {
+            row.titleLabel.setText(book.title)
+        }
+        var index = 0
+        for item in self.items {
             guard let row = self.libraryTableView.rowController(at: index) as? ItemRow else {
                 continue
             }
 
-            row.titleLabel.setText(item)
+            row.titleLabel.setText(item.title)
+            index += 1
         }
         self.playlistTableView.setNumberOfRows(self.playlist.count, withRowType: "PlaylistRow")
 
@@ -96,6 +98,40 @@ class LibraryInterfaceController: WKInterfaceController {
                 self.spacerGroupView.setHeight(0.0)
             }
         }
+    }
+}
+
+extension LibraryInterfaceController: WCSessionDelegate {
+    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
+        print("Session activation did complete")
+        //query phone
+    }
+
+    func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
+        print("========= derp: ", applicationContext)
+
+        guard let data = applicationContext["library"] as? Data  else { return }
+
+        let bgContext = DataManager.getBackgroundContext()
+        let decoder = JSONDecoder()
+
+        guard let context = CodingUserInfoKey.context else { return }
+
+        decoder.userInfo[context] = bgContext
+
+        guard let library = try? decoder.decode(Library.self, from: data),
+            let items = library.items?.array as? [LibraryItem] else {
+                print("==== merp")
+                return
+        }
+
+        self.items = items
+
+        self.setupTable()
+    }
+
+    func session(_ session: WCSession, didReceive file: WCSessionFile) {
+        print("======= received file: ", file)
     }
 }
 
