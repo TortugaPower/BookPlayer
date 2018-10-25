@@ -29,7 +29,7 @@ public class Playlist: LibraryItem {
 
     // MARK: - Init
 
-    convenience init(title: String, books: [Book], context: NSManagedObjectContext) {
+    public convenience init(title: String, books: [Book], context: NSManagedObjectContext) {
         let entity = NSEntityDescription.entity(forEntityName: "Playlist", in: context)!
 
         self.init(entity: entity, insertInto: context)
@@ -104,7 +104,7 @@ public class Playlist: LibraryItem {
         }
     }
 
-    func getBook(at index: Int) -> Book? {
+    public func getBook(at index: Int) -> Book? {
         guard let books = self.books?.array as? [Book] else {
             return nil
         }
@@ -128,7 +128,7 @@ public class Playlist: LibraryItem {
         return self.getBook(at: index)
     }
 
-    override func getBookToPlay() -> Book? {
+    override public func getBookToPlay() -> Book? {
         guard let books = self.books else { return nil }
 
         for item in books {
@@ -140,7 +140,7 @@ public class Playlist: LibraryItem {
         return nil
     }
 
-    func getNextBook(after book: Book) -> Book? {
+    public func getNextBook(after book: Book) -> Book? {
         guard let books = self.books else {
             return nil
         }
@@ -163,14 +163,6 @@ public class Playlist: LibraryItem {
 
         return "\(count) Files"
     }
-}
-
-extension Playlist: Sortable {
-    func sort(by sortType: PlayListSortOrder) throws {
-        guard let books = books else { return }
-        self.books = try BookSortService.sort(books, by: sortType)
-        DataManager.saveContext()
-    }
 
     enum CodingKeys: String, CodingKey {
         case title, desc, books, library
@@ -180,7 +172,6 @@ extension Playlist: Sortable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(title, forKey: .title)
         try container.encode(desc, forKey: .desc)
-        try container.encode(library, forKey: .library)
 
         if let booksArray = self.books?.array as? [Book] {
             try container.encode(booksArray, forKey: .books)
@@ -199,8 +190,15 @@ extension Playlist: Sortable {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         title = try values.decode(String.self, forKey: .title)
         desc = try values.decode(String.self, forKey: .desc)
-        library = try values.decode(Library.self, forKey: .library)
         let booksArray = try values.decode(Array<Book>.self, forKey: .books)
         books = NSOrderedSet(array: booksArray)
+    }
+}
+
+extension Playlist: Sortable {
+    public func sort(by sortType: PlayListSortOrder) throws {
+        guard let books = books else { return }
+        self.books = try BookSortService.sort(books, by: sortType)
+        DataManager.saveContext()
     }
 }

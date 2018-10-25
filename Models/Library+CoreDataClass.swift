@@ -68,7 +68,7 @@ public class Library: NSManagedObject, Codable {
         return self.getItem(at: index)
     }
 
-    func getNextItem(after item: LibraryItem) -> LibraryItem? {
+    public func getNextItem(after item: LibraryItem) -> LibraryItem? {
         guard let items = self.items else { return nil }
 
         let index = items.index(of: item)
@@ -89,19 +89,23 @@ public class Library: NSManagedObject, Codable {
 
         guard let itemsArray = self.items?.array as? [LibraryItem] else { return }
 
-        let books = itemsArray.filter { (item) -> Bool in
-            return item is Book
+        var books = [Int: Book]()
+        var playlists = [Int: Playlist]()
+
+        for (index, item) in itemsArray.enumerated() {
+            if let book = item as? Book {
+                books[index] = book
+            }
+            if let playlist = item as? Playlist {
+                playlists[index] = playlist
+            }
         }
 
-        let playlists = itemsArray.filter { (item) -> Bool in
-            return item is Playlist
-        }
-
-        if let books = books as? [Book], !books.isEmpty {
+        if !books.isEmpty {
             try container.encode(books, forKey: .books)
         }
 
-        if let playlists = playlists as? [Playlist], !playlists.isEmpty {
+        if !playlists.isEmpty {
             try container.encode(playlists, forKey: .playlists)
         }
     }
@@ -117,23 +121,25 @@ public class Library: NSManagedObject, Codable {
 
         let values = try decoder.container(keyedBy: CodingKeys.self)
 
-        var books = [Book]()
-        var playlists = [Playlist]()
+        var books = [Int: LibraryItem]()
+        var playlists = [Int: LibraryItem]()
         do {
-            books = try values.decode(Array<Book>.self, forKey: .books)
-            playlists = try values.decode(Array<Playlist>.self, forKey: .playlists)
+            books = try values.decode(Dictionary<Int, Book>.self, forKey: .books)
+            playlists = try values.decode(Dictionary<Int, Playlist>.self, forKey: .playlists)
         } catch {
             print(error)
         }
 
-        var derp: [LibraryItem] = books
-        derp.append(contentsOf: playlists)
-        items = NSOrderedSet(array: derp)
+        let unsortedItemsDict: [Int: LibraryItem] = books.merging(playlists) { (_, new) -> LibraryItem in new }
+        let sortedItemsTuple = unsortedItemsDict.sorted { $0.key < $1.key }
+        let sortedItems = Array(sortedItemsTuple.map({ $0.value }))
+
+        items = NSOrderedSet(array: sortedItems)
     }
 }
 
 extension Library: Sortable {
-    func sort(by sortType: PlayListSortOrder) throws {
+    public func sort(by sortType: PlayListSortOrder) throws {
         guard let items = items else { return }
         self.items = try BookSortService.sort(items, by: sortType)
         DataManager.saveContext()

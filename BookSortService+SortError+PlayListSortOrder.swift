@@ -1,6 +1,6 @@
 import Foundation
 
-final class BookSortService {
+public final class BookSortService {
     public static func sort(_ books: NSOrderedSet, by type: PlayListSortOrder) throws -> NSOrderedSet {
         switch type {
         case .metadataTitle:
@@ -24,16 +24,16 @@ final class BookSortService {
     }
 }
 
-enum SortError: Error {
+public enum SortError: Error {
     case missingOriginalFilename,
         invalidType
 }
 
-enum PlayListSortOrder {
+public enum PlayListSortOrder {
     case metadataTitle,
         fileName
 }
 
-protocol Sortable {
+public protocol Sortable {
     func sort(by sortType: PlayListSortOrder) throws
 }

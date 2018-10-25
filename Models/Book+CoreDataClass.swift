@@ -44,9 +44,13 @@ public class Book: LibraryItem {
         return !(self.chapters?.array.isEmpty ?? true)
     }
 
+    override public func getBookToPlay() -> Book? {
+        return self
+    }
+
     // TODO: This is a makeshift version of a proper completion property.
     // See https://github.com/TortugaPower/BookPlayer/issues/201
-    public var isCompleted: Bool {
+    override public var isCompleted: Bool {
         return round(self.currentTime) >= round(self.duration)
     }
 

@@ -32,8 +32,10 @@ public class LibraryItem: NSManagedObject, Codable {
         return false
     }
 
-    func getBookToPlay() -> Book? {
+    public func getBookToPlay() -> Book? {
         return nil
+    }
+
     public func encode(to encoder: Encoder) throws {
         fatalError("LibraryItem is an abstract class, override this function in the subclass")
     }

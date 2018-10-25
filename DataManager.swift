@@ -29,7 +29,7 @@ public class DataManager {
 
     private static var persistentContainer: NSPersistentContainer = {
         let name = "BookPlayerKit"
-        let groupIdentifier = "group.tortugapower.bookplayer.files"
+        let groupIdentifier = "group.com.tortugapower.audiobookplayer.files"
         let container = NSPersistentContainer(name: name)
 
         var persistentStoreDescriptions: NSPersistentStoreDescription
@@ -115,9 +115,23 @@ public class DataManager {
         DataManager.saveContext()
     }
 
-    func delete(_ item: NSManagedObject) {
+    public class func delete(_ item: NSManagedObject) {
         let context = DataManager.getContext()
         context.delete(item)
+        DataManager.saveContext()
+    }
+
+    public func create(_ item: NSManagedObject) {
+        let context = DataManager.getContext()
+        context.insert(item)
+        DataManager.saveContext()
+    }
+
+    public class func replace(_ oldItem: NSManagedObject, with newItem: NSManagedObject) {
+        let context = DataManager.getContext()
+        context.delete(oldItem)
+        DataManager.saveContext()
+        context.insert(newItem)
         DataManager.saveContext()
     }
 }

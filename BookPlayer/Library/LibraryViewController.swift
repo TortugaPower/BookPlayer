@@ -10,6 +10,7 @@ import MediaPlayer
 import SwiftReorder
 import UIKit
 import BookPlayerKit
+import CoreData
 
 // swiftlint:disable file_length
 
@@ -25,12 +26,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
 
         // register for appDelegate openUrl notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.reloadData), name: .reloadData, object: nil)
-
-        // handle CoreData migration into shared app groups
-        if !UserDefaults.standard.bool(forKey: Constants.UserDefaults.appGroupsMigration.rawValue) {
-            self.migrateCoreDataStack()
-            UserDefaults.standard.set(true, forKey: Constants.UserDefaults.appGroupsMigration.rawValue)
-        }
+        NotificationCenter.default.addObserver(self, selector: #selector(self.updateWatchContext), name: .NSManagedObjectContextObjectsDidChange, object: nil)
 
         self.loadLibrary()
 
@@ -87,27 +83,6 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             if UserDefaults.standard.bool(forKey: Constants.UserActivityPlayback) {
                 UserDefaults.standard.removeObject(forKey: Constants.UserActivityPlayback)
                 PlayerManager.shared.play()
-            }
-        }
-    }
-
-    /**
-     *  Migrates existing stack into the new container app groups.
-     *  In case it fails, it loads all the files from the Processed folder
-     */
-    func migrateCoreDataStack() {
-        DataManager.makeFilesPublic()
-        do {
-            try DataManager.migrateStack()
-        } catch {
-            // Migration failed, fallback: load all books from processed folder
-            if let fileUrls = DataManager.getFiles(from: DataManager.getProcessedFolderURL()) {
-                let fileItems = fileUrls.map { (url) -> FileItem in
-                    return FileItem(originalUrl: url, processedUrl: url, destinationFolder: url)
-                }
-                DataManager.insertBooks(from: fileItems, into: self.library) {
-                    self.reloadData()
-                }
             }
         }
     }
@@ -335,6 +310,19 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
     // Sorting
     override func sort(by sortType: PlayListSortOrder) throws {
         try library.sort(by: sortType)
+    }
+    
+    @objc func updateWatchContext() {
+        WatchConnectivityService.shared.startSession()
+
+        if let jsonData = try? JSONEncoder().encode(self.library) {
+            let derp = ByteCountFormatter()
+            derp.allowedUnits = [.useKB]
+            derp.countStyle = .file
+            let derpi = derp.string(fromByteCount: Int64(jsonData.count))
+            print(derpi)
+            try? WatchConnectivityService.shared.updateApplicationContext(["library": jsonData])
+        }
     }
 }
 

@@ -94,10 +94,11 @@
 		41D4F2EB2101A278009F1B1E /* DirectoryWatcher.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41D4F2EA2101A278009F1B1E /* DirectoryWatcher.framework */; };
 		41D4F2EF21053944009F1B1E /* IndexPath+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D4F2EE21053944009F1B1E /* IndexPath+BookPlayer.swift */; };
 		41E34E502138EA8200A3997C /* ImportOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41E34E4F2138EA8200A3997C /* ImportOperation.swift */; };
+		41F1D68E218EC61A005EC998 /* BookSortService+SortError+PlayListSortOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69225C4E2159C2650004739E /* BookSortService+SortError+PlayListSortOrder.swift */; };
+		41F1D68F218EC61A005EC998 /* BookSortService+SortError+PlayListSortOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69225C4E2159C2650004739E /* BookSortService+SortError+PlayListSortOrder.swift */; };
 		5CBB29552163E57300E3A9FF /* ZIPFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5CBB29522163A17F00E3A9FF /* ZIPFoundation.framework */; };
 		6906A55021720FDF00A9E0B2 /* BookSortServiceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A54F21720FDF00A9E0B2 /* BookSortServiceTest.swift */; };
 		6906A553217211C600A9E0B2 /* StubFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A552217211C600A9E0B2 /* StubFactory.swift */; };
-		69225C4F2159C2650004739E /* BookSortService+SortError+PlayListSortOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69225C4E2159C2650004739E /* BookSortService+SortError+PlayListSortOrder.swift */; };
 		69343D332133844D000C425E /* VoiceOverService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69343D322133844D000C425E /* VoiceOverService.swift */; };
 		69343D36213A07B4000C425E /* VoiceOverServiceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69343D35213A07B4000C425E /* VoiceOverServiceTest.swift */; };
 		C30B66AE20E2D8CF00FC0030 /* ArtworkControl.xib in Resources */ = {isa = PBXBuildFile; fileRef = C30B66AD20E2D8CF00FC0030 /* ArtworkControl.xib */; };
@@ -455,6 +456,7 @@
 		41219BF22155ECD200B19BD5 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				69225C4E2159C2650004739E /* BookSortService+SortError+PlayListSortOrder.swift */,
 				410D0FEE1EDDBC3300A52EB9 /* DataManager.swift */,
 				41219BBB2155A8CC00B19BD5 /* FileItem.swift */,
 				41219B2B215467EB00B19BD5 /* Extensions */,
@@ -603,7 +605,6 @@
 			isa = PBXGroup;
 			children = (
 				69343D322133844D000C425E /* VoiceOverService.swift */,
-				69225C4E2159C2650004739E /* BookSortService+SortError+PlayListSortOrder.swift */,
 				419723FF21874D5F00AB1190 /* UserActivityManager.swift */,
 				411EE7C6217AF964004C86E7 /* WatchConnectivityService.swift */,
 			);
@@ -1148,6 +1149,7 @@
 			files = (
 				41219BAD2155A5BD00B19BD5 /* Library+CoreDataClass.swift in Sources */,
 				41219BB52155A5BD00B19BD5 /* Chapter+CoreDataClass.swift in Sources */,
+				41F1D68E218EC61A005EC998 /* BookSortService+SortError+PlayListSortOrder.swift in Sources */,
 				41219BB62155A5BD00B19BD5 /* Chapter+CoreDataProperties.swift in Sources */,
 				41219BBA2155A69200B19BD5 /* UIColor+BookPlayer.swift in Sources */,
 				41219BAC2155A5BD00B19BD5 /* ArtworkColors+CoreDataProperties.swift in Sources */,
@@ -1180,6 +1182,7 @@
 			files = (
 				41219BE42155EC6D00B19BD5 /* ArtworkColors+CoreDataClass.swift in Sources */,
 				41219BF12155EC9600B19BD5 /* UIColor+Sweetercolor.swift in Sources */,
+				41F1D68F218EC61A005EC998 /* BookSortService+SortError+PlayListSortOrder.swift in Sources */,
 				41219BEE2155EC8900B19BD5 /* Chapter+CoreDataClass.swift in Sources */,
 				41219BE22155EC6100B19BD5 /* FileItem.swift in Sources */,
 				41219BF02155EC9300B19BD5 /* UIColor+BookPlayer.swift in Sources */,
@@ -1205,7 +1208,6 @@
 				410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */,
 				D367F7681FA2A6F000FEDB37 /* Constants.swift in Sources */,
 				C30EEEC12079645C00A4ED33 /* PlayerMetaViewController.swift in Sources */,
-				69225C4F2159C2650004739E /* BookSortService+SortError+PlayListSortOrder.swift in Sources */,
 				416B63A82146354B007D04B1 /* ImportManager.swift in Sources */,
 				C3FE3F8220A090880055B9C6 /* limitPanAngle.swift in Sources */,
 				C3FA301E20E0024900393DDA /* BPArtworkView.swift in Sources */,

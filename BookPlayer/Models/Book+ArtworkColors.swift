@@ -77,10 +77,6 @@ extension Book {
         }
     }
 
-    override func getBookToPlay() -> Book? {
-        return self
-    }
-
     func nextBook() -> Book? {
         if
             let playlist = self.playlist,

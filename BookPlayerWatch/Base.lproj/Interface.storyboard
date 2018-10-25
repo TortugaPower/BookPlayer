@@ -68,6 +68,7 @@
                     <connections>
                         <outlet property="libraryTableView" destination="XES-ah-aGa" id="8vf-Cg-ItF"/>
                         <outlet property="playlistHeader" destination="9Pd-61-AzJ" id="dXZ-ad-9N9"/>
+                        <outlet property="playlistHeaderTitle" destination="rin-gT-lWr" id="cCH-36-T7m"/>
                         <outlet property="playlistTableView" destination="DuF-EM-CZu" id="HfL-nk-WOI"/>
                         <outlet property="spacerGroupView" destination="2RI-xA-VLg" id="aP6-r3-vb7"/>
                         <segue destination="AgC-eL-Hgc" kind="relationship" relationship="nextPage" id="JEu-xO-tZC"/>

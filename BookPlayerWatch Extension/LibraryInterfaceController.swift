@@ -14,64 +14,88 @@ import WatchConnectivity
 
 class LibraryInterfaceController: WKInterfaceController {
     @IBOutlet weak var playlistHeader: WKInterfaceGroup!
+    @IBOutlet var playlistHeaderTitle: WKInterfaceLabel!
     @IBOutlet weak var libraryTableView: WKInterfaceTable!
     @IBOutlet var spacerGroupView: WKInterfaceGroup!
     @IBOutlet weak var playlistTableView: WKInterfaceTable!
 
     var watchSession = WCSession.default
 
-    var items = [LibraryItem]()
-    var playlist = ["Part 1", "Part 2", "Part 3", "Part 4", "Part 5", "Part 4", "Part 5"]
+    var library: Library!
+
+    // TableView's datasource
+    var items: [LibraryItem] {
+        guard self.library != nil else {
+            return []
+        }
+
+        return self.library.items?.array as? [LibraryItem] ?? []
+    }
+
+    var playlistItems = [Book]()
+
+    var dataUrl: URL {
+        let documentsFolder = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let filename = "library.data"
+        return documentsFolder.appendingPathComponent(filename)
+    }
 
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
 
+        self.library = DataManager.getLibrary()
+
+        if let library = self.decodeLibrary(FileManager.default.contents(atPath: self.dataUrl.path)) {
+            self.library = library
+        }
+
         watchSession.delegate = self
         watchSession.activate()
-        self.setupTable()
+
+        self.setupLibraryTable()
     }
 
-    func setupTable() {
+    func setupLibraryTable() {
         self.libraryTableView.setNumberOfRows(self.items.count, withRowType: "LibraryRow")
-        print(self.items.count)
 
-        if let book = self.items.first as? Book,
-            let row = self.libraryTableView.rowController(at: 0) as? ItemRow {
-            row.titleLabel.setText(book.title)
-        }
-        var index = 0
-        for item in self.items {
+        for (index, item) in self.items.enumerated() {
             guard let row = self.libraryTableView.rowController(at: index) as? ItemRow else {
                 continue
             }
 
             row.titleLabel.setText(item.title)
-            index += 1
         }
-        self.playlistTableView.setNumberOfRows(self.playlist.count, withRowType: "PlaylistRow")
+    }
 
-        for (index, item) in self.playlist.enumerated() {
+    func setupPlaylistTable() {
+        self.playlistTableView.setNumberOfRows(self.playlistItems.count, withRowType: "PlaylistRow")
+
+        for (index, item) in self.playlistItems.enumerated() {
             guard let row = self.playlistTableView.rowController(at: index) as? ItemRow else {
                 continue
             }
 
-            row.titleLabel.setText(item)
+            row.titleLabel.setText(item.title)
         }
     }
 
     override func table(_ table: WKInterfaceTable, didSelectRowAt rowIndex: Int) {
-        if table == self.playlistTableView || rowIndex == 0 {
+        let item = self.items[rowIndex]
+
+        guard let playlist = item as? Playlist,
+            let books = playlist.books?.array as? [Book] else {
             NotificationCenter.default.post(name: NSNotification.Name(rawValue: "derp"), object: nil)
             return
         }
-
-        if table == self.libraryTableView {
-            self.showPlaylist(true)
-        }
+        self.playlistItems = books
+        self.playlistHeaderTitle.setText("< \(playlist.title!)")
+        self.setupPlaylistTable()
+        self.showPlaylist(true)
     }
 
     @IBAction func collapsePlaylist() {
         self.showPlaylist(false)
+        self.playlistItems = []
     }
 
     func showPlaylist(_ show: Bool) {
@@ -107,31 +131,36 @@ extension LibraryInterfaceController: WCSessionDelegate {
         //query phone
     }
 
-    func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
-        print("========= derp: ", applicationContext)
+    func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
+        let data = applicationContext["library"] as? Data
+        guard let library = self.decodeLibrary(data) else { return }
 
-        guard let data = applicationContext["library"] as? Data  else { return }
+        try? data?.write(to: self.dataUrl)
 
-        let bgContext = DataManager.getBackgroundContext()
-        let decoder = JSONDecoder()
+        self.library = library
 
-        guard let context = CodingUserInfoKey.context else { return }
-
-        decoder.userInfo[context] = bgContext
-
-        guard let library = try? decoder.decode(Library.self, from: data),
-            let items = library.items?.array as? [LibraryItem] else {
-                print("==== merp")
-                return
-        }
-
-        self.items = items
-
-        self.setupTable()
+        self.setupLibraryTable()
     }
 
     func session(_ session: WCSession, didReceive file: WCSessionFile) {
         print("======= received file: ", file)
+    }
+
+    func decodeLibrary(_ data: Data?) -> Library? {
+        guard let data = data  else { return nil }
+
+        let bgContext = DataManager.getBackgroundContext()
+        let decoder = JSONDecoder()
+
+        guard let context = CodingUserInfoKey.context else { return nil }
+
+        decoder.userInfo[context] = bgContext
+
+        guard let library = try? decoder.decode(Library.self, from: data) else {
+            return nil
+        }
+
+        return library
     }
 }
 
