@@ -97,6 +97,8 @@ class PlaylistViewController: BaseListViewController {
     }
 
     // MARK: - Methods
+    override func sort(by sortType: PlayListSortOrder) throws {
+        try playlist.sort(by: sortType)
     }
 }
 
