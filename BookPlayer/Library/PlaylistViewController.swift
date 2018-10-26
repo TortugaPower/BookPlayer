@@ -96,38 +96,7 @@ class PlaylistViewController: BaseListViewController {
         self.presentImportFilesAlert()
     }
 
-    @IBAction func didTapSort(_ sender: Any) {
-        let alert = UIAlertController(title: "Sort Files", message: nil, preferredStyle: .actionSheet)
-        alert.addAction(UIAlertAction(title: "Title", style: .default, handler: { (action) in
-            do {
-                try self.playlist.sort(by: .metadataTitle)
-                self.tableView.reloadData()
-            } catch {
-                self.displaySortFailureAlert()
-            }
-        }))
-
-        alert.addAction(UIAlertAction(title: "File Name", style: .default, handler: { (action) in
-            do {
-                try self.playlist.sort(by: .fileName)
-                self.tableView.reloadData()
-            } catch {
-                self.displaySortFailureAlert()
-            }
-        }))
-
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-
-        present(alert, animated: true, completion: nil)
-    }
-
     // MARK: - Methods
-    private func displaySortFailureAlert() {
-        let alert       = UIAlertController(title: "Error",
-                                            message: "Sorting is unsupported. Please re-import files",
-                                            preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: nil))
-        self.present(alert, animated: true, completion: nil)
     }
 }
 

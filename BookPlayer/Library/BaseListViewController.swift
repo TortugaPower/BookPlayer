@@ -20,6 +20,9 @@ class BaseListViewController: UIViewController {
     @IBOutlet weak var loadingHeightConstraintView: NSLayoutConstraint!
     @IBOutlet weak var tableView: UITableView!
 
+    @IBAction func didTapSort(_ sender: Any) {
+        present(sortDialog(), animated: true, completion: nil)
+    }
     var library: Library!
 
     // TableView's datasource
@@ -318,6 +321,43 @@ class BaseListViewController: UIViewController {
         if let rootViewController = self.parent?.parent as? RootViewController {
             self.tableView.contentInset.bottom = rootViewController.miniPlayerIsHidden ? 0.0 : 88.0
         }
+    }
+
+    // MARK: - Sorting
+    private func sortDialog() -> UIAlertController {
+        let alert = UIAlertController(title: "Sort Files by", message: nil, preferredStyle: .actionSheet)
+        alert.addAction(UIAlertAction(title: "Title", style: .default, handler: { (action) in
+            do {
+                try self.sort(by: .metadataTitle)
+                self.tableView.reloadData()
+            } catch {
+                self.displaySortFailureAlert()
+            }
+        }))
+
+        alert.addAction(UIAlertAction(title: "Original File Name", style: .default, handler: { (action) in
+            do {
+                try self.sort(by: .fileName)
+                self.tableView.reloadData()
+            } catch {
+                self.displaySortFailureAlert()
+            }
+        }))
+
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        return alert
+    }
+
+    func sort(by sortType: PlayListSortOrder) throws {
+        fatalError()
+    }
+    
+    private func displaySortFailureAlert() {
+        let alert       = UIAlertController(title: "Error",
+                                            message: "Sorting is unsupported. Please re-import files",
+                                            preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: nil))
+        self.present(alert, animated: true, completion: nil)
     }
 }
 
