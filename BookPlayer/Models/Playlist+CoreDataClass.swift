@@ -124,10 +124,12 @@ public class Playlist: LibraryItem {
         self.desc = "\(books.count) Files"
         self.addToBooks(NSOrderedSet(array: books))
     }
+}
 
+extension Playlist: Sortable {
     func sort(by sortType: PlayListSortOrder) throws {
-            guard let books = books else { return }
-            self.books      = try BookSortService.sort(books, by: sortType)
-            DataManager.saveContext()
+        guard let books = books else { return }
+        self.books      = try BookSortService.sort(books, by: sortType)
+        DataManager.saveContext()
     }
 }

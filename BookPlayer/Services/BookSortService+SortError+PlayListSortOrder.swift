@@ -33,3 +33,7 @@ enum PlayListSortOrder {
     case metadataTitle,
          fileName
 }
+
+protocol Sortable {
+    func sort(by sortType: PlayListSortOrder) throws
+}
