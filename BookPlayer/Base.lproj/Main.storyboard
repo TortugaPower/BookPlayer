@@ -920,6 +920,11 @@ Use with caution and care for your hearing.</string>
                                 <segue destination="1sN-GG-oUw" kind="presentation" identifier="SettingsSegue" id="Cy0-kJ-HUm"/>
                             </connections>
                         </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" title="Sort" id="3TC-Nz-KBQ">
+                            <connections>
+                                <action selector="didTapSort:" destination="Zuf-4A-dOY" id="7GX-Dp-JaQ"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <connections>
                         <outlet property="emptyStatePlaceholder" destination="xYN-SW-g2w" id="DGN-cI-ss6"/>
