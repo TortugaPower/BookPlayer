@@ -26,13 +26,15 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
         if let viewController = segue.destination as? MiniPlayerViewController {
             self.miniPlayerViewController = viewController
             self.miniPlayerViewController!.showPlayer = {
-                guard let currentBooks = PlayerManager.shared.currentBooks else {
+                guard let currentBook = PlayerManager.shared.currentBook else {
                     return
                 }
 
-                self.libraryViewController.setupPlayer(books: currentBooks)
+                self.libraryViewController.setupPlayer(book: currentBook)
             }
-        } else if let navigationVC = segue.destination as? UINavigationController, let libraryVC = navigationVC.childViewControllers.first as? LibraryViewController {
+        } else if
+            let navigationVC = segue.destination as? UINavigationController,
+            let libraryVC = navigationVC.childViewControllers.first as? LibraryViewController {
             self.libraryViewController = libraryVC
         }
     }
@@ -57,12 +59,12 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(self.dismissMiniPlayer), name: .bookStopped, object: nil)
 
         // Gestures
-        self.pan = UIPanGestureRecognizer(target: self, action: #selector(panAction))
+        self.pan = UIPanGestureRecognizer(target: self, action: #selector(self.panAction))
         self.pan.delegate = self
         self.pan.maximumNumberOfTouches = 1
         self.pan.cancelsTouchesInView = true
 
-        self.view.addGestureRecognizer(self.pan)
+        view.addGestureRecognizer(self.pan)
     }
 
     // MARK: -
@@ -83,9 +85,11 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
             }
         )
 
-        UIView.animate(withDuration: 0.3, delay: 0.0, options: .preferredFramesPerSecond60, animations: {
-            self.miniPlayerContainer.alpha = 1.0
-        })
+        UIView.animate(
+            withDuration: 0.3, delay: 0.0, options: .preferredFramesPerSecond60, animations: {
+                self.miniPlayerContainer.alpha = 1.0
+            }
+        )
     }
 
     @objc private func dismissMiniPlayer() {
@@ -103,30 +107,33 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
             }
         )
 
-        UIView.animate(withDuration: 0.15, delay: 0.0, options: [.preferredFramesPerSecond60, .curveEaseIn], animations: {
-            self.miniPlayerContainer.alpha = 0.0
-        })
+        UIView.animate(
+            withDuration: 0.15, delay: 0.0, options: [.preferredFramesPerSecond60, .curveEaseIn], animations: {
+                self.miniPlayerContainer.alpha = 0.0
+            }
+        )
     }
 
     @objc private func bookChange(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
-            let books = userInfo["books"] as? [Book],
-            let currentBook = books.first else {
-                return
+            let book = userInfo["book"] as? Book
+        else {
+            return
         }
 
-        setupMiniPlayer(book: currentBook)
+        self.setupMiniPlayer(book: book)
 
         PlayerManager.shared.play()
     }
 
     @objc private func bookReady(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
-            let book = userInfo["book"] as? Book else {
-                return
+            let book = userInfo["book"] as? Book
+        else {
+            return
         }
 
-        setupMiniPlayer(book: book)
+        self.setupMiniPlayer(book: book)
     }
 
     @objc private func onBookPlay() {

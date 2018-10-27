@@ -7,9 +7,9 @@
 //
 //
 
-import Foundation
-import CoreData
 import AVFoundation
+import CoreData
+import Foundation
 
 public class Book: LibraryItem {
     var fileURL: URL {
@@ -50,8 +50,8 @@ public class Book: LibraryItem {
 
     // TODO: This is a makeshift version of a proper completion property.
     // See https://github.com/TortugaPower/BookPlayer/issues/201
-    var isCompleted: Bool {
-        return round(self.currentTime) >= round(self.duration)
+    override var isCompleted: Bool {
+        return Int(round(self.currentTime)) == Int(round(self.duration))
     }
 
     func setChapters(from asset: AVAsset, context: NSManagedObjectContext) {
@@ -107,10 +107,45 @@ public class Book: LibraryItem {
 
         let legacyIdentifier = bookUrl.originalUrl.lastPathComponent
         let storedTime = UserDefaults.standard.double(forKey: legacyIdentifier)
-        //migration of time
+
+        // migration of time
         if storedTime > 0 {
             self.currentTime = storedTime
             UserDefaults.standard.removeObject(forKey: legacyIdentifier)
         }
+    }
+
+    override func getBookToPlay() -> Book? {
+        return self
+    }
+
+    func nextBook() -> Book? {
+        if
+            let playlist = self.playlist,
+            let next = playlist.getNextBook(after: self) {
+            return next
+        }
+
+        guard
+            UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue),
+            let library = self.library
+        else {
+            return nil
+        }
+
+        let nextItem = library.getNextItem(after: self.playlist ?? self)
+
+        if let book = nextItem as? Book {
+            return book
+        }
+
+        if
+            let playlist = nextItem as? Playlist,
+            let book = playlist.getBook(at: 0) // or use playlist.getBookToPlay() to get the first unplayed book
+        {
+            return book
+        }
+
+        return nil
     }
 }

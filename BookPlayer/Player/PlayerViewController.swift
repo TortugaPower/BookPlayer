@@ -208,9 +208,8 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
     @IBAction func setSpeed() {
         let actionSheet = UIAlertController(title: nil, message: "Set playback speed", preferredStyle: .actionSheet)
-        let speedOptions: [Float] = [2.5, 2, 1.75, 1.5, 1.25, 1, 0.75]
 
-        for speed in speedOptions {
+        for speed in PlayerManager.speedOptions {
             if speed == PlayerManager.shared.speed {
                 actionSheet.addAction(UIAlertAction(title: "\u{00A0} \(speed) ✓", style: .default, handler: nil))
             } else {
@@ -295,10 +294,11 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     @objc func bookChange(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-            let books = userInfo["books"] as? [Book],
-            let book = books.first else {
-                return
+        guard
+            let userInfo = notification.userInfo,
+            let book = userInfo["book"] as? Book
+        else {
+            return
         }
 
         self.currentBook = book
@@ -360,6 +360,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             default: break
         }
     }
+
     override func accessibilityPerformEscape() -> Bool {
         dismissPlayer()
         return true
