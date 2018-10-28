@@ -289,7 +289,8 @@ class BaseListViewController: UIViewController {
     // MARK: - Sorting
     private func sortDialog() -> UIAlertController {
         let alert = UIAlertController(title: "Sort Files by", message: nil, preferredStyle: .actionSheet)
-        alert.addAction(UIAlertAction(title: "Title", style: .default, handler: { (action) in
+
+        alert.addAction(UIAlertAction(title: "Title", style: .default, handler: { (_) in
             do {
                 try self.sort(by: .metadataTitle)
                 self.tableView.reloadData()
@@ -298,7 +299,7 @@ class BaseListViewController: UIViewController {
             }
         }))
 
-        alert.addAction(UIAlertAction(title: "Original File Name", style: .default, handler: { (action) in
+        alert.addAction(UIAlertAction(title: "Original File Name", style: .default, handler: { (_) in
             do {
                 try self.sort(by: .fileName)
                 self.tableView.reloadData()
@@ -314,12 +315,16 @@ class BaseListViewController: UIViewController {
     func sort(by sortType: PlayListSortOrder) throws {
         fatalError()
     }
-    
+
     private func displaySortFailureAlert() {
-        let alert       = UIAlertController(title: "Error",
-                                            message: "Sorting is unsupported. Please re-import files",
-                                            preferredStyle: .alert)
+        let alert = UIAlertController(
+            title: "Error",
+            message: "Sorting is unsupported. Please re-import files",
+            preferredStyle: .alert
+        )
+
         alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: nil))
+
         self.present(alert, animated: true, completion: nil)
     }
 }
