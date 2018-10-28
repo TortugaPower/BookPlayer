@@ -118,7 +118,7 @@ class PlayerManager: NSObject {
         }
 
         self.nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
-        
+
         MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
 
         // stop timer if the book is finished

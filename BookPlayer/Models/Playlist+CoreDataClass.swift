@@ -142,13 +142,21 @@ public class Playlist: LibraryItem {
     }
 
     func getNextBook(after book: Book) -> Book? {
-        guard let books = self.books?.array as? [Book] else { return nil }
-
-        if let index = books.firstIndex(of: book), index + 1 <= books.count {
-            return books[index + 1]
+        guard let books = self.books else {
+            return nil
         }
 
-        return nil
+        let index = books.index(of: book)
+
+        guard
+            index != NSNotFound,
+            index + 1 < books.count,
+            let nextBook = books[index + 1] as? Book
+        else {
+            return nil
+        }
+
+        return nextBook
     }
 
     func info() -> String {

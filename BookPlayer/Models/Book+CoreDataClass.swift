@@ -126,23 +126,17 @@ public class Book: LibraryItem {
             return next
         }
 
-        guard
-            UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue),
-            let library = self.library
-        else {
+        guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue) else {
             return nil
         }
 
-        let nextItem = library.getNextItem(after: self.playlist ?? self)
+        let item = self.playlist ?? self
+
+        guard let nextItem = item.library?.getNextItem(after: item) else { return nil }
 
         if let book = nextItem as? Book {
             return book
-        }
-
-        if
-            let playlist = nextItem as? Playlist,
-            let book = playlist.getBook(at: 0) // or use playlist.getBookToPlay() to get the first unplayed book
-        {
+        } else if let playlist = nextItem as? Playlist, let book = playlist.books?.firstObject as? Book {
             return book
         }
 

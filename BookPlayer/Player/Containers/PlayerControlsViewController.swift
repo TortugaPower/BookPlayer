@@ -108,11 +108,13 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         self.artworkJumpControlsUsed = UserDefaults.standard.bool(forKey: Constants.UserDefaults.artworkJumpControlsUsed.rawValue)
 
         self.artworkControl.isPlaying = PlayerManager.shared.isPlaying
+
         self.artworkControl.onPlayPause = { control in
             PlayerManager.shared.playPause()
 
             control.isPlaying = PlayerManager.shared.isPlaying
         }
+
         self.artworkControl.onRewind = { _ in
             PlayerManager.shared.rewind()
 
@@ -120,6 +122,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
                 self.artworkJumpControlsUsed = true
             }
         }
+
         self.artworkControl.onForward = { _ in
             PlayerManager.shared.forward()
 
