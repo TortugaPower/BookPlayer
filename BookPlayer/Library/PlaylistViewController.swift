@@ -19,7 +19,6 @@ class PlaylistViewController: BaseListViewController {
         super.viewDidLoad()
 
         self.toggleEmptyStateView()
-
         self.navigationItem.title = playlist.title
     }
 
@@ -95,6 +94,11 @@ class PlaylistViewController: BaseListViewController {
     // MARK: - IBActions
     @IBAction func addAction() {
         self.presentImportFilesAlert()
+    }
+
+    // MARK: - Methods
+    override func sort(by sortType: PlayListSortOrder) throws {
+        try playlist.sort(by: sortType)
     }
 }
 

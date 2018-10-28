@@ -31,6 +31,7 @@
         <attribute name="currentTime" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="duration" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="identifier" attributeType="String" syncable="YES"/>
+        <attribute name="originalFileName" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="percentCompleted" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="title" attributeType="String" syncable="YES"/>
         <relationship name="library" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Library" inverseName="items" inverseEntity="Library" syncable="YES"/>

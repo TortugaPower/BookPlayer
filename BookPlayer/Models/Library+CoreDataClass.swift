@@ -63,3 +63,11 @@ public class Library: NSManagedObject {
         return self.getItem(at: index)
     }
 }
+
+extension Library: Sortable {
+    func sort(by sortType: PlayListSortOrder) throws {
+        guard let items = items else { return }
+        self.items      = try BookSortService.sort(items, by: sortType)
+        DataManager.saveContext()
+    }
+}

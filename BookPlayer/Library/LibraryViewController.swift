@@ -291,6 +291,11 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             return nil
         }
     }
+
+    // Sorting
+    override func sort(by sortType: PlayListSortOrder) throws {
+        try library.sort(by: sortType)
+    }
 }
 
 // MARK: - TableView Delegate

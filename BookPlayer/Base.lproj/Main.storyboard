@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14269.12" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="1tN-zP-ONE">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14313.18" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="1tN-zP-ONE">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14252.5"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14283.14"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -647,7 +647,13 @@ Use with caution and care for your hearing.</string>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="CKb-uE-Rzm"/>
                     </view>
-                    <navigationItem key="navigationItem" title="Playlist" largeTitleDisplayMode="never" id="izI-Pl-Rnt"/>
+                    <navigationItem key="navigationItem" title="Playlist" largeTitleDisplayMode="never" id="izI-Pl-Rnt">
+                        <barButtonItem key="rightBarButtonItem" title="Sort" id="WH8-zM-mwG">
+                            <connections>
+                                <action selector="didTapSort:" destination="XZ8-Ha-OZN" id="u4j-qb-3mq"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="emptyStatePlaceholder" destination="S0r-5S-fT7" id="d1Y-st-qzo"/>
                         <outlet property="loadingContainerView" destination="UeG-Sn-DHx" id="U62-78-m6K"/>
@@ -912,6 +918,11 @@ Use with caution and care for your hearing.</string>
                         <barButtonItem key="leftBarButtonItem" title="Settings" id="l9y-WJ-fVK">
                             <connections>
                                 <segue destination="1sN-GG-oUw" kind="presentation" identifier="SettingsSegue" id="Cy0-kJ-HUm"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" title="Sort" id="3TC-Nz-KBQ">
+                            <connections>
+                                <action selector="didTapSort:" destination="Zuf-4A-dOY" id="7GX-Dp-JaQ"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>

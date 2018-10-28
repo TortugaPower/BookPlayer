@@ -14,15 +14,6 @@ class PlaylistTests: XCTestCase {
         super.setUp()
     }
 
-    func generateBook(title: String, duration: Double) -> Book {
-        let dummyUrl = URL(fileURLWithPath: title)
-        let bookUrl = FileItem(originalUrl: dummyUrl, processedUrl: dummyUrl, destinationFolder: dummyUrl)
-        let book = DataManager.createBook(from: bookUrl)
-        book.duration = duration
-
-        return book
-    }
-
     func generatePlaylist(title: String, books: [Book]) -> Playlist {
         return DataManager.createPlaylist(title: title, books: books)
     }
@@ -41,7 +32,7 @@ class PlaylistTests: XCTestCase {
     }
 
     func testGetBook() {
-        let book1 = generateBook(title: "book1", duration: 100)
+        let book1 = StubFactory.book(title: "book1", duration: 100)
 
         let playlist = generatePlaylist(title: "playlist", books: [book1])
 
@@ -56,8 +47,8 @@ class PlaylistTests: XCTestCase {
     }
 
     func testAccumulatedProgress() {
-        let book1 = generateBook(title: "book1", duration: 100)
-        let book2 = generateBook(title: "book2", duration: 100)
+        let book1 = StubFactory.book(title: "book1", duration: 100)
+        let book2 = StubFactory.book(title: "book2", duration: 100)
 
         let playlist = generatePlaylist(title: "playlist", books: [book1, book2])
 
@@ -81,8 +72,8 @@ class PlaylistTests: XCTestCase {
     }
 
     func testRemainingBooks() {
-        let book1 = generateBook(title: "book1", duration: 100)
-        let book2 = generateBook(title: "book2", duration: 100)
+        let book1 = StubFactory.book(title: "book1", duration: 100)
+        let book2 = StubFactory.book(title: "book2", duration: 100)
 
         let playlist = generatePlaylist(title: "playlist", books: [book1, book2])
 
