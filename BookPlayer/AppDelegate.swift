@@ -29,12 +29,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             defaults.set(true, forKey: Constants.UserDefaults.completedFirstLaunch.rawValue)
         }
 
-        // Migrate file security to make autoplay on background work
-        if !defaults.bool(forKey: Constants.UserDefaults.fileProtectionMigration.rawValue) {
-            DataManager.makeFilesPublic()
-            defaults.set(true, forKey: Constants.UserDefaults.fileProtectionMigration.rawValue)
-        }
-
         // Appearance
         UINavigationBar.appearance().titleTextAttributes = [
             NSAttributedStringKey.foregroundColor: UIColor.init(hex: "#37454E")
