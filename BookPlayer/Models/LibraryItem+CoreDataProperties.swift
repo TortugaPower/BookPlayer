@@ -23,4 +23,5 @@ extension LibraryItem {
     @NSManaged public var percentCompleted: Double
     @NSManaged public var library: Library?
     @NSManaged public var originalFileName: String?
+    @NSManaged public var isComplete: Bool
 }

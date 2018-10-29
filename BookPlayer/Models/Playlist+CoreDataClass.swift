@@ -38,6 +38,7 @@ public class Playlist: LibraryItem {
         self.title = title
         self.originalFileName = title
         self.desc = "\(books.count) Files"
+        self.isComplete = false
         self.addToBooks(NSOrderedSet(array: books))
     }
 
