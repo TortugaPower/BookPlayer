@@ -84,6 +84,7 @@ class PlaylistViewController: BaseListViewController {
         guard
             let userInfo = notification.userInfo,
             let book = userInfo["book"] as? Book,
+            !book.isFault,
             let index = self.playlist.itemIndex(with: book.fileURL),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .library)) as? BookCellView
         else {
@@ -198,11 +199,11 @@ extension PlaylistViewController {
                     PlayerManager.shared.stop()
                 }
 
+                try? FileManager.default.removeItem(at: book.fileURL)
+
                 self.playlist.removeFromBooks(book)
 
-                DataManager.saveContext()
-
-                try? FileManager.default.removeItem(at: book.fileURL)
+                DataManager.delete(book)
 
                 self.deleteRows(at: [indexPath])
 

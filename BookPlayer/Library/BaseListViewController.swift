@@ -251,6 +251,7 @@ class BaseListViewController: UIViewController {
         guard
             let userInfo = notification.userInfo,
             let book = userInfo["book"] as? Book,
+            !book.isFault,
             let index = self.library.itemIndex(with: book.fileURL),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .library)) as? BookCellView
         else {

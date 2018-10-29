@@ -174,11 +174,11 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
                 PlayerManager.shared.stop()
             }
 
+            try? FileManager.default.removeItem(at: book.fileURL)
+
             self.library.removeFromItems(book)
 
-            DataManager.saveContext()
-
-            try? FileManager.default.removeItem(at: book.fileURL)
+            DataManager.delete(book)
 
             self.deleteRows(at: [indexPath])
         }))
@@ -193,7 +193,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         guard playlist.hasBooks() else {
             library.removeFromItems(playlist)
 
-            DataManager.saveContext()
+            DataManager.delete(playlist)
 
             deleteRows(at: [indexPath])
             return
@@ -211,7 +211,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             }
 
             self.library.removeFromItems(playlist)
-            DataManager.saveContext()
+            DataManager.delete(playlist)
 
             self.tableView.beginUpdates()
             self.tableView.reloadSections(IndexSet(integer: Section.library.rawValue), with: .none)
@@ -220,14 +220,17 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         }))
 
         sheet.addAction(UIAlertAction(title: "Delete both playlist and books", style: .destructive, handler: { _ in
-            self.library.removeFromItems(playlist)
-
-            DataManager.saveContext()
-
             // swiftlint:disable force_cast
             for book in playlist.books?.array as! [Book] {
+                if book == PlayerManager.shared.currentBook {
+                    PlayerManager.shared.stop()
+                }
                 try? FileManager.default.removeItem(at: book.fileURL)
             }
+
+            self.library.removeFromItems(playlist)
+
+            DataManager.delete(playlist)
 
             self.deleteRows(at: [indexPath])
         }))

@@ -331,7 +331,7 @@ class DataManager {
         self.saveContext()
     }
 
-    internal class func delete(_ item: NSManagedObject) {
+    class func delete(_ item: NSManagedObject) {
         self.persistentContainer.viewContext.delete(item)
         self.saveContext()
     }

@@ -18,7 +18,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
     var book: Book? {
         didSet {
-            guard let book = self.book else {
+            guard let book = self.book, !book.isFault else {
                 return
             }
 
@@ -39,7 +39,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
     }
 
     private var currentTimeInContext: TimeInterval {
-        guard let book = self.book else {
+        guard let book = self.book, !book.isFault else {
             return 0.0
         }
 
@@ -54,7 +54,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
     }
 
     private var maxTimeInContext: TimeInterval {
-        guard let book = self.book else {
+        guard let book = self.book, !book.isFault else {
             return 0.0
         }
 
@@ -76,7 +76,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
     }
 
     private var durationTimeInContext: TimeInterval {
-        guard let book = self.book else {
+        guard let book = self.book, !book.isFault else {
             return 0.0
         }
 
@@ -168,7 +168,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
     // MARK: - Helpers
 
     private func setProgress() {
-        guard let book = self.book else {
+        guard let book = self.book, !book.isFault else {
             self.progressButton.setTitle("", for: .normal)
 
             return
@@ -262,7 +262,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
             self.artworkControl.setAnchorPoint(anchorPoint: CGPoint(x: 0.5, y: 0.5))
         })
 
-        guard let book = self.book else {
+        guard let book = self.book, !book.isFault else {
             return
         }
 
@@ -283,7 +283,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
         self.transformArtworkView(CGFloat(sender.value))
 
-        guard let book = self.book else {
+        guard let book = self.book, !book.isFault else {
             return
         }
 
