@@ -138,7 +138,7 @@ class DataManager {
      Remove file protection for one file
      */
     class func makeFilePublic(_ file: NSURL) {
-        try? file.setResourceValue(URLFileProtection.completeUntilFirstUserAuthentication, forKey: .fileProtectionKey)
+        try? file.setResourceValue(URLFileProtection.none, forKey: .fileProtectionKey)
     }
 
     /**
