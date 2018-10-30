@@ -71,24 +71,14 @@ class PlaylistTests: XCTestCase {
         XCTAssert(completedProgress == 1.0)
     }
 
-    func testRemainingBooks() {
+    func testNextBook() {
         let book1 = StubFactory.book(title: "book1", duration: 100)
         let book2 = StubFactory.book(title: "book2", duration: 100)
 
         let playlist = generatePlaylist(title: "playlist", books: [book1, book2])
 
-        let twoRemainingBooks = playlist.getRemainingBooks()
+        let nextBook = playlist.getNextBook(after: book1)
 
-        XCTAssert(twoRemainingBooks.count == 2)
-
-        book1.currentTime = 100
-
-        let oneRemainingBook = playlist.getRemainingBooks()
-        XCTAssert(oneRemainingBook.count == 1)
-
-        book2.currentTime = 100
-
-        let noRemainingBook = playlist.getRemainingBooks()
-        XCTAssert(noRemainingBook.count == 0)
+        XCTAssert(nextBook == book2)
     }
 }
