@@ -40,6 +40,10 @@ class DataManager {
         return processedFolderURL
     }
 
+    private static var storeUrl: URL {
+        return FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.tortugapower.bookplayer.files")!.appendingPathComponent("BookPlayer.sqlite")
+    }
+
     // MARK: - Operations
     class func start(_ operation: Operation) {
         self.queue.addOperation(operation)
@@ -60,9 +64,38 @@ class DataManager {
     }
 
     // MARK: - Core Data stack
+    class func migrateStack() throws {
+        let name = "BookPlayer"
+        let container = NSPersistentContainer(name: name)
+        let psc = container.persistentStoreCoordinator
+
+        let oldStoreUrl = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).last!
+            .appendingPathComponent("\(name).sqlite")
+
+        let options = [
+            NSMigratePersistentStoresAutomaticallyOption: true,
+            NSInferMappingModelAutomaticallyOption: true
+        ]
+
+        guard let oldStore = try? psc.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: oldStoreUrl, options: options) else {
+            // couldn't load old store
+            return
+        }
+
+        try psc.migratePersistentStore(oldStore, to: self.storeUrl, options: nil, withType: NSSQLiteStoreType)
+    }
 
     private static var persistentContainer: NSPersistentContainer = {
-        let container = NSPersistentContainer(name: "BookPlayer")
+        let name = "BookPlayer"
+
+        let container = NSPersistentContainer(name: name)
+
+        let description = NSPersistentStoreDescription()
+        description.shouldInferMappingModelAutomatically = true
+        description.shouldMigrateStoreAutomatically = true
+        description.url = storeUrl
+
+        container.persistentStoreDescriptions = [description]
 
         container.loadPersistentStores(completionHandler: { (_, error) in
             if let error = error as NSError? {
@@ -105,7 +138,7 @@ class DataManager {
      Remove file protection for one file
      */
     class func makeFilePublic(_ file: NSURL) {
-        try? file.setResourceValue(URLFileProtection.completeUntilFirstUserAuthentication, forKey: .fileProtectionKey)
+        try? file.setResourceValue(URLFileProtection.none, forKey: .fileProtectionKey)
     }
 
     /**
@@ -298,7 +331,7 @@ class DataManager {
         self.saveContext()
     }
 
-    internal class func delete(_ item: NSManagedObject) {
+    class func delete(_ item: NSManagedObject) {
         self.persistentContainer.viewContext.delete(item)
         self.saveContext()
     }

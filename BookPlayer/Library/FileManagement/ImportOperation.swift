@@ -95,6 +95,7 @@ class ImportOperation: Operation {
             do {
                 if !FileManager.default.fileExists(atPath: destinationURL.path) {
                     try FileManager.default.moveItem(at: file.originalUrl, to: destinationURL)
+                    try (destinationURL as NSURL).setResourceValue(URLFileProtection.none, forKey: .fileProtectionKey)
                 } else {
                     try FileManager.default.removeItem(at: file.originalUrl)
                 }

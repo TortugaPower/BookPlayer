@@ -27,6 +27,12 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
 
         self.loadLibrary()
 
+        // handle CoreData migration into shared app groups
+        if !UserDefaults.standard.bool(forKey: Constants.UserDefaults.appGroupsMigration.rawValue) {
+            self.migrateCoreDataStack()
+            UserDefaults.standard.set(true, forKey: Constants.UserDefaults.appGroupsMigration.rawValue)
+        }
+
         guard let identifier = UserDefaults.standard.string(forKey: Constants.UserDefaults.lastPlayedBook.rawValue),
             let item = self.library.getItem(with: identifier) else {
             return
@@ -73,6 +79,27 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         self.tableView.reloadData()
 
         DataManager.notifyPendingFiles()
+    }
+
+    /**
+     *  Migrates existing stack into the new container app groups.
+     *  In case it fails, it loads all the files from the Processed folder
+     */
+    func migrateCoreDataStack() {
+        DataManager.makeFilesPublic()
+        do {
+            try DataManager.migrateStack()
+        } catch {
+            // Migration failed, fallback: load all books from processed folder
+            if let fileUrls = DataManager.getFiles(from: DataManager.getProcessedFolderURL()) {
+                let fileItems = fileUrls.map { (url) -> FileItem in
+                    return FileItem(originalUrl: url, processedUrl: url, destinationFolder: url)
+                }
+                DataManager.insertBooks(from: fileItems, into: self.library) {
+                    self.reloadData()
+                }
+            }
+        }
     }
 
     override func handleOperationCompletion(_ files: [FileItem]) {
@@ -147,11 +174,11 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
                 PlayerManager.shared.stop()
             }
 
+            try? FileManager.default.removeItem(at: book.fileURL)
+
             self.library.removeFromItems(book)
 
-            DataManager.saveContext()
-
-            try? FileManager.default.removeItem(at: book.fileURL)
+            DataManager.delete(book)
 
             self.deleteRows(at: [indexPath])
         }))
@@ -166,7 +193,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         guard playlist.hasBooks() else {
             library.removeFromItems(playlist)
 
-            DataManager.saveContext()
+            DataManager.delete(playlist)
 
             deleteRows(at: [indexPath])
             return
@@ -184,7 +211,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             }
 
             self.library.removeFromItems(playlist)
-            DataManager.saveContext()
+            DataManager.delete(playlist)
 
             self.tableView.beginUpdates()
             self.tableView.reloadSections(IndexSet(integer: Section.library.rawValue), with: .none)
@@ -193,14 +220,17 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         }))
 
         sheet.addAction(UIAlertAction(title: "Delete both playlist and books", style: .destructive, handler: { _ in
-            self.library.removeFromItems(playlist)
-
-            DataManager.saveContext()
-
             // swiftlint:disable force_cast
             for book in playlist.books?.array as! [Book] {
+                if book == PlayerManager.shared.currentBook {
+                    PlayerManager.shared.stop()
+                }
                 try? FileManager.default.removeItem(at: book.fileURL)
             }
+
+            self.library.removeFromItems(playlist)
+
+            DataManager.delete(playlist)
 
             self.deleteRows(at: [indexPath])
         }))
