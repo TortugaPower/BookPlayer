@@ -81,10 +81,6 @@ class PlayerManager: NSObject {
 
                     NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["book": book])
 
-                    if #available(iOS 11.0, *) {
-                        MPNowPlayingInfoCenter.default().playbackState = self.isPlaying ? MPNowPlayingPlaybackState.playing : MPNowPlayingPlaybackState.paused
-                    }
-
                     completion(true)
                 }
             )
