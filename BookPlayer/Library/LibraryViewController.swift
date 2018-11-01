@@ -407,7 +407,6 @@ extension LibraryViewController {
         let item = items[indexPath.row]
 
         // "…" on a button indicates a follow up dialog instead of an immmediate action in macOS and iOS
-        var title = "Delete…"
 
         // Remove the dots if trying to delete an empty playlist
         if let playlist = item as? Playlist {

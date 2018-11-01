@@ -416,6 +416,8 @@ extension PlayerManager: AVAudioPlayerDelegate {
         guard let nextBook = self.currentBook?.nextBook() else { return }
 
         self.load(nextBook, completion: { success in
+        self.currentBook?.isComplete = true
+
             guard success else { return }
 
             let userInfo = ["book": nextBook]

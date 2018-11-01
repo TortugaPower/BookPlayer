@@ -46,7 +46,7 @@
         <element name="Book" positionX="-65" positionY="329" width="128" height="135"/>
         <element name="Chapter" positionX="162" positionY="99" width="128" height="120"/>
         <element name="Library" positionX="160" positionY="9" width="128" height="58"/>
-        <element name="LibraryItem" positionX="-63" positionY="-18" width="128" height="148"/>
+        <element name="LibraryItem" positionX="-63" positionY="-18" width="128" height="180"/>
         <element name="Playlist" positionX="16" positionY="207" width="128" height="73"/>
     </elements>
 </model>
