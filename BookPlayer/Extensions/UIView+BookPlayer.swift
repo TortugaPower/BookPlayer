@@ -10,13 +10,13 @@ import UIKit
 
 extension UIView {
     func setAnchorPoint(anchorPoint: CGPoint) {
-        var newPoint = CGPoint(x: self.bounds.size.width * anchorPoint.x, y: self.bounds.size.height * anchorPoint.y)
-        var oldPoint = CGPoint(x: self.bounds.size.width * self.layer.anchorPoint.x, y: self.bounds.size.height * self.layer.anchorPoint.y)
+        var newPoint = CGPoint(x: bounds.size.width * anchorPoint.x, y: bounds.size.height * anchorPoint.y)
+        var oldPoint = CGPoint(x: bounds.size.width * layer.anchorPoint.x, y: bounds.size.height * layer.anchorPoint.y)
 
-        newPoint = newPoint.applying(self.transform)
-        oldPoint = oldPoint.applying(self.transform)
+        newPoint = newPoint.applying(transform)
+        oldPoint = oldPoint.applying(transform)
 
-        var position: CGPoint = self.layer.position
+        var position: CGPoint = layer.position
 
         position.x -= oldPoint.x
         position.x += newPoint.x
@@ -24,8 +24,8 @@ extension UIView {
         position.y -= oldPoint.y
         position.y += newPoint.y
 
-        self.translatesAutoresizingMaskIntoConstraints = true
-        self.layer.position = position
-        self.layer.anchorPoint = anchorPoint
+        translatesAutoresizingMaskIntoConstraints = true
+        layer.position = position
+        layer.anchorPoint = anchorPoint
     }
 }

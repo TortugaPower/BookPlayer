@@ -9,8 +9,8 @@ class VoiceOverService {
     // MARK: - BookCellView
 
     public func bookCellView(type: BookCellType, title: String?, subtitle: String?, progress: Double?) -> String {
-        self.type     = type
-        self.title    = title
+        self.type = type
+        self.title = title
         self.subtitle = subtitle
         self.progress = progress
 
@@ -25,19 +25,19 @@ class VoiceOverService {
     }
 
     fileprivate func bookText() -> String {
-        let voiceOverTitle          = title ?? "No Title"
-        let voiceOverSubtitle       = subtitle ?? "No Author"
+        let voiceOverTitle = title ?? "No Title"
+        let voiceOverSubtitle = subtitle ?? "No Author"
         return "\(voiceOverTitle) by \(voiceOverSubtitle) \(progressPercent())% Completed"
     }
 
     fileprivate func fileText() -> String {
-        let voiceOverTitle          = title ?? "No File Title"
-        let voiceOverSubtitle       = subtitle ?? "No File Subtitle"
+        let voiceOverTitle = title ?? "No File Title"
+        let voiceOverSubtitle = subtitle ?? "No File Subtitle"
         return "\(voiceOverTitle) \(voiceOverSubtitle)"
     }
 
     fileprivate func playlistText() -> String {
-        let voiceOverTitle          = title ?? "No Playlist Title"
+        let voiceOverTitle = title ?? "No Playlist Title"
         return "\(voiceOverTitle) Playlist \(progressPercent())% Completed"
     }
 
@@ -58,12 +58,13 @@ class VoiceOverService {
     }
 
     // MARK: - ArtworkControl
+
     public static func rewindText() -> String {
-        return "Rewind " + self.secondsToMinutes(PlayerManager.shared.rewindInterval.rounded())
+        return "Rewind " + secondsToMinutes(PlayerManager.shared.rewindInterval.rounded())
     }
 
     public static func fastForwardText() -> String {
-        return "Fast Forward " + self.secondsToMinutes(PlayerManager.shared.forwardInterval.rounded())
+        return "Fast Forward " + secondsToMinutes(PlayerManager.shared.forwardInterval.rounded())
     }
 
     public static func secondsToMinutes(_ interval: TimeInterval) -> String {

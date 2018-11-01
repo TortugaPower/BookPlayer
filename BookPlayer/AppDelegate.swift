@@ -6,10 +6,10 @@
 // Copyright © 2016 Tortuga Power. All rights reserved.
 //
 
-import UIKit
 import AVFoundation
-import MediaPlayer
 import DirectoryWatcher
+import MediaPlayer
+import UIKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -17,7 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var wasPlayingBeforeInterruption: Bool = false
     var watcher: DirectoryWatcher?
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         let defaults: UserDefaults = UserDefaults.standard
 
@@ -31,32 +31,32 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Appearance
         UINavigationBar.appearance().titleTextAttributes = [
-            NSAttributedStringKey.foregroundColor: UIColor.init(hex: "#37454E")
+            NSAttributedStringKey.foregroundColor: UIColor(hex: "#37454E"),
         ]
 
         if #available(iOS 11, *) {
             UINavigationBar.appearance().largeTitleTextAttributes = [
-                NSAttributedStringKey.foregroundColor: UIColor.init(hex: "#37454E")
+                NSAttributedStringKey.foregroundColor: UIColor(hex: "#37454E"),
             ]
         }
 
         try? AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, mode: AVAudioSessionModeSpokenAudio, options: [])
 
         // register to audio-interruption notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioInterruptions(_:)), name: NSNotification.Name.AVAudioSessionInterruption, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleAudioInterruptions(_:)), name: NSNotification.Name.AVAudioSessionInterruption, object: nil)
 
         // register to audio-route-change notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioRouteChange(_:)), name: NSNotification.Name.AVAudioSessionRouteChange, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleAudioRouteChange(_:)), name: NSNotification.Name.AVAudioSessionRouteChange, object: nil)
 
         // register for remote events
-        self.setupMPRemoteCommands()
+        setupMPRemoteCommands()
         // register document's folder listener
-        self.setupDocumentListener()
+        setupDocumentListener()
 
         return true
     }
 
-    func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey: Any] = [:]) -> Bool {
+    func application(_: UIApplication, open url: URL, options _: [UIApplicationOpenURLOptionsKey: Any] = [:]) -> Bool {
         // This function is called when the app is opened with a audio file url,
         // like when receiving files through AirDrop
         DataManager.processFile(at: url)
@@ -64,17 +64,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
-    func applicationWillResignActive(_ application: UIApplication) {
+    func applicationWillResignActive(_: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
     }
 
-    func applicationDidEnterBackground(_ application: UIApplication) {
+    func applicationDidEnterBackground(_: UIApplication) {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
     }
 
-    func applicationWillEnterForeground(_ application: UIApplication) {
+    func applicationWillEnterForeground(_: UIApplication) {
         // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
 
         DispatchQueue.main.async {
@@ -84,7 +84,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 
-    func applicationDidBecomeActive(_ application: UIApplication) {
+    func applicationDidBecomeActive(_: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
 
         // Check if the app is on the PlayerViewController
@@ -97,7 +97,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         NotificationCenter.default.post(name: .requestReview, object: nil)
     }
 
-    func applicationWillTerminate(_ application: UIApplication) {
+    func applicationWillTerminate(_: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
 
@@ -106,7 +106,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         guard let userInfo = notification.userInfo,
             let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
             let type = AVAudioSessionInterruptionType(rawValue: typeValue) else {
-                return
+            return
         }
 
         switch type {
@@ -132,7 +132,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let userInfo = notification.userInfo,
             let reasonValue = userInfo[AVAudioSessionRouteChangeReasonKey] as? UInt,
             let reason = AVAudioSessionRouteChangeReason(rawValue: reasonValue) else {
-                return
+            return
         }
 
         // Pause playback if route changes due to a disconnect
@@ -216,7 +216,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func setupDocumentListener() {
         let documentsUrl = DataManager.getDocumentsFolderURL()
-        self.watcher = DirectoryWatcher.watch(documentsUrl) {
+        watcher = DirectoryWatcher.watch(documentsUrl) {
             DataManager.notifyPendingFiles()
         }
     }

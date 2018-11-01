@@ -6,25 +6,25 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
-import UIKit
 import MarqueeLabelSwift
+import UIKit
 
 class PlayerMetaViewController: PlayerContainerViewController {
-    @IBOutlet private weak var authorLabel: BPMarqueeLabel!
-    @IBOutlet private weak var titleLabel: BPMarqueeLabel!
-    @IBOutlet private weak var chapterLabel: BPMarqueeLabel!
+    @IBOutlet private var authorLabel: BPMarqueeLabel!
+    @IBOutlet private var titleLabel: BPMarqueeLabel!
+    @IBOutlet private var chapterLabel: BPMarqueeLabel!
 
     var book: Book? {
         didSet {
-            self.authorLabel.text = self.book?.author
-            self.titleLabel.text = self.book?.title
+            authorLabel.text = book?.author
+            titleLabel.text = book?.title
 
-            self.titleLabel.textColor = self.book?.artworkColors.primary
-            self.authorLabel.textColor = self.book?.artworkColors.secondary
-            self.chapterLabel.textColor = self.book?.artworkColors.tertiary
+            titleLabel.textColor = book?.artworkColors.primary
+            authorLabel.textColor = book?.artworkColors.secondary
+            chapterLabel.textColor = book?.artworkColors.tertiary
 
-            self.setChapterLabel()
-            self.setAccessibilityLabel()
+            setChapterLabel()
+            setAccessibilityLabel()
         }
     }
 
@@ -33,24 +33,23 @@ class PlayerMetaViewController: PlayerContainerViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onPlayback), name: .bookPlaying, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(onPlayback), name: .bookPlaying, object: nil)
     }
 
     private func setChapterLabel() {
         guard let book = self.book, book.hasChapters, let currentChapter = book.currentChapter else {
-
-            self.chapterLabel.text = ""
-            self.chapterLabel.isEnabled = false
+            chapterLabel.text = ""
+            chapterLabel.isEnabled = false
 
             return
         }
 
-        self.chapterLabel.isEnabled = true
-        self.chapterLabel.text = currentChapter.title != "" ? currentChapter.title : "Chapter \(currentChapter.index) of \(book.chapters?.count ?? 0)"
+        chapterLabel.isEnabled = true
+        chapterLabel.text = currentChapter.title != "" ? currentChapter.title : "Chapter \(currentChapter.index) of \(book.chapters?.count ?? 0)"
     }
 
-    @objc func onPlayback(_ notification: Notification) {
-        self.setChapterLabel()
+    @objc func onPlayback(_: Notification) {
+        setChapterLabel()
     }
 
     private func setAccessibilityLabel() {

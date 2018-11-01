@@ -6,11 +6,11 @@
 //  Copyright © 2017 Tortuga Power. All rights reserved.
 //
 
-import Foundation
 import AVFoundation
-import UIKit
 import CoreData
+import Foundation
 import IDZSwiftCommonCrypto
+import UIKit
 
 class DataManager {
     static let processedFolderName = "Processed"
@@ -25,9 +25,9 @@ class DataManager {
     }
 
     class func getProcessedFolderURL() -> URL {
-        let documentsURL = self.getDocumentsFolderURL()
+        let documentsURL = getDocumentsFolderURL()
 
-        let processedFolderURL = documentsURL.appendingPathComponent(self.processedFolderName)
+        let processedFolderURL = documentsURL.appendingPathComponent(processedFolderName)
 
         if !FileManager.default.fileExists(atPath: processedFolderURL.path) {
             do {
@@ -45,18 +45,19 @@ class DataManager {
     }
 
     // MARK: - Operations
+
     class func start(_ operation: Operation) {
-        self.queue.addOperation(operation)
+        queue.addOperation(operation)
     }
 
     class func isProcessingFiles() -> Bool {
-        return !self.queue.operations.isEmpty
+        return !queue.operations.isEmpty
     }
 
     class func countOfProcessingFiles() -> Int {
         var count = 0
         // swiftlint:disable force_cast
-        for operation in self.queue.operations as! [ImportOperation] {
+        for operation in queue.operations as! [ImportOperation] {
             count += operation.files.count
         }
         // swiftlint:enable force_cast
@@ -64,6 +65,7 @@ class DataManager {
     }
 
     // MARK: - Core Data stack
+
     class func migrateStack() throws {
         let name = "BookPlayer"
         let container = NSPersistentContainer(name: name)
@@ -74,7 +76,7 @@ class DataManager {
 
         let options = [
             NSMigratePersistentStoresAutomaticallyOption: true,
-            NSInferMappingModelAutomaticallyOption: true
+            NSInferMappingModelAutomaticallyOption: true,
         ]
 
         guard let oldStore = try? psc.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: oldStoreUrl, options: options) else {
@@ -82,7 +84,7 @@ class DataManager {
             return
         }
 
-        try psc.migratePersistentStore(oldStore, to: self.storeUrl, options: nil, withType: NSSQLiteStoreType)
+        try psc.migratePersistentStore(oldStore, to: storeUrl, options: nil, withType: NSSQLiteStoreType)
     }
 
     private static var persistentContainer: NSPersistentContainer = {
@@ -97,7 +99,7 @@ class DataManager {
 
         container.persistentStoreDescriptions = [description]
 
-        container.loadPersistentStores(completionHandler: { (_, error) in
+        container.loadPersistentStores(completionHandler: { _, error in
             if let error = error as NSError? {
                 fatalError("Unresolved error \(error), \(error.userInfo)")
             }
@@ -106,8 +108,8 @@ class DataManager {
         return container
     }()
 
-    class func saveContext () {
-        let context = self.persistentContainer.viewContext
+    class func saveContext() {
+        let context = persistentContainer.viewContext
 
         if context.hasChanges {
             do {
@@ -125,12 +127,12 @@ class DataManager {
      Remove file protection for processed folder so that when the app is on the background and the iPhone is locked, autoplay still works
      */
     class func makeFilesPublic() {
-        let processedFolder = self.getProcessedFolderURL()
+        let processedFolder = getProcessedFolderURL()
 
         guard let files = self.getFiles(from: processedFolder) else { return }
 
         for file in files {
-            self.makeFilePublic(file as NSURL)
+            makeFilePublic(file as NSURL)
         }
     }
 
@@ -168,7 +170,7 @@ class DataManager {
      - Parameter origin: File original location
      */
     class func processFile(at origin: URL) {
-        self.processFile(at: origin, destinationFolder: self.getProcessedFolderURL())
+        processFile(at: origin, destinationFolder: getProcessedFolderURL())
     }
 
     /**
@@ -177,24 +179,24 @@ class DataManager {
      - Parameter destinationFolder: File final location
      */
     class func processFile(at origin: URL, destinationFolder: URL) {
-        self.importer.process(origin, destinationFolder: destinationFolder)
+        importer.process(origin, destinationFolder: destinationFolder)
     }
 
     /**
      Find all the files in the documents folder and send notifications about their existence.
      */
     class func notifyPendingFiles() {
-        let documentsFolder = self.getDocumentsFolderURL()
+        let documentsFolder = getDocumentsFolderURL()
 
         // Get reference of all the files located inside the folder
         guard let urls = self.getFiles(from: documentsFolder) else {
             return
         }
 
-        let processedFolder = self.getProcessedFolderURL()
+        let processedFolder = getProcessedFolderURL()
 
         for url in urls {
-            self.processFile(at: url, destinationFolder: processedFolder)
+            processFile(at: url, destinationFolder: processedFolder)
         }
     }
 
@@ -206,7 +208,7 @@ class DataManager {
     class func getLibrary() -> Library {
         var library: Library!
 
-        let context = self.persistentContainer.viewContext
+        let context = persistentContainer.viewContext
         let fetch: NSFetchRequest<Library> = Library.fetchRequest()
 
         do {
@@ -236,23 +238,23 @@ class DataManager {
 
     /**
      Creates a book for each URL and adds it to the specified playlist. If no playlist is specified, it will be added to the library.
-     
+
      A book can't be in two places at once, so if it already existed, it will be removed from the original playlist or library, and it will be added to the new one.
-     
+
      - Parameter files: `Book`s will be created for each element in this array
      - Parameter playlist: `Playlist` to which the created `Book` will be added
      - Parameter library: `Library` to which the created `Book` will be added if the parameter `playlist` is nil
      - Parameter completion: Closure fired after processing all the urls.
      */
-    class func insertBooks(from files: [FileItem], into playlist: Playlist?, or library: Library, completion:@escaping () -> Void) {
-        let context = self.persistentContainer.viewContext
+    class func insertBooks(from files: [FileItem], into playlist: Playlist?, or library: Library, completion: @escaping () -> Void) {
+        let context = persistentContainer.viewContext
 
         for file in files {
             // TODO: do something about unprocessed URLs
             guard let url = file.processedUrl else { continue }
 
             // Check if book exists in the library
-            guard  let item = library.getItem(with: url) else {
+            guard let item = library.getItem(with: url) else {
                 let book = Book(from: file, context: context)
 
                 if let playlist = playlist {
@@ -266,16 +268,16 @@ class DataManager {
 
             guard let storedPlaylist = item as? Playlist,
                 let storedBook = storedPlaylist.getBook(with: url) else {
-                    // swiftlint:disable force_cast
-                    // Handle if item is a book
-                    let storedBook = item as! Book
+                // swiftlint:disable force_cast
+                // Handle if item is a book
+                let storedBook = item as! Book
 
-                    if let playlist = playlist {
-                        library.removeFromItems(storedBook)
-                        playlist.addToBooks(storedBook)
-                    }
+                if let playlist = playlist {
+                    library.removeFromItems(storedBook)
+                    playlist.addToBooks(storedBook)
+                }
 
-                    continue
+                continue
             }
 
             // Handle if book already exists in the library
@@ -286,10 +288,9 @@ class DataManager {
             } else {
                 library.addToItems(storedBook)
             }
-
         }
 
-        self.saveContext()
+        saveContext()
 
         DispatchQueue.main.async {
             completion()
@@ -298,42 +299,42 @@ class DataManager {
 
     /**
      Creates a book for each URL and adds it to the library. A book can't be in two places at once, so it will be removed if it already existed in a playlist.
-     
+
      - Parameter bookUrls: `Book`s will be created for each element in this array
      - Parameter library: `Library` to which the created `Book` will be added
      - Parameter completion: Closure fired after processing all the urls.
      */
-    class func insertBooks(from files: [FileItem], into library: Library, completion:@escaping () -> Void) {
-        self.insertBooks(from: files, into: nil, or: library, completion: completion)
+    class func insertBooks(from files: [FileItem], into library: Library, completion: @escaping () -> Void) {
+        insertBooks(from: files, into: nil, or: library, completion: completion)
     }
 
     /**
      Creates a book for each URL and adds it to the specified playlist. A book can't be in two places at once, so it will be removed from the library if it already existed.
-     
+
      - Parameter bookUrls: `Book`s will be created for each element in this array
      - Parameter playlist: `Playlist` to which the created `Book` will be added
      - Parameter completion: Closure fired after processing all the urls.
      */
-    class func insertBooks(from files: [FileItem], into playlist: Playlist, completion:@escaping () -> Void) {
-        self.insertBooks(from: files, into: playlist, or: playlist.library!, completion: completion)
+    class func insertBooks(from files: [FileItem], into playlist: Playlist, completion: @escaping () -> Void) {
+        insertBooks(from: files, into: playlist, or: playlist.library!, completion: completion)
     }
 
     class func createPlaylist(title: String, books: [Book]) -> Playlist {
-        return Playlist(title: title, books: books, context: self.persistentContainer.viewContext)
+        return Playlist(title: title, books: books, context: persistentContainer.viewContext)
     }
 
     class func createBook(from file: FileItem) -> Book {
-        return Book(from: file, context: self.persistentContainer.viewContext)
+        return Book(from: file, context: persistentContainer.viewContext)
     }
 
     internal class func insert(_ playlist: Playlist, into library: Library) {
         library.addToItems(playlist)
-        self.saveContext()
+        saveContext()
     }
 
     class func delete(_ item: NSManagedObject) {
-        self.persistentContainer.viewContext.delete(item)
-        self.saveContext()
+        persistentContainer.viewContext.delete(item)
+        saveContext()
     }
 
     class func exists(_ book: Book) -> Bool {

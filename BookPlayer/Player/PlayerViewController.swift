@@ -6,22 +6,22 @@
 //  Copyright © 2016 Tortuga Power. All rights reserved.
 //
 
-import UIKit
 import AVFoundation
+import AVKit
 import MediaPlayer
 import StoreKit
-import AVKit
+import UIKit
 
 class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
-    @IBOutlet private weak var closeButton: UIButton!
-    @IBOutlet private weak var closeButtonTop: NSLayoutConstraint!
-    @IBOutlet private weak var bottomToolbar: UIToolbar!
-    @IBOutlet private weak var speedButton: UIBarButtonItem!
-    @IBOutlet private weak var sleepButton: UIBarButtonItem!
+    @IBOutlet private var closeButton: UIButton!
+    @IBOutlet private var closeButtonTop: NSLayoutConstraint!
+    @IBOutlet private var bottomToolbar: UIToolbar!
+    @IBOutlet private var speedButton: UIBarButtonItem!
+    @IBOutlet private var sleepButton: UIBarButtonItem!
     @IBOutlet private var sleepLabel: UIBarButtonItem!
-    @IBOutlet private weak var chaptersButton: UIBarButtonItem!
-    @IBOutlet private weak var moreButton: UIBarButtonItem!
-    @IBOutlet private weak var backgroundImage: UIImageView!
+    @IBOutlet private var chaptersButton: UIBarButtonItem!
+    @IBOutlet private var moreButton: UIBarButtonItem!
+    @IBOutlet private var backgroundImage: UIImageView!
 
     var currentBook: Book!
     private let timerIcon: UIImage = UIImage(named: "toolbarIconTimer")!
@@ -34,20 +34,19 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
     // MARK: - Lifecycle
 
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    override func prepare(for segue: UIStoryboardSegue, sender _: Any?) {
         if let viewController = segue.destination as? PlayerControlsViewController {
-            self.controlsViewController = viewController
+            controlsViewController = viewController
         }
 
         if let viewController = segue.destination as? PlayerMetaViewController {
-            self.metaViewController = viewController
+            metaViewController = viewController
         }
 
         if let navigationController = segue.destination as? UINavigationController,
             let viewController = navigationController.viewControllers.first as? ChaptersViewController,
             let currentChapter = self.currentBook.currentChapter {
-
-            viewController.chapters = self.currentBook.chapters?.array as? [Chapter]
+            viewController.chapters = currentBook.chapters?.array as? [Chapter]
             viewController.currentChapter = currentChapter
             viewController.didSelectChapter = { selectedChapter in
                 // Don't set the chapter, set the new time which will set the chapter in didSet
@@ -55,7 +54,6 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
                 PlayerManager.shared.jumpTo(selectedChapter.start + 0.01)
             }
         }
-
     }
 
     // Prevents dragging the view down from changing the safeAreaInsets.top
@@ -76,41 +74,41 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
         super.viewDidLoad()
 
-        self.setupView(book: self.currentBook!)
+        setupView(book: currentBook!)
 
         // Make toolbar transparent
-        self.bottomToolbar.setBackgroundImage(UIImage(), forToolbarPosition: .any, barMetrics: .default)
-        self.bottomToolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
-        self.sleepLabel.title = ""
-        self.speedButton.setTitleTextAttributes([NSAttributedStringKey.font: UIFont.systemFont(ofSize: 18.0, weight: .semibold)], for: .normal)
+        bottomToolbar.setBackgroundImage(UIImage(), forToolbarPosition: .any, barMetrics: .default)
+        bottomToolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
+        sleepLabel.title = ""
+        speedButton.setTitleTextAttributes([NSAttributedStringKey.font: UIFont.systemFont(ofSize: 18.0, weight: .semibold)], for: .normal)
 
         // Observers
-        NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: .requestReview, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: .bookEnd, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: .bookChange, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(requestReview), name: .requestReview, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(requestReview), name: .bookEnd, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(bookChange(_:)), name: .bookChange, object: nil)
 
         // Gestures
-        self.pan = UIPanGestureRecognizer(target: self, action: #selector(panAction))
-        self.pan.delegate = self
-        self.pan.maximumNumberOfTouches = 1
-        self.pan.cancelsTouchesInView = true
+        pan = UIPanGestureRecognizer(target: self, action: #selector(panAction))
+        pan.delegate = self
+        pan.maximumNumberOfTouches = 1
+        pan.cancelsTouchesInView = true
 
-        self.view.addGestureRecognizer(self.pan)
+        view.addGestureRecognizer(pan)
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        self.controlsViewController?.showPlayPauseButton(animated)
+        controlsViewController?.showPlayPauseButton(animated)
     }
 
-    override func viewDidAppear(_ animated: Bool) {
+    override func viewDidAppear(_: Bool) {
         if UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue) {
             UIApplication.shared.isIdleTimerDisabled = true
         }
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
+    override func viewWillDisappear(_: Bool) {
         UIApplication.shared.isIdleTimerDisabled = false
     }
 
@@ -119,20 +117,20 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     func setupView(book currentBook: Book) {
-        self.metaViewController?.book = currentBook
-        self.controlsViewController?.book = currentBook
+        metaViewController?.book = currentBook
+        controlsViewController?.book = currentBook
 
-        self.speedButton.title = self.formatSpeed(PlayerManager.shared.speed)
-        self.speedButton.accessibilityLabel = String(describing: self.formatSpeed(PlayerManager.shared.speed) + " speed")
+        speedButton.title = formatSpeed(PlayerManager.shared.speed)
+        speedButton.accessibilityLabel = String(describing: formatSpeed(PlayerManager.shared.speed) + " speed")
 
-        self.view.backgroundColor = currentBook.artworkColors.background
-        self.bottomToolbar.tintColor = currentBook.artworkColors.secondary
-        self.closeButton.tintColor = currentBook.artworkColors.secondary
+        view.backgroundColor = currentBook.artworkColors.background
+        bottomToolbar.tintColor = currentBook.artworkColors.secondary
+        closeButton.tintColor = currentBook.artworkColors.secondary
 
-        self.updateToolbar()
+        updateToolbar()
 
         if currentBook.usesDefaultArtwork {
-            self.backgroundImage.isHidden = true
+            backgroundImage.isHidden = true
 
             return
         }
@@ -140,19 +138,19 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         let blur = UIBlurEffect(style: currentBook.artworkColors.displayOnDark ? UIBlurEffectStyle.dark : UIBlurEffectStyle.light)
         let blurView = UIVisualEffectView(effect: blur)
 
-        blurView.frame = self.view.bounds
+        blurView.frame = view.bounds
 
-        self.backgroundImage.addSubview(blurView)
-        self.backgroundImage.image = currentBook.artwork
+        backgroundImage.addSubview(blurView)
+        backgroundImage.image = currentBook.artwork
 
         // Apply the blurred view in relation to the brightness and luminance of the background color.
         // This makes darker backgrounds stay interesting
-        self.backgroundImage.alpha = 0.1 + min((1 - currentBook.artworkColors.background.luminance) * (1 - currentBook.artworkColors.background.brightness), 0.7)
+        backgroundImage.alpha = 0.1 + min((1 - currentBook.artworkColors.background.luminance) * (1 - currentBook.artworkColors.background.brightness), 0.7)
 
         // Solution thanks to https://forums.developer.apple.com/thread/63166#180445
-        self.modalPresentationCapturesStatusBarAppearance = true
+        modalPresentationCapturesStatusBarAppearance = true
 
-        self.setNeedsStatusBarAppearanceUpdate()
+        setNeedsStatusBarAppearanceUpdate()
     }
 
     func updateToolbar(_ showTimerLabel: Bool = false, animated: Bool = false) {
@@ -161,16 +159,16 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         var items: [UIBarButtonItem] = [
             self.speedButton,
             spacer,
-            self.sleepButton
+            self.sleepButton,
         ]
 
         if showTimerLabel {
-            items.append(self.sleepLabel)
+            items.append(sleepLabel)
         }
 
         if currentBook.hasChapters {
             items.append(spacer)
-            items.append(self.chaptersButton)
+            items.append(chaptersButton)
         }
 
         if #available(iOS 11, *) {
@@ -187,9 +185,9 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         }
 
         items.append(spacer)
-        items.append(self.moreButton)
+        items.append(moreButton)
 
-        self.bottomToolbar.setItems(items, animated: animated)
+        bottomToolbar.setItems(items, animated: animated)
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -199,7 +197,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     // MARK: - Interface actions
 
     @IBAction func dismissPlayer() {
-        self.dismiss(animated: true, completion: nil)
+        dismiss(animated: true, completion: nil)
 
         NotificationCenter.default.post(name: .playerDismissed, object: nil, userInfo: nil)
     }
@@ -223,7 +221,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
         actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
 
-        self.present(actionSheet, animated: true, completion: nil)
+        present(actionSheet, animated: true, completion: nil)
     }
 
     @IBAction func setSleepTimer() {
@@ -247,7 +245,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             }
         )
 
-        self.present(actionSheet, animated: true, completion: nil)
+        present(actionSheet, animated: true, completion: nil)
     }
 
     @IBAction func showMore() {
@@ -272,7 +270,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
         actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
 
-        self.present(actionSheet, animated: true, completion: nil)
+        present(actionSheet, animated: true, completion: nil)
     }
 
     // MARK: - Other Methods
@@ -301,63 +299,63 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             return
         }
 
-        self.currentBook = book
+        currentBook = book
 
-        self.setupView(book: book)
+        setupView(book: book)
     }
 
     // MARK: - Gesture recognizers
 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        if gestureRecognizer == self.pan {
-            return limitPanAngle(self.pan, degreesOfFreedom: 45.0, comparator: .greaterThan)
+        if gestureRecognizer == pan {
+            return limitPanAngle(pan, degreesOfFreedom: 45.0, comparator: .greaterThan)
         }
 
         return true
     }
 
     private func updatePresentedViewForTranslation(_ yTranslation: CGFloat) {
-        let translation: CGFloat = rubberBandDistance(yTranslation, dimension: self.view.frame.height, constant: 0.55)
+        let translation: CGFloat = rubberBandDistance(yTranslation, dimension: view.frame.height, constant: 0.55)
 
-        self.view?.transform = CGAffineTransform(translationX: 0, y: max(translation, 0.0))
+        view?.transform = CGAffineTransform(translationX: 0, y: max(translation, 0.0))
     }
 
     @objc private func panAction(gestureRecognizer: UIPanGestureRecognizer) {
-        guard gestureRecognizer.isEqual(self.pan) else {
+        guard gestureRecognizer.isEqual(pan) else {
             return
         }
 
         switch gestureRecognizer.state {
-            case .began:
-                gestureRecognizer.setTranslation(CGPoint(x: 0, y: 0), in: self.view.superview)
+        case .began:
+            gestureRecognizer.setTranslation(CGPoint(x: 0, y: 0), in: view.superview)
 
-            case .changed:
-                let translation = gestureRecognizer.translation(in: self.view)
+        case .changed:
+            let translation = gestureRecognizer.translation(in: view)
 
-                self.updatePresentedViewForTranslation(translation.y)
+            updatePresentedViewForTranslation(translation.y)
 
-            case .ended, .cancelled, .failed:
-                let dismissThreshold: CGFloat = 44.0 * UIScreen.main.nativeScale
-                let translation = gestureRecognizer.translation(in: self.view)
+        case .ended, .cancelled, .failed:
+            let dismissThreshold: CGFloat = 44.0 * UIScreen.main.nativeScale
+            let translation = gestureRecognizer.translation(in: view)
 
-                if translation.y > dismissThreshold {
-                    self.dismissPlayer()
+            if translation.y > dismissThreshold {
+                dismissPlayer()
 
-                    return
+                return
+            }
+
+            UIView.animate(
+                withDuration: 0.3,
+                delay: 0.0,
+                usingSpringWithDamping: 0.75,
+                initialSpringVelocity: 1.5,
+                options: .preferredFramesPerSecond60,
+                animations: {
+                    self.view?.transform = .identity
                 }
+            )
 
-                UIView.animate(
-                    withDuration: 0.3,
-                    delay: 0.0,
-                    usingSpringWithDamping: 0.75,
-                    initialSpringVelocity: 1.5,
-                    options: .preferredFramesPerSecond60,
-                    animations: {
-                        self.view?.transform = .identity
-                    }
-                )
-
-            default: break
+        default: break
         }
     }
 

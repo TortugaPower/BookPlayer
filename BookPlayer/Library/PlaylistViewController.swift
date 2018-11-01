@@ -18,25 +18,25 @@ class PlaylistViewController: BaseListViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.toggleEmptyStateView()
+        toggleEmptyStateView()
 
-        self.navigationItem.title = self.playlist.title
+        navigationItem.title = playlist.title
     }
 
     override func handleOperationCompletion(_ files: [FileItem]) {
-        DataManager.insertBooks(from: files, into: self.playlist) {
+        DataManager.insertBooks(from: files, into: playlist) {
             self.reloadData()
         }
 
         guard files.count > 1 else {
-            self.showLoadView(false)
+            showLoadView(false)
             NotificationCenter.default.post(name: .reloadData, object: nil)
             return
         }
 
         let alert = UIAlertController(title: "Import \(files.count) files into", message: nil, preferredStyle: .alert)
 
-        alert.addAction(UIAlertAction(title: "Library", style: .default) { (_) in
+        alert.addAction(UIAlertAction(title: "Library", style: .default) { _ in
             DataManager.insertBooks(from: files, into: self.library) {
                 self.showLoadView(false)
                 self.reloadData()
@@ -44,12 +44,12 @@ class PlaylistViewController: BaseListViewController {
             }
         })
 
-        alert.addAction(UIAlertAction(title: "Current Playlist", style: .default) { (_) in
+        alert.addAction(UIAlertAction(title: "Current Playlist", style: .default) { _ in
             self.showLoadView(false)
             NotificationCenter.default.post(name: .reloadData, object: nil)
         })
 
-        let vc = self.presentedViewController ?? self
+        let vc = presentedViewController ?? self
 
         vc.present(alert, animated: true, completion: nil)
     }
@@ -97,10 +97,11 @@ class PlaylistViewController: BaseListViewController {
     // MARK: - IBActions
 
     @IBAction func addAction() {
-        self.presentImportFilesAlert()
+        presentImportFilesAlert()
     }
 
     // MARK: - Methods
+
     override func sort(by sortType: PlayListSortOrder) throws {
         try playlist.sort(by: sortType)
     }
@@ -109,7 +110,7 @@ class PlaylistViewController: BaseListViewController {
 // MARK: - DocumentPicker Delegate
 
 extension PlaylistViewController {
-    override func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+    override func documentPicker(_: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         for url in urls {
             // context put in playlist
             DataManager.processFile(at: url)
@@ -151,7 +152,7 @@ extension PlaylistViewController {
 
         guard indexPath.sectionValue == .library else {
             if indexPath.sectionValue == .add {
-                self.presentImportFilesAlert()
+                presentImportFilesAlert()
             }
 
             return
@@ -159,15 +160,15 @@ extension PlaylistViewController {
 
         guard let book = self.items[indexPath.row] as? Book else { return }
 
-        self.setupPlayer(book: book)
+        setupPlayer(book: book)
     }
 
-    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+    func tableView(_: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
         guard indexPath.sectionValue == .library, let book = self.items[indexPath.row] as? Book else {
             return nil
         }
 
-        let deleteAction = UITableViewRowAction(style: .default, title: "Options") { (_, indexPath) in
+        let deleteAction = UITableViewRowAction(style: .default, title: "Options") { _, indexPath in
             let sheet = UIAlertController(title: "\(book.title!)", message: nil, preferredStyle: .alert)
 
             sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
@@ -222,7 +223,7 @@ extension PlaylistViewController {
 // MARK: - Reorder Delegate
 
 extension PlaylistViewController {
-    override func tableView(_ tableView: UITableView, reorderRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+    override func tableView(_: UITableView, reorderRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         guard destinationIndexPath.sectionValue == .library else {
             return
         }

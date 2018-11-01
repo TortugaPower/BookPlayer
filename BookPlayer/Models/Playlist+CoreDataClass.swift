@@ -16,7 +16,7 @@ public class Playlist: LibraryItem {
 
     override var artwork: UIImage {
         guard let books = self.books?.array as? [Book], let book = books.first(where: { (book) -> Bool in
-            return !book.usesDefaultArtwork
+            !book.usesDefaultArtwork
         }) else {
             return #imageLiteral(resourceName: "defaultPlaylist")
         }
@@ -34,11 +34,11 @@ public class Playlist: LibraryItem {
         let entity = NSEntityDescription.entity(forEntityName: "Playlist", in: context)!
 
         self.init(entity: entity, insertInto: context)
-        self.identifier = title
+        identifier = title
         self.title = title
-        self.originalFileName = title
-        self.desc = "\(books.count) Files"
-        self.addToBooks(NSOrderedSet(array: books))
+        originalFileName = title
+        desc = "\(books.count) Files"
+        addToBooks(NSOrderedSet(array: books))
     }
 
     // MARK: - Methods
@@ -92,7 +92,7 @@ public class Playlist: LibraryItem {
     func itemIndex(with url: URL) -> Int? {
         let hash = url.lastPathComponent
 
-        return self.itemIndex(with: hash)
+        return itemIndex(with: hash)
     }
 
     func itemIndex(with identifier: String) -> Int? {
@@ -118,7 +118,7 @@ public class Playlist: LibraryItem {
             return nil
         }
 
-        return self.getBook(at: index)
+        return getBook(at: index)
     }
 
     func getBook(with identifier: String) -> Book? {
@@ -126,7 +126,7 @@ public class Playlist: LibraryItem {
             return nil
         }
 
-        return self.getBook(at: index)
+        return getBook(at: index)
     }
 
     override func getBookToPlay() -> Book? {
@@ -160,7 +160,7 @@ public class Playlist: LibraryItem {
     }
 
     func info() -> String {
-        let count = self.books?.array.count ?? 0
+        let count = books?.array.count ?? 0
 
         return "\(count) Files"
     }
@@ -169,7 +169,7 @@ public class Playlist: LibraryItem {
 extension Playlist: Sortable {
     func sort(by sortType: PlayListSortOrder) throws {
         guard let books = books else { return }
-        self.books      = try BookSortService.sort(books, by: sortType)
+        self.books = try BookSortService.sort(books, by: sortType)
         DataManager.saveContext()
     }
 }

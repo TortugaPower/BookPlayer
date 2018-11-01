@@ -13,11 +13,11 @@ import Foundation
 
 public class Book: LibraryItem {
     var fileURL: URL {
-        return DataManager.getProcessedFolderURL().appendingPathComponent(self.identifier)
+        return DataManager.getProcessedFolderURL().appendingPathComponent(identifier)
     }
 
     var filename: String {
-        return self.title + "." + self.ext
+        return title + "." + ext
     }
 
     var currentChapter: Chapter? {
@@ -25,7 +25,7 @@ public class Book: LibraryItem {
             return nil
         }
 
-        for chapter in chapters where chapter.start <= self.currentTime && chapter.end > self.currentTime {
+        for chapter in chapters where chapter.start <= currentTime && chapter.end > currentTime {
             return chapter
         }
 
@@ -33,15 +33,15 @@ public class Book: LibraryItem {
     }
 
     var displayTitle: String {
-        return self.title
+        return title
     }
 
     var progress: Double {
-        return self.currentTime / self.duration
+        return currentTime / duration
     }
 
     var percentage: Double {
-        return round(self.progress * 100)
+        return round(progress * 100)
     }
 
     var hasChapters: Bool {
@@ -51,7 +51,7 @@ public class Book: LibraryItem {
     // TODO: This is a makeshift version of a proper completion property.
     // See https://github.com/TortugaPower/BookPlayer/issues/201
     override var isCompleted: Bool {
-        return Int(round(self.currentTime)) == Int(round(self.duration))
+        return Int(round(currentTime)) == Int(round(duration))
     }
 
     func setChapters(from asset: AVAsset, context: NSManagedObjectContext) {
@@ -71,7 +71,7 @@ public class Book: LibraryItem {
                 chapter.duration = CMTimeGetSeconds(chapterMetadata.timeRange.duration)
                 chapter.index = Int16(chapterIndex)
 
-                self.addToChapters(chapter)
+                addToChapters(chapter)
             }
         }
     }
@@ -80,37 +80,37 @@ public class Book: LibraryItem {
         let entity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
         self.init(entity: entity, insertInto: context)
         let fileURL = bookUrl.processedUrl!
-        self.ext = fileURL.pathExtension
-        self.identifier = fileURL.lastPathComponent
+        ext = fileURL.pathExtension
+        identifier = fileURL.lastPathComponent
         let asset = AVAsset(url: fileURL)
 
         let titleFromMeta = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyTitle, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String
         let authorFromMeta = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtist, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String
 
-        self.title = titleFromMeta ?? bookUrl.originalUrl.lastPathComponent.replacingOccurrences(of: "_", with: " ")
-        self.author = authorFromMeta ?? "Unknown Author"
-        self.duration = CMTimeGetSeconds(asset.duration)
-        self.originalFileName = bookUrl.originalUrl.lastPathComponent
+        title = titleFromMeta ?? bookUrl.originalUrl.lastPathComponent.replacingOccurrences(of: "_", with: " ")
+        author = authorFromMeta ?? "Unknown Author"
+        duration = CMTimeGetSeconds(asset.duration)
+        originalFileName = bookUrl.originalUrl.lastPathComponent
 
         var colors: ArtworkColors!
         if let data = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtwork, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? NSData {
-            self.artworkData = data
-            colors = ArtworkColors(from: self.artwork, context: context)
+            artworkData = data
+            colors = ArtworkColors(from: artwork, context: context)
         } else {
             colors = ArtworkColors(context: context)
-            self.usesDefaultArtwork = true
+            usesDefaultArtwork = true
         }
 
-        self.artworkColors = colors
+        artworkColors = colors
 
-        self.setChapters(from: asset, context: context)
+        setChapters(from: asset, context: context)
 
         let legacyIdentifier = bookUrl.originalUrl.lastPathComponent
         let storedTime = UserDefaults.standard.double(forKey: legacyIdentifier)
 
         // migration of time
         if storedTime > 0 {
-            self.currentTime = storedTime
+            currentTime = storedTime
             UserDefaults.standard.removeObject(forKey: legacyIdentifier)
         }
     }
@@ -130,7 +130,7 @@ public class Book: LibraryItem {
             return nil
         }
 
-        let item = self.playlist ?? self
+        let item = playlist ?? self
 
         guard let nextItem = item.library?.getNextItem(after: item) else { return nil }
 

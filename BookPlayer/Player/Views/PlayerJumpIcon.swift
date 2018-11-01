@@ -30,34 +30,34 @@ class PlayerJumpIcon: UIView {
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
 
-        self.setup()
+        setup()
     }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        self.setup()
+        setup()
     }
 
     fileprivate func setup() {
-        self.backgroundColor = .clear
+        backgroundColor = .clear
 
-        self.backgroundImageView = UIImageView(image: self.backgroundImage)
-        self.backgroundImageView.tintColor = self.tintColor
+        backgroundImageView = UIImageView(image: backgroundImage)
+        backgroundImageView.tintColor = tintColor
 
-        self.label = UILabel()
-        self.label.allowsDefaultTighteningForTruncation = true
-        self.label.adjustsFontSizeToFitWidth = true
-        self.label.font = UIFont.systemFont(ofSize: 14.0, weight: .bold)
-        self.label.textAlignment = .center
-        self.label.textColor = self.tintColor
+        label = UILabel()
+        label.allowsDefaultTighteningForTruncation = true
+        label.adjustsFontSizeToFitWidth = true
+        label.font = UIFont.systemFont(ofSize: 14.0, weight: .bold)
+        label.textAlignment = .center
+        label.textColor = tintColor
 
-        self.addSubview(self.backgroundImageView)
-        self.addSubview(self.label)
+        addSubview(backgroundImageView)
+        addSubview(label)
     }
 
     override func layoutSubviews() {
-        self.label.frame = self.bounds.insetBy(dx: 10.0, dy: 10.0)
+        label.frame = bounds.insetBy(dx: 10.0, dy: 10.0)
     }
 }
 
@@ -74,9 +74,8 @@ class PlayerJumpIconForward: PlayerJumpIcon {
     override func setup() {
         super.setup()
 
-        self.title = "+\(Int(PlayerManager.shared.forwardInterval.rounded()))s"
+        title = "+\(Int(PlayerManager.shared.forwardInterval.rounded()))s"
     }
-
 }
 
 class PlayerJumpIconRewind: PlayerJumpIcon {
@@ -92,6 +91,6 @@ class PlayerJumpIconRewind: PlayerJumpIcon {
     override func setup() {
         super.setup()
 
-        self.title = "−\(Int(PlayerManager.shared.rewindInterval.rounded()))s"
+        title = "−\(Int(PlayerManager.shared.rewindInterval.rounded()))s"
     }
 }

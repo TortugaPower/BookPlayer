@@ -6,8 +6,8 @@
 // Copyright © 2016 Tortuga Power. All rights reserved.
 //
 
-import UIKit
 import MediaPlayer
+import UIKit
 
 class ChaptersViewController: UITableViewController {
     var chapters: [Chapter]!
@@ -18,42 +18,42 @@ class ChaptersViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.tableView.tableFooterView = UIView()
-        self.tableView.reloadData()
+        tableView.tableFooterView = UIView()
+        tableView.reloadData()
     }
 
-    @IBAction func done(_ sender: UIBarButtonItem?) {
-        self.dismiss(animated: true, completion: nil)
+    @IBAction func done(_: UIBarButtonItem?) {
+        dismiss(animated: true, completion: nil)
     }
 
     // MARK: - Table view data source
 
-    override func numberOfSections(in tableView: UITableView) -> Int {
+    override func numberOfSections(in _: UITableView) -> Int {
         return 1
     }
 
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.chapters.count
+    override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
+        return chapters.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ChapterCell", for: indexPath)
-        let chapter = self.chapters[indexPath.row]
+        let chapter = chapters[indexPath.row]
 
         cell.textLabel?.text = chapter.title == "" ? "Chapter \(indexPath.row + 1)" : chapter.title
-        cell.detailTextLabel?.text = "Start: \(self.formatTime(chapter.start)) - Duration: \(self.formatTime(chapter.duration))"
+        cell.detailTextLabel?.text = "Start: \(formatTime(chapter.start)) - Duration: \(formatTime(chapter.duration))"
         cell.accessoryType = .none
 
-        if self.currentChapter.index == chapter.index {
+        if currentChapter.index == chapter.index {
             cell.accessoryType = .checkmark
         }
 
         return cell
     }
 
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.didSelectChapter?(self.chapters[indexPath.row])
+    override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
+        didSelectChapter?(chapters[indexPath.row])
 
-        self.done(nil)
+        done(nil)
     }
 }

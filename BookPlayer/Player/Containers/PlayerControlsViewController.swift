@@ -9,12 +9,12 @@
 import UIKit
 
 class PlayerControlsViewController: PlayerContainerViewController, UIGestureRecognizerDelegate {
-    @IBOutlet private weak var artworkControl: ArtworkControl!
-    @IBOutlet private weak var artworkHorizontal: NSLayoutConstraint!
-    @IBOutlet private weak var progressSlider: ProgressSlider!
-    @IBOutlet private weak var currentTimeLabel: UILabel!
-    @IBOutlet private weak var maxTimeButton: UIButton!
-    @IBOutlet private weak var progressButton: UIButton!
+    @IBOutlet private var artworkControl: ArtworkControl!
+    @IBOutlet private var artworkHorizontal: NSLayoutConstraint!
+    @IBOutlet private var progressSlider: ProgressSlider!
+    @IBOutlet private var currentTimeLabel: UILabel!
+    @IBOutlet private var maxTimeButton: UIButton!
+    @IBOutlet private var progressButton: UIButton!
 
     var book: Book? {
         didSet {
@@ -22,19 +22,19 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
                 return
             }
 
-            self.artworkControl.artwork = book.artwork
-            self.artworkControl.shadowOpacity = 0.1 + (1.0 - book.artworkColors.background.brightness) * 0.3
-            self.artworkControl.iconColor = book.artworkColors.tertiary
-            self.artworkControl.borderColor = book.artworkColors.tertiary
+            artworkControl.artwork = book.artwork
+            artworkControl.shadowOpacity = 0.1 + (1.0 - book.artworkColors.background.brightness) * 0.3
+            artworkControl.iconColor = book.artworkColors.tertiary
+            artworkControl.borderColor = book.artworkColors.tertiary
 
-            self.progressSlider.minimumTrackTintColor = book.artworkColors.tertiary
-            self.progressSlider.maximumTrackTintColor = book.artworkColors.tertiary.withAlpha(newAlpha: 0.3)
+            progressSlider.minimumTrackTintColor = book.artworkColors.tertiary
+            progressSlider.maximumTrackTintColor = book.artworkColors.tertiary.withAlpha(newAlpha: 0.3)
 
-            self.currentTimeLabel.textColor = book.artworkColors.tertiary
-            self.maxTimeButton.setTitleColor(book.artworkColors.tertiary, for: .normal)
-            self.progressButton.setTitleColor(book.artworkColors.primary, for: .normal)
+            currentTimeLabel.textColor = book.artworkColors.tertiary
+            maxTimeButton.setTitleColor(book.artworkColors.tertiary, for: .normal)
+            progressButton.setTitleColor(book.artworkColors.primary, for: .normal)
 
-            self.setProgress()
+            setProgress()
         }
     }
 
@@ -44,10 +44,10 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         }
 
         guard
-            self.prefersChapterContext,
+            prefersChapterContext,
             book.hasChapters,
             let start = book.currentChapter?.start else {
-                return book.currentTime
+            return book.currentTime
         }
 
         return book.currentTime - start
@@ -59,17 +59,17 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         }
 
         guard
-            self.prefersChapterContext,
+            prefersChapterContext,
             book.hasChapters,
             let duration = book.currentChapter?.duration else {
-                let time = self.prefersRemainingTime
-                    ? self.currentTimeInContext - book.duration
-                    : book.duration
-                return time
+            let time = prefersRemainingTime
+                ? currentTimeInContext - book.duration
+                : book.duration
+            return time
         }
 
-        let time = self.prefersRemainingTime
-            ? self.currentTimeInContext - duration
+        let time = prefersRemainingTime
+            ? currentTimeInContext - duration
             : duration
 
         return time
@@ -81,10 +81,10 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         }
 
         guard
-            self.prefersChapterContext,
+            prefersChapterContext,
             book.hasChapters,
             let duration = book.currentChapter?.duration else {
-                return book.duration
+            return book.duration
         }
 
         return duration
@@ -92,7 +92,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
     private var artworkJumpControlsUsed: Bool = false {
         didSet {
-            UserDefaults.standard.set(self.artworkJumpControlsUsed, forKey: Constants.UserDefaults.artworkJumpControlsUsed.rawValue)
+            UserDefaults.standard.set(artworkJumpControlsUsed, forKey: Constants.UserDefaults.artworkJumpControlsUsed.rawValue)
         }
     }
 
@@ -105,17 +105,17 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.artworkJumpControlsUsed = UserDefaults.standard.bool(forKey: Constants.UserDefaults.artworkJumpControlsUsed.rawValue)
+        artworkJumpControlsUsed = UserDefaults.standard.bool(forKey: Constants.UserDefaults.artworkJumpControlsUsed.rawValue)
 
-        self.artworkControl.isPlaying = PlayerManager.shared.isPlaying
+        artworkControl.isPlaying = PlayerManager.shared.isPlaying
 
-        self.artworkControl.onPlayPause = { control in
+        artworkControl.onPlayPause = { control in
             PlayerManager.shared.playPause()
 
             control.isPlaying = PlayerManager.shared.isPlaying
         }
 
-        self.artworkControl.onRewind = { _ in
+        artworkControl.onRewind = { _ in
             PlayerManager.shared.rewind()
 
             if !self.artworkJumpControlsUsed {
@@ -123,7 +123,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
             }
         }
 
-        self.artworkControl.onForward = { _ in
+        artworkControl.onForward = { _ in
             PlayerManager.shared.forward()
 
             if !self.artworkJumpControlsUsed {
@@ -131,84 +131,84 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
             }
         }
 
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPlay), name: .bookPlayed, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: .bookPaused, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: .bookEnd, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onPlayback), name: .bookPlaying, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(onBookPlay), name: .bookPlayed, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(onBookPause), name: .bookPaused, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(onBookPause), name: .bookEnd, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(onPlayback), name: .bookPlaying, object: nil)
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        if !self.artworkJumpControlsUsed {
-            self.artworkControl.nudgeArtworkViewAnimated(0.5, duration: 0.3)
+        if !artworkJumpControlsUsed {
+            artworkControl.nudgeArtworkViewAnimated(0.5, duration: 0.3)
         }
     }
 
     // MARK: - Notification Handlers
 
     @objc func onPlayback() {
-        self.setProgress()
+        setProgress()
     }
 
     @objc private func onBookPlay() {
-        self.artworkControl.isPlaying = true
+        artworkControl.isPlaying = true
     }
 
     @objc private func onBookPause() {
-        self.artworkControl.isPlaying = false
+        artworkControl.isPlaying = false
     }
 
     // MARK: - Public API
 
     func showPlayPauseButton(_ animated: Bool = true) {
-        self.artworkControl.showPlayPauseButton(animated)
+        artworkControl.showPlayPauseButton(animated)
     }
 
     // MARK: - Helpers
 
     private func setProgress() {
         guard let book = self.book, !book.isFault else {
-            self.progressButton.setTitle("", for: .normal)
+            progressButton.setTitle("", for: .normal)
 
             return
         }
 
-        if !self.progressSlider.isTracking {
-            self.currentTimeLabel.text = self.formatTime(self.currentTimeInContext)
-            self.currentTimeLabel.accessibilityLabel = String(describing: "Current Chapter Time: " + VoiceOverService.secondsToMinutes(currentTimeInContext))
-            self.maxTimeButton.setTitle(self.formatTime(self.maxTimeInContext), for: .normal)
-            let prefix = self.prefersRemainingTime
+        if !progressSlider.isTracking {
+            currentTimeLabel.text = formatTime(currentTimeInContext)
+            currentTimeLabel.accessibilityLabel = String(describing: "Current Chapter Time: " + VoiceOverService.secondsToMinutes(currentTimeInContext))
+            maxTimeButton.setTitle(formatTime(maxTimeInContext), for: .normal)
+            let prefix = prefersRemainingTime
                 ? "Remaining Chapter Time: "
                 : "Chapter duration: "
-            self.maxTimeButton.accessibilityLabel = String(describing: prefix + VoiceOverService.secondsToMinutes(maxTimeInContext))
+            maxTimeButton.accessibilityLabel = String(describing: prefix + VoiceOverService.secondsToMinutes(maxTimeInContext))
         }
 
         guard
-            self.prefersChapterContext,
+            prefersChapterContext,
             book.hasChapters,
             let chapters = book.chapters,
             let currentChapter = book.currentChapter else {
-            if !self.progressSlider.isTracking {
-                self.progressButton.setTitle("\(Int(round(book.progress * 100)))%", for: .normal)
+            if !progressSlider.isTracking {
+                progressButton.setTitle("\(Int(round(book.progress * 100)))%", for: .normal)
 
-                self.progressSlider.value = Float(book.progress)
-                self.progressSlider.setNeedsDisplay()
-                let prefix = self.prefersRemainingTime
+                progressSlider.value = Float(book.progress)
+                progressSlider.setNeedsDisplay()
+                let prefix = prefersRemainingTime
                     ? "Remaining Book Time: "
                     : "Book duration: "
-                self.maxTimeButton.accessibilityLabel = String(describing: prefix + VoiceOverService.secondsToMinutes(maxTimeInContext))
+                maxTimeButton.accessibilityLabel = String(describing: prefix + VoiceOverService.secondsToMinutes(maxTimeInContext))
             }
 
             return
         }
 
-        self.progressButton.isHidden = false
-        self.progressButton.setTitle("Chapter \(currentChapter.index) of \(chapters.count)", for: .normal)
+        progressButton.isHidden = false
+        progressButton.setTitle("Chapter \(currentChapter.index) of \(chapters.count)", for: .normal)
 
-        if !self.progressSlider.isTracking {
-            self.progressSlider.value = Float((book.currentTime - currentChapter.start) / currentChapter.duration)
-            self.progressSlider.setNeedsDisplay()
+        if !progressSlider.isTracking {
+            progressSlider.value = Float((book.currentTime - currentChapter.start) / currentChapter.duration)
+            progressSlider.setNeedsDisplay()
         }
     }
 
@@ -218,38 +218,38 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         transform.m34 = 1.0 / 1000.0
         transform = CATransform3DRotate(transform, CGFloat.pi / 180 * 10, 0.5, (-value + 0.5) * 2, 0)
 
-        self.artworkControl.layer.transform = transform
+        artworkControl.layer.transform = transform
     }
 
     // MARK: - Storyboard Actions
 
     var chapterBeforeSliderValueChange: Chapter?
 
-    @IBAction func toggleMaxTime(_ sender: UIButton) {
-        self.prefersRemainingTime = !self.prefersRemainingTime
-        UserDefaults.standard.set(self.prefersRemainingTime, forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
-        self.setProgress()
+    @IBAction func toggleMaxTime(_: UIButton) {
+        prefersRemainingTime = !prefersRemainingTime
+        UserDefaults.standard.set(prefersRemainingTime, forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
+        setProgress()
     }
 
-    @IBAction func toggleProgressState(_ sender: UIButton) {
-        self.prefersChapterContext = !self.prefersChapterContext
-        UserDefaults.standard.set(self.prefersChapterContext, forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
-        self.setProgress()
+    @IBAction func toggleProgressState(_: UIButton) {
+        prefersChapterContext = !prefersChapterContext
+        UserDefaults.standard.set(prefersChapterContext, forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
+        setProgress()
     }
 
-    @IBAction func sliderDown(_ sender: UISlider, event: UIEvent) {
-        self.artworkControl.isUserInteractionEnabled = false
-        self.artworkControl.setAnchorPoint(anchorPoint: CGPoint(x: 0.5, y: 0.3))
+    @IBAction func sliderDown(_: UISlider, event _: UIEvent) {
+        artworkControl.isUserInteractionEnabled = false
+        artworkControl.setAnchorPoint(anchorPoint: CGPoint(x: 0.5, y: 0.3))
 
         UIView.animate(withDuration: 0.3, delay: 0.0, options: [.curveEaseOut, .beginFromCurrentState], animations: {
             self.transformArtworkView(CGFloat(self.progressSlider.value))
         })
 
-        self.chapterBeforeSliderValueChange = self.book?.currentChapter
+        chapterBeforeSliderValueChange = book?.currentChapter
     }
 
-    @IBAction func sliderUp(_ sender: UISlider, event: UIEvent) {
-        self.artworkControl.isUserInteractionEnabled = true
+    @IBAction func sliderUp(_ sender: UISlider, event _: UIEvent) {
+        artworkControl.isUserInteractionEnabled = true
 
         // Adjust the animation duration based on the distance of the thumb to the slider's center
         // This way the corners which look further away take a little longer to rest
@@ -270,18 +270,18 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         // has ended, while still previwing the expected new time and progress in labels and display
         var newTime = TimeInterval(sender.value) * book.duration
 
-        if self.prefersChapterContext, let currentChapter = book.currentChapter {
+        if prefersChapterContext, let currentChapter = book.currentChapter {
             newTime = currentChapter.start + TimeInterval(sender.value) * currentChapter.duration
         }
 
         PlayerManager.shared.jumpTo(newTime)
     }
 
-    @IBAction func sliderValueChanged(_ sender: UISlider, event: UIEvent) {
+    @IBAction func sliderValueChanged(_ sender: UISlider, event _: UIEvent) {
         // This should be in ProgressSlider, but how to achieve that escapes my knowledge
-        self.progressSlider.setNeedsDisplay()
+        progressSlider.setNeedsDisplay()
 
-        self.transformArtworkView(CGFloat(sender.value))
+        transformArtworkView(CGFloat(sender.value))
 
         guard let book = self.book, !book.isFault else {
             return
@@ -289,18 +289,18 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
         var newTimeToDisplay = TimeInterval(sender.value) * book.duration
 
-        if self.prefersChapterContext, let currentChapter = self.chapterBeforeSliderValueChange {
+        if prefersChapterContext, let currentChapter = self.chapterBeforeSliderValueChange {
             newTimeToDisplay = TimeInterval(sender.value) * currentChapter.duration
         }
 
-        self.currentTimeLabel.text = self.formatTime(newTimeToDisplay)
+        currentTimeLabel.text = formatTime(newTimeToDisplay)
 
-        if !book.hasChapters || !self.prefersChapterContext {
-            self.progressButton.setTitle("\(Int(round(sender.value * 100)))%", for: .normal)
+        if !book.hasChapters || !prefersChapterContext {
+            progressButton.setTitle("\(Int(round(sender.value * 100)))%", for: .normal)
         }
 
-        if self.prefersRemainingTime {
-            self.maxTimeButton.setTitle(self.formatTime(newTimeToDisplay - self.durationTimeInContext), for: .normal)
+        if prefersRemainingTime {
+            maxTimeButton.setTitle(formatTime(newTimeToDisplay - durationTimeInContext), for: .normal)
         }
     }
 }

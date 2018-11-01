@@ -59,8 +59,7 @@ class ImportOperation: Operation {
     }
 
     override func main() {
-        for file in self.files {
-
+        for file in files {
             NotificationCenter.default.post(name: .processingFile, object: self, userInfo: ["filename": file.originalUrl.lastPathComponent])
 
             guard file.originalUrl.pathExtension != "zip" else {
@@ -70,7 +69,7 @@ class ImportOperation: Operation {
 
             guard FileManager.default.fileExists(atPath: file.originalUrl.path),
                 let inputStream = InputStream(url: file.originalUrl) else {
-                    continue
+                continue
             }
 
             inputStream.open()

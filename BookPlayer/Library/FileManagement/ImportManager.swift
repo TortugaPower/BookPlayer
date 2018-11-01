@@ -18,28 +18,28 @@ class ImportManager {
     private var files = [FileItem]()
 
     func process(_ fileUrl: URL, destinationFolder: URL) {
-        guard !self.files.contains(where: { $0.originalUrl == fileUrl }) else { return }
+        guard !files.contains(where: { $0.originalUrl == fileUrl }) else { return }
 
-        self.setupTimer()
+        setupTimer()
 
         let file = FileItem(originalUrl: fileUrl, processedUrl: nil, destinationFolder: destinationFolder)
-        self.files.append(file)
+        files.append(file)
 
         NotificationCenter.default.post(name: .newFileUrl, object: self, userInfo: nil)
     }
 
     private func setupTimer() {
-        self.timer?.invalidate()
-        self.timer = Timer(timeInterval: self.timeout, target: self, selector: #selector(self.createOperation), userInfo: nil, repeats: false)
-        RunLoop.main.add(self.timer!, forMode: RunLoopMode.commonModes)
+        timer?.invalidate()
+        timer = Timer(timeInterval: timeout, target: self, selector: #selector(createOperation), userInfo: nil, repeats: false)
+        RunLoop.main.add(timer!, forMode: RunLoopMode.commonModes)
     }
 
     @objc private func createOperation() {
-        guard !self.files.isEmpty else { return }
+        guard !files.isEmpty else { return }
 
-        let operation = ImportOperation(files: self.files)
+        let operation = ImportOperation(files: files)
 
-        self.files = []
+        files = []
 
         NotificationCenter.default.post(name: .importOperation, object: self, userInfo: ["operation": operation])
     }

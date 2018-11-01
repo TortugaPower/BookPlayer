@@ -6,19 +6,19 @@
 //  Copyright © 2017 Tortuga Power. All rights reserved.
 //
 
-import UIKit
+import DeviceKit
 import MessageUI
 import SafariServices
-import DeviceKit
+import UIKit
 
 class SettingsViewController: UITableViewController, MFMailComposeViewControllerDelegate {
-    @IBOutlet weak var autoplayLibrarySwitch: UISwitch!
-    @IBOutlet weak var smartRewindSwitch: UISwitch!
-    @IBOutlet weak var boostVolumeSwitch: UISwitch!
-    @IBOutlet weak var globalSpeedSwitch: UISwitch!
-    @IBOutlet weak var disableAutolockSwitch: UISwitch!
-    @IBOutlet weak var rewindIntervalLabel: UILabel!
-    @IBOutlet weak var forwardIntervalLabel: UILabel!
+    @IBOutlet var autoplayLibrarySwitch: UISwitch!
+    @IBOutlet var smartRewindSwitch: UISwitch!
+    @IBOutlet var boostVolumeSwitch: UISwitch!
+    @IBOutlet var globalSpeedSwitch: UISwitch!
+    @IBOutlet var disableAutolockSwitch: UISwitch!
+    @IBOutlet var rewindIntervalLabel: UILabel!
+    @IBOutlet var forwardIntervalLabel: UILabel!
 
     let supportSection: Int = 5
     let githubLinkPath: IndexPath = IndexPath(row: 0, section: 6)
@@ -29,7 +29,7 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     var supportEmail = "support@bookplayer.app"
 
     var appVersion: String {
-        return "\(self.version)-\(self.build)"
+        return "\(version)-\(build)"
     }
 
     var systemVersion: String {
@@ -39,22 +39,22 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.autoplayLibrarySwitch.addTarget(self, action: #selector(self.autoplayToggleDidChange), for: .valueChanged)
-        self.smartRewindSwitch.addTarget(self, action: #selector(self.rewindToggleDidChange), for: .valueChanged)
-        self.boostVolumeSwitch.addTarget(self, action: #selector(self.boostVolumeToggleDidChange), for: .valueChanged)
-        self.globalSpeedSwitch.addTarget(self, action: #selector(self.globalSpeedToggleDidChange), for: .valueChanged)
-        self.disableAutolockSwitch.addTarget(self, action: #selector(self.disableAutolockDidChange), for: .valueChanged)
+        autoplayLibrarySwitch.addTarget(self, action: #selector(autoplayToggleDidChange), for: .valueChanged)
+        smartRewindSwitch.addTarget(self, action: #selector(rewindToggleDidChange), for: .valueChanged)
+        boostVolumeSwitch.addTarget(self, action: #selector(boostVolumeToggleDidChange), for: .valueChanged)
+        globalSpeedSwitch.addTarget(self, action: #selector(globalSpeedToggleDidChange), for: .valueChanged)
+        disableAutolockSwitch.addTarget(self, action: #selector(disableAutolockDidChange), for: .valueChanged)
 
         // Set initial switch positions
-        self.autoplayLibrarySwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue), animated: false)
-        self.smartRewindSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.smartRewindEnabled.rawValue), animated: false)
-        self.boostVolumeSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue), animated: false)
-        self.globalSpeedSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue), animated: false)
-        self.disableAutolockSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue), animated: false)
+        autoplayLibrarySwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue), animated: false)
+        smartRewindSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.smartRewindEnabled.rawValue), animated: false)
+        boostVolumeSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue), animated: false)
+        globalSpeedSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue), animated: false)
+        disableAutolockSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue), animated: false)
 
         // Retrieve initial skip values from PlayerManager
-        self.rewindIntervalLabel.text = self.formatDuration(PlayerManager.shared.rewindInterval)
-        self.forwardIntervalLabel.text = self.formatDuration(PlayerManager.shared.forwardInterval)
+        rewindIntervalLabel.text = formatDuration(PlayerManager.shared.rewindInterval)
+        forwardIntervalLabel.text = formatDuration(PlayerManager.shared.forwardInterval)
 
         guard
             let version = Bundle.main.infoDictionary!["CFBundleShortVersionString"] as? String,
@@ -67,7 +67,7 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         self.build = build
     }
 
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    override func prepare(for segue: UIStoryboardSegue, sender _: Any?) {
         guard let viewController = segue.destination as? SkipDurationViewController else {
             return
         }
@@ -94,51 +94,51 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     }
 
     @objc func autoplayToggleDidChange() {
-        UserDefaults.standard.set(self.autoplayLibrarySwitch.isOn, forKey: Constants.UserDefaults.autoplayEnabled.rawValue)
+        UserDefaults.standard.set(autoplayLibrarySwitch.isOn, forKey: Constants.UserDefaults.autoplayEnabled.rawValue)
     }
 
     @objc func rewindToggleDidChange() {
-        UserDefaults.standard.set(self.smartRewindSwitch.isOn, forKey: Constants.UserDefaults.smartRewindEnabled.rawValue)
+        UserDefaults.standard.set(smartRewindSwitch.isOn, forKey: Constants.UserDefaults.smartRewindEnabled.rawValue)
     }
 
     @objc func boostVolumeToggleDidChange() {
-        UserDefaults.standard.set(self.boostVolumeSwitch.isOn, forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
-        PlayerManager.shared.boostVolume = self.boostVolumeSwitch.isOn
+        UserDefaults.standard.set(boostVolumeSwitch.isOn, forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
+        PlayerManager.shared.boostVolume = boostVolumeSwitch.isOn
     }
 
     @objc func globalSpeedToggleDidChange() {
-        UserDefaults.standard.set(self.globalSpeedSwitch.isOn, forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue)
+        UserDefaults.standard.set(globalSpeedSwitch.isOn, forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue)
     }
 
     @objc func disableAutolockDidChange() {
-        UserDefaults.standard.set(self.disableAutolockSwitch.isOn, forKey: Constants.UserDefaults.autolockDisabled.rawValue)
+        UserDefaults.standard.set(disableAutolockSwitch.isOn, forKey: Constants.UserDefaults.autolockDisabled.rawValue)
     }
 
-    @IBAction func done(_ sender: UIBarButtonItem) {
-        self.dismiss(animated: true, completion: nil)
+    @IBAction func done(_: UIBarButtonItem) {
+        dismiss(animated: true, completion: nil)
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath as IndexPath, animated: true)
 
         switch indexPath {
-            case self.supportEmailPath:
-                self.sendSupportEmmail()
-            case self.githubLinkPath:
-                self.showProjectOnGitHub()
-            default: break
+        case supportEmailPath:
+            sendSupportEmmail()
+        case githubLinkPath:
+            showProjectOnGitHub()
+        default: break
         }
     }
 
     override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
-        if section == self.supportSection {
-            return "BookPlayer \(self.appVersion) on \(self.systemVersion)"
+        if section == supportSection {
+            return "BookPlayer \(appVersion) on \(systemVersion)"
         }
 
         return super.tableView(tableView, titleForFooterInSection: section)
     }
 
-    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith _: MFMailComposeResult, error _: Error?) {
         controller.dismiss(animated: true)
     }
 
@@ -150,14 +150,14 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
 
             mail.mailComposeDelegate = self
             mail.setToRecipients([self.supportEmail])
-            mail.setSubject("I need help with BookPlayer \(self.version)-\(self.build)")
-            mail.setMessageBody("<p>Hello BookPlayer Crew,<br>I have an issue concerning BookPlayer \(self.appVersion) on my \(device) running \(self.systemVersion)</p><p>When I try to…</p>", isHTML: true)
+            mail.setSubject("I need help with BookPlayer \(version)-\(build)")
+            mail.setMessageBody("<p>Hello BookPlayer Crew,<br>I have an issue concerning BookPlayer \(appVersion) on my \(device) running \(systemVersion)</p><p>When I try to…</p>", isHTML: true)
 
-            self.present(mail, animated: true)
+            present(mail, animated: true)
         } else {
-            let debugInfo = "BookPlayer \(self.appVersion)\n\(device) with \(self.systemVersion)"
+            let debugInfo = "BookPlayer \(appVersion)\n\(device) with \(systemVersion)"
 
-            let alert = UIAlertController(title: "Unable to compose email", message: "You need to set up an email account in your device settings to use this. \n\nPlease mail us at \(self.supportEmail)\n\n\(debugInfo)", preferredStyle: .alert)
+            let alert = UIAlertController(title: "Unable to compose email", message: "You need to set up an email account in your device settings to use this. \n\nPlease mail us at \(supportEmail)\n\n\(debugInfo)", preferredStyle: .alert)
 
             alert.addAction(UIAlertAction(title: "Copy information to clipboard", style: .default, handler: { _ in
                 UIPasteboard.general.string = "\(self.supportEmail)\n\(debugInfo)"
@@ -165,7 +165,7 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
 
             alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
 
-            self.present(alert, animated: true, completion: nil)
+            present(alert, animated: true, completion: nil)
         }
     }
 
@@ -177,6 +177,6 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
             safari.dismissButtonStyle = .close
         }
 
-        self.present(safari, animated: true)
+        present(safari, animated: true)
     }
 }

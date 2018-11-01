@@ -17,19 +17,19 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         super.viewDidLoad()
 
         // VoiceOver
-        self.setupCustomRotors()
+        setupCustomRotors()
 
         // enables pop gesture on pushed controller
-        self.navigationController!.interactivePopGestureRecognizer!.delegate = self
+        navigationController!.interactivePopGestureRecognizer!.delegate = self
 
         // register for appDelegate openUrl notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.reloadData), name: .reloadData, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(reloadData), name: .reloadData, object: nil)
 
-        self.loadLibrary()
+        loadLibrary()
 
         // handle CoreData migration into shared app groups
         if !UserDefaults.standard.bool(forKey: Constants.UserDefaults.appGroupsMigration.rawValue) {
-            self.migrateCoreDataStack()
+            migrateCoreDataStack()
             UserDefaults.standard.set(true, forKey: Constants.UserDefaults.appGroupsMigration.rawValue)
         }
 
@@ -72,11 +72,11 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
      *  Spaces in file names can cause side effects when trying to load the data
      */
     func loadLibrary() {
-        self.library = DataManager.getLibrary()
+        library = DataManager.getLibrary()
 
-        self.toggleEmptyStateView()
+        toggleEmptyStateView()
 
-        self.tableView.reloadData()
+        tableView.reloadData()
 
         DataManager.notifyPendingFiles()
     }
@@ -95,7 +95,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
                 let fileItems = fileUrls.map { (url) -> FileItem in
                     return FileItem(originalUrl: url, processedUrl: url, destinationFolder: url)
                 }
-                DataManager.insertBooks(from: fileItems, into: self.library) {
+                DataManager.insertBooks(from: fileItems, into: library) {
                     self.reloadData()
                 }
             }
@@ -103,29 +103,29 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
     }
 
     override func handleOperationCompletion(_ files: [FileItem]) {
-        DataManager.insertBooks(from: files, into: self.library) {
+        DataManager.insertBooks(from: files, into: library) {
             self.reloadData()
         }
 
         guard files.count > 1 else {
-            self.showLoadView(false)
+            showLoadView(false)
             return
         }
 
         let alert = UIAlertController(title: "Import \(files.count) files into", message: nil, preferredStyle: .alert)
 
-        alert.addAction(UIAlertAction(title: "Library", style: .default) { (_) in
+        alert.addAction(UIAlertAction(title: "Library", style: .default) { _ in
             self.showLoadView(false)
         })
 
-        alert.addAction(UIAlertAction(title: "New Playlist", style: .default) { (_) in
+        alert.addAction(UIAlertAction(title: "New Playlist", style: .default) { _ in
             var placeholder = "New Playlist"
 
             if let file = files.first {
                 placeholder = file.originalUrl.deletingPathExtension().lastPathComponent
             }
 
-            self.presentCreatePlaylistAlert(placeholder, handler: { (title) in
+            self.presentCreatePlaylistAlert(placeholder, handler: { title in
                 let playlist = DataManager.createPlaylist(title: title, books: [])
 
                 self.library.addToItems(playlist)
@@ -140,7 +140,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             })
         })
 
-        let vc = self.presentedViewController ?? self
+        let vc = presentedViewController ?? self
 
         vc.present(alert, animated: true, completion: nil)
     }
@@ -417,14 +417,14 @@ extension LibraryViewController {
 
         guard indexPath.sectionValue == .library else {
             if indexPath.sectionValue == .add {
-                self.addAction()
+                addAction()
             }
 
             return
         }
 
         if let playlist = self.items[indexPath.row] as? Playlist {
-            self.presentPlaylist(playlist)
+            presentPlaylist(playlist)
 
             return
         }
@@ -457,25 +457,25 @@ extension LibraryViewController {
 // MARK: - Reorder Delegate
 
 extension LibraryViewController {
-    override func tableView(_ tableView: UITableView, reorderRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+    override func tableView(_: UITableView, reorderRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         guard destinationIndexPath.sectionValue == .library else {
             return
         }
 
-        let item = self.items[sourceIndexPath.row]
+        let item = items[sourceIndexPath.row]
 
-        self.library.removeFromItems(at: sourceIndexPath.row)
-        self.library.insertIntoItems(item, at: destinationIndexPath.row)
+        library.removeFromItems(at: sourceIndexPath.row)
+        library.insertIntoItems(item, at: destinationIndexPath.row)
 
         DataManager.saveContext()
     }
 
-    override func tableViewDidFinishReordering(_ tableView: UITableView, from initialSourceIndexPath: IndexPath, to finalDestinationIndexPath: IndexPath, dropped overIndexPath: IndexPath?) {
+    override func tableViewDidFinishReordering(_: UITableView, from _: IndexPath, to finalDestinationIndexPath: IndexPath, dropped overIndexPath: IndexPath?) {
         guard let overIndexPath = overIndexPath, overIndexPath.sectionValue == .library, let book = self.items[finalDestinationIndexPath.row] as? Book else {
             return
         }
 
-        let item = self.items[overIndexPath.row]
+        let item = items[overIndexPath.row]
 
         if item is Playlist {
             let alert = UIAlertController(title: "Move to playlist",
@@ -499,14 +499,14 @@ extension LibraryViewController {
                 self.tableView.endUpdates()
             }))
 
-            self.present(alert, animated: true, completion: nil)
+            present(alert, animated: true, completion: nil)
         } else {
             let minIndex = min(finalDestinationIndexPath.row, overIndexPath.row)
 
             // Removing based on minIndex works because the cells are always adjacent
-            let book1 = self.items[minIndex]
+            let book1 = items[minIndex]
 
-            self.presentCreatePlaylistAlert(book1.title, handler: { title in
+            presentCreatePlaylistAlert(book1.title, handler: { title in
 
                 self.library.removeFromItems(book1)
 

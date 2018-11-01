@@ -25,5 +25,4 @@ class BookPlayerUITests: XCTestCase {
         app.tables/*@START_MENU_TOKEN@*/.staticTexts["View project on GitHub"]/*[[".links.staticTexts[\"View project on GitHub\"]",".staticTexts[\"View project on GitHub\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
         app/*@START_MENU_TOKEN@*/.otherElements["URL"]/*[[".buttons[\"Address\"]",".otherElements[\"Address\"]",".otherElements[\"URL\"]",".buttons[\"URL\"]"],[[[-1,2],[-1,1],[-1,3,1],[-1,0,1]],[[-1,2],[-1,1]]],[0]]@END_MENU_TOKEN@*/.tap()
     }
-
 }

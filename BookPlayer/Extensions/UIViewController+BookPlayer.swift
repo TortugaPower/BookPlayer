@@ -15,7 +15,7 @@ extension UIViewController {
 
         alert.addAction(okButton)
 
-        self.present(alert, animated: true, completion: nil)
+        present(alert, animated: true, completion: nil)
     }
 
     // utility function to transform seconds to format MM:SS or HH:MM:SS
@@ -23,12 +23,12 @@ extension UIViewController {
         let durationFormatter = DateComponentsFormatter()
 
         durationFormatter.unitsStyle = .positional
-        durationFormatter.allowedUnits = [ .minute, .second ]
+        durationFormatter.allowedUnits = [.minute, .second]
         durationFormatter.zeroFormattingBehavior = .pad
         durationFormatter.collapsesLargestUnit = false
 
         if abs(time) > 3599.0 {
-            durationFormatter.allowedUnits = [ .hour, .minute, .second ]
+            durationFormatter.allowedUnits = [.hour, .minute, .second]
         }
 
         return durationFormatter.string(from: time)!
@@ -38,7 +38,7 @@ extension UIViewController {
         let durationFormatter = DateComponentsFormatter()
 
         durationFormatter.unitsStyle = unitsStyle
-        durationFormatter.allowedUnits = [ .minute, .second ]
+        durationFormatter.allowedUnits = [.minute, .second]
         durationFormatter.collapsesLargestUnit = true
 
         return durationFormatter.string(from: duration)!

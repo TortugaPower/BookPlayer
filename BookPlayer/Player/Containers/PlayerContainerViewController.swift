@@ -10,6 +10,6 @@ import UIKit
 
 class PlayerContainerViewController: UIViewController {
     override func viewDidLoad() {
-        self.view.backgroundColor = .clear
+        view.backgroundColor = .clear
     }
 }

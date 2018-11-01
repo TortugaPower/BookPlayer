@@ -21,8 +21,8 @@ public class LibraryItem: NSManagedObject {
             return #imageLiteral(resourceName: "defaultArtwork")
         }
 
-        self.cachedArtwork = UIImage(data: artworkData as Data)
-        return self.cachedArtwork!
+        cachedArtwork = UIImage(data: artworkData as Data)
+        return cachedArtwork!
     }
 
     var cachedArtwork: UIImage?

@@ -21,55 +21,55 @@ enum BookCellType {
 }
 
 class BookCellView: UITableViewCell {
-    @IBOutlet private weak var artworkView: BPArtworkView!
-    @IBOutlet private weak var titleLabel: UILabel!
-    @IBOutlet private weak var subtitleLabel: UILabel!
-    @IBOutlet private weak var progressTrailing: NSLayoutConstraint!
-    @IBOutlet private weak var progressView: ItemProgress!
-    @IBOutlet private weak var artworkButton: UIButton!
-    @IBOutlet weak var artworkWidth: NSLayoutConstraint!
-    @IBOutlet weak var artworkHeight: NSLayoutConstraint!
+    @IBOutlet private var artworkView: BPArtworkView!
+    @IBOutlet private var titleLabel: UILabel!
+    @IBOutlet private var subtitleLabel: UILabel!
+    @IBOutlet private var progressTrailing: NSLayoutConstraint!
+    @IBOutlet private var progressView: ItemProgress!
+    @IBOutlet private var artworkButton: UIButton!
+    @IBOutlet var artworkWidth: NSLayoutConstraint!
+    @IBOutlet var artworkHeight: NSLayoutConstraint!
 
     var onArtworkTap: (() -> Void)?
 
     var artwork: UIImage? {
         get {
-            return self.artworkView.image
+            return artworkView.image
         }
         set {
-            self.artworkView.image = newValue
+            artworkView.image = newValue
 
-            let ratio = self.artworkView.imageRatio
+            let ratio = artworkView.imageRatio
 
-            self.artworkHeight.constant = ratio > 1 ? 50.0 / ratio : 50.0
-            self.artworkWidth.constant = ratio < 1 ? 50.0 * ratio : 50.0
+            artworkHeight.constant = ratio > 1 ? 50.0 / ratio : 50.0
+            artworkWidth.constant = ratio < 1 ? 50.0 * ratio : 50.0
         }
     }
 
     var title: String? {
         get {
-            return self.titleLabel.text
+            return titleLabel.text
         }
         set {
-            self.titleLabel.text = newValue
+            titleLabel.text = newValue
         }
     }
 
     var subtitle: String? {
         get {
-            return self.subtitleLabel.text
+            return subtitleLabel.text
         }
         set {
-            self.subtitleLabel.text = newValue
+            subtitleLabel.text = newValue
         }
     }
 
     var progress: Double {
         get {
-            return self.progressView.value
+            return progressView.value
         }
         set {
-            self.progressView.value = newValue.isNaN
+            progressView.value = newValue.isNaN
                 ? 0.0
                 : newValue
             setAccessibilityLabels()
@@ -78,19 +78,19 @@ class BookCellView: UITableViewCell {
 
     var type: BookCellType = .book {
         didSet {
-            switch self.type {
-                case .file:
-                    self.accessoryType = .none
+            switch type {
+            case .file:
+                accessoryType = .none
 
-                    self.progressTrailing.constant = 11.0
-                case .playlist:
-                    self.accessoryType = .disclosureIndicator
+                progressTrailing.constant = 11.0
+            case .playlist:
+                accessoryType = .disclosureIndicator
 
-                    self.progressTrailing.constant = -5.0
-                default:
-                    self.accessoryType = .none
+                progressTrailing.constant = -5.0
+            default:
+                accessoryType = .none
 
-                    self.progressTrailing.constant = 29.0 // Disclosure indicator offset
+                progressTrailing.constant = 29.0 // Disclosure indicator offset
             }
         }
     }
@@ -99,18 +99,18 @@ class BookCellView: UITableViewCell {
         didSet {
             UIView.animate(withDuration: 0.1, animations: {
                 switch self.playbackState {
-                    case .playing:
-                        self.artworkButton.backgroundColor = UIColor.tintColor.withAlpha(newAlpha: 0.3)
-                        self.titleLabel.textColor = UIColor.tintColor
-                        self.progressView.pieColor = UIColor.tintColor
-                    case .paused:
-                        self.artworkButton.backgroundColor = UIColor.tintColor.withAlpha(newAlpha: 0.3)
-                        self.titleLabel.textColor = UIColor.tintColor
-                        self.progressView.pieColor = UIColor.tintColor
-                    default:
-                        self.artworkButton.backgroundColor = UIColor.clear
-                        self.titleLabel.textColor = UIColor.textColor
-                        self.progressView.pieColor = UIColor(hex: "8F8E94")
+                case .playing:
+                    self.artworkButton.backgroundColor = UIColor.tintColor.withAlpha(newAlpha: 0.3)
+                    self.titleLabel.textColor = UIColor.tintColor
+                    self.progressView.pieColor = UIColor.tintColor
+                case .paused:
+                    self.artworkButton.backgroundColor = UIColor.tintColor.withAlpha(newAlpha: 0.3)
+                    self.titleLabel.textColor = UIColor.tintColor
+                    self.progressView.pieColor = UIColor.tintColor
+                default:
+                    self.artworkButton.backgroundColor = UIColor.clear
+                    self.titleLabel.textColor = UIColor.textColor
+                    self.progressView.pieColor = UIColor(hex: "8F8E94")
                 }
             })
         }
@@ -119,33 +119,34 @@ class BookCellView: UITableViewCell {
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-        self.setup()
+        setup()
     }
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
 
-        self.setup()
+        setup()
     }
 
     private func setup() {
-        self.accessoryType = .none
-        self.selectionStyle = .none
+        accessoryType = .none
+        selectionStyle = .none
     }
 
     override func willMove(toSuperview newSuperview: UIView?) {
         super.willMove(toSuperview: newSuperview)
 
-        self.artworkButton.layer.cornerRadius = 4.0
-        self.artworkButton.layer.masksToBounds = true
+        artworkButton.layer.cornerRadius = 4.0
+        artworkButton.layer.masksToBounds = true
     }
 
-    @IBAction func artworkButtonTapped(_ sender: Any) {
-        self.onArtworkTap?()
+    @IBAction func artworkButtonTapped(_: Any) {
+        onArtworkTap?()
     }
 }
 
 // MARK: - Voiceover
+
 extension BookCellView {
     private func setAccessibilityLabels() {
         let voiceOverService = VoiceOverService()

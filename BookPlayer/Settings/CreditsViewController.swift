@@ -10,7 +10,7 @@ import UIKit
 import WebKit
 
 class CreditsViewController: UIViewController {
-    @IBOutlet private weak var textView: UITextView!
+    @IBOutlet private var textView: UITextView!
 
     var content: String!
 
@@ -26,7 +26,7 @@ class CreditsViewController: UIViewController {
         do {
             contents = try String(contentsOfFile: filepath)
         } catch {
-             contents = "Unable to display credits"
+            contents = "Unable to display credits"
         }
 
         do {
@@ -34,21 +34,21 @@ class CreditsViewController: UIViewController {
             let options = [NSAttributedString.DocumentReadingOptionKey.documentType: NSAttributedString.DocumentType.html]
             let attributedString = try NSAttributedString(data: data, options: options, documentAttributes: nil)
 
-            self.textView.attributedText = attributedString
+            textView.attributedText = attributedString
 
-            self.textView.linkTextAttributes = [
+            textView.linkTextAttributes = [
                 NSAttributedStringKey.foregroundColor.rawValue: UIColor.tintColor,
                 NSAttributedStringKey.underlineColor.rawValue: UIColor.tintColor,
-                NSAttributedStringKey.underlineStyle.rawValue: NSUnderlineStyle.styleSingle.rawValue
+                NSAttributedStringKey.underlineStyle.rawValue: NSUnderlineStyle.styleSingle.rawValue,
             ]
         } catch {
-            self.textView.text = contents
+            textView.text = contents
         }
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.textView.textContainerInset = UIEdgeInsets(top: 10.0, left: 13.0, bottom: 0, right: 13.0)
+        textView.textContainerInset = UIEdgeInsets(top: 10.0, left: 13.0, bottom: 0, right: 13.0)
     }
 }

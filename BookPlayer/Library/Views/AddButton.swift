@@ -12,13 +12,13 @@ class AddButton: UIButton {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        self.setup()
+        setup()
     }
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
 
-        self.setup()
+        setup()
     }
 
     private func setup() {
@@ -27,9 +27,9 @@ class AddButton: UIButton {
 
         add.tintColor = UIColor.tintColor
 
-        self.setImage(add.image, for: .normal)
+        setImage(add.image, for: .normal)
 
-        self.imageEdgeInsets.right = distance
-        self.titleEdgeInsets.left = distance
+        imageEdgeInsets.right = distance
+        titleEdgeInsets.left = distance
     }
 }

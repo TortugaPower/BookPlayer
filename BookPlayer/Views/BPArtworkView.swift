@@ -20,21 +20,21 @@ class BPArtworkView: UIImageView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        self.setup()
+        setup()
     }
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
 
-        self.setup()
+        setup()
     }
 
     private func setup() {
-        self.layer.cornerRadius = 4.0
-        self.layer.masksToBounds = true
-        self.clipsToBounds = true
+        layer.cornerRadius = 4.0
+        layer.masksToBounds = true
+        clipsToBounds = true
 
-        self.layer.borderWidth = 0.5
-        self.layer.borderColor = UIColor.textColor.withAlphaComponent(0.2).cgColor
+        layer.borderWidth = 0.5
+        layer.borderColor = UIColor.textColor.withAlphaComponent(0.2).cgColor
     }
 }

@@ -21,7 +21,7 @@ class SkipDurationViewController: UITableViewController {
         120.0,
         180.0,
         240.0,
-        300.0
+        300.0,
     ]
 
     var selectedInterval: TimeInterval!
@@ -40,31 +40,31 @@ class SkipDurationViewController: UITableViewController {
 
     // MARK: - Table view data source
 
-    override func numberOfSections(in tableView: UITableView) -> Int {
+    override func numberOfSections(in _: UITableView) -> Int {
         return 1
     }
 
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.intervals.count
+    override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
+        return intervals.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "IntervalCell", for: indexPath)
-        let interval = self.intervals[indexPath.row]
+        let interval = intervals[indexPath.row]
 
-        cell.textLabel?.text = self.formatDuration(interval)
+        cell.textLabel?.text = formatDuration(interval)
 
-        if interval == self.selectedInterval {
+        if interval == selectedInterval {
             cell.accessoryType = .checkmark
         }
 
         return cell
     }
 
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let interval = self.intervals[indexPath.row]
+    override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let interval = intervals[indexPath.row]
 
-        self.didSelectInterval?(interval)
-        self.navigationController?.popViewController(animated: true)
+        didSelectInterval?(interval)
+        navigationController?.popViewController(animated: true)
     }
 }

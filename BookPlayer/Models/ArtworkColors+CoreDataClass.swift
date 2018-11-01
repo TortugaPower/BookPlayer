@@ -7,9 +7,9 @@
 //
 //
 
-import Foundation
-import CoreData
 import ColorCube
+import CoreData
+import Foundation
 
 enum ArtworkColorsError: Error {
     case averageColorFailed
@@ -17,17 +17,21 @@ enum ArtworkColorsError: Error {
 
 public class ArtworkColors: NSManagedObject {
     var background: UIColor {
-        return UIColor(hex: self.backgroundHex)
+        return UIColor(hex: backgroundHex)
     }
+
     var primary: UIColor {
-        return UIColor(hex: self.primaryHex)
+        return UIColor(hex: primaryHex)
     }
+
     var secondary: UIColor {
-        return UIColor(hex: self.secondaryHex)
+        return UIColor(hex: secondaryHex)
     }
+
     var tertiary: UIColor {
         return UIColor(hex: self.tertiaryHex)
     }
+
     // W3C recommends contrast values larger 4 or 7 (strict), but 3.0 should be fine for our use case
     convenience init(from image: UIImage, context: NSManagedObjectContext, darknessThreshold: CGFloat = 0.2, minimumContrastRatio: CGFloat = 3.0) {
         do {
@@ -68,9 +72,9 @@ public class ArtworkColors: NSManagedObject {
                 return color.overlayBlack
             }
 
-            self.setColorsFromArray(colors, displayOnDark: displayOnDark)
+            setColorsFromArray(colors, displayOnDark: displayOnDark)
         } catch {
-            self.setColorsFromArray()
+            setColorsFromArray()
         }
     }
 
@@ -88,15 +92,15 @@ public class ArtworkColors: NSManagedObject {
         } else if colorsToSet.count < 4 {
             let placeholder = displayOnDarkToSet ? UIColor.white : UIColor.black
 
-            for _ in 1...(4 - colorsToSet.count) {
+            for _ in 1 ... (4 - colorsToSet.count) {
                 colorsToSet.append(placeholder)
             }
         }
 
-        self.backgroundHex = colorsToSet[0].cssHex
-        self.primaryHex = colorsToSet[1].cssHex
-        self.secondaryHex = colorsToSet[2].cssHex
-        self.tertiaryHex = colorsToSet[3].cssHex
+        backgroundHex = colorsToSet[0].cssHex
+        primaryHex = colorsToSet[1].cssHex
+        secondaryHex = colorsToSet[2].cssHex
+        tertiaryHex = colorsToSet[3].cssHex
 
         self.displayOnDark = displayOnDarkToSet
     }
@@ -106,6 +110,6 @@ public class ArtworkColors: NSManagedObject {
         let entity = NSEntityDescription.entity(forEntityName: "ArtworkColors", in: context)!
         self.init(entity: entity, insertInto: context)
 
-        self.setColorsFromArray()
+        setColorsFromArray()
     }
 }

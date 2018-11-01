@@ -6,18 +6,18 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
-import UIKit
 import MarqueeLabelSwift
+import UIKit
 
 class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecognizerDelegate {
-    @IBOutlet private weak var miniPlayerBlur: UIVisualEffectView!
-    @IBOutlet private weak var miniPlayerContainer: UIView!
-    @IBOutlet private weak var artwork: BPArtworkView!
-    @IBOutlet private weak var titleLabel: BPMarqueeLabel!
-    @IBOutlet private weak var authorLabel: BPMarqueeLabel!
-    @IBOutlet private weak var playPauseButton: UIButton!
-    @IBOutlet private weak var artworkWidth: NSLayoutConstraint!
-    @IBOutlet private weak var artworkHeight: NSLayoutConstraint!
+    @IBOutlet private var miniPlayerBlur: UIVisualEffectView!
+    @IBOutlet private var miniPlayerContainer: UIView!
+    @IBOutlet private var artwork: BPArtworkView!
+    @IBOutlet private var titleLabel: BPMarqueeLabel!
+    @IBOutlet private var authorLabel: BPMarqueeLabel!
+    @IBOutlet private var playPauseButton: UIButton!
+    @IBOutlet private var artworkWidth: NSLayoutConstraint!
+    @IBOutlet private var artworkHeight: NSLayoutConstraint!
 
     private let playImage = UIImage(named: "nowPlayingPlay")
     private let pauseImage = UIImage(named: "nowPlayingPause")
@@ -54,29 +54,29 @@ class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecogniz
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.miniPlayerBlur.layer.cornerRadius = 13.0
-        self.miniPlayerBlur.layer.masksToBounds = true
+        miniPlayerBlur.layer.cornerRadius = 13.0
+        miniPlayerBlur.layer.masksToBounds = true
 
-        self.tap = UITapGestureRecognizer(target: self, action: #selector(tapAction))
-        self.tap.cancelsTouchesInView = true
+        tap = UITapGestureRecognizer(target: self, action: #selector(tapAction))
+        tap.cancelsTouchesInView = true
 
-        self.view.addGestureRecognizer(self.tap)
+        view.addGestureRecognizer(tap)
 
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPlay), name: .bookPlayed, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: .bookPaused, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: .bookEnd, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(onBookPlay), name: .bookPlayed, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(onBookPause), name: .bookPaused, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(onBookPause), name: .bookEnd, object: nil)
     }
 
     // MARK: Notification handlers
 
     @objc private func onBookPlay() {
-        self.playPauseButton.setImage(self.pauseImage, for: UIControlState())
-        self.playPauseButton.accessibilityHint = "Tap to Pause"
+        playPauseButton.setImage(pauseImage, for: UIControlState())
+        playPauseButton.accessibilityHint = "Tap to Pause"
     }
 
     @objc private func onBookPause() {
-        self.playPauseButton.setImage(self.playImage, for: UIControlState())
-        self.playPauseButton.accessibilityHint = "Tap to Play"
+        playPauseButton.setImage(playImage, for: UIControlState())
+        playPauseButton.accessibilityHint = "Tap to Play"
     }
 
     // MARK: Actions
@@ -88,7 +88,7 @@ class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecogniz
     // MARK: Gesture recognizers
 
     @objc func tapAction() {
-        self.showPlayer?()
+        showPlayer?()
     }
 
     // MARK: - Voiceover

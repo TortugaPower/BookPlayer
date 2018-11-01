@@ -12,13 +12,14 @@ extension IndexPath {
     init(row: Int, section: Section) {
         self.init(row: row, section: section.rawValue)
     }
+
     var sectionValue: Section {
-        return Section(rawValue: self.section) ?? .library
+        return Section(rawValue: section) ?? .library
     }
 }
 
 enum Section: Int {
     case library,
-    add,
-    total
+        add,
+        total
 }

@@ -19,7 +19,7 @@ extension UIColor {
 
         getRed(&r, green: &g, blue: &b, alpha: &a)
 
-        let rgb: Int = (Int)(r*255)<<16 | (Int)(g*255)<<8 | (Int)(b*255)<<0
+        let rgb: Int = Int(r * 255) << 16 | Int(g * 255) << 8 | Int(b * 255) << 0
 
         return String(format: "#%06x", rgb)
     }
@@ -37,7 +37,7 @@ extension UIColor {
         var S: CGFloat = 0
         var B: CGFloat = 0
         var A: CGFloat = 0
-        self.getHue(&H, saturation: &S, brightness: &B, alpha: &A)
+        getHue(&H, saturation: &S, brightness: &B, alpha: &A)
 
         return B
     }

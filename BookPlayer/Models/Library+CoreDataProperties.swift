@@ -7,11 +7,10 @@
 //
 //
 
-import Foundation
 import CoreData
+import Foundation
 
 extension Library {
-
     @nonobjc public class func fetchRequest() -> NSFetchRequest<Library> {
         return NSFetchRequest<Library>(entityName: "Library")
     }
@@ -22,12 +21,11 @@ extension Library {
     }
 
     @NSManaged public var items: NSOrderedSet?
-
 }
 
 // MARK: Generated accessors for items
-extension Library {
 
+extension Library {
     @objc(insertObject:inItemsAtIndex:)
     @NSManaged public func insertIntoItems(_ value: LibraryItem, at idx: Int)
 
@@ -57,5 +55,4 @@ extension Library {
 
     @objc(removeItems:)
     @NSManaged public func removeFromItems(_ values: NSOrderedSet)
-
 }

@@ -1,5 +1,5 @@
-import XCTest
 @testable import BookPlayer
+import XCTest
 
 class BookSortServiceTest: XCTestCase {
     let unorderedBookNames = [
@@ -9,7 +9,7 @@ class BookSortServiceTest: XCTestCase {
         "03 Book 1",
         "11 Book 1",
         "09 Book 1",
-        "07 Book 1"
+        "07 Book 1",
     ]
     var booksByFile: NSOrderedSet?
 
@@ -17,8 +17,7 @@ class BookSortServiceTest: XCTestCase {
         booksByFile = NSOrderedSet(array: unorderedBookNames.map { StubFactory.book(title: $0, duration: 1000) })
     }
 
-    override func tearDown() {
-    }
+    override func tearDown() {}
 
     func testSortByFileName() {
         // swiftlint:disable force_try

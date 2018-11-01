@@ -42,7 +42,7 @@ public class Library: NSManagedObject {
     func itemIndex(with url: URL) -> Int? {
         let hash = url.lastPathComponent
 
-        return self.itemIndex(with: hash)
+        return itemIndex(with: hash)
     }
 
     func getItem(at index: Int) -> LibraryItem? {
@@ -58,7 +58,7 @@ public class Library: NSManagedObject {
             return nil
         }
 
-        return self.getItem(at: index)
+        return getItem(at: index)
     }
 
     func getItem(with identifier: String) -> LibraryItem? {
@@ -66,7 +66,7 @@ public class Library: NSManagedObject {
             return nil
         }
 
-        return self.getItem(at: index)
+        return getItem(at: index)
     }
 
     func getNextItem(after item: LibraryItem) -> LibraryItem? {
@@ -85,7 +85,7 @@ public class Library: NSManagedObject {
 extension Library: Sortable {
     func sort(by sortType: PlayListSortOrder) throws {
         guard let items = items else { return }
-        self.items      = try BookSortService.sort(items, by: sortType)
+        self.items = try BookSortService.sort(items, by: sortType)
         DataManager.saveContext()
     }
 }

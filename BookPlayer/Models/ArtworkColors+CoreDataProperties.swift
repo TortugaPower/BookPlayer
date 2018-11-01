@@ -7,11 +7,10 @@
 //
 //
 
-import Foundation
 import CoreData
+import Foundation
 
 extension ArtworkColors {
-
     @nonobjc public class func fetchRequest() -> NSFetchRequest<ArtworkColors> {
         return NSFetchRequest<ArtworkColors>(entityName: "ArtworkColors")
     }

@@ -9,7 +9,6 @@
 import UIKit
 
 class ProgressSlider: UISlider {
-
     override var accessibilityLabel: String? {
         get {
             let value = Int(round(self.value * 100))
@@ -24,22 +23,22 @@ class ProgressSlider: UISlider {
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
 
-        self.setup()
+        setup()
     }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        self.setup()
+        setup()
     }
 
     private func setup() {
-        self.maximumValue = 1.0
-        self.minimumValue = 0.0
+        maximumValue = 1.0
+        minimumValue = 0.0
 
-        self.setThumbImage(#imageLiteral(resourceName: "thumbImageDefault"), for: .normal)
-        self.setThumbImage(#imageLiteral(resourceName: "thumbImageSelected"), for: .selected)
-        self.setThumbImage(#imageLiteral(resourceName: "thumbImageSelected"), for: .highlighted)
+        setThumbImage(#imageLiteral(resourceName: "thumbImageDefault"), for: .normal)
+        setThumbImage(#imageLiteral(resourceName: "thumbImageSelected"), for: .selected)
+        setThumbImage(#imageLiteral(resourceName: "thumbImageSelected"), for: .highlighted)
     }
 
     // Hide the default track
@@ -52,14 +51,14 @@ class ProgressSlider: UISlider {
     }
 
     open override func draw(_ rect: CGRect) {
-        let minColor = self.minimumTrackTintColor ?? UIColor.tintColor
-        let maxColor = self.maximumTrackTintColor ?? minColor.withAlphaComponent(0.3)
+        let minColor = minimumTrackTintColor ?? UIColor.tintColor
+        let maxColor = maximumTrackTintColor ?? minColor.withAlphaComponent(0.3)
 
         maxColor.set()
 
-        let rect = self.bounds.insetBy(dx: 24.0, dy: 0.0)
+        let rect = bounds.insetBy(dx: 24.0, dy: 0.0)
         let height: CGFloat = 3.0
-        let radius: CGFloat = height/2
+        let radius: CGFloat = height / 2
 
         let sliderRect = CGRect(
             x: rect.origin.x,
