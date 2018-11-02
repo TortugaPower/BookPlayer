@@ -78,8 +78,8 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             guard loaded else { return }
 
             NotificationCenter.default.post(name: .playerDismissed, object: nil, userInfo: nil)
-            if UserDefaults.standard.bool(forKey: Constants.Activities.playback.rawValue) {
-                UserDefaults.standard.removeObject(forKey: Constants.Activities.playback.rawValue)
+            if UserDefaults.standard.bool(forKey: Constants.UserActivityPlayback) {
+                UserDefaults.standard.removeObject(forKey: Constants.UserActivityPlayback)
                 PlayerManager.shared.play()
             }
         }

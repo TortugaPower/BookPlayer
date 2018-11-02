@@ -16,11 +16,11 @@ class UserActivityManager {
     var currentActivity: NSUserActivity?
 
     private func createPlaybackActivity() -> NSUserActivity {
-        let activity = NSUserActivity(activityType: Constants.Activities.playback.rawValue)
+        let activity = NSUserActivity(activityType: Constants.UserActivityPlayback)
         activity.title = "Continue last played book"
         if #available(iOS 12.0, *) {
             activity.isEligibleForPrediction = true
-            activity.persistentIdentifier = NSUserActivityPersistentIdentifier(Constants.Activities.playback.rawValue)
+            activity.persistentIdentifier = NSUserActivityPersistentIdentifier(Constants.UserActivityPlayback)
             activity.suggestedInvocationPhrase = "Continue my book"
         }
         activity.isEligibleForSearch = true

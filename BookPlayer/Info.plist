@@ -4,7 +4,7 @@
 <dict>
 	<key>NSUserActivityTypes</key>
 	<array>
-		<string>com.tortugapower.audiobookplayer.activity.playback</string>
+		<string>$(PRODUCT_BUNDLE_IDENTIFIER).activity.playback</string>
 	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>

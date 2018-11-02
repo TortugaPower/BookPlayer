@@ -37,7 +37,5 @@ enum Constants {
         case boosted = 2.0
     }
 
-    enum Activities: String {
-        case playback = "com.tortugapower.audiobookplayer.activity.playback"
-    }
+    static let UserActivityPlayback = Bundle.main.bundleIdentifier! + ".activity.playback"
 }

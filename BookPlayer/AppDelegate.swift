@@ -55,7 +55,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         if let activityDictionary = launchOptions?[.userActivityDictionary] as? [UIApplicationLaunchOptionsKey: Any],
             let activityType = activityDictionary[.userActivityType] as? String,
-            activityType == Constants.Activities.playback.rawValue {
+            activityType == Constants.UserActivityPlayback {
             defaults.set(true, forKey: activityType)
         }
 
