@@ -36,4 +36,8 @@ enum Constants {
         case normal = 1.0
         case boosted = 2.0
     }
+
+    enum Activities: String {
+        case playback = "com.tortugapower.audiobookplayer.activity.playback"
+    }
 }

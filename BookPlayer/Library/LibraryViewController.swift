@@ -33,6 +33,28 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             UserDefaults.standard.set(true, forKey: Constants.UserDefaults.appGroupsMigration.rawValue)
         }
 
+        self.loadLastBook()
+    }
+
+    // No longer need to deregister observers for iOS 9+!
+    // https://developer.apple.com/library/mac/releasenotes/Foundation/RN-Foundation/index.html#10_11NotificationCenter
+    deinit {
+        // for iOS 8
+        NotificationCenter.default.removeObserver(self)
+        UIApplication.shared.endReceivingRemoteControlEvents()
+    }
+
+    func loadLibrary() {
+        self.library = DataManager.getLibrary()
+
+        self.toggleEmptyStateView()
+
+        self.tableView.reloadData()
+
+        DataManager.notifyPendingFiles()
+    }
+
+    func loadLastBook() {
         guard let identifier = UserDefaults.standard.string(forKey: Constants.UserDefaults.lastPlayedBook.rawValue),
             let item = self.library.getItem(with: identifier) else {
             return
@@ -56,29 +78,11 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             guard loaded else { return }
 
             NotificationCenter.default.post(name: .playerDismissed, object: nil, userInfo: nil)
+            if UserDefaults.standard.bool(forKey: Constants.Activities.playback.rawValue) {
+                UserDefaults.standard.removeObject(forKey: Constants.Activities.playback.rawValue)
+                PlayerManager.shared.play()
+            }
         }
-    }
-
-    // No longer need to deregister observers for iOS 9+!
-    // https://developer.apple.com/library/mac/releasenotes/Foundation/RN-Foundation/index.html#10_11NotificationCenter
-    deinit {
-        // for iOS 8
-        NotificationCenter.default.removeObserver(self)
-        UIApplication.shared.endReceivingRemoteControlEvents()
-    }
-
-    /**
-     *  Load local files and process them (rename them if necessary)
-     *  Spaces in file names can cause side effects when trying to load the data
-     */
-    func loadLibrary() {
-        self.library = DataManager.getLibrary()
-
-        self.toggleEmptyStateView()
-
-        self.tableView.reloadData()
-
-        DataManager.notifyPendingFiles()
     }
 
     /**

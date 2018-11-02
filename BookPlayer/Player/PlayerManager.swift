@@ -79,6 +79,8 @@ class PlayerManager: NSObject {
                     // Set speed for player
                     audioplayer.rate = self.speed
 
+                    UserActivityManager.shared.resumePlaybackActivity()
+
                     NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["book": book])
 
                     completion(true)
@@ -274,6 +276,8 @@ class PlayerManager: NSObject {
             return
         }
 
+        UserActivityManager.shared.resumePlaybackActivity()
+
         UserDefaults.standard.set(currentBook.identifier, forKey: Constants.UserDefaults.lastPlayedBook.rawValue)
 
         do {
@@ -338,6 +342,8 @@ class PlayerManager: NSObject {
             return
         }
 
+        UserActivityManager.shared.stopPlaybackActivity()
+
         UserDefaults.standard.set(currentBook.identifier, forKey: Constants.UserDefaults.lastPlayedBook.rawValue)
 
         // Invalidate timer if needed
@@ -383,6 +389,8 @@ class PlayerManager: NSObject {
 
     func stop() {
         self.audioPlayer?.stop()
+
+        UserActivityManager.shared.stopPlaybackActivity()
 
         var userInfo: [AnyHashable: Any]?
 
