@@ -80,6 +80,7 @@
 		C3A479152094CA3800D92122 /* UIImage+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479142094CA3800D92122 /* UIImage+BookPlayer.swift */; };
 		C3A479192094CAF300D92122 /* UIViewController+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479182094CAF300D92122 /* UIViewController+BookPlayer.swift */; };
 		C3D3852720C1E73E00A0ACC7 /* Player.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C3D3852620C1E73E00A0ACC7 /* Player.storyboard */; };
+		C3EA7176218DEC870005D488 /* .swiftformat in Resources */ = {isa = PBXBuildFile; fileRef = C3EA7175218DEC870005D488 /* .swiftformat */; };
 		C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3EC372D206EE0650094B4E8 /* SleepTimer.swift */; };
 		C3FA301E20E0024900393DDA /* BPArtworkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FA301D20E0024900393DDA /* BPArtworkView.swift */; };
 		C3FE3F8220A090880055B9C6 /* limitPanAngle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FE3F8120A090880055B9C6 /* limitPanAngle.swift */; };
@@ -204,6 +205,7 @@
 		C3A479142094CA3800D92122 /* UIImage+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+BookPlayer.swift"; sourceTree = "<group>"; };
 		C3A479182094CAF300D92122 /* UIViewController+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+BookPlayer.swift"; sourceTree = "<group>"; };
 		C3D3852620C1E73E00A0ACC7 /* Player.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Player.storyboard; sourceTree = "<group>"; };
+		C3EA7175218DEC870005D488 /* .swiftformat */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .swiftformat; sourceTree = "<group>"; };
 		C3EC372D206EE0650094B4E8 /* SleepTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepTimer.swift; sourceTree = "<group>"; };
 		C3FA301D20E0024900393DDA /* BPArtworkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPArtworkView.swift; sourceTree = "<group>"; };
 		C3FE3F8120A090880055B9C6 /* limitPanAngle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = limitPanAngle.swift; sourceTree = "<group>"; };
@@ -265,8 +267,7 @@
 		418B6CEF1D2707F700F974FB = {
 			isa = PBXGroup;
 			children = (
-				C35BADE8206989E6007687C1 /* README.md */,
-				C3EF536020800DCC00B9629D /* Info */,
+				C3EF536020800DCC00B9629D /* Meta */,
 				418B6CFA1D2707F800F974FB /* BookPlayer */,
 				418B6D111D2707F800F974FB /* BookPlayerTests */,
 				417D67CF215D39C5000E64F0 /* BookPlayerUITests */,
@@ -497,15 +498,17 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
-		C3EF536020800DCC00B9629D /* Info */ = {
+		C3EF536020800DCC00B9629D /* Meta */ = {
 			isa = PBXGroup;
 			children = (
+				C35BADE8206989E6007687C1 /* README.md */,
 				C35BADE7206989E6007687C1 /* LICENSE */,
 				C30EEEC3207A7CCE00A4ED33 /* Cartfile */,
 				C30EEEC4207A7CD500A4ED33 /* Cartfile.resolved */,
 				C35BADE9206989E6007687C1 /* .swiftlint.yml */,
+				C3EA7175218DEC870005D488 /* .swiftformat */,
 			);
-			name = Info;
+			name = Meta;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -534,6 +537,7 @@
 			buildConfigurationList = 418B6D171D2707F800F974FB /* Build configuration list for PBXNativeTarget "BookPlayer" */;
 			buildPhases = (
 				C35BADEA20698A6D007687C1 /* Run SwiftLint */,
+				C3EA7177218DECC30005D488 /* Run SwiftFormat */,
 				418B6CF41D2707F800F974FB /* Sources */,
 				418B6CF51D2707F800F974FB /* Frameworks */,
 				418B6CF61D2707F800F974FB /* Resources */,
@@ -649,6 +653,7 @@
 				4165EE0B20A7A33500616EDF /* AddCellView.xib in Resources */,
 				C30B66AE20E2D8CF00FC0030 /* ArtworkControl.xib in Resources */,
 				4165EE0C20A7A33500616EDF /* BookCellView.xib in Resources */,
+				C3EA7176218DEC870005D488 /* .swiftformat in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -702,7 +707,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if which swiftlint >/dev/null; then\n    swiftlint\nelse\n    echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi";
+			shellScript = "if which swiftlint >/dev/null; then\n    swiftlint\nelse\n    echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
+		C3EA7177218DECC30005D488 /* Run SwiftFormat */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run SwiftFormat";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftformat >/dev/null; then\n    swiftformat .\nelse\n    echo \"warning: SwiftFormat not installed, download from https://github.com/nicklockwood/SwiftFormat\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
