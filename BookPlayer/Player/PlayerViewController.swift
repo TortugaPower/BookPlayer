@@ -6,11 +6,11 @@
 //  Copyright © 2016 Tortuga Power. All rights reserved.
 //
 
-import UIKit
 import AVFoundation
+import AVKit
 import MediaPlayer
 import StoreKit
-import AVKit
+import UIKit
 
 class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet private weak var closeButton: UIButton!
@@ -46,7 +46,6 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         if let navigationController = segue.destination as? UINavigationController,
             let viewController = navigationController.viewControllers.first as? ChaptersViewController,
             let currentChapter = self.currentBook.currentChapter {
-
             viewController.chapters = self.currentBook.chapters?.array as? [Chapter]
             viewController.currentChapter = currentChapter
             viewController.didSelectChapter = { selectedChapter in
@@ -55,7 +54,6 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
                 PlayerManager.shared.jumpTo(selectedChapter.start + 0.01)
             }
         }
-
     }
 
     // Prevents dragging the view down from changing the safeAreaInsets.top
@@ -90,7 +88,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: .bookChange, object: nil)
 
         // Gestures
-        self.pan = UIPanGestureRecognizer(target: self, action: #selector(panAction))
+        self.pan = UIPanGestureRecognizer(target: self, action: #selector(self.panAction))
         self.pan.delegate = self
         self.pan.maximumNumberOfTouches = 1
         self.pan.cancelsTouchesInView = true
@@ -168,17 +166,13 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             items.append(self.sleepLabel)
         }
 
-        if currentBook.hasChapters {
+        if self.currentBook.hasChapters {
             items.append(spacer)
             items.append(self.chaptersButton)
         }
 
         if #available(iOS 11, *) {
-            let avRoutePickerBarButtonItem = UIBarButtonItem(
-                customView: AVRoutePickerView(
-                    frame: CGRect(x: 0.0, y: 0.0, width: 20.0, height: 20.0)
-                )
-            )
+            let avRoutePickerBarButtonItem = UIBarButtonItem(customView: AVRoutePickerView(frame: CGRect(x: 0.0, y: 0.0, width: 20.0, height: 20.0)))
 
             avRoutePickerBarButtonItem.isAccessibilityElement = true
             avRoutePickerBarButtonItem.accessibilityLabel = "Audio Source"
@@ -193,7 +187,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return currentBook.artworkColors.displayOnDark ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
+        return self.currentBook.artworkColors.displayOnDark ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
     }
 
     // MARK: - Interface actions
@@ -227,25 +221,23 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     @IBAction func setSleepTimer() {
-        let actionSheet = SleepTimer.shared.actionSheet(
-            onStart: {
-                self.updateToolbar(true, animated: true)
-            },
-            onProgress: { (timeLeft: Double) -> Void in
-                self.sleepLabel.title = SleepTimer.shared.durationFormatter.string(from: timeLeft)
-                if let timeLeft = SleepTimer.shared.durationFormatter.string(from: timeLeft) {
-                    self.sleepLabel.accessibilityLabel = String(describing: timeLeft + " remaining until sleep")
-                }
-            },
-            onEnd: { (_ cancelled: Bool) -> Void in
-                if !cancelled {
-                    PlayerManager.shared.pause()
-                }
-
-                self.sleepLabel.title = ""
-                self.updateToolbar(false, animated: true)
+        let actionSheet = SleepTimer.shared.actionSheet(onStart: {
+            self.updateToolbar(true, animated: true)
+        },
+                                                        onProgress: { (timeLeft: Double) -> Void in
+            self.sleepLabel.title = SleepTimer.shared.durationFormatter.string(from: timeLeft)
+            if let timeLeft = SleepTimer.shared.durationFormatter.string(from: timeLeft) {
+                self.sleepLabel.accessibilityLabel = String(describing: timeLeft + " remaining until sleep")
             }
-        )
+        },
+                                                        onEnd: { (_ cancelled: Bool) -> Void in
+            if !cancelled {
+                PlayerManager.shared.pause()
+            }
+
+            self.sleepLabel.title = ""
+            self.updateToolbar(false, animated: true)
+        })
 
         self.present(actionSheet, animated: true, completion: nil)
     }
@@ -286,7 +278,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         // request for review
         if #available(iOS 10.3, *), UIApplication.shared.applicationState == .active {
             #if RELEASE
-                SKStoreReviewController.requestReview()
+            SKStoreReviewController.requestReview()
             #endif
 
             UserDefaults.standard.set(false, forKey: "ask_review")
@@ -328,41 +320,39 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         }
 
         switch gestureRecognizer.state {
-            case .began:
-                gestureRecognizer.setTranslation(CGPoint(x: 0, y: 0), in: self.view.superview)
+        case .began:
+            gestureRecognizer.setTranslation(CGPoint(x: 0, y: 0), in: self.view.superview)
 
-            case .changed:
-                let translation = gestureRecognizer.translation(in: self.view)
+        case .changed:
+            let translation = gestureRecognizer.translation(in: self.view)
 
-                self.updatePresentedViewForTranslation(translation.y)
+            self.updatePresentedViewForTranslation(translation.y)
 
-            case .ended, .cancelled, .failed:
-                let dismissThreshold: CGFloat = 44.0 * UIScreen.main.nativeScale
-                let translation = gestureRecognizer.translation(in: self.view)
+        case .ended, .cancelled, .failed:
+            let dismissThreshold: CGFloat = 44.0 * UIScreen.main.nativeScale
+            let translation = gestureRecognizer.translation(in: self.view)
 
-                if translation.y > dismissThreshold {
-                    self.dismissPlayer()
+            if translation.y > dismissThreshold {
+                self.dismissPlayer()
 
-                    return
-                }
+                return
+            }
 
-                UIView.animate(
-                    withDuration: 0.3,
-                    delay: 0.0,
-                    usingSpringWithDamping: 0.75,
-                    initialSpringVelocity: 1.5,
-                    options: .preferredFramesPerSecond60,
-                    animations: {
-                        self.view?.transform = .identity
-                    }
-                )
+            UIView.animate(withDuration: 0.3,
+                           delay: 0.0,
+                           usingSpringWithDamping: 0.75,
+                           initialSpringVelocity: 1.5,
+                           options: .preferredFramesPerSecond60,
+                           animations: {
+                               self.view?.transform = .identity
+            })
 
-            default: break
+        default: break
         }
     }
 
     override func accessibilityPerformEscape() -> Bool {
-        dismissPlayer()
+        self.dismissPlayer()
         return true
     }
 }

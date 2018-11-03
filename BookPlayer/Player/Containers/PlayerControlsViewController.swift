@@ -47,7 +47,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
             self.prefersChapterContext,
             book.hasChapters,
             let start = book.currentChapter?.start else {
-                return book.currentTime
+            return book.currentTime
         }
 
         return book.currentTime - start
@@ -62,10 +62,10 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
             self.prefersChapterContext,
             book.hasChapters,
             let duration = book.currentChapter?.duration else {
-                let time = self.prefersRemainingTime
-                    ? self.currentTimeInContext - book.duration
-                    : book.duration
-                return time
+            let time = self.prefersRemainingTime
+                ? self.currentTimeInContext - book.duration
+                : book.duration
+            return time
         }
 
         let time = self.prefersRemainingTime
@@ -84,7 +84,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
             self.prefersChapterContext,
             book.hasChapters,
             let duration = book.currentChapter?.duration else {
-                return book.duration
+            return book.duration
         }
 
         return duration
@@ -176,7 +176,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
         if !self.progressSlider.isTracking {
             self.currentTimeLabel.text = self.formatTime(self.currentTimeInContext)
-            self.currentTimeLabel.accessibilityLabel = String(describing: "Current Chapter Time: " + VoiceOverService.secondsToMinutes(currentTimeInContext))
+            self.currentTimeLabel.accessibilityLabel = String(describing: "Current Chapter Time: " + VoiceOverService.secondsToMinutes(self.currentTimeInContext))
             self.maxTimeButton.setTitle(self.formatTime(self.maxTimeInContext), for: .normal)
             let prefix = self.prefersRemainingTime
                 ? "Remaining Chapter Time: "

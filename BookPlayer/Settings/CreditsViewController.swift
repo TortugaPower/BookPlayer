@@ -26,7 +26,7 @@ class CreditsViewController: UIViewController {
         do {
             contents = try String(contentsOfFile: filepath)
         } catch {
-             contents = "Unable to display credits"
+            contents = "Unable to display credits"
         }
 
         do {

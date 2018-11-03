@@ -36,7 +36,7 @@ class PlaylistViewController: BaseListViewController {
 
         let alert = UIAlertController(title: "Import \(files.count) files into", message: nil, preferredStyle: .alert)
 
-        alert.addAction(UIAlertAction(title: "Library", style: .default) { (_) in
+        alert.addAction(UIAlertAction(title: "Library", style: .default) { _ in
             DataManager.insertBooks(from: files, into: self.library) {
                 self.showLoadView(false)
                 self.reloadData()
@@ -44,7 +44,7 @@ class PlaylistViewController: BaseListViewController {
             }
         })
 
-        alert.addAction(UIAlertAction(title: "Current Playlist", style: .default) { (_) in
+        alert.addAction(UIAlertAction(title: "Current Playlist", style: .default) { _ in
             self.showLoadView(false)
             NotificationCenter.default.post(name: .reloadData, object: nil)
         })
@@ -101,8 +101,9 @@ class PlaylistViewController: BaseListViewController {
     }
 
     // MARK: - Methods
+
     override func sort(by sortType: PlayListSortOrder) throws {
-        try playlist.sort(by: sortType)
+        try self.playlist.sort(by: sortType)
     }
 }
 
@@ -167,7 +168,7 @@ extension PlaylistViewController {
             return nil
         }
 
-        let deleteAction = UITableViewRowAction(style: .default, title: "Options") { (_, indexPath) in
+        let deleteAction = UITableViewRowAction(style: .default, title: "Options") { _, indexPath in
             let sheet = UIAlertController(title: "\(book.title!)", message: nil, preferredStyle: .alert)
 
             sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))

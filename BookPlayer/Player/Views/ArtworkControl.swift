@@ -94,20 +94,18 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
             self.playPauseButtonWidth.constant = self.artworkWidth.constant * scale - self.artworkWidth.constant
             self.playPauseButtonHeight.constant = self.artworkHeight.constant * scale - self.artworkHeight.constant
 
-            UIView.animate(
-                withDuration: 0.25,
-                delay: 0.0,
-                usingSpringWithDamping: 0.6,
-                initialSpringVelocity: 1.4,
-                options: .preferredFramesPerSecond60,
-                animations: {
-                    self.artworkImage.transform = CGAffineTransform(scaleX: scale, y: scale)
+            UIView.animate(withDuration: 0.25,
+                           delay: 0.0,
+                           usingSpringWithDamping: 0.6,
+                           initialSpringVelocity: 1.4,
+                           options: .preferredFramesPerSecond60,
+                           animations: {
+                               self.artworkImage.transform = CGAffineTransform(scaleX: scale, y: scale)
 
-                    self.playPauseButton.layoutIfNeeded()
+                               self.playPauseButton.layoutIfNeeded()
 
-                    self.setTransformForJumpIcons()
-                }
-            )
+                               self.setTransformForJumpIcons()
+            })
 
             self.showPlayPauseButton()
         }
@@ -129,7 +127,7 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
 
     override func willMove(toSuperview newSuperview: UIView?) {
         super.willMove(toSuperview: newSuperview)
-        setupAccessibilityLabels()
+        self.setupAccessibilityLabels()
     }
 
     private func setup() {
@@ -163,13 +161,13 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         self.playPauseButtonHeight.constant = self.artworkHeight.constant * scale - self.artworkHeight.constant
 
         // Gestures
-        self.pan = UIPanGestureRecognizer(target: self, action: #selector(panAction))
+        self.pan = UIPanGestureRecognizer(target: self, action: #selector(self.panAction))
         self.pan.delegate = self
         self.pan.maximumNumberOfTouches = 1
 
         self.addGestureRecognizer(self.pan!)
 
-        self.tap = UITapGestureRecognizer(target: self, action: #selector(tapAction))
+        self.tap = UITapGestureRecognizer(target: self, action: #selector(self.tapAction))
         self.tap.delegate = self
 
         self.addGestureRecognizer(self.tap)
@@ -188,11 +186,11 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     // Voiceover
     private func setupAccessibilityLabels() {
         isAccessibilityElement = false
-        playPauseButton.isAccessibilityElement = true
-        playPauseButton.accessibilityLabel = "Play Pause"
-        playPauseButton.accessibilityTraits = super.accessibilityTraits | UIAccessibilityTraitButton
-        rewindIcon.accessibilityLabel = VoiceOverService.rewindText()
-        forwardIcon.accessibilityLabel = VoiceOverService.fastForwardText()
+        self.playPauseButton.isAccessibilityElement = true
+        self.playPauseButton.accessibilityLabel = "Play Pause"
+        self.playPauseButton.accessibilityTraits = super.accessibilityTraits | UIAccessibilityTraitButton
+        self.rewindIcon.accessibilityLabel = VoiceOverService.rewindText()
+        self.forwardIcon.accessibilityLabel = VoiceOverService.fastForwardText()
         accessibilityElements = [
             playPauseButton,
             rewindIcon,
@@ -287,16 +285,14 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     }
 
     private func resetArtworkViewHorizontalConstraintAnimated() {
-        UIView.animate(
-            withDuration: 0.3,
-            delay: 0.0,
-            usingSpringWithDamping: 0.7,
-            initialSpringVelocity: 1.5,
-            options: .preferredFramesPerSecond60,
-            animations: {
-                self.artworkContainer.transform = .identity
-            }
-        )
+        UIView.animate(withDuration: 0.3,
+                       delay: 0.0,
+                       usingSpringWithDamping: 0.7,
+                       initialSpringVelocity: 1.5,
+                       options: .preferredFramesPerSecond60,
+                       animations: {
+                           self.artworkContainer.transform = .identity
+        })
 
         UIView.animate(withDuration: 0.1, delay: 0.10, options: .curveEaseIn, animations: {
             self.rewindIcon.alpha = self.jumpIconAlpha
@@ -322,18 +318,18 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         }
 
         switch gestureRecognizer.state {
-            case .began:
-                gestureRecognizer.setTranslation(CGPoint(x: 0, y: 0), in: self)
+        case .began:
+            gestureRecognizer.setTranslation(CGPoint(x: 0, y: 0), in: self)
 
-            case .changed:
-                let translation = gestureRecognizer.translation(in: self)
+        case .changed:
+            let translation = gestureRecognizer.translation(in: self)
 
-                self.updateArtworkViewForTranslation(translation.x)
+            self.updateArtworkViewForTranslation(translation.x)
 
-            case .ended, .cancelled, .failed:
-                self.resetArtworkViewHorizontalConstraintAnimated()
+        case .ended, .cancelled, .failed:
+            self.resetArtworkViewHorizontalConstraintAnimated()
 
-            case .possible: break
+        case .possible: break
         }
     }
 

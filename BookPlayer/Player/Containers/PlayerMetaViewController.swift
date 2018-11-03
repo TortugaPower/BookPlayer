@@ -6,8 +6,8 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
-import UIKit
 import MarqueeLabelSwift
+import UIKit
 
 class PlayerMetaViewController: PlayerContainerViewController {
     @IBOutlet private weak var authorLabel: BPMarqueeLabel!
@@ -38,7 +38,6 @@ class PlayerMetaViewController: PlayerContainerViewController {
 
     private func setChapterLabel() {
         guard let book = self.book, book.hasChapters, let currentChapter = book.currentChapter else {
-
             self.chapterLabel.text = ""
             self.chapterLabel.isEnabled = false
 
@@ -57,6 +56,6 @@ class PlayerMetaViewController: PlayerContainerViewController {
         guard let book = book else {
             return accessibilityHint = "Player data unavailable"
         }
-        authorLabel.accessibilityLabel = VoiceOverService().playerMetaText(book: book)
+        self.authorLabel.accessibilityLabel = VoiceOverService().playerMetaText(book: book)
     }
 }

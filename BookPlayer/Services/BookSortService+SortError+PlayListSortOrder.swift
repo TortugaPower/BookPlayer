@@ -26,12 +26,12 @@ final class BookSortService {
 
 enum SortError: Error {
     case missingOriginalFilename,
-         invalidType
+        invalidType
 }
 
 enum PlayListSortOrder {
     case metadataTitle,
-         fileName
+        fileName
 }
 
 protocol Sortable {

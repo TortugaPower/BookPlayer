@@ -7,11 +7,10 @@
 //
 //
 
-import Foundation
 import CoreData
+import Foundation
 
 extension LibraryItem {
-
     @nonobjc public class func fetchRequest() -> NSFetchRequest<LibraryItem> {
         return NSFetchRequest<LibraryItem>(entityName: "LibraryItem")
     }

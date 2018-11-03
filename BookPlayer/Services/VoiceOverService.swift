@@ -9,36 +9,36 @@ class VoiceOverService {
     // MARK: - BookCellView
 
     public func bookCellView(type: BookCellType, title: String?, subtitle: String?, progress: Double?) -> String {
-        self.type     = type
-        self.title    = title
+        self.type = type
+        self.title = title
         self.subtitle = subtitle
         self.progress = progress
 
         switch type {
         case .book:
-            return bookText()
+            return self.bookText()
         case .file:
-            return fileText()
+            return self.fileText()
         case .playlist:
-            return playlistText()
+            return self.playlistText()
         }
     }
 
     fileprivate func bookText() -> String {
-        let voiceOverTitle          = title ?? "No Title"
-        let voiceOverSubtitle       = subtitle ?? "No Author"
-        return "\(voiceOverTitle) by \(voiceOverSubtitle) \(progressPercent())% Completed"
+        let voiceOverTitle = title ?? "No Title"
+        let voiceOverSubtitle = subtitle ?? "No Author"
+        return "\(voiceOverTitle) by \(voiceOverSubtitle) \(self.progressPercent())% Completed"
     }
 
     fileprivate func fileText() -> String {
-        let voiceOverTitle          = title ?? "No File Title"
-        let voiceOverSubtitle       = subtitle ?? "No File Subtitle"
+        let voiceOverTitle = title ?? "No File Title"
+        let voiceOverSubtitle = subtitle ?? "No File Subtitle"
         return "\(voiceOverTitle) \(voiceOverSubtitle)"
     }
 
     fileprivate func playlistText() -> String {
-        let voiceOverTitle          = title ?? "No Playlist Title"
-        return "\(voiceOverTitle) Playlist \(progressPercent())% Completed"
+        let voiceOverTitle = title ?? "No Playlist Title"
+        return "\(voiceOverTitle) Playlist \(self.progressPercent())% Completed"
     }
 
     fileprivate func progressPercent() -> Int {
@@ -58,6 +58,7 @@ class VoiceOverService {
     }
 
     // MARK: - ArtworkControl
+
     public static func rewindText() -> String {
         return "Rewind " + self.secondsToMinutes(PlayerManager.shared.rewindInterval.rounded())
     }

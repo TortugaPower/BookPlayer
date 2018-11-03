@@ -6,8 +6,8 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
-import XCTest
 @testable import BookPlayer
+import XCTest
 
 class PlaylistTests: XCTestCase {
     override func setUp() {

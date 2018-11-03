@@ -6,8 +6,8 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
-import UIKit
 import MarqueeLabelSwift
+import UIKit
 
 class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecognizerDelegate {
     @IBOutlet private weak var miniPlayerBlur: UIVisualEffectView!
@@ -57,7 +57,7 @@ class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecogniz
         self.miniPlayerBlur.layer.cornerRadius = 13.0
         self.miniPlayerBlur.layer.masksToBounds = true
 
-        self.tap = UITapGestureRecognizer(target: self, action: #selector(tapAction))
+        self.tap = UITapGestureRecognizer(target: self, action: #selector(self.tapAction))
         self.tap.cancelsTouchesInView = true
 
         self.view.addGestureRecognizer(self.tap)

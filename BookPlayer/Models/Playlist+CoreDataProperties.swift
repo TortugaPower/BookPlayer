@@ -7,23 +7,21 @@
 //
 //
 
-import Foundation
 import CoreData
+import Foundation
 
 extension Playlist {
-
     @nonobjc public class func fetchRequest() -> NSFetchRequest<Playlist> {
         return NSFetchRequest<Playlist>(entityName: "Playlist")
     }
 
     @NSManaged public var desc: String!
     @NSManaged public var books: NSOrderedSet?
-
 }
 
 // MARK: Generated accessors for books
-extension Playlist {
 
+extension Playlist {
     @objc(insertObject:inBooksAtIndex:)
     @NSManaged public func insertIntoBooks(_ value: Book, at idx: Int)
 
@@ -53,5 +51,4 @@ extension Playlist {
 
     @objc(removeBooks:)
     @NSManaged public func removeFromBooks(_ values: NSOrderedSet)
-
 }

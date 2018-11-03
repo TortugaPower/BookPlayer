@@ -6,10 +6,10 @@
 //  Copyright © 2017 Tortuga Power. All rights reserved.
 //
 
-import UIKit
+import DeviceKit
 import MessageUI
 import SafariServices
-import DeviceKit
+import UIKit
 
 class SettingsViewController: UITableViewController, MFMailComposeViewControllerDelegate {
     @IBOutlet weak var autoplayLibrarySwitch: UISwitch!
@@ -122,11 +122,11 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         tableView.deselectRow(at: indexPath as IndexPath, animated: true)
 
         switch indexPath {
-            case self.supportEmailPath:
-                self.sendSupportEmmail()
-            case self.githubLinkPath:
-                self.showProjectOnGitHub()
-            default: break
+        case self.supportEmailPath:
+            self.sendSupportEmmail()
+        case self.githubLinkPath:
+            self.showProjectOnGitHub()
+        default: break
         }
     }
 

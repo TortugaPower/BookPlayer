@@ -76,7 +76,6 @@ class PlayerJumpIconForward: PlayerJumpIcon {
 
         self.title = "+\(Int(PlayerManager.shared.forwardInterval.rounded()))s"
     }
-
 }
 
 class PlayerJumpIconRewind: PlayerJumpIcon {
