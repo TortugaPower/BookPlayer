@@ -75,35 +75,37 @@ class ImportOperation: Operation {
 
             inputStream.open()
 
-            let digest = Digest(algorithm: .md5)
+            autoreleasepool {
+                let digest = Digest(algorithm: .md5)
 
-            while inputStream.hasBytesAvailable {
-                var inputBuffer = [UInt8](repeating: 0, count: 1024)
-                inputStream.read(&inputBuffer, maxLength: inputBuffer.count)
-                _ = digest.update(byteArray: inputBuffer)
-            }
-
-            inputStream.close()
-
-            let finalDigest = digest.final()
-
-            let hash = hexString(fromArray: finalDigest)
-            let ext = file.originalUrl.pathExtension
-            let filename = hash + ".\(ext)"
-            let destinationURL = file.destinationFolder.appendingPathComponent(filename)
-
-            do {
-                if !FileManager.default.fileExists(atPath: destinationURL.path) {
-                    try FileManager.default.moveItem(at: file.originalUrl, to: destinationURL)
-                    try (destinationURL as NSURL).setResourceValue(URLFileProtection.none, forKey: .fileProtectionKey)
-                } else {
-                    try FileManager.default.removeItem(at: file.originalUrl)
+                while inputStream.hasBytesAvailable {
+                    var inputBuffer = [UInt8](repeating: 0, count: 1024)
+                    inputStream.read(&inputBuffer, maxLength: inputBuffer.count)
+                    _ = digest.update(byteArray: inputBuffer)
                 }
-            } catch {
-                fatalError("Fail to move file from \(file.originalUrl) to \(destinationURL)")
-            }
 
-            file.processedUrl = destinationURL
+                inputStream.close()
+
+                let finalDigest = digest.final()
+
+                let hash = hexString(fromArray: finalDigest)
+                let ext = file.originalUrl.pathExtension
+                let filename = hash + ".\(ext)"
+                let destinationURL = file.destinationFolder.appendingPathComponent(filename)
+
+                do {
+                    if !FileManager.default.fileExists(atPath: destinationURL.path) {
+                        try FileManager.default.moveItem(at: file.originalUrl, to: destinationURL)
+                        try (destinationURL as NSURL).setResourceValue(URLFileProtection.none, forKey: .fileProtectionKey)
+                    } else {
+                        try FileManager.default.removeItem(at: file.originalUrl)
+                    }
+                } catch {
+                    fatalError("Fail to move file from \(file.originalUrl) to \(destinationURL)")
+                }
+
+                file.processedUrl = destinationURL
+            }
         }
     }
 }
