@@ -53,6 +53,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // register document's folder listener
         self.setupDocumentListener()
 
+        if let activityDictionary = launchOptions?[.userActivityDictionary] as? [UIApplicationLaunchOptionsKey: Any],
+            let activityType = activityDictionary[.userActivityType] as? String,
+            activityType == Constants.UserActivityPlayback {
+            defaults.set(true, forKey: activityType)
+        }
+
         return true
     }
 
@@ -61,6 +67,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // like when receiving files through AirDrop
         DataManager.processFile(at: url)
 
+        return true
+    }
+
+    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
+        PlayerManager.shared.play()
         return true
     }
 
