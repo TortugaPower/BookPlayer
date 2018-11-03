@@ -26,11 +26,9 @@ public class Library: NSManagedObject {
             if
                 let playlist = item as? Playlist,
                 let storedBooks = playlist.books?.array as? [Book],
-                storedBooks.contains(
-                    where: { (storedBook) -> Bool in
-                        storedBook.identifier == identifier
-                    }
-                ) {
+                storedBooks.contains(where: { (storedBook) -> Bool in
+                    storedBook.identifier == identifier
+                }) {
                 // check playlist books
                 return index
             }
@@ -85,7 +83,7 @@ public class Library: NSManagedObject {
 extension Library: Sortable {
     func sort(by sortType: PlayListSortOrder) throws {
         guard let items = items else { return }
-        self.items      = try BookSortService.sort(items, by: sortType)
+        self.items = try BookSortService.sort(items, by: sortType)
         DataManager.saveContext()
     }
 }

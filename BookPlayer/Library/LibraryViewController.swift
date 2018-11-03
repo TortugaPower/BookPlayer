@@ -118,18 +118,18 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
 
         let alert = UIAlertController(title: "Import \(files.count) files into", message: nil, preferredStyle: .alert)
 
-        alert.addAction(UIAlertAction(title: "Library", style: .default) { (_) in
+        alert.addAction(UIAlertAction(title: "Library", style: .default) { _ in
             self.showLoadView(false)
         })
 
-        alert.addAction(UIAlertAction(title: "New Playlist", style: .default) { (_) in
+        alert.addAction(UIAlertAction(title: "New Playlist", style: .default) { _ in
             var placeholder = "New Playlist"
 
             if let file = files.first {
                 placeholder = file.originalUrl.deletingPathExtension().lastPathComponent
             }
 
-            self.presentCreatePlaylistAlert(placeholder, handler: { (title) in
+            self.presentCreatePlaylistAlert(placeholder, handler: { title in
                 let playlist = DataManager.createPlaylist(title: title, books: [])
 
                 self.library.addToItems(playlist)
@@ -243,11 +243,9 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
     }
 
     func presentCreatePlaylistAlert(_ namePlaceholder: String = "New Playlist", handler: ((_ title: String) -> Void)?) {
-        let playlistAlert = UIAlertController(
-            title: "Create a new playlist",
-            message: "Files in playlists are automatically played one after the other",
-            preferredStyle: .alert
-        )
+        let playlistAlert = UIAlertController(title: "Create a new playlist",
+                                              message: "Files in playlists are automatically played one after the other",
+                                              preferredStyle: .alert)
 
         playlistAlert.addTextField(configurationHandler: { textfield in
             textfield.text = namePlaceholder
@@ -272,11 +270,9 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
     // MARK: - IBActions
 
     @IBAction func addAction() {
-        let alertController = UIAlertController(
-            title: nil,
-            message: "You can also add files via AirDrop. Send an audiobook file to your device and select BookPlayer from the list that appears.",
-            preferredStyle: .actionSheet
-        )
+        let alertController = UIAlertController(title: nil,
+                                                message: "You can also add files via AirDrop. Send an audiobook file to your device and select BookPlayer from the list that appears.",
+                                                preferredStyle: .actionSheet)
 
         alertController.addAction(UIAlertAction(title: "Import files", style: .default) { _ in
             self.presentImportFilesAlert()

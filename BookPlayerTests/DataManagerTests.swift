@@ -6,11 +6,10 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
-import XCTest
 @testable import BookPlayer
+import XCTest
 
 class DataManagerTests: XCTestCase {
-
     override func setUp() {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -20,8 +19,8 @@ class DataManagerTests: XCTestCase {
 }
 
 // MARK: - getFiles()
-class GetFilesTests: DataManagerTests {
 
+class GetFilesTests: DataManagerTests {
     func testGetFilesFromNilFolder() {
         let nonExistingFolder = URL(fileURLWithPath: "derp")
         XCTAssertNil(DataManager.getFiles(from: nonExistingFolder))
@@ -40,8 +39,8 @@ class GetFilesTests: DataManagerTests {
 }
 
 // MARK: - processFiles()
-class ProcessFilesTests: DataManagerTests {
 
+class ProcessFilesTests: DataManagerTests {
     func testProcessOneFile() {
         let filename = "file.txt"
         let bookContents = "bookcontents".data(using: .utf8)!
@@ -61,6 +60,7 @@ class ProcessFilesTests: DataManagerTests {
 }
 
 // MARK: - insertBooks(from:into:or:completion:)
+
 class InsertBooksTests: DataManagerTests {
     override func setUp() {
         super.setUp()
@@ -68,13 +68,13 @@ class InsertBooksTests: DataManagerTests {
         let library = DataManager.getLibrary()
         DataManager.delete(library)
     }
+
     func testInsertEmptyBooksInLibrary() {
         let library = DataManager.getLibrary()
 
         let expectation = XCTestExpectation(description: "Insert books into library")
 
         DataManager.insertBooks(from: [], into: library) {
-
             XCTAssert(library.items?.count == 0)
             expectation.fulfill()
         }
@@ -146,7 +146,6 @@ class InsertBooksTests: DataManagerTests {
         let expectation = XCTestExpectation(description: "Insert books into library")
 
         DataManager.insertBooks(from: [book1Url, book2Url], into: library) {
-
             XCTAssert(library.items?.count == 2)
             expectation.fulfill()
         }
@@ -221,7 +220,6 @@ class InsertBooksTests: DataManagerTests {
         let expectation = XCTestExpectation(description: "Insert books into library")
 
         DataManager.insertBooks(from: [book1Url, book2Url], into: playlist) {
-
             XCTAssert(library.items?.count == 1)
             XCTAssert(playlist.books?.count == 2)
 

@@ -81,6 +81,7 @@ Managed with [Carthage](https://github.com/Carthage/Carthage)
 Managed with [Homebrew](https://brew.sh)
 
 - [SwiftLint](https://github.com/realm/SwiftLint)
+- [SwiftFormat](https://github.com/nicklockwood/SwiftFormat)
 
 
 

@@ -7,9 +7,9 @@
 //
 //
 
-import Foundation
-import CoreData
 import ColorCube
+import CoreData
+import Foundation
 
 enum ArtworkColorsError: Error {
     case averageColorFailed
@@ -19,15 +19,19 @@ public class ArtworkColors: NSManagedObject {
     var background: UIColor {
         return UIColor(hex: self.backgroundHex)
     }
+
     var primary: UIColor {
         return UIColor(hex: self.primaryHex)
     }
+
     var secondary: UIColor {
         return UIColor(hex: self.secondaryHex)
     }
+
     var tertiary: UIColor {
         return UIColor(hex: self.tertiaryHex)
     }
+
     // W3C recommends contrast values larger 4 or 7 (strict), but 3.0 should be fine for our use case
     convenience init(from image: UIImage, context: NSManagedObjectContext, darknessThreshold: CGFloat = 0.2, minimumContrastRatio: CGFloat = 3.0) {
         do {

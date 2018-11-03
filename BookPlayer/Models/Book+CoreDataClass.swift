@@ -62,11 +62,9 @@ public class Book: LibraryItem {
                 let chapterIndex = index + 1
                 let chapter = Chapter(from: asset, context: context)
 
-                chapter.title = AVMetadataItem.metadataItems(
-                    from: chapterMetadata.items,
-                    withKey: AVMetadataKey.commonKeyTitle,
-                    keySpace: AVMetadataKeySpace.common
-                ).first?.value?.copy(with: nil) as? String ?? ""
+                chapter.title = AVMetadataItem.metadataItems(from: chapterMetadata.items,
+                                                             withKey: AVMetadataKey.commonKeyTitle,
+                                                             keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String ?? ""
                 chapter.start = CMTimeGetSeconds(chapterMetadata.timeRange.start)
                 chapter.duration = CMTimeGetSeconds(chapterMetadata.timeRange.duration)
                 chapter.index = Int16(chapterIndex)

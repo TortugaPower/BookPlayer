@@ -142,34 +142,28 @@ class ItemProgress: UIView {
             self.completionBackground.isHidden = true
             self.completionCheckmark.isHidden = true
 
-            self.pieOutline.path = UIBezierPath(
-                arcCenter: center,
-                radius: radius,
-                startAngle: 0,
-                endAngle: CGFloat.pi * 2,
-                clockwise: true
-            ).cgPath
+            self.pieOutline.path = UIBezierPath(arcCenter: center,
+                                                radius: radius,
+                                                startAngle: 0,
+                                                endAngle: CGFloat.pi * 2,
+                                                clockwise: true).cgPath
 
             radius = diameter * 0.5 - lineWidth * 2
 
-            self.pieBackground.path = UIBezierPath(
-                arcCenter: center,
-                radius: radius,
-                startAngle: 0,
-                endAngle: CGFloat.pi * 2,
-                clockwise: true
-            ).cgPath
+            self.pieBackground.path = UIBezierPath(arcCenter: center,
+                                                   radius: radius,
+                                                   startAngle: 0,
+                                                   endAngle: CGFloat.pi * 2,
+                                                   clockwise: true).cgPath
 
             let path = UIBezierPath()
 
             path.move(to: center)
-            path.addArc(
-                withCenter: center,
-                radius: radius,
-                startAngle: -CGFloat.pi / 2,
-                endAngle: min(1.0, max(0.0, roundedValue)) * CGFloat.pi * 2 - CGFloat.pi / 2,
-                clockwise: true
-            )
+            path.addArc(withCenter: center,
+                        radius: radius,
+                        startAngle: -CGFloat.pi / 2,
+                        endAngle: min(1.0, max(0.0, roundedValue)) * CGFloat.pi * 2 - CGFloat.pi / 2,
+                        clockwise: true)
             path.close()
 
             self.pieSegment.path = path.cgPath
@@ -181,13 +175,11 @@ class ItemProgress: UIView {
             self.completionBackground.isHidden = false
             self.completionCheckmark.isHidden = false
 
-            self.completionBackground.path = UIBezierPath(
-                arcCenter: center,
-                radius: diameter * 0.5,
-                startAngle: 0,
-                endAngle: CGFloat.pi * 2,
-                clockwise: true
-            ).cgPath
+            self.completionBackground.path = UIBezierPath(arcCenter: center,
+                                                          radius: diameter * 0.5,
+                                                          startAngle: 0,
+                                                          endAngle: CGFloat.pi * 2,
+                                                          clockwise: true).cgPath
         }
     }
 }

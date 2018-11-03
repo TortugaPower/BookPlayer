@@ -6,10 +6,10 @@
 // Copyright © 2016 Tortuga Power. All rights reserved.
 //
 
-import UIKit
 import AVFoundation
-import MediaPlayer
 import DirectoryWatcher
+import MediaPlayer
+import UIKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -31,12 +31,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Appearance
         UINavigationBar.appearance().titleTextAttributes = [
-            NSAttributedStringKey.foregroundColor: UIColor.init(hex: "#37454E")
+            NSAttributedStringKey.foregroundColor: UIColor(hex: "#37454E")
         ]
 
         if #available(iOS 11, *) {
             UINavigationBar.appearance().largeTitleTextAttributes = [
-                NSAttributedStringKey.foregroundColor: UIColor.init(hex: "#37454E")
+                NSAttributedStringKey.foregroundColor: UIColor(hex: "#37454E")
             ]
         }
 
@@ -127,7 +127,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         guard let userInfo = notification.userInfo,
             let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
             let type = AVAudioSessionInterruptionType(rawValue: typeValue) else {
-                return
+            return
         }
 
         switch type {
@@ -153,7 +153,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let userInfo = notification.userInfo,
             let reasonValue = userInfo[AVAudioSessionRouteChangeReasonKey] as? UInt,
             let reason = AVAudioSessionRouteChangeReason(rawValue: reasonValue) else {
-                return
+            return
         }
 
         // Pause playback if route changes due to a disconnect

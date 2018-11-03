@@ -21,8 +21,9 @@ class BaseListViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
 
     @IBAction func didTapSort(_ sender: Any) {
-        present(sortDialog(), animated: true, completion: nil)
+        present(self.sortDialog(), animated: true, completion: nil)
     }
+
     var library: Library!
 
     // TableView's datasource
@@ -55,7 +56,7 @@ class BaseListViewController: UIViewController {
         self.adjustBottomOffsetForMiniPlayer()
 
         // Remove the line after the last cell
-        self.tableView.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.size.width, height: 1))
+        self.tableView.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: self.tableView.frame.size.width, height: 1))
 
         // Fixed tableview having strange offset
         self.edgesForExtendedLayout = UIRectEdge()
@@ -288,10 +289,11 @@ class BaseListViewController: UIViewController {
     }
 
     // MARK: - Sorting
+
     private func sortDialog() -> UIAlertController {
         let alert = UIAlertController(title: "Sort Files by", message: nil, preferredStyle: .actionSheet)
 
-        alert.addAction(UIAlertAction(title: "Title", style: .default, handler: { (_) in
+        alert.addAction(UIAlertAction(title: "Title", style: .default, handler: { _ in
             do {
                 try self.sort(by: .metadataTitle)
                 self.tableView.reloadData()
@@ -300,7 +302,7 @@ class BaseListViewController: UIViewController {
             }
         }))
 
-        alert.addAction(UIAlertAction(title: "Original File Name", style: .default, handler: { (_) in
+        alert.addAction(UIAlertAction(title: "Original File Name", style: .default, handler: { _ in
             do {
                 try self.sort(by: .fileName)
                 self.tableView.reloadData()
@@ -318,11 +320,9 @@ class BaseListViewController: UIViewController {
     }
 
     private func displaySortFailureAlert() {
-        let alert = UIAlertController(
-            title: "Error",
-            message: "Sorting is unsupported. Please re-import files",
-            preferredStyle: .alert
-        )
+        let alert = UIAlertController(title: "Error",
+                                      message: "Sorting is unsupported. Please re-import files",
+                                      preferredStyle: .alert)
 
         alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: nil))
 
@@ -385,8 +385,7 @@ extension BaseListViewController: UITableViewDelegate {
         return true
     }
 
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-    }
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {}
 
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCellEditingStyle {
         guard indexPath.sectionValue == .library else {
@@ -446,7 +445,7 @@ extension BaseListViewController: TableViewReorderDelegate {
     }
 
     @objc func tableViewDidFinishReordering(_ tableView: UITableView, from initialSourceIndexPath: IndexPath, to finalDestinationIndexPath: IndexPath, dropped overIndexPath: IndexPath?) {
-        // 
+        //
     }
 }
 

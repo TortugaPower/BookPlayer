@@ -6,12 +6,12 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
-import XCTest
 @testable import BookPlayer
+import XCTest
 
 // MARK: - processFiles()
-class ImportOperationTests: XCTestCase {
 
+class ImportOperationTests: XCTestCase {
     override func setUp() {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -55,6 +55,5 @@ class ImportOperationTests: XCTestCase {
         operation.start()
 
         wait(for: [promise, promiseFile], timeout: 15)
-
     }
 }

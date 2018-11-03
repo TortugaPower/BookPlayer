@@ -16,7 +16,7 @@ public class Playlist: LibraryItem {
 
     override var artwork: UIImage {
         guard let books = self.books?.array as? [Book], let book = books.first(where: { (book) -> Bool in
-            return !book.usesDefaultArtwork
+            !book.usesDefaultArtwork
         }) else {
             return #imageLiteral(resourceName: "defaultPlaylist")
         }
@@ -169,7 +169,7 @@ public class Playlist: LibraryItem {
 extension Playlist: Sortable {
     func sort(by sortType: PlayListSortOrder) throws {
         guard let books = books else { return }
-        self.books      = try BookSortService.sort(books, by: sortType)
+        self.books = try BookSortService.sort(books, by: sortType)
         DataManager.saveContext()
     }
 }
