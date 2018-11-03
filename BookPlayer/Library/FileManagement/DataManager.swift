@@ -41,7 +41,7 @@ class DataManager {
     }
 
     private static var storeUrl: URL {
-        return FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.tortugapower.bookplayer.files")!.appendingPathComponent("BookPlayer.sqlite")
+        return FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!.appendingPathComponent("BookPlayer.sqlite")
     }
 
     // MARK: - Operations

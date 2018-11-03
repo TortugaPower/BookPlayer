@@ -38,4 +38,5 @@ enum Constants {
     }
 
     static let UserActivityPlayback = Bundle.main.bundleIdentifier! + ".activity.playback"
+    static let ApplicationGroupIdentifier = "group." + Bundle.main.bundleIdentifier! + ".files"
 }

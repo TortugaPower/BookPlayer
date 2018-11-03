@@ -25,13 +25,13 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         // register for appDelegate openUrl notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.reloadData), name: .reloadData, object: nil)
 
-        self.loadLibrary()
-
         // handle CoreData migration into shared app groups
         if !UserDefaults.standard.bool(forKey: Constants.UserDefaults.appGroupsMigration.rawValue) {
             self.migrateCoreDataStack()
             UserDefaults.standard.set(true, forKey: Constants.UserDefaults.appGroupsMigration.rawValue)
         }
+
+        self.loadLibrary()
 
         self.loadLastBook()
     }

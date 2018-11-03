@@ -20,7 +20,7 @@
 	<string>$(TeamIdentifierPrefix)$(CFBundleIdentifier)</string>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.tortugapower.bookplayer.files</string>
+		<string>group.$(CFBundleIdentifier).files</string>
 	</array>
 </dict>
 </plist>
