@@ -62,9 +62,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
+    // Handles audio file urls, like when receiving files through AirDrop
+    // Also handles custom URL scheme 'bookplayer://'
     func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey: Any] = [:]) -> Bool {
-        // This function is called when the app is opened with a audio file url,
-        // like when receiving files through AirDrop
+        guard url.isFileURL else {
+            if PlayerManager.shared.isLoaded {
+                PlayerManager.shared.play()
+            } else {
+                UserDefaults.standard.set(true, forKey: Constants.UserActivityPlayback)
+            }
+
+            return true
+        }
+
         DataManager.processFile(at: url)
 
         return true
