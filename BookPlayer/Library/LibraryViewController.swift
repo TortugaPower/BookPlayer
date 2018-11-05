@@ -400,79 +400,87 @@ extension LibraryViewController {
 
 extension LibraryViewController {
     func tableView(_: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+
         guard indexPath.sectionValue == .library else {
             return nil
         }
-
-        let item = items[indexPath.row]
-
-        // "…" on a button indicates a follow up dialog instead of an immmediate action in macOS and iOS
-
-        // Remove the dots if trying to delete an empty playlist
-        if let playlist = item as? Playlist {
-            title = playlist.hasBooks() ? title : "Delete"
+        let item                = self.items[indexPath.row]
+        let deleteActionTitle   = deleteActionText(item: item)
+        switch item {
+        case is Playlist:
+            return [
+                deleteRowAction(title: deleteActionTitle),
+                renameRowAction(),
+                markCompleteAction(item: item)
+            ]
+        case is Book:
+            return [
+                deleteRowAction(title: deleteActionTitle),
+                markCompleteAction(item: item)
+            ]
+        default:
+            fatalError()
         }
+    }
 
-        let deleteAction = UITableViewRowAction(style: .default, title: title) { _, indexPath in
+
+    private func deleteActionText(item: LibraryItem) -> String {
+        if let playlist = item as? Playlist {
+            return playlist.hasBooks() ? "Delete…" : "Delete"
+        } else {
+            return "Delete…"
+        }
+    }
+
+    private func deleteRowAction(title: String) -> UITableViewRowAction {
+        let deleteAction = UITableViewRowAction(style: .default, title: title) { (_, indexPath) in
             guard let book = self.items[indexPath.row] as? Book else {
-                guard let playlist = self.items[indexPath.row] as? Playlist else {
-                    return
-                }
-
+                guard let playlist = self.items[indexPath.row] as? Playlist else { return }
                 self.handleDelete(playlist: playlist, indexPath: indexPath)
-
                 return
             }
-
             self.handleDelete(book: book, indexPath: indexPath)
         }
-
         deleteAction.backgroundColor = .red
+        return deleteAction
+    }
 
-        if item is Playlist {
-            let renameAction = UITableViewRowAction(style: .normal, title: "Rename") { _, indexPath in
-                guard let playlist = self.items[indexPath.row] as? Playlist else {
-                    return
-                }
-
-                let alert = UIAlertController(title: "Rename playlist", message: nil, preferredStyle: .alert)
-
-                alert.addTextField(configurationHandler: { textfield in
-                    textfield.placeholder = playlist.title
-                    textfield.text = playlist.title
-                })
-
-                alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-                alert.addAction(UIAlertAction(title: "Rename", style: .default) { _ in
-                    if let title = alert.textFields!.first!.text, title != playlist.title {
-                        playlist.title = title
-
-                        DataManager.saveContext()
-                        self.tableView.reloadRows(at: [indexPath], with: .none)
-                    }
-                })
-
-                self.present(alert, animated: true, completion: nil)
-            }
-
-            return [deleteAction, renameAction]
+    private func markCompleteAction(item: LibraryItem) -> UITableViewRowAction {
+        let markCompleteAction = UITableViewRowAction(style: .default, title: "Mark\n Complete ") { (action, indexPath) in
+            item.setCompletionState()
+            self.tableView.reloadRows(at: [indexPath], with: .fade)
         }
+        markCompleteAction.backgroundColor = UIColor(red:0.00, green:0.54, blue:0.37, alpha:1.00)
+        return markCompleteAction
+    }
 
-        let exportAction = UITableViewRowAction(style: .normal, title: "Export") { _, indexPath in
-            guard let book = self.items[indexPath.row] as? Book else {
-                return
-            }
-
-            let bookProvider = BookActivityItemProvider(book)
-
-            let shareController = UIActivityViewController(activityItems: [bookProvider], applicationActivities: nil)
-
-            shareController.excludedActivityTypes = [.copyToPasteboard]
-
-            self.present(shareController, animated: true, completion: nil)
+    private func renameRowAction() -> UITableViewRowAction {
+        let renameAction = UITableViewRowAction(style: .normal, title: "Rename") { (_, indexPath) in
+            guard let playlist = self.items[indexPath.row] as? Playlist else { return }
+            self.displayRenameAlert(playlist: playlist, indexPath: indexPath)
         }
+        return renameAction
+    }
 
-        return [deleteAction, exportAction]
+    private func displayRenameAlert(playlist: Playlist, indexPath: IndexPath) {
+        let alert = UIAlertController(title: "Rename playlist", message: nil, preferredStyle: .alert)
+
+        alert.addTextField(configurationHandler: { (textfield) in
+            textfield.placeholder = playlist.title
+            textfield.text = playlist.title
+        })
+
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Rename", style: .default) { _ in
+            if let title = alert.textFields!.first!.text, title != playlist.title {
+                playlist.title = title
+
+                DataManager.saveContext()
+                self.tableView.reloadRows(at: [indexPath], with: .none)
+            }
+        })
+
+        self.present(alert, animated: true, completion: nil)
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
