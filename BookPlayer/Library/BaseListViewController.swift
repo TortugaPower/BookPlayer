@@ -277,11 +277,14 @@ class BaseListViewController: UIViewController {
             }
 
             return false
-        }), let cell = self.tableView.cellForRow(at: IndexPath(row: index, section: .library)) as? BookCellView else {
+        }) else { return }
+
+        let itemIndexPath = IndexPath(row: index, section: .library)
+        guard let cell = self.tableView.cellForRow(at: itemIndexPath) as? BookCellView else {
             return
         }
 
-        cell.progress = progress
+        cell.progress = items[itemIndexPath.row].isComplete ? 1.0 : progress
     }
 
     @objc func adjustBottomOffsetForMiniPlayer() {
