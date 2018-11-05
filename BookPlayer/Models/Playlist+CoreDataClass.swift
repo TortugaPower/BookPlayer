@@ -67,12 +67,14 @@ public class Playlist: LibraryItem {
             return 0.0
         }
 
+        if isComplete { return 1.0 }
+
         var totalDuration = 0.0
         var totalProgress = 0.0
 
         for book in books {
             totalDuration += book.duration
-            totalProgress += book.currentTime
+            totalProgress += book.isComplete ? book.duration : book.currentTime
         }
 
         guard totalDuration > 0 else {
@@ -164,6 +166,13 @@ public class Playlist: LibraryItem {
         let count = self.books?.array.count ?? 0
 
         return "\(count) Files"
+    }
+
+    public override func setCompletionState(isComplete: Bool = true) {
+        books?.forEach { (book) in
+            guard let book = book as? Book else { return }
+            book.setCompletionState()
+        }
     }
 }
 

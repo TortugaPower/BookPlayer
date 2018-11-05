@@ -26,12 +26,11 @@ public class LibraryItem: NSManagedObject {
     }
 
     var cachedArtwork: UIImage?
-
-    var isCompleted: Bool {
-        return false
-    }
-
     func getBookToPlay() -> Book? {
         return nil
+    }
+    
+    public func setCompletionState(isComplete: Bool = true) {
+        self.isComplete = isComplete
     }
 }
