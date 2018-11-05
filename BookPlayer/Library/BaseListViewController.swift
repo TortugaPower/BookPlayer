@@ -369,7 +369,7 @@ extension BaseListViewController: UITableViewDataSource {
 
         if let book = item as? Book {
             cell.subtitle = book.author
-            cell.progress = book.progress
+            cell.progress = book.isComplete ? 1.0 : book.progress
         } else if let playlist = item as? Playlist {
             cell.subtitle = playlist.info()
             cell.progress = playlist.totalProgress()
