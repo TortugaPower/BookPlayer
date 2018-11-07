@@ -130,44 +130,14 @@ class BaseListViewController: UIViewController {
         }
     }
 
-    func queueBooksForPlayback(_ startItem: LibraryItem, forceAutoplay: Bool = false) -> [Book] {
-        var books = [Book]()
-        let shouldAutoplayLibrary = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue)
-        let shouldAutoplay = shouldAutoplayLibrary || forceAutoplay
-
-        if let book = startItem as? Book {
-            books.append(book)
-        }
-
-        if let playlist = startItem as? Playlist {
-            books.append(contentsOf: playlist.getRemainingBooks())
-        }
-
-        guard
-            shouldAutoplay,
-            let remainingItems = self.items.split(whereSeparator: { $0 == startItem }).last
-            else {
-                return books
-        }
-
-        for item in remainingItems {
-            if let playlist = item as? Playlist {
-                books.append(contentsOf: playlist.getRemainingBooks())
-            } else if let book = item as? Book, !book.isComplete {
-                books.append(book)
-            }
-        }
-
-        return books
-    }
-
     func setupPlayer(books: [Book] = []) {
         // Stop setup if no books were found
         if books.isEmpty {
             return
         }
     }
-        // Make sure player is for a different book
+
+    // Make sure player is for a different book
     func setupPlayer(book: Book) {
         guard
             let currentBook = PlayerManager.shared.currentBook,
@@ -284,7 +254,7 @@ class BaseListViewController: UIViewController {
             return
         }
 
-        cell.progress = items[itemIndexPath.row].isComplete ? 1.0 : progress
+        cell.progress = self.items[itemIndexPath.row].isComplete ? 1.0 : progress
     }
 
     @objc func adjustBottomOffsetForMiniPlayer() {

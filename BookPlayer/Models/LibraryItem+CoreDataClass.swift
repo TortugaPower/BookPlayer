@@ -29,7 +29,7 @@ public class LibraryItem: NSManagedObject {
     func getBookToPlay() -> Book? {
         return nil
     }
-    
+
     public func setCompletionState(isComplete: Bool = true) {
         self.isComplete = isComplete
     }

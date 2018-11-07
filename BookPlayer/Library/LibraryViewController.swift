@@ -400,12 +400,11 @@ extension LibraryViewController {
 
 extension LibraryViewController {
     func tableView(_: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-
         guard indexPath.sectionValue == .library else {
             return nil
         }
-        let item                = self.items[indexPath.row]
-        let deleteActionTitle   = deleteActionText(item: item)
+        let item = self.items[indexPath.row]
+        let deleteActionTitle = deleteActionText(item: item)
         switch item {
         case is Playlist:
             return [
@@ -423,7 +422,6 @@ extension LibraryViewController {
         }
     }
 
-
     private func deleteActionText(item: LibraryItem) -> String {
         if let playlist = item as? Playlist {
             return playlist.hasBooks() ? "Delete…" : "Delete"
@@ -433,7 +431,7 @@ extension LibraryViewController {
     }
 
     private func deleteRowAction(title: String) -> UITableViewRowAction {
-        let deleteAction = UITableViewRowAction(style: .default, title: title) { (_, indexPath) in
+        let deleteAction = UITableViewRowAction(style: .default, title: title) { _, indexPath in
             guard let book = self.items[indexPath.row] as? Book else {
                 guard let playlist = self.items[indexPath.row] as? Playlist else { return }
                 self.handleDelete(playlist: playlist, indexPath: indexPath)
@@ -446,16 +444,16 @@ extension LibraryViewController {
     }
 
     private func markCompleteAction(item: LibraryItem) -> UITableViewRowAction {
-        let markCompleteAction = UITableViewRowAction(style: .default, title: "Mark\n Complete ") { (action, indexPath) in
+        let markCompleteAction = UITableViewRowAction(style: .default, title: "Mark\n Complete ") { _, indexPath in
             item.setCompletionState()
             self.tableView.reloadRows(at: [indexPath], with: .fade)
         }
-        markCompleteAction.backgroundColor = UIColor(red:0.00, green:0.54, blue:0.37, alpha:1.00)
+        markCompleteAction.backgroundColor = UIColor(red: 0.00, green: 0.54, blue: 0.37, alpha: 1.00)
         return markCompleteAction
     }
 
     private func renameRowAction() -> UITableViewRowAction {
-        let renameAction = UITableViewRowAction(style: .normal, title: "Rename") { (_, indexPath) in
+        let renameAction = UITableViewRowAction(style: .normal, title: "Rename") { _, indexPath in
             guard let playlist = self.items[indexPath.row] as? Playlist else { return }
             self.displayRenameAlert(playlist: playlist, indexPath: indexPath)
         }
@@ -465,7 +463,7 @@ extension LibraryViewController {
     private func displayRenameAlert(playlist: Playlist, indexPath: IndexPath) {
         let alert = UIAlertController(title: "Rename playlist", message: nil, preferredStyle: .alert)
 
-        alert.addTextField(configurationHandler: { (textfield) in
+        alert.addTextField(configurationHandler: { textfield in
             textfield.placeholder = playlist.title
             textfield.text = playlist.title
         })

@@ -414,10 +414,10 @@ extension PlayerManager: AVAudioPlayerDelegate {
         self.update()
 
         guard let nextBook = self.currentBook?.nextBook() else { return }
-        currentBook?.setCompletionState()
+        self.currentBook?.setCompletionState()
 
         self.load(nextBook, completion: { success in
-        self.currentBook?.isComplete = true
+            self.currentBook?.isComplete = true
 
             guard success else { return }
 
