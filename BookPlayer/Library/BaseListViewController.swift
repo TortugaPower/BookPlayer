@@ -74,26 +74,32 @@ class BaseListViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookStop(_:)), name: .bookStopped, object: nil)
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onProcessingFile(_:)), name: .processingFile, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onNewFileUrl), name: .newFileUrl, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onNewOperation(_:)), name: .importOperation, object: nil)
+    func showLoadView(_ show: Bool, subtitle: String) {
+        self.showLoadView(show, title: nil, subtitle: subtitle)
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        NotificationCenter.default.removeObserver(self, name: .processingFile, object: nil)
-        NotificationCenter.default.removeObserver(self, name: .newFileUrl, object: nil)
-        NotificationCenter.default.removeObserver(self, name: .importOperation, object: nil)
-    }
+    func showLoadView(_ show: Bool, title: String? = nil, subtitle: String? = nil) {
+        if let title = title {
+            self.loadingTitleLabel.text = title
+        }
 
-    func showLoadView(_ flag: Bool) {
-        self.loadingHeightConstraintView.constant = flag
+        if let subtitle = subtitle {
+            self.loadingSubtitleLabel.text = subtitle
+            self.loadingSubtitleLabel.isHidden = false
+        } else {
+            self.loadingSubtitleLabel.isHidden = true
+        }
+
+        // verify there's something to do
+        guard self.loadingContainerView.isHidden == show else {
+            return
+        }
+
+        self.loadingHeightConstraintView.constant = show
             ? 65
             : 0
         UIView.animate(withDuration: 0.5) {
-            self.loadingContainerView.isHidden = !flag
+            self.loadingContainerView.isHidden = !show
             self.view.layoutIfNeeded()
         }
     }
@@ -177,47 +183,6 @@ class BaseListViewController: UIViewController {
         self.tableView.reloadSections(IndexSet(integer: Section.library.rawValue), with: .none)
         self.tableView.endUpdates()
         self.toggleEmptyStateView()
-    }
-
-    @objc func onNewFileUrl() {
-        guard self.loadingContainerView.isHidden else { return }
-
-        self.loadingTitleLabel.text = "Preparing to import files"
-        self.loadingSubtitleLabel.isHidden = true
-        self.showLoadView(true)
-    }
-
-    // This is called from a background thread inside an ImportOperation
-    @objc func onProcessingFile(_ notification: Notification) {
-        guard
-            let userInfo = notification.userInfo,
-            let filename = userInfo["filename"] as? String else {
-            return
-        }
-
-        DispatchQueue.main.async {
-            self.loadingSubtitleLabel.text = filename
-            self.loadingSubtitleLabel.isHidden = false
-        }
-    }
-
-    @objc func onNewOperation(_ notification: Notification) {
-        guard
-            let userInfo = notification.userInfo,
-            let operation = userInfo["operation"] as? ImportOperation
-        else {
-            return
-        }
-
-        self.loadingTitleLabel.text = "Processing \(operation.files.count) file(s)"
-
-        operation.completionBlock = {
-            DispatchQueue.main.async {
-                self.handleOperationCompletion(operation.files)
-            }
-        }
-
-        DataManager.start(operation)
     }
 
     @objc func bookReady() {

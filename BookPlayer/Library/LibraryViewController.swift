@@ -24,6 +24,9 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
 
         // register for appDelegate openUrl notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.reloadData), name: .reloadData, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onProcessingFile(_:)), name: .processingFile, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onNewFileUrl), name: .newFileUrl, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onNewOperation(_:)), name: .importOperation, object: nil)
 
         // handle CoreData migration into shared app groups
         if !UserDefaults.standard.bool(forKey: Constants.UserDefaults.appGroupsMigration.rawValue) {
@@ -265,6 +268,65 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             textfield.becomeFirstResponder()
             textfield.selectedTextRange = textfield.textRange(from: textfield.beginningOfDocument, to: textfield.endOfDocument)
         }
+    }
+
+    // MARK: - Callback events
+
+    @objc func onNewFileUrl() {
+        guard self.loadingContainerView.isHidden else { return }
+        let loadingTitle = "Preparing to import files"
+        self.showLoadView(true, title: loadingTitle)
+
+        if let vc = self.navigationController?.visibleViewController as? PlaylistViewController {
+            vc.showLoadView(true, title: loadingTitle)
+        }
+    }
+
+    // This is called from a background thread inside an ImportOperation
+    @objc func onProcessingFile(_ notification: Notification) {
+        guard
+            let userInfo = notification.userInfo,
+            let filename = userInfo["filename"] as? String else {
+            return
+        }
+
+        DispatchQueue.main.async {
+            self.showLoadView(true, subtitle: filename)
+
+            if let vc = self.navigationController?.visibleViewController as? PlaylistViewController {
+                vc.showLoadView(true, subtitle: filename)
+            }
+        }
+    }
+
+    @objc func onNewOperation(_ notification: Notification) {
+        guard
+            let userInfo = notification.userInfo,
+            let operation = userInfo["operation"] as? ImportOperation
+        else {
+            return
+        }
+
+        let loadingTitle = "Processing \(operation.files.count) file(s)"
+
+        self.showLoadView(true, title: loadingTitle)
+
+        if let vc = self.navigationController?.visibleViewController as? PlaylistViewController {
+            vc.showLoadView(true, title: loadingTitle)
+        }
+
+        operation.completionBlock = {
+            DispatchQueue.main.async {
+                guard let vc = self.navigationController?.visibleViewController as? PlaylistViewController else {
+                    self.handleOperationCompletion(operation.files)
+                    return
+                }
+                self.showLoadView(false)
+                vc.handleOperationCompletion(operation.files)
+            }
+        }
+
+        DataManager.start(operation)
     }
 
     // MARK: - IBActions
