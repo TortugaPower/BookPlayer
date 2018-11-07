@@ -356,8 +356,15 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         present(alertController, animated: true, completion: nil)
     }
 
-    // MARK: Accessibility
+    // Sorting
+    override func sort(by sortType: PlayListSortOrder) throws {
+        try library.sort(by: sortType)
+    }
+}
 
+// MARK: Accessibility
+
+extension LibraryViewController {
     private func setupCustomRotors() {
         accessibilityCustomRotors = [rotorFactory(name: "Books", type: .book), rotorFactory(name: "Playlists", type: .playlist)]
     }
@@ -386,11 +393,6 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             }
             return nil
         }
-    }
-
-    // Sorting
-    override func sort(by sortType: PlayListSortOrder) throws {
-        try library.sort(by: sortType)
     }
 }
 
