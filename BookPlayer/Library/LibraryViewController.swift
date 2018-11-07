@@ -410,12 +410,12 @@ extension LibraryViewController {
             return [
                 deleteRowAction(title: deleteActionTitle),
                 renameRowAction(),
-                markCompleteAction(item: item)
+                markCompletionAction(item: item)
             ]
         case is Book:
             return [
                 deleteRowAction(title: deleteActionTitle),
-                markCompleteAction(item: item)
+                markCompletionAction(item: item)
             ]
         default:
             fatalError()
@@ -443,12 +443,16 @@ extension LibraryViewController {
         return deleteAction
     }
 
-    private func markCompleteAction(item: LibraryItem) -> UITableViewRowAction {
-        let markCompleteAction = UITableViewRowAction(style: .default, title: "Mark\n Complete ") { _, indexPath in
-            item.setCompletionState()
+    private func markCompletionAction(item: LibraryItem) -> UITableViewRowAction {
+        let title = item.isComplete ? "Mark\n Incomplete" : "Mark\n Complete"
+        let backgroundColor = item.isComplete ? .blue : UIColor(red: 0.00, green: 0.54, blue: 0.37, alpha: 1.00)
+
+        let markCompleteAction = UITableViewRowAction(style: .default, title: title) { _, indexPath in
+            item.setCompletionState(isComplete: !item.isComplete)
             self.tableView.reloadRows(at: [indexPath], with: .fade)
         }
-        markCompleteAction.backgroundColor = UIColor(red: 0.00, green: 0.54, blue: 0.37, alpha: 1.00)
+
+        markCompleteAction.backgroundColor = backgroundColor
         return markCompleteAction
     }
 
