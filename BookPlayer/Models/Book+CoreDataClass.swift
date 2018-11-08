@@ -37,6 +37,7 @@ public class Book: LibraryItem {
     }
 
     var progress: Double {
+        if isComplete { return 1.0 }
         return self.currentTime / self.duration
     }
 
