@@ -445,7 +445,7 @@ extension LibraryViewController {
 
     private func markCompletionAction(item: LibraryItem) -> UITableViewRowAction {
         let title = item.isComplete ? "Mark\n Incomplete" : "Mark\n Complete"
-        let backgroundColor = item.isComplete ? .blue : UIColor(red: 0.00, green: 0.54, blue: 0.37, alpha: 1.00)
+        let backgroundColor = item.isComplete ? UIColor(red: 0.224, green: 0.537, blue: 0.808, alpha: 1.00) : UIColor(red: 0.00, green: 0.54, blue: 0.37, alpha: 1.00)
 
         let markCompleteAction = UITableViewRowAction(style: .default, title: title) { _, indexPath in
             item.setCompletionState(isComplete: !item.isComplete)
