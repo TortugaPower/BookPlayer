@@ -195,6 +195,14 @@ extension PlaylistViewController {
                 NotificationCenter.default.post(name: .reloadData, object: nil)
             }))
 
+            let completionTitle = book.isComplete ? "Mark Incomplete" : "Mark Complete"
+            let completionStyle = book.isComplete ? UIAlertActionStyle.default : UIAlertActionStyle.destructive
+
+            sheet.addAction(UIAlertAction(title: completionTitle, style: completionStyle) { _ in
+                book.setCompletionState(isComplete: !book.isComplete)
+                self.tableView.reloadRows(at: [indexPath], with: .fade)
+            })
+
             sheet.addAction(UIAlertAction(title: "Delete completely", style: .destructive, handler: { _ in
                 if book == PlayerManager.shared.currentBook {
                     PlayerManager.shared.stop()
@@ -210,14 +218,6 @@ extension PlaylistViewController {
 
                 NotificationCenter.default.post(name: .reloadData, object: nil)
             }))
-
-            let completionTitle = book.isComplete ? "Mark Incomplete" : "Mark Complete"
-            let completionStyle = book.isComplete ? UIAlertActionStyle.default : UIAlertActionStyle.destructive
-
-            sheet.addAction(UIAlertAction(title: completionTitle, style: completionStyle) { _ in
-                book.setCompletionState(isComplete: !book.isComplete)
-                self.tableView.reloadRows(at: [indexPath], with: .fade)
-            })
 
             self.present(sheet, animated: true, completion: nil)
         }
