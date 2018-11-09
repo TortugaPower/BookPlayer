@@ -140,8 +140,8 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
                 DataManager.insertBooks(from: files, into: playlist) {
                     DataManager.saveContext()
 
-                    self.showLoadView(false)
                     self.reloadData()
+                    self.showLoadView(false)
                 }
 
             })

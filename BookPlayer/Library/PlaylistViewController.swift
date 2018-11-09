@@ -38,8 +38,8 @@ class PlaylistViewController: BaseListViewController {
 
         alert.addAction(UIAlertAction(title: "Library", style: .default) { _ in
             DataManager.insertBooks(from: files, into: self.library) {
-                self.showLoadView(false)
                 self.reloadData()
+                self.showLoadView(false)
                 NotificationCenter.default.post(name: .reloadData, object: nil)
             }
         })
