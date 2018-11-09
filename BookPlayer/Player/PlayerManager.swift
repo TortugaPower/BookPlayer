@@ -407,17 +407,19 @@ extension PlayerManager: AVAudioPlayerDelegate {
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         guard flag else { return }
 
-        player.currentTime = player.duration
-
         UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.lastPlayedBook.rawValue)
+
+        self.currentBook?.setCompletionState()
+
+        self.currentBook?.resetProgress()
+
+        self.pause()
 
         self.update()
 
         guard let nextBook = self.currentBook?.nextBook() else { return }
-        self.currentBook?.setCompletionState()
 
         self.load(nextBook, completion: { success in
-            self.currentBook?.isComplete = true
 
             guard success else { return }
 

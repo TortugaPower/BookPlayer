@@ -37,7 +37,6 @@ public class Book: LibraryItem {
     }
 
     var progress: Double {
-        if isComplete { return 1.0 }
         return self.currentTime / self.duration
     }
 
@@ -135,5 +134,10 @@ public class Book: LibraryItem {
         }
 
         return nil
+    }
+
+    public func resetProgress() {
+        self.currentTime = 0.0
+        self.percentCompleted = 0.0
     }
 }
