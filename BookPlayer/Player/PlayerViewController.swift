@@ -259,6 +259,8 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             // Player resets back to 0.0 if currentTime is set to player's duration
             PlayerManager.shared.jumpTo(0.1, fromEnd: true)
 
+            self.currentBook.setCompletionState()
+
             self.requestReview()
         }))
 

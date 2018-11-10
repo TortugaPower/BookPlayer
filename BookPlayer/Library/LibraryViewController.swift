@@ -398,6 +398,8 @@ extension LibraryViewController {
 
 // MARK: - TableView Delegate
 
+// MARK: UITableViewRowActions
+
 extension LibraryViewController {
     func tableView(_: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
         guard indexPath.sectionValue == .library else {
@@ -449,6 +451,7 @@ extension LibraryViewController {
 
         let markCompleteAction = UITableViewRowAction(style: .default, title: title) { _, indexPath in
             item.setCompletionState(isComplete: !item.isComplete)
+            DataManager.saveContext()
             self.tableView.reloadRows(at: [indexPath], with: .fade)
         }
 
