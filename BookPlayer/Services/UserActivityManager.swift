@@ -11,11 +11,10 @@ import Intents
 
 class UserActivityManager {
     static let shared = UserActivityManager()
-    private init() {}
 
-    var currentActivity: NSUserActivity?
+    var currentActivity: NSUserActivity
 
-    private func createPlaybackActivity() -> NSUserActivity {
+    private init() {
         let activity = NSUserActivity(activityType: Constants.UserActivityPlayback)
         activity.title = "Continue last played book"
         if #available(iOS 12.0, *) {
@@ -25,15 +24,14 @@ class UserActivityManager {
         }
         activity.isEligibleForSearch = true
 
-        return activity
+        self.currentActivity = activity
     }
 
     func resumePlaybackActivity() {
-        self.currentActivity = self.currentActivity ?? self.createPlaybackActivity()
-        self.currentActivity?.becomeCurrent()
+        self.currentActivity.becomeCurrent()
     }
 
     func stopPlaybackActivity() {
-        self.currentActivity?.resignCurrent()
+        self.currentActivity.resignCurrent()
     }
 }
