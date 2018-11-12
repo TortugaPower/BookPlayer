@@ -46,7 +46,8 @@ public class ArtworkColors: NSManagedObject {
                 throw ArtworkColorsError.averageColorFailed
             }
 
-            let displayOnDark = averageColor.luminance < darknessThreshold
+            let alwaysDarkThemeEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.alwaysDarkThemeEnabled.rawValue)
+            let displayOnDark = averageColor.luminance < darknessThreshold || alwaysDarkThemeEnabled
 
             colors.sort { (color1: UIColor, color2: UIColor) -> Bool in
                 if displayOnDark {
