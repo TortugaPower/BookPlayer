@@ -7,11 +7,10 @@
 //
 //
 
-import Foundation
 import CoreData
+import Foundation
 
 extension Chapter {
-
     @nonobjc public class func fetchRequest() -> NSFetchRequest<Chapter> {
         return NSFetchRequest<Chapter>(entityName: "Chapter")
     }
@@ -21,5 +20,4 @@ extension Chapter {
     @NSManaged public var duration: Double
     @NSManaged public var index: Int16
     @NSManaged public var book: Book!
-
 }

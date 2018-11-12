@@ -9,7 +9,6 @@
 import UIKit
 
 class ProgressSlider: UISlider {
-
     override var accessibilityLabel: String? {
         get {
             let value = Int(round(self.value * 100))
@@ -59,40 +58,32 @@ class ProgressSlider: UISlider {
 
         let rect = self.bounds.insetBy(dx: 24.0, dy: 0.0)
         let height: CGFloat = 3.0
-        let radius: CGFloat = height/2
+        let radius: CGFloat = height / 2
 
-        let sliderRect = CGRect(
-            x: rect.origin.x,
-            y: rect.origin.y + (rect.height / 2 - radius),
-            width: rect.width,
-            height: rect.width
-        )
+        let sliderRect = CGRect(x: rect.origin.x,
+                                y: rect.origin.y + (rect.height / 2 - radius),
+                                width: rect.width,
+                                height: rect.width)
 
-        let progressRect = CGRect(
-            x: sliderRect.origin.x,
-            y: sliderRect.origin.y,
-            width: sliderRect.size.width * CGFloat((value - minimumValue) / (maximumValue - minimumValue)),
-            height: sliderRect.size.height
-        )
+        let progressRect = CGRect(x: sliderRect.origin.x,
+                                  y: sliderRect.origin.y,
+                                  width: sliderRect.size.width * CGFloat((value - minimumValue) / (maximumValue - minimumValue)),
+                                  height: sliderRect.size.height)
 
         // Track
         let path = UIBezierPath()
 
-        path.addArc(
-            withCenter: CGPoint(x: sliderRect.minX + radius, y: sliderRect.minY + radius),
-            radius: radius,
-            startAngle: CGFloat.pi / 2,
-            endAngle: -CGFloat.pi / 2,
-            clockwise: true
-        )
+        path.addArc(withCenter: CGPoint(x: sliderRect.minX + radius, y: sliderRect.minY + radius),
+                    radius: radius,
+                    startAngle: CGFloat.pi / 2,
+                    endAngle: -CGFloat.pi / 2,
+                    clockwise: true)
         path.addLine(to: CGPoint(x: sliderRect.maxX - radius, y: sliderRect.minY))
-        path.addArc(
-            withCenter: CGPoint(x: sliderRect.maxX - radius, y: sliderRect.minY + radius),
-            radius: radius,
-            startAngle: -CGFloat.pi / 2,
-            endAngle: CGFloat.pi / 2,
-            clockwise: true
-        )
+        path.addArc(withCenter: CGPoint(x: sliderRect.maxX - radius, y: sliderRect.minY + radius),
+                    radius: radius,
+                    startAngle: -CGFloat.pi / 2,
+                    endAngle: CGFloat.pi / 2,
+                    clockwise: true)
         path.addLine(to: CGPoint(x: sliderRect.minX + radius, y: sliderRect.minY + height))
         path.fill()
         path.addClip()

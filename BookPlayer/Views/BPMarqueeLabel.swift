@@ -6,8 +6,8 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
-import UIKit
 import MarqueeLabelSwift
+import UIKit
 
 class BPMarqueeLabel: MarqueeLabel {
     required init?(coder aDecoder: NSCoder) {

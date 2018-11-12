@@ -7,13 +7,17 @@
 //
 //
 
-import Foundation
-import CoreData
 import AVFoundation
+import CoreData
+import Foundation
 
 public class Book: LibraryItem {
     var fileURL: URL {
         return DataManager.getProcessedFolderURL().appendingPathComponent(self.identifier)
+    }
+
+    var filename: String {
+        return self.title + "." + self.ext
     }
 
     var currentChapter: Chapter? {
@@ -46,8 +50,8 @@ public class Book: LibraryItem {
 
     // TODO: This is a makeshift version of a proper completion property.
     // See https://github.com/TortugaPower/BookPlayer/issues/201
-    var isCompleted: Bool {
-        return round(self.currentTime) >= round(self.duration)
+    override var isCompleted: Bool {
+        return Int(round(self.currentTime)) == Int(round(self.duration))
     }
 
     func setChapters(from asset: AVAsset, context: NSManagedObjectContext) {
@@ -58,11 +62,9 @@ public class Book: LibraryItem {
                 let chapterIndex = index + 1
                 let chapter = Chapter(from: asset, context: context)
 
-                chapter.title = AVMetadataItem.metadataItems(
-                    from: chapterMetadata.items,
-                    withKey: AVMetadataKey.commonKeyTitle,
-                    keySpace: AVMetadataKeySpace.common
-                ).first?.value?.copy(with: nil) as? String ?? ""
+                chapter.title = AVMetadataItem.metadataItems(from: chapterMetadata.items,
+                                                             withKey: AVMetadataKey.commonKeyTitle,
+                                                             keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String ?? ""
                 chapter.start = CMTimeGetSeconds(chapterMetadata.timeRange.start)
                 chapter.duration = CMTimeGetSeconds(chapterMetadata.timeRange.duration)
                 chapter.index = Int16(chapterIndex)
@@ -86,6 +88,7 @@ public class Book: LibraryItem {
         self.title = titleFromMeta ?? bookUrl.originalUrl.lastPathComponent.replacingOccurrences(of: "_", with: " ")
         self.author = authorFromMeta ?? "Unknown Author"
         self.duration = CMTimeGetSeconds(asset.duration)
+        self.originalFileName = bookUrl.originalUrl.lastPathComponent
 
         var colors: ArtworkColors!
         if let data = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtwork, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? NSData {
@@ -102,10 +105,39 @@ public class Book: LibraryItem {
 
         let legacyIdentifier = bookUrl.originalUrl.lastPathComponent
         let storedTime = UserDefaults.standard.double(forKey: legacyIdentifier)
-        //migration of time
+
+        // migration of time
         if storedTime > 0 {
             self.currentTime = storedTime
             UserDefaults.standard.removeObject(forKey: legacyIdentifier)
         }
+    }
+
+    override func getBookToPlay() -> Book? {
+        return self
+    }
+
+    func nextBook() -> Book? {
+        if
+            let playlist = self.playlist,
+            let next = playlist.getNextBook(after: self) {
+            return next
+        }
+
+        guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue) else {
+            return nil
+        }
+
+        let item = self.playlist ?? self
+
+        guard let nextItem = item.library?.getNextItem(after: item) else { return nil }
+
+        if let book = nextItem as? Book {
+            return book
+        } else if let playlist = nextItem as? Playlist, let book = playlist.books?.firstObject as? Book {
+            return book
+        }
+
+        return nil
     }
 }

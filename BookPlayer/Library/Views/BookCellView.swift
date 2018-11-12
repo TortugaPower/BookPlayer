@@ -79,18 +79,18 @@ class BookCellView: UITableViewCell {
     var type: BookCellType = .book {
         didSet {
             switch self.type {
-                case .file:
-                    self.accessoryType = .none
+            case .file:
+                self.accessoryType = .none
 
-                    self.progressTrailing.constant = 11.0
-                case .playlist:
-                    self.accessoryType = .disclosureIndicator
+                self.progressTrailing.constant = 11.0
+            case .playlist:
+                self.accessoryType = .disclosureIndicator
 
-                    self.progressTrailing.constant = -5.0
-                default:
-                    self.accessoryType = .none
+                self.progressTrailing.constant = -5.0
+            default:
+                self.accessoryType = .none
 
-                    self.progressTrailing.constant = 29.0 // Disclosure indicator offset
+                self.progressTrailing.constant = 29.0 // Disclosure indicator offset
             }
         }
     }
@@ -99,18 +99,18 @@ class BookCellView: UITableViewCell {
         didSet {
             UIView.animate(withDuration: 0.1, animations: {
                 switch self.playbackState {
-                    case .playing:
-                        self.artworkButton.backgroundColor = UIColor.tintColor.withAlpha(newAlpha: 0.3)
-                        self.titleLabel.textColor = UIColor.tintColor
-                        self.progressView.pieColor = UIColor.tintColor
-                    case .paused:
-                        self.artworkButton.backgroundColor = UIColor.tintColor.withAlpha(newAlpha: 0.3)
-                        self.titleLabel.textColor = UIColor.tintColor
-                        self.progressView.pieColor = UIColor.tintColor
-                    default:
-                        self.artworkButton.backgroundColor = UIColor.clear
-                        self.titleLabel.textColor = UIColor.textColor
-                        self.progressView.pieColor = UIColor(hex: "8F8E94")
+                case .playing:
+                    self.artworkButton.backgroundColor = UIColor.tintColor.withAlpha(newAlpha: 0.3)
+                    self.titleLabel.textColor = UIColor.tintColor
+                    self.progressView.pieColor = UIColor.tintColor
+                case .paused:
+                    self.artworkButton.backgroundColor = UIColor.tintColor.withAlpha(newAlpha: 0.3)
+                    self.titleLabel.textColor = UIColor.tintColor
+                    self.progressView.pieColor = UIColor.tintColor
+                default:
+                    self.artworkButton.backgroundColor = UIColor.clear
+                    self.titleLabel.textColor = UIColor.textColor
+                    self.progressView.pieColor = UIColor(hex: "8F8E94")
                 }
             })
         }
@@ -146,6 +146,7 @@ class BookCellView: UITableViewCell {
 }
 
 // MARK: - Voiceover
+
 extension BookCellView {
     private func setAccessibilityLabels() {
         let voiceOverService = VoiceOverService()

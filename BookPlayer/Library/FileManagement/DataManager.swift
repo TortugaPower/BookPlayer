@@ -6,11 +6,11 @@
 //  Copyright © 2017 Tortuga Power. All rights reserved.
 //
 
-import Foundation
 import AVFoundation
-import UIKit
 import CoreData
+import Foundation
 import IDZSwiftCommonCrypto
+import UIKit
 
 class DataManager {
     static let processedFolderName = "Processed"
@@ -40,7 +40,12 @@ class DataManager {
         return processedFolderURL
     }
 
+    private static var storeUrl: URL {
+        return FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!.appendingPathComponent("BookPlayer.sqlite")
+    }
+
     // MARK: - Operations
+
     class func start(_ operation: Operation) {
         self.queue.addOperation(operation)
     }
@@ -61,10 +66,40 @@ class DataManager {
 
     // MARK: - Core Data stack
 
-    private static var persistentContainer: NSPersistentContainer = {
-        let container = NSPersistentContainer(name: "BookPlayer")
+    class func migrateStack() throws {
+        let name = "BookPlayer"
+        let container = NSPersistentContainer(name: name)
+        let psc = container.persistentStoreCoordinator
 
-        container.loadPersistentStores(completionHandler: { (_, error) in
+        let oldStoreUrl = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).last!
+            .appendingPathComponent("\(name).sqlite")
+
+        let options = [
+            NSMigratePersistentStoresAutomaticallyOption: true,
+            NSInferMappingModelAutomaticallyOption: true
+        ]
+
+        guard let oldStore = try? psc.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: oldStoreUrl, options: options) else {
+            // couldn't load old store
+            return
+        }
+
+        try psc.migratePersistentStore(oldStore, to: self.storeUrl, options: nil, withType: NSSQLiteStoreType)
+    }
+
+    private static var persistentContainer: NSPersistentContainer = {
+        let name = "BookPlayer"
+
+        let container = NSPersistentContainer(name: name)
+
+        let description = NSPersistentStoreDescription()
+        description.shouldInferMappingModelAutomatically = true
+        description.shouldMigrateStoreAutomatically = true
+        description.url = storeUrl
+
+        container.persistentStoreDescriptions = [description]
+
+        container.loadPersistentStores(completionHandler: { _, error in
             if let error = error as NSError? {
                 fatalError("Unresolved error \(error), \(error.userInfo)")
             }
@@ -73,7 +108,7 @@ class DataManager {
         return container
     }()
 
-    class func saveContext () {
+    class func saveContext() {
         let context = self.persistentContainer.viewContext
 
         if context.hasChanges {
@@ -105,7 +140,7 @@ class DataManager {
      Remove file protection for one file
      */
     class func makeFilePublic(_ file: NSURL) {
-        try? file.setResourceValue(URLFileProtection.completeUntilFirstUserAuthentication, forKey: .fileProtectionKey)
+        try? file.setResourceValue(URLFileProtection.none, forKey: .fileProtectionKey)
     }
 
     /**
@@ -203,15 +238,15 @@ class DataManager {
 
     /**
      Creates a book for each URL and adds it to the specified playlist. If no playlist is specified, it will be added to the library.
-     
+
      A book can't be in two places at once, so if it already existed, it will be removed from the original playlist or library, and it will be added to the new one.
-     
+
      - Parameter files: `Book`s will be created for each element in this array
      - Parameter playlist: `Playlist` to which the created `Book` will be added
      - Parameter library: `Library` to which the created `Book` will be added if the parameter `playlist` is nil
      - Parameter completion: Closure fired after processing all the urls.
      */
-    class func insertBooks(from files: [FileItem], into playlist: Playlist?, or library: Library, completion:@escaping () -> Void) {
+    class func insertBooks(from files: [FileItem], into playlist: Playlist?, or library: Library, completion: @escaping () -> Void) {
         let context = self.persistentContainer.viewContext
 
         for file in files {
@@ -219,7 +254,7 @@ class DataManager {
             guard let url = file.processedUrl else { continue }
 
             // Check if book exists in the library
-            guard  let item = library.getItem(with: url) else {
+            guard let item = library.getItem(with: url) else {
                 let book = Book(from: file, context: context)
 
                 if let playlist = playlist {
@@ -233,16 +268,16 @@ class DataManager {
 
             guard let storedPlaylist = item as? Playlist,
                 let storedBook = storedPlaylist.getBook(with: url) else {
-                    // swiftlint:disable force_cast
-                    // Handle if item is a book
-                    let storedBook = item as! Book
+                // swiftlint:disable force_cast
+                // Handle if item is a book
+                let storedBook = item as! Book
 
-                    if let playlist = playlist {
-                        library.removeFromItems(storedBook)
-                        playlist.addToBooks(storedBook)
-                    }
+                if let playlist = playlist {
+                    library.removeFromItems(storedBook)
+                    playlist.addToBooks(storedBook)
+                }
 
-                    continue
+                continue
             }
 
             // Handle if book already exists in the library
@@ -253,7 +288,6 @@ class DataManager {
             } else {
                 library.addToItems(storedBook)
             }
-
         }
 
         self.saveContext()
@@ -265,23 +299,23 @@ class DataManager {
 
     /**
      Creates a book for each URL and adds it to the library. A book can't be in two places at once, so it will be removed if it already existed in a playlist.
-     
+
      - Parameter bookUrls: `Book`s will be created for each element in this array
      - Parameter library: `Library` to which the created `Book` will be added
      - Parameter completion: Closure fired after processing all the urls.
      */
-    class func insertBooks(from files: [FileItem], into library: Library, completion:@escaping () -> Void) {
+    class func insertBooks(from files: [FileItem], into library: Library, completion: @escaping () -> Void) {
         self.insertBooks(from: files, into: nil, or: library, completion: completion)
     }
 
     /**
      Creates a book for each URL and adds it to the specified playlist. A book can't be in two places at once, so it will be removed from the library if it already existed.
-     
+
      - Parameter bookUrls: `Book`s will be created for each element in this array
      - Parameter playlist: `Playlist` to which the created `Book` will be added
      - Parameter completion: Closure fired after processing all the urls.
      */
-    class func insertBooks(from files: [FileItem], into playlist: Playlist, completion:@escaping () -> Void) {
+    class func insertBooks(from files: [FileItem], into playlist: Playlist, completion: @escaping () -> Void) {
         self.insertBooks(from: files, into: playlist, or: playlist.library!, completion: completion)
     }
 
@@ -298,7 +332,7 @@ class DataManager {
         self.saveContext()
     }
 
-    internal class func delete(_ item: NSManagedObject) {
+    class func delete(_ item: NSManagedObject) {
         self.persistentContainer.viewContext.delete(item)
         self.saveContext()
     }

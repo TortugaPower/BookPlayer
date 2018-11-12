@@ -6,10 +6,11 @@
 //  Copyright © 2017 Tortuga Power. All rights reserved.
 //
 
-import UIKit
+import DeviceKit
+import IntentsUI
 import MessageUI
 import SafariServices
-import DeviceKit
+import UIKit
 
 class SettingsViewController: UITableViewController, MFMailComposeViewControllerDelegate {
     @IBOutlet weak var autoplayLibrarySwitch: UISwitch!
@@ -20,9 +21,10 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     @IBOutlet weak var rewindIntervalLabel: UILabel!
     @IBOutlet weak var forwardIntervalLabel: UILabel!
 
-    let supportSection: Int = 5
-    let githubLinkPath: IndexPath = IndexPath(row: 0, section: 6)
-    let supportEmailPath: IndexPath = IndexPath(row: 1, section: 6)
+    let supportSection: Int = 7
+    let githubLinkPath = IndexPath(row: 0, section: 7)
+    let supportEmailPath = IndexPath(row: 1, section: 7)
+    let siriShortcutPath = IndexPath(row: 0, section: 5)
 
     var version: String = "0.0.0"
     var build: String = "0"
@@ -122,11 +124,13 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         tableView.deselectRow(at: indexPath as IndexPath, animated: true)
 
         switch indexPath {
-            case self.supportEmailPath:
-                self.sendSupportEmmail()
-            case self.githubLinkPath:
-                self.showProjectOnGitHub()
-            default: break
+        case self.supportEmailPath:
+            self.sendSupportEmail()
+        case self.githubLinkPath:
+            self.showProjectOnGitHub()
+        case self.siriShortcutPath:
+            self.showSiriShortcut()
+        default: break
         }
     }
 
@@ -142,7 +146,18 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         controller.dismiss(animated: true)
     }
 
-    func sendSupportEmmail() {
+    func showSiriShortcut() {
+        if #available(iOS 12.0, *) {
+            let shortcut = INShortcut(userActivity: UserActivityManager.shared.currentActivity)
+            let vc = INUIAddVoiceShortcutViewController(shortcut: shortcut)
+            vc.delegate = self
+            self.present(vc, animated: true, completion: nil)
+        } else {
+            self.showAlert(nil, message: "Siri Shortcuts are available on iOS 12 and above")
+        }
+    }
+
+    @IBAction func sendSupportEmail() {
         let device = Device()
 
         if MFMailComposeViewController.canSendMail() {
@@ -178,5 +193,17 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         }
 
         self.present(safari, animated: true)
+    }
+}
+
+extension SettingsViewController: INUIAddVoiceShortcutViewControllerDelegate {
+    @available(iOS 12.0, *)
+    func addVoiceShortcutViewControllerDidCancel(_ controller: INUIAddVoiceShortcutViewController) {
+        self.dismiss(animated: true, completion: nil)
+    }
+
+    @available(iOS 12.0, *)
+    func addVoiceShortcutViewController(_ controller: INUIAddVoiceShortcutViewController, didFinishWith voiceShortcut: INVoiceShortcut?, error: Error?) {
+        self.dismiss(animated: true, completion: nil)
     }
 }

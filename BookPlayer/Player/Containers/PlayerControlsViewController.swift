@@ -18,7 +18,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
     var book: Book? {
         didSet {
-            guard let book = self.book else {
+            guard let book = self.book, !book.isFault else {
                 return
             }
 
@@ -39,7 +39,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
     }
 
     private var currentTimeInContext: TimeInterval {
-        guard let book = self.book else {
+        guard let book = self.book, !book.isFault else {
             return 0.0
         }
 
@@ -47,14 +47,14 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
             self.prefersChapterContext,
             book.hasChapters,
             let start = book.currentChapter?.start else {
-                return book.currentTime
+            return book.currentTime
         }
 
         return book.currentTime - start
     }
 
     private var maxTimeInContext: TimeInterval {
-        guard let book = self.book else {
+        guard let book = self.book, !book.isFault else {
             return 0.0
         }
 
@@ -62,10 +62,10 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
             self.prefersChapterContext,
             book.hasChapters,
             let duration = book.currentChapter?.duration else {
-                let time = self.prefersRemainingTime
-                    ? self.currentTimeInContext - book.duration
-                    : book.duration
-                return time
+            let time = self.prefersRemainingTime
+                ? self.currentTimeInContext - book.duration
+                : book.duration
+            return time
         }
 
         let time = self.prefersRemainingTime
@@ -76,7 +76,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
     }
 
     private var durationTimeInContext: TimeInterval {
-        guard let book = self.book else {
+        guard let book = self.book, !book.isFault else {
             return 0.0
         }
 
@@ -84,7 +84,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
             self.prefersChapterContext,
             book.hasChapters,
             let duration = book.currentChapter?.duration else {
-                return book.duration
+            return book.duration
         }
 
         return duration
@@ -108,11 +108,13 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         self.artworkJumpControlsUsed = UserDefaults.standard.bool(forKey: Constants.UserDefaults.artworkJumpControlsUsed.rawValue)
 
         self.artworkControl.isPlaying = PlayerManager.shared.isPlaying
+
         self.artworkControl.onPlayPause = { control in
             PlayerManager.shared.playPause()
 
             control.isPlaying = PlayerManager.shared.isPlaying
         }
+
         self.artworkControl.onRewind = { _ in
             PlayerManager.shared.rewind()
 
@@ -120,6 +122,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
                 self.artworkJumpControlsUsed = true
             }
         }
+
         self.artworkControl.onForward = { _ in
             PlayerManager.shared.forward()
 
@@ -165,7 +168,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
     // MARK: - Helpers
 
     private func setProgress() {
-        guard let book = self.book else {
+        guard let book = self.book, !book.isFault else {
             self.progressButton.setTitle("", for: .normal)
 
             return
@@ -173,7 +176,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
         if !self.progressSlider.isTracking {
             self.currentTimeLabel.text = self.formatTime(self.currentTimeInContext)
-            self.currentTimeLabel.accessibilityLabel = String(describing: "Current Chapter Time: " + VoiceOverService.secondsToMinutes(currentTimeInContext))
+            self.currentTimeLabel.accessibilityLabel = String(describing: "Current Chapter Time: " + VoiceOverService.secondsToMinutes(self.currentTimeInContext))
             self.maxTimeButton.setTitle(self.formatTime(self.maxTimeInContext), for: .normal)
             let prefix = self.prefersRemainingTime
                 ? "Remaining Chapter Time: "
@@ -259,7 +262,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
             self.artworkControl.setAnchorPoint(anchorPoint: CGPoint(x: 0.5, y: 0.5))
         })
 
-        guard let book = self.book else {
+        guard let book = self.book, !book.isFault else {
             return
         }
 
@@ -280,7 +283,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
         self.transformArtworkView(CGFloat(sender.value))
 
-        guard let book = self.book else {
+        guard let book = self.book, !book.isFault else {
             return
         }
 

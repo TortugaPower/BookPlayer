@@ -1,0 +1,35 @@
+# file options
+--exclude Carthage
+
+# format options
+--allman false
+--binarygrouping none
+--closingparen balanced
+--commas inline
+--comments ignore
+--decimalgrouping none
+--elseposition same-line
+--empty void
+--exponentcase lowercase
+--exponentgrouping disabled
+--fractiongrouping disabled
+--header ignore
+--hexgrouping none
+--hexliteralcase lowercase
+--ifdef noindent
+--indent 4
+--indentcase false
+--linebreaks lf
+--octalgrouping none
+--operatorfunc spaced
+--patternlet inline
+--ranges nospace
+--self insert
+--semicolons inline
+--stripunusedargs closure-only
+--trimwhitespace always
+--wraparguments afterfirst
+--wrapcollections preserve
+
+# disabled rules
+--disable strongOutlets

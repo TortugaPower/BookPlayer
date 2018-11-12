@@ -54,6 +54,7 @@ If you enjoy BookPlayer, we would be glad if you consider writing a review on th
 
 - [@GianniCarlo](https://github.com/GianniCarlo) - Original Idea & Creation
 - [@pichfl](https://github.com/pichfl) - UI Design & Artwork
+- [@ryantstone](https://github.com/ryantstone) - VoiceOver Support
 
 ### Contributors
 
@@ -61,7 +62,7 @@ If you enjoy BookPlayer, we would be glad if you consider writing a review on th
 - [@e7mac](https://github.com/e7mac) - Speed control, Autoplay
 - [@gpambrozio](https://github.com/gpambrozio) - Volume Boost
 - [@vab9](https://github.com/vab9) - AirDrop Support
-- [@ryantstone](https://github.com/ryantstone) - VoiceOver Support
+- [@atomicguy](https://github.com/atomicguy) - Zip Support
 
 A full list of all contributors can be found [on GitHub.](https://github.com/GianniCarlo/Audiobook-Player/graphs/contributors)
 
@@ -77,10 +78,12 @@ Managed with [Carthage](https://github.com/Carthage/Carthage)
 - [DirectoryWatcher](https://github.com/GianniCarlo/DirectoryWatcher) for events on the document's folder
 - [Sweetercolor](https://github.com/jathu/sweetercolor) for handling artwork colors
 - [SwiftReorder](https://github.com/GianniCarlo/SwiftReorder) for drag-and-drop on the UITableView
+- [ZIPFoundation](https://github.com/weichsel/ZIPFoundation) for zip files
 
 Managed with [Homebrew](https://brew.sh)
 
 - [SwiftLint](https://github.com/realm/SwiftLint)
+- [SwiftFormat](https://github.com/nicklockwood/SwiftFormat)
 
 
 

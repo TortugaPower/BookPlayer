@@ -20,7 +20,7 @@ class PlaylistViewController: BaseListViewController {
 
         self.toggleEmptyStateView()
 
-        self.navigationItem.title = playlist.title
+        self.navigationItem.title = self.playlist.title
     }
 
     override func handleOperationCompletion(_ files: [FileItem]) {
@@ -36,15 +36,15 @@ class PlaylistViewController: BaseListViewController {
 
         let alert = UIAlertController(title: "Import \(files.count) files into", message: nil, preferredStyle: .alert)
 
-        alert.addAction(UIAlertAction(title: "Library", style: .default) { (_) in
+        alert.addAction(UIAlertAction(title: "Library", style: .default) { _ in
             DataManager.insertBooks(from: files, into: self.library) {
-                self.showLoadView(false)
                 self.reloadData()
+                self.showLoadView(false)
                 NotificationCenter.default.post(name: .reloadData, object: nil)
             }
         })
 
-        alert.addAction(UIAlertAction(title: "Current Playlist", style: .default) { (_) in
+        alert.addAction(UIAlertAction(title: "Current Playlist", style: .default) { _ in
             self.showLoadView(false)
             NotificationCenter.default.post(name: .reloadData, object: nil)
         })
@@ -55,6 +55,7 @@ class PlaylistViewController: BaseListViewController {
     }
 
     // MARK: - Callback events
+
     @objc override func onBookPlay() {
         guard
             let currentBook = PlayerManager.shared.currentBook,
@@ -83,6 +84,7 @@ class PlaylistViewController: BaseListViewController {
         guard
             let userInfo = notification.userInfo,
             let book = userInfo["book"] as? Book,
+            !book.isFault,
             let index = self.playlist.itemIndex(with: book.fileURL),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .library)) as? BookCellView
         else {
@@ -93,22 +95,31 @@ class PlaylistViewController: BaseListViewController {
     }
 
     // MARK: - IBActions
+
     @IBAction func addAction() {
         self.presentImportFilesAlert()
+    }
+
+    // MARK: - Methods
+
+    override func sort(by sortType: PlayListSortOrder) throws {
+        try self.playlist.sort(by: sortType)
     }
 }
 
 // MARK: - DocumentPicker Delegate
+
 extension PlaylistViewController {
     override func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         for url in urls {
-            //context put in playlist
+            // context put in playlist
             DataManager.processFile(at: url)
         }
     }
 }
 
 // MARK: - TableView DataSource
+
 extension PlaylistViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
@@ -119,10 +130,12 @@ extension PlaylistViewController {
 
         bookCell.type = .file
 
-        guard let currentBook = PlayerManager.shared.currentBook,
+        guard
+            let currentBook = PlayerManager.shared.currentBook,
             let index = self.playlist.itemIndex(with: currentBook.fileURL),
-            index == indexPath.row else {
-                return bookCell
+            index == indexPath.row
+        else {
+            return bookCell
         }
 
         bookCell.playbackState = .playing
@@ -132,6 +145,7 @@ extension PlaylistViewController {
 }
 
 // MARK: - TableView Delegate
+
 extension PlaylistViewController {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
@@ -144,9 +158,9 @@ extension PlaylistViewController {
             return
         }
 
-        let books = self.queueBooksForPlayback(self.items[indexPath.row], forceAutoplay: true)
+        guard let book = self.items[indexPath.row] as? Book else { return }
 
-        self.setupPlayer(books: books)
+        self.setupPlayer(book: book)
     }
 
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
@@ -154,12 +168,23 @@ extension PlaylistViewController {
             return nil
         }
 
-        let deleteAction = UITableViewRowAction(style: .default, title: "Options") { (_, indexPath) in
+        let deleteAction = UITableViewRowAction(style: .default, title: "Options") { _, indexPath in
             let sheet = UIAlertController(title: "\(book.title!)", message: nil, preferredStyle: .alert)
 
             sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
 
-            sheet.addAction(UIAlertAction(title: "Remove from playlist", style: .default, handler: { _ in
+            sheet.addAction(UIAlertAction(title: "Export item", style: .default, handler: { _ in
+
+                let bookProvider = BookActivityItemProvider(book)
+
+                let shareController = UIActivityViewController(activityItems: [bookProvider], applicationActivities: nil)
+
+                shareController.excludedActivityTypes = [.copyToPasteboard]
+
+                self.present(shareController, animated: true, completion: nil)
+            }))
+
+            sheet.addAction(UIAlertAction(title: "Move to Library", style: .default, handler: { _ in
                 self.playlist.removeFromBooks(book)
                 self.library.addToItems(book)
 
@@ -175,11 +200,11 @@ extension PlaylistViewController {
                     PlayerManager.shared.stop()
                 }
 
+                try? FileManager.default.removeItem(at: book.fileURL)
+
                 self.playlist.removeFromBooks(book)
 
-                DataManager.saveContext()
-
-                try? FileManager.default.removeItem(at: book.fileURL)
+                DataManager.delete(book)
 
                 self.deleteRows(at: [indexPath])
 
@@ -196,6 +221,7 @@ extension PlaylistViewController {
 }
 
 // MARK: - Reorder Delegate
+
 extension PlaylistViewController {
     override func tableView(_ tableView: UITableView, reorderRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         guard destinationIndexPath.sectionValue == .library else {
@@ -203,9 +229,11 @@ extension PlaylistViewController {
         }
 
         // swiftlint:disable force_cast
-        let book = self.items[sourceIndexPath.row] as! Book
-        self.playlist.removeFromBooks(at: sourceIndexPath.row)
-        self.playlist.insertIntoBooks(book, at: destinationIndexPath.row)
+        let book = items[sourceIndexPath.row] as! Book
+
+        playlist.removeFromBooks(at: sourceIndexPath.row)
+        playlist.insertIntoBooks(book, at: destinationIndexPath.row)
+
         DataManager.saveContext()
     }
 }

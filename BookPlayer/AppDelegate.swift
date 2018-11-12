@@ -6,10 +6,10 @@
 // Copyright © 2016 Tortuga Power. All rights reserved.
 //
 
-import UIKit
 import AVFoundation
-import MediaPlayer
 import DirectoryWatcher
+import MediaPlayer
+import UIKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -29,20 +29,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             defaults.set(true, forKey: Constants.UserDefaults.completedFirstLaunch.rawValue)
         }
 
-        // Migrate file security to make autoplay on background work
-        if !defaults.bool(forKey: Constants.UserDefaults.fileProtectionMigration.rawValue) {
-            DataManager.makeFilesPublic()
-            defaults.set(true, forKey: Constants.UserDefaults.fileProtectionMigration.rawValue)
-        }
-
         // Appearance
         UINavigationBar.appearance().titleTextAttributes = [
-            NSAttributedStringKey.foregroundColor: UIColor.init(hex: "#37454E")
+            NSAttributedStringKey.foregroundColor: UIColor(hex: "#37454E")
         ]
 
         if #available(iOS 11, *) {
             UINavigationBar.appearance().largeTitleTextAttributes = [
-                NSAttributedStringKey.foregroundColor: UIColor.init(hex: "#37454E")
+                NSAttributedStringKey.foregroundColor: UIColor(hex: "#37454E")
             ]
         }
 
@@ -59,14 +53,35 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // register document's folder listener
         self.setupDocumentListener()
 
+        if let activityDictionary = launchOptions?[.userActivityDictionary] as? [UIApplicationLaunchOptionsKey: Any],
+            let activityType = activityDictionary[.userActivityType] as? String,
+            activityType == Constants.UserActivityPlayback {
+            defaults.set(true, forKey: activityType)
+        }
+
         return true
     }
 
+    // Handles audio file urls, like when receiving files through AirDrop
+    // Also handles custom URL scheme 'bookplayer://'
     func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey: Any] = [:]) -> Bool {
-        // This function is called when the app is opened with a audio file url,
-        // like when receiving files through AirDrop
+        guard url.isFileURL else {
+            if PlayerManager.shared.isLoaded {
+                PlayerManager.shared.play()
+            } else {
+                UserDefaults.standard.set(true, forKey: Constants.UserActivityPlayback)
+            }
+
+            return true
+        }
+
         DataManager.processFile(at: url)
 
+        return true
+    }
+
+    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
+        PlayerManager.shared.play()
         return true
     }
 
@@ -112,7 +127,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         guard let userInfo = notification.userInfo,
             let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
             let type = AVAudioSessionInterruptionType(rawValue: typeValue) else {
-                return
+            return
         }
 
         switch type {
@@ -138,7 +153,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let userInfo = notification.userInfo,
             let reasonValue = userInfo[AVAudioSessionRouteChangeReasonKey] as? UInt,
             let reason = AVAudioSessionRouteChangeReason(rawValue: reasonValue) else {
-                return
+            return
         }
 
         // Pause playback if route changes due to a disconnect
@@ -222,8 +237,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func setupDocumentListener() {
         let documentsUrl = DataManager.getDocumentsFolderURL()
-        self.watcher = DirectoryWatcher.watch(documentsUrl) {
-            DataManager.notifyPendingFiles()
+        self.watcher = DirectoryWatcher.watch(documentsUrl)
+        self.watcher?.onNewFiles = { newFiles in
+            for url in newFiles {
+                DataManager.processFile(at: url)
+            }
         }
     }
 }

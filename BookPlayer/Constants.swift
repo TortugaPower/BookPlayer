@@ -8,7 +8,7 @@ enum Constants {
     enum UserDefaults: String {
         // Application information
         case completedFirstLaunch = "userSettingsCompletedFirstLaunch"
-        case fileProtectionMigration = "userSettingsFileProtectionMigration"
+        case appGroupsMigration = "userSettingsAppGroupsMigration"
         case lastPauseTime = "userSettingsLastPauseTime"
         case lastPlayedBook = "userSettingsLastPlayedBook"
 
@@ -36,4 +36,7 @@ enum Constants {
         case normal = 1.0
         case boosted = 2.0
     }
+
+    static let UserActivityPlayback = Bundle.main.bundleIdentifier! + ".activity.playback"
+    static let ApplicationGroupIdentifier = "group." + Bundle.main.bundleIdentifier! + ".files"
 }

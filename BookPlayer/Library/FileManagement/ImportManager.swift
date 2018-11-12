@@ -37,6 +37,8 @@ class ImportManager {
     @objc private func createOperation() {
         guard !self.files.isEmpty else { return }
 
+        self.files.sort(by: { $0.originalUrl.path < $1.originalUrl.path })
+
         let operation = ImportOperation(files: self.files)
 
         self.files = []
