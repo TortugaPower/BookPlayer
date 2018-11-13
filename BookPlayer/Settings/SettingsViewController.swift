@@ -18,7 +18,7 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     @IBOutlet weak var boostVolumeSwitch: UISwitch!
     @IBOutlet weak var globalSpeedSwitch: UISwitch!
     @IBOutlet weak var disableAutolockSwitch: UISwitch!
-    @IBOutlet weak var enableAlwaysDarkThemeSwitch: UISwitch!
+    @IBOutlet weak var darkThemeSwitch: UISwitch!
     @IBOutlet weak var rewindIntervalLabel: UILabel!
     @IBOutlet weak var forwardIntervalLabel: UILabel!
 
@@ -47,7 +47,7 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         self.boostVolumeSwitch.addTarget(self, action: #selector(self.boostVolumeToggleDidChange), for: .valueChanged)
         self.globalSpeedSwitch.addTarget(self, action: #selector(self.globalSpeedToggleDidChange), for: .valueChanged)
         self.disableAutolockSwitch.addTarget(self, action: #selector(self.disableAutolockDidChange), for: .valueChanged)
-        self.enableAlwaysDarkThemeSwitch.addTarget(self, action: #selector(self.enableAlwaysDarkThemeDidChange), for: .valueChanged)
+        self.darkThemeSwitch.addTarget(self, action: #selector(self.darkThemeDidChange), for: .valueChanged)
 
         // Set initial switch positions
         self.autoplayLibrarySwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue), animated: false)
@@ -55,8 +55,8 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         self.boostVolumeSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue), animated: false)
         self.globalSpeedSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue), animated: false)
         self.disableAutolockSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue), animated: false)
-        self.enableAlwaysDarkThemeSwitch.setOn(UserDefaults.standard.bool(forKey:
-            Constants.UserDefaults.alwaysDarkThemeEnabled.rawValue), animated: false)
+        self.darkThemeSwitch.setOn(UserDefaults.standard.bool(forKey:
+            Constants.UserDefaults.darkThemeEnabled.rawValue), animated: false)
 
         // Retrieve initial skip values from PlayerManager
         self.rewindIntervalLabel.text = self.formatDuration(PlayerManager.shared.rewindInterval)
@@ -120,9 +120,9 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         UserDefaults.standard.set(self.disableAutolockSwitch.isOn, forKey: Constants.UserDefaults.autolockDisabled.rawValue)
     }
 
-    @objc func enableAlwaysDarkThemeDidChange() {
-        UserDefaults.standard.set(self.enableAlwaysDarkThemeSwitch.isOn, forKey:
-            Constants.UserDefaults.alwaysDarkThemeEnabled.rawValue)
+    @objc func darkThemeDidChange() {
+        UserDefaults.standard.set(self.darkThemeSwitch.isOn, forKey:
+            Constants.UserDefaults.darkThemeEnabled.rawValue)
     }
 
     @IBAction func done(_ sender: UIBarButtonItem) {

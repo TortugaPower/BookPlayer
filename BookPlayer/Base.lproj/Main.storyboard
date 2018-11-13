@@ -234,7 +234,7 @@ Use with caution and care for your hearing.</string>
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
-                            <tableViewSection footerTitle="Always us a dark theme in the player." id="bXq-RX-Ipp">
+                            <tableViewSection footerTitle="Use a dark theme throughout the app." id="bXq-RX-Ipp">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="y1R-7w-TcF">
                                         <rect key="frame" x="0.0" y="543" width="375" height="44"/>
@@ -246,7 +246,7 @@ Use with caution and care for your hearing.</string>
                                                 <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="g5K-RG-D4Z">
                                                     <rect key="frame" x="310" y="6.5" width="51" height="31"/>
                                                 </switch>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Always use Dark Theme" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="a7C-hV-tA3">
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Dark Theme" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="a7C-hV-tA3">
                                                     <rect key="frame" x="16" y="11.5" width="286" height="21"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
@@ -444,8 +444,8 @@ Use with caution and care for your hearing.</string>
                     <connections>
                         <outlet property="autoplayLibrarySwitch" destination="UeZ-9i-xJO" id="cvW-nu-Gvf"/>
                         <outlet property="boostVolumeSwitch" destination="7Ar-pG-gpq" id="1h4-Ix-h2p"/>
+                        <outlet property="darkThemeSwitch" destination="g5K-RG-D4Z" id="Syx-Ao-DMb"/>
                         <outlet property="disableAutolockSwitch" destination="aWB-Qf-rxo" id="cL8-nT-qcl"/>
-                        <outlet property="enableAlwaysDarkThemeSwitch" destination="g5K-RG-D4Z" id="7ep-Tm-SIP"/>
                         <outlet property="forwardIntervalLabel" destination="Da8-2T-k0b" id="T6T-gR-8Ew"/>
                         <outlet property="globalSpeedSwitch" destination="a2u-ef-Ser" id="DqM-OK-7Dj"/>
                         <outlet property="rewindIntervalLabel" destination="YHN-bf-bbj" id="f3Y-bm-LZE"/>

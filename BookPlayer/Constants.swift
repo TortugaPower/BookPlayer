@@ -20,7 +20,7 @@ enum Constants {
         case globalSpeedEnabled = "userSettingsGlobalSpeed"
         case autoplayEnabled = "userSettingsAutoplay"
         case autolockDisabled = "userSettingsDisableAutolock"
-        case alwaysDarkThemeEnabled = "userSettingsEnableAlwaysDarkTheme"
+        case darkThemeEnabled = "userSettingsDarkThemeEnabled"
 
         case rewindInterval = "userSettingsRewindInterval"
         case forwardInterval = "userSettingsForwardInterval"

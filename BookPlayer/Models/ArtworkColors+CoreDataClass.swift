@@ -60,8 +60,8 @@ public class ArtworkColors: NSManagedObject {
                 throw ArtworkColorsError.averageColorFailed
             }
 
-            let alwaysDarkThemeEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.alwaysDarkThemeEnabled.rawValue)
-            let displayOnDark = averageColor.luminance < darknessThreshold || alwaysDarkThemeEnabled
+            let darkThemeEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.darkThemeEnabled.rawValue)
+            let displayOnDark = averageColor.luminance < darknessThreshold || darkThemeEnabled
 
             colors.sort { (color1: UIColor, color2: UIColor) -> Bool in
                 if displayOnDark {
@@ -119,7 +119,7 @@ public class ArtworkColors: NSManagedObject {
         let entity = NSEntityDescription.entity(forEntityName: "ArtworkColors", in: context)!
         self.init(entity: entity, insertInto: context)
 
-        let alwaysDarkThemeEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.alwaysDarkThemeEnabled.rawValue)
-        self.setColorsFromArray(displayOnDark: alwaysDarkThemeEnabled)
+        let darkThemeEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.darkThemeEnabled.rawValue)
+        self.setColorsFromArray(displayOnDark: darkThemeEnabled)
     }
 }

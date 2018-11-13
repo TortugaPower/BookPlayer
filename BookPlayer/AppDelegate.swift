@@ -27,7 +27,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             defaults.set(true, forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
             defaults.set(true, forKey: Constants.UserDefaults.smartRewindEnabled.rawValue)
             defaults.set(true, forKey: Constants.UserDefaults.completedFirstLaunch.rawValue)
-            defaults.set(true, forKey: Constants.UserDefaults.alwaysDarkThemeEnabled.rawValue)
+            defaults.set(false, forKey: Constants.UserDefaults.darkThemeEnabled.rawValue)
         }
 
         // Appearance
