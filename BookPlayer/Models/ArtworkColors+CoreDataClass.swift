@@ -15,6 +15,21 @@ enum ArtworkColorsError: Error {
     case averageColorFailed
 }
 
+struct ColorsToSetDefault {
+    static let light = [
+        UIColor(hex: "#FFFFFF"), // background
+        UIColor(hex: "#37454E"), // primary
+        UIColor(hex: "#3488D1"), // secondary
+        UIColor(hex: "#7685B3") // tertiary
+    ]
+    static let dark = [
+        UIColor(hex: "#212121"), // background
+        UIColor(hex: "#FAFAFA"), // primary
+        UIColor(hex: "#3488D1"), // secondary
+        UIColor.white // tertiary
+    ]
+}
+
 public class ArtworkColors: NSManagedObject {
     var background: UIColor {
         return UIColor(hex: self.backgroundHex)
@@ -36,7 +51,6 @@ public class ArtworkColors: NSManagedObject {
     convenience init(from image: UIImage, context: NSManagedObjectContext, darknessThreshold: CGFloat = 0.2, minimumContrastRatio: CGFloat = 3.0) {
         do {
             let entity = NSEntityDescription.entity(forEntityName: "ArtworkColors", in: context)!
-
             self.init(entity: entity, insertInto: context)
 
             let colorCube = CCColorCube()
@@ -81,17 +95,11 @@ public class ArtworkColors: NSManagedObject {
 
     func setColorsFromArray(_ colors: [UIColor] = [], displayOnDark: Bool = false) {
         var colorsToSet = Array(colors)
-        var displayOnDarkToSet = displayOnDark
 
         if colorsToSet.isEmpty {
-            colorsToSet.append(UIColor(hex: "#FFFFFF")) // background
-            colorsToSet.append(UIColor(hex: "#37454E")) // primary
-            colorsToSet.append(UIColor(hex: "#3488D1")) // secondary
-            colorsToSet.append(UIColor(hex: "#7685B3")) // tertiary
-
-            displayOnDarkToSet = false
+            colorsToSet = displayOnDark ? ColorsToSetDefault.dark : ColorsToSetDefault.light
         } else if colorsToSet.count < 4 {
-            let placeholder = displayOnDarkToSet ? UIColor.white : UIColor.black
+            let placeholder = displayOnDark ? UIColor.white : UIColor.black
 
             for _ in 1...(4 - colorsToSet.count) {
                 colorsToSet.append(placeholder)
@@ -103,7 +111,7 @@ public class ArtworkColors: NSManagedObject {
         self.secondaryHex = colorsToSet[2].cssHex
         self.tertiaryHex = colorsToSet[3].cssHex
 
-        self.displayOnDark = displayOnDarkToSet
+        self.displayOnDark = displayOnDark
     }
 
     // Default colors
@@ -111,6 +119,7 @@ public class ArtworkColors: NSManagedObject {
         let entity = NSEntityDescription.entity(forEntityName: "ArtworkColors", in: context)!
         self.init(entity: entity, insertInto: context)
 
-        self.setColorsFromArray()
+        let alwaysDarkThemeEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.alwaysDarkThemeEnabled.rawValue)
+        self.setColorsFromArray(displayOnDark: alwaysDarkThemeEnabled)
     }
 }
