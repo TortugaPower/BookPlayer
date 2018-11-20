@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4109246C21A2019400D5DF11 /* CheckboxSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4109246B21A2019400D5DF11 /* CheckboxSelectionView.swift */; };
 		410D0FED1EDCF4B000A52EB9 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D0FEC1EDCF4B000A52EB9 /* SettingsViewController.swift */; };
 		410D0FEF1EDDBC3300A52EB9 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D0FEE1EDDBC3300A52EB9 /* DataManager.swift */; };
 		410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D0FF01EDF659900A52EB9 /* PlayerManager.swift */; };
@@ -111,6 +112,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4109246B21A2019400D5DF11 /* CheckboxSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckboxSelectionView.swift; sourceTree = "<group>"; };
 		410D0FEC1EDCF4B000A52EB9 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		410D0FEE1EDDBC3300A52EB9 /* DataManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		410D0FF01EDF659900A52EB9 /* PlayerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerManager.swift; sourceTree = "<group>"; };
@@ -433,9 +435,10 @@
 		C3D3852E20C1F10F00A0ACC7 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				4109246B21A2019400D5DF11 /* CheckboxSelectionView.swift */,
+				C33E843B20C6E179004A0489 /* ItemProgress.swift */,
 				C398559B20C492FF00BE9EC0 /* AddButton.swift */,
 				C3FE94782080086800BCEA37 /* BookCellView.swift */,
-				C33E843B20C6E179004A0489 /* ItemProgress.swift */,
 				4165EE0920A7A33500616EDF /* AddCellView.xib */,
 				4165EE0A20A7A33500616EDF /* BookCellView.xib */,
 			);
@@ -687,6 +690,7 @@
 				41B2AC8E1D43CCE8005382A9 /* ChaptersViewController.swift in Sources */,
 				4165EE0120A743D500616EDF /* Library+CoreDataProperties.swift in Sources */,
 				4165EE0420A743D500616EDF /* LibraryItem+CoreDataProperties.swift in Sources */,
+				4109246C21A2019400D5DF11 /* CheckboxSelectionView.swift in Sources */,
 				C3A479132094C8C300D92122 /* rubberBandDistance.swift in Sources */,
 				C30CD2A1209791FA00258B09 /* UIColor+Sweetercolor.swift in Sources */,
 				4165EE1420A7E8CC00616EDF /* BaseListViewController.swift in Sources */,
