@@ -70,6 +70,8 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
     // MARK: -
 
     @objc private func presentMiniPlayer() {
+        guard PlayerManager.shared.isLoaded else { return }
+
         self.miniPlayerContainer.transform = CGAffineTransform(translationX: 0, y: self.miniPlayerContainer.bounds.height)
         self.miniPlayerContainer.alpha = 0.0
         self.miniPlayerContainer.isHidden = false
