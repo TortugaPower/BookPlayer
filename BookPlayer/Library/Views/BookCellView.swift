@@ -26,6 +26,7 @@ class BookCellView: UITableViewCell {
     @IBOutlet private weak var subtitleLabel: UILabel!
     @IBOutlet private weak var progressTrailing: NSLayoutConstraint!
     @IBOutlet private weak var progressView: ItemProgress!
+    @IBOutlet weak var selectionView: CheckboxSelectionView!
     @IBOutlet private weak var artworkButton: UIButton!
     @IBOutlet weak var artworkWidth: NSLayoutConstraint!
     @IBOutlet weak var artworkHeight: NSLayoutConstraint!
@@ -133,6 +134,15 @@ class BookCellView: UITableViewCell {
         self.selectionStyle = .none
     }
 
+    override func addSubview(_ view: UIView) {
+        super.addSubview(view)
+
+        if let controlClass = NSClassFromString("UITableViewCellEditControl"),
+            view.isKind(of: controlClass) {
+            view.isHidden = true
+        }
+    }
+
     override func willMove(toSuperview newSuperview: UIView?) {
         super.willMove(toSuperview: newSuperview)
 
@@ -142,6 +152,11 @@ class BookCellView: UITableViewCell {
 
     @IBAction func artworkButtonTapped(_ sender: Any) {
         self.onArtworkTap?()
+    }
+
+    override func setSelected(_ selected: Bool, animated: Bool) {
+        super.setSelected(selected, animated: animated)
+        self.selectionView.isSelected = selected
     }
 }
 

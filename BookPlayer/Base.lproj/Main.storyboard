@@ -651,9 +651,50 @@ Use with caution and care for your hearing.</string>
                                     <constraint firstItem="7jY-eA-dv8" firstAttribute="centerY" secondItem="UeG-Sn-DHx" secondAttribute="centerY" id="xLw-Nc-Won"/>
                                 </constraints>
                             </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3M6-8C-yUy">
+                                <rect key="frame" x="112.5" y="533" width="150" height="45"/>
+                                <subviews>
+                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="kMe-sY-Rwp">
+                                        <rect key="frame" x="0.0" y="0.0" width="150" height="45"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="feS-HP-sI3">
+                                                <rect key="frame" x="0.0" y="0.0" width="50" height="45"/>
+                                                <state key="normal" title="S"/>
+                                                <connections>
+                                                    <action selector="didTapSort:" destination="XZ8-Ha-OZN" eventType="touchUpInside" id="aUI-EC-Vg7"/>
+                                                </connections>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xvZ-YO-voc">
+                                                <rect key="frame" x="50" y="0.0" width="50" height="45"/>
+                                                <state key="normal" title="M"/>
+                                                <connections>
+                                                    <action selector="didTapMove:" destination="XZ8-Ha-OZN" eventType="touchUpInside" id="Mgb-wj-urR"/>
+                                                </connections>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="f4P-Yd-fl5">
+                                                <rect key="frame" x="100" y="0.0" width="50" height="45"/>
+                                                <state key="normal" title="T"/>
+                                                <connections>
+                                                    <action selector="didTapTrash:" destination="XZ8-Ha-OZN" eventType="touchUpInside" id="HyG-tJ-nVO"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                    </stackView>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstItem="kMe-sY-Rwp" firstAttribute="top" secondItem="3M6-8C-yUy" secondAttribute="top" id="3pk-7Z-apl"/>
+                                    <constraint firstItem="kMe-sY-Rwp" firstAttribute="leading" secondItem="3M6-8C-yUy" secondAttribute="leading" id="LVI-9S-nqb"/>
+                                    <constraint firstAttribute="bottom" secondItem="kMe-sY-Rwp" secondAttribute="bottom" id="Nhe-GF-BNh"/>
+                                    <constraint firstAttribute="height" constant="45" id="Omf-0b-bqt"/>
+                                    <constraint firstAttribute="width" constant="150" id="bh2-AM-g42"/>
+                                    <constraint firstAttribute="trailing" secondItem="kMe-sY-Rwp" secondAttribute="trailing" id="xRA-Px-E0y"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
+                            <constraint firstItem="3M6-8C-yUy" firstAttribute="centerX" secondItem="CKb-uE-Rzm" secondAttribute="centerX" id="4Nn-0k-tS1"/>
                             <constraint firstItem="S0r-5S-fT7" firstAttribute="leading" secondItem="CKb-uE-Rzm" secondAttribute="leading" id="7ah-za-Bjy"/>
                             <constraint firstItem="S0r-5S-fT7" firstAttribute="trailing" secondItem="CKb-uE-Rzm" secondAttribute="trailing" id="GKB-M8-Cat"/>
                             <constraint firstItem="S0r-5S-fT7" firstAttribute="top" secondItem="BcY-tC-kA6" secondAttribute="top" id="K28-fM-nEZ"/>
@@ -663,19 +704,15 @@ Use with caution and care for your hearing.</string>
                             <constraint firstItem="UeG-Sn-DHx" firstAttribute="leading" secondItem="CKb-uE-Rzm" secondAttribute="leading" id="RNl-7F-pN4"/>
                             <constraint firstItem="vLB-vm-W2L" firstAttribute="bottom" secondItem="BcY-tC-kA6" secondAttribute="bottom" id="V3v-pU-nwy"/>
                             <constraint firstItem="vLB-vm-W2L" firstAttribute="leading" secondItem="CKb-uE-Rzm" secondAttribute="leading" id="Ywa-nX-tq3"/>
+                            <constraint firstAttribute="bottom" secondItem="3M6-8C-yUy" secondAttribute="bottom" constant="25" id="cmc-GD-3ds"/>
                             <constraint firstItem="vLB-vm-W2L" firstAttribute="top" secondItem="UeG-Sn-DHx" secondAttribute="bottom" id="pPU-D7-8xZ"/>
                             <constraint firstItem="UeG-Sn-DHx" firstAttribute="top" secondItem="CKb-uE-Rzm" secondAttribute="top" id="x2D-aT-Ejm"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="CKb-uE-Rzm"/>
                     </view>
-                    <navigationItem key="navigationItem" title="Playlist" largeTitleDisplayMode="never" id="izI-Pl-Rnt">
-                        <barButtonItem key="rightBarButtonItem" title="Sort" id="WH8-zM-mwG">
-                            <connections>
-                                <action selector="didTapSort:" destination="XZ8-Ha-OZN" id="u4j-qb-3mq"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" title="Playlist" largeTitleDisplayMode="never" id="izI-Pl-Rnt"/>
                     <connections>
+                        <outlet property="bulkControlContainerView" destination="3M6-8C-yUy" id="9O3-Jf-XBj"/>
                         <outlet property="emptyStatePlaceholder" destination="S0r-5S-fT7" id="d1Y-st-qzo"/>
                         <outlet property="loadingContainerView" destination="UeG-Sn-DHx" id="U62-78-m6K"/>
                         <outlet property="loadingHeightConstraintView" destination="Ac0-Gf-MP9" id="Iez-3S-1Xp"/>
@@ -918,11 +955,52 @@ Use with caution and care for your hearing.</string>
                                     <constraint firstAttribute="height" constant="65" id="yZT-6T-cjn"/>
                                 </constraints>
                             </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="I7v-PX-k6J">
+                                <rect key="frame" x="112.5" y="481" width="150" height="45"/>
+                                <subviews>
+                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="Acr-3c-QC1">
+                                        <rect key="frame" x="0.0" y="0.0" width="150" height="45"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6Qa-7x-opc">
+                                                <rect key="frame" x="0.0" y="0.0" width="50" height="45"/>
+                                                <state key="normal" title="S"/>
+                                                <connections>
+                                                    <action selector="didTapSort:" destination="Zuf-4A-dOY" eventType="touchUpInside" id="TYh-s5-G8Q"/>
+                                                </connections>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9As-fh-ubT">
+                                                <rect key="frame" x="50" y="0.0" width="50" height="45"/>
+                                                <state key="normal" title="M"/>
+                                                <connections>
+                                                    <action selector="didTapMove:" destination="Zuf-4A-dOY" eventType="touchUpInside" id="3k1-eq-OcZ"/>
+                                                </connections>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="W2b-fG-a49">
+                                                <rect key="frame" x="100" y="0.0" width="50" height="45"/>
+                                                <state key="normal" title="T"/>
+                                                <connections>
+                                                    <action selector="didTapTrash:" destination="Zuf-4A-dOY" eventType="touchUpInside" id="i8z-4X-l8b"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                    </stackView>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="trailing" secondItem="Acr-3c-QC1" secondAttribute="trailing" id="66e-1v-bjc"/>
+                                    <constraint firstAttribute="width" constant="150" id="6hw-wT-sPh"/>
+                                    <constraint firstAttribute="height" constant="45" id="K6b-VE-tcU"/>
+                                    <constraint firstItem="Acr-3c-QC1" firstAttribute="top" secondItem="I7v-PX-k6J" secondAttribute="top" id="OQ5-aa-Z5c"/>
+                                    <constraint firstAttribute="bottom" secondItem="Acr-3c-QC1" secondAttribute="bottom" id="u8J-Sl-KGO"/>
+                                    <constraint firstItem="Acr-3c-QC1" firstAttribute="leading" secondItem="I7v-PX-k6J" secondAttribute="leading" id="xNZ-RY-6d8"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstAttribute="bottom" secondItem="392-ii-NXF" secondAttribute="bottom" id="0zf-Aj-DJA"/>
                             <constraint firstItem="y5M-DI-F77" firstAttribute="leading" secondItem="2vd-Qr-Zz5" secondAttribute="leading" id="2LV-2T-LaD"/>
+                            <constraint firstItem="2vd-Qr-Zz5" firstAttribute="bottom" secondItem="I7v-PX-k6J" secondAttribute="bottom" constant="25" id="6Ia-Wm-KqW"/>
                             <constraint firstItem="y5M-DI-F77" firstAttribute="top" secondItem="2vd-Qr-Zz5" secondAttribute="top" id="Bc5-Xb-jyw"/>
                             <constraint firstItem="xYN-SW-g2w" firstAttribute="leading" secondItem="2vd-Qr-Zz5" secondAttribute="leading" id="C2m-oD-9bl"/>
                             <constraint firstItem="2vd-Qr-Zz5" firstAttribute="trailing" secondItem="392-ii-NXF" secondAttribute="trailing" id="DQ8-gC-QLN"/>
@@ -932,6 +1010,7 @@ Use with caution and care for your hearing.</string>
                             <constraint firstItem="392-ii-NXF" firstAttribute="top" secondItem="y5M-DI-F77" secondAttribute="bottom" id="WkY-uU-ddv"/>
                             <constraint firstAttribute="bottom" secondItem="xYN-SW-g2w" secondAttribute="bottom" id="YJJ-Ry-Xgt"/>
                             <constraint firstItem="2vd-Qr-Zz5" firstAttribute="trailing" secondItem="y5M-DI-F77" secondAttribute="trailing" id="mL3-Ml-Qzo"/>
+                            <constraint firstItem="I7v-PX-k6J" firstAttribute="centerX" secondItem="2vd-Qr-Zz5" secondAttribute="centerX" id="pW3-E5-tAX"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="2vd-Qr-Zz5"/>
                     </view>
@@ -941,13 +1020,9 @@ Use with caution and care for your hearing.</string>
                                 <segue destination="1sN-GG-oUw" kind="presentation" identifier="SettingsSegue" id="Cy0-kJ-HUm"/>
                             </connections>
                         </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" title="Sort" id="3TC-Nz-KBQ">
-                            <connections>
-                                <action selector="didTapSort:" destination="Zuf-4A-dOY" id="7GX-Dp-JaQ"/>
-                            </connections>
-                        </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="bulkControlContainerView" destination="I7v-PX-k6J" id="9Kf-el-gaX"/>
                         <outlet property="emptyStatePlaceholder" destination="xYN-SW-g2w" id="DGN-cI-ss6"/>
                         <outlet property="loadingContainerView" destination="y5M-DI-F77" id="8ZL-BQ-TnG"/>
                         <outlet property="loadingHeightConstraintView" destination="yZT-6T-cjn" id="P36-gP-KlA"/>
@@ -959,7 +1034,7 @@ Use with caution and care for your hearing.</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Zg8-mX-TfF" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-361" y="154"/>
+            <point key="canvasLocation" x="-362.39999999999998" y="153.37331334332833"/>
         </scene>
     </scenes>
     <resources>

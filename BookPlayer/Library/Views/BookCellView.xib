@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
-        <capability name="Alignment constraints with different attributes" minToolsVersion="5.1"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -19,6 +18,14 @@
                 <rect key="frame" x="0.0" y="0.0" width="375" height="75.5"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fxJ-mz-qEf" customClass="CheckboxSelectionView" customModule="BookPlayer" customModuleProvider="target">
+                        <rect key="frame" x="-23" y="28" width="22" height="22"/>
+                        <color key="backgroundColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="22" id="g13-iV-SvO"/>
+                            <constraint firstAttribute="width" constant="22" id="ynx-fV-jAe"/>
+                        </constraints>
+                    </view>
                     <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defaultArtwork" translatesAutoresizingMaskIntoConstraints="NO" id="3kC-6m-IJf" customClass="BPArtworkView" customModule="BookPlayer" customModuleProvider="target">
                         <rect key="frame" x="16" y="13" width="50" height="50"/>
                         <constraints>
@@ -59,11 +66,13 @@
                     <constraint firstItem="weP-Z4-F5J" firstAttribute="width" secondItem="3kC-6m-IJf" secondAttribute="width" id="11w-Bt-EUI"/>
                     <constraint firstItem="Nkg-F5-bH6" firstAttribute="leading" secondItem="RWS-bw-cRW" secondAttribute="trailing" constant="16" id="B9C-BR-Cim"/>
                     <constraint firstItem="weP-Z4-F5J" firstAttribute="height" secondItem="3kC-6m-IJf" secondAttribute="height" id="DoC-5k-yIp"/>
+                    <constraint firstItem="fxJ-mz-qEf" firstAttribute="centerY" secondItem="cUU-yJ-MnU" secondAttribute="centerY" constant="1" id="FUs-kn-r02"/>
                     <constraint firstItem="RWS-bw-cRW" firstAttribute="centerY" secondItem="cUU-yJ-MnU" secondAttribute="centerY" constant="-11" id="ICT-n3-FfX"/>
                     <constraint firstItem="weP-Z4-F5J" firstAttribute="centerY" secondItem="3kC-6m-IJf" secondAttribute="centerY" id="JnB-S2-bVa"/>
                     <constraint firstAttribute="trailing" secondItem="Nkg-F5-bH6" secondAttribute="trailing" constant="16" id="Su9-Ah-617"/>
                     <constraint firstItem="Nkg-F5-bH6" firstAttribute="centerY" secondItem="cUU-yJ-MnU" secondAttribute="centerY" id="aWv-8h-fY6"/>
                     <constraint firstItem="7zZ-yo-0dC" firstAttribute="top" secondItem="RWS-bw-cRW" secondAttribute="bottom" constant="3" id="bkb-Am-hVm"/>
+                    <constraint firstItem="RWS-bw-cRW" firstAttribute="leading" secondItem="fxJ-mz-qEf" secondAttribute="trailing" constant="83" id="fGe-xc-DNI"/>
                     <constraint firstItem="7zZ-yo-0dC" firstAttribute="trailing" secondItem="RWS-bw-cRW" secondAttribute="trailing" id="hq3-09-XVj"/>
                     <constraint firstItem="3kC-6m-IJf" firstAttribute="centerY" secondItem="cUU-yJ-MnU" secondAttribute="centerY" id="jSN-fH-XWc"/>
                     <constraint firstItem="7zZ-yo-0dC" firstAttribute="leading" secondItem="RWS-bw-cRW" secondAttribute="leading" id="mNR-fx-aKg"/>
@@ -80,6 +89,7 @@
                 <outlet property="artworkWidth" destination="zo4-rD-Ned" id="V2J-c2-uiC"/>
                 <outlet property="progressTrailing" destination="Su9-Ah-617" id="Osb-qI-hpx"/>
                 <outlet property="progressView" destination="Nkg-F5-bH6" id="HiU-IX-RA1"/>
+                <outlet property="selectionView" destination="fxJ-mz-qEf" id="7Jl-Fj-1DG"/>
                 <outlet property="subtitleLabel" destination="7zZ-yo-0dC" id="usK-11-1gM"/>
                 <outlet property="titleLabel" destination="RWS-bw-cRW" id="l6H-L8-OH7"/>
             </connections>

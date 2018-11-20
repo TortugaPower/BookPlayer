@@ -18,11 +18,8 @@ class BaseListViewController: UIViewController {
     @IBOutlet weak var loadingTitleLabel: UILabel!
     @IBOutlet weak var loadingSubtitleLabel: UILabel!
     @IBOutlet weak var loadingHeightConstraintView: NSLayoutConstraint!
+    @IBOutlet weak var bulkControlContainerView: UIView!
     @IBOutlet weak var tableView: UITableView!
-
-    @IBAction func didTapSort(_ sender: Any) {
-        present(self.sortDialog(), animated: true, completion: nil)
-    }
 
     var library: Library!
 
@@ -41,8 +38,14 @@ class BaseListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        self.setupBulkControls()
+
+        self.navigationItem.rightBarButtonItem = self.editButtonItem
+
         self.tableView.register(UINib(nibName: "BookCellView", bundle: nil), forCellReuseIdentifier: "BookCellView")
         self.tableView.register(UINib(nibName: "AddCellView", bundle: nil), forCellReuseIdentifier: "AddCellView")
+        self.tableView.allowsSelection = true
+        self.tableView.allowsMultipleSelectionDuringEditing = true
 
         self.tableView.reorder.delegate = self
         self.tableView.reorder.cellScale = 1.07
@@ -72,6 +75,26 @@ class BaseListViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPlay), name: .bookPlayed, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: .bookPaused, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookStop(_:)), name: .bookStopped, object: nil)
+    }
+
+    func setupBulkControls() {
+        self.bulkControlContainerView.layer.cornerRadius = 10
+        self.bulkControlContainerView.layer.shadowColor = UIColor.black.cgColor
+        self.bulkControlContainerView.layer.shadowOpacity = 0.3
+        self.bulkControlContainerView.layer.shadowRadius = 5
+        self.bulkControlContainerView.layer.shadowOffset = .zero
+        self.bulkControlContainerView.isHidden = true
+    }
+
+    override func setEditing(_ editing: Bool, animated: Bool) {
+        super.setEditing(editing, animated: animated)
+
+        let notification: Notification.Name = !editing ? .playerDismissed : .playerPresented
+
+        self.bulkControlContainerView.isHidden = !editing
+        self.tableView.setEditing(editing, animated: true)
+
+        NotificationCenter.default.post(name: notification, object: nil, userInfo: nil)
     }
 
     func showLoadView(_ show: Bool, subtitle: String) {
@@ -175,6 +198,16 @@ class BaseListViewController: UIViewController {
         self.tableView.endUpdates()
         self.toggleEmptyStateView()
     }
+
+    // MARK: - IBActions
+
+    @IBAction func didTapSort(_ sender: UIButton) {
+        present(self.sortDialog(), animated: true, completion: nil)
+    }
+
+    @IBAction func didTapMove(_ sender: UIButton) {}
+
+    @IBAction func didTapTrash(_ sender: UIButton) {}
 
     // MARK: - Callback events
 
@@ -330,13 +363,12 @@ extension BaseListViewController: UITableViewDelegate {
         return true
     }
 
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {}
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return indexPath.sectionValue == .library
+    }
 
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCellEditingStyle {
-        guard indexPath.sectionValue == .library else {
-            return .insert
-        }
-        return .delete
+        return .none
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -344,11 +376,9 @@ extension BaseListViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
-        guard let index = tableView.indexPathForSelectedRow else {
-            return indexPath
-        }
+        guard tableView.isEditing else { return indexPath }
 
-        tableView.deselectRow(at: index, animated: true)
+        guard indexPath.sectionValue == .library else { return nil }
 
         return indexPath
     }
