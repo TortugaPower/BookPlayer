@@ -220,10 +220,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             self.library.removeFromItems(playlist)
             DataManager.delete(playlist)
 
-            self.tableView.beginUpdates()
-            self.tableView.reloadSections(IndexSet(integer: Section.library.rawValue), with: .none)
-            self.tableView.endUpdates()
-            self.toggleEmptyStateView()
+            self.reloadData()
         }))
 
         sheet.addAction(UIAlertAction(title: "Delete both playlist and books", style: .destructive, handler: { _ in
@@ -476,7 +473,9 @@ extension LibraryViewController {
         return [deleteAction, exportAction]
     }
 
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        super.tableView(tableView, didSelectRowAt: indexPath)
+
         guard !tableView.isEditing else {
             return
         }
