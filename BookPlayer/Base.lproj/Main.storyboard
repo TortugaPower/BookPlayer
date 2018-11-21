@@ -718,7 +718,9 @@ Use with caution and care for your hearing.</string>
                         <outlet property="loadingHeightConstraintView" destination="Ac0-Gf-MP9" id="Iez-3S-1Xp"/>
                         <outlet property="loadingSubtitleLabel" destination="Ngy-au-mNE" id="G8y-18-BVA"/>
                         <outlet property="loadingTitleLabel" destination="NSf-cb-1ho" id="sXn-Es-nyr"/>
+                        <outlet property="moveButton" destination="xvZ-YO-voc" id="cDg-4s-TgT"/>
                         <outlet property="tableView" destination="vLB-vm-W2L" id="upg-Nh-j6W"/>
+                        <outlet property="trashButton" destination="f4P-Yd-fl5" id="Zqf-wg-kYv"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="6pz-s9-tbM" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -1028,7 +1030,9 @@ Use with caution and care for your hearing.</string>
                         <outlet property="loadingHeightConstraintView" destination="yZT-6T-cjn" id="P36-gP-KlA"/>
                         <outlet property="loadingSubtitleLabel" destination="7UM-Ke-3F1" id="2ws-KG-fQ3"/>
                         <outlet property="loadingTitleLabel" destination="Za5-jS-CfQ" id="Rch-Pn-Z0K"/>
+                        <outlet property="moveButton" destination="9As-fh-ubT" id="IJq-Xg-5ZP"/>
                         <outlet property="tableView" destination="392-ii-NXF" id="A9h-ev-SKj"/>
+                        <outlet property="trashButton" destination="W2b-fG-a49" id="Rc1-Cg-Kcl"/>
                         <segue destination="XZ8-Ha-OZN" kind="show" identifier="PlaylistSegue" id="jLU-AX-Vgv"/>
                     </connections>
                 </viewController>

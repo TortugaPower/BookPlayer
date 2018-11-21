@@ -19,6 +19,9 @@ class BaseListViewController: UIViewController {
     @IBOutlet weak var loadingSubtitleLabel: UILabel!
     @IBOutlet weak var loadingHeightConstraintView: NSLayoutConstraint!
     @IBOutlet weak var bulkControlContainerView: UIView!
+    @IBOutlet weak var moveButton: UIButton!
+    @IBOutlet weak var trashButton: UIButton!
+
     @IBOutlet weak var tableView: UITableView!
 
     var library: Library!
@@ -88,6 +91,9 @@ class BaseListViewController: UIViewController {
 
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
+
+        self.moveButton.isEnabled = false
+        self.trashButton.isEnabled = false
 
         let notification: Notification.Name = !editing ? .playerDismissed : .playerPresented
 
@@ -335,6 +341,16 @@ extension BaseListViewController: UITableViewDataSource {
         cell.type = item is Playlist ? .playlist : .book
 
         cell.onArtworkTap = { [weak self] in
+            guard !tableView.isEditing else {
+                if cell.isSelected {
+                    tableView.deselectRow(at: indexPath, animated: true)
+                    self?.tableView(tableView, didDeselectRowAt: indexPath)
+                } else {
+                    tableView.selectRow(at: indexPath, animated: true, scrollPosition: .none)
+                    self?.tableView(tableView, didSelectRowAt: indexPath)
+                }
+                return
+            }
             guard let book = item.getBookToPlay() else { return }
 
             self?.setupPlayer(book: book)
@@ -381,6 +397,20 @@ extension BaseListViewController: UITableViewDelegate {
         guard indexPath.sectionValue == .library else { return nil }
 
         return indexPath
+    }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        self.moveButton.isEnabled = true
+        self.trashButton.isEnabled = true
+    }
+
+    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        guard tableView.indexPathForSelectedRow == nil else {
+            return
+        }
+
+        self.moveButton.isEnabled = false
+        self.trashButton.isEnabled = false
     }
 }
 

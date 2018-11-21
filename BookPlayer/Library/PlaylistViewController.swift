@@ -147,7 +147,13 @@ extension PlaylistViewController {
 // MARK: - TableView Delegate
 
 extension PlaylistViewController {
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        super.tableView(tableView, didSelectRowAt: indexPath)
+
+        guard !tableView.isEditing else {
+            return
+        }
+
         tableView.deselectRow(at: indexPath, animated: true)
 
         guard indexPath.sectionValue == .library else {
