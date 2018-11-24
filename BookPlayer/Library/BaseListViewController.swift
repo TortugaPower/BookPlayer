@@ -130,13 +130,6 @@ class BaseListViewController: UIViewController {
         }
     }
 
-    func setupPlayer(books: [Book] = []) {
-        // Stop setup if no books were found
-        if books.isEmpty {
-            return
-        }
-    }
-
     // Make sure player is for a different book
     func setupPlayer(book: Book) {
         guard
