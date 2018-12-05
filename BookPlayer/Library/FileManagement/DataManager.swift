@@ -332,12 +332,68 @@ class DataManager {
         self.saveContext()
     }
 
+    class func exists(_ book: Book) -> Bool {
+        return FileManager.default.fileExists(atPath: book.fileURL.path)
+    }
+
     class func delete(_ item: NSManagedObject) {
         self.persistentContainer.viewContext.delete(item)
         self.saveContext()
     }
 
-    class func exists(_ book: Book) -> Bool {
-        return FileManager.default.fileExists(atPath: book.fileURL.path)
+    class func delete(_ items: [LibraryItem], mode: DeleteMode = .deep) {
+        for item in items {
+            guard let playlist = item as? Playlist else {
+                // swiftlint:disable force_cast
+                self.delete(item as! Book, mode: mode)
+                continue
+            }
+
+            self.delete(playlist, mode: mode)
+        }
+    }
+
+    class func delete(_ playlist: Playlist, mode: DeleteMode = .deep) {
+        guard let library = playlist.library else { return }
+
+        if mode == .shallow,
+            let orderedSet = playlist.books {
+            library.addToItems(orderedSet)
+        }
+
+        // swiftlint:disable force_cast
+        for book in playlist.books?.array as! [Book] {
+            guard mode == .deep else { continue }
+            self.delete(book)
+        }
+
+        library.removeFromItems(playlist)
+
+        self.delete(playlist)
+    }
+
+    class func delete(_ book: Book, mode: DeleteMode = .deep) {
+        guard mode == .deep else {
+            if let playlist = book.playlist,
+                let library = playlist.library {
+                library.addToItems(book)
+
+                playlist.removeFromBooks(book)
+
+                self.saveContext()
+            }
+
+            return
+        }
+
+        if book == PlayerManager.shared.currentBook {
+            PlayerManager.shared.stop()
+        }
+
+        DispatchQueue.global().async {
+            try? FileManager.default.removeItem(at: book.fileURL)
+        }
+
+        self.delete(book)
     }
 }

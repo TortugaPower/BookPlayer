@@ -14,6 +14,7 @@
 		412451841D489204008AC0E5 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412451821D489204008AC0E5 /* Crashlytics.framework */; };
 		413616401D2E21F000E48944 /* LibraryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4136163F1D2E21F000E48944 /* LibraryViewController.swift */; };
 		4150F80320A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4150F80220A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework */; };
+		41544A1221B86A8C00740AD2 /* DeleteMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41544A1121B86A8B00740AD2 /* DeleteMode.swift */; };
 		4163E3112148606600072AA2 /* FileItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E3102148606600072AA2 /* FileItem.swift */; };
 		4163E313214AC43000072AA2 /* ImportOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E312214AC43000072AA2 /* ImportOperationTests.swift */; };
 		4163E315214ACB4300072AA2 /* DataTestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E314214ACB4300072AA2 /* DataTestUtils.swift */; };
@@ -119,6 +120,7 @@
 		412451821D489204008AC0E5 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		4136163F1D2E21F000E48944 /* LibraryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryViewController.swift; sourceTree = "<group>"; };
 		4150F80220A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IDZSwiftCommonCrypto.framework; path = Carthage/Build/iOS/IDZSwiftCommonCrypto.framework; sourceTree = "<group>"; };
+		41544A1121B86A8B00740AD2 /* DeleteMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteMode.swift; sourceTree = "<group>"; };
 		4163E3102148606600072AA2 /* FileItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileItem.swift; sourceTree = "<group>"; };
 		4163E312214AC43000072AA2 /* ImportOperationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportOperationTests.swift; sourceTree = "<group>"; };
 		4163E314214ACB4300072AA2 /* DataTestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTestUtils.swift; sourceTree = "<group>"; };
@@ -232,6 +234,7 @@
 		4163E30F21484C3500072AA2 /* FileManagement */ = {
 			isa = PBXGroup;
 			children = (
+				41544A1121B86A8B00740AD2 /* DeleteMode.swift */,
 				410D0FEE1EDDBC3300A52EB9 /* DataManager.swift */,
 				416B63A72146354B007D04B1 /* ImportManager.swift */,
 				41E34E4F2138EA8200A3997C /* ImportOperation.swift */,
@@ -708,6 +711,7 @@
 				4197240021874D5F00AB1190 /* UserActivityManager.swift in Sources */,
 				41D4F2EF21053944009F1B1E /* IndexPath+BookPlayer.swift in Sources */,
 				418B6D5D1D2CB76900F974FB /* PlayerViewController.swift in Sources */,
+				41544A1221B86A8C00740AD2 /* DeleteMode.swift in Sources */,
 				69343D332133844D000C425E /* VoiceOverService.swift in Sources */,
 				C359C30720A9F35B00A626E3 /* SkipDurationViewController.swift in Sources */,
 				C3A479192094CAF300D92122 /* UIViewController+BookPlayer.swift in Sources */,
