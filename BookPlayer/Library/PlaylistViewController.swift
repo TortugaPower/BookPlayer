@@ -100,10 +100,55 @@ class PlaylistViewController: BaseListViewController {
         self.presentImportFilesAlert()
     }
 
+    override func didTapTrash(_ sender: UIButton) {
+        super.didTapTrash(sender)
+
+        guard let indexPaths = self.tableView.indexPathsForSelectedRows else {
+            return
+        }
+
+        let selectedItems = indexPaths.map { (indexPath) -> LibraryItem in
+            return self.items[indexPath.row]
+        }
+
+        guard !selectedItems.isEmpty,
+            let books = selectedItems as? [Book] else { return }
+
+        self.handleDelete(books: books)
+    }
+
     // MARK: - Methods
 
     override func sort(by sortType: PlayListSortOrder) {
         self.playlist.sort(by: sortType)
+    }
+
+    func handleDelete(books: [Book]) {
+        let alert = UIAlertController(title: "Do you want to delete \(items.count) items?", message: nil, preferredStyle: .alert)
+
+        if books.count == 1, let book = books.first {
+            alert.title = "Do you want to delete “\(book.title!)”?"
+        }
+
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+
+        alert.addAction(UIAlertAction(title: "Move to Library", style: .default, handler: { _ in
+//            DataManager.delete(book, from: self.library, mode: .shallow)
+            DataManager.delete(books, mode: .shallow)
+            self.reloadData()
+
+            NotificationCenter.default.post(name: .reloadData, object: nil)
+        }))
+
+        alert.addAction(UIAlertAction(title: "Delete completely", style: .destructive, handler: { _ in
+            DataManager.delete(books)
+
+            self.reloadData()
+
+            NotificationCenter.default.post(name: .reloadData, object: nil)
+        }))
+
+        self.present(alert, animated: true, completion: nil)
     }
 }
 
@@ -174,55 +219,23 @@ extension PlaylistViewController {
             return nil
         }
 
-        let deleteAction = UITableViewRowAction(style: .default, title: "Options") { _, indexPath in
-            let sheet = UIAlertController(title: "\(book.title!)", message: nil, preferredStyle: .alert)
+        let exportAction = UITableViewRowAction(style: .normal, title: "Export") { _, _ in
+            let bookProvider = BookActivityItemProvider(book)
 
-            sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+            let shareController = UIActivityViewController(activityItems: [bookProvider], applicationActivities: nil)
 
-            sheet.addAction(UIAlertAction(title: "Export item", style: .default, handler: { _ in
+            shareController.excludedActivityTypes = [.copyToPasteboard]
 
-                let bookProvider = BookActivityItemProvider(book)
-
-                let shareController = UIActivityViewController(activityItems: [bookProvider], applicationActivities: nil)
-
-                shareController.excludedActivityTypes = [.copyToPasteboard]
-
-                self.present(shareController, animated: true, completion: nil)
-            }))
-
-            sheet.addAction(UIAlertAction(title: "Move to Library", style: .default, handler: { _ in
-                self.playlist.removeFromBooks(book)
-                self.library.addToItems(book)
-
-                DataManager.saveContext()
-
-                self.deleteRows(at: [indexPath])
-
-                NotificationCenter.default.post(name: .reloadData, object: nil)
-            }))
-
-            sheet.addAction(UIAlertAction(title: "Delete completely", style: .destructive, handler: { _ in
-                if book == PlayerManager.shared.currentBook {
-                    PlayerManager.shared.stop()
-                }
-
-                try? FileManager.default.removeItem(at: book.fileURL)
-
-                self.playlist.removeFromBooks(book)
-
-                DataManager.delete(book)
-
-                self.deleteRows(at: [indexPath])
-
-                NotificationCenter.default.post(name: .reloadData, object: nil)
-            }))
-
-            self.present(sheet, animated: true, completion: nil)
+            self.present(shareController, animated: true, completion: nil)
         }
 
-        deleteAction.backgroundColor = UIColor.gray
+        let optionsAction = UITableViewRowAction(style: .default, title: "Options") { _, _ in
+            self.handleDelete(books: [book])
+        }
 
-        return [deleteAction]
+        optionsAction.backgroundColor = .gray
+
+        return [optionsAction, exportAction]
     }
 }
 

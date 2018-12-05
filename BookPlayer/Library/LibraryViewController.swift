@@ -169,25 +169,18 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         navigationController?.pushViewController(playlistVC, animated: true)
     }
 
-    func handleDelete(book: Book, indexPath: IndexPath) {
-        let alert = UIAlertController(title: "Delete \(book.title!)?", message: "Do you really want to delete this book?", preferredStyle: .alert)
+    func handleDelete(books: [Book]) {
+        let alert = UIAlertController(title: "Do you want to delete \(books.count) books?", message: nil, preferredStyle: .alert)
 
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in
-            self.tableView.setEditing(false, animated: true)
-        }))
+        if books.count == 1, let book = books.first {
+            alert.title = "Do you want to delete “\(book.title!)”?"
+        }
+
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
 
         alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
-            if book == PlayerManager.shared.currentBook {
-                PlayerManager.shared.stop()
-            }
-
-            try? FileManager.default.removeItem(at: book.fileURL)
-
-            self.library.removeFromItems(book)
-
-            DataManager.delete(book)
-
-            self.deleteRows(at: [indexPath])
+            DataManager.delete(books)
+            self.reloadData()
         }))
 
         alert.popoverPresentationController?.sourceView = view
@@ -196,50 +189,32 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         present(alert, animated: true, completion: nil)
     }
 
-    func handleDelete(playlist: Playlist, indexPath: IndexPath) {
-        guard playlist.hasBooks() else {
-            library.removeFromItems(playlist)
-
-            DataManager.delete(playlist)
-
-            deleteRows(at: [indexPath])
-            return
-        }
-
-        let sheet = UIAlertController(title: "Delete \(playlist.title!)?",
-                                      message: "Deleting only the playlist will move all its files back to the Library.",
+    func handleDelete(items: [LibraryItem]) {
+        let alert = UIAlertController(title: "Do you want to delete \(items.count) items?",
+                                      message: "This will remove all files inside selected playlists as well.",
                                       preferredStyle: .alert)
 
-        sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
 
-        sheet.addAction(UIAlertAction(title: "Delete playlist only", style: .default, handler: { _ in
-            if let orderedSet = playlist.books {
-                self.library.addToItems(orderedSet)
-            }
+        var deleteActionTitle = "Delete"
 
-            self.library.removeFromItems(playlist)
-            DataManager.delete(playlist)
+        if items.count == 1, let playlist = items.first as? Playlist {
+            deleteActionTitle = "Delete playlist and files"
 
+            alert.title = "Do you want to delete “\(playlist.title!)”?"
+            alert.message = "Deleting only the playlist will move all its files back to the Library."
+            alert.addAction(UIAlertAction(title: "Delete playlist only", style: .default, handler: { _ in
+                DataManager.delete(items, mode: .shallow)
+                self.reloadData()
+            }))
+        }
+
+        alert.addAction(UIAlertAction(title: deleteActionTitle, style: .destructive, handler: { _ in
+            DataManager.delete(items)
             self.reloadData()
         }))
 
-        sheet.addAction(UIAlertAction(title: "Delete both playlist and books", style: .destructive, handler: { _ in
-            // swiftlint:disable force_cast
-            for book in playlist.books?.array as! [Book] {
-                if book == PlayerManager.shared.currentBook {
-                    PlayerManager.shared.stop()
-                }
-                try? FileManager.default.removeItem(at: book.fileURL)
-            }
-
-            self.library.removeFromItems(playlist)
-
-            DataManager.delete(playlist)
-
-            self.deleteRows(at: [indexPath])
-        }))
-
-        present(sheet, animated: true, completion: nil)
+        present(alert, animated: true, completion: nil)
     }
 
     func presentCreatePlaylistAlert(_ namePlaceholder: String = "New Playlist", handler: ((_ title: String) -> Void)?) {
@@ -357,6 +332,27 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
     override func sort(by sortType: PlayListSortOrder) {
         library.sort(by: sortType)
     }
+
+    override func didTapTrash(_ sender: UIButton) {
+        super.didTapTrash(sender)
+
+        guard let indexPaths = self.tableView.indexPathsForSelectedRows else {
+            return
+        }
+
+        let selectedItems = indexPaths.map { (indexPath) -> LibraryItem in
+            return self.items[indexPath.row]
+        }
+
+        guard !selectedItems.isEmpty else { return }
+
+        guard let books = selectedItems as? [Book] else {
+            self.handleDelete(items: selectedItems)
+            return
+        }
+
+        self.handleDelete(books: books)
+    }
 }
 
 // MARK: Accessibility
@@ -397,9 +393,7 @@ extension LibraryViewController {
 
 extension LibraryViewController {
     func tableView(_: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        guard indexPath.sectionValue == .library else {
-            return nil
-        }
+        guard indexPath.sectionValue == .library else { return nil }
 
         let item = items[indexPath.row]
 
@@ -413,16 +407,20 @@ extension LibraryViewController {
 
         let deleteAction = UITableViewRowAction(style: .default, title: title) { _, indexPath in
             guard let book = self.items[indexPath.row] as? Book else {
-                guard let playlist = self.items[indexPath.row] as? Playlist else {
+                guard let playlist = self.items[indexPath.row] as? Playlist else { return }
+
+                guard playlist.hasBooks() else {
+                    DataManager.delete([playlist])
+                    self.deleteRows(at: [indexPath])
                     return
                 }
 
-                self.handleDelete(playlist: playlist, indexPath: indexPath)
+                self.handleDelete(items: [playlist])
 
                 return
             }
 
-            self.handleDelete(book: book, indexPath: indexPath)
+            self.handleDelete(books: [book])
         }
 
         deleteAction.backgroundColor = .red
