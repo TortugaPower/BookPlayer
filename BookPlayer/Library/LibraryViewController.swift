@@ -217,31 +217,6 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         present(alert, animated: true, completion: nil)
     }
 
-    func presentCreatePlaylistAlert(_ namePlaceholder: String = "New Playlist", handler: ((_ title: String) -> Void)?) {
-        let playlistAlert = UIAlertController(title: "Create a new playlist",
-                                              message: "Files in playlists are automatically played one after the other",
-                                              preferredStyle: .alert)
-
-        playlistAlert.addTextField(configurationHandler: { textfield in
-            textfield.text = namePlaceholder
-        })
-
-        playlistAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-        playlistAlert.addAction(UIAlertAction(title: "Create", style: .default, handler: { _ in
-            let title = playlistAlert.textFields!.first!.text!
-
-            handler?(title)
-        }))
-
-        let vc = presentedViewController ?? self
-
-        vc.present(playlistAlert, animated: true) {
-            guard let textfield = playlistAlert.textFields?.first else { return }
-            textfield.becomeFirstResponder()
-            textfield.selectedTextRange = textfield.textRange(from: textfield.beginningOfDocument, to: textfield.endOfDocument)
-        }
-    }
-
     // MARK: - Callback events
 
     @objc func onNewFileUrl() {
@@ -331,6 +306,60 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
     // Sorting
     override func sort(by sortType: PlayListSortOrder) {
         library.sort(by: sortType)
+    }
+
+    override func didTapMove(_ sender: UIButton) {
+        super.didTapMove(sender)
+
+        guard let indexPaths = self.tableView.indexPathsForSelectedRows else {
+            return
+        }
+
+        let selectedItems = indexPaths.map { (indexPath) -> LibraryItem in
+            return self.items[indexPath.row]
+        }
+
+        guard !selectedItems.isEmpty else { return }
+
+        let alert = UIAlertController(title: "Choose destination", message: nil, preferredStyle: .alert)
+
+        alert.addAction(UIAlertAction(title: "New Playlist", style: .default) { _ in
+            self.presentCreatePlaylistAlert(handler: { title in
+                let selectedPlaylists = selectedItems.compactMap({ (item) -> Playlist? in
+                    item as? Playlist
+                })
+
+                let selectedBooks = selectedItems.compactMap({ (item) -> Book? in
+                    item as? Book
+                })
+
+                let books = Array(selectedPlaylists.compactMap({ (playlist) -> [Book]? in
+                    guard let books = playlist.books else { return nil }
+
+                    return books.array as? [Book]
+                }).joined())
+
+                let allBooks = books + selectedBooks
+
+                let playlist = DataManager.createPlaylist(title: title, books: allBooks)
+
+                self.library.removeFromItems(NSOrderedSet(array: selectedBooks))
+                self.library.removeFromItems(NSOrderedSet(array: selectedPlaylists))
+                self.library.addToItems(playlist)
+
+                DataManager.saveContext()
+
+                self.reloadData()
+            })
+        })
+
+        alert.addAction(UIAlertAction(title: "Existing Playlist", style: .default) { _ in
+
+        })
+
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+
+        self.present(alert, animated: true, completion: nil)
     }
 
     override func didTapTrash(_ sender: UIButton) {

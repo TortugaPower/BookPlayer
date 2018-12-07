@@ -100,6 +100,53 @@ class PlaylistViewController: BaseListViewController {
         self.presentImportFilesAlert()
     }
 
+    override func didTapMove(_ sender: UIButton) {
+        super.didTapMove(sender)
+
+        guard let indexPaths = self.tableView.indexPathsForSelectedRows else {
+            return
+        }
+
+        let selectedItems = indexPaths.map { (indexPath) -> LibraryItem in
+            return self.items[indexPath.row]
+        }
+
+        guard !selectedItems.isEmpty, let books = selectedItems as? [Book] else { return }
+
+        let alert = UIAlertController(title: "Choose destination", message: nil, preferredStyle: .alert)
+
+        alert.addAction(UIAlertAction(title: "Library", style: .default) { _ in
+            let bookSet = NSOrderedSet(array: books)
+            self.playlist.removeFromBooks(bookSet)
+            self.library.addToItems(bookSet)
+            DataManager.saveContext()
+
+            self.reloadData()
+            NotificationCenter.default.post(name: .reloadData, object: nil)
+        })
+
+        alert.addAction(UIAlertAction(title: "New Playlist", style: .default) { _ in
+            self.presentCreatePlaylistAlert(handler: { title in
+                self.playlist.removeFromBooks(NSOrderedSet(array: books))
+                let playlist = DataManager.createPlaylist(title: title, books: books)
+
+                self.library.addToItems(playlist)
+                DataManager.saveContext()
+
+                self.reloadData()
+                NotificationCenter.default.post(name: .reloadData, object: nil)
+            })
+        })
+
+        alert.addAction(UIAlertAction(title: "Existing Playlist", style: .default) { _ in
+
+        })
+
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+
+        self.present(alert, animated: true, completion: nil)
+    }
+
     override func didTapTrash(_ sender: UIButton) {
         super.didTapTrash(sender)
 

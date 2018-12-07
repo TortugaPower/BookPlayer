@@ -205,6 +205,31 @@ class BaseListViewController: UIViewController {
         self.toggleEmptyStateView()
     }
 
+    func presentCreatePlaylistAlert(_ namePlaceholder: String = "New Playlist", handler: ((_ title: String) -> Void)?) {
+        let playlistAlert = UIAlertController(title: "Create a new playlist",
+                                              message: "Files in playlists are automatically played one after the other",
+                                              preferredStyle: .alert)
+
+        playlistAlert.addTextField(configurationHandler: { textfield in
+            textfield.text = namePlaceholder
+        })
+
+        playlistAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        playlistAlert.addAction(UIAlertAction(title: "Create", style: .default, handler: { _ in
+            let title = playlistAlert.textFields!.first!.text!
+
+            handler?(title)
+        }))
+
+        let vc = presentedViewController ?? self
+
+        vc.present(playlistAlert, animated: true) {
+            guard let textfield = playlistAlert.textFields?.first else { return }
+            textfield.becomeFirstResponder()
+            textfield.selectedTextRange = textfield.textRange(from: textfield.beginningOfDocument, to: textfield.endOfDocument)
+        }
+    }
+
     // MARK: - IBActions
 
     @IBAction func didTapSort(_ sender: UIButton) {
