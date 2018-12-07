@@ -11,6 +11,10 @@ import CoreData
 import Foundation
 
 public class Library: NSManagedObject {
+    var itemsArray: [LibraryItem] {
+        return self.items?.array as? [LibraryItem] ?? []
+    }
+
     func itemIndex(with identifier: String) -> Int? {
         guard let items = self.items?.array as? [LibraryItem] else {
             return nil

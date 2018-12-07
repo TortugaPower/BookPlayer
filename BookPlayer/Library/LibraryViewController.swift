@@ -353,9 +353,51 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             })
         })
 
-        alert.addAction(UIAlertAction(title: "Existing Playlist", style: .default) { _ in
-
+        let availablePlaylists = self.items.compactMap({ (item) -> Playlist? in
+            item as? Playlist
         })
+
+        let existingPlaylistAction = UIAlertAction(title: "Existing Playlist", style: .default) { _ in
+
+            let vc = PlaylistSelectionViewController()
+            vc.items = availablePlaylists
+
+            vc.onPlaylistSelected = { selectedPlaylist in
+                let selectedPlaylists = selectedItems.compactMap({ (item) -> Playlist? in
+                    guard
+                        let playlist = item as? Playlist,
+                        playlist != selectedPlaylist else { return nil }
+
+                    return playlist
+                })
+
+                let selectedBooks = selectedItems.compactMap({ (item) -> Book? in
+                    item as? Book
+                })
+
+                let books = Array(selectedPlaylists.compactMap({ (playlist) -> [Book]? in
+                    guard let books = playlist.books else { return nil }
+
+                    return books.array as? [Book]
+                }).joined())
+
+                let allBooks = books + selectedBooks
+
+                self.library.removeFromItems(NSOrderedSet(array: selectedBooks))
+                self.library.removeFromItems(NSOrderedSet(array: selectedPlaylists))
+                selectedPlaylist.addToBooks(NSOrderedSet(array: allBooks))
+
+                DataManager.saveContext()
+
+                self.reloadData()
+            }
+
+            let nav = UINavigationController(rootViewController: vc)
+            self.present(nav, animated: true, completion: nil)
+        }
+
+        existingPlaylistAction.isEnabled = !availablePlaylists.isEmpty
+        alert.addAction(existingPlaylistAction)
 
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
 
