@@ -27,6 +27,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         NotificationCenter.default.addObserver(self, selector: #selector(self.onProcessingFile(_:)), name: .processingFile, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onNewFileUrl), name: .newFileUrl, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onNewOperation(_:)), name: .importOperation, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookDidUpdate(_:)), name: .updateBookCompletion, object: nil)
 
         // handle CoreData migration into shared app groups
         if !UserDefaults.standard.bool(forKey: Constants.UserDefaults.appGroupsMigration.rawValue) {
@@ -37,6 +38,11 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         self.loadLibrary()
 
         self.loadLastBook()
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        reloadData()
     }
 
     // No longer need to deregister observers for iOS 9+!
@@ -327,6 +333,17 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         }
 
         DataManager.start(operation)
+    }
+
+    @objc private func bookDidUpdate(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+            let playlist = userInfo["playlist"] as? Playlist else { return }
+
+        if items.contains(playlist) {
+            guard let itemIndex = items.firstIndex(of: playlist) else { return }
+            let indexPath = IndexPath(row: itemIndex, section: 1)
+            tableView.reloadRows(at: [indexPath], with: .none)
+        }
     }
 
     // MARK: - IBActions

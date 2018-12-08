@@ -20,6 +20,7 @@ class PlaylistViewController: BaseListViewController {
 
         self.toggleEmptyStateView()
 
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookUpdated(_:)), name: .updateBookCompletion, object: nil)
         self.navigationItem.title = self.playlist.title
     }
 
@@ -225,6 +226,15 @@ extension PlaylistViewController {
         deleteAction.backgroundColor = UIColor.gray
 
         return [deleteAction]
+    }
+
+    @objc private func bookUpdated(_ notification: Notification) {
+        guard let book = notification.userInfo?["book"] as? Book,
+            let books = playlist.books else { return }
+
+        if books.contains(book) && self.playlist.allBooksComplete() {
+            self.playlist.setCompletionState()
+        }
     }
 }
 

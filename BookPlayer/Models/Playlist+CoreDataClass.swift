@@ -28,7 +28,6 @@ public class Playlist: LibraryItem {
 
     convenience init(title: String, books: [Book], context: NSManagedObjectContext) {
         let entity = NSEntityDescription.entity(forEntityName: "Playlist", in: context)!
-
         self.init(entity: entity, insertInto: context)
         self.identifier = title
         self.title = title
@@ -167,8 +166,36 @@ public class Playlist: LibraryItem {
     public override func setCompletionState(isComplete: Bool = true) {
         books?.forEach { book in
             guard let book = book as? Book else { return }
-            book.setCompletionState()
+            book.setCompletionState(isComplete: isComplete)
         }
+    }
+
+    // Need a solution for when a book is notified to notify the enclosing
+    // playlist of the change but also any associated view. Initing
+    // the notification in the playlist init is useless since its only inited once
+
+    public func registerObserver() {
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookDidUpdate(_:)), name: .updateBookCompletion, object: nil)
+    }
+
+    @objc private func bookDidUpdate(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+            let book = userInfo["book"] as? Book,
+            let bookSet = books,
+            let books = Array(bookSet) as? [Book] else { return }
+
+        if books.contains(book) && self.allBooksComplete() {
+            self.setCompletionState()
+            NotificationCenter.default.post(name: .updatePlaylistCompletion, object: nil, userInfo: ["playlist": self])
+        }
+    }
+
+    public func allBooksComplete() -> Bool {
+        guard let books = books else { return false }
+        return !books.contains(where: { (book) -> Bool in
+            guard let book = book as? Book else { return false }
+            return book.isComplete
+        })
     }
 }
 

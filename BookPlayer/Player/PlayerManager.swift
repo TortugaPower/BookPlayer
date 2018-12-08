@@ -413,8 +413,6 @@ extension PlayerManager: AVAudioPlayerDelegate {
 
         self.currentBook?.resetProgress()
 
-        self.pause()
-
         self.update()
 
         guard let nextBook = self.currentBook?.nextBook() else { return }

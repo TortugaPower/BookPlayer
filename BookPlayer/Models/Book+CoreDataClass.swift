@@ -140,4 +140,9 @@ public class Book: LibraryItem {
         self.currentTime = 0.0
         self.percentCompleted = 0.0
     }
+
+    public override func setCompletionState(isComplete: Bool = true) {
+        self.isComplete = isComplete
+        NotificationCenter.default.post(name: .updateBookCompletion, object: ["book": self])
+    }
 }

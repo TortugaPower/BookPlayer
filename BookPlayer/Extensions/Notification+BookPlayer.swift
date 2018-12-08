@@ -15,6 +15,8 @@ extension Notification.Name {
     public static let requestReview = Notification.Name("com.tortugapower.audiobookplayer.requestreview")
     public static let updatePercentage = Notification.Name("com.tortugapower.audiobookplayer.book.percentage")
     public static let updateChapter = Notification.Name("com.tortugapower.audiobookplayer.book.chapter")
+    public static let updateBookCompletion = Notification.Name("com.tortugapower.audiobookplayer.book.completion")
+    public static let updatePlaylistCompletion = Notification.Name("com.tortugapower.audiobookplayer.playlist.completion")
     public static let bookReady = Notification.Name("com.tortugapower.audiobookplayer.book.ready")
     public static let bookPlayed = Notification.Name("com.tortugapower.audiobookplayer.book.play")
     public static let bookPaused = Notification.Name("com.tortugapower.audiobookplayer.book.pause")
