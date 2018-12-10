@@ -35,8 +35,7 @@ class BaseListViewController: UIViewController {
         return self.library.items?.array as? [LibraryItem] ?? []
     }
 
-    // keep in memory current Documents folder
-    let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
+    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -71,6 +70,10 @@ class BaseListViewController: UIViewController {
         self.toggleEmptyStateView()
         self.showLoadView(false)
 
+        self.setupObservers()
+    }
+
+    func setupObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookReady), name: .bookReady, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.updateProgress(_:)), name: .updatePercentage, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.adjustBottomOffsetForMiniPlayer), name: .playerPresented, object: nil)
@@ -87,6 +90,13 @@ class BaseListViewController: UIViewController {
         self.bulkControlContainerView.layer.shadowRadius = 5
         self.bulkControlContainerView.layer.shadowOffset = .zero
         self.bulkControlContainerView.isHidden = true
+    }
+
+    func deleteRows(at indexPaths: [IndexPath]) {
+        self.tableView.beginUpdates()
+        self.tableView.deleteRows(at: indexPaths, with: .none)
+        self.tableView.endUpdates()
+        self.toggleEmptyStateView()
     }
 
     override func setEditing(_ editing: Bool, animated: Bool) {
@@ -198,13 +208,6 @@ class BaseListViewController: UIViewController {
         fatalError("handleOperationCompletion must be overriden")
     }
 
-    func deleteRows(at indexPaths: [IndexPath]) {
-        self.tableView.beginUpdates()
-        self.tableView.deleteRows(at: indexPaths, with: .none)
-        self.tableView.endUpdates()
-        self.toggleEmptyStateView()
-    }
-
     func presentCreatePlaylistAlert(_ namePlaceholder: String = "New Playlist", handler: ((_ title: String) -> Void)?) {
         let playlistAlert = UIAlertController(title: "Create a new playlist",
                                               message: "Files in playlists are automatically played one after the other",
@@ -243,9 +246,16 @@ class BaseListViewController: UIViewController {
     // MARK: - Callback events
 
     @objc func reloadData() {
+        CATransaction.begin()
+        if self.isEditing {
+            CATransaction.setCompletionBlock {
+                self.isEditing = false
+            }
+        }
         self.tableView.beginUpdates()
         self.tableView.reloadSections(IndexSet(integer: Section.library.rawValue), with: .none)
         self.tableView.endUpdates()
+        CATransaction.commit()
         self.toggleEmptyStateView()
     }
 
