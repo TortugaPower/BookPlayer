@@ -23,6 +23,11 @@ class PlaylistViewController: BaseListViewController {
         self.navigationItem.title = self.playlist.title
     }
 
+    override func reloadData() {
+        super.reloadData()
+        NotificationCenter.default.post(name: .reloadData, object: nil)
+    }
+
     override func handleOperationCompletion(_ files: [FileItem]) {
         DataManager.insertBooks(from: files, into: self.playlist) {
             self.reloadData()
@@ -40,7 +45,6 @@ class PlaylistViewController: BaseListViewController {
             DataManager.insertBooks(from: files, into: self.library) {
                 self.reloadData()
                 self.showLoadView(false)
-                NotificationCenter.default.post(name: .reloadData, object: nil)
             }
         })
 
@@ -122,7 +126,6 @@ class PlaylistViewController: BaseListViewController {
             DataManager.saveContext()
 
             self.reloadData()
-            NotificationCenter.default.post(name: .reloadData, object: nil)
         })
 
         alert.addAction(UIAlertAction(title: "New Playlist", style: .default) { _ in
@@ -134,7 +137,6 @@ class PlaylistViewController: BaseListViewController {
                 DataManager.saveContext()
 
                 self.reloadData()
-                NotificationCenter.default.post(name: .reloadData, object: nil)
             })
         })
 
@@ -175,7 +177,6 @@ class PlaylistViewController: BaseListViewController {
                 DataManager.saveContext()
 
                 self.reloadData()
-                NotificationCenter.default.post(name: .reloadData, object: nil)
             }
 
             let nav = UINavigationController(rootViewController: vc)
@@ -223,19 +224,13 @@ class PlaylistViewController: BaseListViewController {
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
 
         alert.addAction(UIAlertAction(title: "Move to Library", style: .default, handler: { _ in
-//            DataManager.delete(book, from: self.library, mode: .shallow)
             DataManager.delete(books, mode: .shallow)
             self.reloadData()
-
-            NotificationCenter.default.post(name: .reloadData, object: nil)
         }))
 
         alert.addAction(UIAlertAction(title: "Delete completely", style: .destructive, handler: { _ in
             DataManager.delete(books)
-
             self.reloadData()
-
-            NotificationCenter.default.post(name: .reloadData, object: nil)
         }))
 
         self.present(alert, animated: true, completion: nil)
