@@ -1,5 +1,5 @@
 //
-//  BaseListViewController.swift
+//  ItemListViewController.swift
 //  BookPlayer
 //
 //  Created by Gianni Carlo on 5/12/18.
@@ -12,7 +12,7 @@ import UIKit
 
 // swiftlint:disable file_length
 
-class BaseListViewController: UIViewController {
+class ItemListViewController: UIViewController {
     @IBOutlet weak var emptyStatePlaceholder: UIView!
     @IBOutlet weak var loadingContainerView: UIView!
     @IBOutlet weak var loadingTitleLabel: UILabel!
@@ -239,9 +239,83 @@ class BaseListViewController: UIViewController {
         present(self.sortDialog(), animated: true, completion: nil)
     }
 
-    @IBAction func didTapMove(_ sender: UIButton) {}
+    @IBAction func didTapMove(_ sender: UIButton) {
+        guard let indexPaths = self.tableView.indexPathsForSelectedRows else {
+            return
+        }
 
-    @IBAction func didTapTrash(_ sender: UIButton) {}
+        let selectedItems = indexPaths.map { (indexPath) -> LibraryItem in
+            return self.items[indexPath.row]
+        }
+
+        self.handleMove(selectedItems)
+    }
+
+    func handleMove(_ selectedItems: [LibraryItem]) {}
+
+    @IBAction func didTapTrash(_ sender: UIButton) {
+        guard let indexPaths = self.tableView.indexPathsForSelectedRows else {
+            return
+        }
+
+        let selectedItems = indexPaths.map { (indexPath) -> LibraryItem in
+            return self.items[indexPath.row]
+        }
+
+        self.handleTrash(selectedItems)
+    }
+
+    func handleTrash(_ selectedItems: [LibraryItem]) {}
+
+    func handleDelete(books: [Book]) {
+        let alert = UIAlertController(title: "Do you want to delete \(books.count) books?", message: nil, preferredStyle: .alert)
+
+        if books.count == 1, let book = books.first {
+            alert.title = "Do you want to delete “\(book.title!)”?"
+        }
+
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+
+        alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
+            DataManager.delete(books)
+            self.reloadData()
+        }))
+
+        alert.popoverPresentationController?.sourceView = view
+        alert.popoverPresentationController?.sourceRect = CGRect(x: Double(view.bounds.size.width / 2.0), y: Double(view.bounds.size.height - 45), width: 1.0, height: 1.0)
+
+        present(alert, animated: true, completion: nil)
+    }
+
+    func move(_ items: [LibraryItem], to playlist: Playlist) {
+        let selectedPlaylists = items.compactMap({ (item) -> Playlist? in
+            guard
+                let itemPlaylist = item as? Playlist,
+                itemPlaylist != playlist else { return nil }
+
+            return playlist
+        })
+
+        let selectedBooks = items.compactMap({ (item) -> Book? in
+            item as? Book
+        })
+
+        let books = Array(selectedPlaylists.compactMap({ (playlist) -> [Book]? in
+            guard let books = playlist.books else { return nil }
+
+            return books.array as? [Book]
+        }).joined())
+
+        let allBooks = books + selectedBooks
+
+        self.library.removeFromItems(NSOrderedSet(array: selectedBooks))
+        self.library.removeFromItems(NSOrderedSet(array: selectedPlaylists))
+        playlist.addToBooks(NSOrderedSet(array: allBooks))
+
+        DataManager.saveContext()
+
+        self.reloadData()
+    }
 
     // MARK: - Callback events
 
@@ -351,7 +425,7 @@ class BaseListViewController: UIViewController {
 
 // MARK: - TableView DataSource
 
-extension BaseListViewController: UITableViewDataSource {
+extension ItemListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return section == Section.library.rawValue
             ? self.items.count
@@ -409,7 +483,7 @@ extension BaseListViewController: UITableViewDataSource {
 
 // MARK: - TableView Delegate
 
-extension BaseListViewController: UITableViewDelegate {
+extension ItemListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, canFocusRowAt indexPath: IndexPath) -> Bool {
         return true
     }
@@ -451,7 +525,7 @@ extension BaseListViewController: UITableViewDelegate {
 
 // MARK: - Reorder Delegate
 
-extension BaseListViewController: TableViewReorderDelegate {
+extension ItemListViewController: TableViewReorderDelegate {
     @objc func tableView(_ tableView: UITableView, reorderRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {}
 
     func tableView(_ tableView: UITableView, canReorderRowAt indexPath: IndexPath) -> Bool {
@@ -491,7 +565,7 @@ extension BaseListViewController: TableViewReorderDelegate {
 
 // MARK: DocumentPicker Delegate
 
-extension BaseListViewController: UIDocumentPickerDelegate {
+extension ItemListViewController: UIDocumentPickerDelegate {
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         for url in urls {
             DataManager.processFile(at: url)
