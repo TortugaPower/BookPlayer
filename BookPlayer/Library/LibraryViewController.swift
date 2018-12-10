@@ -12,7 +12,7 @@ import UIKit
 
 // swiftlint:disable file_length
 
-class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate {
+class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -21,12 +21,6 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
 
         // enables pop gesture on pushed controller
         self.navigationController!.interactivePopGestureRecognizer!.delegate = self
-
-        // register for appDelegate openUrl notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.reloadData), name: .reloadData, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onProcessingFile(_:)), name: .processingFile, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onNewFileUrl), name: .newFileUrl, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onNewOperation(_:)), name: .importOperation, object: nil)
 
         // handle CoreData migration into shared app groups
         if !UserDefaults.standard.bool(forKey: Constants.UserDefaults.appGroupsMigration.rawValue) {
@@ -45,6 +39,15 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         // for iOS 8
         NotificationCenter.default.removeObserver(self)
         UIApplication.shared.endReceivingRemoteControlEvents()
+    }
+
+    override func setupObservers() {
+        super.setupObservers()
+        // register for appDelegate openUrl notifications
+        NotificationCenter.default.addObserver(self, selector: #selector(self.reloadData), name: .reloadData, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onProcessingFile(_:)), name: .processingFile, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onNewFileUrl), name: .newFileUrl, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onNewOperation(_:)), name: .importOperation, object: nil)
     }
 
     func loadLibrary() {
@@ -169,26 +172,6 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         navigationController?.pushViewController(playlistVC, animated: true)
     }
 
-    func handleDelete(books: [Book]) {
-        let alert = UIAlertController(title: "Do you want to delete \(books.count) books?", message: nil, preferredStyle: .alert)
-
-        if books.count == 1, let book = books.first {
-            alert.title = "Do you want to delete “\(book.title!)”?"
-        }
-
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-
-        alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
-            DataManager.delete(books)
-            self.reloadData()
-        }))
-
-        alert.popoverPresentationController?.sourceView = view
-        alert.popoverPresentationController?.sourceRect = CGRect(x: Double(view.bounds.size.width / 2.0), y: Double(view.bounds.size.height - 45), width: 1.0, height: 1.0)
-
-        present(alert, animated: true, completion: nil)
-    }
-
     func handleDelete(items: [LibraryItem]) {
         let alert = UIAlertController(title: "Do you want to delete \(items.count) items?",
                                       message: "This will remove all files inside selected playlists as well.",
@@ -308,48 +291,14 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         library.sort(by: sortType)
     }
 
-    override func didTapMove(_ sender: UIButton) {
-        super.didTapMove(sender)
-
-        guard let indexPaths = self.tableView.indexPathsForSelectedRows else {
-            return
-        }
-
-        let selectedItems = indexPaths.map { (indexPath) -> LibraryItem in
-            return self.items[indexPath.row]
-        }
-
-        guard !selectedItems.isEmpty else { return }
-
+    override func handleMove(_ selectedItems: [LibraryItem]) {
         let alert = UIAlertController(title: "Choose destination", message: nil, preferredStyle: .alert)
 
         alert.addAction(UIAlertAction(title: "New Playlist", style: .default) { _ in
             self.presentCreatePlaylistAlert(handler: { title in
-                let selectedPlaylists = selectedItems.compactMap({ (item) -> Playlist? in
-                    item as? Playlist
-                })
-
-                let selectedBooks = selectedItems.compactMap({ (item) -> Book? in
-                    item as? Book
-                })
-
-                let books = Array(selectedPlaylists.compactMap({ (playlist) -> [Book]? in
-                    guard let books = playlist.books else { return nil }
-
-                    return books.array as? [Book]
-                }).joined())
-
-                let allBooks = books + selectedBooks
-
-                let playlist = DataManager.createPlaylist(title: title, books: allBooks)
-
-                self.library.removeFromItems(NSOrderedSet(array: selectedBooks))
-                self.library.removeFromItems(NSOrderedSet(array: selectedPlaylists))
+                let playlist = DataManager.createPlaylist(title: title, books: [])
                 self.library.addToItems(playlist)
-
-                DataManager.saveContext()
-
-                self.reloadData()
+                self.move(selectedItems, to: playlist)
             })
         })
 
@@ -363,33 +312,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
             vc.items = availablePlaylists
 
             vc.onPlaylistSelected = { selectedPlaylist in
-                let selectedPlaylists = selectedItems.compactMap({ (item) -> Playlist? in
-                    guard
-                        let playlist = item as? Playlist,
-                        playlist != selectedPlaylist else { return nil }
-
-                    return playlist
-                })
-
-                let selectedBooks = selectedItems.compactMap({ (item) -> Book? in
-                    item as? Book
-                })
-
-                let books = Array(selectedPlaylists.compactMap({ (playlist) -> [Book]? in
-                    guard let books = playlist.books else { return nil }
-
-                    return books.array as? [Book]
-                }).joined())
-
-                let allBooks = books + selectedBooks
-
-                self.library.removeFromItems(NSOrderedSet(array: selectedBooks))
-                self.library.removeFromItems(NSOrderedSet(array: selectedPlaylists))
-                selectedPlaylist.addToBooks(NSOrderedSet(array: allBooks))
-
-                DataManager.saveContext()
-
-                self.reloadData()
+                self.move(selectedItems, to: selectedPlaylist)
             }
 
             let nav = UINavigationController(rootViewController: vc)
@@ -404,19 +327,7 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
         self.present(alert, animated: true, completion: nil)
     }
 
-    override func didTapTrash(_ sender: UIButton) {
-        super.didTapTrash(sender)
-
-        guard let indexPaths = self.tableView.indexPathsForSelectedRows else {
-            return
-        }
-
-        let selectedItems = indexPaths.map { (indexPath) -> LibraryItem in
-            return self.items[indexPath.row]
-        }
-
-        guard !selectedItems.isEmpty else { return }
-
+    override func handleTrash(_ selectedItems: [LibraryItem]) {
         guard let books = selectedItems as? [Book] else {
             self.handleDelete(items: selectedItems)
             return

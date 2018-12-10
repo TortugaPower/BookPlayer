@@ -8,7 +8,7 @@
 
 import UIKit
 
-class PlaylistViewController: BaseListViewController {
+class PlaylistViewController: ItemListViewController {
     var playlist: Playlist!
 
     override var items: [LibraryItem] {
@@ -104,18 +104,8 @@ class PlaylistViewController: BaseListViewController {
         self.presentImportFilesAlert()
     }
 
-    override func didTapMove(_ sender: UIButton) {
-        super.didTapMove(sender)
-
-        guard let indexPaths = self.tableView.indexPathsForSelectedRows else {
-            return
-        }
-
-        let selectedItems = indexPaths.map { (indexPath) -> LibraryItem in
-            return self.items[indexPath.row]
-        }
-
-        guard !selectedItems.isEmpty, let books = selectedItems as? [Book] else { return }
+    override func handleMove(_ selectedItems: [LibraryItem]) {
+        guard let books = selectedItems as? [Book] else { return }
 
         let alert = UIAlertController(title: "Choose destination", message: nil, preferredStyle: .alert)
 
@@ -150,33 +140,7 @@ class PlaylistViewController: BaseListViewController {
             vc.items = availablePlaylists
 
             vc.onPlaylistSelected = { selectedPlaylist in
-                let selectedPlaylists = selectedItems.compactMap({ (item) -> Playlist? in
-                    guard
-                        let playlist = item as? Playlist,
-                        playlist != selectedPlaylist else { return nil }
-
-                    return playlist
-                })
-
-                let selectedBooks = selectedItems.compactMap({ (item) -> Book? in
-                    item as? Book
-                })
-
-                let books = Array(selectedPlaylists.compactMap({ (playlist) -> [Book]? in
-                    guard let books = playlist.books else { return nil }
-
-                    return books.array as? [Book]
-                }).joined())
-
-                let allBooks = books + selectedBooks
-
-                self.library.removeFromItems(NSOrderedSet(array: selectedBooks))
-                self.library.removeFromItems(NSOrderedSet(array: selectedPlaylists))
-                selectedPlaylist.addToBooks(NSOrderedSet(array: allBooks))
-
-                DataManager.saveContext()
-
-                self.reloadData()
+                self.move(selectedItems, to: selectedPlaylist)
             }
 
             let nav = UINavigationController(rootViewController: vc)
@@ -191,19 +155,8 @@ class PlaylistViewController: BaseListViewController {
         self.present(alert, animated: true, completion: nil)
     }
 
-    override func didTapTrash(_ sender: UIButton) {
-        super.didTapTrash(sender)
-
-        guard let indexPaths = self.tableView.indexPathsForSelectedRows else {
-            return
-        }
-
-        let selectedItems = indexPaths.map { (indexPath) -> LibraryItem in
-            return self.items[indexPath.row]
-        }
-
-        guard !selectedItems.isEmpty,
-            let books = selectedItems as? [Book] else { return }
+    override func handleTrash(_ selectedItems: [LibraryItem]) {
+        guard let books = selectedItems as? [Book] else { return }
 
         self.handleDelete(books: books)
     }
@@ -214,7 +167,7 @@ class PlaylistViewController: BaseListViewController {
         self.playlist.sort(by: sortType)
     }
 
-    func handleDelete(books: [Book]) {
+    override func handleDelete(books: [Book]) {
         let alert = UIAlertController(title: "Do you want to delete \(items.count) items?", message: nil, preferredStyle: .alert)
 
         if books.count == 1, let book = books.first {

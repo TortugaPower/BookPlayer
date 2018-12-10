@@ -33,7 +33,7 @@
 		4165EE0E20A7AEC600616EDF /* SwiftReorder.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4165EE0D20A7AEC600616EDF /* SwiftReorder.framework */; };
 		4165EE1020A7CBBE00616EDF /* PlaylistViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EE0F20A7CBBE00616EDF /* PlaylistViewController.swift */; };
 		4165EE1220A7D1E100616EDF /* RootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EE1120A7D1E100616EDF /* RootViewController.swift */; };
-		4165EE1420A7E8CC00616EDF /* BaseListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EE1320A7E8CC00616EDF /* BaseListViewController.swift */; };
+		4165EE1420A7E8CC00616EDF /* ItemListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EE1320A7E8CC00616EDF /* ItemListViewController.swift */; };
 		416B63A82146354B007D04B1 /* ImportManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416B63A72146354B007D04B1 /* ImportManager.swift */; };
 		416B640D1E72F362000E955A /* Notification+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416B640C1E72F362000E955A /* Notification+BookPlayer.swift */; };
 		41839AB320AA8B960047E55D /* ArtworkColors+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41839AB120AA8B960047E55D /* ArtworkColors+CoreDataClass.swift */; };
@@ -140,7 +140,7 @@
 		4165EE0D20A7AEC600616EDF /* SwiftReorder.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftReorder.framework; path = Carthage/Build/iOS/SwiftReorder.framework; sourceTree = "<group>"; };
 		4165EE0F20A7CBBE00616EDF /* PlaylistViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistViewController.swift; sourceTree = "<group>"; };
 		4165EE1120A7D1E100616EDF /* RootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewController.swift; sourceTree = "<group>"; };
-		4165EE1320A7E8CC00616EDF /* BaseListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseListViewController.swift; sourceTree = "<group>"; };
+		4165EE1320A7E8CC00616EDF /* ItemListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListViewController.swift; sourceTree = "<group>"; };
 		416B63A72146354B007D04B1 /* ImportManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportManager.swift; sourceTree = "<group>"; };
 		416B640C1E72F362000E955A /* Notification+BookPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Notification+BookPlayer.swift"; sourceTree = "<group>"; };
 		41839AB120AA8B960047E55D /* ArtworkColors+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ArtworkColors+CoreDataClass.swift"; sourceTree = "<group>"; };
@@ -359,7 +359,7 @@
 			children = (
 				4163E30F21484C3500072AA2 /* FileManagement */,
 				4165EE1120A7D1E100616EDF /* RootViewController.swift */,
-				4165EE1320A7E8CC00616EDF /* BaseListViewController.swift */,
+				4165EE1320A7E8CC00616EDF /* ItemListViewController.swift */,
 				4136163F1D2E21F000E48944 /* LibraryViewController.swift */,
 				4165EE0F20A7CBBE00616EDF /* PlaylistViewController.swift */,
 				41544A1321BAF41400740AD2 /* PlaylistSelectionViewController.swift */,
@@ -699,7 +699,7 @@
 				4109246C21A2019400D5DF11 /* CheckboxSelectionView.swift in Sources */,
 				C3A479132094C8C300D92122 /* rubberBandDistance.swift in Sources */,
 				C30CD2A1209791FA00258B09 /* UIColor+Sweetercolor.swift in Sources */,
-				4165EE1420A7E8CC00616EDF /* BaseListViewController.swift in Sources */,
+				4165EE1420A7E8CC00616EDF /* ItemListViewController.swift in Sources */,
 				C30EEEC02079645C00A4ED33 /* PlayerControlsViewController.swift in Sources */,
 				C318DDBC20A48D4700C3A17B /* BPMarqueeLabel.swift in Sources */,
 				C375AF1920DD99E000AC034D /* ArtworkControl.swift in Sources */,
