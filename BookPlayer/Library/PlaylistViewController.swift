@@ -123,8 +123,7 @@ class PlaylistViewController: ItemListViewController {
                 self.playlist.removeFromBooks(NSOrderedSet(array: books))
                 let playlist = DataManager.createPlaylist(title: title, books: books)
 
-                self.library.addToItems(playlist)
-                DataManager.saveContext()
+                DataManager.insert(playlist, into: self.library)
 
                 self.reloadData()
             })
@@ -177,13 +176,11 @@ class PlaylistViewController: ItemListViewController {
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
 
         alert.addAction(UIAlertAction(title: "Move to Library", style: .default, handler: { _ in
-            DataManager.delete(books, mode: .shallow)
-            self.reloadData()
+            self.delete(books, mode: .shallow)
         }))
 
         alert.addAction(UIAlertAction(title: "Delete completely", style: .destructive, handler: { _ in
-            DataManager.delete(books)
-            self.reloadData()
+            self.delete(books)
         }))
 
         self.present(alert, animated: true, completion: nil)
