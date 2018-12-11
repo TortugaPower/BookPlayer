@@ -138,11 +138,9 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
             self.presentCreatePlaylistAlert(placeholder, handler: { title in
                 let playlist = DataManager.createPlaylist(title: title, books: [])
 
-                self.library.addToItems(playlist)
+                DataManager.insert(playlist, into: self.library)
 
                 DataManager.insertBooks(from: files, into: playlist) {
-                    DataManager.saveContext()
-
                     self.reloadData()
                     self.showLoadView(false)
                 }
@@ -187,14 +185,12 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
             alert.title = "Do you want to delete “\(playlist.title!)”?"
             alert.message = "Deleting only the playlist will move all its files back to the Library."
             alert.addAction(UIAlertAction(title: "Delete playlist only", style: .default, handler: { _ in
-                DataManager.delete(items, mode: .shallow)
-                self.reloadData()
+                self.delete(items, mode: .shallow)
             }))
         }
 
         alert.addAction(UIAlertAction(title: deleteActionTitle, style: .destructive, handler: { _ in
-            DataManager.delete(items)
-            self.reloadData()
+            self.delete(items)
         }))
 
         present(alert, animated: true, completion: nil)
@@ -274,8 +270,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
             self.presentCreatePlaylistAlert(handler: { title in
                 let playlist = DataManager.createPlaylist(title: title, books: [])
 
-                self.library.addToItems(playlist)
-                DataManager.saveContext()
+                DataManager.insert(playlist, into: self.library)
 
                 self.reloadData()
             })
@@ -297,7 +292,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         alert.addAction(UIAlertAction(title: "New Playlist", style: .default) { _ in
             self.presentCreatePlaylistAlert(handler: { title in
                 let playlist = DataManager.createPlaylist(title: title, books: [])
-                self.library.addToItems(playlist)
+                DataManager.insert(playlist, into: self.library)
                 self.move(selectedItems, to: playlist)
             })
         })

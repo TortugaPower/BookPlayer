@@ -327,7 +327,7 @@ class DataManager {
         return Book(from: file, context: self.persistentContainer.viewContext)
     }
 
-    internal class func insert(_ playlist: Playlist, into library: Library) {
+    class func insert(_ playlist: Playlist, into library: Library) {
         library.addToItems(playlist)
         self.saveContext()
     }

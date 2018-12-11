@@ -12,7 +12,7 @@ import UIKit
 
 // swiftlint:disable file_length
 
-class ItemListViewController: UIViewController {
+class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemListActions {
     @IBOutlet weak var emptyStatePlaceholder: UIView!
     @IBOutlet weak var loadingContainerView: UIView!
     @IBOutlet weak var loadingTitleLabel: UILabel!
@@ -113,36 +113,6 @@ class ItemListViewController: UIViewController {
         NotificationCenter.default.post(name: notification, object: nil, userInfo: nil)
     }
 
-    func showLoadView(_ show: Bool, subtitle: String) {
-        self.showLoadView(show, title: nil, subtitle: subtitle)
-    }
-
-    func showLoadView(_ show: Bool, title: String? = nil, subtitle: String? = nil) {
-        if let title = title {
-            self.loadingTitleLabel.text = title
-        }
-
-        if let subtitle = subtitle {
-            self.loadingSubtitleLabel.text = subtitle
-            self.loadingSubtitleLabel.isHidden = false
-        } else {
-            self.loadingSubtitleLabel.isHidden = true
-        }
-
-        // verify there's something to do
-        guard self.loadingContainerView.isHidden == show else {
-            return
-        }
-
-        self.loadingHeightConstraintView.constant = show
-            ? 65
-            : 0
-        UIView.animate(withDuration: 0.5) {
-            self.loadingContainerView.isHidden = !show
-            self.view.layoutIfNeeded()
-        }
-    }
-
     func toggleEmptyStateView() {
         self.emptyStatePlaceholder.isHidden = !self.items.isEmpty
     }
@@ -209,20 +179,7 @@ class ItemListViewController: UIViewController {
     }
 
     func presentCreatePlaylistAlert(_ namePlaceholder: String = "New Playlist", handler: ((_ title: String) -> Void)?) {
-        let playlistAlert = UIAlertController(title: "Create a new playlist",
-                                              message: "Files in playlists are automatically played one after the other",
-                                              preferredStyle: .alert)
-
-        playlistAlert.addTextField(configurationHandler: { textfield in
-            textfield.text = namePlaceholder
-        })
-
-        playlistAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-        playlistAlert.addAction(UIAlertAction(title: "Create", style: .default, handler: { _ in
-            let title = playlistAlert.textFields!.first!.text!
-
-            handler?(title)
-        }))
+        let playlistAlert = self.createPlaylistAlert(namePlaceholder, handler: handler)
 
         let vc = presentedViewController ?? self
 
@@ -232,6 +189,8 @@ class ItemListViewController: UIViewController {
             textfield.selectedTextRange = textfield.textRange(from: textfield.beginningOfDocument, to: textfield.endOfDocument)
         }
     }
+
+    func sort(by sortType: PlayListSortOrder) {}
 
     // MARK: - IBActions
 
@@ -277,44 +236,13 @@ class ItemListViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
 
         alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
-            DataManager.delete(books)
-            self.reloadData()
+            self.delete(books)
         }))
 
         alert.popoverPresentationController?.sourceView = view
         alert.popoverPresentationController?.sourceRect = CGRect(x: Double(view.bounds.size.width / 2.0), y: Double(view.bounds.size.height - 45), width: 1.0, height: 1.0)
 
         present(alert, animated: true, completion: nil)
-    }
-
-    func move(_ items: [LibraryItem], to playlist: Playlist) {
-        let selectedPlaylists = items.compactMap({ (item) -> Playlist? in
-            guard
-                let itemPlaylist = item as? Playlist,
-                itemPlaylist != playlist else { return nil }
-
-            return playlist
-        })
-
-        let selectedBooks = items.compactMap({ (item) -> Book? in
-            item as? Book
-        })
-
-        let books = Array(selectedPlaylists.compactMap({ (playlist) -> [Book]? in
-            guard let books = playlist.books else { return nil }
-
-            return books.array as? [Book]
-        }).joined())
-
-        let allBooks = books + selectedBooks
-
-        self.library.removeFromItems(NSOrderedSet(array: selectedBooks))
-        self.library.removeFromItems(NSOrderedSet(array: selectedPlaylists))
-        playlist.addToBooks(NSOrderedSet(array: allBooks))
-
-        DataManager.saveContext()
-
-        self.reloadData()
     }
 
     // MARK: - Callback events
@@ -400,27 +328,36 @@ class ItemListViewController: UIViewController {
             self.tableView.contentInset.bottom = rootViewController.miniPlayerIsHidden ? 0.0 : 88.0
         }
     }
+}
 
-    // MARK: - Sorting
+// MARK: - Feedback
 
-    private func sortDialog() -> UIAlertController {
-        let alert = UIAlertController(title: "Sort Files by", message: nil, preferredStyle: .actionSheet)
+extension ItemListViewController: ItemListFeedback {
+    func showLoadView(_ show: Bool, title: String? = nil, subtitle: String? = nil) {
+        if let title = title {
+            self.loadingTitleLabel.text = title
+        }
 
-        alert.addAction(UIAlertAction(title: "Title", style: .default, handler: { _ in
-            self.sort(by: .metadataTitle)
-            self.tableView.reloadData()
-        }))
+        if let subtitle = subtitle {
+            self.loadingSubtitleLabel.text = subtitle
+            self.loadingSubtitleLabel.isHidden = false
+        } else {
+            self.loadingSubtitleLabel.isHidden = true
+        }
 
-        alert.addAction(UIAlertAction(title: "Original File Name", style: .default, handler: { _ in
-            self.sort(by: .fileName)
-            self.tableView.reloadData()
-        }))
+        // verify there's something to do
+        guard self.loadingContainerView.isHidden == show else {
+            return
+        }
 
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-        return alert
+        self.loadingHeightConstraintView.constant = show
+            ? 65
+            : 0
+        UIView.animate(withDuration: 0.5) {
+            self.loadingContainerView.isHidden = !show
+            self.view.layoutIfNeeded()
+        }
     }
-
-    func sort(by sortType: PlayListSortOrder) {}
 }
 
 // MARK: - TableView DataSource
