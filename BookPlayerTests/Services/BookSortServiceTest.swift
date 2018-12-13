@@ -3,14 +3,19 @@ import XCTest
 
 class BookSortServiceTest: XCTestCase {
     let unorderedBookNames = [
+        "05 Book 1",
+        "01 Book 1",
+        "09 Book 10",
+        "09 Book 2"
+    ]
+
+    let orderedBookNames = [
         "01 Book 1",
         "05 Book 1",
-        "02 Book 1",
-        "03 Book 1",
-        "11 Book 1",
-        "09 Book 1",
-        "07 Book 1"
+        "09 Book 2",
+        "09 Book 10"
     ]
+
     var booksByFile: NSOrderedSet?
 
     override func setUp() {
@@ -20,13 +25,13 @@ class BookSortServiceTest: XCTestCase {
     override func tearDown() {}
 
     func testSortByFileName() {
-        // swiftlint:disable force_try
-        let sortedBooks = try! BookSortService.sort(booksByFile!, by: .fileName)
+        let sortedBooks = BookSortService.sort(booksByFile!, by: .fileName)
         let bookNames = sortedBooks.map { (book) -> String in
             guard let book = book as? Book else { return "" }
             return book.originalFileName!
         }
-        XCTAssert(bookNames == unorderedBookNames.sorted())
+
+        XCTAssert(bookNames == orderedBookNames)
         // swiftlint:enable force_try
     }
 }
