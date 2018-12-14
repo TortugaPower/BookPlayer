@@ -167,9 +167,9 @@ public class Playlist: LibraryItem {
 }
 
 extension Playlist: Sortable {
-    func sort(by sortType: PlayListSortOrder) throws {
+    func sort(by sortType: PlayListSortOrder) {
         guard let books = books else { return }
-        self.books = try BookSortService.sort(books, by: sortType)
+        self.books = BookSortService.sort(books, by: sortType)
         DataManager.saveContext()
     }
 }
