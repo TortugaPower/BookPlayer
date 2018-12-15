@@ -15,7 +15,7 @@ import MediaPlayer
 class PlayerManager: NSObject {
     static let shared = PlayerManager()
 
-    static let speedOptions: [Float] = [2.5, 2, 1.5, 1.25, 1, 0.75]
+    static let speedOptions: [Float] = [2.5, 2, 1.75, 1.5, 1.25, 1, 0.75]
 
     private var audioPlayer: AVAudioPlayer?
 
@@ -113,7 +113,7 @@ class PlayerManager: NSObject {
 
         // stop timer if the book is finished
         if Int(audioplayer.currentTime) == Int(audioplayer.duration) {
-            if self.timer != nil && self.timer.isValid {
+            if self.timer != nil, self.timer.isValid {
                 self.timer.invalidate()
             }
 
@@ -171,9 +171,13 @@ class PlayerManager: NSObject {
 
     var speed: Float {
         get {
+            guard let currentBook = self.currentBook else {
+                return 1.0
+            }
+
             let useGlobalSpeed = UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue)
             let globalSpeed = UserDefaults.standard.float(forKey: "global_speed")
-            let localSpeed = UserDefaults.standard.float(forKey: currentBook!.identifier + "_speed")
+            let localSpeed = currentBook.playlist?.speed ?? currentBook.speed
             let speed = useGlobalSpeed ? globalSpeed : localSpeed
 
             return speed > 0 ? speed : 1.0
@@ -184,7 +188,9 @@ class PlayerManager: NSObject {
                 return
             }
 
-            UserDefaults.standard.set(newValue, forKey: currentBook.identifier + "_speed")
+            currentBook.playlist?.speed = newValue
+            currentBook.speed = newValue
+            DataManager.saveContext()
 
             // set global speed
             if UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue) {
