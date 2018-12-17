@@ -122,6 +122,12 @@ class PlayerManager: NSObject {
             NotificationCenter.default.post(name: .bookEnd, object: nil)
         }
 
+        if let currentChapter = book.currentChapter,
+            book.currentTime > currentChapter.end || book.currentTime < currentChapter.start {
+            book.updateCurrentChapter()
+            NotificationCenter.default.post(name: .chapterChange, object: nil, userInfo: nil)
+        }
+
         let userInfo = [
             "time": currentTime,
             "fileURL": book.fileURL
@@ -159,13 +165,9 @@ class PlayerManager: NSObject {
         }
 
         set {
-            guard let player = self.audioPlayer else {
-                return
-            }
+            guard let player = self.audioPlayer else { return }
 
             player.currentTime = newValue
-
-            self.currentBook?.currentTime = newValue
         }
     }
 
@@ -236,9 +238,7 @@ class PlayerManager: NSObject {
     // MARK: - Seek Controls
 
     func jumpTo(_ time: Double, fromEnd: Bool = false) {
-        guard let player = self.audioPlayer else {
-            return
-        }
+        guard let player = self.audioPlayer else { return }
 
         player.currentTime = min(max(fromEnd ? player.duration - time : time, 0), player.duration)
 
@@ -250,9 +250,7 @@ class PlayerManager: NSObject {
     }
 
     func jumpBy(_ direction: Double) {
-        guard let player = self.audioPlayer else {
-            return
-        }
+        guard let player = self.audioPlayer else { return }
 
         player.currentTime += direction
 
@@ -373,9 +371,7 @@ class PlayerManager: NSObject {
 
     // Toggle play/pause of book
     func playPause(autoplayed _: Bool = false) {
-        guard let audioplayer = self.audioPlayer else {
-            return
-        }
+        guard let audioplayer = self.audioPlayer else { return }
 
         // Pause player if it's playing
         if audioplayer.isPlaying {

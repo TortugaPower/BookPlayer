@@ -20,17 +20,7 @@ public class Book: LibraryItem {
         return self.title + "." + self.ext
     }
 
-    var currentChapter: Chapter? {
-        guard let chapters = self.chapters?.array as? [Chapter], !chapters.isEmpty else {
-            return nil
-        }
-
-        for chapter in chapters where chapter.start <= self.currentTime && chapter.end > self.currentTime {
-            return chapter
-        }
-
-        return nil
-    }
+    var currentChapter: Chapter?
 
     var displayTitle: String {
         return self.title
@@ -72,6 +62,8 @@ public class Book: LibraryItem {
                 self.addToChapters(chapter)
             }
         }
+
+        self.currentChapter = self.chapters?.array.first as? Chapter
     }
 
     convenience init(from bookUrl: FileItem, context: NSManagedObjectContext) {
@@ -111,6 +103,24 @@ public class Book: LibraryItem {
             self.currentTime = storedTime
             UserDefaults.standard.removeObject(forKey: legacyIdentifier)
         }
+    }
+
+    public override func awakeFromFetch() {
+        super.awakeFromFetch()
+
+        self.updateCurrentChapter()
+    }
+
+    func updateCurrentChapter() {
+        guard let chapters = self.chapters?.array as? [Chapter], !chapters.isEmpty else {
+            return
+        }
+
+        guard let currentChapter = (chapters.first { (chapter) -> Bool in
+            chapter.start <= self.currentTime && chapter.end > self.currentTime
+        }) else { return }
+
+        self.currentChapter = currentChapter
     }
 
     override func getBookToPlay() -> Book? {
