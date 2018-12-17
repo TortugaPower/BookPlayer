@@ -61,6 +61,13 @@ final class SleepTimer {
             }))
         }
 
+        self.alert.addAction(UIAlertAction(title: "End of current chapter", style: .default) { _ in
+            self.cancel()
+            self.alert.message = "Sleeping when the chapter ends"
+            NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .chapterChange, object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .bookChange, object: nil)
+        })
+
         self.alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
     }
 
@@ -80,6 +87,8 @@ final class SleepTimer {
         self.alert.message = defaultMessage
 
         self.timer?.invalidate()
+        NotificationCenter.default.removeObserver(self, name: .bookEnd, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .chapterChange, object: nil)
     }
 
     private func cancel() {
@@ -96,10 +105,14 @@ final class SleepTimer {
         self.alert.message = "Sleeping in \(self.durationFormatter.string(from: self.timeLeft)!)"
 
         if self.timeLeft <= 0 {
-            self.timer?.invalidate()
-
-            self.onEnd?(false)
+            self.end()
         }
+    }
+
+    @objc private func end() {
+        self.reset()
+
+        self.onEnd?(false)
     }
 
     // MARK: Public methods
