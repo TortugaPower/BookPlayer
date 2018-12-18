@@ -14,12 +14,22 @@ class ChaptersViewController: UITableViewController {
 
     var currentChapter: Chapter!
     var didSelectChapter: ((_ selectedChapter: Chapter) -> Void)?
+    var scrolledToCurrentChapter = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         self.tableView.tableFooterView = UIView()
-        self.tableView.reloadData()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        guard !self.scrolledToCurrentChapter, let index = self.chapters.firstIndex(of: self.currentChapter) else { return }
+
+        self.scrolledToCurrentChapter = true
+        let indexPath = IndexPath(row: index, section: 0)
+        self.tableView.scrollToRow(at: indexPath, at: .top, animated: false)
     }
 
     @IBAction func done(_ sender: UIBarButtonItem?) {
