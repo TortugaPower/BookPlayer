@@ -15,7 +15,7 @@ import MediaPlayer
 class PlayerManager: NSObject {
     static let shared = PlayerManager()
 
-    static let speedOptions: [Float] = [2.5, 2, 1.5, 1.25, 1, 0.75]
+    static let speedOptions: [Float] = [2.5, 2, 1.75, 1.5, 1.25, 1, 0.75]
 
     private var audioPlayer: AVAudioPlayer?
 
@@ -113,13 +113,19 @@ class PlayerManager: NSObject {
 
         // stop timer if the book is finished
         if Int(audioplayer.currentTime) == Int(audioplayer.duration) {
-            if self.timer != nil && self.timer.isValid {
+            if self.timer != nil, self.timer.isValid {
                 self.timer.invalidate()
             }
 
             // Once book a book is finished, ask for a review
             UserDefaults.standard.set(true, forKey: "ask_review")
             NotificationCenter.default.post(name: .bookEnd, object: nil)
+        }
+
+        if let currentChapter = book.currentChapter,
+            book.currentTime > currentChapter.end || book.currentTime < currentChapter.start {
+            book.updateCurrentChapter()
+            NotificationCenter.default.post(name: .chapterChange, object: nil, userInfo: nil)
         }
 
         let userInfo = [
@@ -159,21 +165,21 @@ class PlayerManager: NSObject {
         }
 
         set {
-            guard let player = self.audioPlayer else {
-                return
-            }
+            guard let player = self.audioPlayer else { return }
 
             player.currentTime = newValue
-
-            self.currentBook?.currentTime = newValue
         }
     }
 
     var speed: Float {
         get {
+            guard let currentBook = self.currentBook else {
+                return 1.0
+            }
+
             let useGlobalSpeed = UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue)
             let globalSpeed = UserDefaults.standard.float(forKey: "global_speed")
-            let localSpeed = UserDefaults.standard.float(forKey: currentBook!.identifier + "_speed")
+            let localSpeed = currentBook.playlist?.speed ?? currentBook.speed
             let speed = useGlobalSpeed ? globalSpeed : localSpeed
 
             return speed > 0 ? speed : 1.0
@@ -184,7 +190,9 @@ class PlayerManager: NSObject {
                 return
             }
 
-            UserDefaults.standard.set(newValue, forKey: currentBook.identifier + "_speed")
+            currentBook.playlist?.speed = newValue
+            currentBook.speed = newValue
+            DataManager.saveContext()
 
             // set global speed
             if UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue) {
@@ -230,9 +238,7 @@ class PlayerManager: NSObject {
     // MARK: - Seek Controls
 
     func jumpTo(_ time: Double, fromEnd: Bool = false) {
-        guard let player = self.audioPlayer else {
-            return
-        }
+        guard let player = self.audioPlayer else { return }
 
         player.currentTime = min(max(fromEnd ? player.duration - time : time, 0), player.duration)
 
@@ -244,9 +250,7 @@ class PlayerManager: NSObject {
     }
 
     func jumpBy(_ direction: Double) {
-        guard let player = self.audioPlayer else {
-            return
-        }
+        guard let player = self.audioPlayer else { return }
 
         player.currentTime += direction
 
@@ -367,9 +371,7 @@ class PlayerManager: NSObject {
 
     // Toggle play/pause of book
     func playPause(autoplayed _: Bool = false) {
-        guard let audioplayer = self.audioPlayer else {
-            return
-        }
+        guard let audioplayer = self.audioPlayer else { return }
 
         // Pause player if it's playing
         if audioplayer.isPlaying {

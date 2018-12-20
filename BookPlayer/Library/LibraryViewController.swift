@@ -357,8 +357,8 @@ class LibraryViewController: BaseListViewController, UIGestureRecognizerDelegate
     }
 
     // Sorting
-    override func sort(by sortType: PlayListSortOrder) throws {
-        try library.sort(by: sortType)
+    override func sort(by sortType: PlayListSortOrder) {
+        library.sort(by: sortType)
     }
 }
 

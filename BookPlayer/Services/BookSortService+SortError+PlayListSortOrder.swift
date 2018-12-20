@@ -1,24 +1,23 @@
 import Foundation
 
 final class BookSortService {
-    public static func sort(_ books: NSOrderedSet, by type: PlayListSortOrder) throws -> NSOrderedSet {
+    public class func sort(_ books: NSOrderedSet, by type: PlayListSortOrder) -> NSOrderedSet {
         switch type {
-        case .metadataTitle:
-            let sortedBooks = try BookSortService.sortByTitle(books)
-            return sortedBooks
-        case .fileName:
-            return try BookSortService.sortByFileName(books)
+        case .metadataTitle, .fileName:
+            return self.sort(books, by: type.rawValue)
         }
     }
 
-    private static func sortByTitle(_ books: NSOrderedSet) throws -> NSOrderedSet {
-        let sortDescriptor = NSSortDescriptor(key: "title", ascending: true)
-        let sortedBooks = books.sortedArray(using: [sortDescriptor])
-        return NSOrderedSet(array: sortedBooks)
-    }
+    private class func sort(_ books: NSOrderedSet, by key: String, ascending: Bool = true) -> NSOrderedSet {
+        let sortDescriptor = NSSortDescriptor(key: key, ascending: ascending) { (field1, field2) -> ComparisonResult in
+            if let string1 = field1 as? String,
+                let string2 = field2 as? String {
+                return string1.localizedStandardCompare(string2)
+            }
 
-    private static func sortByFileName(_ books: NSOrderedSet) throws -> NSOrderedSet {
-        let sortDescriptor = NSSortDescriptor(key: "originalFileName", ascending: true)
+            return ascending ? .orderedAscending : .orderedDescending
+        }
+
         let sortedBooks = books.sortedArray(using: [sortDescriptor])
         return NSOrderedSet(array: sortedBooks)
     }
@@ -29,11 +28,11 @@ enum SortError: Error {
         invalidType
 }
 
-enum PlayListSortOrder {
-    case metadataTitle,
-        fileName
+enum PlayListSortOrder: String {
+    case metadataTitle = "title"
+    case fileName = "originalFileName"
 }
 
 protocol Sortable {
-    func sort(by sortType: PlayListSortOrder) throws
+    func sort(by sortType: PlayListSortOrder)
 }

@@ -81,9 +81,9 @@ public class Library: NSManagedObject {
 }
 
 extension Library: Sortable {
-    func sort(by sortType: PlayListSortOrder) throws {
+    func sort(by sortType: PlayListSortOrder) {
         guard let items = items else { return }
-        self.items = try BookSortService.sort(items, by: sortType)
+        self.items = BookSortService.sort(items, by: sortType)
         DataManager.saveContext()
     }
 }
