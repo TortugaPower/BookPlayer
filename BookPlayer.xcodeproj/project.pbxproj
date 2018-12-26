@@ -52,6 +52,12 @@
 		41B2A5DA21CAE42600917584 /* Settings.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 41B2A5D821CAE42600917584 /* Settings.storyboard */; };
 		41B2A5DC21CAEE0E00917584 /* PlayerSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2A5DB21CAEE0E00917584 /* PlayerSettingsViewController.swift */; };
 		41B2A5DE21CAF20E00917584 /* ThemesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2A5DD21CAF20E00917584 /* ThemesViewController.swift */; };
+		41B2A5E121CCC21000917584 /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2A5E021CCC21000917584 /* ThemeManager.swift */; };
+		41B2A5E321CCC26500917584 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2A5E221CCC26500917584 /* Theme.swift */; };
+		41B2A5ED21CCC6D100917584 /* AppNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2A5EC21CCC6D100917584 /* AppNavigationController.swift */; };
+		41B2A5EF21CD5AAE00917584 /* StaticCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2A5EE21CD5AAE00917584 /* StaticCellView.swift */; };
+		41B2A5F121CD857800917584 /* AddCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2A5F021CD857800917584 /* AddCellView.swift */; };
+		41B2A6AC21D3274500917584 /* Themeable.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41B2A6AB21D3274500917584 /* Themeable.framework */; };
 		41B2AC8E1D43CCE8005382A9 /* ChaptersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */; };
 		41C3CF7E20AEA5E5007C3EF4 /* DataManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */; };
 		41D39D41215F177D00B65290 /* BookActivityItemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D39D40215F177D00B65290 /* BookActivityItemProvider.swift */; };
@@ -174,6 +180,12 @@
 		41B2A5D921CAE42600917584 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Settings.storyboard; sourceTree = "<group>"; };
 		41B2A5DB21CAEE0E00917584 /* PlayerSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerSettingsViewController.swift; sourceTree = "<group>"; };
 		41B2A5DD21CAF20E00917584 /* ThemesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemesViewController.swift; sourceTree = "<group>"; };
+		41B2A5E021CCC21000917584 /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
+		41B2A5E221CCC26500917584 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		41B2A5EC21CCC6D100917584 /* AppNavigationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppNavigationController.swift; sourceTree = "<group>"; };
+		41B2A5EE21CD5AAE00917584 /* StaticCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaticCellView.swift; sourceTree = "<group>"; };
+		41B2A5F021CD857800917584 /* AddCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCellView.swift; sourceTree = "<group>"; };
+		41B2A6AB21D3274500917584 /* Themeable.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Themeable.framework; path = Carthage/Build/iOS/Themeable.framework; sourceTree = "<group>"; };
 		41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChaptersViewController.swift; sourceTree = "<group>"; };
 		41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManagerTests.swift; sourceTree = "<group>"; };
 		41D39D40215F177D00B65290 /* BookActivityItemProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookActivityItemProvider.swift; sourceTree = "<group>"; };
@@ -238,6 +250,7 @@
 				4165EE0E20A7AEC600616EDF /* SwiftReorder.framework in Frameworks */,
 				412451841D489204008AC0E5 /* Crashlytics.framework in Frameworks */,
 				5CBB29552163E57300E3A9FF /* ZIPFoundation.framework in Frameworks */,
+				41B2A6AC21D3274500917584 /* Themeable.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -324,6 +337,7 @@
 		41AABFFA1E705D18006BD2E0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				41B2A6AB21D3274500917584 /* Themeable.framework */,
 				5CBB29522163A17F00E3A9FF /* ZIPFoundation.framework */,
 				41D4F2EA2101A278009F1B1E /* DirectoryWatcher.framework */,
 				4150F80220A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework */,
@@ -345,6 +359,15 @@
 				41EE378921BFFBDE00A55F51 /* ItemListAlerts.swift */,
 			);
 			path = Protocols;
+			sourceTree = "<group>";
+		};
+		41B2A5DF21CCC1F400917584 /* Themes */ = {
+			isa = PBXGroup;
+			children = (
+				41B2A5E021CCC21000917584 /* ThemeManager.swift */,
+				41B2A5E221CCC26500917584 /* Theme.swift */,
+			);
+			path = Themes;
 			sourceTree = "<group>";
 		};
 		6906A551217211A300A9E0B2 /* Support */ = {
@@ -388,7 +411,9 @@
 			isa = PBXGroup;
 			children = (
 				41EE378421BF0FAD00A55F51 /* Protocols */,
+				41B2A5DF21CCC1F400917584 /* Themes */,
 				4163E30F21484C3500072AA2 /* FileManagement */,
+				41B2A5EC21CCC6D100917584 /* AppNavigationController.swift */,
 				4165EE1120A7D1E100616EDF /* RootViewController.swift */,
 				4165EE1320A7E8CC00616EDF /* ItemListViewController.swift */,
 				4136163F1D2E21F000E48944 /* LibraryViewController.swift */,
@@ -477,8 +502,10 @@
 				4109246B21A2019400D5DF11 /* CheckboxSelectionView.swift */,
 				C33E843B20C6E179004A0489 /* ItemProgress.swift */,
 				C398559B20C492FF00BE9EC0 /* AddButton.swift */,
+				41B2A5EE21CD5AAE00917584 /* StaticCellView.swift */,
 				C3FE94782080086800BCEA37 /* BookCellView.swift */,
 				4165EE0920A7A33500616EDF /* AddCellView.xib */,
+				41B2A5F021CD857800917584 /* AddCellView.swift */,
 				4165EE0A20A7A33500616EDF /* BookCellView.xib */,
 				4142964321F21D95004356DA /* BulkControlsView.swift */,
 				4142964521F21DAE004356DA /* BulkControlsView.xib */,
@@ -665,6 +692,7 @@
 				"$(SRCROOT)/Carthage/Build/iOS/IDZSwiftCommonCrypto.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/DirectoryWatcher.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/ZIPFoundation.framework",
+				"$(SRCROOT)/Carthage/Build/iOS/Themeable.framework",
 			);
 			name = "Copy Frameworks managed by Carthage";
 			outputPaths = (
@@ -675,6 +703,7 @@
 				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/IDZSwiftCommonCrypto.framework",
 				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/DirectoryWatcher.framework",
 				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/ZIPFoundation.framework",
+				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/Themeable.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -721,10 +750,12 @@
 			files = (
 				410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */,
 				D367F7681FA2A6F000FEDB37 /* Constants.swift in Sources */,
+				41B2A5F121CD857800917584 /* AddCellView.swift in Sources */,
 				C30EEEC12079645C00A4ED33 /* PlayerMetaViewController.swift in Sources */,
 				69225C4F2159C2650004739E /* BookSortService+SortError+PlayListSortOrder.swift in Sources */,
 				416B63A82146354B007D04B1 /* ImportManager.swift in Sources */,
 				41839AB320AA8B960047E55D /* ArtworkColors+CoreDataClass.swift in Sources */,
+				41B2A5E121CCC21000917584 /* ThemeManager.swift in Sources */,
 				C3FE3F8220A090880055B9C6 /* limitPanAngle.swift in Sources */,
 				C3FA301E20E0024900393DDA /* BPArtworkView.swift in Sources */,
 				41EE378A21BFFBDE00A55F51 /* ItemListAlerts.swift in Sources */,
@@ -732,10 +763,12 @@
 				4165EE0320A743D500616EDF /* Playlist+CoreDataClass.swift in Sources */,
 				41B2A5DC21CAEE0E00917584 /* PlayerSettingsViewController.swift in Sources */,
 				41E34E502138EA8200A3997C /* ImportOperation.swift in Sources */,
+				41B2A5ED21CCC6D100917584 /* AppNavigationController.swift in Sources */,
 				41B2AC8E1D43CCE8005382A9 /* ChaptersViewController.swift in Sources */,
 				4165EE0120A743D500616EDF /* Library+CoreDataProperties.swift in Sources */,
 				4165EE0420A743D500616EDF /* LibraryItem+CoreDataProperties.swift in Sources */,
 				4109246C21A2019400D5DF11 /* CheckboxSelectionView.swift in Sources */,
+				41B2A5EF21CD5AAE00917584 /* StaticCellView.swift in Sources */,
 				C3A479132094C8C300D92122 /* rubberBandDistance.swift in Sources */,
 				41EE378621BF0FCC00A55F51 /* ItemList.swift in Sources */,
 				C30CD2A1209791FA00258B09 /* UIColor+Sweetercolor.swift in Sources */,
@@ -781,6 +814,7 @@
 				410D0FED1EDCF4B000A52EB9 /* SettingsViewController.swift in Sources */,
 				41B2A5DE21CAF20E00917584 /* ThemesViewController.swift in Sources */,
 				C398559C20C492FF00BE9EC0 /* AddButton.swift in Sources */,
+				41B2A5E321CCC26500917584 /* Theme.swift in Sources */,
 				C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */,
 				4165EE1220A7D1E100616EDF /* RootViewController.swift in Sources */,
 				4165EE0820A743D500616EDF /* Playlist+CoreDataProperties.swift in Sources */,
