@@ -1,5 +1,5 @@
 //
-//  ArtworkColors+CoreDataClass.swift
+//  Theme+CoreDataClass.swift
 //  BookPlayer
 //
 //  Created by Gianni Carlo on 5/14/18.
@@ -15,27 +15,43 @@ enum ArtworkColorsError: Error {
     case averageColorFailed
 }
 
-public class ArtworkColors: NSManagedObject {
-    var background: UIColor {
+public class Theme: NSManagedObject {
+    var isDark: Bool {
+        return self.background.isDark
+    }
+
+    var background: UIColor { //background
         return UIColor(hex: self.backgroundHex)
     }
 
-    var primary: UIColor {
+    var primary: UIColor { //foreground
         return UIColor(hex: self.primaryHex)
     }
 
-    var secondary: UIColor {
+    var secondary: UIColor { //detail
         return UIColor(hex: self.secondaryHex)
     }
 
-    var tertiary: UIColor {
+    var tertiary: UIColor { //highlighted
         return UIColor(hex: self.tertiaryHex)
+    }
+
+    convenience init(params: [String: String], context: NSManagedObjectContext) {
+        let entity = NSEntityDescription.entity(forEntityName: "Theme", in: context)!
+        self.init(entity: entity, insertInto: context)
+
+        self.backgroundHex = params["background"]
+        self.primaryHex = params["primary"]
+        self.secondaryHex = params["secondary"]
+        self.tertiaryHex = params["tertiary"]
+        self.title = params["title"]
+        self.displayOnDark = false
     }
 
     // W3C recommends contrast values larger 4 or 7 (strict), but 3.0 should be fine for our use case
     convenience init(from image: UIImage, context: NSManagedObjectContext, darknessThreshold: CGFloat = 0.2, minimumContrastRatio: CGFloat = 3.0) {
         do {
-            let entity = NSEntityDescription.entity(forEntityName: "ArtworkColors", in: context)!
+            let entity = NSEntityDescription.entity(forEntityName: "Theme", in: context)!
 
             self.init(entity: entity, insertInto: context)
 
@@ -107,7 +123,7 @@ public class ArtworkColors: NSManagedObject {
 
     // Default colors
     convenience init(context: NSManagedObjectContext) {
-        let entity = NSEntityDescription.entity(forEntityName: "ArtworkColors", in: context)!
+        let entity = NSEntityDescription.entity(forEntityName: "Theme", in: context)!
         self.init(entity: entity, insertInto: context)
 
         self.setColorsFromArray()

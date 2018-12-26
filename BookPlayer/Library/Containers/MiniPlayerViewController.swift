@@ -7,6 +7,7 @@
 //
 
 import MarqueeLabelSwift
+import Themeable
 import UIKit
 
 class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecognizerDelegate {
@@ -30,29 +31,25 @@ class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecogniz
         didSet {
             self.view.setNeedsLayout()
 
-            guard let book = self.book else {
-                return
-            }
+            guard let book = self.book else { return }
 
             self.artwork.image = book.artwork
             self.authorLabel.text = book.author
             self.titleLabel.text = book.title
-            self.titleLabel.textColor = book.artworkColors.primary
-            self.authorLabel.textColor = book.artworkColors.secondary
-            self.playPauseButton.tintColor = book.artworkColors.tertiary
-            self.miniPlayerContainer.backgroundColor = book.artworkColors.background.withAlphaComponent(book.artworkColors.displayOnDark ? 0.6 : 0.8)
-            self.miniPlayerBlur.effect = book.artworkColors.displayOnDark ? UIBlurEffect(style: UIBlurEffectStyle.dark) : UIBlurEffect(style: UIBlurEffectStyle.light)
 
             let ratio = self.artwork.imageRatio
 
             self.artworkHeight.constant = ratio > 1 ? 50.0 / ratio : 50.0
             self.artworkWidth.constant = ratio < 1 ? 50.0 * ratio : 50.0
             setVoiceOverLabels()
+            applyTheme(self.themeProvider.currentTheme)
         }
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        setUpTheming()
 
         self.miniPlayerBlur.layer.cornerRadius = 13.0
         self.miniPlayerBlur.layer.masksToBounds = true
@@ -99,5 +96,22 @@ class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecogniz
         titleLabel.accessibilityLabel = "Currently Playing \(voiceOverTitle) by \(voiceOverSubtitle)"
         accessibilityHint = "Miniplayer"
         playPauseButton.accessibilityHint = "Tap to Play"
+    }
+}
+
+extension MiniPlayerViewController: Themeable {
+    func applyTheme(_ theme: Theme) {
+        guard let book = self.book else { return }
+
+        self.titleLabel.textColor = theme.background.isDark ? theme.primary : book.artworkColors.primary
+        self.authorLabel.textColor = theme.background.isDark ? theme.secondary : book.artworkColors.secondary
+        self.playPauseButton.tintColor = theme.background.isDark ? theme.tertiary : book.artworkColors.tertiary
+
+        self.miniPlayerContainer.backgroundColor = theme.background.isDark
+            ? theme.background
+            : book.artworkColors.background.withAlphaComponent(book.artworkColors.displayOnDark ? 0.6 : 0.8)
+        self.miniPlayerBlur.effect = (theme.background.isDark || book.artworkColors.displayOnDark)
+            ? UIBlurEffect(style: UIBlurEffectStyle.dark)
+            : UIBlurEffect(style: UIBlurEffectStyle.light)
     }
 }

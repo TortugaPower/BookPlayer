@@ -52,6 +52,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.setupMPRemoteCommands()
         // register document's folder listener
         self.setupDocumentListener()
+        // load themes if necessary
+        self.setupThemes()
 
         if let activityDictionary = launchOptions?[.userActivityDictionary] as? [UIApplicationLaunchOptionsKey: Any],
             let activityType = activityDictionary[.userActivityType] as? String,
@@ -250,5 +252,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 DataManager.processFile(at: url)
             }
         }
+    }
+
+    func setupThemes() {
+        let library = DataManager.getLibrary()
+        DataManager.setupDefaultThemes(in: library)
+        ThemeManager.shared.library = library
     }
 }

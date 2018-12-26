@@ -7,6 +7,7 @@
 //
 
 import MarqueeLabelSwift
+import Themeable
 import UIKit
 
 class PlayerMetaViewController: PlayerContainerViewController {
@@ -19,12 +20,9 @@ class PlayerMetaViewController: PlayerContainerViewController {
             self.authorLabel.text = self.book?.author
             self.titleLabel.text = self.book?.title
 
-            self.titleLabel.textColor = self.book?.artworkColors.primary
-            self.authorLabel.textColor = self.book?.artworkColors.secondary
-            self.chapterLabel.textColor = self.book?.artworkColors.tertiary
-
             self.setChapterLabel()
             self.setAccessibilityLabel()
+            applyTheme(self.themeProvider.currentTheme)
         }
     }
 
@@ -32,6 +30,8 @@ class PlayerMetaViewController: PlayerContainerViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        setUpTheming()
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.onPlayback), name: .bookPlaying, object: nil)
     }
@@ -57,5 +57,13 @@ class PlayerMetaViewController: PlayerContainerViewController {
             return accessibilityHint = "Player data unavailable"
         }
         self.authorLabel.accessibilityLabel = VoiceOverService().playerMetaText(book: book)
+    }
+}
+
+extension PlayerMetaViewController: Themeable {
+    func applyTheme(_ theme: Theme) {
+        self.titleLabel.textColor = theme.background.isDark ? theme.primary : self.book?.artworkColors.primary
+        self.authorLabel.textColor = theme.background.isDark ? theme.secondary : self.book?.artworkColors.secondary
+        self.chapterLabel.textColor = theme.background.isDark ? theme.secondary : self.book?.artworkColors.tertiary
     }
 }

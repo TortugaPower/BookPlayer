@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14313.13.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14283.9"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" restorationIdentifier="AddCellView" selectionStyle="default" indentationWidth="10" reuseIdentifier="AddCellView" rowHeight="86" id="tcv-HN-Yr1">
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" restorationIdentifier="AddCellView" selectionStyle="default" indentationWidth="10" reuseIdentifier="AddCellView" rowHeight="86" id="tcv-HN-Yr1" customClass="AddCellView" customModule="BookPlayer" customModuleProvider="target">
             <rect key="frame" x="0.0" y="0.0" width="375" height="86"/>
             <autoresizingMask key="autoresizingMask"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="tcv-HN-Yr1" id="Fzt-1y-g1F">
@@ -52,6 +52,10 @@
                 <accessibilityTraits key="traits" button="YES"/>
                 <bool key="isElement" value="YES"/>
             </accessibility>
+            <connections>
+                <outlet property="addImageView" destination="nvo-CJ-He9" id="3ir-Nh-ebO"/>
+                <outlet property="titleLabel" destination="lvt-wc-9ps" id="fEX-c2-c34"/>
+            </connections>
         </tableViewCell>
     </objects>
     <resources>

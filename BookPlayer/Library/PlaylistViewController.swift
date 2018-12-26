@@ -142,7 +142,7 @@ class PlaylistViewController: ItemListViewController {
                 self.move(selectedItems, to: selectedPlaylist)
             }
 
-            let nav = UINavigationController(rootViewController: vc)
+            let nav = AppNavigationController(rootViewController: vc)
             self.present(nav, animated: true, completion: nil)
         }
 

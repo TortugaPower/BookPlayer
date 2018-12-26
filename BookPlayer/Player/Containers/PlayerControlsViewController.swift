@@ -6,6 +6,7 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
+import Themeable
 import UIKit
 
 class PlayerControlsViewController: PlayerContainerViewController, UIGestureRecognizerDelegate {
@@ -18,23 +19,13 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
     var book: Book? {
         didSet {
-            guard let book = self.book, !book.isFault else {
-                return
-            }
+            guard let book = self.book, !book.isFault else { return }
 
             self.artworkControl.artwork = book.artwork
             self.artworkControl.shadowOpacity = 0.1 + (1.0 - book.artworkColors.background.brightness) * 0.3
-            self.artworkControl.iconColor = book.artworkColors.tertiary
-            self.artworkControl.borderColor = book.artworkColors.tertiary
-
-            self.progressSlider.minimumTrackTintColor = book.artworkColors.tertiary
-            self.progressSlider.maximumTrackTintColor = book.artworkColors.tertiary.withAlpha(newAlpha: 0.3)
-
-            self.currentTimeLabel.textColor = book.artworkColors.tertiary
-            self.maxTimeButton.setTitleColor(book.artworkColors.tertiary, for: .normal)
-            self.progressButton.setTitleColor(book.artworkColors.primary, for: .normal)
 
             self.setProgress()
+            applyTheme(self.themeProvider.currentTheme)
         }
     }
 
@@ -301,6 +292,32 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
         if self.prefersRemainingTime {
             self.maxTimeButton.setTitle(self.formatTime(newTimeToDisplay - self.durationTimeInContext), for: .normal)
+        }
+    }
+}
+
+extension PlayerControlsViewController: Themeable {
+    func applyTheme(_ theme: Theme) {
+        guard let book = self.book else { return }
+
+        if theme.isDark {
+            self.progressSlider.minimumTrackTintColor = theme.tertiary
+            self.progressSlider.maximumTrackTintColor = theme.tertiary.withAlpha(newAlpha: 0.3)
+            self.artworkControl.iconColor = theme.tertiary
+            self.artworkControl.borderColor = theme.tertiary
+
+            self.currentTimeLabel.textColor = theme.tertiary
+            self.maxTimeButton.setTitleColor(theme.tertiary, for: .normal)
+            self.progressButton.setTitleColor(theme.primary, for: .normal)
+        } else {
+            self.progressSlider.minimumTrackTintColor = book.artworkColors.tertiary
+            self.progressSlider.maximumTrackTintColor = book.artworkColors.tertiary.withAlpha(newAlpha: 0.3)
+            self.artworkControl.iconColor = book.artworkColors.tertiary
+            self.artworkControl.borderColor = book.artworkColors.tertiary
+
+            self.currentTimeLabel.textColor = book.artworkColors.tertiary
+            self.maxTimeButton.setTitleColor(book.artworkColors.tertiary, for: .normal)
+            self.progressButton.setTitleColor(book.artworkColors.primary, for: .normal)
         }
     }
 }

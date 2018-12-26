@@ -93,12 +93,12 @@ public class Book: LibraryItem {
         self.originalFileName = bookUrl.originalUrl.lastPathComponent
         self.isFinished = false
 
-        var colors: ArtworkColors!
+        var colors: Theme!
         if let data = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtwork, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? NSData {
             self.artworkData = data
-            colors = ArtworkColors(from: self.artwork, context: context)
+            colors = Theme(from: self.artwork, context: context)
         } else {
-            colors = ArtworkColors(context: context)
+            colors = Theme(context: context)
             self.usesDefaultArtwork = true
         }
 

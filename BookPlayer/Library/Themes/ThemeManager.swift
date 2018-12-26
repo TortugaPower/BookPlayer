@@ -12,8 +12,21 @@ import UIKit
 final class ThemeManager: ThemeProvider {
     static let shared = ThemeManager()
 
-    private var theme = SubscribableValue<Theme>(value: .light)
-    private var availableThemes: [Theme] = [.light, .dark]
+    var library: Library! {
+        didSet {
+            guard let theme = library.currentTheme else {
+                //handle prepopulating
+                return
+            }
+
+            self.theme = SubscribableValue<Theme>(value: theme)
+        }
+    }
+
+    private var theme: SubscribableValue<Theme>!
+    var availableThemes: [Theme] {
+        return self.library.availableThemes?.array as? [Theme] ?? []
+    }
 
     /// The current theme that is active
     var currentTheme: Theme {
@@ -22,6 +35,8 @@ final class ThemeManager: ThemeProvider {
         }
         set {
             self.setNewTheme(newValue)
+            self.library.currentTheme = newValue
+            DataManager.saveContext()
         }
     }
 
@@ -41,6 +56,11 @@ final class ThemeManager: ThemeProvider {
     func subscribeToChanges(_ object: AnyObject, handler: @escaping (Theme) -> Void) {
         self.theme.subscribe(object, using: handler)
     }
+
+    //    func loadLocalThemes() {
+    //        let themeBundle = Bundle.main.url(forResource: "Themes", withExtension: "bundle")!
+    //        let herp = try? FileManager.default.contentsOfDirectory(at: themeBundle, includingPropertiesForKeys: nil, options: .skipsSubdirectoryDescendants)
+    //    }
 }
 
 extension Themeable where Self: AnyObject {

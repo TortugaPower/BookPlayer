@@ -15,6 +15,8 @@
 		413616401D2E21F000E48944 /* LibraryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4136163F1D2E21F000E48944 /* LibraryViewController.swift */; };
 		4142964421F21D95004356DA /* BulkControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4142964321F21D95004356DA /* BulkControlsView.swift */; };
 		4142964621F21DAE004356DA /* BulkControlsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4142964521F21DAE004356DA /* BulkControlsView.xib */; };
+		4142964921F2E2BA004356DA /* ThemeCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4142964721F2E2BA004356DA /* ThemeCellView.swift */; };
+		4149539A21F0D456003C5D27 /* Themes.json in Resources */ = {isa = PBXBuildFile; fileRef = 4149539921F0D456003C5D27 /* Themes.json */; };
 		4150F80320A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4150F80220A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework */; };
 		41544A1221B86A8C00740AD2 /* DeleteMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41544A1121B86A8B00740AD2 /* DeleteMode.swift */; };
 		41544A1421BAF41400740AD2 /* PlaylistSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41544A1321BAF41400740AD2 /* PlaylistSelectionViewController.swift */; };
@@ -38,8 +40,8 @@
 		4165EE1420A7E8CC00616EDF /* ItemListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EE1320A7E8CC00616EDF /* ItemListViewController.swift */; };
 		416B63A82146354B007D04B1 /* ImportManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416B63A72146354B007D04B1 /* ImportManager.swift */; };
 		416B640D1E72F362000E955A /* Notification+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416B640C1E72F362000E955A /* Notification+BookPlayer.swift */; };
-		41839AB320AA8B960047E55D /* ArtworkColors+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41839AB120AA8B960047E55D /* ArtworkColors+CoreDataClass.swift */; };
-		41839AB420AA8B960047E55D /* ArtworkColors+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41839AB220AA8B960047E55D /* ArtworkColors+CoreDataProperties.swift */; };
+		41839AB320AA8B960047E55D /* Theme+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41839AB120AA8B960047E55D /* Theme+CoreDataClass.swift */; };
+		41839AB420AA8B960047E55D /* Theme+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41839AB220AA8B960047E55D /* Theme+CoreDataProperties.swift */; };
 		41839AB720AA8C970047E55D /* Book+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41839AB520AA8C970047E55D /* Book+CoreDataClass.swift */; };
 		41839AB820AA8C970047E55D /* Book+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41839AB620AA8C970047E55D /* Book+CoreDataProperties.swift */; };
 		418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418B6CFB1D2707F800F974FB /* AppDelegate.swift */; };
@@ -137,6 +139,8 @@
 		4136163F1D2E21F000E48944 /* LibraryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryViewController.swift; sourceTree = "<group>"; };
 		4142964321F21D95004356DA /* BulkControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BulkControlsView.swift; sourceTree = "<group>"; };
 		4142964521F21DAE004356DA /* BulkControlsView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = BulkControlsView.xib; sourceTree = "<group>"; };
+		4142964721F2E2BA004356DA /* ThemeCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeCellView.swift; sourceTree = "<group>"; };
+		4149539921F0D456003C5D27 /* Themes.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Themes.json; sourceTree = "<group>"; };
 		4150F80220A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IDZSwiftCommonCrypto.framework; path = Carthage/Build/iOS/IDZSwiftCommonCrypto.framework; sourceTree = "<group>"; };
 		41544A1121B86A8B00740AD2 /* DeleteMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteMode.swift; sourceTree = "<group>"; };
 		41544A1321BAF41400740AD2 /* PlaylistSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistSelectionViewController.swift; sourceTree = "<group>"; };
@@ -160,8 +164,8 @@
 		4165EE1320A7E8CC00616EDF /* ItemListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListViewController.swift; sourceTree = "<group>"; };
 		416B63A72146354B007D04B1 /* ImportManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportManager.swift; sourceTree = "<group>"; };
 		416B640C1E72F362000E955A /* Notification+BookPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Notification+BookPlayer.swift"; sourceTree = "<group>"; };
-		41839AB120AA8B960047E55D /* ArtworkColors+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ArtworkColors+CoreDataClass.swift"; sourceTree = "<group>"; };
-		41839AB220AA8B960047E55D /* ArtworkColors+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ArtworkColors+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		41839AB120AA8B960047E55D /* Theme+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Theme+CoreDataClass.swift"; sourceTree = "<group>"; };
+		41839AB220AA8B960047E55D /* Theme+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Theme+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		41839AB520AA8C970047E55D /* Book+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Book+CoreDataClass.swift"; sourceTree = "<group>"; };
 		41839AB620AA8C970047E55D /* Book+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Book+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		418B6CF81D2707F800F974FB /* BookPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BookPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -350,6 +354,16 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		41B2A5DF21CCC1F400917584 /* Themes */ = {
+			isa = PBXGroup;
+			children = (
+				4149539921F0D456003C5D27 /* Themes.json */,
+				41B2A5E021CCC21000917584 /* ThemeManager.swift */,
+				41B2A5E221CCC26500917584 /* Theme.swift */,
+			);
+			path = Themes;
+			sourceTree = "<group>";
+		};
 		41EE378421BF0FAD00A55F51 /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
@@ -359,15 +373,6 @@
 				41EE378921BFFBDE00A55F51 /* ItemListAlerts.swift */,
 			);
 			path = Protocols;
-			sourceTree = "<group>";
-		};
-		41B2A5DF21CCC1F400917584 /* Themes */ = {
-			isa = PBXGroup;
-			children = (
-				41B2A5E021CCC21000917584 /* ThemeManager.swift */,
-				41B2A5E221CCC26500917584 /* Theme.swift */,
-			);
-			path = Themes;
 			sourceTree = "<group>";
 		};
 		6906A551217211A300A9E0B2 /* Support */ = {
@@ -433,6 +438,7 @@
 				C359C30620A9F35B00A626E3 /* SkipDurationViewController.swift */,
 				41B2A5DB21CAEE0E00917584 /* PlayerSettingsViewController.swift */,
 				41B2A5DD21CAF20E00917584 /* ThemesViewController.swift */,
+				4142964721F2E2BA004356DA /* ThemeCellView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -458,8 +464,8 @@
 			isa = PBXGroup;
 			children = (
 				4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */,
-				41839AB120AA8B960047E55D /* ArtworkColors+CoreDataClass.swift */,
-				41839AB220AA8B960047E55D /* ArtworkColors+CoreDataProperties.swift */,
+				41839AB120AA8B960047E55D /* Theme+CoreDataClass.swift */,
+				41839AB220AA8B960047E55D /* Theme+CoreDataProperties.swift */,
 				41839AB520AA8C970047E55D /* Book+CoreDataClass.swift */,
 				41839AB620AA8C970047E55D /* Book+CoreDataProperties.swift */,
 				4165EDF220A743D400616EDF /* Chapter+CoreDataClass.swift */,
@@ -657,6 +663,7 @@
 			files = (
 				418B6D081D2707F800F974FB /* LaunchScreen.storyboard in Resources */,
 				C3D3852720C1E73E00A0ACC7 /* Player.storyboard in Resources */,
+				4149539A21F0D456003C5D27 /* Themes.json in Resources */,
 				C37A6873209F0F830063AEAC /* Credits.html in Resources */,
 				418B6D051D2707F800F974FB /* Assets.xcassets in Resources */,
 				418B6D031D2707F800F974FB /* Main.storyboard in Resources */,
@@ -754,7 +761,7 @@
 				C30EEEC12079645C00A4ED33 /* PlayerMetaViewController.swift in Sources */,
 				69225C4F2159C2650004739E /* BookSortService+SortError+PlayListSortOrder.swift in Sources */,
 				416B63A82146354B007D04B1 /* ImportManager.swift in Sources */,
-				41839AB320AA8B960047E55D /* ArtworkColors+CoreDataClass.swift in Sources */,
+				41839AB320AA8B960047E55D /* Theme+CoreDataClass.swift in Sources */,
 				41B2A5E121CCC21000917584 /* ThemeManager.swift in Sources */,
 				C3FE3F8220A090880055B9C6 /* limitPanAngle.swift in Sources */,
 				C3FA301E20E0024900393DDA /* BPArtworkView.swift in Sources */,
@@ -784,6 +791,7 @@
 				4165EDFE20A743D500616EDF /* Chapter+CoreDataClass.swift in Sources */,
 				C30EEEBF2079645C00A4ED33 /* PlayerContainerViewController.swift in Sources */,
 				41EE378821BFFB9800A55F51 /* ItemListFeedback.swift in Sources */,
+				4142964921F2E2BA004356DA /* ThemeCellView.swift in Sources */,
 				C318D3AD208CF624000666F8 /* PlayerJumpIcon.swift in Sources */,
 				C37A6875209F13120063AEAC /* CreditsViewController.swift in Sources */,
 				4197240021874D5F00AB1190 /* UserActivityManager.swift in Sources */,
@@ -801,7 +809,7 @@
 				C39401E920DEE83200F3DC71 /* UIView+BookPlayer.swift in Sources */,
 				41D39D41215F177D00B65290 /* BookActivityItemProvider.swift in Sources */,
 				4165EE1020A7CBBE00616EDF /* PlaylistViewController.swift in Sources */,
-				41839AB420AA8B960047E55D /* ArtworkColors+CoreDataProperties.swift in Sources */,
+				41839AB420AA8B960047E55D /* Theme+CoreDataProperties.swift in Sources */,
 				C3FE94792080086800BCEA37 /* BookCellView.swift in Sources */,
 				C30B085F209654E3003F325B /* UIColor+BookPlayer.swift in Sources */,
 				410D0FEF1EDDBC3300A52EB9 /* DataManager.swift in Sources */,

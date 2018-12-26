@@ -6,6 +6,7 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
+import Themeable
 import UIKit
 
 class PlaylistSelectionViewController: UITableViewController {
@@ -20,6 +21,9 @@ class PlaylistSelectionViewController: UITableViewController {
         // Remove the line after the last cell
         self.tableView.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: self.tableView.frame.size.width, height: 1))
         self.tableView.register(UINib(nibName: "BookCellView", bundle: nil), forCellReuseIdentifier: "BookCellView")
+        self.edgesForExtendedLayout = .bottom
+
+        setUpTheming()
     }
 
     @objc func didTapCancel() {
@@ -55,5 +59,13 @@ class PlaylistSelectionViewController: UITableViewController {
         self.dismiss(animated: true) {
             self.onPlaylistSelected?(playlist)
         }
+    }
+}
+
+extension ItemSelectionViewController: Themeable {
+    func applyTheme(_ theme: Theme) {
+        self.view.backgroundColor = theme.background
+        self.tableView.backgroundColor = theme.background
+        self.tableView.separatorColor = theme.secondary.withAlpha(newAlpha: 0.5)
     }
 }

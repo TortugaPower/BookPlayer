@@ -10,6 +10,7 @@ import AVFoundation
 import AVKit
 import MediaPlayer
 import StoreKit
+import Themeable
 import UIKit
 
 class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
@@ -33,6 +34,8 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     let darknessThreshold: CGFloat = 0.2
     let dismissThreshold: CGFloat = 44.0 * UIScreen.main.nativeScale
     var dismissFeedbackTriggered = false
+
+    private var themedStatusBarStyle: UIStatusBarStyle?
 
     // MARK: - Lifecycle
 
@@ -76,6 +79,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
         super.viewDidLoad()
 
+        setUpTheming()
         self.setupView(book: self.currentBook!)
 
         // Make toolbar transparent
@@ -124,10 +128,6 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
         self.speedButton.title = self.formatSpeed(PlayerManager.shared.speed)
         self.speedButton.accessibilityLabel = String(describing: self.formatSpeed(PlayerManager.shared.speed) + " speed")
-
-        self.view.backgroundColor = currentBook.artworkColors.background
-        self.bottomToolbar.tintColor = currentBook.artworkColors.secondary
-        self.closeButton.tintColor = currentBook.artworkColors.secondary
 
         self.updateToolbar()
 
@@ -189,7 +189,8 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return self.currentBook.artworkColors.displayOnDark ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
+        let style = self.currentBook.artworkColors.displayOnDark ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
+        return self.themedStatusBarStyle ?? style
     }
 
     // MARK: - Interface actions
@@ -362,5 +363,23 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     override func accessibilityPerformEscape() -> Bool {
         self.dismissPlayer()
         return true
+    }
+}
+
+extension PlayerViewController: Themeable {
+    func applyTheme(_ theme: Theme) {
+        if theme.background.isDark {
+            self.themedStatusBarStyle = theme.background.isDark
+                ? .lightContent
+                : .default
+            setNeedsStatusBarAppearanceUpdate()
+            self.view.backgroundColor = theme.background
+            self.bottomToolbar.tintColor = theme.tertiary
+            self.closeButton.tintColor = theme.tertiary
+        } else {
+            self.view.backgroundColor = self.currentBook.artworkColors.background
+            self.bottomToolbar.tintColor = self.currentBook.artworkColors.secondary
+            self.closeButton.tintColor = self.currentBook.artworkColors.secondary
+        }
     }
 }

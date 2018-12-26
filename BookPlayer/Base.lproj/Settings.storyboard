@@ -21,7 +21,7 @@
                         <sections>
                             <tableViewSection id="ehD-qC-2Ve">
                                 <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="02M-J9-X7a" detailTextLabel="CVc-ad-1rf" style="IBUITableViewCellStyleValue1" id="uoI-58-6QW">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="02M-J9-X7a" detailTextLabel="CVc-ad-1rf" style="IBUITableViewCellStyleValue1" id="uoI-58-6QW" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="35" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="uoI-58-6QW" id="dYg-6G-ceA">
@@ -48,7 +48,7 @@
                                             <segue destination="35O-9W-ERG" kind="show" id="lBY-gd-Nfl"/>
                                         </connections>
                                     </tableViewCell>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="none" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" textLabel="app-ex-T52" style="IBUITableViewCellStyleDefault" id="lbz-3X-azw">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="none" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" textLabel="app-ex-T52" style="IBUITableViewCellStyleDefault" id="lbz-3X-azw" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="79" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="lbz-3X-azw" id="lhQ-mu-JFZ">
@@ -72,7 +72,7 @@
                             </tableViewSection>
                             <tableViewSection footerTitle="Continue playback with all items in the Library that are not completed, including files in playlists." id="xgC-Yo-CeI">
                                 <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" id="mZC-FQ-bJv">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" id="mZC-FQ-bJv" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="159" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="mZC-FQ-bJv" id="d1P-2x-oKv">
@@ -97,12 +97,15 @@
                                                 <constraint firstItem="U00-rk-lxZ" firstAttribute="centerY" secondItem="d1P-2x-oKv" secondAttribute="centerY" id="tR1-yx-0Ps"/>
                                             </constraints>
                                         </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="customLabel" destination="CmE-t6-YbE" id="fVM-Th-JnE"/>
+                                        </connections>
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
                             <tableViewSection footerTitle="Prevent the device from locking when on the Player screen. " id="ol9-Yg-Kce">
                                 <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="CAX-9V-L9h">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="CAX-9V-L9h" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="267" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="CAX-9V-L9h" id="Fmf-ga-zlY">
@@ -127,12 +130,15 @@
                                                 <constraint firstItem="BlM-8p-0Ka" firstAttribute="centerY" secondItem="Fmf-ga-zlY" secondAttribute="centerY" id="ky3-p4-p4z"/>
                                             </constraints>
                                         </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="customLabel" destination="iys-Y1-zT4" id="p3L-zw-Nfh"/>
+                                        </connections>
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
                             <tableViewSection headerTitle="Siri Shortcut" footerTitle="Use Siri to continue the last played book." id="V2g-SX-Hc4">
                                 <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="none" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" textLabel="3Hf-KW-kuZ" style="IBUITableViewCellStyleDefault" id="uAD-fX-V6A">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="none" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" textLabel="3Hf-KW-kuZ" style="IBUITableViewCellStyleDefault" id="uAD-fX-V6A" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="402.5" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="uAD-fX-V6A" id="TYe-ak-jZf">
@@ -153,7 +159,7 @@
                             </tableViewSection>
                             <tableViewSection headerTitle="Support" id="HHg-sB-jse">
                                 <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" textLabel="ClD-F6-XBV" detailTextLabel="p5a-8D-TIK" rowHeight="50" style="IBUITableViewCellStyleSubtitle" id="ml3-w4-0Kh">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" textLabel="ClD-F6-XBV" detailTextLabel="p5a-8D-TIK" rowHeight="50" style="IBUITableViewCellStyleSubtitle" id="ml3-w4-0Kh" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="514.5" width="375" height="50"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="ml3-w4-0Kh" id="iby-ep-R6R">
@@ -181,7 +187,7 @@
                                             <accessibilityTraits key="traits" link="YES"/>
                                         </accessibility>
                                     </tableViewCell>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" textLabel="nCM-M8-bSw" detailTextLabel="6ow-P5-iYK" rowHeight="50" style="IBUITableViewCellStyleSubtitle" id="SPt-vd-9qJ">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" textLabel="nCM-M8-bSw" detailTextLabel="6ow-P5-iYK" rowHeight="50" style="IBUITableViewCellStyleSubtitle" id="SPt-vd-9qJ" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="564.5" width="375" height="50"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="SPt-vd-9qJ" id="IOg-0m-vsn">
@@ -213,7 +219,7 @@
                             </tableViewSection>
                             <tableViewSection id="7d8-SQ-Lj5">
                                 <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="f5k-Kh-fBQ" style="IBUITableViewCellStyleDefault" id="03X-zP-RZe">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="f5k-Kh-fBQ" style="IBUITableViewCellStyleDefault" id="03X-zP-RZe" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="650.5" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="03X-zP-RZe" id="IIp-cC-U1k">
@@ -241,7 +247,7 @@
                             <outlet property="delegate" destination="4H6-OJ-4Mr" id="XQU-In-1vD"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Settings" leftItemsSupplementBackButton="YES" id="OYp-Bd-tHB">
+                    <navigationItem key="navigationItem" title="Settings" leftItemsSupplementBackButton="YES" largeTitleDisplayMode="never" id="OYp-Bd-tHB">
                         <barButtonItem key="rightBarButtonItem" style="done" systemItem="done" id="BUQ-FJ-Ywj">
                             <connections>
                                 <action selector="done:" destination="4H6-OJ-4Mr" id="CNZ-He-eLd"/>
@@ -252,6 +258,7 @@
                     <connections>
                         <outlet property="autoplayLibrarySwitch" destination="U00-rk-lxZ" id="HCv-jo-TbM"/>
                         <outlet property="disableAutolockSwitch" destination="BlM-8p-0Ka" id="Fbl-zc-kUw"/>
+                        <outlet property="themeLabel" destination="CVc-ad-1rf" id="I40-1O-6rO"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="zU0-UF-KQa" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -302,22 +309,42 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="ThemeCell" textLabel="8rH-9E-3sf" style="IBUITableViewCellStyleDefault" id="bCU-Go-BnL">
-                                <rect key="frame" x="0.0" y="28" width="375" height="44"/>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="ThemeCell" rowHeight="45" id="bCU-Go-BnL" customClass="ThemeCellView" customModule="BookPlayer" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="28" width="375" height="45"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="bCU-Go-BnL" id="XNz-Lp-92R">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="44.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="8rH-9E-3sf">
-                                            <rect key="frame" x="16" y="0.0" width="343" height="43.5"/>
-                                            <autoresizingMask key="autoresizingMask"/>
+                                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="A" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Dry-v3-P1R">
+                                            <rect key="frame" x="16" y="10" width="25" height="25"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="25" id="RLh-H4-fhJ"/>
+                                                <constraint firstAttribute="width" constant="25" id="qYK-Gp-xT8"/>
+                                            </constraints>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nyy-vg-6Qc">
+                                            <rect key="frame" x="49" y="12" width="310" height="21"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <nil key="textColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                     </subviews>
+                                    <constraints>
+                                        <constraint firstItem="nyy-vg-6Qc" firstAttribute="centerY" secondItem="XNz-Lp-92R" secondAttribute="centerY" id="TU8-SN-6Hj"/>
+                                        <constraint firstItem="nyy-vg-6Qc" firstAttribute="trailing" secondItem="XNz-Lp-92R" secondAttribute="trailingMargin" id="Xn9-zE-8a2"/>
+                                        <constraint firstItem="Dry-v3-P1R" firstAttribute="leading" secondItem="XNz-Lp-92R" secondAttribute="leadingMargin" id="ZLG-Ow-Ehz"/>
+                                        <constraint firstItem="nyy-vg-6Qc" firstAttribute="leading" secondItem="Dry-v3-P1R" secondAttribute="trailing" constant="8" id="aWQ-35-efk"/>
+                                        <constraint firstItem="Dry-v3-P1R" firstAttribute="centerY" secondItem="XNz-Lp-92R" secondAttribute="centerY" id="j5t-4j-2tB"/>
+                                    </constraints>
                                 </tableViewCellContentView>
+                                <connections>
+                                    <outlet property="showCaseLabel" destination="Dry-v3-P1R" id="ciT-jn-tjb"/>
+                                    <outlet property="titleLabel" destination="nyy-vg-6Qc" id="m27-1G-jxA"/>
+                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <connections>
@@ -328,7 +355,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="qHU-3d-pHf" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1241" y="460"/>
+            <point key="canvasLocation" x="1240.8" y="459.22038980509751"/>
         </scene>
         <!--Direction-->
         <scene sceneID="XJM-4d-nPy">
@@ -339,7 +366,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="IntervalCell" textLabel="SMH-JP-Fsh" style="IBUITableViewCellStyleDefault" id="jSX-CE-i8K">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="IntervalCell" textLabel="SMH-JP-Fsh" style="IBUITableViewCellStyleDefault" id="jSX-CE-i8K" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="28" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="jSX-CE-i8K" id="bf2-x3-asx">
@@ -367,10 +394,10 @@
             </objects>
             <point key="canvasLocation" x="1967" y="1192"/>
         </scene>
-        <!--Navigation Controller-->
+        <!--App Navigation Controller-->
         <scene sceneID="jXz-D9-set">
             <objects>
-                <navigationController id="nNa-3d-7ZC" sceneMemberID="viewController">
+                <navigationController id="nNa-3d-7ZC" customClass="AppNavigationController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translucent="NO" id="bnd-Tx-bbW">
                         <rect key="frame" x="0.0" y="20" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -394,7 +421,7 @@
                         <sections>
                             <tableViewSection headerTitle="Skip intervals" footerTitle="Adjust the amount skipped when dragging the album cover or using the buttons in the control center." id="X6u-we-Q7T">
                                 <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="none" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" textLabel="i9g-z9-Yx0" detailTextLabel="1x1-g6-7Vg" style="IBUITableViewCellStyleValue1" id="Xuw-v0-TJl">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="none" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" textLabel="i9g-z9-Yx0" detailTextLabel="1x1-g6-7Vg" style="IBUITableViewCellStyleValue1" id="Xuw-v0-TJl" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="55.5" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Xuw-v0-TJl" id="HGP-we-sU5">
@@ -421,7 +448,7 @@
                                             <segue destination="S1g-WT-l0z" kind="show" identifier="AdjustRewindIntervalSegue" id="fyk-Ks-y4x"/>
                                         </connections>
                                     </tableViewCell>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="none" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" textLabel="kBG-hx-oc1" detailTextLabel="hD8-4g-KSV" style="IBUITableViewCellStyleValue1" id="OJ9-jS-r0x">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="none" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" textLabel="kBG-hx-oc1" detailTextLabel="hD8-4g-KSV" style="IBUITableViewCellStyleValue1" id="OJ9-jS-r0x" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="99.5" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="OJ9-jS-r0x" id="suX-p3-Xlz">
@@ -452,7 +479,7 @@
                             </tableViewSection>
                             <tableViewSection footerTitle="Rewind 30 seconds after being paused for 10 minutes." id="5tz-1M-pM5">
                                 <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" id="jCg-TS-6hk">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" id="jCg-TS-6hk" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="207.5" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="jCg-TS-6hk" id="tgM-ge-acP">
@@ -477,6 +504,9 @@
                                                 <constraint firstItem="dcQ-kt-xys" firstAttribute="leading" secondItem="tgM-ge-acP" secondAttribute="leading" constant="16" id="hbU-dP-0Oq"/>
                                             </constraints>
                                         </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="customLabel" destination="dcQ-kt-xys" id="Fxo-4W-jw0"/>
+                                        </connections>
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
@@ -484,7 +514,7 @@
                                 <string key="footerTitle">Doubles the volume.
 Use with caution and care for your hearing.</string>
                                 <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="7L4-ZR-6Y1">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="7L4-ZR-6Y1" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="299.5" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="7L4-ZR-6Y1" id="X9G-J4-qAq">
@@ -509,12 +539,15 @@ Use with caution and care for your hearing.</string>
                                                 <constraint firstItem="REu-u1-fwP" firstAttribute="centerY" secondItem="X9G-J4-qAq" secondAttribute="centerY" id="zNO-OG-vNx"/>
                                             </constraints>
                                         </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="customLabel" destination="tvf-w6-A0c" id="cJN-v8-KG6"/>
+                                        </connections>
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
                             <tableViewSection footerTitle="Set speed across all books." id="lcf-oa-ncd">
                                 <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="biN-UB-ceL">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="biN-UB-ceL" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="407.5" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="biN-UB-ceL" id="9dd-C5-rSL">
@@ -539,6 +572,9 @@ Use with caution and care for your hearing.</string>
                                                 <constraint firstItem="Xk7-Ab-nyQ" firstAttribute="leading" secondItem="9dd-C5-rSL" secondAttribute="leading" constant="16" id="uHi-BT-sjM"/>
                                             </constraints>
                                         </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="customLabel" destination="Xk7-Ab-nyQ" id="ToD-Pr-Xjz"/>
+                                        </connections>
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
@@ -548,7 +584,7 @@ Use with caution and care for your hearing.</string>
                             <outlet property="delegate" destination="Te4-I9-OuL" id="9YH-1O-Fnl"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Player Controls" leftItemsSupplementBackButton="YES" id="gST-Cn-uPB"/>
+                    <navigationItem key="navigationItem" title="Player Controls" leftItemsSupplementBackButton="YES" largeTitleDisplayMode="never" id="gST-Cn-uPB"/>
                     <connections>
                         <outlet property="boostVolumeSwitch" destination="REu-u1-fwP" id="ORF-rl-zos"/>
                         <outlet property="forwardIntervalLabel" destination="hD8-4g-KSV" id="kFR-tA-8kv"/>

@@ -20,7 +20,7 @@ extension Book {
     @NSManaged public var usesDefaultArtwork: Bool
     @NSManaged public var chapters: NSOrderedSet?
     @NSManaged public var playlist: Playlist?
-    @NSManaged public var artworkColors: ArtworkColors!
+    @NSManaged public var artworkColors: Theme!
 }
 
 // MARK: Generated accessors for chapters

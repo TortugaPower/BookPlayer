@@ -190,7 +190,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         }
 
         alert.addAction(UIAlertAction(title: deleteActionTitle, style: .destructive, handler: { _ in
-            self.delete(items)
+            self.delete(items, mode: .deep)
         }))
 
         present(alert, animated: true, completion: nil)
@@ -199,7 +199,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
     // MARK: - Callback events
 
     @objc func onNewFileUrl() {
-        guard self.loadingContainerView.isHidden else { return }
+        guard self.loadingView.isHidden else { return }
         let loadingTitle = "Preparing to import files"
         self.showLoadView(true, title: loadingTitle)
 
@@ -310,7 +310,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
                 self.move(selectedItems, to: selectedPlaylist)
             }
 
-            let nav = UINavigationController(rootViewController: vc)
+            let nav = AppNavigationController(rootViewController: vc)
             self.present(nav, animated: true, completion: nil)
         }
 

@@ -6,6 +6,7 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
+import Themeable
 import UIKit
 
 class PlayerSettingsViewController: UITableViewController {
@@ -17,6 +18,8 @@ class PlayerSettingsViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        setUpTheming()
 
         self.smartRewindSwitch.addTarget(self, action: #selector(self.rewindToggleDidChange), for: .valueChanged)
         self.boostVolumeSwitch.addTarget(self, action: #selector(self.boostVolumeToggleDidChange), for: .valueChanged)
@@ -58,6 +61,16 @@ class PlayerSettingsViewController: UITableViewController {
         }
     }
 
+    override func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+        let header = view as? UITableViewHeaderFooterView
+        header?.textLabel?.textColor = self.themeProvider.currentTheme.secondary
+    }
+
+    override func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int) {
+        let footer = view as? UITableViewHeaderFooterView
+        footer?.textLabel?.textColor = self.themeProvider.currentTheme.secondary
+    }
+
     @objc func rewindToggleDidChange() {
         UserDefaults.standard.set(self.smartRewindSwitch.isOn, forKey: Constants.UserDefaults.smartRewindEnabled.rawValue)
     }
@@ -69,5 +82,13 @@ class PlayerSettingsViewController: UITableViewController {
 
     @objc func globalSpeedToggleDidChange() {
         UserDefaults.standard.set(self.globalSpeedSwitch.isOn, forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue)
+    }
+}
+
+extension PlayerSettingsViewController: Themeable {
+    func applyTheme(_ theme: Theme) {
+        self.tableView.backgroundColor = theme.background
+        self.tableView.separatorColor = theme.secondary.withAlpha(newAlpha: 0.5)
+        self.tableView.reloadData()
     }
 }

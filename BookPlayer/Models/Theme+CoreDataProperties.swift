@@ -1,5 +1,5 @@
 //
-//  ArtworkColors+CoreDataProperties.swift
+//  Theme+CoreDataProperties.swift
 //  BookPlayer
 //
 //  Created by Gianni Carlo on 5/14/18.
@@ -10,9 +10,9 @@
 import CoreData
 import Foundation
 
-extension ArtworkColors {
-    @nonobjc public class func fetchRequest() -> NSFetchRequest<ArtworkColors> {
-        return NSFetchRequest<ArtworkColors>(entityName: "ArtworkColors")
+extension Theme {
+    @nonobjc public class func fetchRequest() -> NSFetchRequest<Theme> {
+        return NSFetchRequest<Theme>(entityName: "Theme")
     }
 
     @NSManaged public var backgroundHex: String!
@@ -20,4 +20,7 @@ extension ArtworkColors {
     @NSManaged public var secondaryHex: String!
     @NSManaged public var tertiaryHex: String!
     @NSManaged public var displayOnDark: Bool
+    @NSManaged public var title: String?
+    @NSManaged public var book: Book?
+    @NSManaged public var library: Library?
 }
