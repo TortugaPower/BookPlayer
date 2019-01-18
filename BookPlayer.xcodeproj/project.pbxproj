@@ -13,6 +13,8 @@
 		410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D0FF01EDF659900A52EB9 /* PlayerManager.swift */; };
 		412451841D489204008AC0E5 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412451821D489204008AC0E5 /* Crashlytics.framework */; };
 		413616401D2E21F000E48944 /* LibraryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4136163F1D2E21F000E48944 /* LibraryViewController.swift */; };
+		4142964421F21D95004356DA /* BulkControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4142964321F21D95004356DA /* BulkControlsView.swift */; };
+		4142964621F21DAE004356DA /* BulkControlsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4142964521F21DAE004356DA /* BulkControlsView.xib */; };
 		4150F80320A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4150F80220A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework */; };
 		41544A1221B86A8C00740AD2 /* DeleteMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41544A1121B86A8B00740AD2 /* DeleteMode.swift */; };
 		41544A1421BAF41400740AD2 /* PlaylistSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41544A1321BAF41400740AD2 /* PlaylistSelectionViewController.swift */; };
@@ -124,6 +126,8 @@
 		410D0FF01EDF659900A52EB9 /* PlayerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerManager.swift; sourceTree = "<group>"; };
 		412451821D489204008AC0E5 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		4136163F1D2E21F000E48944 /* LibraryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryViewController.swift; sourceTree = "<group>"; };
+		4142964321F21D95004356DA /* BulkControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BulkControlsView.swift; sourceTree = "<group>"; };
+		4142964521F21DAE004356DA /* BulkControlsView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = BulkControlsView.xib; sourceTree = "<group>"; };
 		4150F80220A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IDZSwiftCommonCrypto.framework; path = Carthage/Build/iOS/IDZSwiftCommonCrypto.framework; sourceTree = "<group>"; };
 		41544A1121B86A8B00740AD2 /* DeleteMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteMode.swift; sourceTree = "<group>"; };
 		41544A1321BAF41400740AD2 /* PlaylistSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistSelectionViewController.swift; sourceTree = "<group>"; };
@@ -467,6 +471,8 @@
 				C3FE94782080086800BCEA37 /* BookCellView.swift */,
 				4165EE0920A7A33500616EDF /* AddCellView.xib */,
 				4165EE0A20A7A33500616EDF /* BookCellView.xib */,
+				4142964321F21D95004356DA /* BulkControlsView.swift */,
+				4142964521F21DAE004356DA /* BulkControlsView.xib */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -621,6 +627,7 @@
 				4165EE0B20A7A33500616EDF /* AddCellView.xib in Resources */,
 				C30B66AE20E2D8CF00FC0030 /* ArtworkControl.xib in Resources */,
 				4165EE0C20A7A33500616EDF /* BookCellView.xib in Resources */,
+				4142964621F21DAE004356DA /* BulkControlsView.xib in Resources */,
 				C3EA7176218DEC870005D488 /* .swiftformat in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -754,6 +761,7 @@
 				C3FE94792080086800BCEA37 /* BookCellView.swift in Sources */,
 				C30B085F209654E3003F325B /* UIColor+BookPlayer.swift in Sources */,
 				410D0FEF1EDDBC3300A52EB9 /* DataManager.swift in Sources */,
+				4142964421F21D95004356DA /* BulkControlsView.swift in Sources */,
 				41EE378C21C0028800A55F51 /* ItemListActions.swift in Sources */,
 				4165EDFF20A743D500616EDF /* Chapter+CoreDataProperties.swift in Sources */,
 				C36C4D5C20A23E1800AFDB76 /* MiniPlayerViewController.swift in Sources */,
