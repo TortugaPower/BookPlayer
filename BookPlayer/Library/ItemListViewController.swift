@@ -18,9 +18,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
     @IBOutlet weak var loadingTitleLabel: UILabel!
     @IBOutlet weak var loadingSubtitleLabel: UILabel!
     @IBOutlet weak var loadingHeightConstraintView: NSLayoutConstraint!
-    @IBOutlet weak var bulkControlContainerView: UIView!
-    @IBOutlet weak var moveButton: UIButton!
-    @IBOutlet weak var trashButton: UIButton!
+    @IBOutlet weak var bulkControls: BulkControlsView!
 
     @IBOutlet weak var tableView: UITableView!
 
@@ -84,12 +82,40 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
     }
 
     func setupBulkControls() {
-        self.bulkControlContainerView.layer.cornerRadius = 10
-        self.bulkControlContainerView.layer.shadowColor = UIColor.black.cgColor
-        self.bulkControlContainerView.layer.shadowOpacity = 0.3
-        self.bulkControlContainerView.layer.shadowRadius = 5
-        self.bulkControlContainerView.layer.shadowOffset = .zero
-        self.bulkControlContainerView.isHidden = true
+        self.bulkControls.isHidden = true
+        self.bulkControls.layer.cornerRadius = 13
+        self.bulkControls.layer.shadowColor = UIColor(red: 0.12, green: 0.14, blue: 0.15, alpha: 1.0).cgColor
+        self.bulkControls.layer.shadowOpacity = 0.3
+        self.bulkControls.layer.shadowRadius = 5
+        self.bulkControls.layer.shadowOffset = .zero
+
+        self.bulkControls.onSortTap = {
+            self.present(self.sortDialog(), animated: true, completion: nil)
+        }
+
+        self.bulkControls.onMoveTap = {
+            guard let indexPaths = self.tableView.indexPathsForSelectedRows else {
+                return
+            }
+
+            let selectedItems = indexPaths.map { (indexPath) -> LibraryItem in
+                return self.items[indexPath.row]
+            }
+
+            self.handleMove(selectedItems)
+        }
+
+        self.bulkControls.onDeleteTap = {
+            guard let indexPaths = self.tableView.indexPathsForSelectedRows else {
+                return
+            }
+
+            let selectedItems = indexPaths.map { (indexPath) -> LibraryItem in
+                return self.items[indexPath.row]
+            }
+
+            self.handleTrash(selectedItems)
+        }
     }
 
     func deleteRows(at indexPaths: [IndexPath]) {
@@ -102,12 +128,12 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
 
-        self.moveButton.isEnabled = false
-        self.trashButton.isEnabled = false
+        self.bulkControls.moveButton.isEnabled = false
+        self.bulkControls.trashButton.isEnabled = false
 
         let notification: Notification.Name = !editing ? .playerDismissed : .playerPresented
 
-        self.bulkControlContainerView.isHidden = !editing
+        self.bulkControls.isHidden = !editing
         self.tableView.setEditing(editing, animated: true)
 
         NotificationCenter.default.post(name: notification, object: nil, userInfo: nil)
@@ -192,37 +218,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
 
     func sort(by sortType: PlayListSortOrder) {}
 
-    // MARK: - IBActions
-
-    @IBAction func didTapSort(_ sender: UIButton) {
-        present(self.sortDialog(), animated: true, completion: nil)
-    }
-
-    @IBAction func didTapMove(_ sender: UIButton) {
-        guard let indexPaths = self.tableView.indexPathsForSelectedRows else {
-            return
-        }
-
-        let selectedItems = indexPaths.map { (indexPath) -> LibraryItem in
-            return self.items[indexPath.row]
-        }
-
-        self.handleMove(selectedItems)
-    }
-
     func handleMove(_ selectedItems: [LibraryItem]) {}
-
-    @IBAction func didTapTrash(_ sender: UIButton) {
-        guard let indexPaths = self.tableView.indexPathsForSelectedRows else {
-            return
-        }
-
-        let selectedItems = indexPaths.map { (indexPath) -> LibraryItem in
-            return self.items[indexPath.row]
-        }
-
-        self.handleTrash(selectedItems)
-    }
 
     func handleTrash(_ selectedItems: [LibraryItem]) {}
 
@@ -446,8 +442,8 @@ extension ItemListViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.moveButton.isEnabled = true
-        self.trashButton.isEnabled = true
+        self.bulkControls.moveButton.isEnabled = true
+        self.bulkControls.trashButton.isEnabled = true
     }
 
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
@@ -455,8 +451,8 @@ extension ItemListViewController: UITableViewDelegate {
             return
         }
 
-        self.moveButton.isEnabled = false
-        self.trashButton.isEnabled = false
+        self.bulkControls.moveButton.isEnabled = false
+        self.bulkControls.trashButton.isEnabled = false
     }
 }
 
