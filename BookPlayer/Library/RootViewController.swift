@@ -72,40 +72,11 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
     @objc private func presentMiniPlayer() {
         guard PlayerManager.shared.isLoaded else { return }
 
-        self.miniPlayerContainer.transform = CGAffineTransform(translationX: 0, y: self.miniPlayerContainer.bounds.height)
-        self.miniPlayerContainer.alpha = 0.0
-        self.miniPlayerContainer.isHidden = false
-
-        UIView.animate(withDuration: 0.5,
-                       delay: 0.0,
-                       usingSpringWithDamping: 0.7,
-                       initialSpringVelocity: 1.5,
-                       options: .preferredFramesPerSecond60,
-                       animations: {
-                           self.miniPlayerContainer.transform = .identity
-        })
-
-        UIView.animate(withDuration: 0.3, delay: 0.0, options: .preferredFramesPerSecond60, animations: {
-            self.miniPlayerContainer.alpha = 1.0
-        })
+        self.animateView(self.miniPlayerContainer, show: true)
     }
 
     @objc private func dismissMiniPlayer() {
-        UIView.animate(withDuration: 0.25,
-                       delay: 0.0,
-                       usingSpringWithDamping: 0.7,
-                       initialSpringVelocity: 1.5,
-                       options: .preferredFramesPerSecond60,
-                       animations: {
-                           self.miniPlayerContainer.transform = CGAffineTransform(translationX: 0, y: self.miniPlayerContainer.bounds.height)
-                       },
-                       completion: { _ in
-                           self.miniPlayerContainer.isHidden = true
-        })
-
-        UIView.animate(withDuration: 0.15, delay: 0.0, options: [.preferredFramesPerSecond60, .curveEaseIn], animations: {
-            self.miniPlayerContainer.alpha = 0.0
-        })
+        self.animateView(self.miniPlayerContainer, show: false)
     }
 
     @objc private func bookChange(_ notification: Notification) {

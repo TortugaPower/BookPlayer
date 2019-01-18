@@ -234,9 +234,11 @@ class PlayerManager: NSObject {
             MPRemoteCommandCenter.shared().skipForwardCommand.preferredIntervals = [newValue] as [NSNumber]
         }
     }
+}
 
-    // MARK: - Seek Controls
+// MARK: - Seek Controls
 
+extension PlayerManager {
     func jumpTo(_ time: Double, fromEnd: Bool = false) {
         guard let player = self.audioPlayer else { return }
 
@@ -264,9 +266,11 @@ class PlayerManager: NSObject {
     func rewind() {
         self.jumpBy(-self.rewindInterval)
     }
+}
 
-    // MARK: - Playback
+// MARK: - Playback
 
+extension PlayerManager {
     func play(_ autoplayed: Bool = false) {
         guard let currentBook = self.currentBook, let audioplayer = self.audioPlayer else {
             return
