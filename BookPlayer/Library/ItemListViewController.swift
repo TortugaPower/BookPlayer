@@ -133,7 +133,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
 
         let notification: Notification.Name = !editing ? .playerDismissed : .playerPresented
 
-        self.bulkControls.isHidden = !editing
+        self.animateView(self.bulkControls, show: editing)
         self.tableView.setEditing(editing, animated: true)
 
         NotificationCenter.default.post(name: notification, object: nil, userInfo: nil)
