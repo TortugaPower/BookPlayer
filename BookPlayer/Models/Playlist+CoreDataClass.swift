@@ -182,7 +182,7 @@ public class Playlist: LibraryItem {
         return nil
     }
 
-    func info() -> String {
+    override func info() -> String {
         let count = self.books?.array.count ?? 0
 
         return "\(count) Files"

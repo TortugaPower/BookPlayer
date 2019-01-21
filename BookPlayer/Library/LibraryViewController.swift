@@ -303,10 +303,11 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
 
         let existingPlaylistAction = UIAlertAction(title: "Existing Playlist", style: .default) { _ in
 
-            let vc = PlaylistSelectionViewController()
+            let vc = ItemSelectionViewController()
             vc.items = availablePlaylists
 
-            vc.onPlaylistSelected = { selectedPlaylist in
+            vc.onItemSelected = { selectedItem in
+                guard let selectedPlaylist = selectedItem as? Playlist else { return }
                 self.move(selectedItems, to: selectedPlaylist)
             }
 

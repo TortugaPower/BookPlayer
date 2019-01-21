@@ -1,5 +1,5 @@
 //
-//  PlaylistSelectionViewController.swift
+//  ItemSelectionViewController.swift
 //  BookPlayer
 //
 //  Created by Gianni Carlo on 12/7/18.
@@ -9,13 +9,13 @@
 import Themeable
 import UIKit
 
-class PlaylistSelectionViewController: UITableViewController {
-    var items: [Playlist]!
+class ItemSelectionViewController: UITableViewController {
+    var items: [LibraryItem]!
 
-    var onPlaylistSelected: ((Playlist) -> Void)?
+    var onItemSelected: ((LibraryItem) -> Void)?
 
     override func viewDidLoad() {
-        self.title = "Select Playlist"
+        self.title = "Select Item"
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(self.didTapCancel))
 
         // Remove the line after the last cell
@@ -42,22 +42,21 @@ class PlaylistSelectionViewController: UITableViewController {
         // swiftlint:disable force_cast
         let cell = tableView.dequeueReusableCell(withIdentifier: "BookCellView", for: indexPath) as! BookCellView
 
-        let playlist = self.items[indexPath.row]
+        let item = self.items[indexPath.row]
 
-        cell.artwork = playlist.artwork
-        cell.title = playlist.title
+        cell.artwork = item.artwork
+        cell.title = item.title
         cell.playbackState = .stopped
-
-        cell.subtitle = playlist.info()
+        cell.subtitle = item.info()
 
         return cell
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let playlist = self.items[indexPath.row]
+        let item = self.items[indexPath.row]
 
         self.dismiss(animated: true) {
-            self.onPlaylistSelected?(playlist)
+            self.onItemSelected?(item)
         }
     }
 }
