@@ -12,8 +12,4 @@ protocol ItemListFeedback: ItemList {}
 
 extension ItemListFeedback {
     func showLoadView(_ show: Bool, title: String? = nil, subtitle: String? = nil) {}
-
-    func showLoadView(_ show: Bool, subtitle: String) {
-        self.showLoadView(show, title: nil, subtitle: subtitle)
-    }
 }

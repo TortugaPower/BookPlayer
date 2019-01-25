@@ -15,9 +15,7 @@ import UIKit
 
 class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemListActions {
     @IBOutlet weak var emptyStatePlaceholder: UIView!
-    @IBOutlet weak var loadingContainerView: UIView!
-    @IBOutlet weak var loadingTitleLabel: UILabel!
-    @IBOutlet weak var loadingSubtitleLabel: UILabel!
+    @IBOutlet weak var loadingView: LoadingView!
     @IBOutlet weak var loadingHeightConstraintView: NSLayoutConstraint!
     @IBOutlet weak var bulkControls: BulkControlsView!
 
@@ -88,7 +86,6 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
     func setupBulkControls() {
         self.bulkControls.isHidden = true
         self.bulkControls.layer.cornerRadius = 13
-        self.bulkControls.layer.shadowColor = UIColor(red: 0.12, green: 0.14, blue: 0.15, alpha: 1.0).cgColor
         self.bulkControls.layer.shadowOpacity = 0.3
         self.bulkControls.layer.shadowRadius = 5
         self.bulkControls.layer.shadowOffset = .zero
@@ -236,7 +233,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
 
         alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
-            self.delete(books)
+            self.delete(books, mode: .deep)
         }))
 
         alert.popoverPresentationController?.sourceView = view
@@ -383,18 +380,18 @@ extension ItemListViewController {
 extension ItemListViewController: ItemListFeedback {
     func showLoadView(_ show: Bool, title: String? = nil, subtitle: String? = nil) {
         if let title = title {
-            self.loadingTitleLabel.text = title
+            self.loadingView.titleLabel.text = title
         }
 
         if let subtitle = subtitle {
-            self.loadingSubtitleLabel.text = subtitle
-            self.loadingSubtitleLabel.isHidden = false
+            self.loadingView.subtitleLabel.text = subtitle
+            self.loadingView.subtitleLabel.isHidden = false
         } else {
-            self.loadingSubtitleLabel.isHidden = true
+            self.loadingView.subtitleLabel.isHidden = true
         }
 
         // verify there's something to do
-        guard self.loadingContainerView.isHidden == show else {
+        guard self.loadingView.isHidden == show else {
             return
         }
 
@@ -402,7 +399,7 @@ extension ItemListViewController: ItemListFeedback {
             ? 65
             : 0
         UIView.animate(withDuration: 0.5) {
-            self.loadingContainerView.isHidden = !show
+            self.loadingView.isHidden = !show
             self.view.layoutIfNeeded()
         }
     }
@@ -602,5 +599,10 @@ extension ItemListViewController: Themeable {
         self.tableView.separatorColor = theme.secondary.withAlpha(newAlpha: 0.5)
         self.emptyStatePlaceholder.backgroundColor = theme.background
         self.emptyStatePlaceholder.tintColor = theme.tertiary
+        self.bulkControls.backgroundColor = theme.background
+        self.bulkControls.tintColor = theme.tertiary
+        self.bulkControls.layer.shadowColor = theme.isDark
+            ? UIColor.white.cgColor
+            : UIColor(red: 0.12, green: 0.14, blue: 0.15, alpha: 1.0).cgColor
     }
 }

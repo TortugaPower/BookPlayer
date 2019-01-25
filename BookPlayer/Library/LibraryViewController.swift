@@ -217,10 +217,10 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         }
 
         DispatchQueue.main.async {
-            self.showLoadView(true, subtitle: filename)
+            self.showLoadView(true, title: nil, subtitle: filename)
 
             if let vc = self.navigationController?.visibleViewController as? PlaylistViewController {
-                vc.showLoadView(true, subtitle: filename)
+                vc.showLoadView(true, title: nil, subtitle: filename)
             }
         }
     }

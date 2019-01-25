@@ -56,11 +56,6 @@ final class ThemeManager: ThemeProvider {
     func subscribeToChanges(_ object: AnyObject, handler: @escaping (Theme) -> Void) {
         self.theme.subscribe(object, using: handler)
     }
-
-    //    func loadLocalThemes() {
-    //        let themeBundle = Bundle.main.url(forResource: "Themes", withExtension: "bundle")!
-    //        let herp = try? FileManager.default.contentsOfDirectory(at: themeBundle, includingPropertiesForKeys: nil, options: .skipsSubdirectoryDescendants)
-    //    }
 }
 
 extension Themeable where Self: AnyObject {

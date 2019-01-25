@@ -160,55 +160,11 @@
                                 </constraints>
                                 <viewLayoutGuide key="safeArea" id="RJy-OQ-yOf"/>
                             </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UeG-Sn-DHx">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UeG-Sn-DHx" customClass="LoadingView" customModule="BookPlayer" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="65"/>
-                                <subviews>
-                                    <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="7jY-eA-dv8">
-                                        <rect key="frame" x="23" y="14" width="37" height="37"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="37" id="1hZ-Hf-SLJ"/>
-                                            <constraint firstAttribute="height" constant="37" id="Luc-0W-QjN"/>
-                                        </constraints>
-                                        <color key="color" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                    </activityIndicatorView>
-                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="3" translatesAutoresizingMaskIntoConstraints="NO" id="2fa-B9-PBb">
-                                        <rect key="frame" x="82" y="14" width="277" height="37"/>
-                                        <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Processing n files" lineBreakMode="middleTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NSf-cb-1ho">
-                                                <rect key="frame" x="0.0" y="0.0" width="277" height="18"/>
-                                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="15"/>
-                                                <color key="textColor" red="0.1215686275" green="0.14117647059999999" blue="0.1450980392" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <nil key="highlightedColor"/>
-                                                <size key="shadowOffset" width="0.0" height="0.0"/>
-                                            </label>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="filename.ext" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ngy-au-mNE">
-                                                <rect key="frame" x="0.0" y="21" width="277" height="16"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                <color key="textColor" red="0.56078431370000004" green="0.5568627451" blue="0.58039215690000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
-                                        </subviews>
-                                    </stackView>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VAF-kk-rYK">
-                                        <rect key="frame" x="0.0" y="64.5" width="375" height="0.5"/>
-                                        <color key="backgroundColor" red="0.78039215689999997" green="0.7843137255" blue="0.80000000000000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="0.5" id="i1b-dD-hu3"/>
-                                        </constraints>
-                                    </view>
-                                </subviews>
                                 <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                                 <constraints>
-                                    <constraint firstAttribute="trailing" secondItem="VAF-kk-rYK" secondAttribute="trailing" id="0RN-uQ-KnZ"/>
                                     <constraint firstAttribute="height" constant="65" id="Ac0-Gf-MP9"/>
-                                    <constraint firstItem="2fa-B9-PBb" firstAttribute="leading" secondItem="7jY-eA-dv8" secondAttribute="trailing" constant="22" id="BW4-JZ-T0d"/>
-                                    <constraint firstItem="2fa-B9-PBb" firstAttribute="bottom" secondItem="7jY-eA-dv8" secondAttribute="bottom" id="ChV-xD-Fwn"/>
-                                    <constraint firstItem="2fa-B9-PBb" firstAttribute="top" secondItem="7jY-eA-dv8" secondAttribute="top" id="D3x-oz-foo"/>
-                                    <constraint firstAttribute="trailing" secondItem="2fa-B9-PBb" secondAttribute="trailing" constant="16" id="WKC-na-1bT"/>
-                                    <constraint firstAttribute="bottom" secondItem="VAF-kk-rYK" secondAttribute="bottom" id="atL-Lb-Y75"/>
-                                    <constraint firstItem="7jY-eA-dv8" firstAttribute="leading" secondItem="UeG-Sn-DHx" secondAttribute="leading" constant="23" id="cZl-Wc-ZO2"/>
-                                    <constraint firstItem="VAF-kk-rYK" firstAttribute="leading" secondItem="UeG-Sn-DHx" secondAttribute="leading" id="mSb-2X-CIK"/>
-                                    <constraint firstItem="7jY-eA-dv8" firstAttribute="centerY" secondItem="UeG-Sn-DHx" secondAttribute="centerY" id="xLw-Nc-Won"/>
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3M6-8C-yUy" customClass="BulkControlsView" customModule="BookPlayer" customModuleProvider="target">
@@ -242,10 +198,8 @@
                     <connections>
                         <outlet property="bulkControls" destination="3M6-8C-yUy" id="exM-uv-2LU"/>
                         <outlet property="emptyStatePlaceholder" destination="S0r-5S-fT7" id="d1Y-st-qzo"/>
-                        <outlet property="loadingContainerView" destination="UeG-Sn-DHx" id="U62-78-m6K"/>
                         <outlet property="loadingHeightConstraintView" destination="Ac0-Gf-MP9" id="Iez-3S-1Xp"/>
-                        <outlet property="loadingSubtitleLabel" destination="Ngy-au-mNE" id="G8y-18-BVA"/>
-                        <outlet property="loadingTitleLabel" destination="NSf-cb-1ho" id="sXn-Es-nyr"/>
+                        <outlet property="loadingView" destination="UeG-Sn-DHx" id="GKK-gI-eUQ"/>
                         <outlet property="tableView" destination="vLB-vm-W2L" id="upg-Nh-j6W"/>
                     </connections>
                 </viewController>
@@ -432,54 +386,10 @@
                                 </constraints>
                                 <viewLayoutGuide key="safeArea" id="MMR-Fb-X28"/>
                             </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="y5M-DI-F77">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="y5M-DI-F77" customClass="LoadingView" customModule="BookPlayer" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="65"/>
-                                <subviews>
-                                    <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="jXO-oV-Kvk">
-                                        <rect key="frame" x="23" y="14" width="37" height="37"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="37" id="2uo-Ia-1E7"/>
-                                            <constraint firstAttribute="height" constant="37" id="Jxm-Tv-IfT"/>
-                                        </constraints>
-                                        <color key="color" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                    </activityIndicatorView>
-                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="3" translatesAutoresizingMaskIntoConstraints="NO" id="Gpu-vb-kgh">
-                                        <rect key="frame" x="82" y="14" width="277" height="37"/>
-                                        <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Processing n files" lineBreakMode="middleTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Za5-jS-CfQ">
-                                                <rect key="frame" x="0.0" y="0.0" width="277" height="18"/>
-                                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="15"/>
-                                                <color key="textColor" red="0.1215686275" green="0.14117647059999999" blue="0.1450980392" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <nil key="highlightedColor"/>
-                                                <size key="shadowOffset" width="0.0" height="0.0"/>
-                                            </label>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="filename.ext" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7UM-Ke-3F1">
-                                                <rect key="frame" x="0.0" y="21" width="277" height="16"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                <color key="textColor" red="0.56078431370000004" green="0.5568627451" blue="0.58039215690000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
-                                        </subviews>
-                                    </stackView>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="a3k-AU-fw3">
-                                        <rect key="frame" x="0.0" y="64.5" width="375" height="0.5"/>
-                                        <color key="backgroundColor" red="0.7803921568627451" green="0.78431372549019607" blue="0.80000000000000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="0.5" id="9m7-yx-aKG"/>
-                                        </constraints>
-                                    </view>
-                                </subviews>
                                 <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                                 <constraints>
-                                    <constraint firstItem="a3k-AU-fw3" firstAttribute="leading" secondItem="y5M-DI-F77" secondAttribute="leading" id="3oc-s3-9PI"/>
-                                    <constraint firstAttribute="trailing" secondItem="a3k-AU-fw3" secondAttribute="trailing" id="3xu-R3-xMC"/>
-                                    <constraint firstAttribute="trailing" secondItem="Gpu-vb-kgh" secondAttribute="trailing" constant="16" id="6g0-jc-U8Z"/>
-                                    <constraint firstItem="Gpu-vb-kgh" firstAttribute="leading" secondItem="jXO-oV-Kvk" secondAttribute="trailing" constant="22" id="DUd-VC-128"/>
-                                    <constraint firstItem="jXO-oV-Kvk" firstAttribute="leading" secondItem="y5M-DI-F77" secondAttribute="leading" constant="23" id="KsL-Dt-GYp"/>
-                                    <constraint firstItem="jXO-oV-Kvk" firstAttribute="centerY" secondItem="y5M-DI-F77" secondAttribute="centerY" id="UfW-Fy-33A"/>
-                                    <constraint firstItem="Gpu-vb-kgh" firstAttribute="top" secondItem="jXO-oV-Kvk" secondAttribute="top" id="Z4d-g8-3R2"/>
-                                    <constraint firstItem="Gpu-vb-kgh" firstAttribute="bottom" secondItem="jXO-oV-Kvk" secondAttribute="bottom" id="npJ-dm-3mh"/>
-                                    <constraint firstAttribute="bottom" secondItem="a3k-AU-fw3" secondAttribute="bottom" id="rzM-AX-y1Y"/>
                                     <constraint firstAttribute="height" constant="65" id="yZT-6T-cjn"/>
                                 </constraints>
                             </view>
@@ -520,10 +430,8 @@
                     <connections>
                         <outlet property="bulkControls" destination="I7v-PX-k6J" id="L3y-R6-kQM"/>
                         <outlet property="emptyStatePlaceholder" destination="xYN-SW-g2w" id="DGN-cI-ss6"/>
-                        <outlet property="loadingContainerView" destination="y5M-DI-F77" id="8ZL-BQ-TnG"/>
                         <outlet property="loadingHeightConstraintView" destination="yZT-6T-cjn" id="P36-gP-KlA"/>
-                        <outlet property="loadingSubtitleLabel" destination="7UM-Ke-3F1" id="2ws-KG-fQ3"/>
-                        <outlet property="loadingTitleLabel" destination="Za5-jS-CfQ" id="Rch-Pn-Z0K"/>
+                        <outlet property="loadingView" destination="y5M-DI-F77" id="YJp-u0-bbg"/>
                         <outlet property="tableView" destination="392-ii-NXF" id="A9h-ev-SKj"/>
                         <segue destination="XZ8-Ha-OZN" kind="show" identifier="PlaylistSegue" id="jLU-AX-Vgv"/>
                     </connections>
