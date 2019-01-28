@@ -42,5 +42,6 @@ extension LoadingView: Themeable {
         self.titleLabel.textColor = theme.primary
         self.subtitleLabel.textColor = theme.secondary
         self.separatorView.backgroundColor = theme.secondary
+        self.activityIndicator.color = theme.isDark ? .white : .gray
     }
 }

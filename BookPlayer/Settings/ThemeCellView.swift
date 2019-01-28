@@ -12,6 +12,7 @@ import UIKit
 class ThemeCellView: UITableViewCell {
     @IBOutlet weak var showCaseLabel: UILabel!
     @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var plusImageView: UIImageView!
 
     override func awakeFromNib() {
         super.awakeFromNib()

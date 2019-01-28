@@ -28,17 +28,17 @@
                         <nil key="highlightedColor"/>
                     </label>
                     <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="listAdd" translatesAutoresizingMaskIntoConstraints="NO" id="nvo-CJ-He9">
-                        <rect key="frame" x="28" y="28" width="29" height="29"/>
+                        <rect key="frame" x="28" y="28.5" width="29" height="29"/>
                         <constraints>
-                            <constraint firstAttribute="width" constant="29" id="CLQ-WB-uTy"/>
-                            <constraint firstAttribute="height" constant="29" id="KM5-FW-ahO"/>
+                            <constraint firstAttribute="width" relation="lessThanOrEqual" constant="29" id="CLQ-WB-uTy"/>
+                            <constraint firstAttribute="width" secondItem="nvo-CJ-He9" secondAttribute="height" multiplier="1:1" id="ENR-ss-bbS"/>
                         </constraints>
                     </imageView>
                 </subviews>
                 <constraints>
-                    <constraint firstItem="nvo-CJ-He9" firstAttribute="top" secondItem="Fzt-1y-g1F" secondAttribute="top" constant="28" id="83o-vk-E1d"/>
                     <constraint firstItem="nvo-CJ-He9" firstAttribute="leading" secondItem="Fzt-1y-g1F" secondAttribute="leading" constant="28" id="Pbm-GM-zYo"/>
                     <constraint firstAttribute="trailing" secondItem="lvt-wc-9ps" secondAttribute="trailing" constant="100" id="ZrL-r5-eir"/>
+                    <constraint firstItem="nvo-CJ-He9" firstAttribute="centerY" secondItem="Fzt-1y-g1F" secondAttribute="centerY" id="cPo-D6-tsv"/>
                     <constraint firstItem="lvt-wc-9ps" firstAttribute="centerY" secondItem="Fzt-1y-g1F" secondAttribute="centerY" id="krE-KG-5ub"/>
                     <constraint firstItem="lvt-wc-9ps" firstAttribute="leading" secondItem="nvo-CJ-He9" secondAttribute="trailing" constant="25" id="sRw-Tz-d7l"/>
                 </constraints>

@@ -36,6 +36,13 @@ public class Theme: NSManagedObject {
         return UIColor(hex: self.tertiaryHex)
     }
 
+    func sameColors(as theme: Theme) -> Bool {
+        return self.backgroundHex == theme.backgroundHex
+            && self.primaryHex == theme.primaryHex
+            && self.secondaryHex == theme.secondaryHex
+            && self.tertiaryHex == theme.tertiaryHex
+    }
+
     convenience init(params: [String: String], context: NSManagedObjectContext) {
         let entity = NSEntityDescription.entity(forEntityName: "Theme", in: context)!
         self.init(entity: entity, insertInto: context)

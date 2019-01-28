@@ -102,6 +102,8 @@ public class Book: LibraryItem {
             self.usesDefaultArtwork = true
         }
 
+        colors.title = self.title
+
         self.artworkColors = colors
 
         self.setChapters(from: asset, context: context)

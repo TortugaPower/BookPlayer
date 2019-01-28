@@ -186,6 +186,13 @@ class DataManager {
         library.currentTheme = light
         library.addToAvailableThemes(NSOrderedSet(array: [light, dark]))
 
+        // prior book artwork colors didn't have a title
+        if let books = self.getBooks() {
+            for book in books {
+                book.artworkColors.title = book.title
+            }
+        }
+
         self.saveContext()
     }
 

@@ -21,7 +21,7 @@ class AddCellView: UITableViewCell {
 
 extension AddCellView: Themeable {
     func applyTheme(_ theme: Theme) {
-        self.titleLabel.textColor = theme.primary
+        self.titleLabel.textColor = theme.tertiary
         self.backgroundColor = theme.background
         self.addImageView.tintColor = theme.tertiary
     }

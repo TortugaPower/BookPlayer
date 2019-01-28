@@ -371,7 +371,7 @@ extension LibraryViewController {
 
 extension LibraryViewController {
     func tableView(_: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        guard indexPath.sectionValue == .library else { return nil }
+        guard indexPath.sectionValue == .data else { return nil }
 
         let item = items[indexPath.row]
 
@@ -421,7 +421,7 @@ extension LibraryViewController {
 
         tableView.deselectRow(at: indexPath, animated: true)
 
-        guard indexPath.sectionValue == .library else {
+        guard indexPath.sectionValue == .data else {
             if indexPath.sectionValue == .add {
                 self.addAction()
             }
@@ -465,7 +465,8 @@ extension LibraryViewController {
 extension LibraryViewController {
     override func tableView(_ tableView: UITableView, reorderRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         super.tableView(tableView, reorderRowAt: sourceIndexPath, to: destinationIndexPath)
-        guard destinationIndexPath.sectionValue == .library else {
+
+        guard destinationIndexPath.sectionValue == .data else {
             return
         }
 
@@ -478,7 +479,7 @@ extension LibraryViewController {
     }
 
     override func tableViewDidFinishReordering(_ tableView: UITableView, from initialSourceIndexPath: IndexPath, to finalDestinationIndexPath: IndexPath, dropped overIndexPath: IndexPath?) {
-        guard let overIndexPath = overIndexPath, overIndexPath.sectionValue == .library else { return }
+        guard let overIndexPath = overIndexPath, overIndexPath.sectionValue == .data else { return }
 
         let sourceItem = self.items[finalDestinationIndexPath.row]
         let destinationItem = self.items[overIndexPath.row]
