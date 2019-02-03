@@ -137,7 +137,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             return
         }
 
-        let blur = UIBlurEffect(style: currentBook.artworkColors.displayOnDark ? UIBlurEffectStyle.dark : UIBlurEffectStyle.light)
+        let blur = UIBlurEffect(style: currentBook.artworkColors.isDark ? UIBlurEffectStyle.dark : UIBlurEffectStyle.light)
         let blurView = UIVisualEffectView(effect: blur)
 
         blurView.frame = self.view.bounds
@@ -147,7 +147,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
         // Apply the blurred view in relation to the brightness and luminance of the background color.
         // This makes darker backgrounds stay interesting
-        self.backgroundImage.alpha = 0.1 + min((1 - currentBook.artworkColors.background.luminance) * (1 - currentBook.artworkColors.background.brightness), 0.7)
+        self.backgroundImage.alpha = 0.1 + min((1 - currentBook.artworkColors.backgroundColor.luminance) * (1 - currentBook.artworkColors.backgroundColor.brightness), 0.7)
 
         // Solution thanks to https://forums.developer.apple.com/thread/63166#180445
         self.modalPresentationCapturesStatusBarAppearance = true
@@ -189,7 +189,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        let style = self.currentBook.artworkColors.displayOnDark ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
+        let style = self.currentBook.artworkColors.isDark ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
         return self.themedStatusBarStyle ?? style
     }
 
@@ -368,18 +368,15 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
 extension PlayerViewController: Themeable {
     func applyTheme(_ theme: Theme) {
-        if theme.background.isDark {
-            self.themedStatusBarStyle = theme.background.isDark
-                ? .lightContent
-                : .default
-            setNeedsStatusBarAppearanceUpdate()
-            self.view.backgroundColor = theme.background
-            self.bottomToolbar.tintColor = theme.tertiary
-            self.closeButton.tintColor = theme.tertiary
-        } else {
-            self.view.backgroundColor = self.currentBook.artworkColors.background
-            self.bottomToolbar.tintColor = self.currentBook.artworkColors.secondary
-            self.closeButton.tintColor = self.currentBook.artworkColors.secondary
-        }
+        let appliedTheme: Theme = theme.isDark ? theme : self.currentBook.artworkColors
+
+        self.themedStatusBarStyle = appliedTheme.isDark
+            ? .lightContent
+            : .default
+        setNeedsStatusBarAppearanceUpdate()
+
+        self.view.backgroundColor = appliedTheme.backgroundColor
+        self.bottomToolbar.tintColor = appliedTheme.detailColor
+        self.closeButton.tintColor = appliedTheme.detailColor
     }
 }

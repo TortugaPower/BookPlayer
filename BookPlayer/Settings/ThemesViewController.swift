@@ -13,8 +13,9 @@ class ThemesViewController: UIViewController {
     @IBOutlet weak var defaultThemesTableView: UITableView!
     @IBOutlet weak var extraThemesTableView: UITableView!
     @IBOutlet weak var extraThemesLabel: UILabel!
-    @IBOutlet weak var separatorView: UIView!
+    @IBOutlet var separatorViews: [UIView]!
 
+    var scrolledToCurrentTheme = false
     var defaultThemes: [Theme]!
     var extraThemes: [Theme]!
 
@@ -29,6 +30,17 @@ class ThemesViewController: UIViewController {
         setUpTheming()
 
         self.extraThemesTableView.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: self.extraThemesTableView.frame.size.width, height: 1))
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        guard !self.scrolledToCurrentTheme,
+            let index = self.extraThemes.firstIndex(of: ThemeManager.shared.currentTheme) else { return }
+
+        self.scrolledToCurrentTheme = true
+        let indexPath = IndexPath(row: index, section: 0)
+        self.extraThemesTableView.scrollToRow(at: indexPath, at: .top, animated: false)
     }
 
     func extractTheme() {
@@ -84,16 +96,18 @@ extension ThemesViewController: UITableViewDataSource {
         // swiftlint:enable force_cast
 
         cell.showCaseLabel.isHidden = false
+        cell.accessoryType = .none
+        cell.titleLabel.textColor = ThemeManager.shared.currentTheme.primaryColor
 
         guard indexPath.sectionValue != .add else {
             cell.titleLabel.text = "Add"
-            cell.titleLabel.textColor = ThemeManager.shared.currentTheme.tertiary
+            cell.titleLabel.textColor = ThemeManager.shared.currentTheme.highlightColor
             cell.plusImageView.isHidden = false
-            cell.plusImageView.tintColor = ThemeManager.shared.currentTheme.tertiary
+            cell.plusImageView.tintColor = ThemeManager.shared.currentTheme.highlightColor
             cell.showCaseLabel.isHidden = true
 
-            cell.showCaseLabel.backgroundColor = ThemeManager.shared.currentTheme.background
-            cell.showCaseLabel.textColor = ThemeManager.shared.currentTheme.tertiary
+            cell.showCaseLabel.backgroundColor = ThemeManager.shared.currentTheme.backgroundColor
+            cell.showCaseLabel.textColor = ThemeManager.shared.currentTheme.highlightColor
             cell.showCaseLabel.layer.borderColor = UIColor.clear.cgColor
             return cell
         }
@@ -103,9 +117,9 @@ extension ThemesViewController: UITableViewDataSource {
             : self.extraThemes[indexPath.row]
 
         cell.titleLabel.text = item.title
-        cell.showCaseLabel.backgroundColor = item.background
-        cell.showCaseLabel.textColor = item.primary
-        cell.showCaseLabel.layer.borderColor = item.secondary.cgColor
+        cell.showCaseLabel.backgroundColor = item.backgroundColor
+        cell.showCaseLabel.textColor = item.primaryColor
+        cell.showCaseLabel.layer.borderColor = item.detailColor.cgColor
 
         cell.accessoryType = item == ThemeManager.shared.currentTheme
             ? .checkmark
@@ -132,11 +146,15 @@ extension ThemesViewController: UITableViewDelegate {
 
 extension ThemesViewController: Themeable {
     func applyTheme(_ theme: Theme) {
-        self.view.backgroundColor = theme.background
-        self.defaultThemesTableView.backgroundColor = theme.background
-        self.extraThemesTableView.backgroundColor = theme.background
-        self.extraThemesLabel.textColor = theme.secondary
-        self.separatorView.backgroundColor = theme.secondary
+        self.view.backgroundColor = theme.settingsBackgroundColor
+        self.defaultThemesTableView.backgroundColor = theme.backgroundColor
+        self.defaultThemesTableView.separatorColor = theme.separatorColor
+        self.extraThemesTableView.backgroundColor = theme.backgroundColor
+        self.extraThemesTableView.separatorColor = theme.separatorColor
+        self.extraThemesLabel.textColor = theme.detailColor
+        self.separatorViews.forEach { separatorView in
+            separatorView.backgroundColor = theme.separatorColor
+        }
         self.defaultThemesTableView.reloadData()
         self.extraThemesTableView.reloadData()
     }

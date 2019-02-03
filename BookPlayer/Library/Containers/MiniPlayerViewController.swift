@@ -103,15 +103,16 @@ extension MiniPlayerViewController: Themeable {
     func applyTheme(_ theme: Theme) {
         guard let book = self.book else { return }
 
-        self.titleLabel.textColor = theme.background.isDark ? theme.primary : book.artworkColors.primary
-        self.authorLabel.textColor = theme.background.isDark ? theme.secondary : book.artworkColors.secondary
-        self.playPauseButton.tintColor = theme.background.isDark ? theme.tertiary : book.artworkColors.tertiary
+        let appliedTheme: Theme = theme.isDark ? theme : book.artworkColors
 
-        self.miniPlayerContainer.backgroundColor = theme.background.isDark
-            ? theme.background
-            : book.artworkColors.background.withAlphaComponent(book.artworkColors.displayOnDark ? 0.6 : 0.8)
-        self.miniPlayerBlur.effect = (theme.background.isDark || book.artworkColors.displayOnDark)
-            ? UIBlurEffect(style: UIBlurEffectStyle.dark)
-            : UIBlurEffect(style: UIBlurEffectStyle.light)
+        self.titleLabel.textColor = appliedTheme.primaryColor
+        self.authorLabel.textColor = appliedTheme.detailColor
+        self.playPauseButton.tintColor = appliedTheme.highlightColor
+
+        self.miniPlayerContainer.backgroundColor = appliedTheme.backgroundColor
+
+        self.miniPlayerBlur.effect = appliedTheme.isDark
+            ? UIBlurEffect(style: .dark)
+            : UIBlurEffect(style: .light)
     }
 }

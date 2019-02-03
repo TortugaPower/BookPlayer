@@ -38,7 +38,6 @@
     </entity>
     <entity name="Theme" representedClassName=".Theme" elementID="ArtworkColors" syncable="YES">
         <attribute name="backgroundHex" attributeType="String" syncable="YES"/>
-        <attribute name="displayOnDark" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="primaryHex" attributeType="String" syncable="YES"/>
         <attribute name="secondaryHex" attributeType="String" syncable="YES"/>
         <attribute name="tertiaryHex" attributeType="String" syncable="YES"/>
@@ -53,6 +52,6 @@
         <element name="Library" positionX="160" positionY="9" width="128" height="90"/>
         <element name="LibraryItem" positionX="-63" positionY="-18" width="128" height="193"/>
         <element name="Playlist" positionX="16" positionY="207" width="128" height="73"/>
-        <element name="Theme" positionX="-261" positionY="330" width="128" height="180"/>
+        <element name="Theme" positionX="-261" positionY="330" width="128" height="165"/>
     </elements>
 </model>

@@ -16,26 +16,6 @@ enum ArtworkColorsError: Error {
 }
 
 public class Theme: NSManagedObject {
-    var isDark: Bool {
-        return self.background.isDark
-    }
-
-    var background: UIColor { //background
-        return UIColor(hex: self.backgroundHex)
-    }
-
-    var primary: UIColor { //foreground
-        return UIColor(hex: self.primaryHex)
-    }
-
-    var secondary: UIColor { //detail
-        return UIColor(hex: self.secondaryHex)
-    }
-
-    var tertiary: UIColor { //highlighted
-        return UIColor(hex: self.tertiaryHex)
-    }
-
     func sameColors(as theme: Theme) -> Bool {
         return self.backgroundHex == theme.backgroundHex
             && self.primaryHex == theme.primaryHex
@@ -52,7 +32,6 @@ public class Theme: NSManagedObject {
         self.secondaryHex = params["secondary"]
         self.tertiaryHex = params["tertiary"]
         self.title = params["title"]
-        self.displayOnDark = false
     }
 
     // W3C recommends contrast values larger 4 or 7 (strict), but 3.0 should be fine for our use case
@@ -124,8 +103,6 @@ public class Theme: NSManagedObject {
         self.primaryHex = colorsToSet[1].cssHex
         self.secondaryHex = colorsToSet[2].cssHex
         self.tertiaryHex = colorsToSet[3].cssHex
-
-        self.displayOnDark = displayOnDarkToSet
     }
 
     // Default colors
@@ -134,5 +111,79 @@ public class Theme: NSManagedObject {
         self.init(entity: entity, insertInto: context)
 
         self.setColorsFromArray()
+    }
+}
+
+extension Theme {
+    var isDark: Bool {
+        return self.backgroundColor.isDark
+    }
+
+    var backgroundColor: UIColor {
+        return UIColor(hex: self.backgroundHex)
+    }
+
+    var primaryColor: UIColor {
+        return UIColor(hex: self.primaryHex)
+    }
+
+    var secondaryColor: UIColor {
+        return UIColor(hex: self.secondaryHex)
+    }
+
+    var tertiaryColor: UIColor {
+        return UIColor(hex: self.tertiaryHex)
+    }
+
+    var detailColor: UIColor {
+        return self.secondaryColor
+    }
+
+    var highlightColor: UIColor {
+        return self.tertiaryColor
+    }
+
+    var lightHighlightColor: UIColor {
+        return self.highlightColor.withAlpha(newAlpha: 0.3)
+    }
+
+    var importBackgroundColor: UIColor {
+        return self.secondaryColor.overlay(with: self.backgroundColor, using: 0.83)
+    }
+
+    var separatorColor: UIColor {
+        return self.secondaryColor.overlay(with: self.backgroundColor, using: 0.51)
+    }
+
+    var settingsBackgroundColor: UIColor {
+        return self.secondaryColor.overlay(with: self.backgroundColor, using: 0.90)
+    }
+
+    var pieFillColor: UIColor {
+        return self.secondaryColor.overlay(with: self.backgroundColor, using: 0.27)
+    }
+
+    var pieBorderColor: UIColor {
+        return self.secondaryColor.overlay(with: self.backgroundColor, using: 0.51)
+    }
+
+    var pieBackgroundColor: UIColor {
+        return self.secondaryColor.overlay(with: self.backgroundColor, using: 0.90)
+    }
+
+    var highlightedPieFillColor: UIColor {
+        return self.highlightColor.overlay(with: self.backgroundColor, using: 0.27)
+    }
+
+    var highlightedPieBorderColor: UIColor {
+        return self.highlightColor.overlay(with: self.backgroundColor, using: 0.51)
+    }
+
+    var highlightedPieBackgroundColor: UIColor {
+        return self.highlightColor.overlay(with: self.backgroundColor, using: 0.90)
+    }
+
+    var navigationTitleColor: UIColor {
+        return self.primaryColor.overlay(with: self.highlightColor, using: 0.12).overlay(with: self.backgroundColor, using: 0.11)
     }
 }

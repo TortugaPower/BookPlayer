@@ -170,17 +170,17 @@ class DataManager {
         guard let themes = library.availableThemes?.array, themes.isEmpty else { return }
 
         let light = Theme(params: ["title": "Light",
-                                   "primary": "37454E",
-                                   "secondary": "8F8F94",
+                                   "primary": "242320",
+                                   "secondary": "8F8E95",
                                    "tertiary": "3488D1",
                                    "background": "FFFFFF"],
                           context: self.persistentContainer.viewContext)
 
         let dark = Theme(params: ["title": "Dark",
                                   "primary": "FFFFFF",
-                                  "secondary": "8F8F94",
-                                  "tertiary": "FFFFFF",
-                                  "background": "000000"],
+                                  "secondary": "5F636B",
+                                  "tertiary": "239EFF",
+                                  "background": "1F262E"],
                          context: self.persistentContainer.viewContext)
 
         library.currentTheme = light

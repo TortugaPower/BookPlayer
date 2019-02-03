@@ -38,10 +38,10 @@ class LoadingView: UIView {
 
 extension LoadingView: Themeable {
     func applyTheme(_ theme: Theme) {
-        self.backgroundColor = theme.background
-        self.titleLabel.textColor = theme.primary
-        self.subtitleLabel.textColor = theme.secondary
-        self.separatorView.backgroundColor = theme.secondary
+        self.backgroundColor = theme.importBackgroundColor
+        self.titleLabel.textColor = theme.primaryColor
+        self.subtitleLabel.textColor = theme.detailColor
+        self.separatorView.backgroundColor = theme.separatorColor
         self.activityIndicator.color = theme.isDark ? .white : .gray
     }
 }

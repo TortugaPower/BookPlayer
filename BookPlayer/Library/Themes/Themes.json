@@ -1,7 +1,37 @@
-[{
-    "title": "Sepia",
-    "primary": "616161",
-    "secondary": "908E87",
-    "tertiary": "BC8800",
-    "background": "FEF6E1"
-}]
+[
+    {
+        "title": "Black",
+        "primary": "FFFFFF",
+        "secondary": "5F636B",
+        "tertiary": "239EFF",
+        "background": "000000"
+    },
+    {
+        "title": "Vintage",
+        "primary": "010000",
+        "secondary": "4C463D",
+        "tertiary": "CE4302",
+        "background": "E7E1D8"
+    },
+    {
+        "title": "Sepia",
+        "primary": "000102",
+        "secondary": "848586",
+        "tertiary": "B78024",
+        "background": "EFEAD9"
+    },
+    {
+        "title": "Custom 1",
+        "primary": "F3F4F6",
+        "secondary": "AEB0BC",
+        "tertiary": "4AA4EC",
+        "background": "44494B"
+    },
+    {
+        "title": "Custom 2",
+        "primary": "376063",
+        "secondary": "A1A497",
+        "tertiary": "EF6A4C",
+        "background": "FDFDFD"
+    },
+]

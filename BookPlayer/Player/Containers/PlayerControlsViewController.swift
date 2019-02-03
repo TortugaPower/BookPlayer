@@ -22,7 +22,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
             guard let book = self.book, !book.isFault else { return }
 
             self.artworkControl.artwork = book.artwork
-            self.artworkControl.shadowOpacity = 0.1 + (1.0 - book.artworkColors.background.brightness) * 0.3
+            self.artworkControl.shadowOpacity = 0.1 + (1.0 - book.artworkColors.backgroundColor.brightness) * 0.3
 
             self.setProgress()
             applyTheme(self.themeProvider.currentTheme)
@@ -300,24 +300,16 @@ extension PlayerControlsViewController: Themeable {
     func applyTheme(_ theme: Theme) {
         guard let book = self.book else { return }
 
-        if theme.isDark {
-            self.progressSlider.minimumTrackTintColor = theme.tertiary
-            self.progressSlider.maximumTrackTintColor = theme.tertiary.withAlpha(newAlpha: 0.3)
-            self.artworkControl.iconColor = theme.tertiary
-            self.artworkControl.borderColor = theme.tertiary
+        let appliedTheme: Theme = theme.isDark ? theme : book.artworkColors
 
-            self.currentTimeLabel.textColor = theme.tertiary
-            self.maxTimeButton.setTitleColor(theme.tertiary, for: .normal)
-            self.progressButton.setTitleColor(theme.primary, for: .normal)
-        } else {
-            self.progressSlider.minimumTrackTintColor = book.artworkColors.tertiary
-            self.progressSlider.maximumTrackTintColor = book.artworkColors.tertiary.withAlpha(newAlpha: 0.3)
-            self.artworkControl.iconColor = book.artworkColors.tertiary
-            self.artworkControl.borderColor = book.artworkColors.tertiary
+        self.progressSlider.minimumTrackTintColor = appliedTheme.highlightColor
+        self.progressSlider.maximumTrackTintColor = appliedTheme.lightHighlightColor
 
-            self.currentTimeLabel.textColor = book.artworkColors.tertiary
-            self.maxTimeButton.setTitleColor(book.artworkColors.tertiary, for: .normal)
-            self.progressButton.setTitleColor(book.artworkColors.primary, for: .normal)
-        }
+        self.artworkControl.iconColor = appliedTheme.highlightColor
+        self.artworkControl.borderColor = appliedTheme.highlightColor
+
+        self.currentTimeLabel.textColor = appliedTheme.highlightColor
+        self.maxTimeButton.setTitleColor(appliedTheme.highlightColor, for: .normal)
+        self.progressButton.setTitleColor(appliedTheme.primaryColor, for: .normal)
     }
 }

@@ -180,7 +180,7 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
 
 extension RootViewController: Themeable {
     func applyTheme(_ theme: Theme) {
-        self.themedStatusBarStyle = theme.background.isDark
+        self.themedStatusBarStyle = theme.isDark
             ? .lightContent
             : .default
         setNeedsStatusBarAppearanceUpdate()

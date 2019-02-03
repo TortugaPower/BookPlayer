@@ -143,18 +143,14 @@ class BookCellView: UITableViewCell {
 
     func setPlaybackColors(_ theme: Theme) {
         switch self.playbackState {
-        case .playing:
-            self.artworkButton.backgroundColor = theme.tertiary.withAlpha(newAlpha: 0.3)
-            self.titleLabel.textColor = theme.tertiary
-            self.progressView.pieColor = theme.tertiary
-        case .paused:
-            self.artworkButton.backgroundColor = theme.tertiary.withAlpha(newAlpha: 0.3)
-            self.titleLabel.textColor = theme.tertiary
-            self.progressView.pieColor = theme.tertiary
-        default:
+        case .playing, .paused:
+            self.artworkButton.backgroundColor = theme.lightHighlightColor
+            self.titleLabel.textColor = theme.highlightColor
+            self.progressView.state = .highlighted
+        case .stopped:
             self.artworkButton.backgroundColor = UIColor.clear
-            self.titleLabel.textColor = theme.primary
-            self.progressView.pieColor = UIColor(hex: "8F8E94")
+            self.titleLabel.textColor = theme.primaryColor
+            self.progressView.state = .normal
         }
     }
 }
@@ -174,11 +170,11 @@ extension BookCellView {
 
 extension BookCellView: Themeable {
     func applyTheme(_ theme: Theme) {
-        self.titleLabel.textColor = theme.primary
-        self.subtitleLabel.textColor = theme.secondary
-        self.backgroundColor = theme.background
+        self.titleLabel.textColor = theme.primaryColor
+        self.subtitleLabel.textColor = theme.detailColor
+        self.backgroundColor = theme.backgroundColor
         self.setPlaybackColors(theme)
-        self.selectionView.defaultColor = theme.secondary
-        self.selectionView.selectedColor = theme.tertiary
+        self.selectionView.defaultColor = theme.pieBorderColor
+        self.selectionView.selectedColor = theme.highlightedPieFillColor
     }
 }

@@ -19,7 +19,6 @@ extension Theme {
     @NSManaged public var primaryHex: String!
     @NSManaged public var secondaryHex: String!
     @NSManaged public var tertiaryHex: String!
-    @NSManaged public var displayOnDark: Bool
     @NSManaged public var title: String?
     @NSManaged public var book: Book?
     @NSManaged public var library: Library?
