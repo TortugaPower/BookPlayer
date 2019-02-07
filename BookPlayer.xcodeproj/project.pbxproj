@@ -44,6 +44,8 @@
 		416B63A82146354B007D04B1 /* ImportManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416B63A72146354B007D04B1 /* ImportManager.swift */; };
 		416B640D1E72F362000E955A /* Notification+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416B640C1E72F362000E955A /* Notification+BookPlayer.swift */; };
 		4175E1242206CF9600FB7B71 /* DataManager+CoreData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4175E1232206CF9600FB7B71 /* DataManager+CoreData.swift */; };
+		4175E14522080C7700FB7B71 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4175E14422080C7700FB7B71 /* StoreKit.framework */; };
+		4175E14722080D9300FB7B71 /* IAPHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4175E14622080D9300FB7B71 /* IAPHelper.swift */; };
 		41839AB320AA8B960047E55D /* Theme+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41839AB120AA8B960047E55D /* Theme+CoreDataClass.swift */; };
 		41839AB420AA8B960047E55D /* Theme+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41839AB220AA8B960047E55D /* Theme+CoreDataProperties.swift */; };
 		41839AB720AA8C970047E55D /* Book+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41839AB520AA8C970047E55D /* Book+CoreDataClass.swift */; };
@@ -63,6 +65,7 @@
 		41AD3DA7221C850F00DC41E1 /* IconCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41AD3DA6221C850F00DC41E1 /* IconCellView.swift */; };
 		41AD3DAB221C8FF400DC41E1 /* default-icon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3DA8221C8FF400DC41E1 /* default-icon@3x.png */; };
 		41AD3DAC221C8FF400DC41E1 /* default-icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3DA9221C8FF400DC41E1 /* default-icon@2x.png */; };
+		41AD3DAF221E678600DC41E1 /* PlusViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41AD3DAE221E678600DC41E1 /* PlusViewController.swift */; };
 		41B2A5DA21CAE42600917584 /* Settings.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 41B2A5D821CAE42600917584 /* Settings.storyboard */; };
 		41B2A5DC21CAEE0E00917584 /* PlayerSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2A5DB21CAEE0E00917584 /* PlayerSettingsViewController.swift */; };
 		41B2A5DE21CAF20E00917584 /* ThemesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2A5DD21CAF20E00917584 /* ThemesViewController.swift */; };
@@ -208,6 +211,8 @@
 		416B63A72146354B007D04B1 /* ImportManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportManager.swift; sourceTree = "<group>"; };
 		416B640C1E72F362000E955A /* Notification+BookPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Notification+BookPlayer.swift"; sourceTree = "<group>"; };
 		4175E1232206CF9600FB7B71 /* DataManager+CoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataManager+CoreData.swift"; sourceTree = "<group>"; };
+		4175E14422080C7700FB7B71 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		4175E14622080D9300FB7B71 /* IAPHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPHelper.swift; sourceTree = "<group>"; };
 		41839AB120AA8B960047E55D /* Theme+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Theme+CoreDataClass.swift"; sourceTree = "<group>"; };
 		41839AB220AA8B960047E55D /* Theme+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Theme+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		41839AB520AA8C970047E55D /* Book+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Book+CoreDataClass.swift"; sourceTree = "<group>"; };
@@ -233,6 +238,7 @@
 		41AD3DA6221C850F00DC41E1 /* IconCellView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IconCellView.swift; sourceTree = "<group>"; };
 		41AD3DA8221C8FF400DC41E1 /* default-icon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "default-icon@3x.png"; sourceTree = "<group>"; };
 		41AD3DA9221C8FF400DC41E1 /* default-icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "default-icon@2x.png"; sourceTree = "<group>"; };
+		41AD3DAE221E678600DC41E1 /* PlusViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlusViewController.swift; sourceTree = "<group>"; };
 		41B2A5D921CAE42600917584 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Settings.storyboard; sourceTree = "<group>"; };
 		41B2A5DB21CAEE0E00917584 /* PlayerSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerSettingsViewController.swift; sourceTree = "<group>"; };
 		41B2A5DD21CAF20E00917584 /* ThemesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemesViewController.swift; sourceTree = "<group>"; };
@@ -327,6 +333,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4175E14522080C7700FB7B71 /* StoreKit.framework in Frameworks */,
 				41D4F2EB2101A278009F1B1E /* DirectoryWatcher.framework in Frameworks */,
 				4150F80320A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework in Frameworks */,
 				C318DDBF20A4DC7500C3A17B /* DeviceKit.framework in Frameworks */,
@@ -392,6 +399,7 @@
 				C3EF535F20800D8B00B9629D /* Extensions */,
 				C3A479112094C8A800D92122 /* Utils */,
 				C3D3852D20C1F0CA00A0ACC7 /* Views */,
+				4175E14622080D9300FB7B71 /* IAPHelper.swift */,
 				D367F7671FA2A6F000FEDB37 /* Constants.swift */,
 				418B6CFB1D2707F800F974FB /* AppDelegate.swift */,
 				41B2A5D821CAE42600917584 /* Settings.storyboard */,
@@ -424,6 +432,7 @@
 			isa = PBXGroup;
 			children = (
 				4112AFD5223AD27D00BFEA55 /* Sentry.framework */,
+				4175E14422080C7700FB7B71 /* StoreKit.framework */,
 				41B2A6AB21D3274500917584 /* Themeable.framework */,
 				5CBB29522163A17F00E3A9FF /* ZIPFoundation.framework */,
 				41D4F2EA2101A278009F1B1E /* DirectoryWatcher.framework */,
@@ -589,6 +598,7 @@
 				4142964721F2E2BA004356DA /* ThemeCellView.swift */,
 				41AD3DA6221C850F00DC41E1 /* IconCellView.swift */,
 				41AD3DA2221C7DCE00DC41E1 /* IconsViewController.swift */,
+				41AD3DAE221E678600DC41E1 /* PlusViewController.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -775,6 +785,9 @@
 							com.apple.BackgroundModes = {
 								enabled = 1;
 							};
+							com.apple.InAppPurchase = {
+								enabled = 1;
+							};
 							com.apple.Siri = {
 								enabled = 1;
 							};
@@ -946,6 +959,7 @@
 			files = (
 				410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */,
 				D367F7681FA2A6F000FEDB37 /* Constants.swift in Sources */,
+				41AD3DAF221E678600DC41E1 /* PlusViewController.swift in Sources */,
 				41B2A5F121CD857800917584 /* AddCellView.swift in Sources */,
 				C30EEEC12079645C00A4ED33 /* PlayerMetaViewController.swift in Sources */,
 				69225C4F2159C2650004739E /* BookSortService+SortError+PlayListSortOrder.swift in Sources */,
@@ -960,6 +974,7 @@
 				4165EE0520A743D500616EDF /* BookPlayer.xcdatamodeld in Sources */,
 				4165EE0320A743D500616EDF /* Playlist+CoreDataClass.swift in Sources */,
 				41B2A5DC21CAEE0E00917584 /* PlayerSettingsViewController.swift in Sources */,
+				4175E14722080D9300FB7B71 /* IAPHelper.swift in Sources */,
 				41E34E502138EA8200A3997C /* ImportOperation.swift in Sources */,
 				41B2A5ED21CCC6D100917584 /* AppNavigationController.swift in Sources */,
 				41B2AC8E1D43CCE8005382A9 /* ChaptersViewController.swift in Sources */,
