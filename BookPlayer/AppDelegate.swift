@@ -66,12 +66,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // Also handles custom URL scheme 'bookplayer://'
     func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey: Any] = [:]) -> Bool {
         guard url.isFileURL else {
-            if PlayerManager.shared.isLoaded {
-                PlayerManager.shared.play()
-            } else {
-                UserDefaults.standard.set(true, forKey: Constants.UserActivityPlayback)
-            }
-
+            self.playLastBook()
             return true
         }
 
@@ -120,6 +115,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    }
+
+    func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
+        self.playLastBook()
+    }
+
+    func playLastBook() {
+        if PlayerManager.shared.isLoaded {
+            PlayerManager.shared.play()
+        } else {
+            UserDefaults.standard.set(true, forKey: Constants.UserActivityPlayback)
+        }
     }
 
     // Playback may be interrupted by calls. Handle pause
