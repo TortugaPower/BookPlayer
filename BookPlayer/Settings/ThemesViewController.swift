@@ -10,14 +10,41 @@ import Themeable
 import UIKit
 
 class ThemesViewController: UIViewController {
+    @IBOutlet var brightnessViews: [UIView]!
+    @IBOutlet weak var brightnessContainerHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var brightnessDescriptionLabel: UILabel!
+    @IBOutlet weak var brightnessSwitch: UISwitch!
+    @IBOutlet weak var brightnessSlider: UISlider!
+
+    @IBOutlet weak var darkModeSwitch: UISwitch!
+
     @IBOutlet weak var defaultThemesTableView: UITableView!
+    @IBOutlet weak var defaultThemesTableHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var extraThemesTableView: UITableView!
-    @IBOutlet weak var extraThemesLabel: UILabel!
+    @IBOutlet weak var extraThemesTableHeightConstraint: NSLayoutConstraint!
+
+    @IBOutlet var containerViews: [UIView]!
+    @IBOutlet var sectionHeaderLabels: [UILabel]!
+    @IBOutlet var titleLabels: [UILabel]!
     @IBOutlet var separatorViews: [UIView]!
 
+    @IBOutlet weak var scrollContentHeightConstraint: NSLayoutConstraint!
+
     var scrolledToCurrentTheme = false
-    var defaultThemes: [Theme]!
-    var extraThemes: [Theme]!
+    let cellHeight = 44
+    let expandedHeight = 110
+
+    var defaultThemes: [Theme]! {
+        didSet {
+            self.defaultThemesTableHeightConstraint.constant = CGFloat(self.defaultThemes.count * self.cellHeight)
+        }
+    }
+
+    var extraThemes: [Theme]! {
+        didSet {
+            self.resizeScrollContent()
+        }
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,6 +57,14 @@ class ThemesViewController: UIViewController {
         setUpTheming()
 
         self.extraThemesTableView.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: self.extraThemesTableView.frame.size.width, height: 1))
+
+        self.darkModeSwitch.isOn = UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeDarkVariantEnabled.rawValue)
+        self.brightnessSwitch.isOn = UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeBrightnessEnabled.rawValue)
+        self.brightnessSlider.value = UserDefaults.standard.float(forKey: Constants.UserDefaults.themeBrightnessThreshold.rawValue)
+
+        if self.brightnessSwitch.isOn {
+            self.toggleAutomaticBrightness(animated: false)
+        }
     }
 
     override func viewDidLayoutSubviews() {
@@ -71,6 +106,55 @@ class ThemesViewController: UIViewController {
             self.extraThemesTableView.reloadData()
         }
     }
+
+    @IBAction func sliderUpdated(_ sender: UISlider) {
+        UserDefaults.standard.set(sender.value, forKey: Constants.UserDefaults.themeBrightnessThreshold.rawValue)
+    }
+
+    @IBAction func toggleDarkMode(_ sender: UISwitch) {
+        UserDefaults.standard.set(sender.isOn, forKey: Constants.UserDefaults.themeDarkVariantEnabled.rawValue)
+    }
+
+    @IBAction func toggleAutomaticBrightness(_ sender: UISwitch) {
+        UserDefaults.standard.set(sender.isOn, forKey: Constants.UserDefaults.themeBrightnessEnabled.rawValue)
+        self.toggleAutomaticBrightness(animated: true)
+    }
+
+    func toggleAutomaticBrightness(animated: Bool) {
+        self.brightnessContainerHeightConstraint.constant = self.brightnessSwitch.isOn
+            ? CGFloat(self.expandedHeight)
+            : CGFloat(self.cellHeight)
+
+        guard animated else {
+            self.brightnessViews.forEach({ view in
+                view.alpha = self.brightnessSwitch.isOn
+                    ? 1.0
+                    : 0.0
+            })
+            self.view.layoutIfNeeded()
+            self.resizeScrollContent()
+            return
+        }
+
+        UIView.animate(withDuration: 0.3, animations: {
+            self.brightnessViews.forEach({ view in
+                view.alpha = self.brightnessSwitch.isOn
+                    ? 1.0
+                    : 0.0
+            })
+            self.view.layoutIfNeeded()
+        }, completion: { _ in
+            self.resizeScrollContent()
+        })
+    }
+
+    func resizeScrollContent() {
+        // add a second cellHeight to account for the 'add' button
+        let tableHeight = CGFloat(self.extraThemes.count * cellHeight + cellHeight)
+
+        self.extraThemesTableHeightConstraint.constant = tableHeight
+        self.scrollContentHeightConstraint.constant = tableHeight + self.extraThemesTableView.frame.origin.y
+    }
 }
 
 extension ThemesViewController: UITableViewDataSource {
@@ -95,7 +179,7 @@ extension ThemesViewController: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ThemeCell", for: indexPath) as! ThemeCellView
         // swiftlint:enable force_cast
 
-        cell.showCaseLabel.isHidden = false
+        cell.showCaseView.isHidden = false
         cell.accessoryType = .none
         cell.titleLabel.textColor = ThemeManager.shared.currentTheme.primaryColor
 
@@ -104,11 +188,7 @@ extension ThemesViewController: UITableViewDataSource {
             cell.titleLabel.textColor = ThemeManager.shared.currentTheme.highlightColor
             cell.plusImageView.isHidden = false
             cell.plusImageView.tintColor = ThemeManager.shared.currentTheme.highlightColor
-            cell.showCaseLabel.isHidden = true
-
-            cell.showCaseLabel.backgroundColor = ThemeManager.shared.currentTheme.backgroundColor
-            cell.showCaseLabel.textColor = ThemeManager.shared.currentTheme.highlightColor
-            cell.showCaseLabel.layer.borderColor = UIColor.clear.cgColor
+            cell.showCaseView.isHidden = true
             return cell
         }
 
@@ -117,9 +197,7 @@ extension ThemesViewController: UITableViewDataSource {
             : self.extraThemes[indexPath.row]
 
         cell.titleLabel.text = item.title
-        cell.showCaseLabel.backgroundColor = item.backgroundColor
-        cell.showCaseLabel.textColor = item.primaryColor
-        cell.showCaseLabel.layer.borderColor = item.detailColor.cgColor
+        cell.setupShowCaseView(for: item)
 
         cell.accessoryType = item == ThemeManager.shared.currentTheme
             ? .checkmark
@@ -147,13 +225,27 @@ extension ThemesViewController: UITableViewDelegate {
 extension ThemesViewController: Themeable {
     func applyTheme(_ theme: Theme) {
         self.view.backgroundColor = theme.settingsBackgroundColor
+
         self.defaultThemesTableView.backgroundColor = theme.backgroundColor
         self.defaultThemesTableView.separatorColor = theme.separatorColor
         self.extraThemesTableView.backgroundColor = theme.backgroundColor
         self.extraThemesTableView.separatorColor = theme.separatorColor
-        self.extraThemesLabel.textColor = theme.detailColor
+
+        self.brightnessSlider.minimumTrackTintColor = theme.highlightColor
+        self.brightnessSlider.maximumTrackTintColor = theme.lightHighlightColor
+        self.brightnessDescriptionLabel.textColor = theme.detailColor
+
+        self.sectionHeaderLabels.forEach { label in
+            label.textColor = theme.detailColor
+        }
         self.separatorViews.forEach { separatorView in
             separatorView.backgroundColor = theme.separatorColor
+        }
+        self.containerViews.forEach { view in
+            view.backgroundColor = theme.backgroundColor
+        }
+        self.titleLabels.forEach { label in
+            label.textColor = theme.primaryColor
         }
         self.defaultThemesTableView.reloadData()
         self.extraThemesTableView.reloadData()

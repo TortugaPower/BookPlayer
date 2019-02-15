@@ -422,8 +422,8 @@
 		C35E04F1207E8D0F007D3370 /* Library */ = {
 			isa = PBXGroup;
 			children = (
-				41EE378421BF0FAD00A55F51 /* Protocols */,
 				41B2A5DF21CCC1F400917584 /* Themes */,
+				41EE378421BF0FAD00A55F51 /* Protocols */,
 				4163E30F21484C3500072AA2 /* FileManagement */,
 				41B2A5EC21CCC6D100917584 /* AppNavigationController.swift */,
 				4165EE1120A7D1E100616EDF /* RootViewController.swift */,

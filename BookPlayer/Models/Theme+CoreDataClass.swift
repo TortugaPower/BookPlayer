@@ -156,7 +156,7 @@ extension Theme {
     }
 
     var settingsBackgroundColor: UIColor {
-        return self.secondaryColor.overlay(with: self.backgroundColor, using: 0.90)
+        return self.secondaryColor.overlay(with: self.highlightColor, using: 0.17).overlay(with: self.backgroundColor, using: 0.88)
     }
 
     var pieFillColor: UIColor {

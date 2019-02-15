@@ -13,6 +13,9 @@ enum Constants {
         case lastPlayedBook = "userSettingsLastPlayedBook"
 
         // User preferences
+        case themeBrightnessEnabled = "userSettingsBrightnessEnabled"
+        case themeBrightnessThreshold = "userSettingsBrightnessThreshold"
+        case themeDarkVariantEnabled = "userSettingsThemeDarkVariant"
         case chapterContextEnabled = "userSettingsChapterContext"
         case remainingTimeEnabled = "userSettingsRemainingTime"
         case smartRewindEnabled = "userSettingsSmartRewind"

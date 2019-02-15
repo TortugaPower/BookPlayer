@@ -40,6 +40,30 @@ final class ThemeManager: ThemeProvider {
         }
     }
 
+    private lazy var formatter = NumberFormatter()
+
+    private init() {
+        NotificationCenter.default.addObserver(self, selector: #selector(self.brightnessChanged(_:)), name: .UIScreenBrightnessDidChange, object: nil)
+        self.formatter.maximumFractionDigits = 2
+    }
+
+    @objc private func brightnessChanged(_ notification: Notification) {
+        guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeBrightnessEnabled.rawValue) else { return }
+
+        let threshold = UserDefaults.standard.float(forKey: Constants.UserDefaults.themeBrightnessThreshold.rawValue)
+
+        let brightness = (UIScreen.main.brightness * 100).rounded() / 100
+
+        // TODO: replace this when the dark variant refactor is done
+        let theme = brightness <= CGFloat(threshold)
+            ? self.availableThemes[1]
+            : self.availableThemes[0]
+
+        guard self.currentTheme != theme else { return }
+
+        self.currentTheme = theme
+    }
+
     private func setNewTheme(_ newTheme: Theme) {
         let window = UIApplication.shared.delegate!.window!!
         UIView.transition(with: window,
