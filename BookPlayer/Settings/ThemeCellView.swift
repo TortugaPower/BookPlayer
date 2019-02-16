@@ -27,10 +27,10 @@ class ThemeCellView: UITableViewCell {
 
     func setupShowCaseView(for theme: Theme) {
         self.showCaseView.layer.sublayers = nil
-        self.addLayer(to: self.showCaseView, mask: "themeColorBackgroundMask", backgroundColor: theme.backgroundColor)
-        self.addLayer(to: self.showCaseView, mask: "themeColorAccentMask", backgroundColor: theme.highlightColor)
-        self.addLayer(to: self.showCaseView, mask: "themeColorPrimaryMask", backgroundColor: theme.primaryColor)
-        self.addLayer(to: self.showCaseView, mask: "themeColorSecondaryMask", backgroundColor: theme.secondaryColor)
+        self.addLayer(to: self.showCaseView, mask: "themeColorBackgroundMask", backgroundColor: theme.defaultBackgroundColor)
+        self.addLayer(to: self.showCaseView, mask: "themeColorAccentMask", backgroundColor: theme.defaultAccentColor)
+        self.addLayer(to: self.showCaseView, mask: "themeColorPrimaryMask", backgroundColor: theme.defaultPrimaryColor)
+        self.addLayer(to: self.showCaseView, mask: "themeColorSecondaryMask", backgroundColor: theme.defaultSecondaryColor)
     }
 
     private func addLayer(to view: UIView, mask name: String, backgroundColor: UIColor) {

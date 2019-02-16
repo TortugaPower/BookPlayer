@@ -300,7 +300,7 @@ extension PlayerControlsViewController: Themeable {
     func applyTheme(_ theme: Theme) {
         guard let book = self.book else { return }
 
-        let appliedTheme: Theme = theme.isDark ? theme : book.artworkColors
+        let appliedTheme: Theme = theme.useDarkVariant ? theme : book.artworkColors
 
         self.progressSlider.minimumTrackTintColor = appliedTheme.highlightColor
         self.progressSlider.maximumTrackTintColor = appliedTheme.lightHighlightColor

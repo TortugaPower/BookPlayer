@@ -15,10 +15,14 @@ extension Theme {
         return NSFetchRequest<Theme>(entityName: "Theme")
     }
 
-    @NSManaged public var backgroundHex: String!
-    @NSManaged public var primaryHex: String!
-    @NSManaged public var secondaryHex: String!
-    @NSManaged public var tertiaryHex: String!
+    @NSManaged public var defaultBackgroundHex: String!
+    @NSManaged public var defaultPrimaryHex: String!
+    @NSManaged public var defaultSecondaryHex: String!
+    @NSManaged public var defaultAccentHex: String!
+    @NSManaged public var darkBackgroundHex: String!
+    @NSManaged public var darkPrimaryHex: String!
+    @NSManaged public var darkSecondaryHex: String!
+    @NSManaged public var darkAccentHex: String!
     @NSManaged public var title: String?
     @NSManaged public var book: Book?
     @NSManaged public var library: Library?

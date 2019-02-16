@@ -52,8 +52,8 @@ class ThemesViewController: UIViewController {
 
         DataManager.reloadThemes(in: ThemeManager.shared.library)
 
-        self.defaultThemes = Array(ThemeManager.shared.availableThemes[...1])
-        self.extraThemes = Array(ThemeManager.shared.availableThemes[2...])
+        self.defaultThemes = Array(ThemeManager.shared.availableThemes[...2])
+        self.extraThemes = Array()
 
         setUpTheming()
 
@@ -121,6 +121,7 @@ class ThemesViewController: UIViewController {
 
     @IBAction func toggleDarkMode(_ sender: UISwitch) {
         UserDefaults.standard.set(sender.isOn, forKey: Constants.UserDefaults.themeDarkVariantEnabled.rawValue)
+        ThemeManager.shared.useDarkVariant = sender.isOn
     }
 
     @IBAction func toggleAutomaticBrightness(_ sender: UISwitch) {

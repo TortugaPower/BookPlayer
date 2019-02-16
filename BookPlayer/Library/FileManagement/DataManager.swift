@@ -169,22 +169,30 @@ class DataManager {
     class func setupDefaultThemes(in library: Library) {
         guard let themes = library.availableThemes?.array, themes.isEmpty else { return }
 
-        let light = Theme(params: ["title": "Light",
-                                   "primary": "242320",
-                                   "secondary": "8F8E95",
-                                   "tertiary": "3488D1",
-                                   "background": "FFFFFF"],
-                          context: self.persistentContainer.viewContext)
+        let defaultTheme = Theme(params: ["title": "Default / Dark",
+                                          "defaultPrimary": "242320",
+                                          "defaultSecondary": "8F8E95",
+                                          "defaultAccent": "3488D1",
+                                          "defaultBackground": "FFFFFF",
+                                          "darkPrimary": "FAFBFC",
+                                          "darkSecondary": "8F8E94",
+                                          "darkAccent": "459EEC",
+                                          "darkBackground": "202225"],
+                                 context: self.persistentContainer.viewContext)
 
-        let dark = Theme(params: ["title": "Dark",
-                                  "primary": "FFFFFF",
-                                  "secondary": "5F636B",
-                                  "tertiary": "239EFF",
-                                  "background": "1F262E"],
-                         context: self.persistentContainer.viewContext)
+        let defaultBlackTheme = Theme(params: ["title": "Default / Pure Black",
+                                               "defaultPrimary": "242320",
+                                               "defaultSecondary": "8F8E95",
+                                               "defaultAccent": "3488D1",
+                                               "defaultBackground": "FFFFFF",
+                                               "darkPrimary": "FAFBFC",
+                                               "darkSecondary": "8F8E94",
+                                               "darkAccent": "459EEC",
+                                               "darkBackground": "000000"],
+                                      context: self.persistentContainer.viewContext)
 
-        library.currentTheme = light
-        library.addToAvailableThemes(NSOrderedSet(array: [light, dark]))
+        library.currentTheme = defaultTheme
+        library.addToAvailableThemes(NSOrderedSet(array: [defaultTheme, defaultBlackTheme]))
 
         // prior book artwork colors didn't have a title
         if let books = self.getBooks() {

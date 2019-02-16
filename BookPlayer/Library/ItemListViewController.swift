@@ -601,7 +601,7 @@ extension ItemListViewController: Themeable {
         self.emptyStatePlaceholder.tintColor = theme.highlightColor
         self.bulkControls.backgroundColor = theme.backgroundColor
         self.bulkControls.tintColor = theme.highlightColor
-        self.bulkControls.layer.shadowColor = theme.isDark
+        self.bulkControls.layer.shadowColor = theme.useDarkVariant
             ? UIColor.white.cgColor
             : UIColor(red: 0.12, green: 0.14, blue: 0.15, alpha: 1.0).cgColor
     }

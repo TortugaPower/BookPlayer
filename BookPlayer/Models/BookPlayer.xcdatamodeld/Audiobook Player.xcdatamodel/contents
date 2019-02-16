@@ -37,10 +37,14 @@
         <relationship name="books" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Book" inverseName="playlist" inverseEntity="Book" syncable="YES"/>
     </entity>
     <entity name="Theme" representedClassName=".Theme" elementID="ArtworkColors" syncable="YES">
-        <attribute name="backgroundHex" attributeType="String" syncable="YES"/>
-        <attribute name="primaryHex" attributeType="String" syncable="YES"/>
-        <attribute name="secondaryHex" attributeType="String" syncable="YES"/>
-        <attribute name="tertiaryHex" attributeType="String" syncable="YES"/>
+        <attribute name="darkAccentHex" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="darkBackgroundHex" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="darkPrimaryHex" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="darkSecondaryHex" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="defaultAccentHex" attributeType="String" elementID="tertiaryHex" syncable="YES"/>
+        <attribute name="defaultBackgroundHex" attributeType="String" elementID="backgroundHex" syncable="YES"/>
+        <attribute name="defaultPrimaryHex" attributeType="String" elementID="primaryHex" syncable="YES"/>
+        <attribute name="defaultSecondaryHex" attributeType="String" elementID="secondaryHex" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="book" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Book" inverseName="artworkColors" inverseEntity="Book" syncable="YES"/>
         <relationship name="library" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Library" inverseName="availableThemes" inverseEntity="Library" syncable="YES"/>
@@ -52,6 +56,6 @@
         <element name="Library" positionX="160" positionY="9" width="128" height="90"/>
         <element name="LibraryItem" positionX="-63" positionY="-18" width="128" height="193"/>
         <element name="Playlist" positionX="16" positionY="207" width="128" height="73"/>
-        <element name="Theme" positionX="-261" positionY="330" width="128" height="165"/>
+        <element name="Theme" positionX="-261" positionY="330" width="128" height="225"/>
     </elements>
 </model>

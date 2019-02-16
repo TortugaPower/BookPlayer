@@ -62,7 +62,7 @@ class AppNavigationController: UINavigationController {
 
 extension AppNavigationController: Themeable {
     func applyTheme(_ theme: Theme) {
-        self.themedStatusBarStyle = theme.isDark
+        self.themedStatusBarStyle = theme.useDarkVariant
             ? .lightContent
             : .default
         setNeedsStatusBarAppearanceUpdate()

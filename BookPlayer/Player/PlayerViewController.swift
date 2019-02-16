@@ -137,7 +137,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             return
         }
 
-        let blur = UIBlurEffect(style: currentBook.artworkColors.isDark ? UIBlurEffectStyle.dark : UIBlurEffectStyle.light)
+        let blur = UIBlurEffect(style: currentBook.artworkColors.useDarkVariant ? UIBlurEffectStyle.dark : UIBlurEffectStyle.light)
         let blurView = UIVisualEffectView(effect: blur)
 
         blurView.frame = self.view.bounds
@@ -189,7 +189,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        let style = self.currentBook.artworkColors.isDark ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
+        let style = self.currentBook.artworkColors.useDarkVariant ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
         return self.themedStatusBarStyle ?? style
     }
 
@@ -368,9 +368,9 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
 extension PlayerViewController: Themeable {
     func applyTheme(_ theme: Theme) {
-        let appliedTheme: Theme = theme.isDark ? theme : self.currentBook.artworkColors
+        let appliedTheme: Theme = theme.useDarkVariant ? theme : self.currentBook.artworkColors
 
-        self.themedStatusBarStyle = appliedTheme.isDark
+        self.themedStatusBarStyle = appliedTheme.useDarkVariant
             ? .lightContent
             : .default
         setNeedsStatusBarAppearanceUpdate()

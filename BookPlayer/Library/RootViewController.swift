@@ -180,12 +180,12 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
 
 extension RootViewController: Themeable {
     func applyTheme(_ theme: Theme) {
-        self.themedStatusBarStyle = theme.isDark
+        self.themedStatusBarStyle = theme.useDarkVariant
             ? .lightContent
             : .default
         setNeedsStatusBarAppearanceUpdate()
 
-        self.miniPlayerContainer.layer.shadowColor = theme.isDark
+        self.miniPlayerContainer.layer.shadowColor = theme.useDarkVariant
             ? UIColor.white.cgColor
             : UIColor.black.cgColor
     }

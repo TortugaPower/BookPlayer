@@ -16,21 +16,27 @@ enum ArtworkColorsError: Error {
 }
 
 public class Theme: NSManagedObject {
+    var useDarkVariant = false
+
     func sameColors(as theme: Theme) -> Bool {
-        return self.backgroundHex == theme.backgroundHex
-            && self.primaryHex == theme.primaryHex
-            && self.secondaryHex == theme.secondaryHex
-            && self.tertiaryHex == theme.tertiaryHex
+        return self.defaultBackgroundHex == theme.defaultBackgroundHex
+            && self.defaultPrimaryHex == theme.defaultPrimaryHex
+            && self.defaultSecondaryHex == theme.defaultSecondaryHex
+            && self.defaultAccentHex == theme.defaultAccentHex
     }
 
     convenience init(params: [String: String], context: NSManagedObjectContext) {
         let entity = NSEntityDescription.entity(forEntityName: "Theme", in: context)!
         self.init(entity: entity, insertInto: context)
 
-        self.backgroundHex = params["background"]
-        self.primaryHex = params["primary"]
-        self.secondaryHex = params["secondary"]
-        self.tertiaryHex = params["tertiary"]
+        self.defaultBackgroundHex = params["defaultBackground"]
+        self.defaultPrimaryHex = params["defaultPrimary"]
+        self.defaultSecondaryHex = params["defaultSecondary"]
+        self.defaultAccentHex = params["defaultAccent"]
+        self.darkBackgroundHex = params["darkBackground"]
+        self.darkPrimaryHex = params["darkPrimary"]
+        self.darkSecondaryHex = params["darkSecondary"]
+        self.darkAccentHex = params["darkAccent"]
         self.title = params["title"]
     }
 
@@ -42,7 +48,7 @@ public class Theme: NSManagedObject {
             self.init(entity: entity, insertInto: context)
 
             let colorCube = CCColorCube()
-            var colors: [UIColor] = colorCube.extractColors(from: image, flags: CCOnlyDistinctColors, count: 4)!
+            var colors: [UIColor] = colorCube.extractColors(from: image, flags: CCOnlyDistinctColors, count: 8)!
 
             guard let averageColor = image.averageColor() else {
                 throw ArtworkColorsError.averageColorFailed
@@ -82,27 +88,28 @@ public class Theme: NSManagedObject {
 
     func setColorsFromArray(_ colors: [UIColor] = [], displayOnDark: Bool = false) {
         var colorsToSet = Array(colors)
-        var displayOnDarkToSet = displayOnDark
 
         if colorsToSet.isEmpty {
             colorsToSet.append(UIColor(hex: "#FFFFFF")) // background
             colorsToSet.append(UIColor(hex: "#37454E")) // primary
             colorsToSet.append(UIColor(hex: "#3488D1")) // secondary
             colorsToSet.append(UIColor(hex: "#7685B3")) // tertiary
-
-            displayOnDarkToSet = false
         } else if colorsToSet.count < 4 {
-            let placeholder = displayOnDarkToSet ? UIColor.white : UIColor.black
+            let placeholder = displayOnDark ? UIColor.white : UIColor.black
 
             for _ in 1...(4 - colorsToSet.count) {
                 colorsToSet.append(placeholder)
             }
         }
 
-        self.backgroundHex = colorsToSet[0].cssHex
-        self.primaryHex = colorsToSet[1].cssHex
-        self.secondaryHex = colorsToSet[2].cssHex
-        self.tertiaryHex = colorsToSet[3].cssHex
+        self.defaultBackgroundHex = colorsToSet[0].cssHex
+        self.defaultPrimaryHex = colorsToSet[1].cssHex
+        self.defaultSecondaryHex = colorsToSet[2].cssHex
+        self.defaultAccentHex = colorsToSet[3].cssHex
+        self.darkBackgroundHex = colorsToSet[4].cssHex
+        self.darkPrimaryHex = colorsToSet[5].cssHex
+        self.darkSecondaryHex = colorsToSet[6].cssHex
+        self.darkAccentHex = colorsToSet[7].cssHex
     }
 
     // Default colors
@@ -114,25 +121,43 @@ public class Theme: NSManagedObject {
     }
 }
 
+// MARK: - Color getters
 extension Theme {
-    var isDark: Bool {
-        return self.backgroundColor.isDark
+    var defaultBackgroundColor: UIColor {
+        return UIColor(hex: self.defaultBackgroundHex)
+    }
+
+    var defaultPrimaryColor: UIColor {
+        return UIColor(hex: self.defaultPrimaryHex)
+    }
+
+    var defaultSecondaryColor: UIColor {
+        return UIColor(hex: self.defaultSecondaryHex)
+    }
+
+    var defaultAccentColor: UIColor {
+        return UIColor(hex: self.defaultAccentHex)
     }
 
     var backgroundColor: UIColor {
-        return UIColor(hex: self.backgroundHex)
+        let hex: String = self.useDarkVariant
+            ? self.darkBackgroundHex
+            : self.defaultBackgroundHex
+        return UIColor(hex: hex)
     }
 
     var primaryColor: UIColor {
-        return UIColor(hex: self.primaryHex)
+        let hex: String = self.useDarkVariant
+            ? self.darkPrimaryHex
+            : self.defaultPrimaryHex
+        return UIColor(hex: hex)
     }
 
     var secondaryColor: UIColor {
-        return UIColor(hex: self.secondaryHex)
-    }
-
-    var tertiaryColor: UIColor {
-        return UIColor(hex: self.tertiaryHex)
+        let hex: String = self.useDarkVariant
+            ? self.darkSecondaryHex
+            : self.defaultSecondaryHex
+        return UIColor(hex: hex)
     }
 
     var detailColor: UIColor {
@@ -140,7 +165,10 @@ extension Theme {
     }
 
     var highlightColor: UIColor {
-        return self.tertiaryColor
+        let hex: String = self.useDarkVariant
+            ? self.darkAccentHex
+            : self.defaultAccentHex
+        return UIColor(hex: hex)
     }
 
     var lightHighlightColor: UIColor {

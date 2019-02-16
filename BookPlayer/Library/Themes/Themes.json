@@ -1,37 +1,13 @@
 [
     {
-        "title": "Black",
-        "primary": "FFFFFF",
-        "secondary": "5F636B",
-        "tertiary": "239EFF",
-        "background": "000000"
-    },
-    {
-        "title": "Vintage",
-        "primary": "010000",
-        "secondary": "4C463D",
-        "tertiary": "CE4302",
-        "background": "E7E1D8"
-    },
-    {
-        "title": "Sepia",
-        "primary": "000102",
-        "secondary": "848586",
-        "tertiary": "B78024",
-        "background": "EFEAD9"
-    },
-    {
-        "title": "Custom 1",
-        "primary": "F3F4F6",
-        "secondary": "AEB0BC",
-        "tertiary": "4AA4EC",
-        "background": "44494B"
-    },
-    {
-        "title": "Custom 2",
-        "primary": "376063",
-        "secondary": "A1A497",
-        "tertiary": "EF6A4C",
-        "background": "FDFDFD"
-    },
+        "title": "Ayu",
+        "defaultPrimary": "252D33",
+        "defaultSecondary": "9DA2A6",
+        "defaultAccent": "FF8F40",
+        "defaultBackground": "FAFAFA",
+        "darkPrimary": "EDECEA",
+        "darkSecondary": "667380",
+        "darkAccent": "FFCC66",
+        "darkBackground": "212733"
+    }
 ]
