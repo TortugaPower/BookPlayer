@@ -378,8 +378,14 @@
                                                             <action selector="toggleAutomaticBrightness:" destination="NEQ-oF-OIb" eventType="valueChanged" id="cSx-FA-fMx"/>
                                                         </connections>
                                                     </switch>
+                                                    <imageView userInteractionEnabled="NO" alpha="0.0" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="currentScreenBrightnessIndicator" translatesAutoresizingMaskIntoConstraints="NO" id="UXs-vJ-DCL">
+                                                        <rect key="frame" x="25" y="-19" width="177" height="40"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="40" id="hxQ-nh-ii6"/>
+                                                        </constraints>
+                                                    </imageView>
                                                     <slider opaque="NO" alpha="0.0" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="1H3-4M-C6V">
-                                                        <rect key="frame" x="13" y="1" width="349" height="21"/>
+                                                        <rect key="frame" x="23" y="1" width="329" height="21"/>
                                                         <color key="tintColor" red="0.20392156859999999" green="0.53333333329999999" blue="0.81960784310000001" alpha="1" colorSpace="calibratedRGB"/>
                                                         <constraints>
                                                             <constraint firstAttribute="height" constant="20" id="e67-GY-GHG"/>
@@ -398,17 +404,20 @@
                                                 </subviews>
                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <constraints>
-                                                    <constraint firstItem="1H3-4M-C6V" firstAttribute="leading" secondItem="q9M-oW-UvF" secondAttribute="leading" constant="15" id="5eS-Mn-Bwo"/>
+                                                    <constraint firstItem="1H3-4M-C6V" firstAttribute="leading" secondItem="q9M-oW-UvF" secondAttribute="leading" constant="25" id="5eS-Mn-Bwo"/>
                                                     <constraint firstItem="aWK-yK-lEJ" firstAttribute="top" secondItem="1H3-4M-C6V" secondAttribute="bottom" constant="22.5" id="7Lq-PW-00v"/>
                                                     <constraint firstItem="Mg5-1E-BOM" firstAttribute="centerY" secondItem="Oz0-TQ-7Us" secondAttribute="centerY" id="8Z0-md-eJo"/>
                                                     <constraint firstItem="2PH-0T-Kfp" firstAttribute="top" secondItem="q9M-oW-UvF" secondAttribute="top" id="AOr-CM-UQp"/>
+                                                    <constraint firstItem="UXs-vJ-DCL" firstAttribute="leading" secondItem="1H3-4M-C6V" secondAttribute="leading" id="NTP-cF-sx4"/>
                                                     <constraint firstItem="Mg5-1E-BOM" firstAttribute="leading" secondItem="Oz0-TQ-7Us" secondAttribute="trailing" constant="20" id="QOT-vj-HU3"/>
                                                     <constraint firstAttribute="trailing" secondItem="Mg5-1E-BOM" secondAttribute="trailing" constant="16" id="WbU-av-WYV"/>
-                                                    <constraint firstAttribute="trailing" secondItem="1H3-4M-C6V" secondAttribute="trailing" constant="15" id="Zf6-HA-hJE"/>
+                                                    <constraint firstItem="UXs-vJ-DCL" firstAttribute="centerY" secondItem="1H3-4M-C6V" secondAttribute="centerY" constant="-10" id="Xan-Rk-JqY"/>
+                                                    <constraint firstAttribute="trailing" secondItem="1H3-4M-C6V" secondAttribute="trailing" constant="25" id="Zf6-HA-hJE"/>
                                                     <constraint firstAttribute="trailing" secondItem="aWK-yK-lEJ" secondAttribute="trailing" id="bbc-sm-gUd"/>
                                                     <constraint firstItem="2PH-0T-Kfp" firstAttribute="leading" secondItem="q9M-oW-UvF" secondAttribute="leading" id="bgW-st-ySa"/>
                                                     <constraint firstItem="aWK-yK-lEJ" firstAttribute="leading" secondItem="q9M-oW-UvF" secondAttribute="leading" id="d1w-UN-xNw"/>
                                                     <constraint firstAttribute="bottom" secondItem="aWK-yK-lEJ" secondAttribute="bottom" id="hSc-m5-IIb"/>
+                                                    <constraint firstItem="UXs-vJ-DCL" firstAttribute="width" secondItem="1H3-4M-C6V" secondAttribute="width" multiplier="0.545" id="iYt-zp-DNP"/>
                                                     <constraint firstAttribute="height" constant="44" id="kYu-Vk-xfW"/>
                                                     <constraint firstAttribute="trailing" secondItem="2PH-0T-Kfp" secondAttribute="trailing" id="qLC-mO-meA"/>
                                                     <constraint firstItem="Oz0-TQ-7Us" firstAttribute="leading" secondItem="q9M-oW-UvF" secondAttribute="leading" constant="16" id="trh-a4-SJX"/>
@@ -638,6 +647,7 @@
                         <outlet property="extraThemesTableHeightConstraint" destination="5qJ-tF-AWE" id="C69-31-6IT"/>
                         <outlet property="extraThemesTableView" destination="eNP-pi-ICV" id="zB4-gg-c6M"/>
                         <outlet property="scrollContentHeightConstraint" destination="isV-yD-co8" id="YdG-bV-nkn"/>
+                        <outlet property="sunImageView" destination="UXs-vJ-DCL" id="6SL-Ss-HB9"/>
                         <outletCollection property="separatorViews" destination="tsq-Cg-nOl" collectionClass="NSMutableArray" id="fWv-Rp-mtP"/>
                         <outletCollection property="separatorViews" destination="fZv-P8-1pN" collectionClass="NSMutableArray" id="MRp-ds-m3h"/>
                         <outletCollection property="sectionHeaderLabels" destination="f3H-Jd-vev" collectionClass="NSMutableArray" id="UUn-9i-Jgk"/>
@@ -652,6 +662,7 @@
                         <outletCollection property="titleLabels" destination="Oz0-TQ-7Us" collectionClass="NSMutableArray" id="snV-Fq-wco"/>
                         <outletCollection property="separatorViews" destination="2PH-0T-Kfp" collectionClass="NSMutableArray" id="ZrT-2g-qvk"/>
                         <outletCollection property="separatorViews" destination="3je-PX-Pgn" collectionClass="NSMutableArray" id="Spy-uo-b6m"/>
+                        <outletCollection property="brightnessViews" destination="UXs-vJ-DCL" collectionClass="NSMutableArray" id="zXx-Fi-3P3"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="CI1-pK-d7y" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -900,6 +911,7 @@ Use with caution and care for your hearing.</string>
         </scene>
     </scenes>
     <resources>
+        <image name="currentScreenBrightnessIndicator" width="30" height="40"/>
         <image name="listAdd" width="29" height="29"/>
     </resources>
     <inferredMetricsTieBreakers>

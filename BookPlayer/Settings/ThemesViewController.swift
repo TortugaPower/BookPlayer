@@ -15,6 +15,7 @@ class ThemesViewController: UIViewController {
     @IBOutlet weak var brightnessDescriptionLabel: UILabel!
     @IBOutlet weak var brightnessSwitch: UISwitch!
     @IBOutlet weak var brightnessSlider: UISlider!
+    @IBOutlet weak var sunImageView: UIImageView!
 
     @IBOutlet weak var darkModeSwitch: UISwitch!
 
@@ -108,6 +109,13 @@ class ThemesViewController: UIViewController {
     }
 
     @IBAction func sliderUpdated(_ sender: UISlider) {
+        let lowerBounds: Float = 0.22
+        let upperBounds: Float = 0.27
+
+        if (lowerBounds...upperBounds).contains(sender.value) {
+            sender.setValue(0.25, animated: false)
+        }
+
         UserDefaults.standard.set(sender.value, forKey: Constants.UserDefaults.themeBrightnessThreshold.rawValue)
     }
 
@@ -232,8 +240,9 @@ extension ThemesViewController: Themeable {
         self.extraThemesTableView.separatorColor = theme.separatorColor
 
         self.brightnessSlider.minimumTrackTintColor = theme.highlightColor
-        self.brightnessSlider.maximumTrackTintColor = theme.lightHighlightColor
+        self.brightnessSlider.maximumTrackTintColor = theme.separatorColor
         self.brightnessDescriptionLabel.textColor = theme.detailColor
+        self.sunImageView.tintColor = theme.separatorColor
 
         self.sectionHeaderLabels.forEach { label in
             label.textColor = theme.detailColor
