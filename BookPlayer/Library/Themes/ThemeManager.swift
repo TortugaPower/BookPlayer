@@ -12,22 +12,7 @@ import UIKit
 final class ThemeManager: ThemeProvider {
     static let shared = ThemeManager()
 
-    var library: Library! {
-        didSet {
-            guard let theme = library.currentTheme else {
-                //handle prepopulating
-                return
-            }
-
-            theme.useDarkVariant = self.useDarkVariant
-            self.theme = SubscribableValue<Theme>(value: theme)
-        }
-    }
-
     private var theme: SubscribableValue<Theme>!
-    var availableThemes: [Theme] {
-        return self.library.availableThemes?.array as? [Theme] ?? []
-    }
 
     /// The current theme that is active
     var currentTheme: Theme {
@@ -36,8 +21,7 @@ final class ThemeManager: ThemeProvider {
         }
         set {
             self.setNewTheme(newValue)
-            self.library.currentTheme = newValue
-            DataManager.saveContext()
+            DataManager.setCurrentTheme(newValue)
         }
     }
 
@@ -55,6 +39,10 @@ final class ThemeManager: ThemeProvider {
             let brightness = (UIScreen.main.brightness * 100).rounded() / 100
             self.useDarkVariant = brightness <= CGFloat(threshold)
         }
+
+        let currentTheme: Theme = DataManager.getLibrary().currentTheme
+        currentTheme.useDarkVariant = self.useDarkVariant
+        self.theme = SubscribableValue<Theme>(value: currentTheme)
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.brightnessChanged(_:)), name: .UIScreenBrightnessDidChange, object: nil)
     }

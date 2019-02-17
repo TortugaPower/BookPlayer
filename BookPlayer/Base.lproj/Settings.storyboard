@@ -642,10 +642,10 @@
                         <outlet property="brightnessSlider" destination="1H3-4M-C6V" id="bpe-B7-JH4"/>
                         <outlet property="brightnessSwitch" destination="Mg5-1E-BOM" id="Oex-1F-Jt2"/>
                         <outlet property="darkModeSwitch" destination="dGm-Ck-k4z" id="kVe-sw-TRl"/>
-                        <outlet property="defaultThemesTableHeightConstraint" destination="EMi-ag-Xl6" id="FL0-FR-Da7"/>
-                        <outlet property="defaultThemesTableView" destination="BnV-BH-ZSC" id="fGm-6y-CaI"/>
-                        <outlet property="extraThemesTableHeightConstraint" destination="5qJ-tF-AWE" id="C69-31-6IT"/>
-                        <outlet property="extraThemesTableView" destination="eNP-pi-ICV" id="zB4-gg-c6M"/>
+                        <outlet property="extractedThemesTableHeightConstraint" destination="5qJ-tF-AWE" id="RU4-HZ-cCW"/>
+                        <outlet property="extractedThemesTableView" destination="eNP-pi-ICV" id="ZSn-3q-cSg"/>
+                        <outlet property="localThemesTableHeightConstraint" destination="EMi-ag-Xl6" id="Qrw-FD-lnM"/>
+                        <outlet property="localThemesTableView" destination="BnV-BH-ZSC" id="9s7-Ah-R5a"/>
                         <outlet property="scrollContentHeightConstraint" destination="isV-yD-co8" id="YdG-bV-nkn"/>
                         <outlet property="sunImageView" destination="UXs-vJ-DCL" id="6SL-Ss-HB9"/>
                         <outletCollection property="separatorViews" destination="tsq-Cg-nOl" collectionClass="NSMutableArray" id="fWv-Rp-mtP"/>

@@ -16,8 +16,8 @@
         <relationship name="book" maxCount="1" deletionRule="Nullify" destinationEntity="Book" inverseName="chapters" inverseEntity="Book" syncable="YES"/>
     </entity>
     <entity name="Library" representedClassName=".Library" syncable="YES">
-        <relationship name="availableThemes" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Theme" inverseName="library" inverseEntity="Theme" syncable="YES"/>
-        <relationship name="currentTheme" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Theme" inverseName="selected" inverseEntity="Theme" syncable="YES"/>
+        <relationship name="currentTheme" maxCount="1" deletionRule="Nullify" destinationEntity="Theme" inverseName="selected" inverseEntity="Theme" syncable="YES"/>
+        <relationship name="extractedThemes" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Theme" inverseName="library" inverseEntity="Theme" syncable="YES"/>
         <relationship name="items" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="LibraryItem" inverseName="library" inverseEntity="LibraryItem" syncable="YES"/>
     </entity>
     <entity name="LibraryItem" representedClassName=".LibraryItem" isAbstract="YES" syncable="YES">
@@ -47,7 +47,7 @@
         <attribute name="defaultSecondaryHex" attributeType="String" elementID="secondaryHex" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="book" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Book" inverseName="artworkColors" inverseEntity="Book" syncable="YES"/>
-        <relationship name="library" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Library" inverseName="availableThemes" inverseEntity="Library" syncable="YES"/>
+        <relationship name="library" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Library" inverseName="extractedThemes" inverseEntity="Library" syncable="YES"/>
         <relationship name="selected" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Library" inverseName="currentTheme" inverseEntity="Library" syncable="YES"/>
     </entity>
     <elements>

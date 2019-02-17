@@ -166,33 +166,12 @@ class DataManager {
         }
     }
 
-    class func setupDefaultThemes(in library: Library) {
-        guard let themes = library.availableThemes?.array, themes.isEmpty else { return }
+    class func setupDefaultTheme() {
+        let library = self.getLibrary()
 
-        let defaultTheme = Theme(params: ["title": "Default / Dark",
-                                          "defaultPrimary": "242320",
-                                          "defaultSecondary": "8F8E95",
-                                          "defaultAccent": "3488D1",
-                                          "defaultBackground": "FFFFFF",
-                                          "darkPrimary": "FAFBFC",
-                                          "darkSecondary": "8F8E94",
-                                          "darkAccent": "459EEC",
-                                          "darkBackground": "202225"],
-                                 context: self.persistentContainer.viewContext)
+        guard library.currentTheme == nil else { return }
 
-        let defaultBlackTheme = Theme(params: ["title": "Default / Pure Black",
-                                               "defaultPrimary": "242320",
-                                               "defaultSecondary": "8F8E95",
-                                               "defaultAccent": "3488D1",
-                                               "defaultBackground": "FFFFFF",
-                                               "darkPrimary": "FAFBFC",
-                                               "darkSecondary": "8F8E94",
-                                               "darkAccent": "459EEC",
-                                               "darkBackground": "000000"],
-                                      context: self.persistentContainer.viewContext)
-
-        library.currentTheme = defaultTheme
-        library.addToAvailableThemes(NSOrderedSet(array: [defaultTheme, defaultBlackTheme]))
+        library.currentTheme = self.getLocalThemes().first!
 
         // prior book artwork colors didn't have a title
         if let books = self.getBooks() {
@@ -204,30 +183,53 @@ class DataManager {
         self.saveContext()
     }
 
-    class func reloadThemes(in library: Library) {
+    class func getLocalThemes() -> [Theme] {
         guard
             let themesFile = Bundle.main.url(forResource: "Themes", withExtension: "json"),
             let data = try? Data(contentsOf: themesFile, options: .mappedIfSafe),
             let jsonObject = try? JSONSerialization.jsonObject(with: data, options: .mutableLeaves),
             let themeParams = jsonObject as? [[String: String]]
-        else { return }
-
-        let availableThemes = library.availableThemes?.array as? [Theme] ?? []
+        else { return [] }
 
         var themes = [Theme]()
-        for themeParam in themeParams {
-            let theme = Theme(params: themeParam, context: self.persistentContainer.viewContext)
 
-            if availableThemes.contains(where: { $0.title == theme.title }) {
-                continue
+        for themeParam in themeParams {
+            let request: NSFetchRequest<Theme> = Theme.fetchRequest()
+
+            guard let predicate = Theme.searchPredicate(themeParam) else { continue }
+
+            request.predicate = predicate
+
+            var theme: Theme!
+
+            if let storedThemes = try? self.persistentContainer.viewContext.fetch(request),
+                let storedTheme = storedThemes.first {
+                theme = storedTheme
+            } else {
+                theme = Theme(params: themeParam, context: self.persistentContainer.viewContext)
             }
 
             themes.append(theme)
         }
 
-        library.addToAvailableThemes(NSOrderedSet(array: themes))
+        return themes
+    }
 
+    class func getExtractedThemes() -> [Theme] {
+        let library = self.getLibrary()
+        return library.extractedThemes?.array as? [Theme] ?? []
+    }
+
+    class func addExtractedTheme(_ theme: Theme) {
+        let library = self.getLibrary()
+        library.addToExtractedThemes(theme)
         self.saveContext()
+    }
+
+    class func setCurrentTheme(_ theme: Theme) {
+        let library = self.getLibrary()
+        library.currentTheme = theme
+        DataManager.saveContext()
     }
 
     class func exists(_ book: Book) -> Bool {

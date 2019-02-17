@@ -26,4 +26,29 @@ extension Theme {
     @NSManaged public var title: String?
     @NSManaged public var book: Book?
     @NSManaged public var library: Library?
+
+    public class func searchPredicate(_ params: [String: String]) -> NSPredicate? {
+        guard let defaultBackgroundHex = params["defaultBackground"],
+            let defaultPrimaryHex = params["defaultPrimary"],
+            let defaultSecondaryHex = params["defaultSecondary"],
+            let defaultAccentHex = params["defaultAccent"],
+            let darkBackgroundHex = params["darkBackground"],
+            let darkPrimaryHex = params["darkPrimary"],
+            let darkSecondaryHex = params["darkSecondary"],
+            let darkAccentHex = params["darkAccent"],
+            let title = params["title"] else { return nil }
+
+        return NSPredicate(format:
+            """
+                                                                                        defaultBackgroundHex = %@
+                                                                                        && defaultPrimaryHex = %@
+                                                                                        && defaultSecondaryHex = %@
+                                                                                        && defaultAccentHex = %@
+                                                                                        && darkBackgroundHex = %@
+                                                                                        && darkPrimaryHex = %@
+                                                                                        && darkSecondaryHex = %@
+                                                                                        && darkAccentHex = %@
+                                                                                        && title = %@
+        """, defaultBackgroundHex, defaultPrimaryHex, defaultSecondaryHex, defaultAccentHex, darkBackgroundHex, darkPrimaryHex, darkSecondaryHex, darkAccentHex, title)
+    }
 }

@@ -20,8 +20,8 @@ extension Library {
         return NSEntityDescription.insertNewObject(forEntityName: "Library", into: context) as! Library
     }
 
-    @NSManaged public var availableThemes: NSOrderedSet?
-    @NSManaged public var currentTheme: Theme?
+    @NSManaged public var extractedThemes: NSOrderedSet?
+    @NSManaged public var currentTheme: Theme!
     @NSManaged public var items: NSOrderedSet?
 }
 
@@ -58,33 +58,33 @@ extension Library {
     @objc(removeItems:)
     @NSManaged public func removeFromItems(_ values: NSOrderedSet)
 
-    @objc(insertObject:inAvailableThemesAtIndex:)
-    @NSManaged public func insertIntoAvailableThemes(_ value: Theme, at idx: Int)
+    @objc(insertObject:inExtractedThemesAtIndex:)
+    @NSManaged public func insertIntoExtractedThemes(_ value: Theme, at idx: Int)
 
-    @objc(removeObjectFromAvailableThemesAtIndex:)
-    @NSManaged public func removeFromAvailableThemes(at idx: Int)
+    @objc(removeObjectFromExtractedThemesAtIndex:)
+    @NSManaged public func removeFromExtractedThemes(at idx: Int)
 
-    @objc(insertAvailableThemes:atIndexes:)
-    @NSManaged public func insertIntoAvailableThemes(_ values: [Theme], at indexes: NSIndexSet)
+    @objc(insertExtractedThemes:atIndexes:)
+    @NSManaged public func insertIntoExtractedThemes(_ values: [Theme], at indexes: NSIndexSet)
 
-    @objc(removeAvailableThemesAtIndexes:)
-    @NSManaged public func removeFromAvailableThemes(at indexes: NSIndexSet)
+    @objc(removeExtractedThemesAtIndexes:)
+    @NSManaged public func removeFromExtractedThemes(at indexes: NSIndexSet)
 
-    @objc(replaceObjectInAvailableThemesAtIndex:withObject:)
-    @NSManaged public func replaceAvailableThemes(at idx: Int, with value: Theme)
+    @objc(replaceObjectInExtractedThemesAtIndex:withObject:)
+    @NSManaged public func replaceExtractedThemes(at idx: Int, with value: Theme)
 
-    @objc(replaceAvailableThemesAtIndexes:withItems:)
-    @NSManaged public func replaceAvailableThemes(at indexes: NSIndexSet, with values: [Theme])
+    @objc(replaceExtractedThemesAtIndexes:withItems:)
+    @NSManaged public func replaceExtractedThemes(at indexes: NSIndexSet, with values: [Theme])
 
-    @objc(addAvailableThemesObject:)
-    @NSManaged public func addToAvailableThemes(_ value: Theme)
+    @objc(addExtractedThemesObject:)
+    @NSManaged public func addToExtractedThemes(_ value: Theme)
 
-    @objc(removeAvailableThemesObject:)
-    @NSManaged public func removeFromAvailableThemes(_ value: Theme)
+    @objc(removeExtractedThemesObject:)
+    @NSManaged public func removeFromExtractedThemes(_ value: Theme)
 
-    @objc(addAvailableThemes:)
-    @NSManaged public func addToAvailableThemes(_ values: NSOrderedSet)
+    @objc(addExtractedThemes:)
+    @NSManaged public func addToExtractedThemes(_ values: NSOrderedSet)
 
-    @objc(removeAvailableThemes:)
-    @NSManaged public func removeFromAvailableThemes(_ values: NSOrderedSet)
+    @objc(removeExtractedThemes:)
+    @NSManaged public func removeFromExtractedThemes(_ values: NSOrderedSet)
 }

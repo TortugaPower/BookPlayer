@@ -122,6 +122,7 @@ public class Theme: NSManagedObject {
 }
 
 // MARK: - Color getters
+
 extension Theme {
     var defaultBackgroundColor: UIColor {
         return UIColor(hex: self.defaultBackgroundHex)

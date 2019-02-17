@@ -1,5 +1,27 @@
 [
     {
+        "title": "Default / Dark",
+        "defaultPrimary": "242320",
+        "defaultSecondary": "8F8E95",
+        "defaultAccent": "3488D1",
+        "defaultBackground": "FFFFFF",
+        "darkPrimary": "FAFBFC",
+        "darkSecondary": "8F8E94",
+        "darkAccent": "459EEC",
+        "darkBackground": "202225"
+    },
+    {
+        "title": "Default / Pure Black",
+        "defaultPrimary": "242320",
+        "defaultSecondary": "8F8E95",
+        "defaultAccent": "3488D1",
+        "defaultBackground": "FFFFFF",
+        "darkPrimary": "FAFBFC",
+        "darkSecondary": "8F8E94",
+        "darkAccent": "459EEC",
+        "darkBackground": "000000"
+    },
+    {
         "title": "Ayu",
         "defaultPrimary": "252D33",
         "defaultSecondary": "9DA2A6",
