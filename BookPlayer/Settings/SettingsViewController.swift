@@ -18,10 +18,10 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     @IBOutlet weak var disableAutolockSwitch: UISwitch!
     @IBOutlet weak var themeLabel: UILabel!
 
-    let supportSection: Int = 4
-    let githubLinkPath = IndexPath(row: 0, section: 4)
-    let supportEmailPath = IndexPath(row: 1, section: 4)
-    let siriShortcutPath = IndexPath(row: 0, section: 3)
+    let supportSection: Int = 5
+    let githubLinkPath = IndexPath(row: 0, section: 5)
+    let supportEmailPath = IndexPath(row: 1, section: 5)
+    let siriShortcutPath = IndexPath(row: 0, section: 4)
 
     var version: String = "0.0.0"
     var build: String = "0"

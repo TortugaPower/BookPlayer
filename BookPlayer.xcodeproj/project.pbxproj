@@ -54,6 +54,16 @@
 		418B6D5D1D2CB76900F974FB /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418B6D5C1D2CB76900F974FB /* PlayerViewController.swift */; };
 		4197240021874D5F00AB1190 /* UserActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419723FF21874D5F00AB1190 /* UserActivityManager.swift */; };
 		41A6A87520DEECC400B2C621 /* PlaylistTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A6A87420DEECC400B2C621 /* PlaylistTests.swift */; };
+		41AD3D9A221C737F00DC41E1 /* retro-icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3D97221C737E00DC41E1 /* retro-icon@2x.png */; };
+		41AD3D9B221C737F00DC41E1 /* retro-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3D98221C737E00DC41E1 /* retro-icon.png */; };
+		41AD3D9C221C737F00DC41E1 /* retro-icon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3D99221C737F00DC41E1 /* retro-icon@3x.png */; };
+		41AD3D9E221C750E00DC41E1 /* Icons.json in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3D9D221C750E00DC41E1 /* Icons.json */; };
+		41AD3DA1221C7CAB00DC41E1 /* Icon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41AD3DA0221C7CAB00DC41E1 /* Icon.swift */; };
+		41AD3DA3221C7DCE00DC41E1 /* IconsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41AD3DA2221C7DCE00DC41E1 /* IconsViewController.swift */; };
+		41AD3DA7221C850F00DC41E1 /* IconCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41AD3DA6221C850F00DC41E1 /* IconCellView.swift */; };
+		41AD3DAB221C8FF400DC41E1 /* default-icon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3DA8221C8FF400DC41E1 /* default-icon@3x.png */; };
+		41AD3DAC221C8FF400DC41E1 /* default-icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3DA9221C8FF400DC41E1 /* default-icon@2x.png */; };
+		41AD3DAD221C8FF400DC41E1 /* default-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3DAA221C8FF400DC41E1 /* default-icon.png */; };
 		41B2A5DA21CAE42600917584 /* Settings.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 41B2A5D821CAE42600917584 /* Settings.storyboard */; };
 		41B2A5DC21CAEE0E00917584 /* PlayerSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2A5DB21CAEE0E00917584 /* PlayerSettingsViewController.swift */; };
 		41B2A5DE21CAF20E00917584 /* ThemesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2A5DD21CAF20E00917584 /* ThemesViewController.swift */; };
@@ -187,6 +197,16 @@
 		419723FF21874D5F00AB1190 /* UserActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserActivityManager.swift; sourceTree = "<group>"; };
 		41A6A87420DEECC400B2C621 /* PlaylistTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlaylistTests.swift; sourceTree = "<group>"; };
 		41AB1C121D30298800AC1AA0 /* MBProgressHUD.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MBProgressHUD.framework; path = Carthage/Build/iOS/MBProgressHUD.framework; sourceTree = "<group>"; };
+		41AD3D97221C737E00DC41E1 /* retro-icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "retro-icon@2x.png"; sourceTree = "<group>"; };
+		41AD3D98221C737E00DC41E1 /* retro-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "retro-icon.png"; sourceTree = "<group>"; };
+		41AD3D99221C737F00DC41E1 /* retro-icon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "retro-icon@3x.png"; sourceTree = "<group>"; };
+		41AD3D9D221C750E00DC41E1 /* Icons.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Icons.json; sourceTree = "<group>"; };
+		41AD3DA0221C7CAB00DC41E1 /* Icon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Icon.swift; sourceTree = "<group>"; };
+		41AD3DA2221C7DCE00DC41E1 /* IconsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconsViewController.swift; sourceTree = "<group>"; };
+		41AD3DA6221C850F00DC41E1 /* IconCellView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IconCellView.swift; sourceTree = "<group>"; };
+		41AD3DA8221C8FF400DC41E1 /* default-icon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "default-icon@3x.png"; sourceTree = "<group>"; };
+		41AD3DA9221C8FF400DC41E1 /* default-icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "default-icon@2x.png"; sourceTree = "<group>"; };
+		41AD3DAA221C8FF400DC41E1 /* default-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "default-icon.png"; sourceTree = "<group>"; };
 		41B2A5D921CAE42600917584 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Settings.storyboard; sourceTree = "<group>"; };
 		41B2A5DB21CAEE0E00917584 /* PlayerSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerSettingsViewController.swift; sourceTree = "<group>"; };
 		41B2A5DD21CAF20E00917584 /* ThemesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemesViewController.swift; sourceTree = "<group>"; };
@@ -361,6 +381,29 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		41AD3D96221C700100DC41E1 /* Icons */ = {
+			isa = PBXGroup;
+			children = (
+				41AD3D9D221C750E00DC41E1 /* Icons.json */,
+				41AD3DA0221C7CAB00DC41E1 /* Icon.swift */,
+				41AD3D9F221C7C8A00DC41E1 /* assets */,
+			);
+			path = Icons;
+			sourceTree = "<group>";
+		};
+		41AD3D9F221C7C8A00DC41E1 /* assets */ = {
+			isa = PBXGroup;
+			children = (
+				41AD3DAA221C8FF400DC41E1 /* default-icon.png */,
+				41AD3DA9221C8FF400DC41E1 /* default-icon@2x.png */,
+				41AD3DA8221C8FF400DC41E1 /* default-icon@3x.png */,
+				41AD3D98221C737E00DC41E1 /* retro-icon.png */,
+				41AD3D97221C737E00DC41E1 /* retro-icon@2x.png */,
+				41AD3D99221C737F00DC41E1 /* retro-icon@3x.png */,
+			);
+			path = assets;
+			sourceTree = "<group>";
+		};
 		41B2A5DF21CCC1F400917584 /* Themes */ = {
 			isa = PBXGroup;
 			children = (
@@ -422,6 +465,7 @@
 		C35E04F1207E8D0F007D3370 /* Library */ = {
 			isa = PBXGroup;
 			children = (
+				41AD3D96221C700100DC41E1 /* Icons */,
 				41B2A5DF21CCC1F400917584 /* Themes */,
 				41EE378421BF0FAD00A55F51 /* Protocols */,
 				4163E30F21484C3500072AA2 /* FileManagement */,
@@ -446,6 +490,8 @@
 				41B2A5DB21CAEE0E00917584 /* PlayerSettingsViewController.swift */,
 				41B2A5DD21CAF20E00917584 /* ThemesViewController.swift */,
 				4142964721F2E2BA004356DA /* ThemeCellView.swift */,
+				41AD3DA6221C850F00DC41E1 /* IconCellView.swift */,
+				41AD3DA2221C7DCE00DC41E1 /* IconsViewController.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -671,18 +717,25 @@
 			buildActionMask = 2147483647;
 			files = (
 				418B6D081D2707F800F974FB /* LaunchScreen.storyboard in Resources */,
+				41AD3D9C221C737F00DC41E1 /* retro-icon@3x.png in Resources */,
 				C3D3852720C1E73E00A0ACC7 /* Player.storyboard in Resources */,
 				4149539A21F0D456003C5D27 /* Themes.json in Resources */,
 				C37A6873209F0F830063AEAC /* Credits.html in Resources */,
 				418B6D051D2707F800F974FB /* Assets.xcassets in Resources */,
 				418B6D031D2707F800F974FB /* Main.storyboard in Resources */,
 				4165EE0B20A7A33500616EDF /* AddCellView.xib in Resources */,
+				41AD3D9E221C750E00DC41E1 /* Icons.json in Resources */,
 				C30B66AE20E2D8CF00FC0030 /* ArtworkControl.xib in Resources */,
 				4165EE0C20A7A33500616EDF /* BookCellView.xib in Resources */,
 				4142964621F21DAE004356DA /* BulkControlsView.xib in Resources */,
+				41AD3DAB221C8FF400DC41E1 /* default-icon@3x.png in Resources */,
+				41AD3DAC221C8FF400DC41E1 /* default-icon@2x.png in Resources */,
+				41AD3D9A221C737F00DC41E1 /* retro-icon@2x.png in Resources */,
 				415B274621FAE4A300F9D9B7 /* LoadingView.xib in Resources */,
 				C3EA7176218DEC870005D488 /* .swiftformat in Resources */,
 				41B2A5DA21CAE42600917584 /* Settings.storyboard in Resources */,
+				41AD3DAD221C8FF400DC41E1 /* default-icon.png in Resources */,
+				41AD3D9B221C737F00DC41E1 /* retro-icon.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -772,6 +825,7 @@
 				69225C4F2159C2650004739E /* BookSortService+SortError+PlayListSortOrder.swift in Sources */,
 				416B63A82146354B007D04B1 /* ImportManager.swift in Sources */,
 				41839AB320AA8B960047E55D /* Theme+CoreDataClass.swift in Sources */,
+				41AD3DA3221C7DCE00DC41E1 /* IconsViewController.swift in Sources */,
 				41B2A5E121CCC21000917584 /* ThemeManager.swift in Sources */,
 				C3FE3F8220A090880055B9C6 /* limitPanAngle.swift in Sources */,
 				C3FA301E20E0024900393DDA /* BPArtworkView.swift in Sources */,
@@ -815,6 +869,7 @@
 				416B640D1E72F362000E955A /* Notification+BookPlayer.swift in Sources */,
 				4165EE0620A743D500616EDF /* LibraryItem+CoreDataClass.swift in Sources */,
 				41839AB720AA8C970047E55D /* Book+CoreDataClass.swift in Sources */,
+				41AD3DA1221C7CAB00DC41E1 /* Icon.swift in Sources */,
 				4163E3112148606600072AA2 /* FileItem.swift in Sources */,
 				C39401E920DEE83200F3DC71 /* UIView+BookPlayer.swift in Sources */,
 				41D39D41215F177D00B65290 /* BookActivityItemProvider.swift in Sources */,
@@ -824,6 +879,7 @@
 				C3FE94792080086800BCEA37 /* BookCellView.swift in Sources */,
 				C30B085F209654E3003F325B /* UIColor+BookPlayer.swift in Sources */,
 				410D0FEF1EDDBC3300A52EB9 /* DataManager.swift in Sources */,
+				41AD3DA7221C850F00DC41E1 /* IconCellView.swift in Sources */,
 				4142964421F21D95004356DA /* BulkControlsView.swift in Sources */,
 				41EE378C21C0028800A55F51 /* ItemListActions.swift in Sources */,
 				4165EDFF20A743D500616EDF /* Chapter+CoreDataProperties.swift in Sources */,

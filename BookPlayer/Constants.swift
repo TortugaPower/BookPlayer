@@ -11,6 +11,7 @@ enum Constants {
         case appGroupsMigration = "userSettingsAppGroupsMigration"
         case lastPauseTime = "userSettingsLastPauseTime"
         case lastPlayedBook = "userSettingsLastPlayedBook"
+        case appIcon = "userSettingsAppIcon"
 
         // User preferences
         case themeBrightnessEnabled = "userSettingsBrightnessEnabled"

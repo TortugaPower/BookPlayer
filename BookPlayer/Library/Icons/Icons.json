@@ -1,0 +1,12 @@
+[
+    {
+        "id": "Default",
+        "title": "Default",
+        "imageName": "default-icon"
+    },
+    {
+        "id": "Retro",
+        "title": "Retro",
+        "imageName": "retro-icon"
+    }
+]
