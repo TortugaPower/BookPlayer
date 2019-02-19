@@ -87,7 +87,7 @@ final class SleepTimer {
         self.alert.message = defaultMessage
 
         self.timer?.invalidate()
-        NotificationCenter.default.removeObserver(self, name: .bookEnd, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .bookChange, object: nil)
         NotificationCenter.default.removeObserver(self, name: .chapterChange, object: nil)
     }
 
