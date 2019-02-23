@@ -74,6 +74,7 @@ Managed with [Carthage](https://github.com/Carthage/Carthage)
 
 - [ColorCube](https://github.com/pixelogik/ColorCube) for extracting artwork colors
 - [DeviceKit](https://github.com/dennisweissmann/DeviceKit) for device information used in support requests
+- [Kingfisher](https://github.com/onevcat/Kingfisher) for contributors' profile pictures
 - [MarqueeLabel](https://github.com/cbpowell/MarqueeLabel) for scrolling labels
 - [DirectoryWatcher](https://github.com/GianniCarlo/DirectoryWatcher) for events on the document's folder
 - [Sentry](https://github.com/getsentry/sentry-cocoa) for crash reporting

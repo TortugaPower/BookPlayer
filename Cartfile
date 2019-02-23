@@ -7,3 +7,4 @@ github "GianniCarlo/DirectoryWatcher"
 github "weichsel/ZIPFoundation" ~> 0.9
 github "GianniCarlo/Themeable" "master"
 github "getsentry/sentry-cocoa" "4.1.0"
+github "onevcat/Kingfisher" ~> 5.0

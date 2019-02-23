@@ -254,7 +254,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="BookPlayer Plus" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="MVf-CT-ocr">
-                                                    <rect key="frame" x="16" y="0.0" width="343" height="49.5"/>
+                                                    <rect key="frame" x="15" y="0.0" width="345" height="49.5"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
@@ -277,11 +277,11 @@
                                         <rect key="frame" x="0.0" y="821" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="03X-zP-RZe" id="IIp-cC-U1k">
-                                            <rect key="frame" x="0.0" y="0.0" width="341" height="43.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="349" height="43.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Credits and Licenses" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="f5k-Kh-fBQ">
-                                                    <rect key="frame" x="16" y="0.0" width="324" height="43.5"/>
+                                                    <rect key="frame" x="15" y="0.0" width="325" height="43.5"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
@@ -759,8 +759,9 @@
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BQS-oy-h7v">
                                                 <rect key="frame" x="85" y="641" width="85" height="90"/>
                                                 <subviews>
-                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="default-icon.png" translatesAutoresizingMaskIntoConstraints="NO" id="cTI-WJ-Z3y">
+                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="cTI-WJ-Z3y">
                                                         <rect key="frame" x="7.5" y="0.0" width="70" height="70"/>
+                                                        <color key="backgroundColor" red="0.84322696924209595" green="0.84690207242965698" blue="0.85490423440933228" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                                         <constraints>
                                                             <constraint firstAttribute="width" constant="70" id="bBc-gi-FYc"/>
                                                             <constraint firstAttribute="height" constant="70" id="s0U-Yl-p9g"/>
@@ -789,6 +790,9 @@
                                                                 <integer key="value" value="20"/>
                                                             </userDefinedRuntimeAttribute>
                                                         </userDefinedRuntimeAttributes>
+                                                        <connections>
+                                                            <action selector="showGianniProfile:" destination="AQw-yJ-pXJ" eventType="touchUpInside" id="WVi-FR-ywU"/>
+                                                        </connections>
                                                     </button>
                                                 </subviews>
                                                 <constraints>
@@ -808,8 +812,9 @@
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rtM-C2-kxe">
                                                 <rect key="frame" x="205" y="641" width="85" height="90"/>
                                                 <subviews>
-                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="default-icon.png" translatesAutoresizingMaskIntoConstraints="NO" id="GoS-lg-epa">
+                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="GoS-lg-epa">
                                                         <rect key="frame" x="7.5" y="0.0" width="70" height="70"/>
+                                                        <color key="backgroundColor" red="0.84322696919999995" green="0.84690207240000004" blue="0.85490423439999996" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                                         <constraints>
                                                             <constraint firstAttribute="height" constant="70" id="DcB-DW-FY5"/>
                                                             <constraint firstAttribute="width" constant="70" id="Km3-WB-uw4"/>
@@ -838,6 +843,9 @@
                                                                 <integer key="value" value="20"/>
                                                             </userDefinedRuntimeAttribute>
                                                         </userDefinedRuntimeAttributes>
+                                                        <connections>
+                                                            <action selector="showPichProfile:" destination="AQw-yJ-pXJ" eventType="touchUpInside" id="s6n-sN-dOv"/>
+                                                        </connections>
                                                     </button>
                                                 </subviews>
                                                 <constraints>
@@ -867,7 +875,7 @@
                                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                                 </collectionViewFlowLayout>
                                                 <cells>
-                                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="ContributorViewCell" id="Zot-sw-vwG">
+                                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="ContributorViewCell" id="Zot-sw-vwG" customClass="ContributorCellView" customModule="BookPlayer" customModuleProvider="target">
                                                         <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
@@ -893,6 +901,9 @@
                                                             <constraint firstItem="JZD-wL-Yqg" firstAttribute="centerY" secondItem="Zot-sw-vwG" secondAttribute="centerY" id="OZW-aW-1NJ"/>
                                                             <constraint firstItem="JZD-wL-Yqg" firstAttribute="centerX" secondItem="Zot-sw-vwG" secondAttribute="centerX" id="mDU-H2-3nl"/>
                                                         </constraints>
+                                                        <connections>
+                                                            <outlet property="imageView" destination="JZD-wL-Yqg" id="GYn-HI-w91"/>
+                                                        </connections>
                                                     </collectionViewCell>
                                                 </cells>
                                                 <connections>
@@ -954,8 +965,10 @@
                     <size key="freeformSize" width="375" height="900"/>
                     <connections>
                         <outlet property="collectionView" destination="oWB-eh-z6b" id="j6R-Yl-AIO"/>
+                        <outlet property="collectionViewHeightConstraint" destination="ZSe-RD-saE" id="zqV-c1-JZa"/>
                         <outlet property="gianniImageView" destination="cTI-WJ-Z3y" id="59F-9K-LKj"/>
                         <outlet property="pichImageView" destination="GoS-lg-epa" id="iez-lz-uCR"/>
+                        <outlet property="scrollContentHeightConstraint" destination="4W6-0a-lVI" id="cbN-gC-U9F"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="b6W-X2-fVJ" userLabel="First Responder" sceneMemberID="firstResponder"/>

@@ -55,6 +55,7 @@
 		418B6D051D2707F800F974FB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 418B6D041D2707F800F974FB /* Assets.xcassets */; };
 		418B6D081D2707F800F974FB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 418B6D061D2707F800F974FB /* LaunchScreen.storyboard */; };
 		418B6D5D1D2CB76900F974FB /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418B6D5C1D2CB76900F974FB /* PlayerViewController.swift */; };
+		41964C832220B4F700FF1A2F /* ContributorCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41964C822220B4F700FF1A2F /* ContributorCellView.swift */; };
 		4197240021874D5F00AB1190 /* UserActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419723FF21874D5F00AB1190 /* UserActivityManager.swift */; };
 		41A6A87520DEECC400B2C621 /* PlaylistTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A6A87420DEECC400B2C621 /* PlaylistTests.swift */; };
 		41AD3D9A221C737F00DC41E1 /* retro-icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3D97221C737E00DC41E1 /* retro-icon@2x.png */; };
@@ -66,6 +67,7 @@
 		41AD3DAB221C8FF400DC41E1 /* default-icon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3DA8221C8FF400DC41E1 /* default-icon@3x.png */; };
 		41AD3DAC221C8FF400DC41E1 /* default-icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3DA9221C8FF400DC41E1 /* default-icon@2x.png */; };
 		41AD3DAF221E678600DC41E1 /* PlusViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41AD3DAE221E678600DC41E1 /* PlusViewController.swift */; };
+		41AD3DB322205C5A00DC41E1 /* Kingfisher.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41AD3DB222205C5A00DC41E1 /* Kingfisher.framework */; };
 		41B2A5DA21CAE42600917584 /* Settings.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 41B2A5D821CAE42600917584 /* Settings.storyboard */; };
 		41B2A5DC21CAEE0E00917584 /* PlayerSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2A5DB21CAEE0E00917584 /* PlayerSettingsViewController.swift */; };
 		41B2A5DE21CAF20E00917584 /* ThemesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2A5DD21CAF20E00917584 /* ThemesViewController.swift */; };
@@ -227,9 +229,9 @@
 		418B6D141D2707F800F974FB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		418B6D5C1D2CB76900F974FB /* PlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerViewController.swift; sourceTree = "<group>"; };
 		419196341D47CC4E007A3AF3 /* BookPlayer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BookPlayer.entitlements; sourceTree = "<group>"; };
+		41964C822220B4F700FF1A2F /* ContributorCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContributorCellView.swift; sourceTree = "<group>"; };
 		419723FF21874D5F00AB1190 /* UserActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserActivityManager.swift; sourceTree = "<group>"; };
 		41A6A87420DEECC400B2C621 /* PlaylistTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlaylistTests.swift; sourceTree = "<group>"; };
-		41AB1C121D30298800AC1AA0 /* MBProgressHUD.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MBProgressHUD.framework; path = Carthage/Build/iOS/MBProgressHUD.framework; sourceTree = "<group>"; };
 		41AD3D97221C737E00DC41E1 /* retro-icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "retro-icon@2x.png"; sourceTree = "<group>"; };
 		41AD3D99221C737F00DC41E1 /* retro-icon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "retro-icon@3x.png"; sourceTree = "<group>"; };
 		41AD3D9D221C750E00DC41E1 /* Icons.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Icons.json; sourceTree = "<group>"; };
@@ -239,6 +241,7 @@
 		41AD3DA8221C8FF400DC41E1 /* default-icon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "default-icon@3x.png"; sourceTree = "<group>"; };
 		41AD3DA9221C8FF400DC41E1 /* default-icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "default-icon@2x.png"; sourceTree = "<group>"; };
 		41AD3DAE221E678600DC41E1 /* PlusViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlusViewController.swift; sourceTree = "<group>"; };
+		41AD3DB222205C5A00DC41E1 /* Kingfisher.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Kingfisher.framework; path = Carthage/Build/iOS/Kingfisher.framework; sourceTree = "<group>"; };
 		41B2A5D921CAE42600917584 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Settings.storyboard; sourceTree = "<group>"; };
 		41B2A5DB21CAEE0E00917584 /* PlayerSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerSettingsViewController.swift; sourceTree = "<group>"; };
 		41B2A5DD21CAF20E00917584 /* ThemesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemesViewController.swift; sourceTree = "<group>"; };
@@ -343,6 +346,7 @@
 				412451841D489204008AC0E5 /* Crashlytics.framework in Frameworks */,
 				5CBB29552163E57300E3A9FF /* ZIPFoundation.framework in Frameworks */,
 				41B2A6AC21D3274500917584 /* Themeable.framework in Frameworks */,
+				41AD3DB322205C5A00DC41E1 /* Kingfisher.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -432,6 +436,7 @@
 			isa = PBXGroup;
 			children = (
 				4112AFD5223AD27D00BFEA55 /* Sentry.framework */,
+				41AD3DB222205C5A00DC41E1 /* Kingfisher.framework */,
 				4175E14422080C7700FB7B71 /* StoreKit.framework */,
 				41B2A6AB21D3274500917584 /* Themeable.framework */,
 				5CBB29522163A17F00E3A9FF /* ZIPFoundation.framework */,
@@ -441,7 +446,6 @@
 				C318DDBE20A4DC7500C3A17B /* DeviceKit.framework */,
 				C30CD2A22097C49F00258B09 /* ColorCube.framework */,
 				412451821D489204008AC0E5 /* Crashlytics.framework */,
-				41AB1C121D30298800AC1AA0 /* MBProgressHUD.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -599,6 +603,7 @@
 				41AD3DA6221C850F00DC41E1 /* IconCellView.swift */,
 				41AD3DA2221C7DCE00DC41E1 /* IconsViewController.swift */,
 				41AD3DAE221E678600DC41E1 /* PlusViewController.swift */,
+				41964C822220B4F700FF1A2F /* ContributorCellView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -900,7 +905,11 @@
 				"$(SRCROOT)/Carthage/Build/iOS/DirectoryWatcher.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/ZIPFoundation.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/Themeable.framework",
+<<<<<<< HEAD
 				"$(SRCROOT)/Carthage/Build/iOS/Sentry.framework",
+=======
+				"$(SRCROOT)/Carthage/Build/iOS/Kingfisher.framework",
+>>>>>>> dec2ee6... Setup collectionView with list of contributors from Github
 			);
 			name = "Copy Frameworks managed by Carthage";
 			outputPaths = (
@@ -912,7 +921,11 @@
 				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/DirectoryWatcher.framework",
 				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/ZIPFoundation.framework",
 				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/Themeable.framework",
+<<<<<<< HEAD
 				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/Sentry.framework",
+=======
+				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/Kingfisher.framework",
+>>>>>>> dec2ee6... Setup collectionView with list of contributors from Github
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -994,6 +1007,7 @@
 				4165EE0720A743D500616EDF /* Library+CoreDataClass.swift in Sources */,
 				413616401D2E21F000E48944 /* LibraryViewController.swift in Sources */,
 				418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */,
+				41964C832220B4F700FF1A2F /* ContributorCellView.swift in Sources */,
 				4165EDFE20A743D500616EDF /* Chapter+CoreDataClass.swift in Sources */,
 				C30EEEBF2079645C00A4ED33 /* PlayerContainerViewController.swift in Sources */,
 				41EE378821BFFB9800A55F51 /* ItemListFeedback.swift in Sources */,
