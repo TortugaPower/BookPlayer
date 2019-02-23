@@ -171,6 +171,12 @@ class DataManager {
         }
     }
 
+    class func exists(_ book: Book) -> Bool {
+        return FileManager.default.fileExists(atPath: book.fileURL.path)
+    }
+
+    // MARK: - Themes
+
     class func setupDefaultTheme() {
         let library = self.getLibrary()
 
@@ -237,6 +243,8 @@ class DataManager {
         DataManager.saveContext()
     }
 
+    // MARK: - Icons
+
     class func getIcons() -> [Icon] {
         guard
             let iconsFile = Bundle.main.url(forResource: "Icons", withExtension: "json"),
@@ -245,9 +253,5 @@ class DataManager {
         else { return [] }
 
         return icons
-    }
-
-    class func exists(_ book: Book) -> Bool {
-        return FileManager.default.fileExists(atPath: book.fileURL.path)
     }
 }
