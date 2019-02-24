@@ -94,6 +94,10 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
             self.playPauseButtonWidth.constant = self.artworkWidth.constant * scale - self.artworkWidth.constant
             self.playPauseButtonHeight.constant = self.artworkHeight.constant * scale - self.artworkHeight.constant
 
+            if self.playPauseButtonHeight.constant < self.rewindIcon.frame.height {
+                self.playPauseButtonHeight.constant = self.rewindIcon.frame.height
+            }
+
             UIView.animate(withDuration: 0.25,
                            delay: 0.0,
                            usingSpringWithDamping: 0.6,
