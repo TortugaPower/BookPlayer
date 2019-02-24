@@ -393,7 +393,16 @@ extension ItemListViewController: UITableViewDataSource {
                 }
                 return
             }
-            guard let book = item.getBookToPlay() else { return }
+            guard var book = item.getBookToPlay() else { return }
+
+            // if current playing book belongs to this playlist, override next book
+            if item is Playlist,
+                let bookPlaying = PlayerManager.shared.currentBook,
+                let currentPlaylist = bookPlaying.playlist,
+                currentPlaylist == item,
+                bookPlaying != book {
+                book = bookPlaying
+            }
 
             self?.setupPlayer(book: book)
         }
