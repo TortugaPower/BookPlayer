@@ -8,7 +8,6 @@
 
 import UIKit
 
-// swiftlint:disable type_body_length
 class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     @IBOutlet var contentView: UIView!
 
@@ -26,14 +25,10 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     private let playImage = UIImage(named: "playerIconPlay")
     private let pauseImage = UIImage(named: "playerIconPause")
 
-    private var pan: UIPanGestureRecognizer!
-    private var tap: UITapGestureRecognizer!
-
     // Based on the design files for iPhone X where the regular artwork is 325dp and the paused state is 255dp in width
     private let artworkScalePaused: CGFloat = 255.0 / 325.0
-    private let jumpIconAlpha: CGFloat = 0.15
-    private let jumpIconOffset: CGFloat = 25.0
-    private var triggeredPanAction: Bool = false
+    private let jumpIconAlpha: CGFloat = 1.0
+    private let jumpIconOffset: CGFloat = 20.0
 
     var onPlayPause: ((ArtworkControl) -> Void)?
     var onRewind: ((ArtworkControl) -> Void)?
@@ -81,7 +76,14 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
             return CGFloat(self.artworkImage.layer.shadowOpacity)
         }
         set {
-            self.artworkImage.layer.shadowOpacity = Float(newValue)
+            let opacity = Float(newValue)
+            self.artworkImage.layer.shadowOpacity = opacity
+            self.playPauseButton.layer.shadowOpacity = 0.8
+            self.playPauseButton.layer.shadowOffset = CGSize(width: 0, height: 0)
+            self.forwardIcon.layer.shadowOpacity = 0.8
+            self.forwardIcon.layer.shadowOffset = CGSize(width: 0, height: 0)
+            self.rewindIcon.layer.shadowOpacity = 0.8
+            self.rewindIcon.layer.shadowOffset = CGSize(width: 0, height: 0)
         }
     }
 
@@ -89,7 +91,7 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         didSet {
             self.playPauseButton.setImage(self.isPlaying ? self.pauseImage : self.playImage, for: UIControlState())
 
-            let scale = self.isPlaying ? 1.0 : self.artworkScalePaused
+            let scale: CGFloat = self.isPlaying ? 1.0 : 0.9
 
             self.playPauseButtonWidth.constant = self.artworkWidth.constant * scale - self.artworkWidth.constant
             self.playPauseButtonHeight.constant = self.artworkHeight.constant * scale - self.artworkHeight.constant
@@ -165,25 +167,26 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         self.playPauseButtonHeight.constant = self.artworkHeight.constant * scale - self.artworkHeight.constant
 
         // Gestures
-        self.pan = UIPanGestureRecognizer(target: self, action: #selector(self.panAction))
-        self.pan.delegate = self
-        self.pan.maximumNumberOfTouches = 1
+        let rewindTap = UILongPressGestureRecognizer(target: self, action: #selector(self.tapRewind))
+        rewindTap.minimumPressDuration = 0
+        rewindTap.delegate = self
+        let forwardTap = UILongPressGestureRecognizer(target: self, action: #selector(self.tapForward))
+        forwardTap.minimumPressDuration = 0
+        forwardTap.delegate = self
 
-        self.addGestureRecognizer(self.pan!)
-
-        self.tap = UITapGestureRecognizer(target: self, action: #selector(self.tapAction))
-        self.tap.delegate = self
-
-        self.addGestureRecognizer(self.tap)
+        self.rewindIcon.addGestureRecognizer(rewindTap)
+        self.forwardIcon.addGestureRecognizer(forwardTap)
+//        self.addGestureRecognizer(rewindTap)
+//        self.addGestureRecognizer(forwardTap)
     }
 
     func setTransformForJumpIcons() {
         if self.isPlaying {
-            self.rewindIcon.transform = CGAffineTransform(translationX: self.jumpIconOffset, y: 0.0)
-            self.forwardIcon.transform = CGAffineTransform(translationX: -self.jumpIconOffset, y: 0.0)
-        } else {
             self.rewindIcon.transform = .identity
             self.forwardIcon.transform = .identity
+        } else {
+            self.rewindIcon.transform = CGAffineTransform(translationX: self.jumpIconOffset, y: 0.0)
+            self.forwardIcon.transform = CGAffineTransform(translationX: -self.jumpIconOffset, y: 0.0)
         }
     }
 
@@ -216,10 +219,14 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     func showPlayPauseButton(_ animated: Bool = true) {
         let fadeIn = {
             self.playPauseButton.alpha = 1.0
+            self.forwardIcon.alpha = 1.0
+            self.rewindIcon.alpha = 1.0
         }
 
         let fadeOut = {
             self.playPauseButton.alpha = 0.05
+            self.forwardIcon.alpha = 0.05
+            self.rewindIcon.alpha = 0.05
         }
 
         if animated || self.playPauseButton.alpha < 1.0 {
@@ -233,127 +240,45 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
 
     // MARK: - Gesture recognizers
 
-    override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        if gestureRecognizer == self.pan {
-            return limitPanAngle(self.pan, degreesOfFreedom: 45.01, comparator: .lessThan)
-        }
-
-        return true
-    }
-
-    private func updateArtworkViewForTranslation(_ xTranslation: CGFloat) {
-        let sign: CGFloat = xTranslation < 0 ? -1 : 1
-        let width: CGFloat = self.rewindIcon.bounds.width
-        let actionThreshold: CGFloat = width - 10.0
-        let maximumPull: CGFloat = width + 5.0
-        let translation: CGFloat = rubberBandDistance(fabs(xTranslation), dimension: width * 2 + 10.0, constant: 0.6)
-
-        self.artworkContainer.transform = CGAffineTransform(translationX: translation * sign, y: 0)
-
-        let factor: CGFloat = min(translation / actionThreshold, 1.0)
-        let alpha: CGFloat = self.jumpIconAlpha + (1.0 - self.jumpIconAlpha) * factor
-        let offset: CGFloat = self.isPlaying ? self.jumpIconOffset * (1 - factor) : 0.0
-
-        if !self.triggeredPanAction {
-            if xTranslation > 0 {
-                self.rewindIcon.alpha = alpha
-                self.rewindIcon.transform = CGAffineTransform(translationX: offset, y: 0.0)
-            } else {
-                self.forwardIcon.alpha = alpha
-                self.forwardIcon.transform = CGAffineTransform(translationX: -offset, y: 0.0)
-            }
-        }
-
-        if translation > actionThreshold && !self.triggeredPanAction {
-            if #available(iOS 10.0, *) {
-                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-            }
-
-            UIView.animate(withDuration: 0.20, delay: 0.0, options: .curveEaseIn, animations: {
-                self.rewindIcon.alpha = self.jumpIconAlpha
-                self.forwardIcon.alpha = self.jumpIconAlpha
-            })
-
-            if sign < 0 {
-                self.onForward?(self)
-            } else {
-                self.onRewind?(self)
-            }
-
-            self.triggeredPanAction = true
-        }
-
-        if translation > maximumPull {
-            self.resetArtworkViewHorizontalConstraintAnimated()
-
-            self.pan.isEnabled = false
-            self.pan.isEnabled = true
-        }
-    }
-
-    private func resetArtworkViewHorizontalConstraintAnimated() {
-        UIView.animate(withDuration: 0.3,
-                       delay: 0.0,
-                       usingSpringWithDamping: 0.7,
-                       initialSpringVelocity: 1.5,
-                       options: .preferredFramesPerSecond60,
-                       animations: {
-                           self.artworkContainer.transform = .identity
-        })
-
-        UIView.animate(withDuration: 0.1, delay: 0.10, options: .curveEaseIn, animations: {
-            self.rewindIcon.alpha = self.jumpIconAlpha
-            self.forwardIcon.alpha = self.jumpIconAlpha
-
-            self.setTransformForJumpIcons()
-        })
-
-        self.triggeredPanAction = false
-    }
-
-    func nudgeArtworkViewAnimated(_ direction: CGFloat = 1.0, duration: TimeInterval = 0.15) {
-        UIView.animate(withDuration: duration, delay: 0.0, options: .curveEaseOut, animations: {
-            self.updateArtworkViewForTranslation(self.jumpIconOffset * direction)
-        }, completion: { _ in
-            self.resetArtworkViewHorizontalConstraintAnimated()
-        })
-    }
-
-    @objc private func panAction(gestureRecognizer: UIPanGestureRecognizer) {
-        guard gestureRecognizer.isEqual(self.pan) else {
+    @objc private func tapRewind(gestureRecognizer: UITapGestureRecognizer) {
+        guard gestureRecognizer.state == .began
+            || gestureRecognizer.state == .ended else {
             return
         }
 
-        switch gestureRecognizer.state {
-        case .began:
-            gestureRecognizer.setTranslation(CGPoint(x: 0, y: 0), in: self)
+        var transform = CATransform3DIdentity
 
-        case .changed:
-            let translation = gestureRecognizer.translation(in: self)
-
-            self.updateArtworkViewForTranslation(translation.x)
-
-        case .ended, .cancelled, .failed:
-            self.resetArtworkViewHorizontalConstraintAnimated()
-
-        case .possible: break
-        }
-    }
-
-    @objc private func tapAction(gestureRecognizer: UITapGestureRecognizer) {
-        guard gestureRecognizer.isEqual(self.tap) else {
+        guard gestureRecognizer.state == .ended else {
+            transform.m34 = 1.0 / 1000.0
+            transform = CATransform3DRotate(transform, CGFloat.pi / 180 * 10, 0, 0.4, 0) //left
+            self.layer.transform = transform
+            self.onRewind?(self)
             return
         }
 
-        if gestureRecognizer.state == .ended {
-            let touch = gestureRecognizer.location(in: self)
-            let inset = -self.jumpIconOffset
+        UIView.animate(withDuration: 0.1, delay: 0.0, options: [.curveEaseIn, .beginFromCurrentState], animations: {
+            self.layer.transform = transform
+        })
+    }
 
-            if self.rewindIcon.frame.insetBy(dx: inset, dy: inset).contains(touch) {
-                self.nudgeArtworkViewAnimated(0.5)
-            } else if self.forwardIcon.frame.insetBy(dx: inset, dy: inset).contains(touch) {
-                self.nudgeArtworkViewAnimated(-0.5)
-            }
+    @objc private func tapForward(gestureRecognizer: UITapGestureRecognizer) {
+        guard gestureRecognizer.state == .began
+            || gestureRecognizer.state == .ended else {
+            return
         }
+
+        var transform = CATransform3DIdentity
+
+        guard gestureRecognizer.state == .ended else {
+            transform.m34 = 1.0 / 1000.0
+            transform = CATransform3DRotate(transform, 50, 0, 0.4, 0)
+            self.layer.transform = transform
+            self.onForward?(self)
+            return
+        }
+
+        UIView.animate(withDuration: 0.1, delay: 0.0, options: [.curveEaseIn, .beginFromCurrentState], animations: {
+            self.layer.transform = transform
+        })
     }
 }

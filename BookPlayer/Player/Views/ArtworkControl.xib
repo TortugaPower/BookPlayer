@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -29,30 +29,6 @@
             <rect key="frame" x="0.0" y="0.0" width="325" height="325"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6cy-7G-42S" customClass="PlayerJumpIconForward" customModule="BookPlayer" customModuleProvider="target">
-                    <rect key="frame" x="265" y="132" width="60" height="60"/>
-                    <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                    <accessibility key="accessibilityConfiguration">
-                        <accessibilityTraits key="traits" button="YES"/>
-                        <bool key="isElement" value="YES"/>
-                    </accessibility>
-                    <constraints>
-                        <constraint firstAttribute="width" constant="60" id="dgq-OZ-uxR"/>
-                        <constraint firstAttribute="height" constant="60" id="ycb-cQ-Ea2"/>
-                    </constraints>
-                </view>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5e7-tW-iQd" customClass="PlayerJumpIconRewind" customModule="BookPlayer" customModuleProvider="target">
-                    <rect key="frame" x="0.0" y="132" width="60" height="60"/>
-                    <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                    <accessibility key="accessibilityConfiguration">
-                        <accessibilityTraits key="traits" button="YES"/>
-                        <bool key="isElement" value="YES"/>
-                    </accessibility>
-                    <constraints>
-                        <constraint firstAttribute="width" constant="60" id="3hy-qn-oEo"/>
-                        <constraint firstAttribute="height" constant="60" id="wXB-PZ-nzC"/>
-                    </constraints>
-                </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="38X-b3-v6y">
                     <rect key="frame" x="0.0" y="0.0" width="325" height="325"/>
                     <subviews>
@@ -80,6 +56,30 @@
                         <constraint firstItem="eBX-C3-3ce" firstAttribute="height" secondItem="b1B-eO-wd8" secondAttribute="height" id="6Ck-Qq-gnO"/>
                         <constraint firstItem="eBX-C3-3ce" firstAttribute="width" secondItem="b1B-eO-wd8" secondAttribute="width" priority="750" id="BhJ-SY-3ph"/>
                         <constraint firstItem="b1B-eO-wd8" firstAttribute="centerY" secondItem="38X-b3-v6y" secondAttribute="centerY" id="bcV-fF-bGn"/>
+                    </constraints>
+                </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5e7-tW-iQd" customClass="PlayerJumpIconRewind" customModule="BookPlayer" customModuleProvider="target">
+                    <rect key="frame" x="0.0" y="132.5" width="60" height="60"/>
+                    <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <accessibility key="accessibilityConfiguration">
+                        <accessibilityTraits key="traits" button="YES"/>
+                        <bool key="isElement" value="YES"/>
+                    </accessibility>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="60" id="3hy-qn-oEo"/>
+                        <constraint firstAttribute="height" constant="60" id="wXB-PZ-nzC"/>
+                    </constraints>
+                </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6cy-7G-42S" customClass="PlayerJumpIconForward" customModule="BookPlayer" customModuleProvider="target">
+                    <rect key="frame" x="265" y="132.5" width="60" height="60"/>
+                    <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <accessibility key="accessibilityConfiguration">
+                        <accessibilityTraits key="traits" button="YES"/>
+                        <bool key="isElement" value="YES"/>
+                    </accessibility>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="60" id="dgq-OZ-uxR"/>
+                        <constraint firstAttribute="height" constant="60" id="ycb-cQ-Ea2"/>
                     </constraints>
                 </view>
             </subviews>
