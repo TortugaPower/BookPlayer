@@ -19,7 +19,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet private weak var speedButton: UIBarButtonItem!
     @IBOutlet private weak var sleepButton: UIBarButtonItem!
     @IBOutlet private var sleepLabel: UIBarButtonItem!
-    @IBOutlet private weak var chaptersButton: UIBarButtonItem!
+    @IBOutlet private var chaptersButton: UIBarButtonItem!
     @IBOutlet private weak var moreButton: UIBarButtonItem!
     @IBOutlet private weak var backgroundImage: UIImageView!
 

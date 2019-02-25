@@ -321,7 +321,10 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         }
 
         let item = self.items[index]
-        let progress = userInfo["progress"] as? Double ?? item.progress
+
+        let progress = item is Playlist
+            ? item.progress
+            : userInfo["progress"] as? Double ?? item.progress
 
         cell.progress = item.isFinished ? 1.0 : progress
     }
