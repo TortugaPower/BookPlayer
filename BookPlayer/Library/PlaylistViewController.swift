@@ -167,7 +167,7 @@ class PlaylistViewController: ItemListViewController {
     }
 
     override func handleDelete(books: [Book]) {
-        let alert = UIAlertController(title: "Do you want to delete \(items.count) items?", message: nil, preferredStyle: .alert)
+        let alert = UIAlertController(title: "Do you want to delete \(books.count) items?", message: nil, preferredStyle: .alert)
 
         if books.count == 1, let book = books.first {
             alert.title = "Do you want to delete “\(book.title!)”?"
@@ -175,12 +175,8 @@ class PlaylistViewController: ItemListViewController {
 
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
 
-        alert.addAction(UIAlertAction(title: "Move to Library", style: .default, handler: { _ in
-            self.delete(books, mode: .shallow)
-        }))
-
-        alert.addAction(UIAlertAction(title: "Delete completely", style: .destructive, handler: { _ in
-            self.delete(books)
+        alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
+            self.delete(books, mode: .deep)
         }))
 
         self.present(alert, animated: true, completion: nil)
@@ -254,23 +250,19 @@ extension PlaylistViewController {
             return nil
         }
 
-        let exportAction = UITableViewRowAction(style: .normal, title: "Export") { _, _ in
-            let bookProvider = BookActivityItemProvider(book)
+        let optionsAction = UITableViewRowAction(style: .normal, title: "Options") { _, _ in
+            let sheet = self.createOptionsSheetController(book)
 
-            let shareController = UIActivityViewController(activityItems: [bookProvider], applicationActivities: nil)
+            let deleteAction = UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
+                self.handleDelete(books: [book])
+            })
 
-            shareController.excludedActivityTypes = [.copyToPasteboard]
+            sheet.addAction(deleteAction)
 
-            self.present(shareController, animated: true, completion: nil)
+            self.present(sheet, animated: true, completion: nil)
         }
 
-        let optionsAction = UITableViewRowAction(style: .default, title: "Options") { _, _ in
-            self.handleDelete(books: [book])
-        }
-
-        optionsAction.backgroundColor = .gray
-
-        return [optionsAction, exportAction]
+        return [optionsAction]
     }
 }
 

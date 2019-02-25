@@ -38,7 +38,11 @@ public class Book: LibraryItem {
         return !(self.chapters?.array.isEmpty ?? true)
     }
 
-    func markAsFinished(_ flag: Bool) {
+    override func jumpToStart() {
+        self.currentTime = 0.0
+    }
+
+    override func markAsFinished(_ flag: Bool) {
         self.isFinished = flag
         self.playlist?.updateCompletionState()
     }

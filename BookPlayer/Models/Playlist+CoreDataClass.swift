@@ -24,6 +24,24 @@ public class Playlist: LibraryItem {
         return book.artwork
     }
 
+    override func jumpToStart() {
+        guard let books = self.books?.array as? [Book] else { return }
+
+        for book in books {
+            book.currentTime = 0
+        }
+    }
+
+    override func markAsFinished(_ flag: Bool) {
+        guard let books = self.books?.array as? [Book] else { return }
+
+        for book in books {
+            book.isFinished = flag
+        }
+
+        self.isFinished = flag
+    }
+
     // MARK: - Init
 
     convenience init(title: String, books: [Book], context: NSManagedObjectContext) {

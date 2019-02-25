@@ -242,6 +242,46 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         present(alert, animated: true, completion: nil)
     }
 
+    func createOptionsSheetController(_ item: LibraryItem) -> UIAlertController {
+        let sheet = UIAlertController(title: item.title, message: nil, preferredStyle: .actionSheet)
+
+        sheet.addAction(UIAlertAction(title: "Rename", style: .default) { _ in
+            let alert = self.renameItemAlert(item)
+
+            self.present(alert, animated: true, completion: nil)
+        })
+
+        sheet.addAction(UIAlertAction(title: "Move", style: .default, handler: { _ in
+            self.handleMove([item])
+        }))
+
+        if let book = item as? Book {
+            sheet.addAction(UIAlertAction(title: "Export", style: .default, handler: { _ in
+                let shareController = self.createExportController(book)
+
+                self.present(shareController, animated: true, completion: nil)
+            }))
+        }
+
+        sheet.addAction(UIAlertAction(title: "Jump To Start", style: .default, handler: { _ in
+            item.jumpToStart()
+            item.markAsFinished(false)
+            DataManager.saveContext()
+            self.reloadData()
+        }))
+
+        let markTitle = item.isFinished ? "Mark as Unfinished" : "Mark as Finished"
+
+        sheet.addAction(UIAlertAction(title: markTitle, style: .default, handler: { _ in
+            item.markAsFinished(!item.isFinished)
+            DataManager.saveContext()
+            self.reloadData()
+        }))
+
+        sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        return sheet
+    }
+
     // MARK: - Callback events
 
     @objc func reloadData() {

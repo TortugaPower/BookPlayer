@@ -374,78 +374,41 @@ extension LibraryViewController {
 
         let item = items[indexPath.row]
 
-        // "…" on a button indicates a follow up dialog instead of an immmediate action in macOS and iOS
-        var title = "Delete…"
+        let optionsAction = UITableViewRowAction(style: .normal, title: "Options") { _, _ in
+            let sheet = self.createOptionsSheetController(item)
 
-        // Remove the dots if trying to delete an empty playlist
-        if let playlist = item as? Playlist {
-            title = playlist.hasBooks() ? title : "Delete"
-        }
+            // "…" on a button indicates a follow up dialog instead of an immmediate action in macOS and iOS
+            var title = "Delete…"
 
-        let deleteAction = UITableViewRowAction(style: .default, title: title) { _, indexPath in
-            guard let book = self.items[indexPath.row] as? Book else {
-                guard let playlist = self.items[indexPath.row] as? Playlist else { return }
-
-                guard playlist.hasBooks() else {
-                    DataManager.delete([playlist])
-                    self.deleteRows(at: [indexPath])
-                    return
-                }
-
-                self.handleDelete(items: [playlist])
-
-                return
+            // Remove the dots if trying to delete an empty playlist
+            if let playlist = item as? Playlist {
+                title = playlist.hasBooks() ? title : "Delete"
             }
 
-            self.handleDelete(books: [book])
-        }
+            let deleteAction = UIAlertAction(title: title, style: .destructive) { _ in
+                guard let book = self.items[indexPath.row] as? Book else {
+                    guard let playlist = self.items[indexPath.row] as? Playlist else { return }
 
-        deleteAction.backgroundColor = .red
-
-        if item is Playlist {
-            let renameAction = UITableViewRowAction(style: .normal, title: "Rename") { _, indexPath in
-                guard let playlist = self.items[indexPath.row] as? Playlist else {
-                    return
-                }
-
-                let alert = UIAlertController(title: "Rename playlist", message: nil, preferredStyle: .alert)
-
-                alert.addTextField(configurationHandler: { textfield in
-                    textfield.placeholder = playlist.title
-                    textfield.text = playlist.title
-                })
-
-                alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-                alert.addAction(UIAlertAction(title: "Rename", style: .default) { _ in
-                    if let title = alert.textFields!.first!.text, title != playlist.title {
-                        playlist.title = title
-
-                        DataManager.saveContext()
-                        self.tableView.reloadRows(at: [indexPath], with: .none)
+                    guard playlist.hasBooks() else {
+                        DataManager.delete([playlist])
+                        self.deleteRows(at: [indexPath])
+                        return
                     }
-                })
 
-                self.present(alert, animated: true, completion: nil)
+                    self.handleDelete(items: [playlist])
+
+                    return
+                }
+
+                self.handleDelete(books: [book])
             }
 
-            return [deleteAction, renameAction]
+            sheet.addAction(deleteAction)
+
+            self.present(sheet, animated: true, completion: nil)
         }
 
-        let exportAction = UITableViewRowAction(style: .normal, title: "Export") { _, indexPath in
-            guard let book = self.items[indexPath.row] as? Book else {
-                return
-            }
-
-            let bookProvider = BookActivityItemProvider(book)
-
-            let shareController = UIActivityViewController(activityItems: [bookProvider], applicationActivities: nil)
-
-            shareController.excludedActivityTypes = [.copyToPasteboard]
-
-            self.present(shareController, animated: true, completion: nil)
-        }
-
-        return [deleteAction, exportAction]
+        return [optionsAction]
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -529,6 +492,7 @@ extension LibraryViewController {
             alert.addAction(UIAlertAction(title: "Move", style: .default, handler: { _ in
                 if let playlist = item as? Playlist {
                     playlist.addToBooks(book)
+                    playlist.updateCompletionState()
                 }
 
                 self.library.removeFromItems(at: finalDestinationIndexPath.row)
