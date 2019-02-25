@@ -34,4 +34,8 @@ public class LibraryItem: NSManagedObject {
     var progress: Double {
         return 1.0
     }
+
+    func jumpToStart() {}
+
+    func markAsFinished(_ flag: Bool) {}
 }

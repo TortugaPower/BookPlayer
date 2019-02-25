@@ -24,6 +24,24 @@ public class Playlist: LibraryItem {
         return book.artwork
     }
 
+    override func jumpToStart() {
+        guard let books = self.books?.array as? [Book] else { return }
+
+        for book in books {
+            book.currentTime = 0
+        }
+    }
+
+    override func markAsFinished(_ flag: Bool) {
+        guard let books = self.books?.array as? [Book] else { return }
+
+        for book in books {
+            book.isFinished = flag
+        }
+
+        self.isFinished = flag
+    }
+
     // MARK: - Init
 
     convenience init(title: String, books: [Book], context: NSManagedObjectContext) {
@@ -67,7 +85,9 @@ public class Playlist: LibraryItem {
 
         for book in books {
             totalDuration += book.duration
-            totalProgress += book.currentTime
+            totalProgress += book.isFinished
+                ? book.duration
+                : book.currentTime
         }
 
         guard totalDuration > 0 else {
@@ -144,21 +164,22 @@ public class Playlist: LibraryItem {
     }
 
     func getNextBook(after book: Book) -> Book? {
-        guard let books = self.books else {
+        guard let books = self.books?.array as? [Book] else {
             return nil
         }
 
-        let index = books.index(of: book)
-
-        guard
-            index != NSNotFound,
-            index + 1 < books.count,
-            let nextBook = books[index + 1] as? Book
-        else {
+        guard let indexFound = books.index(of: book) else {
             return nil
         }
 
-        return nextBook
+        for (index, book) in books.enumerated() {
+            guard index > indexFound,
+                !book.isFinished else { continue }
+
+            return book
+        }
+
+        return nil
     }
 
     func info() -> String {

@@ -6,7 +6,7 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 protocol ItemListActions: ItemList {
     func sort(by sortType: PlayListSortOrder)
@@ -44,9 +44,19 @@ extension ItemListActions {
         self.library.removeFromItems(NSOrderedSet(array: selectedBooks))
         self.library.removeFromItems(NSOrderedSet(array: selectedPlaylists))
         playlist.addToBooks(NSOrderedSet(array: allBooks))
+        playlist.updateCompletionState()
 
         DataManager.saveContext()
 
         self.reloadData()
+    }
+
+    func createExportController(_ book: Book) -> UIViewController {
+        let bookProvider = BookActivityItemProvider(book)
+
+        let shareController = UIActivityViewController(activityItems: [bookProvider], applicationActivities: nil)
+        shareController.excludedActivityTypes = [.copyToPasteboard]
+
+        return shareController
     }
 }

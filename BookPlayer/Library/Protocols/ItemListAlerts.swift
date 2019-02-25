@@ -46,4 +46,25 @@ extension ItemListAlerts {
 
         return alert
     }
+
+    func renameItemAlert(_ item: LibraryItem) -> UIAlertController {
+        let alert = UIAlertController(title: "Rename item", message: nil, preferredStyle: .alert)
+
+        alert.addTextField(configurationHandler: { textfield in
+            textfield.placeholder = item.title
+            textfield.text = item.title
+        })
+
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Rename", style: .default) { _ in
+            if let title = alert.textFields!.first!.text, title != item.title {
+                item.title = title
+
+                DataManager.saveContext()
+                self.reloadData()
+            }
+        })
+
+        return alert
+    }
 }

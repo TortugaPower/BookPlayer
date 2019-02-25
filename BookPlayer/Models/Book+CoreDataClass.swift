@@ -38,8 +38,19 @@ public class Book: LibraryItem {
         return !(self.chapters?.array.isEmpty ?? true)
     }
 
-    func markAsFinished(_ flag: Bool) {
+    override func jumpToStart() {
+        self.currentTime = 0.0
+    }
+
+    override func markAsFinished(_ flag: Bool) {
         self.isFinished = flag
+
+        // To avoid progress display side-effects
+        if !flag,
+            self.currentTime.rounded(.up) == self.duration.rounded(.up) {
+            self.currentTime = 0.0
+        }
+
         self.playlist?.updateCompletionState()
     }
 
