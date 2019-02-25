@@ -119,7 +119,7 @@ class PlayerManager: NSObject {
 
             // Once book a book is finished, ask for a review
             UserDefaults.standard.set(true, forKey: "ask_review")
-            NotificationCenter.default.post(name: .bookEnd, object: nil)
+            self.markAsCompleted(true)
         }
 
         if let currentChapter = book.currentChapter,
@@ -406,6 +406,19 @@ extension PlayerManager {
                                             object: nil,
                                             userInfo: userInfo)
         }
+    }
+
+    func markAsCompleted(_ flag: Bool) {
+        guard let book = self.currentBook else { return }
+
+        book.markAsFinished(flag)
+        DataManager.saveContext()
+
+        NotificationCenter.default.post(name: .bookEnd,
+                                        object: nil,
+                                        userInfo: [
+                                            "fileURL": book.fileURL
+        ])
     }
 }
 
