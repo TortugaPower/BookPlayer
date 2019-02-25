@@ -85,7 +85,9 @@ public class Playlist: LibraryItem {
 
         for book in books {
             totalDuration += book.duration
-            totalProgress += book.currentTime
+            totalProgress += book.isFinished
+                ? book.duration
+                : book.currentTime
         }
 
         guard totalDuration > 0 else {

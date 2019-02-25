@@ -264,17 +264,14 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         }
 
         sheet.addAction(UIAlertAction(title: "Jump To Start", style: .default, handler: { _ in
-            item.jumpToStart()
-            item.markAsFinished(false)
-            DataManager.saveContext()
+            DataManager.jumpToStart(item)
             self.reloadData()
         }))
 
         let markTitle = item.isFinished ? "Mark as Unfinished" : "Mark as Finished"
 
         sheet.addAction(UIAlertAction(title: markTitle, style: .default, handler: { _ in
-            item.markAsFinished(!item.isFinished)
-            DataManager.saveContext()
+            DataManager.mark(item, asFinished: !item.isFinished)
             self.reloadData()
         }))
 
@@ -443,18 +440,35 @@ extension ItemListViewController: UITableViewDataSource {
                 }
                 return
             }
-            guard var book = item.getBookToPlay() else { return }
 
-            // if current playing book belongs to this playlist, override next book
-            if item is Playlist,
-                let bookPlaying = PlayerManager.shared.currentBook,
-                let currentPlaylist = bookPlaying.playlist,
-                currentPlaylist == item,
-                bookPlaying != book {
-                book = bookPlaying
+            var nextBook: Book?
+
+            defer {
+                if let book = nextBook {
+                    self?.setupPlayer(book: book)
+                }
             }
 
-            self?.setupPlayer(book: book)
+            guard let playlist = item as? Playlist else {
+                nextBook = item.getBookToPlay()
+                return
+            }
+
+            // Special treatment for playlists
+            guard
+                let bookPlaying = PlayerManager.shared.currentBook,
+                let currentPlaylist = bookPlaying.playlist,
+                currentPlaylist == playlist else {
+                    // restart the selected playlist if current playing book has no relation to it
+                    if item.isFinished {
+                        DataManager.jumpToStart(item)
+                    }
+                    nextBook = item.getBookToPlay()
+                    return
+            }
+
+            // override next book with the one already playing
+            nextBook = bookPlaying
         }
 
         if let book = item as? Book {

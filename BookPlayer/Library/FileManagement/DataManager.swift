@@ -396,4 +396,15 @@ class DataManager {
 
         self.delete(book)
     }
+
+    class func jumpToStart(_ item: LibraryItem) {
+        item.jumpToStart()
+        item.markAsFinished(false)
+        self.saveContext()
+    }
+
+    class func mark(_ item: LibraryItem, asFinished: Bool) {
+        item.markAsFinished(asFinished)
+        self.saveContext()
+    }
 }
