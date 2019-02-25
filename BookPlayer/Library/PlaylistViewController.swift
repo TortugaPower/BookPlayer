@@ -250,7 +250,7 @@ extension PlaylistViewController {
             return nil
         }
 
-        let optionsAction = UITableViewRowAction(style: .normal, title: "Options") { _, _ in
+        let optionsAction = UITableViewRowAction(style: .normal, title: "Options…") { _, _ in
             let sheet = self.createOptionsSheetController(book)
 
             let deleteAction = UIAlertAction(title: "Delete", style: .destructive, handler: { _ in

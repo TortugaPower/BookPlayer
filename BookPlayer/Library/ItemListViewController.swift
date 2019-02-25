@@ -278,9 +278,11 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         return sheet
     }
+}
 
-    // MARK: - Callback events
+// MARK: - Callback events
 
+extension ItemListViewController {
     @objc func reloadData() {
         CATransaction.begin()
         if self.isEditing {
@@ -441,34 +443,9 @@ extension ItemListViewController: UITableViewDataSource {
                 return
             }
 
-            var nextBook: Book?
+            guard let book = self?.getNextBook(item) else { return }
 
-            defer {
-                if let book = nextBook {
-                    self?.setupPlayer(book: book)
-                }
-            }
-
-            guard let playlist = item as? Playlist else {
-                nextBook = item.getBookToPlay()
-                return
-            }
-
-            // Special treatment for playlists
-            guard
-                let bookPlaying = PlayerManager.shared.currentBook,
-                let currentPlaylist = bookPlaying.playlist,
-                currentPlaylist == playlist else {
-                    // restart the selected playlist if current playing book has no relation to it
-                    if item.isFinished {
-                        DataManager.jumpToStart(item)
-                    }
-                    nextBook = item.getBookToPlay()
-                    return
-            }
-
-            // override next book with the one already playing
-            nextBook = bookPlaying
+            self?.setupPlayer(book: book)
         }
 
         if let book = item as? Book {
@@ -480,6 +457,28 @@ extension ItemListViewController: UITableViewDataSource {
         cell.progress = item.isFinished ? 1.0 : item.progress
 
         return cell
+    }
+
+    func getNextBook(_ item: LibraryItem) -> Book? {
+        guard let playlist = item as? Playlist else {
+            return item.getBookToPlay()
+        }
+
+        // Special treatment for playlists
+        guard
+            let bookPlaying = PlayerManager.shared.currentBook,
+            let currentPlaylist = bookPlaying.playlist,
+            currentPlaylist == playlist else {
+            // restart the selected playlist if current playing book has no relation to it
+            if item.isFinished {
+                DataManager.jumpToStart(item)
+            }
+
+            return item.getBookToPlay()
+        }
+
+        // override next book with the one already playing
+        return bookPlaying
     }
 
     func numberOfSections(in tableView: UITableView) -> Int {
