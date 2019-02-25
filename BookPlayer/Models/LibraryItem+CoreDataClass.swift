@@ -27,11 +27,11 @@ public class LibraryItem: NSManagedObject {
 
     var cachedArtwork: UIImage?
 
-    var isCompleted: Bool {
-        return false
-    }
-
     func getBookToPlay() -> Book? {
         return nil
+    }
+
+    var progress: Double {
+        return 1.0
     }
 }

@@ -254,12 +254,11 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             PlayerManager.shared.jumpTo(0.0)
         }))
 
-        actionSheet.addAction(UIAlertAction(title: "Mark as Finished", style: .default, handler: { _ in
-            PlayerManager.shared.pause()
-            // Player resets back to 0.0 if currentTime is set to player's duration
-            PlayerManager.shared.jumpTo(0.1, fromEnd: true)
+        let markTitle = self.currentBook.isFinished ? "Mark as Unfinished" : "Mark as Finished"
 
-            self.requestReview()
+        actionSheet.addAction(UIAlertAction(title: markTitle, style: .default, handler: { _ in
+            PlayerManager.shared.pause()
+            PlayerManager.shared.markAsCompleted(!self.currentBook.isFinished)
         }))
 
         actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))

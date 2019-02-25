@@ -24,10 +24,6 @@ public class Playlist: LibraryItem {
         return book.artwork
     }
 
-    override var isCompleted: Bool {
-        return round(self.totalProgress()) >= round(self.totalDuration())
-    }
-
     // MARK: - Init
 
     convenience init(title: String, books: [Book], context: NSManagedObjectContext) {
@@ -61,7 +57,7 @@ public class Playlist: LibraryItem {
         return totalDuration
     }
 
-    func totalProgress() -> Double {
+    override var progress: Double {
         guard let books = self.books?.array as? [Book] else {
             return 0.0
         }
@@ -79,6 +75,12 @@ public class Playlist: LibraryItem {
         }
 
         return totalProgress / totalDuration
+    }
+
+    func updateCompletionState() {
+        guard let books = self.books?.array as? [Book] else { return }
+        print(!books.contains(where: { !$0.isFinished }))
+        self.isFinished = !books.contains(where: { !$0.isFinished })
     }
 
     func hasBooks() -> Bool {
@@ -133,7 +135,7 @@ public class Playlist: LibraryItem {
         guard let books = self.books else { return nil }
 
         for item in books {
-            guard let book = item as? Book, !book.isCompleted else { continue }
+            guard let book = item as? Book, !book.isFinished else { continue }
 
             return book
         }

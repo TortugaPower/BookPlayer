@@ -74,6 +74,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
     func setupObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookReady), name: .bookReady, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.updateProgress(_:)), name: .updatePercentage, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.updateProgress(_:)), name: .bookEnd, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.adjustBottomOffsetForMiniPlayer), name: .playerPresented, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.adjustBottomOffsetForMiniPlayer), name: .playerDismissed, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPlay), name: .bookPlayed, object: nil)
@@ -301,8 +302,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
 
     @objc func updateProgress(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
-            let fileURL = userInfo["fileURL"] as? URL,
-            let progress = userInfo["progress"] as? Double else {
+            let fileURL = userInfo["fileURL"] as? URL else {
             return
         }
 
@@ -311,12 +311,19 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
                 return book.fileURL == fileURL
             }
 
+            if let playlist = item as? Playlist {
+                return playlist.getBook(with: fileURL) != nil
+            }
+
             return false
         }), let cell = self.tableView.cellForRow(at: IndexPath(row: index, section: .library)) as? BookCellView else {
             return
         }
 
-        cell.progress = progress
+        let item = self.items[index]
+        let progress = userInfo["progress"] as? Double ?? item.progress
+
+        cell.progress = item.isFinished ? 1.0 : progress
     }
 
     @objc func adjustBottomOffsetForMiniPlayer() {
@@ -409,11 +416,11 @@ extension ItemListViewController: UITableViewDataSource {
 
         if let book = item as? Book {
             cell.subtitle = book.author
-            cell.progress = book.progress
         } else if let playlist = item as? Playlist {
             cell.subtitle = playlist.info()
-            cell.progress = playlist.totalProgress()
         }
+
+        cell.progress = item.isFinished ? 1.0 : item.progress
 
         return cell
     }

@@ -26,7 +26,7 @@ public class Book: LibraryItem {
         return self.title
     }
 
-    var progress: Double {
+    override var progress: Double {
         return self.currentTime / self.duration
     }
 
@@ -38,10 +38,9 @@ public class Book: LibraryItem {
         return !(self.chapters?.array.isEmpty ?? true)
     }
 
-    // TODO: This is a makeshift version of a proper completion property.
-    // See https://github.com/TortugaPower/BookPlayer/issues/201
-    override var isCompleted: Bool {
-        return Int(round(self.currentTime)) == Int(round(self.duration))
+    func markAsFinished(_ flag: Bool) {
+        self.isFinished = flag
+        self.playlist?.updateCompletionState()
     }
 
     func setChapters(from asset: AVAsset, context: NSManagedObjectContext) {
@@ -81,6 +80,7 @@ public class Book: LibraryItem {
         self.author = authorFromMeta ?? "Unknown Author"
         self.duration = CMTimeGetSeconds(asset.duration)
         self.originalFileName = bookUrl.originalUrl.lastPathComponent
+        self.isFinished = false
 
         var colors: ArtworkColors!
         if let data = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtwork, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? NSData {
