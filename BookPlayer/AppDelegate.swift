@@ -10,6 +10,7 @@ import AVFoundation
 import DirectoryWatcher
 import MediaPlayer
 import Sentry
+import SwiftyStoreKit
 import UIKit
 
 @UIApplicationMain
@@ -55,6 +56,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.setupDocumentListener()
         // load themes if necessary
         DataManager.setupDefaultTheme()
+        // setup store required listeners
+        self.setupStoreListener()
 
         if let activityDictionary = launchOptions?[.userActivityDictionary] as? [UIApplicationLaunchOptionsKey: Any],
             let activityType = activityDictionary[.userActivityType] as? String,
@@ -256,6 +259,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             for url in newFiles {
                 DataManager.processFile(at: url)
             }
+        }
+    }
+
+    func setupStoreListener() {
+        SwiftyStoreKit.completeTransactions(atomically: true) { purchases in
+            for purchase in purchases {
+                guard purchase.transaction.transactionState == .purchased
+                    || purchase.transaction.transactionState == .restored
+                    else { continue }
+
+                UserDefaults.standard.set(true, forKey: Constants.UserDefaults.plusUser.rawValue)
+
+                if purchase.needsFinishTransaction {
+                    SwiftyStoreKit.finishTransaction(purchase.transaction)
+                }
+            }
+        }
+
+        SwiftyStoreKit.shouldAddStorePaymentHandler = { _, _ in
+            return true
         }
     }
 }

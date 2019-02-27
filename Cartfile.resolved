@@ -1,6 +1,7 @@
 github "GianniCarlo/DirectoryWatcher" "2.3.0"
 github "GianniCarlo/SwiftReorder" "5.1.1"
 github "GianniCarlo/Themeable" "8735cbe7f794e42d0941c3cc30a2f8690174076a"
+github "bizz84/SwiftyStoreKit" "0.14.2"
 github "cbpowell/MarqueeLabel" "3.2.0"
 github "dennisweissmann/DeviceKit" "1.10.0"
 github "getsentry/sentry-cocoa" "4.1.0"

@@ -64,12 +64,6 @@ class ThemesViewController: UIViewController {
         if self.brightnessSwitch.isOn {
             self.toggleAutomaticBrightness(animated: false)
         }
-
-//        DataManager.store.buyProduct(<#T##product: SKProduct##SKProduct#>)
-        DataManager.store.requestProducts { flag, products in
-            print(flag)
-            print(products)
-        }
     }
 
     override func viewDidLayoutSubviews() {

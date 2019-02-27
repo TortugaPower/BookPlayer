@@ -18,11 +18,6 @@ class DataManager {
     static let importer = ImportManager()
     static let queue = OperationQueue()
 
-    static let smallTip: ProductIdentifier = "com.tortugapower.audiobookplayer.3dollars"
-    static let midTip: ProductIdentifier = "com.tortugapower.audiobookplayer.fivedollars"
-    static let largeTip: ProductIdentifier = "com.tortugapower.audiobookplayer.tendollars"
-    static let store = IAPHelper(productIds: Set([smallTip, midTip, largeTip]))
-
     // MARK: - Folder URLs
 
     class func getDocumentsFolderURL() -> URL {

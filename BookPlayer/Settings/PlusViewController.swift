@@ -8,6 +8,7 @@
 
 import Kingfisher
 import SafariServices
+import SwiftyStoreKit
 import Themeable
 import UIKit
 
@@ -29,11 +30,34 @@ struct Contributor: Decodable {
 class PlusViewController: UIViewController {
     @IBOutlet weak var scrollContentHeightConstraint: NSLayoutConstraint!
 
+    @IBOutlet weak var kindTipButton: UIButton!
+    @IBOutlet weak var kindTipButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var kindTipSpinner: UIActivityIndicatorView!
+
+    @IBOutlet weak var excellentTipButton: UIButton!
+    @IBOutlet weak var excellentTipButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var excellentTipSpinner: UIActivityIndicatorView!
+
+    @IBOutlet weak var incredibleTipButton: UIButton!
+    @IBOutlet weak var incredibleTipButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var incredibleTipSpinner: UIActivityIndicatorView!
+
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var collectionViewHeightConstraint: NSLayoutConstraint!
 
     @IBOutlet weak var gianniImageView: UIImageView!
     @IBOutlet weak var pichImageView: UIImageView!
+
+    @IBOutlet var titleLabels: [UILabel]!
+    @IBOutlet var detailLabels: [UILabel]!
+    @IBOutlet var imageViews: [UIImageView]!
+
+    let kindTipId = "com.tortugapower.audiobookplayer.tip.kind"
+    let excellentTipId = "com.tortugapower.audiobookplayer.tip.excellent"
+    let incredibleTipId = "com.tortugapower.audiobookplayer.tip.incredible"
+
+    //constants for button animations
+    let defaultTipButtonsWidth: CGFloat = 60.0
 
     //constants for collectionView layout
     let sectionInsets = UIEdgeInsets(top: 0.0, left: 10.0, bottom: 25.0, right: 0.0)
@@ -76,6 +100,12 @@ class PlusViewController: UIViewController {
         setUpTheming()
     }
 
+    func setupSpinners() {
+        self.kindTipSpinner.stopAnimating()
+        self.excellentTipSpinner.stopAnimating()
+        self.incredibleTipSpinner.stopAnimating()
+    }
+
     func setupContributors() {
         let url = URL(string: "https://api.github.com/repos/TortugaPower/BookPlayer/contributors")!
         let task = URLSession.shared.dataTask(with: url) { data, _, _ in
@@ -92,14 +122,18 @@ class PlusViewController: UIViewController {
         task.resume()
     }
 
-    func showProfile(_ url: URL) {
-        let safari = SFSafariViewController(url: url)
-
-        if #available(iOS 11.0, *) {
-            safari.dismissButtonStyle = .close
+    @IBAction func restorePurchases(_ sender: UIBarButtonItem) {
+//        self.store.restorePurchases()
+        SwiftyStoreKit.restorePurchases(atomically: true) { results in
+            if results.restoreFailedPurchases.count > 0 {
+                print("Restore Failed: \(results.restoreFailedPurchases)")
+            } else if results.restoredPurchases.count > 0 {
+                print("Restore Success: \(results.restoredPurchases)")
+                UserDefaults.standard.set(true, forKey: Constants.UserDefaults.plusUser.rawValue)
+            } else {
+                print("Nothing to Restore")
+            }
         }
-
-        self.present(safari, animated: true)
     }
 
     @IBAction func showGianniProfile(_ sender: UIButton) {
@@ -110,11 +144,82 @@ class PlusViewController: UIViewController {
         self.showProfile(self.contributorPichfl.profileURL)
     }
 
-    @IBAction func kindTipPressed(_ sender: UIButton) {}
+    @IBAction func kindTipPressed(_ sender: UIButton) {
+        self.requestProduct(self.kindTipId, sender: sender)
+    }
 
-    @IBAction func excellentTipPressed(_ sender: UIButton) {}
+    @IBAction func excellentTipPressed(_ sender: UIButton) {
+        self.requestProduct(self.excellentTipId, sender: sender)
+    }
 
-    @IBAction func incredibleTipPressed(_ sender: UIButton) {}
+    @IBAction func incredibleTipPressed(_ sender: UIButton) {
+        self.requestProduct(self.incredibleTipId, sender: sender)
+    }
+
+    func hideAllSpinners() {
+        self.showSpinner(false, sender: self.kindTipButton)
+        self.showSpinner(false, sender: self.excellentTipButton)
+        self.showSpinner(false, sender: self.incredibleTipButton)
+    }
+
+    func showSpinner(_ flag: Bool, sender: UIButton) {
+        var spinner: UIActivityIndicatorView!
+        var widthConstraint: NSLayoutConstraint!
+
+        switch sender {
+        case self.kindTipButton:
+            spinner = self.kindTipSpinner
+            widthConstraint = self.kindTipButtonWidthConstraint
+        case self.excellentTipButton:
+            spinner = self.excellentTipSpinner
+            widthConstraint = self.excellentTipButtonWidthConstraint
+        default:
+            spinner = self.incredibleTipSpinner
+            widthConstraint = self.incredibleTipButtonWidthConstraint
+        }
+
+        if flag {
+            spinner.startAnimating()
+            widthConstraint.constant = spinner.bounds.width
+            spinner.color = sender.backgroundColor
+        } else {
+            spinner.stopAnimating()
+            widthConstraint.constant = self.defaultTipButtonsWidth
+        }
+
+        UIView.animate(withDuration: 0.3) {
+            self.view.layoutIfNeeded()
+            sender.alpha = flag ? 0.0 : 1.0
+        }
+    }
+
+    func showProfile(_ url: URL) {
+        let safari = SFSafariViewController(url: url)
+
+        if #available(iOS 11.0, *) {
+            safari.dismissButtonStyle = .close
+        }
+
+        self.present(safari, animated: true)
+    }
+
+    func requestProduct(_ id: String, sender: UIButton) {
+        self.showSpinner(true, sender: sender)
+
+        SwiftyStoreKit.purchaseProduct(id, quantity: 1, atomically: true) { result in
+            self.showSpinner(false, sender: sender)
+
+            switch result {
+            case .success(let purchase):
+                print("Purchase Success: \(purchase.productId)")
+                UserDefaults.standard.set(true, forKey: Constants.UserDefaults.plusUser.rawValue)
+            case .error(let error):
+                guard error.code != .paymentCancelled else { return }
+
+                self.showAlert("Error", message: (error as NSError).localizedDescription)
+            }
+        }
+    }
 }
 
 extension PlusViewController: UICollectionViewDataSource {
@@ -166,5 +271,17 @@ extension PlusViewController: UICollectionViewDelegateFlowLayout {
 extension PlusViewController: Themeable {
     func applyTheme(_ theme: Theme) {
         self.view.backgroundColor = theme.settingsBackgroundColor
+
+        for label in self.titleLabels {
+            label.textColor = theme.primaryColor
+        }
+
+        for label in self.detailLabels {
+            label.textColor = theme.detailColor
+        }
+
+        for image in self.imageViews {
+            image.tintColor = theme.highlightColor
+        }
     }
 }

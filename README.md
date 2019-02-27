@@ -80,6 +80,7 @@ Managed with [Carthage](https://github.com/Carthage/Carthage)
 - [Sentry](https://github.com/getsentry/sentry-cocoa) for crash reporting
 - [Sweetercolor](https://github.com/jathu/sweetercolor) for handling artwork colors
 - [SwiftReorder](https://github.com/GianniCarlo/SwiftReorder) for drag-and-drop on the UITableView
+- [SwiftyStoreKit](https://github.com/bizz84/SwiftyStoreKit) for the tip jar
 - [ZIPFoundation](https://github.com/weichsel/ZIPFoundation) for zip files
 
 Managed with [Homebrew](https://brew.sh)
