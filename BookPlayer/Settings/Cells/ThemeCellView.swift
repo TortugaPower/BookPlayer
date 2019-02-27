@@ -13,6 +13,15 @@ class ThemeCellView: UITableViewCell {
     @IBOutlet weak var showCaseView: UIView!
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var plusImageView: UIImageView!
+    @IBOutlet weak var lockImageView: UIImageView!
+
+    var isLocked: Bool = false {
+        didSet {
+            self.titleLabel.alpha = self.isLocked ? 0.5 : 1.0
+            self.showCaseView.alpha = self.isLocked ? 0.5 : 1.0
+            self.lockImageView.isHidden = !self.isLocked
+        }
+    }
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -37,6 +46,7 @@ class ThemeCellView: UITableViewCell {
 extension ThemeCellView: Themeable {
     func applyTheme(_ theme: Theme) {
         self.titleLabel?.textColor = theme.primaryColor
+        self.lockImageView.tintColor = theme.highlightColor
         self.backgroundColor = theme.backgroundColor
     }
 }

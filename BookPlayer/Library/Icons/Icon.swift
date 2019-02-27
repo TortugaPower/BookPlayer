@@ -13,6 +13,11 @@ struct Icon: Codable {
     var title: String
     private var artist: String?
     var imageName: String
+    private var locked: Bool?
+
+    var isLocked: Bool {
+        return self.isLocked ?? false
+    }
 
     var author: String {
         return self.artist ?? "By your friends from BookPlayer"

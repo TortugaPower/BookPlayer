@@ -358,12 +358,21 @@
                                                     <color key="textColor" red="0.56078431370000004" green="0.5568627451" blue="0.58039215690000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="premiumFeature" translatesAutoresizingMaskIntoConstraints="NO" id="Q2z-6o-p3I">
+                                                    <rect key="frame" x="335" y="31" width="24" height="24"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="24" id="hBt-Z5-GuY"/>
+                                                        <constraint firstAttribute="width" constant="24" id="zQ1-E9-xBX"/>
+                                                    </constraints>
+                                                </imageView>
                                             </subviews>
                                             <constraints>
+                                                <constraint firstAttribute="trailing" secondItem="Q2z-6o-p3I" secondAttribute="trailing" constant="16" id="3wG-tU-vla"/>
+                                                <constraint firstItem="Q2z-6o-p3I" firstAttribute="centerY" secondItem="Jj0-cc-ISp" secondAttribute="centerY" id="7wa-7n-mHZ"/>
                                                 <constraint firstItem="hfJ-8d-1E2" firstAttribute="leading" secondItem="so0-Nc-szn" secondAttribute="trailing" constant="15" id="9ZK-Pd-23u"/>
                                                 <constraint firstAttribute="trailingMargin" secondItem="hfJ-8d-1E2" secondAttribute="trailing" constant="15" id="ENb-Da-aUv"/>
                                                 <constraint firstItem="4eX-0M-CDr" firstAttribute="top" secondItem="hfJ-8d-1E2" secondAttribute="bottom" constant="3" id="F87-0l-s7M"/>
-                                                <constraint firstItem="so0-Nc-szn" firstAttribute="leading" secondItem="Jj0-cc-ISp" secondAttribute="leadingMargin" constant="1" id="Q7D-xt-Clc"/>
+                                                <constraint firstItem="so0-Nc-szn" firstAttribute="leading" secondItem="Jj0-cc-ISp" secondAttribute="leading" constant="16" id="Q7D-xt-Clc"/>
                                                 <constraint firstItem="so0-Nc-szn" firstAttribute="centerY" secondItem="Jj0-cc-ISp" secondAttribute="centerY" id="QBr-DQ-lOe"/>
                                                 <constraint firstItem="4eX-0M-CDr" firstAttribute="leading" secondItem="hfJ-8d-1E2" secondAttribute="leading" id="UaV-rg-Avj"/>
                                                 <constraint firstItem="hfJ-8d-1E2" firstAttribute="centerY" secondItem="Jj0-cc-ISp" secondAttribute="centerY" constant="-11" id="bZM-rk-UH5"/>
@@ -373,6 +382,7 @@
                                         <connections>
                                             <outlet property="authorLabel" destination="4eX-0M-CDr" id="Idb-ib-S0l"/>
                                             <outlet property="iconImageView" destination="so0-Nc-szn" id="nwN-22-PJ2"/>
+                                            <outlet property="lockImageView" destination="Q2z-6o-p3I" id="A3p-hA-geh"/>
                                             <outlet property="titleLabel" destination="hfJ-8d-1E2" id="01G-jS-dPO"/>
                                         </connections>
                                     </tableViewCell>
@@ -1206,9 +1216,18 @@
                                                                     <nil key="textColor"/>
                                                                     <nil key="highlightedColor"/>
                                                                 </label>
+                                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="premiumFeature" translatesAutoresizingMaskIntoConstraints="NO" id="Dgy-0u-Vir">
+                                                                    <rect key="frame" x="335" y="10.5" width="24" height="24"/>
+                                                                    <constraints>
+                                                                        <constraint firstAttribute="height" constant="24" id="Q15-es-Eqv"/>
+                                                                        <constraint firstAttribute="width" constant="24" id="ykz-2h-VKk"/>
+                                                                    </constraints>
+                                                                </imageView>
                                                             </subviews>
                                                             <constraints>
+                                                                <constraint firstItem="Dgy-0u-Vir" firstAttribute="centerY" secondItem="kDP-3S-9sO" secondAttribute="centerY" id="HKU-Z8-AEL"/>
                                                                 <constraint firstItem="vMH-AY-TwT" firstAttribute="centerY" secondItem="kDP-3S-9sO" secondAttribute="centerY" id="Kfw-h5-c5h"/>
+                                                                <constraint firstAttribute="trailing" secondItem="Dgy-0u-Vir" secondAttribute="trailing" constant="16" id="LbP-Dr-AwS"/>
                                                                 <constraint firstItem="vMH-AY-TwT" firstAttribute="leading" secondItem="kDP-3S-9sO" secondAttribute="leading" constant="15" id="Mm4-ng-ZWk"/>
                                                                 <constraint firstItem="ouD-Gg-0gc" firstAttribute="leading" secondItem="vMH-AY-TwT" secondAttribute="trailing" constant="11" id="TVJ-qK-6h8"/>
                                                                 <constraint firstItem="ouD-Gg-0gc" firstAttribute="centerY" secondItem="kDP-3S-9sO" secondAttribute="centerY" id="WZB-AE-ykW"/>
@@ -1216,6 +1235,7 @@
                                                             </constraints>
                                                         </tableViewCellContentView>
                                                         <connections>
+                                                            <outlet property="lockImageView" destination="Dgy-0u-Vir" id="qJb-Gq-7GQ"/>
                                                             <outlet property="showCaseView" destination="vMH-AY-TwT" id="CbQ-HM-pyQ"/>
                                                             <outlet property="titleLabel" destination="ouD-Gg-0gc" id="h1b-gW-svF"/>
                                                         </connections>
@@ -1285,18 +1305,28 @@
                                                                     <nil key="textColor"/>
                                                                     <nil key="highlightedColor"/>
                                                                 </label>
+                                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="premiumFeature" translatesAutoresizingMaskIntoConstraints="NO" id="Nsd-97-sRQ">
+                                                                    <rect key="frame" x="335" y="10.5" width="24" height="24"/>
+                                                                    <constraints>
+                                                                        <constraint firstAttribute="height" constant="24" id="adY-iM-Fjd"/>
+                                                                        <constraint firstAttribute="width" constant="24" id="foD-bP-G5G"/>
+                                                                    </constraints>
+                                                                </imageView>
                                                             </subviews>
                                                             <constraints>
                                                                 <constraint firstItem="v2Q-Ng-rck" firstAttribute="leading" secondItem="UET-yR-x6d" secondAttribute="leading" constant="24" id="IhD-Pp-ZYv"/>
+                                                                <constraint firstItem="Nsd-97-sRQ" firstAttribute="centerY" secondItem="UET-yR-x6d" secondAttribute="centerY" id="QAC-yR-z9f"/>
                                                                 <constraint firstItem="OaN-y2-CEG" firstAttribute="centerY" secondItem="UET-yR-x6d" secondAttribute="centerY" id="Z1y-qz-Abn"/>
                                                                 <constraint firstItem="OaN-y2-CEG" firstAttribute="leading" secondItem="UET-yR-x6d" secondAttribute="leading" constant="15" id="ZLa-1k-Fif"/>
                                                                 <constraint firstItem="v26-MI-ubO" firstAttribute="centerY" secondItem="UET-yR-x6d" secondAttribute="centerY" id="aJH-kS-Yqx"/>
                                                                 <constraint firstItem="v26-MI-ubO" firstAttribute="leading" secondItem="OaN-y2-CEG" secondAttribute="trailing" constant="11" id="cKH-Mn-zCl"/>
+                                                                <constraint firstAttribute="trailing" secondItem="Nsd-97-sRQ" secondAttribute="trailing" constant="16" id="gcW-C5-cQZ"/>
                                                                 <constraint firstItem="v2Q-Ng-rck" firstAttribute="centerY" secondItem="UET-yR-x6d" secondAttribute="centerY" id="kYb-hg-HBe"/>
                                                                 <constraint firstItem="v26-MI-ubO" firstAttribute="trailing" secondItem="UET-yR-x6d" secondAttribute="trailingMargin" id="vLx-KI-5KS"/>
                                                             </constraints>
                                                         </tableViewCellContentView>
                                                         <connections>
+                                                            <outlet property="lockImageView" destination="Nsd-97-sRQ" id="18H-E3-He6"/>
                                                             <outlet property="plusImageView" destination="v2Q-Ng-rck" id="w0P-dc-Ibo"/>
                                                             <outlet property="showCaseView" destination="OaN-y2-CEG" id="qSm-4P-spy"/>
                                                             <outlet property="titleLabel" destination="v26-MI-ubO" id="grw-8b-iam"/>
@@ -1645,6 +1675,7 @@ Use with caution and care for your hearing.</string>
         <image name="plusImageAppIcons" width="64" height="64"/>
         <image name="plusImageSupport" width="64" height="64"/>
         <image name="plusImageThemes" width="64" height="64"/>
+        <image name="premiumFeature" width="24" height="24"/>
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="fyk-Ks-y4x"/>

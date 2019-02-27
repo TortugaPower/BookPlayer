@@ -160,7 +160,7 @@ class ThemesViewController: UIViewController {
         let tableHeight = CGFloat(self.extractedThemes.count * cellHeight + cellHeight)
 
         self.extractedThemesTableHeightConstraint.constant = tableHeight
-        self.scrollContentHeightConstraint.constant = tableHeight + self.extractedThemesTableView.frame.origin.y
+        self.scrollContentHeightConstraint.constant = tableHeight + CGFloat(cellHeight) + self.extractedThemesTableView.frame.origin.y
     }
 }
 
@@ -196,6 +196,7 @@ extension ThemesViewController: UITableViewDataSource {
             cell.plusImageView.isHidden = false
             cell.plusImageView.tintColor = ThemeManager.shared.currentTheme.highlightColor
             cell.showCaseView.isHidden = true
+            cell.isLocked = !UserDefaults.standard.bool(forKey: Constants.UserDefaults.plusUser.rawValue)
             return cell
         }
 
@@ -205,6 +206,7 @@ extension ThemesViewController: UITableViewDataSource {
 
         cell.titleLabel.text = item.title
         cell.setupShowCaseView(for: item)
+        cell.isLocked = item.locked && !UserDefaults.standard.bool(forKey: Constants.UserDefaults.plusUser.rawValue)
 
         cell.accessoryType = item == ThemeManager.shared.currentTheme
             ? .checkmark
@@ -216,6 +218,13 @@ extension ThemesViewController: UITableViewDataSource {
 
 extension ThemesViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let cell = tableView.cellForRow(at: indexPath) as? ThemeCellView else { return }
+
+        guard !cell.isLocked else {
+            tableView.reloadData()
+            return
+        }
+
         guard indexPath.sectionValue != .add else {
             self.extractTheme()
             return

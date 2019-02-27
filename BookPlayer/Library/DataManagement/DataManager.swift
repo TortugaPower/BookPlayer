@@ -194,7 +194,7 @@ class DataManager {
             let themesFile = Bundle.main.url(forResource: "Themes", withExtension: "json"),
             let data = try? Data(contentsOf: themesFile, options: .mappedIfSafe),
             let jsonObject = try? JSONSerialization.jsonObject(with: data, options: .mutableLeaves),
-            let themeParams = jsonObject as? [[String: String]]
+            let themeParams = jsonObject as? [[String: Any]]
         else { return [] }
 
         var themes = [Theme]()
@@ -211,6 +211,7 @@ class DataManager {
             if let storedThemes = try? self.persistentContainer.viewContext.fetch(request),
                 let storedTheme = storedThemes.first {
                 theme = storedTheme
+                theme.locked = themeParam["locked"] as? Bool ?? false
             } else {
                 theme = Theme(params: themeParam, context: self.persistentContainer.viewContext)
             }

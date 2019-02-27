@@ -267,7 +267,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             for purchase in purchases {
                 guard purchase.transaction.transactionState == .purchased
                     || purchase.transaction.transactionState == .restored
-                    else { continue }
+                else { continue }
 
                 UserDefaults.standard.set(true, forKey: Constants.UserDefaults.plusUser.rawValue)
 
@@ -278,7 +278,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         SwiftyStoreKit.shouldAddStorePaymentHandler = { _, _ in
-            return true
+            true
         }
     }
 }

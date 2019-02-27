@@ -30,7 +30,8 @@
         "darkPrimary": "EDECEA",
         "darkSecondary": "667380",
         "darkAccent": "FFCC66",
-        "darkBackground": "212733"
+        "darkBackground": "212733",
+        "locked": true
     },
     {
         "title": "Vintage",
@@ -41,6 +42,7 @@
         "darkPrimary": "EFE8DD",
         "darkSecondary": "726B53",
         "darkAccent": "5D9FBA",
-        "darkBackground": "27231C"
+        "darkBackground": "27231C",
+        "locked": true
     }
 ]

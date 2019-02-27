@@ -27,16 +27,16 @@ extension Theme {
     @NSManaged public var book: Book?
     @NSManaged public var library: Library?
 
-    public class func searchPredicate(_ params: [String: String]) -> NSPredicate? {
-        guard let defaultBackgroundHex = params["defaultBackground"],
-            let defaultPrimaryHex = params["defaultPrimary"],
-            let defaultSecondaryHex = params["defaultSecondary"],
-            let defaultAccentHex = params["defaultAccent"],
-            let darkBackgroundHex = params["darkBackground"],
-            let darkPrimaryHex = params["darkPrimary"],
-            let darkSecondaryHex = params["darkSecondary"],
-            let darkAccentHex = params["darkAccent"],
-            let title = params["title"] else { return nil }
+    public class func searchPredicate(_ params: [String: Any]) -> NSPredicate? {
+        guard let defaultBackgroundHex = params["defaultBackground"] as? String,
+            let defaultPrimaryHex = params["defaultPrimary"] as? String,
+            let defaultSecondaryHex = params["defaultSecondary"] as? String,
+            let defaultAccentHex = params["defaultAccent"] as? String,
+            let darkBackgroundHex = params["darkBackground"] as? String,
+            let darkPrimaryHex = params["darkPrimary"] as? String,
+            let darkSecondaryHex = params["darkSecondary"] as? String,
+            let darkAccentHex = params["darkAccent"] as? String,
+            let title = params["title"] as? String else { return nil }
 
         let predicateFormat =
             """

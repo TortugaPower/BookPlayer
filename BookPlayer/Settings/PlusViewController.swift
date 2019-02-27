@@ -52,6 +52,9 @@ class PlusViewController: UIViewController {
     @IBOutlet var detailLabels: [UILabel]!
     @IBOutlet var imageViews: [UIImageView]!
 
+    var loadingBarButton: UIBarButtonItem!
+    var restoreBarButton: UIBarButtonItem!
+
     let kindTipId = "com.tortugapower.audiobookplayer.tip.kind"
     let excellentTipId = "com.tortugapower.audiobookplayer.tip.excellent"
     let incredibleTipId = "com.tortugapower.audiobookplayer.tip.incredible"
@@ -95,6 +98,10 @@ class PlusViewController: UIViewController {
         self.gianniImageView.kf.setImage(with: self.contributorGianni.avatarURL)
         self.pichImageView.kf.setImage(with: self.contributorPichfl.avatarURL)
 
+        let activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .gray)
+        activityIndicatorView.startAnimating()
+        self.loadingBarButton = UIBarButtonItem(customView: activityIndicatorView)
+
         self.setupContributors()
 
         setUpTheming()
@@ -123,15 +130,19 @@ class PlusViewController: UIViewController {
     }
 
     @IBAction func restorePurchases(_ sender: UIBarButtonItem) {
-//        self.store.restorePurchases()
+        self.restoreBarButton = self.navigationItem.rightBarButtonItem
+        self.navigationItem.rightBarButtonItem = self.loadingBarButton
+
         SwiftyStoreKit.restorePurchases(atomically: true) { results in
+            self.navigationItem.rightBarButtonItem = self.restoreBarButton
+
             if results.restoreFailedPurchases.count > 0 {
-                print("Restore Failed: \(results.restoreFailedPurchases)")
+                self.showAlert("Network Error", message: "Please try again later")
             } else if results.restoredPurchases.count > 0 {
-                print("Restore Success: \(results.restoredPurchases)")
+                self.showAlert("BookPlayer Plus restored!", message: nil)
                 UserDefaults.standard.set(true, forKey: Constants.UserDefaults.plusUser.rawValue)
             } else {
-                print("Nothing to Restore")
+                self.showAlert("You haven't tipped us yet", message: nil)
             }
         }
     }
