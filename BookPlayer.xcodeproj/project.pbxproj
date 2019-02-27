@@ -21,6 +21,8 @@
 		4150F80320A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4150F80220A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework */; };
 		41544A1221B86A8C00740AD2 /* DeleteMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41544A1121B86A8B00740AD2 /* DeleteMode.swift */; };
 		41544A1421BAF41400740AD2 /* ItemSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41544A1321BAF41400740AD2 /* ItemSelectionViewController.swift */; };
+		415758E82226DED300DDB9B6 /* PlusBannerView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 415758E72226DED300DDB9B6 /* PlusBannerView.xib */; };
+		415758EA2226E18800DDB9B6 /* PlusBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415758E92226E18800DDB9B6 /* PlusBannerView.swift */; };
 		415B274421FAE47200F9D9B7 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415B274321FAE47200F9D9B7 /* LoadingView.swift */; };
 		415B274621FAE4A300F9D9B7 /* LoadingView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 415B274521FAE4A300F9D9B7 /* LoadingView.xib */; };
 		4163E3112148606600072AA2 /* FileItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E3102148606600072AA2 /* FileItem.swift */; };
@@ -190,6 +192,8 @@
 		4150F80220A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IDZSwiftCommonCrypto.framework; path = Carthage/Build/iOS/IDZSwiftCommonCrypto.framework; sourceTree = "<group>"; };
 		41544A1121B86A8B00740AD2 /* DeleteMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteMode.swift; sourceTree = "<group>"; };
 		41544A1321BAF41400740AD2 /* ItemSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemSelectionViewController.swift; sourceTree = "<group>"; };
+		415758E72226DED300DDB9B6 /* PlusBannerView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PlusBannerView.xib; sourceTree = "<group>"; };
+		415758E92226E18800DDB9B6 /* PlusBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlusBannerView.swift; sourceTree = "<group>"; };
 		415B274321FAE47200F9D9B7 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		415B274521FAE4A300F9D9B7 /* LoadingView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoadingView.xib; sourceTree = "<group>"; };
 		4163E3102148606600072AA2 /* FileItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileItem.swift; sourceTree = "<group>"; };
@@ -613,6 +617,8 @@
 				41B2A5DD21CAF20E00917584 /* ThemesViewController.swift */,
 				41AD3DA2221C7DCE00DC41E1 /* IconsViewController.swift */,
 				41AD3DAE221E678600DC41E1 /* PlusViewController.swift */,
+				415758E72226DED300DDB9B6 /* PlusBannerView.xib */,
+				415758E92226E18800DDB9B6 /* PlusBannerView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -869,6 +875,7 @@
 				41E56300223953EB00C06BC9 /* default-icon-ipad@2x.png in Resources */,
 				41E562CF22394F5200C06BC9 /* ayu-light@3x.png in Resources */,
 				41E562FE223953AE00C06BC9 /* default-icon-ipad@3x.png in Resources */,
+				415758E82226DED300DDB9B6 /* PlusBannerView.xib in Resources */,
 				41AD3DAB221C8FF400DC41E1 /* default-icon@3x.png in Resources */,
 				41AD3DAC221C8FF400DC41E1 /* default-icon@2x.png in Resources */,
 				41E562F82239535D00C06BC9 /* dark-ipad@2x.png in Resources */,
@@ -1028,6 +1035,7 @@
 				C375AF1720DD81F800AC034D /* ProgressSlider.swift in Sources */,
 				416B640D1E72F362000E955A /* Notification+BookPlayer.swift in Sources */,
 				4165EE0620A743D500616EDF /* LibraryItem+CoreDataClass.swift in Sources */,
+				415758EA2226E18800DDB9B6 /* PlusBannerView.swift in Sources */,
 				41839AB720AA8C970047E55D /* Book+CoreDataClass.swift in Sources */,
 				41AD3DA1221C7CAB00DC41E1 /* Icon.swift in Sources */,
 				4163E3112148606600072AA2 /* FileItem.swift in Sources */,

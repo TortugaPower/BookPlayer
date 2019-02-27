@@ -129,6 +129,10 @@ class PlusViewController: UIViewController {
         task.resume()
     }
 
+    @IBAction func close(_ sender: UIBarButtonItem) {
+        self.dismiss(animated: true, completion: nil)
+    }
+
     @IBAction func restorePurchases(_ sender: UIBarButtonItem) {
         self.restoreBarButton = self.navigationItem.rightBarButtonItem
         self.navigationItem.rightBarButtonItem = self.loadingBarButton
@@ -140,7 +144,8 @@ class PlusViewController: UIViewController {
                 self.showAlert("Network Error", message: "Please try again later")
             } else if results.restoredPurchases.count > 0 {
                 self.showAlert("BookPlayer Plus restored!", message: nil)
-                UserDefaults.standard.set(true, forKey: Constants.UserDefaults.plusUser.rawValue)
+                UserDefaults.standard.set(true, forKey: Constants.UserDefaults.donationMade.rawValue)
+                NotificationCenter.default.post(name: .donationMade, object: nil)
             } else {
                 self.showAlert("You haven't tipped us yet", message: nil)
             }
@@ -223,7 +228,8 @@ class PlusViewController: UIViewController {
             switch result {
             case .success(let purchase):
                 print("Purchase Success: \(purchase.productId)")
-                UserDefaults.standard.set(true, forKey: Constants.UserDefaults.plusUser.rawValue)
+                UserDefaults.standard.set(true, forKey: Constants.UserDefaults.donationMade.rawValue)
+                NotificationCenter.default.post(name: .donationMade, object: nil)
             case .error(let error):
                 guard error.code != .paymentCancelled else { return }
 

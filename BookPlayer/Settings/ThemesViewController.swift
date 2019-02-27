@@ -30,6 +30,8 @@ class ThemesViewController: UIViewController {
     @IBOutlet var separatorViews: [UIView]!
 
     @IBOutlet weak var scrollContentHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var bannerView: PlusBannerView!
+    @IBOutlet weak var bannerHeightConstraint: NSLayoutConstraint!
 
     var scrolledToCurrentTheme = false
     let cellHeight = 44
@@ -53,6 +55,12 @@ class ThemesViewController: UIViewController {
         self.localThemes = DataManager.getLocalThemes()
         self.extractedThemes = DataManager.getExtractedThemes()
 
+        if !UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) {
+            NotificationCenter.default.addObserver(self, selector: #selector(self.donationMade), name: .donationMade, object: nil)
+        } else {
+            self.donationMade()
+        }
+
         setUpTheming()
 
         self.extractedThemesTableView.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: self.extractedThemesTableView.frame.size.width, height: 1))
@@ -75,6 +83,13 @@ class ThemesViewController: UIViewController {
         self.scrolledToCurrentTheme = true
         let indexPath = IndexPath(row: index, section: 0)
         self.extractedThemesTableView.scrollToRow(at: indexPath, at: .top, animated: false)
+    }
+
+    @objc func donationMade() {
+        self.bannerView.isHidden = true
+        self.bannerHeightConstraint.constant = 30
+        self.localThemesTableView.reloadData()
+        self.extractedThemesTableView.reloadData()
     }
 
     func extractTheme() {
@@ -196,7 +211,7 @@ extension ThemesViewController: UITableViewDataSource {
             cell.plusImageView.isHidden = false
             cell.plusImageView.tintColor = ThemeManager.shared.currentTheme.highlightColor
             cell.showCaseView.isHidden = true
-            cell.isLocked = !UserDefaults.standard.bool(forKey: Constants.UserDefaults.plusUser.rawValue)
+            cell.isLocked = !UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue)
             return cell
         }
 
@@ -206,7 +221,7 @@ extension ThemesViewController: UITableViewDataSource {
 
         cell.titleLabel.text = item.title
         cell.setupShowCaseView(for: item)
-        cell.isLocked = item.locked && !UserDefaults.standard.bool(forKey: Constants.UserDefaults.plusUser.rawValue)
+        cell.isLocked = item.locked && !UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue)
 
         cell.accessoryType = item == ThemeManager.shared.currentTheme
             ? .checkmark

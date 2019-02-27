@@ -269,7 +269,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     || purchase.transaction.transactionState == .restored
                 else { continue }
 
-                UserDefaults.standard.set(true, forKey: Constants.UserDefaults.plusUser.rawValue)
+                UserDefaults.standard.set(true, forKey: Constants.UserDefaults.donationMade.rawValue)
+                NotificationCenter.default.post(name: .donationMade, object: nil)
 
                 if purchase.needsFinishTransaction {
                     SwiftyStoreKit.finishTransaction(purchase.transaction)

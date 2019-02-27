@@ -12,7 +12,7 @@ enum Constants {
         case lastPauseTime = "userSettingsLastPauseTime"
         case lastPlayedBook = "userSettingsLastPlayedBook"
         case appIcon = "userSettingsAppIcon"
-        case plusUser = "userSettingsPlusUser"
+        case donationMade = "userSettingsDonationMade"
 
         // User preferences
         case themeBrightnessEnabled = "userSettingsBrightnessEnabled"

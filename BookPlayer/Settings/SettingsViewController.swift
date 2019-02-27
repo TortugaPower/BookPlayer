@@ -48,6 +48,11 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         self.iconObserver = UserDefaults.standard.observe(\.userSettingsAppIcon) { _, _ in
             self.appIconLabel.text = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
         }
+        if UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) {
+            self.donationMade()
+        } else {
+            NotificationCenter.default.addObserver(self, selector: #selector(self.donationMade), name: .donationMade, object: nil)
+        }
 
         self.autoplayLibrarySwitch.addTarget(self, action: #selector(self.autoplayToggleDidChange), for: .valueChanged)
         self.disableAutolockSwitch.addTarget(self, action: #selector(self.disableAutolockDidChange), for: .valueChanged)
@@ -67,6 +72,10 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         self.build = build
     }
 
+    @objc func donationMade() {
+        self.tableView.reloadData()
+    }
+
     @objc func autoplayToggleDidChange() {
         UserDefaults.standard.set(self.autoplayLibrarySwitch.isOn, forKey: Constants.UserDefaults.autoplayEnabled.rawValue)
     }
@@ -77,6 +86,32 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
 
     @IBAction func done(_ sender: UIBarButtonItem) {
         self.dismiss(animated: true, completion: nil)
+    }
+
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        guard indexPath.section == 0 else {
+            return super.tableView(tableView, heightForRowAt: indexPath)
+        }
+
+        guard !UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) else { return 0 }
+
+        return 102
+    }
+
+    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        guard section == 0, UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) else {
+            return super.tableView(tableView, heightForHeaderInSection: section)
+        }
+
+        return CGFloat.leastNormalMagnitude
+    }
+
+    override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        guard section == 0, UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) else {
+            return super.tableView(tableView, heightForFooterInSection: section)
+        }
+
+        return CGFloat.leastNormalMagnitude
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -181,7 +216,7 @@ extension SettingsViewController: Themeable {
     func applyTheme(_ theme: Theme) {
         self.themeLabel.text = theme.title
         self.tableView.backgroundColor = theme.settingsBackgroundColor
-        self.tableView.separatorColor = theme.separatorColor
+        self.tableView.separatorColor = theme.settingsBackgroundColor
         self.tableView.reloadData()
     }
 }
