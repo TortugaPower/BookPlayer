@@ -23,7 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         let defaults: UserDefaults = UserDefaults.standard
 
-        // Perfrom first launch setup
+        // Perfrom first launch setup 
         if !defaults.bool(forKey: Constants.UserDefaults.completedFirstLaunch.rawValue) {
             // Set default settings
             defaults.set(true, forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
