@@ -463,6 +463,7 @@ extension LibraryViewController {
 
 extension LibraryViewController {
     override func tableView(_ tableView: UITableView, reorderRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        super.tableView(tableView, reorderRowAt: sourceIndexPath, to: destinationIndexPath)
         guard destinationIndexPath.sectionValue == .library else {
             return
         }

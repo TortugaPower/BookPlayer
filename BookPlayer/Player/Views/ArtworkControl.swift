@@ -205,6 +205,9 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     // MARK: - Actions
 
     @IBAction private func playPauseButtonTouchUpInside() {
+        if #available(iOS 10.0, *) {
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        }
         self.onPlayPause?(self)
     }
 

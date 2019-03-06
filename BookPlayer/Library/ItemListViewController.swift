@@ -531,7 +531,11 @@ extension ItemListViewController: UITableViewDelegate {
 // MARK: - Reorder Delegate
 
 extension ItemListViewController: TableViewReorderDelegate {
-    @objc func tableView(_ tableView: UITableView, reorderRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {}
+    @objc func tableView(_ tableView: UITableView, reorderRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        if #available(iOS 10.0, *) {
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        }
+    }
 
     func tableView(_ tableView: UITableView, canReorderRowAt indexPath: IndexPath) -> Bool {
         return indexPath.sectionValue == .library
