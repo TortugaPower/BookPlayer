@@ -477,63 +477,39 @@ extension LibraryViewController {
     }
 
     override func tableViewDidFinishReordering(_ tableView: UITableView, from initialSourceIndexPath: IndexPath, to finalDestinationIndexPath: IndexPath, dropped overIndexPath: IndexPath?) {
-        guard let overIndexPath = overIndexPath, overIndexPath.sectionValue == .library, let book = self.items[finalDestinationIndexPath.row] as? Book else {
+        guard let overIndexPath = overIndexPath, overIndexPath.sectionValue == .library else { return }
+
+        let sourceItem = self.items[finalDestinationIndexPath.row]
+        let destinationItem = self.items[overIndexPath.row]
+
+        guard let playlist = destinationItem as? Playlist ?? sourceItem as? Playlist else {
+            let minIndex = min(finalDestinationIndexPath.row, overIndexPath.row)
+
+            self.presentCreatePlaylistAlert(destinationItem.title, handler: { title in
+                let playlist = DataManager.createPlaylist(title: title, books: [])
+                DataManager.insert(playlist, into: self.library, at: minIndex)
+                self.move([sourceItem, destinationItem], to: playlist)
+
+                self.reloadData()
+            })
             return
         }
 
-        let item = self.items[overIndexPath.row]
+        let selectedItem = playlist == destinationItem
+            ? sourceItem
+            : destinationItem
 
-        if item is Playlist {
-            let alert = UIAlertController(title: "Move to playlist",
-                                          message: "Do you want to move \(book.title!) to \(item.title!)?",
-                                          preferredStyle: .alert)
+        let alert = UIAlertController(title: "Move to playlist",
+                                      message: "Do you want to move '\(selectedItem.title!)' to '\(playlist.title!)'?",
+                                      preferredStyle: .alert)
 
-            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
 
-            alert.addAction(UIAlertAction(title: "Move", style: .default, handler: { _ in
-                if let playlist = item as? Playlist {
-                    playlist.addToBooks(book)
-                    playlist.updateCompletionState()
-                }
+        alert.addAction(UIAlertAction(title: "Move", style: .default, handler: { _ in
+            self.move([selectedItem], to: playlist)
+            self.reloadData()
+        }))
 
-                self.library.removeFromItems(at: finalDestinationIndexPath.row)
-
-                DataManager.saveContext()
-
-                self.tableView.beginUpdates()
-                self.tableView.deleteRows(at: [finalDestinationIndexPath], with: .fade)
-                self.tableView.reloadRows(at: [overIndexPath], with: .fade)
-                self.tableView.endUpdates()
-            }))
-
-            self.present(alert, animated: true, completion: nil)
-        } else {
-            let minIndex = min(finalDestinationIndexPath.row, overIndexPath.row)
-
-            // Removing based on minIndex works because the cells are always adjacent
-            let book1 = self.items[minIndex]
-
-            self.presentCreatePlaylistAlert(book1.title, handler: { title in
-
-                self.library.removeFromItems(book1)
-
-                let book2 = self.items[minIndex]
-
-                self.library.removeFromItems(book2)
-
-                // swiftlint:disable force_cast
-                let books = [book1 as! Book, book2 as! Book]
-                let playlist = DataManager.createPlaylist(title: title, books: books)
-
-                self.library.insertIntoItems(playlist, at: minIndex)
-
-                DataManager.saveContext()
-
-                self.tableView.beginUpdates()
-                self.tableView.deleteRows(at: [IndexPath(row: minIndex, section: .library), IndexPath(row: minIndex + 1, section: .library)], with: .fade)
-                self.tableView.insertRows(at: [IndexPath(row: minIndex, section: .library)], with: .fade)
-                self.tableView.endUpdates()
-            })
-        }
+        self.present(alert, animated: true, completion: nil)
     }
 }

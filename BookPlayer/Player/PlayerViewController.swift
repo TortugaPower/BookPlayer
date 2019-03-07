@@ -31,6 +31,8 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     private weak var metaViewController: PlayerMetaViewController?
 
     let darknessThreshold: CGFloat = 0.2
+    let dismissThreshold: CGFloat = 44.0 * UIScreen.main.nativeScale
+    var dismissFeedbackTriggered = false
 
     // MARK: - Lifecycle
 
@@ -327,15 +329,22 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
             self.updatePresentedViewForTranslation(translation.y)
 
+            if translation.y > self.dismissThreshold, !self.dismissFeedbackTriggered {
+                self.dismissFeedbackTriggered = true
+                if #available(iOS 10.0, *) {
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                }
+            }
+
         case .ended, .cancelled, .failed:
-            let dismissThreshold: CGFloat = 44.0 * UIScreen.main.nativeScale
             let translation = gestureRecognizer.translation(in: self.view)
 
-            if translation.y > dismissThreshold {
+            if translation.y > self.dismissThreshold {
                 self.dismissPlayer()
-
                 return
             }
+
+            self.dismissFeedbackTriggered = false
 
             UIView.animate(withDuration: 0.3,
                            delay: 0.0,
