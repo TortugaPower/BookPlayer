@@ -271,7 +271,7 @@ extension PlaylistViewController {
 extension PlaylistViewController {
     override func tableView(_ tableView: UITableView, reorderRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         super.tableView(tableView, reorderRowAt: sourceIndexPath, to: destinationIndexPath)
-        
+
         guard destinationIndexPath.sectionValue == .library else {
             return
         }
@@ -284,4 +284,6 @@ extension PlaylistViewController {
 
         DataManager.saveContext()
     }
+
+    override func tableView(_ tableView: UITableView, sourceIndexPath: IndexPath, overIndexPath: IndexPath, snapshot: UIView) {}
 }

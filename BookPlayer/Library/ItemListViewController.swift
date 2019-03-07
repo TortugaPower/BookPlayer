@@ -531,6 +531,12 @@ extension ItemListViewController: UITableViewDelegate {
 // MARK: - Reorder Delegate
 
 extension ItemListViewController: TableViewReorderDelegate {
+    func tableViewDidBeginReordering(_ tableView: UITableView, at indexPath: IndexPath) {
+        if #available(iOS 10.0, *) {
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        }
+    }
+
     @objc func tableView(_ tableView: UITableView, reorderRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         if #available(iOS 10.0, *) {
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
@@ -555,9 +561,13 @@ extension ItemListViewController: TableViewReorderDelegate {
         return proposedDestinationIndexPath
     }
 
-    func tableView(_ tableView: UITableView, sourceIndexPath: IndexPath, overIndexPath: IndexPath, snapshot: UIView) {
+    @objc func tableView(_ tableView: UITableView, sourceIndexPath: IndexPath, overIndexPath: IndexPath, snapshot: UIView) {
         guard overIndexPath.sectionValue == .library else {
             return
+        }
+
+        if #available(iOS 10.0, *) {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
         }
 
         let scale: CGFloat = 0.90
