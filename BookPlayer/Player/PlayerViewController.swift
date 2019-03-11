@@ -359,21 +359,18 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
 extension PlayerViewController: Themeable {
     func applyTheme(_ theme: Theme) {
-        let appliedTheme: Theme = theme.useDarkVariant ? theme : self.currentBook.artworkColors
-        appliedTheme.useDarkVariant = themeProvider.useDarkVariant
-
-        self.themedStatusBarStyle = appliedTheme.useDarkVariant
+        self.themedStatusBarStyle = theme.useDarkVariant
             ? .lightContent
             : .default
         setNeedsStatusBarAppearanceUpdate()
 
-        self.view.backgroundColor = appliedTheme.backgroundColor
-        self.bottomToolbar.tintColor = appliedTheme.detailColor
-        self.closeButton.tintColor = appliedTheme.detailColor
+        self.view.backgroundColor = theme.backgroundColor
+        self.bottomToolbar.tintColor = theme.detailColor
+        self.closeButton.tintColor = theme.detailColor
 
         // Apply the blurred view in relation to the brightness and luminance of the background color.
         // This makes darker backgrounds stay interesting
-        self.backgroundImage.alpha = 0.1 + min((1 - appliedTheme.backgroundColor.luminance) * (1 - appliedTheme.backgroundColor.brightness), 0.7)
+        self.backgroundImage.alpha = 0.1 + min((1 - theme.backgroundColor.luminance) * (1 - theme.backgroundColor.brightness), 0.7)
 
         self.blurEffectView?.removeFromSuperview()
 

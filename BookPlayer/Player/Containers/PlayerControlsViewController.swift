@@ -300,20 +300,14 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
 extension PlayerControlsViewController: Themeable {
     func applyTheme(_ theme: Theme) {
-        guard let book = self.book,
-            book.artworkColors != nil else { return }
+        self.progressSlider.minimumTrackTintColor = theme.highlightColor
+        self.progressSlider.maximumTrackTintColor = theme.lightHighlightColor
 
-        let appliedTheme: Theme = theme.useDarkVariant ? theme : book.artworkColors
-        appliedTheme.useDarkVariant = theme.useDarkVariant
+        self.artworkControl.iconColor = theme.highlightColor
+        self.artworkControl.borderColor = theme.highlightColor
 
-        self.progressSlider.minimumTrackTintColor = appliedTheme.highlightColor
-        self.progressSlider.maximumTrackTintColor = appliedTheme.lightHighlightColor
-
-        self.artworkControl.iconColor = appliedTheme.highlightColor
-        self.artworkControl.borderColor = appliedTheme.highlightColor
-
-        self.currentTimeLabel.textColor = appliedTheme.highlightColor
-        self.maxTimeButton.setTitleColor(appliedTheme.highlightColor, for: .normal)
-        self.progressButton.setTitleColor(appliedTheme.primaryColor, for: .normal)
+        self.currentTimeLabel.textColor = theme.highlightColor
+        self.maxTimeButton.setTitleColor(theme.highlightColor, for: .normal)
+        self.progressButton.setTitleColor(theme.primaryColor, for: .normal)
     }
 }

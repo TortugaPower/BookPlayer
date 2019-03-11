@@ -42,82 +42,29 @@ public class Theme: NSManagedObject {
 
     // W3C recommends contrast values larger 4 or 7 (strict), but 3.0 should be fine for our use case
     convenience init(from image: UIImage, context: NSManagedObjectContext, darknessThreshold: CGFloat = 0.2, minimumContrastRatio: CGFloat = 3.0) {
-        do {
-            let entity = NSEntityDescription.entity(forEntityName: "Theme", in: context)!
+        let entity = NSEntityDescription.entity(forEntityName: "Theme", in: context)!
+        self.init(entity: entity, insertInto: context)
 
-            self.init(entity: entity, insertInto: context)
-
-            let colorCube = CCColorCube()
-            var colors: [UIColor] = colorCube.extractColors(from: image, flags: CCOnlyDistinctColors, count: 8)!
-
-            guard let averageColor = image.averageColor() else {
-                throw ArtworkColorsError.averageColorFailed
-            }
-
-            let displayOnDark = averageColor.luminance < darknessThreshold
-
-            colors.sort { (color1: UIColor, color2: UIColor) -> Bool in
-                if displayOnDark {
-                    return color1.isDarker(than: color2)
-                }
-
-                return color1.isLighter(than: color2)
-            }
-
-            let backgroundColor: UIColor = colors[0]
-
-            colors = colors.map { (color: UIColor) -> UIColor in
-                let ratio = color.contrastRatio(with: backgroundColor)
-
-                if ratio > minimumContrastRatio || color == backgroundColor {
-                    return color
-                }
-
-                if displayOnDark {
-                    return color.overlayWhite
-                }
-
-                return color.overlayBlack
-            }
-
-            self.setColorsFromArray(colors, displayOnDark: displayOnDark)
-        } catch {
-            self.setColorsFromArray()
-        }
-    }
-
-    func setColorsFromArray(_ colors: [UIColor] = [], displayOnDark: Bool = false) {
-        var colorsToSet = Array(colors)
-
-        if colorsToSet.isEmpty {
-            colorsToSet.append(UIColor(hex: "#FFFFFF")) // background
-            colorsToSet.append(UIColor(hex: "#37454E")) // primary
-            colorsToSet.append(UIColor(hex: "#3488D1")) // secondary
-            colorsToSet.append(UIColor(hex: "#7685B3")) // tertiary
-        } else if colorsToSet.count < 4 {
-            let placeholder = displayOnDark ? UIColor.white : UIColor.black
-
-            for _ in 1...(4 - colorsToSet.count) {
-                colorsToSet.append(placeholder)
-            }
-        }
-
-        self.defaultBackgroundHex = colorsToSet[0].cssHex
-        self.defaultPrimaryHex = colorsToSet[1].cssHex
-        self.defaultSecondaryHex = colorsToSet[2].cssHex
-        self.defaultAccentHex = colorsToSet[3].cssHex
-        self.darkBackgroundHex = colorsToSet[4].cssHex
-        self.darkPrimaryHex = colorsToSet[5].cssHex
-        self.darkSecondaryHex = colorsToSet[6].cssHex
-        self.darkAccentHex = colorsToSet[7].cssHex
+        // Temporal: color extraction removed for the time being
+        self.setColors()
     }
 
     // Default colors
     convenience init(context: NSManagedObjectContext) {
         let entity = NSEntityDescription.entity(forEntityName: "Theme", in: context)!
         self.init(entity: entity, insertInto: context)
+        self.setColors()
+    }
 
-        self.setColorsFromArray()
+    func setColors() {
+        self.defaultBackgroundHex = Constants.DefaultArtworkColors.background.lightColor
+        self.darkBackgroundHex = Constants.DefaultArtworkColors.background.darkColor
+        self.defaultPrimaryHex = Constants.DefaultArtworkColors.primary.lightColor
+        self.darkPrimaryHex = Constants.DefaultArtworkColors.primary.darkColor
+        self.defaultSecondaryHex = Constants.DefaultArtworkColors.secondary.lightColor
+        self.darkSecondaryHex = Constants.DefaultArtworkColors.secondary.darkColor
+        self.defaultAccentHex = Constants.DefaultArtworkColors.highlight.lightColor
+        self.darkAccentHex = Constants.DefaultArtworkColors.highlight.darkColor
     }
 }
 

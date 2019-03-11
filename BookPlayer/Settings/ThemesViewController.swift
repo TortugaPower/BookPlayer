@@ -37,7 +37,7 @@ class ThemesViewController: UIViewController {
 
     var localThemes: [Theme]! {
         didSet {
-            self.localThemesTableHeightConstraint.constant = CGFloat(self.localThemes.count * self.cellHeight)
+            self.localThemesTableHeightConstraint.constant = CGFloat(self.localThemes.count * self.cellHeight) + CGFloat(self.localThemes.count)
         }
     }
 
