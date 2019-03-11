@@ -45,4 +45,13 @@ extension UIImage {
 
         return result
     }
+
+    func imageWith(newSize: CGSize) -> UIImage {
+        let renderer = UIGraphicsImageRenderer(size: newSize)
+        let image = renderer.image { _ in
+            self.draw(in: CGRect(origin: CGPoint.zero, size: newSize))
+        }
+
+        return image
+    }
 }

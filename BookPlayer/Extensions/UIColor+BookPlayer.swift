@@ -11,6 +11,16 @@ import UIKit
 // swiftlint:disable identifier_name
 
 extension UIColor {
+    func relativeDistance(to color: UIColor) -> CGFloat {
+        var dist = fabs(Double(self.hue) - Double(color.hue))
+
+        if dist > 0.5 {
+            dist = 1 - dist
+        }
+
+        return CGFloat(dist)
+    }
+
     public var cssHex: String {
         var r: CGFloat = 0
         var g: CGFloat = 0
@@ -39,6 +49,26 @@ extension UIColor {
         var A: CGFloat = 0
         self.getHue(&H, saturation: &S, brightness: &B, alpha: &A)
 
-        return B
+        return self.cssHex == "#ffffff" ? 1.0 : B
+    }
+
+    public var saturation: CGFloat {
+        var H: CGFloat = 0
+        var S: CGFloat = 0
+        var B: CGFloat = 0
+        var A: CGFloat = 0
+        self.getHue(&H, saturation: &S, brightness: &B, alpha: &A)
+
+        return S
+    }
+
+    public var hue: CGFloat {
+        var H: CGFloat = 0
+        var S: CGFloat = 0
+        var B: CGFloat = 0
+        var A: CGFloat = 0
+        self.getHue(&H, saturation: &S, brightness: &B, alpha: &A)
+
+        return H
     }
 }

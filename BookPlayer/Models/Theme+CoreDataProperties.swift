@@ -38,17 +38,28 @@ extension Theme {
             let darkAccentHex = params["darkAccent"],
             let title = params["title"] else { return nil }
 
-        return NSPredicate(format:
+        let predicateFormat =
             """
-                                                                                        defaultBackgroundHex = %@
-                                                                                        && defaultPrimaryHex = %@
-                                                                                        && defaultSecondaryHex = %@
-                                                                                        && defaultAccentHex = %@
-                                                                                        && darkBackgroundHex = %@
-                                                                                        && darkPrimaryHex = %@
-                                                                                        && darkSecondaryHex = %@
-                                                                                        && darkAccentHex = %@
-                                                                                        && title = %@
-        """, defaultBackgroundHex, defaultPrimaryHex, defaultSecondaryHex, defaultAccentHex, darkBackgroundHex, darkPrimaryHex, darkSecondaryHex, darkAccentHex, title)
+            defaultBackgroundHex = %@
+            && defaultPrimaryHex = %@
+            && defaultSecondaryHex = %@
+            && defaultAccentHex = %@
+            && darkBackgroundHex = %@
+            && darkPrimaryHex = %@
+            && darkSecondaryHex = %@
+            && darkAccentHex = %@
+            && title = %@
+            """
+
+        return NSPredicate(format: predicateFormat,
+                           defaultBackgroundHex,
+                           defaultPrimaryHex,
+                           defaultSecondaryHex,
+                           defaultAccentHex,
+                           darkBackgroundHex,
+                           darkPrimaryHex,
+                           darkSecondaryHex,
+                           darkAccentHex,
+                           title)
     }
 }

@@ -122,6 +122,8 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
             }
         }
 
+        setUpTheming()
+
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPlay), name: .bookPlayed, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: .bookPaused, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: .bookEnd, object: nil)
@@ -298,9 +300,11 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
 extension PlayerControlsViewController: Themeable {
     func applyTheme(_ theme: Theme) {
-        guard let book = self.book else { return }
+        guard let book = self.book,
+            book.artworkColors != nil else { return }
 
         let appliedTheme: Theme = theme.useDarkVariant ? theme : book.artworkColors
+        appliedTheme.useDarkVariant = theme.useDarkVariant
 
         self.progressSlider.minimumTrackTintColor = appliedTheme.highlightColor
         self.progressSlider.maximumTrackTintColor = appliedTheme.lightHighlightColor
