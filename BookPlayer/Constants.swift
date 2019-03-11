@@ -75,4 +75,17 @@ enum Constants {
             }
         }
     }
+
+    static let ignoredArtworkHexColors: [String] = [
+        // Neon yellows
+        "#ecef2d",
+        "#eef12e",
+        "#fbe06e",
+        "#f2c502",
+        "#ecf02d",
+        "#f0ea15",
+        "#f0ea16",
+        // old green
+        "#77b54a"
+    ]
 }

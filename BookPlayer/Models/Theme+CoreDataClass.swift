@@ -15,6 +15,13 @@ enum ArtworkColorsError: Error {
     case averageColorFailed
 }
 
+struct ArtworkColors {
+    var background: String
+    var primary: String
+    var secondary: String
+    var highlight: String
+}
+
 public class Theme: NSManagedObject {
     var useDarkVariant = false
 
@@ -41,75 +48,13 @@ public class Theme: NSManagedObject {
     }
 
     // W3C recommends contrast values larger 4 or 7 (strict), but 3.0 should be fine for our use case
-    convenience init(from image: UIImage, context: NSManagedObjectContext, darknessThreshold: CGFloat = 0.2, minimumContrastRatio: CGFloat = 3.0) {
-        do {
-            let entity = NSEntityDescription.entity(forEntityName: "Theme", in: context)!
+    convenience init(from image: UIImage, context: NSManagedObjectContext) {
+        let entity = NSEntityDescription.entity(forEntityName: "Theme", in: context)!
 
-            self.init(entity: entity, insertInto: context)
+        self.init(entity: entity, insertInto: context)
 
-            let colorCube = CCColorCube()
-            var colors: [UIColor] = colorCube.extractColors(from: image, flags: CCOnlyDistinctColors, count: 8)!
-
-            guard let averageColor = image.averageColor() else {
-                throw ArtworkColorsError.averageColorFailed
-            }
-
-            let displayOnDark = averageColor.luminance < darknessThreshold
-
-            colors.sort { (color1: UIColor, color2: UIColor) -> Bool in
-                if displayOnDark {
-                    return color1.isDarker(than: color2)
-                }
-
-                return color1.isLighter(than: color2)
-            }
-
-            let backgroundColor: UIColor = colors[0]
-
-            colors = colors.map { (color: UIColor) -> UIColor in
-                let ratio = color.contrastRatio(with: backgroundColor)
-
-                if ratio > minimumContrastRatio || color == backgroundColor {
-                    return color
-                }
-
-                if displayOnDark {
-                    return color.overlayWhite
-                }
-
-                return color.overlayBlack
-            }
-
-            self.setColorsFromArray(colors, displayOnDark: displayOnDark)
-        } catch {
-            self.setColorsFromArray()
-        }
-    }
-
-    func setColorsFromArray(_ colors: [UIColor] = [], displayOnDark: Bool = false) {
-        var colorsToSet = Array(colors)
-
-        if colorsToSet.isEmpty {
-            colorsToSet.append(UIColor(hex: "#FFFFFF")) // background
-            colorsToSet.append(UIColor(hex: "#37454E")) // primary
-            colorsToSet.append(UIColor(hex: "#3488D1")) // secondary
-            colorsToSet.append(UIColor(hex: "#7685B3")) // tertiary
-        } else if colorsToSet.count < 4 {
-            let placeholder = displayOnDark ? UIColor.white : UIColor.black
-
-            for _ in 1...(4 - colorsToSet.count) {
-                colorsToSet.append(placeholder)
-            }
-        }
-
-        self.defaultBackgroundHex = colorsToSet[0].cssHex
-        self.defaultPrimaryHex = colorsToSet[1].cssHex
-        self.defaultSecondaryHex = colorsToSet[2].cssHex
-        self.defaultAccentHex = colorsToSet[3].cssHex
-        self.darkBackgroundHex = colorsToSet[4].cssHex
-        self.darkPrimaryHex = colorsToSet[5].cssHex
-        self.darkSecondaryHex = colorsToSet[6].cssHex
-        self.darkAccentHex = colorsToSet[7].cssHex
+        self.processColors(from: image, darkVariant: true)
+        self.processColors(from: image, darkVariant: false)
     }
 
     // Default colors
@@ -117,7 +62,193 @@ public class Theme: NSManagedObject {
         let entity = NSEntityDescription.entity(forEntityName: "Theme", in: context)!
         self.init(entity: entity, insertInto: context)
 
-        self.setColorsFromArray()
+        self.setDefaultColors(darkVariant: true)
+        self.setDefaultColors(darkVariant: false)
+    }
+
+    func setColors(_ colors: ArtworkColors, darkVariant: Bool) {
+        if darkVariant {
+            self.darkBackgroundHex = colors.background
+            self.darkPrimaryHex = colors.primary
+            self.darkSecondaryHex = colors.secondary
+            self.darkAccentHex = colors.highlight
+        } else {
+            self.defaultBackgroundHex = colors.background
+            self.defaultPrimaryHex = colors.primary
+            self.defaultSecondaryHex = colors.secondary
+            self.defaultAccentHex = colors.highlight
+        }
+    }
+
+    func processColors(from image: UIImage, darkVariant: Bool) {
+        let flags = darkVariant ? CCOrderByDarkness : CCOrderByBrightness
+
+        let colorCube = CCColorCube()
+
+        guard let averageColor = image.averageColor(),
+            let peakColor = colorCube.extractColors(from: image, flags: flags)?.first else {
+            self.setDefaultColors(darkVariant: darkVariant)
+            return
+        }
+
+        // Background color
+        let background = self.getBackgroundColor(from: peakColor, averageColor: averageColor, darkVariant: darkVariant)
+        let colors = self.process(image, averageColor: averageColor, backgroundColor: background, darkVariant: darkVariant)
+        self.setColors(colors, darkVariant: false)
+    }
+
+    func process(_ image: UIImage, averageColor: UIColor, backgroundColor: UIColor, darkVariant: Bool) -> ArtworkColors {
+        let colorCube = CCColorCube()
+
+        var colors = colorCube.extractColors(from: image, flags: CCOnlyDistinctColors, avoid: backgroundColor)
+
+        colors?.append(averageColor)
+        colors = colors?.filter { $0 != backgroundColor }
+        colors = colors?.filter({ !Constants.ignoredArtworkHexColors.contains($0.cssHex) })
+
+        guard var filteredColors = colors else {
+            return darkVariant
+                ? self.getDefaultDarkColors()
+                : self.getDefaultLightColors()
+        }
+
+        let primary = self.getPrimaryColor(from: filteredColors, background: backgroundColor, darkVariant: darkVariant)
+        filteredColors = filteredColors.filter { $0 != primary }
+
+        let secondary = self.getSecondaryColor(from: filteredColors, background: backgroundColor, primary: primary, darkVariant: darkVariant)
+        filteredColors = filteredColors.filter { $0 != secondary }
+
+        let highlight = self.getHighlightColor(from: filteredColors, background: backgroundColor, darkVariant: darkVariant)
+
+        return ArtworkColors(background: backgroundColor.cssHex,
+                             primary: primary.cssHex,
+                             secondary: secondary.cssHex,
+                             highlight: highlight.cssHex)
+    }
+
+    func getDefaultLightColors() -> ArtworkColors {
+        return ArtworkColors(background: Constants.DefaultArtworkColors.background.lightColor,
+                             primary: Constants.DefaultArtworkColors.primary.lightColor,
+                             secondary: Constants.DefaultArtworkColors.secondary.lightColor,
+                             highlight: Constants.DefaultArtworkColors.highlight.lightColor)
+    }
+
+    func getDefaultDarkColors() -> ArtworkColors {
+        return ArtworkColors(background: Constants.DefaultArtworkColors.background.darkColor,
+                             primary: Constants.DefaultArtworkColors.primary.darkColor,
+                             secondary: Constants.DefaultArtworkColors.secondary.darkColor,
+                             highlight: Constants.DefaultArtworkColors.highlight.darkColor)
+    }
+
+    func setDefaultColors(darkVariant: Bool) {
+        let colors = darkVariant
+            ? self.getDefaultDarkColors()
+            : self.getDefaultLightColors()
+        self.setColors(colors, darkVariant: darkVariant)
+    }
+
+    func getBackgroundColor(from color: UIColor, averageColor: UIColor, darkVariant: Bool) -> UIColor {
+        var background = color.overlay(with: averageColor, using: 0.1)
+        let bgThreshold: CGFloat = 0.7
+        let maxThreshold: CGFloat = 0.95
+
+        let flag = darkVariant
+            ? background.luminance > bgThreshold
+            : background.luminance < bgThreshold
+
+        if flag {
+            background = background.overlay(with: darkVariant ? .black : .white, using: 0.5)
+        }
+
+        let flag1 = darkVariant
+            ? background.luminance < maxThreshold
+            : background.luminance > maxThreshold
+
+        let flag2 = darkVariant
+            ? background.brightness < maxThreshold
+            : background.brightness > maxThreshold
+
+        if flag1 && flag2 {
+            background = background.overlay(with: darkVariant ? .white : .black, using: 0.02)
+        }
+
+        if darkVariant {
+            return background
+        }
+
+        //  Ensure a lighter color for very saturated backgrounds
+        let satuationThreshold: CGFloat = 0.9
+        let brightnessThreshold: CGFloat = 0.9
+
+        if background.saturation > satuationThreshold && background.brightness > brightnessThreshold {
+            background = background.overlay(with: .white, using: 0.8)
+        }
+
+        return background
+    }
+
+    func getPrimaryColor(from colors: [UIColor], background: UIColor, darkVariant: Bool) -> UIColor {
+        var primary = colors[0]
+
+        for color in colors {
+            let flag = darkVariant
+                ? color.contrastRatio(with: background) < primary.contrastRatio(with : background)
+                : color.contrastRatio(with: background) > primary.contrastRatio(with: background)
+
+            if flag {
+                primary = color
+            }
+        }
+        let flag2 = darkVariant
+            ? primary.contrastRatio(with: background) > 2
+            : primary.contrastRatio(with: background) < 2
+
+        if flag2 {
+            primary = primary.overlay(with: darkVariant ? .white : .black, using: 0.88)
+        }
+
+        return primary
+    }
+
+    func getSecondaryColor(from colors: [UIColor], background: UIColor, primary: UIColor, darkVariant: Bool) -> UIColor {
+        var secondary = colors[0]
+        let primaryBrightness = primary.brightness
+        let backgroundBrightness = background.brightness
+        let targetBrightness = primaryBrightness * 0.4 + backgroundBrightness * 0.6
+
+        for color in colors {
+            let flag = darkVariant
+                ? abs(color.brightness - targetBrightness) > abs(secondary.brightness - targetBrightness)
+                : abs(color.brightness - targetBrightness) < abs(secondary.brightness - targetBrightness)
+            if flag {
+                secondary = color
+            }
+        }
+
+        return secondary
+    }
+
+    func getHighlightColor(from colors: [UIColor], background: UIColor, darkVariant: Bool) -> UIColor {
+        var highlight = colors[0]
+        print("====== getting highlight color (dark variant: \(darkVariant)), base highlight: \(highlight.cssHex), background: \(background.cssHex)")
+        for color in colors {
+            print(color.cssHex)
+            let dist = background.relativeDistance(to: color)
+            print("dist: \(dist)")
+            let currentDist = background.relativeDistance(to: highlight)
+            print("currentDist: \(currentDist)")
+            // Prefer colors which are further away in hue and are more saturated
+
+            let flag = darkVariant
+                ? color.saturation < background.saturation
+                : color.saturation > background.saturation
+
+            if dist > currentDist && flag {
+                highlight = color
+            }
+        }
+
+        return highlight
     }
 }
 
@@ -128,12 +259,24 @@ extension Theme {
         return UIColor(hex: self.defaultBackgroundHex)
     }
 
+    var darkBackgroundColor: UIColor {
+        return UIColor(hex: self.darkBackgroundHex)
+    }
+
     var defaultPrimaryColor: UIColor {
         return UIColor(hex: self.defaultPrimaryHex)
     }
 
+    var darkPrimaryColor: UIColor {
+        return UIColor(hex: self.darkPrimaryHex)
+    }
+
     var defaultSecondaryColor: UIColor {
         return UIColor(hex: self.defaultSecondaryHex)
+    }
+
+    var darkSecondaryColor: UIColor {
+        return UIColor(hex: self.darkSecondaryHex)
     }
 
     var defaultAccentColor: UIColor {
