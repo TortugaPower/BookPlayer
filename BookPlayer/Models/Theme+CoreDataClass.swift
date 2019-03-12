@@ -124,42 +124,50 @@ extension Theme {
     }
 
     var importBackgroundColor: UIColor {
-        return self.secondaryColor.overlay(with: self.backgroundColor, using: 0.83)
+        return self.secondaryColor.mix(with: self.backgroundColor, amount: 0.83)
     }
 
     var separatorColor: UIColor {
-        return self.secondaryColor.overlay(with: self.backgroundColor, using: 0.51)
+        return self.secondaryColor.mix(with: self.backgroundColor, amount: 0.60)
     }
 
     var settingsBackgroundColor: UIColor {
-        return self.secondaryColor.overlay(with: self.highlightColor, using: 0.17).overlay(with: self.backgroundColor, using: 0.88)
+        return self.secondaryColor
+            .mix(with: self.highlightColor, amount: 0.03)
+            .mix(with: self.backgroundColor, amount: 0.90)
     }
 
     var pieFillColor: UIColor {
-        return self.secondaryColor.overlay(with: self.backgroundColor, using: 0.27)
+        return self.secondaryColor.mix(with: self.backgroundColor, amount: 0.27)
     }
 
     var pieBorderColor: UIColor {
-        return self.secondaryColor.overlay(with: self.backgroundColor, using: 0.51)
+        return self.secondaryColor.mix(with: self.backgroundColor, amount: 0.51)
     }
 
     var pieBackgroundColor: UIColor {
-        return self.secondaryColor.overlay(with: self.backgroundColor, using: 0.90)
+        return self.secondaryColor.mix(with: self.backgroundColor, amount: 0.90)
     }
 
     var highlightedPieFillColor: UIColor {
-        return self.highlightColor.overlay(with: self.backgroundColor, using: 0.27)
+        return self.pieFillColor.mix(with: self.highlightColor, amount: 0.30)
     }
 
     var highlightedPieBorderColor: UIColor {
-        return self.highlightColor.overlay(with: self.backgroundColor, using: 0.51)
+        return self.pieBorderColor.mix(with: self.highlightColor, amount: 0.30)
     }
 
     var highlightedPieBackgroundColor: UIColor {
-        return self.highlightColor.overlay(with: self.backgroundColor, using: 0.90)
+        return self.pieBackgroundColor.mix(with: self.highlightColor, amount: 0.30)
     }
 
     var navigationTitleColor: UIColor {
-        return self.primaryColor.overlay(with: self.highlightColor, using: 0.12).overlay(with: self.backgroundColor, using: 0.11)
+        return self.primaryColor
+            .mix(with: self.highlightColor, amount: 0.16)
+            .mix(with: self.backgroundColor, amount: 0.10)
+    }
+    
+    var miniPlayerBackgroundColor: UIColor {        
+        return self.backgroundColor.mix(with: self.useDarkVariant ? UIColor.black : UIColor.white)
     }
 }
