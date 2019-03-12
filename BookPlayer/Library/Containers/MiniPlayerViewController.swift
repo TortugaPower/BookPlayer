@@ -41,7 +41,7 @@ class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecogniz
 
             self.artworkHeight.constant = ratio > 1 ? 50.0 / ratio : 50.0
             self.artworkWidth.constant = ratio < 1 ? 50.0 * ratio : 50.0
-            
+
             setVoiceOverLabels()
             applyTheme(self.themeProvider.currentTheme)
         }

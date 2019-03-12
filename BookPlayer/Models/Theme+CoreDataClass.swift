@@ -166,8 +166,8 @@ extension Theme {
             .mix(with: self.highlightColor, amount: 0.16)
             .mix(with: self.backgroundColor, amount: 0.10)
     }
-    
-    var miniPlayerBackgroundColor: UIColor {        
+
+    var miniPlayerBackgroundColor: UIColor {
         return self.backgroundColor.mix(with: self.useDarkVariant ? UIColor.black : UIColor.white)
     }
 }

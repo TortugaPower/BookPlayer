@@ -509,21 +509,19 @@ extension UIColor {
     func overlay(with color: UIColor) -> UIColor {
         let mainRGBA = self.RGBA
         let maskRGBA = color.RGBA
-        
+
         func masker(a: CGFloat, b: CGFloat) -> CGFloat {
             if a < 0.5 {
                 return 2 * a * b
             } else {
-                return 1-(2*(1-a)*(1-b))
+                return 1 - (2 * (1 - a) * (1 - b))
             }
         }
-        
-        return UIColor(
-            r: masker(a: mainRGBA[0], b: maskRGBA[0]),
-            g: masker(a: mainRGBA[1], b: maskRGBA[1]),
-            b: masker(a: mainRGBA[2], b: maskRGBA[2]),
-            a: masker(a: mainRGBA[3], b: maskRGBA[3])
-        )
+
+        return UIColor(r: masker(a: mainRGBA[0], b: maskRGBA[0]),
+                       g: masker(a: mainRGBA[1], b: maskRGBA[1]),
+                       b: masker(a: mainRGBA[2], b: maskRGBA[2]),
+                       a: masker(a: mainRGBA[3], b: maskRGBA[3]))
     }
 
     /**

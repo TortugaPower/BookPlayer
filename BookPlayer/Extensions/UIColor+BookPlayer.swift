@@ -52,12 +52,10 @@ extension UIColor {
         let mainRGBA = self.RGBA
         let maskRGBA = color.RGBA
         let invertedAmount = 1.0 - amount
-        
-        return UIColor(
-            r: mainRGBA[0] * invertedAmount + maskRGBA[0] * amount,
-            g: mainRGBA[1] * invertedAmount + maskRGBA[1] * amount,
-            b: mainRGBA[2] * invertedAmount + maskRGBA[2] * amount,
-            a: mainRGBA[3] * invertedAmount + maskRGBA[3] * amount
-        )
+
+        return UIColor(r: mainRGBA[0] * invertedAmount + maskRGBA[0] * amount,
+                       g: mainRGBA[1] * invertedAmount + maskRGBA[1] * amount,
+                       b: mainRGBA[2] * invertedAmount + maskRGBA[2] * amount,
+                       a: mainRGBA[3] * invertedAmount + maskRGBA[3] * amount)
     }
 }
