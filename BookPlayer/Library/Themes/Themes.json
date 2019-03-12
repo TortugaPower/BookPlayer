@@ -31,5 +31,16 @@
         "darkSecondary": "667380",
         "darkAccent": "FFCC66",
         "darkBackground": "212733"
+    },
+    {
+        "title": "Vintage",
+        "defaultPrimary": "492F1B",
+        "defaultSecondary": "817A63",
+        "defaultAccent": "4A8EAE",
+        "defaultBackground": "F1EDE6",
+        "darkPrimary": "EFE8DD",
+        "darkSecondary": "726B53",
+        "darkAccent": "5D9FBA",
+        "darkBackground": "27231C"
     }
 ]
