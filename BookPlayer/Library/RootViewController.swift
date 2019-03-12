@@ -6,6 +6,7 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
+import Themeable
 import UIKit
 
 class RootViewController: UIViewController, UIGestureRecognizerDelegate {
@@ -18,6 +19,12 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
 
     var miniPlayerIsHidden: Bool {
         return self.miniPlayerContainer.isHidden
+    }
+
+    private var themedStatusBarStyle: UIStatusBarStyle?
+
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return themedStatusBarStyle ?? super.preferredStatusBarStyle
     }
 
     // MARK: - Lifecycle
@@ -42,11 +49,12 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setUpTheming()
+
         self.miniPlayerContainer.isHidden = true
-        self.miniPlayerContainer.layer.shadowColor = UIColor.black.cgColor
-        self.miniPlayerContainer.layer.shadowOffset = CGSize(width: 0.0, height: 4.0)
-        self.miniPlayerContainer.layer.shadowOpacity = 0.2
-        self.miniPlayerContainer.layer.shadowRadius = 12.0
+        self.miniPlayerContainer.layer.shadowOffset = CGSize(width: 0.0, height: 3.0)
+        self.miniPlayerContainer.layer.shadowOpacity = 0.18
+        self.miniPlayerContainer.layer.shadowRadius = 9.0
         self.miniPlayerContainer.clipsToBounds = false
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: .bookChange, object: nil)
@@ -167,5 +175,16 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
 
         default: break
         }
+    }
+}
+
+extension RootViewController: Themeable {
+    func applyTheme(_ theme: Theme) {
+        self.themedStatusBarStyle = theme.useDarkVariant
+            ? .lightContent
+            : .default
+        setNeedsStatusBarAppearanceUpdate()
+
+        self.miniPlayerContainer.layer.shadowColor = theme.navigationTitleColor.cgColor
     }
 }

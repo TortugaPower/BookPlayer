@@ -6,7 +6,19 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
+import Themeable
 import UIKit
+
+enum State {
+    case normal
+    case highlighted
+}
+
+struct PieColors {
+    var backgroundColor: CGColor
+    var fillColor: CGColor
+    var borderColor: CGColor
+}
 
 class ItemProgress: UIView {
     private let pieOutline = CAShapeLayer()
@@ -14,14 +26,12 @@ class ItemProgress: UIView {
     private let pieSegment = CAShapeLayer()
     private let completionBackground = CAShapeLayer()
     private let completionCheckmark = CALayer()
+    private var pieColors: PieColors?
+    private var highlightedPieColors: PieColors?
 
-    var pieColor = UIColor(hex: "8F8E94") {
+    var state: State = .normal {
         didSet {
-            self.pieOutline.strokeColor = self.pieColor.withAlpha(newAlpha: 0.5).cgColor
-            self.pieBackground.fillColor = self.pieColor.withAlpha(newAlpha: 0.1).cgColor
-            self.pieSegment.fillColor = self.pieColor.withAlpha(newAlpha: 0.7).cgColor
-
-            self.layer.setNeedsDisplay()
+            self.applyColors()
         }
     }
 
@@ -68,7 +78,6 @@ class ItemProgress: UIView {
         self.pieOutline.allowsEdgeAntialiasing = true
         self.pieOutline.backgroundColor = UIColor.clear.cgColor
         self.pieOutline.fillColor = UIColor.clear.cgColor
-        self.pieOutline.strokeColor = self.pieColor.withAlpha(newAlpha: 0.5).cgColor
         self.pieOutline.lineWidth = 1.5
 
         self.layer.addSublayer(self.pieOutline)
@@ -77,7 +86,6 @@ class ItemProgress: UIView {
         self.pieBackground.contentsScale = scale
         self.pieBackground.allowsEdgeAntialiasing = true
         self.pieBackground.backgroundColor = UIColor.clear.cgColor
-        self.pieBackground.fillColor = self.pieColor.withAlpha(newAlpha: 0.1).cgColor
         self.pieBackground.strokeColor = UIColor.clear.cgColor
         self.pieBackground.lineWidth = 0
 
@@ -87,7 +95,6 @@ class ItemProgress: UIView {
         self.pieSegment.contentsScale = scale
         self.pieSegment.allowsEdgeAntialiasing = true
         self.pieSegment.backgroundColor = UIColor.clear.cgColor
-        self.pieSegment.fillColor = self.pieColor.withAlpha(newAlpha: 0.7).cgColor
         self.pieSegment.strokeColor = UIColor.clear.cgColor
         self.pieSegment.lineWidth = 0
 
@@ -114,6 +121,8 @@ class ItemProgress: UIView {
         self.completionCheckmark.backgroundColor = UIColor.white.cgColor
 
         self.layer.addSublayer(self.completionCheckmark)
+
+        self.setUpTheming()
     }
 
     // swiftlint:disable:next function_body_length
@@ -181,5 +190,28 @@ class ItemProgress: UIView {
                                                           endAngle: CGFloat.pi * 2,
                                                           clockwise: true).cgPath
         }
+    }
+
+    func applyColors() {
+        let colors = self.state == .normal ? self.pieColors : self.highlightedPieColors
+
+        self.pieOutline.strokeColor = colors?.borderColor
+        self.pieBackground.fillColor = colors?.backgroundColor
+        self.pieSegment.fillColor = colors?.fillColor
+
+        self.layer.setNeedsDisplay()
+    }
+}
+
+extension ItemProgress: Themeable {
+    func applyTheme(_ theme: Theme) {
+        self.pieColors = PieColors(backgroundColor: theme.pieBackgroundColor.cgColor,
+                                   fillColor: theme.pieFillColor.cgColor,
+                                   borderColor: theme.pieBorderColor.cgColor)
+
+        self.highlightedPieColors = PieColors(backgroundColor: theme.highlightedPieBackgroundColor.cgColor,
+                                              fillColor: theme.highlightedPieFillColor.cgColor,
+                                              borderColor: theme.highlightedPieBorderColor.cgColor)
+        self.applyColors()
     }
 }

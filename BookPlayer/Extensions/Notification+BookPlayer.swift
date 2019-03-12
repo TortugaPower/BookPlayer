@@ -26,4 +26,5 @@ extension Notification.Name {
     public static let reloadData = Notification.Name("com.tortugapower.audiobookplayer.reloaddata")
     public static let playerPresented = Notification.Name("com.tortugapower.audiobookplayer.player.presented")
     public static let playerDismissed = Notification.Name("com.tortugapower.audiobookplayer.player.dismissed")
+    public static let themeChange = Notification.Name("com.tortugapower.audiobookplayer.theme.change")
 }

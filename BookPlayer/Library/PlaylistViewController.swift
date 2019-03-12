@@ -84,7 +84,7 @@ class PlaylistViewController: ItemListViewController {
         guard
             let currentBook = PlayerManager.shared.currentBook,
             let index = self.playlist.itemIndex(with: currentBook.fileURL),
-            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .library)) as? BookCellView
+            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
         else {
             return
         }
@@ -96,7 +96,7 @@ class PlaylistViewController: ItemListViewController {
         guard
             let currentBook = PlayerManager.shared.currentBook,
             let index = self.playlist.itemIndex(with: currentBook.fileURL),
-            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .library)) as? BookCellView
+            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
         else {
             return
         }
@@ -110,7 +110,7 @@ class PlaylistViewController: ItemListViewController {
             let book = userInfo["book"] as? Book,
             !book.isFault,
             let index = self.playlist.itemIndex(with: book.fileURL),
-            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .library)) as? BookCellView
+            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
         else {
             return
         }
@@ -155,14 +155,15 @@ class PlaylistViewController: ItemListViewController {
 
         let existingPlaylistAction = UIAlertAction(title: "Existing Playlist", style: .default) { _ in
 
-            let vc = PlaylistSelectionViewController()
+            let vc = ItemSelectionViewController()
             vc.items = availablePlaylists
 
-            vc.onPlaylistSelected = { selectedPlaylist in
+            vc.onItemSelected = { selectedItem in
+                guard let selectedPlaylist = selectedItem as? Playlist else { return }
                 self.move(selectedItems, to: selectedPlaylist)
             }
 
-            let nav = UINavigationController(rootViewController: vc)
+            let nav = AppNavigationController(rootViewController: vc)
             self.present(nav, animated: true, completion: nil)
         }
 
@@ -252,7 +253,7 @@ extension PlaylistViewController {
 
         tableView.deselectRow(at: indexPath, animated: true)
 
-        guard indexPath.sectionValue == .library else {
+        guard indexPath.sectionValue == .data else {
             if indexPath.sectionValue == .add {
                 self.presentImportFilesAlert()
             }
@@ -266,7 +267,7 @@ extension PlaylistViewController {
     }
 
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        guard indexPath.sectionValue == .library, let book = self.items[indexPath.row] as? Book else {
+        guard indexPath.sectionValue == .data, let book = self.items[indexPath.row] as? Book else {
             return nil
         }
 
@@ -292,7 +293,7 @@ extension PlaylistViewController {
     override func tableView(_ tableView: UITableView, reorderRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         super.tableView(tableView, reorderRowAt: sourceIndexPath, to: destinationIndexPath)
 
-        guard destinationIndexPath.sectionValue == .library else {
+        guard destinationIndexPath.sectionValue == .data else {
             return
         }
 

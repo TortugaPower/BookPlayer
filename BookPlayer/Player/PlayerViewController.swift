@@ -10,6 +10,7 @@ import AVFoundation
 import AVKit
 import MediaPlayer
 import StoreKit
+import Themeable
 import UIKit
 
 class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
@@ -33,6 +34,9 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     let darknessThreshold: CGFloat = 0.2
     let dismissThreshold: CGFloat = 44.0 * UIScreen.main.nativeScale
     var dismissFeedbackTriggered = false
+
+    private var themedStatusBarStyle: UIStatusBarStyle?
+    private var blurEffectView: UIVisualEffectView?
 
     // MARK: - Lifecycle
 
@@ -76,6 +80,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
         super.viewDidLoad()
 
+        setUpTheming()
         self.setupView(book: self.currentBook!)
 
         // Make toolbar transparent
@@ -125,10 +130,6 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.speedButton.title = self.formatSpeed(PlayerManager.shared.speed)
         self.speedButton.accessibilityLabel = String(describing: self.formatSpeed(PlayerManager.shared.speed) + " speed")
 
-        self.view.backgroundColor = currentBook.artworkColors.background
-        self.bottomToolbar.tintColor = currentBook.artworkColors.secondary
-        self.closeButton.tintColor = currentBook.artworkColors.secondary
-
         self.updateToolbar()
 
         if currentBook.usesDefaultArtwork {
@@ -137,17 +138,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             return
         }
 
-        let blur = UIBlurEffect(style: currentBook.artworkColors.displayOnDark ? UIBlurEffectStyle.dark : UIBlurEffectStyle.light)
-        let blurView = UIVisualEffectView(effect: blur)
-
-        blurView.frame = self.view.bounds
-
-        self.backgroundImage.addSubview(blurView)
         self.backgroundImage.image = currentBook.artwork
-
-        // Apply the blurred view in relation to the brightness and luminance of the background color.
-        // This makes darker backgrounds stay interesting
-        self.backgroundImage.alpha = 0.1 + min((1 - currentBook.artworkColors.background.luminance) * (1 - currentBook.artworkColors.background.brightness), 0.7)
 
         // Solution thanks to https://forums.developer.apple.com/thread/63166#180445
         self.modalPresentationCapturesStatusBarAppearance = true
@@ -189,7 +180,8 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return self.currentBook.artworkColors.displayOnDark ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
+        let style = self.currentBook.artworkColors.useDarkVariant ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
+        return self.themedStatusBarStyle ?? style
     }
 
     // MARK: - Interface actions
@@ -362,5 +354,32 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     override func accessibilityPerformEscape() -> Bool {
         self.dismissPlayer()
         return true
+    }
+}
+
+extension PlayerViewController: Themeable {
+    func applyTheme(_ theme: Theme) {
+        self.themedStatusBarStyle = theme.useDarkVariant
+            ? .lightContent
+            : .default
+        setNeedsStatusBarAppearanceUpdate()
+
+        self.view.backgroundColor = theme.backgroundColor
+        self.bottomToolbar.tintColor = theme.highlightColor
+        self.closeButton.tintColor = theme.highlightColor
+
+        // Apply the blurred view in relation to the brightness and luminance of the background color.
+        // This makes darker backgrounds stay interesting
+        self.backgroundImage.alpha = 0.1 + min((1 - theme.backgroundColor.luminance) * (1 - theme.backgroundColor.brightness), 0.7)
+
+        self.blurEffectView?.removeFromSuperview()
+
+        let blur = UIBlurEffect(style: theme.useDarkVariant ? UIBlurEffectStyle.dark : UIBlurEffectStyle.light)
+        let blurView = UIVisualEffectView(effect: blur)
+
+        blurView.frame = self.view.bounds
+
+        self.blurEffectView = blurView
+        self.backgroundImage.addSubview(blurView)
     }
 }

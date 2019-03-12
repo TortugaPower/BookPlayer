@@ -25,6 +25,8 @@ public class LibraryItem: NSManagedObject {
         return self.cachedArtwork!
     }
 
+    func info() -> String { return "" }
+
     var cachedArtwork: UIImage?
 
     func getBookToPlay() -> Book? {

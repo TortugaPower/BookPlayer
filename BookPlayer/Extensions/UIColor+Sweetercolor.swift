@@ -505,6 +505,7 @@ extension UIColor {
 
         - returns: A UIColor with the applied overlay.
     */
+
     func overlay(with color: UIColor) -> UIColor {
         let mainRGBA = self.RGBA
         let maskRGBA = color.RGBA

@@ -190,7 +190,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         }
 
         alert.addAction(UIAlertAction(title: deleteActionTitle, style: .destructive, handler: { _ in
-            self.delete(items)
+            self.delete(items, mode: .deep)
         }))
 
         present(alert, animated: true, completion: nil)
@@ -199,7 +199,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
     // MARK: - Callback events
 
     @objc func onNewFileUrl() {
-        guard self.loadingContainerView.isHidden else { return }
+        guard self.loadingView.isHidden else { return }
         let loadingTitle = "Preparing to import files"
         self.showLoadView(true, title: loadingTitle)
 
@@ -217,10 +217,10 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         }
 
         DispatchQueue.main.async {
-            self.showLoadView(true, subtitle: filename)
+            self.showLoadView(true, title: nil, subtitle: filename)
 
             if let vc = self.navigationController?.visibleViewController as? PlaylistViewController {
-                vc.showLoadView(true, subtitle: filename)
+                vc.showLoadView(true, title: nil, subtitle: filename)
             }
         }
     }
@@ -303,14 +303,15 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
 
         let existingPlaylistAction = UIAlertAction(title: "Existing Playlist", style: .default) { _ in
 
-            let vc = PlaylistSelectionViewController()
+            let vc = ItemSelectionViewController()
             vc.items = availablePlaylists
 
-            vc.onPlaylistSelected = { selectedPlaylist in
+            vc.onItemSelected = { selectedItem in
+                guard let selectedPlaylist = selectedItem as? Playlist else { return }
                 self.move(selectedItems, to: selectedPlaylist)
             }
 
-            let nav = UINavigationController(rootViewController: vc)
+            let nav = AppNavigationController(rootViewController: vc)
             self.present(nav, animated: true, completion: nil)
         }
 
@@ -370,7 +371,7 @@ extension LibraryViewController {
 
 extension LibraryViewController {
     func tableView(_: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        guard indexPath.sectionValue == .library else { return nil }
+        guard indexPath.sectionValue == .data else { return nil }
 
         let item = items[indexPath.row]
 
@@ -420,7 +421,7 @@ extension LibraryViewController {
 
         tableView.deselectRow(at: indexPath, animated: true)
 
-        guard indexPath.sectionValue == .library else {
+        guard indexPath.sectionValue == .data else {
             if indexPath.sectionValue == .add {
                 self.addAction()
             }
@@ -464,7 +465,8 @@ extension LibraryViewController {
 extension LibraryViewController {
     override func tableView(_ tableView: UITableView, reorderRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         super.tableView(tableView, reorderRowAt: sourceIndexPath, to: destinationIndexPath)
-        guard destinationIndexPath.sectionValue == .library else {
+
+        guard destinationIndexPath.sectionValue == .data else {
             return
         }
 
@@ -477,7 +479,7 @@ extension LibraryViewController {
     }
 
     override func tableViewDidFinishReordering(_ tableView: UITableView, from initialSourceIndexPath: IndexPath, to finalDestinationIndexPath: IndexPath, dropped overIndexPath: IndexPath?) {
-        guard let overIndexPath = overIndexPath, overIndexPath.sectionValue == .library else { return }
+        guard let overIndexPath = overIndexPath, overIndexPath.sectionValue == .data else { return }
 
         let sourceItem = self.items[finalDestinationIndexPath.row]
         let destinationItem = self.items[overIndexPath.row]

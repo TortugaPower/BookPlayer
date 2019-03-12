@@ -40,7 +40,7 @@ class DataManager {
         return processedFolderURL
     }
 
-    private static var storeUrl: URL {
+    internal static var storeUrl: URL {
         return FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!.appendingPathComponent("BookPlayer.sqlite")
     }
 
@@ -85,40 +85,6 @@ class DataManager {
         }
 
         try psc.migratePersistentStore(oldStore, to: self.storeUrl, options: nil, withType: NSSQLiteStoreType)
-    }
-
-    private static var persistentContainer: NSPersistentContainer = {
-        let name = "BookPlayer"
-
-        let container = NSPersistentContainer(name: name)
-
-        let description = NSPersistentStoreDescription()
-        description.shouldInferMappingModelAutomatically = true
-        description.shouldMigrateStoreAutomatically = true
-        description.url = storeUrl
-
-        container.persistentStoreDescriptions = [description]
-
-        container.loadPersistentStores(completionHandler: { _, error in
-            if let error = error as NSError? {
-                fatalError("Unresolved error \(error), \(error.userInfo)")
-            }
-        })
-
-        return container
-    }()
-
-    class func saveContext() {
-        let context = self.persistentContainer.viewContext
-
-        if context.hasChanges {
-            do {
-                try context.save()
-            } catch {
-                let nserror = error as NSError
-                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
-            }
-        }
     }
 
     // MARK: - File processing
@@ -200,216 +166,73 @@ class DataManager {
         }
     }
 
-    // MARK: - Models handler
+    class func setupDefaultTheme() {
+        let library = self.getLibrary()
 
-    /**
-     Gets the library for the App. There should be only one Library object at all times
-     */
-    class func getLibrary() -> Library {
-        var library: Library!
+        guard library.currentTheme == nil else { return }
 
-        let context = self.persistentContainer.viewContext
-        let fetch: NSFetchRequest<Library> = Library.fetchRequest()
+        library.currentTheme = self.getLocalThemes().first!
 
-        do {
-            library = try context.fetch(fetch).first ??
-                Library.create(in: context)
-        } catch {
-            fatalError("Failed to fetch library")
+        // prior book artwork colors didn't have a title
+        if let books = self.getBooks() {
+            for book in books {
+                book.artworkColors.title = book.title
+            }
         }
 
-        return library
+        self.saveContext()
     }
 
-    /**
-     Gets a stored book from an identifier.
-     */
-    class func getBook(with identifier: String, from library: Library) -> Book? {
-        guard let item = library.getItem(with: identifier) else {
-            return nil
-        }
+    class func getLocalThemes() -> [Theme] {
+        guard
+            let themesFile = Bundle.main.url(forResource: "Themes", withExtension: "json"),
+            let data = try? Data(contentsOf: themesFile, options: .mappedIfSafe),
+            let jsonObject = try? JSONSerialization.jsonObject(with: data, options: .mutableLeaves),
+            let themeParams = jsonObject as? [[String: String]]
+        else { return [] }
 
-        guard let playlist = item as? Playlist else {
-            return item as? Book
-        }
+        var themes = [Theme]()
 
-        return playlist.getBook(with: identifier)
-    }
+        for themeParam in themeParams {
+            let request: NSFetchRequest<Theme> = Theme.fetchRequest()
 
-    /**
-     Creates a book for each URL and adds it to the specified playlist. If no playlist is specified, it will be added to the library.
+            guard let predicate = Theme.searchPredicate(themeParam) else { continue }
 
-     A book can't be in two places at once, so if it already existed, it will be removed from the original playlist or library, and it will be added to the new one.
+            request.predicate = predicate
 
-     - Parameter files: `Book`s will be created for each element in this array
-     - Parameter playlist: `Playlist` to which the created `Book` will be added
-     - Parameter library: `Library` to which the created `Book` will be added if the parameter `playlist` is nil
-     - Parameter completion: Closure fired after processing all the urls.
-     */
-    class func insertBooks(from files: [FileItem], into playlist: Playlist?, or library: Library, completion: @escaping () -> Void) {
-        let context = self.persistentContainer.viewContext
+            var theme: Theme!
 
-        for file in files {
-            // TODO: do something about unprocessed URLs
-            guard let url = file.processedUrl else { continue }
-
-            // Check if book exists in the library
-            guard let item = library.getItem(with: url) else {
-                let book = Book(from: file, context: context)
-
-                if let playlist = playlist {
-                    playlist.addToBooks(book)
-                } else {
-                    library.addToItems(book)
-                }
-
-                continue
-            }
-
-            guard let storedPlaylist = item as? Playlist,
-                let storedBook = storedPlaylist.getBook(with: url) else {
-                // swiftlint:disable force_cast
-                // Handle if item is a book
-                let storedBook = item as! Book
-
-                if let playlist = playlist {
-                    library.removeFromItems(storedBook)
-                    playlist.addToBooks(storedBook)
-                }
-
-                continue
-            }
-
-            // Handle if book already exists in the library
-            storedPlaylist.removeFromBooks(storedBook)
-
-            if let playlist = playlist {
-                playlist.addToBooks(storedBook)
+            if let storedThemes = try? self.persistentContainer.viewContext.fetch(request),
+                let storedTheme = storedThemes.first {
+                theme = storedTheme
             } else {
-                library.addToItems(storedBook)
+                theme = Theme(params: themeParam, context: self.persistentContainer.viewContext)
             }
+
+            themes.append(theme)
         }
 
+        return themes
+    }
+
+    class func getExtractedThemes() -> [Theme] {
+        let library = self.getLibrary()
+        return library.extractedThemes?.array as? [Theme] ?? []
+    }
+
+    class func addExtractedTheme(_ theme: Theme) {
+        let library = self.getLibrary()
+        library.addToExtractedThemes(theme)
         self.saveContext()
-
-        DispatchQueue.main.async {
-            completion()
-        }
     }
 
-    /**
-     Creates a book for each URL and adds it to the library. A book can't be in two places at once, so it will be removed if it already existed in a playlist.
-
-     - Parameter bookUrls: `Book`s will be created for each element in this array
-     - Parameter library: `Library` to which the created `Book` will be added
-     - Parameter completion: Closure fired after processing all the urls.
-     */
-    class func insertBooks(from files: [FileItem], into library: Library, completion: @escaping () -> Void) {
-        self.insertBooks(from: files, into: nil, or: library, completion: completion)
-    }
-
-    /**
-     Creates a book for each URL and adds it to the specified playlist. A book can't be in two places at once, so it will be removed from the library if it already existed.
-
-     - Parameter bookUrls: `Book`s will be created for each element in this array
-     - Parameter playlist: `Playlist` to which the created `Book` will be added
-     - Parameter completion: Closure fired after processing all the urls.
-     */
-    class func insertBooks(from files: [FileItem], into playlist: Playlist, completion: @escaping () -> Void) {
-        self.insertBooks(from: files, into: playlist, or: playlist.library!, completion: completion)
-    }
-
-    class func createPlaylist(title: String, books: [Book]) -> Playlist {
-        return Playlist(title: title, books: books, context: self.persistentContainer.viewContext)
-    }
-
-    class func createBook(from file: FileItem) -> Book {
-        return Book(from: file, context: self.persistentContainer.viewContext)
-    }
-
-    class func insert(_ playlist: Playlist, into library: Library, at index: Int? = nil) {
-        if let index = index {
-            library.insertIntoItems(playlist, at: index)
-        } else {
-            library.addToItems(playlist)
-        }
-
-        self.saveContext()
+    class func setCurrentTheme(_ theme: Theme) {
+        let library = self.getLibrary()
+        library.currentTheme = theme
+        DataManager.saveContext()
     }
 
     class func exists(_ book: Book) -> Bool {
         return FileManager.default.fileExists(atPath: book.fileURL.path)
-    }
-
-    class func delete(_ item: NSManagedObject) {
-        self.persistentContainer.viewContext.delete(item)
-        self.saveContext()
-    }
-
-    class func delete(_ items: [LibraryItem], mode: DeleteMode = .deep) {
-        for item in items {
-            guard let playlist = item as? Playlist else {
-                // swiftlint:disable force_cast
-                self.delete(item as! Book, mode: mode)
-                continue
-            }
-
-            self.delete(playlist, mode: mode)
-        }
-    }
-
-    class func delete(_ playlist: Playlist, mode: DeleteMode = .deep) {
-        guard let library = playlist.library else { return }
-
-        if mode == .shallow,
-            let orderedSet = playlist.books {
-            library.addToItems(orderedSet)
-        }
-
-        // swiftlint:disable force_cast
-        for book in playlist.books?.array as! [Book] {
-            guard mode == .deep else { continue }
-            self.delete(book)
-        }
-
-        library.removeFromItems(playlist)
-
-        self.delete(playlist)
-    }
-
-    class func delete(_ book: Book, mode: DeleteMode = .deep) {
-        guard mode == .deep else {
-            if let playlist = book.playlist,
-                let library = playlist.library {
-                library.addToItems(book)
-
-                playlist.removeFromBooks(book)
-
-                self.saveContext()
-            }
-
-            return
-        }
-
-        if book == PlayerManager.shared.currentBook {
-            PlayerManager.shared.stop()
-        }
-
-        DispatchQueue.global().async {
-            try? FileManager.default.removeItem(at: book.fileURL)
-        }
-
-        self.delete(book)
-    }
-
-    class func jumpToStart(_ item: LibraryItem) {
-        item.jumpToStart()
-        item.markAsFinished(false)
-        self.saveContext()
-    }
-
-    class func mark(_ item: LibraryItem, asFinished: Bool) {
-        item.markAsFinished(asFinished)
-        self.saveContext()
     }
 }

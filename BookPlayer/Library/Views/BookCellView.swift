@@ -6,6 +6,7 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
+import Themeable
 import UIKit
 
 enum PlaybackState {
@@ -99,34 +100,15 @@ class BookCellView: UITableViewCell {
     var playbackState: PlaybackState = PlaybackState.stopped {
         didSet {
             UIView.animate(withDuration: 0.1, animations: {
-                switch self.playbackState {
-                case .playing:
-                    self.artworkButton.backgroundColor = UIColor.tintColor.withAlpha(newAlpha: 0.3)
-                    self.titleLabel.textColor = UIColor.tintColor
-                    self.progressView.pieColor = UIColor.tintColor
-                case .paused:
-                    self.artworkButton.backgroundColor = UIColor.tintColor.withAlpha(newAlpha: 0.3)
-                    self.titleLabel.textColor = UIColor.tintColor
-                    self.progressView.pieColor = UIColor.tintColor
-                default:
-                    self.artworkButton.backgroundColor = UIColor.clear
-                    self.titleLabel.textColor = UIColor.textColor
-                    self.progressView.pieColor = UIColor(hex: "8F8E94")
-                }
+                self.setPlaybackColors(self.themeProvider.currentTheme)
             })
         }
     }
 
-    override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-
+    override func awakeFromNib() {
+        super.awakeFromNib()
         self.setup()
-    }
-
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-
-        self.setup()
+        setUpTheming()
     }
 
     private func setup() {
@@ -158,6 +140,19 @@ class BookCellView: UITableViewCell {
         super.setSelected(selected, animated: animated)
         self.selectionView.isSelected = selected
     }
+
+    func setPlaybackColors(_ theme: Theme) {
+        switch self.playbackState {
+        case .playing, .paused:
+            self.artworkButton.backgroundColor = theme.lightHighlightColor
+            self.titleLabel.textColor = theme.highlightColor
+            self.progressView.state = .highlighted
+        case .stopped:
+            self.artworkButton.backgroundColor = UIColor.clear
+            self.titleLabel.textColor = theme.primaryColor
+            self.progressView.state = .normal
+        }
+    }
 }
 
 // MARK: - Voiceover
@@ -170,5 +165,16 @@ extension BookCellView {
                                                            title: title,
                                                            subtitle: subtitle,
                                                            progress: progress)
+    }
+}
+
+extension BookCellView: Themeable {
+    func applyTheme(_ theme: Theme) {
+        self.titleLabel.textColor = theme.primaryColor
+        self.subtitleLabel.textColor = theme.detailColor
+        self.backgroundColor = theme.backgroundColor
+        self.setPlaybackColors(theme)
+        self.selectionView.defaultColor = theme.pieBorderColor
+        self.selectionView.selectedColor = theme.highlightedPieFillColor
     }
 }

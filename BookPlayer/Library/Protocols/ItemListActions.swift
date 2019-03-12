@@ -15,7 +15,7 @@ protocol ItemListActions: ItemList {
 }
 
 extension ItemListActions {
-    func delete(_ items: [LibraryItem], mode: DeleteMode = .deep) {
+    func delete(_ items: [LibraryItem], mode: DeleteMode) {
         DataManager.delete(items, mode: mode)
         self.reloadData()
     }

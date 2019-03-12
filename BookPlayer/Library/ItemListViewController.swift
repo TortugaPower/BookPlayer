@@ -8,15 +8,14 @@
 
 import MediaPlayer
 import SwiftReorder
+import Themeable
 import UIKit
 
 // swiftlint:disable file_length
 
 class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemListActions {
     @IBOutlet weak var emptyStatePlaceholder: UIView!
-    @IBOutlet weak var loadingContainerView: UIView!
-    @IBOutlet weak var loadingTitleLabel: UILabel!
-    @IBOutlet weak var loadingSubtitleLabel: UILabel!
+    @IBOutlet weak var loadingView: LoadingView!
     @IBOutlet weak var loadingHeightConstraintView: NSLayoutConstraint!
     @IBOutlet weak var bulkControls: BulkControlsView!
 
@@ -41,6 +40,8 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         self.setupBulkControls()
 
         self.navigationItem.rightBarButtonItem = self.editButtonItem
+
+        setUpTheming()
 
         self.tableView.register(UINib(nibName: "BookCellView", bundle: nil), forCellReuseIdentifier: "BookCellView")
         self.tableView.register(UINib(nibName: "AddCellView", bundle: nil), forCellReuseIdentifier: "AddCellView")
@@ -85,7 +86,6 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
     func setupBulkControls() {
         self.bulkControls.isHidden = true
         self.bulkControls.layer.cornerRadius = 13
-        self.bulkControls.layer.shadowColor = UIColor(red: 0.12, green: 0.14, blue: 0.15, alpha: 1.0).cgColor
         self.bulkControls.layer.shadowOpacity = 0.3
         self.bulkControls.layer.shadowRadius = 5
         self.bulkControls.layer.shadowOffset = .zero
@@ -233,7 +233,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
 
         alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
-            self.delete(books)
+            self.delete(books, mode: .deep)
         }))
 
         alert.popoverPresentationController?.sourceView = view
@@ -291,7 +291,7 @@ extension ItemListViewController {
             }
         }
         self.tableView.beginUpdates()
-        self.tableView.reloadSections(IndexSet(integer: Section.library.rawValue), with: .none)
+        self.tableView.reloadSections(IndexSet(integer: Section.data.rawValue), with: .none)
         self.tableView.endUpdates()
         CATransaction.commit()
         self.toggleEmptyStateView()
@@ -305,7 +305,7 @@ extension ItemListViewController {
         guard
             let currentBook = PlayerManager.shared.currentBook,
             let index = self.library.itemIndex(with: currentBook.fileURL),
-            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .library)) as? BookCellView
+            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
         else {
             return
         }
@@ -317,7 +317,7 @@ extension ItemListViewController {
         guard
             let book = PlayerManager.shared.currentBook,
             let index = self.library.itemIndex(with: book.fileURL),
-            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .library)) as? BookCellView
+            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
         else {
             return
         }
@@ -331,7 +331,7 @@ extension ItemListViewController {
             let book = userInfo["book"] as? Book,
             !book.isFault,
             let index = self.library.itemIndex(with: book.fileURL),
-            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .library)) as? BookCellView
+            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
         else {
             return
         }
@@ -355,7 +355,7 @@ extension ItemListViewController {
             }
 
             return false
-        }), let cell = self.tableView.cellForRow(at: IndexPath(row: index, section: .library)) as? BookCellView else {
+        }), let cell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView else {
             return
         }
 
@@ -380,18 +380,18 @@ extension ItemListViewController {
 extension ItemListViewController: ItemListFeedback {
     func showLoadView(_ show: Bool, title: String? = nil, subtitle: String? = nil) {
         if let title = title {
-            self.loadingTitleLabel.text = title
+            self.loadingView.titleLabel.text = title
         }
 
         if let subtitle = subtitle {
-            self.loadingSubtitleLabel.text = subtitle
-            self.loadingSubtitleLabel.isHidden = false
+            self.loadingView.subtitleLabel.text = subtitle
+            self.loadingView.subtitleLabel.isHidden = false
         } else {
-            self.loadingSubtitleLabel.isHidden = true
+            self.loadingView.subtitleLabel.isHidden = true
         }
 
         // verify there's something to do
-        guard self.loadingContainerView.isHidden == show else {
+        guard self.loadingView.isHidden == show else {
             return
         }
 
@@ -399,7 +399,7 @@ extension ItemListViewController: ItemListFeedback {
             ? 65
             : 0
         UIView.animate(withDuration: 0.5) {
-            self.loadingContainerView.isHidden = !show
+            self.loadingView.isHidden = !show
             self.view.layoutIfNeeded()
         }
     }
@@ -409,7 +409,7 @@ extension ItemListViewController: ItemListFeedback {
 
 extension ItemListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return section == Section.library.rawValue
+        return section == Section.data.rawValue
             ? self.items.count
             : 1
     }
@@ -494,7 +494,7 @@ extension ItemListViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return indexPath.sectionValue == .library
+        return indexPath.sectionValue == .data
     }
 
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCellEditingStyle {
@@ -508,7 +508,7 @@ extension ItemListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
         guard tableView.isEditing else { return indexPath }
 
-        guard indexPath.sectionValue == .library else { return nil }
+        guard indexPath.sectionValue == .data else { return nil }
 
         return indexPath
     }
@@ -544,11 +544,11 @@ extension ItemListViewController: TableViewReorderDelegate {
     }
 
     func tableView(_ tableView: UITableView, canReorderRowAt indexPath: IndexPath) -> Bool {
-        return indexPath.sectionValue == .library
+        return indexPath.sectionValue == .data
     }
 
     func tableView(_ tableView: UITableView, targetIndexPathForReorderFromRowAt sourceIndexPath: IndexPath, to proposedDestinationIndexPath: IndexPath, snapshot: UIView?) -> IndexPath {
-        guard proposedDestinationIndexPath.sectionValue == .library else {
+        guard proposedDestinationIndexPath.sectionValue == .data else {
             return sourceIndexPath
         }
 
@@ -562,7 +562,7 @@ extension ItemListViewController: TableViewReorderDelegate {
     }
 
     @objc func tableView(_ tableView: UITableView, sourceIndexPath: IndexPath, overIndexPath: IndexPath, snapshot: UIView) {
-        guard overIndexPath.sectionValue == .library else {
+        guard overIndexPath.sectionValue == .data else {
             return
         }
 
@@ -589,5 +589,20 @@ extension ItemListViewController: UIDocumentPickerDelegate {
         for url in urls {
             DataManager.processFile(at: url)
         }
+    }
+}
+
+extension ItemListViewController: Themeable {
+    func applyTheme(_ theme: Theme) {
+        self.view.backgroundColor = theme.backgroundColor
+        self.tableView.backgroundColor = theme.backgroundColor
+        self.tableView.separatorColor = theme.separatorColor
+        self.emptyStatePlaceholder.backgroundColor = theme.backgroundColor
+        self.emptyStatePlaceholder.tintColor = theme.highlightColor
+        self.bulkControls.backgroundColor = theme.backgroundColor
+        self.bulkControls.tintColor = theme.highlightColor
+        self.bulkControls.layer.shadowColor = theme.useDarkVariant
+            ? UIColor.white.cgColor
+            : UIColor(red: 0.12, green: 0.14, blue: 0.15, alpha: 1.0).cgColor
     }
 }

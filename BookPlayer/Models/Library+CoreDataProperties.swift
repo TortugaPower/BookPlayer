@@ -20,6 +20,8 @@ extension Library {
         return NSEntityDescription.insertNewObject(forEntityName: "Library", into: context) as! Library
     }
 
+    @NSManaged public var extractedThemes: NSOrderedSet?
+    @NSManaged public var currentTheme: Theme!
     @NSManaged public var items: NSOrderedSet?
 }
 
@@ -55,4 +57,34 @@ extension Library {
 
     @objc(removeItems:)
     @NSManaged public func removeFromItems(_ values: NSOrderedSet)
+
+    @objc(insertObject:inExtractedThemesAtIndex:)
+    @NSManaged public func insertIntoExtractedThemes(_ value: Theme, at idx: Int)
+
+    @objc(removeObjectFromExtractedThemesAtIndex:)
+    @NSManaged public func removeFromExtractedThemes(at idx: Int)
+
+    @objc(insertExtractedThemes:atIndexes:)
+    @NSManaged public func insertIntoExtractedThemes(_ values: [Theme], at indexes: NSIndexSet)
+
+    @objc(removeExtractedThemesAtIndexes:)
+    @NSManaged public func removeFromExtractedThemes(at indexes: NSIndexSet)
+
+    @objc(replaceObjectInExtractedThemesAtIndex:withObject:)
+    @NSManaged public func replaceExtractedThemes(at idx: Int, with value: Theme)
+
+    @objc(replaceExtractedThemesAtIndexes:withItems:)
+    @NSManaged public func replaceExtractedThemes(at indexes: NSIndexSet, with values: [Theme])
+
+    @objc(addExtractedThemesObject:)
+    @NSManaged public func addToExtractedThemes(_ value: Theme)
+
+    @objc(removeExtractedThemesObject:)
+    @NSManaged public func removeFromExtractedThemes(_ value: Theme)
+
+    @objc(addExtractedThemes:)
+    @NSManaged public func addToExtractedThemes(_ values: NSOrderedSet)
+
+    @objc(removeExtractedThemes:)
+    @NSManaged public func removeFromExtractedThemes(_ values: NSOrderedSet)
 }

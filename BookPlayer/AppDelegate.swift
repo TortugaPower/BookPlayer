@@ -52,6 +52,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.setupMPRemoteCommands()
         // register document's folder listener
         self.setupDocumentListener()
+        // load themes if necessary
+        DataManager.setupDefaultTheme()
 
         if let activityDictionary = launchOptions?[.userActivityDictionary] as? [UIApplicationLaunchOptionsKey: Any],
             let activityType = activityDictionary[.userActivityType] as? String,
