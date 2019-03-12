@@ -41,6 +41,7 @@ class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecogniz
 
             self.artworkHeight.constant = ratio > 1 ? 50.0 / ratio : 50.0
             self.artworkWidth.constant = ratio < 1 ? 50.0 * ratio : 50.0
+            
             setVoiceOverLabels()
             applyTheme(self.themeProvider.currentTheme)
         }
@@ -105,7 +106,7 @@ extension MiniPlayerViewController: Themeable {
         self.authorLabel.textColor = theme.detailColor
         self.playPauseButton.tintColor = theme.highlightColor
 
-        self.miniPlayerContainer.backgroundColor = theme.backgroundColor
+        self.miniPlayerContainer.backgroundColor = theme.miniPlayerBackgroundColor
 
         self.miniPlayerBlur.effect = theme.useDarkVariant
             ? UIBlurEffect(style: .dark)

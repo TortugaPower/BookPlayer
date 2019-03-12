@@ -52,9 +52,9 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
         setUpTheming()
 
         self.miniPlayerContainer.isHidden = true
-        self.miniPlayerContainer.layer.shadowOffset = CGSize(width: 0.0, height: 4.0)
-        self.miniPlayerContainer.layer.shadowOpacity = 0.2
-        self.miniPlayerContainer.layer.shadowRadius = 12.0
+        self.miniPlayerContainer.layer.shadowOffset = CGSize(width: 0.0, height: 3.0)
+        self.miniPlayerContainer.layer.shadowOpacity = 0.18
+        self.miniPlayerContainer.layer.shadowRadius = 9.0
         self.miniPlayerContainer.clipsToBounds = false
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: .bookChange, object: nil)
@@ -185,8 +185,6 @@ extension RootViewController: Themeable {
             : .default
         setNeedsStatusBarAppearanceUpdate()
 
-        self.miniPlayerContainer.layer.shadowColor = theme.useDarkVariant
-            ? UIColor.white.cgColor
-            : UIColor.black.cgColor
+        self.miniPlayerContainer.layer.shadowColor = theme.navigationTitleColor.cgColor
     }
 }

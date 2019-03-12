@@ -306,8 +306,8 @@ extension PlayerControlsViewController: Themeable {
         self.artworkControl.iconColor = theme.highlightColor
         self.artworkControl.borderColor = theme.highlightColor
 
-        self.currentTimeLabel.textColor = theme.highlightColor
-        self.maxTimeButton.setTitleColor(theme.highlightColor, for: .normal)
+        self.currentTimeLabel.textColor = theme.primaryColor
+        self.maxTimeButton.setTitleColor(theme.primaryColor, for: .normal)
         self.progressButton.setTitleColor(theme.primaryColor, for: .normal)
     }
 }
