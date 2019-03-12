@@ -53,6 +53,26 @@ class PlaylistViewController: ItemListViewController {
             NotificationCenter.default.post(name: .reloadData, object: nil)
         })
 
+        alert.addAction(UIAlertAction(title: "New Playlist", style: .default) { _ in
+            var placeholder = "New Playlist"
+
+            if let file = files.first {
+                placeholder = file.originalUrl.deletingPathExtension().lastPathComponent
+            }
+
+            self.presentCreatePlaylistAlert(placeholder, handler: { title in
+                let playlist = DataManager.createPlaylist(title: title, books: [])
+
+                DataManager.insert(playlist, into: self.library)
+
+                DataManager.insertBooks(from: files, into: playlist) {
+                    self.reloadData()
+                    self.showLoadView(false)
+                }
+
+            })
+        })
+
         let vc = self.presentedViewController ?? self
 
         vc.present(alert, animated: true, completion: nil)
