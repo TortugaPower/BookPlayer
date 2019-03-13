@@ -48,7 +48,7 @@
                                             <segue destination="NEQ-oF-OIb" kind="show" id="7ta-G1-2ZA"/>
                                         </connections>
                                     </tableViewCell>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="zzO-fZ-F5R" style="IBUITableViewCellStyleDefault" id="sUu-CC-cH1" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="zzO-fZ-F5R" detailTextLabel="MdO-Yx-eBK" style="IBUITableViewCellStyleValue1" id="sUu-CC-cH1" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="99.5" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="sUu-CC-cH1" id="gS3-cT-QWc">
@@ -56,10 +56,17 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="App Icon" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="zzO-fZ-F5R">
-                                                    <rect key="frame" x="16" y="0.0" width="324" height="43.5"/>
+                                                    <rect key="frame" x="16" y="12" width="68" height="20.5"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Detail" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="MdO-Yx-eBK">
+                                                    <rect key="frame" x="296" y="12" width="44" height="20.5"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>
@@ -247,11 +254,11 @@
                                         <rect key="frame" x="0.0" y="771" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="03X-zP-RZe" id="IIp-cC-U1k">
-                                            <rect key="frame" x="0.0" y="0.0" width="349" height="43.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="341" height="43.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Credits and Licenses" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="f5k-Kh-fBQ">
-                                                    <rect key="frame" x="15" y="0.0" width="325" height="43.5"/>
+                                                    <rect key="frame" x="16" y="0.0" width="324" height="43.5"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
@@ -280,6 +287,7 @@
                     </navigationItem>
                     <size key="freeformSize" width="375" height="775"/>
                     <connections>
+                        <outlet property="appIconLabel" destination="MdO-Yx-eBK" id="dXu-fc-mwk"/>
                         <outlet property="autoplayLibrarySwitch" destination="U00-rk-lxZ" id="HCv-jo-TbM"/>
                         <outlet property="disableAutolockSwitch" destination="BlM-8p-0Ka" id="Fbl-zc-kUw"/>
                         <outlet property="themeLabel" destination="CVc-ad-1rf" id="I40-1O-6rO"/>
@@ -308,29 +316,39 @@
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="85.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hfJ-8d-1E2">
-                                                    <rect key="frame" x="88" y="32.5" width="257" height="21"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <nil key="textColor"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Icon" translatesAutoresizingMaskIntoConstraints="NO" id="so0-Nc-szn" customClass="BPArtworkView" customModule="BookPlayer" customModuleProvider="target">
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="so0-Nc-szn">
                                                     <rect key="frame" x="16" y="14.5" width="57" height="57"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="57" id="HYk-lI-fot"/>
                                                         <constraint firstAttribute="height" constant="57" id="Vfd-Rk-GJ0"/>
                                                     </constraints>
                                                 </imageView>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hfJ-8d-1E2">
+                                                    <rect key="frame" x="88" y="21.5" width="257" height="20.5"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Author" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4eX-0M-CDr">
+                                                    <rect key="frame" x="88" y="45" width="257" height="16"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                    <color key="textColor" red="0.56078431370000004" green="0.5568627451" blue="0.58039215690000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
                                             </subviews>
                                             <constraints>
                                                 <constraint firstItem="hfJ-8d-1E2" firstAttribute="leading" secondItem="so0-Nc-szn" secondAttribute="trailing" constant="15" id="9ZK-Pd-23u"/>
                                                 <constraint firstAttribute="trailingMargin" secondItem="hfJ-8d-1E2" secondAttribute="trailing" constant="15" id="ENb-Da-aUv"/>
+                                                <constraint firstItem="4eX-0M-CDr" firstAttribute="top" secondItem="hfJ-8d-1E2" secondAttribute="bottom" constant="3" id="F87-0l-s7M"/>
                                                 <constraint firstItem="so0-Nc-szn" firstAttribute="leading" secondItem="Jj0-cc-ISp" secondAttribute="leadingMargin" constant="1" id="Q7D-xt-Clc"/>
                                                 <constraint firstItem="so0-Nc-szn" firstAttribute="centerY" secondItem="Jj0-cc-ISp" secondAttribute="centerY" id="QBr-DQ-lOe"/>
-                                                <constraint firstItem="hfJ-8d-1E2" firstAttribute="centerY" secondItem="Jj0-cc-ISp" secondAttribute="centerY" id="SJS-6K-21N"/>
+                                                <constraint firstItem="4eX-0M-CDr" firstAttribute="leading" secondItem="hfJ-8d-1E2" secondAttribute="leading" id="UaV-rg-Avj"/>
+                                                <constraint firstItem="hfJ-8d-1E2" firstAttribute="centerY" secondItem="Jj0-cc-ISp" secondAttribute="centerY" constant="-11" id="bZM-rk-UH5"/>
+                                                <constraint firstItem="4eX-0M-CDr" firstAttribute="trailing" secondItem="hfJ-8d-1E2" secondAttribute="trailing" id="f7C-zy-ls2"/>
                                             </constraints>
                                         </tableViewCellContentView>
                                         <connections>
+                                            <outlet property="authorLabel" destination="4eX-0M-CDr" id="Idb-ib-S0l"/>
                                             <outlet property="iconImageView" destination="so0-Nc-szn" id="nwN-22-PJ2"/>
                                             <outlet property="titleLabel" destination="hfJ-8d-1E2" id="01G-jS-dPO"/>
                                         </connections>
@@ -1005,7 +1023,6 @@ Use with caution and care for your hearing.</string>
         </scene>
     </scenes>
     <resources>
-        <image name="Icon" width="16" height="16"/>
         <image name="currentScreenBrightnessIndicator" width="30" height="40"/>
         <image name="listAdd" width="29" height="29"/>
     </resources>

@@ -31,12 +31,9 @@ class IconsViewController: UIViewController {
         let icon = iconName == "Default" ? nil : iconName
 
         UIApplication.shared.setAlternateIconName(icon, completionHandler: { error in
-            // 3
-            if let error = error {
-                print("App icon failed to change due to \(error.localizedDescription)")
-            } else {
-                print("App icon changed successfully")
-            }
+            guard error != nil else { return }
+
+            self.showAlert("Error", message: "Changing the app icon wasn't successful. Try again later")
         })
     }
 }
@@ -54,7 +51,8 @@ extension IconsViewController: UITableViewDataSource {
         let item = self.icons[indexPath.row]
 
         cell.titleLabel.text = item.title
-        cell.iconImageView.image = UIImage(named: item.imageName)
+        cell.authorLabel.text = item.author
+        cell.iconImage = UIImage(named: item.imageName)
 
         let currentAppIcon = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
 

@@ -17,6 +17,9 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     @IBOutlet weak var autoplayLibrarySwitch: UISwitch!
     @IBOutlet weak var disableAutolockSwitch: UISwitch!
     @IBOutlet weak var themeLabel: UILabel!
+    @IBOutlet weak var appIconLabel: UILabel!
+
+    var iconObserver: NSKeyValueObservation!
 
     let supportSection: Int = 5
     let githubLinkPath = IndexPath(row: 0, section: 5)
@@ -39,6 +42,12 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         super.viewDidLoad()
 
         setUpTheming()
+
+        self.appIconLabel.text = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
+
+        self.iconObserver = UserDefaults.standard.observe(\.userSettingsAppIcon) { _, _ in
+            self.appIconLabel.text = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
+        }
 
         self.autoplayLibrarySwitch.addTarget(self, action: #selector(self.autoplayToggleDidChange), for: .valueChanged)
         self.disableAutolockSwitch.addTarget(self, action: #selector(self.disableAutolockDidChange), for: .valueChanged)

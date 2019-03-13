@@ -11,5 +11,10 @@ import Foundation
 struct Icon: Codable {
     var id: String
     var title: String
+    private var artist: String?
     var imageName: String
+
+    var author: String {
+        return self.artist ?? "By your friends from BookPlayer"
+    }
 }

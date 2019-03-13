@@ -54,4 +54,25 @@ extension UIImage {
 
         return image
     }
+
+    func addLayerMask(_ name: String) -> UIImage {
+        guard
+            let image = UIImage(named: name),
+            let currentImage = self.cgImage,
+            let maskImageReference = image.cgImage,
+            let provider = maskImageReference.dataProvider,
+            let imageMask = CGImage(maskWidth: maskImageReference.width,
+                                    height: maskImageReference.height,
+                                    bitsPerComponent: maskImageReference.bitsPerComponent,
+                                    bitsPerPixel: maskImageReference.bitsPerPixel,
+                                    bytesPerRow: maskImageReference.bytesPerRow,
+                                    provider: provider,
+                                    decode: nil,
+                                    shouldInterpolate: false)
+        else { return self }
+
+        guard let maskedImage = currentImage.masking(imageMask) else { return self }
+
+        return UIImage(cgImage: maskedImage)
+    }
 }
