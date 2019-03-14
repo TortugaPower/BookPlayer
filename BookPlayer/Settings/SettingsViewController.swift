@@ -21,10 +21,10 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
 
     var iconObserver: NSKeyValueObservation!
 
-    let supportSection: Int = 5
-    let githubLinkPath = IndexPath(row: 0, section: 5)
-    let supportEmailPath = IndexPath(row: 1, section: 5)
-    let siriShortcutPath = IndexPath(row: 0, section: 4)
+    let siriShortcutPath = IndexPath(row: 0, section: 5)
+    let supportSection: Int = 6
+    let githubLinkPath = IndexPath(row: 0, section: 6)
+    let supportEmailPath = IndexPath(row: 1, section: 6)
 
     var version: String = "0.0.0"
     var build: String = "0"

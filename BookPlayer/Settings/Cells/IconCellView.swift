@@ -17,7 +17,7 @@ class IconCellView: UITableViewCell {
 
     var iconImage: UIImage? {
         didSet {
-            self.iconImageView.image = iconImage?.addLayerMask("appIconMask")
+            self.iconImageView.image = self.iconImage?.addLayerMask("appIconMask")
         }
     }
 

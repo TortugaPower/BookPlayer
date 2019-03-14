@@ -16,7 +16,7 @@ struct Icon: Codable {
     private var locked: Bool?
 
     var isLocked: Bool {
-        return self.isLocked ?? false
+        return self.locked ?? false
     }
 
     var author: String {

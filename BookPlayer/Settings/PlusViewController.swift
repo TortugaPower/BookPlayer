@@ -44,6 +44,7 @@ class PlusViewController: UIViewController {
 
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var collectionViewHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var maintainersViewTopConstraint: NSLayoutConstraint!
 
     @IBOutlet weak var gianniImageView: UIImageView!
     @IBOutlet weak var pichImageView: UIImageView!
@@ -52,19 +53,23 @@ class PlusViewController: UIViewController {
     @IBOutlet var detailLabels: [UILabel]!
     @IBOutlet var imageViews: [UIImageView]!
 
+    @IBOutlet var plusViews: [UIView]!
+    @IBOutlet weak var tipDescriptionLabel: UILabel!
+
     var loadingBarButton: UIBarButtonItem!
     var restoreBarButton: UIBarButtonItem!
 
-    let kindTipId = "com.tortugapower.audiobookplayer.tip.kind"
-    let excellentTipId = "com.tortugapower.audiobookplayer.tip.excellent"
-    let incredibleTipId = "com.tortugapower.audiobookplayer.tip.incredible"
+    var kindTipId = "com.tortugapower.audiobookplayer.tip.kind"
+    var excellentTipId = "com.tortugapower.audiobookplayer.tip.excellent"
+    var incredibleTipId = "com.tortugapower.audiobookplayer.tip.incredible"
+    let tipJarSuffix = ".consumable"
 
     //constants for button animations
     let defaultTipButtonsWidth: CGFloat = 60.0
 
     //constants for collectionView layout
     let sectionInsets = UIEdgeInsets(top: 0.0, left: 10.0, bottom: 25.0, right: 0.0)
-    let cellHeight = 35
+    let cellHeight = 40
 
     // Maintainers
     let contributorGianni = Contributor(id: 14112819,
@@ -79,7 +84,7 @@ class PlusViewController: UIViewController {
     var contributors = [Contributor]() {
         didSet {
             // Resize scroll content height
-            let rows = Double(self.contributors.count) / 5
+            let rows = Double(self.contributors.count) / 4
             let collectionheight = CGFloat(Int(rows.rounded(.up)) * self.cellHeight) + self.sectionInsets.bottom
 
             self.collectionViewHeightConstraint.constant = collectionheight
@@ -102,9 +107,28 @@ class PlusViewController: UIViewController {
         activityIndicatorView.startAnimating()
         self.loadingBarButton = UIBarButtonItem(customView: activityIndicatorView)
 
+        if UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) {
+            self.setupTipJarLayout()
+        }
+
         self.setupContributors()
 
         setUpTheming()
+    }
+
+    func setupTipJarLayout() {
+        for view in self.plusViews {
+            view.isHidden = true
+        }
+
+        self.navigationItem.title = "Tip Jar"
+        self.navigationItem.rightBarButtonItem = nil
+        self.tipDescriptionLabel.isHidden = false
+        self.maintainersViewTopConstraint.constant = 35
+
+        self.kindTipId += self.tipJarSuffix
+        self.excellentTipId += self.tipJarSuffix
+        self.incredibleTipId += self.tipJarSuffix
     }
 
     func setupSpinners() {
@@ -114,6 +138,10 @@ class PlusViewController: UIViewController {
     }
 
     func setupContributors() {
+        let layout = UICollectionViewCenterLayout()
+        layout.estimatedItemSize = CGSize(width: 45, height: self.cellHeight)
+        self.collectionView.collectionViewLayout = layout
+
         let url = URL(string: "https://api.github.com/repos/TortugaPower/BookPlayer/contributors")!
         let task = URLSession.shared.dataTask(with: url) { data, _, _ in
             guard let data = data,
@@ -262,26 +290,6 @@ extension PlusViewController: UICollectionViewDelegate {
         let contributor = self.contributors[indexPath.item]
 
         self.showProfile(contributor.profileURL)
-    }
-}
-
-extension PlusViewController: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView,
-                        layout collectionViewLayout: UICollectionViewLayout,
-                        sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: self.cellHeight, height: self.cellHeight)
-    }
-
-    func collectionView(_ collectionView: UICollectionView,
-                        layout collectionViewLayout: UICollectionViewLayout,
-                        insetForSectionAt section: Int) -> UIEdgeInsets {
-        return self.sectionInsets
-    }
-
-    func collectionView(_ collectionView: UICollectionView,
-                        layout collectionViewLayout: UICollectionViewLayout,
-                        minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return self.sectionInsets.left
     }
 }
 
