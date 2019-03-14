@@ -76,6 +76,7 @@ Managed with [Carthage](https://github.com/Carthage/Carthage)
 - [DeviceKit](https://github.com/dennisweissmann/DeviceKit) for device information used in support requests
 - [MarqueeLabel](https://github.com/cbpowell/MarqueeLabel) for scrolling labels
 - [DirectoryWatcher](https://github.com/GianniCarlo/DirectoryWatcher) for events on the document's folder
+- [Sentry](https://github.com/getsentry/sentry-cocoa) for crash reporting
 - [Sweetercolor](https://github.com/jathu/sweetercolor) for handling artwork colors
 - [SwiftReorder](https://github.com/GianniCarlo/SwiftReorder) for drag-and-drop on the UITableView
 - [ZIPFoundation](https://github.com/weichsel/ZIPFoundation) for zip files
