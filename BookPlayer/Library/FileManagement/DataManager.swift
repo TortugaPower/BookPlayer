@@ -232,6 +232,16 @@ class DataManager {
         DataManager.saveContext()
     }
 
+    class func getIcons() -> [Icon] {
+        guard
+            let iconsFile = Bundle.main.url(forResource: "Icons", withExtension: "json"),
+            let data = try? Data(contentsOf: iconsFile, options: .mappedIfSafe),
+            let icons = try? JSONDecoder().decode([Icon].self, from: data)
+        else { return [] }
+
+        return icons
+    }
+
     class func exists(_ book: Book) -> Bool {
         return FileManager.default.fileExists(atPath: book.fileURL.path)
     }

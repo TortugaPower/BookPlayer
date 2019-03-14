@@ -27,26 +27,10 @@ class ThemeCellView: UITableViewCell {
 
     func setupShowCaseView(for theme: Theme) {
         self.showCaseView.layer.sublayers = nil
-        self.addLayer(to: self.showCaseView, mask: "themeColorBackgroundMask", backgroundColor: theme.defaultBackgroundColor)
-        self.addLayer(to: self.showCaseView, mask: "themeColorAccentMask", backgroundColor: theme.defaultAccentColor)
-        self.addLayer(to: self.showCaseView, mask: "themeColorPrimaryMask", backgroundColor: theme.defaultPrimaryColor)
-        self.addLayer(to: self.showCaseView, mask: "themeColorSecondaryMask", backgroundColor: theme.defaultSecondaryColor)
-    }
-
-    private func addLayer(to view: UIView, mask name: String, backgroundColor: UIColor) {
-        guard let image = UIImage(named: name),
-            let maskImage = image.cgImage else { return }
-
-        let layer = CALayer()
-        layer.frame = view.bounds
-        layer.backgroundColor = backgroundColor.cgColor
-
-        let mask = CALayer(layer: maskImage)
-        mask.frame = view.bounds
-        mask.contents = maskImage
-        layer.mask = mask
-
-        view.layer.addSublayer(layer)
+        self.showCaseView.addLayerMask("themeColorBackgroundMask", backgroundColor: theme.defaultBackgroundColor)
+        self.showCaseView.addLayerMask("themeColorAccentMask", backgroundColor: theme.defaultAccentColor)
+        self.showCaseView.addLayerMask("themeColorPrimaryMask", backgroundColor: theme.defaultPrimaryColor)
+        self.showCaseView.addLayerMask("themeColorSecondaryMask", backgroundColor: theme.defaultSecondaryColor)
     }
 }
 
