@@ -9,6 +9,7 @@
 import AVFoundation
 import DirectoryWatcher
 import MediaPlayer
+import Sentry
 import UIKit
 
 @UIApplicationMain
@@ -60,6 +61,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             activityType == Constants.UserActivityPlayback {
             defaults.set(true, forKey: activityType)
         }
+
+        // Create a Sentry client and start crash handler
+        Client.shared = try? Client(dsn: "https://23b4d02f7b044c10adb55a0cc8de3881@sentry.io/1414296")
+        try? Client.shared?.startCrashHandler()
 
         return true
     }
