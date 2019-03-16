@@ -58,6 +58,7 @@ class PlayerJumpIcon: UIView {
 
     override func layoutSubviews() {
         self.label.frame = self.bounds.insetBy(dx: 10.0, dy: 10.0)
+        self.backgroundImageView.center = self.label.center
     }
 }
 

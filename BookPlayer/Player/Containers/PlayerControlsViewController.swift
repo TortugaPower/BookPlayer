@@ -100,10 +100,12 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
         self.artworkControl.onRewind = { _ in
             PlayerManager.shared.rewind()
+            self.showPlayPauseButton()
         }
 
         self.artworkControl.onForward = { _ in
             PlayerManager.shared.forward()
+            self.showPlayPauseButton()
         }
 
         setUpTheming()
@@ -279,7 +281,7 @@ extension PlayerControlsViewController: Themeable {
         self.progressSlider.minimumTrackTintColor = theme.highlightColor
         self.progressSlider.maximumTrackTintColor = theme.lightHighlightColor
 
-        self.artworkControl.iconColor = theme.highlightColor
+        self.artworkControl.iconColor = .white
         self.artworkControl.borderColor = theme.highlightColor
 
         self.currentTimeLabel.textColor = theme.primaryColor

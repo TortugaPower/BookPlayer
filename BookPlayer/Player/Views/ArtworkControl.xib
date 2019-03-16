@@ -59,27 +59,25 @@
                     </constraints>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5e7-tW-iQd" customClass="PlayerJumpIconRewind" customModule="BookPlayer" customModuleProvider="target">
-                    <rect key="frame" x="0.0" y="132.5" width="60" height="60"/>
+                    <rect key="frame" x="0.0" y="0.0" width="70" height="325"/>
                     <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <accessibility key="accessibilityConfiguration">
                         <accessibilityTraits key="traits" button="YES"/>
                         <bool key="isElement" value="YES"/>
                     </accessibility>
                     <constraints>
-                        <constraint firstAttribute="width" constant="60" id="3hy-qn-oEo"/>
-                        <constraint firstAttribute="height" constant="60" id="wXB-PZ-nzC"/>
+                        <constraint firstAttribute="width" constant="70" id="3hy-qn-oEo"/>
                     </constraints>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6cy-7G-42S" customClass="PlayerJumpIconForward" customModule="BookPlayer" customModuleProvider="target">
-                    <rect key="frame" x="265" y="132.5" width="60" height="60"/>
+                    <rect key="frame" x="255" y="0.0" width="70" height="325"/>
                     <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <accessibility key="accessibilityConfiguration">
                         <accessibilityTraits key="traits" button="YES"/>
                         <bool key="isElement" value="YES"/>
                     </accessibility>
                     <constraints>
-                        <constraint firstAttribute="width" constant="60" id="dgq-OZ-uxR"/>
-                        <constraint firstAttribute="height" constant="60" id="ycb-cQ-Ea2"/>
+                        <constraint firstAttribute="width" constant="70" id="dgq-OZ-uxR"/>
                     </constraints>
                 </view>
             </subviews>
@@ -87,12 +85,15 @@
                 <constraint firstItem="eBX-C3-3ce" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" id="09S-XA-Xvg"/>
                 <constraint firstItem="38X-b3-v6y" firstAttribute="height" secondItem="iN0-l3-epB" secondAttribute="height" id="24y-oW-qiT"/>
                 <constraint firstItem="38X-b3-v6y" firstAttribute="centerX" secondItem="vUN-kp-3ea" secondAttribute="centerX" id="4pK-UC-UFU"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="5e7-tW-iQd" secondAttribute="bottom" id="7hU-fZ-0Co"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="6cy-7G-42S" secondAttribute="trailing" id="8rK-lS-9RU"/>
                 <constraint firstItem="38X-b3-v6y" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" id="8wD-hf-C2N"/>
                 <constraint firstItem="6cy-7G-42S" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" id="Hft-eE-Q2J"/>
-                <constraint firstItem="5e7-tW-iQd" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" id="Ybi-fz-Sbn"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="6cy-7G-42S" secondAttribute="bottom" id="Kd2-RU-eEY"/>
                 <constraint firstItem="5e7-tW-iQd" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="eW5-rK-FxM"/>
                 <constraint firstItem="38X-b3-v6y" firstAttribute="width" secondItem="iN0-l3-epB" secondAttribute="width" id="fPh-xl-Sdg"/>
+                <constraint firstItem="5e7-tW-iQd" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="g6P-Mh-oKY"/>
+                <constraint firstItem="6cy-7G-42S" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="m5e-Ea-qZ4"/>
                 <constraint firstItem="eBX-C3-3ce" firstAttribute="centerX" secondItem="vUN-kp-3ea" secondAttribute="centerX" id="spx-FO-obt"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>

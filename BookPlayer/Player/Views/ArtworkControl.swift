@@ -176,8 +176,6 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
 
         self.rewindIcon.addGestureRecognizer(rewindTap)
         self.forwardIcon.addGestureRecognizer(forwardTap)
-//        self.addGestureRecognizer(rewindTap)
-//        self.addGestureRecognizer(forwardTap)
     }
 
     func setTransformForJumpIcons() {
@@ -221,12 +219,14 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
             self.playPauseButton.alpha = 1.0
             self.forwardIcon.alpha = 1.0
             self.rewindIcon.alpha = 1.0
+            self.artworkImage.alpha = 0.6
         }
 
         let fadeOut = {
             self.playPauseButton.alpha = 0.05
             self.forwardIcon.alpha = 0.05
             self.rewindIcon.alpha = 0.05
+            self.artworkImage.alpha = 1.0
         }
 
         if animated || self.playPauseButton.alpha < 1.0 {
@@ -253,6 +253,9 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
             transform = CATransform3DRotate(transform, CGFloat.pi / 180 * 10, 0, 0.4, 0) //left
             self.layer.transform = transform
             self.onRewind?(self)
+            if #available(iOS 10.0, *) {
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            }
             return
         }
 
@@ -274,6 +277,9 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
             transform = CATransform3DRotate(transform, 50, 0, 0.4, 0)
             self.layer.transform = transform
             self.onForward?(self)
+            if #available(iOS 10.0, *) {
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            }
             return
         }
 
