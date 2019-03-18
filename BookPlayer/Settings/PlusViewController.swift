@@ -105,6 +105,7 @@ class PlusViewController: UIViewController {
 
         let activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .gray)
         activityIndicatorView.startAnimating()
+        activityIndicatorView.color = self.themeProvider.currentTheme.useDarkVariant ? .white : .gray
         self.loadingBarButton = UIBarButtonItem(customView: activityIndicatorView)
 
         if UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) {
@@ -171,7 +172,11 @@ class PlusViewController: UIViewController {
             if results.restoreFailedPurchases.count > 0 {
                 self.showAlert("Network Error", message: "Please try again later")
             } else if results.restoredPurchases.count > 0 {
-                self.showAlert("BookPlayer Plus restored!", message: nil)
+                self.showAlert("Purchases restored!", message: nil, style: .alert, completion: {
+                    self.dismiss(animated: true, completion: nil)
+                })
+
+                self.view.startConfetti()
                 UserDefaults.standard.set(true, forKey: Constants.UserDefaults.donationMade.rawValue)
                 NotificationCenter.default.post(name: .donationMade, object: nil)
             } else {
@@ -254,10 +259,25 @@ class PlusViewController: UIViewController {
             self.showSpinner(false, sender: sender)
 
             switch result {
-            case .success(let purchase):
-                print("Purchase Success: \(purchase.productId)")
+            case .success:
+                self.view.startConfetti()
+
+                var completion: (() -> Void)?
+                var title = "You are amazing!"
+
+                // On first visit, dismiss VC after the alert is dimisseds
+                if !UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) {
+                    completion = {
+                        self.dismiss(animated: true, completion: nil)
+                    }
+                    title = "Thanks for your support!"
+                }
+
+                self.showAlert(title, message: nil, style: .alert, completion: completion)
+
                 UserDefaults.standard.set(true, forKey: Constants.UserDefaults.donationMade.rawValue)
                 NotificationCenter.default.post(name: .donationMade, object: nil)
+
             case .error(let error):
                 guard error.code != .paymentCancelled else { return }
 
