@@ -171,11 +171,10 @@ class ThemesViewController: UIViewController {
     }
 
     func resizeScrollContent() {
-        // add a second cellHeight to account for the 'add' button
-        let tableHeight = CGFloat(self.extractedThemes.count * cellHeight + cellHeight)
+        let tableHeight = CGFloat(self.localThemes.count * self.cellHeight)
 
-        self.extractedThemesTableHeightConstraint.constant = tableHeight
-        self.scrollContentHeightConstraint.constant = tableHeight + CGFloat(cellHeight) + self.extractedThemesTableView.frame.origin.y
+        self.localThemesTableHeightConstraint.constant = tableHeight
+        self.scrollContentHeightConstraint.constant = tableHeight + self.localThemesTableView.frame.origin.y
     }
 }
 

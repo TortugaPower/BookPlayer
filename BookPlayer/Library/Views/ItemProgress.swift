@@ -212,6 +212,9 @@ extension ItemProgress: Themeable {
         self.highlightedPieColors = PieColors(backgroundColor: theme.highlightedPieBackgroundColor.cgColor,
                                               fillColor: theme.highlightedPieFillColor.cgColor,
                                               borderColor: theme.highlightedPieBorderColor.cgColor)
+
+        self.completionBackground.fillColor = theme.highlightColor.cgColor
+
         self.applyColors()
     }
 }
