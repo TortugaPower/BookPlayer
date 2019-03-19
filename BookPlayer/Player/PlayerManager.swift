@@ -252,9 +252,10 @@ extension PlayerManager {
     }
 
     func jumpBy(_ direction: Double) {
-        guard let player = self.audioPlayer else { return }
+        guard let player = self.audioPlayer,
+            let book = self.currentBook else { return }
 
-        player.currentTime += direction
+        player.currentTime += book.getInterval(from: direction)
 
         self.update()
     }

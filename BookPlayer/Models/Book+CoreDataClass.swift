@@ -163,4 +163,42 @@ public class Book: LibraryItem {
 
         return nil
     }
+
+    func getInterval(from proposedInterval: TimeInterval) -> TimeInterval {
+        let interval = proposedInterval > 0
+            ? self.getForwardInterval(from: proposedInterval)
+            : self.getRewindInterval(from: proposedInterval)
+
+        return interval
+    }
+
+    private func getRewindInterval(from proposedInterval: TimeInterval) -> TimeInterval {
+        guard let chapter = self.currentChapter else { return proposedInterval }
+
+        if self.currentTime + proposedInterval > chapter.start {
+            return proposedInterval
+        }
+
+        let chapterThreshold: TimeInterval = 3
+
+        if chapter.start + chapterThreshold > currentTime {
+            return proposedInterval
+        }
+
+        return -(self.currentTime - chapter.start)
+    }
+
+    private func getForwardInterval(from proposedInterval: TimeInterval) -> TimeInterval {
+        guard let chapter = self.currentChapter else { return proposedInterval }
+
+        if self.currentTime + proposedInterval < chapter.end {
+            return proposedInterval
+        }
+
+        if chapter.end < currentTime {
+            return proposedInterval
+        }
+
+        return chapter.end - self.currentTime
+    }
 }
