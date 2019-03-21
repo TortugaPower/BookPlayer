@@ -6,10 +6,11 @@ cache:
 before_install:
   - brew update
   - brew outdated carthage || brew upgrade carthage
+install:
+  - bundle install
 before_script:
   # bootstrap the dependencies for the project
   # you can remove if you don't have dependencies
   - carthage bootstrap --verbose --no-use-binaries --platform iOS --cache-builds
 script:
-  - swiftlint 
-  - xcodebuild -project BookPlayer.xcodeproj -scheme BookPlayer -destination 'platform=iOS Simulator,OS=11.3,name=iPhone 5s' test
+  - fastlane tests

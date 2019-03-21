@@ -1,0 +1,8 @@
+app_identifier("com.tortugapower.audiobookplayer") # The bundle identifier of your app
+apple_id("gacarlo89@gmail.com") # Your Apple email address
+
+itc_team_id("118333144") # App Store Connect Team ID
+team_id("S7TJSJXWUZ") # Developer Portal Team ID
+
+# For more information about the Appfile, see:
+#     https://docs.fastlane.tools/advanced/#appfile
