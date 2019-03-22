@@ -182,27 +182,17 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     // MARK: - Public API
 
     func showPlayPauseButton(_ animated: Bool = true) {
-        let fadeIn = {
-            self.playPauseButton.alpha = 1.0
-            self.forwardIcon.alpha = 1.0
-            self.rewindIcon.alpha = 1.0
-            self.artworkImage.alpha = 0.6
-        }
+        self.playPauseButton.alpha = 1.0
+        self.forwardIcon.alpha = 1.0
+        self.rewindIcon.alpha = 1.0
+        self.artworkImage.alpha = 0.6
 
-        let fadeOut = {
+        UIView.animate(withDuration: 0.3, delay: 2.2, options: .allowUserInteraction, animations: {
             self.playPauseButton.alpha = 0.05
             self.forwardIcon.alpha = 0.05
             self.rewindIcon.alpha = 0.05
             self.artworkImage.alpha = 1.0
-        }
-
-        if animated || self.playPauseButton.alpha < 1.0 {
-            UIView.animate(withDuration: 0.3, delay: 0, options: .allowUserInteraction, animations: fadeIn, completion: { (_: Bool) in
-                UIView.animate(withDuration: 0.3, delay: 2.2, options: .allowUserInteraction, animations: fadeOut, completion: nil)
-            })
-        } else {
-            UIView.animate(withDuration: 0.3, delay: 2.2, options: .allowUserInteraction, animations: fadeOut, completion: nil)
-        }
+        }, completion: nil)
     }
 
     // MARK: - Gesture recognizers
