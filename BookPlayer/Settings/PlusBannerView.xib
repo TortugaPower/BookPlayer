@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="PlusBannerView" customModule="BookPlayer" customModuleProvider="target">
+            <connections>
+                <outlet property="detailLabel" destination="FWO-08-PTC" id="QYY-1R-v5k"/>
+                <outlet property="moreButton" destination="b9s-tU-9MM" id="Vno-zO-Msd"/>
+                <outlet property="titleLabel" destination="rpT-kz-YBF" id="ZuS-p2-5Vp"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="391" height="130"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="BookPlayerPlus" translatesAutoresizingMaskIntoConstraints="NO" id="q8b-g4-bTO">
+                    <rect key="frame" x="20" y="14" width="102" height="102"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="102" id="a71-tI-vwv"/>
+                        <constraint firstAttribute="width" constant="102" id="zuh-0P-o2j"/>
+                    </constraints>
+                </imageView>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Support BookPlayer" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rpT-kz-YBF">
+                    <rect key="frame" x="142" y="14" width="229" height="21"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="21" id="7qM-If-ztF"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <color key="textColor" red="0.13728347420692444" green="0.13718283176422119" blue="0.14117720723152161" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Get BookPlayer Plus to support future development and get extra themes and app icons" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="7" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FWO-08-PTC">
+                    <rect key="frame" x="142" y="35" width="234" height="50"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="50" id="Wd0-zp-SX9"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                    <color key="textColor" red="0.60795658826828003" green="0.61154496669769287" blue="0.6235319972038269" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="b9s-tU-9MM">
+                    <rect key="frame" x="142" y="92.5" width="95" height="22"/>
+                    <color key="backgroundColor" red="0.33183437585830688" green="0.55520296096801758" blue="0.8078731894493103" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="95" id="ehZ-ZV-JHW"/>
+                        <constraint firstAttribute="height" constant="22" id="i4F-X6-RE2"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="boldSystem" pointSize="11"/>
+                    <state key="normal" title="LEARN MORE">
+                        <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    </state>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                            <integer key="value" value="11"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
+                    <connections>
+                        <action selector="showPlus:" destination="-1" eventType="touchUpInside" id="mSx-0n-HKC"/>
+                    </connections>
+                </button>
+            </subviews>
+            <constraints>
+                <constraint firstItem="FWO-08-PTC" firstAttribute="leading" secondItem="q8b-g4-bTO" secondAttribute="trailing" constant="20" id="Bgy-Lv-RwW"/>
+                <constraint firstItem="q8b-g4-bTO" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="20" id="CXT-47-NiL"/>
+                <constraint firstItem="b9s-tU-9MM" firstAttribute="leading" secondItem="FWO-08-PTC" secondAttribute="leading" id="Q4U-ME-rY1"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="FWO-08-PTC" secondAttribute="trailing" constant="15" id="VXZ-zK-qXC"/>
+                <constraint firstItem="b9s-tU-9MM" firstAttribute="top" secondItem="FWO-08-PTC" secondAttribute="bottom" constant="7.5" id="WC5-9V-IcW"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="rpT-kz-YBF" secondAttribute="trailing" constant="20" id="bDq-uJ-giY"/>
+                <constraint firstItem="FWO-08-PTC" firstAttribute="top" secondItem="rpT-kz-YBF" secondAttribute="bottom" id="bdd-Qo-RhI"/>
+                <constraint firstItem="rpT-kz-YBF" firstAttribute="top" secondItem="q8b-g4-bTO" secondAttribute="top" id="fVp-T7-h4M"/>
+                <constraint firstItem="rpT-kz-YBF" firstAttribute="leading" secondItem="q8b-g4-bTO" secondAttribute="trailing" constant="20" id="qSE-td-owm"/>
+                <constraint firstItem="q8b-g4-bTO" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" id="xbA-5g-HbU"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+            <point key="canvasLocation" x="151.19999999999999" y="365.66716641679164"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="BookPlayerPlus" width="102" height="102"/>
+    </resources>
+</document>

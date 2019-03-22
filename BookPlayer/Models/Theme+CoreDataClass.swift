@@ -18,6 +18,8 @@ enum ArtworkColorsError: Error {
 public class Theme: NSManagedObject {
     var useDarkVariant = false
 
+    var locked = false
+
     func sameColors(as theme: Theme) -> Bool {
         return self.defaultBackgroundHex == theme.defaultBackgroundHex
             && self.defaultPrimaryHex == theme.defaultPrimaryHex
@@ -25,19 +27,20 @@ public class Theme: NSManagedObject {
             && self.defaultAccentHex == theme.defaultAccentHex
     }
 
-    convenience init(params: [String: String], context: NSManagedObjectContext) {
+    convenience init(params: [String: Any], context: NSManagedObjectContext) {
         let entity = NSEntityDescription.entity(forEntityName: "Theme", in: context)!
         self.init(entity: entity, insertInto: context)
 
-        self.defaultBackgroundHex = params["defaultBackground"]
-        self.defaultPrimaryHex = params["defaultPrimary"]
-        self.defaultSecondaryHex = params["defaultSecondary"]
-        self.defaultAccentHex = params["defaultAccent"]
-        self.darkBackgroundHex = params["darkBackground"]
-        self.darkPrimaryHex = params["darkPrimary"]
-        self.darkSecondaryHex = params["darkSecondary"]
-        self.darkAccentHex = params["darkAccent"]
-        self.title = params["title"]
+        self.defaultBackgroundHex = params["defaultBackground"] as? String
+        self.defaultPrimaryHex = params["defaultPrimary"] as? String
+        self.defaultSecondaryHex = params["defaultSecondary"] as? String
+        self.defaultAccentHex = params["defaultAccent"] as? String
+        self.darkBackgroundHex = params["darkBackground"] as? String
+        self.darkPrimaryHex = params["darkPrimary"] as? String
+        self.darkSecondaryHex = params["darkSecondary"] as? String
+        self.darkAccentHex = params["darkAccent"] as? String
+        self.title = params["title"] as? String
+        self.locked = params["locked"] as? Bool ?? false
     }
 
     // W3C recommends contrast values larger 4 or 7 (strict), but 3.0 should be fine for our use case

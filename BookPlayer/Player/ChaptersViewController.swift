@@ -7,6 +7,7 @@
 //
 
 import MediaPlayer
+import Themeable
 import UIKit
 
 class ChaptersViewController: UITableViewController {
@@ -20,6 +21,7 @@ class ChaptersViewController: UITableViewController {
         super.viewDidLoad()
 
         self.tableView.tableFooterView = UIView()
+        setUpTheming()
     }
 
     override func viewDidLayoutSubviews() {
@@ -65,5 +67,12 @@ class ChaptersViewController: UITableViewController {
         self.didSelectChapter?(self.chapters[indexPath.row])
 
         self.done(nil)
+    }
+}
+
+extension ChaptersViewController: Themeable {
+    func applyTheme(_ theme: Theme) {
+        self.view.backgroundColor = theme.backgroundColor
+        self.tableView.backgroundColor = theme.backgroundColor
     }
 }

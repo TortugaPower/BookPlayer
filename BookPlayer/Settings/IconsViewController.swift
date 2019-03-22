@@ -11,6 +11,9 @@ import UIKit
 
 class IconsViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var bannerView: PlusBannerView!
+    @IBOutlet weak var bannerHeightConstraint: NSLayoutConstraint!
+
     var icons = DataManager.getIcons()
 
     override func viewDidLoad() {
@@ -18,7 +21,19 @@ class IconsViewController: UIViewController {
 
         self.tableView.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: self.tableView.frame.size.width, height: 1))
 
+        if !UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) {
+            NotificationCenter.default.addObserver(self, selector: #selector(self.donationMade), name: .donationMade, object: nil)
+        } else {
+            self.donationMade()
+        }
+
         setUpTheming()
+    }
+
+    @objc func donationMade() {
+        self.bannerView.isHidden = true
+        self.bannerHeightConstraint.constant = 0
+        self.tableView.reloadData()
     }
 
     func changeIcon(to iconName: String) {
@@ -53,6 +68,7 @@ extension IconsViewController: UITableViewDataSource {
         cell.titleLabel.text = item.title
         cell.authorLabel.text = item.author
         cell.iconImage = UIImage(named: item.imageName)
+        cell.isLocked = item.isLocked && !UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue)
 
         let currentAppIcon = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
 
@@ -66,9 +82,19 @@ extension IconsViewController: UITableViewDataSource {
 
 extension IconsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let cell = tableView.cellForRow(at: indexPath) as? IconCellView else { return }
+
+        defer {
+            tableView.reloadData()
+        }
+
+        guard !cell.isLocked else {
+            return
+        }
+
         let item = self.icons[indexPath.row]
+
         self.changeIcon(to: item.id)
-        tableView.reloadData()
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -80,7 +106,7 @@ extension IconsViewController: Themeable {
     func applyTheme(_ theme: Theme) {
         self.view.backgroundColor = theme.settingsBackgroundColor
 
-        self.tableView.backgroundColor = theme.backgroundColor
+        self.tableView.backgroundColor = theme.settingsBackgroundColor
         self.tableView.separatorColor = theme.separatorColor
     }
 }

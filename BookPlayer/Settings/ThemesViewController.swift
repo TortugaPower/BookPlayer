@@ -30,6 +30,8 @@ class ThemesViewController: UIViewController {
     @IBOutlet var separatorViews: [UIView]!
 
     @IBOutlet weak var scrollContentHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var bannerView: PlusBannerView!
+    @IBOutlet weak var bannerHeightConstraint: NSLayoutConstraint!
 
     var scrolledToCurrentTheme = false
     let cellHeight = 44
@@ -37,7 +39,7 @@ class ThemesViewController: UIViewController {
 
     var localThemes: [Theme]! {
         didSet {
-            self.localThemesTableHeightConstraint.constant = CGFloat(self.localThemes.count * self.cellHeight) + CGFloat(self.localThemes.count)
+            self.localThemesTableHeightConstraint.constant = CGFloat(self.localThemes.count * self.cellHeight)
         }
     }
 
@@ -52,6 +54,12 @@ class ThemesViewController: UIViewController {
 
         self.localThemes = DataManager.getLocalThemes()
         self.extractedThemes = DataManager.getExtractedThemes()
+
+        if !UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) {
+            NotificationCenter.default.addObserver(self, selector: #selector(self.donationMade), name: .donationMade, object: nil)
+        } else {
+            self.donationMade()
+        }
 
         setUpTheming()
 
@@ -75,6 +83,13 @@ class ThemesViewController: UIViewController {
         self.scrolledToCurrentTheme = true
         let indexPath = IndexPath(row: index, section: 0)
         self.extractedThemesTableView.scrollToRow(at: indexPath, at: .top, animated: false)
+    }
+
+    @objc func donationMade() {
+        self.bannerView.isHidden = true
+        self.bannerHeightConstraint.constant = 30
+        self.localThemesTableView.reloadData()
+        self.extractedThemesTableView.reloadData()
     }
 
     func extractTheme() {
@@ -156,11 +171,10 @@ class ThemesViewController: UIViewController {
     }
 
     func resizeScrollContent() {
-        // add a second cellHeight to account for the 'add' button
-        let tableHeight = CGFloat(self.extractedThemes.count * cellHeight + cellHeight)
+        let tableHeight = CGFloat(self.localThemes.count * self.cellHeight)
 
-        self.extractedThemesTableHeightConstraint.constant = tableHeight
-        self.scrollContentHeightConstraint.constant = tableHeight + self.extractedThemesTableView.frame.origin.y
+        self.localThemesTableHeightConstraint.constant = tableHeight
+        self.scrollContentHeightConstraint.constant = tableHeight + self.localThemesTableView.frame.origin.y
     }
 }
 
@@ -196,6 +210,7 @@ extension ThemesViewController: UITableViewDataSource {
             cell.plusImageView.isHidden = false
             cell.plusImageView.tintColor = ThemeManager.shared.currentTheme.highlightColor
             cell.showCaseView.isHidden = true
+            cell.isLocked = !UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue)
             return cell
         }
 
@@ -205,6 +220,7 @@ extension ThemesViewController: UITableViewDataSource {
 
         cell.titleLabel.text = item.title
         cell.setupShowCaseView(for: item)
+        cell.isLocked = item.locked && !UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue)
 
         cell.accessoryType = item == ThemeManager.shared.currentTheme
             ? .checkmark
@@ -216,6 +232,13 @@ extension ThemesViewController: UITableViewDataSource {
 
 extension ThemesViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let cell = tableView.cellForRow(at: indexPath) as? ThemeCellView else { return }
+
+        guard !cell.isLocked else {
+            tableView.reloadData()
+            return
+        }
+
         guard indexPath.sectionValue != .add else {
             self.extractTheme()
             return
