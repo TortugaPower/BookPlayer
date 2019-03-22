@@ -16,6 +16,7 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     @IBOutlet private weak var playPauseButton: UIButton!
 
     @IBOutlet private weak var artworkImage: BPArtworkView!
+    @IBOutlet weak var artworkOverlay: UIView!
     @IBOutlet weak var artworkWidth: NSLayoutConstraint!
     @IBOutlet weak var artworkHeight: NSLayoutConstraint!
 
@@ -143,6 +144,11 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         self.artworkImage.layer.cornerRadius = 6.0
         self.artworkImage.layer.masksToBounds = true
 
+        self.artworkOverlay.clipsToBounds = false
+        self.artworkOverlay.contentMode = .scaleAspectFit
+        self.artworkOverlay.layer.cornerRadius = 6.0
+        self.artworkOverlay.layer.masksToBounds = true
+
         // Gestures
         let rewindTap = UILongPressGestureRecognizer(target: self, action: #selector(self.tapRewind))
         rewindTap.minimumPressDuration = 0
@@ -185,13 +191,13 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         self.playPauseButton.alpha = 1.0
         self.forwardIcon.alpha = 1.0
         self.rewindIcon.alpha = 1.0
-        self.artworkImage.alpha = 0.6
+        self.artworkOverlay.alpha = 0.4
 
         UIView.animate(withDuration: 0.3, delay: 2.2, options: .allowUserInteraction, animations: {
             self.playPauseButton.alpha = 0.05
             self.forwardIcon.alpha = 0.05
             self.rewindIcon.alpha = 0.05
-            self.artworkImage.alpha = 1.0
+            self.artworkOverlay.alpha = 0
         }, completion: nil)
     }
 
