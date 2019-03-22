@@ -199,6 +199,6 @@ public class Book: LibraryItem {
             return proposedInterval
         }
 
-        return chapter.end - self.currentTime
+        return chapter.end - self.currentTime + 0.01
     }
 }
