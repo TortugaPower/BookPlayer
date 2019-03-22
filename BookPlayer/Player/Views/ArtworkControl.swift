@@ -94,6 +94,7 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
                                self.playPauseButton.layoutIfNeeded()
             })
 
+            self.playPauseButton.accessibilityLabel = self.isPlaying ? "Pause" : "Play"
             self.showPlayPauseButton()
         }
     }
@@ -158,7 +159,7 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     private func setupAccessibilityLabels() {
         isAccessibilityElement = false
         self.playPauseButton.isAccessibilityElement = true
-        self.playPauseButton.accessibilityLabel = "Play Pause"
+        self.playPauseButton.accessibilityLabel = self.isPlaying ? "Pause" : "Play"
         self.playPauseButton.accessibilityTraits = super.accessibilityTraits | UIAccessibilityTraitButton
         self.rewindIcon.accessibilityLabel = VoiceOverService.rewindText()
         self.forwardIcon.accessibilityLabel = VoiceOverService.fastForwardText()
