@@ -67,14 +67,7 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
             return CGFloat(self.artworkImage.layer.shadowOpacity)
         }
         set {
-            let opacity = Float(newValue)
-            self.artworkImage.layer.shadowOpacity = opacity
-            self.playPauseButton.layer.shadowOpacity = 0.8
-            self.playPauseButton.layer.shadowOffset = CGSize(width: 0, height: 0)
-            self.forwardIcon.layer.shadowOpacity = 0.8
-            self.forwardIcon.layer.shadowOffset = CGSize(width: 0, height: 0)
-            self.rewindIcon.layer.shadowOpacity = 0.8
-            self.rewindIcon.layer.shadowOffset = CGSize(width: 0, height: 0)
+            self.artworkImage.layer.shadowOpacity = Float(newValue)
         }
     }
 
@@ -136,6 +129,8 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         self.layer.shadowOpacity = 0.15
         self.layer.shadowRadius = 12.0
 
+        self.artworkOverlay.addLayerMask("playerIconShadow", backgroundColor: .playerControlsShadowColor)
+
         self.rewindIcon.alpha = self.jumpIconAlpha
         self.forwardIcon.alpha = self.jumpIconAlpha
 
@@ -191,7 +186,7 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         self.playPauseButton.alpha = 1.0
         self.forwardIcon.alpha = 1.0
         self.rewindIcon.alpha = 1.0
-        self.artworkOverlay.alpha = 0.4
+        self.artworkOverlay.alpha = 1.0
 
         UIView.animate(withDuration: 0.3, delay: 2.2, options: .allowUserInteraction, animations: {
             self.playPauseButton.alpha = 0.05

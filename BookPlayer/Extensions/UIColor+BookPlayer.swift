@@ -24,6 +24,10 @@ extension UIColor {
         return String(format: "#%06x", rgb)
     }
 
+    static var playerControlsShadowColor: UIColor {
+        return UIColor(hex: "545454")
+    }
+
     static var tintColor: UIColor {
         return UIColor(hex: "3488D1")
     }
