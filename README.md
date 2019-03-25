@@ -8,6 +8,8 @@
 
 [![Four screenshots of BookPlayer on the iPhone X. Showing Player, Import options, the Library and, a playlist](./.github/readme-screenshots@2x.png)](https://itunes.apple.com/us/app/bookplayer-audio-book-player/id1138219998?ls=1&amp;mt=8)
 
+Please visit our [Wiki](https://github.com/TortugaPower/BookPlayer/wiki) for our [FAQ](https://github.com/TortugaPower/BookPlayer/wiki/FAQ) and [guides](https://github.com/TortugaPower/BookPlayer/wiki/Developer-Guide) on how to add new themes and icons to the app.
+
 ## Features
 
 ### Import
