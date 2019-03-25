@@ -82,12 +82,16 @@ class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecogniz
     // MARK: Actions
 
     @IBAction func playPause() {
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+
         PlayerManager.shared.playPause()
     }
 
     // MARK: Gesture recognizers
 
     @objc func tapAction() {
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+
         self.showPlayer?()
     }
 

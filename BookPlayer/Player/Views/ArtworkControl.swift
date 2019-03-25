@@ -174,9 +174,8 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     // MARK: - Actions
 
     @IBAction private func playPauseButtonTouchUpInside() {
-        if #available(iOS 10.0, *) {
-            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-        }
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+
         self.onPlayPause?(self)
     }
 
@@ -218,9 +217,8 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
 
             self.onRewind?(self)
 
-            if #available(iOS 10.0, *) {
-                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-            }
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+
             return
         }
 
@@ -249,9 +247,8 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
 
             self.onForward?(self)
 
-            if #available(iOS 10.0, *) {
-                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-            }
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+
             return
         }
 
