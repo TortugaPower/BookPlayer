@@ -2,167 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleIcons</key>
-	<dict>
-		<key>CFBundleAlternateIcons</key>
-		<dict>
-			<key>Retro</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>retro-icon</string>
-				</array>
-			</dict>
-            <key>Ayu Light</key>
-            <dict>
-                <key>CFBundleIconFiles</key>
-                <array>
-                    <string>ayu-light</string>
-                </array>
-            </dict>
-            <key>Dark</key>
-            <dict>
-                <key>CFBundleIconFiles</key>
-                <array>
-                    <string>dark</string>
-                </array>
-            </dict>
-            <key>Fruit Based</key>
-            <dict>
-                <key>CFBundleIconFiles</key>
-                <array>
-                    <string>fruit-based</string>
-                </array>
-            </dict>
-            <key>Neon</key>
-            <dict>
-                <key>CFBundleIconFiles</key>
-                <array>
-                    <string>neon</string>
-                </array>
-            </dict>
-            <key>Retro Modern</key>
-            <dict>
-                <key>CFBundleIconFiles</key>
-                <array>
-                    <string>retro-modern</string>
-                </array>
-            </dict>
-            <key>Songs</key>
-            <dict>
-                <key>CFBundleIconFiles</key>
-                <array>
-                    <string>songs</string>
-                </array>
-            </dict>
-		</dict>
-		<key>CFBundlePrimaryIcon</key>
-		<dict>
-			<key>CFBundleIconFiles</key>
-			<array>
-				<string></string>
-			</array>
-			<key>UIPrerenderedIcon</key>
-			<false/>
-		</dict>
-		<key>UINewsstandIcon</key>
-		<dict>
-			<key>CFBundleIconFiles</key>
-			<array>
-				<string></string>
-			</array>
-			<key>UINewsstandBindingType</key>
-			<string>UINewsstandBindingTypeMagazine</string>
-			<key>UINewsstandBindingEdge</key>
-			<string>UINewsstandBindingEdgeLeft</string>
-		</dict>
-	</dict>
-    <key>CFBundleIcons~ipad</key>
-    <dict>
-        <key>CFBundleAlternateIcons</key>
-        <dict>
-            <key>Retro</key>
-            <dict>
-                <key>CFBundleIconFiles</key>
-                <array>
-                    <string>retro-icon-ipad</string>
-                </array>
-            </dict>
-            <key>Ayu Light</key>
-            <dict>
-                <key>CFBundleIconFiles</key>
-                <array>
-                    <string>ayu-light-ipad</string>
-                </array>
-            </dict>
-            <key>Dark</key>
-            <dict>
-                <key>CFBundleIconFiles</key>
-                <array>
-                    <string>dark-ipad</string>
-                </array>
-            </dict>
-            <key>Fruit Based</key>
-            <dict>
-                <key>CFBundleIconFiles</key>
-                <array>
-                    <string>fruit-based-ipad</string>
-                </array>
-            </dict>
-            <key>Neon</key>
-            <dict>
-                <key>CFBundleIconFiles</key>
-                <array>
-                    <string>neon-ipad</string>
-                </array>
-            </dict>
-            <key>Retro Modern</key>
-            <dict>
-                <key>CFBundleIconFiles</key>
-                <array>
-                    <string>retro-modern-ipad</string>
-                </array>
-            </dict>
-            <key>Songs</key>
-            <dict>
-                <key>CFBundleIconFiles</key>
-                <array>
-                    <string>songs-ipad</string>
-                </array>
-            </dict>
-        </dict>
-        <key>CFBundlePrimaryIcon</key>
-        <dict>
-            <key>CFBundleIconFiles</key>
-            <array>
-                <string></string>
-            </array>
-            <key>UIPrerenderedIcon</key>
-            <false/>
-        </dict>
-        <key>UINewsstandIcon</key>
-        <dict>
-            <key>CFBundleIconFiles</key>
-            <array>
-                <string></string>
-            </array>
-            <key>UINewsstandBindingType</key>
-            <string>UINewsstandBindingTypeMagazine</string>
-            <key>UINewsstandBindingEdge</key>
-            <string>UINewsstandBindingEdgeLeft</string>
-        </dict>
-    </dict>
-	<key>UIApplicationShortcutItems</key>
-	<array>
-		<dict>
-			<key>UIApplicationShortcutItemIconType</key>
-			<string>UIApplicationShortcutIconTypePlay</string>
-			<key>UIApplicationShortcutItemTitle</key>
-			<string>Continue last book</string>
-			<key>UIApplicationShortcutItemType</key>
-			<string>com.tortugapower.audiobookplayer.playLastBook</string>
-		</dict>
-	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -194,6 +33,156 @@
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIcons</key>
+	<dict>
+		<key>CFBundleAlternateIcons</key>
+		<dict>
+			<key>Ayu Light</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>ayu-light</string>
+				</array>
+			</dict>
+			<key>Dark</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>dark</string>
+				</array>
+			</dict>
+			<key>Fruit Based</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>fruit-based</string>
+				</array>
+			</dict>
+			<key>Neon</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>neon</string>
+				</array>
+			</dict>
+			<key>Retro</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>retro-icon</string>
+				</array>
+			</dict>
+			<key>Retro Modern</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>retro-modern</string>
+				</array>
+			</dict>
+			<key>Songs</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>songs</string>
+				</array>
+			</dict>
+		</dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UIPrerenderedIcon</key>
+			<false/>
+		</dict>
+		<key>UINewsstandIcon</key>
+		<dict>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UINewsstandBindingEdge</key>
+			<string>UINewsstandBindingEdgeLeft</string>
+			<key>UINewsstandBindingType</key>
+			<string>UINewsstandBindingTypeMagazine</string>
+		</dict>
+	</dict>
+	<key>CFBundleIcons~ipad</key>
+	<dict>
+		<key>CFBundleAlternateIcons</key>
+		<dict>
+			<key>Ayu Light</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>ayu-light-ipad</string>
+				</array>
+			</dict>
+			<key>Dark</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>dark-ipad</string>
+				</array>
+			</dict>
+			<key>Fruit Based</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>fruit-based-ipad</string>
+				</array>
+			</dict>
+			<key>Neon</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>neon-ipad</string>
+				</array>
+			</dict>
+			<key>Retro</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>retro-icon-ipad</string>
+				</array>
+			</dict>
+			<key>Retro Modern</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>retro-modern-ipad</string>
+				</array>
+			</dict>
+			<key>Songs</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>songs-ipad</string>
+				</array>
+			</dict>
+		</dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UIPrerenderedIcon</key>
+			<false/>
+		</dict>
+		<key>UINewsstandIcon</key>
+		<dict>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UINewsstandBindingEdge</key>
+			<string>UINewsstandBindingEdgeLeft</string>
+			<key>UINewsstandBindingType</key>
+			<string>UINewsstandBindingTypeMagazine</string>
+		</dict>
+	</dict>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -220,7 +209,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>2</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
@@ -230,6 +219,17 @@
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>$(PRODUCT_BUNDLE_IDENTIFIER).activity.playback</string>
+	</array>
+	<key>UIApplicationShortcutItems</key>
+	<array>
+		<dict>
+			<key>UIApplicationShortcutItemIconType</key>
+			<string>UIApplicationShortcutIconTypePlay</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>Continue last book</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>com.tortugapower.audiobookplayer.playLastBook</string>
+		</dict>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>
