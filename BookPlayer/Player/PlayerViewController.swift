@@ -323,9 +323,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
             if translation.y > self.dismissThreshold, !self.dismissFeedbackTriggered {
                 self.dismissFeedbackTriggered = true
-                if #available(iOS 10.0, *) {
-                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                }
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
             }
 
         case .ended, .cancelled, .failed:

@@ -81,12 +81,6 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         return duration
     }
 
-    private var artworkJumpControlsUsed: Bool = false {
-        didSet {
-            UserDefaults.standard.set(self.artworkJumpControlsUsed, forKey: Constants.UserDefaults.artworkJumpControlsUsed.rawValue)
-        }
-    }
-
     private var prefersChapterContext = UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
 
     private var prefersRemainingTime = UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
@@ -95,8 +89,6 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        self.artworkJumpControlsUsed = UserDefaults.standard.bool(forKey: Constants.UserDefaults.artworkJumpControlsUsed.rawValue)
 
         self.artworkControl.isPlaying = PlayerManager.shared.isPlaying
 
@@ -108,18 +100,12 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
         self.artworkControl.onRewind = { _ in
             PlayerManager.shared.rewind()
-
-            if !self.artworkJumpControlsUsed {
-                self.artworkJumpControlsUsed = true
-            }
+            self.showPlayPauseButton()
         }
 
         self.artworkControl.onForward = { _ in
             PlayerManager.shared.forward()
-
-            if !self.artworkJumpControlsUsed {
-                self.artworkJumpControlsUsed = true
-            }
+            self.showPlayPauseButton()
         }
 
         setUpTheming()
@@ -128,14 +114,6 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: .bookPaused, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: .bookEnd, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onPlayback), name: .bookPlaying, object: nil)
-    }
-
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-
-        if !self.artworkJumpControlsUsed {
-            self.artworkControl.nudgeArtworkViewAnimated(0.5, duration: 0.3)
-        }
     }
 
     // MARK: - Notification Handlers
@@ -303,7 +281,7 @@ extension PlayerControlsViewController: Themeable {
         self.progressSlider.minimumTrackTintColor = theme.highlightColor
         self.progressSlider.maximumTrackTintColor = theme.lightHighlightColor
 
-        self.artworkControl.iconColor = theme.highlightColor
+        self.artworkControl.iconColor = .white
         self.artworkControl.borderColor = theme.highlightColor
 
         self.currentTimeLabel.textColor = theme.primaryColor
