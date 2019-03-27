@@ -28,6 +28,10 @@ class PlayerManager: NSObject {
     private let queue = OperationQueue()
 
     func load(_ book: Book, completion: @escaping (Bool) -> Void) {
+        if self.currentBook != nil {
+            self.stop()
+        }
+
         self.currentBook = book
 
         self.queue.addOperation {
@@ -387,6 +391,11 @@ extension PlayerManager {
     }
 
     func stop() {
+        // Invalidate timer if needed
+        if self.timer != nil {
+            self.timer.invalidate()
+        }
+
         self.audioPlayer?.stop()
         self.audioPlayer = nil
 

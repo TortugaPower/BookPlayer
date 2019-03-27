@@ -34,7 +34,7 @@ class ThemesViewController: UIViewController {
     @IBOutlet weak var bannerHeightConstraint: NSLayoutConstraint!
 
     var scrolledToCurrentTheme = false
-    let cellHeight = 44
+    let cellHeight = 45
     let expandedHeight = 110
 
     var localThemes: [Theme]! {
