@@ -224,7 +224,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
         // Adjust the animation duration based on the distance of the thumb to the slider's center
         // This way the corners which look further away take a little longer to rest
-        let duration = TimeInterval(fabs(sender.value * 2 - 1) * 0.15 + 0.15)
+        let duration = TimeInterval(abs(sender.value * 2 - 1) * 0.15 + 0.15)
 
         UIView.animate(withDuration: duration, delay: 0.0, options: [.curveEaseIn, .beginFromCurrentState], animations: {
             self.artworkControl.layer.transform = CATransform3DIdentity

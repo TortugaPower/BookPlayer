@@ -68,13 +68,13 @@ class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecogniz
     // MARK: Notification handlers
 
     @objc private func onBookPlay() {
-        self.playPauseButton.setImage(self.pauseImage, for: UIControlState())
+        self.playPauseButton.setImage(self.pauseImage, for: UIControl.State())
         self.playPauseButton.accessibilityLabel = "Pause"
         self.playPauseButton.accessibilityHint = "Tap to Pause"
     }
 
     @objc private func onBookPause() {
-        self.playPauseButton.setImage(self.playImage, for: UIControlState())
+        self.playPauseButton.setImage(self.playImage, for: UIControl.State())
         self.playPauseButton.accessibilityLabel = "Play"
         self.playPauseButton.accessibilityHint = "Tap to Play"
     }

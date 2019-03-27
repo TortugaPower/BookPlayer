@@ -73,7 +73,7 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
 
     var isPlaying: Bool = false {
         didSet {
-            self.playPauseButton.setImage(self.isPlaying ? self.pauseImage : self.playImage, for: UIControlState())
+            self.playPauseButton.setImage(self.isPlaying ? self.pauseImage : self.playImage, for: UIControl.State())
 
             let scale: CGFloat = self.isPlaying ? 1.0 : 0.9
 
@@ -161,13 +161,13 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         isAccessibilityElement = false
         self.playPauseButton.isAccessibilityElement = true
         self.playPauseButton.accessibilityLabel = self.isPlaying ? "Pause" : "Play"
-        self.playPauseButton.accessibilityTraits = super.accessibilityTraits | UIAccessibilityTraitButton
+        self.playPauseButton.accessibilityTraits = UIAccessibilityTraits(rawValue: super.accessibilityTraits.rawValue | UIAccessibilityTraits.button.rawValue)
         self.rewindIcon.accessibilityLabel = VoiceOverService.rewindText()
         self.forwardIcon.accessibilityLabel = VoiceOverService.fastForwardText()
         accessibilityElements = [
-            playPauseButton,
-            rewindIcon,
-            forwardIcon
+            playPauseButton as Any,
+            rewindIcon as Any,
+            forwardIcon as Any
         ]
     }
 

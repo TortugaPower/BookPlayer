@@ -53,8 +53,8 @@ class PlayerManager: NSObject {
             DispatchQueue.main.async(execute: {
                 // Set book metadata for lockscreen and control center
                 self.nowPlayingInfo = [
-                    MPMediaItemPropertyTitle: book.title,
-                    MPMediaItemPropertyArtist: book.author,
+                    MPMediaItemPropertyTitle: book.title as Any,
+                    MPMediaItemPropertyArtist: book.author as Any,
                     MPMediaItemPropertyPlaybackDuration: audioplayer.duration,
                     MPNowPlayingInfoPropertyDefaultPlaybackRate: self.speed,
                     MPNowPlayingInfoPropertyPlaybackProgress: audioplayer.currentTime / audioplayer.duration
@@ -321,7 +321,7 @@ extension PlayerManager {
         if self.timer == nil || (self.timer != nil && !self.timer.isValid) {
             self.timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.update), userInfo: nil, repeats: true)
 
-            RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
+            RunLoop.main.add(self.timer, forMode: RunLoop.Mode.common)
         }
 
         // Set play state on player and control center

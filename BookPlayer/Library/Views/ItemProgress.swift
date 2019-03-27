@@ -114,7 +114,7 @@ class ItemProgress: UIView {
 
         mask.frame = bounds
         mask.contents = #imageLiteral(resourceName: "completionIndicatorDone").cgImage
-        mask.contentsGravity = kCAGravityResizeAspect
+        mask.contentsGravity = CALayerContentsGravity.resizeAspect
 
         self.completionCheckmark.frame = bounds
         self.completionCheckmark.mask = mask

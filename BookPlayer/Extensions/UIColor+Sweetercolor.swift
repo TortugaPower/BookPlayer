@@ -390,7 +390,7 @@ extension UIColor {
         var h_p: CGFloat = 0
         if (C_1_p * C_2_p) == 0 {
             h_p = 0
-        } else if fabs(h_2_p - h_1_p) <= 180 {
+        } else if abs(h_2_p - h_1_p) <= 180 {
             h_p = h_2_p - h_1_p
         } else if (h_2_p - h_1_p) > 180 {
             h_p = h_2_p - h_1_p - 360
@@ -406,11 +406,11 @@ extension UIColor {
         var h_p_bar: CGFloat = 0
         if (h_1_p * h_2_p) == 0 {
             h_p_bar = h_1_p + h_2_p
-        } else if fabs(h_1_p - h_2_p) <= 180 {
+        } else if abs(h_1_p - h_2_p) <= 180 {
             h_p_bar = (h_1_p + h_2_p) / 2
-        } else if fabs(h_1_p - h_2_p) > 180 && (h_1_p + h_2_p) < 360 {
+        } else if abs(h_1_p - h_2_p) > 180 && (h_1_p + h_2_p) < 360 {
             h_p_bar = (h_1_p + h_2_p + 360) / 2
-        } else if fabs(h_1_p - h_2_p) > 180 && (h_1_p + h_2_p) >= 360 {
+        } else if abs(h_1_p - h_2_p) > 180 && (h_1_p + h_2_p) >= 360 {
             h_p_bar = (h_1_p + h_2_p - 360) / 2
         }
 

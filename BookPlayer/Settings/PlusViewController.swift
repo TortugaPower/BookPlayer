@@ -103,7 +103,7 @@ class PlusViewController: UIViewController {
         self.gianniImageView.kf.setImage(with: self.contributorGianni.avatarURL)
         self.pichImageView.kf.setImage(with: self.contributorPichfl.avatarURL)
 
-        let activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .gray)
+        let activityIndicatorView = UIActivityIndicatorView(style: .gray)
         activityIndicatorView.startAnimating()
         activityIndicatorView.color = self.themeProvider.currentTheme.useDarkVariant ? .white : .gray
         self.loadingBarButton = UIBarButtonItem(customView: activityIndicatorView)

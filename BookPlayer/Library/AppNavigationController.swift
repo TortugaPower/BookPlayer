@@ -14,7 +14,7 @@ class AppNavigationController: UINavigationController {
     private var themedStatusBarStyle: UIStatusBarStyle?
 
     private var rootViewController: UIViewController? {
-        return self.childViewControllers.first
+        return self.children.first
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -70,11 +70,11 @@ extension AppNavigationController: Themeable {
         navigationBar.barTintColor = theme.backgroundColor
         navigationBar.tintColor = theme.highlightColor
         navigationBar.titleTextAttributes = [
-            NSAttributedStringKey.foregroundColor: theme.navigationTitleColor
+            NSAttributedString.Key.foregroundColor: theme.navigationTitleColor
         ]
         if #available(iOS 11.0, *) {
             navigationBar.largeTitleTextAttributes = [
-                NSAttributedStringKey.foregroundColor: theme.navigationTitleColor
+                NSAttributedString.Key.foregroundColor: theme.navigationTitleColor
             ]
         }
         self.separatorView.backgroundColor = theme.separatorColor

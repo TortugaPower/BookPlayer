@@ -44,7 +44,7 @@ final class ThemeManager: ThemeProvider {
         currentTheme.useDarkVariant = self.useDarkVariant
         self.theme = SubscribableValue<Theme>(value: currentTheme)
 
-        NotificationCenter.default.addObserver(self, selector: #selector(self.brightnessChanged(_:)), name: .UIScreenBrightnessDidChange, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.brightnessChanged(_:)), name: UIScreen.brightnessDidChangeNotification, object: nil)
     }
 
     @objc private func brightnessChanged(_ notification: Notification) {

@@ -19,7 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var wasPlayingBeforeInterruption: Bool = false
     var watcher: DirectoryWatcher?
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         let defaults: UserDefaults = UserDefaults.standard
 
@@ -33,22 +33,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Appearance
         UINavigationBar.appearance().titleTextAttributes = [
-            NSAttributedStringKey.foregroundColor: UIColor(hex: "#37454E")
+            NSAttributedString.Key.foregroundColor: UIColor(hex: "#37454E")
         ]
 
         if #available(iOS 11, *) {
             UINavigationBar.appearance().largeTitleTextAttributes = [
-                NSAttributedStringKey.foregroundColor: UIColor(hex: "#37454E")
+                NSAttributedString.Key.foregroundColor: UIColor(hex: "#37454E")
             ]
         }
 
-        try? AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, mode: AVAudioSessionModeSpokenAudio, options: [])
+        try? AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, mode: AVAudioSession.Mode(rawValue: convertFromAVAudioSessionMode(AVAudioSession.Mode.spokenAudio)), options: [])
 
         // register to audio-interruption notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioInterruptions(_:)), name: NSNotification.Name.AVAudioSessionInterruption, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioInterruptions(_:)), name: AVAudioSession.interruptionNotification, object: nil)
 
         // register to audio-route-change notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioRouteChange(_:)), name: NSNotification.Name.AVAudioSessionRouteChange, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioRouteChange(_:)), name: AVAudioSession.routeChangeNotification, object: nil)
 
         // register for remote events
         self.setupMPRemoteCommands()
@@ -59,7 +59,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // setup store required listeners
         self.setupStoreListener()
 
-        if let activityDictionary = launchOptions?[.userActivityDictionary] as? [UIApplicationLaunchOptionsKey: Any],
+        if let activityDictionary = launchOptions?[.userActivityDictionary] as? [UIApplication.LaunchOptionsKey: Any],
             let activityType = activityDictionary[.userActivityType] as? String,
             activityType == Constants.UserActivityPlayback {
             defaults.set(true, forKey: activityType)
@@ -67,14 +67,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Create a Sentry client and start crash handler
         Client.shared = try? Client(dsn: "https://23b4d02f7b044c10adb55a0cc8de3881@sentry.io/1414296")
-        try? Client.shared?.startCrashHandler()
+        ((try? Client.shared?.startCrashHandler()) as ()??)
 
         return true
     }
 
     // Handles audio file urls, like when receiving files through AirDrop
     // Also handles custom URL scheme 'bookplayer://'
-    func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey: Any] = [:]) -> Bool {
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
         guard url.isFileURL else {
             self.playLastBook()
             return true
@@ -85,7 +85,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
-    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
+    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
         PlayerManager.shared.play()
         return true
     }
@@ -115,7 +115,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Check if the app is on the PlayerViewController
         // TODO: Check if this still works as expected given the new storyboard structure
-        guard let navigationVC = UIApplication.shared.keyWindow?.rootViewController!, navigationVC.childViewControllers.count > 1 else {
+        guard let navigationVC = UIApplication.shared.keyWindow?.rootViewController!, navigationVC.children.count > 1 else {
             return
         }
 
@@ -143,7 +143,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     @objc func handleAudioInterruptions(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
             let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
-            let type = AVAudioSessionInterruptionType(rawValue: typeValue) else {
+            let type = AVAudioSession.InterruptionType(rawValue: typeValue) else {
             return
         }
 
@@ -157,10 +157,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 return
             }
 
-            let options = AVAudioSessionInterruptionOptions(rawValue: optionsValue)
+            let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
             if options.contains(.shouldResume) {
                 PlayerManager.shared.play()
             }
+            @unknown default:
+            break
         }
     }
 
@@ -169,7 +171,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         guard PlayerManager.shared.isPlaying,
             let userInfo = notification.userInfo,
             let reasonValue = userInfo[AVAudioSessionRouteChangeReasonKey] as? UInt,
-            let reason = AVAudioSessionRouteChangeReason(rawValue: reasonValue) else {
+            let reason = AVAudioSession.RouteChangeReason(rawValue: reasonValue) else {
             return
         }
 
@@ -282,4 +284,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             true
         }
     }
+}
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertFromAVAudioSessionMode(_ input: AVAudioSession.Mode) -> String {
+    return input.rawValue
 }

@@ -345,7 +345,7 @@ extension ItemListViewController {
             return
         }
 
-        guard let index = (self.items.index { (item) -> Bool in
+        guard let index = (self.items.firstIndex { (item) -> Bool in
             if let book = item as? Book {
                 return book.fileURL == fileURL
             }
@@ -497,7 +497,7 @@ extension ItemListViewController: UITableViewDelegate {
         return indexPath.sectionValue == .data
     }
 
-    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCellEditingStyle {
+    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
         return .none
     }
 

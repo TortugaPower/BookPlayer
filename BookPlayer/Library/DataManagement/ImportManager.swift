@@ -31,7 +31,7 @@ class ImportManager {
     private func setupTimer() {
         self.timer?.invalidate()
         self.timer = Timer(timeInterval: self.timeout, target: self, selector: #selector(self.createOperation), userInfo: nil, repeats: false)
-        RunLoop.main.add(self.timer!, forMode: RunLoopMode.commonModes)
+        RunLoop.main.add(self.timer!, forMode: RunLoop.Mode.common)
     }
 
     @objc private func createOperation() {

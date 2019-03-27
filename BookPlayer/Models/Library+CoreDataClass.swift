@@ -74,7 +74,7 @@ public class Library: NSManagedObject {
     func getNextItem(after item: LibraryItem) -> LibraryItem? {
         guard let items = self.items?.array as? [LibraryItem] else { return nil }
 
-        guard let indexFound = items.index(of: item) else { return nil }
+        guard let indexFound = items.firstIndex(of: item) else { return nil }
 
         for (index, item) in items.enumerated() {
             guard index > indexFound,

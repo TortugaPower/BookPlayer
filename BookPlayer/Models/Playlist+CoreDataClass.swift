@@ -122,7 +122,7 @@ public class Playlist: LibraryItem {
             return nil
         }
 
-        return books.index { (storedBook) -> Bool in
+        return books.firstIndex { (storedBook) -> Bool in
             storedBook.identifier == identifier
         }
     }
@@ -168,7 +168,7 @@ public class Playlist: LibraryItem {
             return nil
         }
 
-        guard let indexFound = books.index(of: book) else {
+        guard let indexFound = books.firstIndex(of: book) else {
             return nil
         }
 

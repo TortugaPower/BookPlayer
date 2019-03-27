@@ -41,7 +41,7 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
             }
         } else if
             let navigationVC = segue.destination as? UINavigationController,
-            let libraryVC = navigationVC.childViewControllers.first as? LibraryViewController {
+            let libraryVC = navigationVC.children.first as? LibraryViewController {
             self.libraryViewController = libraryVC
         }
     }

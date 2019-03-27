@@ -87,7 +87,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.bottomToolbar.setBackgroundImage(UIImage(), forToolbarPosition: .any, barMetrics: .default)
         self.bottomToolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
         self.sleepLabel.title = ""
-        self.speedButton.setTitleTextAttributes([NSAttributedStringKey.font: UIFont.systemFont(ofSize: 18.0, weight: .semibold)], for: .normal)
+        self.speedButton.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18.0, weight: .semibold)], for: .normal)
 
         // Observers
         NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: .requestReview, object: nil)
@@ -372,7 +372,7 @@ extension PlayerViewController: Themeable {
 
         self.blurEffectView?.removeFromSuperview()
 
-        let blur = UIBlurEffect(style: theme.useDarkVariant ? UIBlurEffectStyle.dark : UIBlurEffectStyle.light)
+        let blur = UIBlurEffect(style: theme.useDarkVariant ? UIBlurEffect.Style.dark : UIBlurEffect.Style.light)
         let blurView = UIVisualEffectView(effect: blur)
 
         blurView.frame = self.view.bounds
