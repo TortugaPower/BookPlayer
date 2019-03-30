@@ -80,14 +80,14 @@ final class SleepTimer {
         self.timeLeft = seconds
         self.timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.update), userInfo: nil, repeats: true)
 
-        RunLoop.main.add(self.timer!, forMode: RunLoopMode.commonModes)
+        RunLoop.main.add(self.timer!, forMode: RunLoop.Mode.common)
     }
 
     private func reset() {
         self.alert.message = defaultMessage
 
         self.timer?.invalidate()
-        NotificationCenter.default.removeObserver(self, name: .bookEnd, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .bookChange, object: nil)
         NotificationCenter.default.removeObserver(self, name: .chapterChange, object: nil)
     }
 

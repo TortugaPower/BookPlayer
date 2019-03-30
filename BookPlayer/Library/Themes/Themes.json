@@ -1,0 +1,108 @@
+[
+    {
+        "title": "Default / Dark",
+        "defaultPrimary": "242320",
+        "defaultSecondary": "8F8E95",
+        "defaultAccent": "3488D1",
+        "defaultBackground": "FAFAFA",
+        "darkPrimary": "FAFBFC",
+        "darkSecondary": "8F8E94",
+        "darkAccent": "459EEC",
+        "darkBackground": "202225"
+    },
+    {
+        "title": "Default / Pure Black",
+        "defaultPrimary": "242320",
+        "defaultSecondary": "8F8E95",
+        "defaultAccent": "3488D1",
+        "defaultBackground": "FAFAFA",
+        "darkPrimary": "FAFBFC",
+        "darkSecondary": "8F8E94",
+        "darkAccent": "459EEC",
+        "darkBackground": "000000"
+    },
+    {
+        "title": "Ayu",
+        "defaultPrimary": "252D33",
+        "defaultSecondary": "9DA2A6",
+        "defaultAccent": "FF8F40",
+        "defaultBackground": "FAFAFA",
+        "darkPrimary": "EDECEA",
+        "darkSecondary": "667380",
+        "darkAccent": "FFCC66",
+        "darkBackground": "212733",
+        "locked": true
+    },
+    {
+        "title": "Vintage",
+        "defaultPrimary": "3F352D",
+        "defaultSecondary": "817A63",
+        "defaultAccent": "4A8EAE",
+        "defaultBackground": "F1EDE6",
+        "darkPrimary": "EFE8DD",
+        "darkSecondary": "726B53",
+        "darkAccent": "5D9FBA",
+        "darkBackground": "27231C",
+        "locked": true
+    },
+    {
+        "title": "Sepia",
+        "defaultPrimary": "3F352D",
+        "defaultSecondary": "817A63",
+        "defaultAccent": "B68026",
+        "defaultBackground": "EEEBD9",
+        "darkPrimary": "EFE8DD",
+        "darkSecondary": "726B53",
+        "darkAccent": "CFAB72",
+        "darkBackground": "27231C",
+        "locked": true
+    },
+    {
+        "title": "Sky",
+        "defaultPrimary": "252D33",
+        "defaultSecondary": "9DA2A6",
+        "defaultAccent": "1CA5C3",
+        "defaultBackground": "FAFAFA",
+        "darkPrimary": "A7B1B6",
+        "darkSecondary": "BEBFC0",
+        "darkAccent": "5FBFD5",
+        "darkBackground": "202E34",
+        "locked": true
+    },
+    {
+        "title": "Duotone Heat",
+        "defaultPrimary": "3A1A59",
+        "defaultSecondary": "88878A",
+        "defaultAccent": "9F4BA1",
+        "defaultBackground": "F9FAFB",
+        "darkPrimary": "EFE5F8",
+        "darkSecondary": "AAAEB7",
+        "darkAccent": "9C58A4",
+        "darkBackground": "2C2E48",
+        "locked": true
+    },
+    {
+        "title": "Forest",
+        "defaultPrimary": "242320",
+        "defaultSecondary": "8F8E95",
+        "defaultAccent": "1F8F2B",
+        "defaultBackground": "FAFAFA",
+        "darkPrimary": "FAFBFC",
+        "darkSecondary": "8F8E94",
+        "darkAccent": "5FB773",
+        "darkBackground": "232c2b",
+        "locked": true
+    },
+    {
+        "title": "Barbershop",
+        "defaultPrimary": "0F317A",
+        "defaultSecondary": "97A3AF",
+        "defaultAccent": "E25152",
+        "defaultBackground": "FAFAFA",
+        "darkPrimary": "EEF4FF",
+        "darkSecondary": "7191B1",
+        "darkAccent": "DD6060",
+        "darkBackground": "061D4F",
+        "locked": true
+    }
+]

@@ -6,6 +6,7 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
+import Themeable
 import UIKit
 
 class PlayerControlsViewController: PlayerContainerViewController, UIGestureRecognizerDelegate {
@@ -18,23 +19,13 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
     var book: Book? {
         didSet {
-            guard let book = self.book, !book.isFault else {
-                return
-            }
+            guard let book = self.book, !book.isFault else { return }
 
             self.artworkControl.artwork = book.artwork
-            self.artworkControl.shadowOpacity = 0.1 + (1.0 - book.artworkColors.background.brightness) * 0.3
-            self.artworkControl.iconColor = book.artworkColors.tertiary
-            self.artworkControl.borderColor = book.artworkColors.tertiary
-
-            self.progressSlider.minimumTrackTintColor = book.artworkColors.tertiary
-            self.progressSlider.maximumTrackTintColor = book.artworkColors.tertiary.withAlpha(newAlpha: 0.3)
-
-            self.currentTimeLabel.textColor = book.artworkColors.tertiary
-            self.maxTimeButton.setTitleColor(book.artworkColors.tertiary, for: .normal)
-            self.progressButton.setTitleColor(book.artworkColors.primary, for: .normal)
+            self.artworkControl.shadowOpacity = 0.1 + (1.0 - book.artworkColors.backgroundColor.brightness) * 0.3
 
             self.setProgress()
+            applyTheme(self.themeProvider.currentTheme)
         }
     }
 
@@ -90,12 +81,6 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         return duration
     }
 
-    private var artworkJumpControlsUsed: Bool = false {
-        didSet {
-            UserDefaults.standard.set(self.artworkJumpControlsUsed, forKey: Constants.UserDefaults.artworkJumpControlsUsed.rawValue)
-        }
-    }
-
     private var prefersChapterContext = UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
 
     private var prefersRemainingTime = UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
@@ -104,8 +89,6 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        self.artworkJumpControlsUsed = UserDefaults.standard.bool(forKey: Constants.UserDefaults.artworkJumpControlsUsed.rawValue)
 
         self.artworkControl.isPlaying = PlayerManager.shared.isPlaying
 
@@ -117,32 +100,20 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
         self.artworkControl.onRewind = { _ in
             PlayerManager.shared.rewind()
-
-            if !self.artworkJumpControlsUsed {
-                self.artworkJumpControlsUsed = true
-            }
+            self.showPlayPauseButton()
         }
 
         self.artworkControl.onForward = { _ in
             PlayerManager.shared.forward()
-
-            if !self.artworkJumpControlsUsed {
-                self.artworkJumpControlsUsed = true
-            }
+            self.showPlayPauseButton()
         }
+
+        setUpTheming()
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPlay), name: .bookPlayed, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: .bookPaused, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: .bookEnd, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onPlayback), name: .bookPlaying, object: nil)
-    }
-
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-
-        if !self.artworkJumpControlsUsed {
-            self.artworkControl.nudgeArtworkViewAnimated(0.5, duration: 0.3)
-        }
     }
 
     // MARK: - Notification Handlers
@@ -253,7 +224,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
         // Adjust the animation duration based on the distance of the thumb to the slider's center
         // This way the corners which look further away take a little longer to rest
-        let duration = TimeInterval(fabs(sender.value * 2 - 1) * 0.15 + 0.15)
+        let duration = TimeInterval(abs(sender.value * 2 - 1) * 0.15 + 0.15)
 
         UIView.animate(withDuration: duration, delay: 0.0, options: [.curveEaseIn, .beginFromCurrentState], animations: {
             self.artworkControl.layer.transform = CATransform3DIdentity
@@ -302,5 +273,19 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         if self.prefersRemainingTime {
             self.maxTimeButton.setTitle(self.formatTime(newTimeToDisplay - self.durationTimeInContext), for: .normal)
         }
+    }
+}
+
+extension PlayerControlsViewController: Themeable {
+    func applyTheme(_ theme: Theme) {
+        self.progressSlider.minimumTrackTintColor = theme.highlightColor
+        self.progressSlider.maximumTrackTintColor = theme.lightHighlightColor
+
+        self.artworkControl.iconColor = .white
+        self.artworkControl.borderColor = theme.highlightColor
+
+        self.currentTimeLabel.textColor = theme.primaryColor
+        self.maxTimeButton.setTitleColor(theme.primaryColor, for: .normal)
+        self.progressButton.setTitleColor(theme.primaryColor, for: .normal)
     }
 }

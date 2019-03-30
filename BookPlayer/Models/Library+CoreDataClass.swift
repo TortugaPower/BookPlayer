@@ -11,6 +11,10 @@ import CoreData
 import Foundation
 
 public class Library: NSManagedObject {
+    var itemsArray: [LibraryItem] {
+        return self.items?.array as? [LibraryItem] ?? []
+    }
+
     func itemIndex(with identifier: String) -> Int? {
         guard let items = self.items?.array as? [LibraryItem] else {
             return nil
@@ -68,12 +72,17 @@ public class Library: NSManagedObject {
     }
 
     func getNextItem(after item: LibraryItem) -> LibraryItem? {
-        guard let items = self.items else { return nil }
+        guard let items = self.items?.array as? [LibraryItem] else { return nil }
 
-        let index = items.index(of: item)
+        guard let indexFound = items.firstIndex(of: item) else { return nil }
 
-        if index + 1 < items.count {
-            return items[index + 1] as? LibraryItem
+        for (index, item) in items.enumerated() {
+            guard index > indexFound,
+                !item.isFinished else { continue }
+
+            if let playlist = item as? Playlist, !playlist.hasBooks() { continue }
+
+            return item
         }
 
         return nil

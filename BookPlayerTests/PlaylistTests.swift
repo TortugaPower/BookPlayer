@@ -52,21 +52,21 @@ class PlaylistTests: XCTestCase {
 
         let playlist = generatePlaylist(title: "playlist", books: [book1, book2])
 
-        let emptyProgress = playlist.totalProgress()
+        let emptyProgress = playlist.progress
 
         XCTAssert(emptyProgress == 0.0)
 
         book1.currentTime = 50
         book2.currentTime = 50
 
-        let halfProgress = playlist.totalProgress()
+        let halfProgress = playlist.progress
 
         XCTAssert(halfProgress == 0.5)
 
         book1.currentTime = 100
         book2.currentTime = 100
 
-        let completedProgress = playlist.totalProgress()
+        let completedProgress = playlist.progress
 
         XCTAssert(completedProgress == 1.0)
     }

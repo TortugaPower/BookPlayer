@@ -6,19 +6,15 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
+import Themeable
 import UIKit
 
 class AddButton: UIButton {
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    override func awakeFromNib() {
+        super.awakeFromNib()
 
         self.setup()
-    }
-
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-
-        self.setup()
+        setUpTheming()
     }
 
     private func setup() {
@@ -31,5 +27,11 @@ class AddButton: UIButton {
 
         self.imageEdgeInsets.right = distance
         self.titleEdgeInsets.left = distance
+    }
+}
+
+extension AddButton: Themeable {
+    func applyTheme(_ theme: Theme) {
+        self.setTitleColor(theme.highlightColor, for: .normal)
     }
 }

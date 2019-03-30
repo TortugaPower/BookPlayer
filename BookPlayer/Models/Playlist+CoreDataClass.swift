@@ -24,8 +24,22 @@ public class Playlist: LibraryItem {
         return book.artwork
     }
 
-    override var isCompleted: Bool {
-        return round(self.totalProgress()) >= round(self.totalDuration())
+    override func jumpToStart() {
+        guard let books = self.books?.array as? [Book] else { return }
+
+        for book in books {
+            book.currentTime = 0
+        }
+    }
+
+    override func markAsFinished(_ flag: Bool) {
+        guard let books = self.books?.array as? [Book] else { return }
+
+        for book in books {
+            book.isFinished = flag
+        }
+
+        self.isFinished = flag
     }
 
     // MARK: - Init
@@ -61,7 +75,7 @@ public class Playlist: LibraryItem {
         return totalDuration
     }
 
-    func totalProgress() -> Double {
+    override var progress: Double {
         guard let books = self.books?.array as? [Book] else {
             return 0.0
         }
@@ -71,7 +85,9 @@ public class Playlist: LibraryItem {
 
         for book in books {
             totalDuration += book.duration
-            totalProgress += book.currentTime
+            totalProgress += book.isFinished
+                ? book.duration
+                : book.currentTime
         }
 
         guard totalDuration > 0 else {
@@ -79,6 +95,12 @@ public class Playlist: LibraryItem {
         }
 
         return totalProgress / totalDuration
+    }
+
+    func updateCompletionState() {
+        guard let books = self.books?.array as? [Book] else { return }
+        print(!books.contains(where: { !$0.isFinished }))
+        self.isFinished = !books.contains(where: { !$0.isFinished })
     }
 
     func hasBooks() -> Bool {
@@ -100,7 +122,7 @@ public class Playlist: LibraryItem {
             return nil
         }
 
-        return books.index { (storedBook) -> Bool in
+        return books.firstIndex { (storedBook) -> Bool in
             storedBook.identifier == identifier
         }
     }
@@ -133,7 +155,7 @@ public class Playlist: LibraryItem {
         guard let books = self.books else { return nil }
 
         for item in books {
-            guard let book = item as? Book, !book.isCompleted else { continue }
+            guard let book = item as? Book, !book.isFinished else { continue }
 
             return book
         }
@@ -142,24 +164,25 @@ public class Playlist: LibraryItem {
     }
 
     func getNextBook(after book: Book) -> Book? {
-        guard let books = self.books else {
+        guard let books = self.books?.array as? [Book] else {
             return nil
         }
 
-        let index = books.index(of: book)
-
-        guard
-            index != NSNotFound,
-            index + 1 < books.count,
-            let nextBook = books[index + 1] as? Book
-        else {
+        guard let indexFound = books.firstIndex(of: book) else {
             return nil
         }
 
-        return nextBook
+        for (index, book) in books.enumerated() {
+            guard index > indexFound,
+                !book.isFinished else { continue }
+
+            return book
+        }
+
+        return nil
     }
 
-    func info() -> String {
+    override func info() -> String {
         let count = self.books?.array.count ?? 0
 
         return "\(count) Files"

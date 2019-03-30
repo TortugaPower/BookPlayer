@@ -14,12 +14,12 @@ extension IndexPath {
     }
 
     var sectionValue: Section {
-        return Section(rawValue: self.section) ?? .library
+        return Section(rawValue: self.section) ?? .data
     }
 }
 
 enum Section: Int {
-    case library,
+    case data,
         add,
         total
 }

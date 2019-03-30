@@ -6,6 +6,7 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
+import Themeable
 import UIKit
 
 class RootViewController: UIViewController, UIGestureRecognizerDelegate {
@@ -18,6 +19,12 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
 
     var miniPlayerIsHidden: Bool {
         return self.miniPlayerContainer.isHidden
+    }
+
+    private var themedStatusBarStyle: UIStatusBarStyle?
+
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return themedStatusBarStyle ?? super.preferredStatusBarStyle
     }
 
     // MARK: - Lifecycle
@@ -34,7 +41,7 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
             }
         } else if
             let navigationVC = segue.destination as? UINavigationController,
-            let libraryVC = navigationVC.childViewControllers.first as? LibraryViewController {
+            let libraryVC = navigationVC.children.first as? LibraryViewController {
             self.libraryViewController = libraryVC
         }
     }
@@ -42,11 +49,12 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setUpTheming()
+
         self.miniPlayerContainer.isHidden = true
-        self.miniPlayerContainer.layer.shadowColor = UIColor.black.cgColor
-        self.miniPlayerContainer.layer.shadowOffset = CGSize(width: 0.0, height: 4.0)
-        self.miniPlayerContainer.layer.shadowOpacity = 0.2
-        self.miniPlayerContainer.layer.shadowRadius = 12.0
+        self.miniPlayerContainer.layer.shadowOffset = CGSize(width: 0.0, height: 3.0)
+        self.miniPlayerContainer.layer.shadowOpacity = 0.18
+        self.miniPlayerContainer.layer.shadowRadius = 9.0
         self.miniPlayerContainer.clipsToBounds = false
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: .bookChange, object: nil)
@@ -70,40 +78,13 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
     // MARK: -
 
     @objc private func presentMiniPlayer() {
-        self.miniPlayerContainer.transform = CGAffineTransform(translationX: 0, y: self.miniPlayerContainer.bounds.height)
-        self.miniPlayerContainer.alpha = 0.0
-        self.miniPlayerContainer.isHidden = false
+        guard PlayerManager.shared.isLoaded else { return }
 
-        UIView.animate(withDuration: 0.5,
-                       delay: 0.0,
-                       usingSpringWithDamping: 0.7,
-                       initialSpringVelocity: 1.5,
-                       options: .preferredFramesPerSecond60,
-                       animations: {
-                           self.miniPlayerContainer.transform = .identity
-        })
-
-        UIView.animate(withDuration: 0.3, delay: 0.0, options: .preferredFramesPerSecond60, animations: {
-            self.miniPlayerContainer.alpha = 1.0
-        })
+        self.animateView(self.miniPlayerContainer, show: true)
     }
 
     @objc private func dismissMiniPlayer() {
-        UIView.animate(withDuration: 0.25,
-                       delay: 0.0,
-                       usingSpringWithDamping: 0.7,
-                       initialSpringVelocity: 1.5,
-                       options: .preferredFramesPerSecond60,
-                       animations: {
-                           self.miniPlayerContainer.transform = CGAffineTransform(translationX: 0, y: self.miniPlayerContainer.bounds.height)
-                       },
-                       completion: { _ in
-                           self.miniPlayerContainer.isHidden = true
-        })
-
-        UIView.animate(withDuration: 0.15, delay: 0.0, options: [.preferredFramesPerSecond60, .curveEaseIn], animations: {
-            self.miniPlayerContainer.alpha = 0.0
-        })
+        self.animateView(self.miniPlayerContainer, show: false)
     }
 
     @objc private func bookChange(_ notification: Notification) {
@@ -194,5 +175,16 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
 
         default: break
         }
+    }
+}
+
+extension RootViewController: Themeable {
+    func applyTheme(_ theme: Theme) {
+        self.themedStatusBarStyle = theme.useDarkVariant
+            ? .lightContent
+            : .default
+        setNeedsStatusBarAppearanceUpdate()
+
+        self.miniPlayerContainer.layer.shadowColor = theme.navigationTitleColor.cgColor
     }
 }

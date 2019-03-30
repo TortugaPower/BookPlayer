@@ -25,13 +25,19 @@ public class LibraryItem: NSManagedObject {
         return self.cachedArtwork!
     }
 
-    var cachedArtwork: UIImage?
+    func info() -> String { return "" }
 
-    var isCompleted: Bool {
-        return false
-    }
+    var cachedArtwork: UIImage?
 
     func getBookToPlay() -> Book? {
         return nil
     }
+
+    var progress: Double {
+        return 1.0
+    }
+
+    func jumpToStart() {}
+
+    func markAsFinished(_ flag: Bool) {}
 }

@@ -28,6 +28,10 @@ class PlayerManager: NSObject {
     private let queue = OperationQueue()
 
     func load(_ book: Book, completion: @escaping (Bool) -> Void) {
+        if self.currentBook != nil {
+            self.stop()
+        }
+
         self.currentBook = book
 
         self.queue.addOperation {
@@ -53,8 +57,8 @@ class PlayerManager: NSObject {
             DispatchQueue.main.async(execute: {
                 // Set book metadata for lockscreen and control center
                 self.nowPlayingInfo = [
-                    MPMediaItemPropertyTitle: book.title,
-                    MPMediaItemPropertyArtist: book.author,
+                    MPMediaItemPropertyTitle: book.title as Any,
+                    MPMediaItemPropertyArtist: book.author as Any,
                     MPMediaItemPropertyPlaybackDuration: audioplayer.duration,
                     MPNowPlayingInfoPropertyDefaultPlaybackRate: self.speed,
                     MPNowPlayingInfoPropertyPlaybackProgress: audioplayer.currentTime / audioplayer.duration
@@ -119,7 +123,7 @@ class PlayerManager: NSObject {
 
             // Once book a book is finished, ask for a review
             UserDefaults.standard.set(true, forKey: "ask_review")
-            NotificationCenter.default.post(name: .bookEnd, object: nil)
+            self.markAsCompleted(true)
         }
 
         if let currentChapter = book.currentChapter,
@@ -234,9 +238,11 @@ class PlayerManager: NSObject {
             MPRemoteCommandCenter.shared().skipForwardCommand.preferredIntervals = [newValue] as [NSNumber]
         }
     }
+}
 
-    // MARK: - Seek Controls
+// MARK: - Seek Controls
 
+extension PlayerManager {
     func jumpTo(_ time: Double, fromEnd: Bool = false) {
         guard let player = self.audioPlayer else { return }
 
@@ -250,9 +256,10 @@ class PlayerManager: NSObject {
     }
 
     func jumpBy(_ direction: Double) {
-        guard let player = self.audioPlayer else { return }
+        guard let player = self.audioPlayer,
+            let book = self.currentBook else { return }
 
-        player.currentTime += direction
+        player.currentTime += book.getInterval(from: direction)
 
         self.update()
     }
@@ -264,9 +271,11 @@ class PlayerManager: NSObject {
     func rewind() {
         self.jumpBy(-self.rewindInterval)
     }
+}
 
-    // MARK: - Playback
+// MARK: - Playback
 
+extension PlayerManager {
     func play(_ autoplayed: Bool = false) {
         guard let currentBook = self.currentBook, let audioplayer = self.audioPlayer else {
             return
@@ -316,7 +325,7 @@ class PlayerManager: NSObject {
         if self.timer == nil || (self.timer != nil && !self.timer.isValid) {
             self.timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.update), userInfo: nil, repeats: true)
 
-            RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
+            RunLoop.main.add(self.timer, forMode: RunLoop.Mode.common)
         }
 
         // Set play state on player and control center
@@ -382,7 +391,13 @@ class PlayerManager: NSObject {
     }
 
     func stop() {
+        // Invalidate timer if needed
+        if self.timer != nil {
+            self.timer.invalidate()
+        }
+
         self.audioPlayer?.stop()
+        self.audioPlayer = nil
 
         UserActivityManager.shared.stopPlaybackActivity()
 
@@ -394,11 +409,26 @@ class PlayerManager: NSObject {
 
         self.currentBook = nil
 
+        UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.lastPlayedBook.rawValue)
+
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: .bookStopped,
                                             object: nil,
                                             userInfo: userInfo)
         }
+    }
+
+    func markAsCompleted(_ flag: Bool) {
+        guard let book = self.currentBook else { return }
+
+        book.markAsFinished(flag)
+        DataManager.saveContext()
+
+        NotificationCenter.default.post(name: .bookEnd,
+                                        object: nil,
+                                        userInfo: [
+                                            "fileURL": book.fileURL
+        ])
     }
 }
 

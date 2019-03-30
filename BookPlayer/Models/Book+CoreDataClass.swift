@@ -26,7 +26,7 @@ public class Book: LibraryItem {
         return self.title
     }
 
-    var progress: Double {
+    override var progress: Double {
         return self.currentTime / self.duration
     }
 
@@ -38,10 +38,20 @@ public class Book: LibraryItem {
         return !(self.chapters?.array.isEmpty ?? true)
     }
 
-    // TODO: This is a makeshift version of a proper completion property.
-    // See https://github.com/TortugaPower/BookPlayer/issues/201
-    override var isCompleted: Bool {
-        return Int(round(self.currentTime)) == Int(round(self.duration))
+    override func jumpToStart() {
+        self.currentTime = 0.0
+    }
+
+    override func markAsFinished(_ flag: Bool) {
+        self.isFinished = flag
+
+        // To avoid progress display side-effects
+        if !flag,
+            self.currentTime.rounded(.up) == self.duration.rounded(.up) {
+            self.currentTime = 0.0
+        }
+
+        self.playlist?.updateCompletionState()
     }
 
     func setChapters(from asset: AVAsset, context: NSManagedObjectContext) {
@@ -81,15 +91,18 @@ public class Book: LibraryItem {
         self.author = authorFromMeta ?? "Unknown Author"
         self.duration = CMTimeGetSeconds(asset.duration)
         self.originalFileName = bookUrl.originalUrl.lastPathComponent
+        self.isFinished = false
 
-        var colors: ArtworkColors!
+        var colors: Theme!
         if let data = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtwork, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? NSData {
             self.artworkData = data
-            colors = ArtworkColors(from: self.artwork, context: context)
+            colors = Theme(from: self.artwork, context: context)
         } else {
-            colors = ArtworkColors(context: context)
+            colors = Theme(context: context)
             self.usesDefaultArtwork = true
         }
+
+        colors.title = self.title
 
         self.artworkColors = colors
 
@@ -149,5 +162,43 @@ public class Book: LibraryItem {
         }
 
         return nil
+    }
+
+    func getInterval(from proposedInterval: TimeInterval) -> TimeInterval {
+        let interval = proposedInterval > 0
+            ? self.getForwardInterval(from: proposedInterval)
+            : self.getRewindInterval(from: proposedInterval)
+
+        return interval
+    }
+
+    private func getRewindInterval(from proposedInterval: TimeInterval) -> TimeInterval {
+        guard let chapter = self.currentChapter else { return proposedInterval }
+
+        if self.currentTime + proposedInterval > chapter.start {
+            return proposedInterval
+        }
+
+        let chapterThreshold: TimeInterval = 3
+
+        if chapter.start + chapterThreshold > currentTime {
+            return proposedInterval
+        }
+
+        return -(self.currentTime - chapter.start)
+    }
+
+    private func getForwardInterval(from proposedInterval: TimeInterval) -> TimeInterval {
+        guard let chapter = self.currentChapter else { return proposedInterval }
+
+        if self.currentTime + proposedInterval < chapter.end {
+            return proposedInterval
+        }
+
+        if chapter.end < currentTime {
+            return proposedInterval
+        }
+
+        return chapter.end - self.currentTime + 0.01
     }
 }
