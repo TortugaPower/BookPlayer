@@ -15,7 +15,9 @@ class ThemesViewController: UIViewController {
     @IBOutlet weak var brightnessDescriptionLabel: UILabel!
     @IBOutlet weak var brightnessSwitch: UISwitch!
     @IBOutlet weak var brightnessSlider: UISlider!
+    @IBOutlet weak var brightnessPipView: UIImageView!
     @IBOutlet weak var sunImageView: UIImageView!
+    @IBOutlet weak var sunLeadingConstraint: NSLayoutConstraint!
 
     @IBOutlet weak var darkModeSwitch: UISwitch!
 
@@ -72,6 +74,10 @@ class ThemesViewController: UIViewController {
         if self.brightnessSwitch.isOn {
             self.toggleAutomaticBrightness(animated: false)
         }
+
+        self.brightnessChanged()
+
+        NotificationCenter.default.addObserver(self, selector: #selector(self.brightnessChanged), name: UIScreen.brightnessDidChangeNotification, object: nil)
     }
 
     override func viewDidLayoutSubviews() {
@@ -132,6 +138,21 @@ class ThemesViewController: UIViewController {
         UserDefaults.standard.set(sender.value, forKey: Constants.UserDefaults.themeBrightnessThreshold.rawValue)
     }
 
+    @IBAction func sliderUp(_ sender: UISlider) {
+        let brightness = (UIScreen.main.brightness * 100).rounded() / 100
+        let shouldUseDarkVariant = brightness <= CGFloat(sender.value)
+
+        if shouldUseDarkVariant != ThemeManager.shared.useDarkVariant {
+            ThemeManager.shared.useDarkVariant = shouldUseDarkVariant
+        }
+    }
+
+    @objc private func brightnessChanged() {
+        let brightness = (UIScreen.main.brightness * 100).rounded() / 100
+
+        self.sunLeadingConstraint.constant = (brightness * self.brightnessSlider.bounds.width) - (self.sunImageView.bounds.width / 2)
+    }
+
     @IBAction func toggleDarkMode(_ sender: UISwitch) {
         UserDefaults.standard.set(sender.isOn, forKey: Constants.UserDefaults.themeDarkVariantEnabled.rawValue)
         ThemeManager.shared.useDarkVariant = sender.isOn
@@ -140,6 +161,15 @@ class ThemesViewController: UIViewController {
     @IBAction func toggleAutomaticBrightness(_ sender: UISwitch) {
         UserDefaults.standard.set(sender.isOn, forKey: Constants.UserDefaults.themeBrightnessEnabled.rawValue)
         self.toggleAutomaticBrightness(animated: true)
+        self.sliderUp(self.brightnessSlider)
+
+        guard !sender.isOn else { return }
+        //handle switching variant if the other toggle is enabled
+        let darkVariantEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeDarkVariantEnabled.rawValue)
+
+        guard ThemeManager.shared.useDarkVariant != darkVariantEnabled else { return }
+
+        ThemeManager.shared.useDarkVariant = darkVariantEnabled
     }
 
     func toggleAutomaticBrightness(animated: Bool) {
@@ -264,7 +294,9 @@ extension ThemesViewController: Themeable {
         self.brightnessSlider.minimumTrackTintColor = theme.highlightColor
         self.brightnessSlider.maximumTrackTintColor = theme.separatorColor
         self.brightnessDescriptionLabel.textColor = theme.detailColor
+
         self.sunImageView.tintColor = theme.separatorColor
+        self.brightnessPipView.tintColor = theme.separatorColor
 
         self.sectionHeaderLabels.forEach { label in
             label.textColor = theme.detailColor
