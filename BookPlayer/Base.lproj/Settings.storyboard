@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="nNa-3d-7ZC">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="nNa-3d-7ZC">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -1204,8 +1204,14 @@
                                                             <action selector="toggleAutomaticBrightness:" destination="NEQ-oF-OIb" eventType="valueChanged" id="cSx-FA-fMx"/>
                                                         </connections>
                                                     </switch>
-                                                    <imageView userInteractionEnabled="NO" alpha="0.0" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="currentScreenBrightnessIndicator" translatesAutoresizingMaskIntoConstraints="NO" id="UXs-vJ-DCL">
+                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.0" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defaultDarkThemeThreshold" translatesAutoresizingMaskIntoConstraints="NO" id="cmz-wB-Puk">
                                                         <rect key="frame" x="25" y="-19" width="177" height="40"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="40" id="dSM-zk-MCz"/>
+                                                        </constraints>
+                                                    </imageView>
+                                                    <imageView userInteractionEnabled="NO" alpha="0.0" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="currentScreenBrightnessIndicator" translatesAutoresizingMaskIntoConstraints="NO" id="UXs-vJ-DCL">
+                                                        <rect key="frame" x="25" y="-19" width="30" height="40"/>
                                                         <constraints>
                                                             <constraint firstAttribute="height" constant="40" id="hxQ-nh-ii6"/>
                                                         </constraints>
@@ -1217,6 +1223,8 @@
                                                             <constraint firstAttribute="height" constant="20" id="e67-GY-GHG"/>
                                                         </constraints>
                                                         <connections>
+                                                            <action selector="sliderUp:" destination="NEQ-oF-OIb" eventType="touchUpOutside" id="F6D-ID-YgO"/>
+                                                            <action selector="sliderUp:" destination="NEQ-oF-OIb" eventType="touchUpInside" id="tOl-cI-1SP"/>
                                                             <action selector="sliderUpdated:" destination="NEQ-oF-OIb" eventType="valueChanged" id="hUH-7g-f7m"/>
                                                         </connections>
                                                     </slider>
@@ -1234,8 +1242,10 @@
                                                     <constraint firstItem="aWK-yK-lEJ" firstAttribute="top" secondItem="1H3-4M-C6V" secondAttribute="bottom" constant="22.5" id="7Lq-PW-00v"/>
                                                     <constraint firstItem="Mg5-1E-BOM" firstAttribute="centerY" secondItem="Oz0-TQ-7Us" secondAttribute="centerY" id="8Z0-md-eJo"/>
                                                     <constraint firstItem="2PH-0T-Kfp" firstAttribute="top" secondItem="q9M-oW-UvF" secondAttribute="top" id="AOr-CM-UQp"/>
+                                                    <constraint firstItem="cmz-wB-Puk" firstAttribute="centerY" secondItem="1H3-4M-C6V" secondAttribute="centerY" constant="-10" id="DKY-QN-SGp"/>
                                                     <constraint firstItem="UXs-vJ-DCL" firstAttribute="leading" secondItem="1H3-4M-C6V" secondAttribute="leading" id="NTP-cF-sx4"/>
                                                     <constraint firstItem="Mg5-1E-BOM" firstAttribute="leading" secondItem="Oz0-TQ-7Us" secondAttribute="trailing" constant="20" id="QOT-vj-HU3"/>
+                                                    <constraint firstItem="cmz-wB-Puk" firstAttribute="width" secondItem="1H3-4M-C6V" secondAttribute="width" multiplier="0.545" id="SSx-OB-tM5"/>
                                                     <constraint firstAttribute="trailing" secondItem="Mg5-1E-BOM" secondAttribute="trailing" constant="16" id="WbU-av-WYV"/>
                                                     <constraint firstItem="UXs-vJ-DCL" firstAttribute="centerY" secondItem="1H3-4M-C6V" secondAttribute="centerY" constant="-10" id="Xan-Rk-JqY"/>
                                                     <constraint firstAttribute="trailing" secondItem="1H3-4M-C6V" secondAttribute="trailing" constant="25" id="Zf6-HA-hJE"/>
@@ -1243,8 +1253,8 @@
                                                     <constraint firstItem="2PH-0T-Kfp" firstAttribute="leading" secondItem="q9M-oW-UvF" secondAttribute="leading" id="bgW-st-ySa"/>
                                                     <constraint firstItem="aWK-yK-lEJ" firstAttribute="leading" secondItem="q9M-oW-UvF" secondAttribute="leading" id="d1w-UN-xNw"/>
                                                     <constraint firstAttribute="bottom" secondItem="aWK-yK-lEJ" secondAttribute="bottom" id="hSc-m5-IIb"/>
-                                                    <constraint firstItem="UXs-vJ-DCL" firstAttribute="width" secondItem="1H3-4M-C6V" secondAttribute="width" multiplier="0.545" id="iYt-zp-DNP"/>
                                                     <constraint firstAttribute="height" constant="44" id="kYu-Vk-xfW"/>
+                                                    <constraint firstItem="cmz-wB-Puk" firstAttribute="leading" secondItem="1H3-4M-C6V" secondAttribute="leading" id="n9Y-J9-6kL"/>
                                                     <constraint firstAttribute="trailing" secondItem="2PH-0T-Kfp" secondAttribute="trailing" id="qLC-mO-meA"/>
                                                     <constraint firstItem="Oz0-TQ-7Us" firstAttribute="leading" secondItem="q9M-oW-UvF" secondAttribute="leading" constant="16" id="trh-a4-SJX"/>
                                                     <constraint firstItem="Oz0-TQ-7Us" firstAttribute="top" secondItem="q9M-oW-UvF" secondAttribute="top" constant="11.5" id="xo3-hC-yQ5"/>
@@ -1490,6 +1500,7 @@
                         <outlet property="bannerView" destination="24B-Po-72V" id="pxi-Lo-36X"/>
                         <outlet property="brightnessContainerHeightConstraint" destination="kYu-Vk-xfW" id="bl1-J0-FAG"/>
                         <outlet property="brightnessDescriptionLabel" destination="TU0-qj-CIf" id="hzF-GM-ygx"/>
+                        <outlet property="brightnessPipView" destination="cmz-wB-Puk" id="abi-Yg-uZG"/>
                         <outlet property="brightnessSlider" destination="1H3-4M-C6V" id="bpe-B7-JH4"/>
                         <outlet property="brightnessSwitch" destination="Mg5-1E-BOM" id="Oex-1F-Jt2"/>
                         <outlet property="darkModeSwitch" destination="dGm-Ck-k4z" id="kVe-sw-TRl"/>
@@ -1499,6 +1510,7 @@
                         <outlet property="localThemesTableView" destination="BnV-BH-ZSC" id="9s7-Ah-R5a"/>
                         <outlet property="scrollContentHeightConstraint" destination="isV-yD-co8" id="YdG-bV-nkn"/>
                         <outlet property="sunImageView" destination="UXs-vJ-DCL" id="6SL-Ss-HB9"/>
+                        <outlet property="sunLeadingConstraint" destination="NTP-cF-sx4" id="jTv-51-NIa"/>
                         <outletCollection property="separatorViews" destination="tsq-Cg-nOl" collectionClass="NSMutableArray" id="fWv-Rp-mtP"/>
                         <outletCollection property="separatorViews" destination="fZv-P8-1pN" collectionClass="NSMutableArray" id="MRp-ds-m3h"/>
                         <outletCollection property="sectionHeaderLabels" destination="f3H-Jd-vev" collectionClass="NSMutableArray" id="UUn-9i-Jgk"/>
@@ -1514,6 +1526,7 @@
                         <outletCollection property="separatorViews" destination="2PH-0T-Kfp" collectionClass="NSMutableArray" id="ZrT-2g-qvk"/>
                         <outletCollection property="separatorViews" destination="3je-PX-Pgn" collectionClass="NSMutableArray" id="Spy-uo-b6m"/>
                         <outletCollection property="brightnessViews" destination="UXs-vJ-DCL" collectionClass="NSMutableArray" id="zXx-Fi-3P3"/>
+                        <outletCollection property="brightnessViews" destination="cmz-wB-Puk" collectionClass="NSMutableArray" id="8hV-8T-O0z"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="CI1-pK-d7y" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -1764,6 +1777,7 @@ Use with caution and care for your hearing.</string>
     <resources>
         <image name="BookPlayerPlus" width="102" height="102"/>
         <image name="currentScreenBrightnessIndicator" width="30" height="40"/>
+        <image name="defaultDarkThemeThreshold" width="30" height="40"/>
         <image name="listAdd" width="29" height="29"/>
         <image name="plusImageAppIcons" width="64" height="64"/>
         <image name="plusImageSupport" width="64" height="64"/>
