@@ -204,17 +204,6 @@ class PlaylistViewController: ItemListViewController {
     }
 }
 
-// MARK: - DocumentPicker Delegate
-
-extension PlaylistViewController {
-    override func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-        for url in urls {
-            // context put in playlist
-            DataManager.processFile(at: url)
-        }
-    }
-}
-
 // MARK: - TableView DataSource
 
 extension PlaylistViewController {

@@ -579,10 +579,16 @@ extension ItemListViewController: TableViewReorderDelegate {
 // MARK: DocumentPicker Delegate
 
 extension ItemListViewController: UIDocumentPickerDelegate {
+    // iOS 11+
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         for url in urls {
             DataManager.processFile(at: url)
         }
+    }
+
+    // support iOS 10
+    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
+        DataManager.processFile(at: url)
     }
 }
 
