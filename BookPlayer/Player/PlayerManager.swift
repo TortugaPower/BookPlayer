@@ -36,7 +36,8 @@ class PlayerManager: NSObject {
 
         self.queue.addOperation {
             // try loading the player
-            guard let audioplayer = try? AVAudioPlayer(contentsOf: book.fileURL) else {
+            guard let fileURL = book.fileURL,
+                let audioplayer = try? AVAudioPlayer(contentsOf: fileURL) else {
                 DispatchQueue.main.async(execute: {
                     self.currentBook = nil
 
@@ -89,7 +90,9 @@ class PlayerManager: NSObject {
 
     // Called every second by the timer
     @objc func update() {
-        guard let audioplayer = self.audioPlayer, let book = self.currentBook else {
+        guard let audioplayer = self.audioPlayer,
+            let book = self.currentBook,
+            let fileURL = book.fileURL else {
             return
         }
 
@@ -107,7 +110,7 @@ class PlayerManager: NSObject {
                                             object: nil,
                                             userInfo: [
                                                 "progress": book.progress,
-                                                "fileURL": book.fileURL
+                                                "fileURL": fileURL
             ] as [String: Any])
         }
 
@@ -134,7 +137,7 @@ class PlayerManager: NSObject {
 
         let userInfo = [
             "time": currentTime,
-            "fileURL": book.fileURL
+            "fileURL": fileURL
         ] as [String: Any]
 
         // Notify
@@ -419,7 +422,8 @@ extension PlayerManager {
     }
 
     func markAsCompleted(_ flag: Bool) {
-        guard let book = self.currentBook else { return }
+        guard let book = self.currentBook,
+            let fileURL = book.fileURL else { return }
 
         book.markAsFinished(flag)
         DataManager.saveContext()
@@ -427,7 +431,7 @@ extension PlayerManager {
         NotificationCenter.default.post(name: .bookEnd,
                                         object: nil,
                                         userInfo: [
-                                            "fileURL": book.fileURL
+                                            "fileURL": fileURL
         ])
     }
 }

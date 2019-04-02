@@ -12,7 +12,9 @@ import CoreData
 import Foundation
 
 public class Book: LibraryItem {
-    var fileURL: URL {
+    var fileURL: URL? {
+        guard self.identifier != nil else { return nil }
+
         return DataManager.getProcessedFolderURL().appendingPathComponent(self.identifier)
     }
 

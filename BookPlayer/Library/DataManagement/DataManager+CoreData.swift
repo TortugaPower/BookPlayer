@@ -244,7 +244,9 @@ extension DataManager {
         let fileURL = book.fileURL
 
         DispatchQueue.global().async {
-            try? FileManager.default.removeItem(at: fileURL)
+            if let fileURL = fileURL {
+                try? FileManager.default.removeItem(at: fileURL)
+            }
         }
 
         self.delete(book)

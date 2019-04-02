@@ -167,7 +167,9 @@ class DataManager {
     }
 
     class func exists(_ book: Book) -> Bool {
-        return FileManager.default.fileExists(atPath: book.fileURL.path)
+        guard let fileURL = book.fileURL else { return false }
+
+        return FileManager.default.fileExists(atPath: fileURL.path)
     }
 
     // MARK: - Themes

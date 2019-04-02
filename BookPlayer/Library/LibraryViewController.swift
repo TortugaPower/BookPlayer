@@ -449,7 +449,8 @@ extension LibraryViewController {
 
         guard let bookCell = cell as? BookCellView,
             let currentBook = PlayerManager.shared.currentBook,
-            let index = self.library.itemIndex(with: currentBook.fileURL),
+            let fileURL = currentBook.fileURL,
+            let index = self.library.itemIndex(with: fileURL),
             index == indexPath.row else {
             return cell
         }

@@ -304,7 +304,8 @@ extension ItemListViewController {
     @objc func onBookPlay() {
         guard
             let currentBook = PlayerManager.shared.currentBook,
-            let index = self.library.itemIndex(with: currentBook.fileURL),
+            let fileURL = currentBook.fileURL,
+            let index = self.library.itemIndex(with: fileURL),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
         else {
             return
@@ -316,7 +317,8 @@ extension ItemListViewController {
     @objc func onBookPause() {
         guard
             let book = PlayerManager.shared.currentBook,
-            let index = self.library.itemIndex(with: book.fileURL),
+            let fileURL = book.fileURL,
+            let index = self.library.itemIndex(with: fileURL),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
         else {
             return
@@ -330,7 +332,8 @@ extension ItemListViewController {
             let userInfo = notification.userInfo,
             let book = userInfo["book"] as? Book,
             !book.isFault,
-            let index = self.library.itemIndex(with: book.fileURL),
+            let fileURL = book.fileURL,
+            let index = self.library.itemIndex(with: fileURL),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
         else {
             return
