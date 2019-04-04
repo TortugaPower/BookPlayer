@@ -153,6 +153,8 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
             providerList.allowsMultipleSelection = true
         }
 
+        UIApplication.shared.isIdleTimerDisabled = true
+
         self.present(providerList, animated: true, completion: nil)
     }
 
@@ -582,8 +584,13 @@ extension ItemListViewController: TableViewReorderDelegate {
 // MARK: DocumentPicker Delegate
 
 extension ItemListViewController: UIDocumentPickerDelegate {
+    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+        UIApplication.shared.isIdleTimerDisabled = false
+    }
+
     // iOS 11+
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        UIApplication.shared.isIdleTimerDisabled = false
         for url in urls {
             DataManager.processFile(at: url)
         }
@@ -591,6 +598,7 @@ extension ItemListViewController: UIDocumentPickerDelegate {
 
     // support iOS 10
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
+        UIApplication.shared.isIdleTimerDisabled = false
         DataManager.processFile(at: url)
     }
 }
