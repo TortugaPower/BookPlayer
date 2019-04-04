@@ -29,6 +29,8 @@ public class Book: LibraryItem {
     }
 
     override var progress: Double {
+        guard self.duration > 0 else { return 0 }
+
         return self.currentTime / self.duration
     }
 
