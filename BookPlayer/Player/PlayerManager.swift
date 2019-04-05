@@ -27,6 +27,8 @@ class PlayerManager: NSObject {
 
     private let queue = OperationQueue()
 
+    var outputPort: AVAudioSessionPortDescription?
+
     func load(_ book: Book, completion: @escaping (Bool) -> Void) {
         if self.currentBook != nil {
             self.stop()
@@ -291,7 +293,11 @@ extension PlayerManager {
         do {
             try AVAudioSession.sharedInstance().setActive(true)
         } catch {
-            // @TODO: Handle error if AVAudioSession fails to become active again
+            fatalError("Failed to activate the audio session")
+        }
+
+        if self.outputPort == nil {
+            self.outputPort = AVAudioSession.sharedInstance().currentRoute.outputs.first
         }
 
         let completed = Int(audioplayer.duration) == Int(audioplayer.currentTime)
@@ -370,11 +376,9 @@ extension PlayerManager {
 
         UserDefaults.standard.set(Date(), forKey: "\(Constants.UserDefaults.lastPauseTime)_\(currentBook.identifier!)")
 
-        do {
-            try AVAudioSession.sharedInstance().setActive(false)
-        } catch {
-            // @TODO: Handle error if AVAudioSession fails to become active again
-        }
+        try? AVAudioSession.sharedInstance().setActive(false)
+
+        self.outputPort = AVAudioSession.sharedInstance().currentRoute.outputs.first
 
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: .bookPaused, object: nil)
