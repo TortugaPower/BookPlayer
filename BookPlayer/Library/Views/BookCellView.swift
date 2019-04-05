@@ -99,8 +99,10 @@ class BookCellView: UITableViewCell {
 
     var playbackState: PlaybackState = PlaybackState.stopped {
         didSet {
+            let currentTheme = self.themeProvider.currentTheme
+
             UIView.animate(withDuration: 0.1, animations: {
-                self.setPlaybackColors(self.themeProvider.currentTheme)
+                self.setPlaybackColors(currentTheme)
             })
         }
     }
