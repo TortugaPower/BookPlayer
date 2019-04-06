@@ -81,8 +81,6 @@ class PlayerManager: NSObject {
                 // Set speed for player
                 audioplayer.rate = self.speed
 
-                UserActivityManager.shared.resumePlaybackActivity()
-
                 NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["book": book])
 
                 completion(true)
@@ -105,6 +103,7 @@ class PlayerManager: NSObject {
         book.percentCompleted = book.percentage
 
         DataManager.saveContext()
+        UserActivityManager.shared.recordTime()
 
         // Notify
         if isPercentageDifferent {
