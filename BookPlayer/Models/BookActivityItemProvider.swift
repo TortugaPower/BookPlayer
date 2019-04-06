@@ -19,12 +19,14 @@ class BookActivityItemProvider: UIActivityItemProvider {
         let tempDir = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
         let tempUrl = tempDir.appendingPathComponent(self.book.filename)
 
-        try? FileManager.default.copyItem(at: self.book.fileURL, to: tempUrl)
+        guard let fileURL = self.book.fileURL else { return nil }
+
+        try? FileManager.default.copyItem(at: fileURL, to: tempUrl)
 
         return tempUrl
     }
 
     override func activityViewControllerPlaceholderItem(_ activityViewController: UIActivityViewController) -> Any {
-        return self.book.fileURL
+        return URL(fileURLWithPath: "placeholder")
     }
 }

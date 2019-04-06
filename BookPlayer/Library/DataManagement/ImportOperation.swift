@@ -60,7 +60,7 @@ class ImportOperation: Operation {
 
     override func main() {
         for file in self.files {
-            NotificationCenter.default.post(name: .processingFile, object: self, userInfo: ["filename": file.originalUrl.lastPathComponent])
+            NotificationCenter.default.post(name: .processingFile, object: nil, userInfo: ["filename": file.originalUrl.lastPathComponent])
 
             guard file.originalUrl.pathExtension != "zip" else {
                 handleZip(file: file)

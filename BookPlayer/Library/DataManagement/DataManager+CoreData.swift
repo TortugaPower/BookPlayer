@@ -241,8 +241,12 @@ extension DataManager {
             PlayerManager.shared.stop()
         }
 
+        let fileURL = book.fileURL
+
         DispatchQueue.global().async {
-            try? FileManager.default.removeItem(at: book.fileURL)
+            if let fileURL = fileURL {
+                try? FileManager.default.removeItem(at: fileURL)
+            }
         }
 
         self.delete(book)

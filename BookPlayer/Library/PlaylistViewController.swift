@@ -83,7 +83,8 @@ class PlaylistViewController: ItemListViewController {
     @objc override func onBookPlay() {
         guard
             let currentBook = PlayerManager.shared.currentBook,
-            let index = self.playlist.itemIndex(with: currentBook.fileURL),
+            let fileURL = currentBook.fileURL,
+            let index = self.playlist.itemIndex(with: fileURL),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
         else {
             return
@@ -95,7 +96,8 @@ class PlaylistViewController: ItemListViewController {
     @objc override func onBookPause() {
         guard
             let currentBook = PlayerManager.shared.currentBook,
-            let index = self.playlist.itemIndex(with: currentBook.fileURL),
+            let fileURL = currentBook.fileURL,
+            let index = self.playlist.itemIndex(with: fileURL),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
         else {
             return
@@ -109,7 +111,8 @@ class PlaylistViewController: ItemListViewController {
             let userInfo = notification.userInfo,
             let book = userInfo["book"] as? Book,
             !book.isFault,
-            let index = self.playlist.itemIndex(with: book.fileURL),
+            let fileURL = book.fileURL,
+            let index = self.playlist.itemIndex(with: fileURL),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
         else {
             return
@@ -204,17 +207,6 @@ class PlaylistViewController: ItemListViewController {
     }
 }
 
-// MARK: - DocumentPicker Delegate
-
-extension PlaylistViewController {
-    override func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-        for url in urls {
-            // context put in playlist
-            DataManager.processFile(at: url)
-        }
-    }
-}
-
 // MARK: - TableView DataSource
 
 extension PlaylistViewController {
@@ -229,7 +221,8 @@ extension PlaylistViewController {
 
         guard
             let currentBook = PlayerManager.shared.currentBook,
-            let index = self.playlist.itemIndex(with: currentBook.fileURL),
+            let fileURL = currentBook.fileURL,
+            let index = self.playlist.itemIndex(with: fileURL),
             index == indexPath.row
         else {
             return bookCell

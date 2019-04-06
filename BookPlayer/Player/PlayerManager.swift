@@ -27,6 +27,8 @@ class PlayerManager: NSObject {
 
     private let queue = OperationQueue()
 
+    var outputPort: AVAudioSessionPortDescription?
+
     func load(_ book: Book, completion: @escaping (Bool) -> Void) {
         if self.currentBook != nil {
             self.stop()
@@ -36,7 +38,8 @@ class PlayerManager: NSObject {
 
         self.queue.addOperation {
             // try loading the player
-            guard let audioplayer = try? AVAudioPlayer(contentsOf: book.fileURL) else {
+            guard let fileURL = book.fileURL,
+                let audioplayer = try? AVAudioPlayer(contentsOf: fileURL) else {
                 DispatchQueue.main.async(execute: {
                     self.currentBook = nil
 
@@ -89,7 +92,9 @@ class PlayerManager: NSObject {
 
     // Called every second by the timer
     @objc func update() {
-        guard let audioplayer = self.audioPlayer, let book = self.currentBook else {
+        guard let audioplayer = self.audioPlayer,
+            let book = self.currentBook,
+            let fileURL = book.fileURL else {
             return
         }
 
@@ -107,7 +112,7 @@ class PlayerManager: NSObject {
                                             object: nil,
                                             userInfo: [
                                                 "progress": book.progress,
-                                                "fileURL": book.fileURL
+                                                "fileURL": fileURL
             ] as [String: Any])
         }
 
@@ -134,7 +139,7 @@ class PlayerManager: NSObject {
 
         let userInfo = [
             "time": currentTime,
-            "fileURL": book.fileURL
+            "fileURL": fileURL
         ] as [String: Any]
 
         // Notify
@@ -288,7 +293,11 @@ extension PlayerManager {
         do {
             try AVAudioSession.sharedInstance().setActive(true)
         } catch {
-            // @TODO: Handle error if AVAudioSession fails to become active again
+            fatalError("Failed to activate the audio session")
+        }
+
+        if self.outputPort == nil {
+            self.outputPort = AVAudioSession.sharedInstance().currentRoute.outputs.first
         }
 
         let completed = Int(audioplayer.duration) == Int(audioplayer.currentTime)
@@ -367,11 +376,9 @@ extension PlayerManager {
 
         UserDefaults.standard.set(Date(), forKey: "\(Constants.UserDefaults.lastPauseTime)_\(currentBook.identifier!)")
 
-        do {
-            try AVAudioSession.sharedInstance().setActive(false)
-        } catch {
-            // @TODO: Handle error if AVAudioSession fails to become active again
-        }
+        try? AVAudioSession.sharedInstance().setActive(false)
+
+        self.outputPort = AVAudioSession.sharedInstance().currentRoute.outputs.first
 
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: .bookPaused, object: nil)
@@ -419,7 +426,8 @@ extension PlayerManager {
     }
 
     func markAsCompleted(_ flag: Bool) {
-        guard let book = self.currentBook else { return }
+        guard let book = self.currentBook,
+            let fileURL = book.fileURL else { return }
 
         book.markAsFinished(flag)
         DataManager.saveContext()
@@ -427,7 +435,7 @@ extension PlayerManager {
         NotificationCenter.default.post(name: .bookEnd,
                                         object: nil,
                                         userInfo: [
-                                            "fileURL": book.fileURL
+                                            "fileURL": fileURL
         ])
     }
 }
