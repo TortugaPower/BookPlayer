@@ -23,39 +23,48 @@ class ImportOperation: Operation {
     }
 
     func handleZip(file: FileItem) {
+        guard file.originalUrl.pathExtension == "zip" else { return }
+
         // Unzip to a temp directory
-        if file.originalUrl.pathExtension == "zip" {
-            let tempURL = file.destinationFolder.appendingPathComponent("tmp")
+        let tempURL = file.destinationFolder.appendingPathComponent("tmp")
 
-            do {
-                try FileManager.default.createDirectory(at: tempURL, withIntermediateDirectories: true, attributes: nil)
-                try FileManager.default.unzipItem(at: file.originalUrl, to: tempURL)
+        do {
+            try FileManager.default.createDirectory(at: tempURL, withIntermediateDirectories: true, attributes: nil)
+            try FileManager.default.unzipItem(at: file.originalUrl, to: tempURL)
 
-            } catch {
-                print("Extraction of ZIP archive failed with error:\(error)")
-                return
-            }
-
-            let fileManager = FileManager.default
-            let resourceKeys: [URLResourceKey] = [.creationDateKey, .isDirectoryKey]
-            let enumerator = fileManager.enumerator(at: tempURL,
-                                                    includingPropertiesForKeys: resourceKeys,
-                                                    options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
-                                                        print("directoryEnumerator error at \(url): ", error)
-                                                        return true
-            })!
-
-            for case let fileURL as URL in enumerator {
-                if fileURL.pathExtension == "mp3" || fileURL.pathExtension == "m4a" || fileURL.pathExtension == "m4b" {
-                    let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                    let destinationURL = documentsURL.appendingPathComponent(fileURL.lastPathComponent)
-                    try? FileManager.default.moveItem(at: fileURL, to: destinationURL)
-                }
-            }
-
-            // Delete temp directory
-            try? FileManager.default.removeItem(at: tempURL)
+        } catch {
+            print("Extraction of ZIP archive failed with error:\(error)")
+            return
         }
+
+        let tempItem = FileItem(originalUrl: tempURL, processedUrl: nil, destinationFolder: file.destinationFolder)
+
+        self.handleDirectory(file: tempItem)
+
+        // Delete original zip file
+        try? FileManager.default.removeItem(at: file.originalUrl)
+    }
+
+    func handleDirectory(file: FileItem) {
+        let resourceKeys: [URLResourceKey] = [.creationDateKey, .isDirectoryKey]
+        let enumerator = FileManager.default.enumerator(at: file.originalUrl,
+                                                        includingPropertiesForKeys: resourceKeys,
+                                                        options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
+                                                            print("directoryEnumerator error at \(url): ", error)
+                                                            return true
+        })!
+
+        let documentsURL = DataManager.getDocumentsFolderURL()
+
+        for case let fileURL as URL in enumerator {
+            guard fileURL.pathExtension == "mp3" || fileURL.pathExtension == "m4a" || fileURL.pathExtension == "m4b" else { continue }
+
+            let destinationURL = documentsURL.appendingPathComponent(fileURL.lastPathComponent)
+            try? FileManager.default.moveItem(at: fileURL, to: destinationURL)
+        }
+
+        // Delete directory
+        try? FileManager.default.removeItem(at: file.originalUrl)
     }
 
     override func main() {
@@ -64,6 +73,15 @@ class ImportOperation: Operation {
 
             guard file.originalUrl.pathExtension != "zip" else {
                 handleZip(file: file)
+                continue
+            }
+
+            guard let attributes = try? FileManager.default.attributesOfItem(atPath: file.originalUrl.path) else {
+                continue
+            }
+
+            if let type = attributes[.type] as? FileAttributeType, type == .typeDirectory {
+                handleDirectory(file: file)
                 continue
             }
 

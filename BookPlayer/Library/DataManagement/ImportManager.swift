@@ -20,6 +20,10 @@ class ImportManager {
     func process(_ fileUrl: URL, destinationFolder: URL) {
         guard !self.files.contains(where: { $0.originalUrl == fileUrl }) else { return }
 
+        // Avoid processing the creation of the Processed and Inbox folder
+        if fileUrl.lastPathComponent == DataManager.processedFolderName
+            || fileUrl.lastPathComponent == "Inbox" { return }
+
         self.setupTimer()
 
         let file = FileItem(originalUrl: fileUrl, processedUrl: nil, destinationFolder: destinationFolder)
