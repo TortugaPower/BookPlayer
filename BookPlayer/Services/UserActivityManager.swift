@@ -13,6 +13,7 @@ class UserActivityManager {
     static let shared = UserActivityManager()
 
     var currentActivity: NSUserActivity
+    var playbackRecord: PlaybackRecord?
 
     private init() {
         let activity = NSUserActivity(activityType: Constants.UserActivityPlayback)
@@ -29,9 +30,26 @@ class UserActivityManager {
 
     func resumePlaybackActivity() {
         self.currentActivity.becomeCurrent()
+
+        if self.playbackRecord == nil {
+            self.playbackRecord = DataManager.getPlaybackRecord()
+        }
+
+        guard let record = self.playbackRecord else { return }
+
+        guard !Calendar.current.isDate(record.date, inSameDayAs: Date()) else { return }
+
+        self.playbackRecord = DataManager.getPlaybackRecord()
     }
 
     func stopPlaybackActivity() {
         self.currentActivity.resignCurrent()
+        self.playbackRecord = nil
+    }
+
+    func recordTime() {
+        guard let record = self.playbackRecord else { return }
+
+        DataManager.recordTime(record)
     }
 }

@@ -90,16 +90,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
-    func applicationWillResignActive(_ application: UIApplication) {
-        // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-        // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
-    }
-
-    func applicationDidEnterBackground(_ application: UIApplication) {
-        // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
-        // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
-    }
-
     func applicationWillEnterForeground(_ application: UIApplication) {
         // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
 
@@ -178,6 +168,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Pause playback if route changes due to a disconnect
         switch reason {
         case .oldDeviceUnavailable:
+            guard let storedPort = PlayerManager.shared.outputPort,
+                let currentRoute = AVAudioSession.sharedInstance().currentRoute.outputs.first else { return }
+
+            guard storedPort != currentRoute else { return }
+
+            guard currentRoute.portType == .builtInSpeaker else { return }
+
             DispatchQueue.main.async {
                 PlayerManager.shared.pause()
             }
@@ -257,6 +254,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func setupDocumentListener() {
         let documentsUrl = DataManager.getDocumentsFolderURL()
         self.watcher = DirectoryWatcher.watch(documentsUrl)
+        self.watcher?.ignoreDirectories = false
         self.watcher?.onNewFiles = { newFiles in
             for url in newFiles {
                 DataManager.processFile(at: url)

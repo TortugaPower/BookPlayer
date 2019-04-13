@@ -20,12 +20,16 @@ class ImportManager {
     func process(_ fileUrl: URL, destinationFolder: URL) {
         guard !self.files.contains(where: { $0.originalUrl == fileUrl }) else { return }
 
+        // Avoid processing the creation of the Processed and Inbox folder
+        if fileUrl.lastPathComponent == DataManager.processedFolderName
+            || fileUrl.lastPathComponent == "Inbox" { return }
+
         self.setupTimer()
 
         let file = FileItem(originalUrl: fileUrl, processedUrl: nil, destinationFolder: destinationFolder)
         self.files.append(file)
 
-        NotificationCenter.default.post(name: .newFileUrl, object: self, userInfo: nil)
+        NotificationCenter.default.post(name: .newFileUrl, object: nil, userInfo: nil)
     }
 
     private func setupTimer() {
@@ -43,6 +47,6 @@ class ImportManager {
 
         self.files = []
 
-        NotificationCenter.default.post(name: .importOperation, object: self, userInfo: ["operation": operation])
+        NotificationCenter.default.post(name: .importOperation, object: nil, userInfo: ["operation": operation])
     }
 }

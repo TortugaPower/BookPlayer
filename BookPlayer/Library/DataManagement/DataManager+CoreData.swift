@@ -241,8 +241,12 @@ extension DataManager {
             PlayerManager.shared.stop()
         }
 
+        let fileURL = book.fileURL
+
         DispatchQueue.global().async {
-            try? FileManager.default.removeItem(at: book.fileURL)
+            if let fileURL = fileURL {
+                try? FileManager.default.removeItem(at: fileURL)
+            }
         }
 
         self.delete(book)
@@ -256,6 +260,34 @@ extension DataManager {
 
     class func mark(_ item: LibraryItem, asFinished: Bool) {
         item.markAsFinished(asFinished)
+        self.saveContext()
+    }
+
+    // MARK: - TimeRecord
+
+    class func getPlaybackRecord() -> PlaybackRecord {
+        let calendar = Calendar.current
+
+        let today = Date()
+        let dateFrom = calendar.startOfDay(for: today)
+        let dateTo = calendar.date(byAdding: .day, value: 1, to: dateFrom)!
+
+        // Set predicate as date being today's date
+        let fromPredicate = NSPredicate(format: "%@ >= %@", today as NSDate, dateFrom as NSDate)
+        let toPredicate = NSPredicate(format: "%@ < %@", today as NSDate, dateTo as NSDate)
+        let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate])
+
+        let context = self.persistentContainer.viewContext
+        let fetch: NSFetchRequest<PlaybackRecord> = PlaybackRecord.fetchRequest()
+        fetch.predicate = datePredicate
+
+        let record = try? context.fetch(fetch).first
+
+        return record ?? PlaybackRecord.create(in: context)
+    }
+
+    class func recordTime(_ playbackRecord: PlaybackRecord) {
+        playbackRecord.time += 1
         self.saveContext()
     }
 }

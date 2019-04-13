@@ -14,6 +14,8 @@
 		4112AFD6223AD27D00BFEA55 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4112AFD5223AD27D00BFEA55 /* Sentry.framework */; };
 		412451841D489204008AC0E5 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412451821D489204008AC0E5 /* Crashlytics.framework */; };
 		413616401D2E21F000E48944 /* LibraryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4136163F1D2E21F000E48944 /* LibraryViewController.swift */; };
+		413C7D9022580A0F009F3658 /* PlaybackRecord+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 413C7D8E22580A0F009F3658 /* PlaybackRecord+CoreDataClass.swift */; };
+		413C7D9122580A0F009F3658 /* PlaybackRecord+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 413C7D8F22580A0F009F3658 /* PlaybackRecord+CoreDataProperties.swift */; };
 		4142964421F21D95004356DA /* BulkControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4142964321F21D95004356DA /* BulkControlsView.swift */; };
 		4142964621F21DAE004356DA /* BulkControlsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4142964521F21DAE004356DA /* BulkControlsView.xib */; };
 		4142964921F2E2BA004356DA /* ThemeCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4142964721F2E2BA004356DA /* ThemeCellView.swift */; };
@@ -185,6 +187,8 @@
 		4112AFD5223AD27D00BFEA55 /* Sentry.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Sentry.framework; path = Carthage/Build/iOS/Sentry.framework; sourceTree = "<group>"; };
 		412451821D489204008AC0E5 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		4136163F1D2E21F000E48944 /* LibraryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryViewController.swift; sourceTree = "<group>"; };
+		413C7D8E22580A0F009F3658 /* PlaybackRecord+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PlaybackRecord+CoreDataClass.swift"; sourceTree = "<group>"; };
+		413C7D8F22580A0F009F3658 /* PlaybackRecord+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PlaybackRecord+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		4142964321F21D95004356DA /* BulkControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BulkControlsView.swift; sourceTree = "<group>"; };
 		4142964521F21DAE004356DA /* BulkControlsView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = BulkControlsView.xib; sourceTree = "<group>"; };
 		4142964721F2E2BA004356DA /* ThemeCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeCellView.swift; sourceTree = "<group>"; };
@@ -644,6 +648,8 @@
 			isa = PBXGroup;
 			children = (
 				4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */,
+				413C7D8E22580A0F009F3658 /* PlaybackRecord+CoreDataClass.swift */,
+				413C7D8F22580A0F009F3658 /* PlaybackRecord+CoreDataProperties.swift */,
 				41839AB120AA8B960047E55D /* Theme+CoreDataClass.swift */,
 				41839AB220AA8B960047E55D /* Theme+CoreDataProperties.swift */,
 				41839AB520AA8C970047E55D /* Book+CoreDataClass.swift */,
@@ -1057,7 +1063,9 @@
 				410D0FED1EDCF4B000A52EB9 /* SettingsViewController.swift in Sources */,
 				41B2A5DE21CAF20E00917584 /* ThemesViewController.swift in Sources */,
 				C398559C20C492FF00BE9EC0 /* AddButton.swift in Sources */,
+				413C7D9022580A0F009F3658 /* PlaybackRecord+CoreDataClass.swift in Sources */,
 				4175E1242206CF9600FB7B71 /* DataManager+CoreData.swift in Sources */,
+				413C7D9122580A0F009F3658 /* PlaybackRecord+CoreDataProperties.swift in Sources */,
 				C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */,
 				4165EE1220A7D1E100616EDF /* RootViewController.swift in Sources */,
 				4165EE0820A743D500616EDF /* Playlist+CoreDataProperties.swift in Sources */,
