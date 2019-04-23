@@ -6,6 +6,7 @@
 //  Copyright © 2016 Tortuga Power. All rights reserved.
 //
 
+import BookPlayerKit
 import MediaPlayer
 import SwiftReorder
 import UIKit

@@ -7,6 +7,7 @@
 //
 
 import AVFoundation
+import BookPlayerKit
 import Foundation
 import MediaPlayer
 

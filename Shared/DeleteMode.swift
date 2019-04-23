@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum DeleteMode {
+public enum DeleteMode {
     case deep
     case shallow
 }

@@ -6,6 +6,7 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
+import BookPlayerKit
 import Foundation
 import IDZSwiftCommonCrypto
 import ZIPFoundation
@@ -15,8 +16,8 @@ import ZIPFoundation
  The new file maintains the extension of the original `URL`
  */
 
-class ImportOperation: Operation {
-    let files: [FileItem]
+public class ImportOperation: Operation {
+    public let files: [FileItem]
 
     init(files: [FileItem]) {
         self.files = files
@@ -67,7 +68,7 @@ class ImportOperation: Operation {
         try? FileManager.default.removeItem(at: file.originalUrl)
     }
 
-    override func main() {
+    public override func main() {
         for file in self.files {
             NotificationCenter.default.post(name: .processingFile, object: nil, userInfo: ["filename": file.originalUrl.lastPathComponent])
 

@@ -17,7 +17,7 @@ extension UIColor {
         - parameter hex:     The hex color, i.e. "FF0072" or "#FF0072".
         - parameter alpha:   The opacity of the color, value between [0,1]. Optional. Default: 1
     */
-    convenience init(hex: String, alpha: CGFloat = 1) {
+    public convenience init(hex: String, alpha: CGFloat = 1) {
         var hex = hex.replacingOccurrences(of: "#", with: "")
 
         guard hex.count == 3 || hex.count == 6 else {
@@ -232,7 +232,7 @@ extension UIColor {
 
         - returns: A CGFloat representing the relative luminosity.
     */
-    var luminance: CGFloat {
+    public var luminance: CGFloat {
         // http://www.w3.org/WAI/GL/WCAG20-TECHS/G18.html
 
         let RGBA = self.RGBA
@@ -493,7 +493,7 @@ extension UIColor {
 
         - returns: A UIColor clone with the new alpha.
     */
-    func withAlpha(newAlpha: CGFloat) -> UIColor {
+    public func withAlpha(newAlpha: CGFloat) -> UIColor {
         return self.withAlphaComponent(newAlpha)
     }
 
