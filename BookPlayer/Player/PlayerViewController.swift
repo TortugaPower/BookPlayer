@@ -110,17 +110,17 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     override func viewDidAppear(_ animated: Bool) {
-        if UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue) {
-            UIApplication.shared.isIdleTimerDisabled = true
-        }
+        self.updateAutolock()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         UIApplication.shared.isIdleTimerDisabled = false
+        UIDevice.current.isBatteryMonitoringEnabled = false
     }
 
     deinit {
         UIApplication.shared.isIdleTimerDisabled = false
+        UIDevice.current.isBatteryMonitoringEnabled = false
     }
 
     func setupView(book currentBook: Book) {
@@ -352,6 +352,26 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     override func accessibilityPerformEscape() -> Bool {
         self.dismissPlayer()
         return true
+    }
+
+    func updateAutolock() {
+        guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue) else { return }
+
+        guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered.rawValue) else {
+            UIApplication.shared.isIdleTimerDisabled = true
+            return
+        }
+
+        if !UIDevice.current.isBatteryMonitoringEnabled {
+            UIDevice.current.isBatteryMonitoringEnabled = true
+            NotificationCenter.default.addObserver(self, selector: #selector(self.onDeviceBatteryStateDidChange), name: UIDevice.batteryStateDidChangeNotification, object: nil)
+        }
+
+        UIApplication.shared.isIdleTimerDisabled = UIDevice.current.batteryState != .unplugged
+    }
+
+    @objc func onDeviceBatteryStateDidChange() {
+        self.updateAutolock()
     }
 }
 
