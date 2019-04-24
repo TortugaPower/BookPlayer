@@ -16,6 +16,8 @@ import UIKit
 class SettingsViewController: UITableViewController, MFMailComposeViewControllerDelegate {
     @IBOutlet weak var autoplayLibrarySwitch: UISwitch!
     @IBOutlet weak var disableAutolockSwitch: UISwitch!
+    @IBOutlet weak var autolockDisabledOnlyWhenPoweredSwitch: UISwitch!
+    @IBOutlet weak var autolockDisabledOnlyWhenPoweredLabel: UILabel!
     @IBOutlet weak var themeLabel: UILabel!
     @IBOutlet weak var appIconLabel: UILabel!
 
@@ -56,10 +58,14 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
 
         self.autoplayLibrarySwitch.addTarget(self, action: #selector(self.autoplayToggleDidChange), for: .valueChanged)
         self.disableAutolockSwitch.addTarget(self, action: #selector(self.disableAutolockDidChange), for: .valueChanged)
+        self.autolockDisabledOnlyWhenPoweredSwitch.addTarget(self, action: #selector(self.autolockOnlyWhenPoweredDidChange), for: .valueChanged)
 
         // Set initial switch positions
         self.autoplayLibrarySwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue), animated: false)
         self.disableAutolockSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue), animated: false)
+        self.autolockDisabledOnlyWhenPoweredSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered.rawValue), animated: false)
+        self.autolockDisabledOnlyWhenPoweredSwitch.isEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue)
+        self.autolockDisabledOnlyWhenPoweredLabel.isEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue)
 
         guard
             let version = Bundle.main.infoDictionary!["CFBundleShortVersionString"] as? String,
@@ -82,6 +88,12 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
 
     @objc func disableAutolockDidChange() {
         UserDefaults.standard.set(self.disableAutolockSwitch.isOn, forKey: Constants.UserDefaults.autolockDisabled.rawValue)
+        self.autolockDisabledOnlyWhenPoweredSwitch.isEnabled = self.disableAutolockSwitch.isOn
+        self.autolockDisabledOnlyWhenPoweredLabel.isEnabled = self.disableAutolockSwitch.isOn
+    }
+
+    @objc func autolockOnlyWhenPoweredDidChange() {
+        UserDefaults.standard.set(self.autolockDisabledOnlyWhenPoweredSwitch.isOn, forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered.rawValue)
     }
 
     @IBAction func done(_ sender: UIBarButtonItem) {
