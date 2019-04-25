@@ -7,6 +7,7 @@
 //
 
 import AVFoundation
+import BookPlayerKit
 import DirectoryWatcher
 import MediaPlayer
 import Sentry

@@ -8,6 +8,7 @@
 
 import AVFoundation
 import AVKit
+import BookPlayerKit
 import MediaPlayer
 import StoreKit
 import Themeable

@@ -28,7 +28,7 @@ enum SortError: Error {
         invalidType
 }
 
-enum PlayListSortOrder: String {
+public enum PlayListSortOrder: String {
     case metadataTitle = "title"
     case fileName = "originalFileName"
 }

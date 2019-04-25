@@ -24,15 +24,15 @@ extension UIColor {
         return String(format: "#%06x", rgb)
     }
 
-    static var playerControlsShadowColor: UIColor {
+    public static var playerControlsShadowColor: UIColor {
         return UIColor(hex: "545454")
     }
 
-    static var tintColor: UIColor {
+    public static var tintColor: UIColor {
         return UIColor(hex: "3488D1")
     }
 
-    static var textColor: UIColor {
+    public static var textColor: UIColor {
         return UIColor(hex: "37454E")
     }
 
@@ -52,7 +52,7 @@ extension UIColor {
     ///   - color: Color to be mixed into the current color
     ///   - amount: 0 - 1.0 of the color that should be mixed in
     /// - Returns: a new UIColor
-    func mix(with color: UIColor, amount: CGFloat = 0.5) -> UIColor {
+    public func mix(with color: UIColor, amount: CGFloat = 0.5) -> UIColor {
         let mainRGBA = self.RGBA
         let maskRGBA = color.RGBA
         let invertedAmount = 1.0 - amount

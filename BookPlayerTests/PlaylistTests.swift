@@ -7,6 +7,7 @@
 //
 
 @testable import BookPlayer
+@testable import BookPlayerKit
 import XCTest
 
 class PlaylistTests: XCTestCase {

@@ -6,6 +6,7 @@
 //  Copyright © 2017 Tortuga Power. All rights reserved.
 //
 
+import BookPlayerKit
 import DeviceKit
 import IntentsUI
 import MessageUI

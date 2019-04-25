@@ -1,9 +1,9 @@
 //
 //  Playlist+CoreDataClass.swift
-//  BookPlayer
+//  BookPlayerKit
 //
-//  Created by Gianni Carlo on 5/9/18.
-//  Copyright © 2018 Tortuga Power. All rights reserved.
+//  Created by Gianni Carlo on 4/23/19.
+//  Copyright © 2019 Tortuga Power. All rights reserved.
 //
 //
 
@@ -11,10 +11,11 @@ import CoreData
 import Foundation
 import UIKit
 
+@objc(Playlist)
 public class Playlist: LibraryItem {
     // MARK: - Properties
 
-    override var artwork: UIImage {
+    public override var artwork: UIImage {
         guard let books = self.books?.array as? [Book], let book = books.first(where: { (book) -> Bool in
             !book.usesDefaultArtwork
         }) else {
@@ -24,7 +25,7 @@ public class Playlist: LibraryItem {
         return book.artwork
     }
 
-    override func jumpToStart() {
+    public override func jumpToStart() {
         guard let books = self.books?.array as? [Book] else { return }
 
         for book in books {
@@ -32,7 +33,7 @@ public class Playlist: LibraryItem {
         }
     }
 
-    override func markAsFinished(_ flag: Bool) {
+    public override func markAsFinished(_ flag: Bool) {
         guard let books = self.books?.array as? [Book] else { return }
 
         for book in books {
@@ -75,7 +76,7 @@ public class Playlist: LibraryItem {
         return totalDuration
     }
 
-    override var progress: Double {
+    public override var progress: Double {
         guard let books = self.books?.array as? [Book] else {
             return 0.0
         }
@@ -97,13 +98,13 @@ public class Playlist: LibraryItem {
         return totalProgress / totalDuration
     }
 
-    func updateCompletionState() {
+    public func updateCompletionState() {
         guard let books = self.books?.array as? [Book] else { return }
         print(!books.contains(where: { !$0.isFinished }))
         self.isFinished = !books.contains(where: { !$0.isFinished })
     }
 
-    func hasBooks() -> Bool {
+    public func hasBooks() -> Bool {
         guard let books = self.books else {
             return false
         }
@@ -111,13 +112,13 @@ public class Playlist: LibraryItem {
         return books.count > 0
     }
 
-    func itemIndex(with url: URL) -> Int? {
+    public func itemIndex(with url: URL) -> Int? {
         let hash = url.lastPathComponent
 
         return self.itemIndex(with: hash)
     }
 
-    func itemIndex(with identifier: String) -> Int? {
+    public func itemIndex(with identifier: String) -> Int? {
         guard let books = self.books?.array as? [Book] else {
             return nil
         }
@@ -127,7 +128,7 @@ public class Playlist: LibraryItem {
         }
     }
 
-    func getBook(at index: Int) -> Book? {
+    public func getBook(at index: Int) -> Book? {
         guard let books = self.books?.array as? [Book] else {
             return nil
         }
@@ -135,7 +136,7 @@ public class Playlist: LibraryItem {
         return books[index]
     }
 
-    func getBook(with url: URL) -> Book? {
+    public func getBook(with url: URL) -> Book? {
         guard let index = self.itemIndex(with: url) else {
             return nil
         }
@@ -151,7 +152,7 @@ public class Playlist: LibraryItem {
         return self.getBook(at: index)
     }
 
-    override func getBookToPlay() -> Book? {
+    public override func getBookToPlay() -> Book? {
         guard let books = self.books else { return nil }
 
         for item in books {
@@ -182,7 +183,7 @@ public class Playlist: LibraryItem {
         return nil
     }
 
-    override func info() -> String {
+    public override func info() -> String {
         let count = self.books?.array.count ?? 0
 
         return "\(count) Files"
@@ -190,7 +191,7 @@ public class Playlist: LibraryItem {
 }
 
 extension Playlist: Sortable {
-    func sort(by sortType: PlayListSortOrder) {
+    public func sort(by sortType: PlayListSortOrder) {
         guard let books = books else { return }
         self.books = BookSortService.sort(books, by: sortType)
         DataManager.saveContext()

@@ -6,6 +6,7 @@
 //  Copyright © 2019 Tortuga Power. All rights reserved.
 //
 
+import BookPlayerKit
 import Themeable
 import UIKit
 
@@ -50,7 +51,7 @@ class PlusBannerView: UIView {
 }
 
 extension PlusBannerView: Themeable {
-    func applyTheme(_ theme: Theme) {
+    func applyTheme(_ theme: ThemeManager.Theme) {
         self.titleLabel.textColor = theme.primaryColor
         self.detailLabel.textColor = theme.detailColor
         self.moreButton.backgroundColor = theme.highlightColor

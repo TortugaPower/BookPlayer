@@ -1,9 +1,9 @@
 //
 //  LibraryItem+CoreDataClass.swift
-//  BookPlayer
+//  BookPlayerKit
 //
-//  Created by Gianni Carlo on 5/9/18.
-//  Copyright © 2018 Tortuga Power. All rights reserved.
+//  Created by Gianni Carlo on 4/23/19.
+//  Copyright © 2019 Tortuga Power. All rights reserved.
 //
 //
 
@@ -11,8 +11,9 @@ import CoreData
 import Foundation
 import UIKit
 
+@objc(LibraryItem)
 public class LibraryItem: NSManagedObject {
-    var artwork: UIImage {
+    public var artwork: UIImage {
         if let cachedArtwork = self.cachedArtwork {
             return cachedArtwork
         }
@@ -25,19 +26,19 @@ public class LibraryItem: NSManagedObject {
         return self.cachedArtwork!
     }
 
-    func info() -> String { return "" }
+    public func info() -> String { return "" }
 
     var cachedArtwork: UIImage?
 
-    func getBookToPlay() -> Book? {
+    public func getBookToPlay() -> Book? {
         return nil
     }
 
-    var progress: Double {
+    public var progress: Double {
         return 1.0
     }
 
-    func jumpToStart() {}
+    public func jumpToStart() {}
 
-    func markAsFinished(_ flag: Bool) {}
+    public func markAsFinished(_ flag: Bool) {}
 }

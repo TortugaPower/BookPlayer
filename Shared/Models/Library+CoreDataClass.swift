@@ -1,17 +1,18 @@
 //
-//  LibraryCoreDataClass.swift
-//  BookPlayer
+//  Library+CoreDataClass.swift
+//  BookPlayerKit
 //
-//  Created by Gianni Carlo on 5/9/18.
-//  Copyright © 2018 Tortuga Power. All rights reserved.
+//  Created by Gianni Carlo on 4/23/19.
+//  Copyright © 2019 Tortuga Power. All rights reserved.
 //
 //
 
 import CoreData
 import Foundation
 
+@objc(Library)
 public class Library: NSManagedObject {
-    var itemsArray: [LibraryItem] {
+    public var itemsArray: [LibraryItem] {
         return self.items?.array as? [LibraryItem] ?? []
     }
 
@@ -41,7 +42,7 @@ public class Library: NSManagedObject {
         return nil
     }
 
-    func itemIndex(with url: URL) -> Int? {
+    public func itemIndex(with url: URL) -> Int? {
         let hash = url.lastPathComponent
 
         return self.itemIndex(with: hash)
@@ -55,7 +56,7 @@ public class Library: NSManagedObject {
         return items[index]
     }
 
-    func getItem(with url: URL) -> LibraryItem? {
+    public func getItem(with url: URL) -> LibraryItem? {
         guard let index = self.itemIndex(with: url) else {
             return nil
         }
@@ -63,7 +64,7 @@ public class Library: NSManagedObject {
         return self.getItem(at: index)
     }
 
-    func getItem(with identifier: String) -> LibraryItem? {
+    public func getItem(with identifier: String) -> LibraryItem? {
         guard let index = self.itemIndex(with: identifier) else {
             return nil
         }
@@ -90,7 +91,7 @@ public class Library: NSManagedObject {
 }
 
 extension Library: Sortable {
-    func sort(by sortType: PlayListSortOrder) {
+    public func sort(by sortType: PlayListSortOrder) {
         guard let items = items else { return }
         self.items = BookSortService.sort(items, by: sortType)
         DataManager.saveContext()

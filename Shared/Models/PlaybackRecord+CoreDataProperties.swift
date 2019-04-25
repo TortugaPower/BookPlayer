@@ -1,8 +1,8 @@
 //
 //  PlaybackRecord+CoreDataProperties.swift
-//  BookPlayer
+//  BookPlayerKit
 //
-//  Created by Gianni Carlo on 4/5/19.
+//  Created by Gianni Carlo on 4/23/19.
 //  Copyright © 2019 Tortuga Power. All rights reserved.
 //
 //
