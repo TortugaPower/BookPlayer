@@ -23,6 +23,7 @@ extension Library {
     @NSManaged public var extractedThemes: NSOrderedSet?
     @NSManaged public var currentTheme: Theme!
     @NSManaged public var items: NSOrderedSet?
+    @NSManaged public var lastPlayedBook: Book?
 }
 
 // MARK: Generated accessors for items

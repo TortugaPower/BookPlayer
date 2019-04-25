@@ -10,7 +10,7 @@ enum Constants {
         case autoplayEnabled = "userSettingsAutoplay"
     }
 
-    static let ApplicationGroupIdentifier = "group." + Bundle.main.bundleIdentifier! + ".files"
+    static let ApplicationGroupIdentifier = "group.com.tortugapower.audiobookplayer.files"
 
     enum DefaultArtworkColors {
         case background
