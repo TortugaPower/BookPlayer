@@ -6,17 +6,15 @@
 //  Copyright © 2019 Tortuga Power. All rights reserved.
 //
 
-import WatchKit
 import Foundation
 import UserNotifications
-
+import WatchKit
 
 class NotificationController: WKUserNotificationInterfaceController {
-
     override init() {
         // Initialize variables here.
         super.init()
-        
+
         // Configure interface objects here.
     }
 
