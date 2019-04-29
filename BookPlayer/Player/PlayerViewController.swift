@@ -14,6 +14,8 @@ import StoreKit
 import Themeable
 import UIKit
 
+// swiftlint:disable file_length
+
 class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet private weak var closeButton: UIButton!
     @IBOutlet private weak var closeButtonTop: NSLayoutConstraint!
@@ -111,10 +113,14 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
         self.updateAutolock()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
         UIApplication.shared.isIdleTimerDisabled = false
         UIDevice.current.isBatteryMonitoringEnabled = false
     }
@@ -183,82 +189,6 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     override var preferredStatusBarStyle: UIStatusBarStyle {
         let style = self.currentBook.artworkColors.useDarkVariant ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
         return self.themedStatusBarStyle ?? style
-    }
-
-    // MARK: - Interface actions
-
-    @IBAction func dismissPlayer() {
-        self.dismiss(animated: true, completion: nil)
-
-        NotificationCenter.default.post(name: .playerDismissed, object: nil, userInfo: nil)
-    }
-
-    // MARK: - Toolbar actions
-
-    @IBAction func setSpeed() {
-        let actionSheet = UIAlertController(title: nil, message: "Set playback speed", preferredStyle: .actionSheet)
-
-        for speed in PlayerManager.speedOptions {
-            if speed == PlayerManager.shared.speed {
-                actionSheet.addAction(UIAlertAction(title: "\u{00A0} \(speed) ✓", style: .default, handler: nil))
-            } else {
-                actionSheet.addAction(UIAlertAction(title: "\(speed)", style: .default, handler: { _ in
-                    PlayerManager.shared.speed = speed
-
-                    self.speedButton.title = self.formatSpeed(speed)
-                }))
-            }
-        }
-
-        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-
-        self.present(actionSheet, animated: true, completion: nil)
-    }
-
-    @IBAction func setSleepTimer() {
-        let actionSheet = SleepTimer.shared.actionSheet(onStart: {
-            self.updateToolbar(true, animated: true)
-        },
-                                                        onProgress: { (timeLeft: Double) -> Void in
-            self.sleepLabel.title = SleepTimer.shared.durationFormatter.string(from: timeLeft)
-            if let timeLeft = SleepTimer.shared.durationFormatter.string(from: timeLeft) {
-                self.sleepLabel.accessibilityLabel = String(describing: timeLeft + " remaining until sleep")
-            }
-        },
-                                                        onEnd: { (_ cancelled: Bool) -> Void in
-            if !cancelled {
-                PlayerManager.shared.pause()
-            }
-
-            self.sleepLabel.title = ""
-            self.updateToolbar(false, animated: true)
-        })
-
-        self.present(actionSheet, animated: true, completion: nil)
-    }
-
-    @IBAction func showMore() {
-        guard PlayerManager.shared.isLoaded else {
-            return
-        }
-
-        let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-
-        actionSheet.addAction(UIAlertAction(title: "Jump To Start", style: .default, handler: { _ in
-            PlayerManager.shared.pause()
-            PlayerManager.shared.jumpTo(0.0)
-        }))
-
-        let markTitle = self.currentBook.isFinished ? "Mark as Unfinished" : "Mark as Finished"
-
-        actionSheet.addAction(UIAlertAction(title: markTitle, style: .default, handler: { _ in
-            PlayerManager.shared.pause()
-            PlayerManager.shared.markAsCompleted(!self.currentBook.isFinished)
-        }))
-
-        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-
-        self.present(actionSheet, animated: true, completion: nil)
     }
 
     // MARK: - Other Methods
@@ -373,6 +303,86 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
     @objc func onDeviceBatteryStateDidChange() {
         self.updateAutolock()
+    }
+}
+
+// MARK: - Actions
+
+extension PlayerViewController {
+    // MARK: - Interface actions
+
+    @IBAction func dismissPlayer() {
+        self.dismiss(animated: true, completion: nil)
+
+        NotificationCenter.default.post(name: .playerDismissed, object: nil, userInfo: nil)
+    }
+
+    // MARK: - Toolbar actions
+
+    @IBAction func setSpeed() {
+        let actionSheet = UIAlertController(title: nil, message: "Set playback speed", preferredStyle: .actionSheet)
+
+        for speed in PlayerManager.speedOptions {
+            if speed == PlayerManager.shared.speed {
+                actionSheet.addAction(UIAlertAction(title: "\u{00A0} \(speed) ✓", style: .default, handler: nil))
+            } else {
+                actionSheet.addAction(UIAlertAction(title: "\(speed)", style: .default, handler: { _ in
+                    PlayerManager.shared.speed = speed
+
+                    self.speedButton.title = self.formatSpeed(speed)
+                }))
+            }
+        }
+
+        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+
+        self.present(actionSheet, animated: true, completion: nil)
+    }
+
+    @IBAction func setSleepTimer() {
+        let actionSheet = SleepTimer.shared.actionSheet(onStart: {
+            self.updateToolbar(true, animated: true)
+        },
+                                                        onProgress: { (timeLeft: Double) -> Void in
+            self.sleepLabel.title = SleepTimer.shared.durationFormatter.string(from: timeLeft)
+            if let timeLeft = SleepTimer.shared.durationFormatter.string(from: timeLeft) {
+                self.sleepLabel.accessibilityLabel = String(describing: timeLeft + " remaining until sleep")
+            }
+        },
+                                                        onEnd: { (_ cancelled: Bool) -> Void in
+            if !cancelled {
+                PlayerManager.shared.pause()
+            }
+
+            self.sleepLabel.title = ""
+            self.updateToolbar(false, animated: true)
+        })
+
+        self.present(actionSheet, animated: true, completion: nil)
+    }
+
+    @IBAction func showMore() {
+        guard PlayerManager.shared.isLoaded else {
+            return
+        }
+
+        let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+
+        actionSheet.addAction(UIAlertAction(title: "Jump To Start", style: .default, handler: { _ in
+            PlayerManager.shared.pause()
+            PlayerManager.shared.jumpTo(0.0)
+        }))
+
+        let markTitle = self.currentBook.isFinished ? "Mark as Unfinished" : "Mark as Finished"
+
+        actionSheet.addAction(UIAlertAction(title: markTitle, style: .default, handler: { _ in
+            PlayerManager.shared.pause()
+            PlayerManager.shared.markAsCompleted(!self.currentBook.isFinished)
+        }))
+
+        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+
+        self.present(actionSheet, animated: true, completion: nil)
     }
 }
 

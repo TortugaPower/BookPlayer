@@ -77,13 +77,32 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // Also handles custom URL scheme 'bookplayer://'
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
         guard url.isFileURL else {
-            self.playLastBook()
+            self.handleCustomURL(url)
             return true
         }
 
         DataManager.processFile(at: url)
 
         return true
+    }
+
+    func handleCustomURL(_ url: URL) {
+        guard let action = CommandParser.parse(url) else { return }
+
+        for parameter in action.parameters {
+            guard parameter.name == "showPlayer",
+                let value = parameter.value,
+                let showPlayer = Bool(value),
+                showPlayer == true else {
+                continue
+            }
+
+            self.showPlayer()
+        }
+
+        guard action.command != .open else { return }
+
+        self.playLastBook()
     }
 
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
@@ -120,14 +139,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
         self.playLastBook()
-    }
-
-    func playLastBook() {
-        if PlayerManager.shared.isLoaded {
-            PlayerManager.shared.play()
-        } else {
-            UserDefaults.standard.set(true, forKey: Constants.UserActivityPlayback)
-        }
     }
 
     // Playback may be interrupted by calls. Handle pause
@@ -281,6 +292,35 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         SwiftyStoreKit.shouldAddStorePaymentHandler = { _, _ in
             true
+        }
+    }
+}
+
+// MARK: - Actions (custom scheme)
+
+extension AppDelegate {
+    func playLastBook() {
+        if PlayerManager.shared.isLoaded {
+            PlayerManager.shared.play()
+        } else {
+            UserDefaults.standard.set(true, forKey: Constants.UserActivityPlayback)
+        }
+    }
+
+    func showPlayer() {
+        if PlayerManager.shared.isLoaded {
+            guard let rootVC = UIApplication.shared.keyWindow?.rootViewController! as? RootViewController,
+                let appNav = rootVC.children.first as? AppNavigationController,
+                let libraryVC = appNav.children.first as? LibraryViewController,
+                let book = PlayerManager.shared.currentBook else {
+                return
+            }
+
+            appNav.dismiss(animated: true, completion: nil)
+
+            libraryVC.showPlayerView(book: book)
+        } else {
+            UserDefaults.standard.set(true, forKey: Constants.UserDefaults.showPlayer.rawValue)
         }
     }
 }

@@ -21,6 +21,7 @@ extension Book {
     @NSManaged public var chapters: NSOrderedSet?
     @NSManaged public var playlist: Playlist?
     @NSManaged public var artworkColors: Theme!
+    @NSManaged public var lastPlayed: Library?
 }
 
 // MARK: Generated accessors for chapters
