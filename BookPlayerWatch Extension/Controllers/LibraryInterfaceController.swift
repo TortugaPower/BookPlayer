@@ -26,6 +26,7 @@ class LibraryInterfaceController: WKInterfaceController {
     @IBOutlet weak var libraryTableView: WKInterfaceTable!
     @IBOutlet var spacerGroupView: WKInterfaceGroup!
     @IBOutlet weak var playlistTableView: WKInterfaceTable!
+    @IBOutlet weak var refreshButton: WKInterfaceButton!
 
     var library: Library!
 
@@ -101,6 +102,7 @@ class LibraryInterfaceController: WKInterfaceController {
     }
 
     func setupLibraryTable() {
+        self.refreshButton.setHidden(!self.items.isEmpty)
         self.libraryTableView.setNumberOfRows(self.items.count, withRowType: "LibraryRow")
 
         for (index, item) in self.items.enumerated() {

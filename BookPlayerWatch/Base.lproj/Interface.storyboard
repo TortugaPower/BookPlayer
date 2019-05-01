@@ -100,6 +100,11 @@
                                 </tableRow>
                             </items>
                         </table>
+                        <button width="0.80000000000000004" alignment="center" verticalAlignment="bottom" title="Refresh data" id="al1-db-2vE">
+                            <connections>
+                                <action selector="refreshLibrary" destination="QM5-8D-laz" id="yk1-8F-Dog"/>
+                            </connections>
+                        </button>
                         <group width="1" height="0.0" alignment="left" id="68o-8y-3Sm"/>
                         <table alignment="left" hidden="YES" id="ary-Yf-A5N">
                             <items>
@@ -135,6 +140,7 @@
                         <outlet property="libraryTableView" destination="359-Ii-gJY" id="ndi-8O-I4L"/>
                         <outlet property="playlistHeader" destination="NLj-ci-szw" id="kao-zU-acq"/>
                         <outlet property="playlistTableView" destination="ary-Yf-A5N" id="FCh-I6-QjF"/>
+                        <outlet property="refreshButton" destination="al1-db-2vE" id="KEx-BC-Ept"/>
                         <outlet property="separatorLastBookView" destination="0gO-6t-1Tq" id="Zqp-6R-fCx"/>
                         <outlet property="separatorView" destination="AYB-kc-mzC" id="a5u-cr-r0s"/>
                         <outlet property="spacerGroupView" destination="68o-8y-3Sm" id="NAX-xi-W3d"/>
