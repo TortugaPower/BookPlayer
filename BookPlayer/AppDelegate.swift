@@ -53,6 +53,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // register to audio-route-change notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioRouteChange(_:)), name: AVAudioSession.routeChangeNotification, object: nil)
 
+        // update last played book on watch app
+        NotificationCenter.default.addObserver(self, selector: #selector(self.sendApplicationContext), name: .bookPlayed, object: nil)
+
         // register for remote events
         self.setupMPRemoteCommands()
         // register document's folder listener
@@ -338,7 +341,9 @@ extension AppDelegate: WCSessionDelegate {
         self.sendApplicationContext()
     }
 
-    func sendApplicationContext() {
+    @objc func sendApplicationContext() {
+        guard WatchConnectivityService.sharedManager.validReachableSession != nil else { return }
+
         let library = DataManager.getLibrary()
 
         guard let jsonData = try? JSONEncoder().encode(library) else {

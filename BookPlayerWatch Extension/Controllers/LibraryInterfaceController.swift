@@ -85,11 +85,13 @@ class LibraryInterfaceController: WKInterfaceController {
         guard let book = self.library.lastPlayedBook else {
             self.lastBookTableView.setHidden(true)
             self.lastBookHeaderTitle.setHidden(true)
+            self.separatorLastBookView.setHidden(true)
             return
         }
 
         self.lastBookTableView.setHidden(false)
         self.lastBookHeaderTitle.setHidden(false)
+        self.separatorLastBookView.setHidden(false)
 
         self.lastBookTableView.setNumberOfRows(1, withRowType: "LibraryRow")
 
