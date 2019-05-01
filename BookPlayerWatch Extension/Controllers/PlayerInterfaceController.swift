@@ -1,19 +1,22 @@
 //
-//  InterfaceController.swift
+//  PlayerInterfaceController.swift
 //  BookPlayerWatch Extension
 //
-//  Created by Gianni Carlo on 4/25/19.
+//  Created by Gianni Carlo on 4/26/19.
 //  Copyright © 2019 Tortuga Power. All rights reserved.
 //
 
-import Foundation
 import WatchKit
 
-class InterfaceController: WKInterfaceController {
+class PlayerInterfaceController: WKInterfaceController {
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
 
-        // Configure interface objects here.
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bookPlayedNotification), name: .bookPlayed, object: nil)
+    }
+
+    @objc func bookPlayedNotification() {
+        super.becomeCurrentPage()
     }
 
     override func willActivate() {

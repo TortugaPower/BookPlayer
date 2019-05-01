@@ -8,11 +8,13 @@
 
 import AVFoundation
 import BookPlayerKit
+import CoreData
 import DirectoryWatcher
 import MediaPlayer
 import Sentry
 import SwiftyStoreKit
 import UIKit
+import WatchConnectivity
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -70,6 +72,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         Client.shared = try? Client(dsn: "https://23b4d02f7b044c10adb55a0cc8de3881@sentry.io/1414296")
         ((try? Client.shared?.startCrashHandler()) as ()??)
 
+        WatchConnectivityService.sharedManager.startSession(self)
+
         return true
     }
 
@@ -89,6 +93,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func handleCustomURL(_ url: URL) {
         guard let action = CommandParser.parse(url) else { return }
 
+        self.handleAction(action)
+    }
+
+    func handleAction(_ action: Action) {
         for parameter in action.parameters {
             guard parameter.name == "showPlayer",
                 let value = parameter.value,
@@ -322,6 +330,51 @@ extension AppDelegate {
         } else {
             UserDefaults.standard.set(true, forKey: Constants.UserDefaults.showPlayer.rawValue)
         }
+    }
+}
+
+extension AppDelegate: WCSessionDelegate {
+    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
+        self.sendApplicationContext()
+    }
+
+    func sendApplicationContext() {
+        let library = DataManager.getLibrary()
+
+        guard let jsonData = try? JSONEncoder().encode(library) else {
+            return
+        }
+
+        try? WatchConnectivityService.sharedManager.updateApplicationContext(applicationContext: ["library": jsonData as AnyObject])
+    }
+
+    func sessionDidBecomeInactive(_ session: WCSession) {}
+
+    func sessionDidDeactivate(_ session: WCSession) {}
+
+    func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
+        DispatchQueue.main.async {
+            guard let bookIdentifier = message["identifier"] as? String else { return }
+
+            let library = DataManager.getLibrary()
+
+            guard let book = DataManager.getBook(with: bookIdentifier, from: library) else { return }
+
+            guard let rootVC = UIApplication.shared.keyWindow?.rootViewController! as? RootViewController,
+                let appNav = rootVC.children.first as? AppNavigationController,
+                let libraryVC = appNav.children.first as? LibraryViewController else {
+                return
+            }
+
+            libraryVC.setupPlayer(book: book)
+            NotificationCenter.default.post(name: .bookChange,
+                                            object: nil,
+                                            userInfo: ["book": book])
+        }
+    }
+
+    func session(_ session: WCSession, didReceiveMessage message: [String: Any], replyHandler: @escaping ([String: Any]) -> Void) {
+        self.session(session, didReceiveMessage: message)
     }
 }
 

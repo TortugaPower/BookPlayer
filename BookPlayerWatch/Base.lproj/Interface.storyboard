@@ -1,17 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="14256" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="AgC-eL-Hgc">
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="14490.70" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="QM5-8D-laz">
+    <device id="watch38" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14243"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="14219"/>
+        <deployment identifier="watchOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="14490.21"/>
     </dependencies>
     <scenes>
-        <!--Interface Controller-->
-        <scene sceneID="aou-V4-d1y">
-            <objects>
-                <controller id="AgC-eL-Hgc" customClass="InterfaceController" customModuleProvider="target"/>
-            </objects>
-            <point key="canvasLocation" x="220" y="345"/>
-        </scene>
         <!--Static Notification Interface Controller-->
         <scene sceneID="AEw-b0-oYE">
             <objects>
@@ -32,16 +29,122 @@
         <!--Notification Controller-->
         <scene sceneID="ZPc-GJ-vnh">
             <objects>
-                <controller id="4sK-HA-Art" customClass="NotificationController" customModuleProvider="target"/>
+                <controller id="4sK-HA-Art" customClass="NotificationController" customModule="BookPlayerWatch" customModuleProvider="target"/>
             </objects>
-            <point key="canvasLocation" x="468" y="643"/>
+            <point key="canvasLocation" x="220" y="999"/>
         </scene>
         <!--Notification Controller-->
         <scene sceneID="Niz-AI-uX2">
             <objects>
-                <controller id="eXb-UN-Cd0" customClass="NotificationController" customModuleProvider="target"/>
+                <controller id="eXb-UN-Cd0" customClass="NotificationController" customModule="BookPlayerWatch" customModuleProvider="target"/>
             </objects>
-            <point key="canvasLocation" x="468" y="345"/>
+            <point key="canvasLocation" x="481" y="643"/>
+        </scene>
+        <!--BookPlayer-->
+        <scene sceneID="GE8-rx-1kP">
+            <objects>
+                <controller identifier="LibraryInterfaceController" title="BookPlayer" id="QM5-8D-laz" customClass="LibraryInterfaceController" customModule="BookPlayerWatch_Extension">
+                    <items>
+                        <label alignment="left" text="Last Book" id="ca5-9U-ouW"/>
+                        <separator alignment="left" id="0gO-6t-1Tq"/>
+                        <table alignment="left" id="cZw-6O-kYn">
+                            <items>
+                                <tableRow identifier="LibraryRow" id="u6y-b1-ZGR" customClass="ItemRow" customModule="BookPlayerWatch_Extension">
+                                    <group key="rootItem" width="1" alignment="left" id="XaB-AJ-1Tq">
+                                        <items>
+                                            <label height="46" alignment="left" text="The Rise and Fall of DODO" numberOfLines="2" id="5Rv-dO-kmE">
+                                                <fontDescription key="font" style="UICTFontTextStyleCaption1"/>
+                                            </label>
+                                        </items>
+                                    </group>
+                                    <connections>
+                                        <outlet property="titleLabel" destination="5Rv-dO-kmE" id="UJ4-kO-Ug5"/>
+                                    </connections>
+                                </tableRow>
+                            </items>
+                        </table>
+                        <group width="1" alignment="left" layout="vertical" id="NLj-ci-szw">
+                            <items>
+                                <button alignment="left" verticalAlignment="bottom" id="dKq-iE-sVE">
+                                    <group key="contentGroup" width="1" height="29" alignment="left" id="q4w-Je-tXR">
+                                        <items>
+                                            <imageView width="0.20000000000000001" height="0.69999999999999996" alignment="left" verticalAlignment="bottom" hidden="YES" image="back-button" contentMode="scaleAspectFit" id="Ak8-Mj-0aS"/>
+                                            <label width="0.90000000000000002" height="0.69999999999999996" alignment="left" verticalAlignment="bottom" text="Library" id="ADV-ZG-nsR"/>
+                                        </items>
+                                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </group>
+                                    <connections>
+                                        <action selector="collapsePlaylist" destination="QM5-8D-laz" id="Fwo-su-veg"/>
+                                    </connections>
+                                </button>
+                                <separator alignment="left" verticalAlignment="bottom" id="AYB-kc-mzC"/>
+                            </items>
+                        </group>
+                        <table alignment="left" id="359-Ii-gJY">
+                            <items>
+                                <tableRow identifier="LibraryRow" id="9kF-xw-px1" customClass="ItemRow" customModule="BookPlayerWatch_Extension">
+                                    <group key="rootItem" width="1" alignment="left" id="oKY-4H-fJA">
+                                        <items>
+                                            <label height="46" alignment="left" text="The Rise and Fall of DODO" numberOfLines="2" id="rmb-Ke-zoW">
+                                                <fontDescription key="font" style="UICTFontTextStyleCaption1"/>
+                                            </label>
+                                            <imageView width="0.20000000000000001" height="0.29999999999999999" alignment="right" verticalAlignment="center" image="detail-icon" contentMode="scaleAspectFit" id="nDF-un-Uas">
+                                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            </imageView>
+                                        </items>
+                                    </group>
+                                    <connections>
+                                        <outlet property="detailImage" destination="nDF-un-Uas" id="4hu-o6-F2Y"/>
+                                        <outlet property="titleLabel" destination="rmb-Ke-zoW" id="XVk-7F-WqH"/>
+                                    </connections>
+                                </tableRow>
+                            </items>
+                        </table>
+                        <group width="1" height="0.0" alignment="left" id="68o-8y-3Sm"/>
+                        <table alignment="left" hidden="YES" id="ary-Yf-A5N">
+                            <items>
+                                <tableRow identifier="PlaylistRow" id="SaB-cA-Tfi" customClass="ItemRow" customModule="BookPlayerWatch_Extension">
+                                    <group key="rootItem" width="1" alignment="left" id="ZH0-Ti-O8d">
+                                        <items>
+                                            <label height="46" alignment="left" text="The Rise and Fall of DODO" numberOfLines="2" id="rko-94-G0i">
+                                                <fontDescription key="font" style="UICTFontTextStyleCaption1"/>
+                                            </label>
+                                        </items>
+                                    </group>
+                                    <connections>
+                                        <outlet property="titleLabel" destination="rko-94-G0i" id="C6A-H1-DWI"/>
+                                    </connections>
+                                </tableRow>
+                            </items>
+                        </table>
+                    </items>
+                    <connections>
+                        <outlet property="backImage" destination="Ak8-Mj-0aS" id="uaE-C9-Ze3"/>
+                        <outlet property="lastBookHeaderTitle" destination="ca5-9U-ouW" id="qej-l2-vAh"/>
+                        <outlet property="lastBookTableView" destination="cZw-6O-kYn" id="QUl-kq-6f9"/>
+                        <outlet property="libraryHeaderTitle" destination="ADV-ZG-nsR" id="pRp-Nw-dpm"/>
+                        <outlet property="libraryTableView" destination="359-Ii-gJY" id="ndi-8O-I4L"/>
+                        <outlet property="playlistHeader" destination="NLj-ci-szw" id="kao-zU-acq"/>
+                        <outlet property="playlistTableView" destination="ary-Yf-A5N" id="FCh-I6-QjF"/>
+                        <outlet property="separatorLastBookView" destination="0gO-6t-1Tq" id="Zqp-6R-fCx"/>
+                        <outlet property="separatorView" destination="AYB-kc-mzC" id="a5u-cr-r0s"/>
+                        <outlet property="spacerGroupView" destination="68o-8y-3Sm" id="NAX-xi-W3d"/>
+                        <segue destination="48J-jx-79t" kind="relationship" relationship="nextPage" id="5wJ-np-VSg"/>
+                    </connections>
+                </controller>
+            </objects>
+            <point key="canvasLocation" x="220" y="345"/>
+        </scene>
+        <!--PlayerInterfaceController-->
+        <scene sceneID="guj-ny-cl0">
+            <objects>
+                <controller identifier="PlayerInterfaceController" id="48J-jx-79t" customClass="PlayerInterfaceController" customModule="BookPlayerWatch_Extension">
+                    <items>
+                        <nowPlayingView alignment="left" id="tih-2p-MBz"/>
+                    </items>
+                </controller>
+            </objects>
+            <point key="canvasLocation" x="481" y="345"/>
         </scene>
     </scenes>
 </document>

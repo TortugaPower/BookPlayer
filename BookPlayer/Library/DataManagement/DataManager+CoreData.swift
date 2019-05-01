@@ -96,4 +96,64 @@ extension DataManager {
     public class func insertBooks(from files: [FileItem], into playlist: Playlist, completion: @escaping () -> Void) {
         self.insertBooks(from: files, into: playlist, or: playlist.library!, completion: completion)
     }
+
+    public class func delete(_ items: [LibraryItem], mode: DeleteMode = .deep) {
+        for item in items {
+            guard let playlist = item as? Playlist else {
+                // swiftlint:disable force_cast
+                self.delete(item as! Book, mode: mode)
+                continue
+            }
+
+            self.delete(playlist, mode: mode)
+        }
+    }
+
+    public class func delete(_ playlist: Playlist, mode: DeleteMode = .deep) {
+        guard let library = playlist.library else { return }
+
+        if mode == .shallow,
+            let orderedSet = playlist.books {
+            library.addToItems(orderedSet)
+        }
+
+        // swiftlint:disable force_cast
+        for book in playlist.books?.array as! [Book] {
+            guard mode == .deep else { continue }
+            self.delete(book, mode: .deep)
+        }
+
+        library.removeFromItems(playlist)
+
+        self.delete(playlist)
+    }
+
+    public class func delete(_ book: Book, mode: DeleteMode) {
+        guard mode == .deep else {
+            if let playlist = book.playlist,
+                let library = playlist.library {
+                library.addToItems(book)
+
+                playlist.removeFromBooks(book)
+
+                self.saveContext()
+            }
+
+            return
+        }
+
+        if book == PlayerManager.shared.currentBook {
+            PlayerManager.shared.stop()
+        }
+
+        let fileURL = book.fileURL
+
+        DispatchQueue.global().async {
+            if let fileURL = fileURL {
+                try? FileManager.default.removeItem(at: fileURL)
+            }
+        }
+
+        self.delete(book)
+    }
 }

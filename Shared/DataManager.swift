@@ -72,6 +72,14 @@ public class DataManager {
         }
     }
 
+    public class func getContext() -> NSManagedObjectContext {
+        return self.persistentContainer.viewContext
+    }
+
+    public class func getBackgroundContext() -> NSManagedObjectContext {
+        return self.persistentContainer.newBackgroundContext()
+    }
+
     // MARK: - Models handler
 
     /**
@@ -103,7 +111,7 @@ public class DataManager {
     /**
      Gets a stored book from an identifier.
      */
-    class func getBook(with identifier: String, from library: Library) -> Book? {
+    public class func getBook(with identifier: String, from library: Library) -> Book? {
         guard let item = library.getItem(with: identifier) else {
             return nil
         }
@@ -128,70 +136,9 @@ public class DataManager {
         self.saveContext()
     }
 
-    class func delete(_ item: NSManagedObject) {
+    public class func delete(_ item: NSManagedObject) {
         self.persistentContainer.viewContext.delete(item)
         self.saveContext()
-    }
-
-    public class func delete(_ items: [LibraryItem], mode: DeleteMode = .deep) {
-        for item in items {
-            guard let playlist = item as? Playlist else {
-                // swiftlint:disable force_cast
-                self.delete(item as! Book, mode: mode)
-                continue
-            }
-
-            self.delete(playlist, mode: mode)
-        }
-    }
-
-    public class func delete(_ playlist: Playlist, mode: DeleteMode = .deep) {
-        guard let library = playlist.library else { return }
-
-        if mode == .shallow,
-            let orderedSet = playlist.books {
-            library.addToItems(orderedSet)
-        }
-
-        // swiftlint:disable force_cast
-        for book in playlist.books?.array as! [Book] {
-            guard mode == .deep else { continue }
-            self.delete(book)
-        }
-
-        library.removeFromItems(playlist)
-
-        self.delete(playlist)
-    }
-
-    public class func delete(_ book: Book, mode: DeleteMode = .deep) {
-        guard mode == .deep else {
-            if let playlist = book.playlist,
-                let library = playlist.library {
-                library.addToItems(book)
-
-                playlist.removeFromBooks(book)
-
-                self.saveContext()
-            }
-
-            return
-        }
-
-        // TODO: handle this somewhere else
-//        if book == PlayerManager.shared.currentBook {
-//            PlayerManager.shared.stop()
-//        }
-
-        let fileURL = book.fileURL
-
-        DispatchQueue.global().async {
-            if let fileURL = fileURL {
-                try? FileManager.default.removeItem(at: fileURL)
-            }
-        }
-
-        self.delete(book)
     }
 
     public class func jumpToStart(_ item: LibraryItem) {

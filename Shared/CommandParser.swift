@@ -12,7 +12,7 @@ public class CommandParser {
     public class func parse(_ url: URL) -> Action? {
         guard let host = url.host else {
             // Maintain empty action as Play
-            return Action(command: .play, parameters: [])
+            return Action(command: .play)
         }
 
         var parameters = [URLQueryItem]()
@@ -48,4 +48,9 @@ public enum Command: String {
 public struct Action {
     public var command: Command
     public var parameters: [URLQueryItem]
+
+    public init(command: Command, parameters: [URLQueryItem]? = []) {
+        self.command = command
+        self.parameters = parameters ?? []
+    }
 }
