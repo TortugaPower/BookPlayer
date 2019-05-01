@@ -354,6 +354,13 @@ extension AppDelegate: WCSessionDelegate {
 
     func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
         DispatchQueue.main.async {
+            guard let command = message["command"] as? String else { return }
+
+            if command == "refresh" {
+                self.sendApplicationContext()
+                return
+            }
+
             guard let bookIdentifier = message["identifier"] as? String else { return }
 
             let library = DataManager.getLibrary()

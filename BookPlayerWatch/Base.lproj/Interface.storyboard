@@ -118,6 +118,15 @@
                             </items>
                         </table>
                     </items>
+                    <menu key="menu" id="1VP-39-AaC">
+                        <items>
+                            <menuItem title="Refresh data" icon="resume" id="g2n-gJ-plR">
+                                <connections>
+                                    <action selector="refreshLibrary" destination="QM5-8D-laz" id="fr6-d3-Aml"/>
+                                </connections>
+                            </menuItem>
+                        </items>
+                    </menu>
                     <connections>
                         <outlet property="backImage" destination="Ak8-Mj-0aS" id="uaE-C9-Ze3"/>
                         <outlet property="lastBookHeaderTitle" destination="ca5-9U-ouW" id="qej-l2-vAh"/>

@@ -181,6 +181,18 @@ class LibraryInterfaceController: WKInterfaceController {
             }
         })
     }
+
+    @IBAction func refreshLibrary() {
+        guard WatchConnectivityService.sharedManager.validReachableSession != nil else {
+            let okAction = WKAlertAction(title: "Ok", style: .default) {}
+            self.presentAlert(withTitle: "Connectivity Error", message: "There's a problem connecting to your phone, please try again later.", preferredStyle: .alert, actions: [okAction])
+            return
+        }
+
+        let message: [String: AnyObject] = ["command": "refresh" as AnyObject]
+
+        WatchConnectivityService.sharedManager.sendMessage(message: message)
+    }
 }
 
 extension WKInterfaceController {
