@@ -12,8 +12,11 @@ import WatchKit
 class PlayerInterfaceController: WKInterfaceController {
     @IBOutlet weak var titleLabel: WKInterfaceLabel!
     @IBOutlet weak var authorLabel: WKInterfaceLabel!
+    @IBOutlet weak var rewindButton: WKInterfaceButton!
     @IBOutlet weak var rewindLabel: WKInterfaceLabel!
+    @IBOutlet weak var forwardButton: WKInterfaceButton!
     @IBOutlet weak var forwardLabel: WKInterfaceLabel!
+    @IBOutlet weak var playButton: WKInterfaceButton!
     @IBOutlet weak var playImage: WKInterfaceImage!
     @IBOutlet weak var pauseImage: WKInterfaceImage!
     @IBOutlet weak var volumeControl: WKInterfaceVolumeControl!
@@ -88,12 +91,28 @@ class PlayerInterfaceController: WKInterfaceController {
         let message: [String: AnyObject] = ["command": "skipRewind" as AnyObject]
 
         try? self.sendMessage(message)
+
+        self.rewindButton.setAlpha(0.5)
+
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.1) {
+            self.animate(withDuration: 0.3) {
+                self.rewindButton.setAlpha(1)
+            }
+        }
     }
 
     @IBAction func skipForward() {
         let message: [String: AnyObject] = ["command": "skipForward" as AnyObject]
 
         try? self.sendMessage(message)
+
+        self.forwardButton.setAlpha(0.5)
+
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.1) {
+            self.animate(withDuration: 0.3) {
+                self.forwardButton.setAlpha(1)
+            }
+        }
     }
 
     // Image credits for play image
@@ -109,6 +128,14 @@ class PlayerInterfaceController: WKInterfaceController {
                                             "identifier": book.identifier as AnyObject]
 
         try? self.sendMessage(message)
+
+        self.playButton.setAlpha(0.5)
+
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.3) {
+            self.animate(withDuration: 0.3) {
+                self.playButton.setAlpha(1)
+            }
+        }
     }
 
     @objc func messageReceived(_ notification: Notification) {

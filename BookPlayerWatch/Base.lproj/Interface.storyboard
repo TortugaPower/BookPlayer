@@ -216,9 +216,12 @@
                     </items>
                     <connections>
                         <outlet property="authorLabel" destination="lcB-as-ICQ" id="uyF-aM-mbx"/>
+                        <outlet property="forwardButton" destination="Ddf-6U-PdN" id="ASk-SB-ccH"/>
                         <outlet property="forwardLabel" destination="lW6-hB-jdW" id="pwn-yb-hHK"/>
                         <outlet property="pauseImage" destination="F7Q-te-qBO" id="8pf-d5-bXO"/>
+                        <outlet property="playButton" destination="VvY-BO-mvv" id="fm2-Oi-Zkn"/>
                         <outlet property="playImage" destination="QRS-L6-YtL" id="BYE-8z-PiI"/>
+                        <outlet property="rewindButton" destination="Dfc-DH-Lcg" id="BcN-UB-oel"/>
                         <outlet property="rewindLabel" destination="wWL-ap-X5h" id="gnE-IK-yaJ"/>
                         <outlet property="titleLabel" destination="iNO-AP-gRQ" id="JRZ-F9-yBZ"/>
                         <outlet property="volumeControl" destination="8rr-le-Bhj" id="CTN-pQ-XYI"/>
