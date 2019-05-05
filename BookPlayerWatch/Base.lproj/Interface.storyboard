@@ -153,7 +153,7 @@
         <!--BookPlayer-->
         <scene sceneID="OI5-31-5gz">
             <objects>
-                <controller title="BookPlayer" id="isV-nN-yMh" customClass="PlayerInterfaceController" customModule="BookPlayerWatch_Extension">
+                <controller identifier="PlayerInterfaceController" title="BookPlayer" id="isV-nN-yMh" customClass="PlayerInterfaceController" customModule="BookPlayerWatch_Extension">
                     <items>
                         <group width="1" height="0.25" alignment="left" layout="vertical" spacing="0.0" id="wGG-Qy-xJf">
                             <items>

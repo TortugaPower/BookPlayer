@@ -36,6 +36,7 @@ class PlayerInterfaceController: WKInterfaceController {
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookPlayedNotification), name: .bookPlayed, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.lastBookNotification(_:)), name: .lastBook, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.messageReceived), name: .messageReceived, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.themeNotification), name: .theme, object: nil)
 
         let library = DataManager.loadLibrary()
 
@@ -61,6 +62,15 @@ class PlayerInterfaceController: WKInterfaceController {
         }
 
         self.lastBook = book
+    }
+
+    @objc func themeNotification(_ notification: Notification) {
+        guard let userInfo = notification.userInfo as? [String: Any],
+            let theme = userInfo["theme"] as? Theme else {
+            return
+        }
+
+        self.volumeControl.setTintColor(theme.highlightColor)
     }
 
     func setSkipLabels() {

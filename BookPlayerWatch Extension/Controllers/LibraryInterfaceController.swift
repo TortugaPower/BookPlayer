@@ -67,6 +67,8 @@ class LibraryInterfaceController: WKInterfaceController {
             self.separatorView.setColor(theme.defaultAccentColor)
             self.backImage.setTintColor(theme.defaultAccentColor)
             self.libraryHeaderTitle.setTextColor(theme.defaultAccentColor)
+
+            NotificationCenter.default.post(name: .theme, object: nil, userInfo: ["theme": theme])
         }
     }
 
@@ -80,6 +82,14 @@ class LibraryInterfaceController: WKInterfaceController {
             return
         }
 
+        guard let complications = CLKComplicationServer.sharedInstance().activeComplications else {
+            return
+        }
+
+        for complication in complications {
+            CLKComplicationServer.sharedInstance().reloadTimeline(for: complication)
+        }
+//        reloadTimelineForComplication
         NotificationCenter.default.post(name: .bookPlayed, object: nil)
     }
 
@@ -112,23 +122,10 @@ class LibraryInterfaceController: WKInterfaceController {
 
     func setupLastBook() {
         guard let book = self.library.lastPlayedBook else {
-//            self.lastBookTableView.setHidden(true)
-//            self.lastBookHeaderTitle.setHidden(true)
-//            self.separatorLastBookView.setHidden(true)
             return
         }
 
         NotificationCenter.default.post(name: .lastBook, object: nil, userInfo: ["book": book])
-
-//        self.lastBookTableView.setHidden(false)
-//        self.lastBookHeaderTitle.setHidden(false)
-//        self.separatorLastBookView.setHidden(false)
-//
-//        self.lastBookTableView.setNumberOfRows(1, withRowType: "LibraryRow")
-//
-//        guard let row = self.lastBookTableView.rowController(at: 0) as? ItemRow else { return }
-//
-//        row.titleLabel.setText(book.title)
     }
 
     func setupLibraryTable() {
@@ -217,15 +214,9 @@ class LibraryInterfaceController: WKInterfaceController {
     }
 
     @IBAction func refreshLibrary() {
-        guard WatchConnectivityService.sharedManager.validReachableSession != nil else {
-            let okAction = WKAlertAction(title: "Ok", style: .default) {}
-            self.presentAlert(withTitle: "Connectivity Error", message: "There's a problem connecting to your phone, please try again later.", preferredStyle: .alert, actions: [okAction])
-            return
-        }
-
         let message: [String: AnyObject] = ["command": "refresh" as AnyObject]
 
-        WatchConnectivityService.sharedManager.sendMessage(message: message)
+        try? self.sendMessage(message)
     }
 }
 

@@ -19,6 +19,15 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
 
     func getCurrentTimelineEntry(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTimelineEntry?) -> Void) {
         // Call the handler with the current timeline entry
+        if complication.family == .modularSmall {
+            let template = CLKComplicationTemplateModularSmallSimpleImage()
+            template.imageProvider = CLKImageProvider(onePieceImage: UIImage(named: "Complication/Modular")!)
+
+            let entry = CLKComplicationTimelineEntry(date: Date(), complicationTemplate: template)
+            handler(entry)
+            return
+        }
+
         handler(nil)
     }
 }
