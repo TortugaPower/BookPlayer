@@ -18,4 +18,6 @@ extension Notification.Name {
     public static let bookEnd = Notification.Name("com.tortugapower.audiobookplayer.book.end")
     public static let bookChange = Notification.Name("com.tortugapower.audiobookplayer.book.change")
     public static let bookPlaying = Notification.Name("com.tortugapower.audiobookplayer.book.playback")
+    public static let contextUpdate = Notification.Name("com.tortugapower.audiobookplayer.watch.sync")
+    public static let messageReceived = Notification.Name("com.tortugapower.audiobookplayer.watch.message")
 }

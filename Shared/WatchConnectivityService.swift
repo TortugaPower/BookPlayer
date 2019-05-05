@@ -40,13 +40,35 @@ public class WatchConnectivityService: NSObject, WCSessionDelegate {
     }
 
     public func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-        print("Session activation did complete")
+        #if os(iOS)
+        self.sendApplicationContext()
+        #elseif os(watchOS)
+        // For some reason, the first message is always lost
+        self.sendMessage(message: [:])
+        #endif
     }
 
     #if os(iOS)
     public func sessionDidBecomeInactive(_ session: WCSession) {}
 
     public func sessionDidDeactivate(_ session: WCSession) {}
+
+    public func sendApplicationContext() {
+        guard self.validReachableSession != nil else { return }
+
+        let library = DataManager.getLibrary()
+
+        guard let jsonData = try? JSONEncoder().encode(library) else {
+            return
+        }
+
+        let rewind = UserDefaults.standard.double(forKey: Constants.UserDefaults.rewindInterval.rawValue)
+        let forward = UserDefaults.standard.double(forKey: Constants.UserDefaults.forwardInterval.rawValue)
+
+        try? self.updateApplicationContext(applicationContext: ["library": jsonData as AnyObject,
+                                                                "rewindInterval": rewind as AnyObject,
+                                                                "forwardInterval": forward as AnyObject])
+    }
     #endif
 }
 
@@ -68,11 +90,8 @@ extension WatchConnectivityService {
 
     // Receiver
     public func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
-        print("========= derp: ", applicationContext)
-        // handle receiving application context
-
         DispatchQueue.main.async {
-            // make sure to put on the main queue to update UI!
+            NotificationCenter.default.post(name: .contextUpdate, object: nil, userInfo: applicationContext)
         }
     }
 }
@@ -152,7 +171,12 @@ extension WatchConnectivityService {
         // handle receiving message
         DispatchQueue.main.async {
             // make sure to put on the main queue to update UI!
+            NotificationCenter.default.post(name: .messageReceived, object: nil, userInfo: message)
         }
+    }
+
+    public func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
+        self.session(session, didReceiveMessage: message) { _ in }
     }
 
     public func session(_ session: WCSession, didReceiveMessageData messageData: Data) {

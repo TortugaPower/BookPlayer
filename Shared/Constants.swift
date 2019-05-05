@@ -4,10 +4,12 @@
 
 import Foundation
 
-enum Constants {
-    enum UserDefaults: String {
+public enum Constants {
+    public enum UserDefaults: String {
         // User preferences
         case autoplayEnabled = "userSettingsAutoplay"
+        case rewindInterval = "userSettingsRewindInterval"
+        case forwardInterval = "userSettingsForwardInterval"
     }
 
     static let ApplicationGroupIdentifier = "group.com.tortugapower.audiobookplayer.files"

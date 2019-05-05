@@ -56,6 +56,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // update last played book on watch app
         NotificationCenter.default.addObserver(self, selector: #selector(self.sendApplicationContext), name: .bookPlayed, object: nil)
 
+        NotificationCenter.default.addObserver(self, selector: #selector(self.messageReceived), name: .messageReceived, object: nil)
+
         // register for remote events
         self.setupMPRemoteCommands()
         // register document's folder listener
@@ -75,7 +77,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         Client.shared = try? Client(dsn: "https://23b4d02f7b044c10adb55a0cc8de3881@sentry.io/1414296")
         ((try? Client.shared?.startCrashHandler()) as ()??)
 
-        WatchConnectivityService.sharedManager.startSession(self)
+        WatchConnectivityService.sharedManager.startSession()
 
         return true
     }
@@ -150,6 +152,58 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
         self.playLastBook()
+    }
+
+    @objc func messageReceived(_ notification: Notification) {
+        guard
+            let message = notification.userInfo as? [String: Any] else {
+            return
+        }
+
+        DispatchQueue.main.async {
+            guard let command = message["command"] as? String else { return }
+
+            if command == "refresh" {
+                self.sendApplicationContext()
+                return
+            }
+
+            if command == "skipRewind" {
+                PlayerManager.shared.rewind()
+                return
+            }
+
+            if command == "skipForward" {
+                PlayerManager.shared.forward()
+                return
+            }
+
+            guard let bookIdentifier = message["identifier"] as? String else { return }
+
+            if let loadedBook = PlayerManager.shared.currentBook, loadedBook.identifier == bookIdentifier {
+                PlayerManager.shared.playPause()
+                return
+            }
+
+            let library = DataManager.getLibrary()
+
+            guard let book = DataManager.getBook(with: bookIdentifier, from: library) else { return }
+
+            guard let rootVC = UIApplication.shared.keyWindow?.rootViewController! as? RootViewController,
+                let appNav = rootVC.children.first as? AppNavigationController,
+                let libraryVC = appNav.children.first as? LibraryViewController else {
+                return
+            }
+
+            libraryVC.setupPlayer(book: book)
+            NotificationCenter.default.post(name: .bookChange,
+                                            object: nil,
+                                            userInfo: ["book": book])
+        }
+    }
+
+    @objc func sendApplicationContext() {
+        WatchConnectivityService.sharedManager.sendApplicationContext()
     }
 
     // Playback may be interrupted by calls. Handle pause
@@ -333,60 +387,6 @@ extension AppDelegate {
         } else {
             UserDefaults.standard.set(true, forKey: Constants.UserDefaults.showPlayer.rawValue)
         }
-    }
-}
-
-extension AppDelegate: WCSessionDelegate {
-    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-        self.sendApplicationContext()
-    }
-
-    @objc func sendApplicationContext() {
-        guard WatchConnectivityService.sharedManager.validReachableSession != nil else { return }
-
-        let library = DataManager.getLibrary()
-
-        guard let jsonData = try? JSONEncoder().encode(library) else {
-            return
-        }
-
-        try? WatchConnectivityService.sharedManager.updateApplicationContext(applicationContext: ["library": jsonData as AnyObject])
-    }
-
-    func sessionDidBecomeInactive(_ session: WCSession) {}
-
-    func sessionDidDeactivate(_ session: WCSession) {}
-
-    func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
-        DispatchQueue.main.async {
-            guard let command = message["command"] as? String else { return }
-
-            if command == "refresh" {
-                self.sendApplicationContext()
-                return
-            }
-
-            guard let bookIdentifier = message["identifier"] as? String else { return }
-
-            let library = DataManager.getLibrary()
-
-            guard let book = DataManager.getBook(with: bookIdentifier, from: library) else { return }
-
-            guard let rootVC = UIApplication.shared.keyWindow?.rootViewController! as? RootViewController,
-                let appNav = rootVC.children.first as? AppNavigationController,
-                let libraryVC = appNav.children.first as? LibraryViewController else {
-                return
-            }
-
-            libraryVC.setupPlayer(book: book)
-            NotificationCenter.default.post(name: .bookChange,
-                                            object: nil,
-                                            userInfo: ["book": book])
-        }
-    }
-
-    func session(_ session: WCSession, didReceiveMessage message: [String: Any], replyHandler: @escaping ([String: Any]) -> Void) {
-        self.session(session, didReceiveMessage: message)
     }
 }
 

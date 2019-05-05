@@ -1,5 +1,5 @@
 //
-//  Notification+BookPlayerWatch.swift
+//  Notification+BookPlayerWatchA[[.swift
 //  BookPlayerWatch Extension
 //
 //  Created by Gianni Carlo on 5/4/19.
@@ -8,4 +8,6 @@
 
 import Foundation
 
+extension Notification.Name {
     public static let lastBook = Notification.Name("com.tortugapower.audiobookplayer.watch.lastBook")
+}

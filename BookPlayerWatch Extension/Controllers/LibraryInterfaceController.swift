@@ -12,6 +12,10 @@ import Foundation
 import WatchConnectivity
 import WatchKit
 
+enum ConnectionError: Error {
+    case connectivityError
+}
+
 class LibraryInterfaceController: WKInterfaceController {
     @IBOutlet weak var separatorLastBookView: WKInterfaceSeparator!
     @IBOutlet var lastBookHeaderTitle: WKInterfaceLabel!
@@ -44,7 +48,8 @@ class LibraryInterfaceController: WKInterfaceController {
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
 
-        WatchConnectivityService.sharedManager.startSession(self)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.updateApplicationContext), name: .contextUpdate, object: nil)
+        WatchConnectivityService.sharedManager.startSession()
 
         self.loadLibrary()
 
@@ -66,39 +71,64 @@ class LibraryInterfaceController: WKInterfaceController {
     }
 
     func play(_ book: Book) {
-        guard WatchConnectivityService.sharedManager.validReachableSession != nil else {
-            let okAction = WKAlertAction(title: "Ok", style: .default) {}
-            self.presentAlert(withTitle: "Connectivity Error", message: "There's a problem connecting to your phone, please try again later", preferredStyle: .alert, actions: [okAction])
-            return
-        }
-
         let message: [String: AnyObject] = ["command": "play" as AnyObject,
                                             "identifier": book.identifier as AnyObject]
 
-        WatchConnectivityService.sharedManager.sendMessage(message: message)
+        do {
+            try self.sendMessage(message)
+        } catch {
+            return
+        }
 
         NotificationCenter.default.post(name: .bookPlayed, object: nil)
+    }
+
+    @objc func updateApplicationContext(_ notification: Notification) {
+        guard
+            let applicationContext = notification.userInfo as? [String: Any] else {
+            return
+        }
+
+        let data = applicationContext["library"] as? Data
+
+        if let rewindInterval = applicationContext["rewindInterval"] as? TimeInterval {
+            UserDefaults.standard.set(rewindInterval, forKey: Constants.UserDefaults.rewindInterval.rawValue)
+        }
+
+        if let forwardInterval = applicationContext["forwardInterval"] as? TimeInterval {
+            UserDefaults.standard.set(forwardInterval, forKey: Constants.UserDefaults.forwardInterval.rawValue)
+        }
+
+        guard let library = DataManager.decodeLibrary(data) else { return }
+
+        self.loadLibrary(library)
+
+        self.setupLastBook()
+
+        self.setupLibraryTable()
     }
 
     // MARK: - TableView lifecycle
 
     func setupLastBook() {
         guard let book = self.library.lastPlayedBook else {
-            self.lastBookTableView.setHidden(true)
-            self.lastBookHeaderTitle.setHidden(true)
-            self.separatorLastBookView.setHidden(true)
+//            self.lastBookTableView.setHidden(true)
+//            self.lastBookHeaderTitle.setHidden(true)
+//            self.separatorLastBookView.setHidden(true)
             return
         }
 
-        self.lastBookTableView.setHidden(false)
-        self.lastBookHeaderTitle.setHidden(false)
-        self.separatorLastBookView.setHidden(false)
+        NotificationCenter.default.post(name: .lastBook, object: nil, userInfo: ["book": book])
 
-        self.lastBookTableView.setNumberOfRows(1, withRowType: "LibraryRow")
-
-        guard let row = self.lastBookTableView.rowController(at: 0) as? ItemRow else { return }
-
-        row.titleLabel.setText(book.title)
+//        self.lastBookTableView.setHidden(false)
+//        self.lastBookHeaderTitle.setHidden(false)
+//        self.separatorLastBookView.setHidden(false)
+//
+//        self.lastBookTableView.setNumberOfRows(1, withRowType: "LibraryRow")
+//
+//        guard let row = self.lastBookTableView.rowController(at: 0) as? ItemRow else { return }
+//
+//        row.titleLabel.setText(book.title)
     }
 
     func setupLibraryTable() {
@@ -205,25 +235,14 @@ extension WKInterfaceController {
         let time = DispatchTime.now() + duration
         DispatchQueue.main.asyncAfter(deadline: time, execute: completion)
     }
-}
 
-// MARK: - WCSessionDelegate
+    func sendMessage(_ message: [String: AnyObject]) throws {
+        guard WatchConnectivityService.sharedManager.validReachableSession != nil else {
+            let okAction = WKAlertAction(title: "Ok", style: .default) {}
+            self.presentAlert(withTitle: "Connectivity Error", message: "There's a problem connecting to your phone, please try again later", preferredStyle: .alert, actions: [okAction])
+            throw ConnectionError.connectivityError
+        }
 
-extension LibraryInterfaceController: WCSessionDelegate {
-    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-        // For some reason, the first message is always lost
-        WatchConnectivityService.sharedManager.sendMessage(message: [:])
-    }
-
-    func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
-        let data = applicationContext["library"] as? Data
-
-        guard let library = DataManager.decodeLibrary(data) else { return }
-
-        self.loadLibrary(library)
-
-        self.setupLastBook()
-
-        self.setupLibraryTable()
+        WatchConnectivityService.sharedManager.sendMessage(message: message)
     }
 }

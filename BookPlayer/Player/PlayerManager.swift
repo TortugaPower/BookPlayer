@@ -349,6 +349,7 @@ extension PlayerManager {
 
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: .bookPlayed, object: nil)
+            WatchConnectivityService.sharedManager.sendMessage(message: ["notification": "bookPlayed" as AnyObject])
         }
 
         self.update()
@@ -388,6 +389,7 @@ extension PlayerManager {
 
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: .bookPaused, object: nil)
+            WatchConnectivityService.sharedManager.sendMessage(message: ["notification": "bookPaused" as AnyObject])
         }
     }
 
