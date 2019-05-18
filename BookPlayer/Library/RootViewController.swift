@@ -6,6 +6,7 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
+import Themeable
 import UIKit
 
 class RootViewController: UIViewController, UIGestureRecognizerDelegate {
@@ -20,19 +21,27 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
         return self.miniPlayerContainer.isHidden
     }
 
+    private var themedStatusBarStyle: UIStatusBarStyle?
+
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return themedStatusBarStyle ?? super.preferredStatusBarStyle
+    }
+
     // MARK: - Lifecycle
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let viewController = segue.destination as? MiniPlayerViewController {
             self.miniPlayerViewController = viewController
             self.miniPlayerViewController!.showPlayer = {
-                guard let currentBooks = PlayerManager.shared.currentBooks else {
+                guard let currentBook = PlayerManager.shared.currentBook else {
                     return
                 }
 
-                self.libraryViewController.setupPlayer(books: currentBooks)
+                self.libraryViewController.setupPlayer(book: currentBook)
             }
-        } else if let navigationVC = segue.destination as? UINavigationController, let libraryVC = navigationVC.childViewControllers.first as? LibraryViewController {
+        } else if
+            let navigationVC = segue.destination as? UINavigationController,
+            let libraryVC = navigationVC.children.first as? LibraryViewController {
             self.libraryViewController = libraryVC
         }
     }
@@ -40,11 +49,12 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setUpTheming()
+
         self.miniPlayerContainer.isHidden = true
-        self.miniPlayerContainer.layer.shadowColor = UIColor.black.cgColor
-        self.miniPlayerContainer.layer.shadowOffset = CGSize(width: 0.0, height: 4.0)
-        self.miniPlayerContainer.layer.shadowOpacity = 0.2
-        self.miniPlayerContainer.layer.shadowRadius = 12.0
+        self.miniPlayerContainer.layer.shadowOffset = CGSize(width: 0.0, height: 3.0)
+        self.miniPlayerContainer.layer.shadowOpacity = 0.18
+        self.miniPlayerContainer.layer.shadowRadius = 9.0
         self.miniPlayerContainer.clipsToBounds = false
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: .bookChange, object: nil)
@@ -57,76 +67,46 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(self.dismissMiniPlayer), name: .bookStopped, object: nil)
 
         // Gestures
-        self.pan = UIPanGestureRecognizer(target: self, action: #selector(panAction))
+        self.pan = UIPanGestureRecognizer(target: self, action: #selector(self.panAction))
         self.pan.delegate = self
         self.pan.maximumNumberOfTouches = 1
         self.pan.cancelsTouchesInView = true
 
-        self.view.addGestureRecognizer(self.pan)
+        view.addGestureRecognizer(self.pan)
     }
 
     // MARK: -
 
     @objc private func presentMiniPlayer() {
-        self.miniPlayerContainer.transform = CGAffineTransform(translationX: 0, y: self.miniPlayerContainer.bounds.height)
-        self.miniPlayerContainer.alpha = 0.0
-        self.miniPlayerContainer.isHidden = false
+        guard PlayerManager.shared.isLoaded else { return }
 
-        UIView.animate(
-            withDuration: 0.5,
-            delay: 0.0,
-            usingSpringWithDamping: 0.7,
-            initialSpringVelocity: 1.5,
-            options: .preferredFramesPerSecond60,
-            animations: {
-                self.miniPlayerContainer.transform = .identity
-            }
-        )
-
-        UIView.animate(withDuration: 0.3, delay: 0.0, options: .preferredFramesPerSecond60, animations: {
-            self.miniPlayerContainer.alpha = 1.0
-        })
+        self.animateView(self.miniPlayerContainer, show: true)
     }
 
     @objc private func dismissMiniPlayer() {
-        UIView.animate(
-            withDuration: 0.25,
-            delay: 0.0,
-            usingSpringWithDamping: 0.7,
-            initialSpringVelocity: 1.5,
-            options: .preferredFramesPerSecond60,
-            animations: {
-                self.miniPlayerContainer.transform = CGAffineTransform(translationX: 0, y: self.miniPlayerContainer.bounds.height)
-            },
-            completion: { _ in
-                self.miniPlayerContainer.isHidden = true
-            }
-        )
-
-        UIView.animate(withDuration: 0.15, delay: 0.0, options: [.preferredFramesPerSecond60, .curveEaseIn], animations: {
-            self.miniPlayerContainer.alpha = 0.0
-        })
+        self.animateView(self.miniPlayerContainer, show: false)
     }
 
     @objc private func bookChange(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
-            let books = userInfo["books"] as? [Book],
-            let currentBook = books.first else {
-                return
+            let book = userInfo["book"] as? Book
+        else {
+            return
         }
 
-        setupMiniPlayer(book: currentBook)
+        self.setupMiniPlayer(book: book)
 
         PlayerManager.shared.play()
     }
 
     @objc private func bookReady(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
-            let book = userInfo["book"] as? Book else {
-                return
+            let book = userInfo["book"] as? Book
+        else {
+            return
         }
 
-        setupMiniPlayer(book: book)
+        self.setupMiniPlayer(book: book)
     }
 
     @objc private func onBookPlay() {
@@ -166,36 +146,45 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
         }
 
         switch gestureRecognizer.state {
-            case .began:
-                gestureRecognizer.setTranslation(CGPoint(x: 0, y: 0), in: self.view.superview)
+        case .began:
+            gestureRecognizer.setTranslation(CGPoint(x: 0, y: 0), in: self.view.superview)
 
-            case .changed:
-                let translation = gestureRecognizer.translation(in: self.view)
+        case .changed:
+            let translation = gestureRecognizer.translation(in: self.view)
 
-                self.updatePresentedViewForTranslation(translation.y)
+            self.updatePresentedViewForTranslation(translation.y)
 
-            case .ended, .cancelled, .failed:
-                let dismissThreshold: CGFloat = self.miniPlayerContainer.bounds.height / 2
-                let translation = gestureRecognizer.translation(in: self.view)
+        case .ended, .cancelled, .failed:
+            let dismissThreshold: CGFloat = self.miniPlayerContainer.bounds.height / 2
+            let translation = gestureRecognizer.translation(in: self.view)
 
-                if translation.y > dismissThreshold {
-                    PlayerManager.shared.stop()
+            if translation.y > dismissThreshold {
+                PlayerManager.shared.stop()
 
-                    return
-                }
+                return
+            }
 
-                UIView.animate(
-                    withDuration: 0.3,
-                    delay: 0.0,
-                    usingSpringWithDamping: 0.75,
-                    initialSpringVelocity: 1.5,
-                    options: .preferredFramesPerSecond60,
-                    animations: {
-                        self.miniPlayerContainer?.transform = .identity
-                    }
-                )
+            UIView.animate(withDuration: 0.3,
+                           delay: 0.0,
+                           usingSpringWithDamping: 0.75,
+                           initialSpringVelocity: 1.5,
+                           options: .preferredFramesPerSecond60,
+                           animations: {
+                               self.miniPlayerContainer?.transform = .identity
+            })
 
-            default: break
+        default: break
         }
+    }
+}
+
+extension RootViewController: Themeable {
+    func applyTheme(_ theme: Theme) {
+        self.themedStatusBarStyle = theme.useDarkVariant
+            ? .lightContent
+            : .default
+        setNeedsStatusBarAppearanceUpdate()
+
+        self.miniPlayerContainer.layer.shadowColor = theme.navigationTitleColor.cgColor
     }
 }

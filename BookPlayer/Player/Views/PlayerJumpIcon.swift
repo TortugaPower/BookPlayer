@@ -9,8 +9,8 @@
 import UIKit
 
 class PlayerJumpIcon: UIView {
-    private var backgroundImageView: UIImageView!
-    private var label: UILabel!
+    fileprivate var backgroundImageView: UIImageView!
+    fileprivate var label: UILabel!
 
     var backgroundImage: UIImage = UIImage()
 
@@ -52,12 +52,16 @@ class PlayerJumpIcon: UIView {
         self.label.textAlignment = .center
         self.label.textColor = self.tintColor
 
+        self.label.layer.shadowOpacity = 0.8
+        self.label.layer.shadowOffset = CGSize(width: 0, height: 0)
+
         self.addSubview(self.backgroundImageView)
         self.addSubview(self.label)
     }
 
     override func layoutSubviews() {
         self.label.frame = self.bounds.insetBy(dx: 10.0, dy: 10.0)
+        self.backgroundImageView.center = self.label.center
     }
 }
 
@@ -74,9 +78,11 @@ class PlayerJumpIconForward: PlayerJumpIcon {
     override func setup() {
         super.setup()
 
+        self.backgroundImageView.addLayerMask("playerIconShadow", backgroundColor: .playerControlsShadowColor)
+        self.backgroundImageView.addLayerMask("playerIconForwardArrowShadow", backgroundColor: .black)
+        self.backgroundImageView.addLayerMask("playerIconForward", backgroundColor: .white)
         self.title = "+\(Int(PlayerManager.shared.forwardInterval.rounded()))s"
     }
-
 }
 
 class PlayerJumpIconRewind: PlayerJumpIcon {
@@ -92,6 +98,9 @@ class PlayerJumpIconRewind: PlayerJumpIcon {
     override func setup() {
         super.setup()
 
+        self.backgroundImageView.addLayerMask("playerIconShadow", backgroundColor: .playerControlsShadowColor)
+        self.backgroundImageView.addLayerMask("playerIconRewindArrowShadow", backgroundColor: .black)
+        self.backgroundImageView.addLayerMask("playerIconRewind", backgroundColor: .white)
         self.title = "−\(Int(PlayerManager.shared.rewindInterval.rounded()))s"
     }
 }

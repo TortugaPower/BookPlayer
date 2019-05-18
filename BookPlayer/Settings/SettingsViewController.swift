@@ -6,23 +6,25 @@
 //  Copyright © 2017 Tortuga Power. All rights reserved.
 //
 
-import UIKit
+import DeviceKit
+import IntentsUI
 import MessageUI
 import SafariServices
-import DeviceKit
+import Themeable
+import UIKit
 
 class SettingsViewController: UITableViewController, MFMailComposeViewControllerDelegate {
     @IBOutlet weak var autoplayLibrarySwitch: UISwitch!
-    @IBOutlet weak var smartRewindSwitch: UISwitch!
-    @IBOutlet weak var boostVolumeSwitch: UISwitch!
-    @IBOutlet weak var globalSpeedSwitch: UISwitch!
     @IBOutlet weak var disableAutolockSwitch: UISwitch!
-    @IBOutlet weak var rewindIntervalLabel: UILabel!
-    @IBOutlet weak var forwardIntervalLabel: UILabel!
+    @IBOutlet weak var themeLabel: UILabel!
+    @IBOutlet weak var appIconLabel: UILabel!
 
-    let supportSection: Int = 5
-    let githubLinkPath: IndexPath = IndexPath(row: 0, section: 6)
-    let supportEmailPath: IndexPath = IndexPath(row: 1, section: 6)
+    var iconObserver: NSKeyValueObservation!
+
+    let siriShortcutPath = IndexPath(row: 0, section: 5)
+    let supportSection: Int = 6
+    let githubLinkPath = IndexPath(row: 0, section: 6)
+    let supportEmailPath = IndexPath(row: 1, section: 6)
 
     var version: String = "0.0.0"
     var build: String = "0"
@@ -39,22 +41,25 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setUpTheming()
+
+        self.appIconLabel.text = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
+
+        self.iconObserver = UserDefaults.standard.observe(\.userSettingsAppIcon) { _, _ in
+            self.appIconLabel.text = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
+        }
+        if UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) {
+            self.donationMade()
+        } else {
+            NotificationCenter.default.addObserver(self, selector: #selector(self.donationMade), name: .donationMade, object: nil)
+        }
+
         self.autoplayLibrarySwitch.addTarget(self, action: #selector(self.autoplayToggleDidChange), for: .valueChanged)
-        self.smartRewindSwitch.addTarget(self, action: #selector(self.rewindToggleDidChange), for: .valueChanged)
-        self.boostVolumeSwitch.addTarget(self, action: #selector(self.boostVolumeToggleDidChange), for: .valueChanged)
-        self.globalSpeedSwitch.addTarget(self, action: #selector(self.globalSpeedToggleDidChange), for: .valueChanged)
         self.disableAutolockSwitch.addTarget(self, action: #selector(self.disableAutolockDidChange), for: .valueChanged)
 
         // Set initial switch positions
         self.autoplayLibrarySwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue), animated: false)
-        self.smartRewindSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.smartRewindEnabled.rawValue), animated: false)
-        self.boostVolumeSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue), animated: false)
-        self.globalSpeedSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue), animated: false)
         self.disableAutolockSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue), animated: false)
-
-        // Retrieve initial skip values from PlayerManager
-        self.rewindIntervalLabel.text = self.formatDuration(PlayerManager.shared.rewindInterval)
-        self.forwardIntervalLabel.text = self.formatDuration(PlayerManager.shared.forwardInterval)
 
         guard
             let version = Bundle.main.infoDictionary!["CFBundleShortVersionString"] as? String,
@@ -67,47 +72,12 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         self.build = build
     }
 
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        guard let viewController = segue.destination as? SkipDurationViewController else {
-            return
-        }
-
-        if segue.identifier == "AdjustRewindIntervalSegue" {
-            viewController.title = "Rewind"
-            viewController.selectedInterval = PlayerManager.shared.rewindInterval
-            viewController.didSelectInterval = { selectedInterval in
-                PlayerManager.shared.rewindInterval = selectedInterval
-
-                self.rewindIntervalLabel.text = self.formatDuration(PlayerManager.shared.rewindInterval)
-            }
-        }
-
-        if segue.identifier == "AdjustForwardIntervalSegue" {
-            viewController.title = "Forward"
-            viewController.selectedInterval = PlayerManager.shared.forwardInterval
-            viewController.didSelectInterval = { selectedInterval in
-                PlayerManager.shared.forwardInterval = selectedInterval
-
-                self.forwardIntervalLabel.text = self.formatDuration(PlayerManager.shared.forwardInterval)
-            }
-        }
+    @objc func donationMade() {
+        self.tableView.reloadData()
     }
 
     @objc func autoplayToggleDidChange() {
         UserDefaults.standard.set(self.autoplayLibrarySwitch.isOn, forKey: Constants.UserDefaults.autoplayEnabled.rawValue)
-    }
-
-    @objc func rewindToggleDidChange() {
-        UserDefaults.standard.set(self.smartRewindSwitch.isOn, forKey: Constants.UserDefaults.smartRewindEnabled.rawValue)
-    }
-
-    @objc func boostVolumeToggleDidChange() {
-        UserDefaults.standard.set(self.boostVolumeSwitch.isOn, forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
-        PlayerManager.shared.boostVolume = self.boostVolumeSwitch.isOn
-    }
-
-    @objc func globalSpeedToggleDidChange() {
-        UserDefaults.standard.set(self.globalSpeedSwitch.isOn, forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue)
     }
 
     @objc func disableAutolockDidChange() {
@@ -118,15 +88,43 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         self.dismiss(animated: true, completion: nil)
     }
 
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        guard indexPath.section == 0 else {
+            return super.tableView(tableView, heightForRowAt: indexPath)
+        }
+
+        guard !UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) else { return 0 }
+
+        return 102
+    }
+
+    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        guard section == 0, UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) else {
+            return super.tableView(tableView, heightForHeaderInSection: section)
+        }
+
+        return CGFloat.leastNormalMagnitude
+    }
+
+    override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        guard section == 0, UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) else {
+            return super.tableView(tableView, heightForFooterInSection: section)
+        }
+
+        return CGFloat.leastNormalMagnitude
+    }
+
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath as IndexPath, animated: true)
 
         switch indexPath {
-            case self.supportEmailPath:
-                self.sendSupportEmmail()
-            case self.githubLinkPath:
-                self.showProjectOnGitHub()
-            default: break
+        case self.supportEmailPath:
+            self.sendSupportEmail()
+        case self.githubLinkPath:
+            self.showProjectOnGitHub()
+        case self.siriShortcutPath:
+            self.showSiriShortcut()
+        default: break
         }
     }
 
@@ -138,11 +136,32 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         return super.tableView(tableView, titleForFooterInSection: section)
     }
 
+    override func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+        let header = view as? UITableViewHeaderFooterView
+        header?.textLabel?.textColor = self.themeProvider.currentTheme.detailColor
+    }
+
+    override func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int) {
+        let footer = view as? UITableViewHeaderFooterView
+        footer?.textLabel?.textColor = self.themeProvider.currentTheme.detailColor
+    }
+
     func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
         controller.dismiss(animated: true)
     }
 
-    func sendSupportEmmail() {
+    func showSiriShortcut() {
+        if #available(iOS 12.0, *) {
+            let shortcut = INShortcut(userActivity: UserActivityManager.shared.currentActivity)
+            let vc = INUIAddVoiceShortcutViewController(shortcut: shortcut)
+            vc.delegate = self
+            self.present(vc, animated: true, completion: nil)
+        } else {
+            self.showAlert(nil, message: "Siri Shortcuts are available on iOS 12 and above")
+        }
+    }
+
+    @IBAction func sendSupportEmail() {
         let device = Device()
 
         if MFMailComposeViewController.canSendMail() {
@@ -178,5 +197,26 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         }
 
         self.present(safari, animated: true)
+    }
+}
+
+extension SettingsViewController: INUIAddVoiceShortcutViewControllerDelegate {
+    @available(iOS 12.0, *)
+    func addVoiceShortcutViewControllerDidCancel(_ controller: INUIAddVoiceShortcutViewController) {
+        self.dismiss(animated: true, completion: nil)
+    }
+
+    @available(iOS 12.0, *)
+    func addVoiceShortcutViewController(_ controller: INUIAddVoiceShortcutViewController, didFinishWith voiceShortcut: INVoiceShortcut?, error: Error?) {
+        self.dismiss(animated: true, completion: nil)
+    }
+}
+
+extension SettingsViewController: Themeable {
+    func applyTheme(_ theme: Theme) {
+        self.themeLabel.text = theme.title
+        self.tableView.backgroundColor = theme.settingsBackgroundColor
+        self.tableView.separatorColor = theme.settingsBackgroundColor
+        self.tableView.reloadData()
     }
 }

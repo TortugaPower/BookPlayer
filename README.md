@@ -8,6 +8,8 @@
 
 [![Four screenshots of BookPlayer on the iPhone X. Showing Player, Import options, the Library and, a playlist](./.github/readme-screenshots@2x.png)](https://itunes.apple.com/us/app/bookplayer-audio-book-player/id1138219998?ls=1&amp;mt=8)
 
+Please visit our [Wiki](https://github.com/TortugaPower/BookPlayer/wiki) for our [FAQ](https://github.com/TortugaPower/BookPlayer/wiki/FAQ) and [guides](https://github.com/TortugaPower/BookPlayer/wiki/Developer-Guide) on how to add new themes and icons to the app.
+
 ## Features
 
 ### Import
@@ -54,6 +56,7 @@ If you enjoy BookPlayer, we would be glad if you consider writing a review on th
 
 - [@GianniCarlo](https://github.com/GianniCarlo) - Original Idea & Creation
 - [@pichfl](https://github.com/pichfl) - UI Design & Artwork
+- [@ryantstone](https://github.com/ryantstone) - VoiceOver Support
 
 ### Contributors
 
@@ -61,7 +64,7 @@ If you enjoy BookPlayer, we would be glad if you consider writing a review on th
 - [@e7mac](https://github.com/e7mac) - Speed control, Autoplay
 - [@gpambrozio](https://github.com/gpambrozio) - Volume Boost
 - [@vab9](https://github.com/vab9) - AirDrop Support
-- [@ryantstone](https://github.com/ryantstone) - VoiceOver Support
+- [@atomicguy](https://github.com/atomicguy) - Zip Support
 
 A full list of all contributors can be found [on GitHub.](https://github.com/GianniCarlo/Audiobook-Player/graphs/contributors)
 
@@ -73,14 +76,19 @@ Managed with [Carthage](https://github.com/Carthage/Carthage)
 
 - [ColorCube](https://github.com/pixelogik/ColorCube) for extracting artwork colors
 - [DeviceKit](https://github.com/dennisweissmann/DeviceKit) for device information used in support requests
+- [Kingfisher](https://github.com/onevcat/Kingfisher) for contributors' profile pictures
 - [MarqueeLabel](https://github.com/cbpowell/MarqueeLabel) for scrolling labels
 - [DirectoryWatcher](https://github.com/GianniCarlo/DirectoryWatcher) for events on the document's folder
+- [Sentry](https://github.com/getsentry/sentry-cocoa) for crash reporting
 - [Sweetercolor](https://github.com/jathu/sweetercolor) for handling artwork colors
 - [SwiftReorder](https://github.com/GianniCarlo/SwiftReorder) for drag-and-drop on the UITableView
+- [SwiftyStoreKit](https://github.com/bizz84/SwiftyStoreKit) for the tip jar
+- [ZIPFoundation](https://github.com/weichsel/ZIPFoundation) for zip files
 
 Managed with [Homebrew](https://brew.sh)
 
 - [SwiftLint](https://github.com/realm/SwiftLint)
+- [SwiftFormat](https://github.com/nicklockwood/SwiftFormat)
 
 
 

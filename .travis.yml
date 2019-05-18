@@ -1,15 +1,12 @@
 language: swift
-osx_image: xcode10
+osx_image: xcode10.2
+xcode_project: BookPlayer.xcodeproj
+xcode_scheme: BookPlayer
+xcode_destination: platform=iOS Simulator,OS=11.3,name=iPhone 5s
 cache:
   directories:
   - Carthage
-before_install:
-  - brew update
-  - brew outdated carthage || brew upgrade carthage
+  - $HOME/Library/Caches/Homebrew
 before_script:
-  # bootstrap the dependencies for the project
-  # you can remove if you don't have dependencies
-  - carthage bootstrap --verbose --no-use-binaries --platform iOS --cache-builds
-script:
-  - swiftlint 
-  - xcodebuild -project BookPlayer.xcodeproj -scheme BookPlayer -destination 'platform=iOS Simulator,OS=11.3,name=iPhone 5s' test
+  - carthage bootstrap --no-use-binaries --platform iOS --cache-builds
+  - swiftlint

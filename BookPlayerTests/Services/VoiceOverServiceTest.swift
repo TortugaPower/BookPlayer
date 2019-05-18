@@ -1,13 +1,10 @@
-import XCTest
 @testable import BookPlayer
+import XCTest
 
 class VoiceOverServiceTest: XCTestCase {
+    override func setUp() {}
 
-    override func setUp() {
-    }
-
-    override func tearDown() {
-    }
+    override func tearDown() {}
 
     func testRewindText() {
         PlayerManager.shared.rewindInterval = 60
@@ -31,7 +28,6 @@ class VoiceOverServiceTest: XCTestCase {
     }
 
     func testPerformanceExample() {
-        self.measure {
-        }
+        self.measure {}
     }
 }

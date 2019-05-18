@@ -7,11 +7,10 @@
 //
 //
 
-import Foundation
 import CoreData
+import Foundation
 
 extension LibraryItem {
-
     @nonobjc public class func fetchRequest() -> NSFetchRequest<LibraryItem> {
         return NSFetchRequest<LibraryItem>(entityName: "LibraryItem")
     }
@@ -22,6 +21,8 @@ extension LibraryItem {
     @NSManaged public var identifier: String!
     @NSManaged public var title: String!
     @NSManaged public var percentCompleted: Double
+    @NSManaged public var speed: Float
     @NSManaged public var library: Library?
-
+    @NSManaged public var originalFileName: String?
+    @NSManaged public var isFinished: Bool
 }

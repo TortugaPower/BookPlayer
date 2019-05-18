@@ -20,8 +20,8 @@ func limitPanAngle(_ gestureRecognizer: UIPanGestureRecognizer, degreesOfFreedom
 
     switch comparator {
     case .lessThan:
-        return fabs(degree) < degreesOfFreedom
+        return abs(degree) < degreesOfFreedom
     case .greaterThan:
-        return fabs(degree) > degreesOfFreedom
+        return abs(degree) > degreesOfFreedom
     }
 }

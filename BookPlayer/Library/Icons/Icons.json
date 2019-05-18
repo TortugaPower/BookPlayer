@@ -1,0 +1,48 @@
+[
+    {
+        "id": "Default",
+        "title": "Default",
+        "imageName": "default-icon"
+    },
+    {
+        "id": "Retro",
+        "title": "Retro",
+        "imageName": "retro-icon"
+    },
+    {
+        "id": "Retro Modern",
+        "title": "Retro Modern",
+        "imageName": "retro-modern",
+        "locked": true
+    },
+    {
+        "id": "Dark",
+        "title": "Dark",
+        "imageName": "dark",
+        "locked": true
+    },
+    {
+        "id": "Neon",
+        "title": "Neon",
+        "imageName": "neon",
+        "locked": true
+    },
+    {
+        "id": "Ayu Light",
+        "title": "Ayu Light",
+        "imageName": "ayu-light",
+        "locked": true
+    },
+    {
+        "id": "Songs",
+        "title": "Songs",
+        "imageName": "songs",
+        "locked": true
+    },
+    {
+        "id": "Fruit Based",
+        "title": "Fruit Based",
+        "imageName": "fruit-based",
+        "locked": true
+    }
+]

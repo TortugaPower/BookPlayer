@@ -9,40 +9,40 @@ class VoiceOverService {
     // MARK: - BookCellView
 
     public func bookCellView(type: BookCellType, title: String?, subtitle: String?, progress: Double?) -> String {
-        self.type     = type
-        self.title    = title
+        self.type = type
+        self.title = title
         self.subtitle = subtitle
         self.progress = progress
 
         switch type {
         case .book:
-            return bookText()
+            return self.bookText()
         case .file:
-            return fileText()
+            return self.fileText()
         case .playlist:
-            return playlistText()
+            return self.playlistText()
         }
     }
 
     fileprivate func bookText() -> String {
-        let voiceOverTitle          = title ?? "No Title"
-        let voiceOverSubtitle       = subtitle ?? "No Author"
-        return "\(voiceOverTitle) by \(voiceOverSubtitle) \(progressPercent())% Completed"
+        let voiceOverTitle = title ?? "No Title"
+        let voiceOverSubtitle = subtitle ?? "No Author"
+        return "\(voiceOverTitle) by \(voiceOverSubtitle) \(self.progressPercent())% Completed"
     }
 
     fileprivate func fileText() -> String {
-        let voiceOverTitle          = title ?? "No File Title"
-        let voiceOverSubtitle       = subtitle ?? "No File Subtitle"
+        let voiceOverTitle = title ?? "No File Title"
+        let voiceOverSubtitle = subtitle ?? "No File Subtitle"
         return "\(voiceOverTitle) \(voiceOverSubtitle)"
     }
 
     fileprivate func playlistText() -> String {
-        let voiceOverTitle          = title ?? "No Playlist Title"
-        return "\(voiceOverTitle) Playlist \(progressPercent())% Completed"
+        let voiceOverTitle = title ?? "No Playlist Title"
+        return "\(voiceOverTitle) Playlist \(self.progressPercent())% Completed"
     }
 
     fileprivate func progressPercent() -> Int {
-        guard let progress = progress else {
+        guard let progress = progress, !progress.isNaN else {
             return 0
         }
         return Int(progress * 100)
@@ -51,13 +51,22 @@ class VoiceOverService {
     // MARK: PlayerMetaView
 
     public func playerMetaText(book: Book) -> String {
+        let title: String = book.title != nil
+            ? book.title
+            : "Unknown title"
+        let author: String = book.author != nil
+            ? book.author
+            : "Unknown author"
+
         guard let currentChapter = book.currentChapter else {
-            return String(describing: book.title + " by " + book.author)
+            return String(describing: title + " by " + author)
         }
-        return String(describing: book.title + " by " + book.author + ", chapter " + String(describing: currentChapter.index))
+
+        return String(describing: title + " by " + author + ", chapter " + String(describing: currentChapter.index))
     }
 
     // MARK: - ArtworkControl
+
     public static func rewindText() -> String {
         return "Rewind " + self.secondsToMinutes(PlayerManager.shared.rewindInterval.rounded())
     }

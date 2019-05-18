@@ -6,8 +6,8 @@
 //  Copyright © 2018 Florian Pichler.
 //
 
-import UIKit
 import Foundation
+import UIKit
 
 typealias SleepTimerStart = () -> Void
 typealias SleepTimerProgress = (Double) -> Void
@@ -39,27 +39,34 @@ final class SleepTimer {
 
     private init() {
         self.durationFormatter.unitsStyle = .positional
-        self.durationFormatter.allowedUnits = [ .minute, .second ]
+        self.durationFormatter.allowedUnits = [.minute, .second]
         self.durationFormatter.collapsesLargestUnit = true
 
-        reset()
+        self.reset()
 
         let formatter = DateComponentsFormatter()
 
         formatter.unitsStyle = .full
-        formatter.allowedUnits = [ .hour, .minute ]
+        formatter.allowedUnits = [.hour, .minute]
 
         self.alert.addAction(UIAlertAction(title: "Off", style: .default, handler: { _ in
             self.cancel()
         }))
 
-        for interval in intervals {
+        for interval in self.intervals {
             let formattedDuration = formatter.string(from: interval as TimeInterval)!
 
             self.alert.addAction(UIAlertAction(title: "In \(formattedDuration)", style: .default, handler: { _ in
                 self.sleep(in: interval)
             }))
         }
+
+        self.alert.addAction(UIAlertAction(title: "End of current chapter", style: .default) { _ in
+            self.cancel()
+            self.alert.message = "Sleeping when the chapter ends"
+            NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .chapterChange, object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .bookChange, object: nil)
+        })
 
         self.alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
     }
@@ -68,22 +75,24 @@ final class SleepTimer {
         self.onStart?()
         self.onProgress?(seconds)
 
-        reset()
+        self.reset()
 
         self.timeLeft = seconds
-        self.timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(update), userInfo: nil, repeats: true)
+        self.timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.update), userInfo: nil, repeats: true)
 
-        RunLoop.main.add(self.timer!, forMode: RunLoopMode.commonModes)
+        RunLoop.main.add(self.timer!, forMode: RunLoop.Mode.common)
     }
 
     private func reset() {
         self.alert.message = defaultMessage
 
         self.timer?.invalidate()
+        NotificationCenter.default.removeObserver(self, name: .bookChange, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .chapterChange, object: nil)
     }
 
     private func cancel() {
-        reset()
+        self.reset()
 
         self.onEnd?(true)
     }
@@ -91,15 +100,19 @@ final class SleepTimer {
     @objc private func update() {
         self.timeLeft -= 1.0
 
-        self.onProgress?(timeLeft)
+        self.onProgress?(self.timeLeft)
 
-        self.alert.message = "Sleeping in \(durationFormatter.string(from: self.timeLeft)!)"
+        self.alert.message = "Sleeping in \(self.durationFormatter.string(from: self.timeLeft)!)"
 
         if self.timeLeft <= 0 {
-            self.timer?.invalidate()
-
-            self.onEnd?(false)
+            self.end()
         }
+    }
+
+    @objc private func end() {
+        self.reset()
+
+        self.onEnd?(false)
     }
 
     // MARK: Public methods
@@ -109,6 +122,6 @@ final class SleepTimer {
         self.onEnd = onEnd
         self.onProgress = onProgress
 
-        return alert
+        return self.alert
     }
 }

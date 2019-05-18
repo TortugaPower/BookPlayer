@@ -6,8 +6,8 @@
 //  Copyright © 2017 Tortuga Power. All rights reserved.
 //
 
-import Foundation
 import AVFoundation
+import Foundation
 import MediaPlayer
 
 // swiftlint:disable file_length
@@ -15,12 +15,11 @@ import MediaPlayer
 class PlayerManager: NSObject {
     static let shared = PlayerManager()
 
+    static let speedOptions: [Float] = [2.5, 2, 1.75, 1.5, 1.25, 1, 0.75]
+
     private var audioPlayer: AVAudioPlayer?
 
-    var currentBooks: [Book]?
-    var currentBook: Book? {
-        return self.currentBooks?.first
-    }
+    var currentBook: Book?
 
     private var nowPlayingInfo = [String: Any]()
 
@@ -28,21 +27,25 @@ class PlayerManager: NSObject {
 
     private let queue = OperationQueue()
 
-    func load(_ books: [Book], completion:@escaping (Bool) -> Void) {
-        guard let book = books.first else {
-            completion(false)
-            return
+    var outputPort: AVAudioSessionPortDescription?
+
+    func load(_ book: Book, completion: @escaping (Bool) -> Void) {
+        if self.currentBook != nil {
+            self.stop()
         }
 
-        self.currentBooks = books
+        self.currentBook = book
 
-        queue.addOperation {
+        self.queue.addOperation {
             // try loading the player
-            guard let audioplayer = try? AVAudioPlayer(contentsOf: book.fileURL) else {
+            guard let fileURL = book.fileURL,
+                let audioplayer = try? AVAudioPlayer(contentsOf: fileURL) else {
                 DispatchQueue.main.async(execute: {
-                    self.currentBooks = nil
+                    self.currentBook = nil
+
                     completion(false)
                 })
+
                 return
             }
 
@@ -57,15 +60,16 @@ class PlayerManager: NSObject {
             DispatchQueue.main.async(execute: {
                 // Set book metadata for lockscreen and control center
                 self.nowPlayingInfo = [
-                    MPMediaItemPropertyTitle: book.title,
-                    MPMediaItemPropertyArtist: book.author,
-                    MPMediaItemPropertyPlaybackDuration: audioplayer.duration
+                    MPMediaItemPropertyTitle: book.title as Any,
+                    MPMediaItemPropertyArtist: book.author as Any,
+                    MPMediaItemPropertyPlaybackDuration: audioplayer.duration,
+                    MPNowPlayingInfoPropertyDefaultPlaybackRate: self.speed,
+                    MPNowPlayingInfoPropertyPlaybackProgress: audioplayer.currentTime / audioplayer.duration
                 ]
 
-                self.nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(
-                    boundsSize: book.artwork.size,
-                    requestHandler: { (_) -> UIImage in
-                        return book.artwork
+                self.nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: book.artwork.size,
+                                                                                     requestHandler: { (_) -> UIImage in
+                                                                                         book.artwork
                 })
 
                 MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
@@ -86,7 +90,9 @@ class PlayerManager: NSObject {
 
     // Called every second by the timer
     @objc func update() {
-        guard let audioplayer = self.audioPlayer, let book = self.currentBook else {
+        guard let audioplayer = self.audioPlayer,
+            let book = self.currentBook,
+            let fileURL = book.fileURL else {
             return
         }
 
@@ -97,37 +103,43 @@ class PlayerManager: NSObject {
         book.percentCompleted = book.percentage
 
         DataManager.saveContext()
+        UserActivityManager.shared.recordTime()
 
         // Notify
         if isPercentageDifferent {
-            NotificationCenter.default.post(
-                name: .updatePercentage,
-                object: nil,
-                userInfo: [
-                "progress": book.progress,
-                "fileURL": book.fileURL
-                ] as [String: Any]
-            )
+            NotificationCenter.default.post(name: .updatePercentage,
+                                            object: nil,
+                                            userInfo: [
+                                                "progress": book.progress,
+                                                "fileURL": fileURL
+            ] as [String: Any])
         }
 
         self.nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
+
         MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
 
         // stop timer if the book is finished
         if Int(audioplayer.currentTime) == Int(audioplayer.duration) {
-            if self.timer != nil && self.timer.isValid {
+            if self.timer != nil, self.timer.isValid {
                 self.timer.invalidate()
             }
 
             // Once book a book is finished, ask for a review
             UserDefaults.standard.set(true, forKey: "ask_review")
-            NotificationCenter.default.post(name: .bookEnd, object: nil)
+            self.markAsCompleted(true)
+        }
+
+        if let currentChapter = book.currentChapter,
+            book.currentTime > currentChapter.end || book.currentTime < currentChapter.start {
+            book.updateCurrentChapter()
+            NotificationCenter.default.post(name: .chapterChange, object: nil, userInfo: nil)
         }
 
         let userInfo = [
             "time": currentTime,
-            "fileURL": book.fileURL
-            ] as [String: Any]
+            "fileURL": fileURL
+        ] as [String: Any]
 
         // Notify
         NotificationCenter.default.post(name: .bookPlaying, object: nil, userInfo: userInfo)
@@ -140,7 +152,7 @@ class PlayerManager: NSObject {
     }
 
     var isPlaying: Bool {
-        return audioPlayer?.isPlaying ?? false
+        return self.audioPlayer?.isPlaying ?? false
     }
 
     var boostVolume: Bool = false {
@@ -152,30 +164,30 @@ class PlayerManager: NSObject {
     }
 
     var duration: TimeInterval {
-        return audioPlayer?.duration ?? 0.0
+        return self.audioPlayer?.duration ?? 0.0
     }
 
     var currentTime: TimeInterval {
         get {
-            return audioPlayer?.currentTime ?? 0.0
+            return self.audioPlayer?.currentTime ?? 0.0
         }
 
         set {
-            guard let player = self.audioPlayer else {
-                return
-            }
+            guard let player = self.audioPlayer else { return }
 
             player.currentTime = newValue
-
-            self.currentBook?.currentTime = newValue
         }
     }
 
     var speed: Float {
         get {
+            guard let currentBook = self.currentBook else {
+                return 1.0
+            }
+
             let useGlobalSpeed = UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue)
             let globalSpeed = UserDefaults.standard.float(forKey: "global_speed")
-            let localSpeed = UserDefaults.standard.float(forKey: self.currentBook!.identifier+"_speed")
+            let localSpeed = currentBook.playlist?.speed ?? currentBook.speed
             let speed = useGlobalSpeed ? globalSpeed : localSpeed
 
             return speed > 0 ? speed : 1.0
@@ -186,7 +198,9 @@ class PlayerManager: NSObject {
                 return
             }
 
-            UserDefaults.standard.set(newValue, forKey: currentBook.identifier+"_speed")
+            currentBook.playlist?.speed = newValue
+            currentBook.speed = newValue
+            DataManager.saveContext()
 
             // set global speed
             if UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue) {
@@ -228,13 +242,13 @@ class PlayerManager: NSObject {
             MPRemoteCommandCenter.shared().skipForwardCommand.preferredIntervals = [newValue] as [NSNumber]
         }
     }
+}
 
-    // MARK: - Seek Controls
+// MARK: - Seek Controls
 
+extension PlayerManager {
     func jumpTo(_ time: Double, fromEnd: Bool = false) {
-        guard let player = self.audioPlayer else {
-            return
-        }
+        guard let player = self.audioPlayer else { return }
 
         player.currentTime = min(max(fromEnd ? player.duration - time : time, 0), player.duration)
 
@@ -242,17 +256,16 @@ class PlayerManager: NSObject {
             UserDefaults.standard.set(Date(), forKey: "\(Constants.UserDefaults.lastPauseTime)_\(currentBook.identifier!)")
         }
 
-        update()
+        self.update()
     }
 
     func jumpBy(_ direction: Double) {
-        guard let player = self.audioPlayer else {
-            return
-        }
+        guard let player = self.audioPlayer,
+            let book = self.currentBook else { return }
 
-        player.currentTime += direction
+        player.currentTime += book.getInterval(from: direction)
 
-        update()
+        self.update()
     }
 
     func forward() {
@@ -262,20 +275,28 @@ class PlayerManager: NSObject {
     func rewind() {
         self.jumpBy(-self.rewindInterval)
     }
+}
 
-    // MARK: - Playback
+// MARK: - Playback
 
+extension PlayerManager {
     func play(_ autoplayed: Bool = false) {
         guard let currentBook = self.currentBook, let audioplayer = self.audioPlayer else {
             return
         }
+
+        UserActivityManager.shared.resumePlaybackActivity()
 
         UserDefaults.standard.set(currentBook.identifier, forKey: Constants.UserDefaults.lastPlayedBook.rawValue)
 
         do {
             try AVAudioSession.sharedInstance().setActive(true)
         } catch {
-            // @TODO: Handle error if AVAudioSession fails to become active again
+            fatalError("Failed to activate the audio session")
+        }
+
+        if self.outputPort == nil {
+            self.outputPort = AVAudioSession.sharedInstance().currentRoute.outputs.first
         }
 
         let completed = Int(audioplayer.duration) == Int(audioplayer.currentTime)
@@ -310,9 +331,9 @@ class PlayerManager: NSObject {
 
         // Create timer if needed
         if self.timer == nil || (self.timer != nil && !self.timer.isValid) {
-            self.timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(update), userInfo: nil, repeats: true)
+            self.timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.update), userInfo: nil, repeats: true)
 
-            RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
+            RunLoop.main.add(self.timer, forMode: RunLoop.Mode.common)
         }
 
         // Set play state on player and control center
@@ -320,7 +341,7 @@ class PlayerManager: NSObject {
 
         self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 1.0
         self.nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
 
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: .bookPlayed, object: nil)
@@ -333,6 +354,8 @@ class PlayerManager: NSObject {
         guard let audioplayer = self.audioPlayer, let currentBook = self.currentBook else {
             return
         }
+
+        UserActivityManager.shared.stopPlaybackActivity()
 
         UserDefaults.standard.set(currentBook.identifier, forKey: Constants.UserDefaults.lastPlayedBook.rawValue)
 
@@ -348,15 +371,13 @@ class PlayerManager: NSObject {
 
         self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0.0
         self.nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
 
         UserDefaults.standard.set(Date(), forKey: "\(Constants.UserDefaults.lastPauseTime)_\(currentBook.identifier!)")
 
-        do {
-            try AVAudioSession.sharedInstance().setActive(false)
-        } catch {
-            // @TODO: Handle error if AVAudioSession fails to become active again
-        }
+        try? AVAudioSession.sharedInstance().setActive(false)
+
+        self.outputPort = AVAudioSession.sharedInstance().currentRoute.outputs.first
 
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: .bookPaused, object: nil)
@@ -364,10 +385,8 @@ class PlayerManager: NSObject {
     }
 
     // Toggle play/pause of book
-    func playPause(autoplayed: Bool = false) {
-        guard let audioplayer = self.audioPlayer else {
-            return
-        }
+    func playPause(autoplayed _: Bool = false) {
+        guard let audioplayer = self.audioPlayer else { return }
 
         // Pause player if it's playing
         if audioplayer.isPlaying {
@@ -378,7 +397,15 @@ class PlayerManager: NSObject {
     }
 
     func stop() {
+        // Invalidate timer if needed
+        if self.timer != nil {
+            self.timer.invalidate()
+        }
+
         self.audioPlayer?.stop()
+        self.audioPlayer = nil
+
+        UserActivityManager.shared.stopPlaybackActivity()
 
         var userInfo: [AnyHashable: Any]?
 
@@ -386,15 +413,29 @@ class PlayerManager: NSObject {
             userInfo = ["book": book]
         }
 
-        self.currentBooks = []
+        self.currentBook = nil
+
+        UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.lastPlayedBook.rawValue)
 
         DispatchQueue.main.async {
-            NotificationCenter.default.post(
-                name: .bookStopped,
-                object: nil,
-                userInfo: userInfo
-            )
+            NotificationCenter.default.post(name: .bookStopped,
+                                            object: nil,
+                                            userInfo: userInfo)
         }
+    }
+
+    func markAsCompleted(_ flag: Bool) {
+        guard let book = self.currentBook,
+            let fileURL = book.fileURL else { return }
+
+        book.markAsFinished(flag)
+        DataManager.saveContext()
+
+        NotificationCenter.default.post(name: .bookEnd,
+                                        object: nil,
+                                        userInfo: [
+                                            "fileURL": fileURL
+        ])
     }
 }
 
@@ -411,22 +452,16 @@ extension PlayerManager: AVAudioPlayerDelegate {
 
         self.update()
 
-        guard let slicedCurrentBooks = self.currentBooks?.dropFirst(), !slicedCurrentBooks.isEmpty else {
-            return
-        }
+        guard let nextBook = self.currentBook?.nextBook() else { return }
 
-        let currentBooks = Array(slicedCurrentBooks)
-
-        self.load(currentBooks, completion: { (success) in
+        self.load(nextBook, completion: { success in
             guard success else { return }
 
-            let userInfo = ["books": currentBooks]
+            let userInfo = ["book": nextBook]
 
-            NotificationCenter.default.post(
-                name: .bookChange,
-                object: nil,
-                userInfo: userInfo
-            )
+            NotificationCenter.default.post(name: .bookChange,
+                                            object: nil,
+                                            userInfo: userInfo)
         })
     }
 }

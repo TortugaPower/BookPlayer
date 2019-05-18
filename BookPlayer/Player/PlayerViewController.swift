@@ -6,11 +6,12 @@
 //  Copyright © 2016 Tortuga Power. All rights reserved.
 //
 
-import UIKit
 import AVFoundation
+import AVKit
 import MediaPlayer
 import StoreKit
-import AVKit
+import Themeable
+import UIKit
 
 class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet private weak var closeButton: UIButton!
@@ -19,7 +20,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet private weak var speedButton: UIBarButtonItem!
     @IBOutlet private weak var sleepButton: UIBarButtonItem!
     @IBOutlet private var sleepLabel: UIBarButtonItem!
-    @IBOutlet private weak var chaptersButton: UIBarButtonItem!
+    @IBOutlet private var chaptersButton: UIBarButtonItem!
     @IBOutlet private weak var moreButton: UIBarButtonItem!
     @IBOutlet private weak var backgroundImage: UIImageView!
 
@@ -31,6 +32,11 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     private weak var metaViewController: PlayerMetaViewController?
 
     let darknessThreshold: CGFloat = 0.2
+    let dismissThreshold: CGFloat = 44.0 * UIScreen.main.nativeScale
+    var dismissFeedbackTriggered = false
+
+    private var themedStatusBarStyle: UIStatusBarStyle?
+    private var blurEffectView: UIVisualEffectView?
 
     // MARK: - Lifecycle
 
@@ -46,7 +52,6 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         if let navigationController = segue.destination as? UINavigationController,
             let viewController = navigationController.viewControllers.first as? ChaptersViewController,
             let currentChapter = self.currentBook.currentChapter {
-
             viewController.chapters = self.currentBook.chapters?.array as? [Chapter]
             viewController.currentChapter = currentChapter
             viewController.didSelectChapter = { selectedChapter in
@@ -55,7 +60,6 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
                 PlayerManager.shared.jumpTo(selectedChapter.start + 0.01)
             }
         }
-
     }
 
     // Prevents dragging the view down from changing the safeAreaInsets.top
@@ -76,13 +80,14 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
         super.viewDidLoad()
 
+        setUpTheming()
         self.setupView(book: self.currentBook!)
 
         // Make toolbar transparent
         self.bottomToolbar.setBackgroundImage(UIImage(), forToolbarPosition: .any, barMetrics: .default)
         self.bottomToolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
         self.sleepLabel.title = ""
-        self.speedButton.setTitleTextAttributes([NSAttributedStringKey.font: UIFont.systemFont(ofSize: 18.0, weight: .semibold)], for: .normal)
+        self.speedButton.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18.0, weight: .semibold)], for: .normal)
 
         // Observers
         NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: .requestReview, object: nil)
@@ -90,7 +95,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: .bookChange, object: nil)
 
         // Gestures
-        self.pan = UIPanGestureRecognizer(target: self, action: #selector(panAction))
+        self.pan = UIPanGestureRecognizer(target: self, action: #selector(self.panAction))
         self.pan.delegate = self
         self.pan.maximumNumberOfTouches = 1
         self.pan.cancelsTouchesInView = true
@@ -125,10 +130,6 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.speedButton.title = self.formatSpeed(PlayerManager.shared.speed)
         self.speedButton.accessibilityLabel = String(describing: self.formatSpeed(PlayerManager.shared.speed) + " speed")
 
-        self.view.backgroundColor = currentBook.artworkColors.background
-        self.bottomToolbar.tintColor = currentBook.artworkColors.secondary
-        self.closeButton.tintColor = currentBook.artworkColors.secondary
-
         self.updateToolbar()
 
         if currentBook.usesDefaultArtwork {
@@ -137,17 +138,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             return
         }
 
-        let blur = UIBlurEffect(style: currentBook.artworkColors.displayOnDark ? UIBlurEffectStyle.dark : UIBlurEffectStyle.light)
-        let blurView = UIVisualEffectView(effect: blur)
-
-        blurView.frame = self.view.bounds
-
-        self.backgroundImage.addSubview(blurView)
         self.backgroundImage.image = currentBook.artwork
-
-        // Apply the blurred view in relation to the brightness and luminance of the background color.
-        // This makes darker backgrounds stay interesting
-        self.backgroundImage.alpha = 0.1 + min((1 - currentBook.artworkColors.background.luminance) * (1 - currentBook.artworkColors.background.brightness), 0.7)
 
         // Solution thanks to https://forums.developer.apple.com/thread/63166#180445
         self.modalPresentationCapturesStatusBarAppearance = true
@@ -168,17 +159,13 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             items.append(self.sleepLabel)
         }
 
-        if currentBook.hasChapters {
+        if self.currentBook.hasChapters {
             items.append(spacer)
             items.append(self.chaptersButton)
         }
 
         if #available(iOS 11, *) {
-            let avRoutePickerBarButtonItem = UIBarButtonItem(
-                customView: AVRoutePickerView(
-                    frame: CGRect(x: 0.0, y: 0.0, width: 20.0, height: 20.0)
-                )
-            )
+            let avRoutePickerBarButtonItem = UIBarButtonItem(customView: AVRoutePickerView(frame: CGRect(x: 0.0, y: 0.0, width: 20.0, height: 20.0)))
 
             avRoutePickerBarButtonItem.isAccessibilityElement = true
             avRoutePickerBarButtonItem.accessibilityLabel = "Audio Source"
@@ -193,7 +180,8 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return currentBook.artworkColors.displayOnDark ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
+        let style = self.currentBook.artworkColors.useDarkVariant ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
+        return self.themedStatusBarStyle ?? style
     }
 
     // MARK: - Interface actions
@@ -208,9 +196,8 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
 
     @IBAction func setSpeed() {
         let actionSheet = UIAlertController(title: nil, message: "Set playback speed", preferredStyle: .actionSheet)
-        let speedOptions: [Float] = [2.5, 2, 1.75, 1.5, 1.25, 1, 0.75]
 
-        for speed in speedOptions {
+        for speed in PlayerManager.speedOptions {
             if speed == PlayerManager.shared.speed {
                 actionSheet.addAction(UIAlertAction(title: "\u{00A0} \(speed) ✓", style: .default, handler: nil))
             } else {
@@ -228,25 +215,23 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     @IBAction func setSleepTimer() {
-        let actionSheet = SleepTimer.shared.actionSheet(
-            onStart: {
-                self.updateToolbar(true, animated: true)
-            },
-            onProgress: { (timeLeft: Double) -> Void in
-                self.sleepLabel.title = SleepTimer.shared.durationFormatter.string(from: timeLeft)
-                if let timeLeft = SleepTimer.shared.durationFormatter.string(from: timeLeft) {
-                    self.sleepLabel.accessibilityLabel = String(describing: timeLeft + " remaining until sleep")
-                }
-            },
-            onEnd: { (_ cancelled: Bool) -> Void in
-                if !cancelled {
-                    PlayerManager.shared.pause()
-                }
-
-                self.sleepLabel.title = ""
-                self.updateToolbar(false, animated: true)
+        let actionSheet = SleepTimer.shared.actionSheet(onStart: {
+            self.updateToolbar(true, animated: true)
+        },
+                                                        onProgress: { (timeLeft: Double) -> Void in
+            self.sleepLabel.title = SleepTimer.shared.durationFormatter.string(from: timeLeft)
+            if let timeLeft = SleepTimer.shared.durationFormatter.string(from: timeLeft) {
+                self.sleepLabel.accessibilityLabel = String(describing: timeLeft + " remaining until sleep")
             }
-        )
+        },
+                                                        onEnd: { (_ cancelled: Bool) -> Void in
+            if !cancelled {
+                PlayerManager.shared.pause()
+            }
+
+            self.sleepLabel.title = ""
+            self.updateToolbar(false, animated: true)
+        })
 
         self.present(actionSheet, animated: true, completion: nil)
     }
@@ -263,12 +248,11 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             PlayerManager.shared.jumpTo(0.0)
         }))
 
-        actionSheet.addAction(UIAlertAction(title: "Mark as Finished", style: .default, handler: { _ in
-            PlayerManager.shared.pause()
-            // Player resets back to 0.0 if currentTime is set to player's duration
-            PlayerManager.shared.jumpTo(0.1, fromEnd: true)
+        let markTitle = self.currentBook.isFinished ? "Mark as Unfinished" : "Mark as Finished"
 
-            self.requestReview()
+        actionSheet.addAction(UIAlertAction(title: markTitle, style: .default, handler: { _ in
+            PlayerManager.shared.pause()
+            PlayerManager.shared.markAsCompleted(!self.currentBook.isFinished)
         }))
 
         actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
@@ -287,7 +271,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         // request for review
         if #available(iOS 10.3, *), UIApplication.shared.applicationState == .active {
             #if RELEASE
-                SKStoreReviewController.requestReview()
+            SKStoreReviewController.requestReview()
             #endif
 
             UserDefaults.standard.set(false, forKey: "ask_review")
@@ -295,10 +279,11 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     @objc func bookChange(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-            let books = userInfo["books"] as? [Book],
-            let book = books.first else {
-                return
+        guard
+            let userInfo = notification.userInfo,
+            let book = userInfo["book"] as? Book
+        else {
+            return
         }
 
         self.currentBook = book
@@ -328,40 +313,71 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         }
 
         switch gestureRecognizer.state {
-            case .began:
-                gestureRecognizer.setTranslation(CGPoint(x: 0, y: 0), in: self.view.superview)
+        case .began:
+            gestureRecognizer.setTranslation(CGPoint(x: 0, y: 0), in: self.view.superview)
 
-            case .changed:
-                let translation = gestureRecognizer.translation(in: self.view)
+        case .changed:
+            let translation = gestureRecognizer.translation(in: self.view)
 
-                self.updatePresentedViewForTranslation(translation.y)
+            self.updatePresentedViewForTranslation(translation.y)
 
-            case .ended, .cancelled, .failed:
-                let dismissThreshold: CGFloat = 44.0 * UIScreen.main.nativeScale
-                let translation = gestureRecognizer.translation(in: self.view)
+            if translation.y > self.dismissThreshold, !self.dismissFeedbackTriggered {
+                self.dismissFeedbackTriggered = true
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            }
 
-                if translation.y > dismissThreshold {
-                    self.dismissPlayer()
+        case .ended, .cancelled, .failed:
+            let translation = gestureRecognizer.translation(in: self.view)
 
-                    return
-                }
+            if translation.y > self.dismissThreshold {
+                self.dismissPlayer()
+                return
+            }
 
-                UIView.animate(
-                    withDuration: 0.3,
-                    delay: 0.0,
-                    usingSpringWithDamping: 0.75,
-                    initialSpringVelocity: 1.5,
-                    options: .preferredFramesPerSecond60,
-                    animations: {
-                        self.view?.transform = .identity
-                    }
-                )
+            self.dismissFeedbackTriggered = false
 
-            default: break
+            UIView.animate(withDuration: 0.3,
+                           delay: 0.0,
+                           usingSpringWithDamping: 0.75,
+                           initialSpringVelocity: 1.5,
+                           options: .preferredFramesPerSecond60,
+                           animations: {
+                               self.view?.transform = .identity
+            })
+
+        default: break
         }
     }
+
     override func accessibilityPerformEscape() -> Bool {
-        dismissPlayer()
+        self.dismissPlayer()
         return true
+    }
+}
+
+extension PlayerViewController: Themeable {
+    func applyTheme(_ theme: Theme) {
+        self.themedStatusBarStyle = theme.useDarkVariant
+            ? .lightContent
+            : .default
+        setNeedsStatusBarAppearanceUpdate()
+
+        self.view.backgroundColor = theme.backgroundColor
+        self.bottomToolbar.tintColor = theme.highlightColor
+        self.closeButton.tintColor = theme.highlightColor
+
+        // Apply the blurred view in relation to the brightness and luminance of the background color.
+        // This makes darker backgrounds stay interesting
+        self.backgroundImage.alpha = 0.1 + min((1 - theme.backgroundColor.luminance) * (1 - theme.backgroundColor.brightness), 0.7)
+
+        self.blurEffectView?.removeFromSuperview()
+
+        let blur = UIBlurEffect(style: theme.useDarkVariant ? UIBlurEffect.Style.dark : UIBlurEffect.Style.light)
+        let blurView = UIVisualEffectView(effect: blur)
+
+        blurView.frame = self.view.bounds
+
+        self.blurEffectView = blurView
+        self.backgroundImage.addSubview(blurView)
     }
 }

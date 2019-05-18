@@ -7,11 +7,10 @@
 //
 //
 
-import Foundation
 import CoreData
+import Foundation
 
 extension Book {
-
     @nonobjc public class func fetchRequest() -> NSFetchRequest<Book> {
         return NSFetchRequest<Book>(entityName: "Book")
     }
@@ -21,13 +20,12 @@ extension Book {
     @NSManaged public var usesDefaultArtwork: Bool
     @NSManaged public var chapters: NSOrderedSet?
     @NSManaged public var playlist: Playlist?
-    @NSManaged public var artworkColors: ArtworkColors!
-
+    @NSManaged public var artworkColors: Theme!
 }
 
 // MARK: Generated accessors for chapters
-extension Book {
 
+extension Book {
     @objc(insertObject:inChaptersAtIndex:)
     @NSManaged public func insertIntoChapters(_ value: Chapter, at idx: Int)
 
@@ -57,5 +55,4 @@ extension Book {
 
     @objc(removeChapters:)
     @NSManaged public func removeFromChapters(_ values: NSOrderedSet)
-
 }
