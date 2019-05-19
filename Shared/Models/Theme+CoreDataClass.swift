@@ -15,7 +15,7 @@ enum ArtworkColorsError: Error {
 }
 
 @objc(Theme)
-public class Theme: NSManagedObject {
+public class Theme: NSManagedObject, Codable {
     public var useDarkVariant = false
 
     public var locked = false
@@ -68,6 +68,44 @@ public class Theme: NSManagedObject {
         self.darkSecondaryHex = Constants.DefaultArtworkColors.secondary.darkColor
         self.defaultAccentHex = Constants.DefaultArtworkColors.highlight.lightColor
         self.darkAccentHex = Constants.DefaultArtworkColors.highlight.darkColor
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case title, defaultBackgroundHex, defaultPrimaryHex, defaultSecondaryHex, defaultAccentHex, darkBackgroundHex, darkPrimaryHex, darkSecondaryHex, darkAccentHex
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(title, forKey: .title)
+        try container.encode(defaultBackgroundHex, forKey: .defaultBackgroundHex)
+        try container.encode(defaultPrimaryHex, forKey: .defaultPrimaryHex)
+        try container.encode(defaultSecondaryHex, forKey: .defaultSecondaryHex)
+        try container.encode(defaultAccentHex, forKey: .defaultAccentHex)
+        try container.encode(darkBackgroundHex, forKey: .darkBackgroundHex)
+        try container.encode(darkPrimaryHex, forKey: .darkPrimaryHex)
+        try container.encode(darkSecondaryHex, forKey: .darkSecondaryHex)
+        try container.encode(darkAccentHex, forKey: .darkAccentHex)
+    }
+
+    public required convenience init(from decoder: Decoder) throws {
+        // Create NSEntityDescription with NSManagedObjectContext
+        guard let contextUserInfoKey = CodingUserInfoKey.context,
+            let managedObjectContext = decoder.userInfo[contextUserInfoKey] as? NSManagedObjectContext,
+            let entity = NSEntityDescription.entity(forEntityName: "Theme", in: managedObjectContext) else {
+            fatalError("Failed to decode Theme!")
+        }
+        self.init(entity: entity, insertInto: nil)
+
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        title = try values.decode(String.self, forKey: .title)
+        defaultBackgroundHex = try values.decode(String.self, forKey: .defaultAccentHex)
+        defaultPrimaryHex = try values.decode(String.self, forKey: .defaultPrimaryHex)
+        defaultSecondaryHex = try values.decode(String.self, forKey: .defaultSecondaryHex)
+        defaultAccentHex = try values.decode(String.self, forKey: .defaultAccentHex)
+        darkBackgroundHex = try values.decode(String.self, forKey: .darkBackgroundHex)
+        darkPrimaryHex = try values.decode(String.self, forKey: .darkPrimaryHex)
+        darkSecondaryHex = try values.decode(String.self, forKey: .darkSecondaryHex)
+        darkAccentHex = try values.decode(String.self, forKey: .darkAccentHex)
     }
 }
 

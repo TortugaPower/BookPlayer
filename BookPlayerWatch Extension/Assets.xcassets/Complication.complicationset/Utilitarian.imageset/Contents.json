@@ -1,0 +1,35 @@
+{
+  "images" : [
+    {
+      "idiom" : "watch",
+      "filename" : "UtilitarianSmall-Square-38mm.png",
+      "screen-width" : "<=145",
+      "scale" : "2x"
+    },
+    {
+      "idiom" : "watch",
+      "filename" : "UtilitarianSmall-Square-40mm-42mm.png",
+      "screen-width" : ">161",
+      "scale" : "2x"
+    },
+    {
+      "idiom" : "watch",
+      "filename" : "UtilitarianSmall-Square-40mm-42mm-1.png",
+      "screen-width" : ">145",
+      "scale" : "2x"
+    },
+    {
+      "idiom" : "watch",
+      "filename" : "UtilitarianSmall-Square-44mm.png",
+      "screen-width" : ">183",
+      "scale" : "2x"
+    }
+  ],
+  "info" : {
+    "version" : 1,
+    "author" : "xcode"
+  },
+  "properties" : {
+    "template-rendering-intent" : "template"
+  }
+}

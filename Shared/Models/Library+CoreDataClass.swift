@@ -11,7 +11,7 @@ import CoreData
 import Foundation
 
 @objc(Library)
-public class Library: NSManagedObject {
+public class Library: NSManagedObject, Codable {
     public var itemsArray: [LibraryItem] {
         return self.items?.array as? [LibraryItem] ?? []
     }
@@ -87,6 +87,77 @@ public class Library: NSManagedObject {
         }
 
         return nil
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case items, books, playlists, lastPlayedBook, currentTheme
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        guard let itemsArray = self.items?.array as? [LibraryItem] else { return }
+
+        var books = [Int: Book]()
+        var playlists = [Int: Playlist]()
+
+        for (index, item) in itemsArray.enumerated() {
+            if let book = item as? Book {
+                books[index] = book
+            }
+            if let playlist = item as? Playlist {
+                playlists[index] = playlist
+            }
+        }
+
+        if !books.isEmpty {
+            try container.encode(books, forKey: .books)
+        }
+
+        if !playlists.isEmpty {
+            try container.encode(playlists, forKey: .playlists)
+        }
+
+        if let book = self.lastPlayedBook {
+            try container.encode(book, forKey: .lastPlayedBook)
+        }
+
+        try container.encode(currentTheme, forKey: .currentTheme)
+    }
+
+    public required convenience init(from decoder: Decoder) throws {
+        // Create NSEntityDescription with NSManagedObjectContext
+        guard let contextUserInfoKey = CodingUserInfoKey.context,
+            let managedObjectContext = decoder.userInfo[contextUserInfoKey] as? NSManagedObjectContext,
+            let entity = NSEntityDescription.entity(forEntityName: "Library", in: managedObjectContext) else {
+            fatalError("Failed to decode Library")
+        }
+        self.init(entity: entity, insertInto: nil)
+
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+
+        var books = [Int: LibraryItem]()
+        var playlists = [Int: LibraryItem]()
+
+        if let decodedBooks = try? values.decode(Dictionary<Int, Book>.self, forKey: .books) {
+            books = decodedBooks
+        }
+
+        if let decodedPlaylists = try? values.decode(Dictionary<Int, Playlist>.self, forKey: .playlists) {
+            playlists = decodedPlaylists
+        }
+
+        let unsortedItemsDict: [Int: LibraryItem] = books.merging(playlists) { (_, new) -> LibraryItem in new }
+        let sortedItemsTuple = unsortedItemsDict.sorted { $0.key < $1.key }
+        let sortedItems = Array(sortedItemsTuple.map({ $0.value }))
+
+        items = NSOrderedSet(array: sortedItems)
+
+        if let book = try? values.decode(Book.self, forKey: .lastPlayedBook) {
+            self.lastPlayedBook = book
+        }
+
+        currentTheme = try? values.decode(Theme.self, forKey: .currentTheme)
     }
 }
 
