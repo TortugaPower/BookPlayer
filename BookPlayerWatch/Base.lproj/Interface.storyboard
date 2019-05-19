@@ -144,91 +144,22 @@
                         <outlet property="separatorLastBookView" destination="0gO-6t-1Tq" id="Zqp-6R-fCx"/>
                         <outlet property="separatorView" destination="AYB-kc-mzC" id="a5u-cr-r0s"/>
                         <outlet property="spacerGroupView" destination="68o-8y-3Sm" id="NAX-xi-W3d"/>
-                        <segue destination="isV-nN-yMh" kind="relationship" relationship="nextPage" id="Uwt-zL-R9C"/>
+                        <segue destination="0JY-vA-wko" kind="relationship" relationship="nextPage" id="wsy-ht-ZtQ"/>
                     </connections>
                 </controller>
             </objects>
             <point key="canvasLocation" x="220" y="345"/>
         </scene>
-        <!--BookPlayer-->
-        <scene sceneID="OI5-31-5gz">
+        <!--NowPlayingController-->
+        <scene sceneID="nfV-dD-G6f">
             <objects>
-                <controller identifier="PlayerInterfaceController" title="BookPlayer" id="isV-nN-yMh" customClass="PlayerInterfaceController" customModule="BookPlayerWatch_Extension">
+                <controller identifier="NowPlayingController" id="0JY-vA-wko" customClass="NowPlayingController" customModule="BookPlayerWatch_Extension">
                     <items>
-                        <group width="1" height="0.25" alignment="left" layout="vertical" spacing="0.0" id="wGG-Qy-xJf">
-                            <items>
-                                <label width="1" height="18" alignment="center" verticalAlignment="center" textAlignment="center" id="iNO-AP-gRQ"/>
-                                <label width="1" height="18" alignment="center" verticalAlignment="bottom" textAlignment="center" id="lcB-as-ICQ">
-                                    <color key="textColor" red="0.63922446966171265" green="0.63919985294342041" blue="0.63921660184860229" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                                </label>
-                            </items>
-                        </group>
-                        <group width="1" height="0.40000000000000002" alignment="left" id="X6V-8H-VBA">
-                            <items>
-                                <button alignment="left" verticalAlignment="center" id="Dfc-DH-Lcg">
-                                    <group key="contentGroup" width="0.29999999999999999" alignment="left" layout="overlap" id="wjb-3P-LtO">
-                                        <items>
-                                            <imageView width="1" alignment="left" image="rewind-icon" contentMode="center" id="d7q-dH-J1N">
-                                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                            </imageView>
-                                            <label alignment="center" verticalAlignment="center" text="-30" id="wWL-ap-X5h">
-                                                <fontDescription key="font" style="UICTFontTextStyleFootnote"/>
-                                            </label>
-                                        </items>
-                                    </group>
-                                    <connections>
-                                        <action selector="skipBack" destination="isV-nN-yMh" id="0Vk-Bi-KaO"/>
-                                    </connections>
-                                </button>
-                                <button alignment="center" verticalAlignment="center" id="VvY-BO-mvv">
-                                    <group key="contentGroup" width="0.40000000000000002" alignment="left" layout="overlap" id="kih-Zr-W6O">
-                                        <items>
-                                            <imageView width="0.5" height="0.81999999999999995" alignment="center" verticalAlignment="center" image="music-player-play" contentMode="scaleAspectFit" id="QRS-L6-YtL">
-                                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                            </imageView>
-                                            <imageView width="0.5" height="0.81999999999999995" alignment="center" verticalAlignment="center" hidden="YES" image="music-player-pause" contentMode="scaleAspectFit" id="F7Q-te-qBO">
-                                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                            </imageView>
-                                        </items>
-                                    </group>
-                                    <connections>
-                                        <action selector="playPausePressed" destination="isV-nN-yMh" id="cfy-Na-DiN"/>
-                                    </connections>
-                                </button>
-                                <button alignment="right" verticalAlignment="center" id="Ddf-6U-PdN">
-                                    <group key="contentGroup" width="0.29999999999999999" alignment="left" layout="overlap" id="9nz-yT-wdo">
-                                        <items>
-                                            <imageView width="1" alignment="left" image="forward-icon" contentMode="center" id="BV1-VE-M82">
-                                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                            </imageView>
-                                            <label alignment="center" verticalAlignment="center" text="30" id="lW6-hB-jdW">
-                                                <fontDescription key="font" style="UICTFontTextStyleFootnote"/>
-                                            </label>
-                                        </items>
-                                    </group>
-                                    <connections>
-                                        <action selector="skipForward" destination="isV-nN-yMh" id="j1N-Ik-1vh"/>
-                                    </connections>
-                                </button>
-                            </items>
-                        </group>
-                        <volumeControlView alignment="center" verticalAlignment="bottom" controlsLocalVolume="NO" id="8rr-le-Bhj"/>
+                        <nowPlayingView alignment="left" id="oW0-2e-C1I"/>
                     </items>
-                    <connections>
-                        <outlet property="authorLabel" destination="lcB-as-ICQ" id="uyF-aM-mbx"/>
-                        <outlet property="forwardButton" destination="Ddf-6U-PdN" id="ASk-SB-ccH"/>
-                        <outlet property="forwardLabel" destination="lW6-hB-jdW" id="pwn-yb-hHK"/>
-                        <outlet property="pauseImage" destination="F7Q-te-qBO" id="8pf-d5-bXO"/>
-                        <outlet property="playButton" destination="VvY-BO-mvv" id="fm2-Oi-Zkn"/>
-                        <outlet property="playImage" destination="QRS-L6-YtL" id="BYE-8z-PiI"/>
-                        <outlet property="rewindButton" destination="Dfc-DH-Lcg" id="BcN-UB-oel"/>
-                        <outlet property="rewindLabel" destination="wWL-ap-X5h" id="gnE-IK-yaJ"/>
-                        <outlet property="titleLabel" destination="iNO-AP-gRQ" id="JRZ-F9-yBZ"/>
-                        <outlet property="volumeControl" destination="8rr-le-Bhj" id="CTN-pQ-XYI"/>
-                    </connections>
                 </controller>
             </objects>
-            <point key="canvasLocation" x="481" y="344"/>
+            <point key="canvasLocation" x="481" y="345"/>
         </scene>
     </scenes>
 </document>

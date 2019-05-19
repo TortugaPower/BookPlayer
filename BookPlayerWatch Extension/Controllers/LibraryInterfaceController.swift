@@ -82,14 +82,6 @@ class LibraryInterfaceController: WKInterfaceController {
             return
         }
 
-        guard let complications = CLKComplicationServer.sharedInstance().activeComplications else {
-            return
-        }
-
-        for complication in complications {
-            CLKComplicationServer.sharedInstance().reloadTimeline(for: complication)
-        }
-//        reloadTimelineForComplication
         NotificationCenter.default.post(name: .bookPlayed, object: nil)
     }
 
@@ -122,10 +114,25 @@ class LibraryInterfaceController: WKInterfaceController {
 
     func setupLastBook() {
         guard let book = self.library.lastPlayedBook else {
+            self.hideLastBook(true)
             return
         }
 
+        self.hideLastBook(false)
+
+        self.lastBookTableView.setNumberOfRows(1, withRowType: "LibraryRow")
+
         NotificationCenter.default.post(name: .lastBook, object: nil, userInfo: ["book": book])
+
+        guard let row = self.lastBookTableView.rowController(at: 0) as? ItemRow else { return }
+
+        row.titleLabel.setText(book.title)
+    }
+
+    func hideLastBook(_ flag: Bool) {
+        self.lastBookTableView.setHidden(flag)
+        self.lastBookHeaderTitle.setHidden(flag)
+        self.separatorLastBookView.setHidden(flag)
     }
 
     func setupLibraryTable() {
@@ -184,7 +191,6 @@ class LibraryInterfaceController: WKInterfaceController {
         self.libraryHeaderTitle.setText(playlist.title!)
         self.setupPlaylistTable()
         self.showPlaylist(true)
-        self.scroll(to: self.playlistHeader, at: .top, animated: true)
     }
 
     @IBAction func collapsePlaylist() {
@@ -209,6 +215,8 @@ class LibraryInterfaceController: WKInterfaceController {
             if !show {
                 self.playlistTableView.setHidden(true)
                 self.spacerGroupView.setHeight(0.0)
+            } else {
+                self.scroll(to: self.playlistHeader, at: .top, animated: true)
             }
         })
     }

@@ -181,7 +181,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             guard let bookIdentifier = message["identifier"] as? String else { return }
 
             if let loadedBook = PlayerManager.shared.currentBook, loadedBook.identifier == bookIdentifier {
-                PlayerManager.shared.playPause()
+                PlayerManager.shared.play()
                 return
             }
 
