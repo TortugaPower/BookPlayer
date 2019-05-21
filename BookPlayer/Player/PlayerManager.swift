@@ -29,6 +29,8 @@ class PlayerManager: NSObject {
 
     var outputPort: AVAudioSessionPortDescription?
 
+    private(set) var hasLoadedBook = false
+
     func load(_ book: Book, completion: @escaping (Bool) -> Void) {
         if self.currentBook != nil {
             self.stop()
@@ -84,6 +86,7 @@ class PlayerManager: NSObject {
                 NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["book": book])
 
                 completion(true)
+                self.hasLoadedBook = true
             })
         }
     }

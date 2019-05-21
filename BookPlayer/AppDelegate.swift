@@ -86,7 +86,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
-        PlayerManager.shared.play()
+        self.playLastBook()
         return true
     }
 
@@ -122,7 +122,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func playLastBook() {
-        if PlayerManager.shared.isLoaded {
+        if PlayerManager.shared.hasLoadedBook {
             PlayerManager.shared.play()
         } else {
             UserDefaults.standard.set(true, forKey: Constants.UserActivityPlayback)
