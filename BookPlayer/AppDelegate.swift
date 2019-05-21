@@ -70,7 +70,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if let activityDictionary = launchOptions?[.userActivityDictionary] as? [UIApplication.LaunchOptionsKey: Any],
             let activityType = activityDictionary[.userActivityType] as? String,
             activityType == Constants.UserActivityPlayback {
-            defaults.set(true, forKey: activityType)
+            self.playLastBook()
         }
 
         // Create a Sentry client and start crash handler
@@ -119,7 +119,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
-        PlayerManager.shared.play()
+        self.playLastBook()
         return true
     }
 
@@ -365,7 +365,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 extension AppDelegate {
     func playLastBook() {
-        if PlayerManager.shared.isLoaded {
+        if PlayerManager.shared.hasLoadedBook {
             PlayerManager.shared.play()
         } else {
             UserDefaults.standard.set(true, forKey: Constants.UserActivityPlayback)
