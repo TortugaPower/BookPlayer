@@ -365,7 +365,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 extension AppDelegate {
     func playLastBook() {
-        if PlayerManager.shared.isLoaded {
+        if PlayerManager.shared.hasLoadedBook {
             PlayerManager.shared.play()
         } else {
             UserDefaults.standard.set(true, forKey: Constants.UserActivityPlayback)
