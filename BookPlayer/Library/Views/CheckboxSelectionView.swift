@@ -6,6 +6,7 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
+import BookPlayerKit
 import UIKit
 
 class CheckboxSelectionView: UIView {

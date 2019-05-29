@@ -6,6 +6,7 @@
 //  Copyright © 2016 Tortuga Power. All rights reserved.
 //
 
+import BookPlayerKit
 import MediaPlayer
 import SwiftReorder
 import UIKit
@@ -60,11 +61,13 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         DataManager.notifyPendingFiles()
     }
 
-    func loadLastBook() {
+    func migrateLastPlayedBook() {
         guard let identifier = UserDefaults.standard.string(forKey: Constants.UserDefaults.lastPlayedBook.rawValue),
             let item = self.library.getItem(with: identifier) else {
             return
         }
+
+        UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.lastPlayedBook.rawValue)
 
         var book: Book?
 
@@ -77,16 +80,30 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
             book = lastPlayedBook
         }
 
-        guard book != nil else { return }
+        self.library.lastPlayedBook = book
+        DataManager.saveContext()
+    }
+
+    func loadLastBook() {
+        self.migrateLastPlayedBook()
+
+        guard let book = self.library.lastPlayedBook else {
+            return
+        }
 
         // Preload player
-        PlayerManager.shared.load(book!) { loaded in
+        PlayerManager.shared.load(book) { loaded in
             guard loaded else { return }
 
             NotificationCenter.default.post(name: .playerDismissed, object: nil, userInfo: nil)
             if UserDefaults.standard.bool(forKey: Constants.UserActivityPlayback) {
                 UserDefaults.standard.removeObject(forKey: Constants.UserActivityPlayback)
                 PlayerManager.shared.play()
+            }
+
+            if UserDefaults.standard.bool(forKey: Constants.UserDefaults.showPlayer.rawValue) {
+                UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.showPlayer.rawValue)
+                self.showPlayerView(book: book)
             }
         }
     }

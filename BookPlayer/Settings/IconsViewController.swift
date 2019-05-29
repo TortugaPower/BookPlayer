@@ -6,6 +6,7 @@
 //  Copyright © 2019 Tortuga Power. All rights reserved.
 //
 
+import BookPlayerKit
 import Themeable
 import UIKit
 
@@ -14,10 +15,12 @@ class IconsViewController: UIViewController {
     @IBOutlet weak var bannerView: PlusBannerView!
     @IBOutlet weak var bannerHeightConstraint: NSLayoutConstraint!
 
-    var icons = DataManager.getIcons()
+    var icons: [Icon]!
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        self.icons = self.getIcons()
 
         self.tableView.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: self.tableView.frame.size.width, height: 1))
 
@@ -34,6 +37,16 @@ class IconsViewController: UIViewController {
         self.bannerView.isHidden = true
         self.bannerHeightConstraint.constant = 0
         self.tableView.reloadData()
+    }
+
+    func getIcons() -> [Icon] {
+        guard
+            let iconsFile = Bundle.main.url(forResource: "Icons", withExtension: "json"),
+            let data = try? Data(contentsOf: iconsFile, options: .mappedIfSafe),
+            let icons = try? JSONDecoder().decode([Icon].self, from: data)
+        else { return [] }
+
+        return icons
     }
 
     func changeIcon(to iconName: String) {

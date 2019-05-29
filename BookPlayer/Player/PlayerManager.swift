@@ -7,6 +7,7 @@
 //
 
 import AVFoundation
+import BookPlayerKit
 import Foundation
 import MediaPlayer
 
@@ -290,7 +291,10 @@ extension PlayerManager {
 
         UserActivityManager.shared.resumePlaybackActivity()
 
-        UserDefaults.standard.set(currentBook.identifier, forKey: Constants.UserDefaults.lastPlayedBook.rawValue)
+        if let library = currentBook.library ?? currentBook.playlist?.library {
+            library.lastPlayedBook = currentBook
+            DataManager.saveContext()
+        }
 
         do {
             try AVAudioSession.sharedInstance().setActive(true)
@@ -348,6 +352,7 @@ extension PlayerManager {
 
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: .bookPlayed, object: nil)
+            WatchConnectivityService.sharedManager.sendMessage(message: ["notification": "bookPlayed" as AnyObject])
         }
 
         self.update()
@@ -360,7 +365,10 @@ extension PlayerManager {
 
         UserActivityManager.shared.stopPlaybackActivity()
 
-        UserDefaults.standard.set(currentBook.identifier, forKey: Constants.UserDefaults.lastPlayedBook.rawValue)
+        if let library = currentBook.library ?? currentBook.playlist?.library {
+            library.lastPlayedBook = currentBook
+            DataManager.saveContext()
+        }
 
         // Invalidate timer if needed
         if self.timer != nil {
@@ -384,6 +392,7 @@ extension PlayerManager {
 
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: .bookPaused, object: nil)
+            WatchConnectivityService.sharedManager.sendMessage(message: ["notification": "bookPaused" as AnyObject])
         }
     }
 
@@ -414,11 +423,14 @@ extension PlayerManager {
 
         if let book = self.currentBook {
             userInfo = ["book": book]
+
+            if let library = book.library ?? book.playlist?.library {
+                library.lastPlayedBook = nil
+                DataManager.saveContext()
+            }
         }
 
         self.currentBook = nil
-
-        UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.lastPlayedBook.rawValue)
 
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: .bookStopped,
@@ -451,7 +463,11 @@ extension PlayerManager: AVAudioPlayerDelegate {
 
         player.currentTime = player.duration
 
-        UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.lastPlayedBook.rawValue)
+        if let book = self.currentBook,
+            let library = book.library ?? book.playlist?.library {
+            library.lastPlayedBook = nil
+            DataManager.saveContext()
+        }
 
         self.update()
 

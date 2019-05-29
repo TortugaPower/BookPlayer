@@ -1,6 +1,10 @@
 //
-//  Constants.swift
+//  Constants+BookPlayer.swift
 //  BookPlayer
+//
+//  Created by Gianni Carlo on 4/23/19.
+//  Copyright © 2019 Tortuga Power. All rights reserved.
+//
 
 import Foundation
 
@@ -13,6 +17,7 @@ enum Constants {
         case lastPlayedBook = "userSettingsLastPlayedBook"
         case appIcon = "userSettingsAppIcon"
         case donationMade = "userSettingsDonationMade"
+        case showPlayer = "userSettingsShowPlayer"
 
         // User preferences
         case themeBrightnessEnabled = "userSettingsBrightnessEnabled"
@@ -25,6 +30,7 @@ enum Constants {
         case globalSpeedEnabled = "userSettingsGlobalSpeed"
         case autoplayEnabled = "userSettingsAutoplay"
         case autolockDisabled = "userSettingsDisableAutolock"
+        case autolockDisabledOnlyWhenPowered = "userSettingsAutolockOnlyWhenPowered"
 
         case rewindInterval = "userSettingsRewindInterval"
         case forwardInterval = "userSettingsForwardInterval"
@@ -41,38 +47,4 @@ enum Constants {
     }
 
     static let UserActivityPlayback = Bundle.main.bundleIdentifier! + ".activity.playback"
-    static let ApplicationGroupIdentifier = "group." + Bundle.main.bundleIdentifier! + ".files"
-
-    enum DefaultArtworkColors {
-        case background
-        case primary
-        case secondary
-        case highlight
-
-        var lightColor: String {
-            switch self {
-            case .background:
-                return "#FAFAFA"
-            case .primary:
-                return "#37454E"
-            case .secondary:
-                return "#3488D1"
-            case .highlight:
-                return "#7685B3"
-            }
-        }
-
-        var darkColor: String {
-            switch self {
-            case .background:
-                return "#050505"
-            case .primary:
-                return "#EEEEEE"
-            case .secondary:
-                return "#3488D1"
-            case .highlight:
-                return "#7685B3"
-            }
-        }
-    }
 }

@@ -7,11 +7,14 @@
 //
 
 import AVFoundation
+import BookPlayerKit
+import CoreData
 import DirectoryWatcher
 import MediaPlayer
 import Sentry
 import SwiftyStoreKit
 import UIKit
+import WatchConnectivity
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -50,6 +53,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // register to audio-route-change notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioRouteChange(_:)), name: AVAudioSession.routeChangeNotification, object: nil)
 
+        // update last played book on watch app
+        NotificationCenter.default.addObserver(self, selector: #selector(self.sendApplicationContext), name: .bookPlayed, object: nil)
+
+        NotificationCenter.default.addObserver(self, selector: #selector(self.messageReceived), name: .messageReceived, object: nil)
+
         // register for remote events
         self.setupMPRemoteCommands()
         // register document's folder listener
@@ -69,6 +77,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         Client.shared = try? Client(dsn: "https://23b4d02f7b044c10adb55a0cc8de3881@sentry.io/1414296")
         ((try? Client.shared?.startCrashHandler()) as ()??)
 
+        WatchConnectivityService.sharedManager.startSession()
+
         return true
     }
 
@@ -76,13 +86,36 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // Also handles custom URL scheme 'bookplayer://'
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
         guard url.isFileURL else {
-            self.playLastBook()
+            self.handleCustomURL(url)
             return true
         }
 
         DataManager.processFile(at: url)
 
         return true
+    }
+
+    func handleCustomURL(_ url: URL) {
+        guard let action = CommandParser.parse(url) else { return }
+
+        self.handleAction(action)
+    }
+
+    func handleAction(_ action: Action) {
+        for parameter in action.parameters {
+            guard parameter.name == "showPlayer",
+                let value = parameter.value,
+                let showPlayer = Bool(value),
+                showPlayer == true else {
+                continue
+            }
+
+            self.showPlayer()
+        }
+
+        guard action.command != .open else { return }
+
+        self.playLastBook()
     }
 
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
@@ -127,6 +160,58 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         } else {
             UserDefaults.standard.set(true, forKey: Constants.UserActivityPlayback)
         }
+    }
+
+    @objc func messageReceived(_ notification: Notification) {
+        guard
+            let message = notification.userInfo as? [String: Any] else {
+            return
+        }
+
+        DispatchQueue.main.async {
+            guard let command = message["command"] as? String else { return }
+
+            if command == "refresh" {
+                self.sendApplicationContext()
+                return
+            }
+
+            if command == "skipRewind" {
+                PlayerManager.shared.rewind()
+                return
+            }
+
+            if command == "skipForward" {
+                PlayerManager.shared.forward()
+                return
+            }
+
+            guard let bookIdentifier = message["identifier"] as? String else { return }
+
+            if let loadedBook = PlayerManager.shared.currentBook, loadedBook.identifier == bookIdentifier {
+                PlayerManager.shared.play()
+                return
+            }
+
+            let library = DataManager.getLibrary()
+
+            guard let book = DataManager.getBook(with: bookIdentifier, from: library) else { return }
+
+            guard let rootVC = UIApplication.shared.keyWindow?.rootViewController! as? RootViewController,
+                let appNav = rootVC.children.first as? AppNavigationController,
+                let libraryVC = appNav.children.first as? LibraryViewController else {
+                return
+            }
+
+            libraryVC.setupPlayer(book: book)
+            NotificationCenter.default.post(name: .bookChange,
+                                            object: nil,
+                                            userInfo: ["book": book])
+        }
+    }
+
+    @objc func sendApplicationContext() {
+        WatchConnectivityService.sharedManager.sendApplicationContext()
     }
 
     // Playback may be interrupted by calls. Handle pause
@@ -280,6 +365,35 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         SwiftyStoreKit.shouldAddStorePaymentHandler = { _, _ in
             true
+        }
+    }
+}
+
+// MARK: - Actions (custom scheme)
+
+extension AppDelegate {
+    func playLastBook() {
+        if PlayerManager.shared.isLoaded {
+            PlayerManager.shared.play()
+        } else {
+            UserDefaults.standard.set(true, forKey: Constants.UserActivityPlayback)
+        }
+    }
+
+    func showPlayer() {
+        if PlayerManager.shared.isLoaded {
+            guard let rootVC = UIApplication.shared.keyWindow?.rootViewController! as? RootViewController,
+                let appNav = rootVC.children.first as? AppNavigationController,
+                let libraryVC = appNav.children.first as? LibraryViewController,
+                let book = PlayerManager.shared.currentBook else {
+                return
+            }
+
+            appNav.dismiss(animated: true, completion: nil)
+
+            libraryVC.showPlayerView(book: book)
+        } else {
+            UserDefaults.standard.set(true, forKey: Constants.UserDefaults.showPlayer.rawValue)
         }
     }
 }
