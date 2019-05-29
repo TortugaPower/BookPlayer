@@ -154,14 +154,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.playLastBook()
     }
 
-    func playLastBook() {
-        if PlayerManager.shared.hasLoadedBook {
-            PlayerManager.shared.play()
-        } else {
-            UserDefaults.standard.set(true, forKey: Constants.UserActivityPlayback)
-        }
-    }
-
     @objc func messageReceived(_ notification: Notification) {
         guard
             let message = notification.userInfo as? [String: Any] else {
