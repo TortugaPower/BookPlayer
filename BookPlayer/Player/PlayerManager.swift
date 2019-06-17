@@ -431,6 +431,7 @@ extension PlayerManager {
         }
 
         self.currentBook = nil
+        self.hasLoadedBook = false
 
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: .bookStopped,
