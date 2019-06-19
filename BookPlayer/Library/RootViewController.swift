@@ -79,7 +79,7 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
     // MARK: -
 
     @objc private func presentMiniPlayer() {
-        guard PlayerManager.shared.isLoaded else { return }
+        guard PlayerManager.shared.hasLoadedBook else { return }
 
         self.animateView(self.miniPlayerContainer, show: true)
     }

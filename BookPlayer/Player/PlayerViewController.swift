@@ -362,7 +362,7 @@ extension PlayerViewController {
     }
 
     @IBAction func showMore() {
-        guard PlayerManager.shared.isLoaded else {
+        guard PlayerManager.shared.hasLoadedBook else {
             return
         }
 

@@ -30,6 +30,8 @@ class PlayerManager: NSObject {
 
     var outputPort: AVAudioSessionPortDescription?
 
+    private(set) var hasLoadedBook = false
+
     func load(_ book: Book, completion: @escaping (Bool) -> Void) {
         if self.currentBook != nil {
             self.stop()
@@ -84,6 +86,7 @@ class PlayerManager: NSObject {
 
                 NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["book": book])
 
+                self.hasLoadedBook = true
                 completion(true)
             })
         }
@@ -147,10 +150,6 @@ class PlayerManager: NSObject {
     }
 
     // MARK: - Player states
-
-    var isLoaded: Bool {
-        return self.audioPlayer != nil
-    }
 
     var isPlaying: Bool {
         return self.audioPlayer?.isPlaying ?? false
@@ -428,6 +427,7 @@ extension PlayerManager {
         }
 
         self.currentBook = nil
+        self.hasLoadedBook = false
 
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: .bookStopped,
