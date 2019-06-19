@@ -86,8 +86,8 @@ class PlayerManager: NSObject {
 
                 NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["book": book])
 
-                completion(true)
                 self.hasLoadedBook = true
+                completion(true)
             })
         }
     }
@@ -150,10 +150,6 @@ class PlayerManager: NSObject {
     }
 
     // MARK: - Player states
-
-    var isLoaded: Bool {
-        return self.audioPlayer != nil
-    }
 
     var isPlaying: Bool {
         return self.audioPlayer?.isPlaying ?? false

@@ -373,7 +373,7 @@ extension AppDelegate {
     }
 
     func showPlayer() {
-        if PlayerManager.shared.isLoaded {
+        if PlayerManager.shared.hasLoadedBook {
             guard let rootVC = UIApplication.shared.keyWindow?.rootViewController! as? RootViewController,
                 let appNav = rootVC.children.first as? AppNavigationController,
                 let libraryVC = appNav.children.first as? LibraryViewController,
