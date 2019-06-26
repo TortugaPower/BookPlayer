@@ -24,7 +24,7 @@ public class WatchConnectivityService: NSObject, WCSessionDelegate {
         // consider prompting the user to install it for a better experience
 
         #if os(iOS)
-        if let session = self.session, session.isPaired && session.isWatchAppInstalled {
+        if let session = self.session, session.isPaired, session.isWatchAppInstalled {
             return session
         } else {
             return nil

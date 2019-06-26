@@ -18,11 +18,12 @@ public class LibraryItem: NSManagedObject, Codable {
             return cachedArtwork
         }
 
-        guard let artworkData = self.artworkData else {
+        guard let artworkData = self.artworkData,
+            let image = UIImage(data: artworkData as Data) else {
             return #imageLiteral(resourceName: "defaultArtwork")
         }
 
-        self.cachedArtwork = UIImage(data: artworkData as Data)
+        self.cachedArtwork = image
         return self.cachedArtwork!
     }
 
