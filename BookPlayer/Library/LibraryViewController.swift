@@ -375,7 +375,7 @@ extension LibraryViewController {
             }
             let nextIndex = forward ? currentIndex + 1 : currentIndex - 1
 
-            while nextIndex >= 0 && nextIndex < playListCells.count {
+            while nextIndex >= 0, nextIndex < playListCells.count {
                 let cell = playListCells[nextIndex]
                 return UIAccessibilityCustomRotorItemResult(targetElement: cell, targetRange: nil)
             }

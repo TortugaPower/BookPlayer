@@ -408,9 +408,9 @@ extension UIColor {
             h_p_bar = h_1_p + h_2_p
         } else if abs(h_1_p - h_2_p) <= 180 {
             h_p_bar = (h_1_p + h_2_p) / 2
-        } else if abs(h_1_p - h_2_p) > 180 && (h_1_p + h_2_p) < 360 {
+        } else if abs(h_1_p - h_2_p) > 180, (h_1_p + h_2_p) < 360 {
             h_p_bar = (h_1_p + h_2_p + 360) / 2
-        } else if abs(h_1_p - h_2_p) > 180 && (h_1_p + h_2_p) >= 360 {
+        } else if abs(h_1_p - h_2_p) > 180, (h_1_p + h_2_p) >= 360 {
             h_p_bar = (h_1_p + h_2_p - 360) / 2
         }
 
