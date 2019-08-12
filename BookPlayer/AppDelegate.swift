@@ -331,7 +331,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func setupDocumentListener() {
         let documentsUrl = DataManager.getDocumentsFolderURL()
         self.watcher = DirectoryWatcher.watch(documentsUrl)
-        self.watcher?.ignoreDirectories = false
+
         self.watcher?.onNewFiles = { newFiles in
             for url in newFiles {
                 DataManager.processFile(at: url)
