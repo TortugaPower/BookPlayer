@@ -42,16 +42,6 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         }
     }
 
-    var borderColor: UIColor {
-        get {
-            return UIColor(cgColor: self.artworkImage.layer.borderColor!)
-        }
-
-        set {
-            self.artworkImage.layer.borderColor = newValue.withAlphaComponent(0.2).cgColor
-        }
-    }
-
     var artwork: UIImage? {
         get {
             return self.artworkImage.image
@@ -138,6 +128,7 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         self.artworkImage.contentMode = .scaleAspectFit
         self.artworkImage.layer.cornerRadius = 6.0
         self.artworkImage.layer.masksToBounds = true
+        self.artworkImage.layer.borderColor = UIColor.clear.cgColor
 
         self.artworkOverlay.clipsToBounds = false
         self.artworkOverlay.contentMode = .scaleAspectFit

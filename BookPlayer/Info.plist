@@ -25,6 +25,8 @@
 			<array/>
 			<key>CFBundleTypeName</key>
 			<string>Audiobook Archive</string>
+			<key>LSHandlerRank</key>
+			<string>Default</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>com.pkware.zip-archive</string>
@@ -187,7 +189,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>3</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>

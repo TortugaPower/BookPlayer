@@ -78,7 +78,7 @@ class PlayerJumpIconForward: PlayerJumpIcon {
     override func setup() {
         super.setup()
 
-        self.backgroundImageView.addLayerMask("playerIconShadow", backgroundColor: .playerControlsShadowColor)
+        self.backgroundImageView.addLayerMask("playerIconShadow", backgroundColor: .playerControlsShadowColor, opacity: 0.5)
         self.backgroundImageView.addLayerMask("playerIconForwardArrowShadow", backgroundColor: .black)
         self.backgroundImageView.addLayerMask("playerIconForward", backgroundColor: .white)
         self.title = "+\(Int(PlayerManager.shared.forwardInterval.rounded()))s"
@@ -98,7 +98,7 @@ class PlayerJumpIconRewind: PlayerJumpIcon {
     override func setup() {
         super.setup()
 
-        self.backgroundImageView.addLayerMask("playerIconShadow", backgroundColor: .playerControlsShadowColor)
+        self.backgroundImageView.addLayerMask("playerIconShadow", backgroundColor: .playerControlsShadowColor, opacity: 0.5)
         self.backgroundImageView.addLayerMask("playerIconRewindArrowShadow", backgroundColor: .black)
         self.backgroundImageView.addLayerMask("playerIconRewind", backgroundColor: .white)
         self.title = "−\(Int(PlayerManager.shared.rewindInterval.rounded()))s"

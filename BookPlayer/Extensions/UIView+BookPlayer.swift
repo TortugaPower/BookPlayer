@@ -29,13 +29,14 @@ extension UIView {
         self.layer.anchorPoint = anchorPoint
     }
 
-    func addLayerMask(_ name: String, backgroundColor: UIColor) {
+    func addLayerMask(_ name: String, backgroundColor: UIColor, opacity: Float = 1.0) {
         guard let image = UIImage(named: name),
             let maskImage = image.cgImage else { return }
 
         let layer = CALayer()
         layer.frame = self.bounds
         layer.backgroundColor = backgroundColor.cgColor
+        layer.opacity = opacity
 
         let mask = CALayer(layer: maskImage)
         mask.frame = self.bounds

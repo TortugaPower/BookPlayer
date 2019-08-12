@@ -283,7 +283,6 @@ extension PlayerControlsViewController: Themeable {
         self.progressSlider.maximumTrackTintColor = theme.lightHighlightColor
 
         self.artworkControl.iconColor = .white
-        self.artworkControl.borderColor = theme.highlightColor
 
         self.currentTimeLabel.textColor = theme.primaryColor
         self.maxTimeButton.setTitleColor(theme.primaryColor, for: .normal)
