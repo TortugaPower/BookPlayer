@@ -82,7 +82,7 @@ class LibraryInterfaceController: WKInterfaceController {
             return
         }
 
-        NotificationCenter.default.post(name: .bookPlayed, object: nil)
+        self.presentController(withName: "NowPlayingController", context: nil)
     }
 
     @objc func updateApplicationContext(_ notification: Notification) {

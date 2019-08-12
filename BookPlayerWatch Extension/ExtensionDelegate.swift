@@ -14,7 +14,13 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     }
 
     func applicationDidBecomeActive() {
-        // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+        // Refresh last book in case it was changed
+        guard let controller = WKExtension.shared().rootInterfaceController else {
+            return
+        }
+
+        let message: [String: AnyObject] = ["command": "refresh" as AnyObject]
+        try? controller.sendMessage(message)
     }
 
     func applicationWillResignActive() {

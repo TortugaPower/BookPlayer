@@ -144,7 +144,6 @@
                         <outlet property="separatorLastBookView" destination="0gO-6t-1Tq" id="Zqp-6R-fCx"/>
                         <outlet property="separatorView" destination="AYB-kc-mzC" id="a5u-cr-r0s"/>
                         <outlet property="spacerGroupView" destination="68o-8y-3Sm" id="NAX-xi-W3d"/>
-                        <segue destination="0JY-vA-wko" kind="relationship" relationship="nextPage" id="wsy-ht-ZtQ"/>
                     </connections>
                 </controller>
             </objects>
