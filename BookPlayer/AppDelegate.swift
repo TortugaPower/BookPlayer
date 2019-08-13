@@ -66,6 +66,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         DataManager.setupDefaultTheme()
         // setup store required listeners
         self.setupStoreListener()
+        // register for CarPlay
+        self.setupCarPlay()
 
         if let activityDictionary = launchOptions?[.userActivityDictionary] as? [UIApplication.LaunchOptionsKey: Any],
             let activityType = activityDictionary[.userActivityType] as? String,
@@ -80,6 +82,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         WatchConnectivityService.sharedManager.startSession()
 
         return true
+    }
+
+    func setupCarPlay() {
+        MPPlayableContentManager.shared().dataSource = CarPlayManager.shared
+        MPPlayableContentManager.shared().delegate = CarPlayManager.shared
     }
 
     // Handles audio file urls, like when receiving files through AirDrop
@@ -144,10 +151,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Notify controller to see if it should ask for review
         NotificationCenter.default.post(name: .requestReview, object: nil)
-    }
-
-    func applicationWillTerminate(_ application: UIApplication) {
-        // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
 
     func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
@@ -283,7 +286,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Forward
         MPRemoteCommandCenter.shared().skipForwardCommand.preferredIntervals = [NSNumber(value: PlayerManager.shared.forwardInterval)]
-
         MPRemoteCommandCenter.shared().skipForwardCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
             PlayerManager.shared.forward()
             return .success
@@ -306,7 +308,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Rewind
         MPRemoteCommandCenter.shared().skipBackwardCommand.preferredIntervals = [NSNumber(value: PlayerManager.shared.rewindInterval)]
-
         MPRemoteCommandCenter.shared().skipBackwardCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
             PlayerManager.shared.rewind()
             return .success

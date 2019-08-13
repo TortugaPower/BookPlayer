@@ -140,6 +140,7 @@
 		41B2A5F121CD857800917584 /* AddCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2A5F021CD857800917584 /* AddCellView.swift */; };
 		41B2A6AC21D3274500917584 /* Themeable.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41B2A6AB21D3274500917584 /* Themeable.framework */; };
 		41B2AC8E1D43CCE8005382A9 /* ChaptersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */; };
+		41B30A33230232D200025D69 /* CarPlayManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B30A32230232D200025D69 /* CarPlayManager.swift */; };
 		41CE449422712E0F00C900AF /* NotificationCenter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CE449322712E0F00C900AF /* NotificationCenter.framework */; };
 		41CE449722712E0F00C900AF /* TodayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41CE449622712E0F00C900AF /* TodayViewController.swift */; };
 		41CE449A22712E0F00C900AF /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 41CE449822712E0F00C900AF /* MainInterface.storyboard */; };
@@ -428,6 +429,7 @@
 		41B2A5F021CD857800917584 /* AddCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCellView.swift; sourceTree = "<group>"; };
 		41B2A6AB21D3274500917584 /* Themeable.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Themeable.framework; path = Carthage/Build/iOS/Themeable.framework; sourceTree = "<group>"; };
 		41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChaptersViewController.swift; sourceTree = "<group>"; };
+		41B30A32230232D200025D69 /* CarPlayManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarPlayManager.swift; sourceTree = "<group>"; };
 		41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManagerTests.swift; sourceTree = "<group>"; };
 		41CE449222712E0F00C900AF /* BookPlayerWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BookPlayerWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		41CE449322712E0F00C900AF /* NotificationCenter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NotificationCenter.framework; path = System/Library/Frameworks/NotificationCenter.framework; sourceTree = SDKROOT; };
@@ -888,6 +890,7 @@
 			children = (
 				69343D322133844D000C425E /* VoiceOverService.swift */,
 				419723FF21874D5F00AB1190 /* UserActivityManager.swift */,
+				41B30A32230232D200025D69 /* CarPlayManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -1576,6 +1579,7 @@
 				4165EE1420A7E8CC00616EDF /* ItemListViewController.swift in Sources */,
 				C30EEEC02079645C00A4ED33 /* PlayerControlsViewController.swift in Sources */,
 				C318DDBC20A48D4700C3A17B /* BPMarqueeLabel.swift in Sources */,
+				41B30A33230232D200025D69 /* CarPlayManager.swift in Sources */,
 				C375AF1920DD99E000AC034D /* ArtworkControl.swift in Sources */,
 				41544A1421BAF41400740AD2 /* ItemSelectionViewController.swift in Sources */,
 				C3A479152094CA3800D92122 /* UIImage+BookPlayer.swift in Sources */,
