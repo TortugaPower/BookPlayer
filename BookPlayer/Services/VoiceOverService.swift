@@ -1,3 +1,4 @@
+import BookPlayerKit
 import Foundation
 
 class VoiceOverService {

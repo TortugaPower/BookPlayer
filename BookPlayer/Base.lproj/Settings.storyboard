@@ -189,6 +189,35 @@
                                             <outlet property="customLabel" destination="iys-Y1-zT4" id="p3L-zw-Nfh"/>
                                         </connections>
                                     </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="AuQ-P2-doo" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="587" width="375" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="AuQ-P2-doo" id="3Hy-3P-G22">
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="NMd-BM-Aab">
+                                                    <rect key="frame" x="310" y="6.5" width="51" height="31"/>
+                                                </switch>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Only when connected to power" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" enabled="NO" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZUk-YK-XeG">
+                                                    <rect key="frame" x="16" y="11.5" width="286" height="21"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="trailing" secondItem="NMd-BM-Aab" secondAttribute="trailing" constant="16" id="7Vw-TE-lbA"/>
+                                                <constraint firstItem="ZUk-YK-XeG" firstAttribute="centerY" secondItem="3Hy-3P-G22" secondAttribute="centerY" id="Jr3-gH-rUD"/>
+                                                <constraint firstItem="NMd-BM-Aab" firstAttribute="leading" secondItem="ZUk-YK-XeG" secondAttribute="trailing" constant="8" id="ZUV-GF-mSC"/>
+                                                <constraint firstItem="NMd-BM-Aab" firstAttribute="centerY" secondItem="3Hy-3P-G22" secondAttribute="centerY" id="btB-Ax-J4h"/>
+                                                <constraint firstItem="ZUk-YK-XeG" firstAttribute="leading" secondItem="3Hy-3P-G22" secondAttribute="leading" constant="16" id="k0b-dr-0mp"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="customLabel" destination="ZUk-YK-XeG" id="1dg-Wi-glH"/>
+                                        </connections>
+                                    </tableViewCell>
                                 </cells>
                             </tableViewSection>
                             <tableViewSection headerTitle="Siri Shortcut" footerTitle="Use Siri to continue the last played book." id="V2g-SX-Hc4">
@@ -335,6 +364,8 @@
                     <size key="freeformSize" width="375" height="775"/>
                     <connections>
                         <outlet property="appIconLabel" destination="MdO-Yx-eBK" id="dXu-fc-mwk"/>
+                        <outlet property="autolockDisabledOnlyWhenPoweredLabel" destination="ZUk-YK-XeG" id="2hI-Ie-TKo"/>
+                        <outlet property="autolockDisabledOnlyWhenPoweredSwitch" destination="NMd-BM-Aab" id="FuE-ky-W4F"/>
                         <outlet property="autoplayLibrarySwitch" destination="U00-rk-lxZ" id="HCv-jo-TbM"/>
                         <outlet property="disableAutolockSwitch" destination="BlM-8p-0Ka" id="Fbl-zc-kUw"/>
                         <outlet property="themeLabel" destination="CVc-ad-1rf" id="I40-1O-6rO"/>
