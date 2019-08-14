@@ -82,7 +82,7 @@ class LibraryInterfaceController: WKInterfaceController {
             return
         }
 
-        self.presentController(withName: "NowPlayingController", context: nil)
+        self.pushController(withName: "NowPlayingController", context: nil)
     }
 
     @objc func updateApplicationContext(_ notification: Notification) {

@@ -11,6 +11,6 @@ import WatchKit
 class NowPlayingController: WKInterfaceController {
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
-        self.setTitle("Dismiss")
+        self.setTitle("Library")
     }
 }
