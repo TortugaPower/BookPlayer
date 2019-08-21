@@ -298,6 +298,7 @@ extension ItemListViewController {
         self.tableView.endUpdates()
         CATransaction.commit()
         self.toggleEmptyStateView()
+        MPPlayableContentManager.shared().reloadData()
     }
 
     @objc func bookReady() {
@@ -578,7 +579,7 @@ extension ItemListViewController: TableViewReorderDelegate {
     }
 
     @objc func tableViewDidFinishReordering(_ tableView: UITableView, from initialSourceIndexPath: IndexPath, to finalDestinationIndexPath: IndexPath, dropped overIndexPath: IndexPath?) {
-        //
+        MPPlayableContentManager.shared().reloadData()
     }
 }
 
