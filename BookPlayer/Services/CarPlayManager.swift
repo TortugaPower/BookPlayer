@@ -119,14 +119,6 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
 
         NotificationCenter.default.post(name: .messageReceived, object: nil, userInfo: message)
 
-        var identifiers = [book.identifier!]
-
-        if let playlist = book.playlist {
-            identifiers.append(playlist.identifier)
-        }
-
-        contentManager.nowPlayingIdentifiers = identifiers
-
         // Hack to show the now-playing-view on simulator
         // It has side effects on the initial state of the buttons of that view
         // But it's meant for development use only
@@ -142,5 +134,15 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
 
     func childItemsDisplayPlaybackProgress(at indexPath: IndexPath) -> Bool {
         return true
+    }
+
+    func setNowPlayingInfo(with book: Book) {
+        var identifiers = [book.identifier!]
+
+        if let playlist = book.playlist {
+            identifiers.append(playlist.identifier)
+        }
+
+        MPPlayableContentManager.shared().nowPlayingIdentifiers = identifiers
     }
 }

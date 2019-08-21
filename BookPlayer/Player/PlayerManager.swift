@@ -347,6 +347,7 @@ extension PlayerManager {
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
 
         DispatchQueue.main.async {
+            CarPlayManager.shared.setNowPlayingInfo(with: currentBook)
             NotificationCenter.default.post(name: .bookPlayed, object: nil)
             WatchConnectivityService.sharedManager.sendMessage(message: ["notification": "bookPlayed" as AnyObject])
         }
