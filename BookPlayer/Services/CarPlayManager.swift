@@ -67,6 +67,11 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
         // Populate library content
         let libraryItem = items[indexPath[IndexDepth.library.rawValue]]
 
+        // Playlists identifiers weren't unique, this is a quick fix
+        if libraryItem.identifier == libraryItem.title {
+            libraryItem.identifier = "\(libraryItem.title!)\(Date().timeIntervalSince1970)"
+        }
+
         let item = MPContentItem(identifier: libraryItem.identifier)
         item.title = libraryItem.title
 
@@ -81,7 +86,7 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
             item.isContainer = false
             item.isPlayable = true
         } else if let playlist = libraryItem as? Playlist {
-            item.subtitle = playlist.desc
+            item.subtitle = playlist.info()
             item.isContainer = true
         }
 
@@ -90,7 +95,7 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
 
     func playableContentManager(_ contentManager: MPPlayableContentManager, initiatePlaybackOfContentItemAt indexPath: IndexPath, completionHandler: @escaping (Error?) -> Void) {
         guard let items = self.library.items?.array as? [LibraryItem] else {
-            completionHandler(nil)
+            completionHandler(BookPlayerError.UnableToLoadBooks("Unable to load books"))
             return
         }
 
@@ -105,7 +110,7 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
         }
 
         guard book != nil else {
-            completionHandler(nil)
+            completionHandler(BookPlayerError.UnableToLoadBooks("Unable to load books"))
             return
         }
 
@@ -113,6 +118,14 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
                                            "identifier": book.identifier!]
 
         NotificationCenter.default.post(name: .messageReceived, object: nil, userInfo: message)
+
+        var identifiers = [book.identifier!]
+
+        if let playlist = book.playlist {
+            identifiers.append(playlist.identifier)
+        }
+
+        contentManager.nowPlayingIdentifiers = identifiers
 
         // Hack to show the now-playing-view on simulator
         // It has side effects on the initial state of the buttons of that view
@@ -125,5 +138,9 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
         #endif
 
         completionHandler(nil)
+    }
+
+    func childItemsDisplayPlaybackProgress(at indexPath: IndexPath) -> Bool {
+        return true
     }
 }
