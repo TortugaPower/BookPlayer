@@ -342,6 +342,9 @@ extension PlayerManager {
         // Set play state on player and control center
         audioplayer.play()
 
+        // Set last Play date
+        currentBook.updatePlayDate()
+
         self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 1.0
         self.nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo

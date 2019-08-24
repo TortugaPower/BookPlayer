@@ -89,6 +89,26 @@ public class Library: NSManagedObject, Codable {
         return nil
     }
 
+    public func getItemsOrderedByDate() -> [LibraryItem] {
+        guard let items = self.items?.array as? [LibraryItem] else {
+            return []
+        }
+
+        var filteredItems = items.compactMap { (item) -> LibraryItem? in
+            guard item.lastPlayDate != nil else { return nil }
+
+            return item
+        }
+
+        if filteredItems.isEmpty,
+            let lastPlayedBook = self.lastPlayedBook {
+            lastPlayedBook.lastPlayDate = Date()
+            filteredItems.append(lastPlayedBook)
+        }
+
+        return filteredItems.sorted { $0.lastPlayDate! > $1.lastPlayDate! }
+    }
+
     enum CodingKeys: String, CodingKey {
         case items, books, playlists, lastPlayedBook, currentTheme
     }

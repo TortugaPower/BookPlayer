@@ -14,28 +14,84 @@ enum BookPlayerError: Error {
     case UnableToLoadBooks(String)
 }
 
-enum IndexDepth: Int {
-    case library = 0
-    case playlist = 1
+enum IndexGuide {
+    case tab
+
+    var recentlyPlayed: Int {
+        return 1
+    }
+
+    case library
+    case playlist
+
+    var count: Int {
+        switch self {
+        case .tab:
+            return 1
+        case .library:
+            return 2
+        case .playlist:
+            return 3
+        }
+    }
+
+    var content: Int {
+        switch self {
+        case .tab:
+            return 0
+        case .library:
+            return 1
+        case .playlist:
+            return 2
+        }
+    }
 }
+
+typealias Tab = (identifier: String, title: String, imageName: String)
 
 class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDelegate {
     static let shared = CarPlayManager()
 
     var library: Library!
 
+    let tabs: [Tab] = [("tab-library", "Library", "emptyPlaylist"),
+                       ("tab-recent", "Recently Played", "libraryIconSort")]
+
     private override init() {
         self.library = DataManager.getLibrary()
     }
 
-    func numberOfChildItems(at indexPath: IndexPath) -> Int {
-        if indexPath.indices.count == IndexDepth.library.rawValue {
-            return self.library.items?.count ?? 0
+    func createTabItem(for indexPath: IndexPath) -> MPContentItem {
+        let tab = self.tabs[indexPath[IndexGuide.tab.content]]
+        let item = MPContentItem(identifier: tab.identifier)
+        item.title = tab.title
+        item.isContainer = true
+        item.isPlayable = false
+        if let tabImage = UIImage(named: tab.imageName) {
+            item.artwork = MPMediaItemArtwork(boundsSize: tabImage.size, requestHandler: { _ -> UIImage in
+                tabImage
+            })
         }
 
-        guard let items = self.library.items?.array as? [LibraryItem],
-            let playlist = items[indexPath[IndexDepth.library.rawValue]] as? Playlist,
+        return item
+    }
+
+    func numberOfChildItems(at indexPath: IndexPath) -> Int {
+        if indexPath.indices.isEmpty {
+            return 2
+        }
+
+        guard let items = self.getItems(for: indexPath) else {
+            return 0
+        }
+
+        if indexPath.indices.count == IndexGuide.library.count - 1 {
+            return items.count
+        }
+
+        guard let playlist = items[indexPath[IndexGuide.library.content]] as? Playlist,
             let count = playlist.books?.count else {
+            print(items[indexPath[IndexGuide.library.content]])
             return 0
         }
 
@@ -43,15 +99,20 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
     }
 
     func contentItem(at indexPath: IndexPath) -> MPContentItem? {
-        guard let items = self.library.items?.array as? [LibraryItem] else {
+        // Populate tabs
+        if indexPath.indices.count == IndexGuide.tab.count {
+            return self.createTabItem(for: indexPath)
+        }
+
+        guard let items = self.getItems(for: indexPath) else {
             return nil
         }
 
         // Populate playlist content
-        if indexPath.indices.count > IndexDepth.playlist.rawValue,
-            let playlist = items[indexPath[IndexDepth.library.rawValue]] as? Playlist,
+        if indexPath.indices.count == IndexGuide.playlist.count,
+            let playlist = items[indexPath[IndexGuide.library.content]] as? Playlist,
             let books = playlist.books?.array as? [Book] {
-            let book = books[indexPath[IndexDepth.playlist.rawValue]]
+            let book = books[indexPath[IndexGuide.playlist.content]]
             let item = MPContentItem(identifier: book.identifier)
             item.isPlayable = true
             item.title = book.title
@@ -64,8 +125,7 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
             return item
         }
 
-        // Populate library content
-        let libraryItem = items[indexPath[IndexDepth.library.rawValue]]
+        let libraryItem = items[indexPath[IndexGuide.library.content]]
 
         // Playlists identifiers weren't unique, this is a quick fix
         if libraryItem.identifier == libraryItem.title {
@@ -94,19 +154,19 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
     }
 
     func playableContentManager(_ contentManager: MPPlayableContentManager, initiatePlaybackOfContentItemAt indexPath: IndexPath, completionHandler: @escaping (Error?) -> Void) {
-        guard let items = self.library.items?.array as? [LibraryItem] else {
+        guard let items = self.getItems(for: indexPath) else {
             completionHandler(BookPlayerError.UnableToLoadBooks("Unable to load books"))
             return
         }
 
         var book: Book!
 
-        if indexPath.indices.count > IndexDepth.playlist.rawValue,
-            let playlist = items[indexPath[IndexDepth.library.rawValue]] as? Playlist,
+        if indexPath.indices.count == IndexGuide.playlist.count,
+            let playlist = items[indexPath[IndexGuide.library.content]] as? Playlist,
             let books = playlist.books?.array as? [Book] {
-            book = books[indexPath[IndexDepth.playlist.rawValue]]
+            book = books[indexPath[IndexGuide.playlist.content]]
         } else {
-            book = items[indexPath[IndexDepth.library.rawValue]] as? Book
+            book = items[indexPath[IndexGuide.library.content]] as? Book
         }
 
         guard book != nil else {
@@ -118,6 +178,10 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
                                            "identifier": book.identifier!]
 
         NotificationCenter.default.post(name: .messageReceived, object: nil, userInfo: message)
+
+        if indexPath[0] == IndexGuide.tab.recentlyPlayed {
+            contentManager.reloadData()
+        }
 
         // Hack to show the now-playing-view on simulator
         // It has side effects on the initial state of the buttons of that view
@@ -134,6 +198,16 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
 
     func childItemsDisplayPlaybackProgress(at indexPath: IndexPath) -> Bool {
         return true
+    }
+
+    private func getItems(for indexPath: IndexPath) -> [LibraryItem]? {
+        // Recently played items
+        if indexPath[0] == IndexGuide.tab.recentlyPlayed {
+            return self.library.getItemsOrderedByDate()
+        }
+
+        // Library items
+        return self.library.items?.array as? [LibraryItem]
     }
 
     func setNowPlayingInfo(with book: Book) {
