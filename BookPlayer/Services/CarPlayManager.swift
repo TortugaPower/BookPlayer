@@ -47,15 +47,14 @@ enum IndexGuide {
     }
 }
 
-typealias Tab = (identifier: String, title: String, imageName: String)
-
 class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDelegate {
     static let shared = CarPlayManager()
 
     var library: Library!
 
-    let tabs: [Tab] = [("tab-library", "Library", "emptyPlaylist"),
-                       ("tab-recent", "Recently Played", "libraryIconSort")]
+    typealias Tab = (identifier: String, title: String, imageName: String)
+    let tabs: [Tab] = [("tab-library", "Library", "carplayLibrary"),
+                       ("tab-recent", "Recently Played", "carplayRecent")]
 
     private override init() {
         self.library = DataManager.getLibrary()
@@ -147,7 +146,8 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
             item.isPlayable = true
         } else if let playlist = libraryItem as? Playlist {
             item.subtitle = playlist.info()
-            item.isContainer = true
+            item.isContainer = indexPath[0] != IndexGuide.tab.recentlyPlayed
+            item.isPlayable = indexPath[0] == IndexGuide.tab.recentlyPlayed
         }
 
         return item
@@ -166,7 +166,12 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
             let books = playlist.books?.array as? [Book] {
             book = books[indexPath[IndexGuide.playlist.content]]
         } else {
-            book = items[indexPath[IndexGuide.library.content]] as? Book
+            if indexPath[0] == IndexGuide.tab.recentlyPlayed,
+                let playlist = items[indexPath[IndexGuide.library.content]] as? Playlist {
+                book = playlist.getBookToPlay()
+            } else {
+                book = items[indexPath[IndexGuide.library.content]] as? Book
+            }
         }
 
         guard book != nil else {
@@ -178,10 +183,6 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
                                            "identifier": book.identifier!]
 
         NotificationCenter.default.post(name: .messageReceived, object: nil, userInfo: message)
-
-        if indexPath[0] == IndexGuide.tab.recentlyPlayed {
-            contentManager.reloadData()
-        }
 
         // Hack to show the now-playing-view on simulator
         // It has side effects on the initial state of the buttons of that view
@@ -218,5 +219,6 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
         }
 
         MPPlayableContentManager.shared().nowPlayingIdentifiers = identifiers
+        MPPlayableContentManager.shared().reloadData()
     }
 }
