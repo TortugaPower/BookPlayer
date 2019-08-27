@@ -342,11 +342,15 @@ extension PlayerManager {
         // Set play state on player and control center
         audioplayer.play()
 
+        // Set last Play date
+        currentBook.updatePlayDate()
+
         self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 1.0
         self.nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
 
         DispatchQueue.main.async {
+            CarPlayManager.shared.setNowPlayingInfo(with: currentBook)
             NotificationCenter.default.post(name: .bookPlayed, object: nil)
             WatchConnectivityService.sharedManager.sendMessage(message: ["notification": "bookPlayed" as AnyObject])
         }

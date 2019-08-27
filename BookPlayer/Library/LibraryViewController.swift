@@ -497,6 +497,8 @@ extension LibraryViewController {
     }
 
     override func tableViewDidFinishReordering(_ tableView: UITableView, from initialSourceIndexPath: IndexPath, to finalDestinationIndexPath: IndexPath, dropped overIndexPath: IndexPath?) {
+        super.tableViewDidFinishReordering(tableView, from: initialSourceIndexPath, to: finalDestinationIndexPath, dropped: overIndexPath)
+
         guard let overIndexPath = overIndexPath, overIndexPath.sectionValue == .data else { return }
 
         let sourceItem = self.items[finalDestinationIndexPath.row]

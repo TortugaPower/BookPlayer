@@ -49,7 +49,7 @@ public class Playlist: LibraryItem {
         let entity = NSEntityDescription.entity(forEntityName: "Playlist", in: context)!
 
         self.init(entity: entity, insertInto: context)
-        self.identifier = title
+        self.identifier = "\(title)\(Date().timeIntervalSince1970)"
         self.title = title
         self.originalFileName = title
         self.desc = "\(books.count) Files"
