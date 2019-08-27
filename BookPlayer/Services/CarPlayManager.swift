@@ -54,7 +54,7 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
 
     typealias Tab = (identifier: String, title: String, imageName: String)
     let tabs: [Tab] = [("tab-library", "Library", "carplayLibrary"),
-                       ("tab-recent", "Recently Played", "carplayRecent")]
+                       ("tab-recent", "Recent", "carplayRecent")]
 
     private override init() {
         self.library = DataManager.getLibrary()
