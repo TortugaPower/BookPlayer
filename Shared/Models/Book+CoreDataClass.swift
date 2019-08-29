@@ -76,6 +76,15 @@ public class Book: LibraryItem {
         self.currentChapter = currentChapter
     }
 
+    public func updatePlayDate() {
+        let now = Date()
+        self.lastPlayDate = now
+
+        guard let playlist = self.playlist else { return }
+
+        playlist.lastPlayDate = now
+    }
+
     public override func getBookToPlay() -> Book? {
         return self
     }
