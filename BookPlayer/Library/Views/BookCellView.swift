@@ -89,7 +89,11 @@ class BookCellView: UITableViewCell {
             case .playlist:
                 self.accessoryType = .disclosureIndicator
 
-                self.progressTrailing.constant = -5.0
+                if #available(iOS 13.0, *) {
+                    self.progressTrailing.constant = 2.5
+                } else {
+                    self.progressTrailing.constant = -5.0
+                }
             default:
                 self.accessoryType = .none
 

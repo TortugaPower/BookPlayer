@@ -63,12 +63,11 @@ class PlayerManager: NSObject {
             DispatchQueue.main.async(execute: {
                 // Set book metadata for lockscreen and control center
                 self.nowPlayingInfo = [
-                    MPMediaItemPropertyTitle: book.title as Any,
-                    MPMediaItemPropertyArtist: book.author as Any,
-                    MPMediaItemPropertyPlaybackDuration: audioplayer.duration,
-                    MPNowPlayingInfoPropertyDefaultPlaybackRate: self.speed,
-                    MPNowPlayingInfoPropertyPlaybackProgress: audioplayer.currentTime / audioplayer.duration
+                    MPNowPlayingInfoPropertyDefaultPlaybackRate: self.speed
                 ]
+
+                self.setNowPlayingBookTitle()
+                self.setNowPlayingBookTime()
 
                 self.nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: book.artwork.size,
                                                                                      requestHandler: { (_) -> UIImage in
@@ -119,7 +118,7 @@ class PlayerManager: NSObject {
             ] as [String: Any])
         }
 
-        self.nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
+        self.setNowPlayingBookTime()
 
         MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
 
@@ -137,6 +136,7 @@ class PlayerManager: NSObject {
         if let currentChapter = book.currentChapter,
             book.currentTime > currentChapter.end || book.currentTime < currentChapter.start {
             book.updateCurrentChapter()
+            self.setNowPlayingBookTitle()
             NotificationCenter.default.post(name: .chapterChange, object: nil, userInfo: nil)
         }
 
@@ -242,6 +242,37 @@ class PlayerManager: NSObject {
             MPRemoteCommandCenter.shared().skipForwardCommand.preferredIntervals = [newValue] as [NSNumber]
         }
     }
+
+    func setNowPlayingBookTitle() {
+        guard let currentBook = self.currentBook, self.audioPlayer != nil else {
+            return
+        }
+
+        if currentBook.hasChapters, let currentChapter = currentBook.currentChapter {
+            self.nowPlayingInfo[MPMediaItemPropertyTitle] = currentChapter.title
+            self.nowPlayingInfo[MPMediaItemPropertyArtist] = currentBook.title
+            self.nowPlayingInfo[MPMediaItemPropertyAlbumTitle] = currentBook.author
+        } else {
+            self.nowPlayingInfo[MPMediaItemPropertyTitle] = currentBook.title
+            self.nowPlayingInfo[MPMediaItemPropertyArtist] = currentBook.author
+            self.nowPlayingInfo[MPMediaItemPropertyAlbumTitle] = nil
+        }
+    }
+
+    func setNowPlayingBookTime() {
+        guard let currentBook = self.currentBook, self.audioPlayer != nil else {
+            return
+        }
+
+        let prefersChapterContext = UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
+        let currentTimeInContext = currentBook.currentTimeInContext(prefersChapterContext)
+        let maxTimeInContext = currentBook.maxTimeInContext(prefersChapterContext, false)
+
+        self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = self.speed
+        self.nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTimeInContext
+        self.nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = maxTimeInContext
+        self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackProgress] = currentTimeInContext / maxTimeInContext
+    }
 }
 
 // MARK: - Seek Controls
@@ -345,9 +376,7 @@ extension PlayerManager {
         // Set last Play date
         currentBook.updatePlayDate()
 
-        self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 1.0
-        self.nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+        self.setNowPlayingBookTitle()
 
         DispatchQueue.main.async {
             CarPlayManager.shared.setNowPlayingInfo(with: currentBook)
@@ -381,7 +410,7 @@ extension PlayerManager {
         audioplayer.pause()
 
         self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0.0
-        self.nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioplayer.currentTime
+        self.setNowPlayingBookTime()
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
 
         UserDefaults.standard.set(Date(), forKey: "\(Constants.UserDefaults.lastPauseTime)_\(currentBook.identifier!)")

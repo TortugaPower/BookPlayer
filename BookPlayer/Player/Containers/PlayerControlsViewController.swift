@@ -30,58 +30,6 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         }
     }
 
-    private var currentTimeInContext: TimeInterval {
-        guard let book = self.book, !book.isFault else {
-            return 0.0
-        }
-
-        guard
-            self.prefersChapterContext,
-            book.hasChapters,
-            let start = book.currentChapter?.start else {
-            return book.currentTime
-        }
-
-        return book.currentTime - start
-    }
-
-    private var maxTimeInContext: TimeInterval {
-        guard let book = self.book, !book.isFault else {
-            return 0.0
-        }
-
-        guard
-            self.prefersChapterContext,
-            book.hasChapters,
-            let duration = book.currentChapter?.duration else {
-            let time = self.prefersRemainingTime
-                ? self.currentTimeInContext - book.duration
-                : book.duration
-            return time
-        }
-
-        let time = self.prefersRemainingTime
-            ? self.currentTimeInContext - duration
-            : duration
-
-        return time
-    }
-
-    private var durationTimeInContext: TimeInterval {
-        guard let book = self.book, !book.isFault else {
-            return 0.0
-        }
-
-        guard
-            self.prefersChapterContext,
-            book.hasChapters,
-            let duration = book.currentChapter?.duration else {
-            return book.duration
-        }
-
-        return duration
-    }
-
     private var prefersChapterContext = UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
 
     private var prefersRemainingTime = UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
@@ -147,9 +95,11 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         }
 
         if !self.progressSlider.isTracking {
-            self.currentTimeLabel.text = self.formatTime(self.currentTimeInContext)
-            self.currentTimeLabel.accessibilityLabel = String(describing: "Current Chapter Time: " + VoiceOverService.secondsToMinutes(self.currentTimeInContext))
-            self.maxTimeButton.setTitle(self.formatTime(self.maxTimeInContext), for: .normal)
+            self.currentTimeLabel.text = self.formatTime(book.currentTimeInContext(self.prefersChapterContext))
+            self.currentTimeLabel.accessibilityLabel = String(describing: "Current Chapter Time: " + VoiceOverService.secondsToMinutes(book.currentTimeInContext(self.prefersChapterContext)))
+
+            let maxTimeInContext = book.maxTimeInContext(self.prefersChapterContext, self.prefersRemainingTime)
+            self.maxTimeButton.setTitle(self.formatTime(maxTimeInContext), for: .normal)
             let prefix = self.prefersRemainingTime
                 ? "Remaining Chapter Time: "
                 : "Chapter duration: "
@@ -169,6 +119,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
                 let prefix = self.prefersRemainingTime
                     ? "Remaining Book Time: "
                     : "Book duration: "
+                let maxTimeInContext = book.maxTimeInContext(self.prefersChapterContext, self.prefersRemainingTime)
                 self.maxTimeButton.accessibilityLabel = String(describing: prefix + VoiceOverService.secondsToMinutes(maxTimeInContext))
             }
 
@@ -272,7 +223,8 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         }
 
         if self.prefersRemainingTime {
-            self.maxTimeButton.setTitle(self.formatTime(newTimeToDisplay - self.durationTimeInContext), for: .normal)
+            let durationTimeInContext = book.durationTimeInContext(self.prefersChapterContext)
+            self.maxTimeButton.setTitle(self.formatTime(newTimeToDisplay - durationTimeInContext), for: .normal)
         }
     }
 }
