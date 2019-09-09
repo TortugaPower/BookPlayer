@@ -58,6 +58,58 @@ public class Book: LibraryItem {
         self.playlist?.updateCompletionState()
     }
 
+    public func currentTimeInContext(_ prefersChapterContext: Bool) -> TimeInterval {
+        guard !self.isFault else {
+            return 0.0
+        }
+
+        guard
+            prefersChapterContext,
+            self.hasChapters,
+            let start = self.currentChapter?.start else {
+            return self.currentTime
+        }
+
+        return self.currentTime - start
+    }
+
+    public func maxTimeInContext(_ prefersChapterContext: Bool, _ prefersRemainingTime: Bool) -> TimeInterval {
+        guard !self.isFault else {
+            return 0.0
+        }
+
+        guard
+            prefersChapterContext,
+            self.hasChapters,
+            let duration = self.currentChapter?.duration else {
+            let time = prefersRemainingTime
+                ? self.currentTimeInContext(prefersChapterContext) - self.duration
+                : self.duration
+            return time
+        }
+
+        let time = prefersRemainingTime
+            ? self.currentTimeInContext(prefersChapterContext) - duration
+            : duration
+
+        return time
+    }
+
+    public func durationTimeInContext(_ prefersChapterContext: Bool) -> TimeInterval {
+        guard !self.isFault else {
+            return 0.0
+        }
+
+        guard
+            prefersChapterContext,
+            self.hasChapters,
+            let duration = self.currentChapter?.duration else {
+            return self.duration
+        }
+
+        return duration
+    }
+
     public override func awakeFromFetch() {
         super.awakeFromFetch()
 
