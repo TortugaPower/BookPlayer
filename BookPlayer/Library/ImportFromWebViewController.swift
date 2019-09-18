@@ -45,14 +45,22 @@ class ImportFromWebViewController: UIViewController, UITextFieldDelegate {
         self.viewProgress.isHidden = true
 
         var url = ImportFromWebViewController.last_url
+
         // If user is pasting a url... paste it for them
         if let clip = UIPasteboard.general.string {
             if clip.starts(with: "http") {
                 url = clip
             }
         }
+
         if !url.isEmpty {
-            self.webview.load(URLRequest(url: URL(string: url)!))
+            let u = URL(string: url)!
+
+            if !self.content_extensions.contains(u.pathExtension) {
+                // load web url if its not an importable file.
+                self.webview.load(URLRequest(url: u))
+            }
+
             self.txtUrl.text = url
         }
     }
@@ -63,12 +71,17 @@ class ImportFromWebViewController: UIViewController, UITextFieldDelegate {
         self.dismiss(animated: true, completion: nil)
     }
 
+    // download successful.
     func successDownload() {
         let alertcontroller = UIAlertController(title: "Success", message: "Downloaded successfully", preferredStyle: .alert)
-        let actionalert = UIAlertAction(title: "OK", style: .default) { _ in
+        let doneAction = UIAlertAction(title: "Done Adding", style: .default) { _ in
             self.dismiss(animated: true, completion: nil)
         }
-        alertcontroller.addAction(actionalert)
+        let keepGoingAction = UIAlertAction(title: "Keep Browsing", style: .default) { _ in
+        }
+        alertcontroller.addAction(doneAction)
+        alertcontroller.addAction(keepGoingAction)
+
         self.present(alertcontroller, animated: true, completion: nil)
     }
 
@@ -104,16 +117,14 @@ class ImportFromWebViewController: UIViewController, UITextFieldDelegate {
             switch response.result {
             case .success:
                 print("Download Successful")
-                // TODO: Check that the file was downloaded. Has some content (file size > 1024?)
+                // TODO: Check that the file was downloaded has some content (file size > 1024?)
                 let fileURL = response.fileURL!
                 print("File:\(fileURL.absoluteString)")
-                // self.dismiss(animated: true, completion: nil)
                 self.successDownload()
 
             case .failure(let error):
-                // Delete partial download if it exists.
+                // Delete any partial download if it exists.
                 if let fileURL = response.fileURL {
-                    // Need to delete this file...
                     print("deleting any partial file:\(fileURL.absoluteString)")
                     do {
                         try FileManager.default.removeItem(at: fileURL)
@@ -168,9 +179,10 @@ extension ImportFromWebViewController: WKNavigationDelegate {
      */
     func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
         if let response = navigationResponse.response as? HTTPURLResponse {
+            let url = navigationResponse.response.url!
             let content_type = response.allHeaderFields["Content-Type"] as? String
             let type_ok = self.content_types.contains(content_type!)
-            let extension_ok = self.content_extensions.contains(navigationResponse.response.url!.pathExtension)
+            let extension_ok = self.content_extensions.contains(url.pathExtension)
             // allow audio content type, zip... or urls ending in .mp3, .m4a, zip, etc...
             let isDownloadable = type_ok || extension_ok
 
@@ -185,6 +197,11 @@ extension ImportFromWebViewController: WKNavigationDelegate {
                     self.webview.reload()
                 }
             } else {
+                print("decidePolicyFor navigationResponse = \(url) and content \(content_type!)")
+                if content_type != nil, content_type!.starts(with: "text/html") {
+                    ImportFromWebViewController.last_url = url.absoluteString
+                }
+
                 decisionHandler(.allow)
             }
         }
@@ -207,6 +224,16 @@ extension ImportFromWebViewController: WKNavigationDelegate {
         // print("webViewWebContentProcessDidTerminate \(self.webview.url)")
     }
 
+    /*! @abstract Invoked when content starts arriving for the main frame.
+     @param webView The web view invoking the delegate method.
+     @param navigation The navigation.
+
+     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+     // print("didCommit navigation \(self.webview.url)")
+     }
+
+     */
+
     /*! @abstract Invoked when an error occurs while starting to load data for
      the main frame.
      @param webView The web view invoking the delegate method.
@@ -222,22 +249,14 @@ extension ImportFromWebViewController: WKNavigationDelegate {
         }
     }
 
-    /*! @abstract Invoked when content starts arriving for the main frame.
-     @param webView The web view invoking the delegate method.
-     @param navigation The navigation.
-     */
-    func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
-        // print("didCommit navigation \(self.webview.url)")
-    }
-
     /*! @abstract Invoked when a main frame navigation completes.
      @param webView The web view invoking the delegate method.
      @param navigation The navigation.
      */
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        // print("didFinish navigation \(self.webview.url)")
-        self.txtUrl.text = self.webview.url!.absoluteString
-        ImportFromWebViewController.last_url = self.webview.url!.absoluteString
+        if let u = self.webview.url {
+            self.txtUrl.text = u.absoluteString
+        }
     }
 
     /*! @abstract Invoked when an error occurs during a committed main frame
