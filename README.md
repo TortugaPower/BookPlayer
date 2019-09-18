@@ -84,12 +84,18 @@ Managed with [Carthage](https://github.com/Carthage/Carthage)
 - [SwiftReorder](https://github.com/GianniCarlo/SwiftReorder) for drag-and-drop on the UITableView
 - [SwiftyStoreKit](https://github.com/bizz84/SwiftyStoreKit) for the tip jar
 - [ZIPFoundation](https://github.com/weichsel/ZIPFoundation) for zip files
+- [AlamoFire](https://github.com/Alamofire/Alamofire) for downloading web files
 
 Managed with [Homebrew](https://brew.sh)
 
 - [SwiftLint](https://github.com/realm/SwiftLint)
 - [SwiftFormat](https://github.com/nicklockwood/SwiftFormat)
 
+
+## Build
+git clone https://github.com/TortugaPower/BookPlayer.git
+cd BookPlayer
+carthage update --platform ios --no-use-binaries --verbose
 
 
 ## License

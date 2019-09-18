@@ -283,6 +283,10 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
             self.presentImportFilesAlert()
         })
 
+        alertController.addAction(UIAlertAction(title: "Download from web", style: .default) { _ in
+            self.openAddFromUrlController()
+        })
+
         alertController.addAction(UIAlertAction(title: "Create playlist", style: .default) { _ in
             self.presentCreatePlaylistAlert(handler: { title in
                 let playlist = DataManager.createPlaylist(title: title, books: [])
@@ -347,6 +351,12 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         }
 
         self.handleDelete(books: books)
+    }
+
+    // Import from http support
+    func openAddFromUrlController() {
+        let viewcontroller = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "ImportFromUrlViewController")
+        self.present(viewcontroller, animated: true, completion: nil)
     }
 }
 

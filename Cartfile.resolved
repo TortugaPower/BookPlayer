@@ -1,4 +1,5 @@
-github "GianniCarlo/DirectoryWatcher" "2.3.0"
+github "Alamofire/Alamofire" "5.0.0-rc.2"
+github "GianniCarlo/DirectoryWatcher" "2.4.0"
 github "GianniCarlo/SwiftReorder" "5.1.1"
 github "GianniCarlo/Themeable" "8735cbe7f794e42d0941c3cc30a2f8690174076a"
 github "bizz84/SwiftyStoreKit" "0.14.2"
