@@ -93,10 +93,11 @@ Managed with [Homebrew](https://brew.sh)
 
 
 ## Build
+```bash
 git clone https://github.com/TortugaPower/BookPlayer.git
 cd BookPlayer
 carthage update --platform ios --no-use-binaries --verbose
-
+```
 
 ## License
 
