@@ -9,13 +9,17 @@
 import Alamofire
 import WebKit
 
-class ImportFromWebViewController: UIViewController, UITextFieldDelegate {
-    @IBOutlet weak var txtUrl: UITextField!
+class ImportFromWebViewController: UIViewController, UISearchBarDelegate {
+    @IBOutlet weak var txtUrl: UISearchBar!
 
     @IBOutlet weak var viewProgress: UIView!
     @IBOutlet weak var lblDownload: UILabel!
     @IBOutlet weak var progressview: UIProgressView!
     @IBOutlet weak var webview: WKWebView! // Note this may fail on pre-iOS 11. See https://stackoverflow.com/questions/46221577
+
+    @IBOutlet weak var browseForwardButton: UIButton!
+    @IBOutlet weak var browseBackwardButton: UIButton!
+    @IBOutlet weak var dismissViewButton: UIButton!
 
     // Content types we should try to import
     let content_types: Set = ["audio/mpeg", "audio/mp3", "audio/m4a", "audio/m4b", "application/zip"]
@@ -25,50 +29,54 @@ class ImportFromWebViewController: UIViewController, UITextFieldDelegate {
     // credentials for URL, for host matching credential_host
     var credentials: URLCredential = URLCredential() // Use credentials for downloading book with AlamoFire.
     var credential_host = "" // the host the saved credentials are for.
-    static var last_url = "" // the last url we browsed to. Maybe save to preferences?
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         self.webview.uiDelegate = self
         self.webview.navigationDelegate = self
+        self.webview.allowsBackForwardNavigationGestures = true
+        self.webview.isHidden = false
 
         self.txtUrl.layer.borderWidth = 1
         self.txtUrl.layer.borderColor = #colorLiteral(red: 0.1647058824, green: 0.5176470588, blue: 0.8235294118, alpha: 1).cgColor
 
-        self.txtUrl.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 15, height: 50))
-        self.txtUrl.leftViewMode = .always
-
         self.txtUrl.delegate = self
         self.txtUrl.autocorrectionType = .no
+        self.txtUrl.autocapitalizationType = .none
 
         self.viewProgress.isHidden = true
 
-        var url = ImportFromWebViewController.last_url
+        self.updateButtons()
 
-        // If user is pasting a url... paste it for them
-        if let clip = UIPasteboard.general.string {
-            if clip.starts(with: "http") {
-                url = clip
-            }
-        }
+        self.browseTo(self.getSavedURL())
+    }
 
-        if !url.isEmpty {
-            let u = URL(string: url)!
+    // This should return a user's preference for their home book page.
+    // Could be their own library or librivox, etc.
+    // Goal is to make average user avoid typing their most common site(s)
+    // without writing an entire web browser bookmark system.
 
-            if !self.content_extensions.contains(u.pathExtension) {
-                // load web url if its not an importable file.
-                self.webview.load(URLRequest(url: u))
-            }
+    func getSavedURL() -> String {
+        return UserDefaults.standard.string(forKey: Constants.UserDefaults.webHomePage.rawValue) ?? ""
+    }
 
-            self.txtUrl.text = url
-        }
+    func setSavedURL(_ url: String) {
+        UserDefaults.standard.set(url, forKey: Constants.UserDefaults.webHomePage.rawValue)
     }
 
     override func viewDidAppear(_ animated: Bool) {}
 
-    @IBAction func onClickBackBtn(sender: UIButton) {
+    @IBAction func onClickCloseBtn(sender: UIButton) {
         self.dismiss(animated: true, completion: nil)
+    }
+
+    @IBAction func onClickBrowserBackBtn(sender: UIButton) {
+        self.webview.goBack()
+    }
+
+    @IBAction func onClickBrowserForwardBtn(sender: UIButton) {
+        self.webview.goForward()
     }
 
     // download successful.
@@ -108,7 +116,7 @@ class ImportFromWebViewController: UIViewController, UITextFieldDelegate {
             }
         }.downloadProgress { progress in
             let percent = String(format: "%0.0f", progress.fractionCompleted * 100)
-            let msg = "Downloading... \(percent)"
+            let msg = "Downloading... \(percent)%"
             self.lblDownload.text = msg
             self.progressview.setProgress(Float(progress.fractionCompleted), animated: true)
         }.responseData { response in
@@ -143,21 +151,30 @@ class ImportFromWebViewController: UIViewController, UITextFieldDelegate {
         }
     }
 
+    func updateButtons() {
+        self.browseBackwardButton.isEnabled = self.webview.canGoBack
+        self.browseForwardButton.isEnabled = self.webview.canGoForward
+    }
+
     func downloadAction(url: URL) {
         self.download(url: url, credential: self.credentials)
     }
 
-    // Submit request on text "return"
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        if let urlString = txtUrl.text {
-            if urlString.starts(with: "http://") || urlString.starts(with: "https://") {
-                self.webview.load(URLRequest(url: URL(string: urlString)!))
-            } else {
-                self.webview.load(URLRequest(url: URL(string: "http://\(urlString)")!))
-            }
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) { // called when keyboard search button pressed
+        self.browseTo(self.txtUrl.text)
+    }
+
+    // Go to web url specified. can be google.com, http://foo.bar.
+    func browseTo(_ url: String?) {
+        if let urlString = url, !urlString.isEmpty {
+            // string is not nil and not empty...
+
+            let u = urlString.starts(with: "http://") || urlString.starts(with: "https://") ? urlString : "http://\(urlString)"
+
+            self.txtUrl.text = u
+            self.webview.load(URLRequest(url: URL(string: u)!))
+            self.setSavedURL(u)
         }
-        return true
     }
 }
 
@@ -197,11 +214,7 @@ extension ImportFromWebViewController: WKNavigationDelegate {
                     self.webview.reload()
                 }
             } else {
-                print("decidePolicyFor navigationResponse = \(url) and content \(content_type!)")
-                if content_type != nil, content_type!.starts(with: "text/html") {
-                    ImportFromWebViewController.last_url = url.absoluteString
-                }
-
+                // print("decidePolicyFor navigationResponse = \(url) and content \(content_type!)")
                 decisionHandler(.allow)
             }
         }
@@ -257,6 +270,7 @@ extension ImportFromWebViewController: WKNavigationDelegate {
         if let u = self.webview.url {
             self.txtUrl.text = u.absoluteString
         }
+        self.updateButtons()
     }
 
     /*! @abstract Invoked when an error occurs during a committed main frame

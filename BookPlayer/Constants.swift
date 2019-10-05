@@ -34,6 +34,9 @@ enum Constants {
 
         case rewindInterval = "userSettingsRewindInterval"
         case forwardInterval = "userSettingsForwardInterval"
+
+        // web bookmark
+        case webHomePage = "userSettingsHomePage"
     }
 
     enum SmartRewind: TimeInterval {

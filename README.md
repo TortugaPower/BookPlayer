@@ -17,6 +17,7 @@ Please visit our [Wiki](https://github.com/TortugaPower/BookPlayer/wiki) for our
 - Using [AirDrop](https://support.apple.com/en-us/HT204144#receive)  from your Mac or iOS device
 - From [Files](https://support.apple.com/en-us/ht206481) and other apps on your device
 - Via [File Sharing](https://support.apple.com/en-us/HT201301) in iTunes on your Mac or PC
+- From web pages, such as librivox
 
 ### Manage 
 
@@ -65,6 +66,7 @@ If you enjoy BookPlayer, we would be glad if you consider writing a review on th
 - [@gpambrozio](https://github.com/gpambrozio) - Volume Boost
 - [@vab9](https://github.com/vab9) - AirDrop Support
 - [@atomicguy](https://github.com/atomicguy) - Zip Support
+- [@openaudible](https://github.com/openaudible) - Web import support
 
 A full list of all contributors can be found [on GitHub.](https://github.com/GianniCarlo/Audiobook-Player/graphs/contributors)
 
