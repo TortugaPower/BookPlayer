@@ -22,6 +22,11 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
 
     @IBOutlet weak var tableView: UITableView!
 
+    private var previousLeftButtons: [UIBarButtonItem]?
+    lazy var selectButton: UIBarButtonItem = {
+        return UIBarButtonItem(title: "Select All", style: .plain, target: self, action: #selector(selectButtonPressed))
+    }()
+
     var library: Library!
 
     // TableView's datasource
@@ -138,7 +143,22 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         self.animateView(self.bulkControls, show: editing)
         self.tableView.setEditing(editing, animated: true)
 
+        if editing {
+            previousLeftButtons = navigationItem.leftBarButtonItems
+            navigationItem.leftBarButtonItems = [selectButton]
+            selectButton.isEnabled = tableView.numberOfRows(inSection: 0) > 0
+            updateSelectButtonTitle()
+        } else {
+            navigationItem.leftBarButtonItems = previousLeftButtons
+        }
+
         NotificationCenter.default.post(name: notification, object: nil, userInfo: nil)
+    }
+
+    func updateSelectButtonTitle() {
+        self.selectButton.title = self.tableView.numberOfRows(inSection: 0) > (self.tableView.indexPathsForSelectedRows?.count ?? 0)
+            ? "Select All"
+            : "Deselect All"
     }
 
     func toggleEmptyStateView() {
@@ -380,6 +400,27 @@ extension ItemListViewController {
             self.tableView.contentInset.bottom = rootViewController.miniPlayerIsHidden ? 0.0 : 88.0
         }
     }
+
+    @objc func selectButtonPressed(_ sender: Any) {
+        if self.tableView.numberOfRows(inSection: 0) == (self.tableView.indexPathsForSelectedRows?.count ?? 0) {
+            for row in 0..<self.tableView.numberOfRows(inSection: 0) {
+                self.tableView.deselectRow(at: IndexPath(item: row, section: 0), animated: true)
+            }
+
+            self.bulkControls.moveButton.isEnabled = false
+            self.bulkControls.trashButton.isEnabled = false
+
+        } else {
+            for row in 0..<self.tableView.numberOfRows(inSection: 0) {
+                self.tableView.selectRow(at: IndexPath(item: row, section: 0), animated: true, scrollPosition: .none)
+            }
+
+            self.bulkControls.moveButton.isEnabled = true
+            self.bulkControls.trashButton.isEnabled = true
+        }
+
+        self.updateSelectButtonTitle()
+    }
 }
 
 // MARK: - Feedback
@@ -523,9 +564,13 @@ extension ItemListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.bulkControls.moveButton.isEnabled = true
         self.bulkControls.trashButton.isEnabled = true
+
+        self.updateSelectButtonTitle()
     }
 
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        self.updateSelectButtonTitle()
+
         guard tableView.indexPathForSelectedRow == nil else {
             return
         }
