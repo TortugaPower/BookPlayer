@@ -146,8 +146,8 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         if editing {
             previousLeftButtons = navigationItem.leftBarButtonItems
             navigationItem.leftBarButtonItems = [selectButton]
-            selectButton.isEnabled = tableView.numberOfRows(inSection: 0) > 0
-            updateSelectButtonTitle()
+            selectButton.isEnabled = tableView.numberOfRows(inSection: Section.data.rawValue) > 0
+            updateSelectionStatus()
         } else {
             navigationItem.leftBarButtonItems = previousLeftButtons
         }
@@ -155,10 +155,22 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         NotificationCenter.default.post(name: notification, object: nil, userInfo: nil)
     }
 
-    func updateSelectButtonTitle() {
+    func updateSelectionStatus() {
+
+        guard self.tableView.isEditing else { return }
+
         self.selectButton.title = self.tableView.numberOfRows(inSection: 0) > (self.tableView.indexPathsForSelectedRows?.count ?? 0)
             ? "Select All"
             : "Deselect All"
+
+        guard self.tableView.indexPathForSelectedRow == nil else {
+            self.bulkControls.moveButton.isEnabled = true
+            self.bulkControls.trashButton.isEnabled = true
+            return
+        }
+
+        self.bulkControls.moveButton.isEnabled = false
+        self.bulkControls.trashButton.isEnabled = false
     }
 
     func toggleEmptyStateView() {
@@ -402,24 +414,24 @@ extension ItemListViewController {
     }
 
     @objc func selectButtonPressed(_ sender: Any) {
-        if self.tableView.numberOfRows(inSection: 0) == (self.tableView.indexPathsForSelectedRows?.count ?? 0) {
-            for row in 0..<self.tableView.numberOfRows(inSection: 0) {
-                self.tableView.deselectRow(at: IndexPath(item: row, section: 0), animated: true)
+        if self.tableView.numberOfRows(inSection: Section.data.rawValue) == (self.tableView.indexPathsForSelectedRows?.count ?? 0) {
+            for row in 0..<self.tableView.numberOfRows(inSection: Section.data.rawValue) {
+                self.tableView.deselectRow(at: IndexPath(row: row, section: .data), animated: true)
             }
 
             self.bulkControls.moveButton.isEnabled = false
             self.bulkControls.trashButton.isEnabled = false
 
         } else {
-            for row in 0..<self.tableView.numberOfRows(inSection: 0) {
-                self.tableView.selectRow(at: IndexPath(item: row, section: 0), animated: true, scrollPosition: .none)
+            for row in 0..<self.tableView.numberOfRows(inSection: Section.data.rawValue) {
+                self.tableView.selectRow(at: IndexPath(row: row, section: .data), animated: true, scrollPosition: .none)
             }
 
             self.bulkControls.moveButton.isEnabled = true
             self.bulkControls.trashButton.isEnabled = true
         }
 
-        self.updateSelectButtonTitle()
+        self.updateSelectionStatus()
     }
 }
 
@@ -562,14 +574,11 @@ extension ItemListViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.bulkControls.moveButton.isEnabled = true
-        self.bulkControls.trashButton.isEnabled = true
-
-        self.updateSelectButtonTitle()
+        self.updateSelectionStatus()
     }
 
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-        self.updateSelectButtonTitle()
+        self.updateSelectionStatus()
 
         guard tableView.indexPathForSelectedRow == nil else {
             return
