@@ -141,12 +141,12 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         self.tableView.setEditing(editing, animated: true)
 
         if editing {
-            previousLeftButtons = navigationItem.leftBarButtonItems
-            navigationItem.leftBarButtonItems = [selectButton]
-            selectButton.isEnabled = tableView.numberOfRows(inSection: Section.data.rawValue) > 0
-            updateSelectionStatus()
+            self.previousLeftButtons = navigationItem.leftBarButtonItems
+            self.navigationItem.leftBarButtonItems = [selectButton]
+            self.selectButton.isEnabled = tableView.numberOfRows(inSection: Section.data.rawValue) > 0
+            self.updateSelectionStatus()
         } else {
-            navigationItem.leftBarButtonItems = previousLeftButtons
+            self.navigationItem.leftBarButtonItems = previousLeftButtons
         }
 
         NotificationCenter.default.post(name: notification, object: nil, userInfo: nil)
