@@ -156,7 +156,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
 
         guard self.tableView.isEditing else { return }
 
-        self.selectButton.title = self.tableView.numberOfRows(inSection: 0) > (self.tableView.indexPathsForSelectedRows?.count ?? 0)
+        self.selectButton.title = self.tableView.numberOfRows(inSection: Section.data.rawValue) > (self.tableView.indexPathsForSelectedRows?.count ?? 0)
             ? "Select All"
             : "Deselect All"
 
