@@ -135,9 +135,6 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
 
-        self.bulkControls.moveButton.isEnabled = false
-        self.bulkControls.trashButton.isEnabled = false
-
         let notification: Notification.Name = !editing ? .playerDismissed : .playerPresented
 
         self.animateView(self.bulkControls, show: editing)
@@ -418,17 +415,10 @@ extension ItemListViewController {
             for row in 0..<self.tableView.numberOfRows(inSection: Section.data.rawValue) {
                 self.tableView.deselectRow(at: IndexPath(row: row, section: .data), animated: true)
             }
-
-            self.bulkControls.moveButton.isEnabled = false
-            self.bulkControls.trashButton.isEnabled = false
-
         } else {
             for row in 0..<self.tableView.numberOfRows(inSection: Section.data.rawValue) {
                 self.tableView.selectRow(at: IndexPath(row: row, section: .data), animated: true, scrollPosition: .none)
             }
-
-            self.bulkControls.moveButton.isEnabled = true
-            self.bulkControls.trashButton.isEnabled = true
         }
 
         self.updateSelectionStatus()
