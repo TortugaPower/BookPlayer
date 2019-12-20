@@ -569,13 +569,6 @@ extension ItemListViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
         self.updateSelectionStatus()
-
-        guard tableView.indexPathForSelectedRow == nil else {
-            return
-        }
-
-        self.bulkControls.moveButton.isEnabled = false
-        self.bulkControls.trashButton.isEnabled = false
     }
 }
 
