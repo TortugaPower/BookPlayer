@@ -172,7 +172,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
     }
 
     func presentImportFilesAlert() {
-        let providerList = UIDocumentPickerViewController(documentTypes: ["public.audio", "com.pkware.zip-archive"], in: .import)
+        let providerList = UIDocumentPickerViewController(documentTypes: ["public.audio", "com.pkware.zip-archive", "public.movie"], in: .import)
 
         providerList.delegate = self
 
