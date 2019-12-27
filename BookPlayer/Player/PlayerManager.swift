@@ -405,7 +405,13 @@ extension PlayerManager {
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
         guard let path = keyPath, path == "status",
             let item = object as? AVPlayerItem,
-            item.status == .readyToPlay else { return }
+            item.status == .readyToPlay else {
+            super.observeValue(forKeyPath: keyPath,
+                               of: object,
+                               change: change,
+                               context: context)
+            return
+        }
 
         self.playerItem?.removeObserver(self, forKeyPath: "status")
         self.play()
