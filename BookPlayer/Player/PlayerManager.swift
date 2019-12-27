@@ -29,6 +29,7 @@ class PlayerManager: NSObject {
 
             let bookAsset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
             self.playerItem = AVPlayerItem(asset: bookAsset)
+            self.playerItem?.audioTimePitchAlgorithm = .timeDomain
         }
     }
 
