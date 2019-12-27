@@ -222,6 +222,8 @@ class PlayerManager: NSObject {
                 UserDefaults.standard.set(newValue, forKey: "global_speed")
             }
 
+            guard self.isPlaying else { return }
+
             self.audioPlayer.rate = newValue
         }
     }
