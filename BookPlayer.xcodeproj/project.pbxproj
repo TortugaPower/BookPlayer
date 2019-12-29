@@ -60,13 +60,10 @@
 		4149539A21F0D456003C5D27 /* Themes.json in Resources */ = {isa = PBXBuildFile; fileRef = 4149539921F0D456003C5D27 /* Themes.json */; };
 		4150F80320A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4150F80220A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework */; };
 		41544A1421BAF41400740AD2 /* ItemSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41544A1321BAF41400740AD2 /* ItemSelectionViewController.swift */; };
-		415758E82226DED300DDB9B6 /* PlusBannerView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 415758E72226DED300DDB9B6 /* PlusBannerView.xib */; };
 		415758EA2226E18800DDB9B6 /* PlusBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415758E92226E18800DDB9B6 /* PlusBannerView.swift */; };
 		415B274421FAE47200F9D9B7 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415B274321FAE47200F9D9B7 /* LoadingView.swift */; };
-		415B274621FAE4A300F9D9B7 /* LoadingView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 415B274521FAE4A300F9D9B7 /* LoadingView.xib */; };
 		4163E313214AC43000072AA2 /* ImportOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E312214AC43000072AA2 /* ImportOperationTests.swift */; };
 		4165EE0520A743D500616EDF /* BookPlayer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */; };
-		4165EE0B20A7A33500616EDF /* AddCellView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4165EE0920A7A33500616EDF /* AddCellView.xib */; };
 		4165EE0C20A7A33500616EDF /* BookCellView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4165EE0A20A7A33500616EDF /* BookCellView.xib */; };
 		4165EE0E20A7AEC600616EDF /* SwiftReorder.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4165EE0D20A7AEC600616EDF /* SwiftReorder.framework */; };
 		4165EE1020A7CBBE00616EDF /* PlaylistViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EE0F20A7CBBE00616EDF /* PlaylistViewController.swift */; };
@@ -81,6 +78,10 @@
 		418B6D5D1D2CB76900F974FB /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418B6D5C1D2CB76900F974FB /* PlayerViewController.swift */; };
 		41964C832220B4F700FF1A2F /* ContributorCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41964C822220B4F700FF1A2F /* ContributorCellView.swift */; };
 		4197240021874D5F00AB1190 /* UserActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419723FF21874D5F00AB1190 /* UserActivityManager.swift */; };
+		419B373923B8D0C600128A8F /* Player.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 419B373B23B8D0C600128A8F /* Player.storyboard */; };
+		419B373C23B8D12200128A8F /* AddCellView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 419B373E23B8D12200128A8F /* AddCellView.xib */; };
+		419B373F23B8D14100128A8F /* LoadingView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 419B374123B8D14100128A8F /* LoadingView.xib */; };
+		419B374223B8D18000128A8F /* PlusBannerView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 419B374423B8D18000128A8F /* PlusBannerView.xib */; };
 		419F38EE2288B7DE00989E61 /* NowPlayingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419F38ED2288B7DE00989E61 /* NowPlayingController.swift */; };
 		41A1B0E4226E9BC500EA0400 /* BookPlayerKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A1B0D4226E9BC400EA0400 /* BookPlayerKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41A1B0E7226E9BC500EA0400 /* BookPlayerKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */; };
@@ -210,7 +211,6 @@
 		C3A479132094C8C300D92122 /* rubberBandDistance.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479122094C8C300D92122 /* rubberBandDistance.swift */; };
 		C3A479152094CA3800D92122 /* UIImage+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479142094CA3800D92122 /* UIImage+BookPlayer.swift */; };
 		C3A479192094CAF300D92122 /* UIViewController+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479182094CAF300D92122 /* UIViewController+BookPlayer.swift */; };
-		C3D3852720C1E73E00A0ACC7 /* Player.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C3D3852620C1E73E00A0ACC7 /* Player.storyboard */; };
 		C3EA7176218DEC870005D488 /* .swiftformat in Resources */ = {isa = PBXBuildFile; fileRef = C3EA7175218DEC870005D488 /* .swiftformat */; };
 		C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3EC372D206EE0650094B4E8 /* SleepTimer.swift */; };
 		C3FA301E20E0024900393DDA /* BPArtworkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FA301D20E0024900393DDA /* BPArtworkView.swift */; };
@@ -354,15 +354,12 @@
 		4150F80220A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IDZSwiftCommonCrypto.framework; path = Carthage/Build/iOS/IDZSwiftCommonCrypto.framework; sourceTree = "<group>"; };
 		41544A1121B86A8B00740AD2 /* DeleteMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteMode.swift; sourceTree = "<group>"; };
 		41544A1321BAF41400740AD2 /* ItemSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemSelectionViewController.swift; sourceTree = "<group>"; };
-		415758E72226DED300DDB9B6 /* PlusBannerView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PlusBannerView.xib; sourceTree = "<group>"; };
 		415758E92226E18800DDB9B6 /* PlusBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlusBannerView.swift; sourceTree = "<group>"; };
 		415B274321FAE47200F9D9B7 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
-		415B274521FAE4A300F9D9B7 /* LoadingView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoadingView.xib; sourceTree = "<group>"; };
 		4163E3102148606600072AA2 /* FileItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileItem.swift; sourceTree = "<group>"; };
 		4163E312214AC43000072AA2 /* ImportOperationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportOperationTests.swift; sourceTree = "<group>"; };
 		4163E314214ACB4300072AA2 /* DataTestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTestUtils.swift; sourceTree = "<group>"; };
 		4165EDFA20A743D500616EDF /* Audiobook Player.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Audiobook Player.xcdatamodel"; sourceTree = "<group>"; };
-		4165EE0920A7A33500616EDF /* AddCellView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AddCellView.xib; sourceTree = "<group>"; };
 		4165EE0A20A7A33500616EDF /* BookCellView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BookCellView.xib; sourceTree = "<group>"; };
 		4165EE0D20A7AEC600616EDF /* SwiftReorder.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftReorder.framework; path = Carthage/Build/iOS/SwiftReorder.framework; sourceTree = "<group>"; };
 		4165EE0F20A7CBBE00616EDF /* PlaylistViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistViewController.swift; sourceTree = "<group>"; };
@@ -385,6 +382,10 @@
 		419196341D47CC4E007A3AF3 /* BookPlayer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BookPlayer.entitlements; sourceTree = "<group>"; };
 		41964C822220B4F700FF1A2F /* ContributorCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContributorCellView.swift; sourceTree = "<group>"; };
 		419723FF21874D5F00AB1190 /* UserActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserActivityManager.swift; sourceTree = "<group>"; };
+		419B373A23B8D0C600128A8F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Player.storyboard; sourceTree = "<group>"; };
+		419B373D23B8D12200128A8F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/AddCellView.xib; sourceTree = "<group>"; };
+		419B374023B8D14100128A8F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LoadingView.xib; sourceTree = "<group>"; };
+		419B374323B8D18000128A8F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/PlusBannerView.xib; sourceTree = "<group>"; };
 		419F38ED2288B7DE00989E61 /* NowPlayingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingController.swift; sourceTree = "<group>"; };
 		41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = BookPlayerKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		41A1B0D4226E9BC400EA0400 /* BookPlayerKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BookPlayerKit.h; sourceTree = "<group>"; };
@@ -511,7 +512,6 @@
 		C3A479122094C8C300D92122 /* rubberBandDistance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = rubberBandDistance.swift; sourceTree = "<group>"; };
 		C3A479142094CA3800D92122 /* UIImage+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+BookPlayer.swift"; sourceTree = "<group>"; };
 		C3A479182094CAF300D92122 /* UIViewController+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+BookPlayer.swift"; sourceTree = "<group>"; };
-		C3D3852620C1E73E00A0ACC7 /* Player.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Player.storyboard; sourceTree = "<group>"; };
 		C3EA7175218DEC870005D488 /* .swiftformat */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .swiftformat; sourceTree = "<group>"; };
 		C3EC372D206EE0650094B4E8 /* SleepTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepTimer.swift; sourceTree = "<group>"; };
 		C3FA301D20E0024900393DDA /* BPArtworkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPArtworkView.swift; sourceTree = "<group>"; };
@@ -685,7 +685,7 @@
 				41A1B132226FE34F00EA0400 /* Constants.swift */,
 				41B2A5D821CAE42600917584 /* Settings.storyboard */,
 				418B6D011D2707F800F974FB /* Main.storyboard */,
-				C3D3852620C1E73E00A0ACC7 /* Player.storyboard */,
+				419B373B23B8D0C600128A8F /* Player.storyboard */,
 				418B6D061D2707F800F974FB /* LaunchScreen.storyboard */,
 				418B6D041D2707F800F974FB /* Assets.xcassets */,
 				419196341D47CC4E007A3AF3 /* BookPlayer.entitlements */,
@@ -946,7 +946,7 @@
 				41B2A5DD21CAF20E00917584 /* ThemesViewController.swift */,
 				41AD3DA2221C7DCE00DC41E1 /* IconsViewController.swift */,
 				41AD3DAE221E678600DC41E1 /* PlusViewController.swift */,
-				415758E72226DED300DDB9B6 /* PlusBannerView.xib */,
+				419B374423B8D18000128A8F /* PlusBannerView.xib */,
 				415758E92226E18800DDB9B6 /* PlusBannerView.swift */,
 			);
 			path = Settings;
@@ -1021,13 +1021,13 @@
 				C398559B20C492FF00BE9EC0 /* AddButton.swift */,
 				41B2A5EE21CD5AAE00917584 /* StaticCellView.swift */,
 				C3FE94782080086800BCEA37 /* BookCellView.swift */,
-				4165EE0920A7A33500616EDF /* AddCellView.xib */,
+				419B373E23B8D12200128A8F /* AddCellView.xib */,
 				41B2A5F021CD857800917584 /* AddCellView.swift */,
 				4165EE0A20A7A33500616EDF /* BookCellView.xib */,
 				4142964321F21D95004356DA /* BulkControlsView.swift */,
 				4142964521F21DAE004356DA /* BulkControlsView.xib */,
 				415B274321FAE47200F9D9B7 /* LoadingView.swift */,
-				415B274521FAE4A300F9D9B7 /* LoadingView.xib */,
+				419B374123B8D14100128A8F /* LoadingView.xib */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1365,13 +1365,13 @@
 				418B6D081D2707F800F974FB /* LaunchScreen.storyboard in Resources */,
 				41E563042239570100C06BC9 /* retro-icon-ipad@2x.png in Resources */,
 				41AD3D9C221C737F00DC41E1 /* retro-icon@3x.png in Resources */,
-				C3D3852720C1E73E00A0ACC7 /* Player.storyboard in Resources */,
+				419B373923B8D0C600128A8F /* Player.storyboard in Resources */,
 				41E562CE22394F5200C06BC9 /* ayu-light@2x.png in Resources */,
 				4149539A21F0D456003C5D27 /* Themes.json in Resources */,
 				C37A6873209F0F830063AEAC /* Credits.html in Resources */,
 				418B6D051D2707F800F974FB /* Assets.xcassets in Resources */,
 				418B6D031D2707F800F974FB /* Main.storyboard in Resources */,
-				4165EE0B20A7A33500616EDF /* AddCellView.xib in Resources */,
+				419B373C23B8D12200128A8F /* AddCellView.xib in Resources */,
 				41E562EB2239531E00C06BC9 /* retro-modern-ipad@3x.png in Resources */,
 				41E56302223956B800C06BC9 /* retro-icon-ipad@3x.png in Resources */,
 				41E562F92239535D00C06BC9 /* retro-modern-ipad@2x.png in Resources */,
@@ -1389,12 +1389,12 @@
 				41E56300223953EB00C06BC9 /* default-icon-ipad@2x.png in Resources */,
 				41E562CF22394F5200C06BC9 /* ayu-light@3x.png in Resources */,
 				41E562FE223953AE00C06BC9 /* default-icon-ipad@3x.png in Resources */,
-				415758E82226DED300DDB9B6 /* PlusBannerView.xib in Resources */,
+				419B374223B8D18000128A8F /* PlusBannerView.xib in Resources */,
 				41AD3DAB221C8FF400DC41E1 /* default-icon@3x.png in Resources */,
 				41AD3DAC221C8FF400DC41E1 /* default-icon@2x.png in Resources */,
 				41E562F82239535D00C06BC9 /* dark-ipad@2x.png in Resources */,
 				41AD3D9A221C737F00DC41E1 /* retro-icon@2x.png in Resources */,
-				415B274621FAE4A300F9D9B7 /* LoadingView.xib in Resources */,
+				419B373F23B8D14100128A8F /* LoadingView.xib in Resources */,
 				C3EA7176218DEC870005D488 /* .swiftformat in Resources */,
 				41E562FC2239535D00C06BC9 /* neon-ipad@2x.png in Resources */,
 				41E562D222394F5A00C06BC9 /* dark@2x.png in Resources */,
@@ -1741,6 +1741,38 @@
 				418B6D071D2707F800F974FB /* Base */,
 			);
 			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		419B373B23B8D0C600128A8F /* Player.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				419B373A23B8D0C600128A8F /* Base */,
+			);
+			name = Player.storyboard;
+			sourceTree = "<group>";
+		};
+		419B373E23B8D12200128A8F /* AddCellView.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				419B373D23B8D12200128A8F /* Base */,
+			);
+			name = AddCellView.xib;
+			sourceTree = "<group>";
+		};
+		419B374123B8D14100128A8F /* LoadingView.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				419B374023B8D14100128A8F /* Base */,
+			);
+			name = LoadingView.xib;
+			sourceTree = "<group>";
+		};
+		419B374423B8D18000128A8F /* PlusBannerView.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				419B374323B8D18000128A8F /* Base */,
+			);
+			name = PlusBannerView.xib;
 			sourceTree = "<group>";
 		};
 		41B2A5D821CAE42600917584 /* Settings.storyboard */ = {
