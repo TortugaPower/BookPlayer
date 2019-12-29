@@ -1,0 +1,207 @@
+
+/* Class = "UILabel"; text = "Theme"; ObjectID = "02M-J9-X7a"; */
+"02M-J9-X7a.text" = "Theme";
+
+/* Class = "UILabel"; text = "0 seconds"; ObjectID = "1x1-g6-7Vg"; */
+"1x1-g6-7Vg.text" = "0 seconds";
+
+/* Class = "UIButton"; normalTitle = "$4.99"; ObjectID = "2jC-Rp-xFW"; */
+"2jC-Rp-xFW.normalTitle" = "$4.99";
+
+/* Class = "UILabel"; text = "Last played book"; ObjectID = "3Hf-KW-kuZ"; */
+"3Hf-KW-kuZ.text" = "Last played book";
+
+/* Class = "UILabel"; text = "Author"; ObjectID = "4eX-0M-CDr"; */
+"4eX-0M-CDr.text" = "Author";
+
+/* Class = "UITableViewSection"; footerTitle = "Rewind 30 seconds after being paused for 10 minutes."; ObjectID = "5tz-1M-pM5"; */
+"5tz-1M-pM5.footerTitle" = "Rewind 30 seconds after being paused for 10 minutes.";
+
+/* Class = "UILabel"; text = "support@bookplayer.app"; ObjectID = "6ow-P5-iYK"; */
+"6ow-P5-iYK.text" = "support@bookplayer.app";
+
+/* Class = "UILabel"; text = "@GianniCarlo"; ObjectID = "6yu-Wt-pII"; */
+"6yu-Wt-pII.text" = "@GianniCarlo";
+
+/* Class = "UIViewController"; title = "App Icon"; ObjectID = "9BF-g4-gyu"; */
+"9BF-g4-gyu.title" = "App Icon";
+
+/* Class = "UIViewController"; title = "BookPlayer Plus"; ObjectID = "AQw-yJ-pXJ"; */
+"AQw-yJ-pXJ.title" = "BookPlayer Plus";
+
+/* Class = "UILabel"; text = "Light"; ObjectID = "CVc-ad-1rf"; */
+"CVc-ad-1rf.text" = "Light";
+
+/* Class = "UILabel"; text = "View project on GitHub"; ObjectID = "ClD-F6-XBV"; */
+"ClD-F6-XBV.text" = "View project on GitHub";
+
+/* Class = "UILabel"; text = "Autoplay Library"; ObjectID = "CmE-t6-YbE"; */
+"CmE-t6-YbE.text" = "Autoplay Library";
+
+/* Class = "UILabel"; text = "Support BookPlayer"; ObjectID = "DTB-KZ-XGh"; */
+"DTB-KZ-XGh.text" = "Support BookPlayer";
+
+/* Class = "UITableViewSection"; headerTitle = "Support"; ObjectID = "HHg-sB-jse"; */
+"HHg-sB-jse.headerTitle" = "Support";
+
+/* Class = "UILabel"; text = "Kind tip of"; ObjectID = "HQ9-qO-XtC"; */
+"HQ9-qO-XtC.text" = "Kind tip of";
+
+/* Class = "UINavigationItem"; title = "BookPlayer Plus"; ObjectID = "HfH-ez-TaA"; */
+"HfH-ez-TaA.title" = "BookPlayer Plus";
+
+/* Class = "UILabel"; text = "App Icons"; ObjectID = "JTy-7Z-JSa"; */
+"JTy-7Z-JSa.text" = "App Icons";
+
+/* Class = "UILabel"; text = "Tip Jar"; ObjectID = "MVf-CT-ocr"; */
+"MVf-CT-ocr.text" = "Tip Jar";
+
+/* Class = "UILabel"; text = "Detail"; ObjectID = "MdO-Yx-eBK"; */
+"MdO-Yx-eBK.text" = "Detail";
+
+/* Class = "UIViewController"; title = "Themes"; ObjectID = "NEQ-oF-OIb"; */
+"NEQ-oF-OIb.title" = "Themes";
+
+/* Class = "UILabel"; text = "Additional carefully picked color themes or create your own by extracting colors from the covers of your favorite books."; ObjectID = "Ndv-pU-ygg"; */
+"Ndv-pU-ygg.text" = "Additional carefully picked color themes or create your own by extracting colors from the covers of your favorite books.";
+
+/* Class = "UINavigationItem"; title = "Settings"; ObjectID = "OYp-Bd-tHB"; */
+"OYp-Bd-tHB.title" = "Settings";
+
+/* Class = "UILabel"; text = "Switch automatically"; ObjectID = "Oz0-TQ-7Us"; */
+"Oz0-TQ-7Us.text" = "Switch automatically";
+
+/* Class = "UILabel"; text = "THEMES"; ObjectID = "PSZ-lE-AzA"; */
+"PSZ-lE-AzA.text" = "THEMES";
+
+/* Class = "UITableViewController"; title = "Direction"; ObjectID = "S1g-WT-l0z"; */
+"S1g-WT-l0z.title" = "Direction";
+
+/* Class = "UILabel"; text = "Incredible tip of"; ObjectID = "S8G-gq-kTv"; */
+"S8G-gq-kTv.text" = "Incredible tip of";
+
+/* Class = "UILabel"; text = "Title"; ObjectID = "SMH-JP-Fsh"; */
+"SMH-JP-Fsh.text" = "Title";
+
+/* Class = "UILabel"; text = "Always use dark variation"; ObjectID = "SPV-it-NzF"; */
+"SPV-it-NzF.text" = "Always use dark variation";
+
+/* Class = "UILabel"; text = "Select the dark variation of a theme if the screen brightness falls below the set threshold."; ObjectID = "TU0-qj-CIf"; */
+"TU0-qj-CIf.text" = "Select the dark variation of a theme if the screen brightness falls below the set threshold.";
+
+/* Class = "UILabel"; text = "Support us"; ObjectID = "UEG-RZ-ucW"; */
+"UEG-RZ-ucW.text" = "Support us";
+
+/* Class = "UILabel"; text = "BookPlayer is free and Open Source and it will always remain that way. With your help we are able to implement more features and make BookPlayer even better."; ObjectID = "Ulh-vd-VD9"; */
+"Ulh-vd-VD9.text" = "BookPlayer is free and Open Source and it will always remain that way. With your help we are able to implement more features and make BookPlayer even better.";
+
+/* Class = "UITableViewSection"; footerTitle = "Use Siri to continue the last played book."; ObjectID = "V2g-SX-Hc4"; */
+"V2g-SX-Hc4.footerTitle" = "Use Siri to continue the last played book.";
+
+/* Class = "UITableViewSection"; headerTitle = "Siri Shortcut"; ObjectID = "V2g-SX-Hc4"; */
+"V2g-SX-Hc4.headerTitle" = "Siri Shortcut";
+
+/* Class = "UIButton"; normalTitle = "$2.99"; ObjectID = "WsW-C2-faS"; */
+"WsW-C2-faS.normalTitle" = "$2.99";
+
+/* Class = "UITableViewSection"; footerTitle = "Adjust the amount skipped when dragging the album cover or using the buttons in the control center."; ObjectID = "X6u-we-Q7T"; */
+"X6u-we-Q7T.footerTitle" = "Adjust the amount skipped when dragging the album cover or using the buttons in the control center.";
+
+/* Class = "UITableViewSection"; headerTitle = "Skip intervals"; ObjectID = "X6u-we-Q7T"; */
+"X6u-we-Q7T.headerTitle" = "Skip intervals";
+
+/* Class = "UILabel"; text = "Global Speed Control"; ObjectID = "Xk7-Ab-nyQ"; */
+"Xk7-Ab-nyQ.text" = "Global Speed Control";
+
+/* Class = "UITableViewSection"; headerTitle = "PLAYBACK SETTINGS"; ObjectID = "ZAW-fc-LJE"; */
+"ZAW-fc-LJE.headerTitle" = "PLAYBACK SETTINGS";
+
+/* Class = "UIViewController"; title = "Credits"; ObjectID = "ZB7-qt-cNi"; */
+"ZB7-qt-cNi.title" = "Credits";
+
+/* Class = "UILabel"; text = "Only when connected to power"; ObjectID = "ZUk-YK-XeG"; */
+"ZUk-YK-XeG.text" = "Only when connected to power";
+
+/* Class = "UILabel"; text = "Player Controls"; ObjectID = "app-ex-T52"; */
+"app-ex-T52.text" = "Player Controls";
+
+/* Class = "UILabel"; text = "If you're really enjoying BookPlayer, you can leave extra tips to support the app's development further. This will help to keep the lights on and features coming."; ObjectID = "cSs-xT-k1Q"; */
+"cSs-xT-k1Q.text" = "If you're really enjoying BookPlayer, you can leave extra tips to support the app's development further. This will help to keep the lights on and features coming.";
+
+/* Class = "UILabel"; text = "Smart Rewind"; ObjectID = "dcQ-kt-xys"; */
+"dcQ-kt-xys.text" = "Smart Rewind";
+
+/* Class = "UITableViewSection"; headerTitle = "APPEARANCE"; ObjectID = "ehD-qC-2Ve"; */
+"ehD-qC-2Ve.headerTitle" = "APPEARANCE";
+
+/* Class = "UIBarButtonItem"; title = "Restore"; ObjectID = "ev0-9g-9dC"; */
+"ev0-9g-9dC.title" = "Restore";
+
+/* Class = "UILabel"; text = "EXTRACTED FROM BOOKS' ARTWORKS"; ObjectID = "f3H-Jd-vev"; */
+"f3H-Jd-vev.text" = "EXTRACTED FROM BOOKS' ARTWORKS";
+
+/* Class = "UILabel"; text = "Credits and Licenses"; ObjectID = "f5k-Kh-fBQ"; */
+"f5k-Kh-fBQ.text" = "Credits and Licenses";
+
+/* Class = "UINavigationItem"; title = "Player Controls"; ObjectID = "gST-Cn-uPB"; */
+"gST-Cn-uPB.title" = "Player Controls";
+
+/* Class = "UILabel"; text = "0 seconds"; ObjectID = "hD8-4g-KSV"; */
+"hD8-4g-KSV.text" = "0 seconds";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "hfJ-8d-1E2"; */
+"hfJ-8d-1E2.text" = "Label";
+
+/* Class = "UILabel"; text = "Rewind"; ObjectID = "i9g-z9-Yx0"; */
+"i9g-z9-Yx0.text" = "Rewind";
+
+/* Class = "UILabel"; text = "Disable Autolock"; ObjectID = "iys-Y1-zT4"; */
+"iys-Y1-zT4.text" = "Disable Autolock";
+
+/* Class = "UILabel"; text = "Forward"; ObjectID = "kBG-hx-oc1"; */
+"kBG-hx-oc1.text" = "Forward";
+
+/* Class = "UIButton"; normalTitle = "$9.99"; ObjectID = "kZr-oO-Agd"; */
+"kZr-oO-Agd.normalTitle" = "$9.99";
+
+/* Class = "UITableViewSection"; footerTitle = "Set speed across all books."; ObjectID = "lcf-oa-ncd"; */
+"lcf-oa-ncd.footerTitle" = "Set speed across all books.";
+
+/* Class = "UILabel"; text = "Send us an email"; ObjectID = "nCM-M8-bSw"; */
+"nCM-M8-bSw.text" = "Send us an email";
+
+/* Class = "UITableViewSection"; footerTitle = "Doubles the volume.\nUse with caution and care for your hearing."; ObjectID = "ndB-eX-83q"; */
+"ndB-eX-83q.footerTitle" = "Doubles the volume.\nUse with caution and care for your hearing.";
+
+/* Class = "UILabel"; text = "Excellent tip of"; ObjectID = "o1o-81-uNv"; */
+"o1o-81-uNv.text" = "Excellent tip of";
+
+/* Class = "UITableViewSection"; footerTitle = "Prevent the device from locking when on the Player screen. "; ObjectID = "ol9-Yg-Kce"; */
+"ol9-Yg-Kce.footerTitle" = "Prevent the device from locking when on the Player screen. ";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "ouD-Gg-0gc"; */
+"ouD-Gg-0gc.text" = "Label";
+
+/* Class = "UILabel"; text = "Open new issues for your feature requests and errors"; ObjectID = "p5a-8D-TIK"; */
+"p5a-8D-TIK.text" = "Open new issues for your feature requests and errors";
+
+/* Class = "UILabel"; text = "Themes"; ObjectID = "qEj-oC-sqS"; */
+"qEj-oC-sqS.text" = "Themes";
+
+/* Class = "UILabel"; text = "@pichfl"; ObjectID = "tuL-df-UdO"; */
+"tuL-df-UdO.text" = "@pichfl";
+
+/* Class = "UILabel"; text = "Boost Volume"; ObjectID = "tvf-w6-A0c"; */
+"tvf-w6-A0c.text" = "Boost Volume";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "v26-MI-ubO"; */
+"v26-MI-ubO.text" = "Label";
+
+/* Class = "UITableViewSection"; footerTitle = "Continue playback with all items in the Library that are not completed, including files in playlists."; ObjectID = "xgC-Yo-CeI"; */
+"xgC-Yo-CeI.footerTitle" = "Continue playback with all items in the Library that are not completed, including files in playlists.";
+
+/* Class = "UILabel"; text = "BookPlayer Plus comes with several app icons, matching the color schemes and your wallpaper."; ObjectID = "yFF-tK-7WV"; */
+"yFF-tK-7WV.text" = "BookPlayer Plus comes with several app icons, matching the color schemes and your wallpaper.";
+
+/* Class = "UILabel"; text = "App Icon"; ObjectID = "zzO-fZ-F5R"; */
+"zzO-fZ-F5R.text" = "App Icon";
