@@ -20,6 +20,7 @@ class ThemesViewController: UIViewController {
     @IBOutlet weak var sunImageView: UIImageView!
     @IBOutlet weak var sunLeadingConstraint: NSLayoutConstraint!
 
+    @IBOutlet weak var systemModeSwitch: UISwitch!
     @IBOutlet weak var darkModeSwitch: UISwitch!
 
     @IBOutlet weak var localThemesTableView: UITableView!
@@ -69,11 +70,17 @@ class ThemesViewController: UIViewController {
         self.extractedThemesTableView.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: self.extractedThemesTableView.frame.size.width, height: 1))
 
         self.darkModeSwitch.isOn = UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeDarkVariantEnabled.rawValue)
+        self.systemModeSwitch.isOn = UserDefaults.standard.bool(forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue)
         self.brightnessSwitch.isOn = UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeBrightnessEnabled.rawValue)
         self.brightnessSlider.value = UserDefaults.standard.float(forKey: Constants.UserDefaults.themeBrightnessThreshold.rawValue)
 
         if self.brightnessSwitch.isOn {
             self.toggleAutomaticBrightness(animated: false)
+        }
+
+        if self.systemModeSwitch.isOn {
+            self.brightnessSwitch.isEnabled = false
+            self.darkModeSwitch.isEnabled = false
         }
 
         self.brightnessChanged()
@@ -152,6 +159,32 @@ class ThemesViewController: UIViewController {
         let brightness = (UIScreen.main.brightness * 100).rounded() / 100
 
         self.sunLeadingConstraint.constant = (brightness * self.brightnessSlider.bounds.width) - (self.sunImageView.bounds.width / 2)
+    }
+
+    @IBAction func toggleSystemMode(_ sender: UISwitch) {
+        guard #available(iOS 13.0, *) else {
+            self.showAlert("Alert", message: "This feature is available on devices running iOS 13 or later ")
+            return
+        }
+
+        UserDefaults.standard.set(sender.isOn, forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue)
+
+        self.brightnessSwitch.isEnabled = !sender.isOn
+        self.darkModeSwitch.isEnabled = !sender.isOn
+
+        guard !sender.isOn else {
+            ThemeManager.shared.checkSystemMode()
+            return
+        }
+
+        //handle switching variant if the other toggle is enabled
+        let darkVariantEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeDarkVariantEnabled.rawValue)
+
+        if UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeBrightnessEnabled.rawValue) {
+            self.sliderUp(self.brightnessSlider)
+        } else if ThemeManager.shared.useDarkVariant != darkVariantEnabled {
+            ThemeManager.shared.useDarkVariant = darkVariantEnabled
+        }
     }
 
     @IBAction func toggleDarkMode(_ sender: UISwitch) {
