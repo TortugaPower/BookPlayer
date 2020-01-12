@@ -213,6 +213,15 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         present(alert, animated: true, completion: nil)
     }
 
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        guard #available(iOS 12.0, *),
+            self.traitCollection.userInterfaceStyle != .unspecified else { return }
+
+        ThemeManager.shared.checkSystemMode()
+    }
+
     // MARK: - Callback events
 
     @objc func onNewFileUrl() {

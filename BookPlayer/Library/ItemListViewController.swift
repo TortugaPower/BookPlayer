@@ -23,9 +23,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
     @IBOutlet weak var tableView: UITableView!
 
     private var previousLeftButtons: [UIBarButtonItem]?
-    lazy var selectButton: UIBarButtonItem = {
-        return UIBarButtonItem(title: "Select All", style: .plain, target: self, action: #selector(selectButtonPressed))
-    }()
+    lazy var selectButton: UIBarButtonItem = UIBarButtonItem(title: "Select All", style: .plain, target: self, action: #selector(selectButtonPressed))
 
     var library: Library!
 
@@ -143,17 +141,16 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         if editing {
             self.previousLeftButtons = navigationItem.leftBarButtonItems
             self.navigationItem.leftBarButtonItems = [selectButton]
-            self.selectButton.isEnabled = tableView.numberOfRows(inSection: Section.data.rawValue) > 0
+            self.selectButton.isEnabled = self.tableView.numberOfRows(inSection: Section.data.rawValue) > 0
             self.updateSelectionStatus()
         } else {
-            self.navigationItem.leftBarButtonItems = previousLeftButtons
+            self.navigationItem.leftBarButtonItems = self.previousLeftButtons
         }
 
         NotificationCenter.default.post(name: notification, object: nil, userInfo: nil)
     }
 
     func updateSelectionStatus() {
-
         guard self.tableView.isEditing else { return }
 
         self.selectButton.title = self.tableView.numberOfRows(inSection: Section.data.rawValue) > (self.tableView.indexPathsForSelectedRows?.count ?? 0)
@@ -175,7 +172,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
     }
 
     func presentImportFilesAlert() {
-        let providerList = UIDocumentPickerViewController(documentTypes: ["public.audio", "com.pkware.zip-archive"], in: .import)
+        let providerList = UIDocumentPickerViewController(documentTypes: ["public.audio", "com.pkware.zip-archive", "public.movie"], in: .import)
 
         providerList.delegate = self
 

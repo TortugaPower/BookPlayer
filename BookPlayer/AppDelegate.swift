@@ -50,9 +50,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // register to audio-interruption notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioInterruptions(_:)), name: AVAudioSession.interruptionNotification, object: nil)
 
-        // register to audio-route-change notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioRouteChange(_:)), name: AVAudioSession.routeChangeNotification, object: nil)
-
         // update last played book on watch app
         NotificationCenter.default.addObserver(self, selector: #selector(self.sendApplicationContext), name: .bookPlayed, object: nil)
 
@@ -232,33 +229,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 PlayerManager.shared.play()
             }
             @unknown default:
-            break
-        }
-    }
-
-    // Handle audio route changes
-    @objc func handleAudioRouteChange(_ notification: Notification) {
-        guard PlayerManager.shared.isPlaying,
-            let userInfo = notification.userInfo,
-            let reasonValue = userInfo[AVAudioSessionRouteChangeReasonKey] as? UInt,
-            let reason = AVAudioSession.RouteChangeReason(rawValue: reasonValue) else {
-            return
-        }
-
-        // Pause playback if route changes due to a disconnect
-        switch reason {
-        case .oldDeviceUnavailable:
-            guard let storedPort = PlayerManager.shared.outputPort,
-                let currentRoute = AVAudioSession.sharedInstance().currentRoute.outputs.first else { return }
-
-            guard storedPort != currentRoute else { return }
-
-            guard currentRoute.portType == .builtInSpeaker else { return }
-
-            DispatchQueue.main.async {
-                PlayerManager.shared.pause()
-            }
-        default:
             break
         }
     }
