@@ -23,6 +23,7 @@ enum Constants {
         case themeBrightnessEnabled = "userSettingsBrightnessEnabled"
         case themeBrightnessThreshold = "userSettingsBrightnessThreshold"
         case themeDarkVariantEnabled = "userSettingsThemeDarkVariant"
+        case systemThemeVariantEnabled = "userSettingsSystemThemeVariant"
         case chapterContextEnabled = "userSettingsChapterContext"
         case remainingTimeEnabled = "userSettingsRemainingTime"
         case smartRewindEnabled = "userSettingsSmartRewind"

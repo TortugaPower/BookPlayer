@@ -22,6 +22,9 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
 
     @IBOutlet weak var tableView: UITableView!
 
+    private var previousLeftButtons: [UIBarButtonItem]?
+    lazy var selectButton: UIBarButtonItem = UIBarButtonItem(title: "Select All", style: .plain, target: self, action: #selector(selectButtonPressed))
+
     var library: Library!
 
     // TableView's datasource
@@ -130,15 +133,38 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
 
-        self.bulkControls.moveButton.isEnabled = false
-        self.bulkControls.trashButton.isEnabled = false
-
         let notification: Notification.Name = !editing ? .playerDismissed : .playerPresented
 
         self.animateView(self.bulkControls, show: editing)
         self.tableView.setEditing(editing, animated: true)
 
+        if editing {
+            self.previousLeftButtons = navigationItem.leftBarButtonItems
+            self.navigationItem.leftBarButtonItems = [selectButton]
+            self.selectButton.isEnabled = self.tableView.numberOfRows(inSection: Section.data.rawValue) > 0
+            self.updateSelectionStatus()
+        } else {
+            self.navigationItem.leftBarButtonItems = self.previousLeftButtons
+        }
+
         NotificationCenter.default.post(name: notification, object: nil, userInfo: nil)
+    }
+
+    func updateSelectionStatus() {
+        guard self.tableView.isEditing else { return }
+
+        self.selectButton.title = self.tableView.numberOfRows(inSection: Section.data.rawValue) > (self.tableView.indexPathsForSelectedRows?.count ?? 0)
+            ? "Select All"
+            : "Deselect All"
+
+        guard self.tableView.indexPathForSelectedRow == nil else {
+            self.bulkControls.moveButton.isEnabled = true
+            self.bulkControls.trashButton.isEnabled = true
+            return
+        }
+
+        self.bulkControls.moveButton.isEnabled = false
+        self.bulkControls.trashButton.isEnabled = false
     }
 
     func toggleEmptyStateView() {
@@ -146,7 +172,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
     }
 
     func presentImportFilesAlert() {
-        let providerList = UIDocumentPickerViewController(documentTypes: ["public.audio", "com.pkware.zip-archive"], in: .import)
+        let providerList = UIDocumentPickerViewController(documentTypes: ["public.audio", "com.pkware.zip-archive", "public.movie"], in: .import)
 
         providerList.delegate = self
 
@@ -380,6 +406,20 @@ extension ItemListViewController {
             self.tableView.contentInset.bottom = rootViewController.miniPlayerIsHidden ? 0.0 : 88.0
         }
     }
+
+    @objc func selectButtonPressed(_ sender: Any) {
+        if self.tableView.numberOfRows(inSection: Section.data.rawValue) == (self.tableView.indexPathsForSelectedRows?.count ?? 0) {
+            for row in 0..<self.tableView.numberOfRows(inSection: Section.data.rawValue) {
+                self.tableView.deselectRow(at: IndexPath(row: row, section: .data), animated: true)
+            }
+        } else {
+            for row in 0..<self.tableView.numberOfRows(inSection: Section.data.rawValue) {
+                self.tableView.selectRow(at: IndexPath(row: row, section: .data), animated: true, scrollPosition: .none)
+            }
+        }
+
+        self.updateSelectionStatus()
+    }
 }
 
 // MARK: - Feedback
@@ -521,17 +561,11 @@ extension ItemListViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.bulkControls.moveButton.isEnabled = true
-        self.bulkControls.trashButton.isEnabled = true
+        self.updateSelectionStatus()
     }
 
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-        guard tableView.indexPathForSelectedRow == nil else {
-            return
-        }
-
-        self.bulkControls.moveButton.isEnabled = false
-        self.bulkControls.trashButton.isEnabled = false
+        self.updateSelectionStatus()
     }
 }
 
