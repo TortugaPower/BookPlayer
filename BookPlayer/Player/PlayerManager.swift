@@ -60,6 +60,8 @@ class PlayerManager: NSObject {
 
             self.update()
         }
+
+        NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying(_:)), name: .AVPlayerItemDidPlayToEndTime, object: nil)
     }
 
     func load(_ book: Book, completion: @escaping (Bool) -> Void) {
@@ -493,17 +495,9 @@ extension PlayerManager {
                                             "fileURL": fileURL
         ])
     }
-}
 
-// MARK: - AVAudioPlayer Delegate
-
-extension PlayerManager: AVAudioPlayerDelegate {
-    // Leave the slider at max
-    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        guard flag else { return }
-
-        player.currentTime = player.duration
-
+    @objc
+    func playerDidFinishPlaying(_ notification: Notification) {
         if let book = self.currentBook,
             let library = book.library ?? book.playlist?.library {
             library.lastPlayedBook = nil
@@ -522,6 +516,8 @@ extension PlayerManager: AVAudioPlayerDelegate {
             NotificationCenter.default.post(name: .bookChange,
                                             object: nil,
                                             userInfo: userInfo)
+
+            self.play()
         })
     }
 }
