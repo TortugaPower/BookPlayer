@@ -174,8 +174,11 @@ public class Playlist: LibraryItem {
         }
 
         for (index, book) in books.enumerated() {
-            guard index > indexFound,
-                !book.isFinished else { continue }
+            guard index > indexFound else { continue }
+
+            if book.isFinished {
+                book.currentTime = 0
+            }
 
             return book
         }
