@@ -24,16 +24,37 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
 
     private var previousLeftButtons: [UIBarButtonItem]?
     lazy var selectButton: UIBarButtonItem = UIBarButtonItem(title: "Select All", style: .plain, target: self, action: #selector(selectButtonPressed))
+    lazy var searchController: UISearchController = {
+        let searchController = UISearchController()
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchResultsUpdater = self
+        return searchController
+    }()
 
     var library: Library!
 
-    // TableView's datasource
     var items: [LibraryItem] {
         guard self.library != nil else {
             return []
         }
 
-        return self.library.items?.array as? [LibraryItem] ?? []
+        let items: [LibraryItem] = self.library.items?.array as? [LibraryItem] ?? []
+
+        if let searchText = self.searchController.searchBar.text,
+            !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return items.filter { item in
+                if let book = item as? Book {
+                    return book.title.contains(searchText)
+                        || book.author.contains(searchText)
+                } else if let playlist = item as? Playlist {
+                    return playlist.title.contains(searchText)
+                } else {
+                    return false
+                }
+            }
+        }
+
+        return items
     }
 
     // MARK: - Lifecycle
@@ -72,6 +93,8 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         // Prepare empty states
         self.toggleEmptyStateView()
         self.showLoadView(false)
+
+        self.navigationItem.searchController = self.searchController
 
         self.setupObservers()
     }
@@ -140,7 +163,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
 
         if editing {
             self.previousLeftButtons = navigationItem.leftBarButtonItems
-            self.navigationItem.leftBarButtonItems = [selectButton]
+            self.navigationItem.leftBarButtonItems = [self.selectButton]
             self.selectButton.isEnabled = self.tableView.numberOfRows(inSection: Section.data.rawValue) > 0
             self.updateSelectionStatus()
         } else {
@@ -624,18 +647,11 @@ extension ItemListViewController: UIDocumentPickerDelegate {
         UIApplication.shared.isIdleTimerDisabled = false
     }
 
-    // iOS 11+
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         UIApplication.shared.isIdleTimerDisabled = false
         for url in urls {
             DataManager.processFile(at: url)
         }
-    }
-
-    // support iOS 10
-    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
-        UIApplication.shared.isIdleTimerDisabled = false
-        DataManager.processFile(at: url)
     }
 }
 
@@ -651,5 +667,11 @@ extension ItemListViewController: Themeable {
         self.bulkControls.layer.shadowColor = theme.useDarkVariant
             ? UIColor.white.cgColor
             : UIColor(red: 0.12, green: 0.14, blue: 0.15, alpha: 1.0).cgColor
+    }
+}
+
+extension ItemListViewController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        self.tableView.reloadData()
     }
 }
