@@ -106,7 +106,9 @@ class PlayerManager: NSObject {
                 MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
 
                 if book.currentTime > 0.0 {
-                    self.jumpTo(book.currentTime)
+                    // if book is truly finished, start book again to avoid autoplaying next one
+                    let time = book.currentTime == book.duration ? 0 : book.currentTime
+                    self.jumpTo(time)
                 }
 
                 NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["book": book])
