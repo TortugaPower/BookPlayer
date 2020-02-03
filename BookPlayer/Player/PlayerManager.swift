@@ -22,6 +22,18 @@ class PlayerManager: NSObject {
 
     private var playerItem: AVPlayerItem?
 
+    private var observeStatus: Bool = false {
+        didSet {
+            guard oldValue != observeStatus else { return }
+
+            if self.observeStatus {
+                self.playerItem?.addObserver(self, forKeyPath: "status", options: .new, context: nil)
+            } else {
+                self.playerItem?.removeObserver(self, forKeyPath: "status")
+            }
+        }
+    }
+
     var currentBook: Book? {
         didSet {
             guard let book = currentBook,
@@ -340,7 +352,7 @@ extension PlayerManager {
         guard let item = self.playerItem,
             item.status == .readyToPlay else {
             //queue playback
-            self.playerItem?.addObserver(self, forKeyPath: "status", options: .new, context: nil)
+            self.observeStatus = true
             return
         }
 
@@ -418,7 +430,8 @@ extension PlayerManager {
             return
         }
 
-        self.playerItem?.removeObserver(self, forKeyPath: "status")
+        self.observeStatus = false
+
         self.play()
     }
 
@@ -426,6 +439,8 @@ extension PlayerManager {
         guard let currentBook = self.currentBook else {
             return
         }
+
+        self.observeStatus = false
 
         UserActivityManager.shared.stopPlaybackActivity()
 
@@ -459,6 +474,8 @@ extension PlayerManager {
     }
 
     func stop() {
+        self.observeStatus = false
+
         self.audioPlayer.pause()
 
         UserActivityManager.shared.stopPlaybackActivity()
@@ -518,8 +535,6 @@ extension PlayerManager {
             NotificationCenter.default.post(name: .bookChange,
                                             object: nil,
                                             userInfo: userInfo)
-
-            self.play()
         })
     }
 }
