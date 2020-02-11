@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>library_playlist_description</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%@ файл</string>
+        <key>few</key>
+        <string>%@ файла</string>
+        <key>many</key>
+        <string>%@ файлов</string>
+        <key>other</key>
+        <string>%@ файла</string>
+      </dict>
+    </dict>
+    <key>delete_multiple_items_title</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Вы действительно хотите удалить %@ объект?</string>
+        <key>few</key>
+        <string>Вы действительно хотите удалить %@ объекта?</string>
+        <key>many</key>
+        <string>Вы действительно хотите удалить %@ объектов?</string>
+        <key>other</key>
+        <string>Вы действительно хотите удалить %@ объекта?</string>
+      </dict>
+    </dict>
+  </dict>
+</plist>

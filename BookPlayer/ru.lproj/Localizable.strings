@@ -5,3 +5,63 @@
   Created by Gianni Carlo on 12/29/19.
   Copyright © 2019 Tortuga Power. All rights reserved.
 */
+
+/* Title that is shown as the navigation bar title */
+"library_title" = "Библиотека";
+/* Title for the settings button */
+"settings_button" = "Настройки";
+/* Title that is shown as the navigation bar title */
+"settings_title" = "Настройки";
+"settings_autoplay_title" = "Автовоспроизведение библиотеки";
+"settings_autoplay_description" = "Продолжить воспроизведение со всеми незавершенными объектами в библиотеке, включая файлы в плейлистах.";
+"settings_smartrewind_title" = "Умная перемотка";
+"settings_smartrewind_description" = "Перемотка назад на 30 секунд после приостановки на 10 минут.";
+"settings_boostvolume_title" = "Увеличить громкость";
+"settings_boostvolume_description" = "Удваивает громкость. \n Используйте с осторожностью и заботой о вашем слухе.";
+"settings_globalspeed_title" = "Глобальный контроль скорости";
+"settings_globalspeed_description" = "Установить скорость для всех книг.";
+"settings_autolock_title" = "Отключить автоблокировку";
+"settings_autolock_description" = "Запретить блокировку устройства на экране плеера.";
+"settings_siri_lastplayed_title" = "Последняя воспроизведенная книга";
+"settings_siri_lastplayed_description" = "Используйте Siri, чтобы продолжить последнюю книгу.";
+"settings_skip_title" = "Интервалы перемотки";
+"settings_skip_rewind_title" = "Назад";
+"settings_skip_forward_title" = "Вперед";
+"settings_skip_description" = "Отрегулируйте скорость перемотки при свайпах на обложке альбома или с помощью кнопок в центре управления";
+"settings_support_title" = "ПОДДЕРЖКА";
+"settings_siri_title" = "БЫСТРЫЕ КОМАНДЫ SIRI";
+"settings_support_project_title" = "Посмотреть проект на Github";
+"settings_support_project_description" = "Открывайте новые issues для ваших пожеланий и ошибок";
+"settings_support_email_title" = "Отправить нам письмо";
+"settings_credits_title" = "Благодарности и лицензии";
+"settings_support_compose_title" = "Не удалось написать письмо";
+"settings_support_compose_description" = "Вам нужно настроить учетную запись электронной почты в настройках вашего устройства, чтобы использовать эту функцию. \n\n Пожалуйста, напишите нам по адресу";
+"settings_support_compose_copy" = "Скопировать информацию в буфер обмена";
+"library_add_button" = "Добавить";
+"export_button" = "Экспорт";
+"delete_button" = "Удалить";
+"rename_button" = "Переименовать";
+"delete_single_item_title" = "Вы действительно хотите удалить “%@”?";
+"delete_single_playlist_description" = "Удаление только плейлиста переместит все его файлы обратно в библиотеку.";
+"delete_shallow_button" = "Удалить только плейлист";
+"delete_deep_button" = "Удалить плейлист и файлы";
+"create_playlist_button" = "Создать плейлист";
+"create_button" = "Создать";
+"import_button" = "Импортировать файлы";
+"import_description" = "Вы также можете добавлять файлы через AirDrop. Отправьте файл аудио книги на ваше устройство и выберите BookPlayer из появившегося списка.";
+"create_playlist_title" = "Создать новый плейлист";
+"create_playlist_description" = "Файлы в плейлистах автоматически воспроизводятся один за другим";
+"delete_multiple_items_description" = "Также будут удалены все файлы из выбранных плейлистов";
+"new_playlist_button" = "Новый плейлист";
+"existing_playlist_button" = "Существующий плейлист";
+"choose_destination_title" = "Выберите получателя";
+"delete_completely_button" = "Удалить полностью";
+"move_library_button" = "Переместить в библиотеку";
+"options_button" = "Опции";
+"select_playlist_title" = "Выберите плейлист";
+"sort_title_button" = "Название";
+"sort_filename_button" = "Исходное имя файла";
+"sort_title" = "Сортировать по";
+"cancel_button" = "Отменить";
+"seconds_title" = "сек";
+"ok_button" = "OK";

@@ -5,3 +5,63 @@
   Created by Gianni Carlo on 12/29/19.
   Copyright © 2019 Tortuga Power. All rights reserved.
 */
+
+/* Title that is shown as the navigation bar title */
+"library_title" = "ライブラリ";
+/* Title for the settings button */
+"settings_button" = "設定";
+/* Title that is shown as the navigation bar title */
+"settings_title" = "設定";
+"settings_autoplay_title" = "ライブラリを自動再生";
+"settings_autoplay_description" = "プレイリスト内のファイルも含めて、ライブラリ内の完成していないすべてのアイテムで再生継続します。";
+"settings_smartrewind_title" = "スマート巻き戻し";
+"settings_smartrewind_description" = "10分間一時停止した後、30秒間巻き戻します。";
+"settings_boostvolume_title" = "音量を高める";
+"settings_boostvolume_description" = "音量を2倍にします。 \n聴覚に注意してください。";
+"settings_globalspeed_title" = "グローバル速度制御";
+"settings_globalspeed_description" = "すべての本に速度を設定します。";
+"settings_autolock_title" = "自動ロックを無効にします。";
+"settings_autolock_description" = "プレーヤーの画面が表示されているときにデバイスがロックされないようにします。";
+"settings_siri_lastplayed_title" = "最終に再生した本";
+"settings_siri_lastplayed_description" = "Siriで最終に再生した本を続きます。";
+"settings_skip_title" = "スキップ間隔";
+"settings_skip_rewind_title" = "巻き戻し";
+"settings_skip_forward_title" = "早送り";
+"settings_skip_description" = "アルバムカバーをドラッグするとき、またはコントロールセンターのボタンを使用するときに移動する量を調整します。";
+"settings_support_title" = "サポート";
+"settings_siri_title" = "Siriショートカット";
+"settings_support_project_title" = "Githubでプロジェクトを見ます。";
+"settings_support_project_description" = "GitHub Issueで機能リクエストとバグ報告を伝わります。";
+"settings_support_email_title" = "私たちにメールを送る";
+"settings_credits_title" = "クレジットとライセンス";
+"settings_support_compose_title" = "メールを作成できません";
+"settings_support_compose_description" = "これを使用するには、デバイス設定で電子メールアカウントを設定する必要があります。 \n \n下記のアドレスにメールしてください";
+"settings_support_compose_copy" = "情報をクリップボードにコピーする";
+"library_add_button" = "追加";
+"export_button" = "書き出す";
+"delete_button" = "削除";
+"rename_button" = "リネーム";
+"delete_single_item_title" = "“ %@ ”を削除してもよろしいですか？";
+"delete_single_playlist_description" = "プレイリストのみを削除すると、そのすべてのファイルがライブラリに戻されます。";
+"delete_shallow_button" = "プレイリストのみ削除";
+"delete_deep_button" = "プレイリストとファイル削除";
+"create_playlist_button" = "プレイリストを作成";
+"create_button" = "作成";
+"import_button" = "ファイルを取り込む";
+"import_description" = "AirDropを使ってファイルを追加することもできます。オーディオブックファイルをデバイスに送信して、表示されるリストからBookPlayerを選択します。";
+"create_playlist_title" = "新しいプレイリスト";
+"create_playlist_description" = "プレイリスト内のファイルは自動的に順番に再生されます";
+"delete_multiple_items_description" = "選択したプレイリスト内のすべてのファイルも削除されます。";
+"new_playlist_button" = "新しいプレイリスト";
+"existing_playlist_button" = "既存のプレイリスト";
+"choose_destination_title" = "宛先を選択";
+"delete_completely_button" = "完全に削除";
+"move_library_button" = "ライブラリに移動";
+"options_button" = "オプション";
+"select_playlist_title" = "プレイリストを選択";
+"sort_title_button" = "タイトル";
+"sort_filename_button" = "ファイル名";
+"sort_title" = "並べ替え";
+"cancel_button" = "キャンセル";
+"seconds_title" = "秒";
+"ok_button" = "OK";

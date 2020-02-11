@@ -5,3 +5,63 @@
   Created by Gianni Carlo on 12/29/19.
   Copyright © 2019 Tortuga Power. All rights reserved.
 */
+
+/* Title that is shown as the navigation bar title */
+"library_title" = "Library";
+/* Title for the settings button */
+"settings_button" = "Settings";
+/* Title that is shown as the navigation bar title */
+"settings_title" = "Settings";
+"settings_autoplay_title" = "AutoPlay Library";
+"settings_autoplay_description" = "Continue playback with all items in the Library that are not completed, including files in playlists.";
+"settings_smartrewind_title" = "Smart Rewind";
+"settings_smartrewind_description" = "Rewind 30 seconds after being paused for 10 minutes.";
+"settings_boostvolume_title" = "Boost Volume";
+"settings_boostvolume_description" = "Doubles the volume.\nUse with caution and care for your hearing.";
+"settings_globalspeed_title" = "Global Speed Control";
+"settings_globalspeed_description" = "Set speed across all books.";
+"settings_autolock_title" = "Disable Autolock";
+"settings_autolock_description" = "Prevent the device from locking when on the Player screen.";
+"settings_siri_lastplayed_title" = "Last played book";
+"settings_siri_lastplayed_description" = "Use Siri to continue the last played book.";
+"settings_skip_title" = "SKIP INTERVALS";
+"settings_skip_rewind_title" = "Rewind";
+"settings_skip_forward_title" = "Forward";
+"settings_skip_description" = "Adjust the amount skipped when dragging the album cover or using the buttons in the control center.";
+"settings_support_title" = "SUPPORT";
+"settings_siri_title" = "SIRI SHORTCUT";
+"settings_support_project_title" = "View project on Github";
+"settings_support_project_description" = "Open new issues for your feature requests and errors";
+"settings_support_email_title" = "Send us an email";
+"settings_credits_title" = "Credits and Licenses";
+"settings_support_compose_title" = "Unable to compose email";
+"settings_support_compose_description" = "You need to set up an email account in your device settings to use this.\n\nPlease mail us at";
+"settings_support_compose_copy" = "Copy information to clipboard";
+"library_add_button" = "Add";
+"export_button" = "Export";
+"delete_button" = "Delete";
+"rename_button" = "Rename";
+"delete_single_item_title" = "Do you want to delete “%@”?";
+"delete_single_playlist_description" = "Deleting only the playlist will move all its files back to the Library.";
+"delete_shallow_button" = "Delete playlist only";
+"delete_deep_button" = "Delete playlist and files";
+"create_playlist_button" = "Create playlist";
+"create_button" = "Create";
+"import_button" = "Import files";
+"import_description" = "You can also add files via AirDrop. Send an audiobook file to your device and select BookPlayer from the list that appears.";
+"create_playlist_title" = "Create a new playlist";
+"create_playlist_description" = "Files in playlists are automatically played one after the other";
+"delete_multiple_items_description" = "This will remove all files inside selected playlists as well.";
+"new_playlist_button" = "New Playlist";
+"existing_playlist_button" = "Existing Playlist";
+"choose_destination_title" = "Choose destination";
+"delete_completely_button" = "Delete completely";
+"move_library_button" = "Move to Library";
+"options_button" = "Options";
+"select_playlist_title" = "Select Playlist";
+"sort_title_button" = "Title";
+"sort_filename_button" = "Original File Name";
+"sort_title" = "Sort Items by";
+"cancel_button" = "Cancel";
+"seconds_title" = "sec";
+"ok_button" = "OK";

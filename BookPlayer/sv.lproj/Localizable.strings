@@ -5,3 +5,63 @@
   Created by Gianni Carlo on 12/29/19.
   Copyright © 2019 Tortuga Power. All rights reserved.
 */
+
+/* Title that is shown as the navigation bar title */
+"library_title" = "Bibliotek";
+/* Title for the settings button */
+"settings_button" = "Inställningar";
+/* Title that is shown as the navigation bar title */
+"settings_title" = "Inställningar";
+"settings_autoplay_title" = "Automatisk Uppspelning";
+"settings_autoplay_description" = "Fortsätt uppspelning av alla filer i biblioteket som du inte lyssnat klart på, inklusive filer i spellistor.";
+"settings_smartrewind_title" = "Automatisk Tillbakaspolning";
+"settings_smartrewind_description" = "Spola tillbaka 30 sekunder efter appen varit pausad i 10 minuter.";
+"settings_boostvolume_title" = "Boosta Volymen";
+"settings_boostvolume_description" = "Dubblar volymen. \nAnvänd med försiktighet och omsorg för din hörsel.";
+"settings_globalspeed_title" = "Global Uppspelningshastighet";
+"settings_globalspeed_description" = "Ange uppspelningshastighet för alla böcker.";
+"settings_autolock_title" = "Avaktivera Automatisk Låsning";
+"settings_autolock_description" = "Förhindra att enheten låses när du är på spelarens skärmsida.";
+"settings_siri_lastplayed_title" = "Senast spelad bok";
+"settings_siri_lastplayed_description" = "Använd Siri för att fortsätta med den senast spelade boken.";
+"settings_skip_title" = "SNABBSPOLNING";
+"settings_skip_rewind_title" = "Tillbaka";
+"settings_skip_forward_title" = "Framåt";
+"settings_skip_description" = "Justera tiden som hoppas över när du drar albumbilden eller använder knapparna i kontrollpanelen.";
+"settings_support_title" = "HJÄLP";
+"settings_siri_title" = "SIRI GENVÄG";
+"settings_support_project_title" = "Visa projektet på GitHub";
+"settings_support_project_description" = "Registrera önskemål eller felrapport";
+"settings_support_email_title" = "Skicka e-post";
+"settings_credits_title" = "Krediter och Licenser";
+"settings_support_compose_title" = "Det gick inte att skicka e-post";
+"settings_support_compose_description" = "Du måste skapa ett e-postkonto i enhetens inställningar för att använda detta. \n\nVänligen e-posta till";
+"settings_support_compose_copy" = "Kopiera information till Urklipp";
+"library_add_button" = "Lägg till";
+"export_button" = "Exportera";
+"delete_button" = "Radera";
+"rename_button" = "Byt namn";
+"delete_single_item_title" = "Vill du radera \" %@ \"?";
+"delete_single_playlist_description" = "Om du bara raderar spellistan flyttas alla dess filer tillbaka till biblioteket.";
+"delete_shallow_button" = "Radera endast spellista";
+"delete_deep_button" = "Radera spellista och filer";
+"create_playlist_button" = "Skapa spellista";
+"create_button" = "Skapa ny";
+"import_button" = "Importera filer";
+"import_description" = "Du kan lägga till filer via AirDrop genom att skicka en ljudbokfil till din enhet. Välj sedan BookPlayer i listan som visas.";
+"create_playlist_title" = "Skapa ny spellista";
+"create_playlist_description" = "Filer i spellistor spelas automatiskt efter varandra";
+"delete_multiple_items_description" = "Detta kommer att ta bort alla filer i valda spellistor.";
+"new_playlist_button" = "Ny spellista";
+"existing_playlist_button" = "Befintlig spellista";
+"choose_destination_title" = "Välj destination";
+"delete_completely_button" = "Radera fullständigt";
+"move_library_button" = "Flytta till bibliotek";
+"options_button" = "Alternativ";
+"select_playlist_title" = "Välj spellista";
+"sort_title_button" = "Titel";
+"sort_filename_button" = "Ursprungligt filnamn";
+"sort_title" = "Sortera filer efter";
+"cancel_button" = "Avbryt";
+"seconds_title" = "s";
+"ok_button" = "OK";

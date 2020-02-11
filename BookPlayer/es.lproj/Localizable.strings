@@ -5,3 +5,63 @@
   Created by Gianni Carlo on 12/29/19.
   Copyright © 2019 Tortuga Power. All rights reserved.
 */
+
+/* Title that is shown as the navigation bar title */
+"library_title" = "Biblioteca";
+/* Title for the settings button */
+"settings_button" = "Ajustes";
+/* Title that is shown as the navigation bar title */
+"settings_title" = "Ajustes";
+"settings_autoplay_title" = "Reproducción Automática de la Biblioteca";
+"settings_autoplay_description" = "Continúa la reproducción de todos los elementos de la biblioteca que no se hayan completado.";
+"settings_smartrewind_title" = "Rebobinado Inteligente";
+"settings_smartrewind_description" = "Retrocede 30 segundos después de estar en pausa durante 10 minutos.";
+"settings_boostvolume_title" = "Aumentar el volumen";
+"settings_boostvolume_description" = "Dobla el volumen.\nUsar con precaución y cuida de tu oído.";
+"settings_globalspeed_title" = "Velocidad Global";
+"settings_globalspeed_description" = "Establece la velocidad para todos los libros.";
+"settings_autolock_title" = "Desactivar el bloqueo automático";
+"settings_autolock_description" = "Evita que el dispositivo se bloquee cuando está en la pantalla del Reproductor.";
+"settings_siri_lastplayed_title" = "Último libro escuchado";
+"settings_siri_lastplayed_description" = "Usa Siri para continuar escuchando el último libro.";
+"settings_skip_title" = "INTERVALOS DE SALTO";
+"settings_skip_rewind_title" = "Retroceder";
+"settings_skip_forward_title" = "Adelante";
+"settings_skip_description" = "Ajusta el tamaño del intervalo de tiempo omitido con cada salto";
+"settings_support_title" = "SOPORTE";
+"settings_siri_title" = "ATAJO DE SIRI";
+"settings_support_project_title" = "Ver proyecto en Github";
+"settings_support_project_description" = "Abre nuevos tickets para informarnos de errores y peticiones";
+"settings_support_email_title" = "Envíanos un correo";
+"settings_credits_title" = "Créditos y Licencias";
+"settings_support_compose_title" = "No se puede componer el correo";
+"settings_support_compose_description" = "Necesitas configurar una cuenta de correo electrónico en los ajustes de tu dispositivo.\n\nPor favor envíanos un correo a";
+"settings_support_compose_copy" = "Copiar información al portapapeles";
+"library_add_button" = "Añadir";
+"export_button" = "Exportar";
+"delete_button" = "Eliminar";
+"rename_button" = "Renombrar";
+"delete_single_item_title" = "¿Quieres eliminar \"%@\"?";
+"delete_single_playlist_description" = "Al eliminar solo la lista, todos sus elementos se moverán de nuevo a la Biblioteca.";
+"delete_shallow_button" = "Eliminar solo la lista";
+"delete_deep_button" = "Eliminar la lista con sus elementos";
+"create_playlist_button" = "Crear lista";
+"create_button" = "Crear";
+"import_button" = "Importar archivos";
+"import_description" = "También puedes agregar archivos vía AirDrop. Envía un audiolibro a tu dispositivo y selecciona BookPlayer en la lista que aparece.";
+"create_playlist_title" = "Crear una nueva lista";
+"create_playlist_description" = "Los libros en las listas se reproducen automáticamente uno tras otro";
+"delete_multiple_items_description" = "Esto eliminará todos los elementos dentro de las listas también.";
+"new_playlist_button" = "Nueva Lista";
+"existing_playlist_button" = "Lista Existente";
+"choose_destination_title" = "Elige el destino";
+"delete_completely_button" = "Eliminar completamente";
+"move_library_button" = "Mover a la Biblioteca";
+"options_button" = "Opciones";
+"select_playlist_title" = "Seleccionar Lista";
+"sort_title_button" = "Título";
+"sort_filename_button" = "Nombre de Archivo Original";
+"sort_title" = "Ordenar Elementos por";
+"cancel_button" = "Cancelar";
+"seconds_title" = "seg";
+"ok_button" = "OK";
