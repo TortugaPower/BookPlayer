@@ -65,7 +65,6 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPlay), name: .bookPlayed, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: .bookPaused, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: .bookEnd, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.dismissMiniPlayer), name: .bookStopped, object: nil)
 
         // Gestures
         self.pan = UIPanGestureRecognizer(target: self, action: #selector(self.panAction))

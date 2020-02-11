@@ -16,11 +16,23 @@ import MediaPlayer
 class PlayerManager: NSObject {
     static let shared = PlayerManager()
 
-    static let speedOptions: [Float] = [2.5, 2, 1.75, 1.5, 1.25, 1, 0.75]
+    static let speedOptions: [Float] = [3, 2.5, 2, 1.75, 1.5, 1.25, 1, 0.9, 0.75, 0.5]
 
     private var audioPlayer = AVPlayer()
 
     private var playerItem: AVPlayerItem?
+
+    private var observeStatus: Bool = false {
+        didSet {
+            guard oldValue != observeStatus else { return }
+
+            if self.observeStatus {
+                self.playerItem?.addObserver(self, forKeyPath: "status", options: .new, context: nil)
+            } else {
+                self.playerItem?.removeObserver(self, forKeyPath: "status")
+            }
+        }
+    }
 
     var currentBook: Book? {
         didSet {
@@ -106,7 +118,9 @@ class PlayerManager: NSObject {
                 MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
 
                 if book.currentTime > 0.0 {
-                    self.jumpTo(book.currentTime)
+                    // if book is truly finished, start book again to avoid autoplaying next one
+                    let time = book.currentTime == book.duration ? 0 : book.currentTime
+                    self.jumpTo(time)
                 }
 
                 NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["book": book])
@@ -338,7 +352,7 @@ extension PlayerManager {
         guard let item = self.playerItem,
             item.status == .readyToPlay else {
             //queue playback
-            self.playerItem?.addObserver(self, forKeyPath: "status", options: .new, context: nil)
+            self.observeStatus = true
             return
         }
 
@@ -416,7 +430,8 @@ extension PlayerManager {
             return
         }
 
-        self.playerItem?.removeObserver(self, forKeyPath: "status")
+        self.observeStatus = false
+
         self.play()
     }
 
@@ -424,6 +439,8 @@ extension PlayerManager {
         guard let currentBook = self.currentBook else {
             return
         }
+
+        self.observeStatus = false
 
         UserActivityManager.shared.stopPlaybackActivity()
 
@@ -457,6 +474,8 @@ extension PlayerManager {
     }
 
     func stop() {
+        self.observeStatus = false
+
         self.audioPlayer.pause()
 
         UserActivityManager.shared.stopPlaybackActivity()
@@ -516,8 +535,6 @@ extension PlayerManager {
             NotificationCenter.default.post(name: .bookChange,
                                             object: nil,
                                             userInfo: userInfo)
-
-            self.play()
         })
     }
 }
