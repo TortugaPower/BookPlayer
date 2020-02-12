@@ -5,3 +5,20 @@
   Created by Gianni Carlo on 12/29/19.
   Copyright © 2019 Tortuga Power. All rights reserved.
 */
+
+"create_playlist_title" = "Liste erstellen";
+"create_playlist_description" = "Dateien in Listen werden automatisch nacheinander wiedergegeben";
+"delete_multiple_items_description" = "Dateien in den ausgewählten Listen werden ebenfalls gelöscht";
+"new_playlist_button" = "Neue Liste";
+"existing_playlist_button" = "Bestehende Liste";
+"choose_destination_title" = "Ziel auswählen";
+"delete_completely_button" = "Vollständig löschen";
+"move_library_button" = "In die Bibliothek verschieben";
+"options_button" = "Optionen";
+"select_playlist_title" = "Liste auswählen";
+"sort_title_button" = "Titel";
+"sort_filename_button" = "Ursprüngliche Dateinamen";
+"sort_title" = "Liste sortieren";
+"cancel_button" = "Abbrechen";
+"seconds_title" = "sek";
+"ok_button" = "OK";
