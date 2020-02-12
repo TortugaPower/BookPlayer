@@ -334,7 +334,7 @@ extension PlayerViewController {
             }
         }
 
-        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        actionSheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
 
         self.present(actionSheet, animated: true, completion: nil)
     }
@@ -380,7 +380,7 @@ extension PlayerViewController {
             PlayerManager.shared.markAsCompleted(!self.currentBook.isFinished)
         }))
 
-        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        actionSheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
 
         self.present(actionSheet, animated: true, completion: nil)
     }

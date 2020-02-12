@@ -17,6 +17,9 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        self.navigationItem.title = "library_title".localized
+        self.navigationItem.leftBarButtonItem?.title = "settings_button".localized
+
         // VoiceOver
         self.setupCustomRotors()
 
@@ -145,8 +148,8 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
             self.showLoadView(false)
         })
 
-        alert.addAction(UIAlertAction(title: "New Playlist", style: .default) { _ in
-            var placeholder = "New Playlist"
+        alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { _ in
+            var placeholder = "new_playlist_button".localized
 
             if let file = files.first {
                 placeholder = file.originalUrl.deletingPathExtension().lastPathComponent
@@ -188,20 +191,20 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
     }
 
     func handleDelete(items: [LibraryItem]) {
-        let alert = UIAlertController(title: "Do you want to delete \(items.count) items?",
-                                      message: "This will remove all files inside selected playlists as well.",
+        let alert = UIAlertController(title: String.localizedStringWithFormat("delete_multiple_items_title".localized, items.count),
+                                      message: "delete_multiple_items_description".localized,
                                       preferredStyle: .alert)
 
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
 
-        var deleteActionTitle = "Delete"
+        var deleteActionTitle = "delete_button".localized
 
         if items.count == 1, let playlist = items.first as? Playlist {
-            deleteActionTitle = "Delete playlist and files"
+            deleteActionTitle = "delete_deep_button".localized
 
-            alert.title = "Do you want to delete “\(playlist.title!)”?"
-            alert.message = "Deleting only the playlist will move all its files back to the Library."
-            alert.addAction(UIAlertAction(title: "Delete playlist only", style: .default, handler: { _ in
+            alert.title = String(format: "delete_single_item_title".localized, playlist.title!)
+            alert.message = "delete_single_playlist_description".localized
+            alert.addAction(UIAlertAction(title: "delete_shallow_button".localized, style: .default, handler: { _ in
                 self.delete(items, mode: .shallow)
             }))
         }
@@ -285,14 +288,14 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
 
     @IBAction func addAction() {
         let alertController = UIAlertController(title: nil,
-                                                message: "You can also add files via AirDrop. Send an audiobook file to your device and select BookPlayer from the list that appears.",
+                                                message: "import_description".localized,
                                                 preferredStyle: .actionSheet)
 
-        alertController.addAction(UIAlertAction(title: "Import files", style: .default) { _ in
+        alertController.addAction(UIAlertAction(title: "import_button".localized, style: .default) { _ in
             self.presentImportFilesAlert()
         })
 
-        alertController.addAction(UIAlertAction(title: "Create playlist", style: .default) { _ in
+        alertController.addAction(UIAlertAction(title: "create_playlist_button".localized, style: .default) { _ in
             self.presentCreatePlaylistAlert(handler: { title in
                 let playlist = DataManager.createPlaylist(title: title, books: [])
 
@@ -302,7 +305,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
             })
         })
 
-        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alertController.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel))
 
         present(alertController, animated: true, completion: nil)
     }
@@ -313,9 +316,9 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
     }
 
     override func handleMove(_ selectedItems: [LibraryItem]) {
-        let alert = UIAlertController(title: "Choose destination", message: nil, preferredStyle: .alert)
+        let alert = UIAlertController(title: "choose_destination_title".localized, message: nil, preferredStyle: .alert)
 
-        alert.addAction(UIAlertAction(title: "New Playlist", style: .default) { _ in
+        alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { _ in
             self.presentCreatePlaylistAlert(handler: { title in
                 let playlist = DataManager.createPlaylist(title: title, books: [])
                 DataManager.insert(playlist, into: self.library)
@@ -327,7 +330,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
             item as? Playlist
         })
 
-        let existingPlaylistAction = UIAlertAction(title: "Existing Playlist", style: .default) { _ in
+        let existingPlaylistAction = UIAlertAction(title: "existing_playlist_button".localized, style: .default) { _ in
 
             let vc = ItemSelectionViewController()
             vc.items = availablePlaylists
@@ -344,7 +347,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         existingPlaylistAction.isEnabled = !availablePlaylists.isEmpty
         alert.addAction(existingPlaylistAction)
 
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel))
 
         self.present(alert, animated: true, completion: nil)
     }
@@ -401,7 +404,7 @@ extension LibraryViewController {
 
         let item = items[indexPath.row]
 
-        let optionsAction = UITableViewRowAction(style: .normal, title: "Options…") { _, _ in
+        let optionsAction = UITableViewRowAction(style: .normal, title: "\("options_button".localized)…") { _, _ in
             let sheet = self.createOptionsSheetController(item)
 
             // "…" on a button indicates a follow up dialog instead of an immmediate action in macOS and iOS
@@ -409,7 +412,7 @@ extension LibraryViewController {
 
             // Remove the dots if trying to delete an empty playlist
             if let playlist = item as? Playlist {
-                title = playlist.hasBooks() ? title : "Delete"
+                title = playlist.hasBooks() ? title : "delete_button".localized
             }
 
             let deleteAction = UIAlertAction(title: title, style: .destructive) { _ in
@@ -534,7 +537,7 @@ extension LibraryViewController {
                                       message: "Do you want to move '\(selectedItem.title!)' to '\(playlist.title!)'?",
                                       preferredStyle: .alert)
 
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
 
         alert.addAction(UIAlertAction(title: "Move", style: .default, handler: { _ in
             self.move([selectedItem], to: playlist)

@@ -235,7 +235,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         fatalError("handleOperationCompletion must be overriden")
     }
 
-    func presentCreatePlaylistAlert(_ namePlaceholder: String = "New Playlist", handler: ((_ title: String) -> Void)?) {
+    func presentCreatePlaylistAlert(_ namePlaceholder: String = "new_playlist_button".localized, handler: ((_ title: String) -> Void)?) {
         let playlistAlert = self.createPlaylistAlert(namePlaceholder, handler: handler)
 
         let vc = presentedViewController ?? self
@@ -257,12 +257,12 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         let alert = UIAlertController(title: "Do you want to delete \(books.count) books?", message: nil, preferredStyle: .alert)
 
         if books.count == 1, let book = books.first {
-            alert.title = "Do you want to delete “\(book.title!)”?"
+            alert.title = String(format: "delete_single_item_title".localized, book.title!)
         }
 
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
 
-        alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
+        alert.addAction(UIAlertAction(title: "delete_button".localized, style: .destructive, handler: { _ in
             self.delete(books, mode: .deep)
         }))
 
@@ -275,7 +275,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
     func createOptionsSheetController(_ item: LibraryItem) -> UIAlertController {
         let sheet = UIAlertController(title: item.title, message: nil, preferredStyle: .actionSheet)
 
-        sheet.addAction(UIAlertAction(title: "Rename", style: .default) { _ in
+        sheet.addAction(UIAlertAction(title: "rename_button".localized, style: .default) { _ in
             let alert = self.renameItemAlert(item)
 
             self.present(alert, animated: true, completion: nil)
@@ -286,7 +286,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         }))
 
         if let book = item as? Book {
-            sheet.addAction(UIAlertAction(title: "Export", style: .default, handler: { _ in
+            sheet.addAction(UIAlertAction(title: "export_button".localized, style: .default, handler: { _ in
                 let shareController = self.createExportController(book)
 
                 self.present(shareController, animated: true, completion: nil)
@@ -305,7 +305,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
             self.reloadData()
         }))
 
-        sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        sheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
         return sheet
     }
 }

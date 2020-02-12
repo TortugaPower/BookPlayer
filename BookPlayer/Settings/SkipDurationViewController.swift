@@ -6,6 +6,8 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
+import BookPlayerKit
+import Themeable
 import UIKit
 
 class SkipDurationViewController: UITableViewController {
@@ -30,7 +32,8 @@ class SkipDurationViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // self.clearsSelectionOnViewWillAppear = false
+        self.tableView.tableFooterView = UIView()
+        setUpTheming()
     }
 
     override func didReceiveMemoryWarning() {
@@ -66,5 +69,13 @@ class SkipDurationViewController: UITableViewController {
 
         self.didSelectInterval?(interval)
         self.navigationController?.popViewController(animated: true)
+    }
+}
+
+extension SkipDurationViewController: Themeable {
+    func applyTheme(_ theme: Theme) {
+        self.tableView.backgroundColor = theme.backgroundColor
+        self.tableView.separatorColor = theme.separatorColor
+        self.tableView.reloadData()
     }
 }

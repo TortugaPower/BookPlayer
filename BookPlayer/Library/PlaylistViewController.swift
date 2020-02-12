@@ -54,8 +54,8 @@ class PlaylistViewController: ItemListViewController {
             NotificationCenter.default.post(name: .reloadData, object: nil)
         })
 
-        alert.addAction(UIAlertAction(title: "New Playlist", style: .default) { _ in
-            var placeholder = "New Playlist"
+        alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { _ in
+            var placeholder = "new_playlist_button".localized
 
             if let file = files.first {
                 placeholder = file.originalUrl.deletingPathExtension().lastPathComponent
@@ -131,7 +131,7 @@ class PlaylistViewController: ItemListViewController {
     override func handleMove(_ selectedItems: [LibraryItem]) {
         guard let books = selectedItems as? [Book] else { return }
 
-        let alert = UIAlertController(title: "Choose destination", message: nil, preferredStyle: .alert)
+        let alert = UIAlertController(title: "choose_destination_title".localized, message: nil, preferredStyle: .alert)
 
         alert.addAction(UIAlertAction(title: "Library", style: .default) { _ in
             let bookSet = NSOrderedSet(array: books)
@@ -142,7 +142,7 @@ class PlaylistViewController: ItemListViewController {
             self.reloadData()
         })
 
-        alert.addAction(UIAlertAction(title: "New Playlist", style: .default) { _ in
+        alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { _ in
             self.presentCreatePlaylistAlert(handler: { title in
                 self.playlist.removeFromBooks(NSOrderedSet(array: books))
                 let playlist = DataManager.createPlaylist(title: title, books: books)
@@ -157,7 +157,7 @@ class PlaylistViewController: ItemListViewController {
             item as? Playlist
         })
 
-        let existingPlaylistAction = UIAlertAction(title: "Existing Playlist", style: .default) { _ in
+        let existingPlaylistAction = UIAlertAction(title: "existing_playlist_button".localized, style: .default) { _ in
 
             let vc = ItemSelectionViewController()
             vc.items = availablePlaylists
@@ -174,7 +174,7 @@ class PlaylistViewController: ItemListViewController {
         existingPlaylistAction.isEnabled = !availablePlaylists.isEmpty
         alert.addAction(existingPlaylistAction)
 
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel))
 
         self.present(alert, animated: true, completion: nil)
     }
@@ -192,15 +192,15 @@ class PlaylistViewController: ItemListViewController {
     }
 
     override func handleDelete(books: [Book]) {
-        let alert = UIAlertController(title: "Do you want to delete \(books.count) items?", message: nil, preferredStyle: .alert)
+        let alert = UIAlertController(title: String.localizedStringWithFormat("delete_multiple_items_title".localized, books.count), message: nil, preferredStyle: .alert)
 
         if books.count == 1, let book = books.first {
-            alert.title = "Do you want to delete “\(book.title!)”?"
+            alert.title = String(format: "delete_single_item_title".localized, book.title!)
         }
 
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
 
-        alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
+        alert.addAction(UIAlertAction(title: "delete_button".localized, style: .destructive, handler: { _ in
             self.delete(books, mode: .deep)
         }))
 
@@ -265,10 +265,10 @@ extension PlaylistViewController {
             return nil
         }
 
-        let optionsAction = UITableViewRowAction(style: .normal, title: "Options…") { _, _ in
+        let optionsAction = UITableViewRowAction(style: .normal, title: "\("options_button".localized)…") { _, _ in
             let sheet = self.createOptionsSheetController(book)
 
-            let deleteAction = UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
+            let deleteAction = UIAlertAction(title: "delete_button".localized, style: .destructive, handler: { _ in
                 self.handleDelete(books: [book])
             })
 

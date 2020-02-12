@@ -68,7 +68,7 @@ final class SleepTimer {
             NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .bookChange, object: nil)
         })
 
-        self.alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        self.alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
     }
 
     private func sleep(in seconds: Double) {

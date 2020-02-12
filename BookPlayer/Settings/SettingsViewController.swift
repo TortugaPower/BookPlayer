@@ -25,6 +25,11 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     var iconObserver: NSKeyValueObservation!
 
     let siriShortcutPath = IndexPath(row: 0, section: 5)
+
+    enum SettingsSection: Int {
+        case plus = 0, theme, playback, autoplay, autolock, siri, support, credits
+    }
+
     let supportSection: Int = 6
     let githubLinkPath = IndexPath(row: 0, section: 6)
     let supportEmailPath = IndexPath(row: 1, section: 6)
@@ -43,6 +48,8 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        self.navigationItem.title = "settings_title".localized
 
         setUpTheming()
 
@@ -141,12 +148,42 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         }
     }
 
-    override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
-        if section == self.supportSection {
-            return "BookPlayer \(self.appVersion) on \(self.systemVersion)"
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        guard let settingsSection = SettingsSection(rawValue: section) else {
+            return super.tableView(tableView, titleForFooterInSection: section)
         }
 
-        return super.tableView(tableView, titleForFooterInSection: section)
+        switch settingsSection {
+        //        case .theme:
+        //            return "".localized
+        //        case .playback:
+        //            return "".localized
+        case .siri:
+            return "settings_siri_title".localized
+        case .support:
+            return "settings_support_title".localized
+        default:
+            return super.tableView(tableView, titleForHeaderInSection: section)
+        }
+    }
+
+    override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+        guard let settingsSection = SettingsSection(rawValue: section) else {
+            return super.tableView(tableView, titleForFooterInSection: section)
+        }
+
+        switch settingsSection {
+        case .autoplay:
+            return "settings_autoplay_description".localized
+        case .autolock:
+            return "settings_autolock_description".localized
+        case .siri:
+            return "settings_siri_lastplayed_description".localized
+        case .support:
+            return "BookPlayer \(self.appVersion) - \(self.systemVersion)"
+        default:
+            return super.tableView(tableView, titleForFooterInSection: section)
+        }
     }
 
     override func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
@@ -187,15 +224,16 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
 
             self.present(mail, animated: true)
         } else {
-            let debugInfo = "BookPlayer \(self.appVersion)\n\(device) with \(self.systemVersion)"
+            let debugInfo = "BookPlayer \(self.appVersion)\n\(device) - \(self.systemVersion)"
+            let message = "settings_support_compose_description".localized
 
-            let alert = UIAlertController(title: "Unable to compose email", message: "You need to set up an email account in your device settings to use this. \n\nPlease mail us at \(self.supportEmail)\n\n\(debugInfo)", preferredStyle: .alert)
+            let alert = UIAlertController(title: "settings_support_compose_title".localized, message: "\(message) \(self.supportEmail)\n\n\(debugInfo)", preferredStyle: .alert)
 
-            alert.addAction(UIAlertAction(title: "Copy information to clipboard", style: .default, handler: { _ in
+            alert.addAction(UIAlertAction(title: "settings_support_compose_copy".localized, style: .default, handler: { _ in
                 UIPasteboard.general.string = "\(self.supportEmail)\n\(debugInfo)"
             }))
 
-            alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+            alert.addAction(UIAlertAction(title: "ok_button".localized, style: .cancel, handler: nil))
 
             self.present(alert, animated: true, completion: nil)
         }
