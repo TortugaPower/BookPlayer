@@ -114,7 +114,7 @@
 "player_chapter_description" = "Chapter %d of %d";
 "chapters_title" = "Chapters";
 /* This is used as a description for each chapter in the chapters list (e.g. Start: 10:11 - Duration: 16:56) */
-"chapters_item_description" = "Start: %s - Duration: %s";
+"chapters_item_description" = "Start: %@ - Duration: %@";
 /* Restore purchases */
 "restore_title" = "Restore";
 "themes_caps_title" = "THEMES";
@@ -145,7 +145,7 @@
 "pause_title" = "Pause";
 "voiceover_no_title" = "No Title";
 "voiceover_no_author" = "No Author";
-"voiceover_book_progress" = "%@ by %@ %s% Completed";
+"voiceover_book_progress" = "%@ by %@ %d% Completed";
 "voiceover_no_file_title" = "No File Title";
 "voiceover_no_file_subtitle" = "No File Subtitle";
 "voiceover_no_playlist_title" = "No Playlist Title";

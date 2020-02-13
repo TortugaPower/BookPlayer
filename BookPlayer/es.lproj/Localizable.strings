@@ -114,7 +114,7 @@
 "player_chapter_description" = "Capítulo %d de %d";
 "chapters_title" = "Capítulos";
 /* This is used as a description for each chapter in the chapters list (e.g. Start: 10:11 - Duration: 16:56) */
-"chapters_item_description" = "Inicio: %s - Duración: %s";
+"chapters_item_description" = "Inicio: %@ - Duración: %@";
 /* Restore purchases */
 "restore_title" = "Restaurar";
 "themes_caps_title" = "TEMAS";
