@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="14490.70" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="QM5-8D-laz">
-    <device id="watch38" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="15705" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="QM5-8D-laz">
+    <device id="watch38"/>
     <dependencies>
         <deployment identifier="watchOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="14490.21"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="15501"/>
     </dependencies>
     <scenes>
         <!--Static Notification Interface Controller-->
@@ -45,7 +43,7 @@
             <objects>
                 <controller identifier="LibraryInterfaceController" title="BookPlayer" id="QM5-8D-laz" customClass="LibraryInterfaceController" customModule="BookPlayerWatch_Extension">
                     <items>
-                        <label alignment="left" hidden="YES" text="Last Book" id="ca5-9U-ouW"/>
+                        <label alignment="left" hidden="YES" text="Last Played" id="ca5-9U-ouW"/>
                         <separator alignment="left" hidden="YES" id="0gO-6t-1Tq"/>
                         <table alignment="left" hidden="YES" id="cZw-6O-kYn">
                             <items>
@@ -161,4 +159,8 @@
             <point key="canvasLocation" x="481" y="345"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="back-button" width="41" height="41"/>
+        <image name="detail-icon" width="24" height="24"/>
+    </resources>
 </document>

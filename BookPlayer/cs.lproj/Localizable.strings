@@ -1,0 +1,67 @@
+/* 
+  Localizable.strings
+  BookPlayer
+
+  Created by Gianni Carlo on 12/29/19.
+  Copyright © 2019 Tortuga Power. All rights reserved.
+*/
+
+/* Title that is shown as the navigation bar title */
+"library_title" = "Knihovna";
+/* Title for the settings button */
+"settings_button" = "Nastavení";
+/* Title that is shown as the navigation bar title */
+"settings_title" = "Nastavení";
+"settings_autoplay_title" = "Knihovna automatického přehrávání";
+"settings_autoplay_description" = "Pokračování přehrávání všech nedokončených položek v knihovně, včetně souborů v seznamech stop.";
+"settings_smartrewind_title" = "Chytré přetáčení";
+"settings_smartrewind_description" = "Po přerušení poslechu na 10 minud dojde k přetočení zpět o 30 sekund.";
+"settings_boostvolume_title" = "Zvýšení hlasitosti";
+"settings_boostvolume_description" = "Zdvojnásobí hlasitost přehrávání.\nPoužívejte opatrně a chraňete svůj sluch.";
+"settings_globalspeed_title" = "Nastavení rychlosti přehrávání";
+"settings_globalspeed_description" = "Nastavit rychlost přehrávání pro všechny audioknihy.";
+"settings_autolock_title" = "Zakázat automatické uzamčení";
+"settings_autolock_description" = "Zabránit uzamčení zařízení při zobrazení Přehrávače.";
+"settings_siri_lastplayed_title" = "Naposledy přehrávaná audiokniha";
+"settings_siri_lastplayed_description" = "Pro pokračování poslechu poslední audioknihy použijte Siri.";
+"settings_skip_title" = "Intervaly přetáčení";
+"settings_skip_rewind_title" = "Vrátit";
+"settings_skip_forward_title" = "Přetočit";
+"settings_skip_description" = "Upravte časový interval, který přeskočíte při přetažení obalu alba nebo pomocí tlačítek v ovládacím centru.";
+"settings_support_title" = "PODPORA";
+"settings_siri_title" = "ZKRATKA SIRI";
+"settings_support_project_title" = "Zobrazit projekt na Githubu";
+"settings_support_project_description" = "Vytvořit hlášení chyb a požadavků na funkce";
+"settings_support_email_title" = "Pošlete nám e-mail";
+"settings_credits_title" = "Autoři a oprávnění";
+"settings_support_compose_title" = "Nelze vytvořit e-mail";
+"settings_support_compose_description" = "Pro použití je nutné mít na vašem zařízení nastavený e-mailový účet.\n\n Kontaktujte nás na ";
+"settings_support_compose_copy" = "Zkopírovat informace do schránky";
+"library_add_button" = "Přidat";
+"export_button" = "Exportovat";
+"delete_button" = "Odstranit";
+"rename_button" = "Přejmenovat";
+"delete_single_item_title" = "Chcete odstranit \"%@\"?";
+"delete_single_playlist_description" = "Odstraněním seznamu stop se všechny soubory přesunou zpět do Knihovny.";
+"delete_shallow_button" = "Odstranit pouze seznam stop";
+"delete_deep_button" = "Odstranit seznam stop a soubory";
+"create_playlist_button" = "Vytvořit seznam stop";
+"create_button" = "Vytvořit";
+"import_button" = "Import souborů";
+"import_description" = "Soubory můžete také přidat přes AirDrop. Odešlete soubor audioknihy do svého zařízení a ze seznamu, který se zobrazí, zvolte BookPlayer.";
+"create_playlist_title" = "Vytvořte nový seznam stop";
+"create_playlist_description" = "Soubory v seznamech stop se automaticky přehrávají jeden po druhém";
+"delete_multiple_items_description" = "Tímto se také odstraní všechny soubory uvnitř vybraných seznamů stop.";
+"new_playlist_button" = "Nový seznam stop";
+"existing_playlist_button" = "Existující seznam stop";
+"choose_destination_title" = "Vybrat cíl";
+"delete_completely_button" = "Úplně odstranit";
+"move_library_button" = "Přesunout do Knihovny";
+"options_button" = "Možnosti";
+"select_playlist_title" = "Vybrat seznam stop";
+"sort_title_button" = "Titul";
+"sort_filename_button" = "Název souboru";
+"sort_title" = "Seřadit položky podle";
+"cancel_button" = "Zrušit";
+"seconds_title" = "sekund";
+"ok_button" = "OK";

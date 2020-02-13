@@ -5,3 +5,7 @@
   Created by Gianni Carlo on 12/29/19.
   Copyright © 2019 Tortuga Power. All rights reserved.
 */
+
+"library_title" = "Library";
+"watchapp_last_played_title" = "Last Played";
+"watchapp_refresh_data_title" = "Refresh data";

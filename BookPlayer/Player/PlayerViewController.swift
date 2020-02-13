@@ -320,7 +320,7 @@ extension PlayerViewController {
     // MARK: - Toolbar actions
 
     @IBAction func setSpeed() {
-        let actionSheet = UIAlertController(title: nil, message: "Set playback speed", preferredStyle: .actionSheet)
+        let actionSheet = UIAlertController(title: nil, message: "player_speed_title".localized, preferredStyle: .actionSheet)
 
         for speed in PlayerManager.speedOptions {
             if speed == PlayerManager.shared.speed {
@@ -368,12 +368,12 @@ extension PlayerViewController {
 
         let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
-        actionSheet.addAction(UIAlertAction(title: "Jump To Start", style: .default, handler: { _ in
+        actionSheet.addAction(UIAlertAction(title: "jump_start_title".localized, style: .default, handler: { _ in
             PlayerManager.shared.pause()
             PlayerManager.shared.jumpTo(0.0)
         }))
 
-        let markTitle = self.currentBook.isFinished ? "Mark as Unfinished" : "Mark as Finished"
+        let markTitle = self.currentBook.isFinished ? "mark_unfinished_title".localized : "mark_finished_title".localized
 
         actionSheet.addAction(UIAlertAction(title: markTitle, style: .default, handler: { _ in
             PlayerManager.shared.pause()

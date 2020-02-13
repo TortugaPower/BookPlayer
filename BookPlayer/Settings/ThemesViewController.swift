@@ -269,7 +269,7 @@ extension ThemesViewController: UITableViewDataSource {
         cell.titleLabel.textColor = ThemeManager.shared.currentTheme.primaryColor
 
         guard indexPath.sectionValue != .add else {
-            cell.titleLabel.text = "Add"
+            cell.titleLabel.text = "library_add_button".localized
             cell.titleLabel.textColor = ThemeManager.shared.currentTheme.highlightColor
             cell.plusImageView.isHidden = false
             cell.plusImageView.tintColor = ThemeManager.shared.currentTheme.highlightColor

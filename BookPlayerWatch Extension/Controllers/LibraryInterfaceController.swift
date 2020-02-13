@@ -51,6 +51,9 @@ class LibraryInterfaceController: WKInterfaceController {
         NotificationCenter.default.addObserver(self, selector: #selector(self.updateApplicationContext), name: .contextUpdate, object: nil)
         WatchConnectivityService.sharedManager.startSession()
 
+        self.refreshButton.setTitle("watchapp_refresh_data_title".localized)
+        self.lastBookHeaderTitle.setText("watchapp_last_played_title".localized)
+
         self.loadLibrary()
 
         self.setupLastBook()

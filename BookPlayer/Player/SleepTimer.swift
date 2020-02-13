@@ -23,7 +23,7 @@ final class SleepTimer {
     private var onProgress: SleepTimerProgress?
     private var onEnd: SleepTimerEnd?
 
-    private let defaultMessage: String = "Pause playback"
+    private let defaultMessage: String = "player_sleep_title".localized
     private let alert: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
     private var timeLeft: TimeInterval = 0.0
     private let intervals: [TimeInterval] = [
@@ -49,21 +49,21 @@ final class SleepTimer {
         formatter.unitsStyle = .full
         formatter.allowedUnits = [.hour, .minute]
 
-        self.alert.addAction(UIAlertAction(title: "Off", style: .default, handler: { _ in
+        self.alert.addAction(UIAlertAction(title: "sleep_off_title".localized, style: .default, handler: { _ in
             self.cancel()
         }))
 
         for interval in self.intervals {
             let formattedDuration = formatter.string(from: interval as TimeInterval)!
 
-            self.alert.addAction(UIAlertAction(title: "In \(formattedDuration)", style: .default, handler: { _ in
+            self.alert.addAction(UIAlertAction(title: String.localizedStringWithFormat("sleep_interval_title".localized, formattedDuration), style: .default, handler: { _ in
                 self.sleep(in: interval)
             }))
         }
 
-        self.alert.addAction(UIAlertAction(title: "End of current chapter", style: .default) { _ in
+        self.alert.addAction(UIAlertAction(title: "sleep_chapter_option_title".localized, style: .default) { _ in
             self.cancel()
-            self.alert.message = "Sleeping when the chapter ends"
+            self.alert.message = "sleep_alert_description".localized
             NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .chapterChange, object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .bookChange, object: nil)
         })
@@ -102,7 +102,7 @@ final class SleepTimer {
 
         self.onProgress?(self.timeLeft)
 
-        self.alert.message = "Sleeping in \(self.durationFormatter.string(from: self.timeLeft)!)"
+        self.alert.message = String.localizedStringWithFormat("sleep_time_description".localized, self.durationFormatter.string(from: self.timeLeft)!)
 
         if self.timeLeft <= 0 {
             self.end()

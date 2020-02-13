@@ -13,7 +13,7 @@ protocol ItemListAlerts: ItemListActions {}
 
 extension ItemListAlerts {
     func sortDialog() -> UIAlertController {
-        let alert = UIAlertController(title: "Sort Files by", message: nil, preferredStyle: .actionSheet)
+        let alert = UIAlertController(title: "sort_files_title".localized, message: nil, preferredStyle: .actionSheet)
 
         alert.addAction(UIAlertAction(title: "sort_title_button".localized, style: .default, handler: { _ in
             self.sort(by: .metadataTitle)
@@ -49,7 +49,7 @@ extension ItemListAlerts {
     }
 
     func renameItemAlert(_ item: LibraryItem) -> UIAlertController {
-        let alert = UIAlertController(title: "Rename item", message: nil, preferredStyle: .alert)
+        let alert = UIAlertController(title: "rename_title".localized, message: nil, preferredStyle: .alert)
 
         alert.addTextField(configurationHandler: { textfield in
             textfield.placeholder = item.title

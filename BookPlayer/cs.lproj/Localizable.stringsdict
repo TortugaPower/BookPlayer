@@ -13,9 +13,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string></string>
+        <string>jedna</string>
+        <key>few</key>
+        <string>několik</string>
+        <key>many</key>
+        <string>mnoho</string>
         <key>other</key>
-        <string>Elementos</string>
+        <string>další</string>
       </dict>
     </dict>
     <key>delete_multiple_items_title</key>
@@ -27,28 +31,17 @@
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
-        <string>d</string>
+        <string>li</string>
         <key>one</key>
-        <string></string>
+        <string>jednu</string>
+        <key>few</key>
+        <string>několik</string>
+        <key>many</key>
+        <string>mnoho</string>
         <key>other</key>
-        <string>¿Quieres eliminar %d elementos?</string>
-      </dict>
-    </dict>
-    <key>import_alert_title</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>d</string>
-        <key>one</key>
-        <string>Importar %d archivo a</string>
-        <key>other</key>
-        <string>Importar %d archivos a</string>
+        <string>další</string>
       </dict>
     </dict>
   </dict>
 </plist>
+

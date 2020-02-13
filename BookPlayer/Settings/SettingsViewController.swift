@@ -154,10 +154,10 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         }
 
         switch settingsSection {
-        //        case .theme:
-        //            return "".localized
-        //        case .playback:
-        //            return "".localized
+        case .theme:
+            return "settings_appearance_title".localized
+        case .playback:
+            return "settings_playback_title".localized
         case .siri:
             return "settings_siri_title".localized
         case .support:
@@ -207,7 +207,7 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
             vc.delegate = self
             self.present(vc, animated: true, completion: nil)
         } else {
-            self.showAlert(nil, message: "Siri Shortcuts are available on iOS 12 and above")
+            self.showAlert(nil, message: "siri_alert_description".localized)
         }
     }
 

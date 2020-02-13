@@ -23,7 +23,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
     @IBOutlet weak var tableView: UITableView!
 
     private var previousLeftButtons: [UIBarButtonItem]?
-    lazy var selectButton: UIBarButtonItem = UIBarButtonItem(title: "Select All", style: .plain, target: self, action: #selector(selectButtonPressed))
+    lazy var selectButton: UIBarButtonItem = UIBarButtonItem(title: "select_all_title".localized, style: .plain, target: self, action: #selector(selectButtonPressed))
 
     var library: Library!
 
@@ -154,8 +154,8 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         guard self.tableView.isEditing else { return }
 
         self.selectButton.title = self.tableView.numberOfRows(inSection: Section.data.rawValue) > (self.tableView.indexPathsForSelectedRows?.count ?? 0)
-            ? "Select All"
-            : "Deselect All"
+            ? "select_all_title".localized
+            : "deselect_all_title".localized
 
         guard self.tableView.indexPathForSelectedRow == nil else {
             self.bulkControls.moveButton.isEnabled = true
@@ -213,7 +213,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
 
     func loadPlayer(book: Book) {
         guard DataManager.exists(book) else {
-            self.showAlert("File missing!", message: "This book’s file was removed from your device. Import the file again to play the book")
+            self.showAlert("file_missing_title".localized, message: "file_missing_description".localized)
 
             return
         }
@@ -221,7 +221,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         // Replace player with new one
         PlayerManager.shared.load(book) { loaded in
             guard loaded else {
-                self.showAlert("File error!", message: "This book's file couldn't be loaded. Make sure you're not using files with DRM protection (like .aax files)")
+                self.showAlert("file_error_title".localized, message: "file_error_description".localized)
                 return
             }
 
@@ -281,7 +281,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
             self.present(alert, animated: true, completion: nil)
         })
 
-        sheet.addAction(UIAlertAction(title: "Move", style: .default, handler: { _ in
+        sheet.addAction(UIAlertAction(title: "move_title".localized, style: .default, handler: { _ in
             self.handleMove([item])
         }))
 
@@ -293,12 +293,12 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
             }))
         }
 
-        sheet.addAction(UIAlertAction(title: "Jump To Start", style: .default, handler: { _ in
+        sheet.addAction(UIAlertAction(title: "jump_start_title".localized, style: .default, handler: { _ in
             DataManager.jumpToStart(item)
             self.reloadData()
         }))
 
-        let markTitle = item.isFinished ? "Mark as Unfinished" : "Mark as Finished"
+        let markTitle = item.isFinished ? "mark_unfinished_title".localized : "mark_finished_title".localized
 
         sheet.addAction(UIAlertAction(title: markTitle, style: .default, handler: { _ in
             DataManager.mark(item, asFinished: !item.isFinished)

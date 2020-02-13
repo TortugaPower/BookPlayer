@@ -40,16 +40,16 @@ class PlaylistViewController: ItemListViewController {
             return
         }
 
-        let alert = UIAlertController(title: "Import \(files.count) files into", message: nil, preferredStyle: .alert)
+        let alert = UIAlertController(title: String.localizedStringWithFormat("import_alert_title".localized, files.count), message: nil, preferredStyle: .alert)
 
-        alert.addAction(UIAlertAction(title: "Library", style: .default) { _ in
+        alert.addAction(UIAlertAction(title: "library_title".localized, style: .default) { _ in
             DataManager.insertBooks(from: files, into: self.library) {
                 self.reloadData()
                 self.showLoadView(false)
             }
         })
 
-        alert.addAction(UIAlertAction(title: "Current Playlist", style: .default) { _ in
+        alert.addAction(UIAlertAction(title: "current_playlist_title".localized, style: .default) { _ in
             self.showLoadView(false)
             NotificationCenter.default.post(name: .reloadData, object: nil)
         })
@@ -133,7 +133,7 @@ class PlaylistViewController: ItemListViewController {
 
         let alert = UIAlertController(title: "choose_destination_title".localized, message: nil, preferredStyle: .alert)
 
-        alert.addAction(UIAlertAction(title: "Library", style: .default) { _ in
+        alert.addAction(UIAlertAction(title: "library_title".localized, style: .default) { _ in
             let bookSet = NSOrderedSet(array: books)
             self.playlist.removeFromBooks(bookSet)
             self.library.addToItems(bookSet)

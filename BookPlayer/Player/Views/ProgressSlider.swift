@@ -12,7 +12,7 @@ class ProgressSlider: UISlider {
     override var accessibilityLabel: String? {
         get {
             let value = Int(round(self.value * 100))
-            return "\(value)% Complete"
+            return String.localizedStringWithFormat("progress_complete_description".localized, value)
         }
 
         set {

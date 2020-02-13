@@ -533,13 +533,15 @@ extension LibraryViewController {
             ? sourceItem
             : destinationItem
 
-        let alert = UIAlertController(title: "Move to playlist",
-                                      message: "Do you want to move '\(selectedItem.title!)' to '\(playlist.title!)'?",
+        let message = String.localizedStringWithFormat("move_single_item_title".localized, selectedItem.title!, playlist.title!)
+
+        let alert = UIAlertController(title: "move_playlist_button".localized,
+                                      message: message,
                                       preferredStyle: .alert)
 
         alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
 
-        alert.addAction(UIAlertAction(title: "Move", style: .default, handler: { _ in
+        alert.addAction(UIAlertAction(title: "move_title".localized, style: .default, handler: { _ in
             self.move([selectedItem], to: playlist)
             self.reloadData()
         }))

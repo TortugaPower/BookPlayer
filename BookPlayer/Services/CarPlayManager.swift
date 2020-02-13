@@ -53,8 +53,8 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
     var library: Library!
 
     typealias Tab = (identifier: String, title: String, imageName: String)
-    let tabs: [Tab] = [("tab-library", "Library", "carplayLibrary"),
-                       ("tab-recent", "Recent", "carplayRecent")]
+    let tabs: [Tab] = [("tab-library", "library_title".localized, "carplayLibrary"),
+                       ("tab-recent", "carplay_recent_title".localized, "carplayRecent")]
 
     private override init() {
         self.library = DataManager.getLibrary()
@@ -154,7 +154,7 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
 
     func playableContentManager(_ contentManager: MPPlayableContentManager, initiatePlaybackOfContentItemAt indexPath: IndexPath, completionHandler: @escaping (Error?) -> Void) {
         guard let items = self.getItems(for: indexPath) else {
-            completionHandler(BookPlayerError.UnableToLoadBooks("Unable to load books"))
+            completionHandler(BookPlayerError.UnableToLoadBooks("carplay_library_error".localized))
             return
         }
 
@@ -174,7 +174,7 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
         }
 
         guard book != nil else {
-            completionHandler(BookPlayerError.UnableToLoadBooks("Unable to load books"))
+            completionHandler(BookPlayerError.UnableToLoadBooks("carplay_library_error".localized))
             return
         }
 
