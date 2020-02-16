@@ -90,7 +90,6 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
 
         guard let playlist = items[indexPath[IndexGuide.library.content]] as? Playlist,
             let count = playlist.books?.count else {
-            print(items[indexPath[IndexGuide.library.content]])
             return 0
         }
 

@@ -218,11 +218,12 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         }
     }
 
-    func setupPlayer(book: Book) {
+    func setupPlayer(book: Book, _ override: Bool = false) {
         // Make sure player is for a different book
         guard
             let currentBook = PlayerManager.shared.currentBook,
-            currentBook == book
+            currentBook == book,
+            !override
         else {
             // Handle loading new player
             self.loadPlayer(book: book)
@@ -515,7 +516,7 @@ extension ItemListViewController: UITableViewDataSource {
 
             guard let book = self?.getNextBook(item) else { return }
 
-            self?.setupPlayer(book: book)
+            self?.setupPlayer(book: book, true)
         }
 
         if let book = item as? Book {

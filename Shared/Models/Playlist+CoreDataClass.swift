@@ -100,7 +100,7 @@ public class Playlist: LibraryItem {
 
     public func updateCompletionState() {
         guard let books = self.books?.array as? [Book] else { return }
-        print(!books.contains(where: { !$0.isFinished }))
+
         self.isFinished = !books.contains(where: { !$0.isFinished })
     }
 
