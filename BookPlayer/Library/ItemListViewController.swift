@@ -36,7 +36,8 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
     var items: [LibraryItem] {
         guard
             self.library != nil,
-            let items = self.library.items?.array as? [LibraryItem] else {
+            let items = self.library.items?.array as? [LibraryItem]
+        else {
             return []
         }
 
