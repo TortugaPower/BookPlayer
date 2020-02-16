@@ -34,27 +34,37 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
     var library: Library!
 
     var items: [LibraryItem] {
-        guard self.library != nil else {
+        guard
+            self.library != nil,
+            let items = self.library.items?.array as? [LibraryItem] else {
             return []
         }
 
-        let items: [LibraryItem] = self.library.items?.array as? [LibraryItem] ?? []
-
-        if let searchText = self.searchController.searchBar.text,
-            !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return items.filter { item in
-                if let book = item as? Book {
-                    return book.title.contains(searchText)
-                        || book.author.contains(searchText)
-                } else if let playlist = item as? Playlist {
-                    return playlist.title.contains(searchText)
-                } else {
-                    return false
-                }
-            }
+        guard
+            let searchText = self.searchController.searchBar.text?.localizedLowercase,
+            !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        else {
+            return items
         }
 
-        return items
+        return items.filter { item in
+
+            if let book = item as? Book {
+                return book.title.localizedLowercase.contains(searchText)
+                    || book.author.localizedLowercase.contains(searchText)
+            }
+
+            if let playlist = item as? Playlist,
+                let books = playlist.books?.array as? [Book] {
+                return playlist.title.localizedLowercase.contains(searchText)
+                    || books.contains { book in
+                        return book.title.localizedLowercase.contains(searchText)
+                            || book.author.localizedLowercase.contains(searchText)
+                }
+            }
+
+            return item.title.localizedLowercase.contains(searchText)
+        }
     }
 
     // MARK: - Lifecycle

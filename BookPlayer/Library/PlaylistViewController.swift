@@ -13,22 +13,21 @@ class PlaylistViewController: ItemListViewController {
     var playlist: Playlist!
 
     override var items: [LibraryItem] {
-        let items: [LibraryItem] = self.playlist.books?.array as? [LibraryItem] ?? []
-
-        if let searchText = searchController.searchBar.text,
-            !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return items.filter { item in
-                if let book = item as? Book {
-                    return book.title.contains(searchText)
-                        || book.author.contains(searchText)
-                } else if let playlist = item as? Playlist {
-                    return playlist.title.contains(searchText)
-                } else {
-                    return false
-                }
-            }
+        guard let books = self.playlist.books?.array as? [Book] else {
+            return []
         }
-        return items
+
+        guard
+            let searchText = searchController.searchBar.text?.localizedLowercase,
+            !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        else {
+            return books
+        }
+
+        return books.filter { book in
+            return book.title.localizedLowercase.contains(searchText)
+                || book.author.localizedLowercase.contains(searchText)
+        }
     }
 
     override func viewDidLoad() {
