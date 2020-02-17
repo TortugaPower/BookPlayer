@@ -154,8 +154,8 @@
 "voiceover_unknown_author" = "Unknown author";
 "voiceover_book_info" = "%@ by %@";
 "voiceover_book_chapter" = "%@ by %@, chapter %@";
-"voiceover_rewind_time" = "Rewind %d";
-"voiceover_forward_time" = "Fast Forward %d";
+"voiceover_rewind_time" = "Rewind %@";
+"voiceover_forward_time" = "Fast Forward %@";
 "watchapp_last_played_title" = "Last Played";
 "watchapp_refresh_data_title" = "Refresh data";
 "carplay_recent_title" = "Recent";
