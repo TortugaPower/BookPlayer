@@ -31,9 +31,29 @@
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
+        <string>d</string>
         <key>one</key>
         <string>jednu</string>
+        <key>few</key>
+        <string>několik</string>
+        <key>many</key>
+        <string>mnoho</string>
+        <key>other</key>
+        <string>další</string>
+      </dict>
+    </dict>
+    <key>import_alert_title</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>jeden</string>
         <key>few</key>
         <string>několik</string>
         <key>many</key>

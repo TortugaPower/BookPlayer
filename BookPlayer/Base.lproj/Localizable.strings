@@ -27,7 +27,7 @@
 "settings_skip_title" = "SKIP INTERVALS";
 "settings_skip_rewind_title" = "Rewind";
 "settings_skip_forward_title" = "Forward";
-"settings_skip_description" = "Adjust the amount skipped when dragging the album cover or using the buttons in the control center.";
+"settings_skip_description" = "Adjust the amount skipped when using the buttons in the Player or Control Center.";
 "settings_support_title" = "SUPPORT";
 "settings_siri_title" = "SIRI SHORTCUT";
 "settings_support_project_title" = "View project on Github";
@@ -38,7 +38,7 @@
 "settings_support_compose_description" = "You need to set up an email account in your device settings to use this.\n\nPlease mail us at";
 "settings_support_compose_copy" = "Copy information to clipboard";
 "library_add_button" = "Add";
-"export_button" = "Export";
+"export_button" = "Share";
 "delete_button" = "Delete";
 "rename_button" = "Rename";
 "delete_single_item_title" = "Do you want to delete “%@”?";
@@ -87,7 +87,7 @@
 "kind_tip_title" = "Kind tip of";
 "excellent_tip_title" = "Excellent tip of";
 "incredible_tip_title" = "Incredible tip of";
-"plus_themes_description" = "Additional carefully picked color themes or create your own by extracting colors from the covers of your favorite books";
+"plus_themes_description" = "Carefully picked color themes to match your favorite books";
 "plus_icons_description" = "BookPlayer Plus comes with several app icons, matching the color schemes and your wallpaper";
 "support_us_title" = "Support us";
 "bookplayer_opensource_description" = "BookPlayer is free and Open Source and it will always remain that way. With your help we are able to implement more features and make BookPlayer even better";
@@ -119,9 +119,11 @@
 "restore_title" = "Restore";
 "themes_caps_title" = "THEMES";
 "plus_app_icons_title" = "App Icons";
+/* This is the counterpart to Mark as Finished */
 "mark_unfinished_title" = "Mark as Unfinished";
 "move_playlist_button" = "Move to playlist";
 "move_single_item_title" = "Do you want to move '%@' to '%@'?";
+/* This is shown if while being inside a playlist, a batch of imported files are finished processing, and it will be one of the options in the alert presented */
 "current_playlist_title" = "Current Playlist";
 "select_item_title" = "Select Item";
 "sleep_alert_description" = "Sleeping when the chapter ends";

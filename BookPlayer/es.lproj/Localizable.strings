@@ -119,9 +119,11 @@
 "restore_title" = "Restaurar";
 "themes_caps_title" = "TEMAS";
 "plus_app_icons_title" = "Iconos de la Aplicación";
+/* This is the counterpart to Mark as Finished */
 "mark_unfinished_title" = "Marcar como no terminado";
 "move_playlist_button" = "Mover a una lista";
 "move_single_item_title" = "¿Deseas mover ' %@ ' a ' %@ '?";
+/* This is shown if while being inside a playlist, a batch of imported files are finished processing, and it will be one of the options in the alert presented */
 "current_playlist_title" = "Actual lista";
 "select_item_title" = "Seleccionar Elemento";
 "sleep_alert_description" = "Para cuando termine el capítulo";
@@ -141,3 +143,24 @@
 "purchases_restored_title" = "¡Compras restauradas!";
 "tip_missing_title" = "Aún no has hecho una donación";
 "thanks_amazing_title" = "¡Eres increíble!";
+"play_title" = "Reproducir";
+"pause_title" = "Pausar";
+"voiceover_no_title" = "Sin título";
+"voiceover_no_author" = "Sin autor";
+"voiceover_book_progress" = "%@ por %@ %d% completado";
+"voiceover_no_file_title" = "Sin título de archivo";
+"voiceover_no_file_subtitle" = "Sin subtítulo de archivo";
+"voiceover_no_playlist_title" = "Sin título de lista de reproducción";
+"voiceover_playlist_progress" = "%@ Playlist %d % Completado";
+"voiceover_unknown_title" = "Título desconocido";
+"voiceover_unknown_author" = "Autor desconocido";
+"voiceover_book_info" = "%@ por %@";
+"voiceover_book_chapter" = "%@ por %@ , capítulo %@";
+"voiceover_rewind_time" = "Retroceder %@";
+"voiceover_forward_time" = "Avanzar %@";
+"watchapp_last_played_title" = "Última Reproducción";
+"watchapp_refresh_data_title" = "Actualizar data";
+"carplay_recent_title" = "Recientes";
+"carplay_library_error" = "Error al cargar los libros";
+"siri_invocation_phrase" = "Continuar mi libro";
+"siri_activity_title" = "Continuar con el último libro";
