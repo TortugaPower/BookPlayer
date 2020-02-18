@@ -142,9 +142,9 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
             return
         }
 
-        let alert = UIAlertController(title: "Import \(files.count) files into", message: nil, preferredStyle: .alert)
+        let alert = UIAlertController(title: String.localizedStringWithFormat("import_alert_title".localized, files.count), message: nil, preferredStyle: .alert)
 
-        alert.addAction(UIAlertAction(title: "Library", style: .default) { _ in
+        alert.addAction(UIAlertAction(title: "library_title".localized, style: .default) { _ in
             self.showLoadView(false)
         })
 
@@ -229,7 +229,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
 
     @objc func onNewFileUrl() {
         guard self.loadingView.isHidden else { return }
-        let loadingTitle = "Preparing to import files"
+        let loadingTitle = "import_preparing_title".localized
         self.showLoadView(true, title: loadingTitle)
 
         if let vc = self.navigationController?.visibleViewController as? PlaylistViewController {
@@ -262,7 +262,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
             return
         }
 
-        let loadingTitle = "Processing \(operation.files.count) file(s)"
+        let loadingTitle = String.localizedStringWithFormat("import_processing_description".localized, operation.files.count)
 
         self.showLoadView(true, title: loadingTitle)
 

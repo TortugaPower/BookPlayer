@@ -45,9 +45,25 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>import %d file into</string>
+        <string>Import %d file into</string>
         <key>other</key>
         <string>Import %d files into</string>
+      </dict>
+    </dict>
+    <key>import_processing_description</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Processing 1 file</string>
+        <key>other</key>
+        <string>Processing %d files</string>
       </dict>
     </dict>
   </dict>

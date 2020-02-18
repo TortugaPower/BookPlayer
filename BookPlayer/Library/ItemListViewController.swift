@@ -254,7 +254,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
     func handleTrash(_ selectedItems: [LibraryItem]) {}
 
     func handleDelete(books: [Book]) {
-        let alert = UIAlertController(title: "Do you want to delete \(books.count) books?", message: nil, preferredStyle: .alert)
+        let alert = UIAlertController(title: String.localizedStringWithFormat("delete_multiple_items_title".localized, books.count), message: nil, preferredStyle: .alert)
 
         if books.count == 1, let book = books.first {
             alert.title = String(format: "delete_single_item_title".localized, book.title!)

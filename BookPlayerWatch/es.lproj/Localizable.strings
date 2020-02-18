@@ -7,3 +7,8 @@
 */
 
 "library_title" = "Biblioteca";
+"ok_button" = "OK";
+"watchapp_last_played_title" = "Última Reproducción";
+"watchapp_refresh_data_title" = "Actualizar data";
+"watchapp_connect_error_title" = "Error de conectividad";
+"watchapp_connect_error_description" = "Hay un problema de conexión con el teléfono, por favor, inténtelo de nuevo más tarde.";

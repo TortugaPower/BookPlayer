@@ -240,8 +240,8 @@ extension WKInterfaceController {
 
     func sendMessage(_ message: [String: AnyObject]) throws {
         guard WatchConnectivityService.sharedManager.validReachableSession != nil else {
-            let okAction = WKAlertAction(title: "Ok", style: .default) {}
-            self.presentAlert(withTitle: "Connectivity Error", message: "There's a problem connecting to your phone, please try again later", preferredStyle: .alert, actions: [okAction])
+            let okAction = WKAlertAction(title: "ok_button".localized, style: .default) {}
+            self.presentAlert(withTitle: "watchapp_connect_error_title".localized, message: "watchapp_connect_error_description".localized, preferredStyle: .alert, actions: [okAction])
             throw ConnectionError.connectivityError
         }
 

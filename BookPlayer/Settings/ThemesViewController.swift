@@ -56,6 +56,8 @@ class ThemesViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        self.navigationItem.title = "themes_title".localized
+
         self.localThemes = DataManager.getLocalThemes()
         self.extractedThemes = DataManager.getExtractedThemes()
 

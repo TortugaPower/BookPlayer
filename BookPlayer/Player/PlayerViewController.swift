@@ -135,7 +135,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.controlsViewController?.book = currentBook
 
         self.speedButton.title = self.formatSpeed(PlayerManager.shared.speed)
-        self.speedButton.accessibilityLabel = String(describing: self.formatSpeed(PlayerManager.shared.speed) + " speed")
+        self.speedButton.accessibilityLabel = String(describing: self.formatSpeed(PlayerManager.shared.speed) + " \("speed_title".localized)")
 
         self.updateToolbar()
 
@@ -175,7 +175,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             let avRoutePickerBarButtonItem = UIBarButtonItem(customView: AVRoutePickerView(frame: CGRect(x: 0.0, y: 0.0, width: 20.0, height: 20.0)))
 
             avRoutePickerBarButtonItem.isAccessibilityElement = true
-            avRoutePickerBarButtonItem.accessibilityLabel = "Audio Source"
+            avRoutePickerBarButtonItem.accessibilityLabel = "audio_source_title".localized
             items.append(spacer)
             items.append(avRoutePickerBarButtonItem)
         }
@@ -346,7 +346,8 @@ extension PlayerViewController {
                                                         onProgress: { (timeLeft: Double) -> Void in
             self.sleepLabel.title = SleepTimer.shared.durationFormatter.string(from: timeLeft)
             if let timeLeft = SleepTimer.shared.durationFormatter.string(from: timeLeft) {
-                self.sleepLabel.accessibilityLabel = String(describing: timeLeft + " remaining until sleep")
+                let remainingTitle = String(describing: String.localizedStringWithFormat("sleep_remaining_title".localized, timeLeft))
+                self.sleepLabel.accessibilityLabel = String(describing: remainingTitle)
             }
         },
                                                         onEnd: { (_ cancelled: Bool) -> Void in

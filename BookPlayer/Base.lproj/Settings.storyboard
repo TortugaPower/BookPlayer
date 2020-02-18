@@ -611,8 +611,8 @@
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TtE-jL-hjp" userLabel="Kind Tip Container">
                                                 <rect key="frame" x="16.5" y="188" width="100" height="90"/>
                                                 <subviews>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Kind tip of" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HQ9-qO-XtC" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
-                                                        <rect key="frame" x="28.5" y="12" width="43" height="32"/>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Kind tip of" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="HQ9-qO-XtC" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
+                                                        <rect key="frame" x="20" y="12" width="60" height="32"/>
                                                         <constraints>
                                                             <constraint firstAttribute="height" constant="32" id="MLh-Hd-MsQ"/>
                                                         </constraints>
@@ -658,10 +658,10 @@
                                                     <constraint firstItem="WsW-C2-faS" firstAttribute="top" secondItem="HQ9-qO-XtC" secondAttribute="bottom" constant="6" id="Zpm-BE-bsp"/>
                                                     <constraint firstItem="WsW-C2-faS" firstAttribute="centerX" secondItem="TtE-jL-hjp" secondAttribute="centerX" id="dCb-fI-S7J"/>
                                                     <constraint firstItem="oFQ-5J-FF5" firstAttribute="centerX" secondItem="WsW-C2-faS" secondAttribute="centerX" id="gdl-vH-LjX"/>
-                                                    <constraint firstItem="HQ9-qO-XtC" firstAttribute="left" secondItem="TtE-jL-hjp" secondAttribute="left" constant="28.5" id="iQ6-TT-mBz"/>
+                                                    <constraint firstItem="HQ9-qO-XtC" firstAttribute="left" secondItem="TtE-jL-hjp" secondAttribute="left" constant="20" id="iQ6-TT-mBz"/>
                                                     <constraint firstItem="oFQ-5J-FF5" firstAttribute="height" secondItem="WsW-C2-faS" secondAttribute="height" id="isJ-qa-IpQ"/>
                                                     <constraint firstItem="oFQ-5J-FF5" firstAttribute="centerY" secondItem="WsW-C2-faS" secondAttribute="centerY" id="jYH-yY-A29"/>
-                                                    <constraint firstAttribute="trailing" secondItem="HQ9-qO-XtC" secondAttribute="trailing" constant="28.5" id="vSz-l8-ufI"/>
+                                                    <constraint firstAttribute="trailing" secondItem="HQ9-qO-XtC" secondAttribute="trailing" constant="20" id="vSz-l8-ufI"/>
                                                     <constraint firstItem="HQ9-qO-XtC" firstAttribute="centerX" secondItem="TtE-jL-hjp" secondAttribute="centerX" id="zPv-1V-huE"/>
                                                 </constraints>
                                                 <userDefinedRuntimeAttributes>
@@ -673,7 +673,7 @@
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JQ4-4T-Yul" userLabel="Excellent Tip Container">
                                                 <rect key="frame" x="137.5" y="188" width="100" height="90"/>
                                                 <subviews>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Excellent tip of" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="o1o-81-uNv" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Excellent tip of" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="o1o-81-uNv" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
                                                         <rect key="frame" x="20" y="12" width="60" height="32"/>
                                                         <constraints>
                                                             <constraint firstAttribute="height" constant="32" id="Ll2-MD-b7a"/>
@@ -736,7 +736,7 @@
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Fqi-ys-ill" userLabel="Incredible Tip Container">
                                                 <rect key="frame" x="258.5" y="188" width="100" height="90"/>
                                                 <subviews>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Incredible tip of" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="S8G-gq-kTv" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Incredible tip of" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="S8G-gq-kTv" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
                                                         <rect key="frame" x="19" y="12" width="62" height="32"/>
                                                         <constraints>
                                                             <constraint firstAttribute="height" constant="32" id="QNc-eU-mqT"/>
@@ -1325,7 +1325,7 @@
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3wd-mp-PzI">
                                                 <rect key="frame" x="0.0" y="249" width="375" height="44"/>
                                                 <subviews>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Always use dark variation" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SPV-it-NzF">
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Always use dark variation" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SPV-it-NzF" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
                                                         <rect key="frame" x="16" y="11.5" width="274" height="21"/>
                                                         <constraints>
                                                             <constraint firstAttribute="height" constant="21" id="w50-pl-ayK"/>
@@ -1333,6 +1333,9 @@
                                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
+                                                        <userDefinedRuntimeAttributes>
+                                                            <userDefinedRuntimeAttribute type="string" keyPath="localizedKey" value="theme_dark_title"/>
+                                                        </userDefinedRuntimeAttributes>
                                                     </label>
                                                     <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="dGm-Ck-k4z">
                                                         <rect key="frame" x="310" y="6.5" width="51" height="31"/>

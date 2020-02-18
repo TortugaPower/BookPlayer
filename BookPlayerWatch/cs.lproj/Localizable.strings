@@ -7,3 +7,6 @@
 */
 
 "library_title" = "Knihovna";
+"ok_button" = "OK";
+"watchapp_last_played_title" = "Naposledy přehráno";
+"watchapp_refresh_data_title" = "Obnovit data";

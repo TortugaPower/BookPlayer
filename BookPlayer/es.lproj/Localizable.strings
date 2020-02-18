@@ -164,3 +164,9 @@
 "carplay_library_error" = "Error al cargar los libros";
 "siri_invocation_phrase" = "Continuar mi libro";
 "siri_activity_title" = "Continuar con el último libro";
+"watchapp_connect_error_title" = "Error de conectividad";
+"watchapp_connect_error_description" = "Hay un problema de conexión con el teléfono, por favor, inténtelo de nuevo más tarde.";
+"sleep_remaining_title" = "%@ restante hasta pausar";
+"audio_source_title" = "Fuente de audio";
+"speed_title" = "velocidad";
+"import_preparing_title" = "Preparando la importación de archivos";
