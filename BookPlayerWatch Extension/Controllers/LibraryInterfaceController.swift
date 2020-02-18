@@ -53,6 +53,7 @@ class LibraryInterfaceController: WKInterfaceController {
 
         self.refreshButton.setTitle("watchapp_refresh_data_title".localized)
         self.lastBookHeaderTitle.setText("watchapp_last_played_title".localized)
+        self.libraryHeaderTitle.setText("library_title".localized)
 
         self.loadLibrary()
 
@@ -200,7 +201,7 @@ class LibraryInterfaceController: WKInterfaceController {
         self.showPlaylist(false)
         self.backImage.setHidden(true)
         self.playlistItems = nil
-        self.libraryHeaderTitle.setText("Library")
+        self.libraryHeaderTitle.setText("library_title".localized)
     }
 
     func showPlaylist(_ show: Bool) {
