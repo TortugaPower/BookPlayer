@@ -10,3 +10,5 @@
 "ok_button" = "OK";
 "watchapp_last_played_title" = "Naposledy přehráno";
 "watchapp_refresh_data_title" = "Obnovit data";
+"watchapp_connect_error_title" = "Chyba připojení";
+"watchapp_connect_error_description" = "Při připojení k telefonu došlo k potížím, zkuste to prosím později.";

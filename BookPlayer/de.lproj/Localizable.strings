@@ -83,6 +83,7 @@
 "theme_switch_title" = "Automatisch wechseln";
 "theme_dark_title" = "Immer dunkles Erscheinungsbild verwenden";
 "themes_title" = "Designs";
+/* This should be &ldquo;By your friends at BookPlayer&rdquo; in English.&nbsp; */
 "icons_bookplayer_credit_description" = "Von deinen Freunden bei BookPlayer";
 "kind_tip_title" = "Kleine Spende";
 "excellent_tip_title" = "Große Spende";
@@ -147,14 +148,18 @@
 "pause_title" = "Pause";
 "voiceover_no_title" = "Kein Titel angegeben";
 "voiceover_no_author" = "Kein Autor angegeben";
+/* &lt;Book title&gt; by &lt;Book author&gt; &lt;percentage in numbers&gt;% Completed */
 "voiceover_book_progress" = "%@ von %@, %d% abgeschlossen";
 "voiceover_no_file_title" = "Datei ohne Titel";
 "voiceover_no_file_subtitle" = "Datei ohne Untertitel";
 "voiceover_no_playlist_title" = "Wiedergabeliste ohne Titel";
+/* &lt;Playlist title&gt; Playlist &lt;percentage in number&gt;% Completed */
 "voiceover_playlist_progress" = "%@ Wiedergabeliste, %d% abgeschlossen";
 "voiceover_unknown_title" = "Unbekannter Titel";
 "voiceover_unknown_author" = "Unbekannter Autor";
+/* &lt;book title&gt; by &lt;book author&gt; */
 "voiceover_book_info" = "%@ von %@";
+/* &lt;book title&gt; by &lt;book author&gt;, chapter &lt;chapter title&gt; */
 "voiceover_book_chapter" = "%@ von %@, Kapitel %@";
 "voiceover_rewind_time" = "Rückwärts %@";
 "voiceover_forward_time" = "Vorwärts %@";
@@ -163,4 +168,10 @@
 "carplay_recent_title" = "Kürzlich";
 "carplay_library_error" = "Bücher können nicht geladen werden";
 "siri_invocation_phrase" = "Mein Buch fortsetzen";
-"siri_activity_title" = "Zuletzt gespieltes Buch weiterhören";
+"siri_activity_title" = "Zuletzt gespieltes Buch weiter hören";
+"watchapp_connect_error_title" = "Verbindungsfehler";
+"watchapp_connect_error_description" = "Es gibt ein Problem mit der Verbindung zu Ihrem Telefon, bitte versuche es später noch einmal.";
+"sleep_remaining_title" = "%@ verbleibend bis zum Ende der Wiedergabe";
+"audio_source_title" = "Abspielgerät";
+"speed_title" = "Wiedergabeschwindigkeit";
+"import_preparing_title" = "Import wird vorbereitet";

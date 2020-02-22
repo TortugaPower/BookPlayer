@@ -13,9 +13,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Datei</string>
+        <string></string>
         <key>other</key>
-        <string>Dateien</string>
+        <string>filer</string>
       </dict>
     </dict>
     <key>delete_multiple_items_title</key>
@@ -29,9 +29,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Möchtest du dieses Element löschen?</string>
+        <string></string>
         <key>other</key>
-        <string>Möchtest du %d Elemente löschen?</string>
+        <string>Vill du radera %d filer?</string>
       </dict>
     </dict>
     <key>import_alert_title</key>
@@ -45,9 +45,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d Datei importieren</string>
+        <string>Importera %d fil till</string>
         <key>other</key>
-        <string>%d Dateien importieren</string>
+        <string>Importera %d filer till</string>
       </dict>
     </dict>
     <key>import_processing_description</key>
@@ -61,9 +61,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Eine Datei wird verarbeitet</string>
+        <string>Bearbetar 1 fil</string>
         <key>other</key>
-        <string>%d Dateien werden verarbeitet</string>
+        <string>Bearbetar %d filer</string>
       </dict>
     </dict>
   </dict>
