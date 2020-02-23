@@ -185,7 +185,7 @@
 		41EE378821BFFB9800A55F51 /* ItemListFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41EE378721BFFB9800A55F51 /* ItemListFeedback.swift */; };
 		41EE378A21BFFBDE00A55F51 /* ItemListAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41EE378921BFFBDE00A55F51 /* ItemListAlerts.swift */; };
 		41EE378C21C0028800A55F51 /* ItemListActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41EE378B21C0028800A55F51 /* ItemListActions.swift */; };
-		5CBB29552163E57300E3A9FF /* ZIPFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5CBB29522163A17F00E3A9FF /* ZIPFoundation.framework */; };
+		41F898AF2402080C00F58B8A /* ZipArchive.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41F898AE2402080C00F58B8A /* ZipArchive.framework */; };
 		6906A55021720FDF00A9E0B2 /* BookSortServiceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A54F21720FDF00A9E0B2 /* BookSortServiceTest.swift */; };
 		6906A553217211C600A9E0B2 /* StubFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A552217211C600A9E0B2 /* StubFactory.swift */; };
 		69343D332133844D000C425E /* VoiceOverService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69343D322133844D000C425E /* VoiceOverService.swift */; };
@@ -477,6 +477,7 @@
 		41EE378921BFFBDE00A55F51 /* ItemListAlerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListAlerts.swift; sourceTree = "<group>"; };
 		41EE378B21C0028800A55F51 /* ItemListActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListActions.swift; sourceTree = "<group>"; };
 		41F516952272CC5300F36C3E /* WatchConnectivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchConnectivityService.swift; sourceTree = "<group>"; };
+		41F898AE2402080C00F58B8A /* ZipArchive.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ZipArchive.framework; path = Carthage/Build/iOS/ZipArchive.framework; sourceTree = "<group>"; };
 		5CBB29522163A17F00E3A9FF /* ZIPFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ZIPFoundation.framework; path = Carthage/Build/iOS/ZIPFoundation.framework; sourceTree = "<group>"; };
 		6906A54F21720FDF00A9E0B2 /* BookSortServiceTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookSortServiceTest.swift; sourceTree = "<group>"; };
 		6906A552217211C600A9E0B2 /* StubFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubFactory.swift; sourceTree = "<group>"; };
@@ -542,12 +543,12 @@
 				4175E14522080C7700FB7B71 /* StoreKit.framework in Frameworks */,
 				41D4F2EB2101A278009F1B1E /* DirectoryWatcher.framework in Frameworks */,
 				4150F80320A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework in Frameworks */,
+				41F898AF2402080C00F58B8A /* ZipArchive.framework in Frameworks */,
 				C318DDBF20A4DC7500C3A17B /* DeviceKit.framework in Frameworks */,
 				C30CD2A32097C49F00258B09 /* ColorCube.framework in Frameworks */,
 				4112AFD6223AD27D00BFEA55 /* Sentry.framework in Frameworks */,
 				4165EE0E20A7AEC600616EDF /* SwiftReorder.framework in Frameworks */,
 				412451841D489204008AC0E5 /* Crashlytics.framework in Frameworks */,
-				5CBB29552163E57300E3A9FF /* ZIPFoundation.framework in Frameworks */,
 				41B2A6AC21D3274500917584 /* Themeable.framework in Frameworks */,
 				41A1B0E7226E9BC500EA0400 /* BookPlayerKit.framework in Frameworks */,
 				41AD3DB322205C5A00DC41E1 /* Kingfisher.framework in Frameworks */,
@@ -764,6 +765,7 @@
 		41AABFFA1E705D18006BD2E0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				41F898AE2402080C00F58B8A /* ZipArchive.framework */,
 				4112AFD5223AD27D00BFEA55 /* Sentry.framework */,
 				41D7944E22260EC000228580 /* SwiftyStoreKit.framework */,
 				41AD3DB222205C5A00DC41E1 /* Kingfisher.framework */,
@@ -1447,7 +1449,7 @@
 				"$(SRCROOT)/Carthage/Build/iOS/SwiftReorder.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/IDZSwiftCommonCrypto.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/DirectoryWatcher.framework",
-				"$(SRCROOT)/Carthage/Build/iOS/ZIPFoundation.framework",
+				"$(SRCROOT)/Carthage/Build/iOS/ZipArchive.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/Themeable.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/Sentry.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/Kingfisher.framework",
@@ -1461,7 +1463,7 @@
 				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/SwiftReorder.framework",
 				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/IDZSwiftCommonCrypto.framework",
 				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/DirectoryWatcher.framework",
-				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/ZIPFoundation.framework",
+				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/ZipArchive.framework",
 				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/Themeable.framework",
 				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/Sentry.framework",
 				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/Kingfisher.framework",
