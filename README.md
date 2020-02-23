@@ -83,7 +83,7 @@ Managed with [Carthage](https://github.com/Carthage/Carthage)
 - [Sweetercolor](https://github.com/jathu/sweetercolor) for handling artwork colors
 - [SwiftReorder](https://github.com/GianniCarlo/SwiftReorder) for drag-and-drop on the UITableView
 - [SwiftyStoreKit](https://github.com/bizz84/SwiftyStoreKit) for the tip jar
-- [ZIPFoundation](https://github.com/weichsel/ZIPFoundation) for zip files
+- [ZipArchive](https://github.com/ZipArchive/ZipArchive) for zip files
 
 Managed with [Homebrew](https://brew.sh)
 
