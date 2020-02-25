@@ -408,7 +408,7 @@ extension LibraryViewController {
             let sheet = self.createOptionsSheetController(item)
 
             // "…" on a button indicates a follow up dialog instead of an immmediate action in macOS and iOS
-            var title = "Delete…"
+            var title = "\("delete_button".localized)…"
 
             // Remove the dots if trying to delete an empty playlist
             if let playlist = item as? Playlist {
