@@ -230,6 +230,8 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
     @objc func onNewFileUrl() {
         guard self.loadingView.isHidden else { return }
         let loadingTitle = "import_preparing_title".localized
+        UIAccessibility.post(notification: UIAccessibility.Notification.layoutChanged, argument: self.loadingView.titleLabel)
+
         self.showLoadView(true, title: loadingTitle)
 
         if let vc = self.navigationController?.visibleViewController as? PlaylistViewController {

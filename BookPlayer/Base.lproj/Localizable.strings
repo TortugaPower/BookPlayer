@@ -131,7 +131,7 @@
 "sleep_off_title" = "Off";
 "sleep_interval_title" = "In %@";
 "chapter_number_title" = "Chapter %d";
-"progress_complete_description" = "%d% Complete";
+"progress_complete_description" = "%d percent Complete";
 "chapter_duration_title" = "Chapter duration: ";
 "chapter_time_remaining_title" = "Remaining Chapter Time: ";
 "book_time_remaining_title" = "Remaining Book Time: ";
@@ -147,11 +147,11 @@
 "pause_title" = "Pause";
 "voiceover_no_title" = "No Title";
 "voiceover_no_author" = "No Author";
-"voiceover_book_progress" = "%@ by %@ %d% Completed";
+"voiceover_book_progress" = "%@ by %@, %d percent Completed";
 "voiceover_no_file_title" = "No File Title";
 "voiceover_no_file_subtitle" = "No File Subtitle";
 "voiceover_no_playlist_title" = "No Playlist Title";
-"voiceover_playlist_progress" = "%@ Playlist %d% Completed";
+"voiceover_playlist_progress" = "%@ Playlist, %d percent Completed";
 "voiceover_unknown_title" = "Unknown title";
 "voiceover_unknown_author" = "Unknown author";
 "voiceover_book_info" = "%@ by %@";

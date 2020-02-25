@@ -131,7 +131,7 @@
 "sleep_off_title" = "Anular";
 "sleep_interval_title" = "En %@";
 "chapter_number_title" = "Capítulo %d";
-"progress_complete_description" = "%d% Completado";
+"progress_complete_description" = "%d porcentaje Completado";
 "chapter_duration_title" = "Duración del capitulo: ";
 "chapter_time_remaining_title" = "Tiempo restante del capítulo:";
 "book_time_remaining_title" = "Tiempo restante del libro: ";
@@ -147,7 +147,7 @@
 "pause_title" = "Pausar";
 "voiceover_no_title" = "Sin título";
 "voiceover_no_author" = "Sin autor";
-"voiceover_book_progress" = "%@ por %@ %d% completado";
+"voiceover_book_progress" = "%@ por %@, %d porcentaje completado";
 "voiceover_no_file_title" = "Sin título de archivo";
 "voiceover_no_file_subtitle" = "Sin subtítulo de archivo";
 "voiceover_no_playlist_title" = "Sin título de lista de reproducción";
