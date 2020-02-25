@@ -19,10 +19,10 @@
 "settings_boostvolume_title" = "Lautstärke erhöhen";
 "settings_boostvolume_description" = "Verdoppelt die Lautstärke. Bitte nur mit Vorsicht verwenden, ihr Gehör ist unersetzlich.";
 "settings_globalspeed_title" = "Abspielgeschwindigkeit übergreifend speichern";
-"settings_globalspeed_description" = "Jedes Buch wird mit der gleichen Geschwindkeit abgespielt.";
+"settings_globalspeed_description" = "Jedes Buch wird mit der gleichen Geschwindigkeit abgespielt.";
 "settings_autolock_title" = "Bildschirmsperre verhindern";
-"settings_autolock_description" = "Verhindert, dass das Gerät gesperrt wird wenn der Abspielbildschirm aktiv ist.";
-"settings_siri_lastplayed_title" = "Zuletzt gespieltes Buch weiterhören";
+"settings_autolock_description" = "Verhindert, dass das Gerät gesperrt wird, wenn der Abspielbildschirm aktiv ist.";
+"settings_siri_lastplayed_title" = "Zuletzt gespieltes Buch fortzusetzen";
 "settings_siri_lastplayed_description" = "Verwenden Sie Siri, um das zuletzt gespielte Buch fortzusetzen.";
 "settings_skip_title" = "Springen";
 "settings_skip_rewind_title" = "Rückwärts";
@@ -30,7 +30,7 @@
 "settings_skip_description" = "Die Zeiten für Zurück- und Vorspringen in der Abspielansicht und in der Steuerzentrale individuell anpassen.";
 "settings_support_title" = "Hilfe";
 "settings_siri_title" = "Siri Kurzbefehl";
-"settings_support_project_title" = "Projekt auf Github ansehen";
+"settings_support_project_title" = "Projekt auf GitHub ansehen";
 "settings_support_project_description" = "Erstelle neue GitHub Issues für Wünsche und Fehler";
 "settings_support_email_title" = "Sende uns eine E-Mail";
 "settings_credits_title" = "Danksagungen und Lizenzen";
@@ -63,21 +63,21 @@
 "sort_filename_button" = "Ursprüngliche Dateinamen";
 "sort_title" = "Liste sortieren";
 "cancel_button" = "Abbrechen";
-"seconds_title" = "sek";
+"seconds_title" = "s";
 "ok_button" = "OK";
 /* Message shown when trying to create a Siri Shortcut on devices that don't have iOS 12+ installed */
 "siri_alert_description" = "Siri Kurzbefehle sind erst ab iOS 12 verfügbar.";
 /* Title used in the context of our tip jar to support development */
 "support_bookplayer_title" = "BookPlayer unterstützen";
 /* Description used in the context of our tip jar to support development */
-"support_bookplayer_description" = "Hol dir Bookplayer Plus, um die Entwicklung und Verbesserung dieser App zu unterstützen und Designs und App Icons freizuschalten.";
+"support_bookplayer_description" = "Hol dir BookPlayer Plus, um die Entwicklung und Verbesserung dieser App zu unterstützen und Designs und App Icons freizuschalten.";
 "learn_more_title" = "Mehr erfahren";
 "settings_appearance_title" = "Erscheinungsbild";
 "settings_theme_title" = "Design";
 "settings_app_icon_title" = "App Icon";
 "settings_playback_title" = "Wiedergabeeinstellungen";
 "settings_controls_title" = "Steuerung";
-"settings_power_connected_title" = "Nur, wenn das Netzteil angeschlossen ist";
+"settings_power_connected_title" = "Nur bei aktiver Stromversorgung";
 "settings_tip_jar_title" = "Kaffeekasse";
 "theme_system_title" = "Systemerscheinungsbild verwenden";
 "theme_switch_title" = "Automatisch wechseln";
@@ -89,7 +89,7 @@
 "excellent_tip_title" = "Große Spende";
 "incredible_tip_title" = "Unglaubliche Spende";
 "plus_themes_description" = "Sorgfältig ausgewählte Designs für Bibliothek und Bücher";
-"plus_icons_description" = "Zusätzliche App Icons um ihren Home-Bildschirm indiviueller zu gestalten";
+"plus_icons_description" = "Zusätzliche App Icons um ihren Home-Bildschirm individueller zu gestalten";
 "support_us_title" = "BookPlayer unterstützen";
 "bookplayer_opensource_description" = "BookPlayer ist kostenlos und Open Source und wird es auch immer bleiben. Mit eurer Hilfe können wir noch mehr Funktionen einbauen und BookPlayer noch besser machen.";
 "thanks_title" = "Vielen Dank für deine Unterstützung!";
@@ -105,7 +105,7 @@
 "file_error_title" = "Dateifehler!";
 "file_error_description" = "Die Datei für dieses Buch konnte nicht geladen werden. Achte darauf, keine Dateien mit Kopierschutz (wie z. B. .aax-Dateien) zu verwenden.";
 "file_missing_title" = "Datei fehlt!";
-"file_missing_description" = "Die Datei für dieses Buch wurde vom Gerät entfernt. Importiere sie erneut, um das Buch weiterzuhören.";
+"file_missing_description" = "Die Datei für dieses Buch wurde vom Gerät entfernt. Importiere sie erneut, um das Buch weiter zu hören.";
 "empty_playlist_description" = "Dateien können auch in die Wiedergabeliste verschoben werden, in dem du sie in der Bibliothek auf die Wiedergabeliste ziehst.";
 "playlist_add_title" = "Dateien hinzufügen";
 "player_speed_title" = "Wiedergabegeschwindigkeit";
@@ -173,5 +173,5 @@
 "watchapp_connect_error_description" = "Es gibt ein Problem mit der Verbindung zu Ihrem Telefon, bitte versuche es später noch einmal.";
 "sleep_remaining_title" = "%@ verbleibend bis zum Ende der Wiedergabe";
 "audio_source_title" = "Abspielgerät";
-"speed_title" = "Wiedergabeschwindigkeit";
+"speed_title" = "Wiedergabegeschwindigkeit";
 "import_preparing_title" = "Import wird vorbereitet";
