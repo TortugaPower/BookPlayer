@@ -96,6 +96,13 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: .requestReview, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: .bookEnd, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: .bookChange, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.timerStart), name: .timerStart, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.timerProgress(_:)), name: .timerProgress, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.timerEnd), name: .timerEnd, object: nil)
+
+        if SleepTimer.shared.isActive() {
+            self.updateToolbar(true, animated: true)
+        }
 
         // Gestures
         self.pan = UIPanGestureRecognizer(target: self, action: #selector(self.panAction))
@@ -222,6 +229,30 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.setupView(book: book)
     }
 
+    @objc func timerStart() {
+        self.updateToolbar(true, animated: true)
+    }
+
+    @objc func timerProgress(_ notification: Notification) {
+        guard
+            let userInfo = notification.userInfo,
+            let timeLeft = userInfo["timeLeft"] as? Double
+        else {
+            return
+        }
+
+        self.sleepLabel.title = SleepTimer.shared.durationFormatter.string(from: timeLeft)
+        if let timeLeft = SleepTimer.shared.durationFormatter.string(from: timeLeft) {
+            let remainingTitle = String(describing: String.localizedStringWithFormat("sleep_remaining_title".localized, timeLeft))
+            self.sleepLabel.accessibilityLabel = String(describing: remainingTitle)
+        }
+    }
+
+    @objc func timerEnd() {
+        self.sleepLabel.title = ""
+        self.updateToolbar(false, animated: true)
+    }
+
     // MARK: - Gesture recognizers
 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -340,25 +371,7 @@ extension PlayerViewController {
     }
 
     @IBAction func setSleepTimer() {
-        let actionSheet = SleepTimer.shared.actionSheet(onStart: {
-            self.updateToolbar(true, animated: true)
-        },
-                                                        onProgress: { (timeLeft: Double) -> Void in
-            self.sleepLabel.title = SleepTimer.shared.durationFormatter.string(from: timeLeft)
-            if let timeLeft = SleepTimer.shared.durationFormatter.string(from: timeLeft) {
-                let remainingTitle = String(describing: String.localizedStringWithFormat("sleep_remaining_title".localized, timeLeft))
-                self.sleepLabel.accessibilityLabel = String(describing: remainingTitle)
-            }
-        },
-                                                        onEnd: { (_ cancelled: Bool) -> Void in
-            if !cancelled {
-                PlayerManager.shared.pause()
-            }
-
-            self.sleepLabel.title = ""
-            self.updateToolbar(false, animated: true)
-        })
-
+        let actionSheet = SleepTimer.shared.actionSheet()
         self.present(actionSheet, animated: true, completion: nil)
     }
 

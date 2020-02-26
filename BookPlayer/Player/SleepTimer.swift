@@ -19,9 +19,6 @@ final class SleepTimer {
     let durationFormatter: DateComponentsFormatter = DateComponentsFormatter()
 
     private var timer: Timer?
-    private var onStart: SleepTimerStart?
-    private var onProgress: SleepTimerProgress?
-    private var onEnd: SleepTimerEnd?
 
     private let defaultMessage: String = "player_sleep_title".localized
     private let alert: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
@@ -34,6 +31,10 @@ final class SleepTimer {
         2700.0,
         3600.0
     ]
+
+    public func isActive() -> Bool {
+        return self.timer?.isValid ?? false
+    }
 
     // MARK: Internals
 
@@ -72,8 +73,8 @@ final class SleepTimer {
     }
 
     private func sleep(in seconds: Double) {
-        self.onStart?()
-        self.onProgress?(seconds)
+        NotificationCenter.default.post(name: .timerStart, object: nil)
+        NotificationCenter.default.post(name: .timerProgress, object: nil, userInfo: ["timeLeft": seconds])
 
         self.reset()
 
@@ -94,13 +95,13 @@ final class SleepTimer {
     private func cancel() {
         self.reset()
 
-        self.onEnd?(true)
+        NotificationCenter.default.post(name: .timerEnd, object: nil)
     }
 
     @objc private func update() {
         self.timeLeft -= 1.0
 
-        self.onProgress?(self.timeLeft)
+        NotificationCenter.default.post(name: .timerProgress, object: nil, userInfo: ["timeLeft": self.timeLeft])
 
         self.alert.message = String.localizedStringWithFormat("sleep_time_description".localized, self.durationFormatter.string(from: self.timeLeft)!)
 
@@ -112,16 +113,14 @@ final class SleepTimer {
     @objc private func end() {
         self.reset()
 
-        self.onEnd?(false)
+        PlayerManager.shared.pause()
+
+        NotificationCenter.default.post(name: .timerEnd, object: nil)
     }
 
     // MARK: Public methods
 
-    func actionSheet(onStart: @escaping SleepTimerStart, onProgress: @escaping SleepTimerProgress, onEnd: @escaping SleepTimerEnd) -> UIAlertController {
-        self.onStart = onStart
-        self.onEnd = onEnd
-        self.onProgress = onProgress
-
+    func actionSheet() -> UIAlertController {
         return self.alert
     }
 }
