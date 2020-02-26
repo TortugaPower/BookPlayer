@@ -1,0 +1,177 @@
+/* 
+  Localizable.strings
+  BookPlayer
+
+  Created by Gianni Carlo on 12/29/19.
+  Copyright © 2019 Tortuga Power. All rights reserved.
+*/
+
+/* Title that is shown as the navigation bar title */
+"library_title" = "Bibliotek";
+/* Title for the settings button */
+"settings_button" = "Inställningar";
+/* Title that is shown as the navigation bar title */
+"settings_title" = "Inställningar";
+"settings_autoplay_title" = "Automatisk Uppspelning";
+"settings_autoplay_description" = "Fortsätt uppspelning av alla filer i biblioteket som du inte lyssnat klart på, inklusive filer i spellistor.";
+"settings_smartrewind_title" = "Automatisk Tillbakaspolning";
+"settings_smartrewind_description" = "Spola tillbaka 30 sekunder efter appen varit pausad i 10 minuter.";
+"settings_boostvolume_title" = "Boosta Volymen";
+"settings_boostvolume_description" = "Dubblar volymen. \nAnvänd med försiktighet och omsorg för din hörsel.";
+"settings_globalspeed_title" = "Global Uppspelningshastighet";
+"settings_globalspeed_description" = "Ange uppspelningshastighet för alla böcker.";
+"settings_autolock_title" = "Avaktivera Automatisk Låsning";
+"settings_autolock_description" = "Förhindra att enheten låses när du är på spelarens skärmsida.";
+"settings_siri_lastplayed_title" = "Senast spelad bok";
+"settings_siri_lastplayed_description" = "Använd Siri för att fortsätta med den senast spelade boken.";
+"settings_skip_title" = "SNABBSPOLNING";
+"settings_skip_rewind_title" = "Tillbaka";
+"settings_skip_forward_title" = "Framåt";
+"settings_skip_description" = "Justera tiden som hoppas över när du drar albumbilden eller använder knapparna i kontrollpanelen.";
+"settings_support_title" = "HJÄLP";
+"settings_siri_title" = "SIRI GENVÄG";
+"settings_support_project_title" = "Visa projektet på GitHub";
+"settings_support_project_description" = "Registrera önskemål eller felrapport";
+"settings_support_email_title" = "Skicka e-post";
+"settings_credits_title" = "Krediter och Licenser";
+"settings_support_compose_title" = "Det gick inte att skicka e-post";
+"settings_support_compose_description" = "Du måste skapa ett e-postkonto i enhetens inställningar för att använda detta. \n\nVänligen e-posta till";
+"settings_support_compose_copy" = "Kopiera information till Urklipp";
+"library_add_button" = "Lägg till";
+"export_button" = "Dela";
+"delete_button" = "Radera";
+"rename_button" = "Byt namn";
+"delete_single_item_title" = "Vill du radera \" %@ \"?";
+"delete_single_playlist_description" = "Om du bara raderar spellistan flyttas alla dess filer tillbaka till biblioteket.";
+"delete_shallow_button" = "Radera endast spellista";
+"delete_deep_button" = "Radera spellista och filer";
+"create_playlist_button" = "Skapa spellista";
+"create_button" = "Skapa ny";
+"import_button" = "Importera filer";
+"import_description" = "Du kan lägga till filer via AirDrop genom att skicka en ljudbokfil till din enhet. Välj sedan BookPlayer i listan som visas.";
+"create_playlist_title" = "Skapa ny spellista";
+"create_playlist_description" = "Filer i spellistor spelas automatiskt efter varandra";
+"delete_multiple_items_description" = "Detta kommer att ta bort alla filer i valda spellistor.";
+"new_playlist_button" = "Ny spellista";
+"existing_playlist_button" = "Befintlig spellista";
+"choose_destination_title" = "Välj destination";
+"delete_completely_button" = "Radera fullständigt";
+"move_library_button" = "Flytta till bibliotek";
+"options_button" = "Alternativ";
+"select_playlist_title" = "Välj spellista";
+"sort_title_button" = "Titel";
+"sort_filename_button" = "Ursprungligt filnamn";
+"sort_title" = "Sortera filer efter";
+"cancel_button" = "Avbryt";
+"seconds_title" = "s";
+"ok_button" = "OK";
+/* Message shown when trying to create a Siri Shortcut on devices that don't have iOS 12+ installed */
+"siri_alert_description" = "Siri-genvägar är tillgängliga på iOS 12 och högre";
+/* Title used in the context of our tip jar to support development */
+"support_bookplayer_title" = "Stöd BookPlayer";
+/* Description used in the context of our tip jar to support development */
+"support_bookplayer_description" = "Köp BookPlayer Plus för att stödja framtida utveckling och få extra teman och appikoner";
+"learn_more_title" = "LÄS MER";
+"settings_appearance_title" = "Utseende";
+"settings_theme_title" = "Tema";
+"settings_app_icon_title" = "App-ikon";
+"settings_playback_title" = "Inställningar för uppspelning";
+"settings_controls_title" = "Spelarkontroller";
+"settings_power_connected_title" = "Endast när den är ansluten till ström";
+"settings_tip_jar_title" = "Dricksburk";
+"theme_system_title" = "Använd systemläge";
+"theme_switch_title" = "Byt automatiskt";
+"theme_dark_title" = "Använd alltid mörk variation";
+"themes_title" = "Teman";
+/* This should be &ldquo;By your friends at BookPlayer&rdquo; in English.&nbsp; */
+"icons_bookplayer_credit_description" = "Från dina vänner på BookPlayer";
+"kind_tip_title" = "Vänlig gåva";
+"excellent_tip_title" = "Utmärkt gåva";
+"incredible_tip_title" = "Otrolig gåva";
+"plus_themes_description" = "Noggrant utvalda färgteman för att matcha dina favoritböcker";
+"plus_icons_description" = "BookPlayer Plus kommer med flera appikoner som matchar färgscheman och din bakgrundsbild";
+"support_us_title" = "Stöd oss";
+"bookplayer_opensource_description" = "BookPlayer är gratis och öppen källkod och det kommer alltid att förbli så. Med din hjälp kan vi implementera fler funktioner och göra BookPlayer ännu bättre";
+"thanks_title" = "Tack för ditt stöd!";
+"extra_tips_description" = "Om du verkligen tycker om BookPlayer kan du lämna dricks för att stödja appens vidareutveckling. Detta hjälper till att hålla kaffet kokande och att nya funktioner utvecklas.";
+"files_title" = "Filer";
+"select_all_title" = "Markera alla";
+"deselect_all_title" = "Avmarkera alla";
+"move_title" = "Flytta";
+"jump_start_title" = "Gå till början";
+"mark_finished_title" = "Markera som färdigläst";
+"sort_files_title" = "Sortera filer efter";
+"rename_title" = "Byt namn";
+"file_error_title" = "Filfel!";
+"file_error_description" = "Den här boken kunde inte läsas in. Kontrollera att du inte använder filer med DRM-skydd (som .aax-filer)";
+"file_missing_title" = "Fil saknas!";
+"file_missing_description" = "Denna boks fil har raderats bort från din enhet. Importera filen igen för att spela boken";
+"empty_playlist_description" = "Du kan också flytta filer här genom att dra dem på den här spellistan i biblioteket";
+"playlist_add_title" = "Lägg till bokfiler";
+"player_speed_title" = "Ställ in uppspelningshastighet";
+"player_sleep_title" = "Pausa uppspelningen";
+"sleep_chapter_option_title" = "Vid slutet av detta kapitel";
+/* This is used for the label underneath the progress bar (e.g. Chapter 1 of 35) */
+"player_chapter_description" = "Kapitel %d av %d";
+"chapters_title" = "Kapitel";
+/* This is used as a description for each chapter in the chapters list (e.g. Start: 10:11 - Duration: 16:56) */
+"chapters_item_description" = "Start: %@ - Längd: %@";
+/* Restore purchases */
+"restore_title" = "Återställ";
+"themes_caps_title" = "TEMAN";
+"plus_app_icons_title" = "App-ikoner";
+/* This is the counterpart to Mark as Finished */
+"mark_unfinished_title" = "Markera som oläst";
+"move_playlist_button" = "Flytta till spellista";
+"move_single_item_title" = "Vill du flytta ' %@ ' till ' %@ '?";
+/* This is shown if while being inside a playlist, a batch of imported files are finished processing, and it will be one of the options in the alert presented */
+"current_playlist_title" = "Aktuell spellista";
+"select_item_title" = "Välj objekt";
+"sleep_alert_description" = "Somna när kapitlet är slut";
+"sleep_time_description" = "Somnar om % @";
+"sleep_off_title" = "Av";
+"sleep_interval_title" = "Om %@";
+"chapter_number_title" = "Kapitel %d";
+"progress_complete_description" = "%d procent läst";
+"chapter_duration_title" = "Kapitel längd: ";
+"chapter_time_remaining_title" = "Återstående kapitellängd: ";
+"book_time_remaining_title" = "Återstående boklängd: ";
+"book_duration_title" = "Bokens längd: ";
+"icon_error_description" = "Det gick inte att ändra app-ikonen. Försök igen senare";
+"error_title" = "Fel";
+"generic_retry_description" = "Försök igen senare";
+"network_error_title" = "Nätverksfel";
+"purchases_restored_title" = "Dina inköp har återställts!";
+"tip_missing_title" = "Du har inte stöttat oss ännu";
+"thanks_amazing_title" = "Du är fantastisk!";
+"play_title" = "Spela";
+"pause_title" = "Paus";
+"voiceover_no_title" = "Titel saknas";
+"voiceover_no_author" = "Författare saknas";
+/* &lt;Book title&gt; by &lt;Book author&gt; &lt;percentage in numbers&gt;% Completed */
+"voiceover_book_progress" = "%@ av %@ %d procent läst";
+"voiceover_no_file_title" = "Filtitel saknas";
+"voiceover_no_file_subtitle" = "Undertext för fil saknas";
+"voiceover_no_playlist_title" = "Spellistan saknar titel";
+/* &lt;Playlist title&gt; Playlist &lt;percentage in number&gt;% Completed */
+"voiceover_playlist_progress" = "%@ Spellista, %d procent läst";
+"voiceover_unknown_title" = "Okänd titel";
+"voiceover_unknown_author" = "Okänd författare";
+/* &lt;book title&gt; by &lt;book author&gt; */
+"voiceover_book_info" = "%@ av %@";
+/* &lt;book title&gt; by &lt;book author&gt;, chapter &lt;chapter title&gt; */
+"voiceover_book_chapter" = "%@ av %@, kapitel %@";
+"voiceover_rewind_time" = "Spola tillbaka %@";
+"voiceover_forward_time" = "Snabbspolning %@";
+"watchapp_last_played_title" = "Senast spelad";
+"watchapp_refresh_data_title" = "Uppdatera data";
+"carplay_recent_title" = "Senaste";
+"carplay_library_error" = "Det gick inte att ladda in böcker";
+"siri_invocation_phrase" = "Fortsätt min bok";
+"siri_activity_title" = "Fortsätt senast spelade bok";
+"watchapp_connect_error_title" = "Anslutningsfel";
+"watchapp_connect_error_description" = "Där är problem med att ansluta till din telefon, vänligen försök igen senare";
+"sleep_remaining_title" = "%@ återstår tills viloläge";
+"audio_source_title" = "Ljudkälla";
+"speed_title" = "hastighet";
+"import_preparing_title" = "Förbereder import av filer";

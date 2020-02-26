@@ -17,6 +17,10 @@ class PlayerSettingsViewController: UITableViewController {
     @IBOutlet weak var rewindIntervalLabel: UILabel!
     @IBOutlet weak var forwardIntervalLabel: UILabel!
 
+    enum SettingsSection: Int {
+        case intervals = 0, rewind, volume, speed
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -42,7 +46,7 @@ class PlayerSettingsViewController: UITableViewController {
         }
 
         if segue.identifier == "AdjustRewindIntervalSegue" {
-            viewController.title = "Rewind"
+            viewController.title = "settings_skip_rewind_title".localized
             viewController.selectedInterval = PlayerManager.shared.rewindInterval
             viewController.didSelectInterval = { selectedInterval in
                 PlayerManager.shared.rewindInterval = selectedInterval
@@ -52,7 +56,7 @@ class PlayerSettingsViewController: UITableViewController {
         }
 
         if segue.identifier == "AdjustForwardIntervalSegue" {
-            viewController.title = "Forward"
+            viewController.title = "settings_skip_forward_title".localized
             viewController.selectedInterval = PlayerManager.shared.forwardInterval
             viewController.didSelectInterval = { selectedInterval in
                 PlayerManager.shared.forwardInterval = selectedInterval
@@ -70,6 +74,31 @@ class PlayerSettingsViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int) {
         let footer = view as? UITableViewHeaderFooterView
         footer?.textLabel?.textColor = self.themeProvider.currentTheme.detailColor
+    }
+
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        if section == SettingsSection.intervals.rawValue {
+            return "settings_skip_title".localized
+        }
+
+        return super.tableView(tableView, titleForHeaderInSection: section)
+    }
+
+    override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+        guard let settingsSection = SettingsSection(rawValue: section) else {
+            return super.tableView(tableView, titleForFooterInSection: section)
+        }
+
+        switch settingsSection {
+        case .intervals:
+            return "settings_skip_description".localized
+        case .rewind:
+            return "settings_smartrewind_description".localized
+        case .volume:
+            return "settings_boostvolume_description".localized
+        case .speed:
+            return "settings_globalspeed_description".localized
+        }
     }
 
     @objc func rewindToggleDidChange() {

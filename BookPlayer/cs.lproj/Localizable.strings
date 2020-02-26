@@ -1,0 +1,177 @@
+/* 
+  Localizable.strings
+  BookPlayer
+
+  Created by Gianni Carlo on 12/29/19.
+  Copyright © 2019 Tortuga Power. All rights reserved.
+*/
+
+/* Title that is shown as the navigation bar title */
+"library_title" = "Knihovna";
+/* Title for the settings button */
+"settings_button" = "Nastavení";
+/* Title that is shown as the navigation bar title */
+"settings_title" = "Nastavení";
+"settings_autoplay_title" = "Knihovna automatického přehrávání";
+"settings_autoplay_description" = "Pokračování přehrávání všech nedokončených položek v knihovně, včetně souborů v seznamech stop.";
+"settings_smartrewind_title" = "Chytré přetáčení";
+"settings_smartrewind_description" = "Po přerušení poslechu na 10 minud dojde k přetočení zpět o 30 sekund.";
+"settings_boostvolume_title" = "Zvýšení hlasitosti";
+"settings_boostvolume_description" = "Zdvojnásobí hlasitost přehrávání.\nPoužívejte opatrně a chraňete svůj sluch.";
+"settings_globalspeed_title" = "Nastavení rychlosti přehrávání";
+"settings_globalspeed_description" = "Nastavit rychlost přehrávání pro všechny audioknihy.";
+"settings_autolock_title" = "Zakázat automatické uzamčení";
+"settings_autolock_description" = "Zabránit uzamčení zařízení při zobrazení Přehrávače.";
+"settings_siri_lastplayed_title" = "Naposledy přehrávaná audiokniha";
+"settings_siri_lastplayed_description" = "Pro pokračování poslechu poslední audioknihy použijte Siri.";
+"settings_skip_title" = "Intervaly přetáčení";
+"settings_skip_rewind_title" = "Vrátit";
+"settings_skip_forward_title" = "Přetočit";
+"settings_skip_description" = "Upravte časový interval, který přeskočíte při přetažení obalu alba nebo pomocí tlačítek v ovládacím centru.";
+"settings_support_title" = "PODPORA";
+"settings_siri_title" = "ZKRATKA SIRI";
+"settings_support_project_title" = "Zobrazit projekt na Githubu";
+"settings_support_project_description" = "Vytvořit hlášení chyb a požadavků na funkce";
+"settings_support_email_title" = "Pošlete nám e-mail";
+"settings_credits_title" = "Autoři a oprávnění";
+"settings_support_compose_title" = "Nelze vytvořit e-mail";
+"settings_support_compose_description" = "Pro použití je nutné mít na vašem zařízení nastavený e-mailový účet.\n\n Kontaktujte nás na ";
+"settings_support_compose_copy" = "Zkopírovat informace do schránky";
+"library_add_button" = "Přidat";
+"export_button" = "Exportovat";
+"delete_button" = "Odstranit";
+"rename_button" = "Přejmenovat";
+"delete_single_item_title" = "Chcete odstranit \"%@\"?";
+"delete_single_playlist_description" = "Odstraněním seznamu stop se všechny soubory přesunou zpět do Knihovny.";
+"delete_shallow_button" = "Odstranit pouze seznam stop";
+"delete_deep_button" = "Odstranit seznam stop a soubory";
+"create_playlist_button" = "Vytvořit seznam stop";
+"create_button" = "Vytvořit";
+"import_button" = "Import souborů";
+"import_description" = "Soubory můžete také přidat přes AirDrop. Odešlete soubor audioknihy do svého zařízení a ze seznamu, který se zobrazí, zvolte BookPlayer.";
+"create_playlist_title" = "Vytvořte nový seznam stop";
+"create_playlist_description" = "Soubory v seznamech stop se automaticky přehrávají jeden po druhém";
+"delete_multiple_items_description" = "Tímto se také odstraní všechny soubory uvnitř vybraných seznamů stop.";
+"new_playlist_button" = "Nový seznam stop";
+"existing_playlist_button" = "Existující seznam stop";
+"choose_destination_title" = "Vybrat cíl";
+"delete_completely_button" = "Úplně odstranit";
+"move_library_button" = "Přesunout do Knihovny";
+"options_button" = "Možnosti";
+"select_playlist_title" = "Vybrat seznam stop";
+"sort_title_button" = "Titul";
+"sort_filename_button" = "Název souboru";
+"sort_title" = "Seřadit položky podle";
+"cancel_button" = "Zrušit";
+"seconds_title" = "sekund";
+"ok_button" = "OK";
+/* Message shown when trying to create a Siri Shortcut on devices that don't have iOS 12+ installed */
+"siri_alert_description" = "Zkratky pro Siri jsou k dispozici v iOS 12 a vyšším";
+/* Title used in the context of our tip jar to support development */
+"support_bookplayer_title" = "Podpořte BookPlayer";
+/* Description used in the context of our tip jar to support development */
+"support_bookplayer_description" = "Pořiďte si BookPlayer Plus, podpořte tak budoucí vývoj aplikace a získejte další témata a ikony aplikace";
+"learn_more_title" = "Více";
+"settings_appearance_title" = "Vzhled";
+"settings_theme_title" = "Téma";
+"settings_app_icon_title" = "Ikona aplikace";
+"settings_playback_title" = "Nastavení přehrávání";
+"settings_controls_title" = "Ovládací prvky přehrávače";
+"settings_power_connected_title" = "Pouze při připojení k napájení";
+"settings_tip_jar_title" = "Příspěvky";
+"theme_system_title" = "Použít systémový režim";
+"theme_switch_title" = "Automaticky přepínat";
+"theme_dark_title" = "Vždy používat tmavou variantu";
+"themes_title" = "Témata";
+/* This should be &ldquo;By your friends at BookPlayer&rdquo; in English.&nbsp; */
+"icons_bookplayer_credit_description" = "Od vašich přátel z BookPlayeru";
+"kind_tip_title" = "Skvělý příspěvek";
+"excellent_tip_title" = "Parádní příspěvek";
+"incredible_tip_title" = "Neuvěřitelný příspěvek";
+"plus_themes_description" = "Zvolte další pečlivě vybrané barevné motivy, nebo si vytvořte vlastní extrahováním barev z obalů vašich oblíbených audioknih";
+"plus_icons_description" = "BookPlayer Plus obsahuje několik ikon aplikací, které odpovídají barevným schématům a tapetám";
+"support_us_title" = "Podpořte nás";
+"bookplayer_opensource_description" = "BookPlayer vždy byl a bude zdarma a jako open source. S vaší pomocí jsme schopni implementovat nové funkce a udělat BookPlayer ještě lepší.";
+"thanks_title" = "Děkujeme za vaši podporu!";
+"extra_tips_description" = "Pokud se vám BookPlayer líbí, můžete autorům poslat vybranou částku určenou další podporu vývoje aplikace, aby mohla být stále lepší a lepší.";
+"files_title" = "Soubory";
+"select_all_title" = "Vybrat vše";
+"deselect_all_title" = "Odznačit vše";
+"move_title" = "Přesunout";
+"jump_start_title" = "Přejít na začátek";
+"mark_finished_title" = "Označit jako dokončené";
+"sort_files_title" = "Seřadit soubory podle";
+"rename_title" = "Přejmenovat položku";
+"file_error_title" = "Chyba souboru!";
+"file_error_description" = "Soubor této audioknihy nelze načíst. Ujistěte se, že nepoužíváte soubory s ochranou DRM (například soubory AAX).";
+"file_missing_title" = "Soubor chybí!";
+"file_missing_description" = "Soubor audioknihy byl odebrán z vašeho zařízení. Chcete-li audioknihu přehrát, znovu vložte soubor.";
+"empty_playlist_description" = "Soubory sem můžete přesunout také přetažením na tento seznam stop v Knihovně.";
+"playlist_add_title" = "Přidat soubory";
+"player_speed_title" = "Nastavit rychlost přehrávání";
+"player_sleep_title" = "Pozastavit přehrávání";
+"sleep_chapter_option_title" = "Konec aktuální kapitoly";
+/* This is used for the label underneath the progress bar (e.g. Chapter 1 of 35) */
+"player_chapter_description" = "Kapitola %d z %d";
+"chapters_title" = "Kapitoly";
+/* This is used as a description for each chapter in the chapters list (e.g. Start: 10:11 - Duration: 16:56) */
+"chapters_item_description" = "Začátek: %@ - Doba trvání: %@";
+/* Restore purchases */
+"restore_title" = "Obnovit";
+"themes_caps_title" = "TÉMATA";
+"plus_app_icons_title" = "Ikony aplikací";
+/* This is the counterpart to Mark as Finished */
+"mark_unfinished_title" = "Označit jako nedokončené";
+"move_playlist_button" = "Zařadit do seznamu stop";
+"move_single_item_title" = "Chcete přesunout ' %@ ' do ' %@ '?";
+/* This is shown if while being inside a playlist, a batch of imported files are finished processing, and it will be one of the options in the alert presented */
+"current_playlist_title" = "Vybraný seznam stop";
+"select_item_title" = "Vybrat položku";
+"sleep_alert_description" = "Uspat po dokončení kapitoly";
+"sleep_time_description" = "Uspání za %@";
+"sleep_off_title" = "Vypnout";
+"sleep_interval_title" = "V %@";
+"chapter_number_title" = "Kapitola %d";
+"progress_complete_description" = "%d procent Dokončeno";
+"chapter_duration_title" = "Délka kapitoly:";
+"chapter_time_remaining_title" = "Zbývající čas kapitoly:";
+"book_time_remaining_title" = "Zbývající čas audioknihy:";
+"book_duration_title" = "Doba trvání audioknihy: ";
+"icon_error_description" = "Změna ikony aplikace nebyla úspěšná. Zkuste to později";
+"error_title" = "Chyba";
+"generic_retry_description" = "Opakujte akci později, prosím.";
+"network_error_title" = "Chyba sítě";
+"purchases_restored_title" = "Nákupy byly obnoveny!";
+"tip_missing_title" = "Zatím jste nám neposlali žádný příspěvek";
+"thanks_amazing_title" = "Jste úžasní!";
+"play_title" = "Přehrát";
+"pause_title" = "Pozastavit";
+"voiceover_no_title" = "Žádný název";
+"voiceover_no_author" = "Žádný autor";
+/* &lt;Book title&gt; by &lt;Book author&gt; &lt;percentage in numbers&gt;% Completed */
+"voiceover_book_progress" = "%@z%@, %d procent Dokončeno";
+"voiceover_no_file_title" = "Žádný název souboru";
+"voiceover_no_file_subtitle" = "Žádný podtitul souboru";
+"voiceover_no_playlist_title" = "Seznam stop bez názvu";
+/* &lt;Playlist title&gt; Playlist &lt;percentage in number&gt;% Completed */
+"voiceover_playlist_progress" = "%@Seznam stop, %d procent Dokončeno";
+"voiceover_unknown_title" = "Neznámý název";
+"voiceover_unknown_author" = "Neznámý autor";
+/* &lt;book title&gt; by &lt;book author&gt; */
+"voiceover_book_info" = "%@podle%@";
+/* &lt;book title&gt; by &lt;book author&gt;, chapter &lt;chapter title&gt; */
+"voiceover_book_chapter" = "%@podle%@,kapitoly%@";
+"voiceover_rewind_time" = "Přetočit zpět%@";
+"voiceover_forward_time" = "Rychlé přetáčení vpřed%@";
+"watchapp_last_played_title" = "Naposledy přehráno";
+"watchapp_refresh_data_title" = "Obnovit data";
+"carplay_recent_title" = "Nedávné";
+"carplay_library_error" = "Nelze načíst audioknihy";
+"siri_invocation_phrase" = "Pokračovat v poslechu mé audioknihy";
+"siri_activity_title" = "Pokračovat v naposledy přehrávané audioknize";
+"watchapp_connect_error_title" = "Chyba připojení";
+"watchapp_connect_error_description" = "Při připojení k telefonu došlo k potížím, zkuste to prosím později.";
+"sleep_remaining_title" = "%@zbývá do režimu spánku";
+"audio_source_title" = "Zdroj zvuku";
+"speed_title" = "Rychlost";
+"import_preparing_title" = "Příprava importu souborů";

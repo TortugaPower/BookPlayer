@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
-    <device id="retina4_7" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -15,17 +13,20 @@
             <rect key="frame" x="0.0" y="0.0" width="375" height="86"/>
             <autoresizingMask key="autoresizingMask"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="tcv-HN-Yr1" id="Fzt-1y-g1F">
-                <rect key="frame" x="0.0" y="0.0" width="375" height="85.5"/>
+                <rect key="frame" x="0.0" y="0.0" width="375" height="86"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Add" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lvt-wc-9ps">
-                        <rect key="frame" x="82" y="28.5" width="31" height="29"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Add" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lvt-wc-9ps" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
+                        <rect key="frame" x="82" y="28.5" width="253" height="29"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="29" id="928-YH-MW3"/>
                         </constraints>
                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                         <color key="textColor" red="0.1647058824" green="0.51764705879999995" blue="0.82352941180000006" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <nil key="highlightedColor"/>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="string" keyPath="localizedKey" value="library_add_button"/>
+                        </userDefinedRuntimeAttributes>
                     </label>
                     <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="listAdd" translatesAutoresizingMaskIntoConstraints="NO" id="nvo-CJ-He9">
                         <rect key="frame" x="28" y="28.5" width="29" height="29"/>
@@ -36,6 +37,7 @@
                     </imageView>
                 </subviews>
                 <constraints>
+                    <constraint firstAttribute="trailingMargin" secondItem="lvt-wc-9ps" secondAttribute="trailing" constant="25" id="8rv-Hm-XAY"/>
                     <constraint firstItem="nvo-CJ-He9" firstAttribute="leading" secondItem="Fzt-1y-g1F" secondAttribute="leading" constant="28" id="Pbm-GM-zYo"/>
                     <constraint firstAttribute="trailing" secondItem="lvt-wc-9ps" secondAttribute="trailing" constant="100" id="ZrL-r5-eir"/>
                     <constraint firstItem="nvo-CJ-He9" firstAttribute="centerY" secondItem="Fzt-1y-g1F" secondAttribute="centerY" id="cPo-D6-tsv"/>
@@ -56,6 +58,7 @@
                 <outlet property="addImageView" destination="nvo-CJ-He9" id="3ir-Nh-ebO"/>
                 <outlet property="titleLabel" destination="lvt-wc-9ps" id="fEX-c2-c34"/>
             </connections>
+            <point key="canvasLocation" x="140" y="148"/>
         </tableViewCell>
     </objects>
     <resources>

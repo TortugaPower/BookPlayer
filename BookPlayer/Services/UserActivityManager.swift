@@ -18,11 +18,11 @@ class UserActivityManager {
 
     private init() {
         let activity = NSUserActivity(activityType: Constants.UserActivityPlayback)
-        activity.title = "Continue last played book"
+        activity.title = "siri_activity_title".localized
         if #available(iOS 12.0, *) {
             activity.isEligibleForPrediction = true
             activity.persistentIdentifier = NSUserActivityPersistentIdentifier(Constants.UserActivityPlayback)
-            activity.suggestedInvocationPhrase = "Continue my book"
+            activity.suggestedInvocationPhrase = "siri_invocation_phrase".localized
         }
         activity.isEligibleForSearch = true
 

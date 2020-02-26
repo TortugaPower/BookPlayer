@@ -233,6 +233,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 
+    override func accessibilityPerformMagicTap() -> Bool {
+        guard PlayerManager.shared.currentBook != nil else {
+            UIAccessibility.post(notification: .announcement, argument: "voiceover_no_title".localized)
+            return false
+        }
+
+        PlayerManager.shared.playPause()
+
+        return true
+    }
+
     // For now, seek forward/backward and next/previous track perform the same function
     func setupMPRemoteCommands() {
         // Play / Pause

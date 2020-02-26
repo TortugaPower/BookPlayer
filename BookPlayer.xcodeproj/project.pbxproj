@@ -60,18 +60,20 @@
 		4149539A21F0D456003C5D27 /* Themes.json in Resources */ = {isa = PBXBuildFile; fileRef = 4149539921F0D456003C5D27 /* Themes.json */; };
 		4150F80320A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4150F80220A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework */; };
 		41544A1421BAF41400740AD2 /* ItemSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41544A1321BAF41400740AD2 /* ItemSelectionViewController.swift */; };
-		415758E82226DED300DDB9B6 /* PlusBannerView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 415758E72226DED300DDB9B6 /* PlusBannerView.xib */; };
 		415758EA2226E18800DDB9B6 /* PlusBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415758E92226E18800DDB9B6 /* PlusBannerView.swift */; };
 		415B274421FAE47200F9D9B7 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415B274321FAE47200F9D9B7 /* LoadingView.swift */; };
-		415B274621FAE4A300F9D9B7 /* LoadingView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 415B274521FAE4A300F9D9B7 /* LoadingView.xib */; };
+		4160A09223F2DE130039166B /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = 4160A09423F2DE130039166B /* Localizable.stringsdict */; };
+		4160A0A123F304530039166B /* LocalizableLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4160A0A023F304530039166B /* LocalizableLabel.swift */; };
 		4163E313214AC43000072AA2 /* ImportOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E312214AC43000072AA2 /* ImportOperationTests.swift */; };
 		4165EE0520A743D500616EDF /* BookPlayer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */; };
-		4165EE0B20A7A33500616EDF /* AddCellView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4165EE0920A7A33500616EDF /* AddCellView.xib */; };
 		4165EE0C20A7A33500616EDF /* BookCellView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4165EE0A20A7A33500616EDF /* BookCellView.xib */; };
 		4165EE0E20A7AEC600616EDF /* SwiftReorder.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4165EE0D20A7AEC600616EDF /* SwiftReorder.framework */; };
 		4165EE1020A7CBBE00616EDF /* PlaylistViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EE0F20A7CBBE00616EDF /* PlaylistViewController.swift */; };
 		4165EE1220A7D1E100616EDF /* RootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EE1120A7D1E100616EDF /* RootViewController.swift */; };
 		4165EE1420A7E8CC00616EDF /* ItemListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EE1320A7E8CC00616EDF /* ItemListViewController.swift */; };
+		416AAC3323F51031005AD04F /* LocalizableButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416AAC3223F51031005AD04F /* LocalizableButton.swift */; };
+		416AAC3423F515AF005AD04F /* String+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4160A08E23F2DBD40039166B /* String+BookPlayer.swift */; };
+		416AAC3523F515B0005AD04F /* String+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4160A08E23F2DBD40039166B /* String+BookPlayer.swift */; };
 		4175E14522080C7700FB7B71 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4175E14422080C7700FB7B71 /* StoreKit.framework */; };
 		41893AC82272CBD900576AE4 /* LibraryInterfaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41893AC72272CBD900576AE4 /* LibraryInterfaceController.swift */; };
 		418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418B6CFB1D2707F800F974FB /* AppDelegate.swift */; };
@@ -81,6 +83,12 @@
 		418B6D5D1D2CB76900F974FB /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418B6D5C1D2CB76900F974FB /* PlayerViewController.swift */; };
 		41964C832220B4F700FF1A2F /* ContributorCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41964C822220B4F700FF1A2F /* ContributorCellView.swift */; };
 		4197240021874D5F00AB1190 /* UserActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419723FF21874D5F00AB1190 /* UserActivityManager.swift */; };
+		419B373923B8D0C600128A8F /* Player.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 419B373B23B8D0C600128A8F /* Player.storyboard */; };
+		419B373C23B8D12200128A8F /* AddCellView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 419B373E23B8D12200128A8F /* AddCellView.xib */; };
+		419B373F23B8D14100128A8F /* LoadingView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 419B374123B8D14100128A8F /* LoadingView.xib */; };
+		419B374223B8D18000128A8F /* PlusBannerView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 419B374423B8D18000128A8F /* PlusBannerView.xib */; };
+		419B375623B8D5A500128A8F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 419B375423B8D5A500128A8F /* Localizable.strings */; };
+		419B375E23B8D6DB00128A8F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 419B375B23B8D6DB00128A8F /* Localizable.strings */; };
 		419F38EE2288B7DE00989E61 /* NowPlayingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419F38ED2288B7DE00989E61 /* NowPlayingController.swift */; };
 		41A1B0E4226E9BC500EA0400 /* BookPlayerKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A1B0D4226E9BC400EA0400 /* BookPlayerKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41A1B0E7226E9BC500EA0400 /* BookPlayerKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */; };
@@ -141,6 +149,7 @@
 		41B2A6AC21D3274500917584 /* Themeable.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41B2A6AB21D3274500917584 /* Themeable.framework */; };
 		41B2AC8E1D43CCE8005382A9 /* ChaptersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */; };
 		41B30A33230232D200025D69 /* CarPlayManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B30A32230232D200025D69 /* CarPlayManager.swift */; };
+		41B3425123FB889200E4E3D0 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 419B375B23B8D6DB00128A8F /* Localizable.strings */; };
 		41CE449422712E0F00C900AF /* NotificationCenter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CE449322712E0F00C900AF /* NotificationCenter.framework */; };
 		41CE449722712E0F00C900AF /* TodayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41CE449622712E0F00C900AF /* TodayViewController.swift */; };
 		41CE449A22712E0F00C900AF /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 41CE449822712E0F00C900AF /* MainInterface.storyboard */; };
@@ -210,7 +219,6 @@
 		C3A479132094C8C300D92122 /* rubberBandDistance.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479122094C8C300D92122 /* rubberBandDistance.swift */; };
 		C3A479152094CA3800D92122 /* UIImage+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479142094CA3800D92122 /* UIImage+BookPlayer.swift */; };
 		C3A479192094CAF300D92122 /* UIViewController+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479182094CAF300D92122 /* UIViewController+BookPlayer.swift */; };
-		C3D3852720C1E73E00A0ACC7 /* Player.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C3D3852620C1E73E00A0ACC7 /* Player.storyboard */; };
 		C3EA7176218DEC870005D488 /* .swiftformat in Resources */ = {isa = PBXBuildFile; fileRef = C3EA7175218DEC870005D488 /* .swiftformat */; };
 		C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3EC372D206EE0650094B4E8 /* SleepTimer.swift */; };
 		C3FA301E20E0024900393DDA /* BPArtworkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FA301D20E0024900393DDA /* BPArtworkView.swift */; };
@@ -329,6 +337,9 @@
 		4112AFD5223AD27D00BFEA55 /* Sentry.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Sentry.framework; path = Carthage/Build/iOS/Sentry.framework; sourceTree = "<group>"; };
 		412451821D489204008AC0E5 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		4136163F1D2E21F000E48944 /* LibraryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryViewController.swift; sourceTree = "<group>"; };
+		4136175B24019EE700D2DDC1 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
+		4136175C24019EEB00D2DDC1 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = sv; path = sv.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		4136175D24019EF000D2DDC1 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
 		4140EA1E22723CFC0009F794 /* CommandParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandParser.swift; sourceTree = "<group>"; };
 		4140EA2F227288ED0009F794 /* BookPlayerWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BookPlayerWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4140EA32227288ED0009F794 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
@@ -354,22 +365,31 @@
 		4150F80220A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IDZSwiftCommonCrypto.framework; path = Carthage/Build/iOS/IDZSwiftCommonCrypto.framework; sourceTree = "<group>"; };
 		41544A1121B86A8B00740AD2 /* DeleteMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteMode.swift; sourceTree = "<group>"; };
 		41544A1321BAF41400740AD2 /* ItemSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemSelectionViewController.swift; sourceTree = "<group>"; };
-		415758E72226DED300DDB9B6 /* PlusBannerView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PlusBannerView.xib; sourceTree = "<group>"; };
 		415758E92226E18800DDB9B6 /* PlusBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlusBannerView.swift; sourceTree = "<group>"; };
 		415B274321FAE47200F9D9B7 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
-		415B274521FAE4A300F9D9B7 /* LoadingView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoadingView.xib; sourceTree = "<group>"; };
+		4160A08E23F2DBD40039166B /* String+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+BookPlayer.swift"; sourceTree = "<group>"; };
+		4160A09323F2DE130039166B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = en; path = en.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		4160A09523F2DE190039166B /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = de; path = de.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		4160A09823F2DE1E0039166B /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = es; path = es.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		4160A0A023F304530039166B /* LocalizableLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizableLabel.swift; sourceTree = "<group>"; };
 		4163E3102148606600072AA2 /* FileItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileItem.swift; sourceTree = "<group>"; };
 		4163E312214AC43000072AA2 /* ImportOperationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportOperationTests.swift; sourceTree = "<group>"; };
 		4163E314214ACB4300072AA2 /* DataTestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTestUtils.swift; sourceTree = "<group>"; };
 		4165EDFA20A743D500616EDF /* Audiobook Player.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Audiobook Player.xcdatamodel"; sourceTree = "<group>"; };
-		4165EE0920A7A33500616EDF /* AddCellView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AddCellView.xib; sourceTree = "<group>"; };
 		4165EE0A20A7A33500616EDF /* BookCellView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BookCellView.xib; sourceTree = "<group>"; };
 		4165EE0D20A7AEC600616EDF /* SwiftReorder.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftReorder.framework; path = Carthage/Build/iOS/SwiftReorder.framework; sourceTree = "<group>"; };
 		4165EE0F20A7CBBE00616EDF /* PlaylistViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistViewController.swift; sourceTree = "<group>"; };
 		4165EE1120A7D1E100616EDF /* RootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewController.swift; sourceTree = "<group>"; };
 		4165EE1320A7E8CC00616EDF /* ItemListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListViewController.swift; sourceTree = "<group>"; };
+		416AAC2F23F44A88005AD04F /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = cs; path = cs.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		416AAC3023F44A88005AD04F /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/Localizable.strings; sourceTree = "<group>"; };
+		416AAC3123F44A88005AD04F /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/Localizable.strings; sourceTree = "<group>"; };
+		416AAC3223F51031005AD04F /* LocalizableButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizableButton.swift; sourceTree = "<group>"; };
 		416B63A72146354B007D04B1 /* ImportManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportManager.swift; sourceTree = "<group>"; };
 		416B640C1E72F362000E955A /* Notification+BookPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Notification+BookPlayer.swift"; sourceTree = "<group>"; };
+		416E40F32404BD5C006FA2EF /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
+		416E40F42404BD5C006FA2EF /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		416E40F52404BD5C006FA2EF /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		4175E1232206CF9600FB7B71 /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		4175E14422080C7700FB7B71 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		41893AC72272CBD900576AE4 /* LibraryInterfaceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryInterfaceController.swift; sourceTree = "<group>"; };
@@ -385,6 +405,18 @@
 		419196341D47CC4E007A3AF3 /* BookPlayer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BookPlayer.entitlements; sourceTree = "<group>"; };
 		41964C822220B4F700FF1A2F /* ContributorCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContributorCellView.swift; sourceTree = "<group>"; };
 		419723FF21874D5F00AB1190 /* UserActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserActivityManager.swift; sourceTree = "<group>"; };
+		419B373A23B8D0C600128A8F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Player.storyboard; sourceTree = "<group>"; };
+		419B373D23B8D12200128A8F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/AddCellView.xib; sourceTree = "<group>"; };
+		419B374023B8D14100128A8F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LoadingView.xib; sourceTree = "<group>"; };
+		419B374323B8D18000128A8F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/PlusBannerView.xib; sourceTree = "<group>"; };
+		419B375523B8D5A500128A8F /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Base.lproj/Localizable.strings; sourceTree = "<group>"; };
+		419B375723B8D5B000128A8F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		419B375C23B8D6DB00128A8F /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Base.lproj/Localizable.strings; sourceTree = "<group>"; };
+		419B375F23B8D6E200128A8F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		419B377423B92CC100128A8F /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
+		419B377523B92CC100128A8F /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
+		419B379523B92E1600128A8F /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
+		419B379623B92E1600128A8F /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		419F38ED2288B7DE00989E61 /* NowPlayingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingController.swift; sourceTree = "<group>"; };
 		41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = BookPlayerKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		41A1B0D4226E9BC400EA0400 /* BookPlayerKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BookPlayerKit.h; sourceTree = "<group>"; };
@@ -511,7 +543,6 @@
 		C3A479122094C8C300D92122 /* rubberBandDistance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = rubberBandDistance.swift; sourceTree = "<group>"; };
 		C3A479142094CA3800D92122 /* UIImage+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+BookPlayer.swift"; sourceTree = "<group>"; };
 		C3A479182094CAF300D92122 /* UIViewController+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+BookPlayer.swift"; sourceTree = "<group>"; };
-		C3D3852620C1E73E00A0ACC7 /* Player.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Player.storyboard; sourceTree = "<group>"; };
 		C3EA7175218DEC870005D488 /* .swiftformat */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .swiftformat; sourceTree = "<group>"; };
 		C3EC372D206EE0650094B4E8 /* SleepTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepTimer.swift; sourceTree = "<group>"; };
 		C3FA301D20E0024900393DDA /* BPArtworkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPArtworkView.swift; sourceTree = "<group>"; };
@@ -600,6 +631,7 @@
 				4140EA31227288ED0009F794 /* Interface.storyboard */,
 				4140EA34227288EF0009F794 /* Assets.xcassets */,
 				4140EA36227288EF0009F794 /* Info.plist */,
+				419B375B23B8D6DB00128A8F /* Localizable.strings */,
 			);
 			path = BookPlayerWatch;
 			sourceTree = "<group>";
@@ -685,12 +717,14 @@
 				41A1B132226FE34F00EA0400 /* Constants.swift */,
 				41B2A5D821CAE42600917584 /* Settings.storyboard */,
 				418B6D011D2707F800F974FB /* Main.storyboard */,
-				C3D3852620C1E73E00A0ACC7 /* Player.storyboard */,
+				419B373B23B8D0C600128A8F /* Player.storyboard */,
 				418B6D061D2707F800F974FB /* LaunchScreen.storyboard */,
 				418B6D041D2707F800F974FB /* Assets.xcassets */,
 				419196341D47CC4E007A3AF3 /* BookPlayer.entitlements */,
 				418B6D091D2707F800F974FB /* Info.plist */,
 				C37A6872209F0F830063AEAC /* Credits.html */,
+				4160A09423F2DE130039166B /* Localizable.stringsdict */,
+				419B375423B8D5A500128A8F /* Localizable.strings */,
 			);
 			path = BookPlayer;
 			sourceTree = "<group>";
@@ -746,6 +780,7 @@
 		41A1B106226E9DCA00EA0400 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				4160A08E23F2DBD40039166B /* String+BookPlayer.swift */,
 				C30B085E209654E3003F325B /* UIColor+BookPlayer.swift */,
 				C30CD2A0209791FA00258B09 /* UIColor+Sweetercolor.swift */,
 				41CE44A8227215B500C900AF /* Notification+BookPlayerKit.swift */,
@@ -946,7 +981,7 @@
 				41B2A5DD21CAF20E00917584 /* ThemesViewController.swift */,
 				41AD3DA2221C7DCE00DC41E1 /* IconsViewController.swift */,
 				41AD3DAE221E678600DC41E1 /* PlusViewController.swift */,
-				415758E72226DED300DDB9B6 /* PlusBannerView.xib */,
+				419B374423B8D18000128A8F /* PlusBannerView.xib */,
 				415758E92226E18800DDB9B6 /* PlusBannerView.swift */,
 			);
 			path = Settings;
@@ -1007,6 +1042,8 @@
 		C3D3852D20C1F0CA00A0ACC7 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				4160A0A023F304530039166B /* LocalizableLabel.swift */,
+				416AAC3223F51031005AD04F /* LocalizableButton.swift */,
 				C318DDBB20A48D4700C3A17B /* BPMarqueeLabel.swift */,
 				C3FA301D20E0024900393DDA /* BPArtworkView.swift */,
 			);
@@ -1021,13 +1058,13 @@
 				C398559B20C492FF00BE9EC0 /* AddButton.swift */,
 				41B2A5EE21CD5AAE00917584 /* StaticCellView.swift */,
 				C3FE94782080086800BCEA37 /* BookCellView.swift */,
-				4165EE0920A7A33500616EDF /* AddCellView.xib */,
+				419B373E23B8D12200128A8F /* AddCellView.xib */,
 				41B2A5F021CD857800917584 /* AddCellView.swift */,
 				4165EE0A20A7A33500616EDF /* BookCellView.xib */,
 				4142964321F21D95004356DA /* BulkControlsView.swift */,
 				4142964521F21DAE004356DA /* BulkControlsView.xib */,
 				415B274321FAE47200F9D9B7 /* LoadingView.swift */,
-				415B274521FAE4A300F9D9B7 /* LoadingView.xib */,
+				419B374123B8D14100128A8F /* LoadingView.xib */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1240,6 +1277,7 @@
 					4140EA2E227288ED0009F794 = {
 						CreatedOnToolsVersion = 10.2.1;
 						DevelopmentTeam = S7TJSJXWUZ;
+						LastSwiftMigration = 1130;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
@@ -1314,6 +1352,13 @@
 			knownRegions = (
 				en,
 				Base,
+				ja,
+				es,
+				ru,
+				sv,
+				de,
+				cs,
+				"zh-Hans",
 			);
 			mainGroup = 418B6CEF1D2707F700F974FB;
 			productRefGroup = 418B6CF91D2707F800F974FB /* Products */;
@@ -1337,6 +1382,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4140EA35227288EF0009F794 /* Assets.xcassets in Resources */,
+				41B3425123FB889200E4E3D0 /* Localizable.strings in Resources */,
 				4140EA33227288ED0009F794 /* Interface.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1346,6 +1392,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				41A8BAFB227E2991003C9895 /* Assets.xcassets in Resources */,
+				419B375E23B8D6DB00128A8F /* Localizable.strings in Resources */,
 				4140EA49227288EF0009F794 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1365,15 +1412,16 @@
 				418B6D081D2707F800F974FB /* LaunchScreen.storyboard in Resources */,
 				41E563042239570100C06BC9 /* retro-icon-ipad@2x.png in Resources */,
 				41AD3D9C221C737F00DC41E1 /* retro-icon@3x.png in Resources */,
-				C3D3852720C1E73E00A0ACC7 /* Player.storyboard in Resources */,
+				419B373923B8D0C600128A8F /* Player.storyboard in Resources */,
 				41E562CE22394F5200C06BC9 /* ayu-light@2x.png in Resources */,
 				4149539A21F0D456003C5D27 /* Themes.json in Resources */,
 				C37A6873209F0F830063AEAC /* Credits.html in Resources */,
 				418B6D051D2707F800F974FB /* Assets.xcassets in Resources */,
 				418B6D031D2707F800F974FB /* Main.storyboard in Resources */,
-				4165EE0B20A7A33500616EDF /* AddCellView.xib in Resources */,
+				419B373C23B8D12200128A8F /* AddCellView.xib in Resources */,
 				41E562EB2239531E00C06BC9 /* retro-modern-ipad@3x.png in Resources */,
 				41E56302223956B800C06BC9 /* retro-icon-ipad@3x.png in Resources */,
+				419B375623B8D5A500128A8F /* Localizable.strings in Resources */,
 				41E562F92239535D00C06BC9 /* retro-modern-ipad@2x.png in Resources */,
 				41E562FB2239535D00C06BC9 /* fruit-based-ipad@2x.png in Resources */,
 				41AD3D9E221C750E00DC41E1 /* Icons.json in Resources */,
@@ -1389,12 +1437,13 @@
 				41E56300223953EB00C06BC9 /* default-icon-ipad@2x.png in Resources */,
 				41E562CF22394F5200C06BC9 /* ayu-light@3x.png in Resources */,
 				41E562FE223953AE00C06BC9 /* default-icon-ipad@3x.png in Resources */,
-				415758E82226DED300DDB9B6 /* PlusBannerView.xib in Resources */,
+				419B374223B8D18000128A8F /* PlusBannerView.xib in Resources */,
+				4160A09223F2DE130039166B /* Localizable.stringsdict in Resources */,
 				41AD3DAB221C8FF400DC41E1 /* default-icon@3x.png in Resources */,
 				41AD3DAC221C8FF400DC41E1 /* default-icon@2x.png in Resources */,
 				41E562F82239535D00C06BC9 /* dark-ipad@2x.png in Resources */,
 				41AD3D9A221C737F00DC41E1 /* retro-icon@2x.png in Resources */,
-				415B274621FAE4A300F9D9B7 /* LoadingView.xib in Resources */,
+				419B373F23B8D14100128A8F /* LoadingView.xib in Resources */,
 				C3EA7176218DEC870005D488 /* .swiftformat in Resources */,
 				41E562FC2239535D00C06BC9 /* neon-ipad@2x.png in Resources */,
 				41E562D222394F5A00C06BC9 /* dark@2x.png in Resources */,
@@ -1552,6 +1601,7 @@
 				4140EA81227289D80009F794 /* Playlist+CoreDataProperties.swift in Sources */,
 				4140EA75227289B20009F794 /* Theme+CoreDataProperties.swift in Sources */,
 				4140EA7E227289CE0009F794 /* Library+CoreDataClass.swift in Sources */,
+				416AAC3523F515B0005AD04F /* String+BookPlayer.swift in Sources */,
 				4140EA84227289E60009F794 /* BookPlayer.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1592,6 +1642,7 @@
 				C30EEEBF2079645C00A4ED33 /* PlayerContainerViewController.swift in Sources */,
 				41EE378821BFFB9800A55F51 /* ItemListFeedback.swift in Sources */,
 				4142964921F2E2BA004356DA /* ThemeCellView.swift in Sources */,
+				4160A0A123F304530039166B /* LocalizableLabel.swift in Sources */,
 				41A1B139226FEDAD00EA0400 /* Chapter+AVFoundation.swift in Sources */,
 				C318D3AD208CF624000666F8 /* PlayerJumpIcon.swift in Sources */,
 				C37A6875209F13120063AEAC /* CreditsViewController.swift in Sources */,
@@ -1621,6 +1672,7 @@
 				41B2A5DE21CAF20E00917584 /* ThemesViewController.swift in Sources */,
 				C398559C20C492FF00BE9EC0 /* AddButton.swift in Sources */,
 				41A1B135226FEB3D00EA0400 /* Book+AVFoundation.swift in Sources */,
+				416AAC3323F51031005AD04F /* LocalizableButton.swift in Sources */,
 				C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */,
 				4165EE1220A7D1E100616EDF /* RootViewController.swift in Sources */,
 				41A1B12F226FE0F900EA0400 /* Notification+BookPlayer.swift in Sources */,
@@ -1646,6 +1698,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				41A1B11F226F88C500EA0400 /* Chapter+CoreDataClass.swift in Sources */,
+				416AAC3423F515AF005AD04F /* String+BookPlayer.swift in Sources */,
 				41A1B126226F88C500EA0400 /* LibraryItem+CoreDataProperties.swift in Sources */,
 				41A1B128226F88C500EA0400 /* Library+CoreDataProperties.swift in Sources */,
 				41A1B102226E9D4800EA0400 /* BookActivityItemProvider.swift in Sources */,
@@ -1727,6 +1780,19 @@
 			name = Interface.storyboard;
 			sourceTree = "<group>";
 		};
+		4160A09423F2DE130039166B /* Localizable.stringsdict */ = {
+			isa = PBXVariantGroup;
+			children = (
+				4160A09323F2DE130039166B /* en */,
+				4160A09523F2DE190039166B /* de */,
+				4160A09823F2DE1E0039166B /* es */,
+				416AAC2F23F44A88005AD04F /* cs */,
+				4136175C24019EEB00D2DDC1 /* sv */,
+				416E40F32404BD5C006FA2EF /* zh-Hans */,
+			);
+			name = Localizable.stringsdict;
+			sourceTree = "<group>";
+		};
 		418B6D011D2707F800F974FB /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -1741,6 +1807,66 @@
 				418B6D071D2707F800F974FB /* Base */,
 			);
 			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		419B373B23B8D0C600128A8F /* Player.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				419B373A23B8D0C600128A8F /* Base */,
+			);
+			name = Player.storyboard;
+			sourceTree = "<group>";
+		};
+		419B373E23B8D12200128A8F /* AddCellView.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				419B373D23B8D12200128A8F /* Base */,
+			);
+			name = AddCellView.xib;
+			sourceTree = "<group>";
+		};
+		419B374123B8D14100128A8F /* LoadingView.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				419B374023B8D14100128A8F /* Base */,
+			);
+			name = LoadingView.xib;
+			sourceTree = "<group>";
+		};
+		419B374423B8D18000128A8F /* PlusBannerView.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				419B374323B8D18000128A8F /* Base */,
+			);
+			name = PlusBannerView.xib;
+			sourceTree = "<group>";
+		};
+		419B375423B8D5A500128A8F /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				419B375523B8D5A500128A8F /* Base */,
+				419B375723B8D5B000128A8F /* en */,
+				419B377423B92CC100128A8F /* es */,
+				419B379523B92E1600128A8F /* de */,
+				416AAC3023F44A88005AD04F /* cs */,
+				4136175B24019EE700D2DDC1 /* sv */,
+				416E40F42404BD5C006FA2EF /* zh-Hans */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+		419B375B23B8D6DB00128A8F /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				419B375C23B8D6DB00128A8F /* Base */,
+				419B375F23B8D6E200128A8F /* en */,
+				419B377523B92CC100128A8F /* es */,
+				419B379623B92E1600128A8F /* de */,
+				416AAC3123F44A88005AD04F /* cs */,
+				4136175D24019EF000D2DDC1 /* sv */,
+				416E40F52404BD5C006FA2EF /* zh-Hans */,
+			);
+			name = Localizable.strings;
 			sourceTree = "<group>";
 		};
 		41B2A5D821CAE42600917584 /* Settings.storyboard */ = {
@@ -1769,18 +1895,20 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWatch/BookPlayerWatch.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = S7TJSJXWUZ;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				IBSC_MODULE = BookPlayerWatch_Extension;
 				INFOPLIST_FILE = BookPlayerWatch/Info.plist;
-				MARKETING_VERSION = 3.6.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MARKETING_VERSION = 3.7.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp;
@@ -1788,6 +1916,7 @@
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				WATCHOS_DEPLOYMENT_TARGET = 5.2;
@@ -1801,18 +1930,20 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWatch/BookPlayerWatch.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = S7TJSJXWUZ;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				IBSC_MODULE = BookPlayerWatch_Extension;
 				INFOPLIST_FILE = BookPlayerWatch/Info.plist;
-				MARKETING_VERSION = 3.6.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MARKETING_VERSION = 3.7.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1831,18 +1962,20 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWatch/BookPlayerWatch.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = S7TJSJXWUZ;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				IBSC_MODULE = BookPlayerWatch_Extension;
 				INFOPLIST_FILE = BookPlayerWatch/Info.plist;
-				MARKETING_VERSION = 3.6.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MARKETING_VERSION = 3.7.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1865,12 +1998,12 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = "BookPlayerWatch Extension/BookPlayerWatch Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = S7TJSJXWUZ;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "BookPlayerWatch Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 3.6.2;
+				MARKETING_VERSION = 3.7.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp.watchkitextension;
@@ -1895,12 +2028,12 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = "BookPlayerWatch Extension/BookPlayerWatch Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = S7TJSJXWUZ;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "BookPlayerWatch Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 3.6.2;
+				MARKETING_VERSION = 3.7.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp.watchkitextension;
 				PRODUCT_NAME = "${TARGET_NAME}";
@@ -1923,12 +2056,12 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = "BookPlayerWatch Extension/BookPlayerWatch Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = S7TJSJXWUZ;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "BookPlayerWatch Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 3.6.2;
+				MARKETING_VERSION = 3.7.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp.watchkitextension;
 				PRODUCT_NAME = "${TARGET_NAME}";
@@ -2048,6 +2181,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -2105,6 +2239,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -2162,7 +2297,7 @@
 				CODE_SIGN_ENTITLEMENTS = BookPlayer/BookPlayer.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 7;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = S7TJSJXWUZ;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -2173,7 +2308,7 @@
 				INFOPLIST_FILE = BookPlayer/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 3.6.2;
+				MARKETING_VERSION = 3.7.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer;
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "BookPlayer 3 with CarPlay";
@@ -2193,7 +2328,7 @@
 				CODE_SIGN_ENTITLEMENTS = BookPlayer/BookPlayer.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = S7TJSJXWUZ;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2203,7 +2338,7 @@
 				INFOPLIST_FILE = BookPlayer/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 3.6.2;
+				MARKETING_VERSION = 3.7.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer;
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "BookPlayer 3 with CarPlay";
@@ -2366,13 +2501,13 @@
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWidget/BookPlayerWidget.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = S7TJSJXWUZ;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWidget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 3.6.2;
+				MARKETING_VERSION = 3.7.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerWidget;
@@ -2395,13 +2530,13 @@
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWidget/BookPlayerWidget.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = S7TJSJXWUZ;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWidget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 3.6.2;
+				MARKETING_VERSION = 3.7.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2422,13 +2557,13 @@
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWidget/BookPlayerWidget.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = S7TJSJXWUZ;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWidget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 3.6.2;
+				MARKETING_VERSION = 3.7.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2442,6 +2577,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -2499,7 +2635,7 @@
 				CODE_SIGN_ENTITLEMENTS = BookPlayer/BookPlayer.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = S7TJSJXWUZ;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2509,7 +2645,7 @@
 				INFOPLIST_FILE = BookPlayer/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 3.6.2;
+				MARKETING_VERSION = 3.7.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer;
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "BookPlayer 3 with CarPlay";
