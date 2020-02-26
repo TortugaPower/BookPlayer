@@ -20,4 +20,7 @@ extension Notification.Name {
     public static let bookPlaying = Notification.Name("com.tortugapower.audiobookplayer.book.playback")
     public static let contextUpdate = Notification.Name("com.tortugapower.audiobookplayer.watch.sync")
     public static let messageReceived = Notification.Name("com.tortugapower.audiobookplayer.watch.message")
+    public static let timerStart = Notification.Name("com.tortugapower.audiobookplayer.sleeptimer.start")
+    public static let timerProgress = Notification.Name("com.tortugapower.audiobookplayer.sleeptimer.progress")
+    public static let timerEnd = Notification.Name("com.tortugapower.audiobookplayer.sleeptimer.end")
 }
