@@ -73,6 +73,9 @@ class PlayerManager: NSObject {
             self.update()
         }
 
+        // Only route audio for AirPlay
+        self.audioPlayer.allowsExternalPlayback = false
+
         NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying(_:)), name: .AVPlayerItemDidPlayToEndTime, object: nil)
     }
 
