@@ -101,6 +101,8 @@ class PlusViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        self.navigationItem.rightBarButtonItem?.title = "restore_title".localized
+
         self.gianniImageView.kf.setImage(with: self.contributorGianni.avatarURL)
         self.pichImageView.kf.setImage(with: self.contributorPichfl.avatarURL)
 
@@ -123,7 +125,7 @@ class PlusViewController: UIViewController {
             view.isHidden = true
         }
 
-        self.navigationItem.title = "Tip Jar"
+        self.navigationItem.title = "settings_tip_jar_title".localized
         self.navigationItem.rightBarButtonItem = nil
         self.tipDescriptionLabel.isHidden = false
         self.maintainersViewTopConstraint.constant = 35
@@ -171,9 +173,9 @@ class PlusViewController: UIViewController {
             self.navigationItem.rightBarButtonItem = self.restoreBarButton
 
             if results.restoreFailedPurchases.count > 0 {
-                self.showAlert("Network Error", message: "Please try again later")
+                self.showAlert("network_error_title".localized, message: "generic_retry_description".localized)
             } else if results.restoredPurchases.count > 0 {
-                self.showAlert("Purchases restored!", message: nil, style: .alert, completion: {
+                self.showAlert("purchases_restored_title".localized, message: nil, style: .alert, completion: {
                     self.dismiss(animated: true, completion: nil)
                 })
 
@@ -181,7 +183,7 @@ class PlusViewController: UIViewController {
                 UserDefaults.standard.set(true, forKey: Constants.UserDefaults.donationMade.rawValue)
                 NotificationCenter.default.post(name: .donationMade, object: nil)
             } else {
-                self.showAlert("You haven't tipped us yet", message: nil)
+                self.showAlert("tip_missing_title".localized, message: nil)
             }
         }
     }
@@ -264,14 +266,14 @@ class PlusViewController: UIViewController {
                 self.view.startConfetti()
 
                 var completion: (() -> Void)?
-                var title = "You are amazing!"
+                var title = "thanks_amazing_title".localized
 
                 // On first visit, dismiss VC after the alert is dimisseds
                 if !UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) {
                     completion = {
                         self.dismiss(animated: true, completion: nil)
                     }
-                    title = "Thanks for your support!"
+                    title = "thanks_title".localized
                 }
 
                 self.showAlert(title, message: nil, style: .alert, completion: completion)
@@ -282,7 +284,7 @@ class PlusViewController: UIViewController {
             case .error(let error):
                 guard error.code != .paymentCancelled else { return }
 
-                self.showAlert("Error", message: (error as NSError).localizedDescription)
+                self.showAlert("error_title".localized, message: (error as NSError).localizedDescription)
             }
         }
     }

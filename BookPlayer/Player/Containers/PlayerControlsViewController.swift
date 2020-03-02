@@ -101,8 +101,8 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
             let maxTimeInContext = book.maxTimeInContext(self.prefersChapterContext, self.prefersRemainingTime)
             self.maxTimeButton.setTitle(self.formatTime(maxTimeInContext), for: .normal)
             let prefix = self.prefersRemainingTime
-                ? "Remaining Chapter Time: "
-                : "Chapter duration: "
+                ? "chapter_time_remaining_title".localized
+                : "chapter_duration_title".localized
             self.maxTimeButton.accessibilityLabel = String(describing: prefix + VoiceOverService.secondsToMinutes(maxTimeInContext))
         }
 
@@ -117,8 +117,8 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
                 self.progressSlider.value = Float(book.progress)
                 self.progressSlider.setNeedsDisplay()
                 let prefix = self.prefersRemainingTime
-                    ? "Remaining Book Time: "
-                    : "Book duration: "
+                    ? "book_time_remaining_title".localized
+                    : "book_duration_title".localized
                 let maxTimeInContext = book.maxTimeInContext(self.prefersChapterContext, self.prefersRemainingTime)
                 self.maxTimeButton.accessibilityLabel = String(describing: prefix + VoiceOverService.secondsToMinutes(maxTimeInContext))
             }
@@ -127,7 +127,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         }
 
         self.progressButton.isHidden = false
-        self.progressButton.setTitle("Chapter \(currentChapter.index) of \(chapters.count)", for: .normal)
+        self.progressButton.setTitle(String.localizedStringWithFormat("player_chapter_description".localized, currentChapter.index, chapters.count), for: .normal)
 
         if !self.progressSlider.isTracking {
             self.progressSlider.value = Float((book.currentTime - currentChapter.start) / currentChapter.duration)

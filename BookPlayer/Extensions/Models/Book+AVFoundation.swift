@@ -46,7 +46,7 @@ extension Book {
         let authorFromMeta = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtist, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String
 
         self.title = titleFromMeta ?? bookUrl.originalUrl.lastPathComponent.replacingOccurrences(of: "_", with: " ")
-        self.author = authorFromMeta ?? "Unknown Author"
+        self.author = authorFromMeta ?? "voiceover_unknown_author".localized
         self.duration = CMTimeGetSeconds(asset.duration)
         self.originalFileName = bookUrl.originalUrl.lastPathComponent
         self.isFinished = false

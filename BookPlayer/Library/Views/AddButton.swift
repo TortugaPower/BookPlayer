@@ -29,6 +29,17 @@ class AddButton: UIButton {
         self.imageEdgeInsets.right = distance
         self.titleEdgeInsets.left = distance
     }
+
+    @IBInspectable var localizedKey: String? {
+        didSet {
+            guard let key = localizedKey else { return }
+
+            UIView.performWithoutAnimation {
+                setTitle(key.localized, for: .normal)
+                layoutIfNeeded()
+            }
+        }
+    }
 }
 
 extension AddButton: Themeable {

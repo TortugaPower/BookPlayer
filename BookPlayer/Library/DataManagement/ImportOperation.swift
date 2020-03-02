@@ -9,7 +9,7 @@
 import BookPlayerKit
 import Foundation
 import IDZSwiftCommonCrypto
-import ZIPFoundation
+import ZipArchive
 
 /**
  Process files located at a specific `URL`, renames it with the hash and moves it to the specified destination folder.
@@ -29,21 +29,23 @@ public class ImportOperation: Operation {
         // Unzip to a temp directory
         let tempURL = file.destinationFolder.appendingPathComponent("tmp")
 
-        do {
-            try FileManager.default.createDirectory(at: tempURL, withIntermediateDirectories: true, attributes: nil)
-            try FileManager.default.unzipItem(at: file.originalUrl, to: tempURL)
+        try? FileManager.default.createDirectory(at: tempURL, withIntermediateDirectories: true, attributes: nil)
 
-        } catch {
-            print("Extraction of ZIP archive failed with error:\(error)")
-            return
+        SSZipArchive.unzipFile(atPath: file.originalUrl.path, toDestination: tempURL.path, progressHandler: nil) { _, success, error in
+            defer {
+                // Delete original zip file
+                try? FileManager.default.removeItem(at: file.originalUrl)
+            }
+
+            guard success else {
+                print("Extraction of ZIP archive failed with error:\(String(describing: error))")
+                return
+            }
+
+            let tempItem = FileItem(originalUrl: tempURL, processedUrl: nil, destinationFolder: file.destinationFolder)
+
+            self.handleDirectory(file: tempItem)
         }
-
-        let tempItem = FileItem(originalUrl: tempURL, processedUrl: nil, destinationFolder: file.destinationFolder)
-
-        self.handleDirectory(file: tempItem)
-
-        // Delete original zip file
-        try? FileManager.default.removeItem(at: file.originalUrl)
     }
 
     func handleDirectory(file: FileItem) {

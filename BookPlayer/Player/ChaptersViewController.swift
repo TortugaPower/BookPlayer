@@ -21,6 +21,8 @@ class ChaptersViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        self.navigationItem.title = "chapters_title".localized
+
         self.tableView.tableFooterView = UIView()
         setUpTheming()
     }
@@ -53,8 +55,11 @@ class ChaptersViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ChapterCell", for: indexPath)
         let chapter = self.chapters[indexPath.row]
 
-        cell.textLabel?.text = chapter.title == "" ? "Chapter \(indexPath.row + 1)" : chapter.title
-        cell.detailTextLabel?.text = "Start: \(self.formatTime(chapter.start)) - Duration: \(self.formatTime(chapter.duration))"
+        cell.textLabel?.text = chapter.title == ""
+            ? String.localizedStringWithFormat("chapter_number_title".localized, indexPath.row + 1)
+            : chapter.title
+
+        cell.detailTextLabel?.text = String.localizedStringWithFormat("chapters_item_description".localized, self.formatTime(chapter.start), self.formatTime(chapter.duration))
         cell.accessoryType = .none
 
         if self.currentChapter.index == chapter.index {

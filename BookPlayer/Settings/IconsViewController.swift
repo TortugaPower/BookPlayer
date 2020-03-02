@@ -61,7 +61,7 @@ class IconsViewController: UIViewController {
         UIApplication.shared.setAlternateIconName(icon, completionHandler: { error in
             guard error != nil else { return }
 
-            self.showAlert("Error", message: "Changing the app icon wasn't successful. Try again later")
+            self.showAlert("error_title".localized, message: "icon_error_description".localized)
         })
     }
 }
