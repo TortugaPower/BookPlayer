@@ -20,7 +20,7 @@ class PlaylistTests: XCTestCase {
     }
 
     func testGetNilBook() {
-        let playlist = generatePlaylist(title: "playlist", books: [])
+        let playlist = self.generatePlaylist(title: "playlist", books: [])
 
         let fetchedBookByIdentifier = playlist.getBook(with: "book1")
 
@@ -35,7 +35,7 @@ class PlaylistTests: XCTestCase {
     func testGetBook() {
         let book1 = StubFactory.book(title: "book1", duration: 100)
 
-        let playlist = generatePlaylist(title: "playlist", books: [book1])
+        let playlist = self.generatePlaylist(title: "playlist", books: [book1])
 
         let fetchedBookByIdentifier = playlist.getBook(with: "book1")
 
@@ -51,7 +51,7 @@ class PlaylistTests: XCTestCase {
         let book1 = StubFactory.book(title: "book1", duration: 100)
         let book2 = StubFactory.book(title: "book2", duration: 100)
 
-        let playlist = generatePlaylist(title: "playlist", books: [book1, book2])
+        let playlist = self.generatePlaylist(title: "playlist", books: [book1, book2])
 
         let emptyProgress = playlist.progress
 
@@ -76,7 +76,7 @@ class PlaylistTests: XCTestCase {
         let book1 = StubFactory.book(title: "book1", duration: 100)
         let book2 = StubFactory.book(title: "book2", duration: 100)
 
-        let playlist = generatePlaylist(title: "playlist", books: [book1, book2])
+        let playlist = self.generatePlaylist(title: "playlist", books: [book1, book2])
 
         let nextBook = playlist.getNextBook(after: book1)
 

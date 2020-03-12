@@ -26,19 +26,19 @@ class VoiceOverService {
     }
 
     fileprivate func bookText() -> String {
-        let voiceOverTitle = title ?? "voiceover_no_title".localized
-        let voiceOverSubtitle = subtitle ?? "voiceover_no_author".localized
+        let voiceOverTitle = self.title ?? "voiceover_no_title".localized
+        let voiceOverSubtitle = self.subtitle ?? "voiceover_no_author".localized
         return String.localizedStringWithFormat("voiceover_book_progress".localized, voiceOverTitle, voiceOverSubtitle, self.progressPercent())
     }
 
     fileprivate func fileText() -> String {
-        let voiceOverTitle = title ?? "voiceover_no_file_title".localized
-        let voiceOverSubtitle = subtitle ?? "voiceover_no_file_subtitle".localized
+        let voiceOverTitle = self.title ?? "voiceover_no_file_title".localized
+        let voiceOverSubtitle = self.subtitle ?? "voiceover_no_file_subtitle".localized
         return "\(voiceOverTitle) \(voiceOverSubtitle)"
     }
 
     fileprivate func playlistText() -> String {
-        let voiceOverTitle = title ?? "voiceover_no_playlist_title".localized
+        let voiceOverTitle = self.title ?? "voiceover_no_playlist_title".localized
         return String.localizedStringWithFormat("voiceover_playlist_progress".localized, voiceOverTitle, self.progressPercent())
     }
 
@@ -79,12 +79,12 @@ class VoiceOverService {
     public static func secondsToMinutes(_ interval: TimeInterval) -> String {
         let absInterval = abs(interval)
         let hours = (absInterval / 3600.0).rounded(.towardZero)
-        let minutes = ((absInterval.truncatingRemainder(dividingBy: 3600)) / 60).rounded(.towardZero)
-        let seconds = ((absInterval.truncatingRemainder(dividingBy: 60)).truncatingRemainder(dividingBy: 60)).rounded()
+        let minutes = (absInterval.truncatingRemainder(dividingBy: 3600) / 60).rounded(.towardZero)
+        let seconds = absInterval.truncatingRemainder(dividingBy: 60).truncatingRemainder(dividingBy: 60).rounded()
 
-        let hoursText = pluralization(amount: Int(hours), interval: .hour)
-        let minutesText = pluralization(amount: Int(minutes), interval: .minute)
-        let secondsText = pluralization(amount: Int(seconds), interval: .second)
+        let hoursText = self.pluralization(amount: Int(hours), interval: .hour)
+        let minutesText = self.pluralization(amount: Int(minutes), interval: .minute)
+        let secondsText = self.pluralization(amount: Int(seconds), interval: .second)
 
         return String("\(hoursText)\(minutesText)\(secondsText)".dropLast())
     }

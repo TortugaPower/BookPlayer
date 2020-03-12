@@ -179,7 +179,7 @@ class ThemesViewController: UIViewController {
             return
         }
 
-        //handle switching variant if the other toggle is enabled
+        // handle switching variant if the other toggle is enabled
         let darkVariantEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeDarkVariantEnabled.rawValue)
 
         if UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeBrightnessEnabled.rawValue) {
@@ -200,7 +200,7 @@ class ThemesViewController: UIViewController {
         self.sliderUp(self.brightnessSlider)
 
         guard !sender.isOn else { return }
-        //handle switching variant if the other toggle is enabled
+        // handle switching variant if the other toggle is enabled
         let darkVariantEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeDarkVariantEnabled.rawValue)
 
         guard ThemeManager.shared.useDarkVariant != darkVariantEnabled else { return }
@@ -214,22 +214,22 @@ class ThemesViewController: UIViewController {
             : CGFloat(self.cellHeight)
 
         guard animated else {
-            self.brightnessViews.forEach({ view in
+            self.brightnessViews.forEach { view in
                 view.alpha = self.brightnessSwitch.isOn
                     ? 1.0
                     : 0.0
-            })
+            }
             self.view.layoutIfNeeded()
             self.resizeScrollContent()
             return
         }
 
         UIView.animate(withDuration: 0.3, animations: {
-            self.brightnessViews.forEach({ view in
+            self.brightnessViews.forEach { view in
                 view.alpha = self.brightnessSwitch.isOn
                     ? 1.0
                     : 0.0
-            })
+            }
             self.view.layoutIfNeeded()
         }, completion: { _ in
             self.resizeScrollContent()

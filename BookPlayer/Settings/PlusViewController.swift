@@ -65,10 +65,10 @@ class PlusViewController: UIViewController {
     var incredibleTipId = "com.tortugapower.audiobookplayer.tip.incredible"
     let tipJarSuffix = ".consumable"
 
-    //constants for button animations
+    // constants for button animations
     let defaultTipButtonsWidth: CGFloat = 60.0
 
-    //constants for collectionView layout
+    // constants for collectionView layout
     let sectionInsets = UIEdgeInsets(top: 0.0, left: 10.0, bottom: 25.0, right: 0.0)
     let cellHeight = 40
 
@@ -152,9 +152,9 @@ class PlusViewController: UIViewController {
                 let contributors = try? JSONDecoder().decode([Contributor].self, from: data) else { return }
 
             DispatchQueue.main.async {
-                self.contributors = contributors.filter({ (contributor) -> Bool in
+                self.contributors = contributors.filter { (contributor) -> Bool in
                     contributor.id != self.contributorGianni.id && contributor.id != self.contributorPichfl.id
-                })
+                }
             }
         }
 

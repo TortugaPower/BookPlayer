@@ -218,7 +218,7 @@ public class Playlist: LibraryItem {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         title = try values.decode(String.self, forKey: .title)
         desc = try values.decode(String.self, forKey: .desc)
-        let booksArray = try values.decode(Array<Book>.self, forKey: .books)
+        let booksArray = try values.decode([Book].self, forKey: .books)
         books = NSOrderedSet(array: booksArray)
     }
 }

@@ -104,7 +104,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
             }
 
             let selectedItems = indexPaths.map { (indexPath) -> LibraryItem in
-                return self.items[indexPath.row]
+                self.items[indexPath.row]
             }
 
             self.handleMove(selectedItems)
@@ -116,7 +116,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
             }
 
             let selectedItems = indexPaths.map { (indexPath) -> LibraryItem in
-                return self.items[indexPath.row]
+                self.items[indexPath.row]
             }
 
             self.handleTrash(selectedItems)
@@ -140,7 +140,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
 
         if editing {
             self.previousLeftButtons = navigationItem.leftBarButtonItems
-            self.navigationItem.leftBarButtonItems = [selectButton]
+            self.navigationItem.leftBarButtonItems = [self.selectButton]
             self.selectButton.isEnabled = self.tableView.numberOfRows(inSection: Section.data.rawValue) > 0
             self.updateSelectionStatus()
         } else {

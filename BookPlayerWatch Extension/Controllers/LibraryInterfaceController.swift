@@ -213,8 +213,8 @@ class LibraryInterfaceController: WKInterfaceController {
         }
 
         self.animate(withDuration: 0.3, animations: {
-            self.spacerGroupView.setRelativeHeight(height, withAdjustment: 0.0) //height
-            self.libraryTableView.setHidden(show) //flag
+            self.spacerGroupView.setRelativeHeight(height, withAdjustment: 0.0) // height
+            self.libraryTableView.setHidden(show) // flag
         }, completion: {
             if !show {
                 self.playlistTableView.setHidden(true)
