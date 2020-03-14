@@ -137,6 +137,7 @@
 "chapter_time_remaining_title" = "Verbleibende Kapitelzeit: ";
 "book_time_remaining_title" = "Verbleibende Zeit im Buch: ";
 "book_duration_title" = "Gesamtdauer: ";
+/* Может правильнее будет: &quot;Не удалось сменить иконку&quot;? */
 "icon_error_description" = "Die Änderung des App Icons hat nicht funktioniert. Probiere es später bitte noch einmal.";
 "error_title" = "Fehler";
 "generic_retry_description" = "Bitte versuche es später noch einmal.";
@@ -175,3 +176,4 @@
 "audio_source_title" = "Abspielgerät";
 "speed_title" = "Wiedergabegeschwindigkeit";
 "import_preparing_title" = "Import wird vorbereitet";
+"library_add_title" = "Füge dein erstes Buch hinzu";
