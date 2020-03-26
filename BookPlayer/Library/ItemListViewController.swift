@@ -308,6 +308,15 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         sheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
         return sheet
     }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        guard #available(iOS 12.0, *),
+            self.traitCollection.userInterfaceStyle != .unspecified else { return }
+
+        ThemeManager.shared.checkSystemMode()
+    }
 }
 
 // MARK: - Callback events
