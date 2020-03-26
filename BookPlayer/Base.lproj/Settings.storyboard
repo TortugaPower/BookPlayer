@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="nNa-3d-7ZC">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="nNa-3d-7ZC">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16086"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -80,7 +80,7 @@
                                             <rect key="frame" x="0.0" y="0.0" width="348" height="44"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="App Icon" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="zzO-fZ-F5R" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="App Icon" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" id="zzO-fZ-F5R" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
                                                     <rect key="frame" x="16" y="12" width="68" height="20.5"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -143,8 +143,11 @@
                                             <subviews>
                                                 <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="U00-rk-lxZ">
                                                     <rect key="frame" x="310" y="6.5" width="51" height="31"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="49" id="wJV-1E-gZx"/>
+                                                    </constraints>
                                                 </switch>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Autoplay Library" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CmE-t6-YbE" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Autoplay Library" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="CmE-t6-YbE" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
                                                     <rect key="frame" x="16" y="11.5" width="286" height="21"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
@@ -179,6 +182,9 @@
                                             <subviews>
                                                 <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="BlM-8p-0Ka">
                                                     <rect key="frame" x="310" y="6.5" width="51" height="31"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="49" id="pwG-5h-mZr"/>
+                                                    </constraints>
                                                 </switch>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Disable Autolock" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iys-Y1-zT4" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
                                                     <rect key="frame" x="16" y="11.5" width="286" height="21"/>
@@ -211,8 +217,11 @@
                                             <subviews>
                                                 <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="NMd-BM-Aab">
                                                     <rect key="frame" x="310" y="6.5" width="51" height="31"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="49" id="EYB-Tf-1WH"/>
+                                                    </constraints>
                                                 </switch>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Only when connected to power" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" enabled="NO" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZUk-YK-XeG" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Only when connected to power" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" enabled="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZUk-YK-XeG" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
                                                     <rect key="frame" x="16" y="11.5" width="286" height="21"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
@@ -1248,7 +1257,7 @@
                                                             <constraint firstAttribute="height" constant="0.5" id="yGT-Jh-7zZ"/>
                                                         </constraints>
                                                     </view>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Use System Mode" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XvL-6B-ddu" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Use System Mode" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="XvL-6B-ddu" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
                                                         <rect key="frame" x="16" y="11.5" width="274" height="21"/>
                                                         <constraints>
                                                             <constraint firstAttribute="height" constant="21" id="uOp-1c-qVk"/>
@@ -1262,6 +1271,9 @@
                                                     </label>
                                                     <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="AYQ-RY-khT">
                                                         <rect key="frame" x="310" y="6.5" width="51" height="31"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="width" constant="49" id="yTL-XJ-cDY"/>
+                                                        </constraints>
                                                         <connections>
                                                             <action selector="toggleSystemMode:" destination="NEQ-oF-OIb" eventType="valueChanged" id="Pll-yg-1dv"/>
                                                         </connections>
@@ -1325,7 +1337,7 @@
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3wd-mp-PzI">
                                                 <rect key="frame" x="0.0" y="249" width="375" height="44"/>
                                                 <subviews>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Always use dark variation" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SPV-it-NzF" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Always use dark variation" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="SPV-it-NzF" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
                                                         <rect key="frame" x="16" y="11.5" width="274" height="21"/>
                                                         <constraints>
                                                             <constraint firstAttribute="height" constant="21" id="w50-pl-ayK"/>
@@ -1339,6 +1351,9 @@
                                                     </label>
                                                     <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="dGm-Ck-k4z">
                                                         <rect key="frame" x="310" y="6.5" width="51" height="31"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="width" constant="49" id="VWn-7H-Rte"/>
+                                                        </constraints>
                                                         <connections>
                                                             <action selector="toggleDarkMode:" destination="NEQ-oF-OIb" eventType="valueChanged" id="hFX-F2-GqZ"/>
                                                         </connections>
@@ -1374,7 +1389,7 @@
                                                             <constraint firstAttribute="height" constant="0.5" id="53Z-TQ-fWg"/>
                                                         </constraints>
                                                     </view>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Switch automatically" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Oz0-TQ-7Us" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Switch automatically" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="Oz0-TQ-7Us" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
                                                         <rect key="frame" x="16" y="11.5" width="274" height="21"/>
                                                         <constraints>
                                                             <constraint firstAttribute="height" constant="21" id="rZF-FI-0h5"/>
@@ -1388,6 +1403,9 @@
                                                     </label>
                                                     <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="Mg5-1E-BOM">
                                                         <rect key="frame" x="310" y="6.5" width="51" height="31"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="width" constant="49" id="YmU-kO-npr"/>
+                                                        </constraints>
                                                         <connections>
                                                             <action selector="toggleAutomaticBrightness:" destination="NEQ-oF-OIb" eventType="valueChanged" id="cSx-FA-fMx"/>
                                                         </connections>
@@ -1448,7 +1466,7 @@
                                                     <constraint firstItem="Oz0-TQ-7Us" firstAttribute="top" secondItem="q9M-oW-UvF" secondAttribute="top" constant="11.5" id="xo3-hC-yQ5"/>
                                                 </constraints>
                                             </view>
-                                            <label opaque="NO" userInteractionEnabled="NO" alpha="0.0" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Select the dark variation of a theme if the screen brightness falls below the set threshold." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TU0-qj-CIf" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
+                                            <label opaque="NO" userInteractionEnabled="NO" alpha="0.0" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Select the dark variation of a theme if the screen brightness falls below the set threshold." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="TU0-qj-CIf" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
                                                 <rect key="frame" x="15" y="259" width="345" height="32"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="32" id="olY-w0-QZH"/>
@@ -1872,6 +1890,9 @@
                                             <subviews>
                                                 <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="k1y-6J-4zm">
                                                     <rect key="frame" x="310" y="6.5" width="51" height="31"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="49" id="zH3-TX-2UA"/>
+                                                    </constraints>
                                                 </switch>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Smart Rewind" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dcQ-kt-xys" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
                                                     <rect key="frame" x="16" y="11.5" width="286" height="21"/>
@@ -1910,6 +1931,9 @@ Use with caution and care for your hearing.</string>
                                             <subviews>
                                                 <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="REu-u1-fwP">
                                                     <rect key="frame" x="310" y="6.5" width="51" height="31"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="49" id="wAU-ed-bDe"/>
+                                                    </constraints>
                                                 </switch>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Boost Volume" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tvf-w6-A0c" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
                                                     <rect key="frame" x="16" y="11.5" width="286" height="21"/>
@@ -1946,6 +1970,9 @@ Use with caution and care for your hearing.</string>
                                             <subviews>
                                                 <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TGl-mI-vfb">
                                                     <rect key="frame" x="310" y="6.5" width="51" height="31"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="49" id="tVt-1Q-RhZ"/>
+                                                    </constraints>
                                                 </switch>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Global Speed Control" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Xk7-Ab-nyQ" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
                                                     <rect key="frame" x="16" y="11.5" width="286" height="21"/>
@@ -1991,6 +2018,9 @@ Use with caution and care for your hearing.</string>
             <point key="canvasLocation" x="1241" y="1688"/>
         </scene>
     </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="fyk-Ks-y4x"/>
+    </inferredMetricsTieBreakers>
     <resources>
         <image name="BookPlayerPlus" width="102" height="102"/>
         <image name="currentScreenBrightnessIndicator" width="30" height="40"/>
@@ -2001,7 +2031,4 @@ Use with caution and care for your hearing.</string>
         <image name="plusImageThemes" width="64" height="64"/>
         <image name="premiumFeature" width="24" height="24"/>
     </resources>
-    <inferredMetricsTieBreakers>
-        <segue reference="fyk-Ks-y4x"/>
-    </inferredMetricsTieBreakers>
 </document>
