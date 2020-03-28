@@ -137,6 +137,7 @@
 "chapter_time_remaining_title" = "Återstående kapitellängd: ";
 "book_time_remaining_title" = "Återstående boklängd: ";
 "book_duration_title" = "Bokens längd: ";
+/* Может правильнее будет: &quot;Не удалось сменить иконку&quot;? */
 "icon_error_description" = "Det gick inte att ändra app-ikonen. Försök igen senare";
 "error_title" = "Fel";
 "generic_retry_description" = "Försök igen senare";
@@ -175,3 +176,4 @@
 "audio_source_title" = "Ljudkälla";
 "speed_title" = "hastighet";
 "import_preparing_title" = "Förbereder import av filer";
+"library_add_title" = "Lägg till din första bok";

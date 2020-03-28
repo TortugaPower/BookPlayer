@@ -136,7 +136,8 @@
 "chapter_duration_title" = "章节持续时间：";
 "chapter_time_remaining_title" = "剩余章节时间：";
 "book_time_remaining_title" = "有声书剩余时间： ";
-"book_duration_title" = "本有声书持续时间： ";
+"book_duration_title" = "有声书持续时间： ";
+/* Может правильнее будет: &quot;Не удалось сменить иконку&quot;? */
 "icon_error_description" = "更改应用图标未成功。请稍后重试";
 "error_title" = "错误";
 "generic_retry_description" = "请稍后再试";
@@ -168,10 +169,11 @@
 "carplay_recent_title" = "最近";
 "carplay_library_error" = "无法加载有声书籍";
 "siri_invocation_phrase" = "继续我的有声书";
-"siri_activity_title" = "继续上次播放的书";
+"siri_activity_title" = "继续上次播放的有声书";
 "watchapp_connect_error_title" = "连接错误";
 "watchapp_connect_error_description" = "连接手机时出现问题，请稍后重试";
 "sleep_remaining_title" = "剩余%@直到停止";
 "audio_source_title" = "音源";
 "speed_title" = "速度";
 "import_preparing_title" = "准备导入文件";
+"library_add_title" = "添加第一本书";

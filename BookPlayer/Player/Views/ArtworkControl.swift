@@ -156,9 +156,9 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         self.rewindIcon.accessibilityLabel = VoiceOverService.rewindText()
         self.forwardIcon.accessibilityLabel = VoiceOverService.fastForwardText()
         accessibilityElements = [
-            playPauseButton as Any,
-            rewindIcon as Any,
-            forwardIcon as Any
+            self.playPauseButton as Any,
+            self.rewindIcon as Any,
+            self.forwardIcon as Any
         ]
     }
 

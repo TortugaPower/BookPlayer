@@ -82,7 +82,7 @@ extension WatchConnectivityService {
         if let session = validSession {
             do {
                 try session.updateApplicationContext(applicationContext)
-            } catch let error {
+            } catch {
                 throw error
             }
         }

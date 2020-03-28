@@ -153,9 +153,9 @@ class PlaylistViewController: ItemListViewController {
             })
         })
 
-        let availablePlaylists = self.library.itemsArray.compactMap({ (item) -> Playlist? in
+        let availablePlaylists = self.library.itemsArray.compactMap { (item) -> Playlist? in
             item as? Playlist
-        })
+        }
 
         let existingPlaylistAction = UIAlertAction(title: "existing_playlist_button".localized, style: .default) { _ in
 
@@ -292,10 +292,10 @@ extension PlaylistViewController {
         }
 
         // swiftlint:disable force_cast
-        let book = items[sourceIndexPath.row] as! Book
+        let book = self.items[sourceIndexPath.row] as! Book
 
-        playlist.removeFromBooks(at: sourceIndexPath.row)
-        playlist.insertIntoBooks(book, at: destinationIndexPath.row)
+        self.playlist.removeFromBooks(at: sourceIndexPath.row)
+        self.playlist.insertIntoBooks(book, at: destinationIndexPath.row)
 
         DataManager.saveContext()
     }

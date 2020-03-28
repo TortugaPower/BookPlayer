@@ -123,7 +123,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
             // Migration failed, fallback: load all books from processed folder
             if let fileUrls = DataManager.getFiles(from: DataManager.getProcessedFolderURL()) {
                 let fileItems = fileUrls.map { (url) -> FileItem in
-                    return FileItem(originalUrl: url, processedUrl: url, destinationFolder: url)
+                    FileItem(originalUrl: url, processedUrl: url, destinationFolder: url)
                 }
                 DataManager.insertBooks(from: fileItems, into: self.library) {
                     self.reloadData()
@@ -214,15 +214,6 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         }))
 
         present(alert, animated: true, completion: nil)
-    }
-
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-
-        guard #available(iOS 12.0, *),
-            self.traitCollection.userInterfaceStyle != .unspecified else { return }
-
-        ThemeManager.shared.checkSystemMode()
     }
 
     // MARK: - Callback events
@@ -328,9 +319,9 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
             })
         })
 
-        let availablePlaylists = self.items.compactMap({ (item) -> Playlist? in
+        let availablePlaylists = self.items.compactMap { (item) -> Playlist? in
             item as? Playlist
-        })
+        }
 
         let existingPlaylistAction = UIAlertAction(title: "existing_playlist_button".localized, style: .default) { _ in
 
@@ -368,17 +359,17 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
 
 extension LibraryViewController {
     private func setupCustomRotors() {
-        accessibilityCustomRotors = [rotorFactory(name: "Books", type: .book), rotorFactory(name: "Playlists", type: .playlist)]
+        accessibilityCustomRotors = [self.rotorFactory(name: "Books", type: .book), self.rotorFactory(name: "Playlists", type: .playlist)]
     }
 
     private func rotorFactory(name: String, type: BookCellType) -> UIAccessibilityCustomRotor {
         return UIAccessibilityCustomRotor(name: name) { (predicate) -> UIAccessibilityCustomRotorItemResult? in
             let forward: Bool = (predicate.searchDirection == .next)
 
-            let playListCells = self.tableView.visibleCells.filter({ (cell) -> Bool in
+            let playListCells = self.tableView.visibleCells.filter { (cell) -> Bool in
                 guard let cell = cell as? BookCellView else { return false }
                 return cell.type == type
-            })
+            }
 
             var currentIndex = forward ? -1 : playListCells.count
             //

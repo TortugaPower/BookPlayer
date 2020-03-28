@@ -25,11 +25,11 @@ class AppNavigationController: UINavigationController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        //hide native separator
+        // hide native separator
         self.navigationBar.shadowImage = UIImage()
         self.navigationBar.setBackgroundImage(UIImage(), for: .any, barMetrics: .default)
 
-        //add custom separator
+        // add custom separator
         self.separatorView = UIView(frame: CGRect(x: 0, y: navigationBar.frame.size.height - 0.5, width: navigationBar.frame.size.width, height: 0.5))
         self.separatorView.isOpaque = true
         self.separatorView.autoresizingMask = [.flexibleLeftMargin, .flexibleRightMargin, .flexibleTopMargin]

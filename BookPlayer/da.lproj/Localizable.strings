@@ -1,0 +1,185 @@
+/* 
+  Localizable.strings
+  BookPlayer
+
+  Created by Gianni Carlo on 12/29/19.
+  Copyright © 2019 Tortuga Power. All rights reserved.
+*/
+
+/* Title that is shown as the navigation bar title */
+"library_title" = "Bibliotek";
+/* Title for the settings button */
+"settings_button" = "Indstillinger";
+/* Title that is shown as the navigation bar title */
+"settings_title" = "Indstillinger";
+"settings_autoplay_title" = "AutoPlay Bibliotek";
+"settings_autoplay_description" = "Fortsæt afspilningen med alle elementer i biblioteket, der ikke er afsluttet, inklusive herunder filer i playlister.";
+"settings_smartrewind_title" = "Smart Tilbagespolning";
+"settings_smartrewind_description" = "Spol 30 sekunder tilbage, efter at du har sat bogen på pause i 10 minutter.";
+"settings_boostvolume_title" = "Boost lydstyrken";
+"settings_boostvolume_description" = "Fordobler lydstyrken. \nBrug med forsigtighed og omtanke for din hørelse.";
+"settings_globalspeed_title" = "Global hastighedskontrol";
+"settings_globalspeed_description" = "Indstil hastighed på tværs af alle bøger.";
+"settings_autolock_title" = "Deaktiver autolås";
+"settings_autolock_description" = "Undgå at enheden låser når Afspilleren er i brug.";
+"settings_siri_lastplayed_title" = "Senest afspillede bog";
+"settings_siri_lastplayed_description" = "Brug Siri til at fortsætte den senest afspillede bog.";
+"settings_skip_title" = "SPRING OVER-INTERVALLER";
+"settings_skip_rewind_title" = "Spol tilbage";
+"settings_skip_forward_title" = "Spol frem";
+"settings_skip_description" = "Juster mængden der springes over, når du bruger knapperne i Afspilleren eller i Kontrolcenteret.";
+"settings_support_title" = "SUPPORT";
+"settings_siri_title" = "GENVEJE I SIRI";
+"settings_support_project_title" = "Se projektet på GitHub";
+"settings_support_project_description" = "Opret sag for dine funktionsanmodninger og fejl";
+"settings_support_email_title" = "Send os en e-mail";
+/* Should this be understood as the user wants to 'give credit' or is this like regulatives?
+Carl&nbsp;regarding the key settings_credits_title it's basically a section that gives credits to the third-party libraries that we are using in the app */
+"settings_credits_title" = "Anerkendelser og licenser";
+"settings_support_compose_title" = "Kan ikke oprette e-mail";
+"settings_support_compose_description" = "Du skal indstille en e-mailkonto i dine enhedsindstillinger for at bruge denne funktion. \n\nKontakt os:";
+"settings_support_compose_copy" = "Kopier til udklipsholderen";
+"library_add_button" = "Tilføj";
+"export_button" = "Del";
+"delete_button" = "Slet";
+"rename_button" = "Omdøb";
+"delete_single_item_title" = "Ønsker du at slette \"%@\"?";
+"delete_single_playlist_description" = "Hvis du kun sletter playlisten, flyttes alle filerne tilbage til biblioteket.";
+"delete_shallow_button" = "Slet kun playliste";
+"delete_deep_button" = "Slet playliste og filer";
+"create_playlist_button" = "Opret playliste";
+"create_button" = "Opret";
+"import_button" = "Importér filer";
+"import_description" = "Du kan også tilføje filer via AirDrop. Send lydbog-filen til din enhed, og vælg BookPlayer fra listen.";
+"create_playlist_title" = "Opret ny playliste";
+"create_playlist_description" = "Filer i afspilningslister afspilles automatisk efter hinanden";
+"delete_multiple_items_description" = "Dette fjerner også alle filer i de markerede playlister.";
+"new_playlist_button" = "Ny playliste";
+"existing_playlist_button" = "Eksisterende playliste";
+"choose_destination_title" = "Vælg destination";
+"delete_completely_button" = "Slet helt";
+"move_library_button" = "Flyt til bibliotek";
+"options_button" = "Valgmuligheder";
+"select_playlist_title" = "Vælg playliste";
+"sort_title_button" = "Titel";
+"sort_filename_button" = "Oprindelige filnavn";
+"sort_title" = "Sortér efter";
+"cancel_button" = "Annuller";
+"seconds_title" = "sek";
+"ok_button" = "OK";
+/* Message shown when trying to create a Siri Shortcut on devices that don't have iOS 12+ installed */
+"siri_alert_description" = "Siri-genveje er tilgængelige på iOS 12 og opefter";
+/* Title used in the context of our tip jar to support development */
+"support_bookplayer_title" = "Støt BookPlayer";
+/* Description used in the context of our tip jar to support development */
+"support_bookplayer_description" = "Få BookPlayer Plus for at støtte fremtidig udvikling og få ekstra temaer og app-ikoner";
+"learn_more_title" = "LÆR MERE";
+"settings_appearance_title" = "Udseende";
+"settings_theme_title" = "Tema";
+"settings_app_icon_title" = "App-ikon";
+"settings_playback_title" = "Afspilningsindstillinger";
+"settings_controls_title" = "Afspiller kontrol";
+"settings_power_connected_title" = "Kun under opladning";
+"settings_tip_jar_title" = "Donér";
+/* What does 'System Mode' entail? Is it regarding iOS Dark Mode?
+<span class="reply-in-chat"><span data-uid="carlhoumoller&amp;&#x23;x40&#x3B;hotmail.com" contenteditable="false" class="chat-reply-to"
+                                  data-replykey="36833450">Carl</span></span>
+&nbsp;regarding the key theme_system_title, yes, it refers to using the preference set at the operating system level (from the control center/brightness) */
+"theme_system_title" = "Brug systemindstillinger";
+"theme_switch_title" = "Skift automatisk";
+"theme_dark_title" = "Brug altid mørk variation";
+"themes_title" = "Temaer";
+/* This should be &ldquo;By your friends at BookPlayer&rdquo; in English.&nbsp; */
+"icons_bookplayer_credit_description" = "Af dine venner på BookPlayer";
+"kind_tip_title" = "Venlig donation på";
+"excellent_tip_title" = "Fremragende donation på";
+"incredible_tip_title" = "Utrolig donation på";
+"plus_themes_description" = "Farvetemaer valgt omhyggeligt så de matcher dine yndlingsbøger";
+"plus_icons_description" = "BookPlayer Plus kommer med en række app-ikoner, der matcher farvetemaer og din baggrund";
+"support_us_title" = "Støt os";
+"bookplayer_opensource_description" = "BookPlayer er gratis og Open Source, og sådan vil det altid være. Med din hjælp er vi i stand til at implementere flere funktioner og gøre BookPlayer endnu bedre";
+"thanks_title" = "Tak for din støtte!";
+"extra_tips_description" = "Hvis du virkelig sætter pris på BookPlayer, kan du donere for at støtte appens udvikling. Dette vil hjælpe til at få tingene til at køre rundt og samtidigt understøtte flere funktionerne ud i fremtiden.";
+"files_title" = "Filer";
+"select_all_title" = "Vælg alle";
+"deselect_all_title" = "Fravælg alle";
+"move_title" = "Flyt";
+"jump_start_title" = "Gå til start";
+"mark_finished_title" = "Markér som fuldført";
+"sort_files_title" = "Sorter filer efter";
+"rename_title" = "Omdøb";
+"file_error_title" = "Filfejl!";
+"file_error_description" = "Denne bogs fil kunne ikke indlæses. Sørg for, at du ikke bruger filer med DRM-beskyttelse (eksempelvis .aax-filer)";
+"file_missing_title" = "Fil mangler!";
+"file_missing_description" = "Denne bogs fil blev fjernet fra din enhed. Importer filen igen for at afspille bogen";
+"empty_playlist_description" = "Du kan også flytte filer hertil ved at trække dem fra biblioteket hen på afspilningslisten";
+"playlist_add_title" = "Tilføj filer";
+"player_speed_title" = "Sæt afspilningshastighed";
+"player_sleep_title" = "Sæt afspilningen på pause";
+"sleep_chapter_option_title" = "Slutningen af nuværende kapitel";
+/* This is used for the label underneath the progress bar (e.g. Chapter 1 of 35) */
+"player_chapter_description" = "Kapitel %d af %d";
+"chapters_title" = "Kapitler";
+/* This is used as a description for each chapter in the chapters list (e.g. Start: 10:11 - Duration: 16:56) */
+"chapters_item_description" = "Start: %@ - Varighed: %@";
+/* Restore purchases */
+"restore_title" = "Gendan";
+"themes_caps_title" = "Temaer";
+"plus_app_icons_title" = "App-ikoner";
+/* This is the counterpart to Mark as Finished */
+"mark_unfinished_title" = "Markér som ikke fuldført";
+"move_playlist_button" = "Flyt til playliste";
+"move_single_item_title" = "Vil du flytte '%@' til '%@'?";
+/* This is shown if while being inside a playlist, a batch of imported files are finished processing, and it will be one of the options in the alert presented */
+"current_playlist_title" = "Nuværende playliste";
+"select_item_title" = "Vælg element";
+"sleep_alert_description" = "Sover når kapitlet er færdigt";
+"sleep_time_description" = "Sover om %@";
+"sleep_off_title" = "Slå fra";
+"sleep_interval_title" = "Om %@";
+"chapter_number_title" = "Kapitel %d";
+"progress_complete_description" = "%d procent fuldført";
+"chapter_duration_title" = "Kapitlets varighed: ";
+"chapter_time_remaining_title" = "Kapitlets resterende tid: ";
+"book_time_remaining_title" = "Bogens resterende tid: ";
+"book_duration_title" = "Bogens varighed: ";
+/* Может правильнее будет: &quot;Не удалось сменить иконку&quot;? */
+"icon_error_description" = "Ændring af appikonet mislykkedes. Prøv igen senere";
+"error_title" = "Fejl";
+"generic_retry_description" = "Prøv venligst igen senere";
+"network_error_title" = "Netværksfejl";
+"purchases_restored_title" = "Køb gendannet!";
+"tip_missing_title" = "Du har endnu ikke doneret";
+"thanks_amazing_title" = "Du er fantastisk!";
+"play_title" = "Afspil";
+"pause_title" = "Pause";
+"voiceover_no_title" = "Ingen titel";
+"voiceover_no_author" = "Ingen forfatter";
+/* &lt;Book title&gt; by &lt;Book author&gt; &lt;percentage in numbers&gt;% Completed */
+"voiceover_book_progress" = "%@ af %@, %d procent fuldført";
+"voiceover_no_file_title" = "Ingen filnavn";
+"voiceover_no_file_subtitle" = "Ingen undertekstfil";
+"voiceover_no_playlist_title" = "Ingen titel på playslisten";
+/* &lt;Playlist title&gt; Playlist &lt;percentage in number&gt;% Completed */
+"voiceover_playlist_progress" = "%@ Playliste, %d procent fuldført";
+"voiceover_unknown_title" = "Ukendt titel";
+"voiceover_unknown_author" = "Ukendt forfatter";
+/* &lt;book title&gt; by &lt;book author&gt; */
+"voiceover_book_info" = "%@ af %@";
+/* &lt;book title&gt; by &lt;book author&gt;, chapter &lt;chapter title&gt; */
+"voiceover_book_chapter" = "%@ af %@, kapitel %@";
+"voiceover_rewind_time" = "Spol tilbage %@";
+"voiceover_forward_time" = "Spol frem %@";
+"watchapp_last_played_title" = "Senest afspillet";
+"watchapp_refresh_data_title" = "Genindlæs";
+"carplay_recent_title" = "Seneste";
+"carplay_library_error" = "Bøger kan ikke indlæses";
+"siri_invocation_phrase" = "Fortsæt med bog";
+"siri_activity_title" = "Fortsæt med seneste spillede bog";
+"watchapp_connect_error_title" = "Forbindelsesfejl";
+"watchapp_connect_error_description" = "Der er et problem med at oprette forbindelse til din telefon. Prøv igen senere";
+"sleep_remaining_title" = "%@ tilbage indtil søvn";
+"audio_source_title" = "Lydkilde";
+"speed_title" = "Hastighed";
+"import_preparing_title" = "Forbereder import af filer";
+"library_add_title" = "Tilføj din første bog";

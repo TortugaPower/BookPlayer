@@ -159,17 +159,17 @@ public class Library: NSManagedObject, Codable {
         var books = [Int: LibraryItem]()
         var playlists = [Int: LibraryItem]()
 
-        if let decodedBooks = try? values.decode(Dictionary<Int, Book>.self, forKey: .books) {
+        if let decodedBooks = try? values.decode([Int: Book].self, forKey: .books) {
             books = decodedBooks
         }
 
-        if let decodedPlaylists = try? values.decode(Dictionary<Int, Playlist>.self, forKey: .playlists) {
+        if let decodedPlaylists = try? values.decode([Int: Playlist].self, forKey: .playlists) {
             playlists = decodedPlaylists
         }
 
         let unsortedItemsDict: [Int: LibraryItem] = books.merging(playlists) { (_, new) -> LibraryItem in new }
         let sortedItemsTuple = unsortedItemsDict.sorted { $0.key < $1.key }
-        let sortedItems = Array(sortedItemsTuple.map({ $0.value }))
+        let sortedItems = Array(sortedItemsTuple.map { $0.value })
 
         items = NSOrderedSet(array: sortedItems)
 

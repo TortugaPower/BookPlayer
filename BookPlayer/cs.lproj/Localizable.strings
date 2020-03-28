@@ -137,6 +137,7 @@
 "chapter_time_remaining_title" = "Zbývající čas kapitoly:";
 "book_time_remaining_title" = "Zbývající čas audioknihy:";
 "book_duration_title" = "Doba trvání audioknihy: ";
+/* Может правильнее будет: &quot;Не удалось сменить иконку&quot;? */
 "icon_error_description" = "Změna ikony aplikace nebyla úspěšná. Zkuste to později";
 "error_title" = "Chyba";
 "generic_retry_description" = "Opakujte akci později, prosím.";
@@ -175,3 +176,4 @@
 "audio_source_title" = "Zdroj zvuku";
 "speed_title" = "Rychlost";
 "import_preparing_title" = "Příprava importu souborů";
+"library_add_title" = "Přidejte vaši první knihu";

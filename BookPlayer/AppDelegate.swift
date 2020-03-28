@@ -74,7 +74,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Create a Sentry client and start crash handler
         Client.shared = try? Client(dsn: "https://23b4d02f7b044c10adb55a0cc8de3881@sentry.io/1414296")
-        ((try? Client.shared?.startCrashHandler()) as ()??)
+        (try? Client.shared?.startCrashHandler()) as ()??
 
         WatchConnectivityService.sharedManager.startSession()
 
@@ -373,6 +373,6 @@ extension AppDelegate {
 }
 
 // Helper function inserted by Swift 4.2 migrator.
-fileprivate func convertFromAVAudioSessionMode(_ input: AVAudioSession.Mode) -> String {
+private func convertFromAVAudioSessionMode(_ input: AVAudioSession.Mode) -> String {
     return input.rawValue
 }

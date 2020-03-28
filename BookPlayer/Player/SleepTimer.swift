@@ -85,7 +85,7 @@ final class SleepTimer {
     }
 
     private func reset() {
-        self.alert.message = defaultMessage
+        self.alert.message = self.defaultMessage
 
         self.timer?.invalidate()
         NotificationCenter.default.removeObserver(self, name: .bookChange, object: nil)

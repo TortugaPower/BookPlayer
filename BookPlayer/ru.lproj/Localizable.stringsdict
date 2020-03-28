@@ -11,15 +11,15 @@
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
+        <string>d</string>
         <key>one</key>
-        <string></string>
+        <string>%d файл</string>
         <key>few</key>
-        <string>Soubory</string>
+        <string>%d файла</string>
         <key>many</key>
-        <string>Soubory</string>
+        <string>%d файлов</string>
         <key>other</key>
-        <string>Soubory</string>
+        <string>%d файла</string>
       </dict>
     </dict>
     <key>delete_multiple_items_title</key>
@@ -33,13 +33,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string></string>
+        <string>Вы действительно хотите удалить %d объект?</string>
         <key>few</key>
-        <string>Chcete odstranit několik položek?</string>
+        <string>Вы действительно хотите удалить %d объекта?</string>
         <key>many</key>
-        <string>Chcete odstranit mnoho položek?</string>
+        <string>Вы действительно хотите удалить %d объектов?</string>
         <key>other</key>
-        <string>Chcete odstranit %d položky?</string>
+        <string>Вы действительно хотите удалить %d объекта?</string>
       </dict>
     </dict>
     <key>import_alert_title</key>
@@ -53,13 +53,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Importovat %d soubor do</string>
+        <string>Импортировать %d файл в</string>
         <key>few</key>
-        <string>Importovat několik souborů do</string>
+        <string>Импортировать %d файла в</string>
         <key>many</key>
-        <string>Importovat mnoho souborů do</string>
+        <string>Импортировать %d файлов в</string>
         <key>other</key>
-        <string>Importujte %d soubory do</string>
+        <string>Импортировать %d файлов в</string>
       </dict>
     </dict>
     <key>import_processing_description</key>
@@ -73,14 +73,15 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Zpracovává se %d soubor</string>
+        <string>Обработка файла</string>
         <key>few</key>
-        <string>Zpracování několika souborů</string>
+        <string>Обработка файлов</string>
         <key>many</key>
-        <string>Zpracování mnoha souborů</string>
+        <string>Обработка файлов</string>
         <key>other</key>
-        <string>Zpracování %d souborů</string>
+        <string>Обработка %d файлов</string>
       </dict>
     </dict>
   </dict>
 </plist>
+
