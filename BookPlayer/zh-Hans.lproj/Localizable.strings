@@ -177,3 +177,6 @@
 "speed_title" = "速度";
 "import_preparing_title" = "准备导入文件";
 "library_add_title" = "添加第一本书";
+"invalid_url_title" = "无效的网址： %@";
+"downloading_file_title" = "下载文件";
+"progress_title" = "进展";

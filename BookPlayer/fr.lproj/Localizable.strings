@@ -1,0 +1,198 @@
+/* 
+  Localizable.strings
+  BookPlayer
+
+  Created by Gianni Carlo on 12/29/19.
+  Copyright © 2019 Tortuga Power. All rights reserved.
+*/
+
+/* Title that is shown as the navigation bar title */
+"library_title" = "Bibliothèque";
+/* Title for the settings button */
+"settings_button" = "Réglages";
+/* Title that is shown as the navigation bar title */
+"settings_title" = "Réglages";
+"settings_autoplay_title" = "Lecture auto. de la Bibliothèque";
+"settings_autoplay_description" = "Continue la lecture avec tous les éléments de la Bibliothèque qui ne sont pas terminés, y compris les fichiers dans les listes de lecture.";
+"settings_smartrewind_title" = "Rembobinage intelligent";
+"settings_smartrewind_description" = "Rembobine 30 secondes après avoir été mis en pause pendant 10 minutes.";
+"settings_boostvolume_title" = "Augmenter le volume";
+"settings_boostvolume_description" = "Double le volume.\nUtilisez avec prudence et faites attention à votre audition.";
+"settings_globalspeed_title" = "Contrôle de la vitesse globale";
+"settings_globalspeed_description" = "Réglez la vitesse sur tous les livres.";
+"settings_autolock_title" = "Désactiver le verrouillage auto.";
+"settings_autolock_description" = "Empêche l'appareil de se verrouiller en étant sur l'écran du Lecteur.";
+"settings_siri_lastplayed_title" = "Dernier livre lu";
+"settings_siri_lastplayed_description" = "Utiliser Siri pour continuer le dernier livre lu.";
+"settings_skip_title" = "INTERVALLES DE SAUT";
+"settings_skip_rewind_title" = "Rembobiner";
+"settings_skip_forward_title" = "Avancer";
+"settings_skip_description" = "Ajuste le temps sauté lorsque sont utilisés les boutons dans le Lecteur ou le Centre de contrôle.";
+"settings_support_title" = "SUPPORT";
+"settings_siri_title" = "RACCOURCI SIRI";
+"settings_support_project_title" = "Voir le projet sur Github";
+"settings_support_project_description" = "Ouvrez de nouveaux tickets pour vos demandes de fonctionnalité et erreurs";
+"settings_support_email_title" = "Envoyez-nous un courrier électronique";
+/* Should this be understood as the user wants to 'give credit' or is this like regulatives?
+Carl&nbsp;regarding the key settings_credits_title it's basically a section that gives credits to the third-party libraries that we are using in the app */
+"settings_credits_title" = "Crédits et Licences";
+"settings_support_compose_title" = "Impossible de composer un courrier électronique";
+"settings_support_compose_description" = "Vous devez configurer un compte de messagerie dans les paramètres de votre appareil pour l'utiliser. \n\nVeuillez nous envoyer un courrier électronique à";
+"settings_support_compose_copy" = "Copier les infos dans le presse-papiers";
+"library_add_button" = "Ajouter";
+"export_button" = "Partager";
+"delete_button" = "Supprimer";
+"rename_button" = "Renommer";
+"delete_single_item_title" = "Voulez-vous supprimer \"%@\" ?";
+"delete_single_playlist_description" = "Supprimer uniquement la liste de lecture ramènera tous ses fichiers dans la Bibliothèque.";
+"delete_shallow_button" = "Supprimer uniquement la liste de lecture";
+"delete_deep_button" = "Supprimer la liste de lecture et les fichiers";
+"create_playlist_button" = "Créer une liste de lecture";
+"create_button" = "Créer";
+"import_button" = "Importer des fichiers";
+"import_description" = "Vous pouvez également ajouter des fichiers via AirDrop. Envoyez un fichier de livre audio à votre appareil et sélectionnez BookPlayer dans la liste qui apparaît.";
+"create_playlist_title" = "Créer une nouvelle liste de lecture";
+"create_playlist_description" = "Les fichiers des listes de lecture sont lus automatiquement l'un après l'autre";
+"delete_multiple_items_description" = "Cela supprimera également tous les fichiers des listes de lecture sélectionnées.";
+"new_playlist_button" = "Nouvelle liste de lecture";
+"existing_playlist_button" = "Liste de lecture existante";
+"choose_destination_title" = "Choisissez la destination";
+"delete_completely_button" = "Supprimer entièrement";
+"move_library_button" = "Déplacer vers la Bibliothèque";
+"options_button" = "Options";
+"select_playlist_title" = "Sélectionner une liste de lecture";
+"sort_title_button" = "Titre";
+"sort_filename_button" = "Nom d'origine du fichier";
+"sort_title" = "Trier les éléments par";
+"cancel_button" = "Annuler";
+"seconds_title" = "sec";
+"ok_button" = "OK";
+/* Message shown when trying to create a Siri Shortcut on devices that don't have iOS 12+ installed */
+"siri_alert_description" = "Les raccourcis Siri sont disponibles sur iOS 12 et supérieur";
+/* Title used in the context of our tip jar to support development */
+"support_bookplayer_title" = "Soutenir BookPlayer";
+/* Description used in the context of our tip jar to support development */
+"support_bookplayer_description" = "Obtenez BookPlayer Plus pour soutenir le développement futur et obtenir des thèmes et des icônes d'application supplémentaires";
+"learn_more_title" = "EN SAVOIR PLUS";
+"settings_appearance_title" = "Apparence";
+"settings_theme_title" = "Thème";
+"settings_app_icon_title" = "Icône d'application";
+"settings_playback_title" = "Paramètres de lecture";
+"settings_controls_title" = "Contrôles de lecture";
+"settings_power_connected_title" = "Uniquement lorsqu'il est connecté à l'alimentation";
+"settings_tip_jar_title" = "Pot à pourboires";
+/* What does 'System Mode' entail? Is it regarding iOS Dark Mode?
+<span class="reply-in-chat"><span data-uid="carlhoumoller&amp;&#x23;x40&#x3B;hotmail.com" contenteditable="false" class="chat-reply-to"
+                                  data-replykey="36833450">Carl</span></span>
+&nbsp;regarding the key theme_system_title, yes, it refers to using the preference set at the operating system level (from the control center/brightness) */
+"theme_system_title" = "Utiliser le réglage système";
+"theme_switch_title" = "Basculer automatiquement";
+"theme_dark_title" = "Toujours utiliser la variation sombre";
+"themes_title" = "Thèmes";
+/* This should be &ldquo;By your friends at BookPlayer&rdquo; in English.&nbsp; */
+"icons_bookplayer_credit_description" = "Par vos amis de BookPlayer";
+"kind_tip_title" = "Bon pourboire de";
+"excellent_tip_title" = "Excellent pourboire de";
+"incredible_tip_title" = "Incroyable pourboire de";
+"plus_themes_description" = "Thèmes de couleurs soigneusement choisis pour correspondre à vos livres préférés";
+"plus_icons_description" = "BookPlayer Plus est livré avec plusieurs icônes d'application, pour adapter les palettes de couleurs à votre fond d'écran";
+"support_us_title" = "Soutenez-nous";
+"bookplayer_opensource_description" = "BookPlayer est gratuit et Open Source et il en sera toujours ainsi. Avec votre aide, nous sommes en mesure d'implémenter plus de fonctionnalités et d'améliorer encore BookPlayer";
+"thanks_title" = "Merci pour votre soutien !";
+"extra_tips_description" = "Si vous appréciez vraiment BookPlayer, vous pouvez laisser des pourboires supplémentaires pour soutenir davantage le développement de l'application. Cela aidera à garder les lumières allumées et les fonctionnalités à venir.";
+"files_title" = "Fichiers";
+"select_all_title" = "Tout sélectionner";
+"deselect_all_title" = "Tout désélectionner";
+"move_title" = "Déplacer";
+"jump_start_title" = "Aller au début";
+"mark_finished_title" = "Marquer comme Terminé";
+"sort_files_title" = "Trier les fichiers par";
+"rename_title" = "Renommer l'élément";
+"file_error_title" = "Erreur de fichier !";
+"file_error_description" = "Le fichier de ce livre n'a pas pu être chargé. Assurez-vous que vous n'utilisez pas de fichiers avec protection DRM (comme les fichiers .aax)";
+"file_missing_title" = "Fichier manquant !";
+"file_missing_description" = "Le fichier de ce livre a été supprimé de votre appareil. Importez à nouveau le fichier pour lire le livre";
+"empty_playlist_description" = "Vous pouvez également déplacer des fichiers ici en les faisant glisser sur cette liste de lecture depuis la Bibliothèque";
+"playlist_add_title" = "Ajouter des fichiers";
+"player_speed_title" = "Définir la vitesse de lecture";
+"player_sleep_title" = "Mettre la lecture en pause";
+"sleep_chapter_option_title" = "Fin du chapitre en cours";
+/* This is used for the label underneath the progress bar (e.g. Chapter 1 of 35) */
+"player_chapter_description" = "Chapitre %d sur %d";
+"chapters_title" = "Chapitres";
+/* This is used as a description for each chapter in the chapters list (e.g. Start: 10:11 - Duration: 16:56) */
+"chapters_item_description" = "Début : %@ - Durée : %@";
+/* Restore purchases */
+"restore_title" = "Restaurer";
+"themes_caps_title" = "THÈMES";
+"plus_app_icons_title" = "Icônes d'application";
+/* This is the counterpart to Mark as Finished */
+"mark_unfinished_title" = "Marquer comme Non terminé";
+"move_playlist_button" = "Déplacer vers une liste de lecture";
+"move_single_item_title" = "Voulez-vous déplacer '%@' vers '%@' ?";
+/* This is shown if while being inside a playlist, a batch of imported files are finished processing, and it will be one of the options in the alert presented */
+"current_playlist_title" = "Liste de lecture actuelle";
+"select_item_title" = "Sélectionner l'élément";
+"sleep_alert_description" = "Mise en veille à la fin du chapitre";
+"sleep_time_description" = "Mise en veille dans %@";
+"sleep_off_title" = "Désactivé";
+"sleep_interval_title" = "Dans %@";
+"chapter_number_title" = "Chapitre %d";
+"progress_complete_description" = "%d pour cent Terminé";
+"chapter_duration_title" = "Durée du chapitre : ";
+"chapter_time_remaining_title" = "Temps restant du chapitre : ";
+"book_time_remaining_title" = "Temps restant du livre : ";
+"book_duration_title" = "Durée du livre : ";
+/* Может правильнее будет: &quot;Не удалось сменить иконку&quot;? */
+"icon_error_description" = "Le changement de l'icône de l'application n'a pas réussi. Réessayez plus tard";
+"error_title" = "Erreur";
+"generic_retry_description" = "Veuillez réessayer plus tard";
+"network_error_title" = "Erreur réseau";
+"purchases_restored_title" = "Achats restaurés !";
+"tip_missing_title" = "Vous ne nous avez pas encore donné de pourboire";
+"thanks_amazing_title" = "Vous êtes incroyable !";
+"play_title" = "Lire";
+"pause_title" = "Pause";
+"voiceover_no_title" = "Sans titre";
+"voiceover_no_author" = "Aucun auteur";
+/* &lt;Book title&gt; by &lt;Book author&gt; &lt;percentage in numbers&gt;% Completed */
+"voiceover_book_progress" = "%@ par %@, %d pour cent Terminé";
+"voiceover_no_file_title" = "Fichier sans titre";
+/* Not sure where this title appears ? :)
+<span class="reply-in-chat"><span data-uid="christophe.vergne&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
+                                  data-replykey="36841194">christophe</span></span>
+&nbsp;this key in particular is when you're inside a playlist, the subtitle (that usually is the author) has no info for our VoiceOver service
+<span class="reply-in-chat"><span data-uid="christophe.vergne&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
+                                  data-replykey="36841194">christophe</span></span>
+&nbsp;let me know if that clears things up?
+<span class="reply-in-chat"><span data-uid="gcarlo89&amp;&#x23;x40&#x3B;hotmail.com" contenteditable="false" class="chat-reply-to"
+                                  data-replykey="36841194">Gianni Carlo</span></span>
+ Alright, my translation was correct so, thanks :) */
+"voiceover_no_file_subtitle" = "Fichier sans sous-titre";
+"voiceover_no_playlist_title" = "Liste de lecture sans titre";
+/* &lt;Playlist title&gt; Playlist &lt;percentage in number&gt;% Completed */
+"voiceover_playlist_progress" = "%@ Liste de lecture, %d pour cent Terminé";
+"voiceover_unknown_title" = "Titre inconnu";
+"voiceover_unknown_author" = "Auteur inconnu";
+/* &lt;book title&gt; by &lt;book author&gt; */
+"voiceover_book_info" = "%@ par %@";
+/* &lt;book title&gt; by &lt;book author&gt;, chapter &lt;chapter title&gt; */
+"voiceover_book_chapter" = "%@ par %@, chapitre %@";
+"voiceover_rewind_time" = "Rembobiner %@";
+"voiceover_forward_time" = "Avance rapide %@";
+"watchapp_last_played_title" = "Dernier lu";
+"watchapp_refresh_data_title" = "Actualiser";
+"carplay_recent_title" = "Récent";
+"carplay_library_error" = "Impossible de charger les livres";
+"siri_invocation_phrase" = "Continuer mon livre";
+"siri_activity_title" = "Continuer le dernier livre lu";
+"watchapp_connect_error_title" = "Erreur de connexion";
+"watchapp_connect_error_description" = "Il y a un problème de connexion à votre téléphone, veuillez réessayer plus tard";
+"sleep_remaining_title" = "%@ restant jusqu'à la mise en veille";
+"audio_source_title" = "Source audio";
+"speed_title" = "vitesse";
+"import_preparing_title" = "Préparation à l'importation de fichiers";
+"library_add_title" = "Ajoutez votre premier livre";
+"invalid_url_title" = "URL non valide: %@";
+"downloading_file_title" = "Téléchargement du fichier";
+"progress_title" = "Progrès";

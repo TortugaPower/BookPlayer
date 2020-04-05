@@ -177,3 +177,6 @@
 "speed_title" = "скорость";
 "import_preparing_title" = "Подготовка к импорту файлов";
 "library_add_title" = "Добавьте Вашу первую книгу";
+"invalid_url_title" = "Неверный URL: %@";
+"downloading_file_title" = "Скачивание файла";
+"progress_title" = "Прогресс";

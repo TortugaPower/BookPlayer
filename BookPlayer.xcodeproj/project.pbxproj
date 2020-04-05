@@ -412,6 +412,9 @@
 		4193E1FB24394CEF004D6A82 /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = Carthage/Build/iOS/Alamofire.framework; sourceTree = "<group>"; };
 		4193E1FE2439A0A1004D6A82 /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
 		4193E201243A91AE004D6A82 /* ActionParserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionParserService.swift; sourceTree = "<group>"; };
+		4193E203243A98AB004D6A82 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = fr; path = fr.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		4193E204243A98AB004D6A82 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		4193E205243A98AB004D6A82 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		41964C822220B4F700FF1A2F /* ContributorCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContributorCellView.swift; sourceTree = "<group>"; };
 		419723FF21874D5F00AB1190 /* UserActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserActivityManager.swift; sourceTree = "<group>"; };
 		419B373A23B8D0C600128A8F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Player.storyboard; sourceTree = "<group>"; };
@@ -1376,6 +1379,7 @@
 				cs,
 				"zh-Hans",
 				da,
+				fr,
 			);
 			mainGroup = 418B6CEF1D2707F700F974FB;
 			productRefGroup = 418B6CF91D2707F800F974FB /* Products */;
@@ -1812,6 +1816,7 @@
 				416E40F32404BD5C006FA2EF /* zh-Hans */,
 				418A2B6A2419EBA70001AEDB /* ru */,
 				41E73EFA241D2EFC00D2C1D7 /* da */,
+				4193E203243A98AB004D6A82 /* fr */,
 			);
 			name = Localizable.stringsdict;
 			sourceTree = "<group>";
@@ -1876,6 +1881,7 @@
 				416E40F42404BD5C006FA2EF /* zh-Hans */,
 				418A2B692419E5BD0001AEDB /* ru */,
 				41E73EFB241D2EFC00D2C1D7 /* da */,
+				4193E204243A98AB004D6A82 /* fr */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -1892,6 +1898,7 @@
 				416E40F52404BD5C006FA2EF /* zh-Hans */,
 				418A2B6B2419EE060001AEDB /* ru */,
 				41E73EFC241D2EFC00D2C1D7 /* da */,
+				4193E205243A98AB004D6A82 /* fr */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";

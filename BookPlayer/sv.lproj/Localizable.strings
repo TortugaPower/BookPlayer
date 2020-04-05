@@ -177,3 +177,6 @@
 "speed_title" = "hastighet";
 "import_preparing_title" = "Förbereder import av filer";
 "library_add_title" = "Lägg till din första bok";
+"invalid_url_title" = "Ogiltig URL: %@";
+"downloading_file_title" = "Hämtar fil";
+"progress_title" = "Framsteg";

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="1tN-zP-ONE">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="1tN-zP-ONE">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16086"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -343,29 +343,32 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="571"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8XP-ZG-OgN" userLabel="Spacer A">
-                                        <rect key="frame" x="16" y="16" width="343" height="0.0"/>
+                                        <rect key="frame" x="16" y="16" width="343" height="83"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </view>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="emptyLibrary" translatesAutoresizingMaskIntoConstraints="NO" id="0RV-NO-MaQ">
-                                        <rect key="frame" x="3" y="16" width="369" height="369"/>
+                                        <rect key="frame" x="63" y="99" width="249" height="249"/>
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="0RV-NO-MaQ" secondAttribute="height" multiplier="1:1" id="s1a-a6-qNW"/>
                                         </constraints>
                                     </imageView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rr7-pJ-KIA" customClass="AddButton" customModule="BookPlayer" customModuleProvider="target">
-                                        <rect key="frame" x="16" y="395" width="343" height="88"/>
+                                        <rect key="frame" x="16" y="358" width="343" height="88"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="88" id="7xB-jU-A2O"/>
                                         </constraints>
                                         <state key="normal" title="Add your first book">
                                             <color key="titleColor" red="0.1647058824" green="0.51764705879999995" blue="0.82352941180000006" alpha="1" colorSpace="calibratedRGB"/>
                                         </state>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="string" keyPath="localizedKey" value="library_add_title"/>
+                                        </userDefinedRuntimeAttributes>
                                         <connections>
                                             <action selector="addAction" destination="Zuf-4A-dOY" eventType="touchUpInside" id="7mz-cF-NME"/>
                                         </connections>
                                     </button>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="oRg-bS-GGy" userLabel="Spacer B">
-                                        <rect key="frame" x="16" y="483" width="343" height="88"/>
+                                        <rect key="frame" x="16" y="446" width="343" height="125"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
                                             <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="88" id="dT6-Zi-nDV"/>
@@ -453,10 +456,10 @@
             <point key="canvasLocation" x="-362" y="616"/>
         </scene>
     </scenes>
+    <color key="tintColor" red="0.20392156862745098" green="0.53333333333333333" blue="0.81960784313725488" alpha="1" colorSpace="calibratedRGB"/>
     <resources>
         <image name="emptyLibrary" width="249" height="249"/>
         <image name="emptyPlaylist" width="249" height="249"/>
         <image name="nowPlayingPlay" width="62" height="62"/>
     </resources>
-    <color key="tintColor" red="0.20392156862745098" green="0.53333333333333333" blue="0.81960784313725488" alpha="1" colorSpace="calibratedRGB"/>
 </document>
