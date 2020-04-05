@@ -97,6 +97,7 @@ If you want to help translating BookPlayer into your own language, send as an em
 
 Managed with [Carthage](https://github.com/Carthage/Carthage)
 
+- [Alamofire](https://github.com/Alamofire/Alamofire) for downloading books via url scheme actions
 - [ColorCube](https://github.com/pixelogik/ColorCube) for extracting artwork colors
 - [DeviceKit](https://github.com/dennisweissmann/DeviceKit) for device information used in support requests
 - [Kingfisher](https://github.com/onevcat/Kingfisher) for contributors' profile pictures

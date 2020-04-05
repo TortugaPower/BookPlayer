@@ -1,3 +1,4 @@
+github "Alamofire/Alamofire" ~> 4.9.1
 github "cbpowell/MarqueeLabel" ~> 3.1.6
 github "pixelogik/ColorCube" "master"
 github "dennisweissmann/DeviceKit" ~> 1.7

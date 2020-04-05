@@ -72,7 +72,7 @@ final class SleepTimer {
         self.alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
     }
 
-    private func sleep(in seconds: Double) {
+    public func sleep(in seconds: Double) {
         NotificationCenter.default.post(name: .timerStart, object: nil)
         NotificationCenter.default.post(name: .timerProgress, object: nil, userInfo: ["timeLeft": seconds])
 
@@ -92,7 +92,7 @@ final class SleepTimer {
         NotificationCenter.default.removeObserver(self, name: .chapterChange, object: nil)
     }
 
-    private func cancel() {
+    public func cancel() {
         self.reset()
 
         NotificationCenter.default.post(name: .timerEnd, object: nil)

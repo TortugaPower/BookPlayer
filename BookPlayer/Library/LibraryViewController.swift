@@ -26,12 +26,6 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         // enables pop gesture on pushed controller
         self.navigationController!.interactivePopGestureRecognizer!.delegate = self
 
-        // handle CoreData migration into shared app groups
-        if !UserDefaults.standard.bool(forKey: Constants.UserDefaults.appGroupsMigration.rawValue) {
-            self.migrateCoreDataStack()
-            UserDefaults.standard.set(true, forKey: Constants.UserDefaults.appGroupsMigration.rawValue)
-        }
-
         self.loadLibrary()
 
         self.loadLastBook()
@@ -52,6 +46,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         NotificationCenter.default.addObserver(self, selector: #selector(self.onProcessingFile(_:)), name: .processingFile, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onNewFileUrl), name: .newFileUrl, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onNewOperation(_:)), name: .importOperation, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onDownloadingProgress(_:)), name: .downloadProgress, object: nil)
     }
 
     func loadLibrary() {
@@ -64,32 +59,24 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         DataManager.notifyPendingFiles()
     }
 
-    func migrateLastPlayedBook() {
-        guard let identifier = UserDefaults.standard.string(forKey: Constants.UserDefaults.lastPlayedBook.rawValue),
-            let item = self.library.getItem(with: identifier) else {
+    func downloadBook(from urlString: String) {
+        guard let url = URL(string: urlString) else {
+            self.showAlert("Error", message: "Invalid url: \(urlString)")
             return
         }
 
-        UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.lastPlayedBook.rawValue)
+        self.showLoadView(true, title: "Downloading file", subtitle: "Progress 0%")
 
-        var book: Book?
-
-        if
-            let playlist = item as? Playlist,
-            let index = playlist.itemIndex(with: identifier),
-            let playlistBook = playlist.getBook(at: index) {
-            book = playlistBook
-        } else if let lastPlayedBook = item as? Book {
-            book = lastPlayedBook
+        NetworkService.shared.download(from: url) { response in
+            self.showLoadView(false)
+            if response.error != nil,
+                let error = response.error {
+                self.showAlert("Download Error", message: error.localizedDescription)
+            }
         }
-
-        self.library.lastPlayedBook = book
-        DataManager.saveContext()
     }
 
     func loadLastBook() {
-        self.migrateLastPlayedBook()
-
         guard let book = self.library.lastPlayedBook else {
             return
         }
@@ -217,6 +204,23 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
     }
 
     // MARK: - Callback events
+
+    // This is called from a background thread inside an ImportOperation
+    @objc func onDownloadingProgress(_ notification: Notification) {
+        guard
+            let userInfo = notification.userInfo,
+            let progress = userInfo["progress"] as? String else {
+            return
+        }
+
+        DispatchQueue.main.async {
+            self.showLoadView(true, title: "Downloading file", subtitle: "Progress \(progress)%")
+
+            if let vc = self.navigationController?.visibleViewController as? PlaylistViewController {
+                vc.showLoadView(true, title: "Downloading file", subtitle: "Progress \(progress)%")
+            }
+        }
+    }
 
     @objc func onNewFileUrl() {
         guard self.loadingView.isHidden else { return }

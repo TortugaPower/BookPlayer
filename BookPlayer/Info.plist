@@ -223,9 +223,16 @@
 			<string>com.tortugapower.audiobookplayer.playLastBook</string>
 		</dict>
 	</array>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
+		<string>fetch</string>
+		<string>processing</string>
 	</array>
 	<key>UIBrowsableContentSupportsSectionedBrowsing</key>
 	<true/>
