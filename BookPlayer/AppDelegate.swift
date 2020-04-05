@@ -106,20 +106,36 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func handleAction(_ action: Action) {
-        for parameter in action.parameters {
-            guard parameter.name == "showPlayer",
-                let value = parameter.value,
-                let showPlayer = Bool(value),
-                showPlayer == true else {
-                continue
-            }
+        switch action.command {
+        case .play:
+            self.handlePlayAction(action)
+        case .download:
+            self.handleDownloadAction(action)
+        }
+    }
 
+    func handlePlayAction(_ action: Action) {
+        if let value = action.getQueryValue(for: "showPlayer"),
+            let showPlayer = Bool(value),
+            showPlayer {
             self.showPlayer()
         }
 
-        guard action.command != .open else { return }
-
         self.playLastBook()
+    }
+
+    func handleDownloadAction(_ action: Action) {
+        guard let rootVC = UIApplication.shared.keyWindow?.rootViewController! as? RootViewController,
+            let appNav = rootVC.children.first as? AppNavigationController,
+            let libraryVC = appNav.children.first as? LibraryViewController else {
+            return
+        }
+
+        appNav.dismiss(animated: true, completion: nil)
+
+        if let url = action.getQueryValue(for: "url")?.replacingOccurrences(of: "\"", with: "") {
+            libraryVC.downloadBook(from: url)
+        }
     }
 
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {

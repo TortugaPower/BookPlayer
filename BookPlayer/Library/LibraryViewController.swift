@@ -52,6 +52,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         NotificationCenter.default.addObserver(self, selector: #selector(self.onProcessingFile(_:)), name: .processingFile, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onNewFileUrl), name: .newFileUrl, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onNewOperation(_:)), name: .importOperation, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onDownloadingProgress(_:)), name: .downloadProgress, object: nil)
     }
 
     func loadLibrary() {
@@ -62,6 +63,23 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         self.tableView.reloadData()
 
         DataManager.notifyPendingFiles()
+    }
+
+    func downloadBook(from urlString: String) {
+        guard let url = URL(string: urlString) else {
+            self.showAlert("Error", message: "Invalid url: \(urlString)")
+            return
+        }
+
+        self.showLoadView(true, title: "Downloading file", subtitle: "Progress 0%")
+
+        NetworkService.shared.download(from: url) { response in
+            self.showLoadView(false)
+            if response.error != nil,
+                let error = response.error {
+                self.showAlert("Download Error", message: error.localizedDescription)
+            }
+        }
     }
 
     func migrateLastPlayedBook() {
@@ -217,6 +235,23 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
     }
 
     // MARK: - Callback events
+
+    // This is called from a background thread inside an ImportOperation
+    @objc func onDownloadingProgress(_ notification: Notification) {
+        guard
+            let userInfo = notification.userInfo,
+            let progress = userInfo["progress"] as? String else {
+            return
+        }
+
+        DispatchQueue.main.async {
+            self.showLoadView(true, title: "Downloading file", subtitle: "Progress \(progress)%")
+
+            if let vc = self.navigationController?.visibleViewController as? PlaylistViewController {
+                vc.showLoadView(true, title: "Downloading file", subtitle: "Progress \(progress)%")
+            }
+        }
+    }
 
     @objc func onNewFileUrl() {
         guard self.loadingView.isHidden else { return }
