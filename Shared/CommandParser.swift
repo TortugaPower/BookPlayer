@@ -27,6 +27,25 @@ public class CommandParser {
         return Action(command: command, parameters: parameters)
     }
 
+    public class func parse(_ message: [String: Any]) -> Action {
+        guard let commandString = message["command"] as? String,
+            let command = Command(rawValue: commandString) else { return Action(command: .play) }
+
+        var dictionary = message
+        dictionary.removeValue(forKey: "command")
+
+        var parameters = [URLQueryItem]()
+
+        for (key, value) in dictionary {
+            guard let stringValue = value as? String else { continue }
+
+            let queryItem = URLQueryItem(name: key, value: stringValue)
+            parameters.append(queryItem)
+        }
+
+        return Action(command: command, parameters: parameters)
+    }
+
     public class func createActionString(from command: Command, parameters: [URLQueryItem]) -> String {
         var actionString = "bookplayer://\(command.rawValue)?"
 
@@ -43,6 +62,10 @@ public class CommandParser {
 public enum Command: String {
     case play
     case download
+    case refresh
+    case skipRewind
+    case skipForward
+    case sleep
 }
 
 public struct Action {
