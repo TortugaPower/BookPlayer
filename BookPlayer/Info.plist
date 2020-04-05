@@ -206,6 +206,15 @@
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<false/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+		<array>
+			<string>com.tortugapower.audiobookplayer.background</string>
+	</array>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Enable microphone access so you can record audio</string>
 	<key>NSUserActivityTypes</key>
@@ -223,11 +232,6 @@
 			<string>com.tortugapower.audiobookplayer.playLastBook</string>
 		</dict>
 	</array>
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<true/>
-	</dict>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
