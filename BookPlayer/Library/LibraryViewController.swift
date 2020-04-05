@@ -26,12 +26,6 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         // enables pop gesture on pushed controller
         self.navigationController!.interactivePopGestureRecognizer!.delegate = self
 
-        // handle CoreData migration into shared app groups
-        if !UserDefaults.standard.bool(forKey: Constants.UserDefaults.appGroupsMigration.rawValue) {
-            self.migrateCoreDataStack()
-            UserDefaults.standard.set(true, forKey: Constants.UserDefaults.appGroupsMigration.rawValue)
-        }
-
         self.loadLibrary()
 
         self.loadLastBook()
@@ -82,32 +76,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         }
     }
 
-    func migrateLastPlayedBook() {
-        guard let identifier = UserDefaults.standard.string(forKey: Constants.UserDefaults.lastPlayedBook.rawValue),
-            let item = self.library.getItem(with: identifier) else {
-            return
-        }
-
-        UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.lastPlayedBook.rawValue)
-
-        var book: Book?
-
-        if
-            let playlist = item as? Playlist,
-            let index = playlist.itemIndex(with: identifier),
-            let playlistBook = playlist.getBook(at: index) {
-            book = playlistBook
-        } else if let lastPlayedBook = item as? Book {
-            book = lastPlayedBook
-        }
-
-        self.library.lastPlayedBook = book
-        DataManager.saveContext()
-    }
-
     func loadLastBook() {
-        self.migrateLastPlayedBook()
-
         guard let book = self.library.lastPlayedBook else {
             return
         }
