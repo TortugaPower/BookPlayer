@@ -61,17 +61,17 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
 
     func downloadBook(from urlString: String) {
         guard let url = URL(string: urlString) else {
-            self.showAlert("Error", message: "Invalid url: \(urlString)")
+            self.showAlert("error_title".localized, message: String.localizedStringWithFormat("invalid_url_title".localized, urlString))
             return
         }
 
-        self.showLoadView(true, title: "Downloading file", subtitle: "Progress 0%")
+        self.showLoadView(true, title: "downloading_file_title".localized, subtitle: "\("progress_title".localized) 0%")
 
         NetworkService.shared.download(from: url) { response in
             self.showLoadView(false)
             if response.error != nil,
                 let error = response.error {
-                self.showAlert("Download Error", message: error.localizedDescription)
+                self.showAlert("network_error_title".localized, message: error.localizedDescription)
             }
         }
     }
@@ -214,10 +214,10 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         }
 
         DispatchQueue.main.async {
-            self.showLoadView(true, title: "Downloading file", subtitle: "Progress \(progress)%")
+            self.showLoadView(true, title: "downloading_file_title".localized, subtitle: "\("progress_title".localized) \(progress)%")
 
             if let vc = self.navigationController?.visibleViewController as? PlaylistViewController {
-                vc.showLoadView(true, title: "Downloading file", subtitle: "Progress \(progress)%")
+                vc.showLoadView(true, title: "downloading_file_title".localized, subtitle: "\("progress_title".localized) \(progress)%")
             }
         }
     }

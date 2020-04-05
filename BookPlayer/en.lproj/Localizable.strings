@@ -177,3 +177,6 @@
 "speed_title" = "speed";
 "import_preparing_title" = "Preparing to import files";
 "library_add_title" = "Add your first book";
+"invalid_url_title" = "Invalid URL: %@";
+"downloading_file_title" = "Downloading file";
+"progress_title" = "Progress";

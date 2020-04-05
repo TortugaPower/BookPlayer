@@ -177,3 +177,6 @@
 "speed_title" = "Rychlost";
 "import_preparing_title" = "Příprava importu souborů";
 "library_add_title" = "Přidejte vaši první knihu";
+"invalid_url_title" = "Neplatná adresa URL: %@";
+"downloading_file_title" = "Stahování souboru";
+"progress_title" = "Pokrok";
