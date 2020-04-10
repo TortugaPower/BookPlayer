@@ -69,9 +69,14 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
 
         NetworkService.shared.download(from: url) { response in
             self.showLoadView(false)
+
             if response.error != nil,
                 let error = response.error {
                 self.showAlert("network_error_title".localized, message: error.localizedDescription)
+            }
+
+            if let response = response.response, response.statusCode != 200 {
+                self.showAlert("network_error_title".localized, message: nil)
             }
         }
     }

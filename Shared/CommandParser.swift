@@ -15,14 +15,24 @@ public class CommandParser {
             return Action(command: .play)
         }
 
+        guard let command = Command(rawValue: host) else { return nil }
+
+        if command == .download {
+            guard let query = url.query, let parameter = query.components(separatedBy: "url=").last else { return nil }
+
+            let paramURLstring = parameter.replacingOccurrences(of: "'", with: "").replacingOccurrences(of: "\"", with: "").replacingOccurrences(of: "%22", with: "")
+
+            let queryItem = URLQueryItem(name: "url", value: paramURLstring)
+
+            return Action(command: command, parameters: [queryItem])
+        }
+
         var parameters = [URLQueryItem]()
 
         if let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
             let queryItems = components.queryItems {
             parameters = queryItems
         }
-
-        guard let command = Command(rawValue: host) else { return nil }
 
         return Action(command: command, parameters: parameters)
     }
