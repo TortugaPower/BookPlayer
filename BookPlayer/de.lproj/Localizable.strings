@@ -180,3 +180,4 @@
 "invalid_url_title" = "Ungültige URL: %@";
 "downloading_file_title" = "Datei wird heruntergeladen";
 "progress_title" = "Fortschritt";
+"settings_siri_sleeptimer_title" = "Schlafmodus";

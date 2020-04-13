@@ -195,4 +195,5 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "library_add_title" = "Ajoutez votre premier livre";
 "invalid_url_title" = "URL non valide: %@";
 "downloading_file_title" = "Téléchargement du fichier";
-"progress_title" = "Progrès";
+"progress_title" = "Avancement";
+"settings_siri_sleeptimer_title" = "Mise en veille";

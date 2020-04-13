@@ -16,6 +16,12 @@ class ActionParserService {
         self.handleAction(action)
     }
 
+    public class func process(_ activity: NSUserActivity) {
+        guard let action = CommandParser.parse(activity) else { return }
+
+        self.handleAction(action)
+    }
+
     public class func handleAction(_ action: Action) {
         switch action.command {
         case .play:
