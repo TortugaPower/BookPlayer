@@ -14,6 +14,10 @@ import SafariServices
 import Themeable
 import UIKit
 
+protocol IntentSelectionDelegate: AnyObject {
+    func didSelectIntent(_ intent: INIntent)
+}
+
 class SettingsViewController: UITableViewController, MFMailComposeViewControllerDelegate {
     @IBOutlet weak var autoplayLibrarySwitch: UISwitch!
     @IBOutlet weak var disableAutolockSwitch: UISwitch!
@@ -24,11 +28,12 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
 
     var iconObserver: NSKeyValueObservation!
 
-    let siriShortcutPath = IndexPath(row: 0, section: 5)
-
     enum SettingsSection: Int {
         case plus = 0, theme, playback, autoplay, autolock, siri, support, credits
     }
+
+    let lastPlayedShortcutPath = IndexPath(row: 0, section: 5)
+    let sleepTimerShortcutPath = IndexPath(row: 1, section: 5)
 
     let supportSection: Int = 6
     let githubLinkPath = IndexPath(row: 0, section: 6)
@@ -142,8 +147,10 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
             self.sendSupportEmail()
         case self.githubLinkPath:
             self.showProjectOnGitHub()
-        case self.siriShortcutPath:
-            self.showSiriShortcut()
+        case self.lastPlayedShortcutPath:
+            self.showLastPlayedShortcut()
+        case self.sleepTimerShortcutPath:
+            self.showSleepTimerShortcut()
         default: break
         }
     }
@@ -200,15 +207,30 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         controller.dismiss(animated: true)
     }
 
-    func showSiriShortcut() {
-        if #available(iOS 12.0, *) {
-            let shortcut = INShortcut(userActivity: UserActivityManager.shared.currentActivity)
+    func showLastPlayedShortcut() {
+        let shortcut = INShortcut(userActivity: UserActivityManager.shared.currentActivity)
+        let vc = INUIAddVoiceShortcutViewController(shortcut: shortcut)
+        vc.delegate = self
+
+        self.present(vc, animated: true, completion: nil)
+    }
+
+    func showSleepTimerShortcut() {
+        if #available(iOS 13.0, *) {
+            let intent = SleepTimerIntent()
+            intent.option = .unknown
+            let shortcut = INShortcut(intent: intent)!
+
             let vc = INUIAddVoiceShortcutViewController(shortcut: shortcut)
             vc.delegate = self
+
             self.present(vc, animated: true, completion: nil)
-        } else {
-            self.showAlert(nil, message: "siri_alert_description".localized)
+            return
         }
+
+        let sheet = SleepTimer.shared.intentSheet(on: self)
+
+        self.present(sheet, animated: true, completion: nil)
     }
 
     @IBAction func sendSupportEmail() {
@@ -242,24 +264,28 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     func showProjectOnGitHub() {
         let url = URL(string: "https://github.com/GianniCarlo/Audiobook-Player")
         let safari = SFSafariViewController(url: url!)
-
-        if #available(iOS 11.0, *) {
-            safari.dismissButtonStyle = .close
-        }
+        safari.dismissButtonStyle = .close
 
         self.present(safari, animated: true)
     }
 }
 
 extension SettingsViewController: INUIAddVoiceShortcutViewControllerDelegate {
-    @available(iOS 12.0, *)
     func addVoiceShortcutViewControllerDidCancel(_ controller: INUIAddVoiceShortcutViewController) {
         self.dismiss(animated: true, completion: nil)
     }
 
-    @available(iOS 12.0, *)
     func addVoiceShortcutViewController(_ controller: INUIAddVoiceShortcutViewController, didFinishWith voiceShortcut: INVoiceShortcut?, error: Error?) {
         self.dismiss(animated: true, completion: nil)
+    }
+}
+
+extension SettingsViewController: IntentSelectionDelegate {
+    func didSelectIntent(_ intent: INIntent) {
+        let shortcut = INShortcut(intent: intent)!
+        let vc = INUIAddVoiceShortcutViewController(shortcut: shortcut)
+        vc.delegate = self
+        self.present(vc, animated: true, completion: nil)
     }
 }
 

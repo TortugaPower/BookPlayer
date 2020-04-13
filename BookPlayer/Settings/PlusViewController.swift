@@ -247,10 +247,7 @@ class PlusViewController: UIViewController {
 
     func showProfile(_ url: URL) {
         let safari = SFSafariViewController(url: url)
-
-        if #available(iOS 11.0, *) {
-            safari.dismissButtonStyle = .close
-        }
+        safari.dismissButtonStyle = .close
 
         self.present(safari, animated: true)
     }

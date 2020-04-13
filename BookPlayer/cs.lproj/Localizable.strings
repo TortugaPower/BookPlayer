@@ -180,3 +180,4 @@
 "invalid_url_title" = "Neplatná adresa URL: %@";
 "downloading_file_title" = "Stahování souboru";
 "progress_title" = "Pokrok";
+"settings_siri_sleeptimer_title" = "Časovač";
