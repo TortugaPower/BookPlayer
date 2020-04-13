@@ -184,8 +184,6 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
             return "settings_autoplay_description".localized
         case .autolock:
             return "settings_autolock_description".localized
-        case .siri:
-            return "settings_siri_lastplayed_description".localized
         case .support:
             return "BookPlayer \(self.appVersion) - \(self.systemVersion)"
         default:

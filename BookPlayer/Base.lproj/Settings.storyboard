@@ -245,7 +245,7 @@
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
-                            <tableViewSection headerTitle="Siri Shortcut" footerTitle="Use Siri to continue the last played book." id="V2g-SX-Hc4">
+                            <tableViewSection headerTitle="Siri Shortcut" id="V2g-SX-Hc4">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="none" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" textLabel="3Hf-KW-kuZ" style="IBUITableViewCellStyleDefault" id="uAD-fX-V6A" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="705.5" width="375" height="44"/>
