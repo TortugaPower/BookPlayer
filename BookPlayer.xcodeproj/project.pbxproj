@@ -14,6 +14,8 @@
 		410D0FED1EDCF4B000A52EB9 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D0FEC1EDCF4B000A52EB9 /* SettingsViewController.swift */; };
 		410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D0FF01EDF659900A52EB9 /* PlayerManager.swift */; };
 		4112AFD6223AD27D00BFEA55 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4112AFD5223AD27D00BFEA55 /* Sentry.framework */; };
+		4122991D24442E7800CDB416 /* BookPlayerKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */; };
+		4122991E24442E7800CDB416 /* BookPlayerKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		412451841D489204008AC0E5 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 412451821D489204008AC0E5 /* Crashlytics.framework */; };
 		41342D0124435D9900F0905B /* IntentHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41342D0024435D9900F0905B /* IntentHandler.swift */; };
 		41342D0524435D9900F0905B /* BookPlayerIntents.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 41342CFE24435D9900F0905B /* BookPlayerIntents.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -237,6 +239,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		4122991F24442E7800CDB416 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 418B6CF01D2707F700F974FB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 41A1B0D1226E9BC400EA0400;
+			remoteInfo = BookPlayerKit;
+		};
 		41342D0324435D9900F0905B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 418B6CF01D2707F700F974FB /* Project object */;
@@ -289,6 +298,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		4122992124442E7800CDB416 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				4122991E24442E7800CDB416 /* BookPlayerKit.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4140EA56227288EF0009F794 /* Embed App Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -592,6 +612,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4122991D24442E7800CDB416 /* BookPlayerKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1199,10 +1220,12 @@
 				41342CFA24435D9900F0905B /* Sources */,
 				41342CFB24435D9900F0905B /* Frameworks */,
 				41342CFC24435D9900F0905B /* Resources */,
+				4122992124442E7800CDB416 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				4122992024442E7800CDB416 /* PBXTargetDependency */,
 			);
 			name = BookPlayerIntents;
 			productName = BookPlayerIntents;
@@ -1850,6 +1873,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		4122992024442E7800CDB416 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 41A1B0D1226E9BC400EA0400 /* BookPlayerKit */;
+			targetProxy = 4122991F24442E7800CDB416 /* PBXContainerItemProxy */;
+		};
 		41342D0424435D9900F0905B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 41342CFD24435D9900F0905B /* BookPlayerIntents */;
