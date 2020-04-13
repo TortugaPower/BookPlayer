@@ -14,6 +14,7 @@ class SleepTimerHandler: NSObject, SleepTimerIntentHandling {
         completion(SleepTimerIntentResponse(code: .continueInApp, userActivity: nil))
     }
 
+    @available(iOSApplicationExtension 13.0, *)
     func resolveOption(for intent: SleepTimerIntent, with completion: @escaping (TimerOptionResolutionResult) -> Void) {
         if intent.option == .unknown {
             completion(TimerOptionResolutionResult.needsValue())
@@ -22,6 +23,7 @@ class SleepTimerHandler: NSObject, SleepTimerIntentHandling {
         }
     }
 
+    @available(iOSApplicationExtension 13.0, *)
     func resolveSeconds(for intent: SleepTimerIntent, with completion: @escaping (SleepTimerSecondsResolutionResult) -> Void) {
         completion(SleepTimerSecondsResolutionResult.notRequired())
     }
