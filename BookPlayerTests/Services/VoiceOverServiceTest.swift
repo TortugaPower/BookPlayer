@@ -9,23 +9,30 @@ class VoiceOverServiceTest: XCTestCase {
 
     func testRewindText() {
         PlayerManager.shared.rewindInterval = 60
-        XCTAssert(VoiceOverService.rewindText() == "Rewind 1 minute")
+
+        let localizedString = String(describing: String.localizedStringWithFormat("voiceover_rewind_time".localized, VoiceOverService.secondsToMinutes(PlayerManager.shared.rewindInterval.rounded())))
+
+        XCTAssert(VoiceOverService.rewindText() == localizedString)
     }
 
     func testForwardText() {
         PlayerManager.shared.forwardInterval = 60
-        XCTAssert(VoiceOverService.fastForwardText() == "Fast Forward 1 minute")
+
+        var localizedString = String(describing: String.localizedStringWithFormat("voiceover_forward_time".localized, VoiceOverService.secondsToMinutes(PlayerManager.shared.forwardInterval.rounded())))
+
+        XCTAssert(VoiceOverService.fastForwardText() == localizedString)
 
         PlayerManager.shared.forwardInterval = 90
-        XCTAssert(VoiceOverService.fastForwardText() == "Fast Forward 1 minute 30 seconds")
+
+        localizedString = String(describing: String.localizedStringWithFormat("voiceover_forward_time".localized, VoiceOverService.secondsToMinutes(PlayerManager.shared.forwardInterval.rounded())))
+
+        XCTAssert(VoiceOverService.fastForwardText() == localizedString)
 
         PlayerManager.shared.forwardInterval = 120
-        XCTAssert(VoiceOverService.fastForwardText() == "Fast Forward 2 minutes")
-    }
 
-    func testSecondsToMinutes() {
-        XCTAssert(VoiceOverService.secondsToMinutes(7952) == "2 hours 12 minutes 32 seconds")
-        XCTAssert(VoiceOverService.secondsToMinutes(3661) == "1 hour 1 minute 1 second")
+        localizedString = String(describing: String.localizedStringWithFormat("voiceover_forward_time".localized, VoiceOverService.secondsToMinutes(PlayerManager.shared.forwardInterval.rounded())))
+
+        XCTAssert(VoiceOverService.fastForwardText() == localizedString)
     }
 
     func testPerformanceExample() {

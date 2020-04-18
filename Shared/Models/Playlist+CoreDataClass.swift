@@ -52,7 +52,7 @@ public class Playlist: LibraryItem {
         self.identifier = "\(title)\(Date().timeIntervalSince1970)"
         self.title = title
         self.originalFileName = title
-        self.desc = "\(books.count) Files"
+        self.desc = "\(books.count) \("files_title".localized)"
         self.addToBooks(NSOrderedSet(array: books))
     }
 
@@ -189,7 +189,7 @@ public class Playlist: LibraryItem {
     public override func info() -> String {
         let count = self.books?.array.count ?? 0
 
-        return "\(count) Files"
+        return "\(count) \("files_title".localized)"
     }
 
     enum CodingKeys: String, CodingKey {
@@ -218,7 +218,7 @@ public class Playlist: LibraryItem {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         title = try values.decode(String.self, forKey: .title)
         desc = try values.decode(String.self, forKey: .desc)
-        let booksArray = try values.decode(Array<Book>.self, forKey: .books)
+        let booksArray = try values.decode([Book].self, forKey: .books)
         books = NSOrderedSet(array: booksArray)
     }
 }

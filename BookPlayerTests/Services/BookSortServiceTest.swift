@@ -26,13 +26,13 @@ class BookSortServiceTest: XCTestCase {
     override func tearDown() {}
 
     func testSortByFileName() {
-        let sortedBooks = BookSortService.sort(booksByFile!, by: .fileName)
+        let sortedBooks = BookSortService.sort(self.booksByFile!, by: .fileName)
         let bookNames = sortedBooks.map { (book) -> String in
             guard let book = book as? Book else { return "" }
             return book.originalFileName!
         }
 
-        XCTAssert(bookNames == orderedBookNames)
+        XCTAssert(bookNames == self.orderedBookNames)
         // swiftlint:enable force_try
     }
 }

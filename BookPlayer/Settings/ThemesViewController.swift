@@ -56,6 +56,8 @@ class ThemesViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        self.navigationItem.title = "themes_title".localized
+
         self.localThemes = DataManager.getLocalThemes()
         self.extractedThemes = DataManager.getExtractedThemes()
 
@@ -177,7 +179,7 @@ class ThemesViewController: UIViewController {
             return
         }
 
-        //handle switching variant if the other toggle is enabled
+        // handle switching variant if the other toggle is enabled
         let darkVariantEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeDarkVariantEnabled.rawValue)
 
         if UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeBrightnessEnabled.rawValue) {
@@ -198,7 +200,7 @@ class ThemesViewController: UIViewController {
         self.sliderUp(self.brightnessSlider)
 
         guard !sender.isOn else { return }
-        //handle switching variant if the other toggle is enabled
+        // handle switching variant if the other toggle is enabled
         let darkVariantEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeDarkVariantEnabled.rawValue)
 
         guard ThemeManager.shared.useDarkVariant != darkVariantEnabled else { return }
@@ -212,22 +214,22 @@ class ThemesViewController: UIViewController {
             : CGFloat(self.cellHeight)
 
         guard animated else {
-            self.brightnessViews.forEach({ view in
+            self.brightnessViews.forEach { view in
                 view.alpha = self.brightnessSwitch.isOn
                     ? 1.0
                     : 0.0
-            })
+            }
             self.view.layoutIfNeeded()
             self.resizeScrollContent()
             return
         }
 
         UIView.animate(withDuration: 0.3, animations: {
-            self.brightnessViews.forEach({ view in
+            self.brightnessViews.forEach { view in
                 view.alpha = self.brightnessSwitch.isOn
                     ? 1.0
                     : 0.0
-            })
+            }
             self.view.layoutIfNeeded()
         }, completion: { _ in
             self.resizeScrollContent()
@@ -269,7 +271,7 @@ extension ThemesViewController: UITableViewDataSource {
         cell.titleLabel.textColor = ThemeManager.shared.currentTheme.primaryColor
 
         guard indexPath.sectionValue != .add else {
-            cell.titleLabel.text = "Add"
+            cell.titleLabel.text = "library_add_button".localized
             cell.titleLabel.textColor = ThemeManager.shared.currentTheme.highlightColor
             cell.plusImageView.isHidden = false
             cell.plusImageView.tintColor = ThemeManager.shared.currentTheme.highlightColor

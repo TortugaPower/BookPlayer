@@ -29,13 +29,13 @@ class CollectionViewRow {
     }
 
     var rowWidth: CGFloat {
-        return self.attributes.reduce(0, { result, attribute -> CGFloat in
+        return self.attributes.reduce(0) { result, attribute -> CGFloat in
             result + attribute.frame.width
-        }) + CGFloat(self.attributes.count - 1) * self.spacing
+        } + CGFloat(self.attributes.count - 1) * self.spacing
     }
 
     func centerLayout(collectionViewWidth: CGFloat) {
-        let padding = (collectionViewWidth - rowWidth) / 2
+        let padding = (collectionViewWidth - self.rowWidth) / 2
         var offset = padding
         for attribute in self.attributes {
             attribute.frame.origin.x = offset

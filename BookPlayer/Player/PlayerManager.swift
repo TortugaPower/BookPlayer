@@ -24,7 +24,7 @@ class PlayerManager: NSObject {
 
     private var observeStatus: Bool = false {
         didSet {
-            guard oldValue != observeStatus else { return }
+            guard oldValue != self.observeStatus else { return }
 
             if self.observeStatus {
                 self.playerItem?.addObserver(self, forKeyPath: "status", options: .new, context: nil)
@@ -73,6 +73,9 @@ class PlayerManager: NSObject {
             self.update()
         }
 
+        // Only route audio for AirPlay
+        self.audioPlayer.allowsExternalPlayback = false
+
         NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying(_:)), name: .AVPlayerItemDidPlayToEndTime, object: nil)
     }
 
@@ -86,11 +89,11 @@ class PlayerManager: NSObject {
         self.queue.addOperation {
             // try loading the player
             guard let item = self.playerItem else {
-                DispatchQueue.main.async(execute: {
+                DispatchQueue.main.async {
                     self.currentBook = nil
 
                     completion(false)
-                })
+                }
 
                 return
             }
@@ -101,7 +104,7 @@ class PlayerManager: NSObject {
             self.boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
 
             // Update UI on main thread
-            DispatchQueue.main.async(execute: {
+            DispatchQueue.main.async {
                 // Set book metadata for lockscreen and control center
                 self.nowPlayingInfo = [
                     MPNowPlayingInfoPropertyDefaultPlaybackRate: self.speed
@@ -127,7 +130,7 @@ class PlayerManager: NSObject {
 
                 self.hasLoadedBook = true
                 completion(true)
-            })
+            }
         }
     }
 
@@ -157,7 +160,7 @@ class PlayerManager: NSObject {
                                             userInfo: [
                                                 "progress": book.progress,
                                                 "fileURL": fileURL
-            ] as [String: Any])
+                                            ] as [String: Any])
         }
 
         self.setNowPlayingBookTime()
@@ -351,7 +354,7 @@ extension PlayerManager {
 
         guard let item = self.playerItem,
             item.status == .readyToPlay else {
-            //queue playback
+            // queue playback
             self.observeStatus = true
             return
         }
@@ -456,7 +459,7 @@ extension PlayerManager {
 
         self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0.0
         self.setNowPlayingBookTime()
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
 
         UserDefaults.standard.set(Date(), forKey: "\(Constants.UserDefaults.lastPauseTime)_\(currentBook.identifier!)")
 
@@ -512,7 +515,7 @@ extension PlayerManager {
                                         object: nil,
                                         userInfo: [
                                             "fileURL": fileURL
-        ])
+                                        ])
     }
 
     @objc

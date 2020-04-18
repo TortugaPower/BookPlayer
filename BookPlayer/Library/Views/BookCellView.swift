@@ -168,10 +168,10 @@ extension BookCellView {
     private func setAccessibilityLabels() {
         let voiceOverService = VoiceOverService()
         isAccessibilityElement = true
-        accessibilityLabel = voiceOverService.bookCellView(type: type,
-                                                           title: title,
-                                                           subtitle: subtitle,
-                                                           progress: progress)
+        accessibilityLabel = voiceOverService.bookCellView(type: self.type,
+                                                           title: self.title,
+                                                           subtitle: self.subtitle,
+                                                           progress: self.progress)
     }
 }
 

@@ -33,15 +33,13 @@ final class ThemeManager: ThemeProvider {
     }
 
     public func checkSystemMode() {
-        guard #available(iOS 12.0, *),
-            UserDefaults.standard.bool(forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue) else { return }
+        guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue) else { return }
 
         self.useDarkVariant = UIScreen.main.traitCollection.userInterfaceStyle == .dark
     }
 
     private init() {
-        if #available(iOS 12.0, *),
-            UserDefaults.standard.bool(forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue) {
+        if UserDefaults.standard.bool(forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue) {
             self.useDarkVariant = UIScreen.main.traitCollection.userInterfaceStyle == .dark
         } else {
             self.useDarkVariant = UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeDarkVariantEnabled.rawValue)

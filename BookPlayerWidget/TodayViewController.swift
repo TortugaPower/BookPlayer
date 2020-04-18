@@ -62,7 +62,7 @@ class TodayViewController: UIViewController, NCWidgetProviding {
         self.playButton.tintColor = theme.highlightColor
     }
 
-    func widgetPerformUpdate(completionHandler: (@escaping (NCUpdateResult) -> Void)) {
+    func widgetPerformUpdate(completionHandler: @escaping (NCUpdateResult) -> Void) {
         self.updateBookDetails()
         completionHandler(NCUpdateResult.newData)
     }

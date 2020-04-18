@@ -96,6 +96,13 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: .requestReview, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.requestReview), name: .bookEnd, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.bookChange(_:)), name: .bookChange, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.timerStart), name: .timerStart, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.timerProgress(_:)), name: .timerProgress, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.timerEnd), name: .timerEnd, object: nil)
+
+        if SleepTimer.shared.isActive() {
+            self.updateToolbar(true, animated: true)
+        }
 
         // Gestures
         self.pan = UIPanGestureRecognizer(target: self, action: #selector(self.panAction))
@@ -135,7 +142,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.controlsViewController?.book = currentBook
 
         self.speedButton.title = self.formatSpeed(PlayerManager.shared.speed)
-        self.speedButton.accessibilityLabel = String(describing: self.formatSpeed(PlayerManager.shared.speed) + " speed")
+        self.speedButton.accessibilityLabel = String(describing: self.formatSpeed(PlayerManager.shared.speed) + " \("speed_title".localized)")
 
         self.updateToolbar()
 
@@ -175,7 +182,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             let avRoutePickerBarButtonItem = UIBarButtonItem(customView: AVRoutePickerView(frame: CGRect(x: 0.0, y: 0.0, width: 20.0, height: 20.0)))
 
             avRoutePickerBarButtonItem.isAccessibilityElement = true
-            avRoutePickerBarButtonItem.accessibilityLabel = "Audio Source"
+            avRoutePickerBarButtonItem.accessibilityLabel = "audio_source_title".localized
             items.append(spacer)
             items.append(avRoutePickerBarButtonItem)
         }
@@ -220,6 +227,30 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.currentBook = book
 
         self.setupView(book: book)
+    }
+
+    @objc func timerStart() {
+        self.updateToolbar(true, animated: true)
+    }
+
+    @objc func timerProgress(_ notification: Notification) {
+        guard
+            let userInfo = notification.userInfo,
+            let timeLeft = userInfo["timeLeft"] as? Double
+        else {
+            return
+        }
+
+        self.sleepLabel.title = SleepTimer.shared.durationFormatter.string(from: timeLeft)
+        if let timeLeft = SleepTimer.shared.durationFormatter.string(from: timeLeft) {
+            let remainingTitle = String(describing: String.localizedStringWithFormat("sleep_remaining_title".localized, timeLeft))
+            self.sleepLabel.accessibilityLabel = String(describing: remainingTitle)
+        }
+    }
+
+    @objc func timerEnd() {
+        self.sleepLabel.title = ""
+        self.updateToolbar(false, animated: true)
     }
 
     // MARK: - Gesture recognizers
@@ -320,7 +351,7 @@ extension PlayerViewController {
     // MARK: - Toolbar actions
 
     @IBAction func setSpeed() {
-        let actionSheet = UIAlertController(title: nil, message: "Set playback speed", preferredStyle: .actionSheet)
+        let actionSheet = UIAlertController(title: nil, message: "player_speed_title".localized, preferredStyle: .actionSheet)
 
         for speed in PlayerManager.speedOptions {
             if speed == PlayerManager.shared.speed {
@@ -334,30 +365,13 @@ extension PlayerViewController {
             }
         }
 
-        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        actionSheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
 
         self.present(actionSheet, animated: true, completion: nil)
     }
 
     @IBAction func setSleepTimer() {
-        let actionSheet = SleepTimer.shared.actionSheet(onStart: {
-            self.updateToolbar(true, animated: true)
-        },
-                                                        onProgress: { (timeLeft: Double) -> Void in
-            self.sleepLabel.title = SleepTimer.shared.durationFormatter.string(from: timeLeft)
-            if let timeLeft = SleepTimer.shared.durationFormatter.string(from: timeLeft) {
-                self.sleepLabel.accessibilityLabel = String(describing: timeLeft + " remaining until sleep")
-            }
-        },
-                                                        onEnd: { (_ cancelled: Bool) -> Void in
-            if !cancelled {
-                PlayerManager.shared.pause()
-            }
-
-            self.sleepLabel.title = ""
-            self.updateToolbar(false, animated: true)
-        })
-
+        let actionSheet = SleepTimer.shared.actionSheet()
         self.present(actionSheet, animated: true, completion: nil)
     }
 
@@ -368,19 +382,19 @@ extension PlayerViewController {
 
         let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
-        actionSheet.addAction(UIAlertAction(title: "Jump To Start", style: .default, handler: { _ in
+        actionSheet.addAction(UIAlertAction(title: "jump_start_title".localized, style: .default, handler: { _ in
             PlayerManager.shared.pause()
             PlayerManager.shared.jumpTo(0.0)
         }))
 
-        let markTitle = self.currentBook.isFinished ? "Mark as Unfinished" : "Mark as Finished"
+        let markTitle = self.currentBook.isFinished ? "mark_unfinished_title".localized : "mark_finished_title".localized
 
         actionSheet.addAction(UIAlertAction(title: markTitle, style: .default, handler: { _ in
             PlayerManager.shared.pause()
             PlayerManager.shared.markAsCompleted(!self.currentBook.isFinished)
         }))
 
-        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        actionSheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
 
         self.present(actionSheet, animated: true, completion: nil)
     }

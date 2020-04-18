@@ -101,7 +101,7 @@ extension DataManager {
      Filter out folders from file URLs.
      */
     private class func filterFiles(_ urls: [URL]) -> [URL] {
-        return urls.filter({ !$0.hasDirectoryPath })
+        return urls.filter { !$0.hasDirectoryPath }
     }
 
     /**

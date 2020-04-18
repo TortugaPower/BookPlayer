@@ -99,12 +99,12 @@ class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecogniz
     // MARK: - Voiceover
 
     private func setVoiceOverLabels() {
-        let voiceOverTitle = titleLabel.text ?? "No Title"
-        let voiceOverSubtitle = authorLabel.text ?? "No Author"
-        titleLabel.accessibilityLabel = "Currently Playing \(voiceOverTitle) by \(voiceOverSubtitle)"
-        titleLabel.accessibilityHint = "Miniplayer. Tap to show the Player"
-        playPauseButton.accessibilityLabel = "Play"
-        playPauseButton.accessibilityHint = "Tap to Play"
+        let voiceOverTitle = self.titleLabel.text ?? "No Title"
+        let voiceOverSubtitle = self.authorLabel.text ?? "No Author"
+        self.titleLabel.accessibilityLabel = "Currently Playing \(voiceOverTitle) by \(voiceOverSubtitle)"
+        self.titleLabel.accessibilityHint = "Miniplayer. Tap to show the Player"
+        self.playPauseButton.accessibilityLabel = "Play"
+        self.playPauseButton.accessibilityHint = "Tap to Play"
         self.artwork.isAccessibilityElement = false
     }
 }

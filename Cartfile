@@ -1,10 +1,11 @@
+github "Alamofire/Alamofire" ~> 4.9.1
 github "cbpowell/MarqueeLabel" ~> 3.1.6
 github "pixelogik/ColorCube" "master"
 github "dennisweissmann/DeviceKit" ~> 1.7
 github "GianniCarlo/SwiftReorder"
 github "iosdevzone/IDZSwiftCommonCrypto"
 github "GianniCarlo/DirectoryWatcher"
-github "weichsel/ZIPFoundation" ~> 0.9
+github "ZipArchive/ZipArchive"
 github "GianniCarlo/Themeable" "master"
 github "getsentry/sentry-cocoa" "4.1.0"
 github "onevcat/Kingfisher" ~> 5.0

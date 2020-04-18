@@ -17,6 +17,7 @@ Please visit our [Wiki](https://github.com/TortugaPower/BookPlayer/wiki) for our
 - Using [AirDrop](https://support.apple.com/en-us/HT204144#receive)  from your Mac or iOS device
 - From [Files](https://support.apple.com/en-us/ht206481) and other apps on your device
 - Via [File Sharing](https://support.apple.com/en-us/HT201301) in iTunes on your Mac or PC
+- Zip archives are supported and can be turned into playlists automatically
 
 ### Manage 
 
@@ -39,12 +40,31 @@ Please visit our [Wiki](https://github.com/TortugaPower/BookPlayer/wiki) for our
 - Support for remote events from headset buttons and the lock screen
 - Sleep timer with adjustable duration
 - Support for VoiceOver
+- Dark mode for night owls
+
+### BookPlayer Plus
+
+- Support Open Source development
+- Additional color themes
+- Select from alternative App Icons
 
 ### Upcoming features
 
-See [our Roadmap on GitHub](https://github.com/GianniCarlo/Audiobook-Player/projects/1) for details
+See [our Roadmap on GitHub](https://github.com/GianniCarlo/Audiobook-Player/projects/1) for details.
 
+### Supported locales & Languages
 
+- English
+- Czech (Petr Kabrna)
+- German ([@pichfl](https://github.com/pichfl))
+- Russian ([@Nibelungc](https://github.com/Nibelungc), Andrey Kozlov, [@carcade](https://github.com/carcade) & Eugene Newfield)
+- Spanish ([@GianniCarlo](https://github.com/GianniCarlo))
+- Swedish ([@hypeitinc](https://github.com/hypeitinc))
+- Chinese Simplified ([@wangqj](https://twitter.com/wangqj))
+- Danish (Carl Houmøller)
+- French (Christophe Vergne)
+
+Help us to [translate BookPlayer](#localisation).
 
 ## Contributing
 
@@ -68,12 +88,17 @@ If you enjoy BookPlayer, we would be glad if you consider writing a review on th
 
 A full list of all contributors can be found [on GitHub.](https://github.com/GianniCarlo/Audiobook-Player/graphs/contributors)
 
+### Localisation
 
+[![Localization generously sponsored by Lokalise, the best platform for adding lodalization to your applications](./.github/lokalise@2x.png)](https://lokalise.com/)
+
+If you want to help translating BookPlayer into your own language, send as an email at support@bookplayer.app so we can invite you to Lokalise.
 
 ## Dependencies
 
 Managed with [Carthage](https://github.com/Carthage/Carthage)
 
+- [Alamofire](https://github.com/Alamofire/Alamofire) for downloading books via url scheme actions
 - [ColorCube](https://github.com/pixelogik/ColorCube) for extracting artwork colors
 - [DeviceKit](https://github.com/dennisweissmann/DeviceKit) for device information used in support requests
 - [Kingfisher](https://github.com/onevcat/Kingfisher) for contributors' profile pictures
@@ -83,7 +108,7 @@ Managed with [Carthage](https://github.com/Carthage/Carthage)
 - [Sweetercolor](https://github.com/jathu/sweetercolor) for handling artwork colors
 - [SwiftReorder](https://github.com/GianniCarlo/SwiftReorder) for drag-and-drop on the UITableView
 - [SwiftyStoreKit](https://github.com/bizz84/SwiftyStoreKit) for the tip jar
-- [ZIPFoundation](https://github.com/weichsel/ZIPFoundation) for zip files
+- [ZipArchive](https://github.com/ZipArchive/ZipArchive) for zip files
 
 Managed with [Homebrew](https://brew.sh)
 

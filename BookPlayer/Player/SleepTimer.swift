@@ -6,7 +6,9 @@
 //  Copyright © 2018 Florian Pichler.
 //
 
+import BookPlayerKit
 import Foundation
+import IntentsUI
 import UIKit
 
 typealias SleepTimerStart = () -> Void
@@ -19,12 +21,9 @@ final class SleepTimer {
     let durationFormatter: DateComponentsFormatter = DateComponentsFormatter()
 
     private var timer: Timer?
-    private var onStart: SleepTimerStart?
-    private var onProgress: SleepTimerProgress?
-    private var onEnd: SleepTimerEnd?
 
-    private let defaultMessage: String = "Pause playback"
-    private let alert: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+    private let defaultMessage: String = "player_sleep_title".localized
+    private var alert: UIAlertController?
     private var timeLeft: TimeInterval = 0.0
     private let intervals: [TimeInterval] = [
         300.0,
@@ -35,6 +34,10 @@ final class SleepTimer {
         3600.0
     ]
 
+    public func isActive() -> Bool {
+        return self.timer?.isValid ?? false
+    }
+
     // MARK: Internals
 
     private init() {
@@ -43,66 +46,30 @@ final class SleepTimer {
         self.durationFormatter.collapsesLargestUnit = true
 
         self.reset()
-
-        let formatter = DateComponentsFormatter()
-
-        formatter.unitsStyle = .full
-        formatter.allowedUnits = [.hour, .minute]
-
-        self.alert.addAction(UIAlertAction(title: "Off", style: .default, handler: { _ in
-            self.cancel()
-        }))
-
-        for interval in self.intervals {
-            let formattedDuration = formatter.string(from: interval as TimeInterval)!
-
-            self.alert.addAction(UIAlertAction(title: "In \(formattedDuration)", style: .default, handler: { _ in
-                self.sleep(in: interval)
-            }))
-        }
-
-        self.alert.addAction(UIAlertAction(title: "End of current chapter", style: .default) { _ in
-            self.cancel()
-            self.alert.message = "Sleeping when the chapter ends"
-            NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .chapterChange, object: nil)
-            NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .bookChange, object: nil)
-        })
-
-        self.alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-    }
-
-    private func sleep(in seconds: Double) {
-        self.onStart?()
-        self.onProgress?(seconds)
-
-        self.reset()
-
-        self.timeLeft = seconds
-        self.timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.update), userInfo: nil, repeats: true)
-
-        RunLoop.main.add(self.timer!, forMode: RunLoop.Mode.common)
     }
 
     private func reset() {
-        self.alert.message = defaultMessage
+        self.alert?.message = self.defaultMessage
 
         self.timer?.invalidate()
         NotificationCenter.default.removeObserver(self, name: .bookChange, object: nil)
         NotificationCenter.default.removeObserver(self, name: .chapterChange, object: nil)
     }
 
-    private func cancel() {
-        self.reset()
+    private func donateTimerIntent(with option: TimerOption) {
+        let intent = SleepTimerIntent()
+        intent.option = option
 
-        self.onEnd?(true)
+        let interaction = INInteraction(intent: intent, response: nil)
+        interaction.donate(completion: nil)
     }
 
     @objc private func update() {
         self.timeLeft -= 1.0
 
-        self.onProgress?(self.timeLeft)
+        NotificationCenter.default.post(name: .timerProgress, object: nil, userInfo: ["timeLeft": self.timeLeft])
 
-        self.alert.message = "Sleeping in \(self.durationFormatter.string(from: self.timeLeft)!)"
+        self.alert?.message = String.localizedStringWithFormat("sleep_time_description".localized, self.durationFormatter.string(from: self.timeLeft)!)
 
         if self.timeLeft <= 0 {
             self.end()
@@ -112,16 +79,119 @@ final class SleepTimer {
     @objc private func end() {
         self.reset()
 
-        self.onEnd?(false)
+        PlayerManager.shared.pause()
+
+        NotificationCenter.default.post(name: .timerEnd, object: nil)
     }
 
     // MARK: Public methods
 
-    func actionSheet(onStart: @escaping SleepTimerStart, onProgress: @escaping SleepTimerProgress, onEnd: @escaping SleepTimerEnd) -> UIAlertController {
-        self.onStart = onStart
-        self.onEnd = onEnd
-        self.onProgress = onProgress
+    func intentSheet(on vc: UIViewController) -> UIAlertController {
+        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
-        return self.alert
+        let formatter = DateComponentsFormatter()
+
+        formatter.unitsStyle = .full
+        formatter.allowedUnits = [.hour, .minute]
+
+        let intent = SleepTimerIntent()
+
+        alert.addAction(UIAlertAction(title: "sleep_off_title".localized, style: .default, handler: { _ in
+            intent.option = .cancel
+            (vc as? IntentSelectionDelegate)?.didSelectIntent(intent)
+        }))
+
+        for interval in self.intervals {
+            let formattedDuration = formatter.string(from: interval as TimeInterval)!
+
+            alert.addAction(UIAlertAction(title: String.localizedStringWithFormat("sleep_interval_title".localized, formattedDuration), style: .default, handler: { _ in
+                intent.option = TimeParser.getTimerOption(from: interval)
+                (vc as? IntentSelectionDelegate)?.didSelectIntent(intent)
+            }))
+        }
+
+        alert.addAction(UIAlertAction(title: "sleep_chapter_option_title".localized, style: .default) { _ in
+            intent.option = .endChapter
+            (vc as? IntentSelectionDelegate)?.didSelectIntent(intent)
+        })
+
+        alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
+
+        return alert
+    }
+
+    func actionSheet() -> UIAlertController {
+        if let alert = self.alert {
+            return alert
+        }
+
+        let formatter = DateComponentsFormatter()
+
+        formatter.unitsStyle = .full
+        formatter.allowedUnits = [.hour, .minute]
+
+        self.alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+
+        self.alert?.addAction(UIAlertAction(title: "sleep_off_title".localized, style: .default, handler: { _ in
+            self.cancel()
+            self.donateTimerIntent(with: .cancel)
+        }))
+
+        for interval in self.intervals {
+            let formattedDuration = formatter.string(from: interval as TimeInterval)!
+
+            self.alert?.addAction(UIAlertAction(title: String.localizedStringWithFormat("sleep_interval_title".localized, formattedDuration), style: .default, handler: { _ in
+                self.sleep(in: interval)
+            }))
+        }
+
+        self.alert?.addAction(UIAlertAction(title: "sleep_chapter_option_title".localized, style: .default) { _ in
+            self.cancel()
+            self.alert?.message = "sleep_alert_description".localized
+            NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .chapterChange, object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .bookChange, object: nil)
+            self.donateTimerIntent(with: .endChapter)
+        })
+
+        self.alert?.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
+        return self.alert!
+    }
+
+    public func cancel() {
+        self.reset()
+
+        NotificationCenter.default.post(name: .timerEnd, object: nil)
+    }
+
+    public func sleep(in option: TimerOption) {
+        let seconds = TimeParser.getSeconds(from: option)
+
+        if seconds > 0 {
+            self.sleep(in: seconds)
+        } else if seconds == -1 {
+            self.cancel()
+            self.donateTimerIntent(with: .cancel)
+        } else if seconds == -2 {
+            self.cancel()
+            self.alert?.message = "sleep_alert_description".localized
+            NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .chapterChange, object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .bookChange, object: nil)
+            self.donateTimerIntent(with: .endChapter)
+        }
+    }
+
+    public func sleep(in seconds: Double) {
+        let option = TimeParser.getTimerOption(from: seconds)
+        self.donateTimerIntent(with: option)
+
+        NotificationCenter.default.post(name: .timerStart, object: nil)
+        NotificationCenter.default.post(name: .timerProgress, object: nil, userInfo: ["timeLeft": seconds])
+
+        self.reset()
+
+        self.timeLeft = seconds
+        self.timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.update), userInfo: nil, repeats: true)
+
+        RunLoop.main.add(self.timer!, forMode: RunLoop.Mode.common)
     }
 }

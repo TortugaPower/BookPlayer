@@ -22,23 +22,23 @@ extension ItemListActions {
     }
 
     func move(_ items: [LibraryItem], to playlist: Playlist) {
-        let selectedPlaylists = items.compactMap({ (item) -> Playlist? in
+        let selectedPlaylists = items.compactMap { (item) -> Playlist? in
             guard
                 let itemPlaylist = item as? Playlist,
                 itemPlaylist != playlist else { return nil }
 
             return itemPlaylist
-        })
+        }
 
-        let selectedBooks = items.compactMap({ (item) -> Book? in
+        let selectedBooks = items.compactMap { (item) -> Book? in
             item as? Book
-        })
+        }
 
-        let books = Array(selectedPlaylists.compactMap({ (playlist) -> [Book]? in
+        let books = Array(selectedPlaylists.compactMap { (playlist) -> [Book]? in
             guard let books = playlist.books else { return nil }
 
             return books.array as? [Book]
-        }).joined())
+        }.joined())
 
         let allBooks = books + selectedBooks
 

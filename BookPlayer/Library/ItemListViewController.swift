@@ -23,7 +23,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
     @IBOutlet weak var tableView: UITableView!
 
     private var previousLeftButtons: [UIBarButtonItem]?
-    lazy var selectButton: UIBarButtonItem = UIBarButtonItem(title: "Select All", style: .plain, target: self, action: #selector(selectButtonPressed))
+    lazy var selectButton: UIBarButtonItem = UIBarButtonItem(title: "select_all_title".localized, style: .plain, target: self, action: #selector(selectButtonPressed))
     lazy var searchController: UISearchController = {
         let searchController = UISearchController(searchResultsController: nil)
         searchController.obscuresBackgroundDuringPresentation = false
@@ -138,7 +138,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
             }
 
             let selectedItems = indexPaths.map { (indexPath) -> LibraryItem in
-                return self.items[indexPath.row]
+                self.items[indexPath.row]
             }
 
             self.handleMove(selectedItems)
@@ -150,7 +150,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
             }
 
             let selectedItems = indexPaths.map { (indexPath) -> LibraryItem in
-                return self.items[indexPath.row]
+                self.items[indexPath.row]
             }
 
             self.handleTrash(selectedItems)
@@ -188,8 +188,8 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         guard self.tableView.isEditing else { return }
 
         self.selectButton.title = self.tableView.numberOfRows(inSection: Section.data.rawValue) > (self.tableView.indexPathsForSelectedRows?.count ?? 0)
-            ? "Select All"
-            : "Deselect All"
+            ? "select_all_title".localized
+            : "deselect_all_title".localized
 
         guard self.tableView.indexPathForSelectedRow == nil else {
             self.bulkControls.moveButton.isEnabled = true
@@ -209,10 +209,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         let providerList = UIDocumentPickerViewController(documentTypes: ["public.audio", "com.pkware.zip-archive", "public.movie"], in: .import)
 
         providerList.delegate = self
-
-        if #available(iOS 11.0, *) {
-            providerList.allowsMultipleSelection = true
-        }
+        providerList.allowsMultipleSelection = true
 
         UIApplication.shared.isIdleTimerDisabled = true
 
@@ -247,7 +244,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
 
     func loadPlayer(book: Book) {
         guard DataManager.exists(book) else {
-            self.showAlert("File missing!", message: "This book’s file was removed from your device. Import the file again to play the book")
+            self.showAlert("file_missing_title".localized, message: "file_missing_description".localized)
 
             return
         }
@@ -255,7 +252,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         // Replace player with new one
         PlayerManager.shared.load(book) { loaded in
             guard loaded else {
-                self.showAlert("File error!", message: "This book's file couldn't be loaded. Make sure you're not using files with DRM protection (like .aax files)")
+                self.showAlert("file_error_title".localized, message: "file_error_description".localized)
                 return
             }
 
@@ -269,7 +266,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         fatalError("handleOperationCompletion must be overriden")
     }
 
-    func presentCreatePlaylistAlert(_ namePlaceholder: String = "New Playlist", handler: ((_ title: String) -> Void)?) {
+    func presentCreatePlaylistAlert(_ namePlaceholder: String = "new_playlist_button".localized, handler: ((_ title: String) -> Void)?) {
         let playlistAlert = self.createPlaylistAlert(namePlaceholder, handler: handler)
 
         let vc = presentedViewController ?? self
@@ -288,15 +285,15 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
     func handleTrash(_ selectedItems: [LibraryItem]) {}
 
     func handleDelete(books: [Book]) {
-        let alert = UIAlertController(title: "Do you want to delete \(books.count) books?", message: nil, preferredStyle: .alert)
+        let alert = UIAlertController(title: String.localizedStringWithFormat("delete_multiple_items_title".localized, books.count), message: nil, preferredStyle: .alert)
 
         if books.count == 1, let book = books.first {
-            alert.title = "Do you want to delete “\(book.title!)”?"
+            alert.title = String(format: "delete_single_item_title".localized, book.title!)
         }
 
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
 
-        alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
+        alert.addAction(UIAlertAction(title: "delete_button".localized, style: .destructive, handler: { _ in
             self.delete(books, mode: .deep)
         }))
 
@@ -309,38 +306,46 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
     func createOptionsSheetController(_ item: LibraryItem) -> UIAlertController {
         let sheet = UIAlertController(title: item.title, message: nil, preferredStyle: .actionSheet)
 
-        sheet.addAction(UIAlertAction(title: "Rename", style: .default) { _ in
+        sheet.addAction(UIAlertAction(title: "rename_button".localized, style: .default) { _ in
             let alert = self.renameItemAlert(item)
 
             self.present(alert, animated: true, completion: nil)
         })
 
-        sheet.addAction(UIAlertAction(title: "Move", style: .default, handler: { _ in
+        sheet.addAction(UIAlertAction(title: "move_title".localized, style: .default, handler: { _ in
             self.handleMove([item])
         }))
 
         if let book = item as? Book {
-            sheet.addAction(UIAlertAction(title: "Export", style: .default, handler: { _ in
+            sheet.addAction(UIAlertAction(title: "export_button".localized, style: .default, handler: { _ in
                 let shareController = self.createExportController(book)
 
                 self.present(shareController, animated: true, completion: nil)
             }))
         }
 
-        sheet.addAction(UIAlertAction(title: "Jump To Start", style: .default, handler: { _ in
+        sheet.addAction(UIAlertAction(title: "jump_start_title".localized, style: .default, handler: { _ in
             DataManager.jumpToStart(item)
             self.reloadData()
         }))
 
-        let markTitle = item.isFinished ? "Mark as Unfinished" : "Mark as Finished"
+        let markTitle = item.isFinished ? "mark_unfinished_title".localized : "mark_finished_title".localized
 
         sheet.addAction(UIAlertAction(title: markTitle, style: .default, handler: { _ in
             DataManager.mark(item, asFinished: !item.isFinished)
             self.reloadData()
         }))
 
-        sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        sheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
         return sheet
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        guard self.traitCollection.userInterfaceStyle != .unspecified else { return }
+
+        ThemeManager.shared.checkSystemMode()
     }
 }
 

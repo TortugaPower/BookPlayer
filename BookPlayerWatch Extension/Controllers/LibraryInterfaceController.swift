@@ -51,6 +51,10 @@ class LibraryInterfaceController: WKInterfaceController {
         NotificationCenter.default.addObserver(self, selector: #selector(self.updateApplicationContext), name: .contextUpdate, object: nil)
         WatchConnectivityService.sharedManager.startSession()
 
+        self.refreshButton.setTitle("watchapp_refresh_data_title".localized)
+        self.lastBookHeaderTitle.setText("watchapp_last_played_title".localized)
+        self.libraryHeaderTitle.setText("library_title".localized)
+
         self.loadLibrary()
 
         self.setupLastBook()
@@ -197,7 +201,7 @@ class LibraryInterfaceController: WKInterfaceController {
         self.showPlaylist(false)
         self.backImage.setHidden(true)
         self.playlistItems = nil
-        self.libraryHeaderTitle.setText("Library")
+        self.libraryHeaderTitle.setText("library_title".localized)
     }
 
     func showPlaylist(_ show: Bool) {
@@ -209,8 +213,8 @@ class LibraryInterfaceController: WKInterfaceController {
         }
 
         self.animate(withDuration: 0.3, animations: {
-            self.spacerGroupView.setRelativeHeight(height, withAdjustment: 0.0) //height
-            self.libraryTableView.setHidden(show) //flag
+            self.spacerGroupView.setRelativeHeight(height, withAdjustment: 0.0) // height
+            self.libraryTableView.setHidden(show) // flag
         }, completion: {
             if !show {
                 self.playlistTableView.setHidden(true)
@@ -237,8 +241,8 @@ extension WKInterfaceController {
 
     func sendMessage(_ message: [String: AnyObject]) throws {
         guard WatchConnectivityService.sharedManager.validReachableSession != nil else {
-            let okAction = WKAlertAction(title: "Ok", style: .default) {}
-            self.presentAlert(withTitle: "Connectivity Error", message: "There's a problem connecting to your phone, please try again later", preferredStyle: .alert, actions: [okAction])
+            let okAction = WKAlertAction(title: "ok_button".localized, style: .default) {}
+            self.presentAlert(withTitle: "watchapp_connect_error_title".localized, message: "watchapp_connect_error_description".localized, preferredStyle: .alert, actions: [okAction])
             throw ConnectionError.connectivityError
         }
 
