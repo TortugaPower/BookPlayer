@@ -8,6 +8,7 @@
 
 import BookPlayerKit
 import Foundation
+import Intents
 
 class ActionParserService {
     public class func process(_ url: URL) {
@@ -18,6 +19,12 @@ class ActionParserService {
 
     public class func process(_ activity: NSUserActivity) {
         guard let action = CommandParser.parse(activity) else { return }
+
+        self.handleAction(action)
+    }
+
+    public class func process(_ intent: INIntent) {
+        guard let action = CommandParser.parse(intent) else { return }
 
         self.handleAction(action)
     }

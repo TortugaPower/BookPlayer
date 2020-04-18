@@ -7,10 +7,19 @@
 //
 
 import Foundation
+import Intents
 
 public class CommandParser {
     public class func parse(_ activity: NSUserActivity) -> Action? {
-        if let sleepIntent = activity.interaction?.intent as? SleepTimerIntent {
+        if let intent = activity.interaction?.intent {
+            return self.parse(intent)
+        }
+
+        return Action(command: .play)
+    }
+
+    public class func parse(_ intent: INIntent) -> Action? {
+        if let sleepIntent = intent as? SleepTimerIntent {
             var queryItem: URLQueryItem
 
             if let seconds = sleepIntent.seconds {

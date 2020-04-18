@@ -222,6 +222,7 @@
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>$(PRODUCT_BUNDLE_IDENTIFIER).activity.playback</string>
+		<string>INPlayMediaIntent</string>
 		<string>SleepTimerIntent</string>
 	</array>
 	<key>UIApplicationShortcutItems</key>
