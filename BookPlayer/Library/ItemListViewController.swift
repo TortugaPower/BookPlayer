@@ -25,7 +25,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
     private var previousLeftButtons: [UIBarButtonItem]?
     lazy var selectButton: UIBarButtonItem = UIBarButtonItem(title: "Select All", style: .plain, target: self, action: #selector(selectButtonPressed))
     lazy var searchController: UISearchController = {
-        let searchController = UISearchController()
+        let searchController = UISearchController(searchResultsController: nil)
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchResultsUpdater = self
         return searchController
