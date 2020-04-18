@@ -17,6 +17,9 @@ class UserActivityManager {
     var playbackRecord: PlaybackRecord?
 
     private init() {
+        let intent = INPlayMediaIntent()
+        let interaction = INInteraction(intent: intent, response: nil)
+        interaction.donate(completion: nil)
         let activity = NSUserActivity(activityType: Constants.UserActivityPlayback)
         activity.title = "siri_activity_title".localized
         activity.isEligibleForPrediction = true

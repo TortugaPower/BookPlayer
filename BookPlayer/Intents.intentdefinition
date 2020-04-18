@@ -115,9 +115,9 @@
 	<key>INIntentDefinitionSystemVersion</key>
 	<string>19E287</string>
 	<key>INIntentDefinitionToolsBuildVersion</key>
-	<string>11E146</string>
+	<string>11E503a</string>
 	<key>INIntentDefinitionToolsVersion</key>
-	<string>11.4</string>
+	<string>11.4.1</string>
 	<key>INIntents</key>
 	<array>
 		<dict>
@@ -352,6 +352,234 @@
 			<string>Custom</string>
 			<key>INIntentVerb</key>
 			<string>Set</string>
+		</dict>
+		<dict>
+			<key>INIntentCategory</key>
+			<string>system</string>
+			<key>INIntentClassName</key>
+			<string>INPlayMediaIntent</string>
+			<key>INIntentClassPrefix</key>
+			<string>IN</string>
+			<key>INIntentCustomizable</key>
+			<true/>
+			<key>INIntentDescription</key>
+			<string>A request to play the most recent book.</string>
+			<key>INIntentDescriptionID</key>
+			<string>LdrEPN</string>
+			<key>INIntentDomain</key>
+			<string>Media</string>
+			<key>INIntentInput</key>
+			<string>mediaItems</string>
+			<key>INIntentKeyParameter</key>
+			<string>mediaItems</string>
+			<key>INIntentLastParameterTag</key>
+			<integer>17</integer>
+			<key>INIntentName</key>
+			<string>PlayMedia</string>
+			<key>INIntentParameterCombinations</key>
+			<dict>
+				<key></key>
+				<dict>
+					<key>INIntentParameterCombinationIsPrimary</key>
+					<true/>
+					<key>INIntentParameterCombinationSupportsBackgroundExecution</key>
+					<true/>
+					<key>INIntentParameterCombinationTitle</key>
+					<string>Resume last played book</string>
+					<key>INIntentParameterCombinationTitleID</key>
+					<string>5EnoUf</string>
+				</dict>
+			</dict>
+			<key>INIntentParameters</key>
+			<array>
+				<dict>
+					<key>INIntentParameterDisplayName</key>
+					<string>Items</string>
+					<key>INIntentParameterDisplayNameID</key>
+					<string>cfJexL</string>
+					<key>INIntentParameterDisplayPriority</key>
+					<integer>1</integer>
+					<key>INIntentParameterName</key>
+					<string>mediaItems</string>
+					<key>INIntentParameterObjectType</key>
+					<string>MediaItem</string>
+					<key>INIntentParameterObjectTypeNamespace</key>
+					<string>System</string>
+					<key>INIntentParameterSupportsMultipleValues</key>
+					<true/>
+					<key>INIntentParameterSupportsResolution</key>
+					<true/>
+					<key>INIntentParameterTag</key>
+					<integer>1</integer>
+					<key>INIntentParameterType</key>
+					<string>Object</string>
+				</dict>
+				<dict>
+					<key>INIntentParameterDisplayName</key>
+					<string>Container</string>
+					<key>INIntentParameterDisplayNameID</key>
+					<string>xdnqvn</string>
+					<key>INIntentParameterDisplayPriority</key>
+					<integer>2</integer>
+					<key>INIntentParameterName</key>
+					<string>mediaContainer</string>
+					<key>INIntentParameterObjectType</key>
+					<string>MediaItem</string>
+					<key>INIntentParameterObjectTypeNamespace</key>
+					<string>System</string>
+					<key>INIntentParameterTag</key>
+					<integer>2</integer>
+					<key>INIntentParameterType</key>
+					<string>Object</string>
+				</dict>
+				<dict>
+					<key>INIntentParameterDisplayName</key>
+					<string>Shuffled</string>
+					<key>INIntentParameterDisplayNameID</key>
+					<string>WktFNa</string>
+					<key>INIntentParameterDisplayPriority</key>
+					<integer>3</integer>
+					<key>INIntentParameterMetadata</key>
+					<dict>
+						<key>INIntentParameterMetadataFalseDisplayName</key>
+						<string>not shuffled</string>
+						<key>INIntentParameterMetadataFalseDisplayNameID</key>
+						<string>mCAocc</string>
+						<key>INIntentParameterMetadataTrueDisplayName</key>
+						<string>shuffled</string>
+						<key>INIntentParameterMetadataTrueDisplayNameID</key>
+						<string>QqdHiR</string>
+					</dict>
+					<key>INIntentParameterName</key>
+					<string>playShuffled</string>
+					<key>INIntentParameterSupportsResolution</key>
+					<true/>
+					<key>INIntentParameterTag</key>
+					<integer>3</integer>
+					<key>INIntentParameterType</key>
+					<string>Boolean</string>
+				</dict>
+				<dict>
+					<key>INIntentParameterCustomDisambiguation</key>
+					<true/>
+					<key>INIntentParameterDisplayName</key>
+					<string>Repeat Mode</string>
+					<key>INIntentParameterDisplayNameID</key>
+					<string>ErAaNp</string>
+					<key>INIntentParameterDisplayPriority</key>
+					<integer>4</integer>
+					<key>INIntentParameterEnumType</key>
+					<string>PlaybackRepeatMode</string>
+					<key>INIntentParameterEnumTypeNamespace</key>
+					<string>System</string>
+					<key>INIntentParameterName</key>
+					<string>playbackRepeatMode</string>
+					<key>INIntentParameterSupportsResolution</key>
+					<true/>
+					<key>INIntentParameterTag</key>
+					<integer>4</integer>
+					<key>INIntentParameterType</key>
+					<string>Integer</string>
+				</dict>
+				<dict>
+					<key>INIntentParameterDisplayName</key>
+					<string>Resume</string>
+					<key>INIntentParameterDisplayNameID</key>
+					<string>rvNMpm</string>
+					<key>INIntentParameterDisplayPriority</key>
+					<integer>5</integer>
+					<key>INIntentParameterMetadata</key>
+					<dict>
+						<key>INIntentParameterMetadataFalseDisplayName</key>
+						<string>don't resume</string>
+						<key>INIntentParameterMetadataFalseDisplayNameID</key>
+						<string>Pk1Fkx</string>
+						<key>INIntentParameterMetadataTrueDisplayName</key>
+						<string>resume</string>
+						<key>INIntentParameterMetadataTrueDisplayNameID</key>
+						<string>No0K9w</string>
+					</dict>
+					<key>INIntentParameterName</key>
+					<string>resumePlayback</string>
+					<key>INIntentParameterSupportsResolution</key>
+					<true/>
+					<key>INIntentParameterTag</key>
+					<integer>5</integer>
+					<key>INIntentParameterType</key>
+					<string>Boolean</string>
+				</dict>
+				<dict>
+					<key>INIntentParameterCustomDisambiguation</key>
+					<true/>
+					<key>INIntentParameterDisplayName</key>
+					<string>Queue Location</string>
+					<key>INIntentParameterDisplayNameID</key>
+					<string>cV2HLF</string>
+					<key>INIntentParameterDisplayPriority</key>
+					<integer>6</integer>
+					<key>INIntentParameterEnumType</key>
+					<string>PlaybackQueueLocation</string>
+					<key>INIntentParameterEnumTypeNamespace</key>
+					<string>System</string>
+					<key>INIntentParameterName</key>
+					<string>playbackQueueLocation</string>
+					<key>INIntentParameterSupportsResolution</key>
+					<true/>
+					<key>INIntentParameterTag</key>
+					<integer>6</integer>
+					<key>INIntentParameterType</key>
+					<string>Integer</string>
+				</dict>
+				<dict>
+					<key>INIntentParameterDisplayName</key>
+					<string>Playback Speed</string>
+					<key>INIntentParameterDisplayNameID</key>
+					<string>RvX3Zd</string>
+					<key>INIntentParameterDisplayPriority</key>
+					<integer>7</integer>
+					<key>INIntentParameterMetadata</key>
+					<dict>
+						<key>INIntentParameterMetadataMaximumValue</key>
+						<real>1</real>
+						<key>INIntentParameterMetadataSupportsNegativeNumbers</key>
+						<string>YES</string>
+						<key>INIntentParameterMetadataType</key>
+						<string>Field</string>
+					</dict>
+					<key>INIntentParameterName</key>
+					<string>playbackSpeed</string>
+					<key>INIntentParameterSupportsResolution</key>
+					<true/>
+					<key>INIntentParameterTag</key>
+					<integer>7</integer>
+					<key>INIntentParameterType</key>
+					<string>Decimal</string>
+				</dict>
+				<dict>
+					<key>INIntentParameterDisplayName</key>
+					<string>Media Search</string>
+					<key>INIntentParameterDisplayNameID</key>
+					<string>1uT6VF</string>
+					<key>INIntentParameterDisplayPriority</key>
+					<integer>8</integer>
+					<key>INIntentParameterName</key>
+					<string>mediaSearch</string>
+					<key>INIntentParameterObjectType</key>
+					<string>MediaSearch</string>
+					<key>INIntentParameterObjectTypeNamespace</key>
+					<string>System</string>
+					<key>INIntentParameterTag</key>
+					<integer>8</integer>
+					<key>INIntentParameterType</key>
+					<string>Object</string>
+				</dict>
+			</array>
+			<key>INIntentTitle</key>
+			<string>Resume last played book</string>
+			<key>INIntentTitleID</key>
+			<string>G3J6fP</string>
+			<key>INIntentType</key>
+			<string>System</string>
 		</dict>
 	</array>
 	<key>INTypes</key>

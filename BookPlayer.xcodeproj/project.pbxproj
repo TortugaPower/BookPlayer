@@ -67,6 +67,7 @@
 		41544A1421BAF41400740AD2 /* ItemSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41544A1321BAF41400740AD2 /* ItemSelectionViewController.swift */; };
 		415758EA2226E18800DDB9B6 /* PlusBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415758E92226E18800DDB9B6 /* PlusBannerView.swift */; };
 		415B274421FAE47200F9D9B7 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415B274321FAE47200F9D9B7 /* LoadingView.swift */; };
+		415F0E6F244AAC5A00DD1D8B /* PlayMediaIntentHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415F0E6E244AAC5A00DD1D8B /* PlayMediaIntentHandler.swift */; };
 		4160A09223F2DE130039166B /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = 4160A09423F2DE130039166B /* Localizable.stringsdict */; };
 		4160A0A123F304530039166B /* LocalizableLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4160A0A023F304530039166B /* LocalizableLabel.swift */; };
 		4163E313214AC43000072AA2 /* ImportOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E312214AC43000072AA2 /* ImportOperationTests.swift */; };
@@ -397,6 +398,7 @@
 		41544A1321BAF41400740AD2 /* ItemSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemSelectionViewController.swift; sourceTree = "<group>"; };
 		415758E92226E18800DDB9B6 /* PlusBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlusBannerView.swift; sourceTree = "<group>"; };
 		415B274321FAE47200F9D9B7 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
+		415F0E6E244AAC5A00DD1D8B /* PlayMediaIntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayMediaIntentHandler.swift; sourceTree = "<group>"; };
 		4160A08E23F2DBD40039166B /* String+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+BookPlayer.swift"; sourceTree = "<group>"; };
 		4160A09323F2DE130039166B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = en; path = en.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		4160A09523F2DE190039166B /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = de; path = de.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
@@ -682,6 +684,7 @@
 			children = (
 				41342D0024435D9900F0905B /* IntentHandler.swift */,
 				41342D0B24435EF800F0905B /* SleepTimerHandler.swift */,
+				415F0E6E244AAC5A00DD1D8B /* PlayMediaIntentHandler.swift */,
 				41342D0224435D9900F0905B /* Info.plist */,
 			);
 			path = BookPlayerIntents;
@@ -1668,6 +1671,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				41342D0C24435EF800F0905B /* SleepTimerHandler.swift in Sources */,
+				415F0E6F244AAC5A00DD1D8B /* PlayMediaIntentHandler.swift in Sources */,
 				41342D0A24435DAD00F0905B /* Intents.intentdefinition in Sources */,
 				41342D0124435D9900F0905B /* IntentHandler.swift in Sources */,
 			);

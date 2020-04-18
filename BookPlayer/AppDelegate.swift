@@ -10,6 +10,7 @@ import AVFoundation
 import BookPlayerKit
 import CoreData
 import DirectoryWatcher
+import Intents
 import MediaPlayer
 import Sentry
 import SwiftyStoreKit
@@ -112,6 +113,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         ActionParserService.process(userActivity)
 
         return true
+    }
+
+    func application(_ application: UIApplication, handle intent: INIntent, completionHandler: @escaping (INIntentResponse) -> Void) {
+        ActionParserService.process(intent)
+
+        let response = INPlayMediaIntentResponse(code: .success, userActivity: nil)
+        completionHandler(response)
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
