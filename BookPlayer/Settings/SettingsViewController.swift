@@ -206,7 +206,10 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     }
 
     func showLastPlayedShortcut() {
-        let shortcut = INShortcut(userActivity: UserActivityManager.shared.currentActivity)
+        let intent = INPlayMediaIntent()
+
+        guard let shortcut = INShortcut(intent: intent) else { return }
+
         let vc = INUIAddVoiceShortcutViewController(shortcut: shortcut)
         vc.delegate = self
 
