@@ -35,7 +35,11 @@ final class SleepTimer {
     ]
 
     public func isActive() -> Bool {
-        return self.timer?.isValid ?? false
+        return (self.timer?.isValid ?? false) || self.timeLeft == -2
+    }
+
+    public func isEndChapterActive() -> Bool {
+        return self.timeLeft == -2
     }
 
     // MARK: Internals
@@ -148,8 +152,10 @@ final class SleepTimer {
         self.alert?.addAction(UIAlertAction(title: "sleep_chapter_option_title".localized, style: .default) { _ in
             self.cancel()
             self.alert?.message = "sleep_alert_description".localized
+            self.timeLeft = -2.0
             NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .chapterChange, object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .bookChange, object: nil)
+            NotificationCenter.default.post(name: .timerSelected, object: nil, userInfo: ["timeLeft": self.timeLeft])
             self.donateTimerIntent(with: .endChapter)
         })
 
