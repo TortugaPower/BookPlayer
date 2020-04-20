@@ -88,6 +88,16 @@ final class SleepTimer {
         NotificationCenter.default.post(name: .timerEnd, object: nil)
     }
 
+    private func startEndOfChapterOption() {
+        self.cancel()
+        self.alert?.message = "sleep_alert_description".localized
+        self.timeLeft = -2.0
+        NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .chapterChange, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .bookChange, object: nil)
+        NotificationCenter.default.post(name: .timerSelected, object: nil, userInfo: ["timeLeft": self.timeLeft])
+        self.donateTimerIntent(with: .endChapter)
+    }
+
     // MARK: Public methods
 
     func intentSheet(on vc: UIViewController) -> UIAlertController {
@@ -150,13 +160,7 @@ final class SleepTimer {
         }
 
         self.alert?.addAction(UIAlertAction(title: "sleep_chapter_option_title".localized, style: .default) { _ in
-            self.cancel()
-            self.alert?.message = "sleep_alert_description".localized
-            self.timeLeft = -2.0
-            NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .chapterChange, object: nil)
-            NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .bookChange, object: nil)
-            NotificationCenter.default.post(name: .timerSelected, object: nil, userInfo: ["timeLeft": self.timeLeft])
-            self.donateTimerIntent(with: .endChapter)
+            self.startEndOfChapterOption()
         })
 
         self.alert?.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
@@ -178,11 +182,7 @@ final class SleepTimer {
             self.cancel()
             self.donateTimerIntent(with: .cancel)
         } else if seconds == -2 {
-            self.cancel()
-            self.alert?.message = "sleep_alert_description".localized
-            NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .chapterChange, object: nil)
-            NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .bookChange, object: nil)
-            self.donateTimerIntent(with: .endChapter)
+            self.startEndOfChapterOption()
         }
     }
 
