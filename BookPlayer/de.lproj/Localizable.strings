@@ -177,3 +177,8 @@
 "speed_title" = "Wiedergabegeschwindigkeit";
 "import_preparing_title" = "Import wird vorbereitet";
 "library_add_title" = "Füge dein erstes Buch hinzu";
+"invalid_url_title" = "Ungültige URL: %@";
+"downloading_file_title" = "Datei wird heruntergeladen";
+"progress_title" = "Fortschritt";
+"settings_siri_sleeptimer_title" = "Schlafmodus";
+"active_title" = "Aktiv";

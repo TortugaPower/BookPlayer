@@ -175,10 +175,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         let providerList = UIDocumentPickerViewController(documentTypes: ["public.audio", "com.pkware.zip-archive", "public.movie"], in: .import)
 
         providerList.delegate = self
-
-        if #available(iOS 11.0, *) {
-            providerList.allowsMultipleSelection = true
-        }
+        providerList.allowsMultipleSelection = true
 
         UIApplication.shared.isIdleTimerDisabled = true
 
@@ -312,8 +309,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
 
-        guard #available(iOS 12.0, *),
-            self.traitCollection.userInterfaceStyle != .unspecified else { return }
+        guard self.traitCollection.userInterfaceStyle != .unspecified else { return }
 
         ThemeManager.shared.checkSystemMode()
     }

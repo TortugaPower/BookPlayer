@@ -89,7 +89,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         // Make toolbar transparent
         self.bottomToolbar.setBackgroundImage(UIImage(), forToolbarPosition: .any, barMetrics: .default)
         self.bottomToolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
-        self.sleepLabel.title = ""
+        self.sleepLabel.title = SleepTimer.shared.isEndChapterActive() ? "active_title".localized : ""
         self.speedButton.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18.0, weight: .semibold)], for: .normal)
 
         // Observers
@@ -99,6 +99,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(self.timerStart), name: .timerStart, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.timerProgress(_:)), name: .timerProgress, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.timerEnd), name: .timerEnd, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.timerSelected(_:)), name: .timerSelected, object: nil)
 
         if SleepTimer.shared.isActive() {
             self.updateToolbar(true, animated: true)
@@ -227,6 +228,20 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.currentBook = book
 
         self.setupView(book: book)
+    }
+
+    @objc func timerSelected(_ notification: Notification) {
+        guard
+            let userInfo = notification.userInfo,
+            let timeLeft = userInfo["timeLeft"] as? Double
+        else {
+            return
+        }
+
+        if timeLeft == -2 {
+            self.updateToolbar(true, animated: true)
+            self.sleepLabel.title = "active_title".localized
+        }
     }
 
     @objc func timerStart() {

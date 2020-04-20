@@ -10,6 +10,7 @@ import AVFoundation
 import BookPlayerKit
 import CoreData
 import DirectoryWatcher
+import Intents
 import MediaPlayer
 import Sentry
 import SwiftyStoreKit
@@ -86,11 +87,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         MPPlayableContentManager.shared().delegate = CarPlayManager.shared
     }
 
+    func getLibraryVC() -> LibraryViewController? {
+        guard let rootVC = UIApplication.shared.keyWindow?.rootViewController! as? RootViewController,
+            let appNav = rootVC.children.first as? AppNavigationController else {
+            return nil
+        }
+
+        return appNav.children.first as? LibraryViewController
+    }
+
     // Handles audio file urls, like when receiving files through AirDrop
     // Also handles custom URL scheme 'bookplayer://'
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
         guard url.isFileURL else {
-            self.handleCustomURL(url)
+            ActionParserService.process(url)
             return true
         }
 
@@ -99,32 +109,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
-    func handleCustomURL(_ url: URL) {
-        guard let action = CommandParser.parse(url) else { return }
-
-        self.handleAction(action)
-    }
-
-    func handleAction(_ action: Action) {
-        for parameter in action.parameters {
-            guard parameter.name == "showPlayer",
-                let value = parameter.value,
-                let showPlayer = Bool(value),
-                showPlayer == true else {
-                continue
-            }
-
-            self.showPlayer()
-        }
-
-        guard action.command != .open else { return }
-
-        self.playLastBook()
-    }
-
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
-        self.playLastBook()
+        ActionParserService.process(userActivity)
+
         return true
+    }
+
+    func application(_ application: UIApplication, handle intent: INIntent, completionHandler: @escaping (INIntentResponse) -> Void) {
+        ActionParserService.process(intent)
+
+        let response = INPlayMediaIntentResponse(code: .success, userActivity: nil)
+        completionHandler(response)
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
@@ -161,44 +156,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         DispatchQueue.main.async {
-            guard let command = message["command"] as? String else { return }
+            let action = CommandParser.parse(message)
 
-            if command == "refresh" {
-                self.sendApplicationContext()
-                return
-            }
-
-            if command == "skipRewind" {
-                PlayerManager.shared.rewind()
-                return
-            }
-
-            if command == "skipForward" {
-                PlayerManager.shared.forward()
-                return
-            }
-
-            guard let bookIdentifier = message["identifier"] as? String else { return }
-
-            if let loadedBook = PlayerManager.shared.currentBook, loadedBook.identifier == bookIdentifier {
-                PlayerManager.shared.play()
-                return
-            }
-
-            let library = DataManager.getLibrary()
-
-            guard let book = DataManager.getBook(with: bookIdentifier, from: library) else { return }
-
-            guard let rootVC = UIApplication.shared.keyWindow?.rootViewController! as? RootViewController,
-                let appNav = rootVC.children.first as? AppNavigationController,
-                let libraryVC = appNav.children.first as? LibraryViewController else {
-                return
-            }
-
-            libraryVC.setupPlayer(book: book)
-            NotificationCenter.default.post(name: .bookChange,
-                                            object: nil,
-                                            userInfo: ["book": book])
+            ActionParserService.handleAction(action)
         }
     }
 
@@ -356,14 +316,12 @@ extension AppDelegate {
 
     func showPlayer() {
         if PlayerManager.shared.hasLoadedBook {
-            guard let rootVC = UIApplication.shared.keyWindow?.rootViewController! as? RootViewController,
-                let appNav = rootVC.children.first as? AppNavigationController,
-                let libraryVC = appNav.children.first as? LibraryViewController,
+            guard let libraryVC = self.getLibraryVC(),
                 let book = PlayerManager.shared.currentBook else {
                 return
             }
 
-            appNav.dismiss(animated: true, completion: nil)
+            libraryVC.navigationController?.dismiss(animated: true, completion: nil)
 
             libraryVC.showPlayerView(book: book)
         } else {

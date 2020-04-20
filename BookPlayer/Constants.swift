@@ -12,7 +12,6 @@ enum Constants {
     enum UserDefaults: String {
         // Application information
         case completedFirstLaunch = "userSettingsCompletedFirstLaunch"
-        case appGroupsMigration = "userSettingsAppGroupsMigration"
         case lastPauseTime = "userSettingsLastPauseTime"
         case lastPlayedBook = "userSettingsLastPlayedBook"
         case appIcon = "userSettingsAppIcon"

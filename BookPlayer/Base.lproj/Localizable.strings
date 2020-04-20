@@ -29,7 +29,7 @@
 "settings_skip_forward_title" = "Forward";
 "settings_skip_description" = "Adjust the amount skipped when using the buttons in the Player or Control Center.";
 "settings_support_title" = "SUPPORT";
-"settings_siri_title" = "SIRI SHORTCUT";
+"settings_siri_title" = "SIRI SHORTCUTS";
 "settings_support_project_title" = "View project on Github";
 "settings_support_project_description" = "Open new issues for your feature requests and errors";
 "settings_support_email_title" = "Send us an email";
@@ -177,3 +177,8 @@
 "speed_title" = "speed";
 "import_preparing_title" = "Preparing to import files";
 "library_add_title" = "Add your first book";
+"invalid_url_title" = "Invalid URL: %@";
+"downloading_file_title" = "Downloading file";
+"progress_title" = "Progress";
+"settings_siri_sleeptimer_title" = "Sleep timer";
+"active_title" = "On";

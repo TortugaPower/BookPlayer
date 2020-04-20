@@ -17,13 +17,14 @@ class UserActivityManager {
     var playbackRecord: PlaybackRecord?
 
     private init() {
+        let intent = INPlayMediaIntent()
+        let interaction = INInteraction(intent: intent, response: nil)
+        interaction.donate(completion: nil)
         let activity = NSUserActivity(activityType: Constants.UserActivityPlayback)
         activity.title = "siri_activity_title".localized
-        if #available(iOS 12.0, *) {
-            activity.isEligibleForPrediction = true
-            activity.persistentIdentifier = NSUserActivityPersistentIdentifier(Constants.UserActivityPlayback)
-            activity.suggestedInvocationPhrase = "siri_invocation_phrase".localized
-        }
+        activity.isEligibleForPrediction = true
+        activity.persistentIdentifier = NSUserActivityPersistentIdentifier(Constants.UserActivityPlayback)
+        activity.suggestedInvocationPhrase = "siri_invocation_phrase".localized
         activity.isEligibleForSearch = true
 
         self.currentActivity = activity

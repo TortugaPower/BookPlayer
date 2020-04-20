@@ -11,6 +11,7 @@ import UIKit
 extension Notification.Name {
     static let processingFile = Notification.Name("com.tortugapower.audiobookplayer.file.process")
     static let newFileUrl = Notification.Name("com.tortugapower.audiobookplayer.file.new")
+    static let downloadProgress = Notification.Name("com.tortugapower.audiobookplayer.download.progress")
     static let importOperation = Notification.Name("com.tortugapower.audiobookplayer.operation.new")
     static let requestReview = Notification.Name("com.tortugapower.audiobookplayer.requestreview")
     static let skipIntervalsChange = Notification.Name("com.tortugapower.audiobookplayer.settings.skip")
@@ -19,4 +20,5 @@ extension Notification.Name {
     static let playerDismissed = Notification.Name("com.tortugapower.audiobookplayer.player.dismissed")
     static let themeChange = Notification.Name("com.tortugapower.audiobookplayer.theme.change")
     static let donationMade = Notification.Name("com.tortugapower.audiobookplayer.donation.made")
+    static let timerSelected = Notification.Name("com.tortugapower.audiobookplayer.timer.new")
 }

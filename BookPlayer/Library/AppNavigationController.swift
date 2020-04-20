@@ -41,12 +41,9 @@ class AppNavigationController: UINavigationController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
-        if #available(iOS 11.0, *) {
-            self.handleSeparator()
-        }
+        self.handleSeparator()
     }
 
-    @available(iOS 11.0, *)
     func handleSeparator() {
         guard
             let rootVC = self.rootViewController,
@@ -73,11 +70,9 @@ extension AppNavigationController: Themeable {
         navigationBar.titleTextAttributes = [
             NSAttributedString.Key.foregroundColor: theme.navigationTitleColor
         ]
-        if #available(iOS 11.0, *) {
-            navigationBar.largeTitleTextAttributes = [
-                NSAttributedString.Key.foregroundColor: theme.navigationTitleColor
-            ]
-        }
+        navigationBar.largeTitleTextAttributes = [
+            NSAttributedString.Key.foregroundColor: theme.navigationTitleColor
+        ]
         self.separatorView.backgroundColor = theme.separatorColor
         self.view.backgroundColor = theme.backgroundColor
     }

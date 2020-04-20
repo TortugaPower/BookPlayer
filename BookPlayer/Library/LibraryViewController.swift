@@ -26,12 +26,6 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         // enables pop gesture on pushed controller
         self.navigationController!.interactivePopGestureRecognizer!.delegate = self
 
-        // handle CoreData migration into shared app groups
-        if !UserDefaults.standard.bool(forKey: Constants.UserDefaults.appGroupsMigration.rawValue) {
-            self.migrateCoreDataStack()
-            UserDefaults.standard.set(true, forKey: Constants.UserDefaults.appGroupsMigration.rawValue)
-        }
-
         self.loadLibrary()
 
         self.loadLastBook()
@@ -52,6 +46,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         NotificationCenter.default.addObserver(self, selector: #selector(self.onProcessingFile(_:)), name: .processingFile, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onNewFileUrl), name: .newFileUrl, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onNewOperation(_:)), name: .importOperation, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onDownloadingProgress(_:)), name: .downloadProgress, object: nil)
     }
 
     func loadLibrary() {
@@ -64,32 +59,29 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         DataManager.notifyPendingFiles()
     }
 
-    func migrateLastPlayedBook() {
-        guard let identifier = UserDefaults.standard.string(forKey: Constants.UserDefaults.lastPlayedBook.rawValue),
-            let item = self.library.getItem(with: identifier) else {
+    func downloadBook(from urlString: String) {
+        guard let url = URL(string: urlString) else {
+            self.showAlert("error_title".localized, message: String.localizedStringWithFormat("invalid_url_title".localized, urlString))
             return
         }
 
-        UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.lastPlayedBook.rawValue)
+        self.showLoadView(true, title: "downloading_file_title".localized, subtitle: "\("progress_title".localized) 0%")
 
-        var book: Book?
+        NetworkService.shared.download(from: url) { response in
+            self.showLoadView(false)
 
-        if
-            let playlist = item as? Playlist,
-            let index = playlist.itemIndex(with: identifier),
-            let playlistBook = playlist.getBook(at: index) {
-            book = playlistBook
-        } else if let lastPlayedBook = item as? Book {
-            book = lastPlayedBook
+            if response.error != nil,
+                let error = response.error {
+                self.showAlert("network_error_title".localized, message: error.localizedDescription)
+            }
+
+            if let response = response.response, response.statusCode != 200 {
+                self.showAlert("network_error_title".localized, message: nil)
+            }
         }
-
-        self.library.lastPlayedBook = book
-        DataManager.saveContext()
     }
 
     func loadLastBook() {
-        self.migrateLastPlayedBook()
-
         guard let book = self.library.lastPlayedBook else {
             return
         }
@@ -217,6 +209,23 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
     }
 
     // MARK: - Callback events
+
+    // This is called from a background thread inside an ImportOperation
+    @objc func onDownloadingProgress(_ notification: Notification) {
+        guard
+            let userInfo = notification.userInfo,
+            let progress = userInfo["progress"] as? String else {
+            return
+        }
+
+        DispatchQueue.main.async {
+            self.showLoadView(true, title: "downloading_file_title".localized, subtitle: "\("progress_title".localized) \(progress)%")
+
+            if let vc = self.navigationController?.visibleViewController as? PlaylistViewController {
+                vc.showLoadView(true, title: "downloading_file_title".localized, subtitle: "\("progress_title".localized) \(progress)%")
+            }
+        }
+    }
 
     @objc func onNewFileUrl() {
         guard self.loadingView.isHidden else { return }
