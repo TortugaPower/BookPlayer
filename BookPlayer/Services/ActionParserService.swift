@@ -52,9 +52,12 @@ class ActionParserService {
             return
         }
 
-        if seconds == -1 {
+        switch seconds {
+        case -1:
             SleepTimer.shared.cancel()
-        } else {
+        case -2:
+            SleepTimer.shared.sleep(in: .endChapter)
+        default:
             SleepTimer.shared.sleep(in: seconds)
         }
     }
