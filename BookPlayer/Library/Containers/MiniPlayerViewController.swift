@@ -70,14 +70,12 @@ class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecogniz
 
     @objc private func onBookPlay() {
         self.playPauseButton.setImage(self.pauseImage, for: UIControl.State())
-        self.playPauseButton.accessibilityLabel = "Pause"
-        self.playPauseButton.accessibilityHint = "Tap to Pause"
+        self.playPauseButton.accessibilityLabel = "pause_title".localized
     }
 
     @objc private func onBookPause() {
         self.playPauseButton.setImage(self.playImage, for: UIControl.State())
-        self.playPauseButton.accessibilityLabel = "Play"
-        self.playPauseButton.accessibilityHint = "Tap to Play"
+        self.playPauseButton.accessibilityLabel = "play_title".localized
     }
 
     // MARK: Actions
@@ -99,12 +97,11 @@ class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecogniz
     // MARK: - Voiceover
 
     private func setVoiceOverLabels() {
-        let voiceOverTitle = self.titleLabel.text ?? "No Title"
-        let voiceOverSubtitle = self.authorLabel.text ?? "No Author"
-        self.titleLabel.accessibilityLabel = "Currently Playing \(voiceOverTitle) by \(voiceOverSubtitle)"
-        self.titleLabel.accessibilityHint = "Miniplayer. Tap to show the Player"
-        self.playPauseButton.accessibilityLabel = "Play"
-        self.playPauseButton.accessibilityHint = "Tap to Play"
+        let voiceOverTitle = self.titleLabel.text ?? "voiceover_no_title".localized
+        let voiceOverSubtitle = self.authorLabel.text ?? "voiceover_no_author".localized
+        self.titleLabel.accessibilityLabel = String(describing: String.localizedStringWithFormat("voiceover_currently_playing_title".localized, voiceOverTitle, voiceOverSubtitle))
+		self.titleLabel.accessibilityHint = "voiceover_miniplayer_hint".localized
+        self.playPauseButton.accessibilityLabel = "play_title".localized
         self.artwork.isAccessibilityElement = false
     }
 }

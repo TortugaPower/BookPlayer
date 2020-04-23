@@ -182,3 +182,7 @@
 "progress_title" = "Framsteg";
 "settings_siri_sleeptimer_title" = "Timer";
 "active_title" = "Aktiva";
+"voiceover_currently_playing_title" = "Currently playing %@ by %@";
+"voiceover_miniplayer_hint" = "Miniplayer. Tap to show the Player";
+"voiceover_chapter_time_title" = "Current Chapter Time: %@";
+"voiceover_dismiss_player_title" = "Dismiss Player";

@@ -198,3 +198,7 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "progress_title" = "Avancement";
 "settings_siri_sleeptimer_title" = "Mise en veille";
 "active_title" = "Actif";
+"voiceover_currently_playing_title" = "Currently playing %@ by %@";
+"voiceover_miniplayer_hint" = "Miniplayer. Tap to show the Player";
+"voiceover_chapter_time_title" = "Current Chapter Time: %@";
+"voiceover_dismiss_player_title" = "Dismiss Player";
