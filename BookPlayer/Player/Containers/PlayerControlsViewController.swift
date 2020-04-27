@@ -96,7 +96,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
         if !self.progressSlider.isTracking {
             self.currentTimeLabel.text = self.formatTime(book.currentTimeInContext(self.prefersChapterContext))
-            self.currentTimeLabel.accessibilityLabel = String(describing: "Current Chapter Time: " + VoiceOverService.secondsToMinutes(book.currentTimeInContext(self.prefersChapterContext)))
+            self.currentTimeLabel.accessibilityLabel = String(describing: String.localizedStringWithFormat("voiceover_chapter_time_title".localized, VoiceOverService.secondsToMinutes(book.currentTimeInContext(self.prefersChapterContext))))
 
             let maxTimeInContext = book.maxTimeInContext(self.prefersChapterContext, self.prefersRemainingTime)
             self.maxTimeButton.setTitle(self.formatTime(maxTimeInContext), for: .normal)

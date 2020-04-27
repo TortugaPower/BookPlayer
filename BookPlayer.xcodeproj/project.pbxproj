@@ -404,6 +404,9 @@
 		4160A09523F2DE190039166B /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = de; path = de.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		4160A09823F2DE1E0039166B /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = es; path = es.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		4160A0A023F304530039166B /* LocalizableLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizableLabel.swift; sourceTree = "<group>"; };
+		4161D495245660B800D1C01B /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ro; path = ro.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		4161D496245660B800D1C01B /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ro; path = ro.lproj/Localizable.strings; sourceTree = "<group>"; };
+		4161D497245660B900D1C01B /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ro; path = ro.lproj/Localizable.strings; sourceTree = "<group>"; };
 		4163E3102148606600072AA2 /* FileItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileItem.swift; sourceTree = "<group>"; };
 		4163E312214AC43000072AA2 /* ImportOperationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportOperationTests.swift; sourceTree = "<group>"; };
 		4163E314214ACB4300072AA2 /* DataTestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTestUtils.swift; sourceTree = "<group>"; };
@@ -1458,6 +1461,7 @@
 				"zh-Hans",
 				da,
 				fr,
+				ro,
 			);
 			mainGroup = 418B6CEF1D2707F700F974FB;
 			productRefGroup = 418B6CF91D2707F800F974FB /* Products */;
@@ -1927,6 +1931,7 @@
 				418A2B6A2419EBA70001AEDB /* ru */,
 				41E73EFA241D2EFC00D2C1D7 /* da */,
 				4193E203243A98AB004D6A82 /* fr */,
+				4161D495245660B800D1C01B /* ro */,
 			);
 			name = Localizable.stringsdict;
 			sourceTree = "<group>";
@@ -1992,6 +1997,7 @@
 				418A2B692419E5BD0001AEDB /* ru */,
 				41E73EFB241D2EFC00D2C1D7 /* da */,
 				4193E204243A98AB004D6A82 /* fr */,
+				4161D496245660B800D1C01B /* ro */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -2009,6 +2015,7 @@
 				418A2B6B2419EE060001AEDB /* ru */,
 				41E73EFC241D2EFC00D2C1D7 /* da */,
 				4193E205243A98AB004D6A82 /* fr */,
+				4161D497245660B900D1C01B /* ro */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";

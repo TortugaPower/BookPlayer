@@ -182,3 +182,10 @@
 "progress_title" = "Fortschritt";
 "settings_siri_sleeptimer_title" = "Schlafmodus";
 "active_title" = "Aktiv";
+/* Currently Playing <Book title> by <Book author> */
+"voiceover_currently_playing_title" = "Es läuft %@ von %@";
+/* When you're on the library or playlist view, and the voice over cursor is focused on the floating mini-player at the bottom, it should read to the user the element, and the hint that if pressed, the player view will be shown */
+"voiceover_miniplayer_hint" = "Miniplayer. Tippen um den Wiedergabebildschirm anzuzeigen";
+"voiceover_chapter_time_title" = "Position im Kapitel: %@";
+/* When you're in the player view, and the voice over cursor is focused on the top bar (the one with the arrow-down), it will read to the user that the player view will be closed if he double taps that button */
+"voiceover_dismiss_player_title" = "Wiedergabebildschirm schließen";

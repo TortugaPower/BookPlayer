@@ -13,9 +13,11 @@ public class CommandParser {
     public class func parse(_ activity: NSUserActivity) -> Action? {
         if let intent = activity.interaction?.intent {
             return self.parse(intent)
+        } else if activity.activityType == "\(Bundle.main.bundleIdentifier!).activity.playback" {
+            return Action(command: .play)
         }
 
-        return Action(command: .play)
+        return nil
     }
 
     public class func parse(_ intent: INIntent) -> Action? {
@@ -32,13 +34,16 @@ public class CommandParser {
             return Action(command: .sleep, parameters: [queryItem])
         }
 
-        return Action(command: .play)
+        if intent is INPlayMediaIntent {
+            return Action(command: .play)
+        }
+
+        return nil
     }
 
     public class func parse(_ url: URL) -> Action? {
         guard let host = url.host else {
-            // Maintain empty action as Play
-            return Action(command: .play)
+            return nil
         }
 
         guard let command = Command(rawValue: host) else { return nil }
@@ -63,9 +68,9 @@ public class CommandParser {
         return Action(command: command, parameters: parameters)
     }
 
-    public class func parse(_ message: [String: Any]) -> Action {
+    public class func parse(_ message: [String: Any]) -> Action? {
         guard let commandString = message["command"] as? String,
-            let command = Command(rawValue: commandString) else { return Action(command: .play) }
+            let command = Command(rawValue: commandString) else { return nil }
 
         var dictionary = message
         dictionary.removeValue(forKey: "command")

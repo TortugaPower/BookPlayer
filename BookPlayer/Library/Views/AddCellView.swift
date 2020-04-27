@@ -16,6 +16,7 @@ class AddCellView: UITableViewCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()
+        self.titleLabel.accessibilityLabel = "playlist_add_title".localized
         setUpTheming()
     }
 }
