@@ -151,13 +151,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     @objc func messageReceived(_ notification: Notification) {
         guard
-            let message = notification.userInfo as? [String: Any] else {
+            let message = notification.userInfo as? [String: Any],
+            let action = CommandParser.parse(message) else {
             return
         }
 
         DispatchQueue.main.async {
-            let action = CommandParser.parse(message)
-
             ActionParserService.handleAction(action)
         }
     }
