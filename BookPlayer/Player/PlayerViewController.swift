@@ -84,7 +84,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         super.viewDidLoad()
 
         setUpTheming()
-		self.closeButton.accessibilityLabel = "voiceover_dismiss_player_title".localized
+        self.closeButton.accessibilityLabel = "voiceover_dismiss_player_title".localized
         self.setupView(book: self.currentBook!)
 
         // Make toolbar transparent

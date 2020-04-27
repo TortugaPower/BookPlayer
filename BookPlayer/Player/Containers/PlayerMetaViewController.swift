@@ -56,7 +56,7 @@ class PlayerMetaViewController: PlayerContainerViewController {
 
     private func setAccessibilityLabel() {
         guard let book = book else {
-			return accessibilityHint = "voiceover_unknown_title".localized
+            return accessibilityHint = "voiceover_unknown_title".localized
         }
         self.authorLabel.accessibilityLabel = VoiceOverService().playerMetaText(book: book)
     }

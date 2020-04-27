@@ -100,7 +100,7 @@ class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecogniz
         let voiceOverTitle = self.titleLabel.text ?? "voiceover_no_title".localized
         let voiceOverSubtitle = self.authorLabel.text ?? "voiceover_no_author".localized
         self.titleLabel.accessibilityLabel = String(describing: String.localizedStringWithFormat("voiceover_currently_playing_title".localized, voiceOverTitle, voiceOverSubtitle))
-		self.titleLabel.accessibilityHint = "voiceover_miniplayer_hint".localized
+        self.titleLabel.accessibilityHint = "voiceover_miniplayer_hint".localized
         self.playPauseButton.accessibilityLabel = "play_title".localized
         self.artwork.isAccessibilityElement = false
     }
