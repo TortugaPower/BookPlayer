@@ -24,6 +24,8 @@ class ChaptersViewController: UITableViewController {
         self.navigationItem.title = "chapters_title".localized
 
         self.tableView.tableFooterView = UIView()
+        self.tableView.rowHeight = UITableView.automaticDimension
+        self.tableView.estimatedRowHeight = 55.66
         setUpTheming()
     }
 
