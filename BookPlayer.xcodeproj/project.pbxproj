@@ -404,6 +404,9 @@
 		4160A09523F2DE190039166B /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = de; path = de.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		4160A09823F2DE1E0039166B /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = es; path = es.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		4160A0A023F304530039166B /* LocalizableLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizableLabel.swift; sourceTree = "<group>"; };
+		4161D495245660B800D1C01B /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ro; path = ro.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		4161D496245660B800D1C01B /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ro; path = ro.lproj/Localizable.strings; sourceTree = "<group>"; };
+		4161D497245660B900D1C01B /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ro; path = ro.lproj/Localizable.strings; sourceTree = "<group>"; };
 		4163E3102148606600072AA2 /* FileItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileItem.swift; sourceTree = "<group>"; };
 		4163E312214AC43000072AA2 /* ImportOperationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportOperationTests.swift; sourceTree = "<group>"; };
 		4163E314214ACB4300072AA2 /* DataTestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTestUtils.swift; sourceTree = "<group>"; };
@@ -1458,6 +1461,7 @@
 				"zh-Hans",
 				da,
 				fr,
+				ro,
 			);
 			mainGroup = 418B6CEF1D2707F700F974FB;
 			productRefGroup = 418B6CF91D2707F800F974FB /* Products */;
@@ -1927,6 +1931,7 @@
 				418A2B6A2419EBA70001AEDB /* ru */,
 				41E73EFA241D2EFC00D2C1D7 /* da */,
 				4193E203243A98AB004D6A82 /* fr */,
+				4161D495245660B800D1C01B /* ro */,
 			);
 			name = Localizable.stringsdict;
 			sourceTree = "<group>";
@@ -1992,6 +1997,7 @@
 				418A2B692419E5BD0001AEDB /* ru */,
 				41E73EFB241D2EFC00D2C1D7 /* da */,
 				4193E204243A98AB004D6A82 /* fr */,
+				4161D496245660B800D1C01B /* ro */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -2009,6 +2015,7 @@
 				418A2B6B2419EE060001AEDB /* ru */,
 				41E73EFC241D2EFC00D2C1D7 /* da */,
 				4193E205243A98AB004D6A82 /* fr */,
+				4161D497245660B900D1C01B /* ro */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -2048,7 +2055,7 @@
 				INFOPLIST_FILE = BookPlayerIntents/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 3.8.1;
+				MARKETING_VERSION = 3.8.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerIntents;
@@ -2076,7 +2083,7 @@
 				INFOPLIST_FILE = BookPlayerIntents/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 3.8.1;
+				MARKETING_VERSION = 3.8.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerIntents;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2102,7 +2109,7 @@
 				INFOPLIST_FILE = BookPlayerIntents/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 3.8.1;
+				MARKETING_VERSION = 3.8.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerIntents;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2132,7 +2139,7 @@
 				IBSC_MODULE = BookPlayerWatch_Extension;
 				INFOPLIST_FILE = BookPlayerWatch/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MARKETING_VERSION = 3.8.1;
+				MARKETING_VERSION = 3.8.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp;
@@ -2167,7 +2174,7 @@
 				IBSC_MODULE = BookPlayerWatch_Extension;
 				INFOPLIST_FILE = BookPlayerWatch/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MARKETING_VERSION = 3.8.1;
+				MARKETING_VERSION = 3.8.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2199,7 +2206,7 @@
 				IBSC_MODULE = BookPlayerWatch_Extension;
 				INFOPLIST_FILE = BookPlayerWatch/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MARKETING_VERSION = 3.8.1;
+				MARKETING_VERSION = 3.8.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2227,7 +2234,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "BookPlayerWatch Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 3.8.1;
+				MARKETING_VERSION = 3.8.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp.watchkitextension;
@@ -2257,7 +2264,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "BookPlayerWatch Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 3.8.1;
+				MARKETING_VERSION = 3.8.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp.watchkitextension;
 				PRODUCT_NAME = "${TARGET_NAME}";
@@ -2285,7 +2292,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "BookPlayerWatch Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 3.8.1;
+				MARKETING_VERSION = 3.8.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp.watchkitextension;
 				PRODUCT_NAME = "${TARGET_NAME}";
@@ -2532,7 +2539,7 @@
 				INFOPLIST_FILE = BookPlayer/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 3.8.1;
+				MARKETING_VERSION = 3.8.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer;
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "BookPlayer 3 with CarPlay";
@@ -2562,7 +2569,7 @@
 				INFOPLIST_FILE = BookPlayer/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 3.8.1;
+				MARKETING_VERSION = 3.8.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer;
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "BookPlayer 3 with CarPlay";
@@ -2731,7 +2738,7 @@
 				INFOPLIST_FILE = BookPlayerWidget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 3.8.1;
+				MARKETING_VERSION = 3.8.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerWidget;
@@ -2760,7 +2767,7 @@
 				INFOPLIST_FILE = BookPlayerWidget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 3.8.1;
+				MARKETING_VERSION = 3.8.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2787,7 +2794,7 @@
 				INFOPLIST_FILE = BookPlayerWidget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 3.8.1;
+				MARKETING_VERSION = 3.8.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2869,7 +2876,7 @@
 				INFOPLIST_FILE = BookPlayer/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 3.8.1;
+				MARKETING_VERSION = 3.8.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer;
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "BookPlayer 3 with CarPlay";

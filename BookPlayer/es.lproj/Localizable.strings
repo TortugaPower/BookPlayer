@@ -182,3 +182,10 @@
 "progress_title" = "Progreso";
 "settings_siri_sleeptimer_title" = "Temporizador de suspensión";
 "active_title" = "Activo";
+/* Currently Playing <Book title> by <Book author> */
+"voiceover_currently_playing_title" = "Reproducción en curso %@ por %@";
+/* When you're on the library or playlist view, and the voice over cursor is focused on the floating mini-player at the bottom, it should read to the user the element, and the hint that if pressed, the player view will be shown */
+"voiceover_miniplayer_hint" = "Mini reproductor. Presione para mostrar el Reproductor";
+"voiceover_chapter_time_title" = "Tiempo actual del capítulo: %@";
+/* When you're in the player view, and the voice over cursor is focused on the top bar (the one with the arrow-down), it will read to the user that the player view will be closed if he double taps that button */
+"voiceover_dismiss_player_title" = "Cerrar vista de reproductor";

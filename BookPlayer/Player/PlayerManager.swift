@@ -88,7 +88,8 @@ class PlayerManager: NSObject {
 
         self.queue.addOperation {
             // try loading the player
-            guard let item = self.playerItem else {
+            guard let item = self.playerItem,
+                book.duration > 0 else {
                 DispatchQueue.main.async {
                     self.currentBook = nil
 

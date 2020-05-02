@@ -1,0 +1,207 @@
+/* Title that is shown as the navigation bar title */
+"library_title" = "Bibliotecă";
+/* Title for the settings button */
+"settings_button" = "Setări";
+/* Title that is shown as the navigation bar title */
+"settings_title" = "Setări";
+"settings_autoplay_title" = "Bibliotecă redare automată";
+"settings_autoplay_description" = "Continuați redarea tuturor elementelor din Bibliotecă care nu sunt finalizate, inclusiv fișierele din listele de redare.";
+"settings_smartrewind_title" = "Derulare inteligentă înapoi";
+"settings_smartrewind_description" = "Derulați 30 de secunde înapoi după ce a fost o pauza de 10 minute.";
+"settings_boostvolume_title" = "Creșterea volumului";
+"settings_boostvolume_description" = "Dublează volumul.\nUtilizați cu prudență și grijă pentru auzul dvs.";
+"settings_globalspeed_title" = "Controlul global al vitezei";
+"settings_globalspeed_description" = "Setați viteza în toate cărțile.";
+"settings_autolock_title" = "Dezactivează Autolock";
+"settings_autolock_description" = "Împiedicați blocarea dispozitivului pe ecranul Playerului.";
+"settings_siri_lastplayed_title" = "Ultima carte redată";
+"settings_siri_lastplayed_description" = "Folosiți Siri pentru a continua ultima carte redată.";
+"settings_skip_title" = "SĂRIȚI INTERVALURILE";
+"settings_skip_rewind_title" = "Derulare înapoi";
+"settings_skip_forward_title" = "Înainte";
+"settings_skip_description" = "Ajustați valoarea ignorată atunci când utilizați butoanele din Player sau Centrul de Control.";
+"settings_support_title" = "SUPORT";
+"settings_siri_title" = "COMANDA RAPIDĂ SIRI";
+"settings_support_project_title" = "Vizualizați proiectul pe Github";
+"settings_support_project_description" = "Deschideți noi probleme pentru solicitările și erorile dvs. de funcții";
+"settings_support_email_title" = "Trimite-ne un e-mail";
+/* Should this be understood as the user wants to 'give credit' or is this like regulatives?
+Carl&nbsp;regarding the key settings_credits_title it's basically a section that gives credits to the third-party libraries that we are using in the app */
+"settings_credits_title" = "Credite și licențe";
+"settings_support_compose_title" = "Imposibil de compus e-mail";
+"settings_support_compose_description" = "Trebuie să configurați un cont de e-mail în setările dispozitivului pentru a utiliza acest lucru.\n\nVă rugăm să ne scrieți prin e-mail la";
+"settings_support_compose_copy" = "Copiați informațiile în clipboard";
+"library_add_button" = "Adăugare";
+"export_button" = "Partajare";
+"delete_button" = "Ștergere";
+"rename_button" = "Redenumiți";
+"delete_single_item_title" = "Doriți să ștergeți „ %@ ”?";
+"delete_single_playlist_description" = "Ștergând doar lista de redare toate fișierele se vor muta înapoi în bibliotecă.";
+"delete_shallow_button" = "Ștergeți numai lista de redare";
+"delete_deep_button" = "Ștergerea listei de redare și a fișierelor";
+"create_playlist_button" = "Creare listă de redare";
+"create_button" = "Creare";
+"import_button" = "Importați fișiere";
+"import_description" = "De asemenea, puteți adăuga fișiere prin AirDrop. Trimiteți un fișier audiobook pe dispozitiv și selectați BookPlayer din lista care apare.";
+"create_playlist_title" = "Crearea unei liste de redare noi";
+"create_playlist_description" = "Fișierele din listele de redare sunt redate automat unul după altul";
+"delete_multiple_items_description" = "Acest lucru va elimina și toate fișierele din listele de redare selectate.";
+"new_playlist_button" = "Listă de redare nouă";
+"existing_playlist_button" = "Listă de redare existentă";
+"choose_destination_title" = "Alegeți destinația";
+"delete_completely_button" = "Ștergeți complet";
+"move_library_button" = "Mutare în bibliotecă";
+"options_button" = "Opțiuni";
+"select_playlist_title" = "Selectare listă de redare";
+"sort_title_button" = "Titlu";
+"sort_filename_button" = "Nume fișier original";
+"sort_title" = "Sortează articolele după";
+"cancel_button" = "Anulare";
+"seconds_title" = "sec";
+"ok_button" = "OK";
+/* Message shown when trying to create a Siri Shortcut on devices that don't have iOS 12+ installed */
+"siri_alert_description" = "Comenzile rapide de la Siri sunt disponibile pe iOS 12 și versiuni ulterioare";
+/* Title used in the context of our tip jar to support development */
+"support_bookplayer_title" = "Sprijiniți BookPlayer";
+/* Description used in the context of our tip jar to support development */
+"support_bookplayer_description" = "Obțineți BookPlayer Plus pentru a sprijini dezvoltarea viitoare și pentru a obține teme suplimentare și pictograme pentru aplicații";
+"learn_more_title" = "AFLAȚI MAI MULTE";
+"settings_appearance_title" = "Aspect";
+"settings_theme_title" = "Tema";
+"settings_app_icon_title" = "Pictograma aplicației";
+"settings_playback_title" = "Setări de redare";
+"settings_controls_title" = "Controlul Playerului";
+"settings_power_connected_title" = "Numai când este conectat la alimentare";
+"settings_tip_jar_title" = "Loc pentru bacșiș";
+/* What does 'System Mode' entail? Is it regarding iOS Dark Mode?
+<span class="reply-in-chat"><span data-uid="carlhoumoller&amp;&#x23;x40&#x3B;hotmail.com" contenteditable="false" class="chat-reply-to"
+                                  data-replykey="36833450">Carl</span></span>
+&nbsp;regarding the key theme_system_title, yes, it refers to using the preference set at the operating system level (from the control center/brightness) */
+"theme_system_title" = "Utilizați modul sistem";
+"theme_switch_title" = "Comutare automată";
+"theme_dark_title" = "Utilizați întotdeauna variație întunecată";
+"themes_title" = "Teme";
+/* This should be &ldquo;By your friends at BookPlayer&rdquo; in English.&nbsp; */
+"icons_bookplayer_credit_description" = "De prietenii tăi de la BookPlayer";
+"kind_tip_title" = "Bacșiș bun in valoare de";
+"excellent_tip_title" = "Bacșiș excelent in valoare de";
+"incredible_tip_title" = "Bacșiș incredibil in valoare de";
+"plus_themes_description" = "Teme de culoare alese cu grijă pentru a se potrivi cu cărțile dumneavoastră preferate";
+"plus_icons_description" = "BookPlayer Plus este livrat cu mai multe pictograme pentru aplicații, potrivite schemelor de culori și tapetului dvs.";
+"support_us_title" = "Sprijiniți-ne";
+"bookplayer_opensource_description" = "BookPlayer este gratuit și Open Source și va rămâne mereu așa. Cu ajutorul tău, suntem capabili să punem în aplicație mai multe funcții și să îmbunătățim BookPlayer.";
+"thanks_title" = "Vă mulțumim pentru sprijinul dvs.!";
+"extra_tips_description" = "Dacă vă bucurați cu adevărat de BookPlayer, puteți lăsa sfaturi suplimentare pentru a sprijini dezvoltarea aplicației în continuare. Acest lucru vă va ajuta să contribuiți la dezvoltarea aplicației.";
+"files_title" = "Fișiere";
+"select_all_title" = "Selectați toate";
+"deselect_all_title" = "Deselectați toate";
+"move_title" = "Mutare";
+"jump_start_title" = "Salt la început";
+"mark_finished_title" = "Marcați ca terminat";
+"sort_files_title" = "Sortează fișierele după";
+"rename_title" = "Redenumiți elementul";
+"file_error_title" = "Eroare de fișier!";
+"file_error_description" = "Fișierul acestei cărți nu a putut fi încărcat. Asigurați-vă că nu utilizați fișiere cu protecție DRM (cum ar fi fișiere .aax)";
+"file_missing_title" = "Fișier lipsă!";
+"file_missing_description" = "Fișierul acestei cărți a fost eliminat de pe dispozitiv. Importați din nou fișierul pentru a reda cartea";
+"empty_playlist_description" = "De asemenea, puteți muta fișierele aici glisându-le în această listă de redare din Bibliotecă";
+"playlist_add_title" = "Adăugați fișiere";
+"player_speed_title" = "Setați viteza de redare";
+"player_sleep_title" = "Întrerupeți redarea";
+"sleep_chapter_option_title" = "Sfârșitul capitolului curent";
+/* This is used for the label underneath the progress bar (e.g. Chapter 1 of 35) */
+"player_chapter_description" = "Capitolul %d din %d";
+"chapters_title" = "Capitole";
+/* This is used as a description for each chapter in the chapters list (e.g. Start: 10:11 - Duration: 16:56) */
+"chapters_item_description" = "Start: %@ - Durata: %@";
+/* Restore purchases */
+"restore_title" = "Restabilire";
+"themes_caps_title" = "Teme";
+"plus_app_icons_title" = "Pictogramele aplicației";
+/* This is the counterpart to Mark as Finished */
+"mark_unfinished_title" = "Marcați ca neterminat";
+"move_playlist_button" = "Mutare în lista de redare";
+"move_single_item_title" = "Doriți să mutați „ %@ ” în „ %@ ”?";
+/* This is shown if while being inside a playlist, a batch of imported files are finished processing, and it will be one of the options in the alert presented */
+"current_playlist_title" = "Listă de redare curentă";
+"select_item_title" = "Selectați elementul";
+"sleep_alert_description" = "Dormire când se termină capitolul";
+"sleep_time_description" = "Dormire în %@";
+"sleep_off_title" = "Dezactivat";
+"sleep_interval_title" = "În %@";
+"chapter_number_title" = "Capitolul %d";
+"progress_complete_description" = "%d la sută completat";
+"chapter_duration_title" = "Durata capitolului:";
+"chapter_time_remaining_title" = "Timpul rămas din capitol:";
+"book_time_remaining_title" = "Timp rămas din carte :";
+"book_duration_title" = "Durata cărții:";
+/* Может правильнее будет: &quot;Не удалось сменить иконку&quot;? */
+"icon_error_description" = "Modificarea pictogramei aplicației nu a avut succes. Încercați din nou mai târziu";
+"error_title" = "Eroare";
+"generic_retry_description" = "Vă rugăm să încercați din nou mai târziu";
+"network_error_title" = "Eroare de conectivitate";
+"purchases_restored_title" = "Achizițiile au fost restaurate!";
+"tip_missing_title" = "Încă nu ne-ai dat bacșiș.";
+/* will need 2 versions (for female and male)
+<span class="reply-in-chat"><span data-uid="sandu.hamuraru&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
+                                  data-replykey="36841099">Alexandru</span></span>
+&nbsp;there's no way to put it without gender? using the second-person form involves specifying gender in Romanian?
+<span class="reply-in-chat"><span data-uid="sandu.hamuraru&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
+                                  data-replykey="36841099">Alexandru</span></span>
+&nbsp;we have no current way of determining the gender of the user using the app right now 👀. Or maybe I didn't fully understand what you meant? */
+"thanks_amazing_title" = "Ești super!";
+"play_title" = "Redare";
+"pause_title" = "Pauză";
+"voiceover_no_title" = "Fără titlu";
+"voiceover_no_author" = "Fără autor";
+/* &lt;Book title&gt; by &lt;Book author&gt; &lt;percentage in numbers&gt;% Completed */
+"voiceover_book_progress" = "%@cate%@,%dprocent finalizat";
+"voiceover_no_file_title" = "Fără titlu de fișier";
+/* Not sure where this title appears ? :)
+<span class="reply-in-chat"><span data-uid="christophe.vergne&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
+                                  data-replykey="36841194">christophe</span></span>
+&nbsp;this key in particular is when you're inside a playlist, the subtitle (that usually is the author) has no info for our VoiceOver service
+<span class="reply-in-chat"><span data-uid="christophe.vergne&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
+                                  data-replykey="36841194">christophe</span></span>
+&nbsp;let me know if that clears things up?
+<span class="reply-in-chat"><span data-uid="gcarlo89&amp;&#x23;x40&#x3B;hotmail.com" contenteditable="false" class="chat-reply-to"
+                                  data-replykey="36841194">Gianni Carlo</span></span>
+ Alright, my translation was correct so, thanks :) */
+"voiceover_no_file_subtitle" = "Fără fișier de subtitrare";
+"voiceover_no_playlist_title" = "Fără titlu de playlist";
+/* &lt;Playlist title&gt; Playlist &lt;percentage in number&gt;% Completed */
+"voiceover_playlist_progress" = "%@ Listă de redare, %d procent finalizat";
+"voiceover_unknown_title" = "Titlu necunoscut";
+"voiceover_unknown_author" = "Autor necunoscut";
+/* &lt;book title&gt; by &lt;book author&gt; */
+"voiceover_book_info" = "%@ cate %@";
+/* &lt;book title&gt; by &lt;book author&gt;, chapter &lt;chapter title&gt; */
+"voiceover_book_chapter" = "%@cate %@, capitolul %@";
+"voiceover_rewind_time" = "Derulare înapoi%@";
+"voiceover_forward_time" = "Derulare rapidă înainte%@";
+"watchapp_last_played_title" = "Ultimul redat";
+"watchapp_refresh_data_title" = "Actualizați datele";
+"carplay_recent_title" = "Recent";
+"carplay_library_error" = "Imposibil de încărcat cărți";
+"siri_invocation_phrase" = "Continuați-mi cartea";
+"siri_activity_title" = "Continuați ultima carte derulata";
+"watchapp_connect_error_title" = "Eroare de conectivitate";
+"watchapp_connect_error_description" = "Există o problemă de conectare la telefonul dvs., încercați din nou mai târziu";
+"sleep_remaining_title" = "%@Timp rămas pana la somn";
+"audio_source_title" = "Sursă audio";
+"speed_title" = "Viteza";
+"import_preparing_title" = "Pregătire pentru importarea fișierelor";
+"library_add_title" = "Adaugați prima carte";
+"invalid_url_title" = "URL invalid%@";
+"downloading_file_title" = "Descărcarea fișierului.";
+"progress_title" = "Derulare";
+"settings_siri_sleeptimer_title" = "Temporizator somn";
+"active_title" = "Pornit";
+/* Currently Playing <Book title> by <Book author> */
+"voiceover_currently_playing_title" = "Curent rulează %@ cate %@";
+/* When you're on the library or playlist view, and the voice over cursor is focused on the floating mini-player at the bottom, it should read to the user the element, and the hint that if pressed, the player view will be shown */
+"voiceover_miniplayer_hint" = "Miniplayer. Atingeți pentru a afișa Playerul";
+"voiceover_chapter_time_title" = "Timpul curent al capitolului: %@";
+/* When you're in the player view, and the voice over cursor is focused on the top bar (the one with the arrow-down), it will read to the user that the player view will be closed if he double taps that button */
+"voiceover_dismiss_player_title" = "Renunțați la Player";
+

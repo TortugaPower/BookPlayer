@@ -20,12 +20,7 @@ class NetworkService {
     var downloadRequest: DownloadRequest?
 
     public func download(from url: URL, completionHandler: @escaping (DefaultDownloadResponse) -> Void) {
-        let destination: DownloadRequest.DownloadFileDestination = { _, _ in
-            let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            let fileURL = documentsURL.appendingPathComponent("downloaded-tmp-file.mp3")
-
-            return (fileURL, [.removePreviousFile, .createIntermediateDirectories])
-        }
+        let destination = DownloadRequest.suggestedDownloadDestination(for: .documentDirectory)
 
         self.manager.startRequestsImmediately = true
 
