@@ -15,7 +15,7 @@ import UIKit
 public class Playlist: LibraryItem {
     // MARK: - Properties
 
-    public override var artwork: UIImage {
+    override public var artwork: UIImage {
         guard let books = self.books?.array as? [Book], let book = books.first(where: { (book) -> Bool in
             !book.usesDefaultArtwork
         }) else {
@@ -25,7 +25,7 @@ public class Playlist: LibraryItem {
         return book.artwork
     }
 
-    public override func jumpToStart() {
+    override public func jumpToStart() {
         guard let books = self.books?.array as? [Book] else { return }
 
         for book in books {
@@ -33,7 +33,7 @@ public class Playlist: LibraryItem {
         }
     }
 
-    public override func markAsFinished(_ flag: Bool) {
+    override public func markAsFinished(_ flag: Bool) {
         guard let books = self.books?.array as? [Book] else { return }
 
         for book in books {
@@ -76,7 +76,7 @@ public class Playlist: LibraryItem {
         return totalDuration
     }
 
-    public override var progress: Double {
+    override public var progress: Double {
         guard let books = self.books?.array as? [Book] else {
             return 0.0
         }
@@ -152,7 +152,7 @@ public class Playlist: LibraryItem {
         return self.getBook(at: index)
     }
 
-    public override func getBookToPlay() -> Book? {
+    override public func getBookToPlay() -> Book? {
         guard let books = self.books else { return nil }
 
         for item in books {
@@ -186,7 +186,7 @@ public class Playlist: LibraryItem {
         return nil
     }
 
-    public override func info() -> String {
+    override public func info() -> String {
         let count = self.books?.array.count ?? 0
 
         return "\(count) \("files_title".localized)"
@@ -196,7 +196,7 @@ public class Playlist: LibraryItem {
         case title, desc, books, library
     }
 
-    public override func encode(to encoder: Encoder) throws {
+    override public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(title, forKey: .title)
         try container.encode(desc, forKey: .desc)

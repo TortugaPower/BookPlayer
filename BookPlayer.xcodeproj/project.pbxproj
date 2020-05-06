@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -207,6 +207,8 @@
 		41EE378A21BFFBDE00A55F51 /* ItemListAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41EE378921BFFBDE00A55F51 /* ItemListAlerts.swift */; };
 		41EE378C21C0028800A55F51 /* ItemListActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41EE378B21C0028800A55F51 /* ItemListActions.swift */; };
 		41F898AF2402080C00F58B8A /* ZipArchive.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41F898AE2402080C00F58B8A /* ZipArchive.framework */; };
+		636FFCC82462335600DD91B3 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 636FFCC72462335600DD91B3 /* Kingfisher */; };
+		636FFCCB246233A600DD91B3 /* SwiftyStoreKit in Frameworks */ = {isa = PBXBuildFile; productRef = 636FFCCA246233A600DD91B3 /* SwiftyStoreKit */; };
 		6906A55021720FDF00A9E0B2 /* BookSortServiceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A54F21720FDF00A9E0B2 /* BookSortServiceTest.swift */; };
 		6906A553217211C600A9E0B2 /* StubFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A552217211C600A9E0B2 /* StubFactory.swift */; };
 		69343D332133844D000C425E /* VoiceOverService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69343D322133844D000C425E /* VoiceOverService.swift */; };
@@ -637,6 +639,8 @@
 				4112AFD6223AD27D00BFEA55 /* Sentry.framework in Frameworks */,
 				4165EE0E20A7AEC600616EDF /* SwiftReorder.framework in Frameworks */,
 				412451841D489204008AC0E5 /* Crashlytics.framework in Frameworks */,
+				636FFCCB246233A600DD91B3 /* SwiftyStoreKit in Frameworks */,
+				636FFCC82462335600DD91B3 /* Kingfisher in Frameworks */,
 				41B2A6AC21D3274500917584 /* Themeable.framework in Frameworks */,
 				41A1B0E7226E9BC500EA0400 /* BookPlayerKit.framework in Frameworks */,
 				4193E1FC24394CEF004D6A82 /* Alamofire.framework in Frameworks */,
@@ -1302,6 +1306,10 @@
 				41342D0424435D9900F0905B /* PBXTargetDependency */,
 			);
 			name = BookPlayer;
+			packageProductDependencies = (
+				636FFCC72462335600DD91B3 /* Kingfisher */,
+				636FFCCA246233A600DD91B3 /* SwiftyStoreKit */,
+			);
 			productName = "Audiobook Player";
 			productReference = 418B6CF81D2707F800F974FB /* BookPlayer.app */;
 			productType = "com.apple.product-type.application";
@@ -1464,6 +1472,10 @@
 				ro,
 			);
 			mainGroup = 418B6CEF1D2707F700F974FB;
+			packageReferences = (
+				636FFCC62462335600DD91B3 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				636FFCC9246233A600DD91B3 /* XCRemoteSwiftPackageReference "SwiftyStoreKit" */,
+			);
 			productRefGroup = 418B6CF91D2707F800F974FB /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -2054,7 +2066,11 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerIntents/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				MARKETING_VERSION = 3.8.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -2082,7 +2098,11 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerIntents/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				MARKETING_VERSION = 3.8.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerIntents;
@@ -2108,7 +2128,11 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerIntents/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				MARKETING_VERSION = 3.8.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerIntents;
@@ -2138,7 +2162,11 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				IBSC_MODULE = BookPlayerWatch_Extension;
 				INFOPLIST_FILE = BookPlayerWatch/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
 				MARKETING_VERSION = 3.8.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -2173,7 +2201,11 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				IBSC_MODULE = BookPlayerWatch_Extension;
 				INFOPLIST_FILE = BookPlayerWatch/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
 				MARKETING_VERSION = 3.8.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp;
@@ -2205,7 +2237,11 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				IBSC_MODULE = BookPlayerWatch_Extension;
 				INFOPLIST_FILE = BookPlayerWatch/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
 				MARKETING_VERSION = 3.8.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp;
@@ -2233,7 +2269,11 @@
 				DEVELOPMENT_TEAM = S7TJSJXWUZ;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "BookPlayerWatch Extension/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				MARKETING_VERSION = 3.8.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -2263,7 +2303,11 @@
 				DEVELOPMENT_TEAM = S7TJSJXWUZ;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "BookPlayerWatch Extension/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				MARKETING_VERSION = 3.8.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp.watchkitextension;
@@ -2291,7 +2335,11 @@
 				DEVELOPMENT_TEAM = S7TJSJXWUZ;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "BookPlayerWatch Extension/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				MARKETING_VERSION = 3.8.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp.watchkitextension;
@@ -2324,7 +2372,11 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWatchKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.BookPlayerWatchKit;
@@ -2360,7 +2412,11 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWatchKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.BookPlayerWatchKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -2394,7 +2450,11 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWatchKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.BookPlayerWatchKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -2512,7 +2572,8 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = BookPlayer;
 				SDKROOT = iphoneos;
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -2538,7 +2599,10 @@
 				);
 				INFOPLIST_FILE = BookPlayer/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MARKETING_VERSION = 3.8.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer;
 				PRODUCT_NAME = BookPlayer;
@@ -2568,13 +2632,17 @@
 				);
 				INFOPLIST_FILE = BookPlayer/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MARKETING_VERSION = 3.8.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer;
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "BookPlayer 3 with CarPlay";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = RELEASE;
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -2586,7 +2654,11 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				INFOPLIST_FILE = BookPlayerTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tortugapower.Audiobook-PlayerTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -2600,7 +2672,11 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				INFOPLIST_FILE = BookPlayerTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tortugapower.Audiobook-PlayerTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -2633,7 +2709,11 @@
 				INFOPLIST_FILE = BookPlayerKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.BookPlayerKit;
@@ -2672,7 +2752,11 @@
 				INFOPLIST_FILE = BookPlayerKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.BookPlayerKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -2709,7 +2793,11 @@
 				INFOPLIST_FILE = BookPlayerKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.BookPlayerKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -2737,7 +2825,11 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWidget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				MARKETING_VERSION = 3.8.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -2766,7 +2858,11 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWidget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				MARKETING_VERSION = 3.8.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerWidget;
@@ -2793,7 +2889,11 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWidget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				MARKETING_VERSION = 3.8.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerWidget;
@@ -2850,7 +2950,8 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = BookPlayer;
 				SDKROOT = iphoneos;
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -2875,13 +2976,17 @@
 				);
 				INFOPLIST_FILE = BookPlayer/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MARKETING_VERSION = 3.8.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer;
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "BookPlayer 3 with CarPlay";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = RELEASE;
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -2893,7 +2998,11 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				INFOPLIST_FILE = BookPlayerTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tortugapower.Audiobook-PlayerTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -2995,6 +3104,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		636FFCC62462335600DD91B3 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.13.4;
+			};
+		};
+		636FFCC9246233A600DD91B3 /* XCRemoteSwiftPackageReference "SwiftyStoreKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/bizz84/SwiftyStoreKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.15.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		636FFCC72462335600DD91B3 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 636FFCC62462335600DD91B3 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
+		636FFCCA246233A600DD91B3 /* SwiftyStoreKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 636FFCC9246233A600DD91B3 /* XCRemoteSwiftPackageReference "SwiftyStoreKit" */;
+			productName = SwiftyStoreKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */ = {

@@ -10,7 +10,7 @@ import WatchConnectivity
 
 public class WatchConnectivityService: NSObject, WCSessionDelegate {
     public static let sharedManager = WatchConnectivityService()
-    private override init() {
+    override private init() {
         super.init()
     }
 

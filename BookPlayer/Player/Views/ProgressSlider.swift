@@ -42,7 +42,7 @@ class ProgressSlider: UISlider {
     }
 
     // Hide the default track
-    open override func trackRect(forBounds bounds: CGRect) -> CGRect {
+    override open func trackRect(forBounds bounds: CGRect) -> CGRect {
         var rect = super.trackRect(forBounds: bounds)
 
         rect.size.height = 0.01
@@ -50,7 +50,7 @@ class ProgressSlider: UISlider {
         return rect
     }
 
-    open override func draw(_ rect: CGRect) {
+    override open func draw(_ rect: CGRect) {
         let minColor = self.minimumTrackTintColor ?? UIColor.tintColor
         let maxColor = self.maximumTrackTintColor ?? minColor.withAlphaComponent(0.3)
 

@@ -53,7 +53,7 @@ class PlayerManager: NSObject {
 
     private var rateObserver: NSKeyValueObservation?
 
-    private override init() {
+    override private init() {
         super.init()
         let interval = CMTime(seconds: 1.0, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
 

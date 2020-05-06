@@ -70,7 +70,7 @@ public class ImportOperation: Operation {
         try? FileManager.default.removeItem(at: file.originalUrl)
     }
 
-    public override func main() {
+    override public func main() {
         for file in self.files {
             NotificationCenter.default.post(name: .processingFile, object: nil, userInfo: ["filename": file.originalUrl.lastPathComponent])
 

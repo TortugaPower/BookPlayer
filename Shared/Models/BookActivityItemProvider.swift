@@ -15,7 +15,7 @@ public class BookActivityItemProvider: UIActivityItemProvider {
         super.init(placeholderItem: book)
     }
 
-    public override func activityViewController(_ activityViewController: UIActivityViewController, itemForActivityType activityType: UIActivity.ActivityType?) -> Any? {
+    override public func activityViewController(_ activityViewController: UIActivityViewController, itemForActivityType activityType: UIActivity.ActivityType?) -> Any? {
         let tempDir = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
         let tempUrl = tempDir.appendingPathComponent(self.book.filename)
 
@@ -26,7 +26,7 @@ public class BookActivityItemProvider: UIActivityItemProvider {
         return tempUrl
     }
 
-    public override func activityViewControllerPlaceholderItem(_ activityViewController: UIActivityViewController) -> Any {
+    override public func activityViewControllerPlaceholderItem(_ activityViewController: UIActivityViewController) -> Any {
         return URL(fileURLWithPath: "placeholder")
     }
 }

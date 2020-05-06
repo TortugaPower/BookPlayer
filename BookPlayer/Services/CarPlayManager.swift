@@ -56,7 +56,7 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
     let tabs: [Tab] = [("tab-library", "library_title".localized, "carplayLibrary"),
                        ("tab-recent", "carplay_recent_title".localized, "carplayRecent")]
 
-    private override init() {
+    override private init() {
         self.library = DataManager.getLibrary()
     }
 

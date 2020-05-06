@@ -28,7 +28,7 @@ public class Book: LibraryItem {
         return self.title
     }
 
-    public override var progress: Double {
+    override public var progress: Double {
         guard self.duration > 0 else { return 0 }
 
         return self.currentTime / self.duration
@@ -42,11 +42,11 @@ public class Book: LibraryItem {
         return !(self.chapters?.array.isEmpty ?? true)
     }
 
-    public override func jumpToStart() {
+    override public func jumpToStart() {
         self.currentTime = 0.0
     }
 
-    public override func markAsFinished(_ flag: Bool) {
+    override public func markAsFinished(_ flag: Bool) {
         self.isFinished = flag
 
         // To avoid progress display side-effects
@@ -110,7 +110,7 @@ public class Book: LibraryItem {
         return duration
     }
 
-    public override func awakeFromFetch() {
+    override public func awakeFromFetch() {
         super.awakeFromFetch()
 
         self.updateCurrentChapter()
@@ -137,7 +137,7 @@ public class Book: LibraryItem {
         playlist.lastPlayDate = now
     }
 
-    public override func getBookToPlay() -> Book? {
+    override public func getBookToPlay() -> Book? {
         return self
     }
 
@@ -207,7 +207,7 @@ public class Book: LibraryItem {
         case currentTime, duration, identifier, percentCompleted, title, author, ext, playlist
     }
 
-    public override func encode(to encoder: Encoder) throws {
+    override public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(currentTime, forKey: .currentTime)
         try container.encode(duration, forKey: .duration)
