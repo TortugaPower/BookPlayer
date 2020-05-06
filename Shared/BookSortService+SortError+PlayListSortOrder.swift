@@ -5,6 +5,8 @@ final class BookSortService {
         switch type {
         case .metadataTitle, .fileName:
             return self.sort(books, by: type.rawValue)
+        case .sortByMostRecent:
+            return self.sort(books, by: type.rawValue)
         }
     }
 
@@ -31,6 +33,7 @@ enum SortError: Error {
 public enum PlayListSortOrder: String {
     case metadataTitle = "title"
     case fileName = "originalFileName"
+    case sortByMostRecent = "Most Recent"
 }
 
 protocol Sortable {

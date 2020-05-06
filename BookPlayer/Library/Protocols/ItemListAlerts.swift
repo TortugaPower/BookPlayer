@@ -20,6 +20,11 @@ extension ItemListAlerts {
             self.reloadData()
         }))
 
+        alert.addAction(UIAlertAction(title: "sort_most_recent".localized, style: .default, handler: { _ in
+            self.sort(by: .lastPlayDate)
+            self.reloadData()
+        }))
+
         alert.addAction(UIAlertAction(title: "sort_filename_button".localized, style: .default, handler: { _ in
             self.sort(by: .fileName)
             self.reloadData()

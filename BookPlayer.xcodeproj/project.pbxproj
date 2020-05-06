@@ -209,6 +209,8 @@
 		41F898AF2402080C00F58B8A /* ZipArchive.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41F898AE2402080C00F58B8A /* ZipArchive.framework */; };
 		636FFCC82462335600DD91B3 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 636FFCC72462335600DD91B3 /* Kingfisher */; };
 		636FFCCB246233A600DD91B3 /* SwiftyStoreKit in Frameworks */ = {isa = PBXBuildFile; productRef = 636FFCCA246233A600DD91B3 /* SwiftyStoreKit */; };
+		636FFCCE2463358300DD91B3 /* Themeable in Frameworks */ = {isa = PBXBuildFile; productRef = 636FFCCD2463358300DD91B3 /* Themeable */; };
+		636FFCD1246335DD00DD91B3 /* MarqueeLabel in Frameworks */ = {isa = PBXBuildFile; productRef = 636FFCD0246335DD00DD91B3 /* MarqueeLabel */; };
 		6906A55021720FDF00A9E0B2 /* BookSortServiceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A54F21720FDF00A9E0B2 /* BookSortServiceTest.swift */; };
 		6906A553217211C600A9E0B2 /* StubFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A552217211C600A9E0B2 /* StubFactory.swift */; };
 		69343D332133844D000C425E /* VoiceOverService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69343D322133844D000C425E /* VoiceOverService.swift */; };
@@ -632,6 +634,7 @@
 			files = (
 				4175E14522080C7700FB7B71 /* StoreKit.framework in Frameworks */,
 				41D4F2EB2101A278009F1B1E /* DirectoryWatcher.framework in Frameworks */,
+				636FFCD1246335DD00DD91B3 /* MarqueeLabel in Frameworks */,
 				4150F80320A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework in Frameworks */,
 				41F898AF2402080C00F58B8A /* ZipArchive.framework in Frameworks */,
 				C318DDBF20A4DC7500C3A17B /* DeviceKit.framework in Frameworks */,
@@ -639,6 +642,7 @@
 				4112AFD6223AD27D00BFEA55 /* Sentry.framework in Frameworks */,
 				4165EE0E20A7AEC600616EDF /* SwiftReorder.framework in Frameworks */,
 				412451841D489204008AC0E5 /* Crashlytics.framework in Frameworks */,
+				636FFCCE2463358300DD91B3 /* Themeable in Frameworks */,
 				636FFCCB246233A600DD91B3 /* SwiftyStoreKit in Frameworks */,
 				636FFCC82462335600DD91B3 /* Kingfisher in Frameworks */,
 				41B2A6AC21D3274500917584 /* Themeable.framework in Frameworks */,
@@ -1309,6 +1313,8 @@
 			packageProductDependencies = (
 				636FFCC72462335600DD91B3 /* Kingfisher */,
 				636FFCCA246233A600DD91B3 /* SwiftyStoreKit */,
+				636FFCCD2463358300DD91B3 /* Themeable */,
+				636FFCD0246335DD00DD91B3 /* MarqueeLabel */,
 			);
 			productName = "Audiobook Player";
 			productReference = 418B6CF81D2707F800F974FB /* BookPlayer.app */;
@@ -1475,6 +1481,8 @@
 			packageReferences = (
 				636FFCC62462335600DD91B3 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				636FFCC9246233A600DD91B3 /* XCRemoteSwiftPackageReference "SwiftyStoreKit" */,
+				636FFCCC2463358300DD91B3 /* XCRemoteSwiftPackageReference "Themeable" */,
+				636FFCCF246335DD00DD91B3 /* XCRemoteSwiftPackageReference "MarqueeLabel" */,
 			);
 			productRefGroup = 418B6CF91D2707F800F974FB /* Products */;
 			projectDirPath = "";
@@ -3122,6 +3130,22 @@
 				minimumVersion = 0.15.1;
 			};
 		};
+		636FFCCC2463358300DD91B3 /* XCRemoteSwiftPackageReference "Themeable" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/edwellbrook/Themeable";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.8.0;
+			};
+		};
+		636FFCCF246335DD00DD91B3 /* XCRemoteSwiftPackageReference "MarqueeLabel" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/cbpowell/MarqueeLabel";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -3134,6 +3158,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 636FFCC9246233A600DD91B3 /* XCRemoteSwiftPackageReference "SwiftyStoreKit" */;
 			productName = SwiftyStoreKit;
+		};
+		636FFCCD2463358300DD91B3 /* Themeable */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 636FFCCC2463358300DD91B3 /* XCRemoteSwiftPackageReference "Themeable" */;
+			productName = Themeable;
+		};
+		636FFCD0246335DD00DD91B3 /* MarqueeLabel */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 636FFCCF246335DD00DD91B3 /* XCRemoteSwiftPackageReference "MarqueeLabel" */;
+			productName = MarqueeLabel;
 		};
 /* End XCSwiftPackageProductDependency section */
 
