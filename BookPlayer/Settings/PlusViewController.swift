@@ -223,7 +223,7 @@ class PlusViewController: UIViewController {
             spinner = self.kindTipSpinner
             widthConstraint = self.kindTipButtonWidthConstraint
         case self.excellentTipButton:
-            spinnerÏ= self.excellentTipSpinner
+            spinnerÏ = self.excellentTipSpinner
             widthConstraint = self.excellentTipButtonWidthConstraint
         default:
             spinner = self.incredibleTipSpinner
