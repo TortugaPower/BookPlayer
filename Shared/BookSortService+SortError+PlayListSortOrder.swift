@@ -33,7 +33,7 @@ enum SortError: Error {
 public enum PlayListSortOrder: String {
     case metadataTitle = "title"
     case fileName = "originalFileName"
-    case sortByMostRecent = "Most Recent"
+    case sortByMostRecent = "lastPlayDate"
 }
 
 protocol Sortable {
