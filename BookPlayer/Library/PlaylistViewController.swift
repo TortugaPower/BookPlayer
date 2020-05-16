@@ -24,6 +24,18 @@ class PlaylistViewController: ItemListViewController {
         self.navigationItem.title = self.playlist.title
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        guard
+            let currentBook = PlayerManager.shared.currentBook,
+            let fileURL = currentBook.fileURL,
+            let index = self.playlist.itemIndex(with: fileURL) else {
+                return
+        }
+
+        tableView.scrollToRow(at: IndexPath(row: index, section: .data), at: .middle, animated: true)
+    }
+
     override func reloadData() {
         super.reloadData()
         NotificationCenter.default.post(name: .reloadData, object: nil)
