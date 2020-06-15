@@ -30,6 +30,22 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         }
     }
 
+    public lazy var customChapterRotor = UIAccessibilityCustomRotor(name: "Skip Chapters") { (predicate) -> UIAccessibilityCustomRotorItemResult? in
+
+        guard let currentBook = self.book, currentBook.hasChapters else { return nil }
+
+        let forward: Bool = (predicate.searchDirection == .next)
+
+        guard let nextChapter = forward
+            ? currentBook.nextChapter()
+            : currentBook.previousChapter()
+        else { return nil }
+
+        PlayerManager.shared.jumpTo(nextChapter.start + 0.01)
+
+        return UIAccessibilityCustomRotorItemResult(targetElement: self.progressButton.titleLabel!, targetRange: nil)
+    }
+
     private var prefersChapterContext = UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
 
     private var prefersRemainingTime = UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
