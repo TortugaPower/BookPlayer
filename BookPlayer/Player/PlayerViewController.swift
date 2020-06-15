@@ -113,6 +113,8 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.pan.cancelsTouchesInView = true
 
         self.view.addGestureRecognizer(self.pan)
+
+        accessibilityCustomRotors = [self.controlsViewController!.customChapterRotor]
     }
 
     override func viewWillAppear(_ animated: Bool) {

@@ -141,6 +141,30 @@ public class Book: LibraryItem {
         return self
     }
 
+    public func nextChapter() -> Chapter? {
+        guard let chapters = self.chapters?.array as? [Chapter],
+            !chapters.isEmpty,
+            let chapter = self.currentChapter else {
+            return nil
+        }
+
+        if self.currentChapter == chapters.last { return nil }
+
+        return chapters[Int(chapter.index)]
+    }
+
+    public func previousChapter() -> Chapter? {
+        guard let chapters = self.chapters?.array as? [Chapter],
+            !chapters.isEmpty,
+            let chapter = self.currentChapter else {
+            return nil
+        }
+
+        if self.currentChapter == chapters.first { return nil }
+
+        return chapters[Int(chapter.index) - 2]
+    }
+
     public func nextBook() -> Book? {
         if
             let playlist = self.playlist,
