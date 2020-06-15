@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>library_playlist_description</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d файл</string>
+        <key>few</key>
+        <string>%d файли</string>
+        <key>many</key>
+        <string>%d файлів</string>
+        <key>other</key>
+        <string>%d файлів</string>
+      </dict>
+    </dict>
+    <key>delete_multiple_items_title</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string></string>
+        <key>few</key>
+        <string>Ви дійсно хочете видалити %d елементи?</string>
+        <key>many</key>
+        <string>Ви дійсно хочете видалити %d елементів?</string>
+        <key>other</key>
+        <string>Ви дійсно хочете видалити %d елементів?</string>
+      </dict>
+    </dict>
+    <key>import_alert_title</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>файлу</string>
+        <key>few</key>
+        <string>файлів</string>
+        <key>many</key>
+        <string>файлів</string>
+        <key>other</key>
+        <string>файлів</string>
+      </dict>
+    </dict>
+    <key>import_processing_description</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Обробка одного файлу</string>
+        <key>few</key>
+        <string>Обробка файлів</string>
+        <key>many</key>
+        <string>Обробка файлів</string>
+        <key>other</key>
+        <string>Обробка файлів</string>
+      </dict>
+    </dict>
+  </dict>
+</plist>
+
