@@ -30,7 +30,7 @@ class PlaylistViewController: ItemListViewController {
             let currentBook = PlayerManager.shared.currentBook,
             let fileURL = currentBook.fileURL,
             let index = self.playlist.itemIndex(with: fileURL) else {
-                return
+            return
         }
 
         tableView.scrollToRow(at: IndexPath(row: index, section: .data), at: .middle, animated: true)

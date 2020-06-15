@@ -175,10 +175,9 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             items.append(self.sleepLabel)
         }
 
-        if self.currentBook.hasChapters {
-            items.append(spacer)
-            items.append(self.chaptersButton)
-        }
+        self.chaptersButton.isEnabled = self.currentBook.hasChapters
+        items.append(spacer)
+        items.append(self.chaptersButton)
 
         if #available(iOS 11, *) {
             let avRoutePickerBarButtonItem = UIBarButtonItem(customView: AVRoutePickerView(frame: CGRect(x: 0.0, y: 0.0, width: 20.0, height: 20.0)))
