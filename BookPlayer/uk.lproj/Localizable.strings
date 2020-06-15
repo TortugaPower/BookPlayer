@@ -1,0 +1,219 @@
+/* 
+  Localizable.strings
+  BookPlayer
+
+  Created by Gianni Carlo on 12/29/19.
+  Copyright © 2019 Tortuga Power. All rights reserved.
+*/
+
+/* Title that is shown as the navigation bar title */
+"library_title" = "Бібліотека";
+/* Title for the settings button */
+"settings_button" = "Налаштування";
+/* Title that is shown as the navigation bar title */
+"settings_title" = "Налаштування";
+"settings_autoplay_title" = "Автовідтворення бібліотеки";
+"settings_autoplay_description" = "Продовжити відтворення з усіма треками бібліотеки, які не завершені, включно з файлами в списках.";
+"settings_smartrewind_title" = "Розумне відмотування";
+"settings_smartrewind_description" = "Повернутись на 30 секунд назад після паузи на 10 хвилин.";
+"settings_boostvolume_title" = "Збільшення гучності";
+"settings_boostvolume_description" = "Подвоює гучність. \n Використовуйте обережно та дбайте про свій слух.";
+"settings_globalspeed_title" = "Глобальний контроль швидкості";
+"settings_globalspeed_description" = "Встановити швидкість для всіх книг.";
+"settings_autolock_title" = "Вимкнути автоблокування";
+"settings_autolock_description" = "Запобігати блокуванню пристрою при відкритому програвачі.";
+"settings_siri_lastplayed_title" = "Остання відтворена книга";
+"settings_siri_lastplayed_description" = "Використовувати Siri для продовження програвання останньої книги.";
+"settings_skip_title" = "Інтервали перемотування";
+"settings_skip_rewind_title" = "Назад";
+"settings_skip_forward_title" = "Вперед";
+"settings_skip_description" = "Налаштування перемотування для кнопок плеєра або центру керування.";
+"settings_support_title" = "Підтримка";
+"settings_siri_title" = "Швидкий перехід SIRI";
+"settings_support_project_title" = "Переглянути проєкт на GitHub";
+"settings_support_project_description" = "Створити новий запит на новий функціонал або помилку";
+"settings_support_email_title" = "Напишіть нам";
+/* Should this be understood as the user wants to 'give credit' or is this like regulatives?
+Carl&nbsp;regarding the key settings_credits_title it's basically a section that gives credits to the third-party libraries that we are using in the app */
+"settings_credits_title" = "Подяки та ліцензії";
+"settings_support_compose_title" = "Не вдалось створити лист";
+"settings_support_compose_description" = "Щоб скористатись цим, вам потрібно налаштувати обліковий запис електронної пошти у налаштуваннях свого пристрою. \n \n Будь ласка, напишіть нам за адресою";
+"settings_support_compose_copy" = "Скопіювати інформацію в буфер обміну";
+"library_add_button" = "Додати";
+"export_button" = "Поділитися";
+"delete_button" = "Видалити";
+"rename_button" = "Перейменувати";
+"delete_single_item_title" = "Видалити \"%@\"?";
+"delete_single_playlist_description" = "Видалення лише списку відтворення призведе до переміщення всіх його файлів до бібліотеки.";
+"delete_shallow_button" = "Видалити лише список відтворення";
+"delete_deep_button" = "Видалити список відтворення та файли";
+"create_playlist_button" = "Створити список відтворення";
+"create_button" = "Створити";
+"import_button" = "Імпортувати файли";
+"import_description" = "Ви також можете додати файли через AirDrop. Надішліть файл аудіокниги на свій пристрій та виберіть BookPlayer зі списку, який з’явиться.";
+"create_playlist_title" = "Створення нового списку відтворення";
+"create_playlist_description" = "Файли у списках автоматично відтворюються один за одним";
+"delete_multiple_items_description" = "Це також видалить усі файли всередині вибраних списків відтворення.";
+"new_playlist_button" = "Новий список відтворення";
+"existing_playlist_button" = "Існуючий список відтворення";
+"choose_destination_title" = "Виберіть призначення";
+"delete_completely_button" = "Видалити остаточно";
+"move_library_button" = "Перемістити до бібліотеки";
+"options_button" = "Параметри";
+"select_playlist_title" = "Обрати список";
+"sort_title_button" = "Назва";
+"sort_filename_button" = "Оригінальне ім'я файлу";
+"sort_title" = "Відсортувати за";
+"cancel_button" = "Скасувати";
+"seconds_title" = "сек";
+"ok_button" = "Гаразд";
+/* Message shown when trying to create a Siri Shortcut on devices that don't have iOS 12+ installed */
+"siri_alert_description" = "Швидкий перехід Siri доступний для iOS 12 і вище";
+/* Title used in the context of our tip jar to support development */
+"support_bookplayer_title" = "Підтримайте Bookplayer";
+/* Description used in the context of our tip jar to support development */
+"support_bookplayer_description" = "Отримайте BookPlayer Plus, щоб підтримати майбутню розробку і отримати додаткові теми та піктограми";
+"learn_more_title" = "Дізнатись більше";
+"settings_appearance_title" = "Зовнішній вигляд";
+"settings_theme_title" = "Тема";
+"settings_app_icon_title" = "Піктограма";
+"settings_playback_title" = "Параметри відтворення";
+"settings_controls_title" = "Керування програвачем";
+"settings_power_connected_title" = "Лише коли підключене живлення";
+"settings_tip_jar_title" = "Скарбничка";
+/* What does 'System Mode' entail? Is it regarding iOS Dark Mode?
+<span class="reply-in-chat"><span data-uid="carlhoumoller&amp;&#x23;x40&#x3B;hotmail.com" contenteditable="false" class="chat-reply-to"
+                                  data-replykey="36833450">Carl</span></span>
+&nbsp;regarding the key theme_system_title, yes, it refers to using the preference set at the operating system level (from the control center/brightness) */
+"theme_system_title" = "Використати системну";
+"theme_switch_title" = "Перемикати автоматично";
+"theme_dark_title" = "Завжди використовувати темну варіацію";
+"themes_title" = "Теми";
+/* This should be &ldquo;By your friends at BookPlayer&rdquo; in English.&nbsp; */
+"icons_bookplayer_credit_description" = "Від ваших друзів з Bookplayer";
+"kind_tip_title" = "Доброзичливий внесок";
+"excellent_tip_title" = "Чудовий внесок";
+"incredible_tip_title" = "Неймовірний внесок";
+"plus_themes_description" = "Дбайливо підібрані кольорові теми, щоб відповідати вашим улюбленим книгам";
+"plus_icons_description" = "До BookPlayer Plus включено кілька піктограм, які пасуватимуть вашій кольоровій темі та шпалерам";
+"support_us_title" = "Підтримайте нас";
+"bookplayer_opensource_description" = "BookPlayer безкоштовний і з відкритим кодом, і він завжди залишатиметься таким. З вашою допомогою ми можемо реалізувати більше функцій та зробити BookPlayer ще кращим";
+"thanks_title" = "Дякуємо за підтримку!";
+"extra_tips_description" = "Якщо вам дійсно подобається Bookplayer, ви можете зробити додатковий внесок для подальшої розробки. Це допоможе підтримати та розвивати додаток.";
+"files_title" = "Файлів";
+"select_all_title" = "Виділити всі";
+"deselect_all_title" = "Зняти виділення";
+"move_title" = "Перемістити";
+"jump_start_title" = "Перейти на початок";
+"mark_finished_title" = "Позначити як завершене";
+"sort_files_title" = "Відстортувати файли за";
+"rename_title" = "Перейменувати";
+"file_error_title" = "Помилка файлу!";
+"file_error_description" = "Не вдалося завантажити файл цієї книги. Переконайтеся, що ви не використовуєте файли з захистом DRM (наприклад, файли .aax)";
+"file_missing_title" = "Файл відсутній!";
+"file_missing_description" = "Файл цієї книги було видалено з пристрою. Імпортуйте файл ще раз, щоб відтворити книгу";
+"empty_playlist_description" = "Ви також можете перемістити сюди файли, перетягнувши їх у цей список в бібліотеці";
+"playlist_add_title" = "Додати файли";
+"player_speed_title" = "Встановити швидкість відтворення";
+"player_sleep_title" = "Призупинення відтворення";
+"sleep_chapter_option_title" = "Кінець розділу";
+/* This is used for the label underneath the progress bar (e.g. Chapter 1 of 35) */
+"player_chapter_description" = "Розділ %d з %d";
+"chapters_title" = "Розділи";
+/* This is used as a description for each chapter in the chapters list (e.g. Start: 10:11 - Duration: 16:56) */
+"chapters_item_description" = "Початок: %@ - Тривалість: %@";
+/* Restore purchases */
+"restore_title" = "Відновити";
+"themes_caps_title" = "Теми";
+"plus_app_icons_title" = "Піктограми";
+/* This is the counterpart to Mark as Finished */
+"mark_unfinished_title" = "Позначити як незавершене";
+"move_playlist_button" = "Перемістити до списку";
+"move_single_item_title" = "Перемістити %@ у %@";
+/* This is shown if while being inside a playlist, a batch of imported files are finished processing, and it will be one of the options in the alert presented */
+"current_playlist_title" = "Поточний список відтворення";
+"select_item_title" = "Обрати";
+"sleep_alert_description" = "Зупинитись в кінці розділу";
+"sleep_time_description" = "Зупинитись через %@";
+"sleep_off_title" = "Вимкнути";
+"sleep_interval_title" = "Через %@";
+"chapter_number_title" = "Розділ %d";
+"progress_complete_description" = "%d завершено";
+"chapter_duration_title" = "Тривалість розділу:";
+"chapter_time_remaining_title" = "Залишилось до кінця розділу";
+"book_time_remaining_title" = "Залишилось часу книги:";
+"book_duration_title" = "Тривалість книги:";
+/* Может правильнее будет: &quot;Не удалось сменить иконку&quot;? */
+"icon_error_description" = "Не вдалось змінити піктограму програми. Спробуйте ще раз пізніше";
+"error_title" = "Помилка";
+"generic_retry_description" = "Будь ласка, спробуйте пізніше";
+"network_error_title" = "Помилка мережі";
+"purchases_restored_title" = "Покупки відновлені!";
+"tip_missing_title" = "Ви ще нас не підтримали";
+/* will need 2 versions (for female and male)
+<span class="reply-in-chat"><span data-uid="sandu.hamuraru&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
+                                  data-replykey="36841099">Alexandru</span></span>
+&nbsp;there's no way to put it without gender? using the second-person form involves specifying gender in Romanian?
+<span class="reply-in-chat"><span data-uid="sandu.hamuraru&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
+                                  data-replykey="36841099">Alexandru</span></span>
+&nbsp;we have no current way of determining the gender of the user using the app right now 👀. Or maybe I didn't fully understand what you meant? */
+"thanks_amazing_title" = "Ви неймовірні!";
+"play_title" = "Відтворити";
+"pause_title" = "Пауза";
+"voiceover_no_title" = "Без назви";
+"voiceover_no_author" = "Немає автора";
+/* &lt;Book title&gt; by &lt;Book author&gt; &lt;percentage in numbers&gt;% Completed */
+"voiceover_book_progress" = "%@ з %@, %d завершено";
+"voiceover_no_file_title" = "Немає імені файлу";
+/* Not sure where this title appears ? :)
+<span class="reply-in-chat"><span data-uid="christophe.vergne&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
+                                  data-replykey="36841194">christophe</span></span>
+&nbsp;this key in particular is when you're inside a playlist, the subtitle (that usually is the author) has no info for our VoiceOver service
+<span class="reply-in-chat"><span data-uid="christophe.vergne&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
+                                  data-replykey="36841194">christophe</span></span>
+&nbsp;let me know if that clears things up?
+<span class="reply-in-chat"><span data-uid="gcarlo89&amp;&#x23;x40&#x3B;hotmail.com" contenteditable="false" class="chat-reply-to"
+                                  data-replykey="36841194">Gianni Carlo</span></span>
+ Alright, my translation was correct so, thanks :) */
+"voiceover_no_file_subtitle" = "Відсутній підзаголовок файлу";
+"voiceover_no_playlist_title" = "Немає назви списку відтворення";
+/* &lt;Playlist title&gt; Playlist &lt;percentage in number&gt;% Completed */
+"voiceover_playlist_progress" = "%@ список відтворення завершений на %d%";
+"voiceover_unknown_title" = "Невідома назва";
+"voiceover_unknown_author" = "Невідомий автор";
+/* &lt;book title&gt; by &lt;book author&gt; */
+"voiceover_book_info" = "%@ з %@";
+/* &lt;book title&gt; by &lt;book author&gt;, chapter &lt;chapter title&gt; */
+"voiceover_book_chapter" = "%@ з %@, розділ %@";
+"voiceover_rewind_time" = "Назад %@";
+"voiceover_forward_time" = "Вперед %@";
+"watchapp_last_played_title" = "Остання відтворена";
+"watchapp_refresh_data_title" = "Оновити дані";
+"carplay_recent_title" = "Останні";
+"carplay_library_error" = "Не вдається завантажити книги";
+"siri_invocation_phrase" = "Продовжити книгу";
+"siri_activity_title" = "Продовжити відтворення попередньої книги";
+"watchapp_connect_error_title" = "Помилка з'єднання";
+"watchapp_connect_error_description" = "Виникла проблема з підключенням до телефону, будь ласка, спробуйте пізніше";
+"sleep_remaining_title" = "%@ залишилось до сну";
+"audio_source_title" = "Джерело аудіо";
+"speed_title" = "швидкість";
+"import_preparing_title" = "Підготовка до імпорту файлів";
+"library_add_title" = "Додайте свою першу книгу";
+"invalid_url_title" = "Невірне посилання: %@";
+"downloading_file_title" = "Завантаження файлу";
+"progress_title" = "Прогрес";
+"settings_siri_sleeptimer_title" = "Таймер сну";
+/* Can I have the context for this? Thanks
+Alessio Franceschi&nbsp;this is the label for the active sleep timer button when &quot;end of chapter&quot; was selected
+<span class="reply-in-chat"><span data-uid="fp&amp;&#x23;x40&#x3B;ylk.gd" contenteditable="false" class="chat-reply-to"
+                                  data-replykey="42298563">Florian Pitcher</span></span>
+&nbsp;Thanks */
+"active_title" = "Активний";
+/* Currently Playing <Book title> by <Book author> */
+"voiceover_currently_playing_title" = "Зараз програється %@ від %@";
+/* When you're on the library or playlist view, and the voice over cursor is focused on the floating mini-player at the bottom, it should read to the user the element, and the hint that if pressed, the player view will be shown */
+"voiceover_miniplayer_hint" = "Міні-плеєр. Торкніться, щоб відкрити програвач";
+"voiceover_chapter_time_title" = "Поточний час розділу: %@";
+/* When you're in the player view, and the voice over cursor is focused on the top bar (the one with the arrow-down), it will read to the user that the player view will be closed if he double taps that button */
+"voiceover_dismiss_player_title" = "Закрити програвач";
