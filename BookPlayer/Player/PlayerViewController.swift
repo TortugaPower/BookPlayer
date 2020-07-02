@@ -113,6 +113,8 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         self.pan.cancelsTouchesInView = true
 
         self.view.addGestureRecognizer(self.pan)
+
+        accessibilityCustomRotors = [self.controlsViewController!.customChapterRotor]
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -175,10 +177,9 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             items.append(self.sleepLabel)
         }
 
-        if self.currentBook.hasChapters {
-            items.append(spacer)
-            items.append(self.chaptersButton)
-        }
+        self.chaptersButton.isEnabled = self.currentBook.hasChapters
+        items.append(spacer)
+        items.append(self.chaptersButton)
 
         if #available(iOS 11, *) {
             let avRoutePickerBarButtonItem = UIBarButtonItem(customView: AVRoutePickerView(frame: CGRect(x: 0.0, y: 0.0, width: 20.0, height: 20.0)))

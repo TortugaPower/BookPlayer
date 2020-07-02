@@ -63,6 +63,10 @@ See [our Roadmap on GitHub](https://github.com/GianniCarlo/Audiobook-Player/proj
 - Chinese Simplified ([@wangqj](https://twitter.com/wangqj))
 - Danish (Carl Houmøller)
 - French (Christophe Vergne)
+- Romanian (Alexandru Hamuraru)
+- Turkish (Selçuk Onuk)
+- Italian (Alessio Franceschi)
+- Ukranian (Oleh)
 
 Help us to [translate BookPlayer](#localisation).
 
