@@ -61,6 +61,7 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "move_library_button" = "Déplacer vers la Bibliothèque";
 "options_button" = "Options";
 "select_playlist_title" = "Sélectionner une liste de lecture";
+"sort_most_recent_button" = "Most Recent";
 "sort_title_button" = "Titre";
 "sort_filename_button" = "Nom d'origine du fichier";
 "sort_title" = "Trier les éléments par";

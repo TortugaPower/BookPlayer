@@ -61,6 +61,7 @@
 "select_playlist_title" = "Выберите плейлист";
 "sort_title_button" = "Название";
 "sort_filename_button" = "Исходное имя файла";
+"sort_most_recent_button" = "Most Recent";
 "sort_title" = "Сортировать по";
 "cancel_button" = "Отменить";
 "seconds_title" = "сек";

@@ -61,6 +61,7 @@
 "select_playlist_title" = "选择播放列表";
 "sort_title_button" = "标题";
 "sort_filename_button" = "原始文件名";
+"sort_most_recent_button" = "Most Recent";
 "sort_title" = "排序依据";
 "cancel_button" = "取消";
 "seconds_title" = "秒";

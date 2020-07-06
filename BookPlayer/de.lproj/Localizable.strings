@@ -61,6 +61,7 @@
 "select_playlist_title" = "Liste auswählen";
 "sort_title_button" = "Titel";
 "sort_filename_button" = "Ursprüngliche Dateinamen";
+"sort_most_recent_button" = "Most Recent";
 "sort_title" = "Liste sortieren";
 "cancel_button" = "Abbrechen";
 "seconds_title" = "s";

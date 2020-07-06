@@ -63,6 +63,7 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "select_playlist_title" = "Seleziona Playlist";
 "sort_title_button" = "Titolo";
 "sort_filename_button" = "Nome file originale";
+"sort_most_recent_button" = "Most Recent";
 "sort_title" = "Ordina elementi per";
 "cancel_button" = "Cancella";
 "seconds_title" = "sec";

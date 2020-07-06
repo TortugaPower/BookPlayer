@@ -63,6 +63,7 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "select_playlist_title" = "Oynatma Listesi Seç";
 "sort_title_button" = "Başlık";
 "sort_filename_button" = "Orijinal Dosya Adı";
+"sort_most_recent_button" = "Most Recent";
 "sort_title" = "Öğeleri Sıralama Ölçütü";
 "cancel_button" = "İptal";
 "seconds_title" = "sn";
