@@ -55,6 +55,7 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "select_playlist_title" = "Selectare listă de redare";
 "sort_title_button" = "Titlu";
 "sort_filename_button" = "Nume fișier original";
+"sort_most_recent_button" = "Most Recent";
 "sort_title" = "Sortează articolele după";
 "cancel_button" = "Anulare";
 "seconds_title" = "sec";

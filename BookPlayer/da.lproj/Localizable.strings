@@ -61,6 +61,7 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "move_library_button" = "Flyt til bibliotek";
 "options_button" = "Valgmuligheder";
 "select_playlist_title" = "Vælg playliste";
+"sort_most_recent_button" = "Most Recent";
 "sort_title_button" = "Titel";
 "sort_filename_button" = "Oprindelige filnavn";
 "sort_title" = "Sortér efter";

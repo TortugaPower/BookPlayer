@@ -63,6 +63,7 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "select_playlist_title" = "Обрати список";
 "sort_title_button" = "Назва";
 "sort_filename_button" = "Оригінальне ім'я файлу";
+"sort_most_recent_button" = "Most Recent";
 "sort_title" = "Відсортувати за";
 "cancel_button" = "Скасувати";
 "seconds_title" = "сек";

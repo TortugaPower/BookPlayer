@@ -24,6 +24,11 @@ extension ItemListAlerts {
             self.sort(by: .fileName)
             self.reloadData()
         }))
+        
+        alert.addAction(UIAlertAction(title: "sort_most_recent_button".localized, style: .default, handler: { _ in
+            self.sort(by: .mostRecent)
+            self.reloadData()
+        }))
 
         alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
         return alert

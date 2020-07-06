@@ -61,6 +61,7 @@
 "select_playlist_title" = "Vybrat seznam stop";
 "sort_title_button" = "Titul";
 "sort_filename_button" = "Název souboru";
+"sort_most_recent_button" = "Most Recent";
 "sort_title" = "Seřadit položky podle";
 "cancel_button" = "Zrušit";
 "seconds_title" = "sekund";
