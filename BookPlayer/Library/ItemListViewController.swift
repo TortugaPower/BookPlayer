@@ -169,6 +169,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
 
     func toggleEmptyStateView() {
         self.emptyStatePlaceholder.isHidden = !self.items.isEmpty
+        self.editButtonItem.isEnabled = !self.items.isEmpty
     }
 
     func presentImportFilesAlert() {
