@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>library_playlist_description</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Súbor</string>
+        <key>few</key>
+        <string>Súborov</string>
+        <key>many</key>
+        <string>Súborov</string>
+        <key>other</key>
+        <string>Súbory</string>
+      </dict>
+    </dict>
+    <key>delete_multiple_items_title</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Chcete odstrániť položku?</string>
+        <key>few</key>
+        <string>Chcete odstrániť %d položiek?</string>
+        <key>many</key>
+        <string>Chcete odstrániť %d položiek?</string>
+        <key>other</key>
+        <string>Chcete odstrániť %d položky?</string>
+      </dict>
+    </dict>
+    <key>import_alert_title</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Importovať %d súbor do</string>
+        <key>few</key>
+        <string>Importovať %d súborov do</string>
+        <key>many</key>
+        <string>Importovať %d súborov do</string>
+        <key>other</key>
+        <string>Importovať %d súbory do</string>
+      </dict>
+    </dict>
+    <key>import_processing_description</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Spracovanie 1 súboru</string>
+        <key>few</key>
+        <string>Spracovanie %d súborov</string>
+        <key>many</key>
+        <string>Spracovanie %d súborov</string>
+        <key>other</key>
+        <string>Spracovanie %d súbory</string>
+      </dict>
+    </dict>
+  </dict>
+</plist>

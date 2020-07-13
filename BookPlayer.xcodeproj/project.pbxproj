@@ -496,6 +496,9 @@
 		41A1B136226FED4000EA0400 /* DataManager+CoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataManager+CoreData.swift"; sourceTree = "<group>"; };
 		41A1B138226FEDAD00EA0400 /* Chapter+AVFoundation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Chapter+AVFoundation.swift"; sourceTree = "<group>"; };
 		41A6A87420DEECC400B2C621 /* PlaylistTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlaylistTests.swift; sourceTree = "<group>"; };
+		41A7DE7824BC136100396FD3 /* sk-SK */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "sk-SK"; path = "sk-SK.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
+		41A7DE7924BC136200396FD3 /* sk-SK */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "sk-SK"; path = "sk-SK.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		41A7DE7A24BC136200396FD3 /* sk-SK */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "sk-SK"; path = "sk-SK.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		41A8BAFD227E6C88003C9895 /* Notification+BookPlayerWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Notification+BookPlayerWatchApp.swift"; sourceTree = "<group>"; };
 		41AD3D97221C737E00DC41E1 /* retro-icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "retro-icon@2x.png"; sourceTree = "<group>"; };
 		41AD3D99221C737F00DC41E1 /* retro-icon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "retro-icon@3x.png"; sourceTree = "<group>"; };
@@ -1474,6 +1477,7 @@
 				it,
 				tr,
 				uk,
+				"sk-SK",
 			);
 			mainGroup = 418B6CEF1D2707F700F974FB;
 			productRefGroup = 418B6CF91D2707F800F974FB /* Products */;
@@ -1947,6 +1951,7 @@
 				4172CB662495BFBA00AD4A55 /* it */,
 				4172CB692495C00F00AD4A55 /* tr */,
 				4172CB6C2495C09300AD4A55 /* uk */,
+				41A7DE7824BC136100396FD3 /* sk-SK */,
 			);
 			name = Localizable.stringsdict;
 			sourceTree = "<group>";
@@ -2016,6 +2021,7 @@
 				4172CB672495BFBA00AD4A55 /* it */,
 				4172CB6A2495C00F00AD4A55 /* tr */,
 				4172CB6D2495C09300AD4A55 /* uk */,
+				41A7DE7924BC136200396FD3 /* sk-SK */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -2037,6 +2043,7 @@
 				4172CB682495BFBA00AD4A55 /* it */,
 				4172CB6B2495C00F00AD4A55 /* tr */,
 				4172CB6E2495C09300AD4A55 /* uk */,
+				41A7DE7A24BC136200396FD3 /* sk-SK */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
