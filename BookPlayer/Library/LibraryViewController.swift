@@ -237,7 +237,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         }
 
         self.showLoadView(true, title: loadingTitle)
-        
+
         if let vc = self.navigationController?.visibleViewController as? PlaylistViewController {
             vc.showLoadView(true, title: loadingTitle)
         }

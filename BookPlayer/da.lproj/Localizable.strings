@@ -61,7 +61,6 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "move_library_button" = "Flyt til bibliotek";
 "options_button" = "Valgmuligheder";
 "select_playlist_title" = "Vælg playliste";
-"sort_most_recent_button" = "Most Recent";
 "sort_title_button" = "Titel";
 "sort_filename_button" = "Oprindelige filnavn";
 "sort_title" = "Sortér efter";
@@ -196,3 +195,7 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "voiceover_chapter_time_title" = "Current Chapter Time: %@";
 /* When you're in the player view, and the voice over cursor is focused on the top bar (the one with the arrow-down), it will read to the user that the player view will be closed if he double taps that button */
 "voiceover_dismiss_player_title" = "Skjul Afspiller";
+/* Sort items by most recent playback */
+"sort_most_recent_button" = "Most Recent";
+/* One of the sort options, this one reverts the current order of selected items */
+"sort_reversed_button" = "Reverse Order";

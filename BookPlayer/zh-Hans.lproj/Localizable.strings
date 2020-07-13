@@ -61,7 +61,6 @@
 "select_playlist_title" = "选择播放列表";
 "sort_title_button" = "标题";
 "sort_filename_button" = "原始文件名";
-"sort_most_recent_button" = "Most Recent";
 "sort_title" = "排序依据";
 "cancel_button" = "取消";
 "seconds_title" = "秒";
@@ -187,3 +186,7 @@
 "voiceover_miniplayer_hint" = "Miniplayer. Tap to show the Player";
 "voiceover_chapter_time_title" = "Current Chapter Time: %@";
 "voiceover_dismiss_player_title" = "Dismiss Player";
+/* Sort items by most recent playback */
+"sort_most_recent_button" = "Most Recent";
+/* One of the sort options, this one reverts the current order of selected items */
+"sort_reversed_button" = "Reverse Order";
