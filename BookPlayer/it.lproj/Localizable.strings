@@ -63,7 +63,6 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "select_playlist_title" = "Seleziona Playlist";
 "sort_title_button" = "Titolo";
 "sort_filename_button" = "Nome file originale";
-"sort_most_recent_button" = "Most Recent";
 "sort_title" = "Ordina elementi per";
 "cancel_button" = "Cancella";
 "seconds_title" = "sec";
@@ -218,3 +217,7 @@ Alessio Franceschi&nbsp;this is the label for the active sleep timer button when
 "voiceover_chapter_time_title" = "Tempo Capitolo Corrente: %@";
 /* When you're in the player view, and the voice over cursor is focused on the top bar (the one with the arrow-down), it will read to the user that the player view will be closed if he double taps that button */
 "voiceover_dismiss_player_title" = "Chiudi Lettore";
+/* Sort items by most recent playback */
+"sort_most_recent_button" = "Most Recent";
+/* One of the sort options, this one reverts the current order of selected items */
+"sort_reversed_button" = "Reverse Order";

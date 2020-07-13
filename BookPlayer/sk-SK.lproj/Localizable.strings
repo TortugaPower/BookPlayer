@@ -217,3 +217,7 @@ Alessio Franceschi&nbsp;this is the label for the active sleep timer button when
 "voiceover_chapter_time_title" = "Dĺžka aktuálnej kapitoly: %@";
 /* When you're in the player view, and the voice over cursor is focused on the top bar (the one with the arrow-down), it will read to the user that the player view will be closed if he double taps that button */
 "voiceover_dismiss_player_title" = "Zavrieť prehrávač";
+/* Sort items by most recent playback */
+"sort_most_recent_button" = "Most Recent";
+/* One of the sort options, this one reverts the current order of selected items */
+"sort_reversed_button" = "Reverse Order";

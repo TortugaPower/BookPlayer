@@ -237,7 +237,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         }
 
         self.showLoadView(true, title: loadingTitle)
-        
+
         if let vc = self.navigationController?.visibleViewController as? PlaylistViewController {
             vc.showLoadView(true, title: loadingTitle)
         }
@@ -411,7 +411,7 @@ extension LibraryViewController {
         let item = items[indexPath.row]
 
         let optionsAction = UITableViewRowAction(style: .normal, title: "\("options_button".localized)…") { _, _ in
-            let sheet = self.createOptionsSheetController(item)
+            guard let sheet = self.createOptionsSheetController([item]) else { return }
 
             // "…" on a button indicates a follow up dialog instead of an immmediate action in macOS and iOS
             var title = "\("delete_button".localized)…"

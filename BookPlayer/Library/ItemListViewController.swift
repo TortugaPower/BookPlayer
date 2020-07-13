@@ -121,6 +121,20 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
 
             self.handleTrash(selectedItems)
         }
+
+        self.bulkControls.onMoreTap = {
+            guard let indexPaths = self.tableView.indexPathsForSelectedRows else {
+                return
+            }
+
+            let selectedItems = indexPaths.map { (indexPath) -> LibraryItem in
+                self.items[indexPath.row]
+            }
+
+            guard let sheet = self.createOptionsSheetController(selectedItems) else { return }
+
+            self.present(sheet, animated: true, completion: nil)
+        }
     }
 
     func deleteRows(at indexPaths: [IndexPath]) {
@@ -160,11 +174,13 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         guard self.tableView.indexPathForSelectedRow == nil else {
             self.bulkControls.moveButton.isEnabled = true
             self.bulkControls.trashButton.isEnabled = true
+            self.bulkControls.moreButton.isEnabled = true
             return
         }
 
         self.bulkControls.moveButton.isEnabled = false
         self.bulkControls.trashButton.isEnabled = false
+        self.bulkControls.moreButton.isEnabled = false
     }
 
     func toggleEmptyStateView() {
@@ -270,36 +286,54 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         present(alert, animated: true, completion: nil)
     }
 
-    func createOptionsSheetController(_ item: LibraryItem) -> UIAlertController {
-        let sheet = UIAlertController(title: item.title, message: nil, preferredStyle: .actionSheet)
+    func createOptionsSheetController(_ items: [LibraryItem]) -> UIAlertController? {
+        guard let item = items.first else {
+            return nil
+        }
 
-        sheet.addAction(UIAlertAction(title: "rename_button".localized, style: .default) { _ in
+        let isSingle = items.count == 1
+
+        let sheetTitle = isSingle ? item.title : "options_button".localized
+
+        let sheet = UIAlertController(title: sheetTitle, message: nil, preferredStyle: .actionSheet)
+
+        let renameAction = UIAlertAction(title: "rename_button".localized, style: .default) { _ in
             let alert = self.renameItemAlert(item)
 
             self.present(alert, animated: true, completion: nil)
-        })
-
-        sheet.addAction(UIAlertAction(title: "move_title".localized, style: .default, handler: { _ in
-            self.handleMove([item])
-        }))
-
-        if let book = item as? Book {
-            sheet.addAction(UIAlertAction(title: "export_button".localized, style: .default, handler: { _ in
-                let shareController = self.createExportController(book)
-
-                self.present(shareController, animated: true, completion: nil)
-            }))
         }
 
+        renameAction.isEnabled = isSingle
+        sheet.addAction(renameAction)
+
+        sheet.addAction(UIAlertAction(title: "move_title".localized, style: .default, handler: { _ in
+            self.handleMove(items)
+        }))
+
+        let exportAction = UIAlertAction(title: "export_button".localized, style: .default, handler: { _ in
+            guard let shareController = self.createExportController(item) else { return }
+
+            self.present(shareController, animated: true, completion: nil)
+		})
+
+        exportAction.isEnabled = isSingle && item is Book
+        sheet.addAction(exportAction)
+
         sheet.addAction(UIAlertAction(title: "jump_start_title".localized, style: .default, handler: { _ in
-            DataManager.jumpToStart(item)
+            for item in items {
+                DataManager.jumpToStart(item)
+            }
             self.reloadData()
         }))
 
-        let markTitle = item.isFinished ? "mark_unfinished_title".localized : "mark_finished_title".localized
+        let areFinished = !items.contains(where: { !$0.isFinished })
+        let markTitle = areFinished ? "mark_unfinished_title".localized : "mark_finished_title".localized
 
         sheet.addAction(UIAlertAction(title: markTitle, style: .default, handler: { _ in
-            DataManager.mark(item, asFinished: !item.isFinished)
+            for item in items {
+                DataManager.mark(item, asFinished: !areFinished)
+            }
+
             self.reloadData()
         }))
 
