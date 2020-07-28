@@ -26,7 +26,6 @@ class BookCellView: UITableViewCell {
     @IBOutlet private weak var artworkView: BPArtworkView!
     @IBOutlet private weak var titleLabel: UILabel!
     @IBOutlet private weak var subtitleLabel: UILabel!
-    @IBOutlet private weak var progressTrailing: NSLayoutConstraint!
     @IBOutlet private weak var progressView: ItemProgress!
     @IBOutlet weak var selectionView: CheckboxSelectionView!
     @IBOutlet private weak var artworkButton: UIButton!
@@ -82,22 +81,10 @@ class BookCellView: UITableViewCell {
     var type: BookCellType = .book {
         didSet {
             switch self.type {
-            case .file:
-                self.accessoryType = .none
-
-                self.progressTrailing.constant = 11.0
             case .playlist:
                 self.accessoryType = .disclosureIndicator
-
-                if #available(iOS 13.0, *) {
-                    self.progressTrailing.constant = 2.5
-                } else {
-                    self.progressTrailing.constant = -5.0
-                }
             default:
                 self.accessoryType = .none
-
-                self.progressTrailing.constant = 29.0 // Disclosure indicator offset
             }
         }
     }
