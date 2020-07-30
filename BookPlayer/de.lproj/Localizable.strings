@@ -13,6 +13,7 @@
 /* Title that is shown as the navigation bar title */
 "settings_title" = "Einstellungen";
 "settings_autoplay_title" = "Bibliothek automatisch abspielen";
+"settings_import_title" = "Import Books";
 "settings_autoplay_description" = "Wiedergabe aller noch nicht gehörten Dateien in der Bibliothek, einschließlich Dateien in Wiedergabelisten.";
 "settings_smartrewind_title" = "Intelligentes Zurückspulen";
 "settings_smartrewind_description" = "Spule nach einer Pause von länger als 10 Minuten bis zu 30 Sekunden zurück.";

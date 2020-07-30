@@ -13,6 +13,7 @@
 /* Title that is shown as the navigation bar title */
 "settings_title" = "Налаштування";
 "settings_autoplay_title" = "Автовідтворення бібліотеки";
+"settings_import_title" = "Import Books";
 "settings_autoplay_description" = "Продовжити відтворення з усіма треками бібліотеки, які не завершені, включно з файлами в списках.";
 "settings_smartrewind_title" = "Розумне відмотування";
 "settings_smartrewind_description" = "Повернутись на 30 секунд назад після паузи на 10 хвилин.";

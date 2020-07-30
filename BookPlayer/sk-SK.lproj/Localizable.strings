@@ -13,6 +13,7 @@
 /* Title that is shown as the navigation bar title */
 "settings_title" = "Nastavenia";
 "settings_autoplay_title" = "Knižnica automatického prehrávania";
+"settings_import_title" = "Import Books";
 "settings_autoplay_description" = "Pokračuje v prehrávaní všetkých nedokončených položiek v Knižnici, vrátane súborov v zoznamoch stôp.";
 "settings_smartrewind_title" = "Inteligentné pretáčanie";
 "settings_smartrewind_description" = "Po prerušení počúvania na 10 minút dôjde k pretočeniu späť o 30 sekúnd.";

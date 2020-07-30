@@ -13,6 +13,7 @@
 /* Title that is shown as the navigation bar title */
 "settings_title" = "Réglages";
 "settings_autoplay_title" = "Lecture auto. de la Bibliothèque";
+"settings_import_title" = "Import Books";
 "settings_autoplay_description" = "Continue la lecture avec tous les éléments de la Bibliothèque qui ne sont pas terminés, y compris les fichiers dans les listes de lecture.";
 "settings_smartrewind_title" = "Rembobinage intelligent";
 "settings_smartrewind_description" = "Rembobine 30 secondes après avoir été mis en pause pendant 10 minutes.";

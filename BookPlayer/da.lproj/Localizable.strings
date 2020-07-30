@@ -13,6 +13,7 @@
 /* Title that is shown as the navigation bar title */
 "settings_title" = "Indstillinger";
 "settings_autoplay_title" = "AutoPlay Bibliotek";
+"settings_import_title" = "Import Books";
 "settings_autoplay_description" = "Fortsæt afspilningen med alle elementer i biblioteket, der ikke er afsluttet, inklusive herunder filer i playlister.";
 "settings_smartrewind_title" = "Smart Tilbagespolning";
 "settings_smartrewind_description" = "Spol 30 sekunder tilbage, efter at du har sat bogen på pause i 10 minutter.";

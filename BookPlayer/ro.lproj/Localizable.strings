@@ -5,6 +5,7 @@
 /* Title that is shown as the navigation bar title */
 "settings_title" = "Setări";
 "settings_autoplay_title" = "Bibliotecă redare automată";
+"settings_import_title" = "Import Books";
 "settings_autoplay_description" = "Continuați redarea tuturor elementelor din Bibliotecă care nu sunt finalizate, inclusiv fișierele din listele de redare.";
 "settings_smartrewind_title" = "Derulare inteligentă înapoi";
 "settings_smartrewind_description" = "Derulați 30 de secunde înapoi după ce a fost o pauza de 10 minute.";

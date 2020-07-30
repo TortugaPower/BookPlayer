@@ -13,6 +13,7 @@
 /* Title that is shown as the navigation bar title */
 "settings_title" = "Ajustes";
 "settings_autoplay_title" = "Reproducción Automática de la Biblioteca";
+"settings_import_title" = "Import Books";
 "settings_autoplay_description" = "Continúa la reproducción de todos los elementos de la biblioteca que no se hayan completado.";
 "settings_smartrewind_title" = "Rebobinado Inteligente";
 "settings_smartrewind_description" = "Retrocede 30 segundos después de estar en pausa durante 10 minutos.";

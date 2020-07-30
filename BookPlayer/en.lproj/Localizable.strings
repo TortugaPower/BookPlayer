@@ -13,6 +13,7 @@
 /* Title that is shown as the navigation bar title */
 "settings_title" = "Settings";
 "settings_autoplay_title" = "AutoPlay Library";
+"settings_import_title" = "Import Books";
 "settings_autoplay_description" = "Continue playback with all items in the Library that are not completed, including files in playlists.";
 "settings_smartrewind_title" = "Smart Rewind";
 "settings_smartrewind_description" = "Rewind 30 seconds after being paused for 10 minutes.";
