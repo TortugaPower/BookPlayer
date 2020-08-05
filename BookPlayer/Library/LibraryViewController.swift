@@ -232,6 +232,10 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         let loadingTitle = "import_preparing_title".localized
         UIAccessibility.post(notification: UIAccessibility.Notification.layoutChanged, argument: self.loadingView.titleLabel)
 
+        if let vc = self.navigationController?.visibleViewController as? PlayerViewController {
+            vc.dismissPlayer()
+        }
+
         self.showLoadView(true, title: loadingTitle)
 
         if let vc = self.navigationController?.visibleViewController as? PlaylistViewController {
@@ -407,7 +411,7 @@ extension LibraryViewController {
         let item = items[indexPath.row]
 
         let optionsAction = UITableViewRowAction(style: .normal, title: "\("options_button".localized)…") { _, _ in
-            let sheet = self.createOptionsSheetController(item)
+            guard let sheet = self.createOptionsSheetController([item]) else { return }
 
             // "…" on a button indicates a follow up dialog instead of an immmediate action in macOS and iOS
             var title = "\("delete_button".localized)…"

@@ -52,7 +52,9 @@ extension ItemListActions {
         self.reloadData()
     }
 
-    func createExportController(_ book: Book) -> UIViewController {
+    func createExportController(_ item: LibraryItem) -> UIViewController? {
+        guard let book = item as? Book else { return nil }
+
         let bookProvider = BookActivityItemProvider(book)
 
         let shareController = UIActivityViewController(activityItems: [bookProvider], applicationActivities: nil)

@@ -12,10 +12,12 @@ class BulkControlsView: UIView {
     @IBOutlet weak var sortButton: UIButton!
     @IBOutlet weak var moveButton: UIButton!
     @IBOutlet weak var trashButton: UIButton!
+    @IBOutlet weak var moreButton: UIButton!
 
     var onSortTap: (() -> Void)?
     var onMoveTap: (() -> Void)?
     var onDeleteTap: (() -> Void)?
+    var onMoreTap: (() -> Void)?
 
     let nibName = "BulkControlsView"
     var contentView: UIView?
@@ -45,5 +47,9 @@ class BulkControlsView: UIView {
 
     @IBAction func didPressDelete(_ sender: UIButton) {
         self.onDeleteTap?()
+    }
+
+    @IBAction func didPressMore(_ sender: UIButton) {
+        self.onMoreTap?()
     }
 }

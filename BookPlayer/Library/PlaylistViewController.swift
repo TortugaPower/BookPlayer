@@ -278,7 +278,7 @@ extension PlaylistViewController {
         }
 
         let optionsAction = UITableViewRowAction(style: .normal, title: "\("options_button".localized)…") { _, _ in
-            let sheet = self.createOptionsSheetController(book)
+            guard let sheet = self.createOptionsSheetController([book]) else { return }
 
             let deleteAction = UIAlertAction(title: "delete_button".localized, style: .destructive, handler: { _ in
                 self.handleDelete(books: [book])

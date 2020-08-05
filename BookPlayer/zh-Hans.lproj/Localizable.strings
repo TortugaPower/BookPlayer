@@ -186,3 +186,7 @@
 "voiceover_miniplayer_hint" = "Miniplayer. Tap to show the Player";
 "voiceover_chapter_time_title" = "Current Chapter Time: %@";
 "voiceover_dismiss_player_title" = "Dismiss Player";
+/* Sort items by most recent playback */
+"sort_most_recent_button" = "Most Recent";
+/* One of the sort options, this one reverts the current order of selected items */
+"sort_reversed_button" = "Reverse Order";

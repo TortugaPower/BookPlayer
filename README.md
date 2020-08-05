@@ -70,6 +70,7 @@ See [our Roadmap on GitHub](https://github.com/GianniCarlo/Audiobook-Player/proj
 - Turkish (Selçuk Onuk)
 - Italian (Alessio Franceschi)
 - Ukranian (Oleh)
+- Slovak (Peter Skladaný)
 
 Help us to [translate BookPlayer](#localisation).
 

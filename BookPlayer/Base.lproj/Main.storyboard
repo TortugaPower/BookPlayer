@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="1tN-zP-ONE">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="1tN-zP-ONE">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16086"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -172,11 +172,11 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3M6-8C-yUy" customClass="BulkControlsView" customModule="BookPlayer" customModuleProvider="target">
-                                <rect key="frame" x="87.5" y="548" width="200" height="50"/>
+                                <rect key="frame" x="55.5" y="548" width="264" height="50"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="Omf-0b-bqt"/>
-                                    <constraint firstAttribute="width" constant="200" id="bh2-AM-g42"/>
+                                    <constraint firstAttribute="width" constant="264" id="bh2-AM-g42"/>
                                 </constraints>
                             </view>
                         </subviews>
@@ -401,10 +401,10 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="I7v-PX-k6J" customClass="BulkControlsView" customModule="BookPlayer" customModuleProvider="target">
-                                <rect key="frame" x="87.5" y="496" width="200" height="50"/>
+                                <rect key="frame" x="55.5" y="496" width="264" height="50"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="200" id="6hw-wT-sPh"/>
+                                    <constraint firstAttribute="width" constant="264" id="6hw-wT-sPh"/>
                                     <constraint firstAttribute="height" constant="50" id="K6b-VE-tcU"/>
                                 </constraints>
                             </view>

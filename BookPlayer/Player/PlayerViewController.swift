@@ -177,7 +177,9 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
             items.append(self.sleepLabel)
         }
 
-        self.chaptersButton.isEnabled = self.currentBook.hasChapters
+        let chapterCount = self.currentBook.chapters?.count ?? 0
+        self.chaptersButton.isEnabled = self.currentBook.hasChapters && chapterCount > 1
+
         items.append(spacer)
         items.append(self.chaptersButton)
 
