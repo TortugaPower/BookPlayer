@@ -11,19 +11,28 @@ import GCDWebServers
 import Themeable
 import UIKit
 
+private protocol webServerLaunchable {
+    func didStartWebServer()
+    func didStopWebServer()
+}
+
 final class ImportViewController: UITableViewController {
+    enum ImportSections: Int {
+        case wifi = 0
+    }
+    
     private var webServer: GCDWebUploader?
     @IBOutlet private weak var bonjourServer: UILabel!
     @IBOutlet weak var wifiSharingLabel: LocalizableLabel!
     @IBOutlet weak var serverIpAddress: UILabel!
     @IBOutlet weak var serverStatus: UISwitch!
-    
+
     @IBAction func didTapStartServer(_ sender: Any) {
         if self.serverStatus.isOn {
-            self.startWebServer()
+            self.didStartWebServer()
             self.updateUI()
         } else {
-            self.stopWebServer()
+            self.didStopWebServer()
             self.serverIpAddress.text = "Inactive Server"
         }
     }
@@ -32,13 +41,48 @@ final class ImportViewController: UITableViewController {
         super.viewDidLoad()
         setUpTheming()
     }
-    
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.stopWebServer()
+        self.didStopWebServer()
     }
 
-    private func startWebServer() {
+    private func updateUI() {
+        guard let webServer = webServer else {
+            return
+        }
+
+        if webServer.isRunning, self.serverStatus.isOn {
+            self.serverIpAddress.text = webServer.serverURL?.absoluteString
+        }
+    }
+}
+
+extension ImportViewController {
+    override func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+        let header = view as? UITableViewHeaderFooterView
+        header?.textLabel?.textColor = self.themeProvider.currentTheme.detailColor
+    }
+
+    override func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int) {
+        let footer = view as? UITableViewHeaderFooterView
+        footer?.textLabel?.textColor = self.themeProvider.currentTheme.detailColor
+    }
+    
+    override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+        guard let importSection = ImportSections(rawValue: section) else {
+            return super.tableView(tableView, titleForFooterInSection: section)
+        }
+
+        switch importSection {
+        case .wifi:
+            return "settings_wifi_import_desc".localized
+        }
+    }
+}
+
+extension ImportViewController: webServerLaunchable {
+    fileprivate func didStartWebServer() {
         let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
         self.webServer = GCDWebUploader(uploadDirectory: documentsPath)
 
@@ -59,17 +103,7 @@ final class ImportViewController: UITableViewController {
         webServer.start()
     }
 
-    private func updateUI() {
-        guard let webServer = webServer else {
-            return
-        }
-
-        if webServer.isRunning, self.serverStatus.isOn {
-            self.serverIpAddress.text = webServer.serverURL?.absoluteString
-        }
-    }
-
-    private func stopWebServer() {
+    fileprivate func didStopWebServer() {
         guard let webServer = webServer else {
             return
         }
