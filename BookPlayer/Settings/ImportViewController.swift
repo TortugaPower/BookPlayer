@@ -13,26 +13,32 @@ import UIKit
 
 final class ImportViewController: UITableViewController {
     private var webServer: GCDWebUploader?
-    @IBOutlet private weak var ipAddress: UILabel!
     @IBOutlet private weak var bonjourServer: UILabel!
+    @IBOutlet weak var wifiSharingLabel: LocalizableLabel!
+    @IBOutlet weak var serverIpAddress: UILabel!
+    @IBOutlet weak var serverStatus: UISwitch!
+    
+    @IBAction func didTapStartServer(_ sender: Any) {
+        if self.serverStatus.isOn {
+            self.startWebServer()
+            self.updateUI()
+        } else {
+            self.stopWebServer()
+            self.serverIpAddress.text = "Inactive Server"
+        }
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpTheming()
-        self.startWebServer()
     }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        self.updateUI()
-    }
-
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.stopWebServer()
     }
 
-    func startWebServer() {
+    private func startWebServer() {
         let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
         self.webServer = GCDWebUploader(uploadDirectory: documentsPath)
 
@@ -58,8 +64,8 @@ final class ImportViewController: UITableViewController {
             return
         }
 
-        if webServer.isRunning {
-            self.ipAddress.text = webServer.serverURL?.absoluteString
+        if webServer.isRunning, self.serverStatus.isOn {
+            self.serverIpAddress.text = webServer.serverURL?.absoluteString
         }
     }
 
@@ -75,8 +81,8 @@ final class ImportViewController: UITableViewController {
 
 extension ImportViewController: Themeable {
     func applyTheme(_ theme: Theme) {
-        self.ipAddress.textColor = theme.primaryColor
-        self.bonjourServer.textColor = theme.primaryColor
+        self.wifiSharingLabel.textColor = theme.primaryColor
+        self.serverIpAddress.textColor = theme.primaryColor
         self.tableView.backgroundColor = theme.settingsBackgroundColor
         self.tableView.separatorColor = theme.separatorColor
         self.tableView.reloadData()
