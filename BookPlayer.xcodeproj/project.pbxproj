@@ -359,7 +359,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		2A7AC88B24D2823300CBB9A8 /* AppracadabraSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppracadabraSDK.framework; path = "../../../Library/Developer/Xcode/DerivedData/AppracadabraSDK-bqvileyhzhrxsjbetbdjgfrsjhop/Build/Products/Debug-iphonesimulator/AppracadabraSDK.framework"; sourceTree = "<group>"; };
 		2AC2DC1F24CE61FA00ACA3FF /* GCDWebServers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GCDWebServers.framework; path = Carthage/Build/iOS/GCDWebServers.framework; sourceTree = "<group>"; };
 		2AC2DC2124CE625200ACA3FF /* ImportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportViewController.swift; sourceTree = "<group>"; };
 		4109246B21A2019400D5DF11 /* CheckboxSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckboxSelectionView.swift; sourceTree = "<group>"; };
@@ -762,7 +761,6 @@
 		418B6CEF1D2707F700F974FB = {
 			isa = PBXGroup;
 			children = (
-				2A7AC88B24D2823300CBB9A8 /* AppracadabraSDK.framework */,
 				C3EF536020800DCC00B9629D /* Meta */,
 				418B6CFA1D2707F800F974FB /* BookPlayer */,
 				41A1B0F1226E9C5100EA0400 /* Shared */,
