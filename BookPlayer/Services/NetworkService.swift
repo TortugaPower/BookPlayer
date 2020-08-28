@@ -20,7 +20,9 @@ class NetworkService {
     var downloadRequest: DownloadRequest?
 
     public func download(from url: URL, completionHandler: @escaping (DefaultDownloadResponse) -> Void) {
-        let destination = DownloadRequest.suggestedDownloadDestination(for: .documentDirectory)
+        let destination: DownloadRequest.DownloadFileDestination = { _, _ in
+            (FileManager.default.temporaryDirectory.appendingPathComponent("download-file-\(Date().timeIntervalSince1970)"), [.createIntermediateDirectories, .removePreviousFile])
+        }
 
         self.manager.startRequestsImmediately = true
 
@@ -32,6 +34,15 @@ class NetworkService {
             }
             .response { response in
                 self.downloadRequest = nil
+
+                if let res = response.response,
+                    res.statusCode == 200,
+                    let url = response.destinationURL,
+                    let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first,
+                    let suggestedFilename = res.suggestedFilename {
+                    try? FileManager.default.moveItem(at: url, to: documentsUrl.appendingPathComponent(suggestedFilename))
+                }
+
                 completionHandler(response)
             }
     }
