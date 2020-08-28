@@ -75,8 +75,8 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
                 self.showAlert("network_error_title".localized, message: error.localizedDescription)
             }
 
-            if let response = response.response, response.statusCode != 200 {
-                self.showAlert("network_error_title".localized, message: nil)
+            if let response = response.response, response.statusCode >= 300 {
+                self.showAlert("network_error_title".localized, message: "Code \(response.statusCode)")
             }
         }
     }
