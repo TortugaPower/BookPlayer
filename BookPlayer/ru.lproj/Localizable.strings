@@ -13,7 +13,7 @@
 /* Title that is shown as the navigation bar title */
 "settings_title" = "Настройки";
 "settings_autoplay_title" = "Автовоспроизведение библиотеки";
-"settings_autoplay_description" = "Продолжить воспроизведение всех незавершенных объектов в библиотеке, включая файлы в плейлистах.";
+"settings_autoplay_description" = "Продолжить воспроизведение всех незавершённых объектов в библиотеке, включая файлы в плейлистах.";
 "settings_smartrewind_title" = "Умная перемотка";
 "settings_smartrewind_description" = "Перемотка назад на 30 секунд после приостановки на 10 минут.";
 "settings_boostvolume_title" = "Увеличить громкость";
@@ -26,7 +26,7 @@
 "settings_siri_lastplayed_description" = "Используйте Siri, чтобы продолжить последнюю книгу.";
 "settings_skip_title" = "ШАГ ПЕРЕМОТКИ";
 "settings_skip_rewind_title" = "Назад";
-"settings_skip_forward_title" = "Вперед";
+"settings_skip_forward_title" = "Вперёд";
 "settings_skip_description" = "Отрегулируйте шаг перемотки, используемый на обложке альбома или в Центре Управления.";
 "settings_support_title" = "ПОДДЕРЖКА";
 "settings_siri_title" = "БЫСТРАЯ КОМАНДА SIRI";
@@ -48,7 +48,7 @@
 "create_playlist_button" = "Создать плейлист";
 "create_button" = "Создать";
 "import_button" = "Импортировать файлы";
-"import_description" = "Вы также можете добавлять файлы через AirDrop. Отправьте файл аудио книги на ваше устройство и выберите BookPlayer из появившегося списка.";
+"import_description" = "Вы также можете добавлять файлы через AirDrop. Отправьте файл книги на ваше устройство и выберите BookPlayer из появившегося списка.";
 "create_playlist_title" = "Создать новый плейлист";
 "create_playlist_description" = "Файлы в плейлистах автоматически воспроизводятся один за другим";
 "delete_multiple_items_description" = "Также будут удалены все файлы из выбранных плейлистов.";
@@ -91,11 +91,11 @@
 "plus_themes_description" = "Тщательно подобранные цветовые темы, чтобы лучше соответствовать Вашим книгам";
 "plus_icons_description" = "BookPlayer Plus располагает дополнительными иконками, возможно лучше подходящими к Вашим настройкам и обоям";
 "support_us_title" = "Поддержите нас";
-"bookplayer_opensource_description" = "BookPlayer бесплатен, с открытым исходным кодом, и он таким и останется. С Вашей помощью мы сможем реализовать больше возможностей и сделать BookPlayer еще лучше.";
+"bookplayer_opensource_description" = "BookPlayer бесплатен, с открытым исходным кодом, и он таким и останется. С Вашей помощью мы сможем реализовать больше возможностей и сделать BookPlayer ещё лучше.";
 "thanks_title" = "Спасибо за Вашу поддержку!";
 "extra_tips_description" = "Если вам нравится BookPlayer, вы можете оставить нам немного чаевых для поддержки приложения. Это поможет продолжить разработку и добавление новых функций.";
 "files_title" = "Файлов";
-"select_all_title" = "Выбрать все";
+"select_all_title" = "Выбрать всё";
 "deselect_all_title" = "Отменить выделение";
 "move_title" = "Переместить";
 "jump_start_title" = "Перейти к началу";
@@ -105,7 +105,7 @@
 "file_error_title" = "Ошибка файла!";
 "file_error_description" = "Файл этой книги невозможно загрузить. Убедитесь, что вы не используете файлы с защитой DRM (например, файлы с расширением .aax)";
 "file_missing_title" = "Файл отсутствует!";
-"file_missing_description" = "Файл этой книги был удален с вашего устройства. Импортируйте файл снова, чтобы воспроизвести книгу";
+"file_missing_description" = "Файл этой книги был удалён с вашего устройства. Импортируйте файл снова, чтобы воспроизвести книгу";
 "empty_playlist_description" = "Вы также можете переместить файлы сюда, перетащив их на этот плейлист библиотеки";
 "playlist_add_title" = "Добавить файлы";
 "player_speed_title" = "Установить скорость воспроизведения";
@@ -163,7 +163,7 @@
 /* &lt;book title&gt; by &lt;book author&gt;, chapter &lt;chapter title&gt; */
 "voiceover_book_chapter" = "%@, %@, глава %@";
 "voiceover_rewind_time" = "Перемотка назад %@";
-"voiceover_forward_time" = "Перемотка вперед %@";
+"voiceover_forward_time" = "Перемотка вперёд %@";
 "watchapp_last_played_title" = "Последняя воспроизведенная книга";
 "watchapp_refresh_data_title" = "Обновить данные";
 "carplay_recent_title" = "Последние";
@@ -171,7 +171,7 @@
 "siri_invocation_phrase" = "Продолжить книгу";
 "siri_activity_title" = "Продолжить последнюю прослушанную книгу";
 "watchapp_connect_error_title" = "Ошибка подключения";
-"watchapp_connect_error_description" = "Не удается подключиться к вашему устройству, попробуйте позже";
+"watchapp_connect_error_description" = "Не удаётся подключиться к вашему устройству, попробуйте позже";
 "sleep_remaining_title" = "До сна осталось %@";
 "audio_source_title" = "Источник звука";
 "speed_title" = "скорость";
@@ -183,13 +183,13 @@
 "settings_siri_sleeptimer_title" = "Таймер сна";
 "active_title" = "активный";
 /* Currently Playing <Book title> by <Book author> */
-"voiceover_currently_playing_title" = "Идет воспроизведение: %@, %@";
+"voiceover_currently_playing_title" = "Идёт воспроизведение: %@, %@";
 /* When you're on the library or playlist view, and the voice over cursor is focused on the floating mini-player at the bottom, it should read to the user the element, and the hint that if pressed, the player view will be shown */
 "voiceover_miniplayer_hint" = "Мини плеер. Нажмите, чтобы развернуть полное окно";
 "voiceover_chapter_time_title" = "Продолжительность выбранной главы: %@";
 /* When you're in the player view, and the voice over cursor is focused on the top bar (the one with the arrow-down), it will read to the user that the player view will be closed if he double taps that button */
 "voiceover_dismiss_player_title" = "Свернуть окно воспроизведения";
 /* Sort items by most recent playback */
-"sort_most_recent_button" = "Most Recent";
+"sort_most_recent_button" = "Самый недавний";
 /* One of the sort options, this one reverts the current order of selected items */
-"sort_reversed_button" = "Reverse Order";
+"sort_reversed_button" = "Обратить порядок";
