@@ -65,6 +65,7 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPlay), name: .bookPlayed, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: .bookPaused, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: .bookEnd, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookDelete(_:)), name: .bookDelete, object: nil)
 
         // Gestures
         self.pan = UIPanGestureRecognizer(target: self, action: #selector(self.panAction))
@@ -116,6 +117,18 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
     @objc private func onBookPause() {
         // Only enable the gesture to dismiss the Mini Player when the book is paused
         self.pan.isEnabled = true
+    }
+    
+    @objc private func onBookDelete(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+            let book = userInfo["book"] as? Book
+        else {
+            return
+        }
+        
+        if book == PlayerManager.shared.currentBook && !miniPlayerIsHidden {
+            self.dismissMiniPlayer()
+        }
     }
 
     // MARK: - Helpers
