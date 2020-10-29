@@ -16,7 +16,7 @@ import MediaPlayer
 class PlayerManager: NSObject {
     static let shared = PlayerManager()
 
-    static let speedOptions: [Float] = [3, 2.5, 2, 1.75, 1.5, 1.25, 1, 0.9, 0.75, 0.5]
+    static let speedOptions: [Float] = [3, 2.5, 2, 1.75, 1.5, 1.25, 1.15, 1.1, 1, 0.9, 0.75, 0.5]
 
     private var audioPlayer = AVPlayer()
 

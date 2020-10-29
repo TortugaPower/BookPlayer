@@ -467,6 +467,13 @@ extension ItemListViewController {
 
 extension ItemListViewController: ItemListFeedback {
     func showLoadView(_ show: Bool, title: String? = nil, subtitle: String? = nil) {
+        guard self.isViewLoaded else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [unowned self] in
+                self.showLoadView(show, title: title, subtitle: subtitle)
+            }
+            return
+        }
+
         if let title = title {
             self.loadingView.titleLabel.text = title
         }
