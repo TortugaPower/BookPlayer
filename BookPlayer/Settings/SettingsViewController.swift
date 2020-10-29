@@ -235,7 +235,7 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     }
 
     @IBAction func sendSupportEmail() {
-        let device = Device()
+        let device = Device.current
 
         if MFMailComposeViewController.canSendMail() {
             let mail = MFMailComposeViewController()

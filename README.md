@@ -116,7 +116,7 @@ invite you to Lokalise.
 
 ## Dependencies
 
-Managed with [Carthage](https://github.com/Carthage/Carthage)
+Managed with the [Swift Package Manager](https://swift.org/package-manager/)
 
 - [Alamofire](https://github.com/Alamofire/Alamofire) for downloading books via url scheme actions
 - [ColorCube](https://github.com/pixelogik/ColorCube) for extracting artwork colors

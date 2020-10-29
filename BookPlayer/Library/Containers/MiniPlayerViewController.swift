@@ -7,7 +7,7 @@
 //
 
 import BookPlayerKit
-import MarqueeLabelSwift
+import MarqueeLabel
 import Themeable
 import UIKit
 
