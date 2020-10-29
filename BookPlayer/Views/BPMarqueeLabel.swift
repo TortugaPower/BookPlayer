@@ -6,7 +6,7 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
-import MarqueeLabelSwift
+import MarqueeLabel
 import UIKit
 
 class BPMarqueeLabel: MarqueeLabel {

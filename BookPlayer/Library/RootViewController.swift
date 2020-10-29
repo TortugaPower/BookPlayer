@@ -118,15 +118,15 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate {
         // Only enable the gesture to dismiss the Mini Player when the book is paused
         self.pan.isEnabled = true
     }
-    
+
     @objc private func onBookDelete(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
             let book = userInfo["book"] as? Book
         else {
             return
         }
-        
-        if book == PlayerManager.shared.currentBook && !miniPlayerIsHidden {
+
+        if book == PlayerManager.shared.currentBook, !self.miniPlayerIsHidden {
             self.dismissMiniPlayer()
         }
     }
