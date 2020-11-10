@@ -22,6 +22,7 @@ class PlaylistViewController: ItemListViewController {
         self.toggleEmptyStateView()
 
         self.navigationItem.title = self.playlist.title
+        self.sendSignal(.playlistScreen, with: nil)
     }
 
     override func viewWillAppear(_ animated: Bool) {

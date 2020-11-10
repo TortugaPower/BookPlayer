@@ -113,6 +113,16 @@ public struct Action {
     public var command: Command
     public var parameters: [URLQueryItem]
 
+    public func getParametersDictionary() -> [String: String] {
+        var payload = ["command": self.command.rawValue]
+
+        for item in self.parameters {
+            payload[item.name] = item.value ?? ""
+        }
+
+        return payload
+    }
+
     public init(command: Command, parameters: [URLQueryItem]? = []) {
         self.command = command
         self.parameters = parameters ?? []

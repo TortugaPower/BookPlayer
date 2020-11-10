@@ -9,6 +9,7 @@
 import BookPlayerKit
 import Foundation
 import Intents
+import TelemetryClient
 
 class ActionParserService {
     public class func process(_ url: URL) {
@@ -43,6 +44,11 @@ class ActionParserService {
             PlayerManager.shared.rewind()
         case .skipForward:
             PlayerManager.shared.forward()
+        }
+
+        // avoid registering actions not (necessarily) initiated by the user
+        if action.command != .refresh {
+            TelemetryManager.shared.send(TelemetrySignal.urlSchemeAction.rawValue, with: action.getParametersDictionary())
         }
     }
 
