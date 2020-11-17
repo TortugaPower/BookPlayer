@@ -16,7 +16,7 @@ import UIKit
 
 // swiftlint:disable file_length
 
-class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
+class PlayerViewController: UIViewController, UIGestureRecognizerDelegate, TelemetryProtocol {
     @IBOutlet private weak var closeButton: UIButton!
     @IBOutlet private weak var closeButtonTop: NSLayoutConstraint!
     @IBOutlet private weak var bottomToolbar: UIToolbar!
@@ -61,6 +61,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
                 // Don't set the chapter, set the new time which will set the chapter in didSet
                 // Add a fraction of a second to make sure we start after the end of the previous chapter
                 PlayerManager.shared.jumpTo(selectedChapter.start + 0.01)
+                self.sendSignal(.chapterAction, with: nil)
             }
         }
     }
@@ -127,6 +128,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate {
         super.viewDidAppear(animated)
 
         self.updateAutolock()
+        self.sendSignal(.playerScreen, with: nil)
     }
 
     override func viewWillDisappear(_ animated: Bool) {

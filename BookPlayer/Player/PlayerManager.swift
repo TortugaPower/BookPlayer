@@ -13,7 +13,7 @@ import MediaPlayer
 
 // swiftlint:disable file_length
 
-class PlayerManager: NSObject {
+class PlayerManager: NSObject, TelemetryProtocol {
     static let shared = PlayerManager()
 
     static let speedOptions: [Float] = [3, 2.5, 2, 1.75, 1.5, 1.25, 1.15, 1.1, 1, 0.9, 0.75, 0.5]
@@ -340,10 +340,12 @@ extension PlayerManager {
 
     func forward() {
         self.jumpBy(self.forwardInterval)
+        self.sendSignal(.forwardAction, with: ["interval": "\(self.forwardInterval)"])
     }
 
     func rewind() {
         self.jumpBy(-self.rewindInterval)
+        self.sendSignal(.rewindAction, with: ["interval": "\(self.rewindInterval)"])
     }
 }
 
@@ -419,6 +421,7 @@ extension PlayerManager {
         }
 
         self.update()
+        self.sendSignal(.playAction, with: nil)
     }
 
     // swiftlint:disable block_based_kvo
@@ -465,6 +468,7 @@ extension PlayerManager {
         UserDefaults.standard.set(Date(), forKey: "\(Constants.UserDefaults.lastPauseTime)_\(currentBook.identifier!)")
 
         try? AVAudioSession.sharedInstance().setActive(false)
+        self.sendSignal(.pauseAction, with: nil)
     }
 
     // Toggle play/pause of book
