@@ -3133,7 +3133,7 @@
 			repositoryURL = "https://github.com/AppTelemetry/SwiftClient";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.6;
+				minimumVersion = 1.0.7;
 			};
 		};
 		41F1A1CC254B07090043FCF3 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
