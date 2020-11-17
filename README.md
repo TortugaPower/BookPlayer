@@ -128,6 +128,7 @@ Managed with the [Swift Package Manager](https://swift.org/package-manager/)
 - [Sweetercolor](https://github.com/jathu/sweetercolor) for handling artwork colors
 - [SwiftReorder](https://github.com/GianniCarlo/SwiftReorder) for drag-and-drop on the UITableView
 - [SwiftyStoreKit](https://github.com/bizz84/SwiftyStoreKit) for the tip jar
+- [Telemetry](https://github.com/AppTelemetry/SwiftClient) for the analytics
 - [ZipArchive](https://github.com/ZipArchive/ZipArchive) for zip files
 
 Managed with [Homebrew](https://brew.sh)
