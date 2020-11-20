@@ -20,6 +20,8 @@ class PlayerManager: NSObject, TelemetryProtocol {
 
     private var audioPlayer = AVPlayer()
 
+    private var fadeTimer: Timer?
+
     private var playerItem: AVPlayerItem?
 
     private var observeStatus: Bool = false {
@@ -406,6 +408,8 @@ extension PlayerManager {
             self.audioPlayer.seek(to: CMTime(seconds: newPlayerTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
         }
 
+        self.fadeTimer?.invalidate()
+        self.audioPlayer.volume = 1
         // Set play state on player and control center
         self.audioPlayer.playImmediately(atRate: self.speed)
 
@@ -442,7 +446,7 @@ extension PlayerManager {
         self.play()
     }
 
-    func pause() {
+    func pause(fade: Bool = false) {
         guard let currentBook = self.currentBook else {
             return
         }
@@ -458,17 +462,25 @@ extension PlayerManager {
 
         self.update()
 
-        // Set pause state on player and control center
-        self.audioPlayer.pause()
+        let pauseActionBlock: () -> Void = {
+			// Set pause state on player and control center
+            self.audioPlayer.pause()
+            self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0.0
+            self.setNowPlayingBookTime()
+            MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
 
-        self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0.0
-        self.setNowPlayingBookTime()
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
+            UserDefaults.standard.set(Date(), forKey: "\(Constants.UserDefaults.lastPauseTime)_\(currentBook.identifier!)")
 
-        UserDefaults.standard.set(Date(), forKey: "\(Constants.UserDefaults.lastPauseTime)_\(currentBook.identifier!)")
+            try? AVAudioSession.sharedInstance().setActive(false)
+            self.sendSignal(.pauseAction, with: nil)
+        }
 
-        try? AVAudioSession.sharedInstance().setActive(false)
-        self.sendSignal(.pauseAction, with: nil)
+        guard fade else {
+            pauseActionBlock()
+            return
+        }
+
+        self.fadeTimer = self.audioPlayer.fadeVolume(from: 1, to: 0, duration: 5, completion: pauseActionBlock)
     }
 
     // Toggle play/pause of book
