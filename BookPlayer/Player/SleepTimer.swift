@@ -83,7 +83,7 @@ final class SleepTimer: TelemetryProtocol {
     @objc private func end() {
         self.reset()
 
-        PlayerManager.shared.pause()
+        PlayerManager.shared.pause(fade: true)
 
         NotificationCenter.default.post(name: .timerEnd, object: nil)
     }
