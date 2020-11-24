@@ -10,6 +10,7 @@ import AVFoundation
 import BookPlayerKit
 import Foundation
 import MediaPlayer
+import WidgetKit
 
 // swiftlint:disable file_length
 
@@ -182,6 +183,7 @@ class PlayerManager: NSObject, TelemetryProtocol {
             book.updateCurrentChapter()
             self.setNowPlayingBookTitle()
             NotificationCenter.default.post(name: .chapterChange, object: nil, userInfo: nil)
+            DataManager.saveContext()
         }
 
         let userInfo = [
@@ -379,9 +381,7 @@ extension PlayerManager {
 
         let completed = Int(currentBook.duration) == Int(CMTimeGetSeconds(self.audioPlayer.currentTime()))
 
-        if autoplayed, completed {
-            return
-        }
+        if autoplayed, completed { return }
 
         // If book is completed, reset to start
         if completed {
@@ -422,6 +422,9 @@ extension PlayerManager {
             CarPlayManager.shared.setNowPlayingInfo(with: currentBook)
             NotificationCenter.default.post(name: .bookPlayed, object: nil)
             WatchConnectivityService.sharedManager.sendMessage(message: ["notification": "bookPlayed" as AnyObject])
+            if #available(iOS 14.0, *) {
+                WidgetCenter.shared.reloadAllTimelines()
+            }
         }
 
         self.update()
@@ -463,7 +466,7 @@ extension PlayerManager {
         self.update()
 
         let pauseActionBlock: () -> Void = {
-			// Set pause state on player and control center
+            // Set pause state on player and control center
             self.audioPlayer.pause()
             self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0.0
             self.setNowPlayingBookTime()
