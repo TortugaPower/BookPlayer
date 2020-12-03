@@ -44,6 +44,8 @@ class ActionParserService {
             PlayerManager.shared.rewind()
         case .skipForward:
             PlayerManager.shared.forward()
+        case .widget:
+            self.handleWidgetAction(action)
         }
 
         // avoid registering actions not (necessarily) initiated by the user
@@ -75,6 +77,12 @@ class ActionParserService {
             let showPlayer = Bool(value),
             showPlayer {
             appDelegate.showPlayer()
+        }
+
+        if let value = action.getQueryValue(for: "autoplay"),
+            let autoplay = Bool(value),
+            !autoplay {
+            return
         }
 
         guard let bookIdentifier = action.getQueryValue(for: "identifier") else {
@@ -111,6 +119,18 @@ class ActionParserService {
 
         if let url = action.getQueryValue(for: "url")?.replacingOccurrences(of: "\"", with: "") {
             libraryVC.downloadBook(from: url)
+        }
+    }
+
+    private class func handleWidgetAction(_ action: Action) {
+        if action.getQueryValue(for: "autoplay") != nil {
+            let playAction = Action(command: .play, parameters: action.parameters)
+            self.handleAction(playAction)
+        }
+
+        if action.getQueryValue(for: "seconds") != nil {
+            let sleepAction = Action(command: .sleep, parameters: action.parameters)
+            self.handleAction(sleepAction)
         }
     }
 }
