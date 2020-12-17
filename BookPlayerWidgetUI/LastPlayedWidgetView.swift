@@ -54,23 +54,11 @@ struct LastPlayedWidgetView: View {
     var body: some View {
         let titleLabel = entry.title ?? "---"
 
-        var titleColor = UIColor.label
-        var backgroundColor = UIColor.systemBackground
+        let widgetColors = WidgetUtils.getColors(from: entry.theme, with: colorScheme)
 
-        if let theme = entry.theme {
-            let hexPrimary: String = colorScheme == .dark
-                ? theme.darkPrimaryHex
-                : theme.defaultPrimaryHex
-            let hexBackground: String = colorScheme == .dark
-                ? theme.darkBackgroundHex
-                : theme.defaultBackgroundHex
+        let url = WidgetUtils.getWidgetActionURL(with: nil, autoplay: entry.autoplay, timerSeconds: entry.timerSeconds)
 
-            titleColor = UIColor(hex: hexPrimary)
-            backgroundColor = UIColor(hex: hexBackground)
-        }
-
-        let urlString = CommandParser.createWidgetActionString(with: nil, autoplay: entry.autoplay, timerSeconds: entry.timerSeconds)
-        let url = URL(string: urlString)!
+        let appIconName = WidgetUtils.getAppIconName()
 
         return VStack {
             HStack {
@@ -89,7 +77,7 @@ struct LastPlayedWidgetView: View {
                 }
 
                 VStack {
-                    Image("WidgetAppIconDark")
+                    Image(appIconName)
                         .frame(width: 32, height: 32)
                         .padding([.trailing], 10)
                         .cornerRadius(8.0)
@@ -102,7 +90,7 @@ struct LastPlayedWidgetView: View {
             VStack(alignment: .leading) {
                 Text(titleLabel)
                     .fontWeight(.semibold)
-                    .foregroundColor(Color(titleColor))
+                    .foregroundColor(widgetColors.primaryColor)
                     .font(.footnote)
                     .lineLimit(2)
                 Spacer()
@@ -111,7 +99,7 @@ struct LastPlayedWidgetView: View {
             .padding([.leading, .trailing])
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(backgroundColor))
+        .background(widgetColors.backgroundColor)
         .widgetURL(url)
     }
 }

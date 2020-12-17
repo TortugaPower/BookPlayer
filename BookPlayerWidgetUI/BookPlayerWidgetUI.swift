@@ -26,6 +26,14 @@ struct LibraryEntry: TimelineEntry {
     let autoplay: Bool
 }
 
+struct TimeListenedEntry: TimelineEntry {
+    let date: Date
+    let library: Library?
+    let timerSeconds: Double
+    let autoplay: Bool
+    let playbackRecords: [PlaybackRecordViewer]
+}
+
 struct BookPlayerWidgetUI_Previews: PreviewProvider {
     static var previews: some View {
         Group {
@@ -41,5 +49,6 @@ struct BookPlayerBundle: WidgetBundle {
     var body: some Widget {
         LastPlayedWidget()
         RecentBooksWidget()
+        TimeListenedWidget()
     }
 }

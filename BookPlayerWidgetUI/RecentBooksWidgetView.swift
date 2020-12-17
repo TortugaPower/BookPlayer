@@ -43,7 +43,7 @@ struct RecentBooksProvider: IntentTimelineProvider {
 
 struct BookView: View {
     var item: BookPlayerKit.LibraryItem
-    var titleColor: UIColor
+    var titleColor: Color
     var entry: RecentBooksProvider.Entry
 
     var body: some View {
@@ -58,8 +58,7 @@ struct BookView: View {
             identifier = book.identifier!
         }
 
-        let urlString = CommandParser.createWidgetActionString(with: identifier, autoplay: entry.autoplay, timerSeconds: entry.timerSeconds)
-        let url = URL(string: urlString)!
+        let url = WidgetUtils.getWidgetActionURL(with: identifier, autoplay: entry.autoplay, timerSeconds: entry.timerSeconds)
 
         return Link(destination: url) {
             VStack(spacing: 5) {
@@ -77,7 +76,7 @@ struct BookView: View {
                 }
                 Text(title)
                     .fontWeight(.semibold)
-                    .foregroundColor(Color(titleColor))
+                    .foregroundColor(titleColor)
                     .font(.caption)
                     .lineLimit(2)
                     .frame(width: nil, height: 34, alignment: .leading)
@@ -93,28 +92,18 @@ struct RecentBooksWidgetView: View {
     var body: some View {
         let items = Array(entry.library?.getItemsOrderedByDate().prefix(4) ?? [])
 
-        var primaryColor = UIColor.label
-        var backgroundColor = UIColor.systemBackground
+        let widgetColors = WidgetUtils.getColors(from: entry.library?.currentTheme, with: colorScheme)
 
-        if let theme = entry.library?.currentTheme {
-            let hexPrimary: String = colorScheme == .dark
-                ? theme.darkPrimaryHex
-                : theme.defaultPrimaryHex
-            let hexBackground: String = colorScheme == .dark
-                ? theme.darkBackgroundHex
-                : theme.defaultBackgroundHex
+        let appIconName = WidgetUtils.getAppIconName()
 
-            primaryColor = UIColor(hex: hexPrimary)
-            backgroundColor = UIColor(hex: hexBackground)
-        }
         return VStack(spacing: 3) {
             HStack {
                 Text("Recent Books")
-                    .foregroundColor(Color(primaryColor))
+                    .foregroundColor(widgetColors.primaryColor)
                     .font(.subheadline)
                     .fontWeight(.semibold)
                 Spacer()
-                Image("WidgetAppIconDark")
+                Image(appIconName)
                     .frame(width: 28, height: 28)
                     .padding([.trailing], 10)
                     .cornerRadius(8.0)
@@ -124,7 +113,7 @@ struct RecentBooksWidgetView: View {
             .padding([.top], 8)
             HStack {
                 ForEach(items, id: \.identifier) { item in
-                    BookView(item: item, titleColor: primaryColor, entry: entry)
+                    BookView(item: item, titleColor: widgetColors.primaryColor, entry: entry)
                 }
             }
             .padding([.leading, .trailing])
@@ -132,7 +121,7 @@ struct RecentBooksWidgetView: View {
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(backgroundColor))
+        .background(widgetColors.backgroundColor)
     }
 }
 
