@@ -148,6 +148,15 @@ extension DataManager {
     // MARK: - Themes
 
     public class func setupDefaultTheme() {
+        let userDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
+
+        // Migrate user defaults app icon
+        if userDefaults?
+            .string(forKey: Constants.UserDefaults.appIcon.rawValue) == nil {
+            let storedIconId = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon.rawValue)
+            userDefaults?.set(storedIconId, forKey: Constants.UserDefaults.appIcon.rawValue)
+        }
+
         let library = self.getLibrary()
 
         guard library.currentTheme == nil else { return }

@@ -19,7 +19,7 @@ extension AVPlayer {
         let interval: Float = 0.1
         let range = to - from
         let step = (range * interval) / duration
-        
+
         func reachedTarget() -> Bool {
             guard volume >= 0, volume <= 1 else {
                 volume = to

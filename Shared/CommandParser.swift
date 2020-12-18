@@ -98,6 +98,16 @@ public class CommandParser {
 
         return actionString
     }
+
+    public class func createWidgetActionString(with bookIdentifier: String?, autoplay: Bool, timerSeconds: Double) -> String {
+        var actionString = "bookplayer://widget?autoplay=\(autoplay)&seconds=\(timerSeconds)"
+
+        if let identifier = bookIdentifier {
+            actionString += "&identifier=\(identifier)"
+        }
+
+        return actionString
+    }
 }
 
 public enum Command: String {
@@ -107,6 +117,7 @@ public enum Command: String {
     case skipRewind
     case skipForward
     case sleep
+    case widget
 }
 
 public struct Action {
