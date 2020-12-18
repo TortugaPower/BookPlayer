@@ -93,7 +93,7 @@ struct TimeListenedWidget: Widget {
             TimeListenedWidgetView(entry: entry)
         }
         .configurationDisplayName("Time Listened")
-        .description("See today's total listened time")
+        .description("See how much time you have spent listening to audiobooks")
         .supportedFamilies([.systemSmall, .systemMedium])
     }
 }

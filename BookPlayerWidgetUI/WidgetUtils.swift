@@ -45,7 +45,7 @@ class WidgetUtils {
         let startToday = calendar.startOfDay(for: now)
         let endDate = calendar.date(byAdding: .day, value: 1, to: startToday)!
 
-        let startFirstDay = calendar.date(byAdding: .day, value: -8, to: endDate)!
+        let startFirstDay = calendar.date(byAdding: .day, value: -7, to: endDate)!
         let startSecondDay = calendar.date(byAdding: .day, value: 1, to: startFirstDay)!
         let startThirdDay = calendar.date(byAdding: .day, value: 1, to: startSecondDay)!
         let startFourthDay = calendar.date(byAdding: .day, value: 1, to: startThirdDay)!
