@@ -78,6 +78,7 @@ struct LastPlayedWidgetView: View {
 
                 VStack {
                     Image(appIconName)
+                        .accessibility(hidden: true)
                         .frame(width: 32, height: 32)
                         .padding([.trailing], 10)
                         .cornerRadius(8.0)
@@ -87,12 +88,14 @@ struct LastPlayedWidgetView: View {
             .frame(height: 90)
             .padding([.leading])
             .padding([.top], 8)
+            .accessibility(label: Text("Last Played Book, \(titleLabel)"))
             VStack(alignment: .leading) {
                 Text(titleLabel)
                     .fontWeight(.semibold)
                     .foregroundColor(widgetColors.primaryColor)
                     .font(.footnote)
                     .lineLimit(2)
+                    .accessibility(hidden: true)
                 Spacer()
             }
             .frame(height: 40)

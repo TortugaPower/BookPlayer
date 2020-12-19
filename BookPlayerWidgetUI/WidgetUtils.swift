@@ -80,9 +80,9 @@ class WidgetUtils {
 
     class func formatTime(_ time: Double) -> String {
         let hours = Int(time / 3600)
-        let mins = Int(time.truncatingRemainder(dividingBy: 3600) / 60)
+        let minutes = Int(time.truncatingRemainder(dividingBy: 3600) / 60)
 
-        return "\(hours)H\(mins)M"
+        return "\(hours)H \(minutes)M"
     }
 
     class func formatTimeShort(_ time: Double) -> String {
