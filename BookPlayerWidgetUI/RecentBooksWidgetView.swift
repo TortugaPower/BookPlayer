@@ -104,6 +104,7 @@ struct RecentBooksWidgetView: View {
                     .fontWeight(.semibold)
                 Spacer()
                 Image(appIconName)
+                    .accessibility(hidden: true)
                     .frame(width: 28, height: 28)
                     .padding([.trailing], 10)
                     .cornerRadius(8.0)

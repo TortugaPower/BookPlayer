@@ -36,8 +36,10 @@ struct TimeListenedMediumView: View {
                     .foregroundColor(widgetColors.primaryColor)
                     .font(.subheadline)
                     .fontWeight(.semibold)
+                    .accessibility(label: Text("Listened Time per Day."))
                 Spacer()
                 Image(appIconName)
+                    .accessibility(hidden: true)
                     .frame(width: 28, height: 28)
                     .padding([.trailing], 10)
                     .cornerRadius(8.0)
@@ -51,7 +53,7 @@ struct TimeListenedMediumView: View {
             HStack(alignment: .center, spacing: 11) {
                 Group {
                     ForEach(entry.playbackRecords, id: \.self) { record in
-                        BarView(playbackRecordViewer: record, maxTime: maxTime, cornerRadius: CGFloat(integerLiteral: 7), widgetColors: widgetColors)
+                        BarView(currentTime: record.time, date: record.date, maxTime: maxTime, cornerRadius: CGFloat(integerLiteral: 7), widgetColors: widgetColors)
                     }
                 }
                 .frame(width: 20)
@@ -59,18 +61,22 @@ struct TimeListenedMediumView: View {
                     Text("Total")
                         .fontWeight(.semibold)
                         .foregroundColor(widgetColors.primaryColor)
+                        .accessibility(label: Text("Total Listened Time in the last 7 days."))
                     Text("\(formattedTotalTime)")
                         .foregroundColor(widgetColors.primaryColor)
                         .font(.footnote)
                         .padding([.bottom], 1)
 
-                    Text("Last Book")
-                        .fontWeight(.semibold)
-                        .foregroundColor(widgetColors.primaryColor)
-                    Text("\(titleLabel)")
-                        .foregroundColor(widgetColors.primaryColor)
-                        .font(.footnote)
-                        .lineLimit(2)
+                    VStack {
+                        Text("Last Book")
+                            .fontWeight(.semibold)
+                            .foregroundColor(widgetColors.primaryColor)
+                        Text("\(titleLabel)")
+                            .foregroundColor(widgetColors.primaryColor)
+                            .font(.footnote)
+                            .lineLimit(2)
+                    }
+                    .accessibilityElement(children: .combine)
                     Spacer()
                 }
                 .padding([.leading, .trailing], 5)

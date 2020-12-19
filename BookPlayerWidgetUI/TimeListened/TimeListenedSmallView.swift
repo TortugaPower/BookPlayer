@@ -39,10 +39,12 @@ struct TimeListenedSmallView: View {
                     .fontWeight(.semibold)
                 Spacer()
                 Image(appIconName)
+                    .accessibility(hidden: true)
                     .frame(width: 28, height: 28)
                     .padding([.trailing], 10)
                     .cornerRadius(8.0)
             }
+            .accessibilityValue("\(dateLabel)")
             .padding([.leading])
             .padding([.trailing], 5)
             Text(time)
@@ -50,22 +52,27 @@ struct TimeListenedSmallView: View {
                 .font(.caption)
                 .padding([.leading, .trailing])
                 .padding([.bottom], 8)
-            HStack {
-                Text("Last Book")
-                    .foregroundColor(widgetColors.primaryColor)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                Spacer()
-            }
-            .padding([.leading, .trailing])
+                .accessibility(hidden: true)
 
-            VStack(alignment: .leading) {
-                Text(titleLabel)
-                    .font(.caption)
-                    .lineLimit(2)
+            VStack {
+                HStack {
+                    Text("Last Book")
+                        .foregroundColor(widgetColors.primaryColor)
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                    Spacer()
+                }
+                .padding([.leading, .trailing])
+
+                VStack(alignment: .leading) {
+                    Text(titleLabel)
+                        .font(.caption)
+                        .lineLimit(2)
+                }
+                .frame(height: 40)
+                .padding([.leading, .trailing])
             }
-            .frame(height: 40)
-            .padding([.leading, .trailing])
+            .accessibilityElement(children: .combine)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(widgetColors.backgroundColor)
