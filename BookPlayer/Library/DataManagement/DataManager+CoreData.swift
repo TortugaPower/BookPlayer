@@ -27,7 +27,7 @@ extension DataManager {
     class func insertBooks(from files: [FileItem], into playlist: Playlist?, or library: Library, completion: @escaping () -> Void) {
         let context = self.persistentContainer.viewContext
 
-        for file in files {
+        for file in files.sorted(by: {$0.originalUrl.fileName < $1.originalUrl.fileName}) {
             // TODO: do something about unprocessed URLs
             guard let url = file.processedUrl else { continue }
 
