@@ -164,6 +164,7 @@
 "voiceover_book_chapter" = "%@ por %@ , capítulo %@";
 "voiceover_rewind_time" = "Retroceder %@";
 "voiceover_forward_time" = "Avanzar %@";
+"voiceover_continue_playback_title" = "Continuar Reproducción";
 "watchapp_last_played_title" = "Última Reproducción";
 "watchapp_refresh_data_title" = "Actualizar data";
 "carplay_recent_title" = "Recientes";
