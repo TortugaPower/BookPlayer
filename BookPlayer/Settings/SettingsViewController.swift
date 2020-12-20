@@ -18,7 +18,7 @@ protocol IntentSelectionDelegate: AnyObject {
     func didSelectIntent(_ intent: INIntent)
 }
 
-class SettingsViewController: UITableViewController, MFMailComposeViewControllerDelegate {
+class SettingsViewController: UITableViewController, MFMailComposeViewControllerDelegate, TelemetryProtocol {
     @IBOutlet weak var autoplayLibrarySwitch: UISwitch!
     @IBOutlet weak var disableAutolockSwitch: UISwitch!
     @IBOutlet weak var autolockDisabledOnlyWhenPoweredSwitch: UISwitch!
@@ -89,6 +89,8 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
 
         self.version = version
         self.build = build
+
+        self.sendSignal(.settingsScreen, with: nil)
     }
 
     @objc func donationMade() {
@@ -97,16 +99,19 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
 
     @objc func autoplayToggleDidChange() {
         UserDefaults.standard.set(self.autoplayLibrarySwitch.isOn, forKey: Constants.UserDefaults.autoplayEnabled.rawValue)
+        self.sendSignal(.autoplayLibraryAction, with: ["isOn": "\(self.autoplayLibrarySwitch.isOn)"])
     }
 
     @objc func disableAutolockDidChange() {
         UserDefaults.standard.set(self.disableAutolockSwitch.isOn, forKey: Constants.UserDefaults.autolockDisabled.rawValue)
         self.autolockDisabledOnlyWhenPoweredSwitch.isEnabled = self.disableAutolockSwitch.isOn
         self.autolockDisabledOnlyWhenPoweredLabel.isEnabled = self.disableAutolockSwitch.isOn
+        self.sendSignal(.disableAutolockAction, with: ["isOn": "\(self.disableAutolockSwitch.isOn)"])
     }
 
     @objc func autolockOnlyWhenPoweredDidChange() {
         UserDefaults.standard.set(self.autolockDisabledOnlyWhenPoweredSwitch.isOn, forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered.rawValue)
+        self.sendSignal(.disableAutolockOnPowerAction, with: ["isOn": "\(self.autolockDisabledOnlyWhenPoweredSwitch.isOn)"])
     }
 
     @IBAction func done(_ sender: UIBarButtonItem) {
@@ -214,6 +219,7 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         vc.delegate = self
 
         self.present(vc, animated: true, completion: nil)
+        self.sendSignal(.lastPlayedSiriShortcutAction, with: nil)
     }
 
     func showSleepTimerShortcut() {
@@ -232,10 +238,12 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         let sheet = SleepTimer.shared.intentSheet(on: self)
 
         self.present(sheet, animated: true, completion: nil)
+        self.sendSignal(.sleepTimerSiriShortcutAction, with: nil)
     }
 
     @IBAction func sendSupportEmail() {
-        let device = Device()
+        self.sendSignal(.emailSupportAction, with: nil)
+        let device = Device.current
 
         if MFMailComposeViewController.canSendMail() {
             let mail = MFMailComposeViewController()
@@ -268,6 +276,7 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         safari.dismissButtonStyle = .close
 
         self.present(safari, animated: true)
+        self.sendSignal(.githubScreen, with: nil)
     }
 }
 

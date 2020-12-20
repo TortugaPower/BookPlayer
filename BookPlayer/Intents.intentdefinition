@@ -27,7 +27,7 @@
 				</dict>
 				<dict>
 					<key>INEnumValueDisplayName</key>
-					<string>Turn off</string>
+					<string>Off</string>
 					<key>INEnumValueDisplayNameID</key>
 					<string>OxlDaD</string>
 					<key>INEnumValueIndex</key>
@@ -37,7 +37,7 @@
 				</dict>
 				<dict>
 					<key>INEnumValueDisplayName</key>
-					<string>Sleep in 5 minutes</string>
+					<string>5 minutes</string>
 					<key>INEnumValueDisplayNameID</key>
 					<string>nEg0FW</string>
 					<key>INEnumValueIndex</key>
@@ -47,7 +47,7 @@
 				</dict>
 				<dict>
 					<key>INEnumValueDisplayName</key>
-					<string>Sleep in 10 minutes</string>
+					<string>10 minutes</string>
 					<key>INEnumValueDisplayNameID</key>
 					<string>8Rc4eh</string>
 					<key>INEnumValueIndex</key>
@@ -57,7 +57,7 @@
 				</dict>
 				<dict>
 					<key>INEnumValueDisplayName</key>
-					<string>Sleep in 15 minutes</string>
+					<string>15 minutes</string>
 					<key>INEnumValueDisplayNameID</key>
 					<string>JGIitH</string>
 					<key>INEnumValueIndex</key>
@@ -67,7 +67,7 @@
 				</dict>
 				<dict>
 					<key>INEnumValueDisplayName</key>
-					<string>Sleep in 30 minutes</string>
+					<string>30 minutes</string>
 					<key>INEnumValueDisplayNameID</key>
 					<string>BFXnSJ</string>
 					<key>INEnumValueIndex</key>
@@ -77,7 +77,7 @@
 				</dict>
 				<dict>
 					<key>INEnumValueDisplayName</key>
-					<string>Sleep in 45 minutes</string>
+					<string>45 minutes</string>
 					<key>INEnumValueDisplayNameID</key>
 					<string>xOtxnw</string>
 					<key>INEnumValueIndex</key>
@@ -87,7 +87,7 @@
 				</dict>
 				<dict>
 					<key>INEnumValueDisplayName</key>
-					<string>Sleep in 1 hour</string>
+					<string>1 hour</string>
 					<key>INEnumValueDisplayNameID</key>
 					<string>smneV1</string>
 					<key>INEnumValueIndex</key>
@@ -97,7 +97,7 @@
 				</dict>
 				<dict>
 					<key>INEnumValueDisplayName</key>
-					<string>Sleep at the end of current chapter</string>
+					<string>End of Chapter</string>
 					<key>INEnumValueDisplayNameID</key>
 					<string>xO1X0b</string>
 					<key>INEnumValueIndex</key>
@@ -109,15 +109,15 @@
 		</dict>
 	</array>
 	<key>INIntentDefinitionModelVersion</key>
-	<string>1.1</string>
+	<string>1.2</string>
 	<key>INIntentDefinitionNamespace</key>
 	<string>v5hHmJ</string>
 	<key>INIntentDefinitionSystemVersion</key>
-	<string>19E287</string>
+	<string>20C69</string>
 	<key>INIntentDefinitionToolsBuildVersion</key>
-	<string>11E503a</string>
+	<string>12C33</string>
 	<key>INIntentDefinitionToolsVersion</key>
-	<string>11.4.1</string>
+	<string>12.3</string>
 	<key>INIntents</key>
 	<array>
 		<dict>
@@ -129,6 +129,8 @@
 			<string>Set a sleep timer</string>
 			<key>INIntentDescriptionID</key>
 			<string>niWNXm</string>
+			<key>INIntentEligibleForWidgets</key>
+			<true/>
 			<key>INIntentInput</key>
 			<string>seconds</string>
 			<key>INIntentLastParameterTag</key>
@@ -171,6 +173,8 @@
 			<key>INIntentParameters</key>
 			<array>
 				<dict>
+					<key>INIntentParameterConfigurable</key>
+					<true/>
 					<key>INIntentParameterCustomDisambiguation</key>
 					<true/>
 					<key>INIntentParameterDisplayName</key>
@@ -237,6 +241,8 @@
 					<string>Integer</string>
 				</dict>
 				<dict>
+					<key>INIntentParameterConfigurable</key>
+					<true/>
 					<key>INIntentParameterCustomDisambiguation</key>
 					<true/>
 					<key>INIntentParameterDisplayName</key>
@@ -291,7 +297,7 @@
 							<key>INIntentParameterUnsupportedReasonDefault</key>
 							<true/>
 							<key>INIntentParameterUnsupportedReasonFormatString</key>
-							<string>${displayName} can't be negative.</string>
+							<string>${displayName} can’t be negative.</string>
 							<key>INIntentParameterUnsupportedReasonFormatStringID</key>
 							<string>JvaQUY</string>
 						</dict>
@@ -301,7 +307,7 @@
 							<key>INIntentParameterUnsupportedReasonDefault</key>
 							<true/>
 							<key>INIntentParameterUnsupportedReasonFormatString</key>
-							<string>${displayName} can't be higher than ${maximumValue}.</string>
+							<string>${displayName} can’t be higher than ${maximumValue}.</string>
 							<key>INIntentParameterUnsupportedReasonFormatStringID</key>
 							<string>EVGDmm</string>
 						</dict>
@@ -311,7 +317,7 @@
 							<key>INIntentParameterUnsupportedReasonDefault</key>
 							<true/>
 							<key>INIntentParameterUnsupportedReasonFormatString</key>
-							<string>${displayName} can't be lower than ${minimumValue}.</string>
+							<string>${displayName} can’t be lower than ${minimumValue}.</string>
 							<key>INIntentParameterUnsupportedReasonFormatStringID</key>
 							<string>CMoLDV</string>
 						</dict>
@@ -355,6 +361,179 @@
 		</dict>
 		<dict>
 			<key>INIntentCategory</key>
+			<string>generic</string>
+			<key>INIntentDescriptionID</key>
+			<string>BGPSXi</string>
+			<key>INIntentEligibleForWidgets</key>
+			<true/>
+			<key>INIntentLastParameterTag</key>
+			<integer>4</integer>
+			<key>INIntentName</key>
+			<string>PlayAndSleepAction</string>
+			<key>INIntentParameterCombinations</key>
+			<dict>
+				<key>sleepTimer</key>
+				<dict>
+					<key>INIntentParameterCombinationSupportsBackgroundExecution</key>
+					<true/>
+					<key>INIntentParameterCombinationTitle</key>
+					<string>Play last book and sleep in: ${sleepTimer}</string>
+					<key>INIntentParameterCombinationTitleID</key>
+					<string>o03r18</string>
+				</dict>
+			</dict>
+			<key>INIntentParameters</key>
+			<array>
+				<dict>
+					<key>INIntentParameterConfigurable</key>
+					<true/>
+					<key>INIntentParameterCustomDisambiguation</key>
+					<true/>
+					<key>INIntentParameterDisplayName</key>
+					<string>Timer</string>
+					<key>INIntentParameterDisplayNameID</key>
+					<string>igopLN</string>
+					<key>INIntentParameterDisplayPriority</key>
+					<integer>1</integer>
+					<key>INIntentParameterEnumType</key>
+					<string>TimerOption</string>
+					<key>INIntentParameterEnumTypeNamespace</key>
+					<string>v5hHmJ</string>
+					<key>INIntentParameterMetadata</key>
+					<dict>
+						<key>INIntentParameterMetadataDefaultValue</key>
+						<string>cancel</string>
+					</dict>
+					<key>INIntentParameterName</key>
+					<string>sleepTimer</string>
+					<key>INIntentParameterPromptDialogs</key>
+					<array>
+						<dict>
+							<key>INIntentParameterPromptDialogCustom</key>
+							<true/>
+							<key>INIntentParameterPromptDialogType</key>
+							<string>Configuration</string>
+						</dict>
+						<dict>
+							<key>INIntentParameterPromptDialogCustom</key>
+							<true/>
+							<key>INIntentParameterPromptDialogType</key>
+							<string>Primary</string>
+						</dict>
+						<dict>
+							<key>INIntentParameterPromptDialogCustom</key>
+							<true/>
+							<key>INIntentParameterPromptDialogFormatString</key>
+							<string>There are ${count} options matching ‘${sleepTimer}’.</string>
+							<key>INIntentParameterPromptDialogFormatStringID</key>
+							<string>aczYqi</string>
+							<key>INIntentParameterPromptDialogType</key>
+							<string>DisambiguationIntroduction</string>
+						</dict>
+						<dict>
+							<key>INIntentParameterPromptDialogCustom</key>
+							<true/>
+							<key>INIntentParameterPromptDialogFormatString</key>
+							<string>Just to confirm, you wanted ‘${sleepTimer}’?</string>
+							<key>INIntentParameterPromptDialogFormatStringID</key>
+							<string>iFdtqB</string>
+							<key>INIntentParameterPromptDialogType</key>
+							<string>Confirmation</string>
+						</dict>
+					</array>
+					<key>INIntentParameterSupportsResolution</key>
+					<true/>
+					<key>INIntentParameterTag</key>
+					<integer>2</integer>
+					<key>INIntentParameterType</key>
+					<string>Integer</string>
+				</dict>
+				<dict>
+					<key>INIntentParameterConfigurable</key>
+					<true/>
+					<key>INIntentParameterDisplayName</key>
+					<string>Auto-Play</string>
+					<key>INIntentParameterDisplayNameID</key>
+					<string>0sbUCi</string>
+					<key>INIntentParameterDisplayPriority</key>
+					<integer>2</integer>
+					<key>INIntentParameterMetadata</key>
+					<dict>
+						<key>INIntentParameterMetadataDefaultValue</key>
+						<true/>
+						<key>INIntentParameterMetadataFalseDisplayName</key>
+						<string>false</string>
+						<key>INIntentParameterMetadataFalseDisplayNameID</key>
+						<string>T4Pfp4</string>
+						<key>INIntentParameterMetadataTrueDisplayName</key>
+						<string>true</string>
+						<key>INIntentParameterMetadataTrueDisplayNameID</key>
+						<string>9vnv2Z</string>
+					</dict>
+					<key>INIntentParameterName</key>
+					<string>autoplay</string>
+					<key>INIntentParameterPromptDialogs</key>
+					<array>
+						<dict>
+							<key>INIntentParameterPromptDialogCustom</key>
+							<true/>
+							<key>INIntentParameterPromptDialogType</key>
+							<string>Configuration</string>
+						</dict>
+						<dict>
+							<key>INIntentParameterPromptDialogCustom</key>
+							<true/>
+							<key>INIntentParameterPromptDialogFormatString</key>
+							<string>Do you want to autoplay the last book?</string>
+							<key>INIntentParameterPromptDialogFormatStringID</key>
+							<string>hkngG9</string>
+							<key>INIntentParameterPromptDialogType</key>
+							<string>Primary</string>
+						</dict>
+					</array>
+					<key>INIntentParameterSupportsResolution</key>
+					<true/>
+					<key>INIntentParameterTag</key>
+					<integer>4</integer>
+					<key>INIntentParameterType</key>
+					<string>Boolean</string>
+				</dict>
+			</array>
+			<key>INIntentResponse</key>
+			<dict>
+				<key>INIntentResponseCodes</key>
+				<array>
+					<dict>
+						<key>INIntentResponseCodeFormatString</key>
+						<string>The sleep timer was configured</string>
+						<key>INIntentResponseCodeFormatStringID</key>
+						<string>L6bofB</string>
+						<key>INIntentResponseCodeName</key>
+						<string>success</string>
+						<key>INIntentResponseCodeSuccess</key>
+						<true/>
+					</dict>
+					<dict>
+						<key>INIntentResponseCodeFormatString</key>
+						<string>Error configuring the sleep timer</string>
+						<key>INIntentResponseCodeFormatStringID</key>
+						<string>PjLASD</string>
+						<key>INIntentResponseCodeName</key>
+						<string>failure</string>
+					</dict>
+				</array>
+			</dict>
+			<key>INIntentTitle</key>
+			<string>Play And Sleep Action</string>
+			<key>INIntentTitleID</key>
+			<string>ugBFkQ</string>
+			<key>INIntentType</key>
+			<string>Custom</string>
+			<key>INIntentVerb</key>
+			<string>Do</string>
+		</dict>
+		<dict>
+			<key>INIntentCategory</key>
 			<string>system</string>
 			<key>INIntentClassName</key>
 			<string>INPlayMediaIntent</string>
@@ -393,6 +572,8 @@
 			<key>INIntentParameters</key>
 			<array>
 				<dict>
+					<key>INIntentParameterConfigurable</key>
+					<true/>
 					<key>INIntentParameterDisplayName</key>
 					<string>Items</string>
 					<key>INIntentParameterDisplayNameID</key>
@@ -433,6 +614,8 @@
 					<string>Object</string>
 				</dict>
 				<dict>
+					<key>INIntentParameterConfigurable</key>
+					<true/>
 					<key>INIntentParameterDisplayName</key>
 					<string>Shuffled</string>
 					<key>INIntentParameterDisplayNameID</key>
@@ -460,6 +643,8 @@
 					<string>Boolean</string>
 				</dict>
 				<dict>
+					<key>INIntentParameterConfigurable</key>
+					<true/>
 					<key>INIntentParameterCustomDisambiguation</key>
 					<true/>
 					<key>INIntentParameterDisplayName</key>
@@ -482,6 +667,8 @@
 					<string>Integer</string>
 				</dict>
 				<dict>
+					<key>INIntentParameterConfigurable</key>
+					<true/>
 					<key>INIntentParameterDisplayName</key>
 					<string>Resume</string>
 					<key>INIntentParameterDisplayNameID</key>
@@ -509,6 +696,8 @@
 					<string>Boolean</string>
 				</dict>
 				<dict>
+					<key>INIntentParameterConfigurable</key>
+					<true/>
 					<key>INIntentParameterCustomDisambiguation</key>
 					<true/>
 					<key>INIntentParameterDisplayName</key>
@@ -531,6 +720,8 @@
 					<string>Integer</string>
 				</dict>
 				<dict>
+					<key>INIntentParameterConfigurable</key>
+					<true/>
 					<key>INIntentParameterDisplayName</key>
 					<string>Playback Speed</string>
 					<key>INIntentParameterDisplayNameID</key>

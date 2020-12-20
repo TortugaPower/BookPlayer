@@ -108,6 +108,8 @@ class BookCellView: UITableViewCell {
     private func setup() {
         self.accessoryType = .none
         self.selectionStyle = .none
+        let resumeAction = UIAccessibilityCustomAction(name: "voiceover_continue_playback_title".localized, target: self, selector: #selector(self.artworkButtonTapped(_:)))
+        accessibilityCustomActions = [resumeAction]
     }
 
     override func addSubview(_ view: UIView) {

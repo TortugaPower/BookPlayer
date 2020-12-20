@@ -6,15 +6,46 @@ import Foundation
 
 public enum Constants {
     public enum UserDefaults: String {
+        // Application information
+        case completedFirstLaunch = "userSettingsCompletedFirstLaunch"
+        case lastPauseTime = "userSettingsLastPauseTime"
+        case lastPlayedBook = "userSettingsLastPlayedBook"
+        case appIcon = "userSettingsAppIcon"
+        case donationMade = "userSettingsDonationMade"
+        case showPlayer = "userSettingsShowPlayer"
+
         // User preferences
+        case themeBrightnessEnabled = "userSettingsBrightnessEnabled"
+        case themeBrightnessThreshold = "userSettingsBrightnessThreshold"
+        case themeDarkVariantEnabled = "userSettingsThemeDarkVariant"
+        case systemThemeVariantEnabled = "userSettingsSystemThemeVariant"
+        case chapterContextEnabled = "userSettingsChapterContext"
+        case remainingTimeEnabled = "userSettingsRemainingTime"
+        case smartRewindEnabled = "userSettingsSmartRewind"
+        case boostVolumeEnabled = "userSettingsBoostVolume"
+        case globalSpeedEnabled = "userSettingsGlobalSpeed"
         case autoplayEnabled = "userSettingsAutoplay"
+        case autolockDisabled = "userSettingsDisableAutolock"
+        case autolockDisabledOnlyWhenPowered = "userSettingsAutolockOnlyWhenPowered"
+
         case rewindInterval = "userSettingsRewindInterval"
         case forwardInterval = "userSettingsForwardInterval"
     }
 
-    static let ApplicationGroupIdentifier = "group.com.tortugapower.audiobookplayer.files"
+    public enum SmartRewind: TimeInterval {
+        case threshold = 599.0 // 599 = 10 mins
+        case maxTime = 30.0
+    }
 
-    enum DefaultArtworkColors {
+    public enum Volume: Float {
+        case normal = 1.0
+        case boosted = 2.0
+    }
+
+    public static let UserActivityPlayback = Bundle.main.bundleIdentifier! + ".activity.playback"
+    public static let ApplicationGroupIdentifier = "group.com.tortugapower.audiobookplayer.files"
+
+    public enum DefaultArtworkColors {
         case background
         case primary
         case secondary

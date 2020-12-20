@@ -15,7 +15,7 @@ typealias SleepTimerStart = () -> Void
 typealias SleepTimerProgress = (Double) -> Void
 typealias SleepTimerEnd = (_ cancelled: Bool) -> Void
 
-final class SleepTimer {
+final class SleepTimer: TelemetryProtocol {
     static let shared = SleepTimer()
 
     let durationFormatter: DateComponentsFormatter = DateComponentsFormatter()
@@ -83,12 +83,13 @@ final class SleepTimer {
     @objc private func end() {
         self.reset()
 
-        PlayerManager.shared.pause()
+        PlayerManager.shared.pause(fade: true)
 
         NotificationCenter.default.post(name: .timerEnd, object: nil)
     }
 
     private func startEndOfChapterOption() {
+        self.sendSignal(.sleepTimerAction, with: ["seconds": "EOC"])
         self.cancel()
         self.alert?.message = "sleep_alert_description".localized
         self.timeLeft = -2.0
@@ -187,6 +188,7 @@ final class SleepTimer {
     }
 
     public func sleep(in seconds: Double) {
+        self.sendSignal(.sleepTimerAction, with: ["seconds": "\(seconds)"])
         let option = TimeParser.getTimerOption(from: seconds)
         self.donateTimerIntent(with: option)
 

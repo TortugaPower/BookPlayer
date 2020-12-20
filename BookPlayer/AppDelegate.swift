@@ -14,11 +14,12 @@ import Intents
 import MediaPlayer
 import Sentry
 import SwiftyStoreKit
+import TelemetryClient
 import UIKit
 import WatchConnectivity
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
     var window: UIWindow?
     var wasPlayingBeforeInterruption: Bool = false
     var watcher: DirectoryWatcher?
@@ -66,6 +67,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.setupStoreListener()
         // register for CarPlay
         self.setupCarPlay()
+        // initialize Telemetry
+        self.setupTelemetry()
 
         if let activityDictionary = launchOptions?[.userActivityDictionary] as? [UIApplication.LaunchOptionsKey: Any],
             let activityType = activityDictionary[.userActivityType] as? String,
@@ -73,9 +76,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             self.playLastBook()
         }
 
-        // Create a Sentry client and start crash handler
-        Client.shared = try? Client(dsn: "https://23b4d02f7b044c10adb55a0cc8de3881@sentry.io/1414296")
-        (try? Client.shared?.startCrashHandler()) as ()??
+        // Create a Sentry client
+        SentrySDK.start { options in
+            options.dsn = "https://23b4d02f7b044c10adb55a0cc8de3881@sentry.io/1414296"
+            options.debug = true
+        }
 
         WatchConnectivityService.sharedManager.startSession()
 
@@ -85,6 +90,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func setupCarPlay() {
         MPPlayableContentManager.shared().dataSource = CarPlayManager.shared
         MPPlayableContentManager.shared().delegate = CarPlayManager.shared
+    }
+
+    func setupTelemetry() {
+        let configuration = TelemetryManagerConfiguration(appID: "BD342A23-826F-4490-BC0F-7CD24A5CE7F8")
+        TelemetryManager.initialize(with: configuration)
     }
 
     func getLibraryVC() -> LibraryViewController? {
@@ -199,7 +209,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         PlayerManager.shared.playPause()
-
+        self.sendSignal(.magicTapAction, with: nil)
         return true
     }
 
@@ -311,6 +321,7 @@ extension AppDelegate {
         } else {
             UserDefaults.standard.set(true, forKey: Constants.UserActivityPlayback)
         }
+        self.sendSignal(.lastPlayedShortcut, with: nil)
     }
 
     func showPlayer() {

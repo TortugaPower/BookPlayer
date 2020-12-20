@@ -23,6 +23,19 @@ public class ImportOperation: Operation {
         self.files = files
     }
 
+    func getInfo() -> [String: String] {
+        var dictionary = [String: Int]()
+        for file in self.files {
+            dictionary[file.originalUrl.pathExtension] = (dictionary[file.originalUrl.pathExtension] ?? 0) + 1
+        }
+        var finalInfo = [String: String]()
+        for (key, value) in dictionary {
+            finalInfo[key] = "\(value)"
+        }
+
+        return finalInfo
+    }
+
     func handleZip(file: FileItem) {
         guard file.originalUrl.pathExtension == "zip" else { return }
 

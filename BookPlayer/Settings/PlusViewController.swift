@@ -28,7 +28,7 @@ struct Contributor: Decodable {
     }
 }
 
-class PlusViewController: UIViewController {
+class PlusViewController: UIViewController, TelemetryProtocol {
     @IBOutlet weak var scrollContentHeightConstraint: NSLayoutConstraint!
 
     @IBOutlet weak var kindTipButton: UIButton!
@@ -118,6 +118,7 @@ class PlusViewController: UIViewController {
         self.setupContributors()
 
         setUpTheming()
+        self.sendSignal(.tipJarScreen, with: nil)
     }
 
     func setupTipJarLayout() {
@@ -253,6 +254,7 @@ class PlusViewController: UIViewController {
     }
 
     func requestProduct(_ id: String, sender: UIButton) {
+        self.sendSignal(.tipAction, with: ["productId": id])
         self.showSpinner(true, sender: sender)
 
         SwiftyStoreKit.purchaseProduct(id, quantity: 1, atomically: true) { result in

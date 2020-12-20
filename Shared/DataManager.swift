@@ -162,8 +162,8 @@ public class DataManager {
         let dateTo = calendar.date(byAdding: .day, value: 1, to: dateFrom)!
 
         // Set predicate as date being today's date
-        let fromPredicate = NSPredicate(format: "%@ >= %@", today as NSDate, dateFrom as NSDate)
-        let toPredicate = NSPredicate(format: "%@ < %@", today as NSDate, dateTo as NSDate)
+        let fromPredicate = NSPredicate(format: "date >= %@", dateFrom as NSDate)
+        let toPredicate = NSPredicate(format: "date < %@", dateTo as NSDate)
         let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate])
 
         let context = self.persistentContainer.viewContext
@@ -173,6 +173,18 @@ public class DataManager {
         let record = try? context.fetch(fetch).first
 
         return record ?? PlaybackRecord.create(in: context)
+    }
+
+    public class func getPlaybackRecords(from startDate: Date, to endDate: Date) -> [PlaybackRecord]? {
+        let fromPredicate = NSPredicate(format: "date >= %@", startDate as NSDate)
+        let toPredicate = NSPredicate(format: "date < %@", endDate as NSDate)
+        let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate])
+
+        let fetch: NSFetchRequest<PlaybackRecord> = PlaybackRecord.fetchRequest()
+        fetch.predicate = datePredicate
+        let context = self.persistentContainer.viewContext
+
+        return try? context.fetch(fetch)
     }
 
     public class func recordTime(_ playbackRecord: PlaybackRecord) {

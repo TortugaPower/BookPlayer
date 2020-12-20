@@ -10,7 +10,7 @@ import BookPlayerKit
 import Themeable
 import UIKit
 
-class ThemesViewController: UIViewController {
+class ThemesViewController: UIViewController, TelemetryProtocol {
     @IBOutlet var brightnessViews: [UIView]!
     @IBOutlet weak var brightnessContainerHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var brightnessDescriptionLabel: UILabel!
@@ -88,6 +88,8 @@ class ThemesViewController: UIViewController {
         self.brightnessChanged()
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.brightnessChanged), name: UIScreen.brightnessDidChangeNotification, object: nil)
+
+        self.sendSignal(.themesScreen, with: nil)
     }
 
     override func viewDidLayoutSubviews() {
@@ -170,7 +172,7 @@ class ThemesViewController: UIViewController {
         }
 
         UserDefaults.standard.set(sender.isOn, forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue)
-
+        self.sendSignal(.themeSystemModeAction, with: ["isOn": "\(sender.isOn)"])
         self.brightnessSwitch.isEnabled = !sender.isOn
         self.darkModeSwitch.isEnabled = !sender.isOn
 
@@ -192,10 +194,12 @@ class ThemesViewController: UIViewController {
     @IBAction func toggleDarkMode(_ sender: UISwitch) {
         UserDefaults.standard.set(sender.isOn, forKey: Constants.UserDefaults.themeDarkVariantEnabled.rawValue)
         ThemeManager.shared.useDarkVariant = sender.isOn
+        self.sendSignal(.alwaysDarkThemeAction, with: ["isOn": "\(sender.isOn)"])
     }
 
     @IBAction func toggleAutomaticBrightness(_ sender: UISwitch) {
         UserDefaults.standard.set(sender.isOn, forKey: Constants.UserDefaults.themeBrightnessEnabled.rawValue)
+        self.sendSignal(.automaticThemeAction, with: ["isOn": "\(sender.isOn)"])
         self.toggleAutomaticBrightness(animated: true)
         self.sliderUp(self.brightnessSlider)
 
@@ -315,6 +319,7 @@ extension ThemesViewController: UITableViewDelegate {
             : self.extractedThemes[indexPath.row]
 
         ThemeManager.shared.currentTheme = item
+        self.sendSignal(.themeAction, with: ["theme": item.title ?? ""])
     }
 }
 

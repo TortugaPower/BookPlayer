@@ -10,15 +10,18 @@ import AVFoundation
 import BookPlayerKit
 import Foundation
 import MediaPlayer
+import WidgetKit
 
 // swiftlint:disable file_length
 
-class PlayerManager: NSObject {
+class PlayerManager: NSObject, TelemetryProtocol {
     static let shared = PlayerManager()
 
     static let speedOptions: [Float] = [3, 2.5, 2, 1.75, 1.5, 1.25, 1.15, 1.1, 1, 0.9, 0.75, 0.5]
 
     private var audioPlayer = AVPlayer()
+
+    private var fadeTimer: Timer?
 
     private var playerItem: AVPlayerItem?
 
@@ -180,6 +183,7 @@ class PlayerManager: NSObject {
             book.updateCurrentChapter()
             self.setNowPlayingBookTitle()
             NotificationCenter.default.post(name: .chapterChange, object: nil, userInfo: nil)
+            DataManager.saveContext()
         }
 
         let userInfo = [
@@ -340,10 +344,12 @@ extension PlayerManager {
 
     func forward() {
         self.jumpBy(self.forwardInterval)
+        self.sendSignal(.forwardAction, with: ["interval": "\(self.forwardInterval)"])
     }
 
     func rewind() {
         self.jumpBy(-self.rewindInterval)
+        self.sendSignal(.rewindAction, with: ["interval": "\(self.rewindInterval)"])
     }
 }
 
@@ -375,9 +381,7 @@ extension PlayerManager {
 
         let completed = Int(currentBook.duration) == Int(CMTimeGetSeconds(self.audioPlayer.currentTime()))
 
-        if autoplayed, completed {
-            return
-        }
+        if autoplayed, completed { return }
 
         // If book is completed, reset to start
         if completed {
@@ -404,6 +408,8 @@ extension PlayerManager {
             self.audioPlayer.seek(to: CMTime(seconds: newPlayerTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
         }
 
+        self.fadeTimer?.invalidate()
+        self.audioPlayer.volume = 1
         // Set play state on player and control center
         self.audioPlayer.playImmediately(atRate: self.speed)
 
@@ -416,9 +422,13 @@ extension PlayerManager {
             CarPlayManager.shared.setNowPlayingInfo(with: currentBook)
             NotificationCenter.default.post(name: .bookPlayed, object: nil)
             WatchConnectivityService.sharedManager.sendMessage(message: ["notification": "bookPlayed" as AnyObject])
+            if #available(iOS 14.0, *) {
+                WidgetCenter.shared.reloadAllTimelines()
+            }
         }
 
         self.update()
+        self.sendSignal(.playAction, with: nil)
     }
 
     // swiftlint:disable block_based_kvo
@@ -439,7 +449,7 @@ extension PlayerManager {
         self.play()
     }
 
-    func pause() {
+    func pause(fade: Bool = false) {
         guard let currentBook = self.currentBook else {
             return
         }
@@ -455,16 +465,25 @@ extension PlayerManager {
 
         self.update()
 
-        // Set pause state on player and control center
-        self.audioPlayer.pause()
+        let pauseActionBlock: () -> Void = {
+            // Set pause state on player and control center
+            self.audioPlayer.pause()
+            self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0.0
+            self.setNowPlayingBookTime()
+            MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
 
-        self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0.0
-        self.setNowPlayingBookTime()
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
+            UserDefaults.standard.set(Date(), forKey: "\(Constants.UserDefaults.lastPauseTime)_\(currentBook.identifier!)")
 
-        UserDefaults.standard.set(Date(), forKey: "\(Constants.UserDefaults.lastPauseTime)_\(currentBook.identifier!)")
+            try? AVAudioSession.sharedInstance().setActive(false)
+            self.sendSignal(.pauseAction, with: nil)
+        }
 
-        try? AVAudioSession.sharedInstance().setActive(false)
+        guard fade else {
+            pauseActionBlock()
+            return
+        }
+
+        self.fadeTimer = self.audioPlayer.fadeVolume(from: 1, to: 0, duration: 5, completion: pauseActionBlock)
     }
 
     // Toggle play/pause of book

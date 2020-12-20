@@ -19,7 +19,7 @@ public class Playlist: LibraryItem {
         guard let books = self.books?.array as? [Book], let book = books.first(where: { (book) -> Bool in
             !book.usesDefaultArtwork
         }) else {
-            return #imageLiteral(resourceName: "defaultPlaylist")
+            return UIImage(named: "defaultArtwork")!
         }
 
         return book.artwork

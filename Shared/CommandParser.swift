@@ -98,6 +98,16 @@ public class CommandParser {
 
         return actionString
     }
+
+    public class func createWidgetActionString(with bookIdentifier: String?, autoplay: Bool, timerSeconds: Double) -> String {
+        var actionString = "bookplayer://widget?autoplay=\(autoplay)&seconds=\(timerSeconds)"
+
+        if let identifier = bookIdentifier {
+            actionString += "&identifier=\(identifier)"
+        }
+
+        return actionString
+    }
 }
 
 public enum Command: String {
@@ -107,11 +117,22 @@ public enum Command: String {
     case skipRewind
     case skipForward
     case sleep
+    case widget
 }
 
 public struct Action {
     public var command: Command
     public var parameters: [URLQueryItem]
+
+    public func getParametersDictionary() -> [String: String] {
+        var payload = ["command": self.command.rawValue]
+
+        for item in self.parameters {
+            payload[item.name] = item.value ?? ""
+        }
+
+        return payload
+    }
 
     public init(command: Command, parameters: [URLQueryItem]? = []) {
         self.command = command

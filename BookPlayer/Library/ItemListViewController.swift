@@ -14,7 +14,7 @@ import UIKit
 
 // swiftlint:disable file_length
 
-class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemListActions {
+class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemListActions, TelemetryProtocol {
     @IBOutlet weak var emptyStatePlaceholder: UIView!
     @IBOutlet weak var loadingView: LoadingView!
     @IBOutlet weak var loadingHeightConstraintView: NSLayoutConstraint!
