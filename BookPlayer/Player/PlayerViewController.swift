@@ -55,7 +55,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate, Telem
         if let navigationController = segue.destination as? UINavigationController,
             let viewController = navigationController.viewControllers.first as? ChaptersViewController,
             let currentChapter = self.currentBook.currentChapter {
-            viewController.chapters = self.currentBook.chapters?.array as? [Chapter]
+            viewController.chapters = self.currentBook.chapters?.array as? [Chapter] ?? []
             viewController.currentChapter = currentChapter
             viewController.didSelectChapter = { selectedChapter in
                 // Don't set the chapter, set the new time which will set the chapter in didSet

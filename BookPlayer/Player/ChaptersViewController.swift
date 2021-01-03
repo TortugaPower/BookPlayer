@@ -12,7 +12,7 @@ import Themeable
 import UIKit
 
 class ChaptersViewController: UITableViewController, TelemetryProtocol {
-    var chapters: [Chapter]!
+    var chapters = [Chapter]()
 
     var currentChapter: Chapter!
     var didSelectChapter: ((_ selectedChapter: Chapter) -> Void)?
