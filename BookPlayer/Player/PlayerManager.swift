@@ -25,14 +25,17 @@ class PlayerManager: NSObject, TelemetryProtocol {
 
     private var playerItem: AVPlayerItem?
 
+    private var hasObserverRegistered = false
     private var observeStatus: Bool = false {
         didSet {
             guard oldValue != self.observeStatus else { return }
 
             if self.observeStatus {
                 self.playerItem?.addObserver(self, forKeyPath: "status", options: .new, context: nil)
-            } else {
+                self.hasObserverRegistered = true
+            } else if self.hasObserverRegistered {
                 self.playerItem?.removeObserver(self, forKeyPath: "status")
+                self.hasObserverRegistered = false
             }
         }
     }
@@ -43,6 +46,12 @@ class PlayerManager: NSObject, TelemetryProtocol {
                 let fileURL = book.fileURL else { return }
 
             let bookAsset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
+
+            // Clean just in case
+            if self.hasObserverRegistered {
+                self.playerItem?.removeObserver(self, forKeyPath: "status")
+                self.hasObserverRegistered = false
+            }
             self.playerItem = AVPlayerItem(asset: bookAsset)
             self.playerItem?.audioTimePitchAlgorithm = .timeDomain
         }
