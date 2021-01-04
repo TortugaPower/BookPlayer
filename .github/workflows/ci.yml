@@ -1,0 +1,33 @@
+name: CI
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+jobs:
+  macos_big_sur:
+    runs-on: macos-11.0
+
+    strategy:
+      matrix:
+        xcode:
+          - "12.2" # Swift 5.3
+
+    name: "macOS Big Sur (Xcode ${{ matrix.xcode }})"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - uses: actions/cache@v2
+        with:
+          path: .build
+          key: ${{ runner.os }}-spm-xcode-${{ matrix.xcode }}-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-xcode-${{ matrix.xcode }}-
+      - name: Build and Test
+        run: |
+          swift test
+        env:
+          DEVELOPER_DIR: /Applications/Xcode_${{ matrix.xcode }}.app/Contents/Developer
