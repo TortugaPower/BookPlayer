@@ -35,7 +35,7 @@
         <key>few</key>
         <string>Doriti sa stergeti %d fisiere?</string>
         <key>other</key>
-        <string></string>
+        <string>Doriti sa stergeti %d fisiere?</string>
       </dict>
     </dict>
     <key>import_alert_title</key>

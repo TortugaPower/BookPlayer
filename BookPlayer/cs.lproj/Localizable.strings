@@ -15,7 +15,7 @@
 "settings_autoplay_title" = "Knihovna automatického přehrávání";
 "settings_autoplay_description" = "Pokračování přehrávání všech nedokončených položek v knihovně, včetně souborů v seznamech stop.";
 "settings_smartrewind_title" = "Chytré přetáčení";
-"settings_smartrewind_description" = "Po přerušení poslechu na 10 minud dojde k přetočení zpět o 30 sekund.";
+"settings_smartrewind_description" = "Po přerušení poslechu na 10 minut dojde k přetočení zpět o 30 sekund.";
 "settings_boostvolume_title" = "Zvýšení hlasitosti";
 "settings_boostvolume_description" = "Zdvojnásobí hlasitost přehrávání.\nPoužívejte opatrně a chraňete svůj sluch.";
 "settings_globalspeed_title" = "Nastavení rychlosti přehrávání";

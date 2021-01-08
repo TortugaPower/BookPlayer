@@ -72,6 +72,7 @@ See [our Roadmap on GitHub](https://github.com/GianniCarlo/Audiobook-Player/proj
 - Ukranian (Oleh)
 - Slovak (Peter Skladaný)
 - Portuguese (Vitor Jacinto)
+- Polish (Konrad Kwapisz)
 
 Help us to [translate BookPlayer](#localisation).
 
