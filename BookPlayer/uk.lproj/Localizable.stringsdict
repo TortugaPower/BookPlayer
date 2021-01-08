@@ -59,7 +59,7 @@
         <key>many</key>
         <string>файлів</string>
         <key>other</key>
-        <string>файлів</string>
+        <string>хочете видалити %d файли?</string>
       </dict>
     </dict>
     <key>import_processing_description</key>

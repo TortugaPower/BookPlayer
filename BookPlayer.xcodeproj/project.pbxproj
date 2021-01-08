@@ -616,6 +616,9 @@
 		41E562FF223953EB00C06BC9 /* default-icon-ipad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "default-icon-ipad@2x.png"; sourceTree = "<group>"; };
 		41E56301223956B800C06BC9 /* retro-icon-ipad@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "retro-icon-ipad@3x.png"; sourceTree = "<group>"; };
 		41E563032239570100C06BC9 /* retro-icon-ipad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "retro-icon-ipad@2x.png"; sourceTree = "<group>"; };
+		41E69F4A25A7CC1100C26920 /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = pl; path = pl.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		41E69F4B25A7CC1100C26920 /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/Localizable.strings; sourceTree = "<group>"; };
+		41E69F4C25A7CC1100C26920 /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/Localizable.strings; sourceTree = "<group>"; };
 		41E73EFA241D2EFC00D2C1D7 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = da; path = da.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		41E73EFB241D2EFC00D2C1D7 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Localizable.strings; sourceTree = "<group>"; };
 		41E73EFC241D2EFC00D2C1D7 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -1615,6 +1618,7 @@
 				uk,
 				"sk-SK",
 				"pt-BR",
+				pl,
 			);
 			mainGroup = 418B6CEF1D2707F700F974FB;
 			packageReferences = (
@@ -2106,6 +2110,7 @@
 				4172CB6C2495C09300AD4A55 /* uk */,
 				41A7DE7824BC136100396FD3 /* sk-SK */,
 				416A298A256875B300605395 /* pt-BR */,
+				41E69F4A25A7CC1100C26920 /* pl */,
 			);
 			name = Localizable.stringsdict;
 			sourceTree = "<group>";
@@ -2177,6 +2182,7 @@
 				4172CB6D2495C09300AD4A55 /* uk */,
 				41A7DE7924BC136200396FD3 /* sk-SK */,
 				416A298B256875B300605395 /* pt-BR */,
+				41E69F4B25A7CC1100C26920 /* pl */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -2200,6 +2206,7 @@
 				4172CB6E2495C09300AD4A55 /* uk */,
 				41A7DE7A24BC136200396FD3 /* sk-SK */,
 				416A298C256875B300605395 /* pt-BR */,
+				41E69F4C25A7CC1100C26920 /* pl */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";

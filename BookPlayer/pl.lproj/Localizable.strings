@@ -1,0 +1,232 @@
+/* 
+  Localizable.strings
+  BookPlayer
+
+  Created by Gianni Carlo on 12/29/19.
+  Copyright © 2019 Tortuga Power. All rights reserved.
+*/
+
+/* Title that is shown as the navigation bar title */
+"library_title" = "Biblioteka";
+/* Title for the settings button */
+"settings_button" = "Ustawienia";
+/* Title that is shown as the navigation bar title */
+"settings_title" = "Ustawienia";
+"settings_autoplay_title" = "Biblioteka AutoPlay";
+"settings_autoplay_description" = "Kontynuuj odtwarzanie z wszystkimi nieukończonymi elementami w Bibliotece, w tym z plikami na listach odtwarzania.";
+"settings_smartrewind_title" = "Inteligentne przewijanie wstecz";
+"settings_smartrewind_description" = "Cofnij o 30 sekund po 10 minutowej pauzie.";
+"settings_boostvolume_title" = "Zwiększ głośność";
+"settings_boostvolume_description" = "Podwójna głośność. Używaj ostrożnie i dbaj o swój słuch.";
+"settings_globalspeed_title" = "Globalna kontrola prędkości";
+"settings_globalspeed_description" = "Ustaw prędkość dla wszystkich książek.";
+"settings_autolock_title" = "Wyłącz Autolock";
+"settings_autolock_description" = "Zapobiegaj blokowaniu urządzenia na ekranie odtwarzacza.";
+"settings_siri_lastplayed_title" = "Ostatnio odtwarzana książka";
+"settings_siri_lastplayed_description" = "Użyj Siri, aby kontynuować ostatnio odtwarzaną książkę.";
+"settings_skip_title" = "ODSTĘPY POMIJANIA";
+"settings_skip_rewind_title" = "Cofnij";
+"settings_skip_forward_title" = "Do przodu";
+"settings_skip_description" = "Dostosuj ilość pomijaną podczas używania przycisków w odtwarzaczu lub centrum sterowania.";
+"settings_support_title" = "WSPARCIE";
+"settings_siri_title" = "SKRÓT SIRI";
+"settings_support_project_title" = "Zobacz projekt na Githubie";
+"settings_support_project_description" = "Otwórz nowe zgłoszenia dotyczące żądań funkcji i błędów";
+"settings_support_email_title" = "Napisz do nas";
+/* Should this be understood as the user wants to 'give credit' or is this like regulatives?
+Carl&nbsp;regarding the key settings_credits_title it's basically a section that gives credits to the third-party libraries that we are using in the app */
+"settings_credits_title" = "Napisy końcowe i pozwolenia";
+"settings_support_compose_title" = "Nie można utworzyć wiadomości e-mail";
+"settings_support_compose_description" = "Aby z tego korzystać, musisz skonfigurować konto e-mail w ustawieniach urządzenia. \n \n Napisz do nas na adres";
+"settings_support_compose_copy" = "Skopiuj informacje do schowka";
+"library_add_button" = "Dodaj";
+"export_button" = "Udostępnij";
+"delete_button" = "Usuń";
+"rename_button" = "Zmień nazwę";
+"delete_single_item_title" = "Czy chcesz usunąć „ %@ ”?";
+"delete_single_playlist_description" = "Usunięcie tylko listy odtwarzania spowoduje przeniesienie wszystkich jej plików z powrotem do Biblioteki.";
+"delete_shallow_button" = "Usuń tylko playlistę";
+"delete_deep_button" = "Usuń playlistę i pliki";
+"create_playlist_button" = "Stwórz playlistę";
+"create_button" = "Utwórz";
+"import_button" = "Importuj pliki";
+"import_description" = "Możesz również dodawać pliki poprzez AirDrop. Wyślij plik audiobooka do urządzenia i wybierz BookPlayer z wyświetlonej listy.";
+"create_playlist_title" = "Stwórz nową Playlistę";
+"create_playlist_description" = "Pliki w listach odtwarzania są automatycznie odtwarzane jeden po drugim";
+"delete_multiple_items_description" = "Spowoduje to również usunięcie wszystkich plików wewnątrz wybranych list odtwarzania.";
+"new_playlist_button" = "Nowa Playlista";
+"existing_playlist_button" = "Istniejąca Playlista";
+"choose_destination_title" = "Wybierz miejsce docelowe";
+"delete_completely_button" = "Usuń całkowicie";
+"move_library_button" = "Przenieś do biblioteki";
+"options_button" = "Opcje";
+"select_playlist_title" = "Wybierz Playlistę";
+"sort_title_button" = "Tytuł";
+"sort_filename_button" = "Oryginalna nazwa pliku";
+"sort_title" = "Sortuj elementy według";
+"cancel_button" = "Anuluj";
+"seconds_title" = "sek";
+"ok_button" = "OK";
+/* Message shown when trying to create a Siri Shortcut on devices that don't have iOS 12+ installed */
+"siri_alert_description" = "Skróty Siri są dostępne na iOS 12 i nowszych";
+/* Title used in the context of our tip jar to support development */
+"support_bookplayer_title" = "Wsparcie BookPlayer'a";
+/* Description used in the context of our tip jar to support development */
+"support_bookplayer_description" = "Pobierz BookPlayer Plus, aby wesprzeć przyszły rozwój i uzyskać dodatkowe motywy i ikony aplikacji";
+"learn_more_title" = "Dowiedz się więcej";
+"settings_appearance_title" = "Wygląd";
+"settings_theme_title" = "Motyw";
+"settings_app_icon_title" = "Ikona aplikacji";
+"settings_playback_title" = "Ustawienia odtwarzania";
+"settings_controls_title" = "Elementy sterujące odtwarzacza";
+"settings_power_connected_title" = "Tylko po podłączeniu do zasilania";
+"settings_tip_jar_title" = "Słoik na napiwki";
+/* What does 'System Mode' entail? Is it regarding iOS Dark Mode?
+<span class="reply-in-chat"><span data-uid="carlhoumoller&amp;&#x23;x40&#x3B;hotmail.com" contenteditable="false" class="chat-reply-to"
+								  data-replykey="36833450">Carl</span></span>
+&nbsp;regarding the key theme_system_title, yes, it refers to using the preference set at the operating system level (from the control center/brightness) */
+"theme_system_title" = "Użyj trybu systemowego";
+"theme_switch_title" = "Przełącz automatycznie";
+"theme_dark_title" = "Zawsze używaj ciemnego motywu";
+"themes_title" = "Motywy";
+/* This should be &ldquo;By your friends at BookPlayer&rdquo; in English.&nbsp; */
+"icons_bookplayer_credit_description" = "Utworzony przez twoich przyjaciół z BookPlayer";
+"kind_tip_title" = "Miły napiwek";
+"excellent_tip_title" = "Wspaniały napiwek";
+"incredible_tip_title" = "Niesamowity napiwek";
+"plus_themes_description" = "Starannie dobrane motywy kolorystyczne pasujące do Twoich ulubionych książek";
+"plus_icons_description" = "BookPlayer Plus zawiera kilka ikon aplikacji, pasujących do schematów kolorów i tapety";
+"support_us_title" = "Wesprzyj nas";
+"bookplayer_opensource_description" = "BookPlayer jest darmowy i zgodny z Open Source i taki pozostanie na zawsze. Z Twoją pomocą jesteśmy w stanie wdrożyć więcej funkcji i ulepszyć BookPlayer";
+"thanks_title" = "Dzięki za wsparcie!";
+"extra_tips_description" = "Jeśli naprawdę podoba ci się BookPlayer, możesz przekazać nam dodatkowe środki, aby dalej wspierać rozwój aplikacji. Pomoże to nam pracować przy włączonych światłach i wprowadzać nowe funkcje.";
+/* I think what you really want here is a translation for &quot;%d files&quot; like &quot;2 files&quot; &quot;3 files&quot;. In that case it would be &quot;ファイル%dこ&quot; */
+"files_title" = "Pliki";
+"select_all_title" = "Wybierz wszystkie";
+"deselect_all_title" = "Odznacz wszystkie";
+"move_title" = "Przenieś";
+"jump_start_title" = "Przejdź do początku";
+"mark_finished_title" = "Oznacz jako ukończone";
+"sort_files_title" = "Sortuj pliki według";
+"rename_title" = "Zmień nazwę elementu";
+"file_error_title" = "Błąd pliku!";
+"file_error_description" = "Plik tej książki nie mógł być załadowany. Upewnij się, że nie używasz plików z ochroną DRM (jak pliki .aax).";
+"file_missing_title" = "Brak pliku!";
+"file_missing_description" = "Plik tej książki został usunięty z twojego urządzenia. Zaimportuj plik ponownie, aby odtworzyć książkę";
+"empty_playlist_description" = "Możesz również przenieść pliki tutaj, przeciągając je na tę playlistę w Bibliotece";
+"playlist_add_title" = "Dodaj pliki";
+"player_speed_title" = "Ustaw prędkość odtwarzania";
+"player_sleep_title" = "Wstrzymaj odtwarzanie";
+"sleep_chapter_option_title" = "Koniec bieżącego rozdziału";
+/* This is used for the label underneath the progress bar (e.g. Chapter 1 of 35) */
+"player_chapter_description" = "Rozdział %d z %d";
+"chapters_title" = "Rozdziały";
+/* This is used as a description for each chapter in the chapters list (e.g. Start: 10:11 - Duration: 16:56) */
+"chapters_item_description" = "Start: %@ - Czas trwania: %@";
+/* Restore purchases */
+"restore_title" = "Przywróć";
+"themes_caps_title" = "Motywy";
+"plus_app_icons_title" = "Ikony aplikacji";
+/* This is the counterpart to Mark as Finished
+A note - in Bulgarian this implies that an audiobook is being marked, which is a feminine word, thus using &ldquo;завършена&rdquo;. This means it might not read correctly for say a Podcast, which is a masculine word in Bulgarian, where the correct form of the word to use would be &ldquo;завършен&rdquo;. */
+"mark_unfinished_title" = "Oznacz jako niedokończone";
+"move_playlist_button" = "Przenieś do playlisty";
+"move_single_item_title" = "Czy chcesz przenieść „ %@ ” do „ %@ ”?";
+/* This is shown if while being inside a playlist, a batch of imported files are finished processing, and it will be one of the options in the alert presented */
+"current_playlist_title" = "Bieżąca Playlista";
+"select_item_title" = "Wybierz element";
+"sleep_alert_description" = "Spanie po zakończeniu rozdziału";
+"sleep_time_description" = "Spanie w %@";
+"sleep_off_title" = "Wył.";
+"sleep_interval_title" = "W %@";
+"chapter_number_title" = "Rozdział %d";
+"progress_complete_description" = "Ukończono %d procent";
+"chapter_duration_title" = "Czas trwania rozdziału: ";
+"chapter_time_remaining_title" = "Pozostały czas rozdziału: ";
+"book_time_remaining_title" = "Pozostały czas książki: ";
+"book_duration_title" = "Czas trwania książki: ";
+/* Может правильнее будет: &quot;Не удалось сменить иконку&quot;? */
+"icon_error_description" = "Zmiana ikony aplikacji nie powiodła się. Spróbuj ponownie później";
+"error_title" = "Błąd";
+"generic_retry_description" = "Proszę spróbować ponownie później";
+"network_error_title" = "Błąd sieci";
+"purchases_restored_title" = "Zakupy przywrócone!";
+"tip_missing_title" = "Nie dałeś nam jeszcze napiwku";
+/* will need 2 versions (for female and male)
+<span class="reply-in-chat"><span data-uid="sandu.hamuraru&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
+								  data-replykey="36841099">Alexandru</span></span>
+&nbsp;there's no way to put it without gender? using the second-person form involves specifying gender in Romanian?
+<span class="reply-in-chat"><span data-uid="sandu.hamuraru&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
+								  data-replykey="36841099">Alexandru</span></span>
+&nbsp;we have no current way of determining the gender of the user using the app right now 👀. Or maybe I didn't fully understand what you meant? */
+"thanks_amazing_title" = "Jesteś niesamowity!";
+"play_title" = "Odtwórz";
+"pause_title" = "Pauza";
+"voiceover_no_title" = "Brak tytułu";
+"voiceover_no_author" = "Brak autora";
+/* &lt;Book title&gt; by &lt;Book author&gt; &lt;percentage in numbers&gt;% Completed */
+"voiceover_book_progress" = "%@ - %@ , ukończono %d procent";
+"voiceover_no_file_title" = "Brak tytułu pliku";
+/* Not sure where this title appears ? :)
+<span class="reply-in-chat"><span data-uid="christophe.vergne&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
+								  data-replykey="36841194">christophe</span></span>
+&nbsp;this key in particular is when you're inside a playlist, the subtitle (that usually is the author) has no info for our VoiceOver service
+<span class="reply-in-chat"><span data-uid="christophe.vergne&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
+								  data-replykey="36841194">christophe</span></span>
+&nbsp;let me know if that clears things up?
+<span class="reply-in-chat"><span data-uid="gcarlo89&amp;&#x23;x40&#x3B;hotmail.com" contenteditable="false" class="chat-reply-to"
+								  data-replykey="36841194">Gianni Carlo</span></span>
+ Alright, my translation was correct so, thanks :) */
+"voiceover_no_file_subtitle" = "Brak podtytułu pliku";
+"voiceover_no_playlist_title" = "Brak tytułu playlisty";
+/* &lt;Playlist title&gt; Playlist &lt;percentage in number&gt;% Completed */
+"voiceover_playlist_progress" = "%@ Playlista, ukończono %d procent";
+"voiceover_unknown_title" = "Nieznany tytuł";
+"voiceover_unknown_author" = "Nieznany autor";
+/* &lt;book title&gt; by &lt;book author&gt; */
+"voiceover_book_info" = "%@ - %@";
+/* &lt;book title&gt; by &lt;book author&gt;, chapter &lt;chapter title&gt; */
+"voiceover_book_chapter" = "%@ - %@ , rozdział %@";
+"voiceover_rewind_time" = "Przewiń wstecz % @";
+"voiceover_forward_time" = "Przewiń do przodu % @";
+"watchapp_last_played_title" = "Ostatnio odtwarzane";
+/* Is this for an action already taking place or for a command to initiate said action?
+for a command to initiate the action on the Apple Watch, I beleive its when you 3d touch the list */
+"watchapp_refresh_data_title" = "Odśwież dane";
+"carplay_recent_title" = "Ostatnie";
+"carplay_library_error" = "Nie można załadować książek";
+"siri_invocation_phrase" = "Kontynuuj moją książkę";
+"siri_activity_title" = "Ostatnio odtwarzana książka";
+"watchapp_connect_error_title" = "Błąd połączenia";
+"watchapp_connect_error_description" = "Wystąpił problem z połączeniem z telefonem, spróbuj ponownie później";
+"sleep_remaining_title" = "%@ pozostałe do uśpienia";
+"audio_source_title" = "Źródło dźwięku";
+/* Context, please?
+Is it meant to be in lowercase?
+This is one is actually used for VoiceOver, in conjunction to the selected speed, for example: 1x speed
+In Bulgarian &ldquo;Скорост: %s&rdquo; would be preferred, but as-is works as well. */
+"speed_title" = "prędkość";
+"import_preparing_title" = "Przygotowanie do importu plików";
+"library_add_title" = "Dodaj swoją pierwszą książkę";
+"invalid_url_title" = "Nieprawidłowy adres URL: %@";
+"downloading_file_title" = "Pobieranie pliku";
+"progress_title" = "Postęp";
+"settings_siri_sleeptimer_title" = "Wyłącznik czasowy";
+/* Can I have the context for this? Thanks
+Alessio Franceschi&nbsp;this is the label for the active sleep timer button when &quot;end of chapter&quot; was selected
+<span class="reply-in-chat"><span data-uid="fp&amp;&#x23;x40&#x3B;ylk.gd" contenteditable="false" class="chat-reply-to"
+								  data-replykey="42298563">Florian Pitcher</span></span>
+&nbsp;Thanks */
+"active_title" = "Włącz";
+/* Currently Playing <Book title> by <Book author> */
+"voiceover_currently_playing_title" = "Aktualnie odtwarzam %@ - %@";
+/* When you're on the library or playlist view, and the voice over cursor is focused on the floating mini-player at the bottom, it should read to the user the element, and the hint that if pressed, the player view will be shown */
+"voiceover_miniplayer_hint" = "Miniplayer. Dotknij, aby zobaczyć Odtwarzacz";
+"voiceover_chapter_time_title" = "Bieżący czas rozdziału: %@";
+/* When you're in the player view, and the voice over cursor is focused on the top bar (the one with the arrow-down), it will read to the user that the player view will be closed if he double taps that button */
+"voiceover_dismiss_player_title" = "Wyłącz Odtwarzacz";
+/* Sort items by most recent playback */
+"sort_most_recent_button" = "Najczęściej odtwarzane";
+/* One of the sort options, this one reverts the current order of selected items */
+"sort_reversed_button" = "Odwrotna kolejność";
+"voiceover_continue_playback_title" = "Kontynuuj odtwarzanie";
