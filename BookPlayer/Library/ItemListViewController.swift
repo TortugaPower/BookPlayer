@@ -435,11 +435,28 @@ extension ItemListViewController {
 
         let item = self.items[index]
 
-        let progress = item is Playlist
-            ? item.progress
-            : userInfo["progress"] as? Double ?? item.progress
+        let progressPercentage: Double
+        let progress: Double
+        let duration: Double
+        
+        if let playlist = item as? Playlist {
+            let itemTime = playlist.calculateProgressAndDuration()
+            progressPercentage = itemTime.progress / itemTime.duration
+            progress = itemTime.progress
+            duration = itemTime.duration
+        } else {
+            progressPercentage = userInfo["progress"] as? Double ?? item.progress
+            duration = userInfo["duration"] as? Double ?? item.duration
+            progress = userInfo["currentTime"] as? Double ?? item.currentTime
+        }
 
-        cell.progress = item.isFinished ? 1.0 : progress
+        if item.isFinished {
+            cell.progress = 1.0
+            cell.duration = ""
+        } else {
+            cell.progress = progressPercentage
+            cell.duration = self.formatTime(progress - duration)
+        }
     }
 
     @objc func adjustBottomOffsetForMiniPlayer() {
@@ -542,14 +559,33 @@ extension ItemListViewController: UITableViewDataSource {
 
             self?.setupPlayer(book: book, true)
         }
+        
+        var progressPercentage = 0.0
+        var progress = 0.0
+        var duration = 0.0
 
         if let book = item as? Book {
             cell.subtitle = book.author
+            progressPercentage = book.progress
+            progress = book.currentTime
+            duration = book.duration
         } else if let playlist = item as? Playlist {
             cell.subtitle = playlist.info()
+            let itemTime = playlist.calculateProgressAndDuration()
+            
+            progressPercentage = itemTime.progress / itemTime.duration
+            progress = itemTime.progress
+            duration = itemTime.duration
         }
 
-        cell.progress = item.isFinished ? 1.0 : item.progress
+
+        if item.isFinished {
+            cell.progress = 1.0
+            cell.duration = ""
+        } else {
+            cell.progress = progressPercentage
+            cell.duration = self.formatTime(progress - duration)
+        }
 
         return cell
     }

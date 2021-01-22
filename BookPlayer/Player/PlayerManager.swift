@@ -159,22 +159,20 @@ class PlayerManager: NSObject, TelemetryProtocol {
         let currentTime = CMTimeGetSeconds(self.audioPlayer.currentTime())
         book.currentTime = currentTime
 
-        let isPercentageDifferent = book.percentage != book.percentCompleted || (book.percentCompleted == 0 && book.progress > 0)
-
         book.percentCompleted = book.percentage
 
         DataManager.saveContext()
         UserActivityManager.shared.recordTime()
 
         // Notify
-        if isPercentageDifferent {
-            NotificationCenter.default.post(name: .updatePercentage,
-                                            object: nil,
-                                            userInfo: [
-                                                "progress": book.progress,
-                                                "fileURL": fileURL
-                                            ] as [String: Any])
-        }
+        NotificationCenter.default.post(name: .updatePercentage,
+                                        object: nil,
+                                        userInfo: [
+                                            "currentTime": book.currentTime,
+                                            "progress": book.progress,
+                                            "duration": book.duration,
+                                            "fileURL": fileURL
+                                        ] as [String: Any])
 
         self.setNowPlayingBookTime()
 

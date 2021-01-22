@@ -26,7 +26,9 @@ class BookCellView: UITableViewCell {
     @IBOutlet private weak var artworkView: BPArtworkView!
     @IBOutlet private weak var titleLabel: UILabel!
     @IBOutlet private weak var subtitleLabel: UILabel!
+    @IBOutlet weak var containerProgressView: UIView!
     @IBOutlet private weak var progressView: ItemProgress!
+    @IBOutlet weak var durationLabel: UILabel!
     @IBOutlet weak var selectionView: CheckboxSelectionView!
     @IBOutlet private weak var artworkButton: UIButton!
     @IBOutlet weak var artworkWidth: NSLayoutConstraint!
@@ -74,7 +76,22 @@ class BookCellView: UITableViewCell {
             self.progressView.value = newValue.isNaN
                 ? 0.0
                 : newValue
+            let roundedValue = self.progressView.roundedValue
+            self.containerProgressView.isHidden = roundedValue == 0
+            self.durationLabel.isHidden = roundedValue != 0
+            
             setAccessibilityLabels()
+        }
+    }
+    
+    var duration: String? {
+        get {
+            return self.durationLabel.text
+        }
+        set {
+            guard let value = newValue else { return }
+            self.durationLabel.text = value
+            self.durationLabel.isHidden = value.isEmpty
         }
     }
 
@@ -168,6 +185,7 @@ extension BookCellView: Themeable {
     func applyTheme(_ theme: Theme) {
         self.titleLabel.textColor = theme.primaryColor
         self.subtitleLabel.textColor = theme.detailColor
+        self.durationLabel.textColor = theme.detailColor
         self.backgroundColor = theme.backgroundColor
         self.setPlaybackColors(theme)
         self.selectionView.defaultColor = theme.pieBorderColor

@@ -13,6 +13,8 @@ import UIKit
 
 @objc(Playlist)
 public class Playlist: LibraryItem {
+    var cachedDuration: Double?
+    var cachedProgress: Double?
     // MARK: - Properties
 
     public override var artwork: UIImage {
@@ -26,6 +28,7 @@ public class Playlist: LibraryItem {
     }
 
     public override func jumpToStart() {
+        self.resetCachedProgress()
         guard let books = self.books?.array as? [Book] else { return }
 
         for book in books {
@@ -34,6 +37,7 @@ public class Playlist: LibraryItem {
     }
 
     public override func markAsFinished(_ flag: Bool) {
+        self.resetCachedProgress()
         guard let books = self.books?.array as? [Book] else { return }
 
         for book in books {
@@ -57,23 +61,54 @@ public class Playlist: LibraryItem {
     }
 
     // MARK: - Methods
+    
+    public func resetCachedProgress() {
+        self.cachedProgress = nil
+        self.cachedDuration = nil
+    }
 
     func totalDuration() -> Double {
         guard let books = self.books?.array as? [Book] else {
             return 0.0
         }
 
-        var totalDuration = 0.0
-
-        for book in books {
-            totalDuration += book.duration
-        }
+        let totalDuration = books.reduce(0.0, {$0 + $1.duration})
 
         guard totalDuration > 0 else {
             return 0.0
         }
 
         return totalDuration
+    }
+    
+    public func calculateProgressAndDuration() -> (progress: Double, duration: Double) {
+        if let cachedProgress = self.cachedProgress,
+           let cachedDuration = self.cachedDuration {
+            return (cachedProgress, cachedDuration)
+        }
+
+        guard let books = self.books?.array as? [Book] else {
+            return (0.0, 0.0)
+        }
+
+        var totalDuration = 0.0
+        var totalProgress = 0.0
+
+        for book in books {
+            totalDuration += book.duration
+            totalProgress += book.isFinished
+                ? book.duration
+                : book.currentTime
+        }
+        
+        self.cachedProgress = totalProgress
+        self.cachedDuration = totalDuration
+
+        guard totalDuration > 0 else {
+            return (0.0, 0.0)
+        }
+
+        return (totalProgress, totalDuration)
     }
 
     public override var progress: Double {
@@ -99,6 +134,7 @@ public class Playlist: LibraryItem {
     }
 
     public func updateCompletionState() {
+        self.resetCachedProgress()
         guard let books = self.books?.array as? [Book] else { return }
 
         self.isFinished = !books.contains(where: { !$0.isFinished })
