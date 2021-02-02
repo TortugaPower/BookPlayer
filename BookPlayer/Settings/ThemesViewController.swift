@@ -9,6 +9,7 @@
 import BookPlayerKit
 import Themeable
 import UIKit
+import WidgetKit
 
 class ThemesViewController: UIViewController, TelemetryProtocol {
     @IBOutlet var brightnessViews: [UIView]!
@@ -319,6 +320,9 @@ extension ThemesViewController: UITableViewDelegate {
             : self.extractedThemes[indexPath.row]
 
         ThemeManager.shared.currentTheme = item
+        if #available(iOS 14.0, *) {
+            WidgetCenter.shared.reloadAllTimelines()
+        }
         self.sendSignal(.themeAction, with: ["theme": item.title ?? ""])
     }
 }
