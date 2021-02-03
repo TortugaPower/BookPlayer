@@ -160,6 +160,7 @@ extension DataManager {
                   let localAppIcon = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon.rawValue),
                   sharedAppIcon != localAppIcon {
             userDefaults?.set(localAppIcon, forKey: Constants.UserDefaults.appIcon.rawValue)
+            UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.appIcon.rawValue)
         }
 
         let library = self.getLibrary()
