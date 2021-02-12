@@ -53,8 +53,8 @@ class PlusBannerView: UIView {
 extension PlusBannerView: Themeable {
     func applyTheme(_ theme: ThemeManager.Theme) {
         self.titleLabel.textColor = theme.primaryColor
-        self.detailLabel.textColor = theme.detailColor
-        self.moreButton.backgroundColor = theme.highlightColor
-        self.backgroundColor = theme.settingsBackgroundColor
+        self.detailLabel.textColor = theme.secondaryColor
+        self.moreButton.backgroundColor = theme.linkColor
+        self.backgroundColor = theme.systemGroupedBackgroundColor
     }
 }

@@ -59,7 +59,7 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         setUpTheming()
 
         let userDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
-        
+
         self.appIconLabel.text = userDefaults?.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
 
         self.iconObserver = UserDefaults.standard.observe(\.userSettingsAppIcon) { _, _ in
@@ -200,12 +200,12 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
 
     override func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
         let header = view as? UITableViewHeaderFooterView
-        header?.textLabel?.textColor = self.themeProvider.currentTheme.detailColor
+        header?.textLabel?.textColor = self.themeProvider.currentTheme.secondaryColor
     }
 
     override func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int) {
         let footer = view as? UITableViewHeaderFooterView
-        footer?.textLabel?.textColor = self.themeProvider.currentTheme.detailColor
+        footer?.textLabel?.textColor = self.themeProvider.currentTheme.secondaryColor
     }
 
     func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
@@ -304,8 +304,8 @@ extension SettingsViewController: IntentSelectionDelegate {
 extension SettingsViewController: Themeable {
     func applyTheme(_ theme: Theme) {
         self.themeLabel.text = theme.title
-        self.tableView.backgroundColor = theme.settingsBackgroundColor
-        self.tableView.separatorColor = theme.settingsBackgroundColor
+        self.tableView.backgroundColor = theme.systemGroupedBackgroundColor
+        self.tableView.separatorColor = theme.systemGroupedBackgroundColor
         self.tableView.reloadData()
     }
 }

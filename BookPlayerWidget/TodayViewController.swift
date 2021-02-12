@@ -53,13 +53,13 @@ class TodayViewController: UIViewController, NCWidgetProviding {
 
         guard let theme = library.currentTheme else { return }
 
-        let titleColor = theme.primaryColor.mix(with: theme.detailColor)
+        let titleColor = theme.primaryColor
 
-        self.view.backgroundColor = theme.backgroundColor.withAlpha(newAlpha: 0.5)
+        self.view.backgroundColor = theme.systemBackgroundColor.withAlpha(newAlpha: 0.5)
         self.authorLabel.textColor = theme.primaryColor
         self.titleLabel.textColor = titleColor
         self.chapterLabel.textColor = titleColor
-        self.playButton.tintColor = theme.highlightColor
+        self.playButton.tintColor = theme.linkColor
     }
 
     func widgetPerformUpdate(completionHandler: @escaping (NCUpdateResult) -> Void) {

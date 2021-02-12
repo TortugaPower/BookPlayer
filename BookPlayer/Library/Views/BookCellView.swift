@@ -140,8 +140,8 @@ class BookCellView: UITableViewCell {
     func setPlaybackColors(_ theme: Theme) {
         switch self.playbackState {
         case .playing, .paused:
-            self.artworkButton.backgroundColor = theme.lightHighlightColor
-            self.titleLabel.textColor = theme.highlightColor
+            self.artworkButton.backgroundColor = theme.linkColor.withAlpha(newAlpha: 0.3)
+            self.titleLabel.textColor = theme.linkColor
             self.progressView.state = .highlighted
         case .stopped:
             self.artworkButton.backgroundColor = UIColor.clear
@@ -167,10 +167,10 @@ extension BookCellView {
 extension BookCellView: Themeable {
     func applyTheme(_ theme: Theme) {
         self.titleLabel.textColor = theme.primaryColor
-        self.subtitleLabel.textColor = theme.detailColor
-        self.backgroundColor = theme.backgroundColor
+        self.subtitleLabel.textColor = theme.secondaryColor
+        self.backgroundColor = theme.systemBackgroundColor
         self.setPlaybackColors(theme)
-        self.selectionView.defaultColor = theme.pieBorderColor
-        self.selectionView.selectedColor = theme.highlightedPieFillColor
+        self.selectionView.defaultColor = theme.secondarySystemFillColor
+        self.selectionView.selectedColor = theme.systemFillColor
     }
 }

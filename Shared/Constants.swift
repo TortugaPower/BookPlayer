@@ -46,34 +46,64 @@ public enum Constants {
     public static let ApplicationGroupIdentifier = "group.com.tortugapower.audiobookplayer.files"
 
     public enum DefaultArtworkColors {
-        case background
         case primary
         case secondary
-        case highlight
+        case accent
+        case separator
+        case systemBackground
+        case secondarySystemBackground
+        case tertiarySystemBackground
+        case systemGroupedBackground
+        case systemFill
+        case secondarySystemFill
 
         var lightColor: String {
             switch self {
-            case .background:
-                return "#FAFAFA"
             case .primary:
                 return "#37454E"
             case .secondary:
                 return "#3488D1"
-            case .highlight:
+            case .accent:
                 return "#7685B3"
+            case .separator:
+                return "#DCDCDC"
+            case .systemBackground:
+                return "#FAFAFA"
+            case .secondarySystemBackground:
+                return "#FCFBFC"
+            case .tertiarySystemBackground:
+                return "#E8E7E9"
+            case .systemGroupedBackground:
+                return "#EFEEF0"
+            case .systemFill:
+                return "#87A0BA"
+            case .secondarySystemFill:
+                return "#ACAAB1"
             }
         }
 
         var darkColor: String {
             switch self {
-            case .background:
-                return "#050505"
             case .primary:
                 return "#EEEEEE"
             case .secondary:
                 return "#3488D1"
-            case .highlight:
+            case .accent:
                 return "#7685B3"
+            case .separator:
+                return "#434448"
+            case .systemBackground:
+                return "#050505"
+            case .secondarySystemBackground:
+                return "#111113"
+            case .tertiarySystemBackground:
+                return "#333538"
+            case .systemGroupedBackground:
+                return "#2C2D30"
+            case .systemFill:
+                return "#647E98"
+            case .secondarySystemFill:
+                return "#707176"
             }
         }
     }

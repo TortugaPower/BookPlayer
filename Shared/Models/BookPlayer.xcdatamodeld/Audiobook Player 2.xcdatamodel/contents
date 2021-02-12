@@ -45,13 +45,25 @@
     </entity>
     <entity name="Theme" representedClassName="Theme" elementID="ArtworkColors" syncable="YES">
         <attribute name="darkAccentHex" optional="YES" attributeType="String" elementID="darkAccentHex"/>
-        <attribute name="darkBackgroundHex" optional="YES" attributeType="String" elementID="darkBackgroundHex"/>
         <attribute name="darkPrimaryHex" optional="YES" attributeType="String" elementID="darkPrimaryHex"/>
         <attribute name="darkSecondaryHex" optional="YES" attributeType="String" elementID="darkSecondaryHex"/>
-        <attribute name="defaultAccentHex" attributeType="String" elementID="defaultAccentHex"/>
-        <attribute name="defaultBackgroundHex" attributeType="String" elementID="defaultBackgroundHex"/>
-        <attribute name="defaultPrimaryHex" attributeType="String" elementID="defaultPrimaryHex"/>
-        <attribute name="defaultSecondaryHex" attributeType="String" elementID="defaultSecondaryHex"/>
+        <attribute name="darkSecondarySystemBackgroundHex" optional="YES" attributeType="String"/>
+        <attribute name="darkSecondarySystemFillHex" optional="YES" attributeType="String"/>
+        <attribute name="darkSeparatorHex" optional="YES" attributeType="String"/>
+        <attribute name="darkSystemBackgroundHex" optional="YES" attributeType="String" elementID="darkBackgroundHex"/>
+        <attribute name="darkSystemFillHex" optional="YES" attributeType="String"/>
+        <attribute name="darkSystemGroupedBackgroundHex" optional="YES" attributeType="String"/>
+        <attribute name="darkTertiarySystemBackgroundHex" optional="YES" attributeType="String"/>
+        <attribute name="lightAccentHex" attributeType="String" elementID="defaultAccentHex"/>
+        <attribute name="lightPrimaryHex" attributeType="String" elementID="defaultPrimaryHex"/>
+        <attribute name="lightSecondaryHex" attributeType="String" elementID="defaultSecondaryHex"/>
+        <attribute name="lightSecondarySystemBackgroundHex" optional="YES" attributeType="String"/>
+        <attribute name="lightSecondarySystemFillHex" optional="YES" attributeType="String"/>
+        <attribute name="lightSeparatorHex" optional="YES" attributeType="String"/>
+        <attribute name="lightSystemBackgroundHex" attributeType="String" elementID="defaultBackgroundHex"/>
+        <attribute name="lightSystemFillHex" optional="YES" attributeType="String"/>
+        <attribute name="lightSystemGroupedBackgroundHex" optional="YES" attributeType="String"/>
+        <attribute name="lightTertiarySystemBackgroundHex" optional="YES" attributeType="String"/>
         <attribute name="title" optional="YES" attributeType="String"/>
         <relationship name="book" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Book" inverseName="artworkColors" inverseEntity="Book"/>
         <relationship name="library" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Library" inverseName="extractedThemes" inverseEntity="Library"/>
@@ -64,6 +76,6 @@
         <element name="LibraryItem" positionX="-63" positionY="-18" width="128" height="210"/>
         <element name="PlaybackRecord" positionX="-54" positionY="135" width="128" height="75"/>
         <element name="Playlist" positionX="16" positionY="207" width="128" height="73"/>
-        <element name="Theme" positionX="-261" positionY="330" width="128" height="209"/>
+        <element name="Theme" positionX="-261" positionY="330" width="128" height="389"/>
     </elements>
 </model>

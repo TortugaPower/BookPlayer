@@ -44,7 +44,7 @@ public class DataManager {
         let container = NSPersistentContainer(name: name)
 
         let description = NSPersistentStoreDescription()
-        description.shouldInferMappingModelAutomatically = true
+        description.shouldInferMappingModelAutomatically = false
         description.shouldMigrateStoreAutomatically = true
         description.url = storeUrl
 

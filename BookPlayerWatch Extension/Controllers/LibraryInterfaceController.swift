@@ -66,11 +66,11 @@ class LibraryInterfaceController: WKInterfaceController {
         self.library = library ?? DataManager.loadLibrary()
 
         if let theme = self.library.currentTheme {
-            self.lastBookHeaderTitle.setTextColor(theme.defaultAccentColor)
-            self.separatorLastBookView.setColor(theme.defaultAccentColor)
-            self.separatorView.setColor(theme.defaultAccentColor)
-            self.backImage.setTintColor(theme.defaultAccentColor)
-            self.libraryHeaderTitle.setTextColor(theme.defaultAccentColor)
+            self.lastBookHeaderTitle.setTextColor(theme.linkColor)
+            self.separatorLastBookView.setColor(theme.linkColor)
+            self.separatorView.setColor(theme.linkColor)
+            self.backImage.setTintColor(theme.linkColor)
+            self.libraryHeaderTitle.setTextColor(theme.linkColor)
 
             NotificationCenter.default.post(name: .theme, object: nil, userInfo: ["theme": theme])
         }

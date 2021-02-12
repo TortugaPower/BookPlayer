@@ -277,9 +277,9 @@ extension ThemesViewController: UITableViewDataSource {
 
         guard indexPath.sectionValue != .add else {
             cell.titleLabel.text = "library_add_button".localized
-            cell.titleLabel.textColor = ThemeManager.shared.currentTheme.highlightColor
+            cell.titleLabel.textColor = ThemeManager.shared.currentTheme.linkColor
             cell.plusImageView.isHidden = false
-            cell.plusImageView.tintColor = ThemeManager.shared.currentTheme.highlightColor
+            cell.plusImageView.tintColor = ThemeManager.shared.currentTheme.linkColor
             cell.showCaseView.isHidden = true
             cell.isLocked = !UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue)
             return cell
@@ -329,28 +329,28 @@ extension ThemesViewController: UITableViewDelegate {
 
 extension ThemesViewController: Themeable {
     func applyTheme(_ theme: Theme) {
-        self.view.backgroundColor = theme.settingsBackgroundColor
+        self.view.backgroundColor = theme.systemGroupedBackgroundColor
 
-        self.localThemesTableView.backgroundColor = theme.backgroundColor
+        self.localThemesTableView.backgroundColor = theme.systemBackgroundColor
         self.localThemesTableView.separatorColor = theme.separatorColor
-        self.extractedThemesTableView.backgroundColor = theme.backgroundColor
+        self.extractedThemesTableView.backgroundColor = theme.systemBackgroundColor
         self.extractedThemesTableView.separatorColor = theme.separatorColor
 
-        self.brightnessSlider.minimumTrackTintColor = theme.highlightColor
+        self.brightnessSlider.minimumTrackTintColor = theme.linkColor
         self.brightnessSlider.maximumTrackTintColor = theme.separatorColor
-        self.brightnessDescriptionLabel.textColor = theme.detailColor
+        self.brightnessDescriptionLabel.textColor = theme.secondaryColor
 
         self.sunImageView.tintColor = theme.separatorColor
         self.brightnessPipView.tintColor = theme.separatorColor
 
         self.sectionHeaderLabels.forEach { label in
-            label.textColor = theme.detailColor
+            label.textColor = theme.secondaryColor
         }
         self.separatorViews.forEach { separatorView in
             separatorView.backgroundColor = theme.separatorColor
         }
         self.containerViews.forEach { view in
-            view.backgroundColor = theme.backgroundColor
+            view.backgroundColor = theme.systemBackgroundColor
         }
         self.titleLabels.forEach { label in
             label.textColor = theme.primaryColor

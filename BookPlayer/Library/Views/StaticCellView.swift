@@ -23,7 +23,7 @@ extension StaticCellView: Themeable {
     func applyTheme(_ theme: Theme) {
         self.textLabel?.textColor = theme.primaryColor
         self.customLabel?.textColor = theme.primaryColor
-        self.detailTextLabel?.textColor = theme.detailColor
-        self.backgroundColor = theme.backgroundColor
+        self.detailTextLabel?.textColor = theme.secondaryColor
+        self.backgroundColor = theme.systemBackgroundColor
     }
 }

@@ -23,7 +23,7 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
             guard let book = self.book, !book.isFault else { return }
 
             self.artworkControl.artwork = book.artwork
-            self.artworkControl.shadowOpacity = 0.1 + (1.0 - book.artworkColors.backgroundColor.brightness) * 0.3
+            self.artworkControl.shadowOpacity = 0.1 + (1.0 - book.artworkColors.systemBackgroundColor.brightness) * 0.3
 
             self.setProgress()
             applyTheme(self.themeProvider.currentTheme)
@@ -247,8 +247,8 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
 
 extension PlayerControlsViewController: Themeable {
     func applyTheme(_ theme: Theme) {
-        self.progressSlider.minimumTrackTintColor = theme.highlightColor
-        self.progressSlider.maximumTrackTintColor = theme.lightHighlightColor
+        self.progressSlider.minimumTrackTintColor = theme.linkColor
+        self.progressSlider.maximumTrackTintColor = theme.linkColor.withAlpha(newAlpha: 0.3)
 
         self.artworkControl.iconColor = .white
 

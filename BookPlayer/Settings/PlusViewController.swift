@@ -136,10 +136,10 @@ class PlusViewController: UIViewController, TelemetryProtocol {
         self.excellentTipId += self.tipJarSuffix
         self.incredibleTipId += self.tipJarSuffix
     }
-    
+
     func setupLocalizedTipPrices() {
         self.showSpinner(true, senders: [self.kindTipButton, self.excellentTipButton, self.incredibleTipButton])
-        
+
         SwiftyStoreKit.retrieveProductsInfo([self.kindTipId, self.excellentTipId, self.incredibleTipId]) { (results) in
             for product in results.retrievedProducts {
                 if product.productIdentifier.contains(self.kindTipId) {
@@ -149,10 +149,8 @@ class PlusViewController: UIViewController, TelemetryProtocol {
                 } else if product.productIdentifier.contains(self.incredibleTipId) {
                     self.incredibleTipButton.setTitle(product.localizedPrice, for: .normal)
                 }
-                
-                print(product.localizedPrice)
             }
-            
+
             self.showSpinner(false, senders: [self.kindTipButton, self.excellentTipButton, self.incredibleTipButton])
         }
     }
@@ -238,7 +236,7 @@ class PlusViewController: UIViewController, TelemetryProtocol {
         for sender in senders {
             var spinner: UIActivityIndicatorView!
             var widthConstraint: NSLayoutConstraint!
-            
+
             switch sender {
             case self.kindTipButton:
                 spinner = self.kindTipSpinner
@@ -250,7 +248,7 @@ class PlusViewController: UIViewController, TelemetryProtocol {
                 spinner = self.incredibleTipSpinner
                 widthConstraint = self.incredibleTipButtonWidthConstraint
             }
-            
+
             if flag {
                 spinner.startAnimating()
                 widthConstraint.constant = spinner.bounds.width
@@ -259,7 +257,7 @@ class PlusViewController: UIViewController, TelemetryProtocol {
                 spinner.stopAnimating()
                 widthConstraint.constant = self.defaultTipButtonsWidth
             }
-            
+
             UIView.animate(withDuration: 0.3) {
                 self.view.layoutIfNeeded()
                 sender.alpha = flag ? 0.0 : 1.0
@@ -338,18 +336,18 @@ extension PlusViewController: UICollectionViewDelegate {
 
 extension PlusViewController: Themeable {
     func applyTheme(_ theme: Theme) {
-        self.view.backgroundColor = theme.settingsBackgroundColor
+        self.view.backgroundColor = theme.systemGroupedBackgroundColor
 
         for label in self.titleLabels {
             label.textColor = theme.primaryColor
         }
 
         for label in self.detailLabels {
-            label.textColor = theme.detailColor
+            label.textColor = theme.secondaryColor
         }
 
         for image in self.imageViews {
-            image.tintColor = theme.highlightColor
+            image.tintColor = theme.linkColor
         }
     }
 }

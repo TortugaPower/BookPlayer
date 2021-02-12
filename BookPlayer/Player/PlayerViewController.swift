@@ -428,13 +428,13 @@ extension PlayerViewController: Themeable {
             : .default
         setNeedsStatusBarAppearanceUpdate()
 
-        self.view.backgroundColor = theme.backgroundColor
-        self.bottomToolbar.tintColor = theme.highlightColor
-        self.closeButton.tintColor = theme.highlightColor
+        self.view.backgroundColor = theme.systemBackgroundColor
+        self.bottomToolbar.tintColor = theme.linkColor
+        self.closeButton.tintColor = theme.linkColor
 
         // Apply the blurred view in relation to the brightness and luminance of the background color.
         // This makes darker backgrounds stay interesting
-        self.backgroundImage.alpha = 0.1 + min((1 - theme.backgroundColor.luminance) * (1 - theme.backgroundColor.brightness), 0.7)
+        self.backgroundImage.alpha = 0.1 + min((1 - theme.systemBackgroundColor.luminance) * (1 - theme.systemBackgroundColor.brightness), 0.7)
 
         self.blurEffectView?.removeFromSuperview()
 

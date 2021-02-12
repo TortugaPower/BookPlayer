@@ -116,13 +116,13 @@ class WidgetUtils {
         if let theme = theme {
             let hexPrimary: String = colorScheme == .dark
                 ? theme.darkPrimaryHex
-                : theme.defaultPrimaryHex
+                : theme.lightPrimaryHex
             let hexAccent: String = colorScheme == .dark
                 ? theme.darkAccentHex
-                : theme.defaultAccentHex
+                : theme.lightAccentHex
             let hexBackground: String = colorScheme == .dark
-                ? theme.darkBackgroundHex
-                : theme.defaultBackgroundHex
+                ? theme.darkSystemBackgroundHex
+                : theme.lightSystemBackgroundHex
 
             primaryColor = UIColor(hex: hexPrimary)
             accentColor = UIColor(hex: hexAccent)
