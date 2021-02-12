@@ -14,7 +14,7 @@ extension Theme {
     @nonobjc public class func fetchRequest() -> NSFetchRequest<Theme> {
         return NSFetchRequest<Theme>(entityName: "Theme")
     }
-    
+
     @NSManaged public var lightPrimaryHex: String!
     @NSManaged public var lightSecondaryHex: String!
     @NSManaged public var lightAccentHex: String!
@@ -35,11 +35,12 @@ extension Theme {
     @NSManaged public var darkSystemGroupedBackgroundHex: String!
     @NSManaged public var darkSystemFillHex: String!
     @NSManaged public var darkSecondarySystemFillHex: String!
-    
+
     @NSManaged public var title: String?
     @NSManaged public var book: Book?
     @NSManaged public var library: Library?
 
+    // swiftlint:disable function_body_length
     public class func searchPredicate(_ params: [String: Any]) -> NSPredicate? {
         guard let title = params["title"] as? String,
               let lightPrimaryHex = params["lightPrimaryHex"] as? String,
@@ -62,8 +63,7 @@ extension Theme {
               let darkSystemGroupedBackgroundHex = params["darkSystemGroupedBackgroundHex"] as? String,
               let darkSystemFillHex = params["darkSystemFillHex"] as? String,
               let darkSecondarySystemFillHex = params["darkSecondarySystemFillHex"] as? String else { return nil }
-        
-        
+
         let predicateFormat =
             """
             title = %@

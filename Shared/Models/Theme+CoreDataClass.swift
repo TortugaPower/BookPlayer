@@ -46,7 +46,7 @@ public class Theme: NSManagedObject, Codable {
     public convenience init(params: [String: Any], context: NSManagedObjectContext) {
         let entity = NSEntityDescription.entity(forEntityName: "Theme", in: context)!
         self.init(entity: entity, insertInto: context)
-        
+
         self.title = params["title"] as? String
         self.lightPrimaryHex = params["lightPrimaryHex"] as? String
         self.lightSecondaryHex = params["lightSecondaryHex"] as? String
@@ -88,7 +88,6 @@ public class Theme: NSManagedObject, Codable {
     }
 
     func setColors() {
-        
         self.lightPrimaryHex = Constants.DefaultArtworkColors.primary.lightColor
         self.lightSecondaryHex = Constants.DefaultArtworkColors.secondary.lightColor
         self.lightAccentHex = Constants.DefaultArtworkColors.accent.lightColor
@@ -151,7 +150,7 @@ public class Theme: NSManagedObject, Codable {
 
         let values = try decoder.container(keyedBy: CodingKeys.self)
         title = try values.decode(String.self, forKey: .title)
-        
+
         lightPrimaryHex = try values.decode(String.self, forKey: .lightPrimaryHex)
         lightSecondaryHex = try values.decode(String.self, forKey: .lightSecondaryHex)
         lightAccentHex = try values.decode(String.self, forKey: .lightAccentHex)
@@ -181,19 +180,19 @@ extension Theme {
     public var lightPrimaryColor: UIColor {
         return UIColor(hex: self.lightPrimaryHex)
     }
-    
+
     public var lightSecondaryColor: UIColor {
         return UIColor(hex: self.lightSecondaryHex)
     }
-    
+
     public var lightLinkColor: UIColor {
         return UIColor(hex: self.lightAccentHex)
     }
-    
+
     public var lightSystemBackgroundColor: UIColor {
         return UIColor(hex: self.lightSystemBackgroundHex)
     }
-    
+
     public var primaryColor: UIColor {
         let hex: String = self.useDarkVariant
             ? self.darkPrimaryHex
@@ -214,21 +213,21 @@ extension Theme {
             : self.lightAccentHex
         return UIColor(hex: hex)
     }
-    
+
     public var separatorColor: UIColor {
         let hex: String = self.useDarkVariant
             ? self.darkSeparatorHex
             : self.lightSeparatorHex
         return UIColor(hex: hex)
     }
-    
+
     public var systemBackgroundColor: UIColor {
         let hex: String = self.useDarkVariant
             ? self.darkSystemBackgroundHex
             : self.lightSystemBackgroundHex
         return UIColor(hex: hex)
     }
-    
+
     public var secondarySystemBackgroundColor: UIColor {
         let hex: String = self.useDarkVariant
             ? self.darkSecondarySystemBackgroundHex
@@ -249,42 +248,18 @@ extension Theme {
             : self.lightSystemGroupedBackgroundHex
         return UIColor(hex: hex)
     }
-    
+
     public var systemFillColor: UIColor {
         let hex: String = self.useDarkVariant
             ? self.darkSystemFillHex
             : self.lightSystemFillHex
         return UIColor(hex: hex)
     }
-    
+
     public var secondarySystemFillColor: UIColor {
         let hex: String = self.useDarkVariant
             ? self.darkSecondarySystemFillHex
             : self.lightSecondarySystemFillHex
         return UIColor(hex: hex)
     }
-
-//    public var pieFillColor: UIColor {
-//        return self.secondaryColor.mix(with: self.backgroundColor, amount: 0.27)
-//    }
-//
-//    public var pieBorderColor: UIColor {
-//        return self.secondaryColor.mix(with: self.backgroundColor, amount: 0.51)
-//    }
-//
-//    public var pieBackgroundColor: UIColor {
-//        return self.secondaryColor.mix(with: self.backgroundColor, amount: 0.90)
-//    }
-//
-//    public var highlightedPieFillColor: UIColor {
-//        return self.pieFillColor.mix(with: self.highlightColor, amount: 0.30)
-//    }
-//
-//    public var highlightedPieBorderColor: UIColor {
-//        return self.pieBorderColor.mix(with: self.highlightColor, amount: 0.30)
-//    }
-//
-//    public var highlightedPieBackgroundColor: UIColor {
-//        return self.pieBackgroundColor.mix(with: self.highlightColor, amount: 0.30)
-//    }
 }

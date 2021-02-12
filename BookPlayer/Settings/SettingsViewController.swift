@@ -59,7 +59,7 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         setUpTheming()
 
         let userDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
-        
+
         self.appIconLabel.text = userDefaults?.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
 
         self.iconObserver = UserDefaults.standard.observe(\.userSettingsAppIcon) { _, _ in
