@@ -182,6 +182,14 @@
 		41CE44A522716D9300C900AF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 418B6D041D2707F800F974FB /* Assets.xcassets */; };
 		41CE44A72271965400C900AF /* BookPlayer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */; };
 		41CE44A9227215B500C900AF /* Notification+BookPlayerKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41CE44A8227215B500C900AF /* Notification+BookPlayerKit.swift */; };
+		41D20DAF25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 41D20DAE25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel */; };
+		41D20DB025D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 41D20DAE25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel */; };
+		41D20DB125D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 41D20DAE25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel */; };
+		41D20DB225D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 41D20DAE25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel */; };
+		41D20DB325D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 41D20DAE25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel */; };
+		41D20DB425D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 41D20DAE25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel */; };
+		41D20DC825D5F80300AAEE30 /* ThemeReworkPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D20DC425D5F80300AAEE30 /* ThemeReworkPolicy.swift */; };
+		41D20DC925D5F80300AAEE30 /* ThemeReworkPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D20DC425D5F80300AAEE30 /* ThemeReworkPolicy.swift */; };
 		41D4F2EF21053944009F1B1E /* IndexPath+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D4F2EE21053944009F1B1E /* IndexPath+BookPlayer.swift */; };
 		41E562C4223896B500C06BC9 /* UserDefaults+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41E562C3223896B500C06BC9 /* UserDefaults+BookPlayer.swift */; };
 		41E562CE22394F5200C06BC9 /* ayu-light@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E562CC22394F5200C06BC9 /* ayu-light@2x.png */; };
@@ -586,6 +594,8 @@
 		41CE44A62271962700C900AF /* BookPlayerWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BookPlayerWidget.entitlements; sourceTree = "<group>"; };
 		41CE44A8227215B500C900AF /* Notification+BookPlayerKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Notification+BookPlayerKit.swift"; sourceTree = "<group>"; };
 		41D20DAD25D5F0CA00AAEE30 /* Audiobook Player 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Audiobook Player 2.xcdatamodel"; sourceTree = "<group>"; };
+		41D20DAE25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MappingModel_v1_to_v2.xcmappingmodel; sourceTree = "<group>"; };
+		41D20DC425D5F80300AAEE30 /* ThemeReworkPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeReworkPolicy.swift; sourceTree = "<group>"; };
 		41D39D40215F177D00B65290 /* BookActivityItemProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookActivityItemProvider.swift; sourceTree = "<group>"; };
 		41D4F2EA2101A278009F1B1E /* DirectoryWatcher.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DirectoryWatcher.framework; path = Carthage/Build/iOS/DirectoryWatcher.framework; sourceTree = "<group>"; };
 		41D4F2EE21053944009F1B1E /* IndexPath+BookPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "IndexPath+BookPlayer.swift"; sourceTree = "<group>"; };
@@ -1052,6 +1062,15 @@
 			path = BookPlayerWidget;
 			sourceTree = "<group>";
 		};
+		41D20DBC25D5F72300AAEE30 /* Migration Policies */ = {
+			isa = PBXGroup;
+			children = (
+				41D20DAE25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel */,
+				41D20DC425D5F80300AAEE30 /* ThemeReworkPolicy.swift */,
+			);
+			path = "Migration Policies";
+			sourceTree = "<group>";
+		};
 		41E562CB22394E2300C06BC9 /* iPhone */ = {
 			isa = PBXGroup;
 			children = (
@@ -1206,6 +1225,7 @@
 			isa = PBXGroup;
 			children = (
 				4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */,
+				41D20DBC25D5F72300AAEE30 /* Migration Policies */,
 				41A1B10F226F88C500EA0400 /* Theme+CoreDataClass.swift */,
 				41A1B110226F88C500EA0400 /* Theme+CoreDataProperties.swift */,
 				41A1B111226F88C500EA0400 /* Chapter+CoreDataClass.swift */,
@@ -1840,6 +1860,7 @@
 				4140EA43227288EF0009F794 /* ExtensionDelegate.swift in Sources */,
 				41893AC82272CBD900576AE4 /* LibraryInterfaceController.swift in Sources */,
 				41A8BAFE227E6C88003C9895 /* Notification+BookPlayerWatchApp.swift in Sources */,
+				41D20DB125D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
 				410C46982274EA350040114D /* DataManager+WatchApp.swift in Sources */,
 				4140EA8922729EDD0009F794 /* ItemRow.swift in Sources */,
 				4140EA8522728A160009F794 /* BookPlayer.xcdatamodeld in Sources */,
@@ -1869,11 +1890,13 @@
 				4140EA6F2272899A0009F794 /* BookSortService+SortError+PlayListSortOrder.swift in Sources */,
 				4140EA7A227289C20009F794 /* Book+CoreDataClass.swift in Sources */,
 				4140EA7C227289C70009F794 /* LibraryItem+CoreDataClass.swift in Sources */,
+				41D20DC925D5F80300AAEE30 /* ThemeReworkPolicy.swift in Sources */,
 				4140EA74227289AE0009F794 /* Theme+CoreDataClass.swift in Sources */,
 				4140EA6E227289960009F794 /* DeleteMode.swift in Sources */,
 				4140EA77227289B90009F794 /* Chapter+CoreDataProperties.swift in Sources */,
 				4140EA7B227289C40009F794 /* Book+CoreDataProperties.swift in Sources */,
 				4140EA81227289D80009F794 /* Playlist+CoreDataProperties.swift in Sources */,
+				41D20DB325D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
 				4140EA75227289B20009F794 /* Theme+CoreDataProperties.swift in Sources */,
 				4140EA7E227289CE0009F794 /* Library+CoreDataClass.swift in Sources */,
 				416AAC3523F515B0005AD04F /* String+BookPlayer.swift in Sources */,
@@ -1890,6 +1913,7 @@
 				417D996F256D73B400C3B753 /* Intents.intentdefinition in Sources */,
 				417D9994256DE3FB00C3B753 /* LastPlayedWidgetView.swift in Sources */,
 				416A29AA2569658100605395 /* BookPlayerWidgetUI.swift in Sources */,
+				41D20DB425D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
 				410641282579AA2F008EB8D0 /* TimeListenedWidgetView.swift in Sources */,
 				41064152258726D2008EB8D0 /* TimeListenedMediumView.swift in Sources */,
 				418445C3258AE11E0072DD13 /* WidgetUtils.swift in Sources */,
@@ -1968,6 +1992,7 @@
 				410D0FED1EDCF4B000A52EB9 /* SettingsViewController.swift in Sources */,
 				4193E202243A91AE004D6A82 /* ActionParserService.swift in Sources */,
 				41B2A5DE21CAF20E00917584 /* ThemesViewController.swift in Sources */,
+				41D20DAF25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
 				C398559C20C492FF00BE9EC0 /* AddButton.swift in Sources */,
 				41A1B135226FEB3D00EA0400 /* Book+AVFoundation.swift in Sources */,
 				416AAC3323F51031005AD04F /* LocalizableButton.swift in Sources */,
@@ -2012,10 +2037,12 @@
 				41A1B122226F88C500EA0400 /* PlaybackRecord+CoreDataProperties.swift in Sources */,
 				41640A452441ACE2004FB97B /* Intents.intentdefinition in Sources */,
 				41A1B10E226ED97300EA0400 /* BookSortService+SortError+PlayListSortOrder.swift in Sources */,
+				41D20DB225D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
 				41A1B123226F88C500EA0400 /* Book+CoreDataClass.swift in Sources */,
 				41A1B105226E9DBD00EA0400 /* UIColor+Sweetercolor.swift in Sources */,
 				41A1B10C226E9E9700EA0400 /* DeleteMode.swift in Sources */,
 				5126F122258E9F18009965DC /* URL+BookPlayer.swift in Sources */,
+				41D20DC825D5F80300AAEE30 /* ThemeReworkPolicy.swift in Sources */,
 				41A1B101226E9D4500EA0400 /* FileItem.swift in Sources */,
 				41A1B121226F88C500EA0400 /* PlaybackRecord+CoreDataClass.swift in Sources */,
 				41A1B104226E9DBA00EA0400 /* UIColor+BookPlayer.swift in Sources */,
@@ -2033,6 +2060,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				41CE449722712E0F00C900AF /* TodayViewController.swift in Sources */,
+				41D20DB025D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
 				41CE44A72271965400C900AF /* BookPlayer.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3579,7 +3607,7 @@
 				41D20DAD25D5F0CA00AAEE30 /* Audiobook Player 2.xcdatamodel */,
 				4165EDFA20A743D500616EDF /* Audiobook Player.xcdatamodel */,
 			);
-			currentVersion = 4165EDFA20A743D500616EDF /* Audiobook Player.xcdatamodel */;
+			currentVersion = 41D20DAD25D5F0CA00AAEE30 /* Audiobook Player 2.xcdatamodel */;
 			path = BookPlayer.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

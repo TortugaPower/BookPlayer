@@ -109,10 +109,10 @@ class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecogniz
 extension MiniPlayerViewController: Themeable {
     func applyTheme(_ theme: Theme) {
         self.titleLabel.textColor = theme.primaryColor
-        self.authorLabel.textColor = theme.detailColor
-        self.playPauseButton.tintColor = theme.highlightColor
+        self.authorLabel.textColor = theme.secondaryColor
+        self.playPauseButton.tintColor = theme.linkColor
 
-        self.miniPlayerContainer.backgroundColor = theme.miniPlayerBackgroundColor
+        self.miniPlayerContainer.backgroundColor = theme.secondarySystemBackgroundColor
 
         self.miniPlayerBlur.effect = theme.useDarkVariant
             ? UIBlurEffect(style: .dark)

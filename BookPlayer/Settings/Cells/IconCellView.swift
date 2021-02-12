@@ -39,8 +39,8 @@ class IconCellView: UITableViewCell {
 extension IconCellView: Themeable {
     func applyTheme(_ theme: Theme) {
         self.titleLabel.textColor = theme.primaryColor
-        self.authorLabel.textColor = theme.detailColor
-        self.lockImageView.tintColor = theme.highlightColor
-        self.backgroundColor = theme.backgroundColor
+        self.authorLabel.textColor = theme.secondaryColor
+        self.lockImageView.tintColor = theme.linkColor
+        self.backgroundColor = theme.systemBackgroundColor
     }
 }

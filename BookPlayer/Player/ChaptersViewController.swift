@@ -81,7 +81,7 @@ class ChaptersViewController: UITableViewController, TelemetryProtocol {
 
 extension ChaptersViewController: Themeable {
     func applyTheme(_ theme: Theme) {
-        self.view.backgroundColor = theme.backgroundColor
-        self.tableView.backgroundColor = theme.backgroundColor
+        self.view.backgroundColor = theme.systemBackgroundColor
+        self.tableView.backgroundColor = theme.systemBackgroundColor
     }
 }

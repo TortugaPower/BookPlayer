@@ -71,12 +71,12 @@ class PlayerSettingsViewController: UITableViewController, TelemetryProtocol {
 
     override func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
         let header = view as? UITableViewHeaderFooterView
-        header?.textLabel?.textColor = self.themeProvider.currentTheme.detailColor
+        header?.textLabel?.textColor = self.themeProvider.currentTheme.secondaryColor
     }
 
     override func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int) {
         let footer = view as? UITableViewHeaderFooterView
-        footer?.textLabel?.textColor = self.themeProvider.currentTheme.detailColor
+        footer?.textLabel?.textColor = self.themeProvider.currentTheme.secondaryColor
     }
 
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
@@ -120,7 +120,7 @@ class PlayerSettingsViewController: UITableViewController, TelemetryProtocol {
 
 extension PlayerSettingsViewController: Themeable {
     func applyTheme(_ theme: Theme) {
-        self.tableView.backgroundColor = theme.settingsBackgroundColor
+        self.tableView.backgroundColor = theme.systemGroupedBackgroundColor
         self.tableView.separatorColor = theme.separatorColor
         self.tableView.reloadData()
     }

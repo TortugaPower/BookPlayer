@@ -149,8 +149,6 @@ class PlusViewController: UIViewController, TelemetryProtocol {
                 } else if product.productIdentifier.contains(self.incredibleTipId) {
                     self.incredibleTipButton.setTitle(product.localizedPrice, for: .normal)
                 }
-                
-                print(product.localizedPrice)
             }
             
             self.showSpinner(false, senders: [self.kindTipButton, self.excellentTipButton, self.incredibleTipButton])
@@ -338,18 +336,18 @@ extension PlusViewController: UICollectionViewDelegate {
 
 extension PlusViewController: Themeable {
     func applyTheme(_ theme: Theme) {
-        self.view.backgroundColor = theme.settingsBackgroundColor
+        self.view.backgroundColor = theme.systemGroupedBackgroundColor
 
         for label in self.titleLabels {
             label.textColor = theme.primaryColor
         }
 
         for label in self.detailLabels {
-            label.textColor = theme.detailColor
+            label.textColor = theme.secondaryColor
         }
 
         for image in self.imageViews {
-            image.tintColor = theme.highlightColor
+            image.tintColor = theme.linkColor
         }
     }
 }
