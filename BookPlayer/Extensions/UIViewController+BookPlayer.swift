@@ -54,7 +54,6 @@ extension UIViewController {
         durationFormatter.collapsesLargestUnit = false
         durationFormatter.allowsFractionalUnits = true
 
-        print(durationFormatter.string(from: duration)!)
         return durationFormatter.string(from: duration)!
     }
 
