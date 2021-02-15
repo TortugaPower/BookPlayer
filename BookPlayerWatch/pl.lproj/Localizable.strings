@@ -6,9 +6,9 @@
   Copyright © 2019 Tortuga Power. All rights reserved.
 */
 
-"library_title" = "Library";
+"library_title" = "Biblioteka";
 "ok_button" = "OK";
-"watchapp_last_played_title" = "Last Played";
-"watchapp_refresh_data_title" = "Refresh data";
-"watchapp_connect_error_title" = "Connectivity Error";
-"watchapp_connect_error_description" = "There's a problem connecting to your phone, please try again later";
+"watchapp_last_played_title" = "Ostatnio odtwarzane";
+"watchapp_refresh_data_title" = "Odśwież dane";
+"watchapp_connect_error_title" = "Błąd połączenia";
+"watchapp_connect_error_description" = "Wystąpił problem z połączeniem z telefonem, spróbuj ponownie później";
