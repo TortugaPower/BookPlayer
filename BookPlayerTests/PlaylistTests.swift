@@ -57,15 +57,15 @@ class PlaylistTests: XCTestCase {
 
         XCTAssert(emptyProgress == 0.0)
 
-        book1.currentTime = 50
-        book2.currentTime = 50
+        book1.setCurrentTime(50)
+        book2.setCurrentTime(50)
 
         let halfProgress = playlist.progress
 
         XCTAssert(halfProgress == 0.5)
 
-        book1.currentTime = 100
-        book2.currentTime = 100
+        book1.setCurrentTime(100)
+        book2.setCurrentTime(100)
 
         let completedProgress = playlist.progress
 

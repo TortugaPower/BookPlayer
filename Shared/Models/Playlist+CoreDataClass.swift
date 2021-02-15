@@ -81,6 +81,22 @@ public class Playlist: LibraryItem {
         return totalDuration
     }
 
+    public override var duration: Double {
+        get {
+            let itemTime = self.getProgressAndDuration()
+            return itemTime.duration
+        }
+        set {
+            super.duration = newValue
+        }
+    }
+
+    public override var progress: Double {
+        let itemTime = self.getProgressAndDuration()
+
+        return itemTime.progress / itemTime.duration
+    }
+
     public func getProgressAndDuration() -> (progress: Double, duration: Double) {
         if let cachedProgress = self.cachedProgress,
            let cachedDuration = self.cachedDuration {
@@ -191,7 +207,7 @@ public class Playlist: LibraryItem {
             guard index > indexFound else { continue }
 
             if book.isFinished {
-                book.currentTime = 0
+                book.setCurrentTime(0.0)
             }
 
             return book

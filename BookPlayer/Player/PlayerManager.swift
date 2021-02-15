@@ -157,7 +157,7 @@ class PlayerManager: NSObject, TelemetryProtocol {
         }
 
         let currentTime = CMTimeGetSeconds(self.audioPlayer.currentTime())
-        book.currentTime = currentTime
+        book.setCurrentTime(currentTime)
 
         let isPercentageDifferent = book.percentage != book.percentCompleted || (book.percentCompleted == 0 && book.progress > 0)
 

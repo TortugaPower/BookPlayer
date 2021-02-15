@@ -49,7 +49,7 @@ class ItemProgress: UIView {
             self.layer.setNeedsDisplay()
         }
     }
-    
+
     var roundedValue: CGFloat {
         return CGFloat(round(self.value * 1000) / 1000)
     }
