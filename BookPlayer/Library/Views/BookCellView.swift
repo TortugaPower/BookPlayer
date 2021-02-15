@@ -27,6 +27,7 @@ class BookCellView: UITableViewCell {
     @IBOutlet private weak var titleLabel: UILabel!
     @IBOutlet private weak var subtitleLabel: UILabel!
     @IBOutlet private weak var progressView: ItemProgress!
+    @IBOutlet weak var durationLabel: UILabel!
     @IBOutlet weak var selectionView: CheckboxSelectionView!
     @IBOutlet private weak var artworkButton: UIButton!
     @IBOutlet weak var artworkWidth: NSLayoutConstraint!
@@ -75,6 +76,16 @@ class BookCellView: UITableViewCell {
                 ? 0.0
                 : newValue
             setAccessibilityLabels()
+        }
+    }
+
+    var duration: String? {
+        get {
+            return self.durationLabel.text
+        }
+        set {
+            guard let value = newValue else { return }
+            self.durationLabel.text = value
         }
     }
 
@@ -168,6 +179,7 @@ extension BookCellView: Themeable {
     func applyTheme(_ theme: Theme) {
         self.titleLabel.textColor = theme.primaryColor
         self.subtitleLabel.textColor = theme.secondaryColor
+        self.durationLabel.textColor = theme.secondaryColor
         self.backgroundColor = theme.systemBackgroundColor
         self.setPlaybackColors(theme)
         self.selectionView.defaultColor = theme.secondarySystemFillColor

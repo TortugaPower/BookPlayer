@@ -74,6 +74,9 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         self.showLoadView(false)
 
         self.setupObservers()
+
+        self.tableView.rowHeight = UITableView.automaticDimension
+        self.tableView.estimatedRowHeight = UITableView.automaticDimension
     }
 
     func setupObservers() {
@@ -550,6 +553,7 @@ extension ItemListViewController: UITableViewDataSource {
         }
 
         cell.progress = item.isFinished ? 1.0 : item.progress
+        cell.duration = self.formatTotalDuration(item.duration)
 
         return cell
     }
@@ -597,7 +601,7 @@ extension ItemListViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 86
+        return UITableView.automaticDimension
     }
 
     func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {

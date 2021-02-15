@@ -22,7 +22,7 @@
 "settings_globalspeed_description" = "Jedes Buch wird mit der gleichen Geschwindigkeit abgespielt.";
 "settings_autolock_title" = "Bildschirmsperre verhindern";
 "settings_autolock_description" = "Verhindert, dass das Gerät gesperrt wird, wenn der Abspielbildschirm aktiv ist.";
-"settings_siri_lastplayed_title" = "Zuletzt gespieltes Buch fortzusetzen";
+"settings_siri_lastplayed_title" = "Zuletzt gespieltes Buch fortsetzen";
 "settings_siri_lastplayed_description" = "Verwenden Sie Siri, um das zuletzt gespielte Buch fortzusetzen.";
 "settings_skip_title" = "Springen";
 "settings_skip_rewind_title" = "Rückwärts";
@@ -96,7 +96,7 @@
 "extra_tips_description" = "Wenn dir BookPlayer wirklich gut gefällt, freuen wir uns sehr über jede weitere Spende um die Entwicklung der App weiter zu unterstützen. Du hilfst uns dabei, dass wir unsere Entwickler-Accounts und Dienste weiter betreiben und an neuen Verbesserungen arbeiten können.";
 "files_title" = "Dateien";
 "select_all_title" = "Alle auswählen";
-"deselect_all_title" = "Keine";
+"deselect_all_title" = "Alle abwählen";
 "move_title" = "Verschieben";
 "jump_start_title" = "Zum Anfang springen";
 "mark_finished_title" = "Als gelesen markieren";
