@@ -74,6 +74,9 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         self.showLoadView(false)
 
         self.setupObservers()
+        
+        self.tableView.rowHeight = UITableView.automaticDimension
+        self.tableView.estimatedRowHeight = UITableView.automaticDimension
     }
 
     func setupObservers() {
@@ -543,13 +546,23 @@ extension ItemListViewController: UITableViewDataSource {
             self?.setupPlayer(book: book, true)
         }
 
+        var progressPercentage = 0.0
+        var duration = 0.0
+
         if let book = item as? Book {
             cell.subtitle = book.author
+            progressPercentage = book.progress
+            duration = book.duration
         } else if let playlist = item as? Playlist {
             cell.subtitle = playlist.info()
+            let itemTime = playlist.getProgressAndDuration()
+
+            progressPercentage = itemTime.progress / itemTime.duration
+            duration = itemTime.duration
         }
 
-        cell.progress = item.isFinished ? 1.0 : item.progress
+        cell.progress = item.isFinished ? 1.0 : progressPercentage
+        cell.duration = self.formatTotalDuration(duration)
 
         return cell
     }
@@ -597,7 +610,7 @@ extension ItemListViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 86
+        return UITableView.automaticDimension
     }
 
     func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
