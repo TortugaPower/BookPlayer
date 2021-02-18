@@ -9,12 +9,14 @@
 import BookPlayerKit
 import Themeable
 import UIKit
+import WidgetKit
 
 class IconsViewController: UIViewController, TelemetryProtocol {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var bannerView: PlusBannerView!
     @IBOutlet weak var bannerHeightConstraint: NSLayoutConstraint!
 
+    let userDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
     var icons: [Icon]!
 
     override func viewDidLoad() {
@@ -55,11 +57,14 @@ class IconsViewController: UIViewController, TelemetryProtocol {
             return
         }
 
-        UserDefaults.standard.set(iconName, forKey: Constants.UserDefaults.appIcon.rawValue)
+        self.userDefaults?.set(iconName, forKey: Constants.UserDefaults.appIcon.rawValue)
 
         let icon = iconName == "Default" ? nil : iconName
 
         UIApplication.shared.setAlternateIconName(icon, completionHandler: { error in
+            if #available(iOS 14.0, *) {
+                WidgetCenter.shared.reloadAllTimelines()
+            }
             guard error != nil else { return }
 
             self.showAlert("error_title".localized, message: "icon_error_description".localized)
@@ -84,7 +89,7 @@ extension IconsViewController: UITableViewDataSource {
         cell.iconImage = UIImage(named: item.imageName)
         cell.isLocked = item.isLocked && !UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue)
 
-        let currentAppIcon = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
+        let currentAppIcon = self.userDefaults?.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
 
         cell.accessoryType = item.id == currentAppIcon
             ? .checkmark
@@ -120,9 +125,9 @@ extension IconsViewController: UITableViewDelegate {
 
 extension IconsViewController: Themeable {
     func applyTheme(_ theme: Theme) {
-        self.view.backgroundColor = theme.settingsBackgroundColor
+        self.view.backgroundColor = theme.systemGroupedBackgroundColor
 
-        self.tableView.backgroundColor = theme.settingsBackgroundColor
+        self.tableView.backgroundColor = theme.systemGroupedBackgroundColor
         self.tableView.separatorColor = theme.separatorColor
     }
 }

@@ -155,6 +155,12 @@ extension DataManager {
             .string(forKey: Constants.UserDefaults.appIcon.rawValue) == nil {
             let storedIconId = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon.rawValue)
             userDefaults?.set(storedIconId, forKey: Constants.UserDefaults.appIcon.rawValue)
+        } else if let sharedAppIcon = userDefaults?
+                    .string(forKey: Constants.UserDefaults.appIcon.rawValue),
+                  let localAppIcon = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon.rawValue),
+                  sharedAppIcon != localAppIcon {
+            userDefaults?.set(localAppIcon, forKey: Constants.UserDefaults.appIcon.rawValue)
+            UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.appIcon.rawValue)
         }
 
         let library = self.getLibrary()

@@ -198,6 +198,6 @@ extension RootViewController: Themeable {
             : .default
         setNeedsStatusBarAppearanceUpdate()
 
-        self.miniPlayerContainer.layer.shadowColor = theme.navigationTitleColor.cgColor
+        self.miniPlayerContainer.layer.shadowColor = theme.primaryColor.cgColor
     }
 }

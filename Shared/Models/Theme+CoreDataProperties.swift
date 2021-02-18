@@ -15,51 +15,101 @@ extension Theme {
         return NSFetchRequest<Theme>(entityName: "Theme")
     }
 
-    @NSManaged public var defaultBackgroundHex: String!
-    @NSManaged public var defaultPrimaryHex: String!
-    @NSManaged public var defaultSecondaryHex: String!
-    @NSManaged public var defaultAccentHex: String!
-    @NSManaged public var darkBackgroundHex: String!
+    @NSManaged public var lightPrimaryHex: String!
+    @NSManaged public var lightSecondaryHex: String!
+    @NSManaged public var lightAccentHex: String!
+    @NSManaged public var lightSeparatorHex: String!
+    @NSManaged public var lightSystemBackgroundHex: String!
+    @NSManaged public var lightSecondarySystemBackgroundHex: String!
+    @NSManaged public var lightTertiarySystemBackgroundHex: String!
+    @NSManaged public var lightSystemGroupedBackgroundHex: String!
+    @NSManaged public var lightSystemFillHex: String!
+    @NSManaged public var lightSecondarySystemFillHex: String!
     @NSManaged public var darkPrimaryHex: String!
     @NSManaged public var darkSecondaryHex: String!
     @NSManaged public var darkAccentHex: String!
+    @NSManaged public var darkSeparatorHex: String!
+    @NSManaged public var darkSystemBackgroundHex: String!
+    @NSManaged public var darkSecondarySystemBackgroundHex: String!
+    @NSManaged public var darkTertiarySystemBackgroundHex: String!
+    @NSManaged public var darkSystemGroupedBackgroundHex: String!
+    @NSManaged public var darkSystemFillHex: String!
+    @NSManaged public var darkSecondarySystemFillHex: String!
+
     @NSManaged public var title: String?
     @NSManaged public var book: Book?
     @NSManaged public var library: Library?
 
+    // swiftlint:disable function_body_length
     public class func searchPredicate(_ params: [String: Any]) -> NSPredicate? {
-        guard let defaultBackgroundHex = params["defaultBackground"] as? String,
-            let defaultPrimaryHex = params["defaultPrimary"] as? String,
-            let defaultSecondaryHex = params["defaultSecondary"] as? String,
-            let defaultAccentHex = params["defaultAccent"] as? String,
-            let darkBackgroundHex = params["darkBackground"] as? String,
-            let darkPrimaryHex = params["darkPrimary"] as? String,
-            let darkSecondaryHex = params["darkSecondary"] as? String,
-            let darkAccentHex = params["darkAccent"] as? String,
-            let title = params["title"] as? String else { return nil }
+        guard let title = params["title"] as? String,
+              let lightPrimaryHex = params["lightPrimaryHex"] as? String,
+              let lightSecondaryHex = params["lightSecondaryHex"] as? String,
+              let lightAccentHex = params["lightAccentHex"] as? String,
+              let lightSeparatorHex = params["lightSeparatorHex"] as? String,
+              let lightSystemBackgroundHex = params["lightSystemBackgroundHex"] as? String,
+              let lightSecondarySystemBackgroundHex = params["lightSecondarySystemBackgroundHex"] as? String,
+              let lightTertiarySystemBackgroundHex = params["lightTertiarySystemBackgroundHex"] as? String,
+              let lightSystemGroupedBackgroundHex = params["lightSystemGroupedBackgroundHex"] as? String,
+              let lightSystemFillHex = params["lightSystemFillHex"] as? String,
+              let lightSecondarySystemFillHex = params["lightSecondarySystemFillHex"] as? String,
+              let darkPrimaryHex = params["darkPrimaryHex"] as? String,
+              let darkSecondaryHex = params["darkSecondaryHex"] as? String,
+              let darkAccentHex = params["darkAccentHex"] as? String,
+              let darkSeparatorHex = params["darkSeparatorHex"] as? String,
+              let darkSystemBackgroundHex = params["darkSystemBackgroundHex"] as? String,
+              let darkSecondarySystemBackgroundHex = params["darkSecondarySystemBackgroundHex"] as? String,
+              let darkTertiarySystemBackgroundHex = params["darkTertiarySystemBackgroundHex"] as? String,
+              let darkSystemGroupedBackgroundHex = params["darkSystemGroupedBackgroundHex"] as? String,
+              let darkSystemFillHex = params["darkSystemFillHex"] as? String,
+              let darkSecondarySystemFillHex = params["darkSecondarySystemFillHex"] as? String else { return nil }
 
         let predicateFormat =
             """
-            defaultBackgroundHex = %@
-            && defaultPrimaryHex = %@
-            && defaultSecondaryHex = %@
-            && defaultAccentHex = %@
-            && darkBackgroundHex = %@
+            title = %@
+            && lightPrimaryHex = %@
+            && lightSecondaryHex = %@
+            && lightAccentHex = %@
+            && lightSeparatorHex = %@
+            && lightSystemBackgroundHex = %@
+            && lightSecondarySystemBackgroundHex = %@
+            && lightTertiarySystemBackgroundHex = %@
+            && lightSystemGroupedBackgroundHex = %@
+            && lightSystemFillHex = %@
+            && lightSecondarySystemFillHex = %@
             && darkPrimaryHex = %@
             && darkSecondaryHex = %@
             && darkAccentHex = %@
-            && title = %@
+            && darkSeparatorHex = %@
+            && darkSystemBackgroundHex = %@
+            && darkSecondarySystemBackgroundHex = %@
+            && darkTertiarySystemBackgroundHex = %@
+            && darkSystemGroupedBackgroundHex = %@
+            && darkSystemFillHex = %@
+            && darkSecondarySystemFillHex = %@
             """
 
         return NSPredicate(format: predicateFormat,
-                           defaultBackgroundHex,
-                           defaultPrimaryHex,
-                           defaultSecondaryHex,
-                           defaultAccentHex,
-                           darkBackgroundHex,
+                           title,
+                           lightPrimaryHex,
+                           lightSecondaryHex,
+                           lightAccentHex,
+                           lightSeparatorHex,
+                           lightSystemBackgroundHex,
+                           lightSecondarySystemBackgroundHex,
+                           lightTertiarySystemBackgroundHex,
+                           lightSystemGroupedBackgroundHex,
+                           lightSystemFillHex,
+                           lightSecondarySystemFillHex,
                            darkPrimaryHex,
                            darkSecondaryHex,
                            darkAccentHex,
-                           title)
+                           darkSeparatorHex,
+                           darkSystemBackgroundHex,
+                           darkSecondarySystemBackgroundHex,
+                           darkTertiarySystemBackgroundHex,
+                           darkSystemGroupedBackgroundHex,
+                           darkSystemFillHex,
+                           darkSecondarySystemFillHex)
     }
 }

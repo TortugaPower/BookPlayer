@@ -66,7 +66,7 @@ class PlusViewController: UIViewController, TelemetryProtocol {
     let tipJarSuffix = ".consumable"
 
     // constants for button animations
-    let defaultTipButtonsWidth: CGFloat = 60.0
+    let defaultTipButtonsWidth: CGFloat = 75.0
 
     // constants for collectionView layout
     let sectionInsets = UIEdgeInsets(top: 0.0, left: 10.0, bottom: 25.0, right: 0.0)
@@ -116,6 +116,7 @@ class PlusViewController: UIViewController, TelemetryProtocol {
         }
 
         self.setupContributors()
+        self.setupLocalizedTipPrices()
 
         setUpTheming()
         self.sendSignal(.tipJarScreen, with: nil)
@@ -134,6 +135,24 @@ class PlusViewController: UIViewController, TelemetryProtocol {
         self.kindTipId += self.tipJarSuffix
         self.excellentTipId += self.tipJarSuffix
         self.incredibleTipId += self.tipJarSuffix
+    }
+
+    func setupLocalizedTipPrices() {
+        self.showSpinner(true, senders: [self.kindTipButton, self.excellentTipButton, self.incredibleTipButton])
+
+        SwiftyStoreKit.retrieveProductsInfo([self.kindTipId, self.excellentTipId, self.incredibleTipId]) { (results) in
+            for product in results.retrievedProducts {
+                if product.productIdentifier.contains(self.kindTipId) {
+                    self.kindTipButton.setTitle(product.localizedPrice, for: .normal)
+                } else if product.productIdentifier.contains(self.excellentTipId) {
+                    self.excellentTipButton.setTitle(product.localizedPrice, for: .normal)
+                } else if product.productIdentifier.contains(self.incredibleTipId) {
+                    self.incredibleTipButton.setTitle(product.localizedPrice, for: .normal)
+                }
+            }
+
+            self.showSpinner(false, senders: [self.kindTipButton, self.excellentTipButton, self.incredibleTipButton])
+        }
     }
 
     func setupSpinners() {
@@ -210,39 +229,39 @@ class PlusViewController: UIViewController, TelemetryProtocol {
     }
 
     func hideAllSpinners() {
-        self.showSpinner(false, sender: self.kindTipButton)
-        self.showSpinner(false, sender: self.excellentTipButton)
-        self.showSpinner(false, sender: self.incredibleTipButton)
+        self.showSpinner(false, senders: [self.kindTipButton, self.excellentTipButton, self.incredibleTipButton])
     }
 
-    func showSpinner(_ flag: Bool, sender: UIButton) {
-        var spinner: UIActivityIndicatorView!
-        var widthConstraint: NSLayoutConstraint!
+    func showSpinner(_ flag: Bool, senders: [UIButton]) {
+        for sender in senders {
+            var spinner: UIActivityIndicatorView!
+            var widthConstraint: NSLayoutConstraint!
 
-        switch sender {
-        case self.kindTipButton:
-            spinner = self.kindTipSpinner
-            widthConstraint = self.kindTipButtonWidthConstraint
-        case self.excellentTipButton:
-            spinner = self.excellentTipSpinner
-            widthConstraint = self.excellentTipButtonWidthConstraint
-        default:
-            spinner = self.incredibleTipSpinner
-            widthConstraint = self.incredibleTipButtonWidthConstraint
-        }
+            switch sender {
+            case self.kindTipButton:
+                spinner = self.kindTipSpinner
+                widthConstraint = self.kindTipButtonWidthConstraint
+            case self.excellentTipButton:
+                spinner = self.excellentTipSpinner
+                widthConstraint = self.excellentTipButtonWidthConstraint
+            default:
+                spinner = self.incredibleTipSpinner
+                widthConstraint = self.incredibleTipButtonWidthConstraint
+            }
 
-        if flag {
-            spinner.startAnimating()
-            widthConstraint.constant = spinner.bounds.width
-            spinner.color = sender.backgroundColor
-        } else {
-            spinner.stopAnimating()
-            widthConstraint.constant = self.defaultTipButtonsWidth
-        }
+            if flag {
+                spinner.startAnimating()
+                widthConstraint.constant = spinner.bounds.width
+                spinner.color = sender.backgroundColor
+            } else {
+                spinner.stopAnimating()
+                widthConstraint.constant = self.defaultTipButtonsWidth
+            }
 
-        UIView.animate(withDuration: 0.3) {
-            self.view.layoutIfNeeded()
-            sender.alpha = flag ? 0.0 : 1.0
+            UIView.animate(withDuration: 0.3) {
+                self.view.layoutIfNeeded()
+                sender.alpha = flag ? 0.0 : 1.0
+            }
         }
     }
 
@@ -255,10 +274,10 @@ class PlusViewController: UIViewController, TelemetryProtocol {
 
     func requestProduct(_ id: String, sender: UIButton) {
         self.sendSignal(.tipAction, with: ["productId": id])
-        self.showSpinner(true, sender: sender)
+        self.showSpinner(true, senders: [sender])
 
         SwiftyStoreKit.purchaseProduct(id, quantity: 1, atomically: true) { result in
-            self.showSpinner(false, sender: sender)
+            self.showSpinner(false, senders: [sender])
 
             switch result {
             case .success:
@@ -317,18 +336,18 @@ extension PlusViewController: UICollectionViewDelegate {
 
 extension PlusViewController: Themeable {
     func applyTheme(_ theme: Theme) {
-        self.view.backgroundColor = theme.settingsBackgroundColor
+        self.view.backgroundColor = theme.systemGroupedBackgroundColor
 
         for label in self.titleLabels {
             label.textColor = theme.primaryColor
         }
 
         for label in self.detailLabels {
-            label.textColor = theme.detailColor
+            label.textColor = theme.secondaryColor
         }
 
         for image in self.imageViews {
-            image.tintColor = theme.highlightColor
+            image.tintColor = theme.linkColor
         }
     }
 }

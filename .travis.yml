@@ -1,8 +1,0 @@
-language: swift
-osx_image: xcode12
-xcode_project: BookPlayer.xcodeproj
-xcode_scheme: BookPlayer
-xcode_destination: platform=iOS Simulator,OS=13.1,name=iPhone 8
-before_script:
-  - swiftlint
-  - xcodebuild -resolvePackageDependencies

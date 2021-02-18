@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ develop ]
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Swiftlint
+      run: swiftlint
+    - name: Resolve dependencies
+      run: xcodebuild -resolvePackageDependencies
+    - name: Build and Run tests
+      run: xcodebuild test -project BookPlayer.xcodeproj -scheme BookPlayer -destination 'platform=iOS Simulator,name=iPhone 12,OS=14.3'
+

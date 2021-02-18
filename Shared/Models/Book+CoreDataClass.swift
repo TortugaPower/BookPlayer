@@ -24,6 +24,14 @@ public class Book: LibraryItem {
 
     public var currentChapter: Chapter?
 
+    // needed to invalide cache of playlist
+    public func setCurrentTime(_ time: Double) {
+        self.currentTime = time
+        if let playlist = self.playlist {
+            playlist.resetCachedProgress()
+        }
+    }
+
     var displayTitle: String {
         return self.title
     }
@@ -43,7 +51,7 @@ public class Book: LibraryItem {
     }
 
     public override func jumpToStart() {
-        self.currentTime = 0.0
+        self.setCurrentTime(0.0)
     }
 
     public override func markAsFinished(_ flag: Bool) {
@@ -52,7 +60,7 @@ public class Book: LibraryItem {
         // To avoid progress display side-effects
         if !flag,
             self.currentTime.rounded(.up) == self.duration.rounded(.up) {
-            self.currentTime = 0.0
+            self.setCurrentTime(0.0)
         }
 
         self.playlist?.updateCompletionState()

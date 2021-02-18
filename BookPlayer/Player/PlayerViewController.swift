@@ -55,7 +55,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate, Telem
         if let navigationController = segue.destination as? UINavigationController,
             let viewController = navigationController.viewControllers.first as? ChaptersViewController,
             let currentChapter = self.currentBook.currentChapter {
-            viewController.chapters = self.currentBook.chapters?.array as? [Chapter]
+            viewController.chapters = self.currentBook.chapters?.array as? [Chapter] ?? []
             viewController.currentChapter = currentChapter
             viewController.didSelectChapter = { selectedChapter in
                 // Don't set the chapter, set the new time which will set the chapter in didSet
@@ -428,13 +428,13 @@ extension PlayerViewController: Themeable {
             : .default
         setNeedsStatusBarAppearanceUpdate()
 
-        self.view.backgroundColor = theme.backgroundColor
-        self.bottomToolbar.tintColor = theme.highlightColor
-        self.closeButton.tintColor = theme.highlightColor
+        self.view.backgroundColor = theme.systemBackgroundColor
+        self.bottomToolbar.tintColor = theme.linkColor
+        self.closeButton.tintColor = theme.linkColor
 
         // Apply the blurred view in relation to the brightness and luminance of the background color.
         // This makes darker backgrounds stay interesting
-        self.backgroundImage.alpha = 0.1 + min((1 - theme.backgroundColor.luminance) * (1 - theme.backgroundColor.brightness), 0.7)
+        self.backgroundImage.alpha = 0.1 + min((1 - theme.systemBackgroundColor.luminance) * (1 - theme.systemBackgroundColor.brightness), 0.7)
 
         self.blurEffectView?.removeFromSuperview()
 

@@ -46,6 +46,17 @@ extension UIViewController {
         return durationFormatter.string(from: duration)!
     }
 
+    func formatTotalDuration(_ duration: TimeInterval, allowedUnits: NSCalendar.Unit = [.hour, .minute, .second]) -> String {
+        let durationFormatter = DateComponentsFormatter()
+
+        durationFormatter.unitsStyle = .abbreviated
+        durationFormatter.allowedUnits = allowedUnits
+        durationFormatter.collapsesLargestUnit = false
+        durationFormatter.allowsFractionalUnits = true
+
+        return durationFormatter.string(from: duration)!
+    }
+
     func formatSpeed(_ speed: Float) -> String {
         return (speed.truncatingRemainder(dividingBy: 1) == 0 ? "\(Int(speed))" : "\(speed)") + "×"
     }

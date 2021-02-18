@@ -21,25 +21,53 @@ public class Theme: NSManagedObject, Codable {
     public var locked = false
 
     public func sameColors(as theme: Theme) -> Bool {
-        return self.defaultBackgroundHex == theme.defaultBackgroundHex
-            && self.defaultPrimaryHex == theme.defaultPrimaryHex
-            && self.defaultSecondaryHex == theme.defaultSecondaryHex
-            && self.defaultAccentHex == theme.defaultAccentHex
+        return self.lightPrimaryHex == theme.lightPrimaryHex
+            && self.lightSecondaryHex == theme.lightSecondaryHex
+            && self.lightAccentHex == theme.lightAccentHex
+            && self.lightSeparatorHex == theme.lightSeparatorHex
+            && self.lightSystemBackgroundHex == theme.lightSystemBackgroundHex
+            && self.lightSecondarySystemBackgroundHex == theme.lightSecondarySystemBackgroundHex
+            && self.lightTertiarySystemBackgroundHex == theme.lightTertiarySystemBackgroundHex
+            && self.lightSystemGroupedBackgroundHex == theme.lightSystemGroupedBackgroundHex
+            && self.lightSystemFillHex == theme.lightSystemFillHex
+            && self.lightSecondarySystemFillHex == theme.lightSecondarySystemFillHex
+            && self.darkPrimaryHex == theme.darkPrimaryHex
+            && self.darkSecondaryHex == theme.darkSecondaryHex
+            && self.darkAccentHex == theme.darkAccentHex
+            && self.darkSeparatorHex == theme.darkSeparatorHex
+            && self.darkSystemBackgroundHex == theme.darkSystemBackgroundHex
+            && self.darkSecondarySystemBackgroundHex == theme.darkSecondarySystemBackgroundHex
+            && self.darkTertiarySystemBackgroundHex == theme.darkTertiarySystemBackgroundHex
+            && self.darkSystemGroupedBackgroundHex == theme.darkSystemGroupedBackgroundHex
+            && self.darkSystemFillHex == theme.darkSystemFillHex
+            && self.darkSecondarySystemFillHex == theme.darkSecondarySystemFillHex
     }
 
     public convenience init(params: [String: Any], context: NSManagedObjectContext) {
         let entity = NSEntityDescription.entity(forEntityName: "Theme", in: context)!
         self.init(entity: entity, insertInto: context)
 
-        self.defaultBackgroundHex = params["defaultBackground"] as? String
-        self.defaultPrimaryHex = params["defaultPrimary"] as? String
-        self.defaultSecondaryHex = params["defaultSecondary"] as? String
-        self.defaultAccentHex = params["defaultAccent"] as? String
-        self.darkBackgroundHex = params["darkBackground"] as? String
-        self.darkPrimaryHex = params["darkPrimary"] as? String
-        self.darkSecondaryHex = params["darkSecondary"] as? String
-        self.darkAccentHex = params["darkAccent"] as? String
         self.title = params["title"] as? String
+        self.lightPrimaryHex = params["lightPrimaryHex"] as? String
+        self.lightSecondaryHex = params["lightSecondaryHex"] as? String
+        self.lightAccentHex = params["lightAccentHex"] as? String
+        self.lightSeparatorHex = params["lightSeparatorHex"] as? String
+        self.lightSystemBackgroundHex = params["lightSystemBackgroundHex"] as? String
+        self.lightSecondarySystemBackgroundHex = params["lightSecondarySystemBackgroundHex"] as? String
+        self.lightTertiarySystemBackgroundHex = params["lightTertiarySystemBackgroundHex"] as? String
+        self.lightSystemGroupedBackgroundHex = params["lightSystemGroupedBackgroundHex"] as? String
+        self.lightSystemFillHex = params["lightSystemFillHex"] as? String
+        self.lightSecondarySystemFillHex = params["lightSecondarySystemFillHex"] as? String
+        self.darkPrimaryHex = params["darkPrimaryHex"] as? String
+        self.darkSecondaryHex = params["darkSecondaryHex"] as? String
+        self.darkAccentHex = params["darkAccentHex"] as? String
+        self.darkSeparatorHex = params["darkSeparatorHex"] as? String
+        self.darkSystemBackgroundHex = params["darkSystemBackgroundHex"] as? String
+        self.darkSecondarySystemBackgroundHex = params["darkSecondarySystemBackgroundHex"] as? String
+        self.darkTertiarySystemBackgroundHex = params["darkTertiarySystemBackgroundHex"] as? String
+        self.darkSystemGroupedBackgroundHex = params["darkSystemGroupedBackgroundHex"] as? String
+        self.darkSystemFillHex = params["darkSystemFillHex"] as? String
+        self.darkSecondarySystemFillHex = params["darkSecondarySystemFillHex"] as? String
         self.locked = params["locked"] as? Bool ?? false
     }
 
@@ -60,31 +88,55 @@ public class Theme: NSManagedObject, Codable {
     }
 
     func setColors() {
-        self.defaultBackgroundHex = Constants.DefaultArtworkColors.background.lightColor
-        self.darkBackgroundHex = Constants.DefaultArtworkColors.background.darkColor
-        self.defaultPrimaryHex = Constants.DefaultArtworkColors.primary.lightColor
+        self.lightPrimaryHex = Constants.DefaultArtworkColors.primary.lightColor
+        self.lightSecondaryHex = Constants.DefaultArtworkColors.secondary.lightColor
+        self.lightAccentHex = Constants.DefaultArtworkColors.accent.lightColor
+        self.lightSeparatorHex = Constants.DefaultArtworkColors.separator.lightColor
+        self.lightSystemBackgroundHex = Constants.DefaultArtworkColors.systemBackground.lightColor
+        self.lightSecondarySystemBackgroundHex = Constants.DefaultArtworkColors.secondarySystemBackground.lightColor
+        self.lightTertiarySystemBackgroundHex = Constants.DefaultArtworkColors.tertiarySystemBackground.lightColor
+        self.lightSystemGroupedBackgroundHex = Constants.DefaultArtworkColors.systemGroupedBackground.lightColor
+        self.lightSystemFillHex = Constants.DefaultArtworkColors.systemFill.lightColor
+        self.lightSecondarySystemFillHex = Constants.DefaultArtworkColors.secondarySystemFill.lightColor
         self.darkPrimaryHex = Constants.DefaultArtworkColors.primary.darkColor
-        self.defaultSecondaryHex = Constants.DefaultArtworkColors.secondary.lightColor
         self.darkSecondaryHex = Constants.DefaultArtworkColors.secondary.darkColor
-        self.defaultAccentHex = Constants.DefaultArtworkColors.highlight.lightColor
-        self.darkAccentHex = Constants.DefaultArtworkColors.highlight.darkColor
+        self.darkAccentHex = Constants.DefaultArtworkColors.accent.darkColor
+        self.darkSeparatorHex = Constants.DefaultArtworkColors.separator.darkColor
+        self.darkSystemBackgroundHex = Constants.DefaultArtworkColors.systemBackground.darkColor
+        self.darkSecondarySystemBackgroundHex = Constants.DefaultArtworkColors.secondarySystemBackground.darkColor
+        self.darkTertiarySystemBackgroundHex = Constants.DefaultArtworkColors.tertiarySystemBackground.darkColor
+        self.darkSystemGroupedBackgroundHex = Constants.DefaultArtworkColors.systemGroupedBackground.darkColor
+        self.darkSystemFillHex = Constants.DefaultArtworkColors.systemFill.darkColor
+        self.darkSecondarySystemFillHex = Constants.DefaultArtworkColors.secondarySystemFill.darkColor
     }
 
     enum CodingKeys: String, CodingKey {
-        case title, defaultBackgroundHex, defaultPrimaryHex, defaultSecondaryHex, defaultAccentHex, darkBackgroundHex, darkPrimaryHex, darkSecondaryHex, darkAccentHex
+        case title, lightPrimaryHex, lightSecondaryHex, lightAccentHex, lightSeparatorHex, lightSystemBackgroundHex, lightSecondarySystemBackgroundHex, lightTertiarySystemBackgroundHex, lightSystemGroupedBackgroundHex, lightSystemFillHex, lightSecondarySystemFillHex, darkPrimaryHex, darkSecondaryHex, darkAccentHex, darkSeparatorHex, darkSystemBackgroundHex, darkSecondarySystemBackgroundHex, darkTertiarySystemBackgroundHex, darkSystemGroupedBackgroundHex, darkSystemFillHex, darkSecondarySystemFillHex
     }
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(title, forKey: .title)
-        try container.encode(defaultBackgroundHex, forKey: .defaultBackgroundHex)
-        try container.encode(defaultPrimaryHex, forKey: .defaultPrimaryHex)
-        try container.encode(defaultSecondaryHex, forKey: .defaultSecondaryHex)
-        try container.encode(defaultAccentHex, forKey: .defaultAccentHex)
-        try container.encode(darkBackgroundHex, forKey: .darkBackgroundHex)
+        try container.encode(lightPrimaryHex, forKey: .lightPrimaryHex)
+        try container.encode(lightSecondaryHex, forKey: .lightSecondaryHex)
+        try container.encode(lightAccentHex, forKey: .lightAccentHex)
+        try container.encode(lightSeparatorHex, forKey: .lightSeparatorHex)
+        try container.encode(lightSystemBackgroundHex, forKey: .lightSystemBackgroundHex)
+        try container.encode(lightSecondarySystemBackgroundHex, forKey: .lightSecondarySystemBackgroundHex)
+        try container.encode(lightTertiarySystemBackgroundHex, forKey: .lightTertiarySystemBackgroundHex)
+        try container.encode(lightSystemGroupedBackgroundHex, forKey: .lightSystemGroupedBackgroundHex)
+        try container.encode(lightSystemFillHex, forKey: .lightSystemFillHex)
+        try container.encode(lightSecondarySystemFillHex, forKey: .lightSecondarySystemFillHex)
         try container.encode(darkPrimaryHex, forKey: .darkPrimaryHex)
         try container.encode(darkSecondaryHex, forKey: .darkSecondaryHex)
         try container.encode(darkAccentHex, forKey: .darkAccentHex)
+        try container.encode(darkSeparatorHex, forKey: .darkSeparatorHex)
+        try container.encode(darkSystemBackgroundHex, forKey: .darkSystemBackgroundHex)
+        try container.encode(darkSecondarySystemBackgroundHex, forKey: .darkSecondarySystemBackgroundHex)
+        try container.encode(darkTertiarySystemBackgroundHex, forKey: .darkTertiarySystemBackgroundHex)
+        try container.encode(darkSystemGroupedBackgroundHex, forKey: .darkSystemGroupedBackgroundHex)
+        try container.encode(darkSystemFillHex, forKey: .darkSystemFillHex)
+        try container.encode(darkSecondarySystemFillHex, forKey: .darkSecondarySystemFillHex)
     }
 
     public required convenience init(from decoder: Decoder) throws {
@@ -98,117 +150,116 @@ public class Theme: NSManagedObject, Codable {
 
         let values = try decoder.container(keyedBy: CodingKeys.self)
         title = try values.decode(String.self, forKey: .title)
-        defaultBackgroundHex = try values.decode(String.self, forKey: .defaultAccentHex)
-        defaultPrimaryHex = try values.decode(String.self, forKey: .defaultPrimaryHex)
-        defaultSecondaryHex = try values.decode(String.self, forKey: .defaultSecondaryHex)
-        defaultAccentHex = try values.decode(String.self, forKey: .defaultAccentHex)
-        darkBackgroundHex = try values.decode(String.self, forKey: .darkBackgroundHex)
+
+        lightPrimaryHex = try values.decode(String.self, forKey: .lightPrimaryHex)
+        lightSecondaryHex = try values.decode(String.self, forKey: .lightSecondaryHex)
+        lightAccentHex = try values.decode(String.self, forKey: .lightAccentHex)
+        lightSeparatorHex = try values.decode(String.self, forKey: .lightSeparatorHex)
+        lightSystemBackgroundHex = try values.decode(String.self, forKey: .lightSystemBackgroundHex)
+        lightSecondarySystemBackgroundHex = try values.decode(String.self, forKey: .lightSecondarySystemBackgroundHex)
+        lightTertiarySystemBackgroundHex = try values.decode(String.self, forKey: .lightTertiarySystemBackgroundHex)
+        lightSystemGroupedBackgroundHex = try values.decode(String.self, forKey: .lightSystemGroupedBackgroundHex)
+        lightSystemFillHex = try values.decode(String.self, forKey: .lightSystemFillHex)
+        lightSecondarySystemFillHex = try values.decode(String.self, forKey: .lightSecondarySystemFillHex)
         darkPrimaryHex = try values.decode(String.self, forKey: .darkPrimaryHex)
         darkSecondaryHex = try values.decode(String.self, forKey: .darkSecondaryHex)
         darkAccentHex = try values.decode(String.self, forKey: .darkAccentHex)
+        darkSeparatorHex = try values.decode(String.self, forKey: .darkSeparatorHex)
+        darkSystemBackgroundHex = try values.decode(String.self, forKey: .darkSystemBackgroundHex)
+        darkSecondarySystemBackgroundHex = try values.decode(String.self, forKey: .darkSecondarySystemBackgroundHex)
+        darkTertiarySystemBackgroundHex = try values.decode(String.self, forKey: .darkTertiarySystemBackgroundHex)
+        darkSystemGroupedBackgroundHex = try values.decode(String.self, forKey: .darkSystemGroupedBackgroundHex)
+        darkSystemFillHex = try values.decode(String.self, forKey: .darkSystemFillHex)
+        darkSecondarySystemFillHex = try values.decode(String.self, forKey: .darkSecondarySystemFillHex)
     }
 }
 
 // MARK: - Color getters
 
 extension Theme {
-    public var defaultBackgroundColor: UIColor {
-        return UIColor(hex: self.defaultBackgroundHex)
+    public var lightPrimaryColor: UIColor {
+        return UIColor(hex: self.lightPrimaryHex)
     }
 
-    public var defaultPrimaryColor: UIColor {
-        return UIColor(hex: self.defaultPrimaryHex)
+    public var lightSecondaryColor: UIColor {
+        return UIColor(hex: self.lightSecondaryHex)
     }
 
-    public var defaultSecondaryColor: UIColor {
-        return UIColor(hex: self.defaultSecondaryHex)
+    public var lightLinkColor: UIColor {
+        return UIColor(hex: self.lightAccentHex)
     }
 
-    public var defaultAccentColor: UIColor {
-        return UIColor(hex: self.defaultAccentHex)
-    }
-
-    public var backgroundColor: UIColor {
-        let hex: String = self.useDarkVariant
-            ? self.darkBackgroundHex
-            : self.defaultBackgroundHex
-        return UIColor(hex: hex)
+    public var lightSystemBackgroundColor: UIColor {
+        return UIColor(hex: self.lightSystemBackgroundHex)
     }
 
     public var primaryColor: UIColor {
         let hex: String = self.useDarkVariant
             ? self.darkPrimaryHex
-            : self.defaultPrimaryHex
+            : self.lightPrimaryHex
         return UIColor(hex: hex)
     }
 
     public var secondaryColor: UIColor {
         let hex: String = self.useDarkVariant
             ? self.darkSecondaryHex
-            : self.defaultSecondaryHex
+            : self.lightSecondaryHex
         return UIColor(hex: hex)
     }
 
-    public var detailColor: UIColor {
-        return self.secondaryColor
-    }
-
-    public var highlightColor: UIColor {
+    public var linkColor: UIColor {
         let hex: String = self.useDarkVariant
             ? self.darkAccentHex
-            : self.defaultAccentHex
+            : self.lightAccentHex
         return UIColor(hex: hex)
-    }
-
-    public var lightHighlightColor: UIColor {
-        return self.highlightColor.withAlpha(newAlpha: 0.3)
-    }
-
-    public var importBackgroundColor: UIColor {
-        return self.secondaryColor.mix(with: self.backgroundColor, amount: 0.83)
     }
 
     public var separatorColor: UIColor {
-        return self.secondaryColor.mix(with: self.backgroundColor, amount: 0.60)
+        let hex: String = self.useDarkVariant
+            ? self.darkSeparatorHex
+            : self.lightSeparatorHex
+        return UIColor(hex: hex)
     }
 
-    public var settingsBackgroundColor: UIColor {
-        return self.secondaryColor
-            .mix(with: self.highlightColor, amount: 0.03)
-            .mix(with: self.backgroundColor, amount: 0.90)
+    public var systemBackgroundColor: UIColor {
+        let hex: String = self.useDarkVariant
+            ? self.darkSystemBackgroundHex
+            : self.lightSystemBackgroundHex
+        return UIColor(hex: hex)
     }
 
-    public var pieFillColor: UIColor {
-        return self.secondaryColor.mix(with: self.backgroundColor, amount: 0.27)
+    public var secondarySystemBackgroundColor: UIColor {
+        let hex: String = self.useDarkVariant
+            ? self.darkSecondarySystemBackgroundHex
+            : self.lightSecondarySystemBackgroundHex
+        return UIColor(hex: hex)
     }
 
-    public var pieBorderColor: UIColor {
-        return self.secondaryColor.mix(with: self.backgroundColor, amount: 0.51)
+    public var tertiarySystemBackgroundColor: UIColor {
+        let hex: String = self.useDarkVariant
+            ? self.darkTertiarySystemBackgroundHex
+            : self.lightTertiarySystemBackgroundHex
+        return UIColor(hex: hex)
     }
 
-    public var pieBackgroundColor: UIColor {
-        return self.secondaryColor.mix(with: self.backgroundColor, amount: 0.90)
+    public var systemGroupedBackgroundColor: UIColor {
+        let hex: String = self.useDarkVariant
+            ? self.darkSystemGroupedBackgroundHex
+            : self.lightSystemGroupedBackgroundHex
+        return UIColor(hex: hex)
     }
 
-    public var highlightedPieFillColor: UIColor {
-        return self.pieFillColor.mix(with: self.highlightColor, amount: 0.30)
+    public var systemFillColor: UIColor {
+        let hex: String = self.useDarkVariant
+            ? self.darkSystemFillHex
+            : self.lightSystemFillHex
+        return UIColor(hex: hex)
     }
 
-    public var highlightedPieBorderColor: UIColor {
-        return self.pieBorderColor.mix(with: self.highlightColor, amount: 0.30)
-    }
-
-    public var highlightedPieBackgroundColor: UIColor {
-        return self.pieBackgroundColor.mix(with: self.highlightColor, amount: 0.30)
-    }
-
-    public var navigationTitleColor: UIColor {
-        return self.primaryColor
-            .mix(with: self.highlightColor, amount: 0.16)
-            .mix(with: self.backgroundColor, amount: 0.10)
-    }
-
-    public var miniPlayerBackgroundColor: UIColor {
-        return self.backgroundColor.mix(with: self.useDarkVariant ? UIColor.black : UIColor.white)
+    public var secondarySystemFillColor: UIColor {
+        let hex: String = self.useDarkVariant
+            ? self.darkSecondarySystemFillHex
+            : self.lightSecondarySystemFillHex
+        return UIColor(hex: hex)
     }
 }

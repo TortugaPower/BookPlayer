@@ -50,6 +50,10 @@ class ItemProgress: UIView {
         }
     }
 
+    var roundedValue: CGFloat {
+        return CGFloat(round(self.value * 1000) / 1000)
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -132,16 +136,15 @@ class ItemProgress: UIView {
         let height = self.bounds.size.height
         let diameter = min(width, height)
         let center = CGPoint(x: width * 0.5, y: height * 0.5)
-        let roundedValue = CGFloat(round(self.value * 1000) / 1000)
 
-        if roundedValue == 0 {
+        if self.roundedValue == 0 {
             // Hide progress if none
             self.pieOutline.isHidden = true
             self.pieBackground.isHidden = true
             self.pieSegment.isHidden = true
             self.completionBackground.isHidden = true
             self.completionCheckmark.isHidden = true
-        } else if roundedValue < 1.0 {
+        } else if self.roundedValue < 1.0 {
             // Show progress pie chart
             let lineWidth: CGFloat = 1.5
             var radius: CGFloat = diameter * 0.5 - lineWidth / 2
@@ -206,15 +209,15 @@ class ItemProgress: UIView {
 
 extension ItemProgress: Themeable {
     func applyTheme(_ theme: Theme) {
-        self.pieColors = PieColors(backgroundColor: theme.pieBackgroundColor.cgColor,
-                                   fillColor: theme.pieFillColor.cgColor,
-                                   borderColor: theme.pieBorderColor.cgColor)
+        self.pieColors = PieColors(backgroundColor: theme.tertiarySystemBackgroundColor.cgColor,
+                                   fillColor: theme.secondarySystemFillColor.cgColor,
+                                   borderColor: theme.secondarySystemFillColor.cgColor)
 
-        self.highlightedPieColors = PieColors(backgroundColor: theme.highlightedPieBackgroundColor.cgColor,
-                                              fillColor: theme.highlightedPieFillColor.cgColor,
-                                              borderColor: theme.highlightedPieBorderColor.cgColor)
+        self.highlightedPieColors = PieColors(backgroundColor: theme.tertiarySystemBackgroundColor.cgColor,
+                                              fillColor: theme.systemFillColor.cgColor,
+                                              borderColor: theme.systemFillColor.cgColor)
 
-        self.completionBackground.fillColor = theme.highlightColor.cgColor
+        self.completionBackground.fillColor = theme.linkColor.cgColor
 
         self.applyColors()
     }
