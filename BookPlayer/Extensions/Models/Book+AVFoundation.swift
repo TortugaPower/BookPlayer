@@ -51,19 +51,6 @@ extension Book {
         self.originalFileName = bookUrl.originalUrl.lastPathComponent
         self.isFinished = false
 
-        var colors: Theme!
-        if let data = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtwork, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? NSData {
-            self.artworkData = data
-            colors = Theme(from: self.artwork, context: context)
-        } else {
-            colors = Theme(context: context)
-            self.usesDefaultArtwork = true
-        }
-
-        colors.title = self.title
-
-        self.artworkColors = colors
-
         self.setChapters(from: asset, context: context)
 
         let legacyIdentifier = bookUrl.originalUrl.lastPathComponent

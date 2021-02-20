@@ -56,6 +56,8 @@ public enum Constants {
         case systemGroupedBackground
         case systemFill
         case secondarySystemFill
+        case tertiarySystemFill
+        case quaternarySystemFill
 
         var lightColor: String {
             switch self {
@@ -79,6 +81,10 @@ public enum Constants {
                 return "#87A0BA"
             case .secondarySystemFill:
                 return "#ACAAB1"
+            case .tertiarySystemFill:
+                return "#7685B3"
+            case .quaternarySystemFill:
+                return "#7685B3"
             }
         }
 
@@ -104,6 +110,10 @@ public enum Constants {
                 return "#647E98"
             case .secondarySystemFill:
                 return "#707176"
+            case .tertiarySystemFill:
+                return "#7685B3"
+            case .quaternarySystemFill:
+                return "#7685B3"
             }
         }
     }
