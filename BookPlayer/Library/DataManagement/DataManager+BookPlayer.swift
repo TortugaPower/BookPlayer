@@ -57,7 +57,7 @@ extension DataManager {
             return
         }
 
-        try psc.migratePersistentStore(oldStore, to: self.storeUrl, options: nil, withType: NSSQLiteStoreType)
+        try psc.migratePersistentStore(oldStore, to: self.coreDataStack.storeUrl, options: nil, withType: NSSQLiteStoreType)
     }
 
     // MARK: - File processing
@@ -169,13 +169,6 @@ extension DataManager {
 
         library.currentTheme = self.getLocalThemes().first!
 
-        // prior book artwork colors didn't have a title
-        if let books = self.getBooks() {
-            for book in books {
-                book.artworkColors.title = book.title
-            }
-        }
-
         self.saveContext()
     }
 
@@ -198,12 +191,12 @@ extension DataManager {
 
             var theme: Theme!
 
-            if let storedThemes = try? self.persistentContainer.viewContext.fetch(request),
+            if let storedThemes = try? self.getContext().fetch(request),
                 let storedTheme = storedThemes.first {
                 theme = storedTheme
                 theme.locked = themeParam["locked"] as? Bool ?? false
             } else {
-                theme = Theme(params: themeParam, context: self.persistentContainer.viewContext)
+                theme = Theme(params: themeParam, context: self.getContext())
             }
 
             themes.append(theme)

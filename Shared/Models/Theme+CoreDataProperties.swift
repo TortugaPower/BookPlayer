@@ -25,6 +25,8 @@ extension Theme {
     @NSManaged public var lightSystemGroupedBackgroundHex: String!
     @NSManaged public var lightSystemFillHex: String!
     @NSManaged public var lightSecondarySystemFillHex: String!
+    @NSManaged public var lightTertiarySystemFillHex: String!
+    @NSManaged public var lightQuaternarySystemFillHex: String!
     @NSManaged public var darkPrimaryHex: String!
     @NSManaged public var darkSecondaryHex: String!
     @NSManaged public var darkAccentHex: String!
@@ -35,6 +37,8 @@ extension Theme {
     @NSManaged public var darkSystemGroupedBackgroundHex: String!
     @NSManaged public var darkSystemFillHex: String!
     @NSManaged public var darkSecondarySystemFillHex: String!
+    @NSManaged public var darkTertiarySystemFillHex: String!
+    @NSManaged public var darkQuaternarySystemFillHex: String!
 
     @NSManaged public var title: String?
     @NSManaged public var book: Book?
@@ -53,6 +57,8 @@ extension Theme {
               let lightSystemGroupedBackgroundHex = params["lightSystemGroupedBackgroundHex"] as? String,
               let lightSystemFillHex = params["lightSystemFillHex"] as? String,
               let lightSecondarySystemFillHex = params["lightSecondarySystemFillHex"] as? String,
+              let lightTertiarySystemFillHex = params["lightTertiarySystemFillHex"] as? String,
+              let lightQuaternarySystemFillHex = params["lightQuaternarySystemFillHex"] as? String,
               let darkPrimaryHex = params["darkPrimaryHex"] as? String,
               let darkSecondaryHex = params["darkSecondaryHex"] as? String,
               let darkAccentHex = params["darkAccentHex"] as? String,
@@ -62,7 +68,9 @@ extension Theme {
               let darkTertiarySystemBackgroundHex = params["darkTertiarySystemBackgroundHex"] as? String,
               let darkSystemGroupedBackgroundHex = params["darkSystemGroupedBackgroundHex"] as? String,
               let darkSystemFillHex = params["darkSystemFillHex"] as? String,
-              let darkSecondarySystemFillHex = params["darkSecondarySystemFillHex"] as? String else { return nil }
+              let darkSecondarySystemFillHex = params["darkSecondarySystemFillHex"] as? String,
+              let darkTertiarySystemFillHex = params["darkTertiarySystemFillHex"] as? String,
+              let darkQuaternarySystemFillHex = params["darkQuaternarySystemFillHex"] as? String else { return nil }
 
         let predicateFormat =
             """
@@ -77,6 +85,8 @@ extension Theme {
             && lightSystemGroupedBackgroundHex = %@
             && lightSystemFillHex = %@
             && lightSecondarySystemFillHex = %@
+            && lightTertiarySystemFillHex = %@
+            && lightQuaternarySystemFillHex = %@
             && darkPrimaryHex = %@
             && darkSecondaryHex = %@
             && darkAccentHex = %@
@@ -87,6 +97,8 @@ extension Theme {
             && darkSystemGroupedBackgroundHex = %@
             && darkSystemFillHex = %@
             && darkSecondarySystemFillHex = %@
+            && darkTertiarySystemFillHex = %@
+            && darkQuaternarySystemFillHex = %@
             """
 
         return NSPredicate(format: predicateFormat,
@@ -101,6 +113,8 @@ extension Theme {
                            lightSystemGroupedBackgroundHex,
                            lightSystemFillHex,
                            lightSecondarySystemFillHex,
+                           lightTertiarySystemFillHex,
+                           lightQuaternarySystemFillHex,
                            darkPrimaryHex,
                            darkSecondaryHex,
                            darkAccentHex,
@@ -110,6 +124,8 @@ extension Theme {
                            darkTertiarySystemBackgroundHex,
                            darkSystemGroupedBackgroundHex,
                            darkSystemFillHex,
-                           darkSecondarySystemFillHex)
+                           darkSecondarySystemFillHex,
+                           darkTertiarySystemFillHex,
+                           darkQuaternarySystemFillHex)
     }
 }

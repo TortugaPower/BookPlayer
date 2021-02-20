@@ -11,6 +11,8 @@
         "lightSystemGroupedBackgroundHex": "EFEEF0",
         "lightSystemFillHex": "87A0BA",
         "lightSecondarySystemFillHex": "ACAAB1",
+        "lightTertiarySystemFillHex": "3488D1",
+        "lightQuaternarySystemFillHex": "3488D1",
         "darkPrimaryHex": "FAFBFC",
         "darkSecondaryHex": "8F8E94",
         "darkAccentHex": "459EEC",
@@ -20,7 +22,9 @@
         "darkTertiarySystemBackgroundHex": "333538",
         "darkSystemGroupedBackgroundHex": "2C2D30",
         "darkSystemFillHex": "647E98",
-        "darkSecondarySystemFillHex": "707176"
+        "darkSecondarySystemFillHex": "707176",
+        "darkTertiarySystemFillHex": "459EEC",
+        "darkQuaternarySystemFillHex": "459EEC"
     },
     {
         "title": "Default / Pure Black",
@@ -34,6 +38,8 @@
         "lightSystemGroupedBackgroundHex": "EFEEF0",
         "lightSystemFillHex": "87A0BA",
         "lightSecondarySystemFillHex": "ACAAB1",
+        "lightTertiarySystemFillHex": "3488D1",
+        "lightQuaternarySystemFillHex": "3488D1",
         "darkPrimaryHex": "FAFBFC",
         "darkSecondaryHex": "8F8E94",
         "darkAccentHex": "459EEC",
@@ -43,7 +49,9 @@
         "darkTertiarySystemBackgroundHex": "181818",
         "darkSystemGroupedBackgroundHex": "0E0E0F",
         "darkSystemFillHex": "5E7792",
-        "darkSecondarySystemFillHex": "68666B"
+        "darkSecondarySystemFillHex": "68666B",
+        "darkTertiarySystemFillHex": "459EEC",
+        "darkQuaternarySystemFillHex": "459EEC"
     },
     {
         "title": "Blue Marine",
@@ -57,6 +65,8 @@
         "lightSystemGroupedBackgroundHex": "ECF1F3",
         "lightSystemFillHex": "B2D8DC",
         "lightSecondarySystemFillHex": "CCCDCF",
+        "lightTertiarySystemFillHex": "007F8D",
+        "lightQuaternarySystemFillHex": "007F8D",
         "darkPrimaryHex": "E8D5B5",
         "darkSecondaryHex": "97A3AF",
         "darkAccentHex": "5AC8FA",
@@ -67,6 +77,8 @@
         "darkSystemGroupedBackgroundHex": "141929",
         "darkSystemFillHex": "047589",
         "darkSecondarySystemFillHex": "6F7785",
+        "darkTertiarySystemFillHex": "5AC8FA",
+        "darkQuaternarySystemFillHex": "5AC8FA",
         "locked": true
     },
     {
@@ -81,6 +93,8 @@
         "lightSystemGroupedBackgroundHex": "EFE8ED",
         "lightSystemFillHex": "FBB6D3",
         "lightSecondarySystemFillHex": "AFB8C1",
+        "lightTertiarySystemFillHex": "FF006A",
+        "lightQuaternarySystemFillHex": "FF006A",
         "darkPrimaryHex": "FCDFEB",
         "darkSecondaryHex": "97A3AF",
         "darkAccentHex": "FF006A",
@@ -91,6 +105,8 @@
         "darkSystemGroupedBackgroundHex": "400E24",
         "darkSystemFillHex": "98013E",
         "darkSecondarySystemFillHex": "7B7684",
+        "darkTertiarySystemFillHex": "FF006A",
+        "darkQuaternarySystemFillHex": "FF006A",
         "locked": true
     },
     {
@@ -105,6 +121,8 @@
         "lightSystemGroupedBackgroundHex": "F1F1F1",
         "lightSystemFillHex": "D9BAA0",
         "lightSecondarySystemFillHex": "B5B9BC",
+        "lightTertiarySystemFillHex": "FF8F40",
+        "lightQuaternarySystemFillHex": "FF8F40",
         "darkPrimaryHex": "EDECEA",
         "darkSecondaryHex": "667380",
         "darkAccentHex": "FFCC66",
@@ -115,6 +133,8 @@
         "darkSystemGroupedBackgroundHex": "292F3A",
         "darkSystemFillHex": "7C745C",
         "darkSecondarySystemFillHex": "545E6B",
+        "darkTertiarySystemFillHex": "FFCC66",
+        "darkQuaternarySystemFillHex": "FFCC66",
         "locked": true
     },
     {
@@ -129,6 +149,8 @@
         "lightSystemGroupedBackgroundHex": "E5E1D8",
         "lightSystemFillHex": "859692",
         "lightSecondarySystemFillHex": "A09985",
+        "lightTertiarySystemFillHex": "4A8EAE",
+        "lightQuaternarySystemFillHex": "4A8EAE",
         "darkPrimaryHex": "EFE8DD",
         "darkSecondaryHex": "726B53",
         "darkAccentHex": "5D9FBA",
@@ -139,6 +161,8 @@
         "darkSystemGroupedBackgroundHex": "2F2B22",
         "darkSystemFillHex": "5D6D67",
         "darkSecondarySystemFillHex": "5F5843",
+        "darkTertiarySystemFillHex": "5D9FBA",
+        "darkQuaternarySystemFillHex": "5D9FBA",
         "locked": true
     },
     {
@@ -153,6 +177,8 @@
         "lightSystemGroupedBackgroundHex": "E3DFCC",
         "lightSystemFillHex": "A79166",
         "lightSecondarySystemFillHex": "9E9883",
+        "lightTertiarySystemFillHex": "B68026",
+        "lightQuaternarySystemFillHex": "B68026",
         "darkPrimaryHex": "EFE8DD",
         "darkSecondaryHex": "726B53",
         "darkAccentHex": "CFAB72",
@@ -163,6 +189,8 @@
         "darkSystemGroupedBackgroundHex": "2F2A22",
         "darkSystemFillHex": "7E7052",
         "darkSecondarySystemFillHex": "5D5744",
+        "darkTertiarySystemFillHex": "CFAB72",
+        "darkQuaternarySystemFillHex": "CFAB72",
         "locked": true
     },
     {
@@ -177,6 +205,8 @@
         "lightSystemGroupedBackgroundHex": "EFF1F1",
         "lightSystemFillHex": "88B3BF",
         "lightSecondarySystemFillHex": "B5B9BC",
+        "lightTertiarySystemFillHex": "1CA5C3",
+        "lightQuaternarySystemFillHex": "1CA5C3",
         "darkPrimaryHex": "A7B1B6",
         "darkSecondaryHex": "BEBFC0",
         "darkAccentHex": "5FBFD5",
@@ -187,6 +217,8 @@
         "darkSystemGroupedBackgroundHex": "313C43",
         "darkSystemFillHex": "84A3AB",
         "darkSecondarySystemFillHex": "93979A",
+        "darkTertiarySystemFillHex": "5FBFD5",
+        "darkQuaternarySystemFillHex": "5FBFD5",
         "locked": true
     },
     {
@@ -201,6 +233,8 @@
         "lightSystemGroupedBackgroundHex": "EEEDF0",
         "lightSystemFillHex": "A38AA5",
         "lightSecondarySystemFillHex": "A6A6A8",
+        "lightTertiarySystemFillHex": "9F4BA1",
+        "lightQuaternarySystemFillHex": "9F4BA1",
         "darkPrimaryHex": "EFE5F8",
         "darkSecondaryHex": "AAAEB7",
         "darkAccentHex": "9C58A4",
@@ -211,6 +245,8 @@
         "darkSystemGroupedBackgroundHex": "383A53",
         "darkSystemFillHex": "8E7C9B",
         "darkSecondarySystemFillHex": "878B99",
+        "darkTertiarySystemFillHex": "9C58A4",
+        "darkQuaternarySystemFillHex": "9C58A4",
         "locked": true
     },
     {
@@ -225,6 +261,8 @@
         "lightSystemGroupedBackgroundHex": "EEEEEF",
         "lightSystemFillHex": "81A289",
         "lightSecondarySystemFillHex": "ABABB0",
+        "lightTertiarySystemFillHex": "1F8F2B",
+        "lightQuaternarySystemFillHex": "1F8F2B",
         "darkPrimaryHex": "FAFBFC",
         "darkSecondaryHex": "8F8E94",
         "darkAccentHex": "5FB773",
@@ -235,6 +273,8 @@
         "darkSystemGroupedBackgroundHex": "2E3535",
         "darkSystemFillHex": "6C8776",
         "darkSecondarySystemFillHex": "717377",
+        "darkTertiarySystemFillHex": "5FB773",
+        "darkQuaternarySystemFillHex": "5FB773",
         "locked": true
     },
     {
@@ -249,6 +289,8 @@
         "lightSystemGroupedBackgroundHex": "F0F0F1",
         "lightSystemFillHex": "C09BA0",
         "lightSecondarySystemFillHex": "B0BAC3",
+        "lightTertiarySystemFillHex": "E25152",
+        "lightQuaternarySystemFillHex": "E25152",
         "darkPrimaryHex": "EEF4FF",
         "darkSecondaryHex": "7191B1",
         "darkAccentHex": "DD6060",
@@ -259,6 +301,8 @@
         "darkSystemGroupedBackgroundHex": "122858",
         "darkSystemFillHex": "7D6C86",
         "darkSecondarySystemFillHex": "547096",
+        "darkTertiarySystemFillHex": "DD6060",
+        "darkQuaternarySystemFillHex": "DD6060",
         "locked": true
     }
 ]
