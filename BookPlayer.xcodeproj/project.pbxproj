@@ -2308,7 +2308,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 3.11.1;
+				MARKETING_VERSION = 3.11.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerIntents;
@@ -2340,7 +2340,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 3.11.1;
+				MARKETING_VERSION = 3.11.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerIntents;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2370,7 +2370,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 3.11.1;
+				MARKETING_VERSION = 3.11.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerIntents;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2404,7 +2404,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MARKETING_VERSION = 3.11.1;
+				MARKETING_VERSION = 3.11.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp;
@@ -2443,7 +2443,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MARKETING_VERSION = 3.11.1;
+				MARKETING_VERSION = 3.11.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2479,7 +2479,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MARKETING_VERSION = 3.11.1;
+				MARKETING_VERSION = 3.11.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2511,7 +2511,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 3.11.1;
+				MARKETING_VERSION = 3.11.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp.watchkitextension;
@@ -2545,7 +2545,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 3.11.1;
+				MARKETING_VERSION = 3.11.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp.watchkitextension;
 				PRODUCT_NAME = "${TARGET_NAME}";
@@ -2577,7 +2577,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 3.11.1;
+				MARKETING_VERSION = 3.11.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp.watchkitextension;
 				PRODUCT_NAME = "${TARGET_NAME}";
@@ -2729,7 +2729,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 3.11.1;
+				MARKETING_VERSION = 3.11.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerWidgetUI;
@@ -2765,7 +2765,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 3.11.1;
+				MARKETING_VERSION = 3.11.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerWidgetUI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2799,7 +2799,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 3.11.1;
+				MARKETING_VERSION = 3.11.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerWidgetUI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2944,7 +2944,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.11.1;
+				MARKETING_VERSION = 3.11.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer;
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "BookPlayer 3 with CarPlay";
@@ -2977,7 +2977,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.11.1;
+				MARKETING_VERSION = 3.11.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer;
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "BookPlayer 3 with CarPlay";
@@ -3162,7 +3162,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 3.11.1;
+				MARKETING_VERSION = 3.11.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerWidget;
@@ -3195,7 +3195,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 3.11.1;
+				MARKETING_VERSION = 3.11.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -3226,7 +3226,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 3.11.1;
+				MARKETING_VERSION = 3.11.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -3312,7 +3312,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.11.1;
+				MARKETING_VERSION = 3.11.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer;
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "BookPlayer 3 with CarPlay";
