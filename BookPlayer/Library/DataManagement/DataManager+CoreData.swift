@@ -11,7 +11,7 @@ import Foundation
 
 extension DataManager {
     class func createBook(from file: FileItem) -> Book {
-        return Book(from: file, context: self.persistentContainer.viewContext)
+        return Book(from: file, context: self.getContext())
     }
 
     /**
@@ -25,7 +25,7 @@ extension DataManager {
      - Parameter completion: Closure fired after processing all the urls.
      */
     class func insertBooks(from files: [FileItem], into playlist: Playlist?, or library: Library, completion: @escaping () -> Void) {
-        let context = self.persistentContainer.viewContext
+        let context = self.getContext()
 
         for file in files.sorted(by: {$0.originalUrl.fileName < $1.originalUrl.fileName}) {
             // TODO: do something about unprocessed URLs

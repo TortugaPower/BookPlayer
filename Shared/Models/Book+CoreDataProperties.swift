@@ -20,7 +20,6 @@ extension Book {
     @NSManaged public var usesDefaultArtwork: Bool
     @NSManaged public var chapters: NSOrderedSet?
     @NSManaged public var playlist: Playlist?
-    @NSManaged public var artworkColors: Theme!
     @NSManaged public var lastPlayed: Library?
 }
 

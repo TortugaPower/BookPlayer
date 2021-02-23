@@ -201,7 +201,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate, Telem
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        let style = self.currentBook.artworkColors.useDarkVariant ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
+        let style = ThemeManager.shared.useDarkVariant ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
         return self.themedStatusBarStyle ?? style
     }
 

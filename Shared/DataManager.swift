@@ -34,50 +34,22 @@ public class DataManager {
         return processedFolderURL
     }
 
-    public static var storeUrl: URL {
-        return FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!.appendingPathComponent("BookPlayer.sqlite")
-    }
-
-    public static var persistentContainer: NSPersistentContainer = {
-        let name = "BookPlayer"
-
-        let container = NSPersistentContainer(name: name)
-
-        let description = NSPersistentStoreDescription()
-        description.shouldInferMappingModelAutomatically = false
-        description.shouldMigrateStoreAutomatically = true
-        description.url = storeUrl
-
-        container.persistentStoreDescriptions = [description]
-
-        container.loadPersistentStores(completionHandler: { _, error in
-            if let error = error as NSError? {
-                fatalError("Unresolved error \(error), \(error.userInfo)")
-            }
-        })
-
-        return container
+    public static var coreDataStack: CoreDataStack = {
+        let manager = DataMigrationManager(modelNamed: "BookPlayer",
+                                           enableMigrations: true)
+        return manager.stack
     }()
 
-    public class func saveContext() {
-        let context = self.persistentContainer.viewContext
-
-        if context.hasChanges {
-            do {
-                try context.save()
-            } catch {
-                let nserror = error as NSError
-                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
-            }
-        }
+    public class func getContext() -> NSManagedObjectContext {
+        return self.coreDataStack.managedContext
     }
 
-    public class func getContext() -> NSManagedObjectContext {
-        return self.persistentContainer.viewContext
+    public class func saveContext() {
+        self.coreDataStack.saveContext()
     }
 
     public class func getBackgroundContext() -> NSManagedObjectContext {
-        return self.persistentContainer.newBackgroundContext()
+        return self.coreDataStack.getBackgroundContext()
     }
 
     // MARK: - Models handler
@@ -88,7 +60,7 @@ public class DataManager {
     public class func getLibrary() -> Library {
         var library: Library!
 
-        let context = self.persistentContainer.viewContext
+        let context = self.coreDataStack.managedContext
         let fetch: NSFetchRequest<Library> = Library.fetchRequest()
 
         do {
@@ -103,7 +75,7 @@ public class DataManager {
 
     public class func getBooks() -> [Book]? {
         let fetch: NSFetchRequest<Book> = Book.fetchRequest()
-        let context = self.persistentContainer.viewContext
+        let context = self.coreDataStack.managedContext
 
         return try? context.fetch(fetch)
     }
@@ -112,11 +84,13 @@ public class DataManager {
      Gets a stored book from an identifier.
      */
     public class func getBook(with identifier: String, from library: Library) -> Book? {
-        guard let item = library.getItem(with: identifier) else {
+        guard let item = library.getItem(with: identifier)
+        else {
             return nil
         }
 
-        guard let playlist = item as? Playlist else {
+        guard let playlist = item as? Playlist
+        else {
             return item as? Book
         }
 
@@ -124,7 +98,7 @@ public class DataManager {
     }
 
     public class func createPlaylist(title: String, books: [Book]) -> Playlist {
-        return Playlist(title: title, books: books, context: self.persistentContainer.viewContext)
+        return Playlist(title: title, books: books, context: self.coreDataStack.managedContext)
     }
 
     public class func insert(_ playlist: Playlist, into library: Library, at index: Int? = nil) {
@@ -137,7 +111,7 @@ public class DataManager {
     }
 
     public class func delete(_ item: NSManagedObject) {
-        self.persistentContainer.viewContext.delete(item)
+        self.coreDataStack.managedContext.delete(item)
         self.saveContext()
     }
 
@@ -166,7 +140,7 @@ public class DataManager {
         let toPredicate = NSPredicate(format: "date < %@", dateTo as NSDate)
         let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate])
 
-        let context = self.persistentContainer.viewContext
+        let context = self.coreDataStack.managedContext
         let fetch: NSFetchRequest<PlaybackRecord> = PlaybackRecord.fetchRequest()
         fetch.predicate = datePredicate
 
@@ -182,7 +156,7 @@ public class DataManager {
 
         let fetch: NSFetchRequest<PlaybackRecord> = PlaybackRecord.fetchRequest()
         fetch.predicate = datePredicate
-        let context = self.persistentContainer.viewContext
+        let context = self.coreDataStack.managedContext
 
         return try? context.fetch(fetch)
     }

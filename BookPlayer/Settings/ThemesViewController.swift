@@ -117,22 +117,7 @@ class ThemesViewController: UIViewController, TelemetryProtocol {
         guard let books = DataManager.getBooks() else { return }
 
         vc.items = books
-        vc.onItemSelected = { selectedItem in
-            guard let book = selectedItem as? Book else { return }
-
-            let theme = self.extractedThemes.first(where: { (theme) -> Bool in
-                theme.sameColors(as: book.artworkColors)
-            })
-
-            if theme == nil {
-                self.extractedThemes.append(book.artworkColors)
-                DataManager.addExtractedTheme(book.artworkColors)
-            }
-
-            ThemeManager.shared.currentTheme = theme ?? book.artworkColors
-
-            self.extractedThemesTableView.reloadData()
-        }
+        vc.onItemSelected = { _ in }
 
         let nav = AppNavigationController(rootViewController: vc)
         self.present(nav, animated: true) {
