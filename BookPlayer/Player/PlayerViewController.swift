@@ -158,7 +158,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate, Telem
             return
         }
 
-        self.backgroundImage.image = currentBook.artwork
+        self.backgroundImage.image = currentBook.getArtwork(for: themeProvider.currentTheme)
 
         // Solution thanks to https://forums.developer.apple.com/thread/63166#180445
         self.modalPresentationCapturesStatusBarAppearance = true

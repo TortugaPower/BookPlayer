@@ -22,8 +22,8 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
         didSet {
             guard let book = self.book, !book.isFault else { return }
 
-            self.artworkControl.artwork = book.artwork
-
+            self.artworkControl.artwork = book.getArtwork(for: themeProvider.currentTheme)
+            self.artworkControl.book = book
             self.artworkControl.shadowOpacity = 0.1 + (1.0 - self.themeProvider.currentTheme.systemBackgroundColor.brightness) * 0.3
 
             self.setProgress()

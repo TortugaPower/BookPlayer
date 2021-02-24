@@ -6,7 +6,9 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
+import BookPlayerKit
 import UIKit
+import Themeable
 
 class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     @IBOutlet var contentView: UIView!
@@ -19,9 +21,15 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     @IBOutlet weak var artworkOverlay: UIView!
     @IBOutlet weak var artworkWidth: NSLayoutConstraint!
     @IBOutlet weak var artworkHeight: NSLayoutConstraint!
+    @IBOutlet weak var backgroundGradientColorView: UIView!
+    @IBOutlet weak var authorLabel: UILabel!
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var infoContainerStackView: UIStackView!
 
     private let playImage = UIImage(named: "playerIconPlay")
     private let pauseImage = UIImage(named: "playerIconPause")
+    private var leftGradientLayer: CAGradientLayer!
+    private var rightGradientLayer: CAGradientLayer!
 
     // Based on the design files for iPhone X where the regular artwork is 325dp and the paused state is 255dp in width
     private let artworkScalePaused: CGFloat = 255.0 / 325.0
@@ -39,6 +47,19 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         set {
             self.rewindIcon.tintColor = newValue
             self.forwardIcon.tintColor = newValue
+        }
+    }
+
+    var book: Book? {
+        didSet {
+            guard let book = book else { return }
+
+            self.titleLabel.text = book.title
+            self.authorLabel.text = book.author
+            self.artwork = book.getArtwork(for: themeProvider.currentTheme)
+            self.backgroundGradientColorView.isHidden = book.hasArtwork
+            self.infoContainerStackView.isHidden = book.hasArtwork
+            self.artworkImage.isHidden = !book.hasArtwork
         }
     }
 
@@ -135,6 +156,11 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         self.artworkOverlay.layer.cornerRadius = 6.0
         self.artworkOverlay.layer.masksToBounds = true
 
+        self.backgroundGradientColorView.clipsToBounds = false
+        self.backgroundGradientColorView.layer.cornerRadius = 6.0
+        self.backgroundGradientColorView.layer.masksToBounds = true
+        self.backgroundGradientColorView.layer.borderColor = UIColor.clear.cgColor
+
         // Gestures
         let rewindTap = UILongPressGestureRecognizer(target: self, action: #selector(self.tapRewind))
         rewindTap.minimumPressDuration = 0
@@ -145,6 +171,19 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
 
         self.rewindIcon.addGestureRecognizer(rewindTap)
         self.forwardIcon.addGestureRecognizer(forwardTap)
+
+        self.leftGradientLayer = CAGradientLayer()
+        self.leftGradientLayer.frame = self.backgroundGradientColorView.frame
+        self.leftGradientLayer.type = .radial
+        self.leftGradientLayer.startPoint = CGPoint(x: 0, y: 0)
+        self.leftGradientLayer.endPoint = CGPoint(x: 1, y: 1)
+        self.rightGradientLayer = CAGradientLayer()
+        self.rightGradientLayer.frame = self.backgroundGradientColorView.frame
+        self.rightGradientLayer.type = .radial
+        self.rightGradientLayer.startPoint = CGPoint(x: 1, y: 0)
+        self.rightGradientLayer.endPoint = CGPoint(x: 0, y: 1)
+
+        self.setUpTheming()
     }
 
     // Voiceover
@@ -246,5 +285,21 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         UIView.animate(withDuration: 0.1, delay: 0.0, options: [.curveEaseIn, .beginFromCurrentState], animations: {
             self.layer.transform = transform
         })
+    }
+}
+
+extension ArtworkControl: Themeable {
+    func applyTheme(_ theme: Theme) {
+        self.titleLabel.textColor = .white
+        self.authorLabel.textColor = theme.linkColor.mix(with: .white)
+        self.backgroundGradientColorView.backgroundColor = theme.linkColor
+
+        self.leftGradientLayer.colors = DefaultArtworkFactory.getLeftGradiants(for: theme.linkColor)
+        self.rightGradientLayer.colors = DefaultArtworkFactory.getRightGradiants(for: theme.linkColor)
+        self.leftGradientLayer.removeFromSuperlayer()
+        self.rightGradientLayer.removeFromSuperlayer()
+
+        self.backgroundGradientColorView.layer.insertSublayer(self.leftGradientLayer, at: 0)
+        self.backgroundGradientColorView.layer.insertSublayer(self.rightGradientLayer, at: 0)
     }
 }

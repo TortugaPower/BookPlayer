@@ -44,6 +44,7 @@ struct RecentBooksProvider: IntentTimelineProvider {
 struct BookView: View {
     var item: BookPlayerKit.LibraryItem
     var titleColor: Color
+    var theme: Theme?
     var entry: RecentBooksProvider.Entry
 
     var body: some View {
@@ -60,9 +61,11 @@ struct BookView: View {
 
         let url = WidgetUtils.getWidgetActionURL(with: identifier, autoplay: entry.autoplay, timerSeconds: entry.timerSeconds)
 
+        let artwork = item.getArtwork(for: theme)
+
         return Link(destination: url) {
             VStack(spacing: 5) {
-                if let artwork = item.artwork {
+                if let artwork = artwork {
                     Image(uiImage: artwork)
                         .resizable()
                         .frame(minWidth: 60, maxWidth: 60, minHeight: 60, maxHeight: 60)
@@ -114,7 +117,7 @@ struct RecentBooksWidgetView: View {
             .padding([.top], 8)
             HStack {
                 ForEach(items, id: \.identifier) { item in
-                    BookView(item: item, titleColor: widgetColors.primaryColor, entry: entry)
+                    BookView(item: item, titleColor: widgetColors.primaryColor, theme: entry.library?.currentTheme, entry: entry)
                 }
             }
             .padding([.leading, .trailing])

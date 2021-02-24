@@ -40,7 +40,6 @@ class TodayViewController: UIViewController, NCWidgetProviding {
 
         guard let book = library.lastPlayedBook else { return }
 
-        self.artworkImageView.image = book.artwork
         self.titleLabel.text = book.title
         self.authorLabel.text = book.author
 
@@ -53,6 +52,7 @@ class TodayViewController: UIViewController, NCWidgetProviding {
 
         guard let theme = library.currentTheme else { return }
 
+        self.artworkImageView.image = book.getArtwork(for: theme)
         let titleColor = theme.primaryColor
 
         self.view.backgroundColor = theme.systemBackgroundColor.withAlpha(newAlpha: 0.5)
