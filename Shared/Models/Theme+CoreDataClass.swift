@@ -80,7 +80,7 @@ public class Theme: NSManagedObject, Codable {
     }
 
     // W3C recommends contrast values larger 4 or 7 (strict), but 3.0 should be fine for our use case
-    public convenience init(from _: UIImage, context: NSManagedObjectContext, darknessThreshold _: CGFloat = 0.2, minimumContrastRatio _: CGFloat = 3.0) {
+    public convenience init(from image: UIImage?, context: NSManagedObjectContext, darknessThreshold: CGFloat = 0.2, minimumContrastRatio: CGFloat = 3.0) {
         let entity = NSEntityDescription.entity(forEntityName: "Theme", in: context)!
         self.init(entity: entity, insertInto: context)
 

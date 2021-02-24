@@ -50,6 +50,10 @@ public class Book: LibraryItem {
         return !(self.chapters?.array.isEmpty ?? true)
     }
 
+    public var hasArtwork: Bool {
+        return self.artworkData != nil
+    }
+
     public override func jumpToStart() {
         self.setCurrentTime(0.0)
     }
