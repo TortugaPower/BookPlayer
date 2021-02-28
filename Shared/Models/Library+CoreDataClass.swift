@@ -29,7 +29,7 @@ public class Library: NSManagedObject, Codable {
 
             // check if playlist
             if
-                let playlist = item as? Playlist,
+                let playlist = item as? Folder,
                 let storedBooks = playlist.books?.array as? [Book],
                 storedBooks.contains(where: { (storedBook) -> Bool in
                     storedBook.identifier == identifier
@@ -81,7 +81,7 @@ public class Library: NSManagedObject, Codable {
             guard index > indexFound,
                 !item.isFinished else { continue }
 
-            if let playlist = item as? Playlist, !playlist.hasBooks() { continue }
+            if let playlist = item as? Folder, !playlist.hasBooks() { continue }
 
             return item
         }
@@ -119,13 +119,13 @@ public class Library: NSManagedObject, Codable {
         guard let itemsArray = self.items?.array as? [LibraryItem] else { return }
 
         var books = [Int: Book]()
-        var playlists = [Int: Playlist]()
+        var playlists = [Int: Folder]()
 
         for (index, item) in itemsArray.enumerated() {
             if let book = item as? Book {
                 books[index] = book
             }
-            if let playlist = item as? Playlist {
+            if let playlist = item as? Folder {
                 playlists[index] = playlist
             }
         }
@@ -163,7 +163,7 @@ public class Library: NSManagedObject, Codable {
             books = decodedBooks
         }
 
-        if let decodedPlaylists = try? values.decode([Int: Playlist].self, forKey: .playlists) {
+        if let decodedPlaylists = try? values.decode([Int: Folder].self, forKey: .playlists) {
             playlists = decodedPlaylists
         }
 

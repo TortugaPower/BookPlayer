@@ -10,7 +10,7 @@ import BookPlayerKit
 import UIKit
 
 class PlaylistViewController: ItemListViewController {
-    var playlist: Playlist!
+    var playlist: Folder!
 
     override var items: [LibraryItem] {
         return self.playlist.books?.array as? [LibraryItem] ?? []
@@ -166,8 +166,8 @@ class PlaylistViewController: ItemListViewController {
             })
         })
 
-        let availablePlaylists = self.library.itemsArray.compactMap { (item) -> Playlist? in
-            item as? Playlist
+        let availablePlaylists = self.library.itemsArray.compactMap { (item) -> Folder? in
+            item as? Folder
         }
 
         let existingPlaylistAction = UIAlertAction(title: "existing_playlist_button".localized, style: .default) { _ in
@@ -176,7 +176,7 @@ class PlaylistViewController: ItemListViewController {
             vc.items = availablePlaylists
 
             vc.onItemSelected = { selectedItem in
-                guard let selectedPlaylist = selectedItem as? Playlist else { return }
+                guard let selectedPlaylist = selectedItem as? Folder else { return }
                 self.move(selectedItems, to: selectedPlaylist)
             }
 

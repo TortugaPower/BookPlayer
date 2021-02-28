@@ -10,9 +10,9 @@
 import CoreData
 import Foundation
 
-extension Playlist {
-    @nonobjc public class func fetchRequest() -> NSFetchRequest<Playlist> {
-        return NSFetchRequest<Playlist>(entityName: "Playlist")
+extension Folder {
+    @nonobjc public class func fetchRequest() -> NSFetchRequest<Folder> {
+        return NSFetchRequest<Folder>(entityName: "Folder")
     }
 
     @NSManaged public var desc: String!
@@ -21,7 +21,7 @@ extension Playlist {
 
 // MARK: Generated accessors for books
 
-extension Playlist {
+extension Folder {
     @objc(insertObject:inBooksAtIndex:)
     @NSManaged public func insertIntoBooks(_ value: Book, at idx: Int)
 

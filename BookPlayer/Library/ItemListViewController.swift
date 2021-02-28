@@ -427,7 +427,7 @@ extension ItemListViewController {
                 return book.fileURL == fileURL
             }
 
-            if let playlist = item as? Playlist {
+            if let playlist = item as? Folder {
                 return playlist.getBook(with: fileURL) != nil
             }
 
@@ -438,7 +438,7 @@ extension ItemListViewController {
 
         let item = self.items[index]
 
-        let progress = item is Playlist
+        let progress = item is Folder
             ? item.progress
             : userInfo["progress"] as? Double ?? item.progress
 
@@ -527,7 +527,7 @@ extension ItemListViewController: UITableViewDataSource {
         cell.artwork = item.getArtwork(for: themeProvider.currentTheme)
         cell.title = item.title
         cell.playbackState = .stopped
-        cell.type = item is Playlist ? .playlist : .book
+        cell.type = item is Folder ? .playlist : .book
 
         cell.onArtworkTap = { [weak self] in
             guard !tableView.isEditing else {
@@ -548,7 +548,7 @@ extension ItemListViewController: UITableViewDataSource {
 
         if let book = item as? Book {
             cell.subtitle = book.author
-        } else if let playlist = item as? Playlist {
+        } else if let playlist = item as? Folder {
             cell.subtitle = playlist.info()
         }
 
@@ -559,7 +559,7 @@ extension ItemListViewController: UITableViewDataSource {
     }
 
     func getNextBook(_ item: LibraryItem) -> Book? {
-        guard let playlist = item as? Playlist else {
+        guard let playlist = item as? Folder else {
             return item.getBookToPlay()
         }
 

@@ -194,7 +194,7 @@ public class Book: LibraryItem {
 
         if let book = nextItem as? Book {
             return book
-        } else if let playlist = nextItem as? Playlist, let book = playlist.books?.firstObject as? Book {
+        } else if let playlist = nextItem as? Folder, let book = playlist.books?.firstObject as? Book {
             return book
         }
 

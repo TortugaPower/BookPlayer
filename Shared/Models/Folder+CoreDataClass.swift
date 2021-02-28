@@ -11,10 +11,12 @@ import CoreData
 import Foundation
 import UIKit
 
-@objc(Playlist)
-public class Playlist: LibraryItem {
+@objc(Folder)
+public class Folder: LibraryItem {
     var cachedDuration: Double?
     var cachedProgress: Double?
+
+//    var desc: String!
     // MARK: - Properties
 
     public override func getArtwork(for theme: Theme?) -> UIImage? {
@@ -60,7 +62,7 @@ public class Playlist: LibraryItem {
     // MARK: - Init
 
     convenience init(title: String, books: [Book], context: NSManagedObjectContext) {
-        let entity = NSEntityDescription.entity(forEntityName: "Playlist", in: context)!
+        let entity = NSEntityDescription.entity(forEntityName: "Folder", in: context)!
 
         self.init(entity: entity, insertInto: context)
         self.identifier = "\(title)\(Date().timeIntervalSince1970)"
@@ -68,6 +70,22 @@ public class Playlist: LibraryItem {
         self.originalFileName = title
         self.desc = "\(books.count) \("files_title".localized)"
         self.addToBooks(NSOrderedSet(array: books))
+    }
+
+    convenience init(from url: URL, books: [Book], context: NSManagedObjectContext) {
+        let entity = NSEntityDescription.entity(forEntityName: "Folder", in: context)!
+
+        let title = url.lastPathComponent
+        self.init(entity: entity, insertInto: context)
+
+        self.identifier = UUID().uuidString
+        self.title = title
+        self.originalFileName = title
+        self.desc = "\(books.count) \("files_title".localized)"
+//        self.path = ""
+        self.addToBooks(NSOrderedSet(array: books))
+        // swiftlint:disable force_try
+        try! url.setAppIdentifier(self.identifier)
     }
 
     // MARK: - Methods
@@ -250,8 +268,8 @@ public class Playlist: LibraryItem {
         // Create NSEntityDescription with NSManagedObjectContext
         guard let contextUserInfoKey = CodingUserInfoKey.context,
             let managedObjectContext = decoder.userInfo[contextUserInfoKey] as? NSManagedObjectContext,
-            let entity = NSEntityDescription.entity(forEntityName: "Playlist", in: managedObjectContext) else {
-            fatalError("Failed to decode Playlist!")
+            let entity = NSEntityDescription.entity(forEntityName: "Folder", in: managedObjectContext) else {
+            fatalError("Failed to decode Folder!")
         }
         self.init(entity: entity, insertInto: nil)
 
@@ -263,7 +281,7 @@ public class Playlist: LibraryItem {
     }
 }
 
-extension Playlist: Sortable {
+extension Folder: Sortable {
     public func sort(by sortType: PlayListSortOrder) {
         guard let books = books else { return }
         self.books = BookSortService.sort(books, by: sortType)

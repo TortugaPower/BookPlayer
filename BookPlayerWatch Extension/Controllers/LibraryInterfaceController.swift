@@ -184,7 +184,7 @@ class LibraryInterfaceController: WKInterfaceController {
 
         let item = self.items[rowIndex]
 
-        guard let playlist = item as? Playlist,
+        guard let playlist = item as? Folder,
             let books = playlist.books?.array as? [Book] else {
             // swiftlint:disable force_cast
             let book = item as! Book

@@ -88,7 +88,7 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
             return items.count
         }
 
-        guard let playlist = items[indexPath[IndexGuide.library.content]] as? Playlist,
+        guard let playlist = items[indexPath[IndexGuide.library.content]] as? Folder,
             let count = playlist.books?.count else {
             return 0
         }
@@ -108,7 +108,7 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
 
         // Populate playlist content
         if indexPath.indices.count == IndexGuide.playlist.count,
-           let playlist = items[indexPath[IndexGuide.library.content]] as? Playlist,
+           let playlist = items[indexPath[IndexGuide.library.content]] as? Folder,
            let books = playlist.books?.array as? [Book] {
             let book = books[indexPath[IndexGuide.playlist.content]]
             let item = MPContentItem(identifier: book.identifier)
@@ -149,7 +149,7 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
             item.subtitle = book.author
             item.isContainer = false
             item.isPlayable = true
-        } else if let playlist = libraryItem as? Playlist {
+        } else if let playlist = libraryItem as? Folder {
             item.subtitle = playlist.info()
             item.isContainer = indexPath[0] != IndexGuide.tab.recentlyPlayed
             item.isPlayable = indexPath[0] == IndexGuide.tab.recentlyPlayed
@@ -167,12 +167,12 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
         var book: Book!
 
         if indexPath.indices.count == IndexGuide.playlist.count,
-            let playlist = items[indexPath[IndexGuide.library.content]] as? Playlist,
+            let playlist = items[indexPath[IndexGuide.library.content]] as? Folder,
             let books = playlist.books?.array as? [Book] {
             book = books[indexPath[IndexGuide.playlist.content]]
         } else {
             if indexPath[0] == IndexGuide.tab.recentlyPlayed,
-                let playlist = items[indexPath[IndexGuide.library.content]] as? Playlist {
+                let playlist = items[indexPath[IndexGuide.library.content]] as? Folder {
                 book = playlist.getBookToPlay()
             } else {
                 book = items[indexPath[IndexGuide.library.content]] as? Book

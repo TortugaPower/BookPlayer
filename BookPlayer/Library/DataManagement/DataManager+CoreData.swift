@@ -24,7 +24,7 @@ extension DataManager {
      - Parameter library: `Library` to which the created `Book` will be added if the parameter `playlist` is nil
      - Parameter completion: Closure fired after processing all the urls.
      */
-    class func insertBooks(from files: [FileItem], into playlist: Playlist?, or library: Library, completion: @escaping () -> Void) {
+    class func insertBooks(from files: [FileItem], into playlist: Folder?, or library: Library, completion: @escaping () -> Void) {
         let context = self.getContext()
 
         for file in files.sorted(by: {$0.originalUrl.fileName < $1.originalUrl.fileName}) {
@@ -44,7 +44,7 @@ extension DataManager {
                 continue
             }
 
-            guard let storedPlaylist = item as? Playlist,
+            guard let storedPlaylist = item as? Folder,
                 let storedBook = storedPlaylist.getBook(with: url) else {
                 // swiftlint:disable force_cast
                 // Handle if item is a book
@@ -93,13 +93,13 @@ extension DataManager {
      - Parameter playlist: `Playlist` to which the created `Book` will be added
      - Parameter completion: Closure fired after processing all the urls.
      */
-    public class func insertBooks(from files: [FileItem], into playlist: Playlist, completion: @escaping () -> Void) {
+    public class func insertBooks(from files: [FileItem], into playlist: Folder, completion: @escaping () -> Void) {
         self.insertBooks(from: files, into: playlist, or: playlist.library!, completion: completion)
     }
 
     public class func delete(_ items: [LibraryItem], mode: DeleteMode = .deep) {
         for item in items {
-            guard let playlist = item as? Playlist else {
+            guard let playlist = item as? Folder else {
                 // swiftlint:disable force_cast
                 self.delete(item as! Book, mode: mode)
                 continue
@@ -109,7 +109,7 @@ extension DataManager {
         }
     }
 
-    public class func delete(_ playlist: Playlist, mode: DeleteMode = .deep) {
+    public class func delete(_ playlist: Folder, mode: DeleteMode = .deep) {
         guard let library = playlist.library else { return }
 
         if mode == .shallow,

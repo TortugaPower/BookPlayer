@@ -15,7 +15,7 @@ class PlaylistTests: XCTestCase {
         super.setUp()
     }
 
-    func generatePlaylist(title: String, books: [Book]) -> Playlist {
+    func generatePlaylist(title: String, books: [Book]) -> Folder {
         return DataManager.createPlaylist(title: title, books: books)
     }
 

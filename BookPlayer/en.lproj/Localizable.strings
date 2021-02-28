@@ -155,7 +155,7 @@
 "voiceover_no_file_subtitle" = "No File Subtitle";
 "voiceover_no_playlist_title" = "No Playlist Title";
 /* &lt;Playlist title&gt; Playlist &lt;percentage in number&gt;% Completed */
-"voiceover_playlist_progress" = "%@ Playlist, %d percent Completed";
+"voiceover_playlist_progress" = "%@ Folder, %d percent Completed";
 "voiceover_unknown_title" = "Unknown title";
 "voiceover_unknown_author" = "Unknown author";
 /* &lt;book title&gt; by &lt;book author&gt; */

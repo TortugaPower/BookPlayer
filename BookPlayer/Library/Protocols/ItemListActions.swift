@@ -12,7 +12,7 @@ import UIKit
 protocol ItemListActions: ItemList {
     func sort(by sortType: PlayListSortOrder)
     func delete(_ items: [LibraryItem], mode: DeleteMode)
-    func move(_ items: [LibraryItem], to playlist: Playlist)
+    func move(_ items: [LibraryItem], to playlist: Folder)
 }
 
 extension ItemListActions {
@@ -21,10 +21,10 @@ extension ItemListActions {
         self.reloadData()
     }
 
-    func move(_ items: [LibraryItem], to playlist: Playlist) {
-        let selectedPlaylists = items.compactMap { (item) -> Playlist? in
+    func move(_ items: [LibraryItem], to playlist: Folder) {
+        let selectedPlaylists = items.compactMap { (item) -> Folder? in
             guard
-                let itemPlaylist = item as? Playlist,
+                let itemPlaylist = item as? Folder,
                 itemPlaylist != playlist else { return nil }
 
             return itemPlaylist

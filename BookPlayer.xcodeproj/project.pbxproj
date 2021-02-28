@@ -66,8 +66,8 @@
 		4140EA7D227289CB0009F794 /* LibraryItem+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A1B118226F88C500EA0400 /* LibraryItem+CoreDataProperties.swift */; };
 		4140EA7E227289CE0009F794 /* Library+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A1B119226F88C500EA0400 /* Library+CoreDataClass.swift */; };
 		4140EA7F227289D20009F794 /* Library+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A1B11A226F88C500EA0400 /* Library+CoreDataProperties.swift */; };
-		4140EA80227289D50009F794 /* Playlist+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A1B11B226F88C500EA0400 /* Playlist+CoreDataClass.swift */; };
-		4140EA81227289D80009F794 /* Playlist+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A1B11C226F88C500EA0400 /* Playlist+CoreDataProperties.swift */; };
+		4140EA80227289D50009F794 /* Folder+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A1B11B226F88C500EA0400 /* Folder+CoreDataClass.swift */; };
+		4140EA81227289D80009F794 /* Folder+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A1B11C226F88C500EA0400 /* Folder+CoreDataProperties.swift */; };
 		4140EA82227289DB0009F794 /* FileItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E3102148606600072AA2 /* FileItem.swift */; };
 		4140EA84227289E60009F794 /* BookPlayer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */; };
 		4140EA8522728A160009F794 /* BookPlayer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */; };
@@ -147,8 +147,8 @@
 		41A1B126226F88C500EA0400 /* LibraryItem+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A1B118226F88C500EA0400 /* LibraryItem+CoreDataProperties.swift */; };
 		41A1B127226F88C500EA0400 /* Library+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A1B119226F88C500EA0400 /* Library+CoreDataClass.swift */; };
 		41A1B128226F88C500EA0400 /* Library+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A1B11A226F88C500EA0400 /* Library+CoreDataProperties.swift */; };
-		41A1B129226F88C500EA0400 /* Playlist+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A1B11B226F88C500EA0400 /* Playlist+CoreDataClass.swift */; };
-		41A1B12A226F88C500EA0400 /* Playlist+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A1B11C226F88C500EA0400 /* Playlist+CoreDataProperties.swift */; };
+		41A1B129226F88C500EA0400 /* Folder+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A1B11B226F88C500EA0400 /* Folder+CoreDataClass.swift */; };
+		41A1B12A226F88C500EA0400 /* Folder+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A1B11C226F88C500EA0400 /* Folder+CoreDataProperties.swift */; };
 		41A1B12C226FC0A200EA0400 /* DataManager+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A1B12B226FC0A200EA0400 /* DataManager+BookPlayer.swift */; };
 		41A1B12D226FC7E500EA0400 /* ImportManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416B63A72146354B007D04B1 /* ImportManager.swift */; };
 		41A1B12E226FC7E500EA0400 /* ImportOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41E34E4F2138EA8200A3997C /* ImportOperation.swift */; };
@@ -576,8 +576,8 @@
 		41A1B118226F88C500EA0400 /* LibraryItem+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LibraryItem+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		41A1B119226F88C500EA0400 /* Library+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Library+CoreDataClass.swift"; sourceTree = "<group>"; };
 		41A1B11A226F88C500EA0400 /* Library+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Library+CoreDataProperties.swift"; sourceTree = "<group>"; };
-		41A1B11B226F88C500EA0400 /* Playlist+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Playlist+CoreDataClass.swift"; sourceTree = "<group>"; };
-		41A1B11C226F88C500EA0400 /* Playlist+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Playlist+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		41A1B11B226F88C500EA0400 /* Folder+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Folder+CoreDataClass.swift"; sourceTree = "<group>"; };
+		41A1B11C226F88C500EA0400 /* Folder+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Folder+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		41A1B12B226FC0A200EA0400 /* DataManager+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataManager+BookPlayer.swift"; sourceTree = "<group>"; };
 		41A1B134226FEB3C00EA0400 /* Book+AVFoundation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Book+AVFoundation.swift"; sourceTree = "<group>"; };
 		41A1B136226FED4000EA0400 /* DataManager+CoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataManager+CoreData.swift"; sourceTree = "<group>"; };
@@ -666,6 +666,7 @@
 		41EE378B21C0028800A55F51 /* ItemListActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListActions.swift; sourceTree = "<group>"; };
 		41F516952272CC5300F36C3E /* WatchConnectivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchConnectivityService.swift; sourceTree = "<group>"; };
 		41F898AE2402080C00F58B8A /* ZipArchive.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ZipArchive.framework; path = Carthage/Build/iOS/ZipArchive.framework; sourceTree = "<group>"; };
+		41FCA32625E87EC600BFB9E6 /* Audiobook Player 4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Audiobook Player 4.xcdatamodel"; sourceTree = "<group>"; };
 		5126F120258E9F18009965DC /* URL+BookPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "URL+BookPlayer.swift"; sourceTree = "<group>"; };
 		5CBB29522163A17F00E3A9FF /* ZIPFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ZIPFoundation.framework; path = Carthage/Build/iOS/ZIPFoundation.framework; sourceTree = "<group>"; };
 		6906A54F21720FDF00A9E0B2 /* BookSortServiceTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookSortServiceTest.swift; sourceTree = "<group>"; };
@@ -1269,8 +1270,8 @@
 				41A1B118226F88C500EA0400 /* LibraryItem+CoreDataProperties.swift */,
 				41A1B119226F88C500EA0400 /* Library+CoreDataClass.swift */,
 				41A1B11A226F88C500EA0400 /* Library+CoreDataProperties.swift */,
-				41A1B11B226F88C500EA0400 /* Playlist+CoreDataClass.swift */,
-				41A1B11C226F88C500EA0400 /* Playlist+CoreDataProperties.swift */,
+				41A1B11B226F88C500EA0400 /* Folder+CoreDataClass.swift */,
+				41A1B11C226F88C500EA0400 /* Folder+CoreDataProperties.swift */,
 				4163E3102148606600072AA2 /* FileItem.swift */,
 				41D39D40215F177D00B65290 /* BookActivityItemProvider.swift */,
 			);
@@ -1913,7 +1914,7 @@
 				4140EA71227289A20009F794 /* UIColor+BookPlayer.swift in Sources */,
 				5126F123258E9F18009965DC /* URL+BookPlayer.swift in Sources */,
 				419BD5992443FD04001E50A0 /* Intents.intentdefinition in Sources */,
-				4140EA80227289D50009F794 /* Playlist+CoreDataClass.swift in Sources */,
+				4140EA80227289D50009F794 /* Folder+CoreDataClass.swift in Sources */,
 				4140EA78227289BC0009F794 /* PlaybackRecord+CoreDataClass.swift in Sources */,
 				4140EA79227289BF0009F794 /* PlaybackRecord+CoreDataProperties.swift in Sources */,
 				4140EA7D227289CB0009F794 /* LibraryItem+CoreDataProperties.swift in Sources */,
@@ -1931,7 +1932,7 @@
 				4140EA6E227289960009F794 /* DeleteMode.swift in Sources */,
 				4140EA77227289B90009F794 /* Chapter+CoreDataProperties.swift in Sources */,
 				4140EA7B227289C40009F794 /* Book+CoreDataProperties.swift in Sources */,
-				4140EA81227289D80009F794 /* Playlist+CoreDataProperties.swift in Sources */,
+				4140EA81227289D80009F794 /* Folder+CoreDataProperties.swift in Sources */,
 				41D20DB325D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
 				4124AB1825DFE07E0007C839 /* DataMigrationManager.swift in Sources */,
 				41C3394A25E04091003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
@@ -2091,9 +2092,9 @@
 				41A1B121226F88C500EA0400 /* PlaybackRecord+CoreDataClass.swift in Sources */,
 				41A1B104226E9DBA00EA0400 /* UIColor+BookPlayer.swift in Sources */,
 				41A1B11D226F88C500EA0400 /* Theme+CoreDataClass.swift in Sources */,
-				41A1B129226F88C500EA0400 /* Playlist+CoreDataClass.swift in Sources */,
+				41A1B129226F88C500EA0400 /* Folder+CoreDataClass.swift in Sources */,
 				410C4692227358CD0040114D /* WatchConnectivityService.swift in Sources */,
-				41A1B12A226F88C500EA0400 /* Playlist+CoreDataProperties.swift in Sources */,
+				41A1B12A226F88C500EA0400 /* Folder+CoreDataProperties.swift in Sources */,
 				41A1B11E226F88C500EA0400 /* Theme+CoreDataProperties.swift in Sources */,
 				41A1B127226F88C500EA0400 /* Library+CoreDataClass.swift in Sources */,
 			);
@@ -3640,11 +3641,12 @@
 		4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				41FCA32625E87EC600BFB9E6 /* Audiobook Player 4.xcdatamodel */,
 				4124AACC25DF62DD0007C839 /* Audiobook Player 3.xcdatamodel */,
 				41D20DAD25D5F0CA00AAEE30 /* Audiobook Player 2.xcdatamodel */,
 				4165EDFA20A743D500616EDF /* Audiobook Player.xcdatamodel */,
 			);
-			currentVersion = 4124AACC25DF62DD0007C839 /* Audiobook Player 3.xcdatamodel */;
+			currentVersion = 41FCA32625E87EC600BFB9E6 /* Audiobook Player 4.xcdatamodel */;
 			path = BookPlayer.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

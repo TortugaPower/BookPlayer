@@ -171,7 +171,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         return navigationController!.viewControllers.count > 1
     }
 
-    private func presentPlaylist(_ playlist: Playlist) {
+    private func presentPlaylist(_ playlist: Folder) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
 
         guard let playlistVC = storyboard.instantiateViewController(withIdentifier: "PlaylistViewController") as? PlaylistViewController else {
@@ -193,7 +193,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
 
         var deleteActionTitle = "delete_button".localized
 
-        if items.count == 1, let playlist = items.first as? Playlist {
+        if items.count == 1, let playlist = items.first as? Folder {
             deleteActionTitle = "delete_deep_button".localized
 
             alert.title = String(format: "delete_single_item_title".localized, playlist.title!)
@@ -335,8 +335,8 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
             })
         })
 
-        let availablePlaylists = self.items.compactMap { (item) -> Playlist? in
-            item as? Playlist
+        let availablePlaylists = self.items.compactMap { (item) -> Folder? in
+            item as? Folder
         }
 
         let existingPlaylistAction = UIAlertAction(title: "existing_playlist_button".localized, style: .default) { _ in
@@ -345,7 +345,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
             vc.items = availablePlaylists
 
             vc.onItemSelected = { selectedItem in
-                guard let selectedPlaylist = selectedItem as? Playlist else { return }
+                guard let selectedPlaylist = selectedItem as? Folder else { return }
                 self.move(selectedItems, to: selectedPlaylist)
             }
 
@@ -420,13 +420,13 @@ extension LibraryViewController {
             var title = "\("delete_button".localized)…"
 
             // Remove the dots if trying to delete an empty playlist
-            if let playlist = item as? Playlist {
+            if let playlist = item as? Folder {
                 title = playlist.hasBooks() ? title : "delete_button".localized
             }
 
             let deleteAction = UIAlertAction(title: title, style: .destructive) { _ in
                 guard let book = self.items[indexPath.row] as? Book else {
-                    guard let playlist = self.items[indexPath.row] as? Playlist else { return }
+                    guard let playlist = self.items[indexPath.row] as? Folder else { return }
 
                     guard playlist.hasBooks() else {
                         DataManager.delete([playlist])
@@ -467,7 +467,7 @@ extension LibraryViewController {
             return
         }
 
-        if let playlist = self.items[indexPath.row] as? Playlist {
+        if let playlist = self.items[indexPath.row] as? Folder {
             self.presentPlaylist(playlist)
 
             return
@@ -525,7 +525,7 @@ extension LibraryViewController {
         let sourceItem = self.items[finalDestinationIndexPath.row]
         let destinationItem = self.items[overIndexPath.row]
 
-        guard let playlist = destinationItem as? Playlist ?? sourceItem as? Playlist else {
+        guard let playlist = destinationItem as? Folder ?? sourceItem as? Folder else {
             let minIndex = min(finalDestinationIndexPath.row, overIndexPath.row)
 
             self.presentCreatePlaylistAlert(destinationItem.title, handler: { title in

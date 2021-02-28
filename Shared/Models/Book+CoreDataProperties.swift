@@ -15,11 +15,27 @@ extension Book {
         return NSFetchRequest<Book>(entityName: "Book")
     }
 
+    @nonobjc public class func find(with identifier: String, context: NSManagedObjectContext) -> Book? {
+        let request: NSFetchRequest<Book> = Book.fetchRequest()
+
+        request.predicate = NSPredicate(format: "identifier = %@", identifier)
+
+        return try? context.fetch(request).first
+    }
+
+    @nonobjc public class func find(at path: String, context: NSManagedObjectContext) -> Book? {
+        let request: NSFetchRequest<Book> = Book.fetchRequest()
+
+        request.predicate = NSPredicate(format: "path = %@", path)
+
+        return try? context.fetch(request).first
+    }
+
     @NSManaged public var author: String!
     @NSManaged public var ext: String!
     @NSManaged public var usesDefaultArtwork: Bool
     @NSManaged public var chapters: NSOrderedSet?
-    @NSManaged public var playlist: Playlist?
+    @NSManaged public var playlist: Folder?
     @NSManaged public var lastPlayed: Library?
 }
 
