@@ -20,6 +20,8 @@ public class DefaultArtworkFactory {
     static let rightHueGradientOffset: CGFloat = 38.85
 
     public class func generateArtwork(from color: UIColor?, with size: CGSize = CGSize(width: 50, height: 50)) -> UIImage? {
+        guard Thread.isMainThread else { return nil }
+
         let baseColorLCH = self.getLCHColor(from: color)
 
         let blankspace = UIView()
