@@ -601,6 +601,8 @@ extension ItemListViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        guard indexPath.sectionValue == .data else { return 66 }
+
         return UITableView.automaticDimension
     }
 
