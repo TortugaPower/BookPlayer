@@ -34,6 +34,48 @@ extension Book {
         self.currentChapter = self.chapters?.array.first as? Chapter
     }
 
+    public override func awakeFromFetch() {
+        super.awakeFromFetch()
+
+        // cleanup bug BKPLY-37
+        if !self.usesDefaultArtwork,
+           self.artworkData == nil,
+           let fileURL = self.fileURL {
+            self.usesDefaultArtwork = true
+            let asset = AVAsset(url: fileURL)
+
+            if fileURL.pathExtension == "mp3" {
+                self.loadMp3Data(from: asset)
+            } else if let data = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtwork, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? NSData {
+                self.artworkData = data
+                self.usesDefaultArtwork = false
+            }
+        }
+
+        self.updateCurrentChapter()
+    }
+
+    private func loadMp3Data(from asset: AVAsset) {
+        for item in asset.metadata {
+            guard let key = item.commonKey?.rawValue,
+                  let value = item.value else { continue }
+
+            switch key {
+            case "title":
+                self.title = value as? String
+            case "artist":
+                if self.author == "voiceover_unknown_author".localized {
+                    self.author = value as? String
+                }
+            case "artwork" where value is NSData:
+                self.artworkData = value as? NSData
+                self.usesDefaultArtwork = false
+            default:
+                continue
+            }
+        }
+    }
+
     convenience init(from bookUrl: FileItem, context: NSManagedObjectContext) {
         let entity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
         self.init(entity: entity, insertInto: context)
@@ -50,6 +92,14 @@ extension Book {
         self.duration = CMTimeGetSeconds(asset.duration)
         self.originalFileName = bookUrl.originalUrl.lastPathComponent
         self.isFinished = false
+        self.usesDefaultArtwork = true
+
+        if fileURL.pathExtension == "mp3" {
+            self.loadMp3Data(from: asset)
+        } else if let data = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtwork, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? NSData {
+            self.artworkData = data
+            self.usesDefaultArtwork = false
+        }
 
         self.setChapters(from: asset, context: context)
 
