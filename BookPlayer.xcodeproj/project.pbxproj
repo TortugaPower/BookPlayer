@@ -418,6 +418,9 @@
 		410C46972274EA350040114D /* DataManager+WatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataManager+WatchApp.swift"; sourceTree = "<group>"; };
 		410D0FEC1EDCF4B000A52EB9 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		410D0FF01EDF659900A52EB9 /* PlayerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerManager.swift; sourceTree = "<group>"; };
+		4111FBB025EDD81C0096954F /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = hu; path = hu.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		4111FBB125EDD81C0096954F /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/Localizable.strings; sourceTree = "<group>"; };
+		4111FBB225EDD81C0096954F /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/Localizable.strings; sourceTree = "<group>"; };
 		4112AFD5223AD27D00BFEA55 /* Sentry.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Sentry.framework; path = Carthage/Build/iOS/Sentry.framework; sourceTree = "<group>"; };
 		411373902552371D00295022 /* TelemetryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryProtocol.swift; sourceTree = "<group>"; };
 		4113739F25534B8800295022 /* TelemetrySignal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetrySignal.swift; sourceTree = "<group>"; };
@@ -1661,6 +1664,7 @@
 				"sk-SK",
 				"pt-BR",
 				pl,
+				hu,
 			);
 			mainGroup = 418B6CEF1D2707F700F974FB;
 			packageReferences = (
@@ -2173,6 +2177,7 @@
 				41A7DE7824BC136100396FD3 /* sk-SK */,
 				416A298A256875B300605395 /* pt-BR */,
 				41E69F4A25A7CC1100C26920 /* pl */,
+				4111FBB025EDD81C0096954F /* hu */,
 			);
 			name = Localizable.stringsdict;
 			sourceTree = "<group>";
@@ -2245,6 +2250,7 @@
 				41A7DE7924BC136200396FD3 /* sk-SK */,
 				416A298B256875B300605395 /* pt-BR */,
 				41E69F4B25A7CC1100C26920 /* pl */,
+				4111FBB125EDD81C0096954F /* hu */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -2269,6 +2275,7 @@
 				41A7DE7A24BC136200396FD3 /* sk-SK */,
 				416A298C256875B300605395 /* pt-BR */,
 				41E69F4C25A7CC1100C26920 /* pl */,
+				4111FBB225EDD81C0096954F /* hu */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
