@@ -17,6 +17,10 @@
 		410C46982274EA350040114D /* DataManager+WatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410C46972274EA350040114D /* DataManager+WatchApp.swift */; };
 		410D0FED1EDCF4B000A52EB9 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D0FEC1EDCF4B000A52EB9 /* SettingsViewController.swift */; };
 		410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D0FF01EDF659900A52EB9 /* PlayerManager.swift */; };
+		4111FBDF25EDEFBE0096954F /* forest-green-ipad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4111FBDD25EDEFBD0096954F /* forest-green-ipad@2x.png */; };
+		4111FBE025EDEFBE0096954F /* forest-green-ipad@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4111FBDE25EDEFBD0096954F /* forest-green-ipad@3x.png */; };
+		4111FBEA25EDEFDD0096954F /* forest-green@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4111FBE825EDEFDD0096954F /* forest-green@3x.png */; };
+		4111FBEB25EDEFDD0096954F /* forest-green@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4111FBE925EDEFDD0096954F /* forest-green@2x.png */; };
 		411373892552273E00295022 /* TelemetryClient in Frameworks */ = {isa = PBXBuildFile; productRef = 411373882552273E00295022 /* TelemetryClient */; };
 		411373912552371D00295022 /* TelemetryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 411373902552371D00295022 /* TelemetryProtocol.swift */; };
 		411373A025534B8800295022 /* TelemetrySignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4113739F25534B8800295022 /* TelemetrySignal.swift */; };
@@ -421,6 +425,10 @@
 		4111FBB025EDD81C0096954F /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = hu; path = hu.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		4111FBB125EDD81C0096954F /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/Localizable.strings; sourceTree = "<group>"; };
 		4111FBB225EDD81C0096954F /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/Localizable.strings; sourceTree = "<group>"; };
+		4111FBDD25EDEFBD0096954F /* forest-green-ipad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "forest-green-ipad@2x.png"; sourceTree = "<group>"; };
+		4111FBDE25EDEFBD0096954F /* forest-green-ipad@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "forest-green-ipad@3x.png"; sourceTree = "<group>"; };
+		4111FBE825EDEFDD0096954F /* forest-green@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "forest-green@3x.png"; sourceTree = "<group>"; };
+		4111FBE925EDEFDD0096954F /* forest-green@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "forest-green@2x.png"; sourceTree = "<group>"; };
 		4112AFD5223AD27D00BFEA55 /* Sentry.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Sentry.framework; path = Carthage/Build/iOS/Sentry.framework; sourceTree = "<group>"; };
 		411373902552371D00295022 /* TelemetryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryProtocol.swift; sourceTree = "<group>"; };
 		4113739F25534B8800295022 /* TelemetrySignal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetrySignal.swift; sourceTree = "<group>"; };
@@ -1095,6 +1103,8 @@
 			children = (
 				41AD3DA9221C8FF400DC41E1 /* default-icon@2x.png */,
 				41AD3DA8221C8FF400DC41E1 /* default-icon@3x.png */,
+				4111FBE925EDEFDD0096954F /* forest-green@2x.png */,
+				4111FBE825EDEFDD0096954F /* forest-green@3x.png */,
 				41AD3D97221C737E00DC41E1 /* retro-icon@2x.png */,
 				41AD3D99221C737F00DC41E1 /* retro-icon@3x.png */,
 				41E562CC22394F5200C06BC9 /* ayu-light@2x.png */,
@@ -1116,6 +1126,8 @@
 		41E562E422394FCB00C06BC9 /* iPad */ = {
 			isa = PBXGroup;
 			children = (
+				4111FBDD25EDEFBD0096954F /* forest-green-ipad@2x.png */,
+				4111FBDE25EDEFBD0096954F /* forest-green-ipad@3x.png */,
 				41E563032239570100C06BC9 /* retro-icon-ipad@2x.png */,
 				41E56301223956B800C06BC9 /* retro-icon-ipad@3x.png */,
 				41E562FF223953EB00C06BC9 /* default-icon-ipad@2x.png */,
@@ -1747,6 +1759,7 @@
 			files = (
 				41E562D622394F8500C06BC9 /* fruit-based@3x.png in Resources */,
 				418B6D081D2707F800F974FB /* LaunchScreen.storyboard in Resources */,
+				4111FBEA25EDEFDD0096954F /* forest-green@3x.png in Resources */,
 				41E563042239570100C06BC9 /* retro-icon-ipad@2x.png in Resources */,
 				41AD3D9C221C737F00DC41E1 /* retro-icon@3x.png in Resources */,
 				419B373923B8D0C600128A8F /* Player.storyboard in Resources */,
@@ -1761,6 +1774,7 @@
 				419B375623B8D5A500128A8F /* Localizable.strings in Resources */,
 				41E562F92239535D00C06BC9 /* retro-modern-ipad@2x.png in Resources */,
 				41E562FB2239535D00C06BC9 /* fruit-based-ipad@2x.png in Resources */,
+				4111FBEB25EDEFDD0096954F /* forest-green@2x.png in Resources */,
 				41AD3D9E221C750E00DC41E1 /* Icons.json in Resources */,
 				41E562ED2239531E00C06BC9 /* neon-ipad@3x.png in Resources */,
 				41E562E222394FB900C06BC9 /* songs@3x.png in Resources */,
@@ -1779,6 +1793,7 @@
 				41AD3DAB221C8FF400DC41E1 /* default-icon@3x.png in Resources */,
 				41AD3DAC221C8FF400DC41E1 /* default-icon@2x.png in Resources */,
 				41E562F82239535D00C06BC9 /* dark-ipad@2x.png in Resources */,
+				4111FBE025EDEFBE0096954F /* forest-green-ipad@3x.png in Resources */,
 				41AD3D9A221C737F00DC41E1 /* retro-icon@2x.png in Resources */,
 				419B373F23B8D14100128A8F /* LoadingView.xib in Resources */,
 				C3EA7176218DEC870005D488 /* .swiftformat in Resources */,
@@ -1788,6 +1803,7 @@
 				41E562E322394FB900C06BC9 /* songs@2x.png in Resources */,
 				41E562EC2239531E00C06BC9 /* dark-ipad@3x.png in Resources */,
 				41E562D322394F5A00C06BC9 /* dark@3x.png in Resources */,
+				4111FBDF25EDEFBE0096954F /* forest-green-ipad@2x.png in Resources */,
 				41E562D722394F8500C06BC9 /* fruit-based@2x.png in Resources */,
 				41E562FA2239535D00C06BC9 /* songs-ipad@2x.png in Resources */,
 				41E562DA22394F9900C06BC9 /* neon@2x.png in Resources */,

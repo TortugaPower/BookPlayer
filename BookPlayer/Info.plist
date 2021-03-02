@@ -55,6 +55,13 @@
 	<dict>
 		<key>CFBundleAlternateIcons</key>
 		<dict>
+			<key>Forest Green</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>forest-green</string>
+				</array>
+			</dict>
 			<key>Ayu Light</key>
 			<dict>
 				<key>CFBundleIconFiles</key>
@@ -119,6 +126,13 @@
 	<dict>
 		<key>CFBundleAlternateIcons</key>
 		<dict>
+			<key>Forest Green</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>forest-green-ipad</string>
+				</array>
+			</dict>
 			<key>Ayu Light</key>
 			<dict>
 				<key>CFBundleIconFiles</key>

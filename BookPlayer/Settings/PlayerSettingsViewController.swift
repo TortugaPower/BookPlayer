@@ -26,6 +26,7 @@ class PlayerSettingsViewController: UITableViewController, TelemetryProtocol {
 
         setUpTheming()
 
+        self.navigationItem.title = "settings_controls_title".localized
         self.smartRewindSwitch.addTarget(self, action: #selector(self.rewindToggleDidChange), for: .valueChanged)
         self.boostVolumeSwitch.addTarget(self, action: #selector(self.boostVolumeToggleDidChange), for: .valueChanged)
         self.globalSpeedSwitch.addTarget(self, action: #selector(self.globalSpeedToggleDidChange), for: .valueChanged)
