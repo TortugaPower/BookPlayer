@@ -338,7 +338,10 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate, Telem
     }
 
     func updateAutolock() {
-        guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue) else { return }
+        guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue) else {
+            UIApplication.shared.isIdleTimerDisabled = false
+            return
+        }
 
         guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered.rawValue) else {
             UIApplication.shared.isIdleTimerDisabled = true
