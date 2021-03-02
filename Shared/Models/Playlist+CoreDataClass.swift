@@ -17,14 +17,24 @@ public class Playlist: LibraryItem {
     var cachedProgress: Double?
     // MARK: - Properties
 
-    public override var artwork: UIImage {
-        guard let books = self.books?.array as? [Book], let book = books.first(where: { (book) -> Bool in
-            !book.usesDefaultArtwork
-        }) else {
-            return UIImage(named: "defaultArtwork")!
+    public override func getArtwork(for theme: Theme?) -> UIImage? {
+        if let cachedArtwork = self.cachedArtwork {
+            return cachedArtwork
         }
 
-        return book.artwork
+        guard let books = self.books?.array as? [Book],
+              let book = books.first(where: { (book) -> Bool in
+            !book.usesDefaultArtwork
+        }) else {
+            #if os(iOS)
+            self.cachedArtwork = DefaultArtworkFactory.generateArtwork(from: theme?.linkColor)
+            #endif
+
+            return self.cachedArtwork
+        }
+
+        self.cachedArtwork = book.getArtwork(for: theme)
+        return self.cachedArtwork
     }
 
     public override func jumpToStart() {

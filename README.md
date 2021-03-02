@@ -73,6 +73,7 @@ See [our Roadmap on GitHub](https://github.com/GianniCarlo/Audiobook-Player/proj
 - Slovak (Peter Skladaný)
 - Portuguese (Vitor Jacinto)
 - Polish (Konrad Kwapisz)
+- Hungarian (Gábor Sári)
 
 Help us to [translate BookPlayer](#localisation).
 

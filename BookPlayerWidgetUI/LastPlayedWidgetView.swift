@@ -26,7 +26,7 @@ struct PlayAndSleepProvider: IntentTimelineProvider {
 
         let entry = SimpleEntry(date: Date(),
                                 title: title,
-                                artwork: library.lastPlayedBook?.artwork,
+                                artwork: library.lastPlayedBook?.getArtwork(for: library.currentTheme),
                                 theme: library.currentTheme,
                                 timerSeconds: seconds,
                                 autoplay: autoplay)
@@ -41,7 +41,7 @@ struct PlayAndSleepProvider: IntentTimelineProvider {
         let autoplay = configuration.autoplay?.boolValue ?? true
         let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
 
-        let entries: [SimpleEntry] = [SimpleEntry(date: Date(), title: title, artwork: library.lastPlayedBook?.artwork, theme: library.currentTheme, timerSeconds: seconds, autoplay: autoplay)]
+        let entries: [SimpleEntry] = [SimpleEntry(date: Date(), title: title, artwork: library.lastPlayedBook?.getArtwork(for: library.currentTheme), theme: library.currentTheme, timerSeconds: seconds, autoplay: autoplay)]
         let timeline = Timeline(entries: entries, policy: .atEnd)
         completion(timeline)
     }

@@ -158,7 +158,7 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate, Telem
             return
         }
 
-        self.backgroundImage.image = currentBook.artwork
+        self.backgroundImage.image = currentBook.getArtwork(for: themeProvider.currentTheme)
 
         // Solution thanks to https://forums.developer.apple.com/thread/63166#180445
         self.modalPresentationCapturesStatusBarAppearance = true
@@ -338,7 +338,10 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate, Telem
     }
 
     func updateAutolock() {
-        guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue) else { return }
+        guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue) else {
+            UIApplication.shared.isIdleTimerDisabled = false
+            return
+        }
 
         guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered.rawValue) else {
             UIApplication.shared.isIdleTimerDisabled = true

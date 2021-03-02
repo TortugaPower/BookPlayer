@@ -108,18 +108,22 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
 
         // Populate playlist content
         if indexPath.indices.count == IndexGuide.playlist.count,
-            let playlist = items[indexPath[IndexGuide.library.content]] as? Playlist,
-            let books = playlist.books?.array as? [Book] {
+           let playlist = items[indexPath[IndexGuide.library.content]] as? Playlist,
+           let books = playlist.books?.array as? [Book] {
             let book = books[indexPath[IndexGuide.playlist.content]]
             let item = MPContentItem(identifier: book.identifier)
             item.isPlayable = true
             item.title = book.title
             item.subtitle = book.author
             item.playbackProgress = Float(book.progress)
-            item.artwork = MPMediaItemArtwork(boundsSize: book.artwork.size,
-                                              requestHandler: { (_) -> UIImage in
-                                                  book.artwork
-            })
+
+            if let artwork = book.getArtwork(for: ThemeManager.shared.currentTheme) {
+                item.artwork = MPMediaItemArtwork(boundsSize: artwork.size,
+                                                  requestHandler: { (_) -> UIImage in
+                                                      artwork
+                })
+            }
+
             return item
         }
 
@@ -134,10 +138,12 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
         item.title = libraryItem.title
 
         item.playbackProgress = Float(libraryItem.progress)
-        item.artwork = MPMediaItemArtwork(boundsSize: libraryItem.artwork.size,
-                                          requestHandler: { (_) -> UIImage in
-                                              libraryItem.artwork
-        })
+        if let artwork = libraryItem.getArtwork(for: ThemeManager.shared.currentTheme) {
+            item.artwork = MPMediaItemArtwork(boundsSize: artwork.size,
+                                              requestHandler: { (_) -> UIImage in
+                                                artwork
+                                              })
+        }
 
         if let book = libraryItem as? Book {
             item.subtitle = book.author

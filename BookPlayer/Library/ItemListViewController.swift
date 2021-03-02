@@ -524,7 +524,7 @@ extension ItemListViewController: UITableViewDataSource {
 
         let item = self.items[indexPath.row]
 
-        cell.artwork = item.artwork
+        cell.artwork = item.getArtwork(for: themeProvider.currentTheme)
         cell.title = item.title
         cell.playbackState = .stopped
         cell.type = item is Playlist ? .playlist : .book
@@ -601,6 +601,8 @@ extension ItemListViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        guard indexPath.sectionValue == .data else { return 66 }
+
         return UITableView.automaticDimension
     }
 

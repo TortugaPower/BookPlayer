@@ -45,7 +45,7 @@ class ItemSelectionViewController: UITableViewController {
 
         let item = self.items[indexPath.row]
 
-        cell.artwork = item.artwork
+        cell.artwork = item.getArtwork(for: themeProvider.currentTheme)
         cell.title = item.title
         cell.playbackState = .stopped
         cell.subtitle = item.info()

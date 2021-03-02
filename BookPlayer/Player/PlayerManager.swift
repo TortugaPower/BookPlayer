@@ -126,10 +126,12 @@ class PlayerManager: NSObject, TelemetryProtocol {
                 self.setNowPlayingBookTitle()
                 self.setNowPlayingBookTime()
 
-                self.nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: book.artwork.size,
-                                                                                     requestHandler: { (_) -> UIImage in
-                                                                                         book.artwork
-                })
+                if let artwork = book.getArtwork(for: ThemeManager.shared.currentTheme) {
+                    self.nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: artwork.size,
+                                                                                         requestHandler: { (_) -> UIImage in
+                                                                                            artwork
+                    })
+                }
 
                 MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
 

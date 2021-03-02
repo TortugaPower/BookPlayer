@@ -34,7 +34,7 @@ class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecogniz
 
             guard let book = self.book else { return }
 
-            self.artwork.image = book.artwork
+            self.artwork.image = book.getArtwork(for: themeProvider.currentTheme)
             self.authorLabel.text = book.author
             self.titleLabel.text = book.title
 

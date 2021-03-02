@@ -13,22 +13,6 @@ import UIKit
 
 @objc(LibraryItem)
 public class LibraryItem: NSManagedObject, Codable {
-    public var artwork: UIImage {
-        if let cachedArtwork = self.cachedArtwork {
-            return cachedArtwork
-        }
-
-        guard let artworkData = self.artworkData,
-            let image = UIImage(data: artworkData as Data) else {
-            return #imageLiteral(resourceName: "defaultArtwork")
-        }
-
-        self.cachedArtwork = image
-        return self.cachedArtwork!
-    }
-
-    public func info() -> String { return "" }
-
     var cachedArtwork: UIImage?
 
     public func getBookToPlay() -> Book? {
@@ -38,6 +22,26 @@ public class LibraryItem: NSManagedObject, Codable {
     public var progress: Double {
         return 1.0
     }
+
+    public func getArtwork(for theme: Theme?) -> UIImage? {
+        if let cachedArtwork = self.cachedArtwork {
+            return cachedArtwork
+        }
+
+        guard let artworkData = self.artworkData,
+              let image = UIImage(data: artworkData as Data) else {
+            #if os(iOS)
+            self.cachedArtwork = DefaultArtworkFactory.generateArtwork(from: theme?.linkColor)
+            #endif
+
+            return self.cachedArtwork
+        }
+
+        self.cachedArtwork = image
+        return image
+    }
+
+    public func info() -> String { return "" }
 
     public func jumpToStart() {}
 
