@@ -22,6 +22,7 @@ class IconsViewController: UIViewController, TelemetryProtocol {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        self.navigationItem.title = "settings_app_icon_title".localized
         self.icons = self.getIcons()
 
         self.tableView.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: self.tableView.frame.size.width, height: 1))
