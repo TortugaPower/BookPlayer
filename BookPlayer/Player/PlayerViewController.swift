@@ -16,7 +16,7 @@ import UIKit
 
 // swiftlint:disable file_length
 
-class PlayerViewController: UIViewController, UIGestureRecognizerDelegate, TelemetryProtocol {
+class PlayerViewController: UIViewController, TelemetryProtocol {
     @IBOutlet private weak var closeButton: UIButton!
     @IBOutlet private weak var closeButtonTop: NSLayoutConstraint!
     @IBOutlet private weak var bottomToolbar: UIToolbar!
@@ -274,8 +274,38 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate, Telem
         self.updateToolbar(false, animated: true)
     }
 
-    // MARK: - Gesture recognizers
+    override func accessibilityPerformEscape() -> Bool {
+        self.dismissPlayer()
+        return true
+    }
 
+    func updateAutolock() {
+        guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue) else {
+            UIApplication.shared.isIdleTimerDisabled = false
+            return
+        }
+
+        guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered.rawValue) else {
+            UIApplication.shared.isIdleTimerDisabled = true
+            return
+        }
+
+        if !UIDevice.current.isBatteryMonitoringEnabled {
+            UIDevice.current.isBatteryMonitoringEnabled = true
+            NotificationCenter.default.addObserver(self, selector: #selector(self.onDeviceBatteryStateDidChange), name: UIDevice.batteryStateDidChangeNotification, object: nil)
+        }
+
+        UIApplication.shared.isIdleTimerDisabled = UIDevice.current.batteryState != .unplugged
+    }
+
+    @objc func onDeviceBatteryStateDidChange() {
+        self.updateAutolock()
+    }
+}
+
+// MARK: - Gesture recognizers
+
+extension PlayerViewController: UIGestureRecognizerDelegate {
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         if gestureRecognizer == self.pan {
             return limitPanAngle(self.pan, degreesOfFreedom: 45.0, comparator: .greaterThan)
@@ -325,39 +355,11 @@ class PlayerViewController: UIViewController, UIGestureRecognizerDelegate, Telem
                            initialSpringVelocity: 1.5,
                            options: .preferredFramesPerSecond60,
                            animations: {
-                               self.view?.transform = .identity
-            })
+                            self.view?.transform = .identity
+                           })
 
         default: break
         }
-    }
-
-    override func accessibilityPerformEscape() -> Bool {
-        self.dismissPlayer()
-        return true
-    }
-
-    func updateAutolock() {
-        guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue) else {
-            UIApplication.shared.isIdleTimerDisabled = false
-            return
-        }
-
-        guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered.rawValue) else {
-            UIApplication.shared.isIdleTimerDisabled = true
-            return
-        }
-
-        if !UIDevice.current.isBatteryMonitoringEnabled {
-            UIDevice.current.isBatteryMonitoringEnabled = true
-            NotificationCenter.default.addObserver(self, selector: #selector(self.onDeviceBatteryStateDidChange), name: UIDevice.batteryStateDidChangeNotification, object: nil)
-        }
-
-        UIApplication.shared.isIdleTimerDisabled = UIDevice.current.batteryState != .unplugged
-    }
-
-    @objc func onDeviceBatteryStateDidChange() {
-        self.updateAutolock()
     }
 }
 
