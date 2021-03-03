@@ -112,12 +112,6 @@
 		418B6D051D2707F800F974FB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 418B6D041D2707F800F974FB /* Assets.xcassets */; };
 		418B6D081D2707F800F974FB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 418B6D061D2707F800F974FB /* LaunchScreen.storyboard */; };
 		418B6D5D1D2CB76900F974FB /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418B6D5C1D2CB76900F974FB /* PlayerViewController.swift */; };
-		418CAB8725EF183600D8C878 /* PlaylistToFolderMigrationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418CAB8625EF183600D8C878 /* PlaylistToFolderMigrationPolicy.swift */; };
-		418CAB8825EF183600D8C878 /* PlaylistToFolderMigrationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418CAB8625EF183600D8C878 /* PlaylistToFolderMigrationPolicy.swift */; };
-		418CAB8925EF183600D8C878 /* PlaylistToFolderMigrationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418CAB8625EF183600D8C878 /* PlaylistToFolderMigrationPolicy.swift */; };
-		418CAB8A25EF183600D8C878 /* PlaylistToFolderMigrationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418CAB8625EF183600D8C878 /* PlaylistToFolderMigrationPolicy.swift */; };
-		418CAB8B25EF183600D8C878 /* PlaylistToFolderMigrationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418CAB8625EF183600D8C878 /* PlaylistToFolderMigrationPolicy.swift */; };
-		418CAB8C25EF183600D8C878 /* PlaylistToFolderMigrationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418CAB8625EF183600D8C878 /* PlaylistToFolderMigrationPolicy.swift */; };
 		418CABB125EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 418CABB025EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel */; };
 		418CABB225EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 418CABB025EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel */; };
 		418CABB325EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 418CABB025EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel */; };
@@ -551,7 +545,6 @@
 		418B6D0E1D2707F800F974FB /* BookPlayerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BookPlayerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		418B6D141D2707F800F974FB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		418B6D5C1D2CB76900F974FB /* PlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerViewController.swift; sourceTree = "<group>"; };
-		418CAB8625EF183600D8C878 /* PlaylistToFolderMigrationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistToFolderMigrationPolicy.swift; sourceTree = "<group>"; };
 		418CABB025EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MappingModel_v3_to_v4.xcmappingmodel; sourceTree = "<group>"; };
 		419196341D47CC4E007A3AF3 /* BookPlayer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BookPlayer.entitlements; sourceTree = "<group>"; };
 		4193E1FB24394CEF004D6A82 /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = Carthage/Build/iOS/Alamofire.framework; sourceTree = "<group>"; };
@@ -1110,7 +1103,6 @@
 				41D20DAE25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel */,
 				41C3394825E04091003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel */,
 				418CABB025EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel */,
-				418CAB8625EF183600D8C878 /* PlaylistToFolderMigrationPolicy.swift */,
 			);
 			path = Migrations;
 			sourceTree = "<group>";
@@ -1911,7 +1903,6 @@
 				419F38EE2288B7DE00989E61 /* NowPlayingController.swift in Sources */,
 				4140EA47227288EF0009F794 /* ComplicationController.swift in Sources */,
 				4140EA43227288EF0009F794 /* ExtensionDelegate.swift in Sources */,
-				418CAB8925EF183600D8C878 /* PlaylistToFolderMigrationPolicy.swift in Sources */,
 				41893AC82272CBD900576AE4 /* LibraryInterfaceController.swift in Sources */,
 				418CABB325EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
 				41A8BAFE227E6C88003C9895 /* Notification+BookPlayerWatchApp.swift in Sources */,
@@ -1947,7 +1938,6 @@
 				4140EA7A227289C20009F794 /* Book+CoreDataClass.swift in Sources */,
 				4140EA7C227289C70009F794 /* LibraryItem+CoreDataClass.swift in Sources */,
 				4140EA74227289AE0009F794 /* Theme+CoreDataClass.swift in Sources */,
-				418CAB8B25EF183600D8C878 /* PlaylistToFolderMigrationPolicy.swift in Sources */,
 				4140EA6E227289960009F794 /* DeleteMode.swift in Sources */,
 				4140EA77227289B90009F794 /* Chapter+CoreDataProperties.swift in Sources */,
 				4140EA7B227289C40009F794 /* Book+CoreDataProperties.swift in Sources */,
@@ -1971,7 +1961,6 @@
 				4106414025872614008EB8D0 /* BarView.swift in Sources */,
 				4106414925872699008EB8D0 /* TimeListenedSmallView.swift in Sources */,
 				417D996F256D73B400C3B753 /* Intents.intentdefinition in Sources */,
-				418CAB8C25EF183600D8C878 /* PlaylistToFolderMigrationPolicy.swift in Sources */,
 				417D9994256DE3FB00C3B753 /* LastPlayedWidgetView.swift in Sources */,
 				416A29AA2569658100605395 /* BookPlayerWidgetUI.swift in Sources */,
 				41D20DB425D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
@@ -2027,7 +2016,6 @@
 				41A1B139226FEDAD00EA0400 /* Chapter+AVFoundation.swift in Sources */,
 				C318D3AD208CF624000666F8 /* PlayerJumpIcon.swift in Sources */,
 				C37A6875209F13120063AEAC /* CreditsViewController.swift in Sources */,
-				418CAB8725EF183600D8C878 /* PlaylistToFolderMigrationPolicy.swift in Sources */,
 				4197240021874D5F00AB1190 /* UserActivityManager.swift in Sources */,
 				41D4F2EF21053944009F1B1E /* IndexPath+BookPlayer.swift in Sources */,
 				418B6D5D1D2CB76900F974FB /* PlayerViewController.swift in Sources */,
@@ -2118,7 +2106,6 @@
 				41A1B104226E9DBA00EA0400 /* UIColor+BookPlayer.swift in Sources */,
 				41A1B11D226F88C500EA0400 /* Theme+CoreDataClass.swift in Sources */,
 				41A1B129226F88C500EA0400 /* Folder+CoreDataClass.swift in Sources */,
-				418CAB8A25EF183600D8C878 /* PlaylistToFolderMigrationPolicy.swift in Sources */,
 				410C4692227358CD0040114D /* WatchConnectivityService.swift in Sources */,
 				41A1B12A226F88C500EA0400 /* Folder+CoreDataProperties.swift in Sources */,
 				41A1B11E226F88C500EA0400 /* Theme+CoreDataProperties.swift in Sources */,
@@ -2131,7 +2118,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				41C3395A25E040FF003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
-				418CAB8825EF183600D8C878 /* PlaylistToFolderMigrationPolicy.swift in Sources */,
 				418CABB225EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
 				41CE449722712E0F00C900AF /* TodayViewController.swift in Sources */,
 				41D20DB025D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
