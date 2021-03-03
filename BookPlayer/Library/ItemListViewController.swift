@@ -252,13 +252,13 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         fatalError("handleOperationCompletion must be overriden")
     }
 
-    func presentCreatePlaylistAlert(_ namePlaceholder: String = "new_playlist_button".localized, handler: ((_ title: String) -> Void)?) {
-        let playlistAlert = self.createPlaylistAlert(namePlaceholder, handler: handler)
+    func presentCreateFolderAlert(_ namePlaceholder: String = "new_playlist_button".localized, handler: ((_ title: String) -> Void)?) {
+        let folderAlert = self.createFolderAlert(namePlaceholder, handler: handler)
 
         let vc = presentedViewController ?? self
 
-        vc.present(playlistAlert, animated: true) {
-            guard let textfield = playlistAlert.textFields?.first else { return }
+        vc.present(folderAlert, animated: true) {
+            guard let textfield = folderAlert.textFields?.first else { return }
             textfield.becomeFirstResponder()
             textfield.selectedTextRange = textfield.textRange(from: textfield.beginningOfDocument, to: textfield.endOfDocument)
         }
@@ -427,8 +427,8 @@ extension ItemListViewController {
                 return book.fileURL == fileURL
             }
 
-            if let playlist = item as? Folder {
-                return playlist.getBook(with: fileURL) != nil
+            if let folder = item as? Folder {
+                return folder.getBook(with: fileURL) != nil
             }
 
             return false
@@ -527,7 +527,7 @@ extension ItemListViewController: UITableViewDataSource {
         cell.artwork = item.getArtwork(for: themeProvider.currentTheme)
         cell.title = item.title
         cell.playbackState = .stopped
-        cell.type = item is Folder ? .playlist : .book
+        cell.type = item is Folder ? .folder : .book
 
         cell.onArtworkTap = { [weak self] in
             guard !tableView.isEditing else {
@@ -548,8 +548,8 @@ extension ItemListViewController: UITableViewDataSource {
 
         if let book = item as? Book {
             cell.subtitle = book.author
-        } else if let playlist = item as? Folder {
-            cell.subtitle = playlist.info()
+        } else if let folder = item as? Folder {
+            cell.subtitle = folder.info()
         }
 
         cell.progress = item.isFinished ? 1.0 : item.progress
@@ -559,16 +559,16 @@ extension ItemListViewController: UITableViewDataSource {
     }
 
     func getNextBook(_ item: LibraryItem) -> Book? {
-        guard let playlist = item as? Folder else {
+        guard let folder = item as? Folder else {
             return item.getBookToPlay()
         }
 
-        // Special treatment for playlists
+        // Special treatment for folders
         guard
             let bookPlaying = PlayerManager.shared.currentBook,
-            let currentPlaylist = bookPlaying.playlist,
-            currentPlaylist == playlist else {
-            // restart the selected playlist if current playing book has no relation to it
+            let currentFolder = bookPlaying.folder,
+            currentFolder == folder else {
+            // restart the selected folder if current playing book has no relation to it
             if item.isFinished {
                 DataManager.jumpToStart(item)
             }

@@ -43,7 +43,7 @@ class LibraryInterfaceController: WKInterfaceController {
         return self.library.items?.array as? [LibraryItem] ?? []
     }
 
-    var playlistItems: [Book]?
+    var folderItems: [Book]?
 
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
@@ -154,7 +154,7 @@ class LibraryInterfaceController: WKInterfaceController {
     }
 
     func setupPlaylistTable() {
-        guard let items = self.playlistItems else { return }
+        guard let items = self.folderItems else { return }
 
         self.playlistTableView.setNumberOfRows(items.count, withRowType: "PlaylistRow")
 
@@ -176,7 +176,7 @@ class LibraryInterfaceController: WKInterfaceController {
             return
         }
 
-        if let items = self.playlistItems {
+        if let items = self.folderItems {
             let book = items[rowIndex]
             self.play(book)
             return
@@ -184,27 +184,27 @@ class LibraryInterfaceController: WKInterfaceController {
 
         let item = self.items[rowIndex]
 
-        guard let playlist = item as? Folder,
-            let books = playlist.books?.array as? [Book] else {
+        guard let folder = item as? Folder,
+            let books = folder.items?.array as? [Book] else {
             // swiftlint:disable force_cast
             let book = item as! Book
             self.play(book)
             return
         }
-        self.playlistItems = books
-        self.libraryHeaderTitle.setText(playlist.title!)
+        self.folderItems = books
+        self.libraryHeaderTitle.setText(folder.title!)
         self.setupPlaylistTable()
-        self.showPlaylist(true)
+        self.showFolder(true)
     }
 
-    @IBAction func collapsePlaylist() {
-        self.showPlaylist(false)
+    @IBAction func collapseFolder() {
+        self.showFolder(false)
         self.backImage.setHidden(true)
-        self.playlistItems = nil
+        self.folderItems = nil
         self.libraryHeaderTitle.setText("library_title".localized)
     }
 
-    func showPlaylist(_ show: Bool) {
+    func showFolder(_ show: Bool) {
         let height: CGFloat = show ? 0.0 : 1.0
 
         if show {

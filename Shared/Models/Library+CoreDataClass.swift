@@ -27,14 +27,14 @@ public class Library: NSManagedObject, Codable {
                 return index
             }
 
-            // check if playlist
+            // check if folder
             if
-                let playlist = item as? Folder,
-                let storedBooks = playlist.books?.array as? [Book],
+                let folder = item as? Folder,
+                let storedBooks = folder.items?.array as? [Book],
                 storedBooks.contains(where: { (storedBook) -> Bool in
                     storedBook.identifier == identifier
                 }) {
-                // check playlist books
+                // check folder books
                 return index
             }
         }
@@ -81,7 +81,7 @@ public class Library: NSManagedObject, Codable {
             guard index > indexFound,
                 !item.isFinished else { continue }
 
-            if let playlist = item as? Folder, !playlist.hasBooks() { continue }
+            if let folder = item as? Folder, !folder.hasBooks() { continue }
 
             return item
         }
@@ -110,7 +110,7 @@ public class Library: NSManagedObject, Codable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case items, books, playlists, lastPlayedBook, currentTheme
+        case items, books, folders, lastPlayedBook, currentTheme
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -119,14 +119,14 @@ public class Library: NSManagedObject, Codable {
         guard let itemsArray = self.items?.array as? [LibraryItem] else { return }
 
         var books = [Int: Book]()
-        var playlists = [Int: Folder]()
+        var folders = [Int: Folder]()
 
         for (index, item) in itemsArray.enumerated() {
             if let book = item as? Book {
                 books[index] = book
             }
-            if let playlist = item as? Folder {
-                playlists[index] = playlist
+            if let folder = item as? Folder {
+                folders[index] = folder
             }
         }
 
@@ -134,8 +134,8 @@ public class Library: NSManagedObject, Codable {
             try container.encode(books, forKey: .books)
         }
 
-        if !playlists.isEmpty {
-            try container.encode(playlists, forKey: .playlists)
+        if !folders.isEmpty {
+            try container.encode(folders, forKey: .folders)
         }
 
         if let book = self.lastPlayedBook {
@@ -157,17 +157,17 @@ public class Library: NSManagedObject, Codable {
         let values = try decoder.container(keyedBy: CodingKeys.self)
 
         var books = [Int: LibraryItem]()
-        var playlists = [Int: LibraryItem]()
+        var folders = [Int: LibraryItem]()
 
         if let decodedBooks = try? values.decode([Int: Book].self, forKey: .books) {
             books = decodedBooks
         }
 
-        if let decodedPlaylists = try? values.decode([Int: Folder].self, forKey: .playlists) {
-            playlists = decodedPlaylists
+        if let decodedFolders = try? values.decode([Int: Folder].self, forKey: .folders) {
+            folders = decodedFolders
         }
 
-        let unsortedItemsDict: [Int: LibraryItem] = books.merging(playlists) { (_, new) -> LibraryItem in new }
+        let unsortedItemsDict: [Int: LibraryItem] = books.merging(folders) { (_, new) -> LibraryItem in new }
         let sortedItemsTuple = unsortedItemsDict.sorted { $0.key < $1.key }
         let sortedItems = Array(sortedItemsTuple.map { $0.value })
 

@@ -24,7 +24,7 @@ public class Folder: LibraryItem {
             return cachedArtwork
         }
 
-        guard let books = self.books?.array as? [Book],
+        guard let books = self.items?.array as? [Book],
               let book = books.first(where: { (book) -> Bool in
             !book.usesDefaultArtwork
         }) else {
@@ -41,7 +41,7 @@ public class Folder: LibraryItem {
 
     public override func jumpToStart() {
         self.resetCachedProgress()
-        guard let books = self.books?.array as? [Book] else { return }
+        guard let books = self.items?.array as? [Book] else { return }
 
         for book in books {
             book.currentTime = 0
@@ -50,7 +50,7 @@ public class Folder: LibraryItem {
 
     public override func markAsFinished(_ flag: Bool) {
         self.resetCachedProgress()
-        guard let books = self.books?.array as? [Book] else { return }
+        guard let books = self.items?.array as? [Book] else { return }
 
         for book in books {
             book.isFinished = flag
@@ -69,7 +69,7 @@ public class Folder: LibraryItem {
         self.title = title
         self.originalFileName = title
         self.desc = "\(books.count) \("files_title".localized)"
-        self.addToBooks(NSOrderedSet(array: books))
+        self.addToItems(NSOrderedSet(array: books))
     }
 
     convenience init(from url: URL, books: [Book], context: NSManagedObjectContext) {
@@ -83,7 +83,7 @@ public class Folder: LibraryItem {
         self.originalFileName = title
         self.desc = "\(books.count) \("files_title".localized)"
 //        self.path = ""
-        self.addToBooks(NSOrderedSet(array: books))
+        self.addToItems(NSOrderedSet(array: books))
         // swiftlint:disable force_try
         try! url.setAppIdentifier(self.identifier)
     }
@@ -96,7 +96,7 @@ public class Folder: LibraryItem {
     }
 
     func totalDuration() -> Double {
-        guard let books = self.books?.array as? [Book] else {
+        guard let books = self.items?.array as? [Book] else {
             return 0.0
         }
 
@@ -131,7 +131,7 @@ public class Folder: LibraryItem {
             return (cachedProgress, cachedDuration)
         }
 
-        guard let books = self.books?.array as? [Book] else {
+        guard let books = self.items?.array as? [Book] else {
             return (0.0, 0.0)
         }
 
@@ -157,13 +157,13 @@ public class Folder: LibraryItem {
 
     public func updateCompletionState() {
         self.resetCachedProgress()
-        guard let books = self.books?.array as? [Book] else { return }
+        guard let books = self.items?.array as? [Book] else { return }
 
         self.isFinished = !books.contains(where: { !$0.isFinished })
     }
 
     public func hasBooks() -> Bool {
-        guard let books = self.books else {
+        guard let books = self.items else {
             return false
         }
 
@@ -177,7 +177,7 @@ public class Folder: LibraryItem {
     }
 
     public func itemIndex(with identifier: String) -> Int? {
-        guard let books = self.books?.array as? [Book] else {
+        guard let books = self.items?.array as? [Book] else {
             return nil
         }
 
@@ -187,7 +187,7 @@ public class Folder: LibraryItem {
     }
 
     public func getBook(at index: Int) -> Book? {
-        guard let books = self.books?.array as? [Book] else {
+        guard let books = self.items?.array as? [Book] else {
             return nil
         }
 
@@ -211,7 +211,7 @@ public class Folder: LibraryItem {
     }
 
     public override func getBookToPlay() -> Book? {
-        guard let books = self.books else { return nil }
+        guard let books = self.items else { return nil }
 
         for item in books {
             guard let book = item as? Book, !book.isFinished else { continue }
@@ -223,7 +223,7 @@ public class Folder: LibraryItem {
     }
 
     func getNextBook(after book: Book) -> Book? {
-        guard let books = self.books?.array as? [Book] else {
+        guard let books = self.items?.array as? [Book] else {
             return nil
         }
 
@@ -245,7 +245,7 @@ public class Folder: LibraryItem {
     }
 
     public override func info() -> String {
-        let count = self.books?.array.count ?? 0
+        let count = self.items?.array.count ?? 0
 
         return "\(count) \("files_title".localized)"
     }
@@ -259,7 +259,7 @@ public class Folder: LibraryItem {
         try container.encode(title, forKey: .title)
         try container.encode(desc, forKey: .desc)
 
-        if let booksArray = self.books?.array as? [Book] {
+        if let booksArray = self.items?.array as? [Book] {
             try container.encode(booksArray, forKey: .books)
         }
     }
@@ -277,14 +277,14 @@ public class Folder: LibraryItem {
         title = try values.decode(String.self, forKey: .title)
         desc = try values.decode(String.self, forKey: .desc)
         let booksArray = try values.decode([Book].self, forKey: .books)
-        books = NSOrderedSet(array: booksArray)
+        items = NSOrderedSet(array: booksArray)
     }
 }
 
 extension Folder: Sortable {
     public func sort(by sortType: PlayListSortOrder) {
-        guard let books = books else { return }
-        self.books = BookSortService.sort(books, by: sortType)
+        guard let books = items else { return }
+        self.items = BookSortService.sort(books, by: sortType)
         DataManager.saveContext()
     }
 }

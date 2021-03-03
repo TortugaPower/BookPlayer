@@ -16,39 +16,39 @@ extension Folder {
     }
 
     @NSManaged public var desc: String!
-    @NSManaged public var books: NSOrderedSet?
+    @NSManaged public var items: NSOrderedSet?
 }
 
 // MARK: Generated accessors for books
 
 extension Folder {
-    @objc(insertObject:inBooksAtIndex:)
-    @NSManaged public func insertIntoBooks(_ value: Book, at idx: Int)
+    @objc(insertObject:inItemsAtIndex:)
+    @NSManaged public func insertIntoItems(_ value: LibraryItem, at idx: Int)
 
-    @objc(removeObjectFromBooksAtIndex:)
-    @NSManaged public func removeFromBooks(at idx: Int)
+    @objc(removeObjectFromItemsAtIndex:)
+    @NSManaged public func removeFromItems(at idx: Int)
 
-    @objc(insertBooks:atIndexes:)
-    @NSManaged public func insertIntoBooks(_ values: [Book], at indexes: NSIndexSet)
+    @objc(insertItems:atIndexes:)
+    @NSManaged public func insertIntoItems(_ values: [LibraryItem], at indexes: NSIndexSet)
 
-    @objc(removeBooksAtIndexes:)
-    @NSManaged public func removeFromBooks(at indexes: NSIndexSet)
+    @objc(removeItemsAtIndexes:)
+    @NSManaged public func removeFromItems(at indexes: NSIndexSet)
 
-    @objc(replaceObjectInBooksAtIndex:withObject:)
-    @NSManaged public func replaceBooks(at idx: Int, with value: Book)
+    @objc(replaceObjectInItemsAtIndex:withObject:)
+    @NSManaged public func replaceItems(at idx: Int, with value: LibraryItem)
 
-    @objc(replaceBooksAtIndexes:withBooks:)
-    @NSManaged public func replaceBooks(at indexes: NSIndexSet, with values: [Book])
+    @objc(replaceItemsAtIndexes:withBooks:)
+    @NSManaged public func replaceItems(at indexes: NSIndexSet, with values: [LibraryItem])
 
-    @objc(addBooksObject:)
-    @NSManaged public func addToBooks(_ value: Book)
+    @objc(addItemsObject:)
+    @NSManaged public func addToItems(_ value: LibraryItem)
 
-    @objc(removeBooksObject:)
-    @NSManaged public func removeFromBooks(_ value: Book)
+    @objc(removeItemsObject:)
+    @NSManaged public func removeFromItems(_ value: LibraryItem)
 
-    @objc(addBooks:)
-    @NSManaged public func addToBooks(_ values: NSOrderedSet)
+    @objc(addItems:)
+    @NSManaged public func addToItems(_ values: NSOrderedSet)
 
-    @objc(removeBooks:)
-    @NSManaged public func removeFromBooks(_ values: NSOrderedSet)
+    @objc(removeItems:)
+    @NSManaged public func removeFromItems(_ values: NSOrderedSet)
 }

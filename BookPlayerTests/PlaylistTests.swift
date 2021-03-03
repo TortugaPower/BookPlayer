@@ -15,19 +15,19 @@ class PlaylistTests: XCTestCase {
         super.setUp()
     }
 
-    func generatePlaylist(title: String, books: [Book]) -> Folder {
-        return DataManager.createPlaylist(title: title, books: books)
+    func generateFolder(title: String, books: [Book]) -> Folder {
+        return DataManager.createFolder(title: title, books: books)
     }
 
     func testGetNilBook() {
-        let playlist = self.generatePlaylist(title: "playlist", books: [])
+        let folder = self.generateFolder(title: "folder", books: [])
 
-        let fetchedBookByIdentifier = playlist.getBook(with: "book1")
+        let fetchedBookByIdentifier = folder.getBook(with: "book1")
 
         XCTAssertNil(fetchedBookByIdentifier)
 
         let dummyUrl = URL(fileURLWithPath: "book1")
-        let fetchedBookByUrl = playlist.getBook(with: dummyUrl)
+        let fetchedBookByUrl = folder.getBook(with: dummyUrl)
 
         XCTAssertNil(fetchedBookByUrl)
     }
@@ -35,14 +35,14 @@ class PlaylistTests: XCTestCase {
     func testGetBook() {
         let book1 = StubFactory.book(title: "book1", duration: 100)
 
-        let playlist = self.generatePlaylist(title: "playlist", books: [book1])
+        let folder = self.generateFolder(title: "folder", books: [book1])
 
-        let fetchedBookByIdentifier = playlist.getBook(with: "book1")
+        let fetchedBookByIdentifier = folder.getBook(with: "book1")
 
         XCTAssertNotNil(fetchedBookByIdentifier)
 
         let dummyUrl = URL(fileURLWithPath: "book1")
-        let fetchedBookByUrl = playlist.getBook(with: dummyUrl)
+        let fetchedBookByUrl = folder.getBook(with: dummyUrl)
 
         XCTAssertNotNil(fetchedBookByUrl)
     }
@@ -51,23 +51,23 @@ class PlaylistTests: XCTestCase {
         let book1 = StubFactory.book(title: "book1", duration: 100)
         let book2 = StubFactory.book(title: "book2", duration: 100)
 
-        let playlist = self.generatePlaylist(title: "playlist", books: [book1, book2])
+        let folder = self.generateFolder(title: "folder", books: [book1, book2])
 
-        let emptyProgress = playlist.progress
+        let emptyProgress = folder.progress
 
         XCTAssert(emptyProgress == 0.0)
 
         book1.setCurrentTime(50)
         book2.setCurrentTime(50)
 
-        let halfProgress = playlist.progress
+        let halfProgress = folder.progress
 
         XCTAssert(halfProgress == 0.5)
 
         book1.setCurrentTime(100)
         book2.setCurrentTime(100)
 
-        let completedProgress = playlist.progress
+        let completedProgress = folder.progress
 
         XCTAssert(completedProgress == 1.0)
     }
@@ -76,9 +76,9 @@ class PlaylistTests: XCTestCase {
         let book1 = StubFactory.book(title: "book1", duration: 100)
         let book2 = StubFactory.book(title: "book2", duration: 100)
 
-        let playlist = self.generatePlaylist(title: "playlist", books: [book1, book2])
+        let folder = self.generateFolder(title: "playlist", books: [book1, book2])
 
-        let nextBook = playlist.getNextBook(after: book1)
+        let nextBook = folder.getNextBook(after: book1)
 
         XCTAssert(nextBook == book2)
     }

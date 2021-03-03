@@ -106,27 +106,27 @@ public class DataManager {
             return nil
         }
 
-        guard let playlist = item as? Folder
+        guard let folder = item as? Folder
         else {
             return item as? Book
         }
 
-        return playlist.getBook(with: identifier)
+        return folder.getBook(with: identifier)
     }
 
-    public class func createPlaylist(from url: URL, books: [Book]) -> Folder {
+    public class func createFolder(from url: URL, books: [Book]) -> Folder {
         return Folder(from: url, books: books, context: self.getContext())
     }
 
-    public class func createPlaylist(title: String, books: [Book]) -> Folder {
+    public class func createFolder(title: String, books: [Book]) -> Folder {
         return Folder(title: title, books: books, context: self.getContext())
     }
 
-    public class func insert(_ playlist: Folder, into library: Library, at index: Int? = nil) {
+    public class func insert(_ folder: Folder, into library: Library, at index: Int? = nil) {
         if let index = index {
-            library.insertIntoItems(playlist, at: index)
+            library.insertIntoItems(folder, at: index)
         } else {
-            library.addToItems(playlist)
+            library.addToItems(folder)
         }
         self.saveContext()
     }

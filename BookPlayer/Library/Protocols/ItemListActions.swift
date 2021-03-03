@@ -12,7 +12,7 @@ import UIKit
 protocol ItemListActions: ItemList {
     func sort(by sortType: PlayListSortOrder)
     func delete(_ items: [LibraryItem], mode: DeleteMode)
-    func move(_ items: [LibraryItem], to playlist: Folder)
+    func move(_ items: [LibraryItem], to folder: Folder)
 }
 
 extension ItemListActions {
@@ -21,11 +21,11 @@ extension ItemListActions {
         self.reloadData()
     }
 
-    func move(_ items: [LibraryItem], to playlist: Folder) {
-        let selectedPlaylists = items.compactMap { (item) -> Folder? in
+    func move(_ items: [LibraryItem], to folder: Folder) {
+        let selectedFolders = items.compactMap { (item) -> Folder? in
             guard
                 let itemPlaylist = item as? Folder,
-                itemPlaylist != playlist else { return nil }
+                itemPlaylist != folder else { return nil }
 
             return itemPlaylist
         }
@@ -34,8 +34,8 @@ extension ItemListActions {
             item as? Book
         }
 
-        let books = Array(selectedPlaylists.compactMap { (playlist) -> [Book]? in
-            guard let books = playlist.books else { return nil }
+        let books = Array(selectedFolders.compactMap { (folder) -> [Book]? in
+            guard let books = folder.items else { return nil }
 
             return books.array as? [Book]
         }.joined())
@@ -43,9 +43,9 @@ extension ItemListActions {
         let allBooks = books + selectedBooks
 
         self.library.removeFromItems(NSOrderedSet(array: selectedBooks))
-        self.library.removeFromItems(NSOrderedSet(array: selectedPlaylists))
-        playlist.addToBooks(NSOrderedSet(array: allBooks))
-        playlist.updateCompletionState()
+        self.library.removeFromItems(NSOrderedSet(array: selectedFolders))
+        folder.addToItems(NSOrderedSet(array: allBooks))
+        folder.updateCompletionState()
 
         DataManager.saveContext()
 

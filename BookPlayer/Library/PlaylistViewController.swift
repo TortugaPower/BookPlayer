@@ -10,10 +10,10 @@ import BookPlayerKit
 import UIKit
 
 class PlaylistViewController: ItemListViewController {
-    var playlist: Folder!
+    var folder: Folder!
 
     override var items: [LibraryItem] {
-        return self.playlist.books?.array as? [LibraryItem] ?? []
+        return self.folder.items?.array as? [LibraryItem] ?? []
     }
 
     override func viewDidLoad() {
@@ -21,8 +21,8 @@ class PlaylistViewController: ItemListViewController {
 
         self.toggleEmptyStateView()
 
-        self.navigationItem.title = self.playlist.title
-        self.sendSignal(.playlistScreen, with: nil)
+        self.navigationItem.title = self.folder.title
+        self.sendSignal(.folderScreen, with: nil)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -30,7 +30,7 @@ class PlaylistViewController: ItemListViewController {
         guard
             let currentBook = PlayerManager.shared.currentBook,
             let fileURL = currentBook.fileURL,
-            let index = self.playlist.itemIndex(with: fileURL) else {
+            let index = self.folder.itemIndex(with: fileURL) else {
             return
         }
 
@@ -43,7 +43,7 @@ class PlaylistViewController: ItemListViewController {
     }
 
     override func handleOperationCompletion(_ files: [FileItem]) {
-        DataManager.insertBooks(from: files, into: self.playlist) {
+        DataManager.insertBooks(from: files, into: self.folder) {
             self.reloadData()
         }
 
@@ -74,12 +74,12 @@ class PlaylistViewController: ItemListViewController {
                 placeholder = file.originalUrl.deletingPathExtension().lastPathComponent
             }
 
-            self.presentCreatePlaylistAlert(placeholder, handler: { title in
-                let playlist = DataManager.createPlaylist(title: title, books: [])
+            self.presentCreateFolderAlert(placeholder, handler: { title in
+                let folder = DataManager.createFolder(title: title, books: [])
 
-                DataManager.insert(playlist, into: self.library)
+                DataManager.insert(folder, into: self.library)
 
-                DataManager.insertBooks(from: files, into: playlist) {
+                DataManager.insertBooks(from: files, into: folder) {
                     self.reloadData()
                     self.showLoadView(false)
                 }
@@ -98,7 +98,7 @@ class PlaylistViewController: ItemListViewController {
         guard
             let currentBook = PlayerManager.shared.currentBook,
             let fileURL = currentBook.fileURL,
-            let index = self.playlist.itemIndex(with: fileURL),
+            let index = self.folder.itemIndex(with: fileURL),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
         else {
             return
@@ -111,7 +111,7 @@ class PlaylistViewController: ItemListViewController {
         guard
             let currentBook = PlayerManager.shared.currentBook,
             let fileURL = currentBook.fileURL,
-            let index = self.playlist.itemIndex(with: fileURL),
+            let index = self.folder.itemIndex(with: fileURL),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
         else {
             return
@@ -126,7 +126,7 @@ class PlaylistViewController: ItemListViewController {
             let book = userInfo["book"] as? Book,
             !book.isFault,
             let fileURL = book.fileURL,
-            let index = self.playlist.itemIndex(with: fileURL),
+            let index = self.folder.itemIndex(with: fileURL),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
         else {
             return
@@ -148,7 +148,7 @@ class PlaylistViewController: ItemListViewController {
 
         alert.addAction(UIAlertAction(title: "library_title".localized, style: .default) { _ in
             let bookSet = NSOrderedSet(array: books)
-            self.playlist.removeFromBooks(bookSet)
+            self.folder.removeFromItems(bookSet)
             self.library.addToItems(bookSet)
             DataManager.saveContext()
 
@@ -156,24 +156,24 @@ class PlaylistViewController: ItemListViewController {
         })
 
         alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { _ in
-            self.presentCreatePlaylistAlert(handler: { title in
-                self.playlist.removeFromBooks(NSOrderedSet(array: books))
-                let playlist = DataManager.createPlaylist(title: title, books: books)
+            self.presentCreateFolderAlert(handler: { title in
+                self.folder.removeFromItems(NSOrderedSet(array: books))
+                let folder = DataManager.createFolder(title: title, books: books)
 
-                DataManager.insert(playlist, into: self.library)
+                DataManager.insert(folder, into: self.library)
 
                 self.reloadData()
             })
         })
 
-        let availablePlaylists = self.library.itemsArray.compactMap { (item) -> Folder? in
+        let availableFolders = self.library.itemsArray.compactMap { (item) -> Folder? in
             item as? Folder
         }
 
-        let existingPlaylistAction = UIAlertAction(title: "existing_playlist_button".localized, style: .default) { _ in
+        let existingFolderAction = UIAlertAction(title: "existing_playlist_button".localized, style: .default) { _ in
 
             let vc = ItemSelectionViewController()
-            vc.items = availablePlaylists
+            vc.items = availableFolders
 
             vc.onItemSelected = { selectedItem in
                 guard let selectedPlaylist = selectedItem as? Folder else { return }
@@ -184,8 +184,8 @@ class PlaylistViewController: ItemListViewController {
             self.present(nav, animated: true, completion: nil)
         }
 
-        existingPlaylistAction.isEnabled = !availablePlaylists.isEmpty
-        alert.addAction(existingPlaylistAction)
+        existingFolderAction.isEnabled = !availableFolders.isEmpty
+        alert.addAction(existingFolderAction)
 
         alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel))
 
@@ -201,7 +201,7 @@ class PlaylistViewController: ItemListViewController {
     // MARK: - Methods
 
     override func sort(by sortType: PlayListSortOrder) {
-        self.playlist.sort(by: sortType)
+        self.folder.sort(by: sortType)
     }
 
     override func handleDelete(books: [Book]) {
@@ -236,7 +236,7 @@ extension PlaylistViewController {
         guard
             let currentBook = PlayerManager.shared.currentBook,
             let fileURL = currentBook.fileURL,
-            let index = self.playlist.itemIndex(with: fileURL),
+            let index = self.folder.itemIndex(with: fileURL),
             index == indexPath.row
         else {
             return bookCell
@@ -307,8 +307,8 @@ extension PlaylistViewController {
         // swiftlint:disable force_cast
         let book = self.items[sourceIndexPath.row] as! Book
 
-        self.playlist.removeFromBooks(at: sourceIndexPath.row)
-        self.playlist.insertIntoBooks(book, at: destinationIndexPath.row)
+        self.folder.removeFromItems(at: sourceIndexPath.row)
+        self.folder.insertIntoItems(book, at: destinationIndexPath.row)
 
         DataManager.saveContext()
     }

@@ -6,7 +6,7 @@
         <attribute name="usesDefaultArtwork" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <relationship name="chapters" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="Chapter" inverseName="book" inverseEntity="Chapter"/>
         <relationship name="lastPlayed" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Library" inverseName="lastPlayedBook" inverseEntity="Library"/>
-        <relationship name="playlist" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Playlist" inverseName="books" inverseEntity="Playlist"/>
+        <relationship name="playlist" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Playlist" inverseName="books" inverseEntity="Playlist" elementID="relationPlaylistV3"/>
     </entity>
     <entity name="Chapter" representedClassName="Chapter" syncable="YES">
         <attribute name="duration" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
@@ -40,7 +40,7 @@
     </entity>
     <entity name="Playlist" representedClassName="Playlist" parentEntity="LibraryItem" elementID="PlaylistV3" syncable="YES">
         <attribute name="desc" attributeType="String"/>
-        <relationship name="books" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Book" inverseName="playlist" inverseEntity="Book"/>
+        <relationship name="books" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Book" inverseName="playlist" inverseEntity="Book" elementID="relationBookV3"/>
     </entity>
     <entity name="Theme" representedClassName="Theme" elementID="ArtworkColors" syncable="YES">
         <attribute name="darkAccentHex" optional="YES" attributeType="String" elementID="darkAccentHex"/>

@@ -238,7 +238,7 @@ class PlayerManager: NSObject, TelemetryProtocol {
 
             let useGlobalSpeed = UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue)
             let globalSpeed = UserDefaults.standard.float(forKey: "global_speed")
-            let localSpeed = currentBook.playlist?.speed ?? currentBook.speed
+            let localSpeed = currentBook.folder?.speed ?? currentBook.speed
             let speed = useGlobalSpeed ? globalSpeed : localSpeed
 
             return speed > 0 ? speed : 1.0
@@ -249,7 +249,7 @@ class PlayerManager: NSObject, TelemetryProtocol {
                 return
             }
 
-            currentBook.playlist?.speed = newValue
+            currentBook.folder?.speed = newValue
             currentBook.speed = newValue
             DataManager.saveContext()
 
@@ -379,7 +379,7 @@ extension PlayerManager {
 
         UserActivityManager.shared.resumePlaybackActivity()
 
-        if let library = currentBook.library ?? currentBook.playlist?.library {
+        if let library = currentBook.library ?? currentBook.folder?.library {
             library.lastPlayedBook = currentBook
             DataManager.saveContext()
         }
@@ -469,7 +469,7 @@ extension PlayerManager {
 
         UserActivityManager.shared.stopPlaybackActivity()
 
-        if let library = currentBook.library ?? currentBook.playlist?.library {
+        if let library = currentBook.library ?? currentBook.folder?.library {
             library.lastPlayedBook = currentBook
             DataManager.saveContext()
         }
@@ -519,7 +519,7 @@ extension PlayerManager {
         if let book = self.currentBook {
             userInfo = ["book": book]
 
-            if let library = book.library ?? book.playlist?.library {
+            if let library = book.library ?? book.folder?.library {
                 library.lastPlayedBook = nil
                 DataManager.saveContext()
             }
@@ -552,7 +552,7 @@ extension PlayerManager {
     @objc
     func playerDidFinishPlaying(_ notification: Notification) {
         if let book = self.currentBook,
-            let library = book.library ?? book.playlist?.library {
+            let library = book.library ?? book.folder?.library {
             library.lastPlayedBook = nil
             DataManager.saveContext()
         }

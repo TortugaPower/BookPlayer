@@ -151,9 +151,15 @@ class DataMigrationManager {
         } else if storeModel.isVersion3 {
             let destinationModel = NSManagedObjectModel.version4
 
+            let mapPath = Bundle.main.path(forResource: "MappingModel_v3_to_v4", ofType: "cdm")!
+            let mapUrl = URL(fileURLWithPath: mapPath)
+
+            let mappingModel = NSMappingModel(contentsOf: mapUrl)
+
             self.migrateStoreAt(URL: storeURL,
                                 fromModel: storeModel,
-                                toModel: destinationModel)
+                                toModel: destinationModel,
+                                mappingModel: mappingModel)
         }
     }
 }

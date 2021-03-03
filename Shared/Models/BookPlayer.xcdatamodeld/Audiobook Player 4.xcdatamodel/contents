@@ -6,7 +6,6 @@
         <attribute name="usesDefaultArtwork" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <relationship name="chapters" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="Chapter" inverseName="book" inverseEntity="Chapter"/>
         <relationship name="lastPlayed" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Library" inverseName="lastPlayedBook" inverseEntity="Library"/>
-        <relationship name="playlist" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Folder" inverseName="books" inverseEntity="Folder"/>
     </entity>
     <entity name="Chapter" representedClassName="Chapter" syncable="YES">
         <attribute name="duration" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
@@ -17,7 +16,7 @@
     </entity>
     <entity name="Folder" representedClassName="Folder" parentEntity="LibraryItem" elementID="PlaylistV3" syncable="YES">
         <attribute name="desc" optional="YES" attributeType="String"/>
-        <relationship name="books" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Book" inverseName="playlist" inverseEntity="Book"/>
+        <relationship name="items" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="LibraryItem" inverseName="folder" inverseEntity="LibraryItem" elementID="relationBookV3"/>
     </entity>
     <entity name="Library" representedClassName="Library" syncable="YES">
         <relationship name="currentTheme" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Theme" inverseName="selected" inverseEntity="Theme"/>
@@ -36,6 +35,7 @@
         <attribute name="percentCompleted" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="speed" attributeType="Float" defaultValueString="1" usesScalarValueType="YES"/>
         <attribute name="title" attributeType="String"/>
+        <relationship name="folder" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Folder" inverseName="items" inverseEntity="Folder"/>
         <relationship name="library" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Library" inverseName="items" inverseEntity="Library"/>
     </entity>
     <entity name="PlaybackRecord" representedClassName="PlaybackRecord" syncable="YES">
@@ -72,11 +72,11 @@
         <relationship name="selected" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Library" inverseName="currentTheme" inverseEntity="Library"/>
     </entity>
     <elements>
-        <element name="Book" positionX="-65" positionY="329" width="128" height="119"/>
+        <element name="Book" positionX="-65" positionY="329" width="128" height="104"/>
         <element name="Chapter" positionX="162" positionY="99" width="128" height="120"/>
         <element name="Folder" positionX="16" positionY="207" width="128" height="59"/>
         <element name="Library" positionX="160" positionY="9" width="128" height="105"/>
-        <element name="LibraryItem" positionX="-63" positionY="-18" width="128" height="210"/>
+        <element name="LibraryItem" positionX="-63" positionY="-18" width="128" height="209"/>
         <element name="PlaybackRecord" positionX="-54" positionY="135" width="128" height="75"/>
         <element name="Theme" positionX="-261" positionY="330" width="128" height="434"/>
     </elements>

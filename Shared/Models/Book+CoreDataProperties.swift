@@ -35,7 +35,6 @@ extension Book {
     @NSManaged public var ext: String!
     @NSManaged public var usesDefaultArtwork: Bool
     @NSManaged public var chapters: NSOrderedSet?
-    @NSManaged public var playlist: Folder?
     @NSManaged public var lastPlayed: Library?
 }
 

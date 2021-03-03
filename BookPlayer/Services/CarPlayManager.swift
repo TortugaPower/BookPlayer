@@ -22,7 +22,7 @@ enum IndexGuide {
     }
 
     case library
-    case playlist
+    case folder
 
     var count: Int {
         switch self {
@@ -30,7 +30,7 @@ enum IndexGuide {
             return 1
         case .library:
             return 2
-        case .playlist:
+        case .folder:
             return 3
         }
     }
@@ -41,7 +41,7 @@ enum IndexGuide {
             return 0
         case .library:
             return 1
-        case .playlist:
+        case .folder:
             return 2
         }
     }
@@ -88,8 +88,8 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
             return items.count
         }
 
-        guard let playlist = items[indexPath[IndexGuide.library.content]] as? Folder,
-            let count = playlist.books?.count else {
+        guard let folder = items[indexPath[IndexGuide.library.content]] as? Folder,
+            let count = folder.items?.count else {
             return 0
         }
 
@@ -106,11 +106,11 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
             return nil
         }
 
-        // Populate playlist content
-        if indexPath.indices.count == IndexGuide.playlist.count,
-           let playlist = items[indexPath[IndexGuide.library.content]] as? Folder,
-           let books = playlist.books?.array as? [Book] {
-            let book = books[indexPath[IndexGuide.playlist.content]]
+        // Populate folder content
+        if indexPath.indices.count == IndexGuide.folder.count,
+           let folder = items[indexPath[IndexGuide.library.content]] as? Folder,
+           let books = folder.items?.array as? [Book] {
+            let book = books[indexPath[IndexGuide.folder.content]]
             let item = MPContentItem(identifier: book.identifier)
             item.isPlayable = true
             item.title = book.title
@@ -129,7 +129,7 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
 
         let libraryItem = items[indexPath[IndexGuide.library.content]]
 
-        // Playlists identifiers weren't unique, this is a quick fix
+        // Folders identifiers weren't unique, this is a quick fix
         if libraryItem.identifier == libraryItem.title {
             libraryItem.identifier = "\(libraryItem.title!)\(Date().timeIntervalSince1970)"
         }
@@ -149,8 +149,8 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
             item.subtitle = book.author
             item.isContainer = false
             item.isPlayable = true
-        } else if let playlist = libraryItem as? Folder {
-            item.subtitle = playlist.info()
+        } else if let folder = libraryItem as? Folder {
+            item.subtitle = folder.info()
             item.isContainer = indexPath[0] != IndexGuide.tab.recentlyPlayed
             item.isPlayable = indexPath[0] == IndexGuide.tab.recentlyPlayed
         }
@@ -166,14 +166,14 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
 
         var book: Book!
 
-        if indexPath.indices.count == IndexGuide.playlist.count,
-            let playlist = items[indexPath[IndexGuide.library.content]] as? Folder,
-            let books = playlist.books?.array as? [Book] {
-            book = books[indexPath[IndexGuide.playlist.content]]
+        if indexPath.indices.count == IndexGuide.folder.count,
+            let folder = items[indexPath[IndexGuide.library.content]] as? Folder,
+            let books = folder.items?.array as? [Book] {
+            book = books[indexPath[IndexGuide.folder.content]]
         } else {
             if indexPath[0] == IndexGuide.tab.recentlyPlayed,
-                let playlist = items[indexPath[IndexGuide.library.content]] as? Folder {
-                book = playlist.getBookToPlay()
+                let folder = items[indexPath[IndexGuide.library.content]] as? Folder {
+                book = folder.getBookToPlay()
             } else {
                 book = items[indexPath[IndexGuide.library.content]] as? Book
             }
@@ -219,8 +219,8 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
     func setNowPlayingInfo(with book: Book) {
         var identifiers = [book.identifier!]
 
-        if let playlist = book.playlist {
-            identifiers.append(playlist.identifier)
+        if let folder = book.folder {
+            identifiers.append(folder.identifier)
         }
 
         MPPlayableContentManager.shared().nowPlayingIdentifiers = identifiers

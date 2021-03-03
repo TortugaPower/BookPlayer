@@ -149,12 +149,12 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
                 placeholder = file.originalUrl.deletingPathExtension().lastPathComponent
             }
 
-            self.presentCreatePlaylistAlert(placeholder, handler: { title in
-                let playlist = DataManager.createPlaylist(title: title, books: [])
+            self.presentCreateFolderAlert(placeholder, handler: { title in
+                let folder = DataManager.createFolder(title: title, books: [])
 
-                DataManager.insert(playlist, into: self.library)
+                DataManager.insert(folder, into: self.library)
 
-                DataManager.insertBooks(from: files, into: playlist) {
+                DataManager.insertBooks(from: files, into: folder) {
                     self.reloadData()
                     self.showLoadView(false)
                 }
@@ -171,17 +171,17 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         return navigationController!.viewControllers.count > 1
     }
 
-    private func presentPlaylist(_ playlist: Folder) {
+    private func presentFolder(_ folder: Folder) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
 
-        guard let playlistVC = storyboard.instantiateViewController(withIdentifier: "PlaylistViewController") as? PlaylistViewController else {
+        guard let folderVC = storyboard.instantiateViewController(withIdentifier: "PlaylistViewController") as? PlaylistViewController else {
             return
         }
 
-        playlistVC.library = library
-        playlistVC.playlist = playlist
+        folderVC.library = library
+        folderVC.folder = folder
 
-        navigationController?.pushViewController(playlistVC, animated: true)
+        navigationController?.pushViewController(folderVC, animated: true)
     }
 
     func handleDelete(items: [LibraryItem]) {
@@ -193,10 +193,10 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
 
         var deleteActionTitle = "delete_button".localized
 
-        if items.count == 1, let playlist = items.first as? Folder {
+        if items.count == 1, let folder = items.first as? Folder {
             deleteActionTitle = "delete_deep_button".localized
 
-            alert.title = String(format: "delete_single_item_title".localized, playlist.title!)
+            alert.title = String(format: "delete_single_item_title".localized, folder.title!)
             alert.message = "delete_single_playlist_description".localized
             alert.addAction(UIAlertAction(title: "delete_shallow_button".localized, style: .default, handler: { _ in
                 self.delete(items, mode: .shallow)
@@ -305,10 +305,10 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         })
 
         alertController.addAction(UIAlertAction(title: "create_playlist_button".localized, style: .default) { _ in
-            self.presentCreatePlaylistAlert(handler: { title in
-                let playlist = DataManager.createPlaylist(title: title, books: [])
+            self.presentCreateFolderAlert(handler: { title in
+                let folder = DataManager.createFolder(title: title, books: [])
 
-                DataManager.insert(playlist, into: self.library)
+                DataManager.insert(folder, into: self.library)
 
                 self.reloadData()
             })
@@ -328,21 +328,21 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         let alert = UIAlertController(title: "choose_destination_title".localized, message: nil, preferredStyle: .alert)
 
         alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { _ in
-            self.presentCreatePlaylistAlert(handler: { title in
-                let playlist = DataManager.createPlaylist(title: title, books: [])
-                DataManager.insert(playlist, into: self.library)
-                self.move(selectedItems, to: playlist)
+            self.presentCreateFolderAlert(handler: { title in
+                let folder = DataManager.createFolder(title: title, books: [])
+                DataManager.insert(folder, into: self.library)
+                self.move(selectedItems, to: folder)
             })
         })
 
-        let availablePlaylists = self.items.compactMap { (item) -> Folder? in
+        let availableFolders = self.items.compactMap { (item) -> Folder? in
             item as? Folder
         }
 
-        let existingPlaylistAction = UIAlertAction(title: "existing_playlist_button".localized, style: .default) { _ in
+        let existingFolderAction = UIAlertAction(title: "existing_playlist_button".localized, style: .default) { _ in
 
             let vc = ItemSelectionViewController()
-            vc.items = availablePlaylists
+            vc.items = availableFolders
 
             vc.onItemSelected = { selectedItem in
                 guard let selectedPlaylist = selectedItem as? Folder else { return }
@@ -353,8 +353,8 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
             self.present(nav, animated: true, completion: nil)
         }
 
-        existingPlaylistAction.isEnabled = !availablePlaylists.isEmpty
-        alert.addAction(existingPlaylistAction)
+        existingFolderAction.isEnabled = !availableFolders.isEmpty
+        alert.addAction(existingFolderAction)
 
         alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel))
 
@@ -375,7 +375,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
 
 extension LibraryViewController {
     private func setupCustomRotors() {
-        accessibilityCustomRotors = [self.rotorFactory(name: "Books", type: .book), self.rotorFactory(name: "Playlists", type: .playlist)]
+        accessibilityCustomRotors = [self.rotorFactory(name: "Books", type: .book), self.rotorFactory(name: "Folders", type: .folder)]
     }
 
     private func rotorFactory(name: String, type: BookCellType) -> UIAccessibilityCustomRotor {
@@ -419,22 +419,22 @@ extension LibraryViewController {
             // "…" on a button indicates a follow up dialog instead of an immmediate action in macOS and iOS
             var title = "\("delete_button".localized)…"
 
-            // Remove the dots if trying to delete an empty playlist
-            if let playlist = item as? Folder {
-                title = playlist.hasBooks() ? title : "delete_button".localized
+            // Remove the dots if trying to delete an empty folder
+            if let folder = item as? Folder {
+                title = folder.hasBooks() ? title : "delete_button".localized
             }
 
             let deleteAction = UIAlertAction(title: title, style: .destructive) { _ in
                 guard let book = self.items[indexPath.row] as? Book else {
-                    guard let playlist = self.items[indexPath.row] as? Folder else { return }
+                    guard let folder = self.items[indexPath.row] as? Folder else { return }
 
-                    guard playlist.hasBooks() else {
-                        DataManager.delete([playlist])
+                    guard folder.hasBooks() else {
+                        DataManager.delete([folder])
                         self.deleteRows(at: [indexPath])
                         return
                     }
 
-                    self.handleDelete(items: [playlist])
+                    self.handleDelete(items: [folder])
 
                     return
                 }
@@ -467,8 +467,8 @@ extension LibraryViewController {
             return
         }
 
-        if let playlist = self.items[indexPath.row] as? Folder {
-            self.presentPlaylist(playlist)
+        if let folder = self.items[indexPath.row] as? Folder {
+            self.presentFolder(folder)
 
             return
         }
@@ -525,24 +525,24 @@ extension LibraryViewController {
         let sourceItem = self.items[finalDestinationIndexPath.row]
         let destinationItem = self.items[overIndexPath.row]
 
-        guard let playlist = destinationItem as? Folder ?? sourceItem as? Folder else {
+        guard let folder = destinationItem as? Folder ?? sourceItem as? Folder else {
             let minIndex = min(finalDestinationIndexPath.row, overIndexPath.row)
 
-            self.presentCreatePlaylistAlert(destinationItem.title, handler: { title in
-                let playlist = DataManager.createPlaylist(title: title, books: [])
-                DataManager.insert(playlist, into: self.library, at: minIndex)
-                self.move([sourceItem, destinationItem], to: playlist)
+            self.presentCreateFolderAlert(destinationItem.title, handler: { title in
+                let folder = DataManager.createFolder(title: title, books: [])
+                DataManager.insert(folder, into: self.library, at: minIndex)
+                self.move([sourceItem, destinationItem], to: folder)
 
                 self.reloadData()
             })
             return
         }
 
-        let selectedItem = playlist == destinationItem
+        let selectedItem = folder == destinationItem
             ? sourceItem
             : destinationItem
 
-        let message = String.localizedStringWithFormat("move_single_item_title".localized, selectedItem.title!, playlist.title!)
+        let message = String.localizedStringWithFormat("move_single_item_title".localized, selectedItem.title!, folder.title!)
 
         let alert = UIAlertController(title: "move_playlist_button".localized,
                                       message: message,
@@ -551,7 +551,7 @@ extension LibraryViewController {
         alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
 
         alert.addAction(UIAlertAction(title: "move_title".localized, style: .default, handler: { _ in
-            self.move([selectedItem], to: playlist)
+            self.move([selectedItem], to: folder)
             self.reloadData()
         }))
 

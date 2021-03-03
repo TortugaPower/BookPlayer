@@ -54,8 +54,8 @@ struct BookView: View {
 
         if let book = item as? Book {
             identifier = book.identifier!
-        } else if let playlist = item as? Folder,
-            let book = playlist.getBookToPlay() ?? playlist.getBook(at: 0) {
+        } else if let folder = item as? Folder,
+            let book = folder.getBookToPlay() ?? folder.getBook(at: 0) {
             identifier = book.identifier!
         }
 

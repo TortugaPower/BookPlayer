@@ -23,6 +23,7 @@ extension LibraryItem {
     @NSManaged public var percentCompleted: Double
     @NSManaged public var speed: Float
     @NSManaged public var library: Library?
+    @NSManaged public var folder: Folder?
     @NSManaged public var originalFileName: String?
     @NSManaged public var isFinished: Bool
     @NSManaged public var lastPlayDate: Date?

@@ -15,16 +15,16 @@ extension DataManager {
     }
 
     /**
-     Creates a book for each URL and adds it to the specified playlist. If no playlist is specified, it will be added to the library.
+     Creates a book for each URL and adds it to the specified folder. If no folder is specified, it will be added to the library.
 
-     A book can't be in two places at once, so if it already existed, it will be removed from the original playlist or library, and it will be added to the new one.
+     A book can't be in two places at once, so if it already existed, it will be removed from the original folder or library, and it will be added to the new one.
 
      - Parameter files: `Book`s will be created for each element in this array
-     - Parameter playlist: `Playlist` to which the created `Book` will be added
-     - Parameter library: `Library` to which the created `Book` will be added if the parameter `playlist` is nil
+     - Parameter folder: `Folder` to which the created `Book` will be added
+     - Parameter library: `Library` to which the created `Book` will be added if the parameter `folder` is nil
      - Parameter completion: Closure fired after processing all the urls.
      */
-    class func insertBooks(from files: [FileItem], into playlist: Folder?, or library: Library, completion: @escaping () -> Void) {
+    class func insertBooks(from files: [FileItem], into folder: Folder?, or library: Library, completion: @escaping () -> Void) {
         let context = self.getContext()
 
         for file in files.sorted(by: {$0.originalUrl.fileName < $1.originalUrl.fileName}) {
@@ -35,8 +35,8 @@ extension DataManager {
             guard let item = library.getItem(with: url) else {
                 let book = Book(from: file, context: context)
 
-                if let playlist = playlist {
-                    playlist.addToBooks(book)
+                if let folder = folder {
+                    folder.addToItems(book)
                 } else {
                     library.addToItems(book)
                 }
@@ -44,25 +44,25 @@ extension DataManager {
                 continue
             }
 
-            guard let storedPlaylist = item as? Folder,
-                let storedBook = storedPlaylist.getBook(with: url) else {
+            guard let storedFolder = item as? Folder,
+                let storedBook = storedFolder.getBook(with: url) else {
                 // swiftlint:disable force_cast
                 // Handle if item is a book
                 let storedBook = item as! Book
 
-                if let playlist = playlist {
+                if let folder = folder {
                     library.removeFromItems(storedBook)
-                    playlist.addToBooks(storedBook)
+                    folder.addToItems(storedBook)
                 }
 
                 continue
             }
 
             // Handle if book already exists in the library
-            storedPlaylist.removeFromBooks(storedBook)
+            storedFolder.removeFromItems(storedBook)
 
-            if let playlist = playlist {
-                playlist.addToBooks(storedBook)
+            if let folder = folder {
+                folder.addToItems(storedBook)
             } else {
                 library.addToItems(storedBook)
             }
@@ -76,7 +76,7 @@ extension DataManager {
     }
 
     /**
-     Creates a book for each URL and adds it to the library. A book can't be in two places at once, so it will be removed if it already existed in a playlist.
+     Creates a book for each URL and adds it to the library. A book can't be in two places at once, so it will be removed if it already existed in a folder.
 
      - Parameter bookUrls: `Book`s will be created for each element in this array
      - Parameter library: `Library` to which the created `Book` will be added
@@ -87,54 +87,54 @@ extension DataManager {
     }
 
     /**
-     Creates a book for each URL and adds it to the specified playlist. A book can't be in two places at once, so it will be removed from the library if it already existed.
+     Creates a book for each URL and adds it to the specified folder. A book can't be in two places at once, so it will be removed from the library if it already existed.
 
      - Parameter bookUrls: `Book`s will be created for each element in this array
-     - Parameter playlist: `Playlist` to which the created `Book` will be added
+     - Parameter folder: `Folder` to which the created `Book` will be added
      - Parameter completion: Closure fired after processing all the urls.
      */
-    public class func insertBooks(from files: [FileItem], into playlist: Folder, completion: @escaping () -> Void) {
-        self.insertBooks(from: files, into: playlist, or: playlist.library!, completion: completion)
+    public class func insertBooks(from files: [FileItem], into folder: Folder, completion: @escaping () -> Void) {
+        self.insertBooks(from: files, into: folder, or: folder.library!, completion: completion)
     }
 
     public class func delete(_ items: [LibraryItem], mode: DeleteMode = .deep) {
         for item in items {
-            guard let playlist = item as? Folder else {
+            guard let folder = item as? Folder else {
                 // swiftlint:disable force_cast
                 self.delete(item as! Book, mode: mode)
                 continue
             }
 
-            self.delete(playlist, mode: mode)
+            self.delete(folder, mode: mode)
         }
     }
 
-    public class func delete(_ playlist: Folder, mode: DeleteMode = .deep) {
-        guard let library = playlist.library else { return }
+    public class func delete(_ folder: Folder, mode: DeleteMode = .deep) {
+        guard let library = folder.library else { return }
 
         if mode == .shallow,
-            let orderedSet = playlist.books {
+            let orderedSet = folder.items {
             library.addToItems(orderedSet)
         }
 
         // swiftlint:disable force_cast
-        for book in playlist.books?.array as! [Book] {
+        for book in folder.items?.array as! [Book] {
             guard mode == .deep else { continue }
             self.delete(book, mode: .deep)
         }
 
-        library.removeFromItems(playlist)
+        library.removeFromItems(folder)
 
-        self.delete(playlist)
+        self.delete(folder)
     }
 
     public class func delete(_ book: Book, mode: DeleteMode) {
         guard mode == .deep else {
-            if let playlist = book.playlist,
-                let library = playlist.library {
+            if let folder = book.folder,
+                let library = folder.library {
                 library.addToItems(book)
 
-                playlist.removeFromBooks(book)
+                folder.removeFromItems(book)
 
                 self.saveContext()
             }

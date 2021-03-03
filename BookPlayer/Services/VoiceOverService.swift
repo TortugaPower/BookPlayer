@@ -20,8 +20,8 @@ class VoiceOverService {
             return self.bookText()
         case .file:
             return self.fileText()
-        case .playlist:
-            return self.playlistText()
+        case .folder:
+            return self.folderText()
         }
     }
 
@@ -37,7 +37,7 @@ class VoiceOverService {
         return "\(voiceOverTitle) \(voiceOverSubtitle)"
     }
 
-    fileprivate func playlistText() -> String {
+    fileprivate func folderText() -> String {
         let voiceOverTitle = self.title ?? "voiceover_no_playlist_title".localized
         return String.localizedStringWithFormat("voiceover_playlist_progress".localized, voiceOverTitle, self.progressPercent())
     }
