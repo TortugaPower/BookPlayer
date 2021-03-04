@@ -47,6 +47,10 @@ public class LibraryItem: NSManagedObject, Codable {
 
     public func markAsFinished(_ flag: Bool) {}
 
+    public func setCurrentTime(_ time: Double) {}
+
+    public func getItem(with identifier: String) -> LibraryItem? { return nil }
+
     public func encode(to encoder: Encoder) throws {
         fatalError("LibraryItem is an abstract class, override this function in the subclass")
     }

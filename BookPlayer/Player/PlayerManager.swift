@@ -152,9 +152,10 @@ class PlayerManager: NSObject, TelemetryProtocol {
     // Called every second by the timer
     @objc func update() {
         guard let book = self.currentBook,
-            let fileURL = book.fileURL,
-            let playerItem = self.playerItem,
-            playerItem.status == .readyToPlay else {
+              let bookIdentifier = book.identifier,
+              let fileURL = book.fileURL,
+              let playerItem = self.playerItem,
+              playerItem.status == .readyToPlay else {
             return
         }
 
@@ -174,7 +175,8 @@ class PlayerManager: NSObject, TelemetryProtocol {
                                             object: nil,
                                             userInfo: [
                                                 "progress": book.progress,
-                                                "fileURL": fileURL
+                                                "fileURL": fileURL,
+                                                "bookIdentifier": bookIdentifier
                                             ] as [String: Any])
         }
 
@@ -537,7 +539,8 @@ extension PlayerManager {
 
     func markAsCompleted(_ flag: Bool) {
         guard let book = self.currentBook,
-            let fileURL = book.fileURL else { return }
+            let fileURL = book.fileURL,
+            let bookIdentifier = book.identifier else { return }
 
         book.markAsFinished(flag)
         DataManager.saveContext()
@@ -545,7 +548,8 @@ extension PlayerManager {
         NotificationCenter.default.post(name: .bookEnd,
                                         object: nil,
                                         userInfo: [
-                                            "fileURL": fileURL
+                                            "fileURL": fileURL,
+                                            "bookIdentifier": bookIdentifier
                                         ])
     }
 

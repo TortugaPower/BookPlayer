@@ -29,8 +29,8 @@ class PlaylistViewController: ItemListViewController {
         super.viewWillAppear(animated)
         guard
             let currentBook = PlayerManager.shared.currentBook,
-            let fileURL = currentBook.fileURL,
-            let index = self.folder.itemIndex(with: fileURL) else {
+            let identifier = currentBook.identifier,
+            let index = self.folder.itemIndex(with: identifier) else {
             return
         }
 
@@ -97,8 +97,8 @@ class PlaylistViewController: ItemListViewController {
     @objc override func onBookPlay() {
         guard
             let currentBook = PlayerManager.shared.currentBook,
-            let fileURL = currentBook.fileURL,
-            let index = self.folder.itemIndex(with: fileURL),
+            let identifier = currentBook.identifier,
+            let index = self.folder.itemIndex(with: identifier),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
         else {
             return
@@ -110,8 +110,8 @@ class PlaylistViewController: ItemListViewController {
     @objc override func onBookPause() {
         guard
             let currentBook = PlayerManager.shared.currentBook,
-            let fileURL = currentBook.fileURL,
-            let index = self.folder.itemIndex(with: fileURL),
+            let identifier = currentBook.identifier,
+            let index = self.folder.itemIndex(with: identifier),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
         else {
             return
@@ -125,8 +125,8 @@ class PlaylistViewController: ItemListViewController {
             let userInfo = notification.userInfo,
             let book = userInfo["book"] as? Book,
             !book.isFault,
-            let fileURL = book.fileURL,
-            let index = self.folder.itemIndex(with: fileURL),
+            let identifier = book.identifier,
+            let index = self.folder.itemIndex(with: identifier),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
         else {
             return
@@ -138,7 +138,31 @@ class PlaylistViewController: ItemListViewController {
     // MARK: - IBActions
 
     @IBAction func addAction() {
-        self.presentImportFilesAlert()
+        self.presentAddOptionsAlert()
+    }
+
+    override func presentAddOptionsAlert() {
+        let alertController = UIAlertController(title: nil,
+                                                message: "import_description".localized,
+                                                preferredStyle: .actionSheet)
+
+        alertController.addAction(UIAlertAction(title: "import_button".localized, style: .default) { _ in
+            self.presentImportFilesAlert()
+        })
+
+        alertController.addAction(UIAlertAction(title: "create_playlist_button".localized, style: .default) { _ in
+            self.presentCreateFolderAlert(handler: { title in
+                let folder = DataManager.createFolder(title: title, books: [])
+
+                DataManager.insert(folder, into: self.folder)
+
+                self.reloadData()
+            })
+        })
+
+        alertController.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel))
+
+        present(alertController, animated: true, completion: nil)
     }
 
     override func handleMove(_ selectedItems: [LibraryItem]) {
@@ -235,8 +259,8 @@ extension PlaylistViewController {
 
         guard
             let currentBook = PlayerManager.shared.currentBook,
-            let fileURL = currentBook.fileURL,
-            let index = self.folder.itemIndex(with: fileURL),
+            let identifier = currentBook.identifier,
+            let index = self.folder.itemIndex(with: identifier),
             index == indexPath.row
         else {
             return bookCell
@@ -251,28 +275,6 @@ extension PlaylistViewController {
 // MARK: - TableView Delegate
 
 extension PlaylistViewController {
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        super.tableView(tableView, didSelectRowAt: indexPath)
-
-        guard !tableView.isEditing else {
-            return
-        }
-
-        tableView.deselectRow(at: indexPath, animated: true)
-
-        guard indexPath.sectionValue == .data else {
-            if indexPath.sectionValue == .add {
-                self.presentImportFilesAlert()
-            }
-
-            return
-        }
-
-        guard let book = self.items[indexPath.row] as? Book else { return }
-
-        self.setupPlayer(book: book)
-    }
-
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
         guard indexPath.sectionValue == .data, let book = self.items[indexPath.row] as? Book else {
             return nil
@@ -304,14 +306,52 @@ extension PlaylistViewController {
             return
         }
 
-        // swiftlint:disable force_cast
-        let book = self.items[sourceIndexPath.row] as! Book
+        let item = self.items[sourceIndexPath.row]
 
         self.folder.removeFromItems(at: sourceIndexPath.row)
-        self.folder.insertIntoItems(book, at: destinationIndexPath.row)
+        self.folder.insertIntoItems(item, at: destinationIndexPath.row)
 
         DataManager.saveContext()
     }
 
-    override func tableView(_ tableView: UITableView, sourceIndexPath: IndexPath, overIndexPath: IndexPath, snapshot: UIView) {}
+    override func tableViewDidFinishReordering(_ tableView: UITableView, from initialSourceIndexPath: IndexPath, to finalDestinationIndexPath: IndexPath, dropped overIndexPath: IndexPath?) {
+        super.tableViewDidFinishReordering(tableView, from: initialSourceIndexPath, to: finalDestinationIndexPath, dropped: overIndexPath)
+
+        guard let overIndexPath = overIndexPath, overIndexPath.sectionValue == .data else { return }
+
+        let sourceItem = self.items[finalDestinationIndexPath.row]
+        let destinationItem = self.items[overIndexPath.row]
+
+        guard let folder = destinationItem as? Folder ?? sourceItem as? Folder else {
+            let minIndex = min(finalDestinationIndexPath.row, overIndexPath.row)
+
+            self.presentCreateFolderAlert(destinationItem.title, handler: { title in
+                let folder = DataManager.createFolder(title: title, books: [])
+                DataManager.insert(folder, into: self.folder, at: minIndex)
+                self.move([sourceItem, destinationItem], to: folder)
+
+                self.reloadData()
+            })
+            return
+        }
+
+        let selectedItem = folder == destinationItem
+            ? sourceItem
+            : destinationItem
+
+        let message = String.localizedStringWithFormat("move_single_item_title".localized, selectedItem.title!, folder.title!)
+
+        let alert = UIAlertController(title: "move_playlist_button".localized,
+                                      message: message,
+                                      preferredStyle: .alert)
+
+        alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
+
+        alert.addAction(UIAlertAction(title: "move_title".localized, style: .default, handler: { _ in
+            self.move([selectedItem], to: folder)
+            self.reloadData()
+        }))
+
+        self.present(alert, animated: true, completion: nil)
+    }
 }

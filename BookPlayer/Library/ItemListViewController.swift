@@ -191,6 +191,21 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         self.editButtonItem.isEnabled = !self.items.isEmpty
     }
 
+    func presentFolder(_ folder: Folder) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+
+        guard let folderVC = storyboard.instantiateViewController(withIdentifier: "PlaylistViewController") as? PlaylistViewController else {
+            return
+        }
+
+        folderVC.library = library
+        folderVC.folder = folder
+
+        navigationController?.pushViewController(folderVC, animated: true)
+    }
+
+    func presentAddOptionsAlert() {}
+
     func presentImportFilesAlert() {
         let providerList = UIDocumentPickerViewController(documentTypes: ["public.audio", "com.pkware.zip-archive", "public.movie"], in: .import)
 
@@ -379,7 +394,7 @@ extension ItemListViewController {
         guard
             let currentBook = PlayerManager.shared.currentBook,
             let fileURL = currentBook.fileURL,
-            let index = self.library.itemIndex(with: fileURL),
+            let index = self.library.itemIndex(with: fileURL.lastPathComponent),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
         else {
             return
@@ -392,7 +407,7 @@ extension ItemListViewController {
         guard
             let book = PlayerManager.shared.currentBook,
             let fileURL = book.fileURL,
-            let index = self.library.itemIndex(with: fileURL),
+            let index = self.library.itemIndex(with: fileURL.lastPathComponent),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
         else {
             return
@@ -407,7 +422,7 @@ extension ItemListViewController {
             let book = userInfo["book"] as? Book,
             !book.isFault,
             let fileURL = book.fileURL,
-            let index = self.library.itemIndex(with: fileURL),
+            let index = self.library.itemIndex(with: fileURL.lastPathComponent),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
         else {
             return
@@ -418,17 +433,17 @@ extension ItemListViewController {
 
     @objc func updateProgress(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
-            let fileURL = userInfo["fileURL"] as? URL else {
+            let bookIdentifier = userInfo["bookIdentifier"] as? String else {
             return
         }
 
         guard let index = (self.items.firstIndex { (item) -> Bool in
             if let book = item as? Book {
-                return book.fileURL == fileURL
+                return book.identifier == bookIdentifier
             }
 
             if let folder = item as? Folder {
-                return folder.getBook(with: fileURL) != nil
+                return folder.getItem(with: bookIdentifier) != nil
             }
 
             return false
@@ -616,6 +631,30 @@ extension ItemListViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.updateSelectionStatus()
+
+        guard !tableView.isEditing else {
+            return
+        }
+
+        tableView.deselectRow(at: indexPath, animated: true)
+
+        guard indexPath.sectionValue == .data else {
+            if indexPath.sectionValue == .add {
+                self.presentAddOptionsAlert()
+            }
+
+            return
+        }
+
+        if let folder = self.items[indexPath.row] as? Folder {
+            self.presentFolder(folder)
+
+            return
+        }
+
+        if let book = self.items[indexPath.row] as? Book {
+            setupPlayer(book: book)
+        }
     }
 
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {

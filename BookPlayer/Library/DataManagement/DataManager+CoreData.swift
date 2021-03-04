@@ -31,8 +31,8 @@ extension DataManager {
             // TODO: do something about unprocessed URLs
             guard let url = file.processedUrl else { continue }
 
-            // Check if book exists in the library
-            guard let item = library.getItem(with: url) else {
+            // Check if item exists in the library
+            guard let item = library.getItem(with: url.lastPathComponent) else {
                 let book = Book(from: file, context: context)
 
                 if let folder = folder {
@@ -45,26 +45,22 @@ extension DataManager {
             }
 
             guard let storedFolder = item as? Folder,
-                let storedBook = storedFolder.getBook(with: url) else {
-                // swiftlint:disable force_cast
-                // Handle if item is a book
-                let storedBook = item as! Book
-
+                  let storedItem = storedFolder.getItem(with: url.lastPathComponent) else {
                 if let folder = folder {
-                    library.removeFromItems(storedBook)
-                    folder.addToItems(storedBook)
+                    library.removeFromItems(item)
+                    folder.addToItems(item)
                 }
 
                 continue
             }
 
-            // Handle if book already exists in the library
-            storedFolder.removeFromItems(storedBook)
+            // Handle if item already exists in the library
+            storedFolder.removeFromItems(storedItem)
 
             if let folder = folder {
-                folder.addToItems(storedBook)
+                folder.addToItems(storedItem)
             } else {
-                library.addToItems(storedBook)
+                library.addToItems(storedItem)
             }
         }
 
@@ -118,9 +114,9 @@ extension DataManager {
         }
 
         // swiftlint:disable force_cast
-        for book in folder.items?.array as! [Book] {
+        for item in folder.items?.array as! [LibraryItem] {
             guard mode == .deep else { continue }
-            self.delete(book, mode: .deep)
+            self.delete(item, mode: .deep)
         }
 
         library.removeFromItems(folder)
@@ -128,13 +124,13 @@ extension DataManager {
         self.delete(folder)
     }
 
-    public class func delete(_ book: Book, mode: DeleteMode) {
+    public class func delete(_ item: LibraryItem, mode: DeleteMode) {
         guard mode == .deep else {
-            if let folder = book.folder,
-                let library = folder.library {
-                library.addToItems(book)
+            if let folder = item.folder,
+               let library = folder.library {
+                library.addToItems(item)
 
-                folder.removeFromItems(book)
+                folder.removeFromItems(item)
 
                 self.saveContext()
             }
@@ -142,21 +138,23 @@ extension DataManager {
             return
         }
 
-        if book == PlayerManager.shared.currentBook {
-            NotificationCenter.default.post(name: .bookDelete,
-                                            object: nil,
-                                            userInfo: ["book": book])
-            PlayerManager.shared.stop()
-        }
+        if let book = item as? Book {
+            if book == PlayerManager.shared.currentBook {
+                NotificationCenter.default.post(name: .bookDelete,
+                                                object: nil,
+                                                userInfo: ["book": book])
+                PlayerManager.shared.stop()
+            }
 
-        let fileURL = book.fileURL
+            let fileURL = book.fileURL
 
-        DispatchQueue.global().async {
-            if let fileURL = fileURL {
-                try? FileManager.default.removeItem(at: fileURL)
+            DispatchQueue.global().async {
+                if let fileURL = fileURL {
+                    try? FileManager.default.removeItem(at: fileURL)
+                }
             }
         }
 
-        self.delete(book)
+        self.delete(item)
     }
 }

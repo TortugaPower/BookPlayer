@@ -25,7 +25,7 @@ public class Book: LibraryItem {
     public var currentChapter: Chapter?
 
     // needed to invalide cache of folder
-    public func setCurrentTime(_ time: Double) {
+    override public func setCurrentTime(_ time: Double) {
         self.currentTime = time
         if let folder = self.folder {
             folder.resetCachedProgress()
@@ -52,6 +52,10 @@ public class Book: LibraryItem {
 
     public var hasArtwork: Bool {
         return self.artworkData != nil
+    }
+
+    public override func getItem(with identifier: String) -> LibraryItem? {
+        return self.identifier == identifier ? self : nil
     }
 
     public override func jumpToStart() {
@@ -194,7 +198,7 @@ public class Book: LibraryItem {
 
         if let book = nextItem as? Book {
             return book
-        } else if let folder = nextItem as? Folder, let book = folder.items?.firstObject as? Book {
+        } else if let folder = nextItem as? Folder, let book = folder.getBookToPlay() {
             return book
         }
 

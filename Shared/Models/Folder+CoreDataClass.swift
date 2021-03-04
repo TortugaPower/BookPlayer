@@ -24,10 +24,7 @@ public class Folder: LibraryItem {
             return cachedArtwork
         }
 
-        guard let books = self.items?.array as? [Book],
-              let book = books.first(where: { (book) -> Bool in
-            !book.usesDefaultArtwork
-        }) else {
+        guard let itemsArray = self.items?.array as? [LibraryItem] else {
             #if os(iOS)
             self.cachedArtwork = DefaultArtworkFactory.generateArtwork(from: theme?.linkColor)
             #endif
@@ -35,25 +32,48 @@ public class Folder: LibraryItem {
             return self.cachedArtwork
         }
 
-        self.cachedArtwork = book.getArtwork(for: theme)
+        let item = itemsArray.first { (item) -> Bool in
+            if let book = item as? Book {
+                return !book.usesDefaultArtwork
+            }
+            guard let folder = item as? Folder else { return true }
+
+            return folder.getFirstBookWithArtwork() != nil
+        }
+
+        var book = item as? Book
+
+        if let folder = item as? Folder {
+            book = folder.getFirstBookWithArtwork()
+        }
+
+        self.cachedArtwork = book?.getArtwork(for: theme)
         return self.cachedArtwork
     }
 
     public override func jumpToStart() {
         self.resetCachedProgress()
-        guard let books = self.items?.array as? [Book] else { return }
+        guard let items = self.items?.array as? [LibraryItem] else { return }
 
-        for book in books {
-            book.currentTime = 0
+        for item in items {
+            if let book = item as? Book {
+                book.currentTime = 0
+            } else if let folder = item as? Folder {
+                folder.jumpToStart()
+            }
         }
     }
 
     public override func markAsFinished(_ flag: Bool) {
         self.resetCachedProgress()
-        guard let books = self.items?.array as? [Book] else { return }
+        guard let items = self.items?.array as? [LibraryItem] else { return }
 
-        for book in books {
-            book.isFinished = flag
+        for item in items {
+            if let book = item as? Book {
+                book.isFinished = flag
+            } else if let folder = item as? Folder {
+                folder.markAsFinished(flag)
+            }
         }
 
         self.isFinished = flag
@@ -96,11 +116,11 @@ public class Folder: LibraryItem {
     }
 
     func totalDuration() -> Double {
-        guard let books = self.items?.array as? [Book] else {
+        guard let items = self.items?.array as? [LibraryItem] else {
             return 0.0
         }
 
-        let totalDuration = books.reduce(0.0, {$0 + $1.duration})
+        let totalDuration = items.reduce(0.0, {$0 + $1.duration})
 
         guard totalDuration > 0 else {
             return 0.0
@@ -131,18 +151,18 @@ public class Folder: LibraryItem {
             return (cachedProgress, cachedDuration)
         }
 
-        guard let books = self.items?.array as? [Book] else {
+        guard let items = self.items?.array as? [LibraryItem] else {
             return (0.0, 0.0)
         }
 
         var totalDuration = 0.0
         var totalProgress = 0.0
 
-        for book in books {
-            totalDuration += book.duration
-            totalProgress += book.isFinished
-                ? book.duration
-                : book.currentTime
+        for item in items {
+            totalDuration += item.duration
+            totalProgress += item.isFinished
+                ? item.duration
+                : item.currentTime
         }
 
         self.cachedProgress = totalProgress
@@ -157,9 +177,9 @@ public class Folder: LibraryItem {
 
     public func updateCompletionState() {
         self.resetCachedProgress()
-        guard let books = self.items?.array as? [Book] else { return }
+        guard let items = self.items?.array as? [LibraryItem] else { return }
 
-        self.isFinished = !books.contains(where: { !$0.isFinished })
+        self.isFinished = !items.contains(where: { !$0.isFinished })
     }
 
     public func hasBooks() -> Bool {
@@ -170,75 +190,114 @@ public class Folder: LibraryItem {
         return books.count > 0
     }
 
-    public func itemIndex(with url: URL) -> Int? {
-        let hash = url.lastPathComponent
+    public override func setCurrentTime(_ time: Double) {
+        guard let items = self.items?.array as? [LibraryItem] else { return }
 
-        return self.itemIndex(with: hash)
+        for item in items {
+            item.setCurrentTime(time)
+        }
+    }
+
+    override public func getItem(with identifier: String) -> LibraryItem? {
+        guard let items = self.items?.array as? [LibraryItem] else {
+            return nil
+        }
+
+        var itemFound: LibraryItem?
+
+        for item in items {
+            if let libraryItem = item.getItem(with: identifier) {
+                itemFound = libraryItem
+                break
+            }
+        }
+
+        return itemFound
     }
 
     public func itemIndex(with identifier: String) -> Int? {
-        guard let books = self.items?.array as? [Book] else {
+        guard let items = self.items?.array as? [LibraryItem] else {
             return nil
         }
 
-        return books.firstIndex { (storedBook) -> Bool in
-            storedBook.identifier == identifier
+        return items.firstIndex { (item) -> Bool in
+            if let book = item as? Book {
+                return book.identifier == identifier
+            } else if let folder = item as? Folder {
+                return folder.getItem(with: identifier) != nil
+            }
+
+            return false
         }
     }
 
-    public func getBook(at index: Int) -> Book? {
-        guard let books = self.items?.array as? [Book] else {
+    public func getFirstBookWithArtwork() -> Book? {
+        guard let items = self.items?.array as? [LibraryItem] else {
             return nil
         }
 
-        return books[index]
+        let item = items.first { (item) -> Bool in
+            if let book = item as? Book {
+                return !book.usesDefaultArtwork
+            }
+            guard let folder = item as? Folder else { return true }
+
+            return folder.getFirstBookWithArtwork() != nil
+        }
+
+        var book = item as? Book
+
+        if let folder = item as? Folder {
+            book = folder.getFirstBookWithArtwork()
+        }
+
+        return book
     }
 
-    public func getBook(with url: URL) -> Book? {
-        guard let index = self.itemIndex(with: url) else {
+    public func getBook(at index: Int) -> LibraryItem? {
+        guard let items = self.items?.array as? [LibraryItem] else {
             return nil
         }
 
-        return self.getBook(at: index)
-    }
-
-    func getBook(with identifier: String) -> Book? {
-        guard let index = self.itemIndex(with: identifier) else {
-            return nil
-        }
-
-        return self.getBook(at: index)
+        return items[index]
     }
 
     public override func getBookToPlay() -> Book? {
         guard let books = self.items else { return nil }
 
         for item in books {
-            guard let book = item as? Book, !book.isFinished else { continue }
-
-            return book
+            if let book = item as? Book,
+               !book.isFinished {
+                return book
+            } else if let folder = item as? Folder {
+                return folder.getBookToPlay()
+            }
         }
 
         return nil
     }
 
     func getNextBook(after book: Book) -> Book? {
-        guard let books = self.items?.array as? [Book] else {
+        guard let items = self.items?.array as? [LibraryItem] else {
             return nil
         }
 
-        guard let indexFound = books.firstIndex(of: book) else {
+        guard let indexFound = items.firstIndex(of: book) else {
             return nil
         }
 
-        for (index, book) in books.enumerated() {
+        for (index, item) in items.enumerated() {
             guard index > indexFound else { continue }
 
-            if book.isFinished {
-                book.setCurrentTime(0.0)
+            if item.isFinished {
+                item.setCurrentTime(0.0)
             }
 
-            return book
+            if let book = item as? Book {
+                return book
+            } else if let folder = item as? Folder {
+                return folder.getBookToPlay()
+            }
         }
 
         return nil
@@ -259,8 +318,8 @@ public class Folder: LibraryItem {
         try container.encode(title, forKey: .title)
         try container.encode(desc, forKey: .desc)
 
-        if let booksArray = self.items?.array as? [Book] {
-            try container.encode(booksArray, forKey: .books)
+        if let itemsArray = self.items?.array as? [LibraryItem] {
+            try container.encode(itemsArray, forKey: .books)
         }
     }
 

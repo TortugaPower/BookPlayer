@@ -171,19 +171,6 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         return navigationController!.viewControllers.count > 1
     }
 
-    private func presentFolder(_ folder: Folder) {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-
-        guard let folderVC = storyboard.instantiateViewController(withIdentifier: "PlaylistViewController") as? PlaylistViewController else {
-            return
-        }
-
-        folderVC.library = library
-        folderVC.folder = folder
-
-        navigationController?.pushViewController(folderVC, animated: true)
-    }
-
     func handleDelete(items: [LibraryItem]) {
         let alert = UIAlertController(title: String.localizedStringWithFormat("delete_multiple_items_title".localized, items.count),
                                       message: "delete_multiple_items_description".localized,
@@ -296,6 +283,15 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
     // MARK: - IBActions
 
     @IBAction func addAction() {
+        self.presentAddOptionsAlert()
+    }
+
+    // Sorting
+    override func sort(by sortType: PlayListSortOrder) {
+        library.sort(by: sortType)
+    }
+
+    override func presentAddOptionsAlert() {
         let alertController = UIAlertController(title: nil,
                                                 message: "import_description".localized,
                                                 preferredStyle: .actionSheet)
@@ -317,11 +313,6 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         alertController.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel))
 
         present(alertController, animated: true, completion: nil)
-    }
-
-    // Sorting
-    override func sort(by sortType: PlayListSortOrder) {
-        library.sort(by: sortType)
     }
 
     override func handleMove(_ selectedItems: [LibraryItem]) {
@@ -449,34 +440,6 @@ extension LibraryViewController {
 
         return [optionsAction]
     }
-
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        super.tableView(tableView, didSelectRowAt: indexPath)
-
-        guard !tableView.isEditing else {
-            return
-        }
-
-        tableView.deselectRow(at: indexPath, animated: true)
-
-        guard indexPath.sectionValue == .data else {
-            if indexPath.sectionValue == .add {
-                self.addAction()
-            }
-
-            return
-        }
-
-        if let folder = self.items[indexPath.row] as? Folder {
-            self.presentFolder(folder)
-
-            return
-        }
-
-        if let book = self.items[indexPath.row] as? Book {
-            setupPlayer(book: book)
-        }
-    }
 }
 
 // MARK: - TableView DataSource
@@ -487,8 +450,8 @@ extension LibraryViewController {
 
         guard let bookCell = cell as? BookCellView,
             let currentBook = PlayerManager.shared.currentBook,
-            let fileURL = currentBook.fileURL,
-            let index = self.library.itemIndex(with: fileURL),
+            let identifier = currentBook.identifier,
+            let index = self.library.itemIndex(with: identifier),
             index == indexPath.row else {
             return cell
         }

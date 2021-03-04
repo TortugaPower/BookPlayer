@@ -106,12 +106,7 @@ public class DataManager {
             return nil
         }
 
-        guard let folder = item as? Folder
-        else {
-            return item as? Book
-        }
-
-        return folder.getBook(with: identifier)
+        return item as? Book
     }
 
     public class func createFolder(from url: URL, books: [Book]) -> Folder {
@@ -127,6 +122,15 @@ public class DataManager {
             library.insertIntoItems(folder, at: index)
         } else {
             library.addToItems(folder)
+        }
+        self.saveContext()
+    }
+
+    public class func insert(_ item: LibraryItem, into folder: Folder, at index: Int? = nil) {
+        if let index = index {
+            folder.insertIntoItems(item, at: index)
+        } else {
+            folder.addToItems(item)
         }
         self.saveContext()
     }
