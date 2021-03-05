@@ -75,7 +75,7 @@ class PlaylistViewController: ItemListViewController {
             }
 
             self.presentCreateFolderAlert(placeholder, handler: { title in
-                let folder = DataManager.createFolder(title: title, books: [])
+                let folder = DataManager.createFolder(title: title, items: [])
 
                 DataManager.insert(folder, into: self.library)
 
@@ -152,7 +152,7 @@ class PlaylistViewController: ItemListViewController {
 
         alertController.addAction(UIAlertAction(title: "create_playlist_button".localized, style: .default) { _ in
             self.presentCreateFolderAlert(handler: { title in
-                let folder = DataManager.createFolder(title: title, books: [])
+                let folder = DataManager.createFolder(title: title, items: [])
 
                 DataManager.insert(folder, into: self.folder)
 
@@ -182,7 +182,7 @@ class PlaylistViewController: ItemListViewController {
         alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { _ in
             self.presentCreateFolderAlert(handler: { title in
                 self.folder.removeFromItems(NSOrderedSet(array: books))
-                let folder = DataManager.createFolder(title: title, books: books)
+                let folder = DataManager.createFolder(title: title, items: books)
 
                 DataManager.insert(folder, into: self.library)
 
@@ -326,7 +326,7 @@ extension PlaylistViewController {
             let minIndex = min(finalDestinationIndexPath.row, overIndexPath.row)
 
             self.presentCreateFolderAlert(destinationItem.title, handler: { title in
-                let folder = DataManager.createFolder(title: title, books: [])
+                let folder = DataManager.createFolder(title: title, items: [])
                 DataManager.insert(folder, into: self.folder, at: minIndex)
                 self.move([sourceItem, destinationItem], to: folder)
 

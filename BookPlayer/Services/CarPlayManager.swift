@@ -115,7 +115,7 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
             item.isPlayable = true
             item.title = book.title
             item.subtitle = book.author
-            item.playbackProgress = Float(book.progress)
+            item.playbackProgress = Float(book.progressPercentage)
 
             if let artwork = book.getArtwork(for: ThemeManager.shared.currentTheme) {
                 item.artwork = MPMediaItemArtwork(boundsSize: artwork.size,
@@ -137,7 +137,7 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
         let item = MPContentItem(identifier: libraryItem.identifier)
         item.title = libraryItem.title
 
-        item.playbackProgress = Float(libraryItem.progress)
+        item.playbackProgress = Float(libraryItem.progressPercentage)
         if let artwork = libraryItem.getArtwork(for: ThemeManager.shared.currentTheme) {
             item.artwork = MPMediaItemArtwork(boundsSize: artwork.size,
                                               requestHandler: { (_) -> UIImage in

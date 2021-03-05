@@ -16,7 +16,6 @@ public class Folder: LibraryItem {
     var cachedDuration: Double?
     var cachedProgress: Double?
 
-//    var desc: String!
     // MARK: - Properties
 
     public override func getArtwork(for theme: Theme?) -> UIImage? {
@@ -81,18 +80,18 @@ public class Folder: LibraryItem {
 
     // MARK: - Init
 
-    convenience init(title: String, books: [Book], context: NSManagedObjectContext) {
+    convenience init(title: String, items: [LibraryItem], context: NSManagedObjectContext) {
         let entity = NSEntityDescription.entity(forEntityName: "Folder", in: context)!
 
         self.init(entity: entity, insertInto: context)
         self.identifier = "\(title)\(Date().timeIntervalSince1970)"
         self.title = title
         self.originalFileName = title
-        self.desc = "\(books.count) \("files_title".localized)"
-        self.addToItems(NSOrderedSet(array: books))
+        self.desc = "\(items.count) \("files_title".localized)"
+        self.addToItems(NSOrderedSet(array: items))
     }
 
-    convenience init(from url: URL, books: [Book], context: NSManagedObjectContext) {
+    convenience init(from url: URL, items: [LibraryItem], context: NSManagedObjectContext) {
         let entity = NSEntityDescription.entity(forEntityName: "Folder", in: context)!
 
         let title = url.lastPathComponent
@@ -101,9 +100,9 @@ public class Folder: LibraryItem {
         self.identifier = UUID().uuidString
         self.title = title
         self.originalFileName = title
-        self.desc = "\(books.count) \("files_title".localized)"
+        self.desc = "\(items.count) \("files_title".localized)"
 //        self.path = ""
-        self.addToItems(NSOrderedSet(array: books))
+        self.addToItems(NSOrderedSet(array: items))
         // swiftlint:disable force_try
         try! url.setAppIdentifier(self.identifier)
     }
@@ -113,6 +112,7 @@ public class Folder: LibraryItem {
     public func resetCachedProgress() {
         self.cachedProgress = nil
         self.cachedDuration = nil
+        self.folder?.resetCachedProgress()
     }
 
     func totalDuration() -> Double {
@@ -142,6 +142,12 @@ public class Folder: LibraryItem {
     public override var progress: Double {
         let itemTime = self.getProgressAndDuration()
 
+        return itemTime.progress
+    }
+
+    public override var progressPercentage: Double {
+        let itemTime = self.getProgressAndDuration()
+
         return itemTime.progress / itemTime.duration
     }
 
@@ -162,7 +168,7 @@ public class Folder: LibraryItem {
             totalDuration += item.duration
             totalProgress += item.isFinished
                 ? item.duration
-                : item.currentTime
+                : item.progress
         }
 
         self.cachedProgress = totalProgress
@@ -262,6 +268,7 @@ public class Folder: LibraryItem {
         return items[index]
     }
 
+    // Used for manual autoplay
     public override func getBookToPlay() -> Book? {
         guard let books = self.items else { return nil }
 
@@ -277,12 +284,13 @@ public class Folder: LibraryItem {
         return nil
     }
 
+    // Used for player autoplay
     func getNextBook(after book: Book) -> Book? {
         guard let items = self.items?.array as? [LibraryItem] else {
             return nil
         }
 
-        guard let indexFound = items.firstIndex(of: book) else {
+        guard let indexFound = self.itemIndex(with: book.identifier) else {
             return nil
         }
 
@@ -296,7 +304,7 @@ public class Folder: LibraryItem {
             if let book = item as? Book {
                 return book
             } else if let folder = item as? Folder {
-                return folder.getBookToPlay()
+                return folder.getNextBook(after: book)
             }
         }
 

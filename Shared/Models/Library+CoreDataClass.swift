@@ -52,7 +52,7 @@ public class Library: NSManagedObject, Codable {
     func getNextItem(after item: LibraryItem) -> LibraryItem? {
         guard let items = self.items?.array as? [LibraryItem] else { return nil }
 
-        guard let indexFound = items.firstIndex(of: item) else { return nil }
+        guard let indexFound = self.itemIndex(with: item.identifier) else { return nil }
 
         for (index, item) in items.enumerated() {
             guard index > indexFound,

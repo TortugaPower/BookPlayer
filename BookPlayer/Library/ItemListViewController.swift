@@ -454,8 +454,8 @@ extension ItemListViewController {
         let item = self.items[index]
 
         let progress = item is Folder
-            ? item.progress
-            : userInfo["progress"] as? Double ?? item.progress
+            ? item.progressPercentage
+            : userInfo["progress"] as? Double ?? item.progressPercentage
 
         cell.progress = item.isFinished ? 1.0 : progress
     }
@@ -567,7 +567,7 @@ extension ItemListViewController: UITableViewDataSource {
             cell.subtitle = folder.info()
         }
 
-        cell.progress = item.isFinished ? 1.0 : item.progress
+        cell.progress = item.isFinished ? 1.0 : item.progressPercentage
         cell.duration = self.formatTotalDuration(item.duration)
 
         return cell

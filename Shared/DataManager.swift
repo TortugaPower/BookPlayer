@@ -109,12 +109,12 @@ public class DataManager {
         return item as? Book
     }
 
-    public class func createFolder(from url: URL, books: [Book]) -> Folder {
-        return Folder(from: url, books: books, context: self.getContext())
+    public class func createFolder(from url: URL, items: [LibraryItem]) -> Folder {
+        return Folder(from: url, items: items, context: self.getContext())
     }
 
-    public class func createFolder(title: String, books: [Book]) -> Folder {
-        return Folder(title: title, books: books, context: self.getContext())
+    public class func createFolder(title: String, items: [LibraryItem]) -> Folder {
+        return Folder(title: title, items: items, context: self.getContext())
     }
 
     public class func insert(_ folder: Folder, into library: Library, at index: Int? = nil) {

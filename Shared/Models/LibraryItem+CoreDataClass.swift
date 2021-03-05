@@ -19,7 +19,13 @@ public class LibraryItem: NSManagedObject, Codable {
         return nil
     }
 
+    // Represents sum of current time
     public var progress: Double {
+        return 0
+    }
+
+    // Percentage represented from 0 to 1
+    public var progressPercentage: Double {
         return 1.0
     }
 

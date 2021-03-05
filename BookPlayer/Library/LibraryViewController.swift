@@ -150,7 +150,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
             }
 
             self.presentCreateFolderAlert(placeholder, handler: { title in
-                let folder = DataManager.createFolder(title: title, books: [])
+                let folder = DataManager.createFolder(title: title, items: [])
 
                 DataManager.insert(folder, into: self.library)
 
@@ -302,7 +302,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
 
         alertController.addAction(UIAlertAction(title: "create_playlist_button".localized, style: .default) { _ in
             self.presentCreateFolderAlert(handler: { title in
-                let folder = DataManager.createFolder(title: title, books: [])
+                let folder = DataManager.createFolder(title: title, items: [])
 
                 DataManager.insert(folder, into: self.library)
 
@@ -320,7 +320,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
 
         alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { _ in
             self.presentCreateFolderAlert(handler: { title in
-                let folder = DataManager.createFolder(title: title, books: [])
+                let folder = DataManager.createFolder(title: title, items: [])
                 DataManager.insert(folder, into: self.library)
                 self.move(selectedItems, to: folder)
             })
@@ -492,7 +492,7 @@ extension LibraryViewController {
             let minIndex = min(finalDestinationIndexPath.row, overIndexPath.row)
 
             self.presentCreateFolderAlert(destinationItem.title, handler: { title in
-                let folder = DataManager.createFolder(title: title, books: [])
+                let folder = DataManager.createFolder(title: title, items: [])
                 DataManager.insert(folder, into: self.library, at: minIndex)
                 self.move([sourceItem, destinationItem], to: folder)
 

@@ -27,9 +27,7 @@ public class Book: LibraryItem {
     // needed to invalide cache of folder
     override public func setCurrentTime(_ time: Double) {
         self.currentTime = time
-        if let folder = self.folder {
-            folder.resetCachedProgress()
-        }
+        self.folder?.resetCachedProgress()
     }
 
     var displayTitle: String {
@@ -39,11 +37,17 @@ public class Book: LibraryItem {
     public override var progress: Double {
         guard self.duration > 0 else { return 0 }
 
+        return self.currentTime
+    }
+
+    public override var progressPercentage: Double {
+        guard self.duration > 0 else { return 0 }
+
         return self.currentTime / self.duration
     }
 
     public var percentage: Double {
-        return round(self.progress * 100)
+        return round(self.progressPercentage * 100)
     }
 
     public var hasChapters: Bool {

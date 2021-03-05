@@ -44,23 +44,15 @@ extension DataManager {
                 continue
             }
 
-            guard let storedFolder = item as? Folder,
-                  let storedItem = storedFolder.getItem(with: url.lastPathComponent) else {
-                if let folder = folder {
-                    library.removeFromItems(item)
-                    folder.addToItems(item)
-                }
-
-                continue
+            if let parent = item.folder {
+                parent.removeFromItems(item)
             }
 
-            // Handle if item already exists in the library
-            storedFolder.removeFromItems(storedItem)
-
             if let folder = folder {
-                folder.addToItems(storedItem)
+                library.removeFromItems(item)
+                folder.addToItems(item)
             } else {
-                library.addToItems(storedItem)
+                library.addToItems(item)
             }
         }
 
