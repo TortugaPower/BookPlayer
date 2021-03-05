@@ -23,7 +23,7 @@ public class Folder: LibraryItem {
             return cachedArtwork
         }
 
-        guard let itemsArray = self.items?.array as? [LibraryItem] else {
+        guard let book = self.getFirstBookWithArtwork() else {
             #if os(iOS)
             self.cachedArtwork = DefaultArtworkFactory.generateArtwork(from: theme?.linkColor)
             #endif
@@ -31,22 +31,7 @@ public class Folder: LibraryItem {
             return self.cachedArtwork
         }
 
-        let item = itemsArray.first { (item) -> Bool in
-            if let book = item as? Book {
-                return !book.usesDefaultArtwork
-            }
-            guard let folder = item as? Folder else { return true }
-
-            return folder.getFirstBookWithArtwork() != nil
-        }
-
-        var book = item as? Book
-
-        if let folder = item as? Folder {
-            book = folder.getFirstBookWithArtwork()
-        }
-
-        self.cachedArtwork = book?.getArtwork(for: theme)
+        self.cachedArtwork = book.getArtwork(for: theme)
         return self.cachedArtwork
     }
 
