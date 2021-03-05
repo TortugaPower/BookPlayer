@@ -285,21 +285,28 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
 
     func handleTrash(_ selectedItems: [LibraryItem]) {}
 
-    func handleDelete(books: [Book]) {
-        let alert = UIAlertController(title: String.localizedStringWithFormat("delete_multiple_items_title".localized, books.count), message: nil, preferredStyle: .alert)
-
-        if books.count == 1, let book = books.first {
-            alert.title = String(format: "delete_single_item_title".localized, book.title!)
-        }
+    func handleDelete(items: [LibraryItem]) {
+        let alert = UIAlertController(title: String.localizedStringWithFormat("delete_multiple_items_title".localized, items.count),
+                                      message: "delete_multiple_items_description".localized,
+                                      preferredStyle: .alert)
 
         alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
 
-        alert.addAction(UIAlertAction(title: "delete_button".localized, style: .destructive, handler: { _ in
-            self.delete(books, mode: .deep)
-        }))
+        var deleteActionTitle = "delete_button".localized
 
-        alert.popoverPresentationController?.sourceView = view
-        alert.popoverPresentationController?.sourceRect = CGRect(x: Double(view.bounds.size.width / 2.0), y: Double(view.bounds.size.height - 45), width: 1.0, height: 1.0)
+        if items.count == 1, let folder = items.first as? Folder {
+            deleteActionTitle = "delete_deep_button".localized
+
+            alert.title = String(format: "delete_single_item_title".localized, folder.title!)
+            alert.message = "delete_single_playlist_description".localized
+            alert.addAction(UIAlertAction(title: "delete_shallow_button".localized, style: .default, handler: { _ in
+                self.delete(items, mode: .shallow)
+            }))
+        }
+
+        alert.addAction(UIAlertAction(title: deleteActionTitle, style: .destructive, handler: { _ in
+            self.delete(items, mode: .deep)
+        }))
 
         present(alert, animated: true, completion: nil)
     }

@@ -217,31 +217,13 @@ class PlaylistViewController: ItemListViewController {
     }
 
     override func handleTrash(_ selectedItems: [LibraryItem]) {
-        guard let books = selectedItems as? [Book] else { return }
-
-        self.handleDelete(books: books)
+        self.handleDelete(items: selectedItems)
     }
 
     // MARK: - Methods
 
     override func sort(by sortType: PlayListSortOrder) {
         self.folder.sort(by: sortType)
-    }
-
-    override func handleDelete(books: [Book]) {
-        let alert = UIAlertController(title: String.localizedStringWithFormat("delete_multiple_items_title".localized, books.count), message: nil, preferredStyle: .alert)
-
-        if books.count == 1, let book = books.first {
-            alert.title = String(format: "delete_single_item_title".localized, book.title!)
-        }
-
-        alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
-
-        alert.addAction(UIAlertAction(title: "delete_button".localized, style: .destructive, handler: { _ in
-            self.delete(books, mode: .deep)
-        }))
-
-        self.present(alert, animated: true, completion: nil)
     }
 }
 
@@ -276,15 +258,15 @@ extension PlaylistViewController {
 
 extension PlaylistViewController {
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        guard indexPath.sectionValue == .data, let book = self.items[indexPath.row] as? Book else {
-            return nil
-        }
+        guard indexPath.sectionValue == .data else { return nil }
+
+        let item = items[indexPath.row]
 
         let optionsAction = UITableViewRowAction(style: .normal, title: "\("options_button".localized)…") { _, _ in
-            guard let sheet = self.createOptionsSheetController([book]) else { return }
+            guard let sheet = self.createOptionsSheetController([item]) else { return }
 
             let deleteAction = UIAlertAction(title: "delete_button".localized, style: .destructive, handler: { _ in
-                self.handleDelete(books: [book])
+                self.handleDelete(items: [item])
             })
 
             sheet.addAction(deleteAction)

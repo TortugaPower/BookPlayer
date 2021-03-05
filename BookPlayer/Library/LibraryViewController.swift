@@ -171,32 +171,6 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         return navigationController!.viewControllers.count > 1
     }
 
-    func handleDelete(items: [LibraryItem]) {
-        let alert = UIAlertController(title: String.localizedStringWithFormat("delete_multiple_items_title".localized, items.count),
-                                      message: "delete_multiple_items_description".localized,
-                                      preferredStyle: .alert)
-
-        alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
-
-        var deleteActionTitle = "delete_button".localized
-
-        if items.count == 1, let folder = items.first as? Folder {
-            deleteActionTitle = "delete_deep_button".localized
-
-            alert.title = String(format: "delete_single_item_title".localized, folder.title!)
-            alert.message = "delete_single_playlist_description".localized
-            alert.addAction(UIAlertAction(title: "delete_shallow_button".localized, style: .default, handler: { _ in
-                self.delete(items, mode: .shallow)
-            }))
-        }
-
-        alert.addAction(UIAlertAction(title: deleteActionTitle, style: .destructive, handler: { _ in
-            self.delete(items, mode: .deep)
-        }))
-
-        present(alert, animated: true, completion: nil)
-    }
-
     // MARK: - Callback events
 
     // This is called from a background thread inside an ImportOperation
@@ -336,8 +310,8 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
             vc.items = availableFolders
 
             vc.onItemSelected = { selectedItem in
-                guard let selectedPlaylist = selectedItem as? Folder else { return }
-                self.move(selectedItems, to: selectedPlaylist)
+                guard let selectedFolder = selectedItem as? Folder else { return }
+                self.move(selectedItems, to: selectedFolder)
             }
 
             let nav = AppNavigationController(rootViewController: vc)
@@ -353,12 +327,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
     }
 
     override func handleTrash(_ selectedItems: [LibraryItem]) {
-        guard let books = selectedItems as? [Book] else {
-            self.handleDelete(items: selectedItems)
-            return
-        }
-
-        self.handleDelete(books: books)
+        self.handleDelete(items: selectedItems)
     }
 }
 
@@ -420,7 +389,7 @@ extension LibraryViewController {
                     guard let folder = self.items[indexPath.row] as? Folder else { return }
 
                     guard folder.hasBooks() else {
-                        DataManager.delete([folder])
+                        DataManager.delete([folder], library: self.library)
                         self.deleteRows(at: [indexPath])
                         return
                     }
@@ -430,7 +399,7 @@ extension LibraryViewController {
                     return
                 }
 
-                self.handleDelete(books: [book])
+                self.handleDelete(items: [book])
             }
 
             sheet.addAction(deleteAction)

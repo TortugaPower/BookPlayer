@@ -85,30 +85,33 @@ extension DataManager {
         self.insertBooks(from: files, into: folder, or: folder.library!, completion: completion)
     }
 
-    public class func delete(_ items: [LibraryItem], mode: DeleteMode = .deep) {
+    public class func delete(_ items: [LibraryItem], library: Library, mode: DeleteMode = .deep) {
         for item in items {
             guard let folder = item as? Folder else {
                 // swiftlint:disable force_cast
-                self.delete(item as! Book, mode: mode)
+                self.delete(item as! Book, library: library, mode: mode)
                 continue
             }
 
-            self.delete(folder, mode: mode)
+            self.delete(folder, library: library, mode: mode)
         }
     }
 
-    public class func delete(_ folder: Folder, mode: DeleteMode = .deep) {
-        guard let library = folder.library else { return }
+    public class func delete(_ folder: Folder, library: Library, mode: DeleteMode = .deep) {
 
         if mode == .shallow,
             let orderedSet = folder.items {
-            library.addToItems(orderedSet)
+            if let parent = folder.folder {
+                parent.addToItems(orderedSet)
+            } else {
+                library.addToItems(orderedSet)
+            }
         }
 
         // swiftlint:disable force_cast
         for item in folder.items?.array as! [LibraryItem] {
             guard mode == .deep else { continue }
-            self.delete(item, mode: .deep)
+            self.delete(item, library: library, mode: .deep)
         }
 
         library.removeFromItems(folder)
@@ -116,10 +119,9 @@ extension DataManager {
         self.delete(folder)
     }
 
-    public class func delete(_ item: LibraryItem, mode: DeleteMode) {
+    public class func delete(_ item: LibraryItem, library: Library, mode: DeleteMode) {
         guard mode == .deep else {
-            if let folder = item.folder,
-               let library = folder.library {
+            if let folder = item.folder {
                 library.addToItems(item)
 
                 folder.removeFromItems(item)

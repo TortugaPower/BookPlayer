@@ -17,34 +17,21 @@ protocol ItemListActions: ItemList {
 
 extension ItemListActions {
     func delete(_ items: [LibraryItem], mode: DeleteMode) {
-        DataManager.delete(items, mode: mode)
+        DataManager.delete(items, library: self.library, mode: mode)
         self.reloadData()
     }
 
     func move(_ items: [LibraryItem], to folder: Folder) {
-        let selectedFolders = items.compactMap { (item) -> Folder? in
-            guard
-                let itemPlaylist = item as? Folder,
-                itemPlaylist != folder else { return nil }
-
-            return itemPlaylist
+        for item in items {
+            if let parent = item.folder {
+                parent.removeFromItems(item)
+                parent.updateCompletionState()
+            } else {
+                self.library.removeFromItems(item)
+            }
         }
 
-        let selectedBooks = items.compactMap { (item) -> Book? in
-            item as? Book
-        }
-
-        let books = Array(selectedFolders.compactMap { (folder) -> [Book]? in
-            guard let books = folder.items else { return nil }
-
-            return books.array as? [Book]
-        }.joined())
-
-        let allBooks = books + selectedBooks
-
-        self.library.removeFromItems(NSOrderedSet(array: selectedBooks))
-        self.library.removeFromItems(NSOrderedSet(array: selectedFolders))
-        folder.addToItems(NSOrderedSet(array: allBooks))
+        folder.addToItems(NSOrderedSet(array: items))
         folder.updateCompletionState()
 
         DataManager.saveContext()
