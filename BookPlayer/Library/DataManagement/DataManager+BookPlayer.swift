@@ -103,6 +103,19 @@ extension DataManager {
     private class func filterFiles(_ urls: [URL]) -> [URL] {
         return urls.filter { !$0.hasDirectoryPath }
     }
+    
+    public class func importData(from item: ImportableItem) {
+        let filename = item.suggestedName ?? "\(Date().timeIntervalSince1970).\(item.fileExtension)"
+
+        let destinationURL = self.getDocumentsFolderURL()
+            .appendingPathComponent(filename)
+
+        do {
+            try item.data.write(to: destinationURL)
+        } catch {
+            print("Fail to move dropped file to the Documents directory: \(error.localizedDescription)")
+        }
+    }
 
     /**
      Notifies the ImportManager about the new file
