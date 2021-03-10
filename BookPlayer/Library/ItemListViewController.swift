@@ -77,6 +77,9 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
 
         self.tableView.rowHeight = UITableView.automaticDimension
         self.tableView.estimatedRowHeight = UITableView.automaticDimension
+        
+        let interaction = UIDropInteraction(delegate: self)
+        self.view.addInteraction(interaction)
     }
 
     func setupObservers() {
@@ -690,6 +693,35 @@ extension ItemListViewController: UIDocumentPickerDelegate {
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
         UIApplication.shared.isIdleTimerDisabled = false
         DataManager.processFile(at: url)
+    }
+}
+
+extension ItemListViewController: UIDropInteractionDelegate {
+    func dropInteraction(_ interaction: UIDropInteraction, canHandle session: UIDropSession) -> Bool {
+        return session.canLoadObjects(ofClass: ImportableItem.self)
+    }
+    
+    func dropInteraction(_ interaction: UIDropInteraction, sessionDidEnter session: UIDropSession) {}
+    
+    func dropInteraction(_ interaction: UIDropInteraction, sessionDidUpdate session: UIDropSession) -> UIDropProposal {
+        return UIDropProposal(operation: .copy)
+    }
+    
+    func dropInteraction(_ interaction: UIDropInteraction, performDrop session: UIDropSession) {
+        for item in session.items {
+            self.handleDroppedItem(item)
+        }
+    }
+
+    func handleDroppedItem(_ item: UIDragItem) {
+        let providerReference = item.itemProvider
+
+        item.itemProvider.loadObject(ofClass: ImportableItem.self) { (object, error) in
+            guard let item = object as? ImportableItem else { return }
+            item.suggestedName = providerReference.suggestedName
+
+            DataManager.importData(from:item)
+        }
     }
 }
 
