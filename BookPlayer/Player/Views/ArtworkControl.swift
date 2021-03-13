@@ -123,6 +123,19 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         self.setupAccessibilityLabels()
     }
 
+    private func setupGradients() {
+        self.leftGradientLayer = CAGradientLayer()
+        self.leftGradientLayer.frame = self.backgroundGradientColorView.frame
+        self.leftGradientLayer.type = .radial
+        self.leftGradientLayer.startPoint = CGPoint(x: 0, y: 0)
+        self.leftGradientLayer.endPoint = CGPoint(x: 1, y: 1)
+        self.rightGradientLayer = CAGradientLayer()
+        self.rightGradientLayer.frame = self.backgroundGradientColorView.frame
+        self.rightGradientLayer.type = .radial
+        self.rightGradientLayer.startPoint = CGPoint(x: 1, y: 0)
+        self.rightGradientLayer.endPoint = CGPoint(x: 0, y: 1)
+    }
+
     private func setup() {
         self.backgroundColor = .clear
 
@@ -172,17 +185,7 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         self.rewindIcon.addGestureRecognizer(rewindTap)
         self.forwardIcon.addGestureRecognizer(forwardTap)
 
-        self.leftGradientLayer = CAGradientLayer()
-        self.leftGradientLayer.frame = self.backgroundGradientColorView.frame
-        self.leftGradientLayer.type = .radial
-        self.leftGradientLayer.startPoint = CGPoint(x: 0, y: 0)
-        self.leftGradientLayer.endPoint = CGPoint(x: 1, y: 1)
-        self.rightGradientLayer = CAGradientLayer()
-        self.rightGradientLayer.frame = self.backgroundGradientColorView.frame
-        self.rightGradientLayer.type = .radial
-        self.rightGradientLayer.startPoint = CGPoint(x: 1, y: 0)
-        self.rightGradientLayer.endPoint = CGPoint(x: 0, y: 1)
-
+        self.setupGradients()
         self.setUpTheming()
     }
 

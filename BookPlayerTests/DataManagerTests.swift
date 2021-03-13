@@ -156,15 +156,15 @@ class InsertBooksTests: DataManagerTests {
 
     func testInsertEmptyBooksIntoPlaylist() {
         let library = DataManager.getLibrary()
-        let playlist = DataManager.createPlaylist(title: "test-playlist", books: [])
+        let folder = DataManager.createFolder(title: "test-folder", items: [])
 
         let expectation = XCTestExpectation(description: "Insert books into library")
 
-        DataManager.insert(playlist, into: library)
+        DataManager.insert(folder, into: library)
         XCTAssert(library.items?.count == 1)
 
-        DataManager.insertBooks(from: [], into: playlist) {
-            XCTAssert(playlist.books?.count == 0)
+        DataManager.insertBooks(from: [], into: folder) {
+            XCTAssert(folder.items?.count == 0)
 
             expectation.fulfill()
         }
@@ -174,7 +174,7 @@ class InsertBooksTests: DataManagerTests {
 
     func testInsertOneBookIntoPlaylist() {
         let library = DataManager.getLibrary()
-        let playlist = DataManager.createPlaylist(title: "test-playlist", books: [])
+        let folder = DataManager.createFolder(title: "test-folder", items: [])
 
         let filename = "file.txt"
         let bookContents = "bookcontents".data(using: .utf8)!
@@ -186,12 +186,12 @@ class InsertBooksTests: DataManagerTests {
 
         let expectation = XCTestExpectation(description: "Insert books into library")
 
-        DataManager.insert(playlist, into: library)
+        DataManager.insert(folder, into: library)
         XCTAssert(library.items?.count == 1)
 
-        DataManager.insertBooks(from: [bookUrl], into: playlist) {
+        DataManager.insertBooks(from: [bookUrl], into: folder) {
             XCTAssert(library.items?.count == 1)
-            XCTAssert(playlist.books?.count == 1)
+            XCTAssert(folder.items?.count == 1)
 
             expectation.fulfill()
         }
@@ -201,7 +201,7 @@ class InsertBooksTests: DataManagerTests {
 
     func testInsertMultipleBooksIntoPlaylist() {
         let library = DataManager.getLibrary()
-        let playlist = DataManager.createPlaylist(title: "test-playlist", books: [])
+        let folder = DataManager.createFolder(title: "test-folder", items: [])
 
         let filename1 = "file1.txt"
         let book1Contents = "book1contents".data(using: .utf8)!
@@ -215,14 +215,14 @@ class InsertBooksTests: DataManagerTests {
         let file2Url = DataTestUtils.generateTestFile(name: filename2, contents: book2Contents, destinationFolder: documentsFolder)
         let book2Url = FileItem(originalUrl: file2Url, processedUrl: file2Url, destinationFolder: documentsFolder)
 
-        DataManager.insert(playlist, into: library)
+        DataManager.insert(folder, into: library)
         XCTAssert(library.items?.count == 1)
 
         let expectation = XCTestExpectation(description: "Insert books into library")
 
-        DataManager.insertBooks(from: [book1Url, book2Url], into: playlist) {
+        DataManager.insertBooks(from: [book1Url, book2Url], into: folder) {
             XCTAssert(library.items?.count == 1)
-            XCTAssert(playlist.books?.count == 2)
+            XCTAssert(folder.items?.count == 2)
 
             expectation.fulfill()
         }
@@ -232,7 +232,7 @@ class InsertBooksTests: DataManagerTests {
 
     func testInsertExistingBookFromLibraryIntoPlaylist() {
         let library = DataManager.getLibrary()
-        let playlist = DataManager.createPlaylist(title: "test-playlist", books: [])
+        let folder = DataManager.createFolder(title: "test-folder", items: [])
 
         let filename = "file.txt"
         let bookContents = "bookcontents".data(using: .utf8)!
@@ -244,16 +244,16 @@ class InsertBooksTests: DataManagerTests {
 
         let expectation = XCTestExpectation(description: "Insert books into library")
 
-        DataManager.insert(playlist, into: library)
+        DataManager.insert(folder, into: library)
         XCTAssert(library.items?.count == 1)
 
         DataManager.insertBooks(from: [bookUrl], into: library) {
             XCTAssert(library.items?.count == 2)
-            XCTAssert(playlist.books?.count == 0)
+            XCTAssert(folder.items?.count == 0)
 
-            DataManager.insertBooks(from: [bookUrl], into: playlist, completion: {
+            DataManager.insertBooks(from: [bookUrl], into: folder, completion: {
                 XCTAssert(library.items?.count == 1)
-                XCTAssert(playlist.books?.count == 1)
+                XCTAssert(folder.items?.count == 1)
 
                 expectation.fulfill()
             })
@@ -264,7 +264,7 @@ class InsertBooksTests: DataManagerTests {
 
     func testInsertExistingBookFromPlaylistIntoLibrary() {
         let library = DataManager.getLibrary()
-        let playlist = DataManager.createPlaylist(title: "test-playlist", books: [])
+        let folder = DataManager.createFolder(title: "test-folder", items: [])
 
         let filename = "file.txt"
         let bookContents = "bookcontents".data(using: .utf8)!
@@ -276,16 +276,16 @@ class InsertBooksTests: DataManagerTests {
 
         let expectation = XCTestExpectation(description: "Insert books into library")
 
-        DataManager.insert(playlist, into: library)
+        DataManager.insert(folder, into: library)
         XCTAssert(library.items?.count == 1)
 
-        DataManager.insertBooks(from: [bookUrl], into: playlist) {
+        DataManager.insertBooks(from: [bookUrl], into: folder) {
             XCTAssert(library.items?.count == 1)
-            XCTAssert(playlist.books?.count == 1)
+            XCTAssert(folder.items?.count == 1)
 
             DataManager.insertBooks(from: [bookUrl], into: library, completion: {
                 XCTAssert(library.items?.count == 2)
-                XCTAssert(playlist.books?.count == 0)
+                XCTAssert(folder.items?.count == 0)
 
                 expectation.fulfill()
             })
@@ -296,8 +296,8 @@ class InsertBooksTests: DataManagerTests {
 
     func testInsertExistingBookFromPlaylistIntoPlaylist() {
         let library = DataManager.getLibrary()
-        let playlist1 = DataManager.createPlaylist(title: "test-playlist1", books: [])
-        let playlist2 = DataManager.createPlaylist(title: "test-playlist2", books: [])
+        let folder1 = DataManager.createFolder(title: "test-folder1", items: [])
+        let folder2 = DataManager.createFolder(title: "test-folder2", items: [])
 
         let filename = "file.txt"
         let bookContents = "bookcontents".data(using: .utf8)!
@@ -309,19 +309,19 @@ class InsertBooksTests: DataManagerTests {
 
         let expectation = XCTestExpectation(description: "Insert books into library")
 
-        DataManager.insert(playlist1, into: library)
-        DataManager.insert(playlist2, into: library)
+        DataManager.insert(folder1, into: library)
+        DataManager.insert(folder2, into: library)
         XCTAssert(library.items?.count == 2)
 
-        DataManager.insertBooks(from: [bookUrl], into: playlist1) {
+        DataManager.insertBooks(from: [bookUrl], into: folder1) {
             XCTAssert(library.items?.count == 2)
-            XCTAssert(playlist1.books?.count == 1)
-            XCTAssert(playlist2.books?.count == 0)
+            XCTAssert(folder1.items?.count == 1)
+            XCTAssert(folder2.items?.count == 0)
 
-            DataManager.insertBooks(from: [bookUrl], into: playlist2, completion: {
+            DataManager.insertBooks(from: [bookUrl], into: folder2, completion: {
                 XCTAssert(library.items?.count == 2)
-                XCTAssert(playlist1.books?.count == 0)
-                XCTAssert(playlist2.books?.count == 1)
+                XCTAssert(folder1.items?.count == 0)
+                XCTAssert(folder2.items?.count == 1)
 
                 expectation.fulfill()
             })

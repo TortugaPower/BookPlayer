@@ -194,6 +194,21 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         self.editButtonItem.isEnabled = !self.items.isEmpty
     }
 
+    func presentFolder(_ folder: Folder) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+
+        guard let folderVC = storyboard.instantiateViewController(withIdentifier: "PlaylistViewController") as? PlaylistViewController else {
+            return
+        }
+
+        folderVC.library = library
+        folderVC.folder = folder
+
+        navigationController?.pushViewController(folderVC, animated: true)
+    }
+
+    func presentAddOptionsAlert() {}
+
     func presentImportFilesAlert() {
         let providerList = UIDocumentPickerViewController(documentTypes: ["public.audio", "com.pkware.zip-archive", "public.movie"], in: .import)
 
@@ -255,13 +270,13 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         fatalError("handleOperationCompletion must be overriden")
     }
 
-    func presentCreatePlaylistAlert(_ namePlaceholder: String = "new_playlist_button".localized, handler: ((_ title: String) -> Void)?) {
-        let playlistAlert = self.createPlaylistAlert(namePlaceholder, handler: handler)
+    func presentCreateFolderAlert(_ namePlaceholder: String = "new_playlist_button".localized, handler: ((_ title: String) -> Void)?) {
+        let folderAlert = self.createFolderAlert(namePlaceholder, handler: handler)
 
         let vc = presentedViewController ?? self
 
-        vc.present(playlistAlert, animated: true) {
-            guard let textfield = playlistAlert.textFields?.first else { return }
+        vc.present(folderAlert, animated: true) {
+            guard let textfield = folderAlert.textFields?.first else { return }
             textfield.becomeFirstResponder()
             textfield.selectedTextRange = textfield.textRange(from: textfield.beginningOfDocument, to: textfield.endOfDocument)
         }
@@ -273,21 +288,28 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
 
     func handleTrash(_ selectedItems: [LibraryItem]) {}
 
-    func handleDelete(books: [Book]) {
-        let alert = UIAlertController(title: String.localizedStringWithFormat("delete_multiple_items_title".localized, books.count), message: nil, preferredStyle: .alert)
-
-        if books.count == 1, let book = books.first {
-            alert.title = String(format: "delete_single_item_title".localized, book.title!)
-        }
+    func handleDelete(items: [LibraryItem]) {
+        let alert = UIAlertController(title: String.localizedStringWithFormat("delete_multiple_items_title".localized, items.count),
+                                      message: "delete_multiple_items_description".localized,
+                                      preferredStyle: .alert)
 
         alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
 
-        alert.addAction(UIAlertAction(title: "delete_button".localized, style: .destructive, handler: { _ in
-            self.delete(books, mode: .deep)
-        }))
+        var deleteActionTitle = "delete_button".localized
 
-        alert.popoverPresentationController?.sourceView = view
-        alert.popoverPresentationController?.sourceRect = CGRect(x: Double(view.bounds.size.width / 2.0), y: Double(view.bounds.size.height - 45), width: 1.0, height: 1.0)
+        if items.count == 1, let folder = items.first as? Folder {
+            deleteActionTitle = "delete_deep_button".localized
+
+            alert.title = String(format: "delete_single_item_title".localized, folder.title!)
+            alert.message = "delete_single_playlist_description".localized
+            alert.addAction(UIAlertAction(title: "delete_shallow_button".localized, style: .default, handler: { _ in
+                self.delete(items, mode: .shallow)
+            }))
+        }
+
+        alert.addAction(UIAlertAction(title: deleteActionTitle, style: .destructive, handler: { _ in
+            self.delete(items, mode: .deep)
+        }))
 
         present(alert, animated: true, completion: nil)
     }
@@ -382,7 +404,7 @@ extension ItemListViewController {
         guard
             let currentBook = PlayerManager.shared.currentBook,
             let fileURL = currentBook.fileURL,
-            let index = self.library.itemIndex(with: fileURL),
+            let index = self.library.itemIndex(with: fileURL.lastPathComponent),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
         else {
             return
@@ -395,7 +417,7 @@ extension ItemListViewController {
         guard
             let book = PlayerManager.shared.currentBook,
             let fileURL = book.fileURL,
-            let index = self.library.itemIndex(with: fileURL),
+            let index = self.library.itemIndex(with: fileURL.lastPathComponent),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
         else {
             return
@@ -410,7 +432,7 @@ extension ItemListViewController {
             let book = userInfo["book"] as? Book,
             !book.isFault,
             let fileURL = book.fileURL,
-            let index = self.library.itemIndex(with: fileURL),
+            let index = self.library.itemIndex(with: fileURL.lastPathComponent),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
         else {
             return
@@ -421,17 +443,17 @@ extension ItemListViewController {
 
     @objc func updateProgress(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
-            let fileURL = userInfo["fileURL"] as? URL else {
+            let bookIdentifier = userInfo["bookIdentifier"] as? String else {
             return
         }
 
         guard let index = (self.items.firstIndex { (item) -> Bool in
             if let book = item as? Book {
-                return book.fileURL == fileURL
+                return book.identifier == bookIdentifier
             }
 
-            if let playlist = item as? Playlist {
-                return playlist.getBook(with: fileURL) != nil
+            if let folder = item as? Folder {
+                return folder.getItem(with: bookIdentifier) != nil
             }
 
             return false
@@ -441,9 +463,9 @@ extension ItemListViewController {
 
         let item = self.items[index]
 
-        let progress = item is Playlist
-            ? item.progress
-            : userInfo["progress"] as? Double ?? item.progress
+        let progress = item is Folder
+            ? item.progressPercentage
+            : userInfo["progress"] as? Double ?? item.progressPercentage
 
         cell.progress = item.isFinished ? 1.0 : progress
     }
@@ -530,7 +552,7 @@ extension ItemListViewController: UITableViewDataSource {
         cell.artwork = item.getArtwork(for: themeProvider.currentTheme)
         cell.title = item.title
         cell.playbackState = .stopped
-        cell.type = item is Playlist ? .playlist : .book
+        cell.type = item is Folder ? .folder : .book
 
         cell.onArtworkTap = { [weak self] in
             guard !tableView.isEditing else {
@@ -551,27 +573,27 @@ extension ItemListViewController: UITableViewDataSource {
 
         if let book = item as? Book {
             cell.subtitle = book.author
-        } else if let playlist = item as? Playlist {
-            cell.subtitle = playlist.info()
+        } else if let folder = item as? Folder {
+            cell.subtitle = folder.info()
         }
 
-        cell.progress = item.isFinished ? 1.0 : item.progress
+        cell.progress = item.isFinished ? 1.0 : item.progressPercentage
         cell.duration = self.formatTotalDuration(item.duration)
 
         return cell
     }
 
     func getNextBook(_ item: LibraryItem) -> Book? {
-        guard let playlist = item as? Playlist else {
+        guard let folder = item as? Folder else {
             return item.getBookToPlay()
         }
 
-        // Special treatment for playlists
+        // Special treatment for folders
         guard
             let bookPlaying = PlayerManager.shared.currentBook,
-            let currentPlaylist = bookPlaying.playlist,
-            currentPlaylist == playlist else {
-            // restart the selected playlist if current playing book has no relation to it
+            let currentFolder = bookPlaying.folder,
+            currentFolder == folder else {
+            // restart the selected folder if current playing book has no relation to it
             if item.isFinished {
                 DataManager.jumpToStart(item)
             }
@@ -619,6 +641,30 @@ extension ItemListViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.updateSelectionStatus()
+
+        guard !tableView.isEditing else {
+            return
+        }
+
+        tableView.deselectRow(at: indexPath, animated: true)
+
+        guard indexPath.sectionValue == .data else {
+            if indexPath.sectionValue == .add {
+                self.presentAddOptionsAlert()
+            }
+
+            return
+        }
+
+        if let folder = self.items[indexPath.row] as? Folder {
+            self.presentFolder(folder)
+
+            return
+        }
+
+        if let book = self.items[indexPath.row] as? Book {
+            setupPlayer(book: book)
+        }
     }
 
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {

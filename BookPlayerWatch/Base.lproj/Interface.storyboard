@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="15705" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="QM5-8D-laz">
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="17701" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="QM5-8D-laz">
     <device id="watch38"/>
     <dependencies>
         <deployment identifier="watchOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="15501"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="17500"/>
     </dependencies>
     <scenes>
         <!--Static Notification Interface Controller-->
@@ -72,7 +72,7 @@
                                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </group>
                                     <connections>
-                                        <action selector="collapsePlaylist" destination="QM5-8D-laz" id="Fwo-su-veg"/>
+                                        <action selector="collapseFolder" destination="QM5-8D-laz" id="sG9-1B-vPn"/>
                                     </connections>
                                 </button>
                                 <separator alignment="left" verticalAlignment="bottom" id="AYB-kc-mzC"/>
@@ -109,13 +109,17 @@
                                 <tableRow identifier="PlaylistRow" id="SaB-cA-Tfi" customClass="ItemRow" customModule="BookPlayerWatch_Extension">
                                     <group key="rootItem" width="1" alignment="left" id="ZH0-Ti-O8d">
                                         <items>
-                                            <label height="46" alignment="left" text="The Rise and Fall of DODO" numberOfLines="2" id="rko-94-G0i">
+                                            <label height="46" alignment="left" text="The Rise and Fall of DODO" numberOfLines="2" id="xvG-RZ-1jd">
                                                 <fontDescription key="font" style="UICTFontTextStyleCaption1"/>
                                             </label>
+                                            <imageView width="0.20000000000000001" height="0.29999999999999999" alignment="right" verticalAlignment="center" image="detail-icon" contentMode="scaleAspectFit" id="LLz-Mj-mYW">
+                                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            </imageView>
                                         </items>
                                     </group>
                                     <connections>
-                                        <outlet property="titleLabel" destination="rko-94-G0i" id="C6A-H1-DWI"/>
+                                        <outlet property="detailImage" destination="LLz-Mj-mYW" id="ZfW-KJ-G1f"/>
+                                        <outlet property="titleLabel" destination="xvG-RZ-1jd" id="xy4-dq-w6b"/>
                                     </connections>
                                 </tableRow>
                             </items>

@@ -16,72 +16,49 @@ public class Library: NSManagedObject, Codable {
         return self.items?.array as? [LibraryItem] ?? []
     }
 
-    func itemIndex(with identifier: String) -> Int? {
+    public func itemIndex(with identifier: String) -> Int? {
         guard let items = self.items?.array as? [LibraryItem] else {
             return nil
         }
 
-        for (index, item) in items.enumerated() {
-            if let storedBook = item as? Book,
-                storedBook.identifier == identifier {
-                return index
+        return items.firstIndex { (item) -> Bool in
+            if let book = item as? Book {
+                return book.identifier == identifier
+            } else if let folder = item as? Folder {
+                return folder.getItem(with: identifier) != nil
             }
 
-            // check if playlist
-            if
-                let playlist = item as? Playlist,
-                let storedBooks = playlist.books?.array as? [Book],
-                storedBooks.contains(where: { (storedBook) -> Bool in
-                    storedBook.identifier == identifier
-                }) {
-                // check playlist books
-                return index
-            }
+            return false
         }
-
-        return nil
-    }
-
-    public func itemIndex(with url: URL) -> Int? {
-        let hash = url.lastPathComponent
-
-        return self.itemIndex(with: hash)
-    }
-
-    func getItem(at index: Int) -> LibraryItem? {
-        guard let items = self.items?.array as? [LibraryItem] else {
-            return nil
-        }
-
-        return items[index]
-    }
-
-    public func getItem(with url: URL) -> LibraryItem? {
-        guard let index = self.itemIndex(with: url) else {
-            return nil
-        }
-
-        return self.getItem(at: index)
     }
 
     public func getItem(with identifier: String) -> LibraryItem? {
-        guard let index = self.itemIndex(with: identifier) else {
+        guard let items = self.items?.array as? [LibraryItem] else {
             return nil
         }
 
-        return self.getItem(at: index)
+        var itemFound: LibraryItem?
+
+        for item in items {
+            if let libraryItem = item.getItem(with: identifier) {
+                itemFound = libraryItem
+                break
+            }
+        }
+
+        return itemFound
     }
 
     func getNextItem(after item: LibraryItem) -> LibraryItem? {
         guard let items = self.items?.array as? [LibraryItem] else { return nil }
 
-        guard let indexFound = items.firstIndex(of: item) else { return nil }
+        guard let indexFound = self.itemIndex(with: item.identifier) else { return nil }
 
         for (index, item) in items.enumerated() {
             guard index > indexFound,
                 !item.isFinished else { continue }
 
-            if let playlist = item as? Playlist, !playlist.hasBooks() { continue }
+            if let folder = item as? Folder, !folder.hasBooks() { continue }
 
             return item
         }
@@ -110,7 +87,7 @@ public class Library: NSManagedObject, Codable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case items, books, playlists, lastPlayedBook, currentTheme
+        case items, books, folders, lastPlayedBook, currentTheme
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -119,14 +96,14 @@ public class Library: NSManagedObject, Codable {
         guard let itemsArray = self.items?.array as? [LibraryItem] else { return }
 
         var books = [Int: Book]()
-        var playlists = [Int: Playlist]()
+        var folders = [Int: Folder]()
 
         for (index, item) in itemsArray.enumerated() {
             if let book = item as? Book {
                 books[index] = book
             }
-            if let playlist = item as? Playlist {
-                playlists[index] = playlist
+            if let folder = item as? Folder {
+                folders[index] = folder
             }
         }
 
@@ -134,8 +111,8 @@ public class Library: NSManagedObject, Codable {
             try container.encode(books, forKey: .books)
         }
 
-        if !playlists.isEmpty {
-            try container.encode(playlists, forKey: .playlists)
+        if !folders.isEmpty {
+            try container.encode(folders, forKey: .folders)
         }
 
         if let book = self.lastPlayedBook {
@@ -157,17 +134,17 @@ public class Library: NSManagedObject, Codable {
         let values = try decoder.container(keyedBy: CodingKeys.self)
 
         var books = [Int: LibraryItem]()
-        var playlists = [Int: LibraryItem]()
+        var folders = [Int: LibraryItem]()
 
         if let decodedBooks = try? values.decode([Int: Book].self, forKey: .books) {
             books = decodedBooks
         }
 
-        if let decodedPlaylists = try? values.decode([Int: Playlist].self, forKey: .playlists) {
-            playlists = decodedPlaylists
+        if let decodedFolders = try? values.decode([Int: Folder].self, forKey: .folders) {
+            folders = decodedFolders
         }
 
-        let unsortedItemsDict: [Int: LibraryItem] = books.merging(playlists) { (_, new) -> LibraryItem in new }
+        let unsortedItemsDict: [Int: LibraryItem] = books.merging(folders) { (_, new) -> LibraryItem in new }
         let sortedItemsTuple = unsortedItemsDict.sorted { $0.key < $1.key }
         let sortedItems = Array(sortedItemsTuple.map { $0.value })
 

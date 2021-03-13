@@ -147,6 +147,19 @@ class DataMigrationManager {
                                 fromModel: storeModel,
                                 toModel: destinationModel,
                                 mappingModel: mappingModel)
+            self.performMigration()
+        } else if storeModel.isVersion3 {
+            let destinationModel = NSManagedObjectModel.version4
+
+            let mapPath = Bundle.main.path(forResource: "MappingModel_v3_to_v4", ofType: "cdm")!
+            let mapUrl = URL(fileURLWithPath: mapPath)
+
+            let mappingModel = NSMappingModel(contentsOf: mapUrl)
+
+            self.migrateStoreAt(URL: storeURL,
+                                fromModel: storeModel,
+                                toModel: destinationModel,
+                                mappingModel: mappingModel)
         }
     }
 }
@@ -193,6 +206,14 @@ extension NSManagedObjectModel {
 
     var isVersion3: Bool {
         return self == type(of: self).version3
+    }
+
+    class var version4: NSManagedObjectModel {
+        return bookplayerModel(named: "Audiobook Player 4")
+    }
+
+    var isVersion4: Bool {
+        return self == type(of: self).version4
     }
 
     class func model(named modelName: String, in bundle: Bundle = .main) -> NSManagedObjectModel {

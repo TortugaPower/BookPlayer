@@ -12,40 +12,27 @@ import UIKit
 protocol ItemListActions: ItemList {
     func sort(by sortType: PlayListSortOrder)
     func delete(_ items: [LibraryItem], mode: DeleteMode)
-    func move(_ items: [LibraryItem], to playlist: Playlist)
+    func move(_ items: [LibraryItem], to folder: Folder)
 }
 
 extension ItemListActions {
     func delete(_ items: [LibraryItem], mode: DeleteMode) {
-        DataManager.delete(items, mode: mode)
+        DataManager.delete(items, library: self.library, mode: mode)
         self.reloadData()
     }
 
-    func move(_ items: [LibraryItem], to playlist: Playlist) {
-        let selectedPlaylists = items.compactMap { (item) -> Playlist? in
-            guard
-                let itemPlaylist = item as? Playlist,
-                itemPlaylist != playlist else { return nil }
-
-            return itemPlaylist
+    func move(_ items: [LibraryItem], to folder: Folder) {
+        for item in items {
+            if let parent = item.folder {
+                parent.removeFromItems(item)
+                parent.updateCompletionState()
+            } else {
+                self.library.removeFromItems(item)
+            }
         }
 
-        let selectedBooks = items.compactMap { (item) -> Book? in
-            item as? Book
-        }
-
-        let books = Array(selectedPlaylists.compactMap { (playlist) -> [Book]? in
-            guard let books = playlist.books else { return nil }
-
-            return books.array as? [Book]
-        }.joined())
-
-        let allBooks = books + selectedBooks
-
-        self.library.removeFromItems(NSOrderedSet(array: selectedBooks))
-        self.library.removeFromItems(NSOrderedSet(array: selectedPlaylists))
-        playlist.addToBooks(NSOrderedSet(array: allBooks))
-        playlist.updateCompletionState()
+        folder.addToItems(NSOrderedSet(array: items))
+        folder.updateCompletionState()
 
         DataManager.saveContext()
 

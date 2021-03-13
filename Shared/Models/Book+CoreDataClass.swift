@@ -24,12 +24,10 @@ public class Book: LibraryItem {
 
     public var currentChapter: Chapter?
 
-    // needed to invalide cache of playlist
-    public func setCurrentTime(_ time: Double) {
+    // needed to invalide cache of folder
+    override public func setCurrentTime(_ time: Double) {
         self.currentTime = time
-        if let playlist = self.playlist {
-            playlist.resetCachedProgress()
-        }
+        self.folder?.resetCachedProgress()
     }
 
     var displayTitle: String {
@@ -39,11 +37,17 @@ public class Book: LibraryItem {
     public override var progress: Double {
         guard self.duration > 0 else { return 0 }
 
+        return self.currentTime
+    }
+
+    public override var progressPercentage: Double {
+        guard self.duration > 0 else { return 0 }
+
         return self.currentTime / self.duration
     }
 
     public var percentage: Double {
-        return round(self.progress * 100)
+        return round(self.progressPercentage * 100)
     }
 
     public var hasChapters: Bool {
@@ -52,6 +56,10 @@ public class Book: LibraryItem {
 
     public var hasArtwork: Bool {
         return self.artworkData != nil
+    }
+
+    public override func getItem(with identifier: String) -> LibraryItem? {
+        return self.identifier == identifier ? self : nil
     }
 
     public override func jumpToStart() {
@@ -67,7 +75,7 @@ public class Book: LibraryItem {
             self.setCurrentTime(0.0)
         }
 
-        self.playlist?.updateCompletionState()
+        self.folder?.updateCompletionState()
     }
 
     public func currentTimeInContext(_ prefersChapterContext: Bool) -> TimeInterval {
@@ -144,9 +152,9 @@ public class Book: LibraryItem {
         let now = Date()
         self.lastPlayDate = now
 
-        guard let playlist = self.playlist else { return }
+        guard let folder = self.folder else { return }
 
-        playlist.lastPlayDate = now
+        folder.lastPlayDate = now
     }
 
     public override func getBookToPlay() -> Book? {
@@ -179,8 +187,8 @@ public class Book: LibraryItem {
 
     public func nextBook() -> Book? {
         if
-            let playlist = self.playlist,
-            let next = playlist.getNextBook(after: self) {
+            let folder = self.folder,
+            let next = folder.getNextBook(after: self) {
             return next
         }
 
@@ -188,13 +196,13 @@ public class Book: LibraryItem {
             return nil
         }
 
-        let item = self.playlist ?? self
+        let item = self.folder ?? self
 
         guard let nextItem = item.library?.getNextItem(after: item) else { return nil }
 
         if let book = nextItem as? Book {
             return book
-        } else if let playlist = nextItem as? Playlist, let book = playlist.books?.firstObject as? Book {
+        } else if let folder = nextItem as? Folder, let book = folder.getBookToPlay() {
             return book
         }
 
@@ -240,7 +248,7 @@ public class Book: LibraryItem {
     }
 
     enum CodingKeys: String, CodingKey {
-        case currentTime, duration, identifier, percentCompleted, title, author, ext, playlist
+        case currentTime, duration, identifier, percentCompleted, title, author, ext, folder
     }
 
     public override func encode(to encoder: Encoder) throws {

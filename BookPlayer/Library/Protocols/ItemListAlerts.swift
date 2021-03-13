@@ -39,7 +39,7 @@ extension ItemListAlerts {
         return alert
     }
 
-    func createPlaylistAlert(_ namePlaceholder: String = "new_playlist_button".localized, handler: ((_ title: String) -> Void)?) -> UIAlertController {
+    func createFolderAlert(_ namePlaceholder: String = "new_playlist_button".localized, handler: ((_ title: String) -> Void)?) -> UIAlertController {
         let alert = UIAlertController(title: "create_playlist_title".localized,
                                       message: "create_playlist_description".localized,
                                       preferredStyle: .alert)

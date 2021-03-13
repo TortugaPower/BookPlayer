@@ -37,29 +37,6 @@ extension DataManager {
         return count
     }
 
-    // MARK: - Core Data stack
-
-    public class func migrateStack() throws {
-        let name = "BookPlayer"
-        let container = NSPersistentContainer(name: name)
-        let psc = container.persistentStoreCoordinator
-
-        let oldStoreUrl = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).last!
-            .appendingPathComponent("\(name).sqlite")
-
-        let options = [
-            NSMigratePersistentStoresAutomaticallyOption: true,
-            NSInferMappingModelAutomaticallyOption: true
-        ]
-
-        guard let oldStore = try? psc.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: oldStoreUrl, options: options) else {
-            // couldn't load old store
-            return
-        }
-
-        try psc.migratePersistentStore(oldStore, to: self.coreDataStack.storeUrl, options: nil, withType: NSSQLiteStoreType)
-    }
-
     // MARK: - File processing
 
     /**

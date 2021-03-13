@@ -152,16 +152,17 @@ class PlayerManager: NSObject, TelemetryProtocol {
     // Called every second by the timer
     @objc func update() {
         guard let book = self.currentBook,
-            let fileURL = book.fileURL,
-            let playerItem = self.playerItem,
-            playerItem.status == .readyToPlay else {
+              let bookIdentifier = book.identifier,
+              let fileURL = book.fileURL,
+              let playerItem = self.playerItem,
+              playerItem.status == .readyToPlay else {
             return
         }
 
         let currentTime = CMTimeGetSeconds(self.audioPlayer.currentTime())
         book.setCurrentTime(currentTime)
 
-        let isPercentageDifferent = book.percentage != book.percentCompleted || (book.percentCompleted == 0 && book.progress > 0)
+        let isPercentageDifferent = book.percentage != book.percentCompleted || (book.percentCompleted == 0 && book.progressPercentage > 0)
 
         book.percentCompleted = book.percentage
 
@@ -173,8 +174,9 @@ class PlayerManager: NSObject, TelemetryProtocol {
             NotificationCenter.default.post(name: .updatePercentage,
                                             object: nil,
                                             userInfo: [
-                                                "progress": book.progress,
-                                                "fileURL": fileURL
+                                                "progress": book.progressPercentage,
+                                                "fileURL": fileURL,
+                                                "bookIdentifier": bookIdentifier
                                             ] as [String: Any])
         }
 
@@ -238,7 +240,7 @@ class PlayerManager: NSObject, TelemetryProtocol {
 
             let useGlobalSpeed = UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue)
             let globalSpeed = UserDefaults.standard.float(forKey: "global_speed")
-            let localSpeed = currentBook.playlist?.speed ?? currentBook.speed
+            let localSpeed = currentBook.folder?.speed ?? currentBook.speed
             let speed = useGlobalSpeed ? globalSpeed : localSpeed
 
             return speed > 0 ? speed : 1.0
@@ -249,7 +251,7 @@ class PlayerManager: NSObject, TelemetryProtocol {
                 return
             }
 
-            currentBook.playlist?.speed = newValue
+            currentBook.folder?.speed = newValue
             currentBook.speed = newValue
             DataManager.saveContext()
 
@@ -379,7 +381,7 @@ extension PlayerManager {
 
         UserActivityManager.shared.resumePlaybackActivity()
 
-        if let library = currentBook.library ?? currentBook.playlist?.library {
+        if let library = currentBook.library ?? currentBook.folder?.library {
             library.lastPlayedBook = currentBook
             DataManager.saveContext()
         }
@@ -469,7 +471,7 @@ extension PlayerManager {
 
         UserActivityManager.shared.stopPlaybackActivity()
 
-        if let library = currentBook.library ?? currentBook.playlist?.library {
+        if let library = currentBook.library ?? currentBook.folder?.library {
             library.lastPlayedBook = currentBook
             DataManager.saveContext()
         }
@@ -519,7 +521,7 @@ extension PlayerManager {
         if let book = self.currentBook {
             userInfo = ["book": book]
 
-            if let library = book.library ?? book.playlist?.library {
+            if let library = book.library ?? book.folder?.library {
                 library.lastPlayedBook = nil
                 DataManager.saveContext()
             }
@@ -537,7 +539,8 @@ extension PlayerManager {
 
     func markAsCompleted(_ flag: Bool) {
         guard let book = self.currentBook,
-            let fileURL = book.fileURL else { return }
+            let fileURL = book.fileURL,
+            let bookIdentifier = book.identifier else { return }
 
         book.markAsFinished(flag)
         DataManager.saveContext()
@@ -545,14 +548,15 @@ extension PlayerManager {
         NotificationCenter.default.post(name: .bookEnd,
                                         object: nil,
                                         userInfo: [
-                                            "fileURL": fileURL
+                                            "fileURL": fileURL,
+                                            "bookIdentifier": bookIdentifier
                                         ])
     }
 
     @objc
     func playerDidFinishPlaying(_ notification: Notification) {
         if let book = self.currentBook,
-            let library = book.library ?? book.playlist?.library {
+            let library = book.library ?? book.folder?.library {
             library.lastPlayedBook = nil
             DataManager.saveContext()
         }
