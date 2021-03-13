@@ -166,14 +166,12 @@ class PlaylistViewController: ItemListViewController {
     }
 
     override func handleMove(_ selectedItems: [LibraryItem]) {
-        guard let books = selectedItems as? [Book] else { return }
-
         let alert = UIAlertController(title: "choose_destination_title".localized, message: nil, preferredStyle: .alert)
 
         alert.addAction(UIAlertAction(title: "library_title".localized, style: .default) { _ in
-            let bookSet = NSOrderedSet(array: books)
-            self.folder.removeFromItems(bookSet)
-            self.library.addToItems(bookSet)
+            let itemSet = NSOrderedSet(array: selectedItems)
+            self.folder.removeFromItems(itemSet)
+            self.library.addToItems(itemSet)
             DataManager.saveContext()
 
             self.reloadData()
@@ -181,10 +179,10 @@ class PlaylistViewController: ItemListViewController {
 
         alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { _ in
             self.presentCreateFolderAlert(handler: { title in
-                self.folder.removeFromItems(NSOrderedSet(array: books))
-                let folder = DataManager.createFolder(title: title, items: books)
+                self.folder.removeFromItems(NSOrderedSet(array: selectedItems))
+                let folder = DataManager.createFolder(title: title, items: selectedItems)
 
-                DataManager.insert(folder, into: self.library)
+                DataManager.insert(folder, into: self.folder)
 
                 self.reloadData()
             })

@@ -43,7 +43,7 @@ class LibraryInterfaceController: WKInterfaceController {
         return self.library.items?.array as? [LibraryItem] ?? []
     }
 
-    var folderItems: [Book]?
+    var selectedFolder: Folder?
 
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
@@ -154,7 +154,7 @@ class LibraryInterfaceController: WKInterfaceController {
     }
 
     func setupPlaylistTable() {
-        guard let items = self.folderItems else { return }
+        guard let items = self.selectedFolder?.items?.array as? [LibraryItem] else { return }
 
         self.playlistTableView.setNumberOfRows(items.count, withRowType: "PlaylistRow")
 
@@ -164,6 +164,7 @@ class LibraryInterfaceController: WKInterfaceController {
             }
 
             row.titleLabel.setText(item.title)
+            row.detailImage.setHidden(item is Book)
         }
 
         self.backImage.setHidden(false)
@@ -176,32 +177,33 @@ class LibraryInterfaceController: WKInterfaceController {
             return
         }
 
-        if let items = self.folderItems {
-            let book = items[rowIndex]
-            self.play(book)
-            return
-        }
+        let localItems = self.selectedFolder?.items?.array as? [LibraryItem] ?? self.items
 
-        let item = self.items[rowIndex]
+        let item = localItems[rowIndex]
 
-        guard let folder = item as? Folder,
-            let books = folder.items?.array as? [Book] else {
-            // swiftlint:disable force_cast
-            let book = item as! Book
+        if let book = item as? Book {
             self.play(book)
-            return
+        } else if let folder = item as? Folder {
+            self.setFolderContents(folder)
         }
-        self.folderItems = books
-        self.libraryHeaderTitle.setText(folder.title!)
-        self.setupPlaylistTable()
-        self.showFolder(true)
     }
 
     @IBAction func collapseFolder() {
+        if let parent = self.selectedFolder?.folder {
+            self.setFolderContents(parent)
+            return
+        }
         self.showFolder(false)
         self.backImage.setHidden(true)
-        self.folderItems = nil
+        self.selectedFolder = nil
         self.libraryHeaderTitle.setText("library_title".localized)
+    }
+
+    func setFolderContents(_ folder: Folder) {
+        self.selectedFolder = folder
+        self.libraryHeaderTitle.setText(folder.title!)
+        self.setupPlaylistTable()
+        self.showFolder(true)
     }
 
     func showFolder(_ show: Bool) {

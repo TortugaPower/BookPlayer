@@ -109,8 +109,8 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
         // Populate folder content
         if indexPath.indices.count == IndexGuide.folder.count,
            let folder = items[indexPath[IndexGuide.library.content]] as? Folder,
-           let books = folder.items?.array as? [Book] {
-            let book = books[indexPath[IndexGuide.folder.content]]
+           let folderItems = folder.items?.array as? [LibraryItem],
+           let book = folderItems[indexPath[IndexGuide.folder.content]].getBookToPlay() {
             let item = MPContentItem(identifier: book.identifier)
             item.isPlayable = true
             item.title = book.title
@@ -168,14 +168,14 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
 
         if indexPath.indices.count == IndexGuide.folder.count,
             let folder = items[indexPath[IndexGuide.library.content]] as? Folder,
-            let books = folder.items?.array as? [Book] {
-            book = books[indexPath[IndexGuide.folder.content]]
+            let folderItems = folder.items?.array as? [LibraryItem] {
+            book = folderItems[indexPath[IndexGuide.folder.content]].getBookToPlay()
         } else {
             if indexPath[0] == IndexGuide.tab.recentlyPlayed,
                 let folder = items[indexPath[IndexGuide.library.content]] as? Folder {
                 book = folder.getBookToPlay()
             } else {
-                book = items[indexPath[IndexGuide.library.content]] as? Book
+                book = items[indexPath[IndexGuide.library.content]].getBookToPlay()
             }
         }
 

@@ -303,7 +303,7 @@ public class Folder: LibraryItem {
     }
 
     enum CodingKeys: String, CodingKey {
-        case title, desc, books, library
+        case title, desc, books, folders, library
     }
 
     public override func encode(to encoder: Encoder) throws {
@@ -311,8 +311,26 @@ public class Folder: LibraryItem {
         try container.encode(title, forKey: .title)
         try container.encode(desc, forKey: .desc)
 
-        if let itemsArray = self.items?.array as? [LibraryItem] {
-            try container.encode(itemsArray, forKey: .books)
+        guard let itemsArray = self.items?.array as? [LibraryItem] else { return }
+
+        var books = [Int: Book]()
+        var folders = [Int: Folder]()
+
+        for (index, item) in itemsArray.enumerated() {
+            if let book = item as? Book {
+                books[index] = book
+            }
+            if let folder = item as? Folder {
+                folders[index] = folder
+            }
+        }
+
+        if !books.isEmpty {
+            try container.encode(books, forKey: .books)
+        }
+
+        if !folders.isEmpty {
+            try container.encode(folders, forKey: .folders)
         }
     }
 
@@ -328,8 +346,23 @@ public class Folder: LibraryItem {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         title = try values.decode(String.self, forKey: .title)
         desc = try values.decode(String.self, forKey: .desc)
-        let booksArray = try values.decode([Book].self, forKey: .books)
-        items = NSOrderedSet(array: booksArray)
+
+        var books = [Int: LibraryItem]()
+        var folders = [Int: LibraryItem]()
+
+        if let decodedBooks = try? values.decode([Int: Book].self, forKey: .books) {
+            books = decodedBooks
+        }
+
+        if let decodedFolders = try? values.decode([Int: Folder].self, forKey: .folders) {
+            folders = decodedFolders
+        }
+
+        let unsortedItemsDict: [Int: LibraryItem] = books.merging(folders) { (_, new) -> LibraryItem in new }
+        let sortedItemsTuple = unsortedItemsDict.sorted { $0.key < $1.key }
+        let sortedItems = Array(sortedItemsTuple.map { $0.value })
+
+        items = NSOrderedSet(array: sortedItems)
     }
 }
 

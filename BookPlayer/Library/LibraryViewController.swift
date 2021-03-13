@@ -105,27 +105,6 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         }
     }
 
-    /**
-     *  Migrates existing stack into the new container app groups.
-     *  In case it fails, it loads all the files from the Processed folder
-     */
-    func migrateCoreDataStack() {
-        DataManager.makeFilesPublic()
-        do {
-            try DataManager.migrateStack()
-        } catch {
-            // Migration failed, fallback: load all books from processed folder
-            if let fileUrls = DataManager.getFiles(from: DataManager.getProcessedFolderURL()) {
-                let fileItems = fileUrls.map { (url) -> FileItem in
-                    FileItem(originalUrl: url, processedUrl: url, destinationFolder: url)
-                }
-                DataManager.insertBooks(from: fileItems, into: self.library) {
-                    self.reloadData()
-                }
-            }
-        }
-    }
-
     override func handleOperationCompletion(_ files: [FileItem]) {
         DataManager.insertBooks(from: files, into: self.library) {
             self.reloadData()
