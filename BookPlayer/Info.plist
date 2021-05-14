@@ -4,7 +4,7 @@
 <dict>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
-		<string>com.tortugapower.audiobookplayer.background</string>
+		<string>$(BP_BUNDLE_IDENTIFIER).background</string>
 	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
@@ -48,16 +48,16 @@
 				<string>public.movie</string>
 			</array>
 		</dict>
-        <dict>
-             <key>CFBundleTypeIconFiles</key>
-             <array/>
-             <key>CFBundleTypeName</key>
-             <string>Folders</string>
-             <key>LSItemContentTypes</key>
-             <array>
-                 <string>public.folder</string>
-             </array>
-         </dict>
+		<dict>
+			<key>CFBundleTypeIconFiles</key>
+			<array/>
+			<key>CFBundleTypeName</key>
+			<string>Folders</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>public.folder</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
@@ -258,7 +258,7 @@
 			<key>UIApplicationShortcutItemTitle</key>
 			<string>Continue last book</string>
 			<key>UIApplicationShortcutItemType</key>
-			<string>com.tortugapower.audiobookplayer.playLastBook</string>
+			<string>$(BP_BUNDLE_IDENTIFIER).playLastBook</string>
 		</dict>
 	</array>
 	<key>UIBackgroundModes</key>

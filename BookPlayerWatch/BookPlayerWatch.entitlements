@@ -4,7 +4,7 @@
 <dict>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.com.tortugapower.audiobookplayer.files</string>
+		<string>group.$(BP_BUNDLE_IDENTIFIER).files</string>
 	</array>
 </dict>
 </plist>
