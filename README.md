@@ -80,8 +80,8 @@ Help us to [translate BookPlayer](#localisation).
 ## Contributing
 
 Pull requests and ideas are always welcomed. Please
-[open an issue](https://github.com/GianniCarlo/Audiobook-Player/issues/new) if you have any suggestions or found a bug.
-👍 See our [Contribution Guidelines](./CONTRIBUTING.md) for details.
+[open an issue](https://github.com/TortugaPower/BookPlayer/issues/new?assignees=&labels=bug&template=bug.md) if you have any suggestions or found a bug.
+👍 See our [Contribution Guidelines](./CONTRIBUTING.md) for details, and our [Setup Guide](https://github.com/TortugaPower/BookPlayer/wiki/Developer-Guide#setting-up-the-project) for setting up your local environment.
 
 If you enjoy BookPlayer, we would be glad if you consider writing a review on the
 [App Store.](https://itunes.apple.com/us/app/bookplayer-audio-book-player/id1138219998?ls=1&mt=8)
@@ -90,7 +90,6 @@ If you enjoy BookPlayer, we would be glad if you consider writing a review on th
 
 - [@GianniCarlo](https://github.com/GianniCarlo) - Original Idea & Creation
 - [@pichfl](https://github.com/pichfl) - UI Design & Artwork
-- [@ryantstone](https://github.com/ryantstone) - VoiceOver Support
 
 ### Contributors
 
@@ -99,6 +98,7 @@ If you enjoy BookPlayer, we would be glad if you consider writing a review on th
 - [@gpambrozio](https://github.com/gpambrozio) - Volume Boost
 - [@vab9](https://github.com/vab9) - AirDrop Support
 - [@atomicguy](https://github.com/atomicguy) - Zip Support
+- [@ryantstone](https://github.com/ryantstone) - VoiceOver Support
 
 A full list of all contributors can be found
 [on GitHub.](https://github.com/GianniCarlo/Audiobook-Player/graphs/contributors)

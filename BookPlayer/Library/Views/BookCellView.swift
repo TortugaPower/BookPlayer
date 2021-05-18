@@ -18,7 +18,7 @@ enum PlaybackState {
 
 enum BookCellType {
     case book
-    case playlist
+    case folder
     case file // in a playlist
 }
 
@@ -92,7 +92,7 @@ class BookCellView: UITableViewCell {
     var type: BookCellType = .book {
         didSet {
             switch self.type {
-            case .playlist:
+            case .folder:
                 self.accessoryType = .disclosureIndicator
             default:
                 self.accessoryType = .none

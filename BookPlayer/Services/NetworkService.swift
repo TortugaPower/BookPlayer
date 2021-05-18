@@ -7,13 +7,15 @@
 //
 
 import Alamofire
+import BookPlayerKit
 import Foundation
 
 class NetworkService {
     static let shared = NetworkService()
 
     lazy var manager: SessionManager = {
-        let configuration = URLSessionConfiguration.background(withIdentifier: "com.tortugapower.audiobookplayer.background")
+        let bundleIdentifier: String = Bundle.main.configurationValue(for: .bundleIdentifier)
+        let configuration = URLSessionConfiguration.background(withIdentifier: "\(bundleIdentifier).background")
         return Alamofire.SessionManager(configuration: configuration)
     }()
 

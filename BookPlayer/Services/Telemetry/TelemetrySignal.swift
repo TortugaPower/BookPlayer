@@ -14,7 +14,7 @@ enum TelemetrySignal: TelemetrySignalType {
 
     case settingsScreen = "SettingsScreen"
     case libraryScreen = "LibraryScreen"
-    case playlistScreen = "PlaylistScreen"
+    case folderScreen = "FolderScreen"
     case playerScreen = "PlayerScreen"
     case chaptersScreen = "ChaptersScreen"
     case themesScreen = "ThemesScreen"

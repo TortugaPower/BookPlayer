@@ -129,9 +129,9 @@ class PlayerControlsViewController: PlayerContainerViewController, UIGestureReco
             let chapters = book.chapters,
             let currentChapter = book.currentChapter else {
             if !self.progressSlider.isTracking {
-                self.progressButton.setTitle("\(Int(round(book.progress * 100)))%", for: .normal)
+                self.progressButton.setTitle("\(Int(round(book.progressPercentage * 100)))%", for: .normal)
 
-                self.progressSlider.value = Float(book.progress)
+                self.progressSlider.value = Float(book.progressPercentage)
                 self.progressSlider.setNeedsDisplay()
                 let prefix = self.prefersRemainingTime
                     ? "book_time_remaining_title".localized
