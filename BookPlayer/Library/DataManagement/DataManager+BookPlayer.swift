@@ -80,7 +80,7 @@ extension DataManager {
     private class func filterFiles(_ urls: [URL]) -> [URL] {
         return urls.filter { !$0.hasDirectoryPath }
     }
-    
+
     public class func importData(from item: ImportableItem) {
         let filename = item.suggestedName ?? "\(Date().timeIntervalSince1970).\(item.fileExtension)"
 

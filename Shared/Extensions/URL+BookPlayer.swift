@@ -12,7 +12,7 @@ public extension URL {
 
     func hasAppKey() -> Bool {
         do {
-            _ = try self.extendedAttribute(forName: "com.tortugapower.audiobookplayer.identifier")
+            _ = try self.extendedAttribute(forName: "\(Bundle.main.configurationString(for: .bundleIdentifier)).identifier")
             return true
         } catch {
             return false
@@ -21,7 +21,7 @@ public extension URL {
 
     func getAppIdentifier() -> String? {
         do {
-            let data = try self.extendedAttribute(forName: "com.tortugapower.audiobookplayer.identifier")
+            let data = try self.extendedAttribute(forName: "\(Bundle.main.configurationString(for: .bundleIdentifier)).identifier")
             return String(bytes: data, encoding: .utf8)
         } catch {
             return nil
@@ -35,7 +35,7 @@ public extension URL {
 
         try self.withUnsafeFileSystemRepresentation { fileSystemPath in
             let result = data.withUnsafeBytes {
-                setxattr(fileSystemPath, "com.tortugapower.audiobookplayer.identifier", $0.baseAddress, data.count, 0, 0)
+                setxattr(fileSystemPath, "\(Bundle.main.configurationString(for: .bundleIdentifier)).identifier", $0.baseAddress, data.count, 0, 0)
             }
             guard result >= 0 else { throw URL.posixError(errno) }
         }

@@ -79,6 +79,9 @@
 		41544A1421BAF41400740AD2 /* ItemSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41544A1321BAF41400740AD2 /* ItemSelectionViewController.swift */; };
 		415460F625E57B4F0085F8D9 /* DefaultArtworkFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415460F525E57B4F0085F8D9 /* DefaultArtworkFactory.swift */; };
 		415758EA2226E18800DDB9B6 /* PlusBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415758E92226E18800DDB9B6 /* PlusBannerView.swift */; };
+		415A9978264CCD3F002BFD35 /* Debug.template.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 415A9975264CCD3F002BFD35 /* Debug.template.xcconfig */; };
+		415A9979264CCD3F002BFD35 /* Debug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 415A9976264CCD3F002BFD35 /* Debug.xcconfig */; };
+		415A997A264CCD3F002BFD35 /* Release.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 415A9977264CCD3F002BFD35 /* Release.xcconfig */; };
 		415B274421FAE47200F9D9B7 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415B274321FAE47200F9D9B7 /* LoadingView.swift */; };
 		415F0E6F244AAC5A00DD1D8B /* PlayMediaIntentHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415F0E6E244AAC5A00DD1D8B /* PlayMediaIntentHandler.swift */; };
 		4160A09223F2DE130039166B /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = 4160A09423F2DE130039166B /* Localizable.stringsdict */; };
@@ -166,6 +169,10 @@
 		41A1B13E226FEF8000EA0400 /* DataTestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E314214ACB4300072AA2 /* DataTestUtils.swift */; };
 		41A1B13F226FEF9300EA0400 /* DataManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */; };
 		41A1B140226FEF9600EA0400 /* FolderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A6A87420DEECC400B2C621 /* FolderTests.swift */; };
+		41A894202652A5DE0032E972 /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A8941F2652A5DE0032E972 /* Configuration.swift */; };
+		41A894212652A5DE0032E972 /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A8941F2652A5DE0032E972 /* Configuration.swift */; };
+		41A8942A2652A7DF0032E972 /* Bundle+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A894292652A7DF0032E972 /* Bundle+BookPlayer.swift */; };
+		41A8942B2652A7DF0032E972 /* Bundle+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A894292652A7DF0032E972 /* Bundle+BookPlayer.swift */; };
 		41A8BAFB227E2991003C9895 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 418B6D041D2707F800F974FB /* Assets.xcassets */; };
 		41A8BAFE227E6C88003C9895 /* Notification+BookPlayerWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A8BAFD227E6C88003C9895 /* Notification+BookPlayerWatchApp.swift */; };
 		41AD3D9A221C737F00DC41E1 /* retro-icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3D97221C737E00DC41E1 /* retro-icon@2x.png */; };
@@ -478,6 +485,9 @@
 		41544A1321BAF41400740AD2 /* ItemSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemSelectionViewController.swift; sourceTree = "<group>"; };
 		415460F525E57B4F0085F8D9 /* DefaultArtworkFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultArtworkFactory.swift; sourceTree = "<group>"; };
 		415758E92226E18800DDB9B6 /* PlusBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlusBannerView.swift; sourceTree = "<group>"; };
+		415A9975264CCD3F002BFD35 /* Debug.template.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.template.xcconfig; path = BuildConfiguration/Debug.template.xcconfig; sourceTree = SOURCE_ROOT; };
+		415A9976264CCD3F002BFD35 /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = BuildConfiguration/Debug.xcconfig; sourceTree = SOURCE_ROOT; };
+		415A9977264CCD3F002BFD35 /* Release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = BuildConfiguration/Release.xcconfig; sourceTree = SOURCE_ROOT; };
 		415B274321FAE47200F9D9B7 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		415F0E6E244AAC5A00DD1D8B /* PlayMediaIntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayMediaIntentHandler.swift; sourceTree = "<group>"; };
 		4160A08E23F2DBD40039166B /* String+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+BookPlayer.swift"; sourceTree = "<group>"; };
@@ -517,6 +527,7 @@
 		416AAC3223F51031005AD04F /* LocalizableButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizableButton.swift; sourceTree = "<group>"; };
 		416B63A72146354B007D04B1 /* ImportManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportManager.swift; sourceTree = "<group>"; };
 		416B640C1E72F362000E955A /* Notification+BookPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Notification+BookPlayer.swift"; sourceTree = "<group>"; };
+		416BF8A526537A4C00239166 /* BookPlayer-NoCarPlay.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "BookPlayer-NoCarPlay.entitlements"; sourceTree = "<group>"; };
 		416E40F32404BD5C006FA2EF /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
 		416E40F42404BD5C006FA2EF /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		416E40F52404BD5C006FA2EF /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
@@ -594,6 +605,8 @@
 		41A7DE7824BC136100396FD3 /* sk-SK */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "sk-SK"; path = "sk-SK.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
 		41A7DE7924BC136200396FD3 /* sk-SK */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "sk-SK"; path = "sk-SK.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		41A7DE7A24BC136200396FD3 /* sk-SK */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "sk-SK"; path = "sk-SK.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		41A8941F2652A5DE0032E972 /* Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configuration.swift; sourceTree = "<group>"; };
+		41A894292652A7DF0032E972 /* Bundle+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+BookPlayer.swift"; sourceTree = "<group>"; };
 		41A8BAFD227E6C88003C9895 /* Notification+BookPlayerWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Notification+BookPlayerWatchApp.swift"; sourceTree = "<group>"; };
 		41AD3D97221C737E00DC41E1 /* retro-icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "retro-icon@2x.png"; sourceTree = "<group>"; };
 		41AD3D99221C737F00DC41E1 /* retro-icon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "retro-icon@3x.png"; sourceTree = "<group>"; };
@@ -876,6 +889,16 @@
 			path = BookPlayerWatchKit;
 			sourceTree = "<group>";
 		};
+		415A9974264CCD2E002BFD35 /* BuildConfiguration */ = {
+			isa = PBXGroup;
+			children = (
+				415A9975264CCD3F002BFD35 /* Debug.template.xcconfig */,
+				415A9976264CCD3F002BFD35 /* Debug.xcconfig */,
+				415A9977264CCD3F002BFD35 /* Release.xcconfig */,
+			);
+			path = BuildConfiguration;
+			sourceTree = "<group>";
+		};
 		4163E30F21484C3500072AA2 /* DataManagement */ = {
 			isa = PBXGroup;
 			children = (
@@ -906,6 +929,7 @@
 			isa = PBXGroup;
 			children = (
 				416A29CE256A442200605395 /* BookPlayerWidgetUIExtension.entitlements */,
+				415A9974264CCD2E002BFD35 /* BuildConfiguration */,
 				C3EF536020800DCC00B9629D /* Meta */,
 				418B6CFA1D2707F800F974FB /* BookPlayer */,
 				41A1B0F1226E9C5100EA0400 /* Shared */,
@@ -955,6 +979,7 @@
 				418B6D061D2707F800F974FB /* LaunchScreen.storyboard */,
 				418B6D041D2707F800F974FB /* Assets.xcassets */,
 				419196341D47CC4E007A3AF3 /* BookPlayer.entitlements */,
+				416BF8A526537A4C00239166 /* BookPlayer-NoCarPlay.entitlements */,
 				418B6D091D2707F800F974FB /* Info.plist */,
 				41640A3624416EE8004FB97B /* Intents.intentdefinition */,
 				C37A6872209F0F830063AEAC /* Credits.html */,
@@ -1010,6 +1035,7 @@
 				4140EA1E22723CFC0009F794 /* CommandParser.swift */,
 				41F516952272CC5300F36C3E /* WatchConnectivityService.swift */,
 				415460F525E57B4F0085F8D9 /* DefaultArtworkFactory.swift */,
+				41A8941F2652A5DE0032E972 /* Configuration.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -1022,6 +1048,7 @@
 				C30B085E209654E3003F325B /* UIColor+BookPlayer.swift */,
 				C30CD2A0209791FA00258B09 /* UIColor+Sweetercolor.swift */,
 				41CE44A8227215B500C900AF /* Notification+BookPlayerKit.swift */,
+				41A894292652A7DF0032E972 /* Bundle+BookPlayer.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -1588,14 +1615,10 @@
 				TargetAttributes = {
 					41342CFD24435D9900F0905B = {
 						CreatedOnToolsVersion = 11.4;
-						DevelopmentTeam = S7TJSJXWUZ;
-						ProvisioningStyle = Automatic;
 					};
 					4140EA2E227288ED0009F794 = {
 						CreatedOnToolsVersion = 10.2.1;
-						DevelopmentTeam = S7TJSJXWUZ;
 						LastSwiftMigration = 1130;
-						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
 								enabled = 1;
@@ -1604,8 +1627,6 @@
 					};
 					4140EA3A227288EF0009F794 = {
 						CreatedOnToolsVersion = 10.2.1;
-						DevelopmentTeam = S7TJSJXWUZ;
-						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
 								enabled = 1;
@@ -1614,8 +1635,6 @@
 					};
 					4140EA5D227289720009F794 = {
 						CreatedOnToolsVersion = 10.2.1;
-						DevelopmentTeam = S7TJSJXWUZ;
-						ProvisioningStyle = Automatic;
 					};
 					416A29A22569658100605395 = {
 						CreatedOnToolsVersion = 12.2;
@@ -1650,13 +1669,9 @@
 					};
 					41A1B0D1226E9BC400EA0400 = {
 						CreatedOnToolsVersion = 10.2.1;
-						DevelopmentTeam = S7TJSJXWUZ;
-						ProvisioningStyle = Automatic;
 					};
 					41CE449122712E0F00C900AF = {
 						CreatedOnToolsVersion = 10.2.1;
-						DevelopmentTeam = S7TJSJXWUZ;
-						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
 								enabled = 1;
@@ -1787,6 +1802,7 @@
 				41E562F92239535D00C06BC9 /* retro-modern-ipad@2x.png in Resources */,
 				41E562FB2239535D00C06BC9 /* fruit-based-ipad@2x.png in Resources */,
 				4111FBEB25EDEFDD0096954F /* forest-green@2x.png in Resources */,
+				415A9979264CCD3F002BFD35 /* Debug.xcconfig in Resources */,
 				41AD3D9E221C750E00DC41E1 /* Icons.json in Resources */,
 				41E562ED2239531E00C06BC9 /* neon-ipad@3x.png in Resources */,
 				41E562E222394FB900C06BC9 /* songs@3x.png in Resources */,
@@ -1808,10 +1824,12 @@
 				4111FBE025EDEFBE0096954F /* forest-green-ipad@3x.png in Resources */,
 				41AD3D9A221C737F00DC41E1 /* retro-icon@2x.png in Resources */,
 				419B373F23B8D14100128A8F /* LoadingView.xib in Resources */,
+				415A997A264CCD3F002BFD35 /* Release.xcconfig in Resources */,
 				C3EA7176218DEC870005D488 /* .swiftformat in Resources */,
 				41E562FC2239535D00C06BC9 /* neon-ipad@2x.png in Resources */,
 				41E562D222394F5A00C06BC9 /* dark@2x.png in Resources */,
 				41B2A5DA21CAE42600917584 /* Settings.storyboard in Resources */,
+				415A9978264CCD3F002BFD35 /* Debug.template.xcconfig in Resources */,
 				41E562E322394FB900C06BC9 /* songs@2x.png in Resources */,
 				41E562EC2239531E00C06BC9 /* dark-ipad@3x.png in Resources */,
 				41E562D322394F5A00C06BC9 /* dark@3x.png in Resources */,
@@ -1931,6 +1949,7 @@
 				4140EA79227289BF0009F794 /* PlaybackRecord+CoreDataProperties.swift in Sources */,
 				4140EA7D227289CB0009F794 /* LibraryItem+CoreDataProperties.swift in Sources */,
 				4140EA73227289A80009F794 /* Notification+BookPlayerKit.swift in Sources */,
+				41A894212652A5DE0032E972 /* Configuration.swift in Sources */,
 				4140EA702272899D0009F794 /* CommandParser.swift in Sources */,
 				4140EA76227289B50009F794 /* Chapter+CoreDataClass.swift in Sources */,
 				410C4693227358CD0040114D /* WatchConnectivityService.swift in Sources */,
@@ -1953,6 +1972,7 @@
 				4140EA75227289B20009F794 /* Theme+CoreDataProperties.swift in Sources */,
 				4140EA7E227289CE0009F794 /* Library+CoreDataClass.swift in Sources */,
 				416AAC3523F515B0005AD04F /* String+BookPlayer.swift in Sources */,
+				41A8942B2652A7DF0032E972 /* Bundle+BookPlayer.swift in Sources */,
 				4140EA84227289E60009F794 /* BookPlayer.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2089,6 +2109,7 @@
 				41A1B108226E9DF800EA0400 /* DataManager.swift in Sources */,
 				41A1B131226FE33500EA0400 /* Constants.swift in Sources */,
 				4124AB1725DFE07E0007C839 /* DataMigrationManager.swift in Sources */,
+				41A8942A2652A7DF0032E972 /* Bundle+BookPlayer.swift in Sources */,
 				41A1B0F2226E9D1200EA0400 /* BookPlayer.xcdatamodeld in Sources */,
 				41A1B125226F88C500EA0400 /* LibraryItem+CoreDataClass.swift in Sources */,
 				41A1B120226F88C500EA0400 /* Chapter+CoreDataProperties.swift in Sources */,
@@ -2109,6 +2130,7 @@
 				41A1B121226F88C500EA0400 /* PlaybackRecord+CoreDataClass.swift in Sources */,
 				41A1B104226E9DBA00EA0400 /* UIColor+BookPlayer.swift in Sources */,
 				41A1B11D226F88C500EA0400 /* Theme+CoreDataClass.swift in Sources */,
+				41A894202652A5DE0032E972 /* Configuration.swift in Sources */,
 				41A1B129226F88C500EA0400 /* Folder+CoreDataClass.swift in Sources */,
 				410C4692227358CD0040114D /* WatchConnectivityService.swift in Sources */,
 				41A1B12A226F88C500EA0400 /* Folder+CoreDataProperties.swift in Sources */,
@@ -2336,16 +2358,17 @@
 /* Begin XCBuildConfiguration section */
 		41342D0724435D9900F0905B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9976264CCD3F002BFD35 /* Debug.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerIntents/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -2357,8 +2380,9 @@
 				MARKETING_VERSION = 3.12.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerIntents;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_INTENTS)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_VERSION = 5.0;
@@ -2368,16 +2392,17 @@
 		};
 		41342D0824435D9900F0905B /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9977264CCD3F002BFD35 /* Release.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerIntents/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -2388,8 +2413,9 @@
 				);
 				MARKETING_VERSION = 3.12.0;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerIntents;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_INTENTS)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2398,16 +2424,17 @@
 		};
 		41342D0924435D9900F0905B /* Beta */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9977264CCD3F002BFD35 /* Release.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerIntents/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -2418,8 +2445,9 @@
 				);
 				MARKETING_VERSION = 3.12.0;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerIntents;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_INTENTS)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2428,6 +2456,7 @@
 		};
 		4140EA4F227288EF0009F794 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9976264CCD3F002BFD35 /* Debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -2438,10 +2467,10 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWatch/BookPlayerWatch.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				IBSC_MODULE = BookPlayerWatch_Extension;
 				INFOPLIST_FILE = BookPlayerWatch/Info.plist;
@@ -2453,8 +2482,9 @@
 				MARKETING_VERSION = 3.12.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_WATCH)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -2467,6 +2497,7 @@
 		};
 		4140EA50227288EF0009F794 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9977264CCD3F002BFD35 /* Release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -2477,10 +2508,10 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWatch/BookPlayerWatch.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				IBSC_MODULE = BookPlayerWatch_Extension;
 				INFOPLIST_FILE = BookPlayerWatch/Info.plist;
@@ -2491,8 +2522,9 @@
 				);
 				MARKETING_VERSION = 3.12.0;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_WATCH)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -2503,6 +2535,7 @@
 		};
 		4140EA51227288EF0009F794 /* Beta */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9977264CCD3F002BFD35 /* Release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -2513,10 +2546,10 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWatch/BookPlayerWatch.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				IBSC_MODULE = BookPlayerWatch_Extension;
 				INFOPLIST_FILE = BookPlayerWatch/Info.plist;
@@ -2527,8 +2560,9 @@
 				);
 				MARKETING_VERSION = 3.12.0;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_WATCH)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -2539,6 +2573,7 @@
 		};
 		4140EA52227288EF0009F794 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9976264CCD3F002BFD35 /* Debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -2547,9 +2582,10 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = "BookPlayerWatch Extension/BookPlayerWatch Extension.entitlements";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "BookPlayerWatch Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2560,8 +2596,9 @@
 				MARKETING_VERSION = 3.12.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp.watchkitextension;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.watchkitextension";
 				PRODUCT_NAME = "${TARGET_NAME}";
+				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_WATCH_EXTENSION)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -2573,6 +2610,7 @@
 		};
 		4140EA53227288EF0009F794 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9977264CCD3F002BFD35 /* Release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -2581,9 +2619,10 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = "BookPlayerWatch Extension/BookPlayerWatch Extension.entitlements";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "BookPlayerWatch Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2593,8 +2632,9 @@
 				);
 				MARKETING_VERSION = 3.12.0;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp.watchkitextension;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.watchkitextension";
 				PRODUCT_NAME = "${TARGET_NAME}";
+				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_WATCH_EXTENSION)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -2605,6 +2645,7 @@
 		};
 		4140EA54227288EF0009F794 /* Beta */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9977264CCD3F002BFD35 /* Release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -2613,9 +2654,10 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = "BookPlayerWatch Extension/BookPlayerWatch Extension.entitlements";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "BookPlayerWatch Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2625,8 +2667,9 @@
 				);
 				MARKETING_VERSION = 3.12.0;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.watchkitapp.watchkitextension;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.watchkitextension";
 				PRODUCT_NAME = "${TARGET_NAME}";
+				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_WATCH_EXTENSION)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -2637,6 +2680,7 @@
 		};
 		4140EA68227289720009F794 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9976264CCD3F002BFD35 /* Debug.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -2645,10 +2689,10 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_IDENTITY = "";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				DEVELOPMENT_TEAM = "$(inherited)";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -2664,6 +2708,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.BookPlayerWatchKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -2677,6 +2722,7 @@
 		};
 		4140EA69227289720009F794 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9977264CCD3F002BFD35 /* Release.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -2685,10 +2731,10 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_IDENTITY = "";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				DEVELOPMENT_TEAM = "$(inherited)";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -2703,6 +2749,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.BookPlayerWatchKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -2715,6 +2762,7 @@
 		};
 		4140EA6A227289720009F794 /* Beta */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9977264CCD3F002BFD35 /* Release.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -2723,10 +2771,10 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_IDENTITY = "";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				DEVELOPMENT_TEAM = "$(inherited)";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -2741,6 +2789,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.BookPlayerWatchKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -2753,6 +2802,7 @@
 		};
 		416A29B12569658300605395 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9976264CCD3F002BFD35 /* Debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
@@ -2763,10 +2813,10 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWidgetUIExtension.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWidgetUI/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
@@ -2778,8 +2828,9 @@
 				MARKETING_VERSION = 3.12.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerWidgetUI;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_WIDGET_UI)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_VERSION = 5.0;
@@ -2789,6 +2840,7 @@
 		};
 		416A29B22569658300605395 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9977264CCD3F002BFD35 /* Release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
@@ -2799,10 +2851,10 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWidgetUIExtension.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWidgetUI/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
@@ -2813,8 +2865,9 @@
 				);
 				MARKETING_VERSION = 3.12.0;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerWidgetUI;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_WIDGET_UI)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2823,6 +2876,7 @@
 		};
 		416A29B32569658300605395 /* Beta */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9977264CCD3F002BFD35 /* Release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
@@ -2833,10 +2887,10 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWidgetUIExtension.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWidgetUI/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
@@ -2847,8 +2901,9 @@
 				);
 				MARKETING_VERSION = 3.12.0;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerWidgetUI;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_WIDGET_UI)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2970,17 +3025,19 @@
 		};
 		418B6D181D2707F800F974FB /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9976264CCD3F002BFD35 /* Debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon${BUNDLE_ID_SUFFIX}";
 				BUNDLE_ID_SUFFIX = .debug;
 				CLANG_ENABLE_CODE_COVERAGE = NO;
-				CODE_SIGN_ENTITLEMENTS = BookPlayer/BookPlayer.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_ENTITLEMENTS = "BookPlayer/$(BP_ENTITLEMENTS).entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				DEVELOPMENT_TEAM = "$(inherited)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -2992,9 +3049,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 3.12.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
-				PROVISIONING_PROFILE_SPECIFIER = "BookPlayer 3 with CarPlay";
+				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -3003,16 +3060,18 @@
 		};
 		418B6D191D2707F800F974FB /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9977264CCD3F002BFD35 /* Release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon${BUNDLE_ID_SUFFIX}";
 				BUNDLE_ID_SUFFIX = "";
 				CLANG_ENABLE_CODE_COVERAGE = NO;
-				CODE_SIGN_ENTITLEMENTS = BookPlayer/BookPlayer.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_ENTITLEMENTS = "BookPlayer/$(BP_ENTITLEMENTS).entitlements";
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				DEVELOPMENT_TEAM = "$(inherited)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -3024,9 +3083,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 3.12.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
-				PROVISIONING_PROFILE_SPECIFIER = "BookPlayer 3 with CarPlay";
+				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = RELEASE;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
@@ -3037,8 +3096,13 @@
 		};
 		418B6D1B1D2707F800F974FB /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9976264CCD3F002BFD35 /* Debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "$(inherited)";
 				INFOPLIST_FILE = BookPlayerTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -3048,6 +3112,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tortugapower.Audiobook-PlayerTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BookPlayer.app/BookPlayer";
 			};
@@ -3055,8 +3121,13 @@
 		};
 		418B6D1C1D2707F800F974FB /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9977264CCD3F002BFD35 /* Release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "$(inherited)";
 				INFOPLIST_FILE = BookPlayerTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -3066,6 +3137,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tortugapower.Audiobook-PlayerTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BookPlayer.app/BookPlayer";
 			};
@@ -3073,6 +3146,7 @@
 		};
 		41A1B0E9226E9BC500EA0400 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9976264CCD3F002BFD35 /* Debug.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -3081,10 +3155,10 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_IDENTITY = "";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				DEVELOPMENT_TEAM = "$(inherited)";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -3102,6 +3176,8 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.BookPlayerKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_VERSION = 5.0;
@@ -3113,6 +3189,7 @@
 		};
 		41A1B0EA226E9BC500EA0400 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9977264CCD3F002BFD35 /* Release.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -3121,10 +3198,10 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_IDENTITY = "";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				DEVELOPMENT_TEAM = "$(inherited)";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -3141,6 +3218,8 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.BookPlayerKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -3151,6 +3230,7 @@
 		};
 		41A1B0EB226E9BC500EA0400 /* Beta */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9977264CCD3F002BFD35 /* Release.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -3159,10 +3239,10 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_IDENTITY = "";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				DEVELOPMENT_TEAM = "$(inherited)";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -3179,6 +3259,8 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.BookPlayerKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -3189,6 +3271,7 @@
 		};
 		41CE449F22712E0F00C900AF /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9976264CCD3F002BFD35 /* Debug.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -3196,10 +3279,10 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWidget/BookPlayerWidget.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWidget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -3211,8 +3294,9 @@
 				MARKETING_VERSION = 3.12.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerWidget;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_WIDGET)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_VERSION = 5.0;
@@ -3222,6 +3306,7 @@
 		};
 		41CE44A022712E0F00C900AF /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9977264CCD3F002BFD35 /* Release.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -3229,10 +3314,10 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWidget/BookPlayerWidget.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWidget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -3243,8 +3328,9 @@
 				);
 				MARKETING_VERSION = 3.12.0;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerWidget;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_WIDGET)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -3253,6 +3339,7 @@
 		};
 		41CE44A122712E0F00C900AF /* Beta */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9977264CCD3F002BFD35 /* Release.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -3260,10 +3347,10 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWidget/BookPlayerWidget.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWidget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -3274,8 +3361,9 @@
 				);
 				MARKETING_VERSION = 3.12.0;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer.BookPlayerWidget;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_WIDGET)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -3338,16 +3426,18 @@
 		};
 		C30C6B8920C68EDD0085218A /* Beta */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9977264CCD3F002BFD35 /* Release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon${BUNDLE_ID_SUFFIX}";
 				BUNDLE_ID_SUFFIX = .beta;
 				CLANG_ENABLE_CODE_COVERAGE = NO;
-				CODE_SIGN_ENTITLEMENTS = BookPlayer/BookPlayer.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_ENTITLEMENTS = "BookPlayer/$(BP_ENTITLEMENTS).entitlements";
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = S7TJSJXWUZ;
+				DEVELOPMENT_TEAM = "$(inherited)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -3359,9 +3449,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 3.12.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
-				PROVISIONING_PROFILE_SPECIFIER = "BookPlayer 3 with CarPlay";
+				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = RELEASE;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
@@ -3372,8 +3462,13 @@
 		};
 		C30C6B8A20C68EDD0085218A /* Beta */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9977264CCD3F002BFD35 /* Release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "$(inherited)";
 				INFOPLIST_FILE = BookPlayerTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -3383,6 +3478,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tortugapower.Audiobook-PlayerTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BookPlayer.app/BookPlayer";
 			};

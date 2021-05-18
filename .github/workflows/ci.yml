@@ -13,6 +13,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Create Debug.xcconfig
+      run: cp ./BuildConfiguration/Debug.template.xcconfig ./BuildConfiguration/Debug.xcconfig
     - name: Swiftlint
       run: swiftlint
     - name: Resolve dependencies

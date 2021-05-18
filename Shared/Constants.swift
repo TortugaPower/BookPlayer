@@ -43,7 +43,7 @@ public enum Constants {
     }
 
     public static let UserActivityPlayback = Bundle.main.bundleIdentifier! + ".activity.playback"
-    public static let ApplicationGroupIdentifier = "group.com.tortugapower.audiobookplayer.files"
+    public static let ApplicationGroupIdentifier = "group.\(Bundle.main.configurationString(for: .bundleIdentifier)).files"
 
     public enum DefaultArtworkColors {
         case primary
