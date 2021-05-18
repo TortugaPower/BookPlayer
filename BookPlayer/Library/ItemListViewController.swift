@@ -77,7 +77,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
 
         self.tableView.rowHeight = UITableView.automaticDimension
         self.tableView.estimatedRowHeight = UITableView.automaticDimension
-        
+
         let interaction = UIDropInteraction(delegate: self)
         self.view.addInteraction(interaction)
     }
@@ -746,13 +746,13 @@ extension ItemListViewController: UIDropInteractionDelegate {
     func dropInteraction(_ interaction: UIDropInteraction, canHandle session: UIDropSession) -> Bool {
         return session.canLoadObjects(ofClass: ImportableItem.self)
     }
-    
+
     func dropInteraction(_ interaction: UIDropInteraction, sessionDidEnter session: UIDropSession) {}
-    
+
     func dropInteraction(_ interaction: UIDropInteraction, sessionDidUpdate session: UIDropSession) -> UIDropProposal {
         return UIDropProposal(operation: .copy)
     }
-    
+
     func dropInteraction(_ interaction: UIDropInteraction, performDrop session: UIDropSession) {
         for item in session.items {
             self.handleDroppedItem(item)
@@ -762,11 +762,11 @@ extension ItemListViewController: UIDropInteractionDelegate {
     func handleDroppedItem(_ item: UIDragItem) {
         let providerReference = item.itemProvider
 
-        item.itemProvider.loadObject(ofClass: ImportableItem.self) { (object, error) in
+        item.itemProvider.loadObject(ofClass: ImportableItem.self) { (object, _) in
             guard let item = object as? ImportableItem else { return }
             item.suggestedName = providerReference.suggestedName
 
-            DataManager.importData(from:item)
+            DataManager.importData(from: item)
         }
     }
 }

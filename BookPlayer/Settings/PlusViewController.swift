@@ -60,9 +60,9 @@ class PlusViewController: UIViewController, TelemetryProtocol {
     var loadingBarButton: UIBarButtonItem!
     var restoreBarButton: UIBarButtonItem!
 
-    var kindTipId = "com.tortugapower.audiobookplayer.tip.kind"
-    var excellentTipId = "com.tortugapower.audiobookplayer.tip.excellent"
-    var incredibleTipId = "com.tortugapower.audiobookplayer.tip.incredible"
+    var kindTipId = "\(Bundle.main.configurationString(for: .bundleIdentifier)).tip.kind"
+    var excellentTipId = "\(Bundle.main.configurationString(for: .bundleIdentifier)).tip.excellent"
+    var incredibleTipId = "\(Bundle.main.configurationString(for: .bundleIdentifier)).tip.incredible"
     let tipJarSuffix = ".consumable"
 
     // constants for button animations
