@@ -10,6 +10,7 @@
 // https://help.apple.com/xcode/#/dev745c5c974
 
 DEVELOPMENT_TEAM = S7TJSJXWUZ
+BP_ENTITLEMENTS = BookPlayer
 BP_BUNDLE_IDENTIFIER = com.tortugapower.audiobookplayer
 BP_PROVISIONING_MAIN = BookPlayer 3 with CarPlay
 BP_PROVISIONING_WIDGET = XC BookPlayer Widget
