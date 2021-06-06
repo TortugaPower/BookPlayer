@@ -160,6 +160,11 @@ class DataMigrationManager {
                                 fromModel: storeModel,
                                 toModel: destinationModel,
                                 mappingModel: mappingModel)
+
+            // Migrate folder hierarchy
+            self.migrateFolderHierarchy()
+            // Migrate books names
+            self.migrateBooks()
         }
     }
 }

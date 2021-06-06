@@ -70,6 +70,7 @@ public class Folder: LibraryItem {
 
         self.init(entity: entity, insertInto: context)
         self.identifier = "\(title)\(Date().timeIntervalSince1970)"
+        self.relativePath = title
         self.title = title
         self.originalFileName = title
         self.desc = "\(items.count) \("files_title".localized)"
@@ -83,13 +84,11 @@ public class Folder: LibraryItem {
         self.init(entity: entity, insertInto: context)
 
         self.identifier = UUID().uuidString
+        self.relativePath = title
         self.title = title
         self.originalFileName = title
         self.desc = "\(items.count) \("files_title".localized)"
-//        self.path = ""
         self.addToItems(NSOrderedSet(array: items))
-        // swiftlint:disable force_try
-        try! url.setAppIdentifier(self.identifier)
     }
 
     // MARK: - Methods

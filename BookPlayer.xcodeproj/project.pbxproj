@@ -12,6 +12,8 @@
 		4106414925872699008EB8D0 /* TimeListenedSmallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4106414825872699008EB8D0 /* TimeListenedSmallView.swift */; };
 		41064152258726D2008EB8D0 /* TimeListenedMediumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41064151258726D2008EB8D0 /* TimeListenedMediumView.swift */; };
 		4109246C21A2019400D5DF11 /* CheckboxSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4109246B21A2019400D5DF11 /* CheckboxSelectionView.swift */; };
+		4109F498266915E7007A6FFF /* FolderMigrationUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4109F494266915E7007A6FFF /* FolderMigrationUtils.swift */; };
+		4109F499266915E7007A6FFF /* FolderMigrationUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4109F494266915E7007A6FFF /* FolderMigrationUtils.swift */; };
 		410C4692227358CD0040114D /* WatchConnectivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41F516952272CC5300F36C3E /* WatchConnectivityService.swift */; };
 		410C4693227358CD0040114D /* WatchConnectivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41F516952272CC5300F36C3E /* WatchConnectivityService.swift */; };
 		410C46982274EA350040114D /* DataManager+WatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410C46972274EA350040114D /* DataManager+WatchApp.swift */; };
@@ -433,6 +435,7 @@
 		4106414825872699008EB8D0 /* TimeListenedSmallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeListenedSmallView.swift; sourceTree = "<group>"; };
 		41064151258726D2008EB8D0 /* TimeListenedMediumView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeListenedMediumView.swift; sourceTree = "<group>"; };
 		4109246B21A2019400D5DF11 /* CheckboxSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckboxSelectionView.swift; sourceTree = "<group>"; };
+		4109F494266915E7007A6FFF /* FolderMigrationUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderMigrationUtils.swift; sourceTree = "<group>"; };
 		410C46972274EA350040114D /* DataManager+WatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataManager+WatchApp.swift"; sourceTree = "<group>"; };
 		410D0FEC1EDCF4B000A52EB9 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		410D0FF01EDF659900A52EB9 /* PlayerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerManager.swift; sourceTree = "<group>"; };
@@ -1130,6 +1133,7 @@
 			isa = PBXGroup;
 			children = (
 				4124AB1625DFE07E0007C839 /* DataMigrationManager.swift */,
+				4109F494266915E7007A6FFF /* FolderMigrationUtils.swift */,
 				41D20DAE25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel */,
 				41C3394825E04091003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel */,
 				418CABB025EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel */,
@@ -1951,6 +1955,7 @@
 				4140EA73227289A80009F794 /* Notification+BookPlayerKit.swift in Sources */,
 				41A894212652A5DE0032E972 /* Configuration.swift in Sources */,
 				4140EA702272899D0009F794 /* CommandParser.swift in Sources */,
+				4109F499266915E7007A6FFF /* FolderMigrationUtils.swift in Sources */,
 				4140EA76227289B50009F794 /* Chapter+CoreDataClass.swift in Sources */,
 				410C4693227358CD0040114D /* WatchConnectivityService.swift in Sources */,
 				4140EA6D227289930009F794 /* Constants.swift in Sources */,
@@ -2133,6 +2138,7 @@
 				41A894202652A5DE0032E972 /* Configuration.swift in Sources */,
 				41A1B129226F88C500EA0400 /* Folder+CoreDataClass.swift in Sources */,
 				410C4692227358CD0040114D /* WatchConnectivityService.swift in Sources */,
+				4109F498266915E7007A6FFF /* FolderMigrationUtils.swift in Sources */,
 				41A1B12A226F88C500EA0400 /* Folder+CoreDataProperties.swift in Sources */,
 				41A1B11E226F88C500EA0400 /* Theme+CoreDataProperties.swift in Sources */,
 				41A1B127226F88C500EA0400 /* Library+CoreDataClass.swift in Sources */,

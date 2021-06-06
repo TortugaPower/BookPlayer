@@ -13,9 +13,9 @@ import Foundation
 @objc(Book)
 public class Book: LibraryItem {
     public var fileURL: URL? {
-        guard self.identifier != nil else { return nil }
+        guard self.relativePath != nil else { return nil }
 
-        return DataManager.getProcessedFolderURL().appendingPathComponent(self.identifier)
+        return DataManager.getProcessedFolderURL().appendingPathComponent(self.relativePath)
     }
 
     var filename: String {
@@ -248,7 +248,7 @@ public class Book: LibraryItem {
     }
 
     enum CodingKeys: String, CodingKey {
-        case currentTime, duration, identifier, percentCompleted, title, author, ext, folder
+        case currentTime, duration, identifier, relativePath, percentCompleted, title, author, ext, folder
     }
 
     public override func encode(to encoder: Encoder) throws {
@@ -256,6 +256,7 @@ public class Book: LibraryItem {
         try container.encode(currentTime, forKey: .currentTime)
         try container.encode(duration, forKey: .duration)
         try container.encode(identifier, forKey: .identifier)
+        try container.encode(relativePath, forKey: .identifier)
         try container.encode(percentCompleted, forKey: .percentCompleted)
         try container.encode(title, forKey: .title)
         try container.encode(author, forKey: .author)
@@ -275,6 +276,7 @@ public class Book: LibraryItem {
         currentTime = try values.decode(Double.self, forKey: .currentTime)
         duration = try values.decode(Double.self, forKey: .duration)
         identifier = try values.decode(String.self, forKey: .identifier)
+        relativePath = try values.decode(String.self, forKey: .identifier)
         percentCompleted = try values.decode(Double.self, forKey: .percentCompleted)
         title = try values.decode(String.self, forKey: .title)
         author = try values.decode(String.self, forKey: .author)
