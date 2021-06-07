@@ -82,7 +82,7 @@ extension Book {
         let fileURL = bookUrl.processedUrl!
         self.ext = fileURL.pathExtension
         self.identifier = fileURL.lastPathComponent
-        self.relativePath = fileURL.lastPathComponent
+        self.relativePath = fileURL.relativePath(to: DataManager.getProcessedFolderURL())
         let asset = AVAsset(url: fileURL)
 
         let titleFromMeta = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyTitle, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String
