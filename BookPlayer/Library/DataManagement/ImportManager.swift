@@ -7,6 +7,7 @@
 //
 
 import BookPlayerKit
+import Combine
 import Foundation
 
 /**
@@ -15,6 +16,7 @@ import Foundation
  */
 class ImportManager {
     private let timeout = 2.0
+    private var subscription: AnyCancellable?
     private var timer: Timer?
     private var files = [FileItem]()
 
@@ -34,9 +36,13 @@ class ImportManager {
     }
 
     private func setupTimer() {
-        self.timer?.invalidate()
-        self.timer = Timer(timeInterval: self.timeout, target: self, selector: #selector(self.createOperation), userInfo: nil, repeats: false)
-        RunLoop.main.add(self.timer!, forMode: RunLoop.Mode.common)
+        self.subscription?.cancel()
+
+        self.subscription = Timer.publish(every: self.timeout, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                self?.createOperation()
+            }
     }
 
     @objc private func createOperation() {
@@ -49,5 +55,6 @@ class ImportManager {
         self.files = []
 
         NotificationCenter.default.post(name: .importOperation, object: nil, userInfo: ["operation": operation])
+        self.subscription?.cancel()
     }
 }
