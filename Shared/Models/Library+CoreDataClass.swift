@@ -86,6 +86,15 @@ public class Library: NSManagedObject, Codable {
         return filteredItems.sorted { $0.lastPlayDate! > $1.lastPlayDate! }
     }
 
+    public func insert(item: LibraryItem, at index: Int?) {
+        item.relativePath = item.originalFileName
+        if let index = index {
+            self.insertIntoItems(item, at: index)
+        } else {
+            self.addToItems(item)
+        }
+    }
+
     enum CodingKeys: String, CodingKey {
         case items, books, folders, lastPlayedBook, currentTheme
     }

@@ -295,6 +295,23 @@ public class Folder: LibraryItem {
         return nil
     }
 
+    public func insert(item: LibraryItem, at index: Int?) {
+        let newRelativePath = self.relativePathBuilder(for: item)
+        item.relativePath = newRelativePath
+
+        if let index = index {
+            self.insertIntoItems(item, at: index)
+        } else {
+            self.addToItems(item)
+        }
+    }
+
+    public func relativePathBuilder(for item: LibraryItem) -> String {
+        let itemRelativePath = item.relativePath.split(separator: "/").map({ String($0) }).last ?? item.relativePath
+
+        return "\(self.relativePath!)/\(itemRelativePath!)"
+    }
+
     public override func info() -> String {
         let count = self.items?.array.count ?? 0
 

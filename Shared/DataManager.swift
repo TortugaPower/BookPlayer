@@ -118,20 +118,12 @@ public class DataManager {
     }
 
     public class func insert(_ folder: Folder, into library: Library, at index: Int? = nil) {
-        if let index = index {
-            library.insertIntoItems(folder, at: index)
-        } else {
-            library.addToItems(folder)
-        }
+        library.insert(item: folder, at: index)
         self.saveContext()
     }
 
     public class func insert(_ item: LibraryItem, into folder: Folder, at index: Int? = nil) {
-        if let index = index {
-            folder.insertIntoItems(item, at: index)
-        } else {
-            folder.addToItems(item)
-        }
+        folder.insert(item: item, at: index)
         self.saveContext()
     }
 
