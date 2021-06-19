@@ -22,20 +22,7 @@ extension ItemListActions {
     }
 
     func move(_ items: [LibraryItem], to folder: Folder) {
-        for item in items {
-            if let parent = item.folder {
-                parent.removeFromItems(item)
-                parent.updateCompletionState()
-            } else {
-                self.library.removeFromItems(item)
-            }
-        }
-
-        folder.addToItems(NSOrderedSet(array: items))
-        folder.updateCompletionState()
-
-        DataManager.saveContext()
-
+        DataManager.moveItems(items, into: folder)
         self.reloadData()
     }
 

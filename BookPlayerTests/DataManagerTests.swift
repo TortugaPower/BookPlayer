@@ -330,3 +330,149 @@ class InsertBooksTests: DataManagerTests {
         wait(for: [expectation], timeout: 15)
     }
 }
+
+// MARK: - Modify Library
+
+class ModifyLibraryTests: DataManagerTests {
+    override func setUp() {
+        super.setUp()
+
+        let library = DataManager.getLibrary()
+        DataManager.delete(library)
+    }
+
+    func testMoveItemsIntoFolder() {
+        let library = DataManager.getLibrary()
+        let book1 = StubFactory.book(title: "book1", duration: 100)
+        library.insert(item: book1)
+        let book2 = StubFactory.book(title: "book2", duration: 100)
+        library.insert(item: book2)
+        let folder = StubFactory.folder(title: "folder", items: [])
+        library.insert(item: folder)
+
+        XCTAssert(library.items?.count == 3)
+
+        DataManager.moveItems([book1, book2], into: folder)
+
+        XCTAssert(library.items?.count == 1)
+        XCTAssert(folder.items?.count == 2)
+
+        let book3 = StubFactory.book(title: "book3", duration: 100)
+        let book4 = StubFactory.book(title: "book4", duration: 100)
+        let folder2 = StubFactory.folder(title: "folder2", items: [book3, book4])
+        library.insert(item: folder2)
+
+        XCTAssert(library.items?.count == 2)
+
+        DataManager.moveItems([folder2], into: folder)
+
+        XCTAssert(library.items?.count == 1)
+        XCTAssert(folder.items?.count == 3)
+    }
+
+    func testMoveItemsIntoLibrary() {
+        let library = DataManager.getLibrary()
+        let book1 = StubFactory.book(title: "book1", duration: 100)
+        let book2 = StubFactory.book(title: "book2", duration: 100)
+        let folder = StubFactory.folder(title: "folder", items: [book1, book2])
+
+        let book3 = StubFactory.book(title: "book3", duration: 100)
+        let book4 = StubFactory.book(title: "book4", duration: 100)
+        let folder2 = StubFactory.folder(title: "folder2", items: [folder, book3, book4])
+        library.insert(item: folder2)
+
+        XCTAssert(library.items?.count == 1)
+        XCTAssert(folder2.items?.count == 3)
+
+        DataManager.moveItems([folder], into: library)
+
+        XCTAssert(library.items?.count == 2)
+        XCTAssert(folder.items?.count == 2)
+
+        DataManager.moveItems([book3, book4], into: library)
+
+        XCTAssert(library.items?.count == 4)
+        XCTAssert(folder2.items?.count == 0)
+    }
+
+    func testFolderShallowDeleteWithOneBook() {
+        let library = DataManager.getLibrary()
+        let book1 = StubFactory.book(title: "book1", duration: 100)
+        let folder = StubFactory.folder(title: "folder", items: [book1])
+        let folder2 = StubFactory.folder(title: "folder2", items: [folder])
+        library.insert(item: folder2)
+
+        DataManager.delete([folder2], library: library, mode: .shallow)
+
+        XCTAssert((library.items?.array as? [LibraryItem])?.first == folder)
+
+        DataManager.delete([folder], library: library, mode: .shallow)
+
+        XCTAssert((library.items?.array as? [LibraryItem])?.first == book1)
+    }
+
+    func testFolderShallowDeleteWithMultipleBooks() {
+        let library = DataManager.getLibrary()
+        let book1 = StubFactory.book(title: "book1", duration: 100)
+        library.insert(item: book1)
+        let book2 = StubFactory.book(title: "book2", duration: 100)
+        let book3 = StubFactory.book(title: "book3", duration: 100)
+        let book4 = StubFactory.book(title: "book4", duration: 100)
+        let folder = StubFactory.folder(title: "folder", items: [book2, book3])
+        let folder2 = StubFactory.folder(title: "folder2", items: [folder, book4])
+        library.insert(item: folder2)
+
+        DataManager.delete([folder2], library: library, mode: .shallow)
+
+        XCTAssert((library.items?.array as? [LibraryItem])?.first == book1)
+        XCTAssert((library.items?.array as? [LibraryItem])?.last == book4)
+
+        DataManager.delete([folder], library: library, mode: .shallow)
+
+        XCTAssert(library.items?.array is [Book])
+        XCTAssert(library.items?.count == 4)
+    }
+
+    func testFolderDeepDeleteWithOneBook() {
+        let library = DataManager.getLibrary()
+        let book1 = StubFactory.book(title: "book1", duration: 100)
+        let folder = StubFactory.folder(title: "folder", items: [book1])
+        let folder2 = StubFactory.folder(title: "folder2", items: [folder])
+        library.insert(item: folder2)
+
+        XCTAssert(folder2.items?.count == 1)
+
+        DataManager.delete([folder], library: library, mode: .deep)
+
+        XCTAssert(folder2.items?.count == 0)
+        XCTAssert(library.items?.count == 1)
+
+        DataManager.delete([folder2], library: library, mode: .deep)
+
+        XCTAssert(library.items?.count == 0)
+    }
+
+    func testFolderDeepDeleteWithMultipleBooks() {
+        let library = DataManager.getLibrary()
+        let book1 = StubFactory.book(title: "book1", duration: 100)
+        library.insert(item: book1)
+        let book2 = StubFactory.book(title: "book2", duration: 100)
+        let book3 = StubFactory.book(title: "book3", duration: 100)
+        let book4 = StubFactory.book(title: "book4", duration: 100)
+        let folder = StubFactory.folder(title: "folder", items: [book2, book3])
+        let folder2 = StubFactory.folder(title: "folder2", items: [folder, book4])
+        library.insert(item: folder2)
+
+        XCTAssert(folder2.items?.count == 2)
+
+        DataManager.delete([folder], library: library, mode: .deep)
+
+        XCTAssert(folder2.items?.count == 1)
+        XCTAssert(library.items?.count == 2)
+
+        DataManager.delete([folder2], library: library, mode: .deep)
+
+        XCTAssert(library.items?.count == 1)
+        XCTAssert((library.items?.array as? [LibraryItem])?.first == book1)
+    }
+}

@@ -74,7 +74,7 @@ public class Folder: LibraryItem {
         self.title = title
         self.originalFileName = title
         self.desc = "\(items.count) \("files_title".localized)"
-        self.addToItems(NSOrderedSet(array: items))
+        items.forEach({ insert(item: $0) })
     }
 
     convenience init(from url: URL, items: [LibraryItem], context: NSManagedObjectContext) {
@@ -88,7 +88,7 @@ public class Folder: LibraryItem {
         self.title = title
         self.originalFileName = title
         self.desc = "\(items.count) \("files_title".localized)"
-        self.addToItems(NSOrderedSet(array: items))
+        items.forEach({ insert(item: $0) })
     }
 
     // MARK: - Methods
@@ -295,14 +295,29 @@ public class Folder: LibraryItem {
         return nil
     }
 
-    public func insert(item: LibraryItem, at index: Int?) {
-        let newRelativePath = self.relativePathBuilder(for: item)
-        item.relativePath = newRelativePath
+    public func insert(item: LibraryItem, at index: Int? = nil) {
+        if let parent = item.folder {
+            parent.removeFromItems(item)
+            parent.updateCompletionState()
+        } else if let library = item.library {
+            library.removeFromItems(item)
+        }
 
         if let index = index {
             self.insertIntoItems(item, at: index)
         } else {
             self.addToItems(item)
+        }
+
+        self.rebuildRelativePaths(for: item)
+    }
+
+    public func rebuildRelativePaths(for item: LibraryItem) {
+        item.relativePath = self.relativePathBuilder(for: item)
+
+        if let folder = item as? Folder,
+           let items = folder.items?.array as? [LibraryItem] {
+            items.forEach({ folder.rebuildRelativePaths(for: $0) })
         }
     }
 

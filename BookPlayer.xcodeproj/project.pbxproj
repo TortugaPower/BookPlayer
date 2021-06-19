@@ -127,6 +127,7 @@
 		4193E202243A91AE004D6A82 /* ActionParserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4193E201243A91AE004D6A82 /* ActionParserService.swift */; };
 		41964C832220B4F700FF1A2F /* ContributorCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41964C822220B4F700FF1A2F /* ContributorCellView.swift */; };
 		4197240021874D5F00AB1190 /* UserActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419723FF21874D5F00AB1190 /* UserActivityManager.swift */; };
+		4197FAFA267E38D900811CC8 /* LibraryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4197FAF9267E38D900811CC8 /* LibraryTests.swift */; };
 		419B373923B8D0C600128A8F /* Player.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 419B373B23B8D0C600128A8F /* Player.storyboard */; };
 		419B373C23B8D12200128A8F /* AddCellView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 419B373E23B8D12200128A8F /* AddCellView.xib */; };
 		419B373F23B8D14100128A8F /* LoadingView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 419B374123B8D14100128A8F /* LoadingView.xib */; };
@@ -570,6 +571,7 @@
 		4193E205243A98AB004D6A82 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		41964C822220B4F700FF1A2F /* ContributorCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContributorCellView.swift; sourceTree = "<group>"; };
 		419723FF21874D5F00AB1190 /* UserActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserActivityManager.swift; sourceTree = "<group>"; };
+		4197FAF9267E38D900811CC8 /* LibraryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryTests.swift; sourceTree = "<group>"; };
 		419B373A23B8D0C600128A8F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Player.storyboard; sourceTree = "<group>"; };
 		419B373D23B8D12200128A8F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/AddCellView.xib; sourceTree = "<group>"; };
 		419B374023B8D14100128A8F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LoadingView.xib; sourceTree = "<group>"; };
@@ -1001,6 +1003,7 @@
 				4163E312214AC43000072AA2 /* ImportOperationTests.swift */,
 				41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */,
 				41A6A87420DEECC400B2C621 /* FolderTests.swift */,
+				4197FAF9267E38D900811CC8 /* LibraryTests.swift */,
 				418B6D141D2707F800F974FB /* Info.plist */,
 			);
 			path = BookPlayerTests;
@@ -2095,6 +2098,7 @@
 				41A1B13F226FEF9300EA0400 /* DataManagerTests.swift in Sources */,
 				6906A553217211C600A9E0B2 /* StubFactory.swift in Sources */,
 				6906A55021720FDF00A9E0B2 /* BookSortServiceTest.swift in Sources */,
+				4197FAFA267E38D900811CC8 /* LibraryTests.swift in Sources */,
 				41A1B13E226FEF8000EA0400 /* DataTestUtils.swift in Sources */,
 				4163E313214AC43000072AA2 /* ImportOperationTests.swift in Sources */,
 			);
@@ -3110,7 +3114,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				INFOPLIST_FILE = BookPlayerTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3135,7 +3139,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				INFOPLIST_FILE = BookPlayerTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3476,7 +3480,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				INFOPLIST_FILE = BookPlayerTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

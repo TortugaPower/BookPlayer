@@ -36,9 +36,9 @@ extension DataManager {
                 let book = Book(from: file, context: context)
 
                 if let folder = folder {
-                    folder.addToItems(book)
+                    folder.insert(item: book)
                 } else {
-                    library.addToItems(book)
+                    library.insert(item: book)
                 }
 
                 continue
@@ -50,9 +50,9 @@ extension DataManager {
 
             if let folder = folder {
                 library.removeFromItems(item)
-                folder.addToItems(item)
+                folder.insert(item: item)
             } else {
-                library.addToItems(item)
+                library.insert(item: item)
             }
         }
 
@@ -85,6 +85,23 @@ extension DataManager {
         self.insertBooks(from: files, into: folder, or: folder.library!, completion: completion)
     }
 
+    public class func moveItems(_ items: [LibraryItem], into folder: Folder) {
+        for item in items {
+            folder.insert(item: item)
+        }
+
+        folder.updateCompletionState()
+        DataManager.saveContext()
+    }
+
+    public class func moveItems(_ items: [LibraryItem], into library: Library) {
+        for item in items {
+            library.insert(item: item)
+        }
+
+        DataManager.saveContext()
+    }
+
     public class func delete(_ items: [LibraryItem], library: Library, mode: DeleteMode = .deep) {
         for item in items {
             guard let folder = item as? Folder else {
@@ -100,11 +117,13 @@ extension DataManager {
     public class func delete(_ folder: Folder, library: Library, mode: DeleteMode = .deep) {
 
         if mode == .shallow,
-            let orderedSet = folder.items {
-            if let parent = folder.folder {
-                parent.addToItems(orderedSet)
-            } else {
-                library.addToItems(orderedSet)
+           let items = folder.items?.array as? [LibraryItem] {
+            for item in items {
+                if let parent = folder.folder {
+                    parent.insert(item: item)
+                } else {
+                    library.insert(item: item)
+                }
             }
         }
 
@@ -121,11 +140,8 @@ extension DataManager {
 
     public class func delete(_ item: LibraryItem, library: Library, mode: DeleteMode) {
         guard mode == .deep else {
-            if let folder = item.folder {
-                library.addToItems(item)
-
-                folder.removeFromItems(item)
-
+            if item.folder != nil {
+                library.insert(item: item)
                 self.saveContext()
             }
 

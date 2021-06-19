@@ -86,12 +86,29 @@ public class Library: NSManagedObject, Codable {
         return filteredItems.sorted { $0.lastPlayDate! > $1.lastPlayDate! }
     }
 
-    public func insert(item: LibraryItem, at index: Int?) {
-        item.relativePath = item.originalFileName
+    public func insert(item: LibraryItem, at index: Int? = nil) {
+        if let parent = item.folder {
+            parent.removeFromItems(item)
+            parent.updateCompletionState()
+        } else if let library = item.library {
+            library.removeFromItems(item)
+        }
+
         if let index = index {
             self.insertIntoItems(item, at: index)
         } else {
             self.addToItems(item)
+        }
+
+        self.rebuildRelativePaths(for: item)
+    }
+
+    public func rebuildRelativePaths(for item: LibraryItem) {
+        item.relativePath = item.originalFileName
+
+        if let folder = item as? Folder,
+           let items = folder.items?.array as? [LibraryItem] {
+            items.forEach({ folder.rebuildRelativePaths(for: $0) })
         }
     }
 

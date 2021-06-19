@@ -11,4 +11,8 @@ class StubFactory {
 
         return book
     }
+
+    class func folder(title: String, items: [LibraryItem]) -> Folder {
+        return DataManager.createFolder(title: title, items: items)
+    }
 }
