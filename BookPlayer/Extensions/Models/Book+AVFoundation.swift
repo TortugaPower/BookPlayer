@@ -76,10 +76,10 @@ extension Book {
         }
     }
 
-    convenience init(from bookUrl: FileItem, context: NSManagedObjectContext) {
+    convenience init(from bookUrl: URL, context: NSManagedObjectContext) {
         let entity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
         self.init(entity: entity, insertInto: context)
-        let fileURL = bookUrl.processedUrl!
+        let fileURL = bookUrl
         self.ext = fileURL.pathExtension
         self.identifier = fileURL.lastPathComponent
         self.relativePath = fileURL.relativePath(to: DataManager.getProcessedFolderURL())
@@ -88,10 +88,10 @@ extension Book {
         let titleFromMeta = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyTitle, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String
         let authorFromMeta = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtist, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String
 
-        self.title = titleFromMeta ?? bookUrl.originalUrl.lastPathComponent.replacingOccurrences(of: "_", with: " ")
+        self.title = titleFromMeta ?? bookUrl.lastPathComponent.replacingOccurrences(of: "_", with: " ")
         self.author = authorFromMeta ?? "voiceover_unknown_author".localized
         self.duration = CMTimeGetSeconds(asset.duration)
-        self.originalFileName = bookUrl.originalUrl.lastPathComponent
+        self.originalFileName = bookUrl.lastPathComponent
         self.isFinished = false
         self.usesDefaultArtwork = true
 
@@ -104,7 +104,7 @@ extension Book {
 
         self.setChapters(from: asset, context: context)
 
-        let legacyIdentifier = bookUrl.originalUrl.lastPathComponent
+        let legacyIdentifier = bookUrl.lastPathComponent
         let storedTime = UserDefaults.standard.double(forKey: legacyIdentifier)
 
         // migration of time

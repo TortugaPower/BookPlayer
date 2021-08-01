@@ -32,7 +32,23 @@ public class Library: NSManagedObject, Codable {
         }
     }
 
-    public func getItem(with identifier: String) -> LibraryItem? {
+  public func index(for item: LibraryItem) -> Int? {
+    guard let items = self.items?.array as? [LibraryItem] else {
+      return nil
+    }
+
+    return items.firstIndex { (libraryItem) -> Bool in
+      if let book = libraryItem as? Book {
+        return book.relativePath == item.relativePath
+      } else if let folder = libraryItem as? Folder {
+        return folder.index(for: item) != nil
+      }
+
+      return false
+    }
+  }
+
+    public func getItem(with relativePath: String) -> LibraryItem? {
         guard let items = self.items?.array as? [LibraryItem] else {
             return nil
         }
@@ -40,7 +56,7 @@ public class Library: NSManagedObject, Codable {
         var itemFound: LibraryItem?
 
         for item in items {
-            if let libraryItem = item.getItem(with: identifier) {
+            if let libraryItem = item.getItem(with: relativePath) {
                 itemFound = libraryItem
                 break
             }
@@ -52,7 +68,7 @@ public class Library: NSManagedObject, Codable {
     func getNextItem(after item: LibraryItem) -> LibraryItem? {
         guard let items = self.items?.array as? [LibraryItem] else { return nil }
 
-        guard let indexFound = self.itemIndex(with: item.identifier) else { return nil }
+        guard let indexFound = self.itemIndex(with: item.relativePath) else { return nil }
 
         for (index, item) in items.enumerated() {
             guard index > indexFound,
@@ -104,7 +120,7 @@ public class Library: NSManagedObject, Codable {
     }
 
     public func rebuildRelativePaths(for item: LibraryItem) {
-        item.relativePath = item.originalFileName
+      item.relativePath = item.originalFileName
 
         if let folder = item as? Folder,
            let items = folder.items?.array as? [LibraryItem] {

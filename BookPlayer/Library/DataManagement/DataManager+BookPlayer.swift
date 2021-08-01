@@ -14,7 +14,7 @@ import IDZSwiftCommonCrypto
 import UIKit
 
 extension DataManager {
-    static let importer = ImportManager()
+    static let importer = ImportManager.shared
     static let queue = OperationQueue()
 
     // MARK: - Operations
@@ -75,10 +75,13 @@ extension DataManager {
     }
 
     /**
-     Filter out folders from file URLs.
+     Filter out Processed and Inbox folders from file URLs.
      */
     private class func filterFiles(_ urls: [URL]) -> [URL] {
-        return urls.filter { !$0.hasDirectoryPath }
+        return urls.filter {
+            $0.lastPathComponent != DataManager.processedFolderName
+            && $0.lastPathComponent != DataManager.inboxFolderName
+        }
     }
 
     public class func importData(from item: ImportableItem) {
@@ -99,16 +102,7 @@ extension DataManager {
      - Parameter origin: File original location
      */
     public class func processFile(at origin: URL) {
-        self.processFile(at: origin, destinationFolder: self.getProcessedFolderURL())
-    }
-
-    /**
-     Notifies the ImportManager about the new file
-     - Parameter origin: File original location
-     - Parameter destinationFolder: File final location
-     */
-    class func processFile(at origin: URL, destinationFolder: URL) {
-        self.importer.process(origin, destinationFolder: destinationFolder)
+      self.importer.process(origin)
     }
 
     /**
@@ -122,10 +116,8 @@ extension DataManager {
             return
         }
 
-        let processedFolder = self.getProcessedFolderURL()
-
         for url in urls {
-            self.processFile(at: url, destinationFolder: processedFolder)
+            self.processFile(at: url)
         }
     }
 

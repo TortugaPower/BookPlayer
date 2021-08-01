@@ -84,7 +84,7 @@ public class Folder: LibraryItem {
         self.init(entity: entity, insertInto: context)
 
         self.identifier = UUID().uuidString
-        self.relativePath = title
+        self.relativePath = url.relativePath
         self.title = title
         self.originalFileName = title
         self.desc = "\(items.count) \("files_title".localized)"
@@ -188,7 +188,23 @@ public class Folder: LibraryItem {
         }
     }
 
-    override public func getItem(with identifier: String) -> LibraryItem? {
+  override public func index(for item: LibraryItem) -> Int? {
+    guard let items = self.items?.array as? [LibraryItem] else {
+      return nil
+    }
+
+    return items.firstIndex { (libraryItem) -> Bool in
+      if let book = libraryItem as? Book {
+        return book.relativePath == item.relativePath
+      } else if let folder = libraryItem as? Folder {
+        return folder.index(for: item) != nil
+      }
+
+      return false
+    }
+  }
+
+    override public func getItem(with relativePath: String) -> LibraryItem? {
         guard let items = self.items?.array as? [LibraryItem] else {
             return nil
         }
@@ -196,7 +212,7 @@ public class Folder: LibraryItem {
         var itemFound: LibraryItem?
 
         for item in items {
-            if let libraryItem = item.getItem(with: identifier) {
+            if let libraryItem = item.getItem(with: relativePath) {
                 itemFound = libraryItem
                 break
             }
@@ -274,7 +290,7 @@ public class Folder: LibraryItem {
             return nil
         }
 
-        guard let indexFound = self.itemIndex(with: book.identifier) else {
+        guard let indexFound = self.itemIndex(with: book.relativePath) else {
             return nil
         }
 

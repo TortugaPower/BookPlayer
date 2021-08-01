@@ -58,8 +58,8 @@ public class Book: LibraryItem {
         return self.artworkData != nil
     }
 
-    public override func getItem(with identifier: String) -> LibraryItem? {
-        return self.identifier == identifier ? self : nil
+    public override func getItem(with relativePath: String) -> LibraryItem? {
+        return self.relativePath == relativePath ? self : nil
     }
 
     public override func jumpToStart() {

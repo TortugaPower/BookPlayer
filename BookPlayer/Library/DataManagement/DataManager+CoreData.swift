@@ -10,9 +10,58 @@ import BookPlayerKit
 import Foundation
 
 extension DataManager {
-    class func createBook(from file: FileItem) -> Book {
-        return Book(from: file, context: self.getContext())
+  class func createBook(from url: URL) -> Book {
+    return Book(from: url, context: self.getContext())
+  }
+
+  // This handles the Core Data objects creation from the Import operation
+  class func insertItems(from files: [URL], into folder: Folder?, library: Library, completion: (() -> Void)? = nil) {
+    guard !files.isEmpty else {
+        completion?()
+        return
     }
+
+    var remainingFiles = files
+
+    let nextFile = remainingFiles.removeFirst()
+    let context = self.getContext()
+
+    let libraryItem: LibraryItem
+
+    if let attributes = try? FileManager.default.attributesOfItem(atPath: nextFile.path),
+       let type = attributes[.type] as? FileAttributeType,
+       type == .typeDirectory {
+      let folder = Folder(from: nextFile, context: context)
+      self.handleDirectory(item: nextFile, folder: folder, library: library, completion: nil)
+      libraryItem = folder
+    } else {
+      libraryItem = Book(from: nextFile, context: context)
+    }
+
+    if let folder = folder {
+      folder.insert(item: libraryItem)
+    } else {
+      library.insert(item: libraryItem)
+    }
+
+    self.insertItems(from: remainingFiles, into: folder, library: library, completion: completion)
+  }
+
+  class func handleDirectory(item: URL, folder: Folder, library: Library, completion: (() -> Void)?) {
+    let enumerator = FileManager.default.enumerator(
+      at: item,
+      includingPropertiesForKeys: [.creationDateKey, .isDirectoryKey],
+      options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants], errorHandler: { (url, error) -> Bool in
+        print("directoryEnumerator error at \(url): ", error)
+        return true
+      })!
+    var files = [URL]()
+    for case let fileURL as URL in enumerator {
+      files.append(fileURL)
+    }
+
+    self.insertItems(from: files, into: folder, library: library, completion: completion)
+  }
 
     /**
      Creates a book for each URL and adds it to the specified folder. If no folder is specified, it will be added to the library.
@@ -24,16 +73,14 @@ extension DataManager {
      - Parameter library: `Library` to which the created `Book` will be added if the parameter `folder` is nil
      - Parameter completion: Closure fired after processing all the urls.
      */
-    class func insertBooks(from files: [FileItem], into folder: Folder?, or library: Library, completion: @escaping () -> Void) {
+    class func insertBooks(from files: [URL], into folder: Folder?, or library: Library, completion: @escaping () -> Void) {
         let context = self.getContext()
 
-        for file in files.sorted(by: {$0.originalUrl.fileName < $1.originalUrl.fileName}) {
+        for file in files.sorted(by: {$0.fileName < $1.fileName}) {
             // TODO: do something about unprocessed URLs
-            guard let url = file.processedUrl else { continue }
-
             // Check if item exists in the library
-            guard let item = library.getItem(with: url.lastPathComponent) else {
-                let book = Book(from: file, context: context)
+            guard let item = library.getItem(with: file.relativePath(to: DataManager.getProcessedFolderURL())) else {
+              let book = Book(from: file, context: context)
 
                 if let folder = folder {
                     folder.insert(item: book)
@@ -70,7 +117,7 @@ extension DataManager {
      - Parameter library: `Library` to which the created `Book` will be added
      - Parameter completion: Closure fired after processing all the urls.
      */
-    public class func insertBooks(from files: [FileItem], into library: Library, completion: @escaping () -> Void) {
+    public class func insertBooks(from files: [URL], into library: Library, completion: @escaping () -> Void) {
         self.insertBooks(from: files, into: nil, or: library, completion: completion)
     }
 
@@ -81,40 +128,46 @@ extension DataManager {
      - Parameter folder: `Folder` to which the created `Book` will be added
      - Parameter completion: Closure fired after processing all the urls.
      */
-    public class func insertBooks(from files: [FileItem], into folder: Folder, completion: @escaping () -> Void) {
+    public class func insertBooks(from files: [URL], into folder: Folder, completion: @escaping () -> Void) {
         self.insertBooks(from: files, into: folder, or: folder.library!, completion: completion)
     }
 
-    public class func moveItems(_ items: [LibraryItem], into folder: Folder) {
-        for item in items {
-            folder.insert(item: item)
-        }
+  public class func moveItems(_ items: [LibraryItem], into folder: Folder) throws {
+    let processedFolderURL = self.getProcessedFolderURL()
 
-        folder.updateCompletionState()
-        DataManager.saveContext()
+    for item in items {
+      try FileManager.default.moveItem(at: processedFolderURL.appendingPathComponent(item.relativePath), to: processedFolderURL.appendingPathComponent(folder.relativePath).appendingPathComponent(item.originalFileName))
+      folder.insert(item: item)
     }
 
-    public class func moveItems(_ items: [LibraryItem], into library: Library) {
-        for item in items {
-            library.insert(item: item)
-        }
+    folder.updateCompletionState()
+    DataManager.saveContext()
+  }
 
-        DataManager.saveContext()
+  public class func moveItems(_ items: [LibraryItem], into library: Library) throws {
+    let processedFolderURL = self.getProcessedFolderURL()
+
+    for item in items {
+      try FileManager.default.moveItem(at: processedFolderURL.appendingPathComponent(item.relativePath), to: processedFolderURL.appendingPathComponent(item.originalFileName))
+      library.insert(item: item)
     }
 
-    public class func delete(_ items: [LibraryItem], library: Library, mode: DeleteMode = .deep) {
+    DataManager.saveContext()
+  }
+
+    public class func delete(_ items: [LibraryItem], library: Library, mode: DeleteMode = .deep) throws {
         for item in items {
             guard let folder = item as? Folder else {
                 // swiftlint:disable force_cast
-                self.delete(item as! Book, library: library, mode: mode)
+                try self.delete(item as! Book, library: library, mode: mode)
                 continue
             }
 
-            self.delete(folder, library: library, mode: mode)
+            try self.delete(folder, library: library, mode: mode)
         }
     }
 
-    public class func delete(_ folder: Folder, library: Library, mode: DeleteMode = .deep) {
+    public class func delete(_ folder: Folder, library: Library, mode: DeleteMode = .deep) throws {
 
         if mode == .shallow,
            let items = folder.items?.array as? [LibraryItem] {
@@ -130,7 +183,7 @@ extension DataManager {
         // swiftlint:disable force_cast
         for item in folder.items?.array as! [LibraryItem] {
             guard mode == .deep else { continue }
-            self.delete(item, library: library, mode: .deep)
+            try self.delete(item, library: library, mode: .deep)
         }
 
         library.removeFromItems(folder)
@@ -138,33 +191,29 @@ extension DataManager {
         self.delete(folder)
     }
 
-    public class func delete(_ item: LibraryItem, library: Library, mode: DeleteMode) {
-        guard mode == .deep else {
-            if item.folder != nil {
-                library.insert(item: item)
-                self.saveContext()
-            }
+  public class func delete(_ item: LibraryItem, library: Library, mode: DeleteMode) throws {
+    guard mode == .deep else {
+      if item.folder != nil {
+        library.insert(item: item)
+        self.saveContext()
+      }
 
-            return
-        }
-
-        if let book = item as? Book {
-            if book == PlayerManager.shared.currentBook {
-                NotificationCenter.default.post(name: .bookDelete,
-                                                object: nil,
-                                                userInfo: ["book": book])
-                PlayerManager.shared.stop()
-            }
-
-            let fileURL = book.fileURL
-
-            DispatchQueue.global().async {
-                if let fileURL = fileURL {
-                    try? FileManager.default.removeItem(at: fileURL)
-                }
-            }
-        }
-
-        self.delete(item)
+      return
     }
+
+    if let book = item as? Book {
+      if book == PlayerManager.shared.currentBook {
+        NotificationCenter.default.post(name: .bookDelete,
+                                        object: nil,
+                                        userInfo: ["book": book])
+        PlayerManager.shared.stop()
+      }
+
+      if let fileURL = book.fileURL {
+        try FileManager.default.removeItem(at: fileURL)
+      }
+    }
+
+    self.delete(item)
+  }
 }

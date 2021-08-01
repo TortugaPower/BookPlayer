@@ -21,4 +21,5 @@ extension Notification.Name {
     static let themeChange = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).theme.change")
     static let donationMade = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).donation.made")
     static let timerSelected = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).timer.new")
+    static let importOperationCancelled = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).operation.cancelled")
 }

@@ -15,6 +15,14 @@ import UIKit
 public class LibraryItem: NSManagedObject, Codable {
     var cachedArtwork: UIImage?
 
+  public func getLibrary() -> Library? {
+    if let parentFolder = self.folder {
+      return parentFolder.getLibrary()
+    }
+
+    return self.library
+  }
+
     public func getBookToPlay() -> Book? {
         return nil
     }
@@ -55,7 +63,9 @@ public class LibraryItem: NSManagedObject, Codable {
 
     public func setCurrentTime(_ time: Double) {}
 
-    public func getItem(with identifier: String) -> LibraryItem? { return nil }
+  public func index(for item: LibraryItem) -> Int? { return nil }
+
+    public func getItem(with relativePath: String) -> LibraryItem? { return nil }
 
     public func encode(to encoder: Encoder) throws {
         fatalError("LibraryItem is an abstract class, override this function in the subclass")
