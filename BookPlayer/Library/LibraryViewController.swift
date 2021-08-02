@@ -132,9 +132,8 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
     override func handleOperationCompletion(_ files: [URL]) {
       self.bindImportManager()
 
-      DataManager.insertItems(from: files, into: nil, library: self.library) {
-        self.reloadData()
-      }
+      let processedItems = DataManager.insertItems(from: files, into: nil, library: self.library)
+      self.reloadData()
 
       guard files.count > 1 else {
         self.showLoadView(false)
@@ -155,15 +154,15 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         }
 
         self.presentCreateFolderAlert(placeholder, handler: { title in
-          let folder = DataManager.createFolder(title: title, items: [])
-
-          DataManager.insert(folder, into: self.library)
-
-          DataManager.insertBooks(from: files, into: folder) {
-            self.reloadData()
-            self.showLoadView(false)
+          do {
+            let folder = try DataManager.createFolder(with: title, in: nil, library: self.library)
+            try DataManager.moveItems(processedItems, into: folder)
+          } catch {
+            self.showAlert("error_title".localized, message: error.localizedDescription)
           }
 
+          self.reloadData()
+          self.showLoadView(false)
         })
       })
 
@@ -282,11 +281,13 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
 
         alertController.addAction(UIAlertAction(title: "create_playlist_button".localized, style: .default) { _ in
             self.presentCreateFolderAlert(handler: { title in
-                let folder = DataManager.createFolder(title: title, items: [])
+              do {
+                _ = try DataManager.createFolder(with: title, in: nil, library: self.library)
+              } catch {
+                self.showAlert("error_title".localized, message: error.localizedDescription)
+              }
 
-                DataManager.insert(folder, into: self.library)
-
-                self.reloadData()
+              self.reloadData()
             })
         })
 
@@ -300,10 +301,8 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
 
         alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { _ in
             self.presentCreateFolderAlert(handler: { title in
-              let folder = DataManager.createFolder(title: title, items: [])
-              DataManager.insert(folder, into: self.library)
-
               do {
+                let folder = try DataManager.createFolder(with: title, in: nil, library: self.library)
                 try self.move(selectedItems, to: folder)
               } catch {
                 self.showAlert("error_title".localized, message: error.localizedDescription)
@@ -481,10 +480,8 @@ extension LibraryViewController {
             let minIndex = min(finalDestinationIndexPath.row, overIndexPath.row)
 
             self.presentCreateFolderAlert(destinationItem.title, handler: { title in
-              let folder = DataManager.createFolder(title: title, items: [])
-              DataManager.insert(folder, into: self.library, at: minIndex)
-
               do {
+                let folder = try DataManager.createFolder(with: title, in: nil, library: self.library, at: minIndex)
                 try self.move([sourceItem, destinationItem], to: folder)
               } catch {
                 self.showAlert("error_title".localized, message: error.localizedDescription)

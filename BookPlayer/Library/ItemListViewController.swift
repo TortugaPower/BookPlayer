@@ -416,10 +416,10 @@ extension ItemListViewController {
     else {
       return
     }
-    
+
     bookCell.playbackState = .playing
   }
-  
+
   @objc func onBookPause() {
     guard
       let book = PlayerManager.shared.currentBook,
@@ -428,10 +428,10 @@ extension ItemListViewController {
     else {
       return
     }
-    
+
     bookCell.playbackState = .paused
   }
-  
+
   @objc func onBookStop(_ notification: Notification) {
     guard
       let userInfo = notification.userInfo,
@@ -442,7 +442,7 @@ extension ItemListViewController {
     else {
       return
     }
-    
+
     bookCell.playbackState = .stopped
   }
 

@@ -109,13 +109,25 @@ public class DataManager {
         return item as? Book
     }
 
-    public class func createFolder(from url: URL, items: [LibraryItem]) -> Folder {
-        return Folder(from: url, items: items, context: self.getContext())
+  public class func createFolder(title: String) -> Folder {
+    return Folder(title: title, context: self.getContext())
+  }
+
+  public class func createFolder(with title: String, in folder: Folder?, library: Library, at index: Int? = nil) throws -> Folder {
+    let newFolder = Folder(title: title, context: self.getContext())
+
+    let processedFolder = self.getProcessedFolderURL()
+
+    if let folder = folder {
+      try FileManager.default.createDirectory(at: processedFolder.appendingPathComponent(folder.relativePath).appendingPathComponent(title), withIntermediateDirectories: false, attributes: nil)
+      folder.insert(item: newFolder, at: index)
+    } else {
+      try FileManager.default.createDirectory(at: processedFolder.appendingPathComponent(title), withIntermediateDirectories: false, attributes: nil)
+      library.insert(item: newFolder, at: index)
     }
 
-    public class func createFolder(title: String, items: [LibraryItem]) -> Folder {
-        return Folder(title: title, items: items, context: self.getContext())
-    }
+    return newFolder
+  }
 
     public class func insert(_ folder: Folder, into library: Library, at index: Int? = nil) {
         library.insert(item: folder, at: index)

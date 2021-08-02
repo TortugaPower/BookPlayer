@@ -65,31 +65,26 @@ public class Folder: LibraryItem {
 
     // MARK: - Init
 
-    convenience init(title: String, items: [LibraryItem], context: NSManagedObjectContext) {
-        let entity = NSEntityDescription.entity(forEntityName: "Folder", in: context)!
+  public convenience init(title: String, context: NSManagedObjectContext) {
+    let entity = NSEntityDescription.entity(forEntityName: "Folder", in: context)!
+    self.init(entity: entity, insertInto: context)
 
-        self.init(entity: entity, insertInto: context)
-        self.identifier = "\(title)\(Date().timeIntervalSince1970)"
-        self.relativePath = title
-        self.title = title
-        self.originalFileName = title
-        self.desc = "\(items.count) \("files_title".localized)"
-        items.forEach({ insert(item: $0) })
-    }
+    self.identifier = "\(title)\(Date().timeIntervalSince1970)"
+    self.relativePath = title
+    self.title = title
+    self.originalFileName = title
+  }
 
-    convenience init(from url: URL, items: [LibraryItem], context: NSManagedObjectContext) {
-        let entity = NSEntityDescription.entity(forEntityName: "Folder", in: context)!
+  public convenience init(from fileURL: URL, context: NSManagedObjectContext) {
+    let entity = NSEntityDescription.entity(forEntityName: "Folder", in: context)!
+    self.init(entity: entity, insertInto: context)
 
-        let title = url.lastPathComponent
-        self.init(entity: entity, insertInto: context)
-
-        self.identifier = UUID().uuidString
-        self.relativePath = url.relativePath
-        self.title = title
-        self.originalFileName = title
-        self.desc = "\(items.count) \("files_title".localized)"
-        items.forEach({ insert(item: $0) })
-    }
+    let fileTitle = fileURL.lastPathComponent
+    self.identifier = "\(fileTitle)\(Date().timeIntervalSince1970)"
+    self.relativePath = fileURL.relativePath(to: DataManager.getProcessedFolderURL())
+    self.title = fileTitle
+    self.originalFileName = fileTitle
+  }
 
     // MARK: - Methods
 

@@ -12,6 +12,12 @@ class StubFactory {
     }
 
     class func folder(title: String, items: [LibraryItem]) -> Folder {
-        return DataManager.createFolder(title: title, items: items)
+      let folder = DataManager.createFolder(title: title)
+
+      for item in items {
+        folder.insert(item: item)
+      }
+
+      return folder
     }
 }

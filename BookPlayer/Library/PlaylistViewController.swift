@@ -43,9 +43,8 @@ class PlaylistViewController: ItemListViewController {
     }
 
     override func handleOperationCompletion(_ files: [URL]) {
-        DataManager.insertBooks(from: files, into: self.folder) {
-            self.reloadData()
-        }
+      let processedItems = DataManager.insertItems(from: files, into: self.folder, library: self.library)
+      self.reloadData()
 
         guard files.count > 1 else {
             self.showLoadView(false)
@@ -75,15 +74,15 @@ class PlaylistViewController: ItemListViewController {
             }
 
             self.presentCreateFolderAlert(placeholder, handler: { title in
-                let folder = DataManager.createFolder(title: title, items: [])
+              do {
+                let folder = try DataManager.createFolder(with: title, in: nil, library: self.library)
+                try self.move(processedItems, to: folder)
+              } catch {
+                self.showAlert("error_title".localized, message: error.localizedDescription)
+              }
 
-                DataManager.insert(folder, into: self.library)
-
-                DataManager.insertBooks(from: files, into: folder) {
-                    self.reloadData()
-                    self.showLoadView(false)
-                }
-
+              self.reloadData()
+              self.showLoadView(false)
             })
         })
 
@@ -169,11 +168,13 @@ class PlaylistViewController: ItemListViewController {
 
         alertController.addAction(UIAlertAction(title: "create_playlist_button".localized, style: .default) { _ in
             self.presentCreateFolderAlert(handler: { title in
-                let folder = DataManager.createFolder(title: title, items: [])
+              do {
+                _ = try DataManager.createFolder(with: title, in: self.folder, library: self.library)
+              } catch {
+                self.showAlert("error_title".localized, message: error.localizedDescription)
+              }
 
-                DataManager.insert(folder, into: self.folder)
-
-                self.reloadData()
+              self.reloadData()
             })
         })
 
@@ -201,12 +202,14 @@ class PlaylistViewController: ItemListViewController {
             guard let self = self else { return }
 
             self.presentCreateFolderAlert(handler: { title in
-                self.folder.removeFromItems(NSOrderedSet(array: selectedItems))
-                let folder = DataManager.createFolder(title: title, items: selectedItems)
+              do {
+                let folder = try DataManager.createFolder(with: title, in: self.folder, library: self.library)
+                try self.move(selectedItems, to: folder)
+              } catch {
+                self.showAlert("error_title".localized, message: error.localizedDescription)
+              }
 
-                DataManager.insert(folder, into: self.folder)
-
-                self.reloadData()
+              self.reloadData()
             })
         })
 
@@ -330,10 +333,8 @@ extension PlaylistViewController {
           let minIndex = min(finalDestinationIndexPath.row, overIndexPath.row)
 
           self.presentCreateFolderAlert(destinationItem.title, handler: { title in
-            let folder = DataManager.createFolder(title: title, items: [])
-            DataManager.insert(folder, into: self.folder, at: minIndex)
-
             do {
+              let folder = try DataManager.createFolder(with: title, in: self.folder, library: self.library, at: minIndex)
               try self.move([sourceItem, destinationItem], to: folder)
             } catch {
               self.showAlert("error_title".localized, message: error.localizedDescription)

@@ -252,7 +252,6 @@
 		41E56300223953EB00C06BC9 /* default-icon-ipad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E562FF223953EB00C06BC9 /* default-icon-ipad@2x.png */; };
 		41E56302223956B800C06BC9 /* retro-icon-ipad@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E56301223956B800C06BC9 /* retro-icon-ipad@3x.png */; };
 		41E563042239570100C06BC9 /* retro-icon-ipad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E563032239570100C06BC9 /* retro-icon-ipad@2x.png */; };
-		41EAF6DD26A91B54009C9DC5 /* Folder+AVFoundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41EAF6DC26A91B54009C9DC5 /* Folder+AVFoundation.swift */; };
 		41EE378621BF0FCC00A55F51 /* ItemList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41EE378521BF0FCC00A55F51 /* ItemList.swift */; };
 		41EE378821BFFB9800A55F51 /* ItemListFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41EE378721BFFB9800A55F51 /* ItemListFeedback.swift */; };
 		41EE378A21BFFBDE00A55F51 /* ItemListAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41EE378921BFFBDE00A55F51 /* ItemListAlerts.swift */; };
@@ -693,7 +692,6 @@
 		41E73EFA241D2EFC00D2C1D7 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = da; path = da.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		41E73EFB241D2EFC00D2C1D7 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Localizable.strings; sourceTree = "<group>"; };
 		41E73EFC241D2EFC00D2C1D7 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Localizable.strings; sourceTree = "<group>"; };
-		41EAF6DC26A91B54009C9DC5 /* Folder+AVFoundation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Folder+AVFoundation.swift"; sourceTree = "<group>"; };
 		41EE378521BF0FCC00A55F51 /* ItemList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemList.swift; sourceTree = "<group>"; };
 		41EE378721BFFB9800A55F51 /* ItemListFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListFeedback.swift; sourceTree = "<group>"; };
 		41EE378921BFFBDE00A55F51 /* ItemListAlerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListAlerts.swift; sourceTree = "<group>"; };
@@ -1069,7 +1067,6 @@
 			isa = PBXGroup;
 			children = (
 				41A1B134226FEB3C00EA0400 /* Book+AVFoundation.swift */,
-				41EAF6DC26A91B54009C9DC5 /* Folder+AVFoundation.swift */,
 				41A1B138226FEDAD00EA0400 /* Chapter+AVFoundation.swift */,
 			);
 			path = Models;
@@ -2048,7 +2045,6 @@
 				4109246C21A2019400D5DF11 /* CheckboxSelectionView.swift in Sources */,
 				41B2A5EF21CD5AAE00917584 /* StaticCellView.swift in Sources */,
 				C3A479132094C8C300D92122 /* rubberBandDistance.swift in Sources */,
-				41EAF6DD26A91B54009C9DC5 /* Folder+AVFoundation.swift in Sources */,
 				41EE378621BF0FCC00A55F51 /* ItemList.swift in Sources */,
 				41A1B137226FED4100EA0400 /* DataManager+CoreData.swift in Sources */,
 				4165EE1420A7E8CC00616EDF /* ItemListViewController.swift in Sources */,

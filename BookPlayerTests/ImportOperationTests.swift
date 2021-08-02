@@ -28,29 +28,29 @@ class ImportOperationTests: XCTestCase {
 
         // Add test file to Documents folder
         let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
-        let fileItem = FileItem(fileUrl, destinationFolder: destinationFolder)
 
         let promise = XCTestExpectation(description: "Process file")
         let promiseFile = expectation(forNotification: .processingFile, object: nil)
 
-        let operation = ImportOperation(files: [fileItem])
+        let operation = ImportOperation(files: [fileUrl])
 
         operation.completionBlock = {
-            // Test file should no longer be in the Documents folder
-            XCTAssert(!FileManager.default.fileExists(atPath: fileUrl.path))
-            XCTAssertNotNil(operation.files.first)
+          // Test file should no longer be in the Documents folder
+          XCTAssert(!FileManager.default.fileExists(atPath: fileUrl.path))
+          XCTAssertNotNil(operation.files.first)
+          XCTAssertNotNil(operation.processedFiles.first)
 
-            let file = operation.files.first!
+          let file = operation.files.first!
+          let processedFile = operation.processedFiles.first!
 
-            // Name of processed file shouldn't be the same as the original
-            XCTAssert(file.processedUrl!.lastPathComponent != filename)
-            // Test file exists in new location
-            XCTAssert(FileManager.default.fileExists(atPath: file.processedUrl!.path))
+          // Test file exists in new location
+          XCTAssert(!FileManager.default.fileExists(atPath: file.path))
+          XCTAssert(FileManager.default.fileExists(atPath: processedFile.path))
 
-            let content = FileManager.default.contents(atPath: file.processedUrl!.path)!
-            XCTAssert(content == bookContents)
+          let content = FileManager.default.contents(atPath: processedFile.path)!
+          XCTAssert(content == bookContents)
 
-            promise.fulfill()
+          promise.fulfill()
         }
 
         operation.start()

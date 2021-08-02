@@ -15,13 +15,11 @@ extension DataManager {
   }
 
   // This handles the Core Data objects creation from the Import operation
-  class func insertItems(from files: [URL], into folder: Folder?, library: Library, completion: (() -> Void)? = nil) {
-    guard !files.isEmpty else {
-        completion?()
-        return
-    }
+  class func insertItems(from files: [URL], into folder: Folder?, library: Library, processedItems: [LibraryItem]? = nil) -> [LibraryItem] {
+    guard !files.isEmpty else { return processedItems ?? []  }
 
     var remainingFiles = files
+    var resultingFiles = processedItems
 
     let nextFile = remainingFiles.removeFirst()
     let context = self.getContext()
@@ -32,7 +30,7 @@ extension DataManager {
        let type = attributes[.type] as? FileAttributeType,
        type == .typeDirectory {
       let folder = Folder(from: nextFile, context: context)
-      self.handleDirectory(item: nextFile, folder: folder, library: library, completion: nil)
+      self.handleDirectory(item: nextFile, folder: folder, library: library)
       libraryItem = folder
     } else {
       libraryItem = Book(from: nextFile, context: context)
@@ -44,10 +42,12 @@ extension DataManager {
       library.insert(item: libraryItem)
     }
 
-    self.insertItems(from: remainingFiles, into: folder, library: library, completion: completion)
+    resultingFiles?.append(libraryItem)
+
+    return self.insertItems(from: remainingFiles, into: folder, library: library, processedItems: resultingFiles)
   }
 
-  class func handleDirectory(item: URL, folder: Folder, library: Library, completion: (() -> Void)?) {
+  class func handleDirectory(item: URL, folder: Folder, library: Library) {
     let enumerator = FileManager.default.enumerator(
       at: item,
       includingPropertiesForKeys: [.creationDateKey, .isDirectoryKey],
@@ -60,7 +60,7 @@ extension DataManager {
       files.append(fileURL)
     }
 
-    self.insertItems(from: files, into: folder, library: library, completion: completion)
+    _ = self.insertItems(from: files, into: folder, library: library)
   }
 
     /**
