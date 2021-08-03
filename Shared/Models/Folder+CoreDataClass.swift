@@ -216,16 +216,16 @@ public class Folder: LibraryItem {
         return itemFound
     }
 
-    public func itemIndex(with identifier: String) -> Int? {
+    public func itemIndex(with relativePath: String) -> Int? {
         guard let items = self.items?.array as? [LibraryItem] else {
             return nil
         }
 
         return items.firstIndex { (item) -> Bool in
             if let book = item as? Book {
-                return book.identifier == identifier
+                return book.relativePath == relativePath
             } else if let folder = item as? Folder {
-                return folder.getItem(with: identifier) != nil
+                return folder.getItem(with: relativePath) != nil
             }
 
             return false

@@ -166,9 +166,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         })
       })
 
-      let vc = self.presentedViewController ?? self
-
-      vc.present(alert, animated: true, completion: nil)
+      self.present(alert, animated: true, completion: nil)
     }
 
     func gestureRecognizerShouldBegin(_: UIGestureRecognizer) -> Bool {
@@ -245,7 +243,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
 
         operation.completionBlock = {
             DispatchQueue.main.async {
-              guard let vc = self.navigationController?.visibleViewController as? PlaylistViewController else {
+              guard let vc = self.navigationController?.topViewController as? PlaylistViewController else {
                 self.handleOperationCompletion(operation.processedFiles)
                 return
               }

@@ -4,19 +4,25 @@ import Foundation
 
 class StubFactory {
     public static func book(title: String, duration: Double, metaDataTitle: String? = nil) -> Book {
-        let dummyUrl = URL(fileURLWithPath: title)
-        let book = DataManager.createBook(from: dummyUrl)
-        book.duration = duration
+      let filename = "\(title).txt"
+      let bookContents = "bookcontents".data(using: .utf8)!
+      let processedFolder = DataManager.getProcessedFolderURL()
 
-        return book
+      // Add test file to Processed folder
+      let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: processedFolder)
+
+      let book = DataManager.createBook(from: fileUrl)
+      book.duration = duration
+
+      return book
     }
 
-    class func folder(title: String, items: [LibraryItem]) -> Folder {
+    class func folder(title: String) throws -> Folder {
       let folder = DataManager.createFolder(title: title)
 
-      for item in items {
-        folder.insert(item: item)
-      }
+      let processedFolder = DataManager.getProcessedFolderURL()
+
+      _ = try DataTestUtils.generateTestFolder(name: title, destinationFolder: processedFolder)
 
       return folder
     }

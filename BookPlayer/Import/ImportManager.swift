@@ -56,8 +56,10 @@ class ImportManager {
   public func createOperation() {
     guard !self.files.value.isEmpty else { return }
 
-    // TODO: user sort service
-    let sortedFiles = self.files.value.sorted(by: { $0.path < $1.path })
+    let sortDescriptor = NSSortDescriptor(key: "path", ascending: true, selector: #selector(NSString.localizedStandardCompare(_:)))
+    let orderedSet = NSOrderedSet(array: self.files.value)
+
+    guard let sortedFiles = orderedSet.sortedArray(using: [sortDescriptor]) as? [URL] else { return }
 
     let operation = ImportOperation(files: sortedFiles)
 

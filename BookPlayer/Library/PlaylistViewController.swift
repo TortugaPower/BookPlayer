@@ -43,8 +43,15 @@ class PlaylistViewController: ItemListViewController {
     }
 
     override func handleOperationCompletion(_ files: [URL]) {
-      let processedItems = DataManager.insertItems(from: files, into: self.folder, library: self.library)
-      self.reloadData()
+      let processedItems = DataManager.insertItems(from: files, into: nil, library: self.library)
+
+      do {
+        try DataManager.moveItems(processedItems, into: self.folder)
+        self.reloadData()
+      } catch {
+        self.showAlert("error_title".localized, message: error.localizedDescription)
+        return
+      }
 
         guard files.count > 1 else {
             self.showLoadView(false)
@@ -55,10 +62,13 @@ class PlaylistViewController: ItemListViewController {
         let alert = UIAlertController(title: String.localizedStringWithFormat("import_alert_title".localized, files.count), message: nil, preferredStyle: .alert)
 
         alert.addAction(UIAlertAction(title: "library_title".localized, style: .default) { _ in
-            DataManager.insertBooks(from: files, into: self.library) {
-                self.reloadData()
-                self.showLoadView(false)
-            }
+          do {
+            try DataManager.moveItems(processedItems, into: self.library)
+            self.reloadData()
+            self.showLoadView(false)
+          } catch {
+            self.showAlert("error_title".localized, message: error.localizedDescription)
+          }
         })
 
         alert.addAction(UIAlertAction(title: "current_playlist_title".localized, style: .default) { _ in
@@ -67,15 +77,9 @@ class PlaylistViewController: ItemListViewController {
         })
 
         alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { _ in
-            var placeholder = "new_playlist_button".localized
-
-            if let file = files.first {
-                placeholder = file.deletingPathExtension().lastPathComponent
-            }
-
-            self.presentCreateFolderAlert(placeholder, handler: { title in
+            self.presentCreateFolderAlert("new_playlist_button".localized, handler: { title in
               do {
-                let folder = try DataManager.createFolder(with: title, in: nil, library: self.library)
+                let folder = try DataManager.createFolder(with: title, in: self.folder, library: self.library)
                 try self.move(processedItems, to: folder)
               } catch {
                 self.showAlert("error_title".localized, message: error.localizedDescription)
@@ -86,9 +90,7 @@ class PlaylistViewController: ItemListViewController {
             })
         })
 
-        let vc = self.presentedViewController ?? self
-
-        vc.present(alert, animated: true, completion: nil)
+        self.present(alert, animated: true, completion: nil)
     }
 
     // MARK: - Callback events
