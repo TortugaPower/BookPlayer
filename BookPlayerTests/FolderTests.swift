@@ -12,38 +12,59 @@ import XCTest
 
 class FolderTests: XCTestCase {
     override func setUp() {
-        super.setUp()
+      super.setUp()
+
+      let documentsFolder = DataManager.getDocumentsFolderURL()
+      DataTestUtils.clearFolderContents(url: documentsFolder)
+      let processedFolder = DataManager.getProcessedFolderURL()
+      DataTestUtils.clearFolderContents(url: processedFolder)
     }
 
-    func generateFolder(title: String, items: [LibraryItem]) -> Folder {
-        return DataManager.createFolder(title: title, items: items)
-    }
-
-    func testGetNilBook() {
-        let folder = self.generateFolder(title: "folder", items: [])
+    func testGetNilBook() throws {
+        let folder = try StubFactory.folder(title: "folder")
 
         let fetchedBookByIdentifier = folder.getItem(with: "book1")
 
         XCTAssertNil(fetchedBookByIdentifier)
     }
 
-    func testGetBook() {
+    func testGetBook() throws {
         let book1 = StubFactory.book(title: "book1", duration: 100)
 
-        let folder = self.generateFolder(title: "folder", items: [book1])
+        let folder = try StubFactory.folder(title: "folder")
+        folder.insert(item: book1)
 
-        let fetchedBookByIdentifier = folder.getItem(with: "book1")
+        let fetchedBookByIdentifier = folder.getItem(with: book1.relativePath)
 
         XCTAssertNotNil(fetchedBookByIdentifier)
     }
 
-    func testAccumulatedProgress() {
+    func testGetNestedBook() throws {
+        let book1 = StubFactory.book(title: "book1", duration: 100)
+        let book2 = StubFactory.book(title: "book2", duration: 100)
+
+        let folder = try StubFactory.folder(title: "folder")
+        folder.insert(item: book1)
+        let folder2 = try StubFactory.folder(title: "folder2")
+        folder2.insert(item: folder)
+        folder2.insert(item: book2)
+
+        let fetchedBookByIdentifier = folder2.getItem(with: book2.relativePath)
+
+        XCTAssertNotNil(fetchedBookByIdentifier)
+    }
+
+    func testAccumulatedProgress() throws {
         let book1 = StubFactory.book(title: "book1", duration: 100)
         let book2 = StubFactory.book(title: "book2", duration: 100)
         let book3 = StubFactory.book(title: "book3", duration: 100)
 
-        let folder = self.generateFolder(title: "folder", items: [book1, book2])
-        let folder2 = self.generateFolder(title: "folder2", items: [folder, book3])
+        let folder = try StubFactory.folder(title: "folder")
+        folder.insert(item: book1)
+        folder.insert(item: book2)
+        let folder2 = try StubFactory.folder(title: "folder2")
+        folder2.insert(item: folder)
+        folder2.insert(item: book3)
 
         let emptyProgress = folder.progressPercentage
         let nestedEmptyProgress = folder2.progressPercentage
@@ -72,13 +93,17 @@ class FolderTests: XCTestCase {
         XCTAssert(nestedCompletedProgress == 1.0)
     }
 
-    func testNextBookFromPlayer() {
+    func testNextBookFromPlayer() throws {
         let book1 = StubFactory.book(title: "book1", duration: 100)
         let book2 = StubFactory.book(title: "book2", duration: 100)
         let book3 = StubFactory.book(title: "book3", duration: 100)
 
-        let folder = self.generateFolder(title: "playlist", items: [book1, book2])
-        let folder2 = self.generateFolder(title: "folder2", items: [folder, book3])
+        let folder = try StubFactory.folder(title: "playlist")
+        folder.insert(item: book1)
+        folder.insert(item: book2)
+        let folder2 = try StubFactory.folder(title: "folder2")
+        folder2.insert(item: folder)
+        folder2.insert(item: book3)
 
         let nextBook = folder.getNextBook(after: book1)
         let nextBook2 = folder2.getNextBook(after: book2)
@@ -87,20 +112,43 @@ class FolderTests: XCTestCase {
         XCTAssert(nextBook2 == book3)
     }
 
-    func testNextBookFromArtwork() {
+    func testNextBookFromArtwork() throws {
         let book1 = StubFactory.book(title: "book1", duration: 100)
         book1.setCurrentTime(100)
         book1.isFinished = true
         let book2 = StubFactory.book(title: "book2", duration: 100)
         let book3 = StubFactory.book(title: "book3", duration: 100)
 
-        let folder = self.generateFolder(title: "playlist", items: [book1, book2])
-        let folder2 = self.generateFolder(title: "folder2", items: [folder, book3])
+        let folder = try StubFactory.folder(title: "playlist")
+        folder.insert(item: book1)
+        folder.insert(item: book2)
+        let folder2 = try StubFactory.folder(title: "folder2")
+        folder2.insert(item: folder)
+        folder2.insert(item: book3)
 
         let nextBook = folder.getBookToPlay()
         let nestedNextBook = folder2.getBookToPlay()
 
         XCTAssert(nextBook == book2)
         XCTAssert(nestedNextBook == book2)
+    }
+
+    func testRelativePath() throws {
+        let book1 = StubFactory.book(title: "book1", duration: 100)
+        let book2 = StubFactory.book(title: "book2", duration: 100)
+        let book3 = StubFactory.book(title: "book3", duration: 100)
+
+        let folder = try StubFactory.folder(title: "folder")
+        folder.insert(item: book1)
+        folder.insert(item: book2)
+        let folder2 = try StubFactory.folder(title: "folder2")
+        folder2.insert(item: folder)
+        folder2.insert(item: book3)
+
+        XCTAssert(folder.relativePath == "folder2/folder")
+        XCTAssert(folder2.relativePath == "folder2")
+        XCTAssert(book1.relativePath == "folder2/folder/book1.txt")
+        XCTAssert(book2.relativePath == "folder2/folder/book2.txt")
+        XCTAssert(book3.relativePath == "folder2/book3.txt")
     }
 }

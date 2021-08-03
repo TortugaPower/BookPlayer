@@ -11,31 +11,18 @@ import UIKit
 
 protocol ItemListActions: ItemList {
     func sort(by sortType: PlayListSortOrder)
-    func delete(_ items: [LibraryItem], mode: DeleteMode)
-    func move(_ items: [LibraryItem], to folder: Folder)
+    func delete(_ items: [LibraryItem], mode: DeleteMode) throws
+    func move(_ items: [LibraryItem], to folder: Folder) throws
 }
 
 extension ItemListActions {
-    func delete(_ items: [LibraryItem], mode: DeleteMode) {
-        DataManager.delete(items, library: self.library, mode: mode)
-        self.reloadData()
+    func delete(_ items: [LibraryItem], mode: DeleteMode) throws {
+      try DataManager.delete(items, library: self.library, mode: mode)
+      self.reloadData()
     }
 
-    func move(_ items: [LibraryItem], to folder: Folder) {
-        for item in items {
-            if let parent = item.folder {
-                parent.removeFromItems(item)
-                parent.updateCompletionState()
-            } else {
-                self.library.removeFromItems(item)
-            }
-        }
-
-        folder.addToItems(NSOrderedSet(array: items))
-        folder.updateCompletionState()
-
-        DataManager.saveContext()
-
+    func move(_ items: [LibraryItem], to folder: Folder) throws {
+        try DataManager.moveItems(items, into: folder)
         self.reloadData()
     }
 

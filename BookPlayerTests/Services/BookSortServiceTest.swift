@@ -11,16 +11,21 @@ class BookSortServiceTest: XCTestCase {
     ]
 
     let orderedBookNames = [
-        "01 Book 1",
-        "05 Book 1",
-        "09 Book 2",
-        "09 Book 10"
+        "01 Book 1.txt",
+        "05 Book 1.txt",
+        "09 Book 2.txt",
+        "09 Book 10.txt"
     ]
 
     var booksByFile: NSOrderedSet?
 
     override func setUp() {
-        self.booksByFile = NSOrderedSet(array: self.unorderedBookNames.map { StubFactory.book(title: $0, duration: 1000) })
+      let documentsFolder = DataManager.getDocumentsFolderURL()
+      DataTestUtils.clearFolderContents(url: documentsFolder)
+      let processedFolder = DataManager.getProcessedFolderURL()
+      DataTestUtils.clearFolderContents(url: processedFolder)
+
+      self.booksByFile = NSOrderedSet(array: self.unorderedBookNames.map { StubFactory.book(title: $0, duration: 1000) })
     }
 
     override func tearDown() {}

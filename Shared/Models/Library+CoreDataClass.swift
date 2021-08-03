@@ -16,23 +16,39 @@ public class Library: NSManagedObject, Codable {
         return self.items?.array as? [LibraryItem] ?? []
     }
 
-    public func itemIndex(with identifier: String) -> Int? {
+    public func itemIndex(with relativePath: String) -> Int? {
         guard let items = self.items?.array as? [LibraryItem] else {
             return nil
         }
 
         return items.firstIndex { (item) -> Bool in
             if let book = item as? Book {
-                return book.identifier == identifier
+                return book.relativePath == relativePath
             } else if let folder = item as? Folder {
-                return folder.getItem(with: identifier) != nil
+                return folder.getItem(with: relativePath) != nil
             }
 
             return false
         }
     }
 
-    public func getItem(with identifier: String) -> LibraryItem? {
+  public func index(for item: LibraryItem) -> Int? {
+    guard let items = self.items?.array as? [LibraryItem] else {
+      return nil
+    }
+
+    return items.firstIndex { (libraryItem) -> Bool in
+      if let book = libraryItem as? Book {
+        return book.relativePath == item.relativePath
+      } else if let folder = libraryItem as? Folder {
+        return folder.index(for: item) != nil
+      }
+
+      return false
+    }
+  }
+
+    public func getItem(with relativePath: String) -> LibraryItem? {
         guard let items = self.items?.array as? [LibraryItem] else {
             return nil
         }
@@ -40,7 +56,7 @@ public class Library: NSManagedObject, Codable {
         var itemFound: LibraryItem?
 
         for item in items {
-            if let libraryItem = item.getItem(with: identifier) {
+            if let libraryItem = item.getItem(with: relativePath) {
                 itemFound = libraryItem
                 break
             }
@@ -52,7 +68,7 @@ public class Library: NSManagedObject, Codable {
     func getNextItem(after item: LibraryItem) -> LibraryItem? {
         guard let items = self.items?.array as? [LibraryItem] else { return nil }
 
-        guard let indexFound = self.itemIndex(with: item.identifier) else { return nil }
+        guard let indexFound = self.itemIndex(with: item.relativePath) else { return nil }
 
         for (index, item) in items.enumerated() {
             guard index > indexFound,
@@ -84,6 +100,32 @@ public class Library: NSManagedObject, Codable {
         }
 
         return filteredItems.sorted { $0.lastPlayDate! > $1.lastPlayDate! }
+    }
+
+    public func insert(item: LibraryItem, at index: Int? = nil) {
+        if let parent = item.folder {
+            parent.removeFromItems(item)
+            parent.updateCompletionState()
+        } else if let library = item.library {
+            library.removeFromItems(item)
+        }
+
+        if let index = index {
+            self.insertIntoItems(item, at: index)
+        } else {
+            self.addToItems(item)
+        }
+
+        self.rebuildRelativePaths(for: item)
+    }
+
+    public func rebuildRelativePaths(for item: LibraryItem) {
+      item.relativePath = item.originalFileName
+
+        if let folder = item as? Folder,
+           let items = folder.items?.array as? [LibraryItem] {
+            items.forEach({ folder.rebuildRelativePaths(for: $0) })
+        }
     }
 
     enum CodingKeys: String, CodingKey {

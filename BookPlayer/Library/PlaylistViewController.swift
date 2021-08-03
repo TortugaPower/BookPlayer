@@ -29,8 +29,8 @@ class PlaylistViewController: ItemListViewController {
         super.viewWillAppear(animated)
         guard
             let currentBook = PlayerManager.shared.currentBook,
-            let identifier = currentBook.identifier,
-            let index = self.folder.itemIndex(with: identifier) else {
+            let relativePath = currentBook.relativePath,
+            let index = self.folder.itemIndex(with: relativePath) else {
             return
         }
 
@@ -42,10 +42,16 @@ class PlaylistViewController: ItemListViewController {
         NotificationCenter.default.post(name: .reloadData, object: nil)
     }
 
-    override func handleOperationCompletion(_ files: [FileItem]) {
-        DataManager.insertBooks(from: files, into: self.folder) {
-            self.reloadData()
-        }
+    override func handleOperationCompletion(_ files: [URL]) {
+      let processedItems = DataManager.insertItems(from: files, into: nil, library: self.library)
+
+      do {
+        try DataManager.moveItems(processedItems, into: self.folder)
+        self.reloadData()
+      } catch {
+        self.showAlert("error_title".localized, message: error.localizedDescription)
+        return
+      }
 
         guard files.count > 1 else {
             self.showLoadView(false)
@@ -56,10 +62,13 @@ class PlaylistViewController: ItemListViewController {
         let alert = UIAlertController(title: String.localizedStringWithFormat("import_alert_title".localized, files.count), message: nil, preferredStyle: .alert)
 
         alert.addAction(UIAlertAction(title: "library_title".localized, style: .default) { _ in
-            DataManager.insertBooks(from: files, into: self.library) {
-                self.reloadData()
-                self.showLoadView(false)
-            }
+          do {
+            try DataManager.moveItems(processedItems, into: self.library)
+            self.reloadData()
+            self.showLoadView(false)
+          } catch {
+            self.showAlert("error_title".localized, message: error.localizedDescription)
+          }
         })
 
         alert.addAction(UIAlertAction(title: "current_playlist_title".localized, style: .default) { _ in
@@ -68,28 +77,20 @@ class PlaylistViewController: ItemListViewController {
         })
 
         alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { _ in
-            var placeholder = "new_playlist_button".localized
+            self.presentCreateFolderAlert("new_playlist_button".localized, handler: { title in
+              do {
+                let folder = try DataManager.createFolder(with: title, in: self.folder, library: self.library)
+                try self.move(processedItems, to: folder)
+              } catch {
+                self.showAlert("error_title".localized, message: error.localizedDescription)
+              }
 
-            if let file = files.first {
-                placeholder = file.originalUrl.deletingPathExtension().lastPathComponent
-            }
-
-            self.presentCreateFolderAlert(placeholder, handler: { title in
-                let folder = DataManager.createFolder(title: title, items: [])
-
-                DataManager.insert(folder, into: self.library)
-
-                DataManager.insertBooks(from: files, into: folder) {
-                    self.reloadData()
-                    self.showLoadView(false)
-                }
-
+              self.reloadData()
+              self.showLoadView(false)
             })
         })
 
-        let vc = self.presentedViewController ?? self
-
-        vc.present(alert, animated: true, completion: nil)
+        self.present(alert, animated: true, completion: nil)
     }
 
     // MARK: - Callback events
@@ -97,8 +98,8 @@ class PlaylistViewController: ItemListViewController {
     @objc override func onBookPlay() {
         guard
             let currentBook = PlayerManager.shared.currentBook,
-            let identifier = currentBook.identifier,
-            let index = self.folder.itemIndex(with: identifier),
+            let relativePath = currentBook.relativePath,
+            let index = self.folder.itemIndex(with: relativePath),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
         else {
             return
@@ -110,8 +111,8 @@ class PlaylistViewController: ItemListViewController {
     @objc override func onBookPause() {
         guard
             let currentBook = PlayerManager.shared.currentBook,
-            let identifier = currentBook.identifier,
-            let index = self.folder.itemIndex(with: identifier),
+            let relativePath = currentBook.relativePath,
+            let index = self.folder.itemIndex(with: relativePath),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
         else {
             return
@@ -125,8 +126,8 @@ class PlaylistViewController: ItemListViewController {
             let userInfo = notification.userInfo,
             let book = userInfo["book"] as? Book,
             !book.isFault,
-            let identifier = book.identifier,
-            let index = self.folder.itemIndex(with: identifier),
+            let relativePath = book.relativePath,
+            let index = self.folder.itemIndex(with: relativePath),
             let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
         else {
             return
@@ -134,6 +135,23 @@ class PlaylistViewController: ItemListViewController {
 
         bookCell.playbackState = .stopped
     }
+
+  override func updateProgress(_ notification: Notification) {
+    guard let userInfo = notification.userInfo,
+          let currentBook = userInfo["book"] as? Book,
+          let index = self.folder.index(for: currentBook),
+          let cell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView else {
+      return
+    }
+
+    let item = self.items[index]
+
+    let progress = item is Folder
+      ? item.progressPercentage
+      : userInfo["progress"] as? Double ?? item.progressPercentage
+
+    cell.progress = item.isFinished ? 1.0 : progress
+  }
 
     // MARK: - IBActions
 
@@ -152,11 +170,13 @@ class PlaylistViewController: ItemListViewController {
 
         alertController.addAction(UIAlertAction(title: "create_playlist_button".localized, style: .default) { _ in
             self.presentCreateFolderAlert(handler: { title in
-                let folder = DataManager.createFolder(title: title, items: [])
+              do {
+                _ = try DataManager.createFolder(with: title, in: self.folder, library: self.library)
+              } catch {
+                self.showAlert("error_title".localized, message: error.localizedDescription)
+              }
 
-                DataManager.insert(folder, into: self.folder)
-
-                self.reloadData()
+              self.reloadData()
             })
         })
 
@@ -168,23 +188,30 @@ class PlaylistViewController: ItemListViewController {
     override func handleMove(_ selectedItems: [LibraryItem]) {
         let alert = UIAlertController(title: "choose_destination_title".localized, message: nil, preferredStyle: .alert)
 
-        alert.addAction(UIAlertAction(title: "library_title".localized, style: .default) { _ in
-            let itemSet = NSOrderedSet(array: selectedItems)
-            self.folder.removeFromItems(itemSet)
-            self.library.addToItems(itemSet)
-            DataManager.saveContext()
+        alert.addAction(UIAlertAction(title: "library_title".localized, style: .default) { [weak self] _ in
+          guard let self = self else { return }
 
-            self.reloadData()
+          do {
+            try DataManager.moveItems(selectedItems, into: self.library)
+          } catch {
+            self.showAlert("error_title".localized, message: error.localizedDescription)
+          }
+
+          self.reloadData()
         })
 
-        alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { _ in
+        alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { [weak self] _ in
+            guard let self = self else { return }
+
             self.presentCreateFolderAlert(handler: { title in
-                self.folder.removeFromItems(NSOrderedSet(array: selectedItems))
-                let folder = DataManager.createFolder(title: title, items: selectedItems)
+              do {
+                let folder = try DataManager.createFolder(with: title, in: self.folder, library: self.library)
+                try self.move(selectedItems, to: folder)
+              } catch {
+                self.showAlert("error_title".localized, message: error.localizedDescription)
+              }
 
-                DataManager.insert(folder, into: self.folder)
-
-                self.reloadData()
+              self.reloadData()
             })
         })
 
@@ -198,8 +225,13 @@ class PlaylistViewController: ItemListViewController {
             vc.items = availableFolders
 
             vc.onItemSelected = { selectedItem in
-                guard let selectedPlaylist = selectedItem as? Folder else { return }
-                self.move(selectedItems, to: selectedPlaylist)
+              guard let selectedPlaylist = selectedItem as? Folder else { return }
+
+              do {
+                try self.move(selectedItems, to: selectedPlaylist)
+              } catch {
+                self.showAlert("error_title".localized, message: error.localizedDescription)
+              }
             }
 
             let nav = AppNavigationController(rootViewController: vc)
@@ -235,12 +267,9 @@ extension PlaylistViewController {
             return cell
         }
 
-        bookCell.type = .file
-
         guard
             let currentBook = PlayerManager.shared.currentBook,
-            let identifier = currentBook.identifier,
-            let index = self.folder.itemIndex(with: identifier),
+            let index = self.folder.index(for: currentBook),
             index == indexPath.row
         else {
             return bookCell
@@ -303,16 +332,19 @@ extension PlaylistViewController {
         let destinationItem = self.items[overIndexPath.row]
 
         guard let folder = destinationItem as? Folder ?? sourceItem as? Folder else {
-            let minIndex = min(finalDestinationIndexPath.row, overIndexPath.row)
+          let minIndex = min(finalDestinationIndexPath.row, overIndexPath.row)
 
-            self.presentCreateFolderAlert(destinationItem.title, handler: { title in
-                let folder = DataManager.createFolder(title: title, items: [])
-                DataManager.insert(folder, into: self.folder, at: minIndex)
-                self.move([sourceItem, destinationItem], to: folder)
+          self.presentCreateFolderAlert(destinationItem.title, handler: { title in
+            do {
+              let folder = try DataManager.createFolder(with: title, in: self.folder, library: self.library, at: minIndex)
+              try self.move([sourceItem, destinationItem], to: folder)
+            } catch {
+              self.showAlert("error_title".localized, message: error.localizedDescription)
+            }
 
-                self.reloadData()
-            })
-            return
+            self.reloadData()
+          })
+          return
         }
 
         let selectedItem = folder == destinationItem
@@ -328,8 +360,12 @@ extension PlaylistViewController {
         alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
 
         alert.addAction(UIAlertAction(title: "move_title".localized, style: .default, handler: { _ in
-            self.move([selectedItem], to: folder)
-            self.reloadData()
+          do {
+            try self.move([selectedItem], to: folder)
+          } catch {
+            self.showAlert("error_title".localized, message: error.localizedDescription)
+          }
+          self.reloadData()
         }))
 
         self.present(alert, animated: true, completion: nil)

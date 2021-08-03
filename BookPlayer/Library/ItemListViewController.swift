@@ -266,7 +266,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         }
     }
 
-    func handleOperationCompletion(_ files: [FileItem]) {
+    func handleOperationCompletion(_ files: [URL]) {
         fatalError("handleOperationCompletion must be overriden")
     }
 
@@ -303,12 +303,20 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
             alert.title = String(format: "delete_single_item_title".localized, folder.title!)
             alert.message = "delete_single_playlist_description".localized
             alert.addAction(UIAlertAction(title: "delete_shallow_button".localized, style: .default, handler: { _ in
-                self.delete(items, mode: .shallow)
+              do {
+                try self.delete(items, mode: .shallow)
+              } catch {
+                self.showAlert("error_title".localized, message: error.localizedDescription)
+              }
             }))
         }
 
         alert.addAction(UIAlertAction(title: deleteActionTitle, style: .destructive, handler: { _ in
-            self.delete(items, mode: .deep)
+          do {
+            try self.delete(items, mode: .deep)
+          } catch {
+            self.showAlert("error_title".localized, message: error.localizedDescription)
+          }
         }))
 
         present(alert, animated: true, completion: nil)
@@ -400,74 +408,59 @@ extension ItemListViewController {
         self.tableView.reloadData()
     }
 
-    @objc func onBookPlay() {
-        guard
-            let currentBook = PlayerManager.shared.currentBook,
-            let fileURL = currentBook.fileURL,
-            let index = self.library.itemIndex(with: fileURL.lastPathComponent),
-            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
-        else {
-            return
-        }
-
-        bookCell.playbackState = .playing
+  @objc func onBookPlay() {
+    guard
+      let currentBook = PlayerManager.shared.currentBook,
+      let index = self.library.index(for: currentBook),
+      let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
+    else {
+      return
     }
 
-    @objc func onBookPause() {
-        guard
-            let book = PlayerManager.shared.currentBook,
-            let fileURL = book.fileURL,
-            let index = self.library.itemIndex(with: fileURL.lastPathComponent),
-            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
-        else {
-            return
-        }
+    bookCell.playbackState = .playing
+  }
 
-        bookCell.playbackState = .paused
+  @objc func onBookPause() {
+    guard
+      let book = PlayerManager.shared.currentBook,
+      let index = self.library.index(for: book),
+      let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
+    else {
+      return
     }
 
-    @objc func onBookStop(_ notification: Notification) {
-        guard
-            let userInfo = notification.userInfo,
-            let book = userInfo["book"] as? Book,
-            !book.isFault,
-            let fileURL = book.fileURL,
-            let index = self.library.itemIndex(with: fileURL.lastPathComponent),
-            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
-        else {
-            return
-        }
+    bookCell.playbackState = .paused
+  }
 
-        bookCell.playbackState = .stopped
+  @objc func onBookStop(_ notification: Notification) {
+    guard
+      let userInfo = notification.userInfo,
+      let book = userInfo["book"] as? Book,
+      !book.isFault,
+      let index = self.library.index(for: book),
+      let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
+    else {
+      return
     }
+
+    bookCell.playbackState = .stopped
+  }
 
     @objc func updateProgress(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-            let bookIdentifier = userInfo["bookIdentifier"] as? String else {
-            return
-        }
+      guard let userInfo = notification.userInfo,
+            let currentBook = userInfo["book"] as? Book,
+            let index = self.library.index(for: currentBook),
+            let cell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView else {
+        return
+      }
 
-        guard let index = (self.items.firstIndex { (item) -> Bool in
-            if let book = item as? Book {
-                return book.identifier == bookIdentifier
-            }
+      let item = self.items[index]
 
-            if let folder = item as? Folder {
-                return folder.getItem(with: bookIdentifier) != nil
-            }
+      let progress = item is Folder
+        ? item.progressPercentage
+        : userInfo["progress"] as? Double ?? item.progressPercentage
 
-            return false
-        }), let cell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView else {
-            return
-        }
-
-        let item = self.items[index]
-
-        let progress = item is Folder
-            ? item.progressPercentage
-            : userInfo["progress"] as? Double ?? item.progressPercentage
-
-        cell.progress = item.isFinished ? 1.0 : progress
+      cell.progress = item.isFinished ? 1.0 : progress
     }
 
     @objc func adjustBottomOffsetForMiniPlayer() {

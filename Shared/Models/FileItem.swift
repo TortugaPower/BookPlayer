@@ -8,18 +8,25 @@
 
 import Foundation
 
-public class FileItem {
-    public var originalUrl: URL
-    public var processedUrl: URL?
-    public var destinationFolder: URL
+public class FileItem: NSCopying {
+  public var originalUrl: URL
+  public var destinationFolder: URL
+  public var subItems = 0
 
-    public init(originalUrl: URL, processedUrl: URL?, destinationFolder: URL) {
-        self.originalUrl = originalUrl
-        self.processedUrl = processedUrl
-        self.destinationFolder = destinationFolder
-    }
+  public var processedUrl: URL {
+    return self.destinationFolder.appendingPathComponent(self.originalUrl.lastPathComponent)
+  }
 
-    convenience init(_ url: URL, destinationFolder: URL) {
-        self.init(originalUrl: url, processedUrl: nil, destinationFolder: destinationFolder)
-    }
+  public init(originalUrl: URL, destinationFolder: URL) {
+    self.originalUrl = originalUrl
+    self.destinationFolder = destinationFolder
+  }
+
+  public func copy(with zone: NSZone? = nil) -> Any {
+    return FileItem(originalUrl: self.originalUrl, destinationFolder: self.destinationFolder)
+  }
+
+  public func getOriginalName() -> String {
+    return self.originalUrl.lastPathComponent
+  }
 }

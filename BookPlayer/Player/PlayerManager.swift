@@ -152,7 +152,6 @@ class PlayerManager: NSObject, TelemetryProtocol {
     // Called every second by the timer
     @objc func update() {
         guard let book = self.currentBook,
-              let bookIdentifier = book.identifier,
               let fileURL = book.fileURL,
               let playerItem = self.playerItem,
               playerItem.status == .readyToPlay else {
@@ -176,7 +175,7 @@ class PlayerManager: NSObject, TelemetryProtocol {
                                             userInfo: [
                                                 "progress": book.progressPercentage,
                                                 "fileURL": fileURL,
-                                                "bookIdentifier": bookIdentifier
+                                                "book": book
                                             ] as [String: Any])
         }
 
@@ -381,7 +380,7 @@ extension PlayerManager {
 
         UserActivityManager.shared.resumePlaybackActivity()
 
-        if let library = currentBook.library ?? currentBook.folder?.library {
+        if let library = currentBook.getLibrary() {
             library.lastPlayedBook = currentBook
             DataManager.saveContext()
         }
@@ -471,7 +470,7 @@ extension PlayerManager {
 
         UserActivityManager.shared.stopPlaybackActivity()
 
-        if let library = currentBook.library ?? currentBook.folder?.library {
+        if let library = currentBook.getLibrary() {
             library.lastPlayedBook = currentBook
             DataManager.saveContext()
         }

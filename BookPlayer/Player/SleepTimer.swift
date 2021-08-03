@@ -7,6 +7,7 @@
 //
 
 import BookPlayerKit
+import Combine
 import Foundation
 import IntentsUI
 import UIKit
@@ -21,6 +22,7 @@ final class SleepTimer: TelemetryProtocol {
     let durationFormatter: DateComponentsFormatter = DateComponentsFormatter()
 
     private var timer: Timer?
+    private var subscription: AnyCancellable?
 
     private let defaultMessage: String = "player_sleep_title".localized
     private var alert: UIAlertController?
@@ -35,7 +37,7 @@ final class SleepTimer: TelemetryProtocol {
     ]
 
     public func isActive() -> Bool {
-        return (self.timer?.isValid ?? false) || self.timeLeft == -2
+        return self.subscription != nil || self.timeLeft == -2
     }
 
     public func isEndChapterActive() -> Bool {
@@ -86,6 +88,7 @@ final class SleepTimer: TelemetryProtocol {
         PlayerManager.shared.pause(fade: true)
 
         NotificationCenter.default.post(name: .timerEnd, object: nil)
+        self.subscription?.cancel()
     }
 
     private func startEndOfChapterOption() {
@@ -198,8 +201,10 @@ final class SleepTimer: TelemetryProtocol {
         self.reset()
 
         self.timeLeft = seconds
-        self.timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.update), userInfo: nil, repeats: true)
-
-        RunLoop.main.add(self.timer!, forMode: RunLoop.Mode.common)
+        self.subscription = Timer.publish(every: 1, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                self?.update()
+            }
     }
 }
