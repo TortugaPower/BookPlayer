@@ -1,37 +1,28 @@
-- ☝️ Provide a short but descriptive title for this PR.
-- 🏷 Remember to label your pull request appropriately and select appropriate code reviewers.
+## Purpose
 
-# 🔨 PR Type
+- Write a few sentences here outlining the purpose of the PR
+- **Use good markdown styling**, including `inline code` highlighting for variable or function names, or code blocks for any multiline snippets of code.
+- If you are not familiar with Github flavored markdown, you can find it [here](https://guides.github.com/features/mastering-markdown/)
 
-_Please check the type of change your PR introduces._
+## Bugfix
 
-- [ ] Bugfix
-- [ ] Feature
-- [ ] Code style update (formatting, renaming)
-- [ ] Refactoring (no functional changes, no api changes)
-- [ ] Documentation content changes
-- [ ] Other (please describe in summary)
+- If this is a bugfix branch, fill this out instead of the above "Purpose" section.
+- Describe what issue is being fixed
 
-_Provide a more descriptive summary of the changes in this PR here._
+## Linear tasks
 
-# 📝 Summary of Changes
+- Links to the Linear tasks being addressed in this PR
 
-Changes proposed in this pull request:
+## Approach
 
-- Resolves issue #99999 by doing the thing with another thing
-- Add more details here...
-- ...
+- Tell the reviewers the general approach that was taken
+- Include any new classes, services, endpoints, etc. that were added.
 
-# ⚠️ Items of Note
+## Things to be aware of / Things to focus on
 
-_Document anything here that you think the reviewer(s) of this PR may need to know, or would be of specific interest._
+- Anything to watch out for in reviewing this PR, or anything that requires special attention? Put it in here.
+- If there are particular things to review, make a bullet list here
 
-# 🧐🗒 Reviewer Notes
+## Screenshots
 
-## 💁 Example
-
-_Add an example of using the changes you've implemented (eg, a screenshot or screen recording)._
-
-## 🔨 Scenarios Tested / How To Test
-
-_Provide instructions on how to test your changes._
+- Would a screenshot(s) help communicate the improvements, issue being fixed? Then include a screenshot.
