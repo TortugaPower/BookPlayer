@@ -137,7 +137,8 @@ class PlayerManager: NSObject, TelemetryProtocol {
 
                 if book.currentTime > 0.0 {
                     // if book is truly finished, start book again to avoid autoplaying next one
-                    let time = book.currentTime == book.duration ? 0 : book.currentTime
+                    // add 1 second as a finished threshold
+                    let time = (book.currentTime + 1) >= book.duration ? 0 : book.currentTime
                     self.jumpTo(time)
                 }
 
@@ -561,6 +562,8 @@ extension PlayerManager {
         }
 
         self.update()
+
+        self.markAsCompleted(true)
 
         guard let nextBook = self.currentBook?.nextBook() else { return }
 
