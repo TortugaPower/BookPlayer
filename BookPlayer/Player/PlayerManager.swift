@@ -114,8 +114,6 @@ class PlayerManager: NSObject, TelemetryProtocol {
             self.audioPlayer.replaceCurrentItem(with: nil)
             self.audioPlayer.replaceCurrentItem(with: item)
 
-            self.boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
-
             // Update UI on main thread
             DispatchQueue.main.async {
                 // Set book metadata for lockscreen and control center
@@ -422,7 +420,7 @@ extension PlayerManager {
         }
 
         self.fadeTimer?.invalidate()
-        self.audioPlayer.volume = 1
+        self.boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
         // Set play state on player and control center
         self.audioPlayer.playImmediately(atRate: self.speed)
 
