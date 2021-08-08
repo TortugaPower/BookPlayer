@@ -8,7 +8,6 @@
 
 import BookPlayerKit
 import MediaPlayer
-import SwiftReorder
 import Themeable
 import UIKit
 
@@ -51,14 +50,9 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         self.tableView.register(UINib(nibName: "AddCellView", bundle: nil), forCellReuseIdentifier: "AddCellView")
         self.tableView.allowsSelection = true
         self.tableView.allowsMultipleSelectionDuringEditing = true
-
-        self.tableView.reorder.delegate = self
-        self.tableView.reorder.cellScale = 1.07
-        self.tableView.reorder.shadowColor = UIColor.black
-        self.tableView.reorder.shadowOffset = CGSize(width: 0.0, height: 3.0)
-        self.tableView.reorder.shadowOpacity = 0.25
-        self.tableView.reorder.shadowRadius = 8.0
-        self.tableView.reorder.animationDuration = 0.15
+        self.tableView.dragInteractionEnabled = true
+        self.tableView.dragDelegate = self
+        self.tableView.dropDelegate = self
 
         // The bottom offset has to be adjusted for the miniplayer as the notification doing this would be sent before the current VC was created
         self.adjustBottomOffsetForMiniPlayer()
@@ -249,7 +243,6 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
     func loadPlayer(book: Book) {
         guard DataManager.exists(book) else {
             self.showAlert("file_missing_title".localized, message: "file_missing_description".localized)
-
             return
         }
 
@@ -531,10 +524,6 @@ extension ItemListViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if let spacer = tableView.reorder.spacerCell(for: indexPath) {
-            return spacer
-        }
-
         guard indexPath.sectionValue != .add,
             let cell = tableView.dequeueReusableCell(withIdentifier: "BookCellView", for: indexPath) as? BookCellView else {
             return tableView.dequeueReusableCell(withIdentifier: "AddCellView", for: indexPath)
@@ -546,6 +535,7 @@ extension ItemListViewController: UITableViewDataSource {
         cell.title = item.title
         cell.playbackState = .stopped
         cell.type = item is Folder ? .folder : .book
+        cell.showsReorderControl = true
 
         cell.onArtworkTap = { [weak self] in
             guard !tableView.isEditing else {
@@ -663,54 +653,49 @@ extension ItemListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
         self.updateSelectionStatus()
     }
+
+  // MARK: - Reorder Delegate
+  func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+    return indexPath.sectionValue == .data
+  }
+
+  func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+    guard sourceIndexPath.sectionValue == .data,
+          destinationIndexPath.sectionValue == .data,
+          sourceIndexPath.row != destinationIndexPath.row  else {
+        return
+    }
+
+    let item = self.items[sourceIndexPath.row]
+
+    self.library.removeFromItems(at: sourceIndexPath.row)
+    self.library.insertIntoItems(item, at: destinationIndexPath.row)
+
+    DataManager.saveContext()
+  }
 }
 
-// MARK: - Reorder Delegate
+extension ItemListViewController: UITableViewDragDelegate {
+  func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+    return [UIDragItem(itemProvider: NSItemProvider())]
+  }
+}
 
-extension ItemListViewController: TableViewReorderDelegate {
-    func tableViewDidBeginReordering(_ tableView: UITableView, at indexPath: IndexPath) {
-        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+extension ItemListViewController: UITableViewDropDelegate {
+  func tableView(_ tableView: UITableView, performDropWith coordinator: UITableViewDropCoordinator) {}
+
+  func tableView(_ tableView: UITableView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UITableViewDropProposal {
+    // Cancel drop if destination is not in the data section
+    if destinationIndexPath?.sectionValue == .add {
+      return UITableViewDropProposal(operation: .cancel, intent: .unspecified)
     }
 
-    @objc func tableView(_ tableView: UITableView, reorderRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+    if session.localDragSession != nil { // Drag originated from the same app.
+      return UITableViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)
     }
 
-    func tableView(_ tableView: UITableView, canReorderRowAt indexPath: IndexPath) -> Bool {
-        return indexPath.sectionValue == .data
-    }
-
-    func tableView(_ tableView: UITableView, targetIndexPathForReorderFromRowAt sourceIndexPath: IndexPath, to proposedDestinationIndexPath: IndexPath, snapshot: UIView?) -> IndexPath {
-        guard proposedDestinationIndexPath.sectionValue == .data else {
-            return sourceIndexPath
-        }
-
-        if let snapshot = snapshot {
-            UIView.animate(withDuration: 0.2) {
-                snapshot.transform = CGAffineTransform.identity
-            }
-        }
-
-        return proposedDestinationIndexPath
-    }
-
-    @objc func tableView(_ tableView: UITableView, sourceIndexPath: IndexPath, overIndexPath: IndexPath, snapshot: UIView) {
-        guard overIndexPath.sectionValue == .data else {
-            return
-        }
-
-        UIImpactFeedbackGenerator(style: .light).impactOccurred()
-
-        let scale: CGFloat = 0.90
-
-        UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveEaseOut, animations: {
-            snapshot.transform = CGAffineTransform(scaleX: scale, y: scale)
-        })
-    }
-
-    @objc func tableViewDidFinishReordering(_ tableView: UITableView, from initialSourceIndexPath: IndexPath, to finalDestinationIndexPath: IndexPath, dropped overIndexPath: IndexPath?) {
-        MPPlayableContentManager.shared().reloadData()
-    }
+    return UITableViewDropProposal(operation: .cancel, intent: .unspecified)
+  }
 }
 
 // MARK: DocumentPicker Delegate

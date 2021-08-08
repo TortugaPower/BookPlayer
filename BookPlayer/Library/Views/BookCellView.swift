@@ -148,6 +148,12 @@ class BookCellView: UITableViewCell {
         self.selectionView.isSelected = selected
     }
 
+  override func setEditing(_ editing: Bool, animated: Bool) {
+    super.setEditing(editing, animated: animated)
+
+    self.progressView.isHidden = editing
+  }
+
     func setPlaybackColors(_ theme: Theme) {
         switch self.playbackState {
         case .playing, .paused:
@@ -176,13 +182,16 @@ extension BookCellView {
 }
 
 extension BookCellView: Themeable {
-    func applyTheme(_ theme: Theme) {
-        self.titleLabel.textColor = theme.primaryColor
-        self.subtitleLabel.textColor = theme.secondaryColor
-        self.durationLabel.textColor = theme.secondaryColor
-        self.backgroundColor = theme.systemBackgroundColor
-        self.setPlaybackColors(theme)
-        self.selectionView.defaultColor = theme.secondarySystemFillColor
-        self.selectionView.selectedColor = theme.systemFillColor
-    }
+  func applyTheme(_ theme: Theme) {
+    self.titleLabel.textColor = theme.primaryColor
+    self.subtitleLabel.textColor = theme.secondaryColor
+    self.durationLabel.textColor = theme.secondaryColor
+    self.backgroundColor = theme.systemBackgroundColor
+    self.setPlaybackColors(theme)
+    self.selectionView.defaultColor = theme.secondarySystemFillColor
+    self.selectionView.selectedColor = theme.systemFillColor
+    self.overrideUserInterfaceStyle = theme.useDarkVariant
+      ? UIUserInterfaceStyle.dark
+      : UIUserInterfaceStyle.light
+  }
 }

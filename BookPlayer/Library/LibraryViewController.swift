@@ -10,7 +10,6 @@ import BookPlayerKit
 import Combine
 import CoreData
 import MediaPlayer
-import SwiftReorder
 import UIKit
 
 // swiftlint:disable file_length
@@ -480,73 +479,5 @@ extension LibraryViewController {
         bookCell.playbackState = .paused
 
         return bookCell
-    }
-}
-
-// MARK: - Reorder Delegate
-
-extension LibraryViewController {
-    override func tableView(_ tableView: UITableView, reorderRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        super.tableView(tableView, reorderRowAt: sourceIndexPath, to: destinationIndexPath)
-
-        guard destinationIndexPath.sectionValue == .data else {
-            return
-        }
-
-        let item = self.items[sourceIndexPath.row]
-
-        self.library.removeFromItems(at: sourceIndexPath.row)
-        self.library.insertIntoItems(item, at: destinationIndexPath.row)
-
-        DataManager.saveContext()
-    }
-
-    override func tableViewDidFinishReordering(_ tableView: UITableView, from initialSourceIndexPath: IndexPath, to finalDestinationIndexPath: IndexPath, dropped overIndexPath: IndexPath?) {
-        super.tableViewDidFinishReordering(tableView, from: initialSourceIndexPath, to: finalDestinationIndexPath, dropped: overIndexPath)
-
-        guard let overIndexPath = overIndexPath, overIndexPath.sectionValue == .data else { return }
-
-        let sourceItem = self.items[finalDestinationIndexPath.row]
-        let destinationItem = self.items[overIndexPath.row]
-
-        guard let folder = destinationItem as? Folder ?? sourceItem as? Folder else {
-            let minIndex = min(finalDestinationIndexPath.row, overIndexPath.row)
-
-            self.presentCreateFolderAlert(destinationItem.title, handler: { title in
-              do {
-                let folder = try DataManager.createFolder(with: title, in: nil, library: self.library, at: minIndex)
-                try self.move([sourceItem, destinationItem], to: folder)
-              } catch {
-                self.showAlert("error_title".localized, message: error.localizedDescription)
-              }
-
-              self.reloadData()
-            })
-            return
-        }
-
-        let selectedItem = folder == destinationItem
-            ? sourceItem
-            : destinationItem
-
-        let message = String.localizedStringWithFormat("move_single_item_title".localized, selectedItem.title!, folder.title!)
-
-        let alert = UIAlertController(title: "move_playlist_button".localized,
-                                      message: message,
-                                      preferredStyle: .alert)
-
-        alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
-
-        alert.addAction(UIAlertAction(title: "move_title".localized, style: .default, handler: { _ in
-          do {
-            try self.move([selectedItem], to: folder)
-          } catch {
-            self.showAlert("error_title".localized, message: error.localizedDescription)
-          }
-
-          self.reloadData()
-        }))
-
-        self.present(alert, animated: true, completion: nil)
     }
 }
