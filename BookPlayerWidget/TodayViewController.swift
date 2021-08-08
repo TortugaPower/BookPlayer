@@ -36,9 +36,8 @@ class TodayViewController: UIViewController, NCWidgetProviding {
     }
 
     func updateBookDetails() {
-        let library = DataManager.getLibrary()
-
-        guard let book = library.lastPlayedBook else { return }
+        guard let library = try? DataManager.getLibrary(),
+              let book = library.lastPlayedBook else { return }
 
         self.titleLabel.text = book.title
         self.authorLabel.text = book.author

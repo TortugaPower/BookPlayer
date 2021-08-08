@@ -18,32 +18,38 @@ struct PlayAndSleepProvider: IntentTimelineProvider {
     }
 
     func getSnapshot(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (Entry) -> Void) {
-        let library = DataManager.getLibrary()
-        let title = library.lastPlayedBook?.currentChapter?.title
-            ?? library.lastPlayedBook?.title
-        let autoplay = configuration.autoplay?.boolValue ?? true
-        let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
+      guard let library = try? DataManager.getLibrary() else {
+        completion(placeholder(in: context))
+        return
+      }
 
-        let entry = SimpleEntry(date: Date(),
-                                title: title,
-                                artwork: library.lastPlayedBook?.getArtwork(for: library.currentTheme),
-                                theme: library.currentTheme,
-                                timerSeconds: seconds,
-                                autoplay: autoplay)
+      let title = library.lastPlayedBook?.currentChapter?.title ?? library.lastPlayedBook?.title
+      let autoplay = configuration.autoplay?.boolValue ?? true
+      let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
 
-        completion(entry)
+      let entry = SimpleEntry(date: Date(),
+                              title: title,
+                              artwork: library.lastPlayedBook?.getArtwork(for: library.currentTheme),
+                              theme: library.currentTheme,
+                              timerSeconds: seconds,
+                              autoplay: autoplay)
+
+      completion(entry)
     }
 
     func getTimeline(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (Timeline<Entry>) -> Void) {
-        let library = DataManager.getLibrary()
-        let title = library.lastPlayedBook?.currentChapter?.title
-            ?? library.lastPlayedBook?.title
-        let autoplay = configuration.autoplay?.boolValue ?? true
-        let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
+      guard let library = try? DataManager.getLibrary() else {
+        completion(Timeline(entries: [], policy: .atEnd))
+        return
+      }
 
-        let entries: [SimpleEntry] = [SimpleEntry(date: Date(), title: title, artwork: library.lastPlayedBook?.getArtwork(for: library.currentTheme), theme: library.currentTheme, timerSeconds: seconds, autoplay: autoplay)]
-        let timeline = Timeline(entries: entries, policy: .atEnd)
-        completion(timeline)
+      let title = library.lastPlayedBook?.currentChapter?.title ?? library.lastPlayedBook?.title
+      let autoplay = configuration.autoplay?.boolValue ?? true
+      let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
+
+      let entries: [SimpleEntry] = [SimpleEntry(date: Date(), title: title, artwork: library.lastPlayedBook?.getArtwork(for: library.currentTheme), theme: library.currentTheme, timerSeconds: seconds, autoplay: autoplay)]
+      let timeline = Timeline(entries: entries, policy: .atEnd)
+      completion(timeline)
     }
 }
 

@@ -18,26 +18,34 @@ struct RecentBooksProvider: IntentTimelineProvider {
     }
 
     func getSnapshot(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (LibraryEntry) -> Void) {
-        let library = DataManager.getLibrary()
-        let autoplay = configuration.autoplay?.boolValue ?? true
-        let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
+      guard let library = try? DataManager.getLibrary() else {
+        completion(placeholder(in: context))
+        return
+      }
 
-        let entry = LibraryEntry(date: Date(),
-                                 library: library,
-                                 timerSeconds: seconds,
-                                 autoplay: autoplay)
+      let autoplay = configuration.autoplay?.boolValue ?? true
+      let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
 
-        completion(entry)
+      let entry = LibraryEntry(date: Date(),
+                               library: library,
+                               timerSeconds: seconds,
+                               autoplay: autoplay)
+
+      completion(entry)
     }
 
     func getTimeline(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (Timeline<LibraryEntry>) -> Void) {
-        let library = DataManager.getLibrary()
-        let autoplay = configuration.autoplay?.boolValue ?? true
-        let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
+      guard let library = try? DataManager.getLibrary() else {
+        completion(Timeline(entries: [], policy: .atEnd))
+        return
+      }
 
-        let entries: [LibraryEntry] = [LibraryEntry(date: Date(), library: library, timerSeconds: seconds, autoplay: autoplay)]
-        let timeline = Timeline(entries: entries, policy: .atEnd)
-        completion(timeline)
+      let autoplay = configuration.autoplay?.boolValue ?? true
+      let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
+
+      let entries: [LibraryEntry] = [LibraryEntry(date: Date(), library: library, timerSeconds: seconds, autoplay: autoplay)]
+      let timeline = Timeline(entries: entries, policy: .atEnd)
+      completion(timeline)
     }
 }
 

@@ -38,25 +38,30 @@ final class ThemeManager: ThemeProvider {
         self.useDarkVariant = UIScreen.main.traitCollection.userInterfaceStyle == .dark
     }
 
-    private init() {
-        if UserDefaults.standard.bool(forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue) {
-            self.useDarkVariant = UIScreen.main.traitCollection.userInterfaceStyle == .dark
-        } else {
-            self.useDarkVariant = UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeDarkVariantEnabled.rawValue)
-        }
-
-        if UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeBrightnessEnabled.rawValue) {
-            let threshold = UserDefaults.standard.float(forKey: Constants.UserDefaults.themeBrightnessThreshold.rawValue)
-            let brightness = (UIScreen.main.brightness * 100).rounded() / 100
-            self.useDarkVariant = brightness <= CGFloat(threshold)
-        }
-
-        let currentTheme: Theme = DataManager.getLibrary().currentTheme
-        currentTheme.useDarkVariant = self.useDarkVariant
-        self.theme = SubscribableValue<Theme>(value: currentTheme)
-
-        NotificationCenter.default.addObserver(self, selector: #selector(self.brightnessChanged(_:)), name: UIScreen.brightnessDidChangeNotification, object: nil)
+  private init() {
+    if UserDefaults.standard.bool(forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue) {
+      self.useDarkVariant = UIScreen.main.traitCollection.userInterfaceStyle == .dark
+    } else {
+      self.useDarkVariant = UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeDarkVariantEnabled.rawValue)
     }
+
+    if UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeBrightnessEnabled.rawValue) {
+      let threshold = UserDefaults.standard.float(forKey: Constants.UserDefaults.themeBrightnessThreshold.rawValue)
+      let brightness = (UIScreen.main.brightness * 100).rounded() / 100
+      self.useDarkVariant = brightness <= CGFloat(threshold)
+    }
+
+    guard let library = try? DataManager.getLibrary() else {
+      self.theme = SubscribableValue<Theme>(value: DataManager.getLocalThemes().first!)
+      return
+    }
+
+    let currentTheme: Theme = library.currentTheme
+    currentTheme.useDarkVariant = self.useDarkVariant
+    self.theme = SubscribableValue<Theme>(value: currentTheme)
+
+    NotificationCenter.default.addObserver(self, selector: #selector(self.brightnessChanged(_:)), name: UIScreen.brightnessDidChangeNotification, object: nil)
+  }
 
     @objc private func brightnessChanged(_ notification: Notification) {
         guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeBrightnessEnabled.rawValue) else { return }

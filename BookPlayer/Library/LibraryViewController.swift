@@ -8,6 +8,7 @@
 
 import BookPlayerKit
 import Combine
+import CoreData
 import MediaPlayer
 import SwiftReorder
 import UIKit
@@ -28,6 +29,8 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
 
         // enables pop gesture on pushed controller
         self.navigationController!.interactivePopGestureRecognizer!.delegate = self
+
+        self.handleCoreDataError()
 
         self.loadLibrary()
 
@@ -75,8 +78,39 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
     self.present(nav, animated: true, completion: nil)
   }
 
+  func handleCoreDataError() {
+    guard let coreDataError = DataManager.loadingDataError else { return }
+
+    let error = coreDataError as NSError
+    // CoreData may fail if device doesn't have space
+    if (error.domain == NSPOSIXErrorDomain && error.code == ENOSPC) ||
+        (error.domain == NSCocoaErrorDomain && error.code == NSFileWriteOutOfSpaceError) {
+      self.showAlert("error_title".localized, message: "coredata_error_diskfull_description".localized)
+      return
+    }
+
+    // Handle data error migration by reloading library
+    if error.code == NSMigrationError ||
+        error.code == NSMigrationConstraintViolationError ||
+        error.code == NSMigrationCancelledError ||
+        error.code == NSMigrationMissingSourceModelError ||
+        error.code == NSMigrationMissingMappingModelError ||
+        error.code == NSMigrationManagerSourceStoreError ||
+        error.code == NSMigrationManagerDestinationStoreError ||
+        error.code == NSEntityMigrationPolicyError {
+      self.showAlert("error_title".localized, message: "coredata_error_migration_description".localized) {
+        DataManager.cleanAndReloadLibrary()
+      }
+      return
+    }
+
+    fatalError("Unresolved error \(error), \(error.userInfo)")
+  }
+
     func loadLibrary() {
-        self.library = DataManager.getLibrary()
+        guard let library = try? DataManager.getLibrary() else { return }
+
+        self.library = library
 
         self.toggleEmptyStateView()
 
@@ -108,7 +142,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
     }
 
     func loadLastBook() {
-        guard let book = self.library.lastPlayedBook else {
+        guard self.library != nil, let book = self.library.lastPlayedBook else {
             return
         }
 

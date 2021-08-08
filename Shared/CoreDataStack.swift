@@ -10,7 +10,9 @@ import CoreData
 import Foundation
 
 public class CoreDataStack {
-    private let modelName: String
+  private let modelName: String
+  private let loadCompletionHandler: (NSPersistentStoreDescription, Error?) -> Void
+
     public lazy var managedContext: NSManagedObjectContext = {
         self.storeContainer.viewContext
     }()
@@ -19,9 +21,10 @@ public class CoreDataStack {
         FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!.appendingPathComponent("BookPlayer.sqlite")
     }()
 
-    public init(modelName: String) {
-        self.modelName = modelName
-    }
+  public init(modelName: String, loadCompletionHandler: @escaping (NSPersistentStoreDescription, Error?) -> Void) {
+    self.modelName = modelName
+    self.loadCompletionHandler = loadCompletionHandler
+  }
 
     private lazy var storeContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: self.modelName)
@@ -33,11 +36,7 @@ public class CoreDataStack {
 
         container.persistentStoreDescriptions = [description]
 
-        container.loadPersistentStores(completionHandler: { _, error in
-            if let error = error as NSError? {
-                fatalError("Unresolved error \(error), \(error.userInfo)")
-            }
-        })
+        container.loadPersistentStores(completionHandler: self.loadCompletionHandler)
 
         return container
     }()
