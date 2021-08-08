@@ -259,7 +259,6 @@
 		41F1A1CE254B07090043FCF3 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 41F1A1CD254B07090043FCF3 /* Alamofire */; };
 		41F1A1D7254B07E80043FCF3 /* MarqueeLabel in Frameworks */ = {isa = PBXBuildFile; productRef = 41F1A1D6254B07E80043FCF3 /* MarqueeLabel */; };
 		41F1A1E0254B08A10043FCF3 /* DeviceKit in Frameworks */ = {isa = PBXBuildFile; productRef = 41F1A1DF254B08A10043FCF3 /* DeviceKit */; };
-		41F1A1E9254B08CA0043FCF3 /* SwiftReorder in Frameworks */ = {isa = PBXBuildFile; productRef = 41F1A1E8254B08CA0043FCF3 /* SwiftReorder */; };
 		41F1A1F2254B09020043FCF3 /* IDZSwiftCommonCrypto in Frameworks */ = {isa = PBXBuildFile; productRef = 41F1A1F1254B09020043FCF3 /* IDZSwiftCommonCrypto */; };
 		41F1A1FB254B09360043FCF3 /* DirectoryWatcher in Frameworks */ = {isa = PBXBuildFile; productRef = 41F1A1FA254B09360043FCF3 /* DirectoryWatcher */; };
 		41F1A204254B09C00043FCF3 /* Themeable in Frameworks */ = {isa = PBXBuildFile; productRef = 41F1A203254B09C00043FCF3 /* Themeable */; };
@@ -781,7 +780,6 @@
 				41F1A204254B09C00043FCF3 /* Themeable in Frameworks */,
 				41F1A21F254B0B0B0043FCF3 /* SwiftyStoreKit in Frameworks */,
 				411373892552273E00295022 /* TelemetryClient in Frameworks */,
-				41F1A1E9254B08CA0043FCF3 /* SwiftReorder in Frameworks */,
 				41F1A20D254B0A0C0043FCF3 /* Sentry in Frameworks */,
 				41A1B0E7226E9BC500EA0400 /* BookPlayerKit.framework in Frameworks */,
 				41F1A216254B0AA40043FCF3 /* Kingfisher in Frameworks */,
@@ -1560,7 +1558,6 @@
 				41F1A1CD254B07090043FCF3 /* Alamofire */,
 				41F1A1D6254B07E80043FCF3 /* MarqueeLabel */,
 				41F1A1DF254B08A10043FCF3 /* DeviceKit */,
-				41F1A1E8254B08CA0043FCF3 /* SwiftReorder */,
 				41F1A1F1254B09020043FCF3 /* IDZSwiftCommonCrypto */,
 				41F1A1FA254B09360043FCF3 /* DirectoryWatcher */,
 				41F1A203254B09C00043FCF3 /* Themeable */,
@@ -1734,7 +1731,6 @@
 				41F1A1CC254B07090043FCF3 /* XCRemoteSwiftPackageReference "Alamofire" */,
 				41F1A1D5254B07E80043FCF3 /* XCRemoteSwiftPackageReference "MarqueeLabel" */,
 				41F1A1DE254B08A10043FCF3 /* XCRemoteSwiftPackageReference "DeviceKit" */,
-				41F1A1E7254B08CA0043FCF3 /* XCRemoteSwiftPackageReference "SwiftReorder" */,
 				41F1A1F0254B09020043FCF3 /* XCRemoteSwiftPackageReference "IDZSwiftCommonCrypto" */,
 				41F1A1F9254B09360043FCF3 /* XCRemoteSwiftPackageReference "DirectoryWatcher" */,
 				41F1A202254B09C00043FCF3 /* XCRemoteSwiftPackageReference "Themeable" */,
@@ -3653,14 +3649,6 @@
 				minimumVersion = 4.2.1;
 			};
 		};
-		41F1A1E7254B08CA0043FCF3 /* XCRemoteSwiftPackageReference "SwiftReorder" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/GianniCarlo/SwiftReorder.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.2.0;
-			};
-		};
 		41F1A1F0254B09020043FCF3 /* XCRemoteSwiftPackageReference "IDZSwiftCommonCrypto" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/iosdevzone/IDZSwiftCommonCrypto.git";
@@ -3739,11 +3727,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 41F1A1DE254B08A10043FCF3 /* XCRemoteSwiftPackageReference "DeviceKit" */;
 			productName = DeviceKit;
-		};
-		41F1A1E8254B08CA0043FCF3 /* SwiftReorder */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 41F1A1E7254B08CA0043FCF3 /* XCRemoteSwiftPackageReference "SwiftReorder" */;
-			productName = SwiftReorder;
 		};
 		41F1A1F1254B09020043FCF3 /* IDZSwiftCommonCrypto */ = {
 			isa = XCSwiftPackageProductDependency;
