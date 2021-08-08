@@ -486,7 +486,6 @@ extension PlayerManager {
             UserDefaults.standard.set(Date(), forKey: "\(Constants.UserDefaults.lastPauseTime)_\(currentBook.identifier!)")
 
             try? AVAudioSession.sharedInstance().setActive(false)
-            self.sendSignal(.pauseAction, with: nil)
         }
 
         guard fade else {

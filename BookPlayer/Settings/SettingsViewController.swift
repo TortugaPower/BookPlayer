@@ -91,8 +91,6 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
 
         self.version = version
         self.build = build
-
-        self.sendSignal(.settingsScreen, with: nil)
     }
 
     @objc func donationMade() {

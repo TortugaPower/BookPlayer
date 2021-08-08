@@ -128,7 +128,6 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
         super.viewDidAppear(animated)
 
         self.updateAutolock()
-        self.sendSignal(.playerScreen, with: nil)
     }
 
     override func viewWillDisappear(_ animated: Bool) {

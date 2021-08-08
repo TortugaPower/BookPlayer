@@ -34,8 +34,6 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         self.loadLibrary()
 
         self.loadLastBook()
-
-        self.sendSignal(.libraryScreen, with: nil)
     }
 
     // No longer need to deregister observers for iOS 9+!
