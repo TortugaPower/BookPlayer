@@ -18,29 +18,36 @@ struct TimeListenedProvider: IntentTimelineProvider {
     }
 
     func getSnapshot(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (TimeListenedEntry) -> Void) {
-        let library = DataManager.getLibrary()
-        let autoplay = configuration.autoplay?.boolValue ?? true
-        let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
+      guard let library = try? DataManager.getLibrary() else {
+        completion(placeholder(in: context))
+        return
+      }
 
-        var records: [PlaybackRecordViewer]
+      let autoplay = configuration.autoplay?.boolValue ?? true
+      let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
 
-        if context.family == .systemMedium {
-            records = WidgetUtils.getPlaybackRecords()
-        } else {
-            records = [WidgetUtils.getPlaybackRecord()]
-        }
+      var records: [PlaybackRecordViewer]
 
-        let entry = TimeListenedEntry(date: Date(),
-                                      library: library,
-                                      timerSeconds: seconds,
-                                      autoplay: autoplay,
-                                      playbackRecords: records)
+      if context.family == .systemMedium {
+        records = WidgetUtils.getPlaybackRecords()
+      } else {
+        records = [WidgetUtils.getPlaybackRecord()]
+      }
 
-        completion(entry)
+      let entry = TimeListenedEntry(date: Date(),
+                                    library: library,
+                                    timerSeconds: seconds,
+                                    autoplay: autoplay,
+                                    playbackRecords: records)
+
+      completion(entry)
     }
 
     func getTimeline(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (Timeline<TimeListenedEntry>) -> Void) {
-        let library = DataManager.getLibrary()
+      guard let library = try? DataManager.getLibrary() else {
+        completion(Timeline(entries: [], policy: .after(WidgetUtils.getNextDayDate())))
+        return
+      }
         let autoplay = configuration.autoplay?.boolValue ?? true
         let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
 

@@ -95,9 +95,8 @@ class ActionParserService {
             return
         }
 
-        let library = DataManager.getLibrary()
-
-        guard let book = DataManager.getBook(with: bookIdentifier, from: library) else { return }
+        guard let library = try? DataManager.getLibrary(),
+              let book = DataManager.getBook(with: bookIdentifier, from: library) else { return }
 
         guard let libraryVC = appDelegate.getLibraryVC() else {
             return

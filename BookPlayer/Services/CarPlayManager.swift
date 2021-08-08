@@ -50,14 +50,16 @@ enum IndexGuide {
 class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDelegate {
     static let shared = CarPlayManager()
 
-    var library: Library!
+    var library: Library?
 
     typealias Tab = (identifier: String, title: String, imageName: String)
     let tabs: [Tab] = [("tab-library", "library_title".localized, "carplayLibrary"),
                        ("tab-recent", "carplay_recent_title".localized, "carplayRecent")]
 
     private override init() {
-        self.library = DataManager.getLibrary()
+      guard let library = try? DataManager.getLibrary() else { return }
+
+      self.library = library
     }
 
     func createTabItem(for indexPath: IndexPath) -> MPContentItem {
@@ -209,11 +211,11 @@ class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDe
     private func getItems(for indexPath: IndexPath) -> [LibraryItem]? {
         // Recently played items
         if indexPath[0] == IndexGuide.tab.recentlyPlayed {
-            return self.library.getItemsOrderedByDate()
+            return self.library?.getItemsOrderedByDate()
         }
 
         // Library items
-        return self.library.items?.array as? [LibraryItem]
+        return self.library?.items?.array as? [LibraryItem]
     }
 
     func setNowPlayingInfo(with book: Book) {

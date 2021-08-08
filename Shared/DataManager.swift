@@ -10,8 +10,9 @@ import CoreData
 import Foundation
 
 public class DataManager {
-    public static let processedFolderName = "Processed"
-    public static let inboxFolderName = "Inbox"
+  public static let processedFolderName = "Processed"
+  public static let inboxFolderName = "Inbox"
+  public static var loadingDataError: Error?
 
     // MARK: - Folder URLs
 
@@ -51,43 +52,47 @@ public class DataManager {
         return inboxFolderURL
     }
 
-    public static var coreDataStack: CoreDataStack = {
-        let manager = DataMigrationManager(modelNamed: "BookPlayer",
-                                           enableMigrations: true)
-        return manager.stack
-    }()
+    public static var coreDataStack: CoreDataStack!
 
     public class func getContext() -> NSManagedObjectContext {
-        return self.coreDataStack.managedContext
+      if DataManager.coreDataStack == nil {
+        DataManager.reloadContext()
+      }
+
+      return self.coreDataStack.managedContext
     }
 
     public class func saveContext() {
         self.coreDataStack.saveContext()
     }
 
+  public class func reloadContext() {
+    let manager = DataMigrationManager(modelNamed: "BookPlayer",
+                                       enableMigrations: true) { _, error in
+      DataManager.loadingDataError = error
+    }
+    DataManager.coreDataStack = manager.stack
+  }
+
     public class func getBackgroundContext() -> NSManagedObjectContext {
         return self.coreDataStack.getBackgroundContext()
     }
+
+  public class func cleanupStoreFile() {
+    DataMigrationManager.cleanupStoreFile()
+    DataManager.reloadContext()
+  }
 
     // MARK: - Models handler
 
     /**
      Gets the library for the App. There should be only one Library object at all times
      */
-    public class func getLibrary() -> Library {
-        var library: Library!
+    public class func getLibrary() throws -> Library? {
+      let context = self.getContext()
+      let fetch: NSFetchRequest<Library> = Library.fetchRequest()
 
-        let context = self.coreDataStack.managedContext
-        let fetch: NSFetchRequest<Library> = Library.fetchRequest()
-
-        do {
-            library = try context.fetch(fetch).first ??
-                Library.create(in: context)
-        } catch {
-            fatalError("Failed to fetch library")
-        }
-
-        return library
+      return try context.fetch(fetch).first
     }
 
     public class func getBooks() -> [Book]? {

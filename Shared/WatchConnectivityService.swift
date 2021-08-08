@@ -54,9 +54,8 @@ public class WatchConnectivityService: NSObject, WCSessionDelegate {
     public func sessionDidDeactivate(_ session: WCSession) {}
 
     public func sendApplicationContext() {
-        guard self.validReachableSession != nil else { return }
-
-        let library = DataManager.getLibrary()
+        guard self.validReachableSession != nil,
+              let library = try? DataManager.getLibrary() else { return }
 
         guard let jsonData = try? JSONEncoder().encode(library) else {
             return

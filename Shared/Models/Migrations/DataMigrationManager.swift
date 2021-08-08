@@ -10,17 +10,20 @@ import CoreData
 import Foundation
 
 class DataMigrationManager {
-    let enableMigrations: Bool
-    let modelName: String
-    let storeName = "BookPlayer"
-    var stack: CoreDataStack {
-        guard self.enableMigrations, !self.store(at: self.storeURL, isCompatibleWithModel: self.currentModel)
-        else {
-            return CoreDataStack(modelName: self.modelName)
-        }
-        self.performMigration()
-        return CoreDataStack(modelName: self.modelName)
+  let enableMigrations: Bool
+  let modelName: String
+  static let storeName = "BookPlayer"
+  let loadCompletionHandler: (NSPersistentStoreDescription, Error?) -> Void
+
+  var stack: CoreDataStack {
+    guard self.enableMigrations,
+          !self.store(at: DataMigrationManager.storeURL, isCompatibleWithModel: self.currentModel) else {
+      return CoreDataStack(modelName: self.modelName, loadCompletionHandler: self.loadCompletionHandler)
     }
+
+    self.performMigration()
+    return CoreDataStack(modelName: self.modelName, loadCompletionHandler: self.loadCompletionHandler)
+  }
 
     private var applicationSupportURL: URL {
         let path = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory,
@@ -29,22 +32,22 @@ class DataMigrationManager {
         return URL(fileURLWithPath: path!)
     }
 
-    private lazy var storeURL: URL = {
-        FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!.appendingPathComponent("\(self.storeName).sqlite")
-    }()
+    private static var storeURL: URL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!.appendingPathComponent("\(DataMigrationManager.storeName).sqlite")
+
 
     private var storeModel: NSManagedObjectModel? {
         return NSManagedObjectModel.modelVersionsFor(modelNamed: self.modelName)
             .filter {
-                self.store(at: storeURL, isCompatibleWithModel: $0)
+              self.store(at: DataMigrationManager.storeURL, isCompatibleWithModel: $0)
             }.first
     }
 
     private lazy var currentModel: NSManagedObjectModel = .model(named: self.modelName)
 
-    init(modelNamed: String, enableMigrations: Bool = false) {
-        self.modelName = modelNamed
-        self.enableMigrations = enableMigrations
+    init(modelNamed: String, enableMigrations: Bool = false, loadCompletionHandler: @escaping (NSPersistentStoreDescription, Error?) -> Void) {
+      self.modelName = modelNamed
+      self.enableMigrations = enableMigrations
+      self.loadCompletionHandler = loadCompletionHandler
     }
 
     private func store(at storeURL: URL, isCompatibleWithModel model: NSManagedObjectModel) -> Bool {
@@ -119,6 +122,17 @@ class DataMigrationManager {
         }
     }
 
+  class func cleanupStoreFile() {
+    let storeURL = DataMigrationManager.storeURL
+    let fileManager = FileManager.default
+    let wal = storeURL.appendingPathComponent("-wal")
+    let shm = storeURL.appendingPathComponent("-shm")
+    // cleanup in case
+    try? fileManager.removeItem(at: wal)
+    try? fileManager.removeItem(at: shm)
+    try? fileManager.removeItem(at: storeURL)
+  }
+
     func performMigration() {
         guard let storeModel = self.storeModel else { return }
 
@@ -130,7 +144,7 @@ class DataMigrationManager {
 
             let mappingModel = NSMappingModel(contentsOf: mapUrl)
 
-            self.migrateStoreAt(URL: self.storeURL,
+            self.migrateStoreAt(URL: DataMigrationManager.storeURL,
                                 fromModel: storeModel,
                                 toModel: destinationModel,
                                 mappingModel: mappingModel)
@@ -143,7 +157,7 @@ class DataMigrationManager {
 
             let mappingModel = NSMappingModel(contentsOf: mapUrl)
 
-            self.migrateStoreAt(URL: storeURL,
+            self.migrateStoreAt(URL: DataMigrationManager.storeURL,
                                 fromModel: storeModel,
                                 toModel: destinationModel,
                                 mappingModel: mappingModel)
@@ -156,7 +170,7 @@ class DataMigrationManager {
 
             let mappingModel = NSMappingModel(contentsOf: mapUrl)
 
-            self.migrateStoreAt(URL: storeURL,
+            self.migrateStoreAt(URL: DataMigrationManager.storeURL,
                                 fromModel: storeModel,
                                 toModel: destinationModel,
                                 mappingModel: mappingModel)
