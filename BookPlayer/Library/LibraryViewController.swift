@@ -415,52 +415,53 @@ extension LibraryViewController {
 // MARK: - TableView Delegate
 
 extension LibraryViewController {
-    func tableView(_: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        guard indexPath.sectionValue == .data else { return nil }
+  func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+    guard indexPath.sectionValue == .data else { return nil }
 
-        let item = items[indexPath.row]
+    let item = items[indexPath.row]
 
-        let optionsAction = UITableViewRowAction(style: .normal, title: "\("options_button".localized)…") { _, _ in
-            guard let sheet = self.createOptionsSheetController([item]) else { return }
+    let optionsAction = UIContextualAction(style: .normal, title: "\("options_button".localized)…") { _, _, completion in
+      guard let sheet = self.createOptionsSheetController([item]) else { return }
 
-            // "…" on a button indicates a follow up dialog instead of an immmediate action in macOS and iOS
-            var title = "\("delete_button".localized)…"
+      // "…" on a button indicates a follow up dialog instead of an immmediate action in macOS and iOS
+      var title = "\("delete_button".localized)…"
 
-            // Remove the dots if trying to delete an empty folder
-            if let folder = item as? Folder {
-                title = folder.hasBooks() ? title : "delete_button".localized
-            }
+      // Remove the dots if trying to delete an empty folder
+      if let folder = item as? Folder {
+          title = folder.hasBooks() ? title : "delete_button".localized
+      }
 
-            let deleteAction = UIAlertAction(title: title, style: .destructive) { _ in
-                guard let book = self.items[indexPath.row] as? Book else {
-                    guard let folder = self.items[indexPath.row] as? Folder else { return }
+      let deleteAction = UIAlertAction(title: title, style: .destructive) { _ in
+          guard let book = self.items[indexPath.row] as? Book else {
+              guard let folder = self.items[indexPath.row] as? Folder else { return }
 
-                    guard folder.hasBooks() else {
-                      do {
-                        try DataManager.delete([folder], library: self.library)
-                        self.deleteRows(at: [indexPath])
-                      } catch {
-                        self.showAlert("error_title".localized, message: error.localizedDescription)
-                      }
-
-                      return
-                    }
-
-                    self.handleDelete(items: [folder])
-
-                    return
+              guard folder.hasBooks() else {
+                do {
+                  try DataManager.delete([folder], library: self.library)
+                  self.deleteRows(at: [indexPath])
+                } catch {
+                  self.showAlert("error_title".localized, message: error.localizedDescription)
                 }
 
-                self.handleDelete(items: [book])
-            }
+                return
+              }
 
-            sheet.addAction(deleteAction)
+              self.handleDelete(items: [folder])
 
-            self.present(sheet, animated: true, completion: nil)
-        }
+              return
+          }
 
-        return [optionsAction]
+          self.handleDelete(items: [book])
+      }
+
+      sheet.addAction(deleteAction)
+
+      self.present(sheet, animated: true, completion: nil)
+      completion(true)
     }
+
+    return UISwipeActionsConfiguration(actions: [optionsAction])
+  }
 }
 
 // MARK: - TableView DataSource

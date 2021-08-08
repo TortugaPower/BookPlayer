@@ -24,7 +24,6 @@ class ImportOperationTests: XCTestCase {
         let filename = "file.txt"
         let bookContents = "bookcontents".data(using: .utf8)!
         let documentsFolder = DataManager.getDocumentsFolderURL()
-        let destinationFolder = DataManager.getProcessedFolderURL()
 
         // Add test file to Documents folder
         let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)

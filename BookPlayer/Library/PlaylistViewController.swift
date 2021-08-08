@@ -284,25 +284,26 @@ extension PlaylistViewController {
 // MARK: - TableView Delegate
 
 extension PlaylistViewController {
-    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        guard indexPath.sectionValue == .data else { return nil }
+  func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+    guard indexPath.sectionValue == .data else { return nil }
 
-        let item = items[indexPath.row]
+    let item = items[indexPath.row]
 
-        let optionsAction = UITableViewRowAction(style: .normal, title: "\("options_button".localized)…") { _, _ in
-            guard let sheet = self.createOptionsSheetController([item]) else { return }
+    let optionsAction = UIContextualAction(style: .normal, title: "\("options_button".localized)…") { _, _, completion in
+      guard let sheet = self.createOptionsSheetController([item]) else { return }
 
-            let deleteAction = UIAlertAction(title: "delete_button".localized, style: .destructive, handler: { _ in
-                self.handleDelete(items: [item])
-            })
+      let deleteAction = UIAlertAction(title: "delete_button".localized, style: .destructive, handler: { _ in
+        self.handleDelete(items: [item])
+      })
 
-            sheet.addAction(deleteAction)
+      sheet.addAction(deleteAction)
 
-            self.present(sheet, animated: true, completion: nil)
-        }
-
-        return [optionsAction]
+      self.present(sheet, animated: true, completion: nil)
+      completion(true)
     }
+
+    return UISwipeActionsConfiguration(actions: [optionsAction])
+  }
 }
 
 // MARK: - Reorder Delegate
