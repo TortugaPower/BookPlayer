@@ -26,4 +26,8 @@ class StubFactory {
 
       return folder
     }
+
+  class func library() throws -> Library {
+    return try DataManager.getLibrary() ?? Library.create(in: DataManager.getContext())
+  }
 }

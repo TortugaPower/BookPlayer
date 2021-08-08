@@ -34,7 +34,6 @@ class DataMigrationManager {
 
     private static var storeURL: URL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!.appendingPathComponent("\(DataMigrationManager.storeName).sqlite")
 
-
     private var storeModel: NSManagedObjectModel? {
         return NSManagedObjectModel.modelVersionsFor(modelNamed: self.modelName)
             .filter {

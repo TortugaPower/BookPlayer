@@ -74,20 +74,21 @@ class InsertBooksTests: DataManagerTests {
     override func setUp() {
         super.setUp()
 
-        let library = DataManager.getLibrary()
+        let library = try! StubFactory.library()
         DataManager.delete(library)
     }
 
     func testInsertEmptyBooksInLibrary() throws {
-      let library = DataManager.getLibrary()
+
+      let library = try StubFactory.library()
 
       try DataManager.moveItems([], into: library)
 
       XCTAssert(library.items?.count == 0)
     }
 
-    func testInsertOneBookInLibrary() {
-        let library = DataManager.getLibrary()
+    func testInsertOneBookInLibrary() throws {
+        let library = try StubFactory.library()
 
         let filename = "file.txt"
         let bookContents = "bookcontents".data(using: .utf8)!
@@ -102,8 +103,8 @@ class InsertBooksTests: DataManagerTests {
         XCTAssert(processedItems.count == 1)
     }
 
-    func testInsertMultipleBooksInLibrary() {
-        let library = DataManager.getLibrary()
+    func testInsertMultipleBooksInLibrary() throws {
+        let library = try StubFactory.library()
 
         let filename1 = "file1.txt"
         let book1Contents = "book1contents".data(using: .utf8)!
@@ -122,7 +123,7 @@ class InsertBooksTests: DataManagerTests {
     }
 
     func testInsertEmptyBooksIntoPlaylist() throws {
-      let library = DataManager.getLibrary()
+      let library = try StubFactory.library()
       let folder = try XCTUnwrap(try DataManager.createFolder(with: "test-folder", in: nil, library: library))
       XCTAssert(library.items?.count == 1)
 
@@ -131,7 +132,7 @@ class InsertBooksTests: DataManagerTests {
     }
 
     func testInsertOneBookIntoPlaylist() throws {
-      let library = DataManager.getLibrary()
+      let library = try StubFactory.library()
       let folder = try DataManager.createFolder(with: "test-folder", in: nil, library: library)
 
       XCTAssert(library.items?.count == 1)
@@ -150,7 +151,7 @@ class InsertBooksTests: DataManagerTests {
     }
 
     func testInsertMultipleBooksIntoPlaylist() throws {
-      let library = DataManager.getLibrary()
+      let library = try StubFactory.library()
       let folder = try DataManager.createFolder(with: "test-folder", in: nil, library: library)
 
       XCTAssert(library.items?.count == 1)
@@ -173,7 +174,7 @@ class InsertBooksTests: DataManagerTests {
     }
 
     func testInsertExistingBookFromLibraryIntoPlaylist() throws {
-      let library = DataManager.getLibrary()
+      let library = try StubFactory.library()
       let folder = try DataManager.createFolder(with: "test-folder", in: nil, library: library)
 
       XCTAssert(library.items?.count == 1)
@@ -197,7 +198,7 @@ class InsertBooksTests: DataManagerTests {
     }
 
     func testInsertExistingBookFromPlaylistIntoLibrary() throws {
-      let library = DataManager.getLibrary()
+      let library = try StubFactory.library()
       let folder = try DataManager.createFolder(with: "test-folder", in: nil, library: library)
 
       XCTAssert(library.items?.count == 1)
@@ -224,7 +225,7 @@ class InsertBooksTests: DataManagerTests {
     }
 
     func testInsertExistingBookFromPlaylistIntoPlaylist() throws {
-      let library = DataManager.getLibrary()
+      let library = try StubFactory.library()
       let folder1 = try DataManager.createFolder(with: "test-folder1", in: nil, library: library)
       let folder2 = try DataManager.createFolder(with: "test-folder2", in: nil, library: library)
 
@@ -260,12 +261,12 @@ class ModifyLibraryTests: DataManagerTests {
     override func setUp() {
         super.setUp()
 
-        let library = DataManager.getLibrary()
+        let library = try! StubFactory.library()
         DataManager.delete(library)
     }
 
     func testMoveItemsIntoFolder() throws {
-        let library = DataManager.getLibrary()
+        let library = try StubFactory.library()
         let book1 = StubFactory.book(title: "book1", duration: 100)
         library.insert(item: book1)
         let book2 = StubFactory.book(title: "book2", duration: 100)
@@ -296,7 +297,7 @@ class ModifyLibraryTests: DataManagerTests {
     }
 
     func testMoveItemsIntoLibrary() throws {
-        let library = DataManager.getLibrary()
+        let library = try StubFactory.library()
         let book1 = StubFactory.book(title: "book1", duration: 100)
         let book2 = StubFactory.book(title: "book2", duration: 100)
         let folder = try StubFactory.folder(title: "folder")
@@ -327,7 +328,7 @@ class ModifyLibraryTests: DataManagerTests {
     }
 
     func testFolderShallowDeleteWithOneBook() throws {
-        let library = DataManager.getLibrary()
+        let library = try StubFactory.library()
         let book1 = StubFactory.book(title: "book1", duration: 100)
         let folder = try StubFactory.folder(title: "folder")
         folder.insert(item: book1)
@@ -345,7 +346,7 @@ class ModifyLibraryTests: DataManagerTests {
     }
 
     func testFolderShallowDeleteWithMultipleBooks() throws {
-        let library = DataManager.getLibrary()
+        let library = try StubFactory.library()
         let book1 = StubFactory.book(title: "book1", duration: 100)
         library.insert(item: book1)
         let book2 = StubFactory.book(title: "book2", duration: 100)
@@ -371,7 +372,7 @@ class ModifyLibraryTests: DataManagerTests {
     }
 
     func testFolderDeepDeleteWithOneBook() throws {
-        let library = DataManager.getLibrary()
+        let library = try StubFactory.library()
         let book1 = StubFactory.book(title: "book1", duration: 100)
         let folder = try StubFactory.folder(title: "folder")
         let folder2 = try StubFactory.folder(title: "folder2")
@@ -393,7 +394,7 @@ class ModifyLibraryTests: DataManagerTests {
     }
 
     func testFolderDeepDeleteWithMultipleBooks() throws {
-        let library = DataManager.getLibrary()
+        let library = try StubFactory.library()
         let book1 = StubFactory.book(title: "book1", duration: 100)
         library.insert(item: book1)
         let book2 = StubFactory.book(title: "book2", duration: 100)

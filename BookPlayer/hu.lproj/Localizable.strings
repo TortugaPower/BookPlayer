@@ -230,3 +230,5 @@ Alessio Franceschi&nbsp;this is the label for the active sleep timer button when
 /* One of the sort options, this one reverts the current order of selected items */
 "sort_reversed_button" = "Fordított sorrendben";
 "voiceover_continue_playback_title" = "Lejátszás folytatása";
+"coredata_error_diskfull_description" = "The library couldn't be loaded, the device is out of disk space.";
+"coredata_error_migration_description" = "A migration of the database failed, the library will have to be reinitialized.";

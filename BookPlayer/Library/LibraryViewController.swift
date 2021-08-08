@@ -85,7 +85,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
     // CoreData may fail if device doesn't have space
     if (error.domain == NSPOSIXErrorDomain && error.code == ENOSPC) ||
         (error.domain == NSCocoaErrorDomain && error.code == NSFileWriteOutOfSpaceError) {
-      self.showAlert("error_title".localized, message: "The library couldn't be loaded, the device is out of disk space")
+      self.showAlert("error_title".localized, message: "coredata_error_diskfull_description".localized)
       return
     }
 
@@ -98,7 +98,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         error.code == NSMigrationManagerSourceStoreError ||
         error.code == NSMigrationManagerDestinationStoreError ||
         error.code == NSEntityMigrationPolicyError {
-      self.showAlert("error_title".localized, message: "A migration of the database failed, we'll reconstruct the library as a last resort") {
+      self.showAlert("error_title".localized, message: "coredata_error_migration_description".localized) {
         DataManager.cleanAndReloadLibrary()
       }
       return

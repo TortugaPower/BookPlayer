@@ -14,7 +14,7 @@ class LibraryTests: XCTestCase {
     override func setUp() {
       super.setUp()
 
-      let library = DataManager.getLibrary()
+      let library = try! StubFactory.library()
       DataManager.delete(library)
 
       let documentsFolder = DataManager.getDocumentsFolderURL()
@@ -24,7 +24,7 @@ class LibraryTests: XCTestCase {
     }
 
     func testRelativePath() throws {
-        let library = DataManager.getLibrary()
+        let library = try StubFactory.library()
         let book1 = StubFactory.book(title: "book1", duration: 100)
         let book2 = StubFactory.book(title: "book2", duration: 100)
         let book3 = StubFactory.book(title: "book3", duration: 100)
