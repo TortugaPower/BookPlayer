@@ -25,6 +25,7 @@ class ImportViewController: UIViewController {
     super.viewDidLoad()
 
     setUpTheming()
+    self.descriptionLabel.text = "import_warning_description".localized
     self.navigationController?.navigationBar.prefersLargeTitles = true
     self.tableView.tableFooterView = UIView()
 
