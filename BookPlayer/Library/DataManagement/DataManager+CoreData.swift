@@ -17,7 +17,10 @@ extension DataManager {
   // This handles the Core Data objects creation from the Import operation
   // This method doesn't handle moving files on disk, only creating the core data structure for a given file tree
   class func insertItems(from files: [URL], into folder: Folder?, library: Library, processedItems: [LibraryItem]? = []) -> [LibraryItem] {
-    guard !files.isEmpty else { return processedItems ?? []  }
+    guard !files.isEmpty else {
+      DataManager.saveContext()
+      return processedItems ?? []
+    }
 
     var remainingFiles = files
     var resultingFiles = processedItems
