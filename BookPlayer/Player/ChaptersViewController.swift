@@ -11,7 +11,7 @@ import MediaPlayer
 import Themeable
 import UIKit
 
-class ChaptersViewController: UITableViewController {
+final class ChaptersViewController: UITableViewController {
     var chapters = [Chapter]()
 
     var currentChapter: Chapter!

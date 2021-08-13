@@ -10,7 +10,7 @@ import BookPlayerKit
 import Themeable
 import UIKit
 
-class ImportTableViewCell: UITableViewCell {
+final class ImportTableViewCell: UITableViewCell {
   @IBOutlet weak var deleteButton: UIButton!
   @IBOutlet weak var filenameLabel: UILabel!
   @IBOutlet weak var iconImageView: UIImageView!

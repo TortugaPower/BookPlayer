@@ -9,7 +9,7 @@
 import CoreData
 import Foundation
 
-class DataMigrationManager {
+final class DataMigrationManager {
   let enableMigrations: Bool
   let modelName: String
   static let storeName = "BookPlayer"

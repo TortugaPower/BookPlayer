@@ -14,7 +14,7 @@ import Foundation
  Handles the creation of ImportOperation objects.
  It waits a specified time wherein new files may be added before the operation is created
  */
-class ImportManager {
+final class ImportManager {
   static let shared = ImportManager()
 
   private let timeout = 2.0

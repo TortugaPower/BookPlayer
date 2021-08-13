@@ -12,7 +12,7 @@ import Combine
 import Themeable
 import UIKit
 
-class ImportViewController: UIViewController {
+final class ImportViewController: UIViewController {
   @IBOutlet weak var descriptionLabel: UILabel!
   @IBOutlet weak var tableView: UITableView!
 
