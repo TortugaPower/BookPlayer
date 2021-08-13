@@ -672,6 +672,7 @@ extension ItemListViewController: UITableViewDelegate {
     self.library.insertIntoItems(item, at: destinationIndexPath.row)
 
     DataManager.saveContext()
+    MPPlayableContentManager.shared().reloadData()
   }
 }
 

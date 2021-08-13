@@ -105,7 +105,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
   }
 
     func loadLibrary() {
-        guard let library = try? DataManager.getLibrary() else { return }
+      guard let library = try? DataManager.getLibrary() ?? DataManager.createLibrary() else { return }
 
         self.library = library
 

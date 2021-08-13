@@ -95,6 +95,13 @@ public class DataManager {
       return try context.fetch(fetch).first
     }
 
+  public class func createLibrary() -> Library {
+    let context = self.getContext()
+    let library = Library.create(in: context)
+    self.saveContext()
+    return library
+  }
+
     public class func getBooks() -> [Book]? {
         let fetch: NSFetchRequest<Book> = Book.fetchRequest()
         let context = self.coreDataStack.managedContext
