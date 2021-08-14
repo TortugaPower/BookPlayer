@@ -108,5 +108,9 @@ extension ImportViewController: Themeable {
     self.navigationController?.navigationBar.largeTitleTextAttributes = [
       NSAttributedString.Key.foregroundColor: theme.primaryColor
     ]
+
+    self.overrideUserInterfaceStyle = theme.useDarkVariant
+      ? UIUserInterfaceStyle.dark
+      : UIUserInterfaceStyle.light
   }
 }
