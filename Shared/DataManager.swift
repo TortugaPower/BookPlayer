@@ -74,9 +74,13 @@ public class DataManager {
     DataManager.coreDataStack = manager.stack
   }
 
-    public class func getBackgroundContext() -> NSManagedObjectContext {
-        return self.coreDataStack.getBackgroundContext()
+  public class func getBackgroundContext() -> NSManagedObjectContext {
+    if DataManager.coreDataStack == nil {
+      DataManager.reloadContext()
     }
+    
+    return self.coreDataStack.getBackgroundContext()
+  }
 
   public class func cleanupStoreFile() {
     DataMigrationManager.cleanupStoreFile()
