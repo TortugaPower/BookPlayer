@@ -206,7 +206,7 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
   private func getSourceItems(for index: Int) -> [LibraryItem]? {
     // Recently played items
     if index == IndexGuide.tab.recentlyPlayed {
-      return self.library?.getItemsOrderedByDate()
+      return DataManager.getOrderedBooks()
     }
 
     // Library items
