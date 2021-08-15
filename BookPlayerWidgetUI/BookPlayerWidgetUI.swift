@@ -13,6 +13,7 @@ import WidgetKit
 struct SimpleEntry: TimelineEntry {
     let date: Date
     let title: String?
+    let relativePath: String?
     let artwork: UIImage?
     let theme: Theme?
     let timerSeconds: Double
@@ -21,7 +22,8 @@ struct SimpleEntry: TimelineEntry {
 
 struct LibraryEntry: TimelineEntry {
     let date: Date
-    let library: Library?
+    let items: [BookPlayerKit.LibraryItem]
+    let theme: Theme?
     let timerSeconds: Double
     let autoplay: Bool
 }
@@ -37,7 +39,7 @@ struct TimeListenedEntry: TimelineEntry {
 struct BookPlayerWidgetUI_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            LastPlayedWidgetView(entry: SimpleEntry(date: Date(), title: "Test Book Title", artwork: UIImage(named: "defaultArtwork"), theme: nil, timerSeconds: 300, autoplay: true))
+          LastPlayedWidgetView(entry: SimpleEntry(date: Date(), title: "Test Book Title", relativePath: nil, artwork: UIImage(named: "defaultArtwork"), theme: nil, timerSeconds: 300, autoplay: true))
                 .previewContext(WidgetPreviewContext(family: .systemSmall))
         }
     }

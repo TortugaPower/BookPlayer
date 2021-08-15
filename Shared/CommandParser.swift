@@ -100,13 +100,17 @@ public class CommandParser {
     }
 
     public class func createWidgetActionString(with bookIdentifier: String?, autoplay: Bool, timerSeconds: Double) -> String {
-        var actionString = "bookplayer://widget?autoplay=\(autoplay)&seconds=\(timerSeconds)"
+      var actionString = "bookplayer://widget?autoplay=\(autoplay)&seconds=\(timerSeconds)"
 
-        if let identifier = bookIdentifier {
-            actionString += "&identifier=\(identifier)"
-        }
+      if let identifier = bookIdentifier {
+        actionString += "&identifier=\(identifier)"
+      }
 
-        return actionString
+      if let encodedActionString = actionString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
+        actionString = encodedActionString
+      }
+
+      return actionString
     }
 }
 
