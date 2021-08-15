@@ -214,7 +214,7 @@ class PlaylistViewController: ItemListViewController {
             })
         })
 
-        let availableFolders = self.library.itemsArray.compactMap { (item) -> Folder? in
+        let availableFolders = self.items.compactMap { (item) -> Folder? in
             item as? Folder
         }
 
