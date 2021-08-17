@@ -18,6 +18,14 @@ class DataTestUtils: XCTest {
         return destination
     }
 
+  class func generateTestFolder(name: String, destinationFolder: URL) throws -> URL {
+    let destination = destinationFolder.appendingPathComponent(name)
+
+    try FileManager.default.createDirectory(at: destination, withIntermediateDirectories: false, attributes: nil)
+
+    return destination
+  }
+
     class func clearFolderContents(url: URL) {
         do {
             let urls = try FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: nil, options: .skipsHiddenFiles)

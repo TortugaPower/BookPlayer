@@ -11,7 +11,7 @@ import MediaPlayer
 import Themeable
 import UIKit
 
-class ChaptersViewController: UITableViewController, TelemetryProtocol {
+final class ChaptersViewController: UITableViewController {
     var chapters = [Chapter]()
 
     var currentChapter: Chapter!
@@ -27,7 +27,6 @@ class ChaptersViewController: UITableViewController, TelemetryProtocol {
         self.tableView.rowHeight = UITableView.automaticDimension
         self.tableView.estimatedRowHeight = 55.66
         setUpTheming()
-        self.sendSignal(.chaptersScreen, with: nil)
     }
 
     override func viewDidLayoutSubviews() {

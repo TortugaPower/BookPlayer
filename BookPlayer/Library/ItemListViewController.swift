@@ -8,7 +8,6 @@
 
 import BookPlayerKit
 import MediaPlayer
-import SwiftReorder
 import Themeable
 import UIKit
 
@@ -51,14 +50,9 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         self.tableView.register(UINib(nibName: "AddCellView", bundle: nil), forCellReuseIdentifier: "AddCellView")
         self.tableView.allowsSelection = true
         self.tableView.allowsMultipleSelectionDuringEditing = true
-
-        self.tableView.reorder.delegate = self
-        self.tableView.reorder.cellScale = 1.07
-        self.tableView.reorder.shadowColor = UIColor.black
-        self.tableView.reorder.shadowOffset = CGSize(width: 0.0, height: 3.0)
-        self.tableView.reorder.shadowOpacity = 0.25
-        self.tableView.reorder.shadowRadius = 8.0
-        self.tableView.reorder.animationDuration = 0.15
+        self.tableView.dragInteractionEnabled = true
+        self.tableView.dragDelegate = self
+        self.tableView.dropDelegate = self
 
         // The bottom offset has to be adjusted for the miniplayer as the notification doing this would be sent before the current VC was created
         self.adjustBottomOffsetForMiniPlayer()
@@ -249,7 +243,6 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
     func loadPlayer(book: Book) {
         guard DataManager.exists(book) else {
             self.showAlert("file_missing_title".localized, message: "file_missing_description".localized)
-
             return
         }
 
@@ -266,7 +259,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         }
     }
 
-    func handleOperationCompletion(_ files: [FileItem]) {
+    func handleOperationCompletion(_ files: [URL]) {
         fatalError("handleOperationCompletion must be overriden")
     }
 
@@ -303,12 +296,20 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
             alert.title = String(format: "delete_single_item_title".localized, folder.title!)
             alert.message = "delete_single_playlist_description".localized
             alert.addAction(UIAlertAction(title: "delete_shallow_button".localized, style: .default, handler: { _ in
-                self.delete(items, mode: .shallow)
+              do {
+                try self.delete(items, mode: .shallow)
+              } catch {
+                self.showAlert("error_title".localized, message: error.localizedDescription)
+              }
             }))
         }
 
         alert.addAction(UIAlertAction(title: deleteActionTitle, style: .destructive, handler: { _ in
-            self.delete(items, mode: .deep)
+          do {
+            try self.delete(items, mode: .deep)
+          } catch {
+            self.showAlert("error_title".localized, message: error.localizedDescription)
+          }
         }))
 
         present(alert, animated: true, completion: nil)
@@ -400,74 +401,59 @@ extension ItemListViewController {
         self.tableView.reloadData()
     }
 
-    @objc func onBookPlay() {
-        guard
-            let currentBook = PlayerManager.shared.currentBook,
-            let fileURL = currentBook.fileURL,
-            let index = self.library.itemIndex(with: fileURL.lastPathComponent),
-            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
-        else {
-            return
-        }
-
-        bookCell.playbackState = .playing
+  @objc func onBookPlay() {
+    guard
+      let currentBook = PlayerManager.shared.currentBook,
+      let index = self.library.index(for: currentBook),
+      let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
+    else {
+      return
     }
 
-    @objc func onBookPause() {
-        guard
-            let book = PlayerManager.shared.currentBook,
-            let fileURL = book.fileURL,
-            let index = self.library.itemIndex(with: fileURL.lastPathComponent),
-            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
-        else {
-            return
-        }
+    bookCell.playbackState = .playing
+  }
 
-        bookCell.playbackState = .paused
+  @objc func onBookPause() {
+    guard
+      let book = PlayerManager.shared.currentBook,
+      let index = self.library.index(for: book),
+      let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
+    else {
+      return
     }
 
-    @objc func onBookStop(_ notification: Notification) {
-        guard
-            let userInfo = notification.userInfo,
-            let book = userInfo["book"] as? Book,
-            !book.isFault,
-            let fileURL = book.fileURL,
-            let index = self.library.itemIndex(with: fileURL.lastPathComponent),
-            let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
-        else {
-            return
-        }
+    bookCell.playbackState = .paused
+  }
 
-        bookCell.playbackState = .stopped
+  @objc func onBookStop(_ notification: Notification) {
+    guard
+      let userInfo = notification.userInfo,
+      let book = userInfo["book"] as? Book,
+      !book.isFault,
+      let index = self.library.index(for: book),
+      let bookCell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView
+    else {
+      return
     }
+
+    bookCell.playbackState = .stopped
+  }
 
     @objc func updateProgress(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-            let bookIdentifier = userInfo["bookIdentifier"] as? String else {
-            return
-        }
+      guard let userInfo = notification.userInfo,
+            let currentBook = userInfo["book"] as? Book,
+            let index = self.library.index(for: currentBook),
+            let cell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView else {
+        return
+      }
 
-        guard let index = (self.items.firstIndex { (item) -> Bool in
-            if let book = item as? Book {
-                return book.identifier == bookIdentifier
-            }
+      let item = self.items[index]
 
-            if let folder = item as? Folder {
-                return folder.getItem(with: bookIdentifier) != nil
-            }
+      let progress = item is Folder
+        ? item.progressPercentage
+        : userInfo["progress"] as? Double ?? item.progressPercentage
 
-            return false
-        }), let cell = self.tableView.cellForRow(at: IndexPath(row: index, section: .data)) as? BookCellView else {
-            return
-        }
-
-        let item = self.items[index]
-
-        let progress = item is Folder
-            ? item.progressPercentage
-            : userInfo["progress"] as? Double ?? item.progressPercentage
-
-        cell.progress = item.isFinished ? 1.0 : progress
+      cell.progress = item.isFinished ? 1.0 : progress
     }
 
     @objc func adjustBottomOffsetForMiniPlayer() {
@@ -538,10 +524,6 @@ extension ItemListViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if let spacer = tableView.reorder.spacerCell(for: indexPath) {
-            return spacer
-        }
-
         guard indexPath.sectionValue != .add,
             let cell = tableView.dequeueReusableCell(withIdentifier: "BookCellView", for: indexPath) as? BookCellView else {
             return tableView.dequeueReusableCell(withIdentifier: "AddCellView", for: indexPath)
@@ -553,6 +535,7 @@ extension ItemListViewController: UITableViewDataSource {
         cell.title = item.title
         cell.playbackState = .stopped
         cell.type = item is Folder ? .folder : .book
+        cell.showsReorderControl = true
 
         cell.onArtworkTap = { [weak self] in
             guard !tableView.isEditing else {
@@ -670,54 +653,50 @@ extension ItemListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
         self.updateSelectionStatus()
     }
+
+  // MARK: - Reorder Delegate
+  func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+    return indexPath.sectionValue == .data
+  }
+
+  func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+    guard sourceIndexPath.sectionValue == .data,
+          destinationIndexPath.sectionValue == .data,
+          sourceIndexPath.row != destinationIndexPath.row  else {
+        return
+    }
+
+    let item = self.items[sourceIndexPath.row]
+
+    self.library.removeFromItems(at: sourceIndexPath.row)
+    self.library.insertIntoItems(item, at: destinationIndexPath.row)
+
+    DataManager.saveContext()
+    MPPlayableContentManager.shared().reloadData()
+  }
 }
 
-// MARK: - Reorder Delegate
+extension ItemListViewController: UITableViewDragDelegate {
+  func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+    return [UIDragItem(itemProvider: NSItemProvider())]
+  }
+}
 
-extension ItemListViewController: TableViewReorderDelegate {
-    func tableViewDidBeginReordering(_ tableView: UITableView, at indexPath: IndexPath) {
-        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+extension ItemListViewController: UITableViewDropDelegate {
+  func tableView(_ tableView: UITableView, performDropWith coordinator: UITableViewDropCoordinator) {}
+
+  func tableView(_ tableView: UITableView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UITableViewDropProposal {
+    // Cancel drop if destination is not in the data section
+    if destinationIndexPath?.sectionValue == .add {
+      return UITableViewDropProposal(operation: .cancel, intent: .unspecified)
     }
 
-    @objc func tableView(_ tableView: UITableView, reorderRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+    if session.localDragSession != nil { // Drag originated from the same app.
+      return UITableViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)
     }
 
-    func tableView(_ tableView: UITableView, canReorderRowAt indexPath: IndexPath) -> Bool {
-        return indexPath.sectionValue == .data
-    }
-
-    func tableView(_ tableView: UITableView, targetIndexPathForReorderFromRowAt sourceIndexPath: IndexPath, to proposedDestinationIndexPath: IndexPath, snapshot: UIView?) -> IndexPath {
-        guard proposedDestinationIndexPath.sectionValue == .data else {
-            return sourceIndexPath
-        }
-
-        if let snapshot = snapshot {
-            UIView.animate(withDuration: 0.2) {
-                snapshot.transform = CGAffineTransform.identity
-            }
-        }
-
-        return proposedDestinationIndexPath
-    }
-
-    @objc func tableView(_ tableView: UITableView, sourceIndexPath: IndexPath, overIndexPath: IndexPath, snapshot: UIView) {
-        guard overIndexPath.sectionValue == .data else {
-            return
-        }
-
-        UIImpactFeedbackGenerator(style: .light).impactOccurred()
-
-        let scale: CGFloat = 0.90
-
-        UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveEaseOut, animations: {
-            snapshot.transform = CGAffineTransform(scaleX: scale, y: scale)
-        })
-    }
-
-    @objc func tableViewDidFinishReordering(_ tableView: UITableView, from initialSourceIndexPath: IndexPath, to finalDestinationIndexPath: IndexPath, dropped overIndexPath: IndexPath?) {
-        MPPlayableContentManager.shared().reloadData()
-    }
+    return UITableViewDropProposal(operation: .cancel, intent: .unspecified)
+  }
 }
 
 // MARK: DocumentPicker Delegate

@@ -14,30 +14,41 @@ struct RecentBooksProvider: IntentTimelineProvider {
     typealias Entry = LibraryEntry
 
     func placeholder(in context: Context) -> LibraryEntry {
-        LibraryEntry(date: Date(), library: nil, timerSeconds: 300, autoplay: true)
+      return LibraryEntry(date: Date(), items: [], theme: nil, timerSeconds: 300, autoplay: true)
     }
 
     func getSnapshot(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (LibraryEntry) -> Void) {
-        let library = DataManager.getLibrary()
-        let autoplay = configuration.autoplay?.boolValue ?? true
-        let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
+      guard let library = try? DataManager.getLibrary(),
+            let items = DataManager.getOrderedBooks() else {
+        completion(placeholder(in: context))
+        return
+      }
 
-        let entry = LibraryEntry(date: Date(),
-                                 library: library,
-                                 timerSeconds: seconds,
-                                 autoplay: autoplay)
+      let autoplay = configuration.autoplay?.boolValue ?? true
+      let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
 
-        completion(entry)
+      let entry = LibraryEntry(date: Date(),
+                               items: items,
+                               theme: library.currentTheme,
+                               timerSeconds: seconds,
+                               autoplay: autoplay)
+
+      completion(entry)
     }
 
     func getTimeline(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (Timeline<LibraryEntry>) -> Void) {
-        let library = DataManager.getLibrary()
-        let autoplay = configuration.autoplay?.boolValue ?? true
-        let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
+      guard let library = try? DataManager.getLibrary(),
+            let items = DataManager.getOrderedBooks() else {
+        completion(Timeline(entries: [], policy: .atEnd))
+        return
+      }
 
-        let entries: [LibraryEntry] = [LibraryEntry(date: Date(), library: library, timerSeconds: seconds, autoplay: autoplay)]
-        let timeline = Timeline(entries: entries, policy: .atEnd)
-        completion(timeline)
+      let autoplay = configuration.autoplay?.boolValue ?? true
+      let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
+
+      let entries: [LibraryEntry] = [LibraryEntry(date: Date(), items: items, theme: library.currentTheme, timerSeconds: seconds, autoplay: autoplay)]
+      let timeline = Timeline(entries: entries, policy: .atEnd)
+      completion(timeline)
     }
 }
 
@@ -53,10 +64,10 @@ struct BookView: View {
         var identifier: String?
 
         if let book = item as? Book {
-            identifier = book.identifier!
+            identifier = book.relativePath!
         } else if let folder = item as? Folder,
             let book = folder.getBookToPlay() ?? folder.getBook(at: 0) {
-            identifier = book.identifier!
+            identifier = book.relativePath!
         }
 
         let url = WidgetUtils.getWidgetActionURL(with: identifier, autoplay: entry.autoplay, timerSeconds: entry.timerSeconds)
@@ -93,9 +104,10 @@ struct RecentBooksWidgetView: View {
     var entry: RecentBooksProvider.Entry
 
     var body: some View {
-        let items = Array(entry.library?.getItemsOrderedByDate().prefix(4) ?? [])
+//      let items = Array(DataManager.getOrderedBooks()?.prefix(4) ?? [])
+        let items = Array(entry.items.prefix(4))
 
-        let widgetColors = WidgetUtils.getColors(from: entry.library?.currentTheme, with: colorScheme)
+        let widgetColors = WidgetUtils.getColors(from: entry.theme, with: colorScheme)
 
         let appIconName = WidgetUtils.getAppIconName()
 
@@ -117,7 +129,7 @@ struct RecentBooksWidgetView: View {
             .padding([.top], 8)
             HStack {
                 ForEach(items, id: \.identifier) { item in
-                    BookView(item: item, titleColor: widgetColors.primaryColor, theme: entry.library?.currentTheme, entry: entry)
+                    BookView(item: item, titleColor: widgetColors.primaryColor, theme: entry.theme, entry: entry)
                 }
             }
             .padding([.leading, .trailing])
@@ -132,7 +144,7 @@ struct RecentBooksWidgetView: View {
 struct RecentBooksWidgetView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            RecentBooksWidgetView(entry: LibraryEntry(date: Date(), library: nil, timerSeconds: 300, autoplay: true))
+          RecentBooksWidgetView(entry: LibraryEntry(date: Date(), items: [], theme: nil, timerSeconds: 300, autoplay: true))
                 .previewContext(WidgetPreviewContext(family: .systemMedium))
         }
     }

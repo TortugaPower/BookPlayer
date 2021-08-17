@@ -7,13 +7,16 @@
 //
 
 import BookPlayerKit
+import Combine
+import CoreData
 import MediaPlayer
-import SwiftReorder
 import UIKit
 
 // swiftlint:disable file_length
 
 class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate {
+    private var fileSubscription: AnyCancellable?
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -26,11 +29,11 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         // enables pop gesture on pushed controller
         self.navigationController!.interactivePopGestureRecognizer!.delegate = self
 
+        self.handleCoreDataError()
+
         self.loadLibrary()
 
         self.loadLastBook()
-
-        self.sendSignal(.libraryScreen, with: nil)
     }
 
     // No longer need to deregister observers for iOS 9+!
@@ -49,10 +52,62 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         NotificationCenter.default.addObserver(self, selector: #selector(self.onNewFileUrl), name: .newFileUrl, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onNewOperation(_:)), name: .importOperation, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onDownloadingProgress(_:)), name: .downloadProgress, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.bindImportManager), name: .importOperationCancelled, object: nil)
+        self.bindImportManager()
     }
 
+  @objc func bindImportManager() {
+    self.fileSubscription?.cancel()
+    self.fileSubscription = ImportManager.shared.observeFiles().sink { [weak self] files in
+      guard let self = self,
+            !files.isEmpty else { return }
+
+      self.showImport()
+    }
+  }
+
+  func showImport() {
+    self.fileSubscription?.cancel()
+    let storyboard = UIStoryboard(name: "Main", bundle: nil)
+    let vc = storyboard.instantiateViewController(withIdentifier: "ImportViewController")
+    let nav = UINavigationController(rootViewController: vc)
+
+    self.present(nav, animated: true, completion: nil)
+  }
+
+  func handleCoreDataError() {
+    guard let coreDataError = DataManager.loadingDataError else { return }
+
+    let error = coreDataError as NSError
+    // CoreData may fail if device doesn't have space
+    if (error.domain == NSPOSIXErrorDomain && error.code == ENOSPC) ||
+        (error.domain == NSCocoaErrorDomain && error.code == NSFileWriteOutOfSpaceError) {
+      self.showAlert("error_title".localized, message: "coredata_error_diskfull_description".localized)
+      return
+    }
+
+    // Handle data error migration by reloading library
+    if error.code == NSMigrationError ||
+        error.code == NSMigrationConstraintViolationError ||
+        error.code == NSMigrationCancelledError ||
+        error.code == NSMigrationMissingSourceModelError ||
+        error.code == NSMigrationMissingMappingModelError ||
+        error.code == NSMigrationManagerSourceStoreError ||
+        error.code == NSMigrationManagerDestinationStoreError ||
+        error.code == NSEntityMigrationPolicyError {
+      self.showAlert("error_title".localized, message: "coredata_error_migration_description".localized) {
+        DataManager.cleanAndReloadLibrary()
+      }
+      return
+    }
+
+    fatalError("Unresolved error \(error), \(error.userInfo)")
+  }
+
     func loadLibrary() {
-        self.library = DataManager.getLibrary()
+      guard let library = try? DataManager.getLibrary() ?? DataManager.createLibrary() else { return }
+
+        self.library = library
 
         self.toggleEmptyStateView()
 
@@ -84,7 +139,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
     }
 
     func loadLastBook() {
-        guard let book = self.library.lastPlayedBook else {
+        guard self.library != nil, let book = self.library.lastPlayedBook else {
             return
         }
 
@@ -105,45 +160,44 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         }
     }
 
-    override func handleOperationCompletion(_ files: [FileItem]) {
-        DataManager.insertBooks(from: files, into: self.library) {
-            self.reloadData()
+    override func handleOperationCompletion(_ files: [URL]) {
+      self.bindImportManager()
+
+      let processedItems = DataManager.insertItems(from: files, into: nil, library: self.library)
+      self.reloadData()
+
+      guard files.count > 1 else {
+        self.showLoadView(false)
+        return
+      }
+
+      let alert = UIAlertController(title: String.localizedStringWithFormat("import_alert_title".localized, files.count), message: nil, preferredStyle: .alert)
+
+      alert.addAction(UIAlertAction(title: "library_title".localized, style: .default) { _ in
+        self.showLoadView(false)
+      })
+
+      alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { _ in
+        var placeholder = "new_playlist_button".localized
+
+        if let file = files.first {
+          placeholder = file.deletingPathExtension().lastPathComponent
         }
 
-        guard files.count > 1 else {
-            self.showLoadView(false)
-            return
-        }
+        self.presentCreateFolderAlert(placeholder, handler: { title in
+          do {
+            let folder = try DataManager.createFolder(with: title, in: nil, library: self.library)
+            try DataManager.moveItems(processedItems, into: folder)
+          } catch {
+            self.showAlert("error_title".localized, message: error.localizedDescription)
+          }
 
-        let alert = UIAlertController(title: String.localizedStringWithFormat("import_alert_title".localized, files.count), message: nil, preferredStyle: .alert)
-
-        alert.addAction(UIAlertAction(title: "library_title".localized, style: .default) { _ in
-            self.showLoadView(false)
+          self.reloadData()
+          self.showLoadView(false)
         })
+      })
 
-        alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { _ in
-            var placeholder = "new_playlist_button".localized
-
-            if let file = files.first {
-                placeholder = file.originalUrl.deletingPathExtension().lastPathComponent
-            }
-
-            self.presentCreateFolderAlert(placeholder, handler: { title in
-                let folder = DataManager.createFolder(title: title, items: [])
-
-                DataManager.insert(folder, into: self.library)
-
-                DataManager.insertBooks(from: files, into: folder) {
-                    self.reloadData()
-                    self.showLoadView(false)
-                }
-
-            })
-        })
-
-        let vc = self.presentedViewController ?? self
-
-        vc.present(alert, animated: true, completion: nil)
+      self.present(alert, animated: true, completion: nil)
     }
 
     func gestureRecognizerShouldBegin(_: UIGestureRecognizer) -> Bool {
@@ -220,12 +274,13 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
 
         operation.completionBlock = {
             DispatchQueue.main.async {
-                guard let vc = self.navigationController?.visibleViewController as? PlaylistViewController else {
-                    self.handleOperationCompletion(operation.files)
-                    return
-                }
-                self.showLoadView(false)
-                vc.handleOperationCompletion(operation.files)
+              guard let vc = self.navigationController?.topViewController as? PlaylistViewController else {
+                self.handleOperationCompletion(operation.processedFiles)
+                return
+              }
+              self.showLoadView(false)
+              vc.handleOperationCompletion(operation.processedFiles)
+              self.bindImportManager()
             }
         }
 
@@ -255,11 +310,13 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
 
         alertController.addAction(UIAlertAction(title: "create_playlist_button".localized, style: .default) { _ in
             self.presentCreateFolderAlert(handler: { title in
-                let folder = DataManager.createFolder(title: title, items: [])
+              do {
+                _ = try DataManager.createFolder(with: title, in: nil, library: self.library)
+              } catch {
+                self.showAlert("error_title".localized, message: error.localizedDescription)
+              }
 
-                DataManager.insert(folder, into: self.library)
-
-                self.reloadData()
+              self.reloadData()
             })
         })
 
@@ -273,9 +330,12 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
 
         alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { _ in
             self.presentCreateFolderAlert(handler: { title in
-                let folder = DataManager.createFolder(title: title, items: [])
-                DataManager.insert(folder, into: self.library)
-                self.move(selectedItems, to: folder)
+              do {
+                let folder = try DataManager.createFolder(with: title, in: nil, library: self.library)
+                try self.move(selectedItems, to: folder)
+              } catch {
+                self.showAlert("error_title".localized, message: error.localizedDescription)
+              }
             })
         })
 
@@ -289,8 +349,13 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
             vc.items = availableFolders
 
             vc.onItemSelected = { selectedItem in
-                guard let selectedFolder = selectedItem as? Folder else { return }
-                self.move(selectedItems, to: selectedFolder)
+              guard let selectedFolder = selectedItem as? Folder else { return }
+
+              do {
+                try self.move(selectedItems, to: selectedFolder)
+              } catch {
+                self.showAlert("error_title".localized, message: error.localizedDescription)
+              }
             }
 
             let nav = AppNavigationController(rootViewController: vc)
@@ -347,47 +412,53 @@ extension LibraryViewController {
 // MARK: - TableView Delegate
 
 extension LibraryViewController {
-    func tableView(_: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        guard indexPath.sectionValue == .data else { return nil }
+  func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+    guard indexPath.sectionValue == .data else { return nil }
 
-        let item = items[indexPath.row]
+    let item = items[indexPath.row]
 
-        let optionsAction = UITableViewRowAction(style: .normal, title: "\("options_button".localized)…") { _, _ in
-            guard let sheet = self.createOptionsSheetController([item]) else { return }
+    let optionsAction = UIContextualAction(style: .normal, title: "\("options_button".localized)…") { _, _, completion in
+      guard let sheet = self.createOptionsSheetController([item]) else { return }
 
-            // "…" on a button indicates a follow up dialog instead of an immmediate action in macOS and iOS
-            var title = "\("delete_button".localized)…"
+      // "…" on a button indicates a follow up dialog instead of an immmediate action in macOS and iOS
+      var title = "\("delete_button".localized)…"
 
-            // Remove the dots if trying to delete an empty folder
-            if let folder = item as? Folder {
-                title = folder.hasBooks() ? title : "delete_button".localized
-            }
+      // Remove the dots if trying to delete an empty folder
+      if let folder = item as? Folder {
+          title = folder.hasBooks() ? title : "delete_button".localized
+      }
 
-            let deleteAction = UIAlertAction(title: title, style: .destructive) { _ in
-                guard let book = self.items[indexPath.row] as? Book else {
-                    guard let folder = self.items[indexPath.row] as? Folder else { return }
+      let deleteAction = UIAlertAction(title: title, style: .destructive) { _ in
+          guard let book = self.items[indexPath.row] as? Book else {
+              guard let folder = self.items[indexPath.row] as? Folder else { return }
 
-                    guard folder.hasBooks() else {
-                        DataManager.delete([folder], library: self.library)
-                        self.deleteRows(at: [indexPath])
-                        return
-                    }
-
-                    self.handleDelete(items: [folder])
-
-                    return
+              guard folder.hasBooks() else {
+                do {
+                  try DataManager.delete([folder], library: self.library)
+                  self.deleteRows(at: [indexPath])
+                } catch {
+                  self.showAlert("error_title".localized, message: error.localizedDescription)
                 }
 
-                self.handleDelete(items: [book])
-            }
+                return
+              }
 
-            sheet.addAction(deleteAction)
+              self.handleDelete(items: [folder])
 
-            self.present(sheet, animated: true, completion: nil)
-        }
+              return
+          }
 
-        return [optionsAction]
+          self.handleDelete(items: [book])
+      }
+
+      sheet.addAction(deleteAction)
+
+      self.present(sheet, animated: true, completion: nil)
+      completion(true)
     }
+
+    return UISwipeActionsConfiguration(actions: [optionsAction])
+  }
 }
 
 // MARK: - TableView DataSource
@@ -398,8 +469,7 @@ extension LibraryViewController {
 
         guard let bookCell = cell as? BookCellView,
             let currentBook = PlayerManager.shared.currentBook,
-            let identifier = currentBook.identifier,
-            let index = self.library.itemIndex(with: identifier),
+            let index = self.library.index(for: currentBook),
             index == indexPath.row else {
             return cell
         }
@@ -407,65 +477,5 @@ extension LibraryViewController {
         bookCell.playbackState = .paused
 
         return bookCell
-    }
-}
-
-// MARK: - Reorder Delegate
-
-extension LibraryViewController {
-    override func tableView(_ tableView: UITableView, reorderRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        super.tableView(tableView, reorderRowAt: sourceIndexPath, to: destinationIndexPath)
-
-        guard destinationIndexPath.sectionValue == .data else {
-            return
-        }
-
-        let item = self.items[sourceIndexPath.row]
-
-        self.library.removeFromItems(at: sourceIndexPath.row)
-        self.library.insertIntoItems(item, at: destinationIndexPath.row)
-
-        DataManager.saveContext()
-    }
-
-    override func tableViewDidFinishReordering(_ tableView: UITableView, from initialSourceIndexPath: IndexPath, to finalDestinationIndexPath: IndexPath, dropped overIndexPath: IndexPath?) {
-        super.tableViewDidFinishReordering(tableView, from: initialSourceIndexPath, to: finalDestinationIndexPath, dropped: overIndexPath)
-
-        guard let overIndexPath = overIndexPath, overIndexPath.sectionValue == .data else { return }
-
-        let sourceItem = self.items[finalDestinationIndexPath.row]
-        let destinationItem = self.items[overIndexPath.row]
-
-        guard let folder = destinationItem as? Folder ?? sourceItem as? Folder else {
-            let minIndex = min(finalDestinationIndexPath.row, overIndexPath.row)
-
-            self.presentCreateFolderAlert(destinationItem.title, handler: { title in
-                let folder = DataManager.createFolder(title: title, items: [])
-                DataManager.insert(folder, into: self.library, at: minIndex)
-                self.move([sourceItem, destinationItem], to: folder)
-
-                self.reloadData()
-            })
-            return
-        }
-
-        let selectedItem = folder == destinationItem
-            ? sourceItem
-            : destinationItem
-
-        let message = String.localizedStringWithFormat("move_single_item_title".localized, selectedItem.title!, folder.title!)
-
-        let alert = UIAlertController(title: "move_playlist_button".localized,
-                                      message: message,
-                                      preferredStyle: .alert)
-
-        alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
-
-        alert.addAction(UIAlertAction(title: "move_title".localized, style: .default, handler: { _ in
-            self.move([selectedItem], to: folder)
-            self.reloadData()
-        }))
-
-        self.present(alert, animated: true, completion: nil)
     }
 }

@@ -10,6 +10,10 @@ public extension URL {
         return self.path.components(separatedBy: baseURL.path).last ?? ""
     }
 
+    var isDirectory: Bool {
+        return (try? resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory == true
+    }
+
     func hasAppKey() -> Bool {
         do {
             _ = try self.extendedAttribute(forName: "\(Bundle.main.configurationString(for: .bundleIdentifier)).identifier")

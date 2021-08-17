@@ -2,12 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>BP_BUNDLE_IDENTIFIER</key>
-	<string>$(BP_BUNDLE_IDENTIFIER)</string>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>$(BP_BUNDLE_IDENTIFIER).background</string>
 	</array>
+	<key>BP_BUNDLE_IDENTIFIER</key>
+	<string>$(BP_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -55,6 +55,8 @@
 			<array/>
 			<key>CFBundleTypeName</key>
 			<string>Folders</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>public.folder</string>
@@ -67,13 +69,6 @@
 	<dict>
 		<key>CFBundleAlternateIcons</key>
 		<dict>
-			<key>Forest Green</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>forest-green</string>
-				</array>
-			</dict>
 			<key>Ayu Light</key>
 			<dict>
 				<key>CFBundleIconFiles</key>
@@ -86,6 +81,13 @@
 				<key>CFBundleIconFiles</key>
 				<array>
 					<string>dark</string>
+				</array>
+			</dict>
+			<key>Forest Green</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>forest-green</string>
 				</array>
 			</dict>
 			<key>Fruit Based</key>
@@ -138,13 +140,6 @@
 	<dict>
 		<key>CFBundleAlternateIcons</key>
 		<dict>
-			<key>Forest Green</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>forest-green-ipad</string>
-				</array>
-			</dict>
 			<key>Ayu Light</key>
 			<dict>
 				<key>CFBundleIconFiles</key>
@@ -157,6 +152,13 @@
 				<key>CFBundleIconFiles</key>
 				<array>
 					<string>dark-ipad</string>
+				</array>
+			</dict>
+			<key>Forest Green</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>forest-green-ipad</string>
 				</array>
 			</dict>
 			<key>Fruit Based</key>

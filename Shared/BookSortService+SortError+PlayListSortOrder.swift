@@ -1,6 +1,6 @@
 import Foundation
 
-final class BookSortService {
+public final class BookSortService {
     public class func sort(_ books: NSOrderedSet, by type: PlayListSortOrder) -> NSOrderedSet {
         switch type {
         case .metadataTitle, .fileName:

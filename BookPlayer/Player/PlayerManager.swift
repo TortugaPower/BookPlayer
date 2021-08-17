@@ -114,8 +114,6 @@ class PlayerManager: NSObject, TelemetryProtocol {
             self.audioPlayer.replaceCurrentItem(with: nil)
             self.audioPlayer.replaceCurrentItem(with: item)
 
-            self.boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
-
             // Update UI on main thread
             DispatchQueue.main.async {
                 // Set book metadata for lockscreen and control center
@@ -137,7 +135,8 @@ class PlayerManager: NSObject, TelemetryProtocol {
 
                 if book.currentTime > 0.0 {
                     // if book is truly finished, start book again to avoid autoplaying next one
-                    let time = book.currentTime == book.duration ? 0 : book.currentTime
+                    // add 1 second as a finished threshold
+                    let time = (book.currentTime + 1) >= book.duration ? 0 : book.currentTime
                     self.jumpTo(time)
                 }
 
@@ -152,7 +151,6 @@ class PlayerManager: NSObject, TelemetryProtocol {
     // Called every second by the timer
     @objc func update() {
         guard let book = self.currentBook,
-              let bookIdentifier = book.identifier,
               let fileURL = book.fileURL,
               let playerItem = self.playerItem,
               playerItem.status == .readyToPlay else {
@@ -176,7 +174,7 @@ class PlayerManager: NSObject, TelemetryProtocol {
                                             userInfo: [
                                                 "progress": book.progressPercentage,
                                                 "fileURL": fileURL,
-                                                "bookIdentifier": bookIdentifier
+                                                "book": book
                                             ] as [String: Any])
         }
 
@@ -381,7 +379,7 @@ extension PlayerManager {
 
         UserActivityManager.shared.resumePlaybackActivity()
 
-        if let library = currentBook.library ?? currentBook.folder?.library {
+        if let library = currentBook.getLibrary() {
             library.lastPlayedBook = currentBook
             DataManager.saveContext()
         }
@@ -422,7 +420,7 @@ extension PlayerManager {
         }
 
         self.fadeTimer?.invalidate()
-        self.audioPlayer.volume = 1
+        self.boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
         // Set play state on player and control center
         self.audioPlayer.playImmediately(atRate: self.speed)
 
@@ -471,7 +469,7 @@ extension PlayerManager {
 
         UserActivityManager.shared.stopPlaybackActivity()
 
-        if let library = currentBook.library ?? currentBook.folder?.library {
+        if let library = currentBook.getLibrary() {
             library.lastPlayedBook = currentBook
             DataManager.saveContext()
         }
@@ -488,7 +486,6 @@ extension PlayerManager {
             UserDefaults.standard.set(Date(), forKey: "\(Constants.UserDefaults.lastPauseTime)_\(currentBook.identifier!)")
 
             try? AVAudioSession.sharedInstance().setActive(false)
-            self.sendSignal(.pauseAction, with: nil)
         }
 
         guard fade else {
@@ -562,6 +559,8 @@ extension PlayerManager {
         }
 
         self.update()
+
+        self.markAsCompleted(true)
 
         guard let nextBook = self.currentBook?.nextBook() else { return }
 

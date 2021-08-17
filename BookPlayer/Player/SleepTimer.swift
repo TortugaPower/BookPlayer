@@ -7,6 +7,7 @@
 //
 
 import BookPlayerKit
+import Combine
 import Foundation
 import IntentsUI
 import UIKit
@@ -15,12 +16,13 @@ typealias SleepTimerStart = () -> Void
 typealias SleepTimerProgress = (Double) -> Void
 typealias SleepTimerEnd = (_ cancelled: Bool) -> Void
 
-final class SleepTimer: TelemetryProtocol {
+final class SleepTimer {
     static let shared = SleepTimer()
 
     let durationFormatter: DateComponentsFormatter = DateComponentsFormatter()
 
     private var timer: Timer?
+    private var subscription: AnyCancellable?
 
     private let defaultMessage: String = "player_sleep_title".localized
     private var alert: UIAlertController?
@@ -35,7 +37,7 @@ final class SleepTimer: TelemetryProtocol {
     ]
 
     public func isActive() -> Bool {
-        return (self.timer?.isValid ?? false) || self.timeLeft == -2
+        return self.subscription != nil || self.timeLeft == -2
     }
 
     public func isEndChapterActive() -> Bool {
@@ -86,10 +88,10 @@ final class SleepTimer: TelemetryProtocol {
         PlayerManager.shared.pause(fade: true)
 
         NotificationCenter.default.post(name: .timerEnd, object: nil)
+        self.subscription?.cancel()
     }
 
     private func startEndOfChapterOption() {
-        self.sendSignal(.sleepTimerAction, with: ["seconds": "EOC"])
         self.cancel()
         self.alert?.message = "sleep_alert_description".localized
         self.timeLeft = -2.0
@@ -188,7 +190,6 @@ final class SleepTimer: TelemetryProtocol {
     }
 
     public func sleep(in seconds: Double) {
-        self.sendSignal(.sleepTimerAction, with: ["seconds": "\(seconds)"])
         let option = TimeParser.getTimerOption(from: seconds)
         self.donateTimerIntent(with: option)
 
@@ -198,8 +199,10 @@ final class SleepTimer: TelemetryProtocol {
         self.reset()
 
         self.timeLeft = seconds
-        self.timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.update), userInfo: nil, repeats: true)
-
-        RunLoop.main.add(self.timer!, forMode: RunLoop.Mode.common)
+        self.subscription = Timer.publish(every: 1, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                self?.update()
+            }
     }
 }

@@ -65,32 +65,26 @@ public class Folder: LibraryItem {
 
     // MARK: - Init
 
-    convenience init(title: String, items: [LibraryItem], context: NSManagedObjectContext) {
-        let entity = NSEntityDescription.entity(forEntityName: "Folder", in: context)!
+  public convenience init(title: String, context: NSManagedObjectContext) {
+    let entity = NSEntityDescription.entity(forEntityName: "Folder", in: context)!
+    self.init(entity: entity, insertInto: context)
 
-        self.init(entity: entity, insertInto: context)
-        self.identifier = "\(title)\(Date().timeIntervalSince1970)"
-        self.title = title
-        self.originalFileName = title
-        self.desc = "\(items.count) \("files_title".localized)"
-        self.addToItems(NSOrderedSet(array: items))
-    }
+    self.identifier = "\(title)\(Date().timeIntervalSince1970)"
+    self.relativePath = title
+    self.title = title
+    self.originalFileName = title
+  }
 
-    convenience init(from url: URL, items: [LibraryItem], context: NSManagedObjectContext) {
-        let entity = NSEntityDescription.entity(forEntityName: "Folder", in: context)!
+  public convenience init(from fileURL: URL, context: NSManagedObjectContext) {
+    let entity = NSEntityDescription.entity(forEntityName: "Folder", in: context)!
+    self.init(entity: entity, insertInto: context)
 
-        let title = url.lastPathComponent
-        self.init(entity: entity, insertInto: context)
-
-        self.identifier = UUID().uuidString
-        self.title = title
-        self.originalFileName = title
-        self.desc = "\(items.count) \("files_title".localized)"
-//        self.path = ""
-        self.addToItems(NSOrderedSet(array: items))
-        // swiftlint:disable force_try
-        try! url.setAppIdentifier(self.identifier)
-    }
+    let fileTitle = fileURL.lastPathComponent
+    self.identifier = "\(fileTitle)\(Date().timeIntervalSince1970)"
+    self.relativePath = fileURL.relativePath(to: DataManager.getProcessedFolderURL())
+    self.title = fileTitle
+    self.originalFileName = fileTitle
+  }
 
     // MARK: - Methods
 
@@ -189,7 +183,23 @@ public class Folder: LibraryItem {
         }
     }
 
-    override public func getItem(with identifier: String) -> LibraryItem? {
+  override public func index(for item: LibraryItem) -> Int? {
+    guard let items = self.items?.array as? [LibraryItem] else {
+      return nil
+    }
+
+    return items.firstIndex { (libraryItem) -> Bool in
+      if let book = libraryItem as? Book {
+        return book.relativePath == item.relativePath
+      } else if let folder = libraryItem as? Folder {
+        return folder.index(for: item) != nil
+      }
+
+      return false
+    }
+  }
+
+    override public func getItem(with relativePath: String) -> LibraryItem? {
         guard let items = self.items?.array as? [LibraryItem] else {
             return nil
         }
@@ -197,7 +207,7 @@ public class Folder: LibraryItem {
         var itemFound: LibraryItem?
 
         for item in items {
-            if let libraryItem = item.getItem(with: identifier) {
+            if let libraryItem = item.getItem(with: relativePath) {
                 itemFound = libraryItem
                 break
             }
@@ -206,16 +216,16 @@ public class Folder: LibraryItem {
         return itemFound
     }
 
-    public func itemIndex(with identifier: String) -> Int? {
+    public func itemIndex(with relativePath: String) -> Int? {
         guard let items = self.items?.array as? [LibraryItem] else {
             return nil
         }
 
         return items.firstIndex { (item) -> Bool in
             if let book = item as? Book {
-                return book.identifier == identifier
+                return book.relativePath == relativePath
             } else if let folder = item as? Folder {
-                return folder.getItem(with: identifier) != nil
+                return folder.getItem(with: relativePath) != nil
             }
 
             return false
@@ -275,7 +285,7 @@ public class Folder: LibraryItem {
             return nil
         }
 
-        guard let indexFound = self.itemIndex(with: book.identifier) else {
+        guard let indexFound = self.itemIndex(with: book.relativePath) else {
             return nil
         }
 
@@ -294,6 +304,38 @@ public class Folder: LibraryItem {
         }
 
         return nil
+    }
+
+    public func insert(item: LibraryItem, at index: Int? = nil) {
+        if let parent = item.folder {
+            parent.removeFromItems(item)
+            parent.updateCompletionState()
+        } else if let library = item.library {
+            library.removeFromItems(item)
+        }
+
+        if let index = index {
+            self.insertIntoItems(item, at: index)
+        } else {
+            self.addToItems(item)
+        }
+
+        self.rebuildRelativePaths(for: item)
+    }
+
+    public func rebuildRelativePaths(for item: LibraryItem) {
+        item.relativePath = self.relativePathBuilder(for: item)
+
+        if let folder = item as? Folder,
+           let items = folder.items?.array as? [LibraryItem] {
+            items.forEach({ folder.rebuildRelativePaths(for: $0) })
+        }
+    }
+
+    public func relativePathBuilder(for item: LibraryItem) -> String {
+        let itemRelativePath = item.relativePath.split(separator: "/").map({ String($0) }).last ?? item.relativePath
+
+        return "\(self.relativePath!)/\(itemRelativePath!)"
     }
 
     public override func info() -> String {

@@ -10,8 +10,9 @@ import CoreData
 import Foundation
 
 public class DataManager {
-    public static let processedFolderName = "Processed"
-    public static let inboxFolderName = "Inbox"
+  public static let processedFolderName = "Processed"
+  public static let inboxFolderName = "Inbox"
+  public static var loadingDataError: Error?
 
     // MARK: - Folder URLs
 
@@ -51,44 +52,59 @@ public class DataManager {
         return inboxFolderURL
     }
 
-    public static var coreDataStack: CoreDataStack = {
-        let manager = DataMigrationManager(modelNamed: "BookPlayer",
-                                           enableMigrations: true)
-        return manager.stack
-    }()
+    public static var coreDataStack: CoreDataStack!
 
     public class func getContext() -> NSManagedObjectContext {
-        return self.coreDataStack.managedContext
+      if DataManager.coreDataStack == nil {
+        DataManager.reloadContext()
+      }
+
+      return self.coreDataStack.managedContext
     }
 
     public class func saveContext() {
         self.coreDataStack.saveContext()
     }
 
-    public class func getBackgroundContext() -> NSManagedObjectContext {
-        return self.coreDataStack.getBackgroundContext()
+  public class func reloadContext() {
+    let manager = DataMigrationManager(modelNamed: "BookPlayer",
+                                       enableMigrations: true) { _, error in
+      DataManager.loadingDataError = error
     }
+    DataManager.coreDataStack = manager.stack
+  }
+
+  public class func getBackgroundContext() -> NSManagedObjectContext {
+    if DataManager.coreDataStack == nil {
+      DataManager.reloadContext()
+    }
+    
+    return self.coreDataStack.getBackgroundContext()
+  }
+
+  public class func cleanupStoreFile() {
+    DataMigrationManager.cleanupStoreFile()
+    DataManager.reloadContext()
+  }
 
     // MARK: - Models handler
 
     /**
      Gets the library for the App. There should be only one Library object at all times
      */
-    public class func getLibrary() -> Library {
-        var library: Library!
+    public class func getLibrary() throws -> Library? {
+      let context = self.getContext()
+      let fetch: NSFetchRequest<Library> = Library.fetchRequest()
 
-        let context = self.coreDataStack.managedContext
-        let fetch: NSFetchRequest<Library> = Library.fetchRequest()
-
-        do {
-            library = try context.fetch(fetch).first ??
-                Library.create(in: context)
-        } catch {
-            fatalError("Failed to fetch library")
-        }
-
-        return library
+      return try context.fetch(fetch).first
     }
+
+  public class func createLibrary() -> Library {
+    let context = self.getContext()
+    let library = Library.create(in: context)
+    self.saveContext()
+    return library
+  }
 
     public class func getBooks() -> [Book]? {
         let fetch: NSFetchRequest<Book> = Book.fetchRequest()
@@ -109,29 +125,43 @@ public class DataManager {
         return item as? Book
     }
 
-    public class func createFolder(from url: URL, items: [LibraryItem]) -> Folder {
-        return Folder(from: url, items: items, context: self.getContext())
+  public class func getOrderedBooks() -> [Book]? {
+    let fetch: NSFetchRequest<Book> = Book.fetchRequest()
+    fetch.predicate = NSPredicate(format: "lastPlayDate != nil")
+    let sort = NSSortDescriptor(key: #keyPath(Book.lastPlayDate), ascending: false)
+    fetch.sortDescriptors = [sort]
+    let context = self.coreDataStack.managedContext
+
+    return try? context.fetch(fetch)
+  }
+
+  public class func createFolder(title: String) -> Folder {
+    return Folder(title: title, context: self.getContext())
+  }
+
+  public class func createFolder(with title: String, in folder: Folder?, library: Library, at index: Int? = nil) throws -> Folder {
+    let newFolder = Folder(title: title, context: self.getContext())
+
+    let processedFolder = self.getProcessedFolderURL()
+
+    if let folder = folder {
+      try FileManager.default.createDirectory(at: processedFolder.appendingPathComponent(folder.relativePath).appendingPathComponent(title), withIntermediateDirectories: false, attributes: nil)
+      folder.insert(item: newFolder, at: index)
+    } else {
+      try FileManager.default.createDirectory(at: processedFolder.appendingPathComponent(title), withIntermediateDirectories: false, attributes: nil)
+      library.insert(item: newFolder, at: index)
     }
 
-    public class func createFolder(title: String, items: [LibraryItem]) -> Folder {
-        return Folder(title: title, items: items, context: self.getContext())
-    }
+    return newFolder
+  }
 
     public class func insert(_ folder: Folder, into library: Library, at index: Int? = nil) {
-        if let index = index {
-            library.insertIntoItems(folder, at: index)
-        } else {
-            library.addToItems(folder)
-        }
+        library.insert(item: folder, at: index)
         self.saveContext()
     }
 
     public class func insert(_ item: LibraryItem, into folder: Folder, at index: Int? = nil) {
-        if let index = index {
-            folder.insertIntoItems(item, at: index)
-        } else {
-            folder.addToItems(item)
-        }
+        folder.insert(item: item, at: index)
         self.saveContext()
     }
 

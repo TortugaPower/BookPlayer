@@ -14,7 +14,7 @@ import IDZSwiftCommonCrypto
 import UIKit
 
 extension DataManager {
-    static let importer = ImportManager()
+    static let importer = ImportManager.shared
     static let queue = OperationQueue()
 
     // MARK: - Operations
@@ -36,6 +36,33 @@ extension DataManager {
         // swiftlint:enable force_cast
         return count
     }
+
+  public class func cleanAndReloadLibrary() {
+    DataManager.cleanupStoreFile()
+
+    let enumerator = FileManager.default.enumerator(
+      at: DataManager.getProcessedFolderURL(),
+      includingPropertiesForKeys: [.creationDateKey, .isDirectoryKey],
+      options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants], errorHandler: { (url, error) -> Bool in
+        print("directoryEnumerator error at \(url): ", error)
+        return true
+      })!
+    var files = [URL]()
+    for case let fileURL as URL in enumerator {
+      files.append(fileURL)
+    }
+
+    guard let library = try? DataManager.getLibrary() ??
+            Library.create(in: self.getContext()) else { return }
+
+    saveContext()
+
+    DataManager.setupDefaultTheme()
+
+    _ = DataManager.insertItems(from: files, into: nil, library: library)
+
+    saveContext()
+  }
 
     // MARK: - File processing
 
@@ -75,10 +102,13 @@ extension DataManager {
     }
 
     /**
-     Filter out folders from file URLs.
+     Filter out Processed and Inbox folders from file URLs.
      */
     private class func filterFiles(_ urls: [URL]) -> [URL] {
-        return urls.filter { !$0.hasDirectoryPath }
+        return urls.filter {
+            $0.lastPathComponent != DataManager.processedFolderName
+            && $0.lastPathComponent != DataManager.inboxFolderName
+        }
     }
 
     public class func importData(from item: ImportableItem) {
@@ -99,16 +129,7 @@ extension DataManager {
      - Parameter origin: File original location
      */
     public class func processFile(at origin: URL) {
-        self.processFile(at: origin, destinationFolder: self.getProcessedFolderURL())
-    }
-
-    /**
-     Notifies the ImportManager about the new file
-     - Parameter origin: File original location
-     - Parameter destinationFolder: File final location
-     */
-    class func processFile(at origin: URL, destinationFolder: URL) {
-        self.importer.process(origin, destinationFolder: destinationFolder)
+      self.importer.process(origin)
     }
 
     /**
@@ -122,10 +143,8 @@ extension DataManager {
             return
         }
 
-        let processedFolder = self.getProcessedFolderURL()
-
         for url in urls {
-            self.processFile(at: url, destinationFolder: processedFolder)
+            self.processFile(at: url)
         }
     }
 
@@ -137,30 +156,34 @@ extension DataManager {
 
     // MARK: - Themes
 
-    public class func setupDefaultTheme() {
-        let userDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
+  public class func setupDefaultTheme() {
+    let userDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
 
-        // Migrate user defaults app icon
-        if userDefaults?
-            .string(forKey: Constants.UserDefaults.appIcon.rawValue) == nil {
-            let storedIconId = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon.rawValue)
-            userDefaults?.set(storedIconId, forKey: Constants.UserDefaults.appIcon.rawValue)
-        } else if let sharedAppIcon = userDefaults?
-                    .string(forKey: Constants.UserDefaults.appIcon.rawValue),
-                  let localAppIcon = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon.rawValue),
-                  sharedAppIcon != localAppIcon {
-            userDefaults?.set(localAppIcon, forKey: Constants.UserDefaults.appIcon.rawValue)
-            UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.appIcon.rawValue)
-        }
-
-        let library = self.getLibrary()
-
-        guard library.currentTheme == nil else { return }
-
-        library.currentTheme = self.getLocalThemes().first!
-
-        self.saveContext()
+    // Migrate user defaults app icon
+    if userDefaults?
+        .string(forKey: Constants.UserDefaults.appIcon.rawValue) == nil {
+      let storedIconId = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon.rawValue)
+      userDefaults?.set(storedIconId, forKey: Constants.UserDefaults.appIcon.rawValue)
+    } else if let sharedAppIcon = userDefaults?
+                .string(forKey: Constants.UserDefaults.appIcon.rawValue),
+              let localAppIcon = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon.rawValue),
+              sharedAppIcon != localAppIcon {
+      userDefaults?.set(localAppIcon, forKey: Constants.UserDefaults.appIcon.rawValue)
+      UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.appIcon.rawValue)
     }
+
+    // Set system theme as default
+    if UserDefaults.standard.object(forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue) == nil {
+      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue)
+    }
+
+    guard let library = try? self.getLibrary(),
+          library.currentTheme == nil else { return }
+
+    library.currentTheme = self.getLocalThemes().first!
+
+    self.saveContext()
+  }
 
     public class func getLocalThemes() -> [Theme] {
         guard
@@ -196,19 +219,20 @@ extension DataManager {
     }
 
     public class func getExtractedThemes() -> [Theme] {
-        let library = self.getLibrary()
-        return library.extractedThemes?.array as? [Theme] ?? []
+      let library = try? self.getLibrary()
+      return library?.extractedThemes?.array as? [Theme] ?? []
     }
 
     public class func addExtractedTheme(_ theme: Theme) {
-        let library = self.getLibrary()
-        library.addToExtractedThemes(theme)
-        self.saveContext()
+      guard let library = try? self.getLibrary() else { return }
+
+      library.addToExtractedThemes(theme)
+      self.saveContext()
     }
 
     public class func setCurrentTheme(_ theme: Theme) {
-        let library = self.getLibrary()
-        library.currentTheme = theme
-        DataManager.saveContext()
+      guard let library = try? self.getLibrary() else { return }
+      library.currentTheme = theme
+      DataManager.saveContext()
     }
 }
