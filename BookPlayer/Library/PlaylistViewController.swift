@@ -7,6 +7,7 @@
 //
 
 import BookPlayerKit
+import MediaPlayer
 import UIKit
 
 class PlaylistViewController: ItemListViewController {
@@ -278,6 +279,22 @@ extension PlaylistViewController {
 
         return bookCell
     }
+
+  override func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+    guard sourceIndexPath.sectionValue == .data,
+          destinationIndexPath.sectionValue == .data,
+          sourceIndexPath.row != destinationIndexPath.row  else {
+      return
+    }
+
+    let item = self.items[sourceIndexPath.row]
+    
+    self.folder.removeFromItems(at: sourceIndexPath.row)
+    self.folder.insertIntoItems(item, at: destinationIndexPath.row)
+
+    DataManager.saveContext()
+    MPPlayableContentManager.shared().reloadData()
+  }
 }
 
 // MARK: - TableView Delegate
