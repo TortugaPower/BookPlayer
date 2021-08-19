@@ -106,7 +106,9 @@ public class Library: NSManagedObject, Codable {
         if let parent = item.folder {
             parent.removeFromItems(item)
             parent.updateCompletionState()
-        } else if let library = item.library {
+        }
+
+        if let library = item.library {
             library.removeFromItems(item)
         }
 
