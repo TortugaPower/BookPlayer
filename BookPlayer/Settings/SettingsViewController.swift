@@ -170,6 +170,8 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
             return "settings_appearance_title".localized
         case .playback:
             return "settings_playback_title".localized
+        case .storage:
+            return "settings_storage_title".localized
         case .siri:
             return "settings_siri_title".localized
         case .support:

@@ -213,5 +213,6 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "coredata_error_migration_description" = "A migration of the database failed, the library will have to be reinitialized.";
 "import_warning_description" = "Transfering files may take a while, please make sure the number of files is complete before proceeding.";
 "files_caps_title" = "FICHIERS";
-"settings_storage_title" = "Manage your files";
+"settings_storage_description" = "Manage your files";
 "storage_total_title" = "Total space used";
+"settings_storage_title" = "Storage Management";

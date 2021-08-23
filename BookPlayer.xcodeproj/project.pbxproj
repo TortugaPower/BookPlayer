@@ -29,6 +29,8 @@
 		4122991D24442E7800CDB416 /* BookPlayerKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */; };
 		4124121A26CF287600B099DB /* StorageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4124121926CF287600B099DB /* StorageViewController.swift */; };
 		4124122626D1640000B099DB /* StorageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4124122526D1640000B099DB /* StorageTableViewCell.swift */; };
+		4124122826D19A8700B099DB /* StorageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4124122726D19A8600B099DB /* StorageViewModel.swift */; };
+		4124122A26D19B9100B099DB /* StorageItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4124122926D19B9100B099DB /* StorageItem.swift */; };
 		4124AB1725DFE07E0007C839 /* DataMigrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4124AB1625DFE07E0007C839 /* DataMigrationManager.swift */; };
 		4124AB1825DFE07E0007C839 /* DataMigrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4124AB1625DFE07E0007C839 /* DataMigrationManager.swift */; };
 		4124AB2125DFE1A60007C839 /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4124AB2025DFE1A60007C839 /* CoreDataStack.swift */; };
@@ -456,6 +458,8 @@
 		4113739F25534B8800295022 /* TelemetrySignal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetrySignal.swift; sourceTree = "<group>"; };
 		4124121926CF287600B099DB /* StorageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageViewController.swift; sourceTree = "<group>"; };
 		4124122526D1640000B099DB /* StorageTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageTableViewCell.swift; sourceTree = "<group>"; };
+		4124122726D19A8600B099DB /* StorageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageViewModel.swift; sourceTree = "<group>"; };
+		4124122926D19B9100B099DB /* StorageItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageItem.swift; sourceTree = "<group>"; };
 		412451821D489204008AC0E5 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		4124AACC25DF62DD0007C839 /* Audiobook Player 3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Audiobook Player 3.xcdatamodel"; sourceTree = "<group>"; };
 		4124AB1625DFE07E0007C839 /* DataMigrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataMigrationManager.swift; sourceTree = "<group>"; };
@@ -857,7 +861,9 @@
 			isa = PBXGroup;
 			children = (
 				4124121926CF287600B099DB /* StorageViewController.swift */,
+				4124122926D19B9100B099DB /* StorageItem.swift */,
 				4124122526D1640000B099DB /* StorageTableViewCell.swift */,
+				4124122726D19A8600B099DB /* StorageViewModel.swift */,
 			);
 			path = Storage;
 			sourceTree = "<group>";
@@ -2071,6 +2077,7 @@
 				41964C832220B4F700FF1A2F /* ContributorCellView.swift in Sources */,
 				C30EEEBF2079645C00A4ED33 /* PlayerContainerViewController.swift in Sources */,
 				41EE378821BFFB9800A55F51 /* ItemListFeedback.swift in Sources */,
+				4124122826D19A8700B099DB /* StorageViewModel.swift in Sources */,
 				418EA78B268D6EF100F6BAEB /* ImportTableViewCell.swift in Sources */,
 				4142964921F2E2BA004356DA /* ThemeCellView.swift in Sources */,
 				4160A0A123F304530039166B /* LocalizableLabel.swift in Sources */,
@@ -2115,6 +2122,7 @@
 				416A297D2568671F00605395 /* AVPlayer+BookPlayer.swift in Sources */,
 				41C3395225E040FB003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
 				C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */,
+				4124122A26D19B9100B099DB /* StorageItem.swift in Sources */,
 				4165EE1220A7D1E100616EDF /* RootViewController.swift in Sources */,
 				41A1B12F226FE0F900EA0400 /* Notification+BookPlayer.swift in Sources */,
 				4124121A26CF287600B099DB /* StorageViewController.swift in Sources */,

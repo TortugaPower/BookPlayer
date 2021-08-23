@@ -10,7 +10,7 @@ import BookPlayerKit
 import Themeable
 import UIKit
 
-class StorageTableViewCell: UITableViewCell {
+final class StorageTableViewCell: UITableViewCell {
   @IBOutlet weak var deleteButton: UIButton!
   @IBOutlet weak var titleLabel: UILabel!
   @IBOutlet weak var sizeLabel: UILabel!
