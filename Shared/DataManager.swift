@@ -146,7 +146,6 @@ public class DataManager {
 
   public class func findBooks(containing fileURL: URL) -> [Book]? {
     let fetch: NSFetchRequest<Book> = Book.fetchRequest()
-    print(fileURL.lastPathComponent)
     fetch.predicate = NSPredicate(format: "relativePath ENDSWITH[C] %@", fileURL.lastPathComponent)
     let context = self.coreDataStack.managedContext
 

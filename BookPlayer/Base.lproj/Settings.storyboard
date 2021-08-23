@@ -1814,11 +1814,11 @@
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <inset key="separatorInset" minX="70" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="StorageTableViewCell" id="dhu-1Q-Nrr" customClass="StorageTableViewCell" customModule="BookPlayer" customModuleProvider="target">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="StorageTableViewCell" id="dhu-1Q-Nrr" customClass="StorageTableViewCell" customModule="BookPlayer" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="24.5" width="375" height="93"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="dhu-1Q-Nrr" id="Bzc-JJ-CD8">
-                                            <rect key="frame" x="0.0" y="0.0" width="349.5" height="93"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="93"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="u6I-ev-wAe">
@@ -1834,10 +1834,10 @@
                                                     </connections>
                                                 </button>
                                                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="3y7-Ud-dRI">
-                                                    <rect key="frame" x="52" y="10" width="260.5" height="73"/>
+                                                    <rect key="frame" x="52" y="10" width="276" height="73"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="middleTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Odu-CB-c0w">
-                                                            <rect key="frame" x="0.0" y="0.0" width="260.5" height="36"/>
+                                                            <rect key="frame" x="0.0" y="0.0" width="276" height="36"/>
                                                             <string key="text">Title first line
 second line</string>
                                                             <fontDescription key="fontDescription" type="system" weight="medium" pointSize="15"/>
@@ -1846,13 +1846,13 @@ second line</string>
                                                             <size key="shadowOffset" width="0.0" height="0.0"/>
                                                         </label>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="File path" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="F9b-4k-Be5">
-                                                            <rect key="frame" x="0.0" y="38" width="260.5" height="15"/>
+                                                            <rect key="frame" x="0.0" y="38" width="276" height="15"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                                             <color key="textColor" red="0.56078431370000004" green="0.5568627451" blue="0.58039215690000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                             <nil key="highlightedColor"/>
                                                         </label>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="2 GB" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NiJ-JH-OiO">
-                                                            <rect key="frame" x="0.0" y="55" width="260.5" height="18"/>
+                                                            <rect key="frame" x="0.0" y="55" width="276" height="18"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="height" constant="18" id="Z6i-QS-LZG"/>
                                                             </constraints>
@@ -1863,7 +1863,7 @@ second line</string>
                                                     </subviews>
                                                 </stackView>
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="d1T-5y-qpl">
-                                                    <rect key="frame" x="322.5" y="35.5" width="22" height="22"/>
+                                                    <rect key="frame" x="338" y="35.5" width="22" height="22"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="22" id="CEK-AW-orS"/>
                                                         <constraint firstAttribute="width" constant="22" id="rP0-pj-YZs"/>
@@ -1880,7 +1880,7 @@ second line</string>
                                                 <constraint firstAttribute="bottom" secondItem="3y7-Ud-dRI" secondAttribute="bottom" constant="10" id="GHJ-6I-jS1"/>
                                                 <constraint firstItem="d1T-5y-qpl" firstAttribute="leading" secondItem="3y7-Ud-dRI" secondAttribute="trailing" constant="10" id="Y4c-XA-Zqa"/>
                                                 <constraint firstItem="u6I-ev-wAe" firstAttribute="leading" secondItem="Bzc-JJ-CD8" secondAttribute="leading" constant="15" id="eNe-Kf-BZG"/>
-                                                <constraint firstAttribute="trailing" secondItem="d1T-5y-qpl" secondAttribute="trailing" constant="5" id="iCD-nF-XrA"/>
+                                                <constraint firstAttribute="trailing" secondItem="d1T-5y-qpl" secondAttribute="trailing" constant="15" id="iCD-nF-XrA"/>
                                                 <constraint firstItem="d1T-5y-qpl" firstAttribute="centerY" secondItem="Bzc-JJ-CD8" secondAttribute="centerY" id="lW9-LS-1PR"/>
                                                 <constraint firstItem="u6I-ev-wAe" firstAttribute="centerY" secondItem="Bzc-JJ-CD8" secondAttribute="centerY" id="lzg-oi-A23"/>
                                                 <constraint firstItem="3y7-Ud-dRI" firstAttribute="leading" secondItem="u6I-ev-wAe" secondAttribute="trailing" constant="15" id="piA-TG-8FZ"/>

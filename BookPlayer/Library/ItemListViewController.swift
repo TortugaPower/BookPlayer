@@ -242,8 +242,8 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
 
     func loadPlayer(book: Book) {
         guard DataManager.exists(book) else {
-            self.showAlert("file_missing_title".localized, message: "file_missing_description".localized)
-            return
+          self.showAlert("file_missing_title".localized, message: "\("file_missing_description".localized)\n\(book.originalFileName ?? "")")
+          return
         }
 
         // Replace player with new one

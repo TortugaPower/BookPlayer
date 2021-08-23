@@ -63,7 +63,6 @@ final class StorageViewModel: ObservableObject {
   }
 
   private func createBook(from item: StorageItem) throws {
-    // create a new book
     let book = DataManager.createBook(from: item.fileURL)
     try moveBookFile(from: item, with: book)
     self.library.insert(item: book)
