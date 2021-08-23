@@ -75,6 +75,8 @@ final class StorageViewModel: ObservableObject {
   }
 
   public func handleDelete(for item: StorageItem) throws {
+    self.files.value = self.files.value.filter { $0.fileURL != item.fileURL }
+
     try FileManager.default.removeItem(at: item.fileURL)
   }
 }
