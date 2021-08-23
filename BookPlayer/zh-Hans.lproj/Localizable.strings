@@ -197,3 +197,5 @@
 "settings_storage_description" = "Manage your files";
 "storage_total_title" = "Total space used";
 "settings_storage_title" = "Storage Management";
+"storage_fix_file_button" = "Fix";
+"storage_fix_file_description" = "The book item is missing, if the corresponding item cannot be found, a new one will be created";

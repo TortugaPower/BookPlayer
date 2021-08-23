@@ -69,11 +69,25 @@ extension StorageViewController: UITableViewDataSource {
     cell.filenameLabel.text = item.path
     cell.warningButton.isHidden = !item.showWarning
 
-    cell.onWarningTap = {
-      self.showAlert(nil, message: "The digital book is missing, link an existing one or create one")
+    cell.onWarningTap = { [weak self] in
+      let alert = UIAlertController(title: nil,
+                                    message: "storage_fix_file_description".localized,
+                                    preferredStyle: .alert)
+
+      alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
+
+      alert.addAction(UIAlertAction(title: "storage_fix_file_button".localized, style: .default, handler: { [weak self] _ in
+        do {
+          try self?.viewModel.handleFix(for: item)
+        } catch {
+          self?.showAlert("error_title".localized, message: error.localizedDescription)
+        }
+      }))
+
+      self?.present(alert, animated: true, completion: nil)
     }
 
-    cell.onDeleteTap = {
+    cell.onDeleteTap = { [weak self] in
       let alert = UIAlertController(title: nil,
                                     message: String(format: "delete_single_item_title".localized, item.title),
                                     preferredStyle: .alert)
@@ -82,13 +96,13 @@ extension StorageViewController: UITableViewDataSource {
 
       alert.addAction(UIAlertAction(title: "delete_button".localized, style: .destructive, handler: { _ in
         do {
-          try self.viewModel.handleDelete(for: item)
+          try self?.viewModel.handleDelete(for: item)
         } catch {
-          self.showAlert("error_title".localized, message: error.localizedDescription)
+          self?.showAlert("error_title".localized, message: error.localizedDescription)
         }
       }))
 
-      self.present(alert, animated: true, completion: nil)
+      self?.present(alert, animated: true, completion: nil)
     }
 
     return cell

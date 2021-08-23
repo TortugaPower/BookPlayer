@@ -62,6 +62,28 @@ final class StorageViewModel: ObservableObject {
     }
   }
 
+  private func createBook(from item: StorageItem) {
+    // create a new book
+    let book = DataManager.createBook(from: item.fileURL)
+    self.library.insert(item: book)
+
+    DataManager.saveContext()
+  }
+
+  private func moveBookFile(at sourceURL: URL, destinationURL: URL) throws {
+    guard sourceURL != destinationURL,
+          !FileManager.default.fileExists(atPath: destinationURL.path) else { return }
+
+    // create parent folder if it doesn't exist
+    let parentFolder = destinationURL.deletingLastPathComponent()
+
+    if !FileManager.default.fileExists(atPath: parentFolder.path) {
+      try FileManager.default.createDirectory(at: parentFolder, withIntermediateDirectories: true, attributes: nil)
+    }
+
+    try FileManager.default.moveItem(at: sourceURL, to: destinationURL)
+  }
+
   public func getLibrarySize() -> String {
     return DataManager.sizeOfItem(at: DataManager.getProcessedFolderURL())
   }
@@ -78,5 +100,32 @@ final class StorageViewModel: ObservableObject {
     self.files.value = self.files.value.filter { $0.fileURL != item.fileURL }
 
     try FileManager.default.removeItem(at: item.fileURL)
+  }
+
+  public func handleFix(for item: StorageItem) throws {
+    guard let fetchedBook = DataManager.findBooks(containing: item.fileURL)?.first else {
+      // create a new book
+      self.createBook(from: item)
+      self.loadItems()
+      return
+    }
+
+    let isOrphaned = fetchedBook.getLibrary() == nil
+
+    // move the book
+    let defaultDestinationURL = DataManager.getProcessedFolderURL().appendingPathComponent(item.fileURL.lastPathComponent)
+    let destinationURL = !isOrphaned
+      ? fetchedBook.fileURL ?? defaultDestinationURL
+      : defaultDestinationURL
+
+    try self.moveBookFile(at: item.fileURL, destinationURL: destinationURL)
+
+    // Book exists, but is dangling without reference
+    if isOrphaned {
+      self.library.insert(item: fetchedBook)
+      DataManager.saveContext()
+    }
+
+    self.loadItems()
   }
 }

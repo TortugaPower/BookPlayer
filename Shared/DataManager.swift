@@ -144,6 +144,15 @@ public class DataManager {
         return item as? Book
     }
 
+  public class func findBooks(containing fileURL: URL) -> [Book]? {
+    let fetch: NSFetchRequest<Book> = Book.fetchRequest()
+    print(fileURL.lastPathComponent)
+    fetch.predicate = NSPredicate(format: "relativePath ENDSWITH[C] %@", fileURL.lastPathComponent)
+    let context = self.coreDataStack.managedContext
+
+    return try? context.fetch(fetch)
+  }
+
   public class func getOrderedBooks() -> [Book]? {
     let fetch: NSFetchRequest<Book> = Book.fetchRequest()
     fetch.predicate = NSPredicate(format: "lastPlayDate != nil")

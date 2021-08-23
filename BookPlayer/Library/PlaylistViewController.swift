@@ -288,7 +288,7 @@ extension PlaylistViewController {
     }
 
     let item = self.items[sourceIndexPath.row]
-    
+
     self.folder.removeFromItems(at: sourceIndexPath.row)
     self.folder.insertIntoItems(item, at: destinationIndexPath.row)
 
