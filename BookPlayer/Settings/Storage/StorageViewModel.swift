@@ -62,16 +62,24 @@ final class StorageViewModel: ObservableObject {
     }
   }
 
-  private func createBook(from item: StorageItem) {
+  private func createBook(from item: StorageItem) throws {
     // create a new book
     let book = DataManager.createBook(from: item.fileURL)
+    try moveBookFile(from: item, with: book)
     self.library.insert(item: book)
 
     DataManager.saveContext()
+    NotificationCenter.default.post(name: .reloadLibrary, object: nil)
   }
 
-  private func moveBookFile(at sourceURL: URL, destinationURL: URL) throws {
-    guard sourceURL != destinationURL,
+  private func moveBookFile(from item: StorageItem, with book: Book) throws {
+    let isOrphaned = book.getLibrary() == nil
+    let defaultDestinationURL = DataManager.getProcessedFolderURL().appendingPathComponent(item.fileURL.lastPathComponent)
+    let destinationURL = !isOrphaned
+      ? book.fileURL ?? defaultDestinationURL
+      : defaultDestinationURL
+
+    guard item.fileURL != destinationURL,
           !FileManager.default.fileExists(atPath: destinationURL.path) else { return }
 
     // create parent folder if it doesn't exist
@@ -81,7 +89,7 @@ final class StorageViewModel: ObservableObject {
       try FileManager.default.createDirectory(at: parentFolder, withIntermediateDirectories: true, attributes: nil)
     }
 
-    try FileManager.default.moveItem(at: sourceURL, to: destinationURL)
+    try FileManager.default.moveItem(at: item.fileURL, to: destinationURL)
   }
 
   public func getLibrarySize() -> String {
@@ -105,23 +113,15 @@ final class StorageViewModel: ObservableObject {
   public func handleFix(for item: StorageItem) throws {
     guard let fetchedBook = DataManager.findBooks(containing: item.fileURL)?.first else {
       // create a new book
-      self.createBook(from: item)
+      try self.createBook(from: item)
       self.loadItems()
       return
     }
 
-    let isOrphaned = fetchedBook.getLibrary() == nil
-
-    // move the book
-    let defaultDestinationURL = DataManager.getProcessedFolderURL().appendingPathComponent(item.fileURL.lastPathComponent)
-    let destinationURL = !isOrphaned
-      ? fetchedBook.fileURL ?? defaultDestinationURL
-      : defaultDestinationURL
-
-    try self.moveBookFile(at: item.fileURL, destinationURL: destinationURL)
+    try self.moveBookFile(from: item, with: fetchedBook)
 
     // Book exists, but is dangling without reference
-    if isOrphaned {
+    if fetchedBook.getLibrary() == nil {
       self.library.insert(item: fetchedBook)
       DataManager.saveContext()
     }

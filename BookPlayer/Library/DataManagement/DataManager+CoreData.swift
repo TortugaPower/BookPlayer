@@ -145,7 +145,9 @@ extension DataManager {
       }
 
       if let fileURL = book.fileURL {
-        try FileManager.default.removeItem(at: fileURL)
+        if FileManager.default.fileExists(atPath: fileURL.path) {
+          try FileManager.default.removeItem(at: fileURL)
+        }
       }
     }
 
