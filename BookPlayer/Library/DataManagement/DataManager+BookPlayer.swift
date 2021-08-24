@@ -172,6 +172,13 @@ extension DataManager {
       UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.appIcon.rawValue)
     }
 
+    // Exclude Processed folder from phone backups
+    var resourceValues = URLResourceValues()
+    resourceValues.isExcludedFromBackup = true
+    var processedFolderURL = self.getProcessedFolderURL()
+
+    try? processedFolderURL.setResourceValues(resourceValues)
+
     // Set system theme as default
     if UserDefaults.standard.object(forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue) == nil {
       UserDefaults.standard.set(true, forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue)
