@@ -34,7 +34,10 @@ class PlaylistViewController: ItemListViewController {
             return
         }
 
-        tableView.scrollToRow(at: IndexPath(row: index, section: .data), at: .middle, animated: true)
+      // Hack to enable scroll to current item
+      DispatchQueue.main.async { [weak self] in
+        self?.tableView.scrollToRow(at: IndexPath(row: index, section: .data), at: .middle, animated: false)
+      }
     }
 
     override func reloadData() {
@@ -288,7 +291,7 @@ extension PlaylistViewController {
     }
 
     let item = self.items[sourceIndexPath.row]
-    
+
     self.folder.removeFromItems(at: sourceIndexPath.row)
     self.folder.insertIntoItems(item, at: destinationIndexPath.row)
 

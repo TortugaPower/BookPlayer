@@ -331,10 +331,10 @@ class ModifyLibraryTests: DataManagerTests {
         let library = try StubFactory.library()
         let book1 = StubFactory.book(title: "book1", duration: 100)
         let folder = try StubFactory.folder(title: "folder")
-        folder.insert(item: book1)
+        try DataManager.moveItems([book1], into: folder)
         let folder2 = try StubFactory.folder(title: "folder2")
-        folder2.insert(item: folder)
-        library.insert(item: folder2)
+        try DataManager.moveItems([folder], into: folder2)
+        try DataManager.moveItems([folder2], into: library)
 
         try DataManager.delete([folder2], library: library, mode: .shallow)
 
@@ -348,17 +348,17 @@ class ModifyLibraryTests: DataManagerTests {
     func testFolderShallowDeleteWithMultipleBooks() throws {
         let library = try StubFactory.library()
         let book1 = StubFactory.book(title: "book1", duration: 100)
-        library.insert(item: book1)
+        try DataManager.moveItems([book1], into: library)
         let book2 = StubFactory.book(title: "book2", duration: 100)
         let book3 = StubFactory.book(title: "book3", duration: 100)
         let book4 = StubFactory.book(title: "book4", duration: 100)
         let folder = try StubFactory.folder(title: "folder")
-        folder.insert(item: book2)
-        folder.insert(item: book3)
+        try DataManager.moveItems([book2], into: folder)
+        try DataManager.moveItems([book3], into: folder)
         let folder2 = try StubFactory.folder(title: "folder2")
-        folder2.insert(item: folder)
-        folder2.insert(item: book4)
-        library.insert(item: folder2)
+        try DataManager.moveItems([folder], into: folder2)
+        try DataManager.moveItems([book4], into: folder2)
+        try DataManager.moveItems([folder2], into: library)
 
         try DataManager.delete([folder2], library: library, mode: .shallow)
 

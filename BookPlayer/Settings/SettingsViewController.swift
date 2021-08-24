@@ -29,15 +29,15 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     var iconObserver: NSKeyValueObservation!
 
     enum SettingsSection: Int {
-        case plus = 0, theme, playback, autoplay, autolock, siri, support, credits
+        case plus = 0, theme, playback, storage, autoplay, autolock, siri, support, credits
     }
 
-    let lastPlayedShortcutPath = IndexPath(row: 0, section: 5)
-    let sleepTimerShortcutPath = IndexPath(row: 1, section: 5)
+    let lastPlayedShortcutPath = IndexPath(row: 0, section: 6)
+    let sleepTimerShortcutPath = IndexPath(row: 1, section: 6)
 
-    let supportSection: Int = 6
-    let githubLinkPath = IndexPath(row: 0, section: 6)
-    let supportEmailPath = IndexPath(row: 1, section: 6)
+    let supportSection: Int = 7
+    let githubLinkPath = IndexPath(row: 0, section: 7)
+    let supportEmailPath = IndexPath(row: 1, section: 7)
 
     var version: String = "0.0.0"
     var build: String = "0"
@@ -170,6 +170,8 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
             return "settings_appearance_title".localized
         case .playback:
             return "settings_playback_title".localized
+        case .storage:
+            return "settings_storage_title".localized
         case .siri:
             return "settings_siri_title".localized
         case .support:
@@ -223,22 +225,16 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     }
 
     func showSleepTimerShortcut() {
-        if #available(iOS 13.0, *) {
-            let intent = SleepTimerIntent()
-            intent.option = .unknown
-            let shortcut = INShortcut(intent: intent)!
+      self.sendSignal(.sleepTimerSiriShortcutAction, with: nil)
 
-            let vc = INUIAddVoiceShortcutViewController(shortcut: shortcut)
-            vc.delegate = self
+      let intent = SleepTimerIntent()
+      intent.option = .unknown
+      let shortcut = INShortcut(intent: intent)!
 
-            self.present(vc, animated: true, completion: nil)
-            return
-        }
+      let vc = INUIAddVoiceShortcutViewController(shortcut: shortcut)
+      vc.delegate = self
 
-        let sheet = SleepTimer.shared.intentSheet(on: self)
-
-        self.present(sheet, animated: true, completion: nil)
-        self.sendSignal(.sleepTimerSiriShortcutAction, with: nil)
+      self.present(vc, animated: true, completion: nil)
     }
 
     @IBAction func sendSupportEmail() {
@@ -301,9 +297,13 @@ extension SettingsViewController: IntentSelectionDelegate {
 
 extension SettingsViewController: Themeable {
     func applyTheme(_ theme: Theme) {
-        self.themeLabel.text = theme.title
-        self.tableView.backgroundColor = theme.systemGroupedBackgroundColor
-        self.tableView.separatorColor = theme.systemGroupedBackgroundColor
-        self.tableView.reloadData()
+      self.themeLabel.text = theme.title
+      self.tableView.backgroundColor = theme.systemGroupedBackgroundColor
+      self.tableView.separatorColor = theme.systemGroupedBackgroundColor
+      self.tableView.reloadData()
+
+      self.overrideUserInterfaceStyle = theme.useDarkVariant
+        ? UIUserInterfaceStyle.dark
+        : UIUserInterfaceStyle.light
     }
 }

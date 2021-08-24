@@ -52,6 +52,25 @@ public class DataManager {
         return inboxFolderURL
     }
 
+  public class func sizeOfItem(at url: URL) -> String {
+    var folderSize: Int64 = 0
+
+    let enumerator = FileManager.default.enumerator(
+      at: url,
+      includingPropertiesForKeys: [],
+      options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
+        print("directoryEnumerator error at \(url): ", error)
+        return true
+      })!
+
+    for case let fileURL as URL in enumerator {
+      guard let fileAttributes = try? FileManager.default.attributesOfItem(atPath: fileURL.path) else { continue }
+      folderSize += fileAttributes[FileAttributeKey.size] as? Int64 ?? 0
+    }
+
+    return ByteCountFormatter.string(fromByteCount: folderSize, countStyle: ByteCountFormatter.CountStyle.file)
+  }
+
     public static var coreDataStack: CoreDataStack!
 
     public class func getContext() -> NSManagedObjectContext {
@@ -78,7 +97,7 @@ public class DataManager {
     if DataManager.coreDataStack == nil {
       DataManager.reloadContext()
     }
-    
+
     return self.coreDataStack.getBackgroundContext()
   }
 
@@ -125,6 +144,14 @@ public class DataManager {
         return item as? Book
     }
 
+  public class func findBooks(containing fileURL: URL) -> [Book]? {
+    let fetch: NSFetchRequest<Book> = Book.fetchRequest()
+    fetch.predicate = NSPredicate(format: "relativePath ENDSWITH[C] %@", fileURL.lastPathComponent)
+    let context = self.coreDataStack.managedContext
+
+    return try? context.fetch(fetch)
+  }
+
   public class func getOrderedBooks() -> [Book]? {
     let fetch: NSFetchRequest<Book> = Book.fetchRequest()
     fetch.predicate = NSPredicate(format: "lastPlayDate != nil")
@@ -139,20 +166,58 @@ public class DataManager {
     return Folder(title: title, context: self.getContext())
   }
 
-  public class func createFolder(with title: String, in folder: Folder?, library: Library, at index: Int? = nil) throws -> Folder {
-    let newFolder = Folder(title: title, context: self.getContext())
+  public class func removeFolderIfNeeded(_ fileURL: URL) throws {
+    guard FileManager.default.fileExists(atPath: fileURL.path) else { return }
 
+    // Delete folder if it belongs to an orphaned folder
+    if let existingFolder = self.findFolder(with: fileURL)?.first {
+      if existingFolder.getLibrary() == nil {
+        // Delete folder if it doesn't belong to active folder
+        try FileManager.default.removeItem(at: fileURL)
+        self.delete(existingFolder)
+      }
+    } else {
+      // Delete folder if it doesn't belong to active folder
+      try FileManager.default.removeItem(at: fileURL)
+    }
+  }
+
+  public class func createFolder(with title: String, in folder: Folder?, library: Library, at index: Int? = nil) throws -> Folder {
+    let newFolder: Folder
     let processedFolder = self.getProcessedFolderURL()
 
     if let folder = folder {
-      try FileManager.default.createDirectory(at: processedFolder.appendingPathComponent(folder.relativePath).appendingPathComponent(title), withIntermediateDirectories: false, attributes: nil)
+      let destinationURL = processedFolder.appendingPathComponent(folder.relativePath).appendingPathComponent(title)
+
+      try? removeFolderIfNeeded(destinationURL)
+
+      try FileManager.default.createDirectory(at: destinationURL, withIntermediateDirectories: false, attributes: nil)
+
+      newFolder = Folder(title: title, context: self.getContext())
       folder.insert(item: newFolder, at: index)
     } else {
-      try FileManager.default.createDirectory(at: processedFolder.appendingPathComponent(title), withIntermediateDirectories: false, attributes: nil)
+      let destinationURL = processedFolder.appendingPathComponent(title)
+
+      try? removeFolderIfNeeded(destinationURL)
+
+      try FileManager.default.createDirectory(at: destinationURL, withIntermediateDirectories: false, attributes: nil)
+
+      newFolder = Folder(title: title, context: self.getContext())
       library.insert(item: newFolder, at: index)
     }
 
+    self.saveContext()
+
     return newFolder
+  }
+
+  public class func findFolder(with fileURL: URL) -> [Folder]? {
+    let fetch: NSFetchRequest<Folder> = Folder.fetchRequest()
+
+    fetch.predicate = NSPredicate(format: "relativePath == %@", String(fileURL.relativePath(to: self.getProcessedFolderURL()).dropFirst()))
+    let context = self.coreDataStack.managedContext
+
+    return try? context.fetch(fetch)
   }
 
     public class func insert(_ folder: Folder, into library: Library, at index: Int? = nil) {

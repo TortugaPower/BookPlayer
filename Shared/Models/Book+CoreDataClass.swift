@@ -12,12 +12,6 @@ import Foundation
 
 @objc(Book)
 public class Book: LibraryItem {
-    public var fileURL: URL? {
-        guard self.relativePath != nil else { return nil }
-
-        return DataManager.getProcessedFolderURL().appendingPathComponent(self.relativePath)
-    }
-
     var filename: String {
         return self.title + "." + self.ext
     }

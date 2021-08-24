@@ -82,8 +82,32 @@ public class ImportOperation: Operation {
     return mutableURL
   }
 
+  private func hasExistingBook(_ fileURL: URL) -> Bool {
+    guard let existingBook = DataManager.findBooks(containing: fileURL)?.first,
+       let existingFileURL = existingBook.fileURL,
+       !FileManager.default.fileExists(atPath: existingFileURL.path) else { return false }
+
+    do {
+      // create parent folder if it doesn't exist
+      let parentFolder = existingFileURL.deletingLastPathComponent()
+
+      if !FileManager.default.fileExists(atPath: parentFolder.path) {
+        try FileManager.default.createDirectory(at: parentFolder, withIntermediateDirectories: true, attributes: nil)
+      }
+
+      try FileManager.default.moveItem(at: fileURL, to: existingFileURL)
+      try (existingFileURL as NSURL).setResourceValue(URLFileProtection.none, forKey: .fileProtectionKey)
+    } catch {
+      fatalError("Fail to move file from \(fileURL) to \(existingFileURL)")
+    }
+
+    return true
+  }
+
   public override func main() {
     for file in self.files {
+      guard !self.hasExistingBook(file) else { continue }
+
       NotificationCenter.default.post(name: .processingFile, object: nil, userInfo: ["filename": file.lastPathComponent])
 
       guard file.pathExtension != "zip" else {

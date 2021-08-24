@@ -13,7 +13,13 @@ import UIKit
 
 @objc(LibraryItem)
 public class LibraryItem: NSManagedObject, Codable {
-    var cachedArtwork: UIImage?
+  public var fileURL: URL? {
+    guard self.relativePath != nil else { return nil }
+
+    return DataManager.getProcessedFolderURL().appendingPathComponent(self.relativePath)
+  }
+
+  var cachedArtwork: UIImage?
 
   public func getLibrary() -> Library? {
     if let parentFolder = self.folder {

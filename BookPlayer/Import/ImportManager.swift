@@ -38,7 +38,9 @@ final class ImportManager {
   }
 
   public func removeFile(_ item: URL, updateCollection: Bool = true) throws {
-    try FileManager.default.removeItem(at: item)
+    if FileManager.default.fileExists(atPath: item.path) {
+      try FileManager.default.removeItem(at: item)
+    }
 
     if updateCollection {
       self.files.value = self.files.value.filter { $0 != item }
