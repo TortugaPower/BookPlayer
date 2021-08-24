@@ -52,7 +52,9 @@ final class ThemeManager: ThemeProvider {
     }
 
     guard let library = try? DataManager.getLibrary() else {
-      self.theme = SubscribableValue<Theme>(value: DataManager.getLocalThemes().first!)
+      let defaultTheme = DataManager.getLocalThemes().first!
+      defaultTheme.useDarkVariant = self.useDarkVariant
+      self.theme = SubscribableValue<Theme>(value: defaultTheme)
       return
     }
 
