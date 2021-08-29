@@ -7,12 +7,14 @@
 //
 
 import BookPlayerKit
+import Combine
 import Themeable
 import UIKit
 
 class PlayerJumpIcon: UIView {
   fileprivate var backgroundImageView: UIImageView!
   fileprivate var label: UILabel!
+  fileprivate var actionButton: UIButton!
 
   var backgroundImage: UIImage = UIImage()
 
@@ -51,13 +53,16 @@ class PlayerJumpIcon: UIView {
     self.label = UILabel()
     self.label.allowsDefaultTighteningForTruncation = true
     self.label.adjustsFontSizeToFitWidth = true
-    self.label.minimumScaleFactor = 0.8
+    self.label.minimumScaleFactor = 0.95
     self.label.font = UIFont.systemFont(ofSize: 14.0, weight: .bold)
     self.label.textAlignment = .center
     self.label.textColor = self.tintColor
 
+    self.actionButton = UIButton()
+
     self.addSubview(self.backgroundImageView)
     self.addSubview(self.label)
+    self.addSubview(self.actionButton)
 
     setUpTheming()
   }
@@ -71,6 +76,11 @@ class PlayerJumpIcon: UIView {
       height: self.label.frame.size.height
     )
     self.backgroundImageView.frame = self.bounds.insetBy(dx: 0.0, dy: 0.0)
+    self.actionButton.frame = self.bounds
+  }
+
+  public func observeActionEvents() -> AnyPublisher<UIControl, Never> {
+    return self.actionButton.publisher(for: .touchUpInside).eraseToAnyPublisher()
   }
 }
 

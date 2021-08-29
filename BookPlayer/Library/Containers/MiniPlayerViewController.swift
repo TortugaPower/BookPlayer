@@ -11,7 +11,7 @@ import MarqueeLabel
 import Themeable
 import UIKit
 
-class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecognizerDelegate {
+class MiniPlayerViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet private weak var miniPlayerBlur: UIVisualEffectView!
     @IBOutlet private weak var miniPlayerContainer: UIView!
     @IBOutlet private weak var artwork: BPArtworkView!
@@ -50,6 +50,8 @@ class MiniPlayerViewController: PlayerContainerViewController, UIGestureRecogniz
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        self.view.backgroundColor = .clear
 
         setUpTheming()
 
