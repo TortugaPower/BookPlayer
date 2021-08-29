@@ -45,15 +45,18 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
     }
 
     override func setupObservers() {
-        super.setupObservers()
-        // register for appDelegate openUrl notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(self.reloadData), name: .reloadData, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onProcessingFile(_:)), name: .processingFile, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onNewFileUrl), name: .newFileUrl, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onNewOperation(_:)), name: .importOperation, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onDownloadingProgress(_:)), name: .downloadProgress, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bindImportManager), name: .importOperationCancelled, object: nil)
-        self.bindImportManager()
+      super.setupObservers()
+      // register for appDelegate openUrl notifications
+      NotificationCenter.default.addObserver(self, selector: #selector(self.reloadData), name: .reloadData, object: nil)
+      NotificationCenter.default.addObserver(self, selector: #selector(self.onProcessingFile(_:)), name: .processingFile, object: nil)
+      NotificationCenter.default.addObserver(self, selector: #selector(self.onNewFileUrl), name: .newFileUrl, object: nil)
+      NotificationCenter.default.addObserver(self, selector: #selector(self.onNewOperation(_:)), name: .importOperation, object: nil)
+      NotificationCenter.default.addObserver(self, selector: #selector(self.onDownloadingProgress(_:)), name: .downloadProgress, object: nil)
+      NotificationCenter.default.addObserver(self, selector: #selector(self.bindImportManager), name: .importOperationCancelled, object: nil)
+      NotificationCenter.default.addObserver(forName: .reloadLibrary, object: nil, queue: .main) { [weak self] _ in
+        self?.loadLibrary()
+      }
+      self.bindImportManager()
     }
 
   @objc func bindImportManager() {
@@ -107,13 +110,13 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
     func loadLibrary() {
       guard let library = try? DataManager.getLibrary() ?? DataManager.createLibrary() else { return }
 
-        self.library = library
+      self.library = library
 
-        self.toggleEmptyStateView()
+      self.toggleEmptyStateView()
 
-        self.tableView.reloadData()
+      self.tableView.reloadData()
 
-        DataManager.notifyPendingFiles()
+      DataManager.notifyPendingFiles()
     }
 
     func downloadBook(from urlString: String) {

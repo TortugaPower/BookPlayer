@@ -113,4 +113,12 @@ extension Book {
             UserDefaults.standard.removeObject(forKey: legacyIdentifier)
         }
     }
+
+  class func getBookTitle(from fileURL: URL) -> String {
+    let asset = AVAsset(url: fileURL)
+
+    let titleFromMeta = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyTitle, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String
+
+    return titleFromMeta ?? fileURL.lastPathComponent
+  }
 }

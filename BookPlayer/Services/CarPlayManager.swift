@@ -165,7 +165,7 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
     }
 
     let message: [AnyHashable: Any] = ["command": "play",
-                                       "identifier": book.identifier!]
+                                       "identifier": book.relativePath!]
 
     NotificationCenter.default.post(name: .messageReceived, object: nil, userInfo: message)
 

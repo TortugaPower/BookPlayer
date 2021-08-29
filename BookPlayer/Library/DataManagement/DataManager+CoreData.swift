@@ -106,13 +106,25 @@ extension DataManager {
 
         if mode == .shallow,
            let items = folder.items?.array as? [LibraryItem] {
-            for item in items {
-                if let parent = folder.folder {
-                    parent.insert(item: item)
-                } else {
-                    library.insert(item: item)
-                }
+          for item in items {
+            guard let fileURL = item.fileURL else { continue }
+
+            if let parent = folder.folder {
+              if let parentURL = parent.fileURL {
+                try FileManager.default.moveItem(
+                  at: fileURL,
+                  to: parentURL.appendingPathComponent(fileURL.lastPathComponent)
+                )
+              }
+              parent.insert(item: item)
+            } else {
+              try FileManager.default.moveItem(
+                at: fileURL,
+                to: self.getProcessedFolderURL().appendingPathComponent(fileURL.lastPathComponent)
+              )
+              library.insert(item: item)
             }
+          }
         }
 
         // swiftlint:disable force_cast
@@ -121,9 +133,15 @@ extension DataManager {
             try self.delete(item, library: library, mode: .deep)
         }
 
-        library.removeFromItems(folder)
+      library.removeFromItems(folder)
 
-        self.delete(folder)
+      if let folderURL = folder.fileURL {
+        if FileManager.default.fileExists(atPath: folderURL.path) {
+          try FileManager.default.removeItem(at: folderURL)
+        }
+      }
+
+      self.delete(folder)
     }
 
   public class func delete(_ item: LibraryItem, library: Library, mode: DeleteMode) throws {
@@ -145,7 +163,9 @@ extension DataManager {
       }
 
       if let fileURL = book.fileURL {
-        try FileManager.default.removeItem(at: fileURL)
+        if FileManager.default.fileExists(atPath: fileURL.path) {
+          try FileManager.default.removeItem(at: fileURL)
+        }
       }
     }
 
