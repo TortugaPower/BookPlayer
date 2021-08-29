@@ -76,7 +76,7 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
 
     bindPlaybackControlsObservers()
 
-    bindTimerObservers()
+    bindTimerObserver()
 
     self.containerItemStackView.setCustomSpacing(26, after: self.artworkControl)
   }
@@ -233,53 +233,28 @@ extension PlayerViewController {
       .store(in: &disposeBag)
   }
 
-  func bindTimerObservers() {
-    NotificationCenter.default.publisher(for: .timerStart)
-      .sink { [weak self] _ in
-        self?.updateToolbar(true, animated: true)
-      }
-      .store(in: &disposeBag)
+  func bindTimerObserver() {
+    SleepTimer.shared.timeLeftFormatted.sink { timeFormatted in
+      self.sleepLabel.title = timeFormatted
 
-    NotificationCenter.default.publisher(for: .timerProgress)
-      .sink { [weak self] notification in
-        guard
-          let self = self,
-          let userInfo = notification.userInfo,
-          let timeLeft = userInfo["timeLeft"] as? Double
-        else {
-          return
+      if let timeFormatted = timeFormatted {
+        self.sleepLabel.isAccessibilityElement = true
+        let remainingTitle = String(describing: String.localizedStringWithFormat("sleep_remaining_title".localized, timeFormatted))
+        self.sleepLabel.accessibilityLabel = String(describing: remainingTitle)
+
+        if let items = self.bottomToolbar.items,
+           !items.contains(self.sleepLabel) {
+          self.updateToolbar(true, animated: true)
         }
+      } else {
+        self.sleepLabel.isAccessibilityElement = false
 
-        self.sleepLabel.title = SleepTimer.shared.durationFormatter.string(from: timeLeft)
-        if let timeLeft = SleepTimer.shared.durationFormatter.string(from: timeLeft) {
-          let remainingTitle = String(describing: String.localizedStringWithFormat("sleep_remaining_title".localized, timeLeft))
-          self.sleepLabel.accessibilityLabel = String(describing: remainingTitle)
+        if let items = self.bottomToolbar.items,
+           items.contains(self.sleepLabel) {
+          self.updateToolbar(false, animated: true)
         }
       }
-      .store(in: &disposeBag)
-
-    NotificationCenter.default.publisher(for: .timerEnd)
-      .sink { [weak self] _ in
-        self?.sleepLabel.title = ""
-        self?.updateToolbar(false, animated: true)
-      }
-      .store(in: &disposeBag)
-
-    NotificationCenter.default.publisher(for: .timerSelected)
-      .sink { [weak self] notification in
-        guard
-          let userInfo = notification.userInfo,
-          let timeLeft = userInfo["timeLeft"] as? Double
-        else {
-          return
-        }
-
-        if timeLeft == -2 {
-          self?.updateToolbar(true, animated: true)
-          self?.sleepLabel.title = "active_title".localized
-        }
-      }
-      .store(in: &disposeBag)
+    }.store(in: &disposeBag)
   }
 
   func bindGeneralObservers() {

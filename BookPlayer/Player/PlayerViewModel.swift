@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import StoreKit
 
 class PlayerViewModel {
   func handlePlayPauseAction() {
