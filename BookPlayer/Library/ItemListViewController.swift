@@ -561,7 +561,7 @@ extension ItemListViewController: UITableViewDataSource {
         }
 
         cell.progress = item.isFinished ? 1.0 : item.progressPercentage
-        cell.duration = self.formatTotalDuration(item.duration)
+        cell.duration = TimeParser.formatTotalDuration(item.duration)
 
         return cell
     }

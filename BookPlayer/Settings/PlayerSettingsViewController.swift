@@ -37,8 +37,8 @@ class PlayerSettingsViewController: UITableViewController, TelemetryProtocol {
         self.globalSpeedSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue), animated: false)
 
         // Retrieve initial skip values from PlayerManager
-        self.rewindIntervalLabel.text = self.formatDuration(PlayerManager.shared.rewindInterval)
-        self.forwardIntervalLabel.text = self.formatDuration(PlayerManager.shared.forwardInterval)
+        self.rewindIntervalLabel.text = TimeParser.formatDuration(PlayerManager.shared.rewindInterval)
+        self.forwardIntervalLabel.text = TimeParser.formatDuration(PlayerManager.shared.forwardInterval)
         self.sendSignal(.playerControlsScreen, with: nil)
     }
 
@@ -54,7 +54,7 @@ class PlayerSettingsViewController: UITableViewController, TelemetryProtocol {
             viewController.didSelectInterval = { selectedInterval in
                 PlayerManager.shared.rewindInterval = selectedInterval
 
-                self.rewindIntervalLabel.text = self.formatDuration(PlayerManager.shared.rewindInterval)
+                self.rewindIntervalLabel.text = TimeParser.formatDuration(PlayerManager.shared.rewindInterval)
             }
         }
 
@@ -65,7 +65,7 @@ class PlayerSettingsViewController: UITableViewController, TelemetryProtocol {
             viewController.didSelectInterval = { selectedInterval in
                 PlayerManager.shared.forwardInterval = selectedInterval
 
-                self.forwardIntervalLabel.text = self.formatDuration(PlayerManager.shared.forwardInterval)
+                self.forwardIntervalLabel.text = TimeParser.formatDuration(PlayerManager.shared.forwardInterval)
             }
         }
     }

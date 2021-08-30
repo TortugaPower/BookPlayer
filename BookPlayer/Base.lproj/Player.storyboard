@@ -99,9 +99,6 @@
                                                 <state key="normal" title="Chapter 17">
                                                     <color key="titleColor" systemColor="linkColor"/>
                                                 </state>
-                                                <connections>
-                                                    <action selector="toggleProgressState:" destination="7nP-Jo-m2x" eventType="touchUpInside" id="vGJ-gW-8oB"/>
-                                                </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="trailing" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="A9O-Bo-GTn">
                                                 <rect key="frame" x="338" y="0.0" width="28" height="28"/>
@@ -128,11 +125,6 @@
                                                         <constraints>
                                                             <constraint firstAttribute="height" constant="30" id="edJ-Hh-1a0"/>
                                                         </constraints>
-                                                        <connections>
-                                                            <action selector="sliderDown:" destination="7nP-Jo-m2x" eventType="touchDown" id="pNU-sy-Elp"/>
-                                                            <action selector="sliderUp:" destination="7nP-Jo-m2x" eventType="touchUpInside" id="3Ja-sQ-660"/>
-                                                            <action selector="sliderValueChanged:" destination="7nP-Jo-m2x" eventType="valueChanged" id="8RA-3K-X2s"/>
-                                                        </connections>
                                                     </slider>
                                                 </subviews>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -162,9 +154,6 @@
                                                         <state key="normal" title="00:00:00">
                                                             <color key="titleColor" systemColor="labelColor"/>
                                                         </state>
-                                                        <connections>
-                                                            <action selector="toggleMaxTime:" destination="7nP-Jo-m2x" eventType="touchUpInside" id="K6L-8v-Ld3"/>
-                                                        </connections>
                                                     </button>
                                                 </subviews>
                                                 <constraints>

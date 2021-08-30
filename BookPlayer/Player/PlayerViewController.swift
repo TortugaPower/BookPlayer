@@ -74,6 +74,8 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
 
     bindGeneralObservers()
 
+    bindSliderObservers()
+
     bindPlaybackControlsObservers()
 
     bindTimerObserver()
@@ -114,6 +116,7 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
   }
 
   func setupPlayerView(with currentBook: Book) {
+    self.viewModel.currentBook = currentBook
     self.artworkControl.book = currentBook
 
     self.speedButton.title = self.formatSpeed(PlayerManager.shared.speed)
@@ -132,10 +135,9 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
       self.backgroundImage.image = currentArtwork
     }
 
-    self.setProgress()
+    self.updateView(with: self.viewModel.getCurrentProgressState())
 
     applyTheme(self.themeProvider.currentTheme)
-    self.progressSlider.setNeedsDisplay()
 
     // Solution thanks to https://forums.developer.apple.com/thread/63166#180445
     self.modalPresentationCapturesStatusBarAppearance = true
@@ -143,58 +145,80 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
     self.setNeedsStatusBarAppearanceUpdate()
   }
 
-  private func setProgress() {
-    guard let book = self.currentBook, !book.isFault else {
-      self.progressButton.setTitle("", for: .normal)
+  func updateView(with progressObject: ProgressObject) {
+    guard !self.progressSlider.isTracking else { return }
 
-      return
+    self.currentTimeLabel.text = progressObject.formattedCurrentTime
+
+    if let progress = progressObject.progress {
+      self.progressButton.setTitle(progress, for: .normal)
     }
 
-    if !self.progressSlider.isTracking {
-      self.currentTimeLabel.text = self.formatTime(book.currentTimeInContext(self.prefersChapterContext))
-      self.currentTimeLabel.accessibilityLabel = String(describing: String.localizedStringWithFormat("voiceover_chapter_time_title".localized, VoiceOverService.secondsToMinutes(book.currentTimeInContext(self.prefersChapterContext))))
-
-      let maxTimeInContext = book.maxTimeInContext(self.prefersChapterContext, self.prefersRemainingTime)
-      self.maxTimeButton.setTitle(self.formatTime(maxTimeInContext), for: .normal)
-      let prefix = self.prefersRemainingTime
-        ? "chapter_time_remaining_title".localized
-        : "chapter_duration_title".localized
-      self.maxTimeButton.accessibilityLabel = String(describing: prefix + VoiceOverService.secondsToMinutes(maxTimeInContext))
+    if let maxTime = progressObject.formattedMaxTime {
+      self.maxTimeButton.setTitle(maxTime, for: .normal)
     }
 
-    guard
-      self.prefersChapterContext,
-      book.hasChapters,
-      let chapters = book.chapters,
-      let currentChapter = book.currentChapter else {
-      if !self.progressSlider.isTracking {
-        self.progressButton.setTitle("\(Int(round(book.progressPercentage * 100)))%", for: .normal)
-
-        self.progressSlider.value = Float(book.progressPercentage)
-        self.progressSlider.setNeedsDisplay()
-        let prefix = self.prefersRemainingTime
-          ? "book_time_remaining_title".localized
-          : "book_duration_title".localized
-        let maxTimeInContext = book.maxTimeInContext(self.prefersChapterContext, self.prefersRemainingTime)
-        self.maxTimeButton.accessibilityLabel = String(describing: prefix + VoiceOverService.secondsToMinutes(maxTimeInContext))
-      }
-
-      return
-    }
-
-    self.progressButton.isHidden = false
-    self.progressButton.setTitle(String.localizedStringWithFormat("player_chapter_description".localized, currentChapter.index, chapters.count), for: .normal)
-
-    if !self.progressSlider.isTracking {
-      self.progressSlider.value = Float((book.currentTime - currentChapter.start) / currentChapter.duration)
-      self.progressSlider.setNeedsDisplay()
-    }
+    self.progressSlider.setProgress(progressObject.sliderValue)
   }
 }
 
 // MARK: - Observers
 extension PlayerViewController {
+  func bindSliderObservers() {
+    self.progressSlider.publisher(for: .touchDown)
+      .sink { [weak self] _ in
+        self?.viewModel.handleSliderDownEvent()
+      }.store(in: &disposeBag)
+
+    self.progressSlider.publisher(for: .touchUpInside)
+      .sink { [weak self] sender in
+        guard let slider = sender as? UISlider else { return }
+
+        self?.viewModel.handleSliderUpEvent(with: slider.value)
+      }.store(in: &disposeBag)
+
+    self.progressSlider.publisher(for: .valueChanged)
+      .sink { [weak self] sender in
+        self?.progressSlider.setNeedsDisplay()
+
+        guard let self = self,
+              let slider = sender as? UISlider else { return }
+
+        let progressObject = self.viewModel.processSliderValueChangedEvent(with: slider.value)
+
+        self.currentTimeLabel.text = progressObject.formattedCurrentTime
+
+        if let progress = progressObject.progress {
+          self.progressButton.setTitle(progress, for: .normal)
+        }
+
+        if let maxTime = progressObject.formattedMaxTime {
+          self.maxTimeButton.setTitle(maxTime, for: .normal)
+        }
+      }.store(in: &disposeBag)
+  }
+
   func bindPlaybackControlsObservers() {
+    self.maxTimeButton.publisher(for: .touchUpInside)
+      .sink { [weak self] _ in
+        guard let self = self,
+              !self.progressSlider.isTracking else { return }
+
+        let progressObject = self.viewModel.processToggleMaxTime()
+
+        self.updateView(with: progressObject)
+      }.store(in: &disposeBag)
+
+    self.progressButton.publisher(for: .touchUpInside)
+      .sink { [weak self] _ in
+        guard let self = self,
+              !self.progressSlider.isTracking else { return }
+
+        let progressObject = self.viewModel.processToggleProgressState()
+
+        self.updateView(with: progressObject)
+      }.store(in: &disposeBag)
+
     // Playback controls
     self.playIconView.observeActionEvents()
       .sink { [weak self] _ in
@@ -216,7 +240,9 @@ extension PlayerViewController {
 
     NotificationCenter.default.publisher(for: .bookPlaying)
       .sink { [weak self] _ in
-        self?.setProgress()
+        guard let self = self else { return }
+
+        self.updateView(with: self.viewModel.getCurrentProgressState())
       }
       .store(in: &disposeBag)
 
@@ -393,79 +419,6 @@ extension PlayerViewController {
     actionSheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
 
     self.present(actionSheet, animated: true, completion: nil)
-  }
-
-  // MARK: - Slider actions
-  @IBAction func toggleMaxTime(_ sender: UIButton) {
-    self.prefersRemainingTime = !self.prefersRemainingTime
-    UserDefaults.standard.set(self.prefersRemainingTime, forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
-    self.setProgress()
-  }
-
-  @IBAction func toggleProgressState(_ sender: UIButton) {
-    self.prefersChapterContext = !self.prefersChapterContext
-    UserDefaults.standard.set(self.prefersChapterContext, forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
-    self.setProgress()
-  }
-
-  @IBAction func sliderDown(_ sender: UISlider) {
-    self.artworkControl.isUserInteractionEnabled = false
-    self.artworkControl.setAnchorPoint(anchorPoint: CGPoint(x: 0.5, y: 0.3))
-
-    self.chapterBeforeSliderValueChange = self.currentBook?.currentChapter
-  }
-
-  @IBAction func sliderUp(_ sender: UISlider) {
-    self.artworkControl.isUserInteractionEnabled = true
-
-    // Adjust the animation duration based on the distance of the thumb to the slider's center
-    // This way the corners which look further away take a little longer to rest
-    let duration = TimeInterval(abs(sender.value * 2 - 1) * 0.15 + 0.15)
-
-    UIView.animate(withDuration: duration, delay: 0.0, options: [.curveEaseIn, .beginFromCurrentState], animations: {
-      self.artworkControl.layer.transform = CATransform3DIdentity
-    }, completion: { _ in
-      self.artworkControl.layer.zPosition = 0
-      self.artworkControl.setAnchorPoint(anchorPoint: CGPoint(x: 0.5, y: 0.5))
-    })
-
-    guard let book = self.currentBook,
-          !book.isFault else { return }
-
-    // Setting progress here instead of in `sliderValueChanged` to only register the value when the interaction
-    // has ended, while still previwing the expected new time and progress in labels and display
-    var newTime = TimeInterval(sender.value) * book.duration
-
-    if self.prefersChapterContext, let currentChapter = book.currentChapter {
-      newTime = currentChapter.start + TimeInterval(sender.value) * currentChapter.duration
-    }
-
-    PlayerManager.shared.jumpTo(newTime)
-  }
-
-  @IBAction func sliderValueChanged(_ sender: UISlider) {
-    // This should be in ProgressSlider, but how to achieve that escapes my knowledge
-    self.progressSlider.setNeedsDisplay()
-
-    guard let book = self.currentBook,
-          !book.isFault else { return }
-
-    var newTimeToDisplay = TimeInterval(sender.value) * book.duration
-
-    if self.prefersChapterContext, let currentChapter = self.chapterBeforeSliderValueChange {
-      newTimeToDisplay = TimeInterval(sender.value) * currentChapter.duration
-    }
-
-    self.currentTimeLabel.text = self.formatTime(newTimeToDisplay)
-
-    if !book.hasChapters || !self.prefersChapterContext {
-      self.progressButton.setTitle("\(Int(round(sender.value * 100)))%", for: .normal)
-    }
-
-    if self.prefersRemainingTime {
-      let durationTimeInContext = book.durationTimeInContext(self.prefersChapterContext)
-      self.maxTimeButton.setTitle(self.formatTime(newTimeToDisplay - durationTimeInContext), for: .normal)
-    }
   }
 }
 
