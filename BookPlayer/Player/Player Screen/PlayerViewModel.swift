@@ -32,6 +32,28 @@ class PlayerViewModel {
     return PlayerManager.shared.currentBook?.hasChapters ?? false
   }
 
+  func hasPreviousChapter() -> Bool {
+    return PlayerManager.shared.currentBook?.previousChapter() != nil
+  }
+
+  func hasNextChapter() -> Bool {
+    return PlayerManager.shared.currentBook?.nextChapter() != nil
+  }
+
+  func handlePreviousChapterAction() {
+    guard let previousChapter = PlayerManager.shared.currentBook?.previousChapter() else { return }
+
+    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+    PlayerManager.shared.jumpTo(previousChapter.start + 0.5)
+  }
+
+  func handleNextChapterAction() {
+    guard let nextChapter = PlayerManager.shared.currentBook?.nextChapter() else { return }
+
+    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+    PlayerManager.shared.jumpTo(nextChapter.start + 0.5)
+  }
+
   func isBookFinished() -> Bool {
     return PlayerManager.shared.currentBook?.isFinished ?? false
   }

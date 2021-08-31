@@ -141,6 +141,9 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
     if shouldSetSliderValue {
       self.progressSlider.setProgress(progressObject.sliderValue)
     }
+
+    self.previousChapterButton.isEnabled = self.viewModel.hasPreviousChapter()
+    self.nextChapterButton.isEnabled = self.viewModel.hasNextChapter()
   }
 }
 
@@ -216,6 +219,18 @@ extension PlayerViewController {
     self.forwardIconView.observeActionEvents()
       .sink { [weak self] _ in
         self?.viewModel.handleForwardAction()
+      }
+      .store(in: &disposeBag)
+
+    self.previousChapterButton.publisher(for: .touchUpInside)
+      .sink { [weak self] _ in
+        self?.viewModel.handlePreviousChapterAction()
+      }
+      .store(in: &disposeBag)
+
+    self.nextChapterButton.publisher(for: .touchUpInside)
+      .sink { [weak self] _ in
+        self?.viewModel.handleNextChapterAction()
       }
       .store(in: &disposeBag)
 
