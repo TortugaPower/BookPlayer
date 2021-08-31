@@ -18,6 +18,8 @@
 		410C4693227358CD0040114D /* WatchConnectivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41F516952272CC5300F36C3E /* WatchConnectivityService.swift */; };
 		410C46982274EA350040114D /* DataManager+WatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410C46972274EA350040114D /* DataManager+WatchApp.swift */; };
 		410D00E426DAB97700D11A45 /* Combine+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D00E326DAB97700D11A45 /* Combine+BookPlayer.swift */; };
+		410D00FA26DDCE6C00D11A45 /* ChaptersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D00F926DDCE6C00D11A45 /* ChaptersViewModel.swift */; };
+		410D00FE26DDD2A900D11A45 /* ProgressObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D00FD26DDD2A900D11A45 /* ProgressObject.swift */; };
 		410D0FED1EDCF4B000A52EB9 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D0FEC1EDCF4B000A52EB9 /* SettingsViewController.swift */; };
 		410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D0FF01EDF659900A52EB9 /* PlayerManager.swift */; };
 		4111FBDF25EDEFBE0096954F /* forest-green-ipad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4111FBDD25EDEFBD0096954F /* forest-green-ipad@2x.png */; };
@@ -446,6 +448,8 @@
 		4109F494266915E7007A6FFF /* FolderMigrationUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderMigrationUtils.swift; sourceTree = "<group>"; };
 		410C46972274EA350040114D /* DataManager+WatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataManager+WatchApp.swift"; sourceTree = "<group>"; };
 		410D00E326DAB97700D11A45 /* Combine+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Combine+BookPlayer.swift"; sourceTree = "<group>"; };
+		410D00F926DDCE6C00D11A45 /* ChaptersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChaptersViewModel.swift; sourceTree = "<group>"; };
+		410D00FD26DDD2A900D11A45 /* ProgressObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressObject.swift; sourceTree = "<group>"; };
 		410D0FEC1EDCF4B000A52EB9 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		410D0FF01EDF659900A52EB9 /* PlayerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerManager.swift; sourceTree = "<group>"; };
 		4111FBB025EDD81C0096954F /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = hu; path = hu.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
@@ -848,6 +852,26 @@
 				4140EA46227288EF0009F794 /* ComplicationController.swift */,
 			);
 			path = Controllers;
+			sourceTree = "<group>";
+		};
+		410D00FB26DDD24300D11A45 /* Player Screen */ = {
+			isa = PBXGroup;
+			children = (
+				41E79BE826C60BF600EA9FFF /* PlayerViewController.swift */,
+				41E79BEA26C60DC600EA9FFF /* PlayerViewModel.swift */,
+				410D00FD26DDD2A900D11A45 /* ProgressObject.swift */,
+				C3D3852820C1EA7A00A0ACC7 /* Views */,
+			);
+			path = "Player Screen";
+			sourceTree = "<group>";
+		};
+		410D00FC26DDD26000D11A45 /* Chapters Screen */ = {
+			isa = PBXGroup;
+			children = (
+				41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */,
+				410D00F926DDCE6C00D11A45 /* ChaptersViewModel.swift */,
+			);
+			path = "Chapters Screen";
 			sourceTree = "<group>";
 		};
 		4113739E25534B7500295022 /* Telemetry */ = {
@@ -1396,12 +1420,10 @@
 		C3EC372A206EDB9A0094B4E8 /* Player */ = {
 			isa = PBXGroup;
 			children = (
+				410D00FB26DDD24300D11A45 /* Player Screen */,
+				410D00FC26DDD26000D11A45 /* Chapters Screen */,
 				410D0FF01EDF659900A52EB9 /* PlayerManager.swift */,
-				41E79BE826C60BF600EA9FFF /* PlayerViewController.swift */,
-				41E79BEA26C60DC600EA9FFF /* PlayerViewModel.swift */,
 				C3EC372D206EE0650094B4E8 /* SleepTimer.swift */,
-				41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */,
-				C3D3852820C1EA7A00A0ACC7 /* Views */,
 			);
 			path = Player;
 			sourceTree = "<group>";
@@ -2067,6 +2089,7 @@
 				411373A025534B8800295022 /* TelemetrySignal.swift in Sources */,
 				C375AF1920DD99E000AC034D /* ArtworkControl.swift in Sources */,
 				41544A1421BAF41400740AD2 /* ItemSelectionViewController.swift in Sources */,
+				410D00FE26DDD2A900D11A45 /* ProgressObject.swift in Sources */,
 				C3A479152094CA3800D92122 /* UIImage+BookPlayer.swift in Sources */,
 				413616401D2E21F000E48944 /* LibraryViewController.swift in Sources */,
 				418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */,
@@ -2087,6 +2110,7 @@
 				C375AF1720DD81F800AC034D /* ProgressSlider.swift in Sources */,
 				415758EA2226E18800DDB9B6 /* PlusBannerView.swift in Sources */,
 				418CABB125EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
+				410D00FA26DDCE6C00D11A45 /* ChaptersViewModel.swift in Sources */,
 				41640A3724416EE8004FB97B /* Intents.intentdefinition in Sources */,
 				41AD3DA1221C7CAB00DC41E1 /* Icon.swift in Sources */,
 				C39401E920DEE83200F3DC71 /* UIView+BookPlayer.swift in Sources */,

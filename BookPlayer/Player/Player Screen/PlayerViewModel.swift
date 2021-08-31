@@ -11,28 +11,10 @@ import Combine
 import UIKit
 import StoreKit
 
-struct ProgressObject {
-  let currentTime: TimeInterval
-  let progress: String?
-  let maxTime: TimeInterval?
-  let sliderValue: Float
-
-  var formattedCurrentTime: String {
-    return TimeParser.formatTime(self.currentTime)
-  }
-
-  var formattedMaxTime: String? {
-    guard let maxTime = self.maxTime else { return nil }
-
-    return TimeParser.formatTime(maxTime)
-  }
-}
-
 class PlayerViewModel {
   private var chapterBeforeSliderValueChange: Chapter?
   private var prefersChapterContext = UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
   private var prefersRemainingTime = UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
-  @Published var currentBook: Book!
 
   func currentBookObserver() -> Published<Book?>.Publisher {
     return PlayerManager.shared.$currentBook
@@ -55,7 +37,7 @@ class PlayerViewModel {
   }
 
   func getBookCurrentTime() -> TimeInterval {
-    return self.currentBook.currentTimeInContext(self.prefersChapterContext)
+    return PlayerManager.shared.currentBook?.currentTimeInContext(self.prefersChapterContext) ?? 0
   }
 
   func getMaxTimeVoiceOverPrefix() -> String {
@@ -103,14 +85,15 @@ class PlayerViewModel {
     let sliderValue: Float
 
     if self.prefersChapterContext,
+       let currentBook = PlayerManager.shared.currentBook,
        currentBook.hasChapters,
        let chapters = currentBook.chapters,
        let currentChapter = currentBook.currentChapter {
       progress = String.localizedStringWithFormat("player_chapter_description".localized, currentChapter.index, chapters.count)
       sliderValue = Float((currentBook.currentTime - currentChapter.start) / currentChapter.duration)
     } else {
-      progress = "\(Int(round(currentBook.progressPercentage * 100)))%"
-      sliderValue = Float(currentBook.progressPercentage)
+      progress = "\(Int(round((PlayerManager.shared.currentBook?.progressPercentage ?? 0) * 100)))%"
+      sliderValue = Float(PlayerManager.shared.currentBook?.progressPercentage ?? 0)
     }
 
     // Update local chapter
@@ -125,7 +108,7 @@ class PlayerViewModel {
   }
 
   func handleSliderDownEvent() {
-    self.chapterBeforeSliderValueChange = self.currentBook?.currentChapter
+    self.chapterBeforeSliderValueChange = PlayerManager.shared.currentBook?.currentChapter
   }
 
   func handleSliderUpEvent(with value: Float) {
@@ -145,14 +128,14 @@ class PlayerViewModel {
     var newMaxTime: TimeInterval?
 
     if self.prefersRemainingTime {
-      let durationTimeInContext = self.currentBook.durationTimeInContext(self.prefersChapterContext)
+      let durationTimeInContext = PlayerManager.shared.currentBook?.durationTimeInContext(self.prefersChapterContext) ?? 0
 
       newMaxTime = newCurrentTime - durationTimeInContext
     }
 
     var progress: String?
 
-    if !self.currentBook.hasChapters || !self.prefersChapterContext {
+    if !(PlayerManager.shared.currentBook?.hasChapters ?? false) || !self.prefersChapterContext {
       progress = "\(Int(round(value * 100)))%"
     }
 
@@ -165,11 +148,11 @@ class PlayerViewModel {
   }
 
   func getBookMaxTime() -> TimeInterval {
-    return self.currentBook.maxTimeInContext(self.prefersChapterContext, self.prefersRemainingTime)
+    return PlayerManager.shared.currentBook?.maxTimeInContext(self.prefersChapterContext, self.prefersRemainingTime) ?? 0
   }
 
   func getBookTimeFromSlider(value: Float) -> TimeInterval {
-    var newTimeToDisplay = TimeInterval(value) * currentBook.duration
+    var newTimeToDisplay = TimeInterval(value) * (PlayerManager.shared.currentBook?.duration ?? 0)
 
     if self.prefersChapterContext,
        let currentChapter = self.chapterBeforeSliderValueChange {

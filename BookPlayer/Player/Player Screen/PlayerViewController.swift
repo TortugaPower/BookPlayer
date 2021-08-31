@@ -49,7 +49,7 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
   private var prefersRemainingTime = UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
 
   private var disposeBag = Set<AnyCancellable>()
-  private var viewModel: PlayerViewModel!
+  private var viewModel = PlayerViewModel()
 
   // computed properties
   override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -94,13 +94,11 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
   func setup() {
     NotificationCenter.default.post(name: .playerPresented, object: nil)
     self.closeButton.accessibilityLabel = "voiceover_dismiss_player_title".localized
-    self.viewModel = PlayerViewModel()
   }
 
   func setupPlayerView(with currentBook: Book) {
     guard !currentBook.isFault else { return }
 
-    self.viewModel.currentBook = currentBook
     self.artworkControl.setupInfo(with: currentBook)
 
     self.speedButton.title = self.formatSpeed(PlayerManager.shared.speed)
@@ -128,7 +126,7 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
   }
 
   func updateView(with progressObject: ProgressObject, shouldSetSliderValue: Bool = true) {
-    guard !self.progressSlider.isTracking else { return }
+    if shouldSetSliderValue && self.progressSlider.isTracking { return }
 
     self.currentTimeLabel.text = progressObject.formattedCurrentTime
 
@@ -168,7 +166,9 @@ extension PlayerViewController {
         self.progressSlider.setNeedsDisplay()
 
         let progressObject = self.viewModel.processSliderValueChangedEvent(with: slider.value)
-
+        print("=== setting object")
+        print(progressObject)
+        print("=== is main thread: \(Thread.isMainThread)")
         self.updateView(with: progressObject, shouldSetSliderValue: false)
       }.store(in: &disposeBag)
   }
