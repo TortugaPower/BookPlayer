@@ -50,7 +50,6 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
 
   private var disposeBag = Set<AnyCancellable>()
   private var viewModel: PlayerViewModel!
-  var currentBook: Book!
 
   // computed properties
   override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -66,8 +65,6 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
 
     setUpTheming()
 
-    setupPlayerView(with: self.currentBook)
-
     setupToolbar()
 
     setupGestures()
@@ -81,21 +78,6 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
     bindTimerObserver()
 
     self.containerItemStackView.setCustomSpacing(26, after: self.artworkControl)
-  }
-
-  override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    if let navigationController = segue.destination as? UINavigationController,
-       let viewController = navigationController.viewControllers.first as? ChaptersViewController,
-       let currentChapter = self.currentBook.currentChapter {
-      viewController.chapters = self.currentBook.chapters?.array as? [Chapter] ?? []
-      viewController.currentChapter = currentChapter
-      viewController.didSelectChapter = { selectedChapter in
-        // Don't set the chapter, set the new time which will set the chapter in didSet
-        // Add a fraction of a second to make sure we start after the end of the previous chapter
-        PlayerManager.shared.jumpTo(selectedChapter.start + 0.01)
-        self.sendSignal(.chapterAction, with: nil)
-      }
-    }
   }
 
   // Prevents dragging the view down from changing the safeAreaInsets.top
@@ -116,15 +98,15 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
   }
 
   func setupPlayerView(with currentBook: Book) {
+    guard !currentBook.isFault else { return }
+
     self.viewModel.currentBook = currentBook
-    self.artworkControl.book = currentBook
+    self.artworkControl.setupInfo(with: currentBook)
 
     self.speedButton.title = self.formatSpeed(PlayerManager.shared.speed)
     self.speedButton.accessibilityLabel = String(describing: self.formatSpeed(PlayerManager.shared.speed) + " \("speed_title".localized)")
 
     self.updateToolbar()
-
-    guard !currentBook.isFault else { return }
 
     let currentArtwork = currentBook.getArtwork(for: themeProvider.currentTheme)
 
@@ -145,7 +127,7 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
     self.setNeedsStatusBarAppearanceUpdate()
   }
 
-  func updateView(with progressObject: ProgressObject) {
+  func updateView(with progressObject: ProgressObject, shouldSetSliderValue: Bool = true) {
     guard !self.progressSlider.isTracking else { return }
 
     self.currentTimeLabel.text = progressObject.formattedCurrentTime
@@ -158,7 +140,9 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
       self.maxTimeButton.setTitle(maxTime, for: .normal)
     }
 
-    self.progressSlider.setProgress(progressObject.sliderValue)
+    if shouldSetSliderValue {
+      self.progressSlider.setProgress(progressObject.sliderValue)
+    }
   }
 }
 
@@ -179,26 +163,24 @@ extension PlayerViewController {
 
     self.progressSlider.publisher(for: .valueChanged)
       .sink { [weak self] sender in
-        self?.progressSlider.setNeedsDisplay()
-
         guard let self = self,
               let slider = sender as? UISlider else { return }
+        self.progressSlider.setNeedsDisplay()
 
         let progressObject = self.viewModel.processSliderValueChangedEvent(with: slider.value)
 
-        self.currentTimeLabel.text = progressObject.formattedCurrentTime
-
-        if let progress = progressObject.progress {
-          self.progressButton.setTitle(progress, for: .normal)
-        }
-
-        if let maxTime = progressObject.formattedMaxTime {
-          self.maxTimeButton.setTitle(maxTime, for: .normal)
-        }
+        self.updateView(with: progressObject, shouldSetSliderValue: false)
       }.store(in: &disposeBag)
   }
 
   func bindPlaybackControlsObservers() {
+    self.viewModel.isPlayingObserver()
+      .receive(on: DispatchQueue.main)
+      .sink { isPlaying in
+        self.playIconView.isPlaying = isPlaying
+      }
+      .store(in: &disposeBag)
+
     self.maxTimeButton.publisher(for: .touchUpInside)
       .sink { [weak self] _ in
         guard let self = self,
@@ -219,7 +201,6 @@ extension PlayerViewController {
         self.updateView(with: progressObject)
       }.store(in: &disposeBag)
 
-    // Playback controls
     self.playIconView.observeActionEvents()
       .sink { [weak self] _ in
         self?.viewModel.handlePlayPauseAction()
@@ -243,18 +224,6 @@ extension PlayerViewController {
         guard let self = self else { return }
 
         self.updateView(with: self.viewModel.getCurrentProgressState())
-      }
-      .store(in: &disposeBag)
-
-    NotificationCenter.default.publisher(for: .bookPaused)
-      .sink { [weak self] _ in
-        self?.playIconView.isPlaying = false
-      }
-      .store(in: &disposeBag)
-
-    NotificationCenter.default.publisher(for: .bookPlayed)
-      .sink { [weak self] _ in
-        self?.playIconView.isPlaying = true
       }
       .store(in: &disposeBag)
   }
@@ -284,7 +253,6 @@ extension PlayerViewController {
   }
 
   func bindGeneralObservers() {
-    // Review the app
     NotificationCenter.default.publisher(for: .requestReview)
       .sink { [weak self] _ in
         self?.viewModel.requestReview()
@@ -293,23 +261,16 @@ extension PlayerViewController {
 
     NotificationCenter.default.publisher(for: .bookEnd)
       .sink { [weak self] _ in
-        self?.playIconView.isPlaying = false
         self?.viewModel.requestReview()
       }
       .store(in: &disposeBag)
 
-    NotificationCenter.default.publisher(for: .bookChange)
-      .sink { [weak self] notification in
-        guard
-          let userInfo = notification.userInfo,
-          let book = userInfo["book"] as? Book
-        else {
-          return
-        }
-        self?.currentBook = book
-        self?.setupPlayerView(with: book)
-      }
-      .store(in: &disposeBag)
+    self.viewModel.currentBookObserver().sink { [weak self] book in
+      guard let self = self,
+            let book = book else { return }
+
+      self.setupPlayerView(with: book)
+    }.store(in: &disposeBag)
   }
 }
 
@@ -339,8 +300,8 @@ extension PlayerViewController {
       items.append(self.sleepLabel)
     }
 
-    let chapterCount = self.currentBook.chapters?.count ?? 0
-    self.chaptersButton.isEnabled = self.currentBook.hasChapters && chapterCount > 1
+    let chapterCount = self.viewModel.getBookChapters()?.count ?? 0
+    self.chaptersButton.isEnabled = self.viewModel.hasChapters() && chapterCount > 1
 
     items.append(spacer)
     items.append(self.chaptersButton)
@@ -409,11 +370,11 @@ extension PlayerViewController {
       PlayerManager.shared.jumpTo(0.0)
     }))
 
-    let markTitle = self.currentBook.isFinished ? "mark_unfinished_title".localized : "mark_finished_title".localized
+    let markTitle = self.viewModel.isBookFinished() ? "mark_unfinished_title".localized : "mark_finished_title".localized
 
     actionSheet.addAction(UIAlertAction(title: markTitle, style: .default, handler: { _ in
       PlayerManager.shared.pause()
-      PlayerManager.shared.markAsCompleted(!self.currentBook.isFinished)
+      PlayerManager.shared.markAsCompleted(!self.viewModel.isBookFinished())
     }))
 
     actionSheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
@@ -490,38 +451,36 @@ extension PlayerViewController: UIGestureRecognizerDelegate {
 }
 
 extension PlayerViewController: Themeable {
-    func applyTheme(_ theme: Theme) {
-        self.themedStatusBarStyle = theme.useDarkVariant
-            ? .lightContent
-            : .default
-        setNeedsStatusBarAppearanceUpdate()
+  func applyTheme(_ theme: Theme) {
+    self.themedStatusBarStyle = theme.useDarkVariant
+      ? .lightContent
+      : .default
+    setNeedsStatusBarAppearanceUpdate()
 
-        self.view.backgroundColor = theme.systemBackgroundColor
-        self.bottomToolbar.tintColor = theme.primaryColor
-        self.closeButton.tintColor = theme.linkColor
+    self.view.backgroundColor = theme.systemBackgroundColor
+    self.bottomToolbar.tintColor = theme.primaryColor
+    self.closeButton.tintColor = theme.linkColor
 
-        // Apply the blurred view in relation to the brightness and luminance of the background color.
-        // This makes darker backgrounds stay interesting
-        self.backgroundImage.alpha = 0.1 + min((1 - theme.systemBackgroundColor.luminance) * (1 - theme.systemBackgroundColor.brightness), 0.7)
+    // Apply the blurred view in relation to the brightness and luminance of the background color.
+    // This makes darker backgrounds stay interesting
+    self.backgroundImage.alpha = 0.1 + min((1 - theme.systemBackgroundColor.luminance) * (1 - theme.systemBackgroundColor.brightness), 0.7)
 
-        self.blurEffectView?.removeFromSuperview()
+    self.blurEffectView?.removeFromSuperview()
 
-        let blur = UIBlurEffect(style: theme.useDarkVariant ? UIBlurEffect.Style.dark : UIBlurEffect.Style.light)
-        let blurView = UIVisualEffectView(effect: blur)
+    let blur = UIBlurEffect(style: theme.useDarkVariant ? UIBlurEffect.Style.dark : UIBlurEffect.Style.light)
+    let blurView = UIVisualEffectView(effect: blur)
 
-        blurView.frame = self.view.bounds
+    blurView.frame = self.view.bounds
 
-        self.blurEffectView = blurView
-        self.backgroundImage.addSubview(blurView)
+    self.blurEffectView = blurView
+    self.backgroundImage.addSubview(blurView)
 
-      // controls
-      self.progressSlider.minimumTrackTintColor = theme.primaryColor
-      self.progressSlider.maximumTrackTintColor = theme.primaryColor.withAlpha(newAlpha: 0.3)
+    // controls
+    self.progressSlider.minimumTrackTintColor = theme.primaryColor
+    self.progressSlider.maximumTrackTintColor = theme.primaryColor.withAlpha(newAlpha: 0.3)
 
-//      self.artworkControl.iconColor = .white
-
-      self.currentTimeLabel.textColor = theme.primaryColor
-      self.maxTimeButton.setTitleColor(theme.primaryColor, for: .normal)
-      self.progressButton.setTitleColor(theme.primaryColor, for: .normal)
-    }
+    self.currentTimeLabel.textColor = theme.primaryColor
+    self.maxTimeButton.setTitleColor(theme.primaryColor, for: .normal)
+    self.progressButton.setTitleColor(theme.primaryColor, for: .normal)
+  }
 }

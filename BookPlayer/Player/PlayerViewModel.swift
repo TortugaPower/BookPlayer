@@ -34,6 +34,26 @@ class PlayerViewModel {
   private var prefersRemainingTime = UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
   @Published var currentBook: Book!
 
+  func currentBookObserver() -> Published<Book?>.Publisher {
+    return PlayerManager.shared.$currentBook
+  }
+
+  func isPlayingObserver() -> AnyPublisher<Bool, Never> {
+    return PlayerManager.shared.isPlayingPublisher
+  }
+
+  func getBookChapters() -> [Chapter]? {
+    return PlayerManager.shared.currentBook?.chapters?.array as? [Chapter]
+  }
+
+  func hasChapters() -> Bool {
+    return PlayerManager.shared.currentBook?.hasChapters ?? false
+  }
+
+  func isBookFinished() -> Bool {
+    return PlayerManager.shared.currentBook?.isFinished ?? false
+  }
+
   func getBookCurrentTime() -> TimeInterval {
     return self.currentBook.currentTimeInContext(self.prefersChapterContext)
   }

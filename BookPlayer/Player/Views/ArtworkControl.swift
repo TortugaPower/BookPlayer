@@ -23,19 +23,6 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
   private var leftGradientLayer: CAGradientLayer!
   private var rightGradientLayer: CAGradientLayer!
 
-  var book: Book? {
-    didSet {
-      guard let book = book else { return }
-
-      self.titleLabel.text = book.title
-      self.authorLabel.text = book.author
-      self.artwork = book.getArtwork(for: themeProvider.currentTheme)
-      self.backgroundGradientColorView.isHidden = book.hasArtwork
-      self.infoContainerStackView.isHidden = book.hasArtwork
-      self.artworkImage.isHidden = !book.hasArtwork
-    }
-  }
-
   var artwork: UIImage? {
     get {
       return self.artworkImage.image
@@ -119,6 +106,15 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
 
     self.setupGradients()
     self.setUpTheming()
+  }
+
+  public func setupInfo(with book: Book) {
+    self.titleLabel.text = book.title
+    self.authorLabel.text = book.author
+    self.artwork = book.getArtwork(for: themeProvider.currentTheme)
+    self.backgroundGradientColorView.isHidden = book.hasArtwork
+    self.infoContainerStackView.isHidden = book.hasArtwork
+    self.artworkImage.isHidden = !book.hasArtwork
   }
 }
 

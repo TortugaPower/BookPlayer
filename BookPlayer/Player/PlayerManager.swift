@@ -8,6 +8,7 @@
 
 import AVFoundation
 import BookPlayerKit
+import Combine
 import Foundation
 import MediaPlayer
 import WidgetKit
@@ -40,22 +41,22 @@ class PlayerManager: NSObject, TelemetryProtocol {
         }
     }
 
-    var currentBook: Book? {
-        didSet {
-            guard let book = currentBook,
-                let fileURL = book.fileURL else { return }
+  @Published var currentBook: Book? {
+    didSet {
+      guard let book = currentBook,
+            let fileURL = book.fileURL else { return }
 
-            let bookAsset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
+      let bookAsset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
 
-            // Clean just in case
-            if self.hasObserverRegistered {
-                self.playerItem?.removeObserver(self, forKeyPath: "status")
-                self.hasObserverRegistered = false
-            }
-            self.playerItem = AVPlayerItem(asset: bookAsset)
-            self.playerItem?.audioTimePitchAlgorithm = .timeDomain
-        }
+      // Clean just in case
+      if self.hasObserverRegistered {
+        self.playerItem?.removeObserver(self, forKeyPath: "status")
+        self.hasObserverRegistered = false
+      }
+      self.playerItem = AVPlayerItem(asset: bookAsset)
+      self.playerItem?.audioTimePitchAlgorithm = .timeDomain
     }
+  }
 
     private var nowPlayingInfo = [String: Any]()
 
@@ -211,6 +212,14 @@ class PlayerManager: NSObject, TelemetryProtocol {
     var isPlaying: Bool {
         return self.audioPlayer.timeControlStatus == .playing
     }
+
+  public var isPlayingPublisher: AnyPublisher<Bool, Never> {
+    self.audioPlayer.publisher(for: \.timeControlStatus)
+      .map({ timeControlStatus in
+        return timeControlStatus == .playing
+      })
+      .eraseToAnyPublisher()
+  }
 
     var boostVolume: Bool = false {
         didSet {

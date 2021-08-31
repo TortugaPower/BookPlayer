@@ -51,12 +51,6 @@ class PlayPauseIconView: UIView {
   public func observeActionEvents() -> AnyPublisher<UIControl, Never> {
     return self.playButton.publisher(for: .touchUpInside).eraseToAnyPublisher()
   }
-
-  @IBAction func didPressButton(_ sender: UIButton) {
-    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-
-    self.isPlaying = !self.isPlaying
-  }
 }
 
 extension PlayPauseIconView: Themeable {

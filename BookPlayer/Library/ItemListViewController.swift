@@ -218,8 +218,6 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         let storyboard = UIStoryboard(name: "Player", bundle: nil)
 
         if let playerVC = storyboard.instantiateViewController(withIdentifier: "PlayerViewController") as? PlayerViewController {
-            playerVC.currentBook = book
-
             self.present(playerVC, animated: true)
         }
     }
