@@ -14,6 +14,24 @@ public extension URL {
         return (try? resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory == true
     }
 
+  // Disable file protection for file and descendants if it's a directory
+  func disableFileProtection() {
+    try? (self as NSURL).setResourceValue(URLFileProtection.none, forKey: .fileProtectionKey)
+
+    guard self.isDirectory else { return }
+
+    let enumerator = FileManager.default.enumerator(at: self,
+                                                    includingPropertiesForKeys: [.isDirectoryKey],
+                                                    options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
+                                                      print("directoryEnumerator error at \(url): ", error)
+                                                      return true
+                                                    })!
+
+    for case let fileURL as URL in enumerator {
+      try? (fileURL as NSURL).setResourceValue(URLFileProtection.none, forKey: .fileProtectionKey)
+    }
+  }
+
     func hasAppKey() -> Bool {
         do {
             _ = try self.extendedAttribute(forName: "\(Bundle.main.configurationString(for: .bundleIdentifier)).identifier")

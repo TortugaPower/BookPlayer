@@ -57,7 +57,7 @@ extension DataManager {
 
     saveContext()
 
-    DataManager.setupDefaultTheme()
+    DataManager.setupDefaultState()
 
     _ = DataManager.insertItems(from: files, into: nil, library: library)
 
@@ -156,7 +156,7 @@ extension DataManager {
 
     // MARK: - Themes
 
-  public class func setupDefaultTheme() {
+  public class func setupDefaultState() {
     let userDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
 
     // Migrate user defaults app icon
@@ -170,6 +170,13 @@ extension DataManager {
               sharedAppIcon != localAppIcon {
       userDefaults?.set(localAppIcon, forKey: Constants.UserDefaults.appIcon.rawValue)
       UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.appIcon.rawValue)
+    }
+
+    // Migrate protection for Processed folder
+    if !(userDefaults?
+        .bool(forKey: Constants.UserDefaults.fileProtectionMigration.rawValue) ?? false) {
+      self.getProcessedFolderURL().disableFileProtection()
+      userDefaults?.set(true, forKey: Constants.UserDefaults.fileProtectionMigration.rawValue)
     }
 
     // Exclude Processed folder from phone backups

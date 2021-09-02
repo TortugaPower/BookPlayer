@@ -30,6 +30,9 @@ public enum Constants {
 
         case rewindInterval = "userSettingsRewindInterval"
         case forwardInterval = "userSettingsForwardInterval"
+
+      // One-time migrations
+      case fileProtectionMigration = "userFileProtectionMigration"
     }
 
     public enum SmartRewind: TimeInterval {

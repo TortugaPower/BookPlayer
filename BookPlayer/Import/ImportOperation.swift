@@ -119,7 +119,7 @@ public class ImportOperation: Operation {
 
       do {
         try FileManager.default.moveItem(at: file, to: destinationURL)
-        try (destinationURL as NSURL).setResourceValue(URLFileProtection.none, forKey: .fileProtectionKey)
+        destinationURL.disableFileProtection()
       } catch {
         fatalError("Fail to move file from \(file) to \(destinationURL)")
       }
