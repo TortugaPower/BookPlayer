@@ -62,7 +62,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
         // register document's folder listener
         self.setupDocumentListener()
         // load themes if necessary
-        DataManager.setupDefaultTheme()
+        DataManager.setupDefaultState()
         // setup store required listeners
         self.setupStoreListener()
         // register for CarPlay
