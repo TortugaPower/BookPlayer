@@ -279,16 +279,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
         }
     }
 
-    func setupDocumentListener() {
-        let documentsUrl = DataManager.getDocumentsFolderURL()
-        self.watcher = DirectoryWatcher.watch(documentsUrl)
+  func setupDocumentListener() {
+    let documentsUrl = DataManager.getDocumentsFolderURL()
 
-        self.watcher?.onNewFiles = { newFiles in
-            for url in newFiles {
-                DataManager.processFile(at: url)
-            }
-        }
+    self.watcher = DirectoryWatcher.watch(documentsUrl)
+    self.watcher?.ignoreDirectories = false
+
+    self.watcher?.onNewFiles = { newFiles in
+      for url in newFiles {
+        DataManager.processFile(at: url)
+      }
     }
+  }
 
     func setupStoreListener() {
         SwiftyStoreKit.completeTransactions(atomically: true) { purchases in
