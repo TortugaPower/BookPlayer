@@ -43,6 +43,10 @@ class PlayerManager: NSObject, TelemetryProtocol {
 
   @Published var currentBook: Book? {
     didSet {
+      defer {
+        self.hasChapters.value = currentBook?.hasChapters ?? false
+      }
+
       guard let book = currentBook,
             let fileURL = book.fileURL else { return }
 
@@ -57,6 +61,8 @@ class PlayerManager: NSObject, TelemetryProtocol {
       self.playerItem?.audioTimePitchAlgorithm = .timeDomain
     }
   }
+
+  public var hasChapters = CurrentValueSubject<Bool, Never>(false)
 
     private var nowPlayingInfo = [String: Any]()
 

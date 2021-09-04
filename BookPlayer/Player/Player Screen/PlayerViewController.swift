@@ -273,6 +273,10 @@ extension PlayerViewController {
 
       self.setupPlayerView(with: book)
     }.store(in: &disposeBag)
+
+    self.viewModel.hasChapters().sink { hasChapters in
+      self.chaptersButton.isEnabled = hasChapters
+    }.store(in: &disposeBag)
   }
 }
 
@@ -301,9 +305,6 @@ extension PlayerViewController {
     if showTimerLabel {
       items.append(self.sleepLabel)
     }
-
-    let chapterCount = self.viewModel.getBookChapters()?.count ?? 0
-    self.chaptersButton.isEnabled = self.viewModel.hasChapters() && chapterCount > 1
 
     items.append(spacer)
     items.append(self.chaptersButton)

@@ -24,12 +24,8 @@ class PlayerViewModel {
     return PlayerManager.shared.isPlayingPublisher
   }
 
-  func getBookChapters() -> [Chapter]? {
-    return PlayerManager.shared.currentBook?.chapters?.array as? [Chapter]
-  }
-
-  func hasChapters() -> Bool {
-    return PlayerManager.shared.currentBook?.hasChapters ?? false
+  func hasChapters() -> AnyPublisher<Bool, Never> {
+    return PlayerManager.shared.hasChapters.eraseToAnyPublisher()
   }
 
   func hasPreviousChapter() -> Bool {
