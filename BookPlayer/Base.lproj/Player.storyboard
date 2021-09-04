@@ -242,7 +242,6 @@
                     <nil key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="artworkControl" destination="6xf-bw-kIJ" id="p7p-I1-Sox"/>
-                        <outlet property="backgroundImage" destination="ddf-0o-6gO" id="89f-R9-mgO"/>
                         <outlet property="bottomToolbar" destination="AZq-mj-Dz4" id="0Zx-pC-qLR"/>
                         <outlet property="chaptersButton" destination="jGb-7d-wWD" id="yS4-XP-STS"/>
                         <outlet property="closeButton" destination="Hxz-YC-xC1" id="lpU-1H-IlF"/>

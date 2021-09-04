@@ -24,7 +24,6 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
   @IBOutlet private var sleepLabel: UIBarButtonItem!
   @IBOutlet private var chaptersButton: UIBarButtonItem!
   @IBOutlet private weak var moreButton: UIBarButtonItem!
-  @IBOutlet private weak var backgroundImage: UIImageView!
 
   @IBOutlet private weak var artworkControl: ArtworkControl!
   @IBOutlet private weak var progressSlider: ProgressSlider!
@@ -39,7 +38,6 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
   @IBOutlet weak var containerItemStackView: UIStackView!
 
   private var themedStatusBarStyle: UIStatusBarStyle?
-  private var blurEffectView: UIVisualEffectView?
   private var panGestureRecognizer: UIPanGestureRecognizer!
   private let darknessThreshold: CGFloat = 0.2
   private let dismissThreshold: CGFloat = 44.0 * UIScreen.main.nativeScale
@@ -106,15 +104,6 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
 
     self.updateToolbar()
 
-    let currentArtwork = currentBook.getArtwork(for: themeProvider.currentTheme)
-
-    if currentBook.usesDefaultArtwork {
-      self.backgroundImage.isHidden = true
-    } else {
-      self.backgroundImage.isHidden = false
-      self.backgroundImage.image = currentArtwork
-    }
-
     self.updateView(with: self.viewModel.getCurrentProgressState())
 
     applyTheme(self.themeProvider.currentTheme)
@@ -169,9 +158,7 @@ extension PlayerViewController {
         self.progressSlider.setNeedsDisplay()
 
         let progressObject = self.viewModel.processSliderValueChangedEvent(with: slider.value)
-        print("=== setting object")
-        print(progressObject)
-        print("=== is main thread: \(Thread.isMainThread)")
+
         self.updateView(with: progressObject, shouldSetSliderValue: false)
       }.store(in: &disposeBag)
   }
@@ -475,20 +462,6 @@ extension PlayerViewController: Themeable {
     self.view.backgroundColor = theme.systemBackgroundColor
     self.bottomToolbar.tintColor = theme.primaryColor
     self.closeButton.tintColor = theme.linkColor
-
-    // Apply the blurred view in relation to the brightness and luminance of the background color.
-    // This makes darker backgrounds stay interesting
-    self.backgroundImage.alpha = 0.1 + min((1 - theme.systemBackgroundColor.luminance) * (1 - theme.systemBackgroundColor.brightness), 0.7)
-
-    self.blurEffectView?.removeFromSuperview()
-
-    let blur = UIBlurEffect(style: theme.useDarkVariant ? UIBlurEffect.Style.dark : UIBlurEffect.Style.light)
-    let blurView = UIVisualEffectView(effect: blur)
-
-    blurView.frame = self.view.bounds
-
-    self.blurEffectView = blurView
-    self.backgroundImage.addSubview(blurView)
 
     // controls
     self.progressSlider.minimumTrackTintColor = theme.primaryColor
