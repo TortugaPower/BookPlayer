@@ -43,6 +43,7 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
   private var dismissFeedbackTriggered = false
 
   private var disposeBag = Set<AnyCancellable>()
+  private var playingProgressSubscriber: AnyCancellable?
   private var viewModel = PlayerViewModel()
 
   // computed properties
@@ -68,6 +69,8 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
     bindProgressObservers()
 
     bindPlaybackControlsObservers()
+
+    bindBookPlayingProgressEvents()
 
     bindTimerObserver()
 
@@ -132,6 +135,9 @@ extension PlayerViewController {
   func bindProgressObservers() {
     self.progressSlider.publisher(for: .touchDown)
       .sink { [weak self] _ in
+        // Disable recurring playback time events
+        self?.playingProgressSubscriber?.cancel()
+
         self?.viewModel.handleSliderDownEvent()
       }.store(in: &disposeBag)
 
@@ -140,6 +146,10 @@ extension PlayerViewController {
         guard let slider = sender as? UISlider else { return }
 
         self?.viewModel.handleSliderUpEvent(with: slider.value)
+        // Enable back recurring playback time events after one second
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
+          self?.bindBookPlayingProgressEvents()
+        }
       }.store(in: &disposeBag)
 
     self.progressSlider.publisher(for: .valueChanged)
@@ -152,14 +162,15 @@ extension PlayerViewController {
 
         self.updateView(with: progressObject, shouldSetSliderValue: false)
       }.store(in: &disposeBag)
+  }
 
-    NotificationCenter.default.publisher(for: .bookPlaying)
+  func bindBookPlayingProgressEvents() {
+    self.playingProgressSubscriber?.cancel()
+    self.playingProgressSubscriber = NotificationCenter.default.publisher(for: .bookPlaying)
       .sink { [weak self] _ in
         guard let self = self else { return }
-
         self.updateView(with: self.viewModel.getCurrentProgressState())
       }
-      .store(in: &disposeBag)
   }
 
   func bindPlaybackControlsObservers() {
