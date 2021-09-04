@@ -24,6 +24,8 @@ class PlayerManager: NSObject, TelemetryProtocol {
 
     private var playerItem: AVPlayerItem?
 
+  private var speedSubscription: AnyCancellable?
+
     private var hasObserverRegistered = false
     private var observeStatus: Bool = false {
         didSet {
@@ -210,6 +212,16 @@ class PlayerManager: NSObject, TelemetryProtocol {
         // Notify
         NotificationCenter.default.post(name: .bookPlaying, object: nil, userInfo: userInfo)
     }
+
+  private func bindSpeedObserver() {
+    self.speedSubscription?.cancel()
+    self.speedSubscription = SpeedManager.shared.currentSpeed.sink { [weak self] speed in
+      guard let self = self,
+            self.isPlaying else { return }
+
+      self.audioPlayer.rate = speed
+    }
+  }
 
     // MARK: - Player states
 
@@ -402,6 +414,7 @@ extension PlayerManager {
         self.boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
         // Set play state on player and control center
         self.audioPlayer.playImmediately(atRate: SpeedManager.shared.getSpeed())
+        self.bindSpeedObserver()
 
         // Set last Play date
         currentBook.updatePlayDate()
