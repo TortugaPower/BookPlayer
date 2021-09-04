@@ -461,5 +461,7 @@ extension PlayerViewController: Themeable {
     self.currentTimeLabel.textColor = theme.primaryColor
     self.maxTimeButton.setTitleColor(theme.primaryColor, for: .normal)
     self.progressButton.setTitleColor(theme.primaryColor, for: .normal)
+    self.previousChapterButton.tintColor = theme.primaryColor
+    self.nextChapterButton.tintColor = theme.primaryColor
   }
 }
