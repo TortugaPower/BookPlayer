@@ -85,6 +85,7 @@
 		4142964621F21DAE004356DA /* BulkControlsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4142964521F21DAE004356DA /* BulkControlsView.xib */; };
 		4142964921F2E2BA004356DA /* ThemeCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4142964721F2E2BA004356DA /* ThemeCellView.swift */; };
 		4149539A21F0D456003C5D27 /* Themes.json in Resources */ = {isa = PBXBuildFile; fileRef = 4149539921F0D456003C5D27 /* Themes.json */; };
+		4151A6A626E3A40600E49DBE /* SpeedManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4151A6A526E3A40600E49DBE /* SpeedManager.swift */; };
 		41544A1421BAF41400740AD2 /* ItemSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41544A1321BAF41400740AD2 /* ItemSelectionViewController.swift */; };
 		415460F625E57B4F0085F8D9 /* DefaultArtworkFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415460F525E57B4F0085F8D9 /* DefaultArtworkFactory.swift */; };
 		415758EA2226E18800DDB9B6 /* PlusBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415758E92226E18800DDB9B6 /* PlusBannerView.swift */; };
@@ -501,6 +502,7 @@
 		4142964721F2E2BA004356DA /* ThemeCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeCellView.swift; sourceTree = "<group>"; };
 		4149539921F0D456003C5D27 /* Themes.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Themes.json; sourceTree = "<group>"; };
 		4150F80220A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IDZSwiftCommonCrypto.framework; path = Carthage/Build/iOS/IDZSwiftCommonCrypto.framework; sourceTree = "<group>"; };
+		4151A6A526E3A40600E49DBE /* SpeedManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedManager.swift; sourceTree = "<group>"; };
 		41544A1121B86A8B00740AD2 /* DeleteMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteMode.swift; sourceTree = "<group>"; };
 		41544A1321BAF41400740AD2 /* ItemSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemSelectionViewController.swift; sourceTree = "<group>"; };
 		415460F525E57B4F0085F8D9 /* DefaultArtworkFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultArtworkFactory.swift; sourceTree = "<group>"; };
@@ -1424,6 +1426,7 @@
 				410D00FC26DDD26000D11A45 /* Chapters Screen */,
 				410D0FF01EDF659900A52EB9 /* PlayerManager.swift */,
 				C3EC372D206EE0650094B4E8 /* SleepTimer.swift */,
+				4151A6A526E3A40600E49DBE /* SpeedManager.swift */,
 			);
 			path = Player;
 			sourceTree = "<group>";
@@ -2124,6 +2127,7 @@
 				41A1B12C226FC0A200EA0400 /* DataManager+BookPlayer.swift in Sources */,
 				41A1B12D226FC7E500EA0400 /* ImportManager.swift in Sources */,
 				41EE378C21C0028800A55F51 /* ItemListActions.swift in Sources */,
+				4151A6A626E3A40600E49DBE /* SpeedManager.swift in Sources */,
 				C36C4D5C20A23E1800AFDB76 /* MiniPlayerViewController.swift in Sources */,
 				C33E843C20C6E179004A0489 /* ItemProgress.swift in Sources */,
 				411373912552371D00295022 /* TelemetryProtocol.swift in Sources */,

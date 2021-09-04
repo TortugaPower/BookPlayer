@@ -18,8 +18,6 @@ import WidgetKit
 class PlayerManager: NSObject, TelemetryProtocol {
     static let shared = PlayerManager()
 
-    static let speedOptions: [Float] = [3, 2.5, 2, 1.75, 1.5, 1.25, 1.15, 1.1, 1, 0.9, 0.75, 0.5]
-
     private var audioPlayer = AVPlayer()
 
     private var fadeTimer: Timer?
@@ -125,7 +123,7 @@ class PlayerManager: NSObject, TelemetryProtocol {
             DispatchQueue.main.async {
                 // Set book metadata for lockscreen and control center
                 self.nowPlayingInfo = [
-                    MPNowPlayingInfoPropertyDefaultPlaybackRate: self.speed
+                    MPNowPlayingInfoPropertyDefaultPlaybackRate: SpeedManager.shared.getSpeed()
                 ]
 
                 self.setNowPlayingBookTitle()
@@ -245,40 +243,6 @@ class PlayerManager: NSObject, TelemetryProtocol {
         }
     }
 
-    var speed: Float {
-        get {
-            guard let currentBook = self.currentBook else {
-                return 1.0
-            }
-
-            let useGlobalSpeed = UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue)
-            let globalSpeed = UserDefaults.standard.float(forKey: "global_speed")
-            let localSpeed = currentBook.folder?.speed ?? currentBook.speed
-            let speed = useGlobalSpeed ? globalSpeed : localSpeed
-
-            return speed > 0 ? speed : 1.0
-        }
-
-        set {
-            guard let currentBook = self.currentBook else {
-                return
-            }
-
-            currentBook.folder?.speed = newValue
-            currentBook.speed = newValue
-            DataManager.saveContext()
-
-            // set global speed
-            if UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue) {
-                UserDefaults.standard.set(newValue, forKey: "global_speed")
-            }
-
-            guard self.isPlaying else { return }
-
-            self.audioPlayer.rate = newValue
-        }
-    }
-
     var rewindInterval: TimeInterval {
         get {
             if UserDefaults.standard.object(forKey: Constants.UserDefaults.rewindInterval.rawValue) == nil {
@@ -336,7 +300,7 @@ class PlayerManager: NSObject, TelemetryProtocol {
         let currentTimeInContext = currentBook.currentTimeInContext(prefersChapterContext)
         let maxTimeInContext = currentBook.maxTimeInContext(prefersChapterContext, false)
 
-        self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = self.speed
+        self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = SpeedManager.shared.getSpeed()
         self.nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTimeInContext
         self.nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = maxTimeInContext
         self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackProgress] = currentTimeInContext / maxTimeInContext
@@ -437,7 +401,7 @@ extension PlayerManager {
         self.fadeTimer?.invalidate()
         self.boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
         // Set play state on player and control center
-        self.audioPlayer.playImmediately(atRate: self.speed)
+        self.audioPlayer.playImmediately(atRate: SpeedManager.shared.getSpeed())
 
         // Set last Play date
         currentBook.updatePlayDate()

@@ -39,12 +39,8 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
 
   private var themedStatusBarStyle: UIStatusBarStyle?
   private var panGestureRecognizer: UIPanGestureRecognizer!
-  private let darknessThreshold: CGFloat = 0.2
   private let dismissThreshold: CGFloat = 44.0 * UIScreen.main.nativeScale
   private var dismissFeedbackTriggered = false
-  private var chapterBeforeSliderValueChange: Chapter?
-  private var prefersChapterContext = UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
-  private var prefersRemainingTime = UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
 
   private var disposeBag = Set<AnyCancellable>()
   private var viewModel = PlayerViewModel()
@@ -69,7 +65,7 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
 
     bindGeneralObservers()
 
-    bindSliderObservers()
+    bindProgressObservers()
 
     bindPlaybackControlsObservers()
 
@@ -98,11 +94,6 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
     guard !currentBook.isFault else { return }
 
     self.artworkControl.setupInfo(with: currentBook)
-
-    self.speedButton.title = self.formatSpeed(PlayerManager.shared.speed)
-    self.speedButton.accessibilityLabel = String(describing: self.formatSpeed(PlayerManager.shared.speed) + " \("speed_title".localized)")
-
-    self.updateToolbar()
 
     self.updateView(with: self.viewModel.getCurrentProgressState())
 
@@ -138,7 +129,7 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
 
 // MARK: - Observers
 extension PlayerViewController {
-  func bindSliderObservers() {
+  func bindProgressObservers() {
     self.progressSlider.publisher(for: .touchDown)
       .sink { [weak self] _ in
         self?.viewModel.handleSliderDownEvent()
@@ -161,6 +152,14 @@ extension PlayerViewController {
 
         self.updateView(with: progressObject, shouldSetSliderValue: false)
       }.store(in: &disposeBag)
+
+    NotificationCenter.default.publisher(for: .bookPlaying)
+      .sink { [weak self] _ in
+        guard let self = self else { return }
+
+        self.updateView(with: self.viewModel.getCurrentProgressState())
+      }
+      .store(in: &disposeBag)
   }
 
   func bindPlaybackControlsObservers() {
@@ -220,14 +219,6 @@ extension PlayerViewController {
         self?.viewModel.handleNextChapterAction()
       }
       .store(in: &disposeBag)
-
-    NotificationCenter.default.publisher(for: .bookPlaying)
-      .sink { [weak self] _ in
-        guard let self = self else { return }
-
-        self.updateView(with: self.viewModel.getCurrentProgressState())
-      }
-      .store(in: &disposeBag)
   }
 
   func bindTimerObserver() {
@@ -256,12 +247,14 @@ extension PlayerViewController {
 
   func bindGeneralObservers() {
     NotificationCenter.default.publisher(for: .requestReview)
+      .debounce(for: 1.0, scheduler: DispatchQueue.main)
       .sink { [weak self] _ in
         self?.viewModel.requestReview()
       }
       .store(in: &disposeBag)
 
     NotificationCenter.default.publisher(for: .bookEnd)
+      .debounce(for: 1.0, scheduler: DispatchQueue.main)
       .sink { [weak self] _ in
         self?.viewModel.requestReview()
       }
@@ -277,6 +270,13 @@ extension PlayerViewController {
     self.viewModel.hasChapters().sink { hasChapters in
       self.chaptersButton.isEnabled = hasChapters
     }.store(in: &disposeBag)
+
+    SpeedManager.shared.currentSpeed.sink { [weak self] speed in
+      guard let self = self else { return }
+
+      self.speedButton.title = self.formatSpeed(speed)
+      self.speedButton.accessibilityLabel = String(describing: self.formatSpeed(speed) + " \("speed_title".localized)")
+    }.store(in: &disposeBag)
   }
 }
 
@@ -285,12 +285,7 @@ extension PlayerViewController {
   func setupToolbar() {
     self.bottomToolbar.setBackgroundImage(UIImage(), forToolbarPosition: .any, barMetrics: .default)
     self.bottomToolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
-    self.sleepLabel.title = SleepTimer.shared.isEndChapterActive() ? "active_title".localized : ""
     self.speedButton.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18.0, weight: .semibold)], for: .normal)
-
-    if SleepTimer.shared.isActive() {
-        self.updateToolbar(true, animated: true)
-    }
   }
 
   func updateToolbar(_ showTimerLabel: Bool = false, animated: Bool = false) {
@@ -337,22 +332,7 @@ extension PlayerViewController {
   // MARK: - Toolbar actions
 
   @IBAction func setSpeed() {
-    let actionSheet = UIAlertController(title: nil, message: "player_speed_title".localized, preferredStyle: .actionSheet)
-
-    for speed in PlayerManager.speedOptions {
-      if speed == PlayerManager.shared.speed {
-        actionSheet.addAction(UIAlertAction(title: "\u{00A0} \(speed) ✓", style: .default, handler: nil))
-      } else {
-        actionSheet.addAction(UIAlertAction(title: "\(speed)", style: .default, handler: { _ in
-          PlayerManager.shared.speed = speed
-
-          self.speedButton.title = self.formatSpeed(speed)
-        }))
-      }
-    }
-
-    actionSheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
-
+    let actionSheet = self.viewModel.getSpeedActionSheet()
     self.present(actionSheet, animated: true, completion: nil)
   }
 

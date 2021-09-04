@@ -193,4 +193,22 @@ class PlayerViewModel {
 
     UserDefaults.standard.set(false, forKey: "ask_review")
   }
+
+  func getSpeedActionSheet() -> UIAlertController {
+    let actionSheet = UIAlertController(title: nil, message: "player_speed_title".localized, preferredStyle: .actionSheet)
+
+    for speed in SpeedManager.shared.speedOptions {
+      if speed ==  SpeedManager.shared.getSpeed() {
+        actionSheet.addAction(UIAlertAction(title: "\u{00A0} \(speed) ✓", style: .default, handler: nil))
+      } else {
+        actionSheet.addAction(UIAlertAction(title: "\(speed)", style: .default, handler: { _ in
+          SpeedManager.shared.setSpeed(speed, currentBook: PlayerManager.shared.currentBook)
+        }))
+      }
+    }
+
+    actionSheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
+
+    return actionSheet
+  }
 }
