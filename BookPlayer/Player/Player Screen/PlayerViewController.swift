@@ -455,6 +455,7 @@ extension PlayerViewController: Themeable {
     self.bottomToolbar.tintColor = theme.primaryColor
     self.closeButton.tintColor = theme.linkColor
 
+    self.progressSlider.tintColor = theme.linkColor
     self.progressSlider.minimumTrackTintColor = theme.linkColor
     self.progressSlider.maximumTrackTintColor = theme.linkColor.withAlpha(newAlpha: 0.3)
 
