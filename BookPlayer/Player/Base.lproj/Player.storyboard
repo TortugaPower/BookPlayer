@@ -267,6 +267,7 @@
                         <outlet property="sleepButton" destination="Eud-dL-5eK" id="IiC-uf-KuZ"/>
                         <outlet property="sleepLabel" destination="RTH-D9-MbH" id="C6U-h4-sFh"/>
                         <outlet property="speedButton" destination="IYp-c5-IRS" id="pxp-HW-1x7"/>
+                        <outlet property="toolbarBottomConstraint" destination="SID-4i-gu1" id="nhs-Y9-Gcd"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="21f-wy-Eam" sceneMemberID="firstResponder"/>

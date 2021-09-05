@@ -19,6 +19,7 @@ class PlayerViewController: UIViewController, TelemetryProtocol, Storyboarded {
   @IBOutlet private weak var closeButton: UIButton!
   @IBOutlet private weak var closeButtonTop: NSLayoutConstraint!
   @IBOutlet private weak var bottomToolbar: UIToolbar!
+  @IBOutlet weak var toolbarBottomConstraint: NSLayoutConstraint!
   @IBOutlet private weak var speedButton: UIBarButtonItem!
   @IBOutlet private weak var sleepButton: UIBarButtonItem!
   @IBOutlet private var sleepLabel: UIBarButtonItem!
@@ -78,7 +79,7 @@ class PlayerViewController: UIViewController, TelemetryProtocol, Storyboarded {
     self.containerItemStackView.setCustomSpacing(26, after: self.artworkControl)
   }
 
-  // Prevents dragging the view down from changing the safeAreaInsets.top
+  // Prevents dragging the view down from changing the safeAreaInsets.top and .bottom
   // Note: I'm pretty sure there is a better solution for this that I haven't found yet - @pichfl
   override func viewSafeAreaInsetsDidChange() {
     super.viewSafeAreaInsetsDidChange()
@@ -87,6 +88,7 @@ class PlayerViewController: UIViewController, TelemetryProtocol, Storyboarded {
     let insets: UIEdgeInsets = window.safeAreaInsets
 
     self.closeButtonTop.constant = self.view.safeAreaInsets.top == 0.0 ? insets.top : 0
+    self.toolbarBottomConstraint.constant = self.view.safeAreaInsets.bottom == 0.0 ? insets.bottom : 0
   }
 
   func setup() {
