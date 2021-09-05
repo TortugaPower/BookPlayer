@@ -6,6 +6,7 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
+import AVKit
 import BookPlayerKit
 import UIKit
 import Themeable
@@ -19,6 +20,7 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
   @IBOutlet weak var authorLabel: UILabel!
   @IBOutlet weak var titleLabel: UILabel!
   @IBOutlet weak var infoContainerStackView: UIStackView!
+  @IBOutlet weak var airplayView: AVRoutePickerView!
 
   private var leftGradientLayer: CAGradientLayer!
   private var rightGradientLayer: CAGradientLayer!
@@ -89,7 +91,8 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     self.layer.shadowRadius = 12.0
 
     self.artworkImage.clipsToBounds = false
-    self.artworkImage.contentMode = .scaleAspectFit
+    // artwork now has the main info regarding the title and author
+    self.artworkImage.contentMode = .scaleToFill
     self.artworkImage.layer.cornerRadius = 6.0
     self.artworkImage.layer.masksToBounds = true
     self.artworkImage.layer.borderColor = UIColor.clear.cgColor
@@ -103,9 +106,26 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     self.backgroundGradientColorView.layer.cornerRadius = 6.0
     self.backgroundGradientColorView.layer.masksToBounds = true
     self.backgroundGradientColorView.layer.borderColor = UIColor.clear.cgColor
+    self.setupAirplayView()
 
     self.setupGradients()
     self.setUpTheming()
+  }
+
+  private func setupAirplayView() {
+    // Adjust icon size
+    self.airplayView.transform = CGAffineTransform(scaleX: 1.4, y: 1.4)
+    self.airplayView.tintColor = .white
+    self.airplayView.activeTintColor = .white
+
+    // Add drop shadow
+    self.airplayView.layer.shadowColor = UIColor.black.cgColor
+    self.airplayView.layer.shadowOpacity = 1
+    self.airplayView.layer.shadowRadius = 3.0
+    self.airplayView.layer.shadowOffset = CGSize(width: 0.0, height: 2.0)
+
+    self.airplayView.isAccessibilityElement = true
+    self.airplayView.accessibilityLabel = "audio_source_title".localized
   }
 
   public func setupInfo(with book: Book) {

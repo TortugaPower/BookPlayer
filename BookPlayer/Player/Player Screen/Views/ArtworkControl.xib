@@ -10,6 +10,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ArtworkControl" customModule="BookPlayer" customModuleProvider="target">
             <connections>
+                <outlet property="airplayView" destination="QW8-uv-3SO" id="cgh-OZ-th3"/>
                 <outlet property="artworkImage" destination="b1B-eO-wd8" id="4zU-us-epG"/>
                 <outlet property="artworkOverlay" destination="x0G-a6-XTv" id="QXe-HH-SIY"/>
                 <outlet property="authorLabel" destination="IsI-C7-b1P" id="UZV-qO-jRC"/>
@@ -24,13 +25,13 @@
             <rect key="frame" x="0.0" y="0.0" width="325" height="325"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="b1B-eO-wd8" customClass="BPArtworkView" customModule="BookPlayer" customModuleProvider="target">
-                    <rect key="frame" x="0.0" y="0.0" width="325" height="325"/>
-                </imageView>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="s60-73-aQu" userLabel="Background Gradient Color">
                     <rect key="frame" x="0.0" y="0.0" width="325" height="325"/>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 </view>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="b1B-eO-wd8" customClass="BPArtworkView" customModule="BookPlayer" customModuleProvider="target">
+                    <rect key="frame" x="0.0" y="0.0" width="325" height="325"/>
+                </imageView>
                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="OHB-pg-f5F">
                     <rect key="frame" x="16" y="0.0" width="244" height="309"/>
                     <subviews>
@@ -56,6 +57,15 @@
                     <rect key="frame" x="0.0" y="0.0" width="325" height="325"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="QW8-uv-3SO" customClass="AVRoutePickerView">
+                    <rect key="frame" x="284" y="12" width="29" height="29"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="29" id="B6r-Hg-b2B"/>
+                        <constraint firstAttribute="height" constant="29" id="IH5-pz-sic"/>
+                    </constraints>
+                </view>
             </subviews>
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <constraints>
@@ -71,8 +81,10 @@
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="s60-73-aQu" secondAttribute="bottom" id="MOx-vK-HAw"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="x0G-a6-XTv" secondAttribute="bottom" id="NK1-ZU-cqd"/>
                 <constraint firstItem="x0G-a6-XTv" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="Rz0-Bn-iB1"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="QW8-uv-3SO" secondAttribute="trailing" constant="12" id="TzL-3A-9BU"/>
                 <constraint firstItem="s60-73-aQu" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="UNH-8n-CCb"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="x0G-a6-XTv" secondAttribute="trailing" id="VqH-ev-muY"/>
+                <constraint firstItem="QW8-uv-3SO" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="12" id="YWM-ZC-jh0"/>
                 <constraint firstItem="b1B-eO-wd8" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="hYE-K2-H9h"/>
                 <constraint firstItem="b1B-eO-wd8" firstAttribute="bottom" secondItem="vUN-kp-3ea" secondAttribute="bottom" id="tQQ-4L-F55"/>
             </constraints>

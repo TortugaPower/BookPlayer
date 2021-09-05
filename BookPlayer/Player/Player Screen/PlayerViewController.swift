@@ -315,13 +315,6 @@ extension PlayerViewController {
     items.append(spacer)
     items.append(self.chaptersButton)
 
-    let avRoutePickerBarButtonItem = UIBarButtonItem(customView: AVRoutePickerView(frame: CGRect(x: 0.0, y: 0.0, width: 20.0, height: 20.0)))
-
-    avRoutePickerBarButtonItem.isAccessibilityElement = true
-    avRoutePickerBarButtonItem.accessibilityLabel = "audio_source_title".localized
-    items.append(spacer)
-    items.append(avRoutePickerBarButtonItem)
-
     items.append(spacer)
     items.append(self.moreButton)
 
