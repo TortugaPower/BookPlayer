@@ -1,5 +1,5 @@
 //
-//  NibLoadable.swift
+//  NibLoadableView.swift
 //  BookPlayer
 //
 //  Created by Gianni Carlo on 5/9/21.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class NibLoadable: UIView {
+class NibLoadableView: UIView {
   var contentView: UIView?
 
   required init?(coder aDecoder: NSCoder) {

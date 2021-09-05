@@ -10,7 +10,7 @@ import Combine
 import Themeable
 import UIKit
 
-class PlayPauseIconView: NibLoadable {
+class PlayPauseIconView: NibLoadableView {
   @IBOutlet weak var imageView: UIImageView!
   @IBOutlet weak var playButton: UIButton!
 
@@ -27,10 +27,10 @@ class PlayPauseIconView: NibLoadable {
 
   required init?(coder aDecoder: NSCoder) {
     super.init(coder: aDecoder)
-    
+
     self.imageView.isAccessibilityElement = false
     self.playButton.accessibilityLabel = self.isPlaying ? "pause_title".localized : "play_title".localized
-    
+
     setUpTheming()
   }
 

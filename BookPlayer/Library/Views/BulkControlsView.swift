@@ -8,7 +8,7 @@
 
 import UIKit
 
-class BulkControlsView: NibLoadable {
+class BulkControlsView: NibLoadableView {
     @IBOutlet weak var sortButton: UIButton!
     @IBOutlet weak var moveButton: UIButton!
     @IBOutlet weak var trashButton: UIButton!

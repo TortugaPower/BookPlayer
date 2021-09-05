@@ -10,7 +10,7 @@ import BookPlayerKit
 import Themeable
 import UIKit
 
-class LoadingView: NibLoadable {
+class LoadingView: NibLoadableView {
   @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
   @IBOutlet weak var titleLabel: UILabel!
   @IBOutlet weak var subtitleLabel: UILabel!
