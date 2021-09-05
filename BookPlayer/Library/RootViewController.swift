@@ -10,7 +10,7 @@ import BookPlayerKit
 import Themeable
 import UIKit
 
-class RootViewController: UIViewController, UIGestureRecognizerDelegate {
+class RootViewController: UIViewController, UIGestureRecognizerDelegate, Storyboarded {
     @IBOutlet private weak var miniPlayerContainer: UIView!
 
     private weak var miniPlayerViewController: MiniPlayerViewController?

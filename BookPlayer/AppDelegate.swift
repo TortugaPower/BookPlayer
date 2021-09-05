@@ -21,6 +21,7 @@ import WatchConnectivity
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
     var window: UIWindow?
+    var coordinator: MainCoordinator?
     var wasPlayingBeforeInterruption: Bool = false
     var watcher: DirectoryWatcher?
 
@@ -83,6 +84,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
         }
 
         WatchConnectivityService.sharedManager.startSession()
+
+        let navController = UINavigationController()
+        self.coordinator = MainCoordinator(navigationController: navController)
+        self.coordinator?.start()
+
+        self.window = UIWindow(frame: UIScreen.main.bounds)
+        self.window?.rootViewController = navController
+        self.window?.makeKeyAndVisible()
 
         return true
     }
