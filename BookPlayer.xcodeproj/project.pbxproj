@@ -1027,9 +1027,7 @@
 				C3A479112094C8A800D92122 /* Utils */,
 				C3D3852D20C1F0CA00A0ACC7 /* Views */,
 				418B6CFB1D2707F800F974FB /* AppDelegate.swift */,
-				41B2A5D821CAE42600917584 /* Settings.storyboard */,
 				418B6D011D2707F800F974FB /* Main.storyboard */,
-				419B373B23B8D0C600128A8F /* Player.storyboard */,
 				418B6D061D2707F800F974FB /* LaunchScreen.storyboard */,
 				418B6D041D2707F800F974FB /* Assets.xcassets */,
 				419196341D47CC4E007A3AF3 /* BookPlayer.entitlements */,
@@ -1319,6 +1317,7 @@
 		C35E04F2207E8D4C007D3370 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				4124121B26CF289B00B099DB /* Storage */,
 				41964C842220C74D00FF1A2F /* Cells */,
 				410D0FEC1EDCF4B000A52EB9 /* SettingsViewController.swift */,
 				C37A6874209F13120063AEAC /* CreditsViewController.swift */,
@@ -1329,7 +1328,7 @@
 				41AD3DAE221E678600DC41E1 /* PlusViewController.swift */,
 				419B374423B8D18000128A8F /* PlusBannerView.xib */,
 				415758E92226E18800DDB9B6 /* PlusBannerView.swift */,
-				4124121B26CF289B00B099DB /* Storage */,
+				41B2A5D821CAE42600917584 /* Settings.storyboard */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -1427,6 +1426,7 @@
 				410D0FF01EDF659900A52EB9 /* PlayerManager.swift */,
 				C3EC372D206EE0650094B4E8 /* SleepTimer.swift */,
 				4151A6A526E3A40600E49DBE /* SpeedManager.swift */,
+				419B373B23B8D0C600128A8F /* Player.storyboard */,
 			);
 			path = Player;
 			sourceTree = "<group>";

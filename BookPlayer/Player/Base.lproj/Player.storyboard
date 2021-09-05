@@ -44,6 +44,12 @@
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="LV0-r3-inw"/>
+                                    <barButtonItem image="bookmark" catalog="system" id="3Xp-Av-nNw">
+                                        <connections>
+                                            <action selector="createBookmark:" destination="7nP-Jo-m2x" id="pLF-wo-wT5"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="PrM-uZ-nOF"/>
                                     <barButtonItem title="Chapters" image="toolbarIconChapters" largeContentSizeImage="toolbarIconChapters" id="jGb-7d-wWD">
                                         <connections>
                                             <segue destination="wJP-at-zgg" kind="presentation" id="vWk-Of-OM2"/>
@@ -242,6 +248,7 @@
                     <nil key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="artworkControl" destination="6xf-bw-kIJ" id="p7p-I1-Sox"/>
+                        <outlet property="bookmarkButton" destination="3Xp-Av-nNw" id="XPz-9I-fwd"/>
                         <outlet property="bottomToolbar" destination="AZq-mj-Dz4" id="0Zx-pC-qLR"/>
                         <outlet property="chaptersButton" destination="jGb-7d-wWD" id="yS4-XP-STS"/>
                         <outlet property="closeButton" destination="Hxz-YC-xC1" id="lpU-1H-IlF"/>
@@ -335,6 +342,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="bookmark" catalog="system" width="112" height="128"/>
         <image name="chevron.left" catalog="system" width="96" height="128"/>
         <image name="chevron.right" catalog="system" width="96" height="128"/>
         <image name="maskPlayerClose" width="40" height="14"/>

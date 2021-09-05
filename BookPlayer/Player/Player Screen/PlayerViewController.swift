@@ -23,6 +23,7 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
   @IBOutlet private weak var sleepButton: UIBarButtonItem!
   @IBOutlet private var sleepLabel: UIBarButtonItem!
   @IBOutlet private var chaptersButton: UIBarButtonItem!
+  @IBOutlet private var bookmarkButton: UIBarButtonItem!
   @IBOutlet private weak var moreButton: UIBarButtonItem!
 
   @IBOutlet private weak var artworkControl: ArtworkControl!
@@ -313,6 +314,9 @@ extension PlayerViewController {
     }
 
     items.append(spacer)
+    items.append(self.bookmarkButton)
+
+    items.append(spacer)
     items.append(self.chaptersButton)
 
     items.append(spacer)
@@ -334,6 +338,18 @@ extension PlayerViewController {
   }
 
   // MARK: - Toolbar actions
+
+  @IBAction func createBookmark(_ sender: UIBarButtonItem) {
+    let alert = self.viewModel.handleBookmarkCreation(noteHandler: {
+      let noteAlert = self.viewModel.getBookmarkNoteAlert()
+
+      self.present(noteAlert, animated: true, completion: nil)
+    }, bookmarkListHandler: {
+      // show bookmarks screen
+    })
+
+    self.present(alert, animated: true, completion: nil)
+  }
 
   @IBAction func setSpeed() {
     let actionSheet = self.viewModel.getSpeedActionSheet()

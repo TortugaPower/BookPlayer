@@ -202,3 +202,6 @@
 "settings_storage_title" = "Storage Management";
 "storage_fix_file_button" = "Fix";
 "storage_fix_file_description" = "The book item is missing, if the corresponding item cannot be found, a new one will be created";
+"bookmark_created_title" = "Your bookmark has been saved at %@";
+"bookmark_note_action_title" = "Add note";
+"bookmarks_see_title" = "See bookmarks";

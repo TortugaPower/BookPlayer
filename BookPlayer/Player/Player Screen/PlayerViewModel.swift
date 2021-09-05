@@ -212,3 +212,50 @@ class PlayerViewModel {
     return actionSheet
   }
 }
+
+extension PlayerViewModel {
+  func handleBookmarkCreation(noteHandler: @escaping (() -> Void), bookmarkListHandler: @escaping (() -> Void)) -> UIAlertController {
+    let alert = UIAlertController(title: String.localizedStringWithFormat("bookmark_created_title".localized, "02:25"),
+                                  message: nil,
+                                  preferredStyle: .alert)
+
+//    alert.addTextField(configurationHandler: { textfield in
+//      textfield.text = ""
+//    })
+    alert.addAction(UIAlertAction(title: "bookmark_note_action_title".localized, style: .default, handler: { _ in
+      noteHandler()
+    }))
+
+    alert.addAction(UIAlertAction(title: "bookmarks_see_title".localized, style: .default, handler: { _ in
+      bookmarkListHandler()
+    }))
+    alert.addAction(UIAlertAction(title: "ok_button".localized, style: .cancel, handler: nil))
+//    alert.addAction(UIAlertAction(title: "ok_button".localized, style: .default, handler: { _ in
+//        let title = alert.textFields!.first!.text!
+//
+//        print(title)
+//    }))
+
+    return alert
+  }
+
+  func getBookmarkNoteAlert() -> UIAlertController {
+    // try to create bookmark
+    let alert = UIAlertController(title: "bookmark_note_action_title".localized,
+                                  message: nil,
+                                  preferredStyle: .alert)
+
+    alert.addTextField(configurationHandler: { textfield in
+      textfield.text = ""
+    })
+
+    alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
+    alert.addAction(UIAlertAction(title: "ok_button".localized, style: .default, handler: { _ in
+        let title = alert.textFields!.first!.text!
+
+        print(title)
+    }))
+
+    return alert
+  }
+}
