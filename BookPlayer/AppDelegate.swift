@@ -326,14 +326,13 @@ extension AppDelegate {
 
     func showPlayer() {
         if PlayerManager.shared.hasLoadedBook {
-            guard let libraryVC = self.getLibraryVC(),
-                let book = PlayerManager.shared.currentBook else {
+            guard let libraryVC = self.getLibraryVC() else {
                 return
             }
 
             libraryVC.navigationController?.dismiss(animated: true, completion: nil)
 
-            libraryVC.showPlayerView(book: book)
+            libraryVC.showPlayerView()
         } else {
             UserDefaults.standard.set(true, forKey: Constants.UserDefaults.showPlayer.rawValue)
         }

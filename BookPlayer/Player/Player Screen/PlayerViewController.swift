@@ -15,7 +15,7 @@ import StoreKit
 import Themeable
 import UIKit
 
-class PlayerViewController: UIViewController, TelemetryProtocol {
+class PlayerViewController: UIViewController, TelemetryProtocol, Storyboarded {
   @IBOutlet private weak var closeButton: UIButton!
   @IBOutlet private weak var closeButtonTop: NSLayoutConstraint!
   @IBOutlet private weak var bottomToolbar: UIToolbar!
