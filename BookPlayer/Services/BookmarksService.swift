@@ -20,6 +20,12 @@ class BookmarksService {
     return try? DataManager.getContext().fetch(fetchRequest).first
   }
 
+  public class func remoteCommandCreateBookmark() {
+    guard let currentBook = PlayerManager.shared.currentBook else { return }
+
+    let _ = DataManager.createBookmark(at: currentBook.currentTime, book: currentBook, type: .user)
+  }
+
   public class func createBookmark(at time: Double, book: Book, type: BookmarkType) -> Bookmark {
     return DataManager.createBookmark(at: time, book: book, type: type)
   }

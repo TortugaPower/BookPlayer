@@ -255,6 +255,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
             return .success
         }
 
+      MPRemoteCommandCenter.shared().bookmarkCommand.localizedTitle = "bookmark_create_title".localized
+      MPRemoteCommandCenter.shared().bookmarkCommand.isEnabled = true
+      MPRemoteCommandCenter.shared().bookmarkCommand.addTarget { _ in
+        BookmarksService.remoteCommandCreateBookmark()
+        return .success
+      }
+
         MPRemoteCommandCenter.shared().seekForwardCommand.addTarget { (commandEvent) -> MPRemoteCommandHandlerStatus in
             guard let cmd = commandEvent as? MPSeekCommandEvent, cmd.type == .endSeeking else {
                 return .success

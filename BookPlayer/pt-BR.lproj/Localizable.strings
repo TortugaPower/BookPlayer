@@ -248,3 +248,4 @@ Alessio Franceschi&nbsp;this is the label for the active sleep timer button when
 "bookmark_automatic_play_title" = "Last position before playback started";
 "bookmark_automatic_skip_title" = "Last position before time skip";
 "bookmark_note_edit_title" = "Edit note";
+"bookmark_create_title" = "Create Bookmark";
