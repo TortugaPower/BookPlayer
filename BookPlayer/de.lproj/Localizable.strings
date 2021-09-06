@@ -211,3 +211,4 @@
 "bookmark_type_user_title" = "Manual";
 "bookmark_automatic_play_title" = "Last position before playback started";
 "bookmark_automatic_skip_title" = "Last position before time skip";
+"bookmark_note_edit_title" = "Edit note";

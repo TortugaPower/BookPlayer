@@ -41,4 +41,33 @@ struct BookmarksViewModel {
       return nil
     }
   }
+
+  func editNote(_ note: String, for bookmark: Bookmark) {
+    BookmarksService.updateNote(note, for: bookmark)
+  }
+
+  func getBookmarkNoteAlert(_ bookmark: Bookmark) -> UIAlertController {
+    let alert = UIAlertController(title: "bookmark_note_action_title".localized,
+                                  message: nil,
+                                  preferredStyle: .alert)
+
+    alert.addTextField(configurationHandler: { textfield in
+      textfield.text = bookmark.note
+    })
+
+    alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
+    alert.addAction(UIAlertAction(title: "ok_button".localized, style: .default, handler: { _ in
+      guard let note = alert.textFields?.first?.text else {
+        return
+      }
+
+      DataManager.addNote(note, bookmark: bookmark)
+    }))
+
+    return alert
+  }
+
+  func deleteBookmark(_ bookmark: Bookmark) {
+    DataManager.deleteBookmark(bookmark)
+  }
 }

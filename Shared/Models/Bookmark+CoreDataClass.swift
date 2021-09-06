@@ -19,4 +19,15 @@ public class Bookmark: NSManagedObject {
     self.time = time
     self.type = type
   }
+
+  public func getImageNameForType() -> String? {
+    switch type {
+    case .play:
+      return "play"
+    case .skip:
+      return "clock.arrow.2.circlepath"
+    case .user:
+      return nil
+    }
+  }
 }

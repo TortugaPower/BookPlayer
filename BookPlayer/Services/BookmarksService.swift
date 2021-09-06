@@ -31,4 +31,8 @@ class BookmarksService {
     bookmark.note = type.getNote()
     DataManager.saveContext()
   }
+
+  public class func updateNote(_ note: String, for bookmark: Bookmark) {
+    DataManager.addNote(note, bookmark: bookmark)
+  }
 }

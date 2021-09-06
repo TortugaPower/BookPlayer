@@ -209,4 +209,10 @@ extension DataManager {
     bookmark.note = note
     self.saveContext()
   }
+
+  public class func deleteBookmark(_ bookmark: Bookmark) {
+    let book = bookmark.book
+    book?.removeFromBookmarks(bookmark)
+    self.delete(bookmark)
+  }
 }

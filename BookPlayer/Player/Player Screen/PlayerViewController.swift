@@ -370,6 +370,14 @@ extension PlayerViewController {
 
     let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
+    actionSheet.addAction(UIAlertAction(title: "bookmarks_title".localized, style: .default, handler: { _ in
+      let nav = AppNavigationController.instantiate(from: .Player)
+      let vc = BookmarksViewController.instantiate(from: .Player)
+      nav.setViewControllers([vc], animated: false)
+
+      self.present(nav, animated: true, completion: nil)
+    }))
+
     actionSheet.addAction(UIAlertAction(title: "jump_start_title".localized, style: .default, handler: { _ in
       PlayerManager.shared.pause()
       PlayerManager.shared.jumpTo(0.0)

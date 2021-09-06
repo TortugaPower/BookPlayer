@@ -25,10 +25,15 @@ class BookmarksViewController: UITableViewController, Storyboarded {
     self.tableView.rowHeight = UITableView.automaticDimension
     self.tableView.estimatedRowHeight = 55.66
 
-    self.userBookmarks = viewModel.getUserBookmarks()
-    self.automaticBookmarks = viewModel.getAutomaticBookmarks()
+    self.reloadData()
 
     setUpTheming()
+  }
+
+  func reloadData() {
+    self.userBookmarks = viewModel.getUserBookmarks()
+    self.automaticBookmarks = viewModel.getAutomaticBookmarks()
+    self.tableView.reloadData()
   }
 
   @IBAction func done(_ sender: UIBarButtonItem?) {
@@ -63,16 +68,7 @@ class BookmarksViewController: UITableViewController, Storyboarded {
       ? self.automaticBookmarks[indexPath.row]
       : self.userBookmarks[indexPath.row]
 
-    cell.timeLabel.text = TimeParser.formatTime(bookmark.time)
-    cell.noteLabel.text = bookmark.note
-
-    if let imageName = self.viewModel.getBookmarkImageName(for: bookmark.type) {
-      cell.iconImageView.image = UIImage(systemName: imageName)
-      cell.iconImageView.isHidden = false
-    } else {
-      cell.iconImageView.image = nil
-      cell.iconImageView.isHidden = true
-    }
+    cell.setup(with: bookmark)
 
     return cell
   }
@@ -85,6 +81,37 @@ class BookmarksViewController: UITableViewController, Storyboarded {
     self.viewModel.handleBookmarkSelected(bookmark)
 
     self.done(nil)
+  }
+
+  override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+    guard indexPath.section == 1 else { return nil }
+
+    let bookmark = self.userBookmarks[indexPath.row]
+
+    let optionsAction = UIContextualAction(style: .normal, title: "bookmark_note_edit_title".localized) { _, _, completion in
+      let alert = self.viewModel.getBookmarkNoteAlert(bookmark)
+
+      self.present(alert, animated: true, completion: nil)
+      completion(true)
+    }
+
+    let deleteAction = UIContextualAction(style: .destructive, title: "delete_button".localized) { _, _, completion in
+      let alert = UIAlertController(title: nil,
+                                    message: String(format: "delete_single_item_title".localized, TimeParser.formatTime(bookmark.time)),
+                                    preferredStyle: .alert)
+
+      alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
+
+      alert.addAction(UIAlertAction(title: "delete_button".localized, style: .destructive, handler: { _ in
+        self.viewModel.deleteBookmark(bookmark)
+        self.reloadData()
+      }))
+
+      self.present(alert, animated: true, completion: nil)
+      completion(true)
+    }
+
+    return UISwipeActionsConfiguration(actions: [deleteAction, optionsAction])
   }
 }
 
