@@ -4,8 +4,15 @@
         <attribute name="author" attributeType="String"/>
         <attribute name="ext" attributeType="String"/>
         <attribute name="usesDefaultArtwork" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <relationship name="bookmarks" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Bookmark" inverseName="book" inverseEntity="Bookmark"/>
         <relationship name="chapters" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="Chapter" inverseName="book" inverseEntity="Chapter"/>
         <relationship name="lastPlayed" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Library" inverseName="lastPlayedBook" inverseEntity="Library"/>
+    </entity>
+    <entity name="Bookmark" representedClassName="Bookmark" syncable="YES">
+        <attribute name="note" optional="YES" attributeType="String"/>
+        <attribute name="time" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="type" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="book" maxCount="1" deletionRule="Nullify" destinationEntity="Book" inverseName="bookmarks" inverseEntity="Book"/>
     </entity>
     <entity name="Chapter" representedClassName="Chapter" syncable="YES">
         <attribute name="duration" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
@@ -73,7 +80,8 @@
         <relationship name="selected" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Library" inverseName="currentTheme" inverseEntity="Library"/>
     </entity>
     <elements>
-        <element name="Book" positionX="-65" positionY="329" width="128" height="104"/>
+        <element name="Book" positionX="-65" positionY="329" width="128" height="119"/>
+        <element name="Bookmark" positionX="-54" positionY="144" width="128" height="89"/>
         <element name="Chapter" positionX="162" positionY="99" width="128" height="120"/>
         <element name="Folder" positionX="16" positionY="207" width="128" height="59"/>
         <element name="Library" positionX="160" positionY="9" width="128" height="105"/>

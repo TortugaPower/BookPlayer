@@ -214,33 +214,52 @@ class PlayerViewModel {
 }
 
 extension PlayerViewModel {
-  func handleBookmarkCreation(noteHandler: @escaping (() -> Void), bookmarkListHandler: @escaping (() -> Void)) -> UIAlertController {
-    let alert = UIAlertController(title: String.localizedStringWithFormat("bookmark_created_title".localized, "02:25"),
+  func createBookmark(vc: UIViewController) {
+    guard let book = PlayerManager.shared.currentBook else { return }
+
+    let currentTime = book.currentTime
+
+    if let bookmark = BookmarksService.getBookmark(at: currentTime, book: book, type: .user) {
+      self.showBookmarkSuccessAlert(vc: vc, bookmark: bookmark, existed: true)
+      return
+    }
+
+    let bookmark = BookmarksService.createBookmark(at: currentTime, book: book, type: .user)
+
+    self.showBookmarkSuccessAlert(vc: vc, bookmark: bookmark, existed: false)
+  }
+
+  func showBookmarkSuccessAlert(vc: UIViewController, bookmark: Bookmark, existed: Bool) {
+    let formattedTime = TimeParser.formatTime(bookmark.time)
+
+    let titleKey = existed
+      ? "bookmark_exists_title"
+      : "bookmark_created_title"
+
+    let alert = UIAlertController(title: String.localizedStringWithFormat(titleKey.localized, formattedTime),
                                   message: nil,
                                   preferredStyle: .alert)
 
-//    alert.addTextField(configurationHandler: { textfield in
-//      textfield.text = ""
-//    })
-    alert.addAction(UIAlertAction(title: "bookmark_note_action_title".localized, style: .default, handler: { _ in
-      noteHandler()
-    }))
+    if !existed {
+      alert.addAction(UIAlertAction(title: "bookmark_note_action_title".localized, style: .default, handler: { _ in
+        self.showBookmarkNoteAlert(vc: vc, bookmark: bookmark)
+      }))
+    }
 
     alert.addAction(UIAlertAction(title: "bookmarks_see_title".localized, style: .default, handler: { _ in
-      bookmarkListHandler()
-    }))
-    alert.addAction(UIAlertAction(title: "ok_button".localized, style: .cancel, handler: nil))
-//    alert.addAction(UIAlertAction(title: "ok_button".localized, style: .default, handler: { _ in
-//        let title = alert.textFields!.first!.text!
-//
-//        print(title)
-//    }))
+      let nav = AppNavigationController.instantiate(from: .Player)
+      let bookmarksVC = BookmarksViewController.instantiate(from: .Player)
+      nav.setViewControllers([bookmarksVC], animated: false)
 
-    return alert
+      vc.present(nav, animated: true, completion: nil)
+    }))
+
+    alert.addAction(UIAlertAction(title: "ok_button".localized, style: .cancel, handler: nil))
+
+    vc.present(alert, animated: true, completion: nil)
   }
 
-  func getBookmarkNoteAlert() -> UIAlertController {
-    // try to create bookmark
+  func showBookmarkNoteAlert(vc: UIViewController, bookmark: Bookmark) {
     let alert = UIAlertController(title: "bookmark_note_action_title".localized,
                                   message: nil,
                                   preferredStyle: .alert)
@@ -251,11 +270,13 @@ extension PlayerViewModel {
 
     alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
     alert.addAction(UIAlertAction(title: "ok_button".localized, style: .default, handler: { _ in
-        let title = alert.textFields!.first!.text!
+      guard let note = alert.textFields?.first?.text else {
+        return
+      }
 
-        print(title)
+      DataManager.addNote(note, bookmark: bookmark)
     }))
 
-    return alert
+    vc.present(alert, animated: true, completion: nil)
   }
 }

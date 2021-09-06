@@ -341,16 +341,16 @@ extension PlayerViewController {
 
   // MARK: - Toolbar actions
 
+  @IBAction func showChapters(_ sender: UIBarButtonItem) {
+    let nav = AppNavigationController.instantiate(from: .Player)
+    let vc = ChaptersViewController.instantiate(from: .Player)
+    nav.setViewControllers([vc], animated: false)
+
+    self.present(nav, animated: true, completion: nil)
+  }
+
   @IBAction func createBookmark(_ sender: UIBarButtonItem) {
-    let alert = self.viewModel.handleBookmarkCreation(noteHandler: {
-      let noteAlert = self.viewModel.getBookmarkNoteAlert()
-
-      self.present(noteAlert, animated: true, completion: nil)
-    }, bookmarkListHandler: {
-      // show bookmarks screen
-    })
-
-    self.present(alert, animated: true, completion: nil)
+    self.viewModel.createBookmark(vc: self)
   }
 
   @IBAction func setSpeed() {

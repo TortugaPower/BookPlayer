@@ -10,7 +10,7 @@ import BookPlayerKit
 import Themeable
 import UIKit
 
-class AppNavigationController: UINavigationController {
+class AppNavigationController: UINavigationController, Storyboarded {
     private var separatorView: UIView!
     private var themedStatusBarStyle: UIStatusBarStyle?
 

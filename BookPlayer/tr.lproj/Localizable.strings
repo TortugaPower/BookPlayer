@@ -230,6 +230,12 @@ Alessio Franceschi&nbsp;this is the label for the active sleep timer button when
 "settings_storage_title" = "Storage Management";
 "storage_fix_file_button" = "Fix";
 "storage_fix_file_description" = "The book item is missing, if the corresponding item cannot be found, a new one will be created";
+"bookmarks_title" = "Bookmarks";
 "bookmark_created_title" = "Your bookmark has been saved at %@";
+"bookmark_exists_title" = "You have already created a bookmark at %@";
 "bookmark_note_action_title" = "Add note";
 "bookmarks_see_title" = "See bookmarks";
+"bookmark_type_automatic_title" = "Automatic";
+"bookmark_type_user_title" = "Manual";
+"bookmark_automatic_play_title" = "Last position before playback started";
+"bookmark_automatic_skip_title" = "Last position before time skip";

@@ -178,6 +178,12 @@ final class DataMigrationManager {
             self.migrateFolderHierarchy()
             // Migrate books names
             self.migrateBooks()
+        } else if storeModel.isVersion4 {
+          let destinationModel = NSManagedObjectModel.version5
+
+          self.migrateStoreAt(URL: DataMigrationManager.storeURL,
+                              fromModel: storeModel,
+                              toModel: destinationModel)
         }
     }
 }
@@ -233,6 +239,14 @@ extension NSManagedObjectModel {
     var isVersion4: Bool {
         return self == type(of: self).version4
     }
+
+  var isVersion5: Bool {
+      return self == type(of: self).version5
+  }
+
+  class var version5: NSManagedObjectModel {
+      return bookplayerModel(named: "Audiobook Player 5")
+  }
 
     class func model(named modelName: String, in bundle: Bundle = .main) -> NSManagedObjectModel {
         return bundle.url(forResource: modelName, withExtension: "momd")

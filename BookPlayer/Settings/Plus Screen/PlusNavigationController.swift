@@ -8,4 +8,4 @@
 
 import UIKit
 
-class PlusNavigationController: AppNavigationController, Storyboarded {}
+class PlusNavigationController: AppNavigationController {}
