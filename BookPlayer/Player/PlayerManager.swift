@@ -8,6 +8,7 @@
 
 import AVFoundation
 import BookPlayerKit
+import Combine
 import Foundation
 import MediaPlayer
 import WidgetKit
@@ -17,13 +18,13 @@ import WidgetKit
 class PlayerManager: NSObject, TelemetryProtocol {
     static let shared = PlayerManager()
 
-    static let speedOptions: [Float] = [3, 2.5, 2, 1.75, 1.5, 1.25, 1.15, 1.1, 1, 0.9, 0.75, 0.5]
-
     private var audioPlayer = AVPlayer()
 
     private var fadeTimer: Timer?
 
     private var playerItem: AVPlayerItem?
+
+  private var speedSubscription: AnyCancellable?
 
     private var hasObserverRegistered = false
     private var observeStatus: Bool = false {
@@ -40,22 +41,28 @@ class PlayerManager: NSObject, TelemetryProtocol {
         }
     }
 
-    var currentBook: Book? {
-        didSet {
-            guard let book = currentBook,
-                let fileURL = book.fileURL else { return }
+  @Published var currentBook: Book? {
+    didSet {
+      defer {
+        self.hasChapters.value = currentBook?.hasChapters ?? false
+      }
 
-            let bookAsset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
+      guard let book = currentBook,
+            let fileURL = book.fileURL else { return }
 
-            // Clean just in case
-            if self.hasObserverRegistered {
-                self.playerItem?.removeObserver(self, forKeyPath: "status")
-                self.hasObserverRegistered = false
-            }
-            self.playerItem = AVPlayerItem(asset: bookAsset)
-            self.playerItem?.audioTimePitchAlgorithm = .timeDomain
-        }
+      let bookAsset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
+
+      // Clean just in case
+      if self.hasObserverRegistered {
+        self.playerItem?.removeObserver(self, forKeyPath: "status")
+        self.hasObserverRegistered = false
+      }
+      self.playerItem = AVPlayerItem(asset: bookAsset)
+      self.playerItem?.audioTimePitchAlgorithm = .timeDomain
     }
+  }
+
+  public var hasChapters = CurrentValueSubject<Bool, Never>(false)
 
     private var nowPlayingInfo = [String: Any]()
 
@@ -118,7 +125,7 @@ class PlayerManager: NSObject, TelemetryProtocol {
             DispatchQueue.main.async {
                 // Set book metadata for lockscreen and control center
                 self.nowPlayingInfo = [
-                    MPNowPlayingInfoPropertyDefaultPlaybackRate: self.speed
+                    MPNowPlayingInfoPropertyDefaultPlaybackRate: SpeedManager.shared.getSpeed()
                 ]
 
                 self.setNowPlayingBookTitle()
@@ -206,11 +213,29 @@ class PlayerManager: NSObject, TelemetryProtocol {
         NotificationCenter.default.post(name: .bookPlaying, object: nil, userInfo: userInfo)
     }
 
+  private func bindSpeedObserver() {
+    self.speedSubscription?.cancel()
+    self.speedSubscription = SpeedManager.shared.currentSpeed.sink { [weak self] speed in
+      guard let self = self,
+            self.isPlaying else { return }
+
+      self.audioPlayer.rate = speed
+    }
+  }
+
     // MARK: - Player states
 
     var isPlaying: Bool {
         return self.audioPlayer.timeControlStatus == .playing
     }
+
+  public var isPlayingPublisher: AnyPublisher<Bool, Never> {
+    self.audioPlayer.publisher(for: \.timeControlStatus)
+      .map({ timeControlStatus in
+        return timeControlStatus == .playing
+      })
+      .eraseToAnyPublisher()
+  }
 
     var boostVolume: Bool = false {
         didSet {
@@ -227,40 +252,6 @@ class PlayerManager: NSObject, TelemetryProtocol {
 
         set {
             self.audioPlayer.seek(to: CMTime(seconds: newValue, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
-        }
-    }
-
-    var speed: Float {
-        get {
-            guard let currentBook = self.currentBook else {
-                return 1.0
-            }
-
-            let useGlobalSpeed = UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue)
-            let globalSpeed = UserDefaults.standard.float(forKey: "global_speed")
-            let localSpeed = currentBook.folder?.speed ?? currentBook.speed
-            let speed = useGlobalSpeed ? globalSpeed : localSpeed
-
-            return speed > 0 ? speed : 1.0
-        }
-
-        set {
-            guard let currentBook = self.currentBook else {
-                return
-            }
-
-            currentBook.folder?.speed = newValue
-            currentBook.speed = newValue
-            DataManager.saveContext()
-
-            // set global speed
-            if UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue) {
-                UserDefaults.standard.set(newValue, forKey: "global_speed")
-            }
-
-            guard self.isPlaying else { return }
-
-            self.audioPlayer.rate = newValue
         }
     }
 
@@ -321,7 +312,7 @@ class PlayerManager: NSObject, TelemetryProtocol {
         let currentTimeInContext = currentBook.currentTimeInContext(prefersChapterContext)
         let maxTimeInContext = currentBook.maxTimeInContext(prefersChapterContext, false)
 
-        self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = self.speed
+        self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = SpeedManager.shared.getSpeed()
         self.nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTimeInContext
         self.nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = maxTimeInContext
         self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackProgress] = currentTimeInContext / maxTimeInContext
@@ -422,7 +413,8 @@ extension PlayerManager {
         self.fadeTimer?.invalidate()
         self.boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
         // Set play state on player and control center
-        self.audioPlayer.playImmediately(atRate: self.speed)
+        self.audioPlayer.playImmediately(atRate: SpeedManager.shared.getSpeed())
+        self.bindSpeedObserver()
 
         // Set last Play date
         currentBook.updatePlayDate()

@@ -21,7 +21,4 @@ extension Notification.Name {
     public static let bookPlaying = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).book.playback")
     public static let contextUpdate = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).watch.sync")
     public static let messageReceived = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).watch.message")
-    public static let timerStart = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).sleeptimer.start")
-    public static let timerProgress = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).sleeptimer.progress")
-    public static let timerEnd = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).sleeptimer.end")
 }

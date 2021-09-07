@@ -196,4 +196,41 @@ public class TimeParser {
 
         return option
     }
+
+  // utility function to transform seconds to format MM:SS or HH:MM:SS
+  public class func formatTime(_ time: TimeInterval) -> String {
+    let durationFormatter = DateComponentsFormatter()
+
+    durationFormatter.unitsStyle = .positional
+    durationFormatter.allowedUnits = [.minute, .second]
+    durationFormatter.zeroFormattingBehavior = .pad
+    durationFormatter.collapsesLargestUnit = false
+
+    if abs(time) > 3599.0 {
+      durationFormatter.allowedUnits = [.hour, .minute, .second]
+    }
+
+    return durationFormatter.string(from: time)!
+  }
+
+  public class func formatDuration(_ duration: TimeInterval, unitsStyle: DateComponentsFormatter.UnitsStyle = .short) -> String {
+    let durationFormatter = DateComponentsFormatter()
+
+    durationFormatter.unitsStyle = unitsStyle
+    durationFormatter.allowedUnits = [.minute, .second]
+    durationFormatter.collapsesLargestUnit = true
+
+    return durationFormatter.string(from: duration)!
+  }
+
+  public class func formatTotalDuration(_ duration: TimeInterval, allowedUnits: NSCalendar.Unit = [.hour, .minute, .second]) -> String {
+    let durationFormatter = DateComponentsFormatter()
+
+    durationFormatter.unitsStyle = .abbreviated
+    durationFormatter.allowedUnits = allowedUnits
+    durationFormatter.collapsesLargestUnit = false
+    durationFormatter.allowsFractionalUnits = true
+
+    return durationFormatter.string(from: duration)!
+  }
 }

@@ -218,8 +218,6 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         let storyboard = UIStoryboard(name: "Player", bundle: nil)
 
         if let playerVC = storyboard.instantiateViewController(withIdentifier: "PlayerViewController") as? PlayerViewController {
-            playerVC.currentBook = book
-
             self.present(playerVC, animated: true)
         }
     }
@@ -561,7 +559,7 @@ extension ItemListViewController: UITableViewDataSource {
         }
 
         cell.progress = item.isFinished ? 1.0 : item.progressPercentage
-        cell.duration = self.formatTotalDuration(item.duration)
+        cell.duration = TimeParser.formatTotalDuration(item.duration)
 
         return cell
     }

@@ -14,15 +14,18 @@ import Foundation
 extension Book {
     func setChapters(from asset: AVAsset, context: NSManagedObjectContext) {
         for locale in asset.availableChapterLocales {
-            let chaptersMetadata = asset.chapterMetadataGroups(withTitleLocale: locale, containingItemsWithCommonKeys: [AVMetadataKey.commonKeyArtwork])
+            let chaptersMetadata = asset.chapterMetadataGroups(
+              withTitleLocale: locale, containingItemsWithCommonKeys: [AVMetadataKey.commonKeyArtwork]
+            )
 
             for (index, chapterMetadata) in chaptersMetadata.enumerated() {
                 let chapterIndex = index + 1
                 let chapter = Chapter(from: asset, context: context)
 
-                chapter.title = AVMetadataItem.metadataItems(from: chapterMetadata.items,
-                                                             withKey: AVMetadataKey.commonKeyTitle,
-                                                             keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String ?? ""
+                chapter.title = AVMetadataItem.metadataItems(
+                  from: chapterMetadata.items,
+                  withKey: AVMetadataKey.commonKeyTitle,
+                  keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String ?? ""
                 chapter.start = CMTimeGetSeconds(chapterMetadata.timeRange.start)
                 chapter.duration = CMTimeGetSeconds(chapterMetadata.timeRange.duration)
                 chapter.index = Int16(chapterIndex)

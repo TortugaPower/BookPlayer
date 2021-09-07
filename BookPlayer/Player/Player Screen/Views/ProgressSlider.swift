@@ -92,4 +92,9 @@ class ProgressSlider: UISlider {
         minColor.set()
         UIBezierPath(rect: progressRect).fill()
     }
+
+  public func setProgress(_ value: Float) {
+    self.value = value
+    self.setNeedsDisplay()
+  }
 }

@@ -62,7 +62,7 @@ class ActionParserService {
 
         switch seconds {
         case -1:
-            SleepTimer.shared.cancel()
+            SleepTimer.shared.reset()
         case -2:
             SleepTimer.shared.sleep(in: .endChapter)
         default:

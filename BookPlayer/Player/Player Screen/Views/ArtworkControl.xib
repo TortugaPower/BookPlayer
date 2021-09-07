@@ -1,26 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ArtworkControl" customModule="BookPlayer" customModuleProvider="target">
             <connections>
-                <outlet property="artworkHeight" destination="xjb-vW-MYb" id="vcC-I1-Wkl"/>
                 <outlet property="artworkImage" destination="b1B-eO-wd8" id="4zU-us-epG"/>
                 <outlet property="artworkOverlay" destination="x0G-a6-XTv" id="QXe-HH-SIY"/>
-                <outlet property="artworkWidth" destination="Gax-Jk-fXg" id="Zwj-72-qsZ"/>
                 <outlet property="authorLabel" destination="IsI-C7-b1P" id="UZV-qO-jRC"/>
                 <outlet property="backgroundGradientColorView" destination="s60-73-aQu" id="bXb-9d-64v"/>
                 <outlet property="contentView" destination="iN0-l3-epB" id="voY-pw-1zj"/>
-                <outlet property="forwardIcon" destination="6cy-7G-42S" id="NVB-er-7r7"/>
                 <outlet property="infoContainerStackView" destination="OHB-pg-f5F" id="axm-gg-Kvh"/>
-                <outlet property="playPauseButton" destination="eBX-C3-3ce" id="Owy-s4-dRu"/>
-                <outlet property="rewindIcon" destination="5e7-tW-iQd" id="o4s-xk-HQZ"/>
                 <outlet property="titleLabel" destination="TYJ-3z-lYx" id="sL8-vv-hNo"/>
             </connections>
         </placeholder>
@@ -31,10 +26,6 @@
             <subviews>
                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="b1B-eO-wd8" customClass="BPArtworkView" customModule="BookPlayer" customModuleProvider="target">
                     <rect key="frame" x="0.0" y="0.0" width="325" height="325"/>
-                    <constraints>
-                        <constraint firstAttribute="height" constant="325" id="Gax-Jk-fXg"/>
-                        <constraint firstAttribute="width" constant="325" id="xjb-vW-MYb"/>
-                    </constraints>
                 </imageView>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="s60-73-aQu" userLabel="Background Gradient Color">
                     <rect key="frame" x="0.0" y="0.0" width="325" height="325"/>
@@ -65,72 +56,28 @@
                     <rect key="frame" x="0.0" y="0.0" width="325" height="325"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 </view>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eBX-C3-3ce">
-                    <rect key="frame" x="0.0" y="0.0" width="325" height="325"/>
-                    <accessibility key="accessibilityConfiguration" label="Play Pause">
-                        <accessibilityTraits key="traits" none="YES"/>
-                        <bool key="isElement" value="NO"/>
-                    </accessibility>
-                    <state key="normal" image="playerIconPlay"/>
-                    <connections>
-                        <action selector="playPauseButtonTouchUpInside" destination="-1" eventType="touchUpInside" id="aYb-Av-VpV"/>
-                    </connections>
-                </button>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5e7-tW-iQd" customClass="PlayerJumpIconRewind" customModule="BookPlayer" customModuleProvider="target">
-                    <rect key="frame" x="0.0" y="0.0" width="81.5" height="325"/>
-                    <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                    <accessibility key="accessibilityConfiguration">
-                        <accessibilityTraits key="traits" button="YES"/>
-                        <bool key="isElement" value="YES"/>
-                    </accessibility>
-                </view>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6cy-7G-42S" customClass="PlayerJumpIconForward" customModule="BookPlayer" customModuleProvider="target">
-                    <rect key="frame" x="244" y="0.0" width="81" height="325"/>
-                    <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                    <accessibility key="accessibilityConfiguration">
-                        <accessibilityTraits key="traits" button="YES"/>
-                        <bool key="isElement" value="YES"/>
-                    </accessibility>
-                </view>
             </subviews>
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <constraints>
-                <constraint firstItem="eBX-C3-3ce" firstAttribute="bottom" secondItem="b1B-eO-wd8" secondAttribute="bottom" id="1LP-MT-T1o"/>
                 <constraint firstItem="s60-73-aQu" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="1ee-Q1-OgO"/>
                 <constraint firstItem="x0G-a6-XTv" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="1fz-ai-QLQ"/>
-                <constraint firstItem="5e7-tW-iQd" firstAttribute="width" secondItem="iN0-l3-epB" secondAttribute="width" multiplier="0.25" id="72A-rK-bvD"/>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="5e7-tW-iQd" secondAttribute="bottom" id="7hU-fZ-0Co"/>
                 <constraint firstItem="OHB-pg-f5F" firstAttribute="width" secondItem="vUN-kp-3ea" secondAttribute="width" multiplier="0.75" id="7jQ-2s-1D6"/>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="6cy-7G-42S" secondAttribute="trailing" id="8rK-lS-9RU"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="s60-73-aQu" secondAttribute="trailing" id="AGD-hD-lkW"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="OHB-pg-f5F" secondAttribute="bottom" constant="16" id="AGT-lP-C5N"/>
                 <constraint firstItem="OHB-pg-f5F" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="Arc-e4-b1y"/>
                 <constraint firstItem="b1B-eO-wd8" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" id="HVu-C4-zOb"/>
-                <constraint firstItem="6cy-7G-42S" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" id="Hft-eE-Q2J"/>
                 <constraint firstItem="OHB-pg-f5F" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="I1A-Dy-Q5a"/>
                 <constraint firstItem="b1B-eO-wd8" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="JoP-7s-Mnn"/>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="6cy-7G-42S" secondAttribute="bottom" id="Kd2-RU-eEY"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="s60-73-aQu" secondAttribute="bottom" id="MOx-vK-HAw"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="x0G-a6-XTv" secondAttribute="bottom" id="NK1-ZU-cqd"/>
                 <constraint firstItem="x0G-a6-XTv" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="Rz0-Bn-iB1"/>
                 <constraint firstItem="s60-73-aQu" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="UNH-8n-CCb"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="x0G-a6-XTv" secondAttribute="trailing" id="VqH-ev-muY"/>
-                <constraint firstItem="eBX-C3-3ce" firstAttribute="trailing" secondItem="b1B-eO-wd8" secondAttribute="trailing" id="Zmr-16-aza"/>
-                <constraint firstItem="5e7-tW-iQd" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="e8r-pv-VwI"/>
-                <constraint firstItem="eBX-C3-3ce" firstAttribute="leading" secondItem="b1B-eO-wd8" secondAttribute="leading" id="eBv-mH-7JR"/>
-                <constraint firstItem="5e7-tW-iQd" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="eW5-rK-FxM"/>
-                <constraint firstItem="5e7-tW-iQd" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="g6P-Mh-oKY"/>
                 <constraint firstItem="b1B-eO-wd8" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="hYE-K2-H9h"/>
-                <constraint firstItem="eBX-C3-3ce" firstAttribute="top" secondItem="b1B-eO-wd8" secondAttribute="top" id="hux-Ju-flX"/>
-                <constraint firstItem="6cy-7G-42S" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="m5e-Ea-qZ4"/>
-                <constraint firstItem="6cy-7G-42S" firstAttribute="width" secondItem="iN0-l3-epB" secondAttribute="width" multiplier="0.25" id="t5A-rX-bEh"/>
                 <constraint firstItem="b1B-eO-wd8" firstAttribute="bottom" secondItem="vUN-kp-3ea" secondAttribute="bottom" id="tQQ-4L-F55"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <point key="canvasLocation" x="-20.5" y="-220.5"/>
         </view>
     </objects>
-    <resources>
-        <image name="playerIconPlay" width="148" height="148"/>
-    </resources>
 </document>
