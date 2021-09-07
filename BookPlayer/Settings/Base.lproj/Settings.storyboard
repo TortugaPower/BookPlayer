@@ -603,10 +603,10 @@
             </objects>
             <point key="canvasLocation" x="457" y="1667"/>
         </scene>
-        <!--App Navigation Controller-->
+        <!--Plus Navigation Controller-->
         <scene sceneID="Bnz-fq-vui">
             <objects>
-                <navigationController storyboardIdentifier="PlusNavigationController" id="d6y-ya-0pE" customClass="AppNavigationController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="PlusNavigationController" id="d6y-ya-0pE" customClass="PlusNavigationController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translucent="NO" id="v1q-oa-GaA">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="56"/>
                         <autoresizingMask key="autoresizingMask"/>

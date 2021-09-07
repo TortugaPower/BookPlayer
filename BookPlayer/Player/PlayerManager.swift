@@ -144,7 +144,7 @@ class PlayerManager: NSObject, TelemetryProtocol {
                     // if book is truly finished, start book again to avoid autoplaying next one
                     // add 1 second as a finished threshold
                     let time = (book.currentTime + 1) >= book.duration ? 0 : book.currentTime
-                    self.jumpTo(time)
+                    self.jumpTo(time, recordBookmark: false)
                 }
 
                 NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["book": book])
@@ -322,27 +322,34 @@ class PlayerManager: NSObject, TelemetryProtocol {
 // MARK: - Seek Controls
 
 extension PlayerManager {
-    func jumpTo(_ time: Double, fromEnd: Bool = false) {
-        guard let currentBook = self.currentBook else { return }
-        let newTime = min(max(fromEnd ? currentBook.duration - time : time, 0), currentBook.duration)
+  func jumpTo(_ time: Double, fromEnd: Bool = false, recordBookmark: Bool = true) {
+    guard let currentBook = self.currentBook else { return }
 
-        self.audioPlayer.seek(to: CMTime(seconds: newTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
-
-        if !self.isPlaying, let currentBook = self.currentBook {
-            UserDefaults.standard.set(Date(), forKey: "\(Constants.UserDefaults.lastPauseTime)_\(currentBook.identifier!)")
-        }
-
-        self.update()
+    if recordBookmark {
+      BookmarksService.createOrUpdateBookmark(at: self.audioPlayer.currentTime().seconds, book: currentBook, type: .skip)
     }
 
-    func jumpBy(_ direction: Double) {
-        guard let book = self.currentBook else { return }
+    let newTime = min(max(fromEnd ? currentBook.duration - time : time, 0), currentBook.duration)
 
-        let newTime = book.getInterval(from: direction) + CMTimeGetSeconds(self.audioPlayer.currentTime())
-        self.audioPlayer.seek(to: CMTime(seconds: newTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
+    self.audioPlayer.seek(to: CMTime(seconds: newTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
 
-        self.update()
+    if !self.isPlaying, let currentBook = self.currentBook {
+      UserDefaults.standard.set(Date(), forKey: "\(Constants.UserDefaults.lastPauseTime)_\(currentBook.identifier!)")
     }
+
+    self.update()
+  }
+
+  func jumpBy(_ direction: Double) {
+    guard let book = self.currentBook else { return }
+
+    BookmarksService.createOrUpdateBookmark(at: self.audioPlayer.currentTime().seconds, book: book, type: .skip)
+
+    let newTime = book.getInterval(from: direction) + CMTimeGetSeconds(self.audioPlayer.currentTime())
+    self.audioPlayer.seek(to: CMTime(seconds: newTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
+
+    self.update()
+  }
 
     func forward() {
         self.jumpBy(self.forwardInterval)
@@ -380,6 +387,8 @@ extension PlayerManager {
         } catch {
             fatalError("Failed to activate the audio session")
         }
+
+        BookmarksService.createOrUpdateBookmark(at: self.audioPlayer.currentTime().seconds, book: currentBook, type: .play)
 
         let completed = Int(currentBook.duration) == Int(CMTimeGetSeconds(self.audioPlayer.currentTime()))
 

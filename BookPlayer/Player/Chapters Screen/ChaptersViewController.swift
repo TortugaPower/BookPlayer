@@ -11,7 +11,7 @@ import MediaPlayer
 import Themeable
 import UIKit
 
-final class ChaptersViewController: UITableViewController {
+final class ChaptersViewController: UITableViewController, Storyboarded {
   private var viewModel = ChaptersViewModel()
 
   var chapters = [Chapter]()

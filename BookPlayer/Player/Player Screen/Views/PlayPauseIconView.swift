@@ -10,12 +10,9 @@ import Combine
 import Themeable
 import UIKit
 
-class PlayPauseIconView: UIView {
+class PlayPauseIconView: NibLoadableView {
   @IBOutlet weak var imageView: UIImageView!
   @IBOutlet weak var playButton: UIButton!
-
-  let nibName = "PlayPauseIconView"
-  var contentView: UIView?
 
   let playImage = UIImage(systemName: "play.fill")!
   let pauseImage = UIImage(systemName: "pause.fill")!
@@ -28,24 +25,13 @@ class PlayPauseIconView: UIView {
     }
   }
 
-  func loadViewFromNib() -> UIView? {
-    let bundle = Bundle(for: type(of: self))
-    let nib = UINib(nibName: nibName, bundle: bundle)
-    return nib.instantiate(withOwner: self, options: nil).first as? UIView
-  }
-
   required init?(coder aDecoder: NSCoder) {
-      super.init(coder: aDecoder)
-
-      guard let view = loadViewFromNib() else { return }
-      view.frame = self.bounds
-      self.addSubview(view)
-      self.contentView = view
+    super.init(coder: aDecoder)
 
     self.imageView.isAccessibilityElement = false
     self.playButton.accessibilityLabel = self.isPlaying ? "pause_title".localized : "play_title".localized
 
-      setUpTheming()
+    setUpTheming()
   }
 
   public func observeActionEvents() -> AnyPublisher<UIControl, Never> {

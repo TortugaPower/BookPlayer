@@ -189,11 +189,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
     }
 
     func presentFolder(_ folder: Folder) {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-
-        guard let folderVC = storyboard.instantiateViewController(withIdentifier: "PlaylistViewController") as? PlaylistViewController else {
-            return
-        }
+        let folderVC = PlaylistViewController.instantiate(from: .Main)
 
         folderVC.library = library
         folderVC.folder = folder
@@ -214,13 +210,10 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         self.present(providerList, animated: true, completion: nil)
     }
 
-    func showPlayerView(book: Book) {
-        let storyboard = UIStoryboard(name: "Player", bundle: nil)
-
-        if let playerVC = storyboard.instantiateViewController(withIdentifier: "PlayerViewController") as? PlayerViewController {
-            self.present(playerVC, animated: true)
-        }
-    }
+  func showPlayerView() {
+    let playerVC = PlayerViewController.instantiate(from: .Player)
+    self.present(playerVC, animated: true)
+  }
 
     func setupPlayer(book: Book, _ override: Bool = false) {
         // Make sure player is for a different book
@@ -235,7 +228,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
             return
         }
 
-        self.showPlayerView(book: currentBook)
+        self.showPlayerView()
     }
 
     func loadPlayer(book: Book) {
@@ -251,7 +244,7 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
                 return
             }
 
-            self.showPlayerView(book: book)
+            self.showPlayerView()
 
             PlayerManager.shared.playPause()
         }

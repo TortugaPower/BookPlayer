@@ -43,6 +43,16 @@
 		41342D0A24435DAD00F0905B /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 41640A3624416EE8004FB97B /* Intents.intentdefinition */; settings = {ATTRIBUTES = (no_codegen, ); }; };
 		41342D0C24435EF800F0905B /* SleepTimerHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41342D0B24435EF800F0905B /* SleepTimerHandler.swift */; };
 		413616401D2E21F000E48944 /* LibraryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4136163F1D2E21F000E48944 /* LibraryViewController.swift */; };
+		4138CE1126E5542C0014F11E /* Bookmark+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4138CE0D26E5540E0014F11E /* Bookmark+CoreDataClass.swift */; };
+		4138CE1226E5542D0014F11E /* Bookmark+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4138CE0D26E5540E0014F11E /* Bookmark+CoreDataClass.swift */; };
+		4138CE1326E554320014F11E /* Bookmark+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4138CE0E26E5540E0014F11E /* Bookmark+CoreDataProperties.swift */; };
+		4138CE1426E554320014F11E /* Bookmark+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4138CE0E26E5540E0014F11E /* Bookmark+CoreDataProperties.swift */; };
+		4138CE1626E584B60014F11E /* BookmarkType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4138CE1526E584B60014F11E /* BookmarkType.swift */; };
+		4138CE1726E584B60014F11E /* BookmarkType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4138CE1526E584B60014F11E /* BookmarkType.swift */; };
+		4138CE1926E5B3FB0014F11E /* BookmarksViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4138CE1826E5B3FB0014F11E /* BookmarksViewController.swift */; };
+		4138CE1C26E5B42F0014F11E /* BookmarksViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4138CE1B26E5B42F0014F11E /* BookmarksViewModel.swift */; };
+		4138CE2126E6546D0014F11E /* BookmarksService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4138CE2026E6546D0014F11E /* BookmarksService.swift */; };
+		4138CE2326E66E420014F11E /* BookmarkTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4138CE2226E66E420014F11E /* BookmarkTableViewCell.swift */; };
 		4140EA1F22723CFC0009F794 /* CommandParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4140EA1E22723CFC0009F794 /* CommandParser.swift */; };
 		4140EA33227288ED0009F794 /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4140EA31227288ED0009F794 /* Interface.storyboard */; };
 		4140EA35227288EF0009F794 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4140EA34227288EF0009F794 /* Assets.xcassets */; };
@@ -86,6 +96,11 @@
 		4142964921F2E2BA004356DA /* ThemeCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4142964721F2E2BA004356DA /* ThemeCellView.swift */; };
 		4149539A21F0D456003C5D27 /* Themes.json in Resources */ = {isa = PBXBuildFile; fileRef = 4149539921F0D456003C5D27 /* Themes.json */; };
 		4151A6A626E3A40600E49DBE /* SpeedManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4151A6A526E3A40600E49DBE /* SpeedManager.swift */; };
+		4151A6A826E48C3400E49DBE /* Storyboarded.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4151A6A726E48C3400E49DBE /* Storyboarded.swift */; };
+		4151A6B126E490FF00E49DBE /* PlusNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4151A6B026E490FF00E49DBE /* PlusNavigationController.swift */; };
+		4151A6B326E491A800E49DBE /* NibLoadableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4151A6B226E491A800E49DBE /* NibLoadableView.swift */; };
+		4151A6DD26E4A13A00E49DBE /* MainCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4151A6DC26E4A13900E49DBE /* MainCoordinator.swift */; };
+		4151A6E026E4A17900E49DBE /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4151A6DF26E4A17900E49DBE /* Coordinator.swift */; };
 		41544A1421BAF41400740AD2 /* ItemSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41544A1321BAF41400740AD2 /* ItemSelectionViewController.swift */; };
 		415460F625E57B4F0085F8D9 /* DefaultArtworkFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415460F525E57B4F0085F8D9 /* DefaultArtworkFactory.swift */; };
 		415758EA2226E18800DDB9B6 /* PlusBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415758E92226E18800DDB9B6 /* PlusBannerView.swift */; };
@@ -479,6 +494,14 @@
 		4136175B24019EE700D2DDC1 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
 		4136175C24019EEB00D2DDC1 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = sv; path = sv.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		4136175D24019EF000D2DDC1 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
+		4138CE0D26E5540E0014F11E /* Bookmark+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bookmark+CoreDataClass.swift"; sourceTree = "<group>"; };
+		4138CE0E26E5540E0014F11E /* Bookmark+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bookmark+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		4138CE1526E584B60014F11E /* BookmarkType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkType.swift; sourceTree = "<group>"; };
+		4138CE1826E5B3FB0014F11E /* BookmarksViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksViewController.swift; sourceTree = "<group>"; };
+		4138CE1B26E5B42F0014F11E /* BookmarksViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksViewModel.swift; sourceTree = "<group>"; };
+		4138CE2026E6546D0014F11E /* BookmarksService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksService.swift; sourceTree = "<group>"; };
+		4138CE2226E66E420014F11E /* BookmarkTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkTableViewCell.swift; sourceTree = "<group>"; };
+		4138CE2426E6788D0014F11E /* Audiobook Player 5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Audiobook Player 5.xcdatamodel"; sourceTree = "<group>"; };
 		4140EA1E22723CFC0009F794 /* CommandParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandParser.swift; sourceTree = "<group>"; };
 		4140EA2F227288ED0009F794 /* BookPlayerWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BookPlayerWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4140EA32227288ED0009F794 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
@@ -503,6 +526,11 @@
 		4149539921F0D456003C5D27 /* Themes.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Themes.json; sourceTree = "<group>"; };
 		4150F80220A8DC34002EDB08 /* IDZSwiftCommonCrypto.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IDZSwiftCommonCrypto.framework; path = Carthage/Build/iOS/IDZSwiftCommonCrypto.framework; sourceTree = "<group>"; };
 		4151A6A526E3A40600E49DBE /* SpeedManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedManager.swift; sourceTree = "<group>"; };
+		4151A6A726E48C3400E49DBE /* Storyboarded.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storyboarded.swift; sourceTree = "<group>"; };
+		4151A6B026E490FF00E49DBE /* PlusNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlusNavigationController.swift; sourceTree = "<group>"; };
+		4151A6B226E491A800E49DBE /* NibLoadableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NibLoadableView.swift; sourceTree = "<group>"; };
+		4151A6DC26E4A13900E49DBE /* MainCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainCoordinator.swift; sourceTree = "<group>"; };
+		4151A6DF26E4A17900E49DBE /* Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
 		41544A1121B86A8B00740AD2 /* DeleteMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteMode.swift; sourceTree = "<group>"; };
 		41544A1321BAF41400740AD2 /* ItemSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemSelectionViewController.swift; sourceTree = "<group>"; };
 		415460F525E57B4F0085F8D9 /* DefaultArtworkFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultArtworkFactory.swift; sourceTree = "<group>"; };
@@ -908,6 +936,16 @@
 			path = BookPlayerIntents;
 			sourceTree = "<group>";
 		};
+		4138CE1A26E5B4020014F11E /* Bookmarks Screen */ = {
+			isa = PBXGroup;
+			children = (
+				4138CE1826E5B3FB0014F11E /* BookmarksViewController.swift */,
+				4138CE1B26E5B42F0014F11E /* BookmarksViewModel.swift */,
+				4138CE2226E66E420014F11E /* BookmarkTableViewCell.swift */,
+			);
+			path = "Bookmarks Screen";
+			sourceTree = "<group>";
+		};
 		4140EA30227288ED0009F794 /* BookPlayerWatch */ = {
 			isa = PBXGroup;
 			children = (
@@ -943,6 +981,26 @@
 				4140EA61227289720009F794 /* Info.plist */,
 			);
 			path = BookPlayerWatchKit;
+			sourceTree = "<group>";
+		};
+		4151A6AF26E490C900E49DBE /* Plus Screen */ = {
+			isa = PBXGroup;
+			children = (
+				41AD3DAE221E678600DC41E1 /* PlusViewController.swift */,
+				4151A6B026E490FF00E49DBE /* PlusNavigationController.swift */,
+				419B374423B8D18000128A8F /* PlusBannerView.xib */,
+				415758E92226E18800DDB9B6 /* PlusBannerView.swift */,
+			);
+			path = "Plus Screen";
+			sourceTree = "<group>";
+		};
+		4151A6DE26E4A13E00E49DBE /* Coordinators */ = {
+			isa = PBXGroup;
+			children = (
+				4151A6DF26E4A17900E49DBE /* Coordinator.swift */,
+				4151A6DC26E4A13900E49DBE /* MainCoordinator.swift */,
+			);
+			path = Coordinators;
 			sourceTree = "<group>";
 		};
 		415A9974264CCD2E002BFD35 /* BuildConfiguration */ = {
@@ -1018,6 +1076,7 @@
 		418B6CFA1D2707F800F974FB /* BookPlayer */ = {
 			isa = PBXGroup;
 			children = (
+				4151A6DE26E4A13E00E49DBE /* Coordinators */,
 				41C8ABCF26836F03003B67D1 /* Import */,
 				69343D3121338440000C425E /* Services */,
 				C35E04F1207E8D0F007D3370 /* Library */,
@@ -1027,9 +1086,7 @@
 				C3A479112094C8A800D92122 /* Utils */,
 				C3D3852D20C1F0CA00A0ACC7 /* Views */,
 				418B6CFB1D2707F800F974FB /* AppDelegate.swift */,
-				41B2A5D821CAE42600917584 /* Settings.storyboard */,
 				418B6D011D2707F800F974FB /* Main.storyboard */,
-				419B373B23B8D0C600128A8F /* Player.storyboard */,
 				418B6D061D2707F800F974FB /* LaunchScreen.storyboard */,
 				418B6D041D2707F800F974FB /* Assets.xcassets */,
 				419196341D47CC4E007A3AF3 /* BookPlayer.entitlements */,
@@ -1282,6 +1339,7 @@
 				4193E1FE2439A0A1004D6A82 /* NetworkService.swift */,
 				419723FF21874D5F00AB1190 /* UserActivityManager.swift */,
 				41B30A32230232D200025D69 /* CarPlayManager.swift */,
+				4138CE2026E6546D0014F11E /* BookmarksService.swift */,
 				4193E201243A91AE004D6A82 /* ActionParserService.swift */,
 				4113739E25534B7500295022 /* Telemetry */,
 			);
@@ -1319,6 +1377,8 @@
 		C35E04F2207E8D4C007D3370 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				4151A6AF26E490C900E49DBE /* Plus Screen */,
+				4124121B26CF289B00B099DB /* Storage */,
 				41964C842220C74D00FF1A2F /* Cells */,
 				410D0FEC1EDCF4B000A52EB9 /* SettingsViewController.swift */,
 				C37A6874209F13120063AEAC /* CreditsViewController.swift */,
@@ -1326,10 +1386,7 @@
 				41B2A5DB21CAEE0E00917584 /* PlayerSettingsViewController.swift */,
 				41B2A5DD21CAF20E00917584 /* ThemesViewController.swift */,
 				41AD3DA2221C7DCE00DC41E1 /* IconsViewController.swift */,
-				41AD3DAE221E678600DC41E1 /* PlusViewController.swift */,
-				419B374423B8D18000128A8F /* PlusBannerView.xib */,
-				415758E92226E18800DDB9B6 /* PlusBannerView.swift */,
-				4124121B26CF289B00B099DB /* Storage */,
+				41B2A5D821CAE42600917584 /* Settings.storyboard */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -1347,6 +1404,7 @@
 			children = (
 				C3A479122094C8C300D92122 /* rubberBandDistance.swift */,
 				C3FE3F8120A090880055B9C6 /* limitPanAngle.swift */,
+				4151A6A726E48C3400E49DBE /* Storyboarded.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -1370,6 +1428,9 @@
 				41A1B11A226F88C500EA0400 /* Library+CoreDataProperties.swift */,
 				41A1B11B226F88C500EA0400 /* Folder+CoreDataClass.swift */,
 				41A1B11C226F88C500EA0400 /* Folder+CoreDataProperties.swift */,
+				4138CE0D26E5540E0014F11E /* Bookmark+CoreDataClass.swift */,
+				4138CE0E26E5540E0014F11E /* Bookmark+CoreDataProperties.swift */,
+				4138CE1526E584B60014F11E /* BookmarkType.swift */,
 				4163E3102148606600072AA2 /* FileItem.swift */,
 				41D39D40215F177D00B65290 /* BookActivityItemProvider.swift */,
 			);
@@ -1392,6 +1453,7 @@
 		C3D3852D20C1F0CA00A0ACC7 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				4151A6B226E491A800E49DBE /* NibLoadableView.swift */,
 				4160A0A023F304530039166B /* LocalizableLabel.swift */,
 				416AAC3223F51031005AD04F /* LocalizableButton.swift */,
 				C318DDBB20A48D4700C3A17B /* BPMarqueeLabel.swift */,
@@ -1424,9 +1486,11 @@
 			children = (
 				410D00FB26DDD24300D11A45 /* Player Screen */,
 				410D00FC26DDD26000D11A45 /* Chapters Screen */,
+				4138CE1A26E5B4020014F11E /* Bookmarks Screen */,
 				410D0FF01EDF659900A52EB9 /* PlayerManager.swift */,
 				C3EC372D206EE0650094B4E8 /* SleepTimer.swift */,
 				4151A6A526E3A40600E49DBE /* SpeedManager.swift */,
+				419B373B23B8D0C600128A8F /* Player.storyboard */,
 			);
 			path = Player;
 			sourceTree = "<group>";
@@ -2003,6 +2067,7 @@
 				4140EA82227289DB0009F794 /* FileItem.swift in Sources */,
 				4140EA6C2272898F0009F794 /* DataManager.swift in Sources */,
 				4140EA71227289A20009F794 /* UIColor+BookPlayer.swift in Sources */,
+				4138CE1726E584B60014F11E /* BookmarkType.swift in Sources */,
 				5126F123258E9F18009965DC /* URL+BookPlayer.swift in Sources */,
 				419BD5992443FD04001E50A0 /* Intents.intentdefinition in Sources */,
 				4140EA80227289D50009F794 /* Folder+CoreDataClass.swift in Sources */,
@@ -2015,6 +2080,7 @@
 				4109F499266915E7007A6FFF /* FolderMigrationUtils.swift in Sources */,
 				4140EA76227289B50009F794 /* Chapter+CoreDataClass.swift in Sources */,
 				410C4693227358CD0040114D /* WatchConnectivityService.swift in Sources */,
+				4138CE1426E554320014F11E /* Bookmark+CoreDataProperties.swift in Sources */,
 				4140EA6D227289930009F794 /* Constants.swift in Sources */,
 				4140EA72227289A50009F794 /* UIColor+Sweetercolor.swift in Sources */,
 				4140EA7F227289D20009F794 /* Library+CoreDataProperties.swift in Sources */,
@@ -2035,6 +2101,7 @@
 				4140EA7E227289CE0009F794 /* Library+CoreDataClass.swift in Sources */,
 				416AAC3523F515B0005AD04F /* String+BookPlayer.swift in Sources */,
 				41A8942B2652A7DF0032E972 /* Bundle+BookPlayer.swift in Sources */,
+				4138CE1226E5542D0014F11E /* Bookmark+CoreDataClass.swift in Sources */,
 				4140EA84227289E60009F794 /* BookPlayer.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2066,12 +2133,16 @@
 				410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */,
 				41AD3DAF221E678600DC41E1 /* PlusViewController.swift in Sources */,
 				41B2A5F121CD857800917584 /* AddCellView.swift in Sources */,
+				4151A6B326E491A800E49DBE /* NibLoadableView.swift in Sources */,
 				4197FAFC267E480100811CC8 /* ImportViewController.swift in Sources */,
 				41E562C4223896B500C06BC9 /* UserDefaults+BookPlayer.swift in Sources */,
 				41AD3DA3221C7DCE00DC41E1 /* IconsViewController.swift in Sources */,
 				41B2A5E121CCC21000917584 /* ThemeManager.swift in Sources */,
+				4151A6A826E48C3400E49DBE /* Storyboarded.swift in Sources */,
+				4151A6B126E490FF00E49DBE /* PlusNavigationController.swift in Sources */,
 				C3FE3F8220A090880055B9C6 /* limitPanAngle.swift in Sources */,
 				4124122626D1640000B099DB /* StorageTableViewCell.swift in Sources */,
+				4138CE1926E5B3FB0014F11E /* BookmarksViewController.swift in Sources */,
 				41670131255B4A2C0054164F /* Sequence+BookPlayer.swift in Sources */,
 				C3FA301E20E0024900393DDA /* BPArtworkView.swift in Sources */,
 				41E79BE926C60BF600EA9FFF /* PlayerViewController.swift in Sources */,
@@ -2096,15 +2167,19 @@
 				C3A479152094CA3800D92122 /* UIImage+BookPlayer.swift in Sources */,
 				413616401D2E21F000E48944 /* LibraryViewController.swift in Sources */,
 				418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */,
+				4151A6DD26E4A13A00E49DBE /* MainCoordinator.swift in Sources */,
 				41964C832220B4F700FF1A2F /* ContributorCellView.swift in Sources */,
 				41EE378821BFFB9800A55F51 /* ItemListFeedback.swift in Sources */,
 				4124122826D19A8700B099DB /* StorageViewModel.swift in Sources */,
+				4151A6E026E4A17900E49DBE /* Coordinator.swift in Sources */,
 				418EA78B268D6EF100F6BAEB /* ImportTableViewCell.swift in Sources */,
 				4142964921F2E2BA004356DA /* ThemeCellView.swift in Sources */,
 				4160A0A123F304530039166B /* LocalizableLabel.swift in Sources */,
 				41A1B139226FEDAD00EA0400 /* Chapter+AVFoundation.swift in Sources */,
 				C318D3AD208CF624000666F8 /* PlayerJumpIcon.swift in Sources */,
+				4138CE2326E66E420014F11E /* BookmarkTableViewCell.swift in Sources */,
 				C37A6875209F13120063AEAC /* CreditsViewController.swift in Sources */,
+				4138CE1C26E5B42F0014F11E /* BookmarksViewModel.swift in Sources */,
 				4197240021874D5F00AB1190 /* UserActivityManager.swift in Sources */,
 				41D4F2EF21053944009F1B1E /* IndexPath+BookPlayer.swift in Sources */,
 				69343D332133844D000C425E /* VoiceOverService.swift in Sources */,
@@ -2117,6 +2192,7 @@
 				41640A3724416EE8004FB97B /* Intents.intentdefinition in Sources */,
 				41AD3DA1221C7CAB00DC41E1 /* Icon.swift in Sources */,
 				C39401E920DEE83200F3DC71 /* UIView+BookPlayer.swift in Sources */,
+				4138CE2126E6546D0014F11E /* BookmarksService.swift in Sources */,
 				415B274421FAE47200F9D9B7 /* LoadingView.swift in Sources */,
 				41E79BED26C61D2B00EA9FFF /* PlayPauseIconView.swift in Sources */,
 				4193E2002439A1CD004D6A82 /* NetworkService.swift in Sources */,
@@ -2174,9 +2250,11 @@
 			files = (
 				4124AB2125DFE1A60007C839 /* CoreDataStack.swift in Sources */,
 				41A1B11F226F88C500EA0400 /* Chapter+CoreDataClass.swift in Sources */,
+				4138CE1626E584B60014F11E /* BookmarkType.swift in Sources */,
 				416AAC3423F515AF005AD04F /* String+BookPlayer.swift in Sources */,
 				41A1B126226F88C500EA0400 /* LibraryItem+CoreDataProperties.swift in Sources */,
 				41A1B128226F88C500EA0400 /* Library+CoreDataProperties.swift in Sources */,
+				4138CE1126E5542C0014F11E /* Bookmark+CoreDataClass.swift in Sources */,
 				41A1B102226E9D4800EA0400 /* BookActivityItemProvider.swift in Sources */,
 				41A1B124226F88C500EA0400 /* Book+CoreDataProperties.swift in Sources */,
 				41A1B108226E9DF800EA0400 /* DataManager.swift in Sources */,
@@ -2194,6 +2272,7 @@
 				41640A452441ACE2004FB97B /* Intents.intentdefinition in Sources */,
 				41A1B10E226ED97300EA0400 /* BookSortService+SortError+PlayListSortOrder.swift in Sources */,
 				41D20DB225D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
+				4138CE1326E554320014F11E /* Bookmark+CoreDataProperties.swift in Sources */,
 				41A1B123226F88C500EA0400 /* Book+CoreDataClass.swift in Sources */,
 				41A1B105226E9DBD00EA0400 /* UIColor+Sweetercolor.swift in Sources */,
 				41A1B10C226E9E9700EA0400 /* DeleteMode.swift in Sources */,
@@ -3817,12 +3896,13 @@
 		4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				4138CE2426E6788D0014F11E /* Audiobook Player 5.xcdatamodel */,
 				41FCA32625E87EC600BFB9E6 /* Audiobook Player 4.xcdatamodel */,
 				4124AACC25DF62DD0007C839 /* Audiobook Player 3.xcdatamodel */,
 				41D20DAD25D5F0CA00AAEE30 /* Audiobook Player 2.xcdatamodel */,
 				4165EDFA20A743D500616EDF /* Audiobook Player.xcdatamodel */,
 			);
-			currentVersion = 41FCA32625E87EC600BFB9E6 /* Audiobook Player 4.xcdatamodel */;
+			currentVersion = 4138CE2426E6788D0014F11E /* Audiobook Player 5.xcdatamodel */;
 			path = BookPlayer.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

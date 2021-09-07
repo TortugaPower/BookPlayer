@@ -12,7 +12,7 @@ import Combine
 import Themeable
 import UIKit
 
-final class ImportViewController: UIViewController {
+final class ImportViewController: UIViewController, Storyboarded {
   @IBOutlet weak var descriptionLabel: UILabel!
   @IBOutlet weak var tableView: UITableView!
 

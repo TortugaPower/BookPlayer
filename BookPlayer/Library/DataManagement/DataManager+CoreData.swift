@@ -7,6 +7,7 @@
 //
 
 import BookPlayerKit
+import CoreData
 import Foundation
 
 extension DataManager {
@@ -170,5 +171,48 @@ extension DataManager {
     }
 
     self.delete(item)
+  }
+}
+
+// MARK: Bookmarks
+extension DataManager {
+  public class func getBookmark(of type: BookmarkType, for book: Book) -> Bookmark? {
+    let fetchRequest: NSFetchRequest<Bookmark> = Bookmark.fetchRequest()
+    fetchRequest.predicate = NSPredicate(format: "%K == %@ && type == %d", #keyPath(Bookmark.book.relativePath), book.relativePath, type.rawValue)
+
+    return try? self.getContext().fetch(fetchRequest).first
+  }
+
+  public class func getBookmark(at time: Double, book: Book, type: BookmarkType) -> Bookmark? {
+    let time = floor(time)
+
+    let fetchRequest: NSFetchRequest<Bookmark> = Bookmark.fetchRequest()
+    fetchRequest.predicate = NSPredicate(format: "%K == %@ && type == %d && time == %f", #keyPath(Bookmark.book.relativePath), book.relativePath, type.rawValue, floor(time))
+
+    return try? self.getContext().fetch(fetchRequest).first
+  }
+
+  public class func createBookmark(at time: Double, book: Book, type: BookmarkType) -> Bookmark {
+    if let bookmark = self.getBookmark(at: time, book: book, type: type) {
+      return bookmark
+    }
+
+    let bookmark = Bookmark(with: floor(time), type: type, context: self.getContext())
+    book.addToBookmarks(bookmark)
+
+    self.saveContext()
+
+    return bookmark
+  }
+
+  public class func addNote(_ note: String, bookmark: Bookmark) {
+    bookmark.note = note
+    self.saveContext()
+  }
+
+  public class func deleteBookmark(_ bookmark: Bookmark) {
+    let book = bookmark.book
+    book?.removeFromBookmarks(bookmark)
+    self.delete(bookmark)
   }
 }

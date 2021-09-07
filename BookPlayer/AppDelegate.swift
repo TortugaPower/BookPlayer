@@ -21,6 +21,7 @@ import WatchConnectivity
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
     var window: UIWindow?
+    var coordinator: MainCoordinator?
     var wasPlayingBeforeInterruption: Bool = false
     var watcher: DirectoryWatcher?
 
@@ -83,6 +84,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
         }
 
         WatchConnectivityService.sharedManager.startSession()
+
+        let navController = UINavigationController()
+        self.coordinator = MainCoordinator(navigationController: navController)
+        self.coordinator?.start()
+
+        self.window = UIWindow(frame: UIScreen.main.bounds)
+        self.window?.rootViewController = navController
+        self.window?.makeKeyAndVisible()
 
         return true
     }
@@ -246,6 +255,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
             return .success
         }
 
+      MPRemoteCommandCenter.shared().bookmarkCommand.localizedTitle = "bookmark_create_title".localized
+      MPRemoteCommandCenter.shared().bookmarkCommand.isEnabled = true
+      MPRemoteCommandCenter.shared().bookmarkCommand.addTarget { _ in
+        BookmarksService.remoteCommandCreateBookmark()
+        return .success
+      }
+
         MPRemoteCommandCenter.shared().seekForwardCommand.addTarget { (commandEvent) -> MPRemoteCommandHandlerStatus in
             guard let cmd = commandEvent as? MPSeekCommandEvent, cmd.type == .endSeeking else {
                 return .success
@@ -328,14 +344,13 @@ extension AppDelegate {
 
     func showPlayer() {
         if PlayerManager.shared.hasLoadedBook {
-            guard let libraryVC = self.getLibraryVC(),
-                let book = PlayerManager.shared.currentBook else {
+            guard let libraryVC = self.getLibraryVC() else {
                 return
             }
 
             libraryVC.navigationController?.dismiss(animated: true, completion: nil)
 
-            libraryVC.showPlayerView(book: book)
+            libraryVC.showPlayerView()
         } else {
             UserDefaults.standard.set(true, forKey: Constants.UserDefaults.showPlayer.rawValue)
         }

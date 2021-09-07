@@ -44,9 +44,15 @@
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="LV0-r3-inw"/>
+                                    <barButtonItem image="toolbarIconBookmark" id="3Xp-Av-nNw">
+                                        <connections>
+                                            <action selector="createBookmark:" destination="7nP-Jo-m2x" id="pLF-wo-wT5"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="PrM-uZ-nOF"/>
                                     <barButtonItem title="Chapters" image="toolbarIconChapters" largeContentSizeImage="toolbarIconChapters" id="jGb-7d-wWD">
                                         <connections>
-                                            <segue destination="wJP-at-zgg" kind="presentation" id="vWk-Of-OM2"/>
+                                            <action selector="showChapters:" destination="7nP-Jo-m2x" id="shk-hC-z6e"/>
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="wyO-7g-gMM"/>
@@ -242,6 +248,7 @@
                     <nil key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="artworkControl" destination="6xf-bw-kIJ" id="p7p-I1-Sox"/>
+                        <outlet property="bookmarkButton" destination="3Xp-Av-nNw" id="XPz-9I-fwd"/>
                         <outlet property="bottomToolbar" destination="AZq-mj-Dz4" id="0Zx-pC-qLR"/>
                         <outlet property="chaptersButton" destination="jGb-7d-wWD" id="yS4-XP-STS"/>
                         <outlet property="closeButton" destination="Hxz-YC-xC1" id="lpU-1H-IlF"/>
@@ -260,6 +267,7 @@
                         <outlet property="sleepButton" destination="Eud-dL-5eK" id="IiC-uf-KuZ"/>
                         <outlet property="sleepLabel" destination="RTH-D9-MbH" id="C6U-h4-sFh"/>
                         <outlet property="speedButton" destination="IYp-c5-IRS" id="pxp-HW-1x7"/>
+                        <outlet property="toolbarBottomConstraint" destination="SID-4i-gu1" id="nhs-Y9-Gcd"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="21f-wy-Eam" sceneMemberID="firstResponder"/>
@@ -269,9 +277,9 @@
         <!--Chapters-->
         <scene sceneID="zfd-Pm-tsG">
             <objects>
-                <tableViewController title="Chapters" id="sFu-g1-bMf" customClass="ChaptersViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController storyboardIdentifier="ChaptersViewController" title="Chapters" id="sFu-g1-bMf" customClass="ChaptersViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="Kdf-GY-XM6">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="786"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <prototypes>
@@ -320,24 +328,113 @@
         <!--App Navigation Controller-->
         <scene sceneID="8hE-1K-H9j">
             <objects>
-                <navigationController id="wJP-at-zgg" customClass="AppNavigationController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="AppNavigationController" id="wJP-at-zgg" customClass="AppNavigationController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translucent="NO" id="Ll2-cb-4kv">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="56"/>
+                        <rect key="frame" x="0.0" y="44" width="414" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
-                    <connections>
-                        <segue destination="sFu-g1-bMf" kind="relationship" relationship="rootViewController" id="HTk-gw-myk"/>
-                    </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x2s-As-PdW" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1596" y="844"/>
+        </scene>
+        <!--Bookmarks-->
+        <scene sceneID="0vR-PP-xVO">
+            <objects>
+                <tableViewController storyboardIdentifier="BookmarksViewController" title="Bookmarks" id="kKa-QN-Hac" customClass="BookmarksViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="ypp-or-Y5u">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="BookmarkTableViewCell" id="Te8-vH-xXS" customClass="BookmarkTableViewCell" customModule="BookPlayer" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="24.5" width="414" height="68"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Te8-vH-xXS" id="A4Z-5c-eS3">
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="68"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="Nwf-Dq-SSB">
+                                            <rect key="frame" x="16" y="5" width="382" height="58"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="254" horizontalCompressionResistancePriority="745" text="00:00:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jie-XM-DdZ">
+                                                    <rect key="frame" x="0.0" y="0.0" width="61" height="58"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" relation="lessThanOrEqual" constant="61" id="jXf-E9-2g1"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="246" horizontalCompressionResistancePriority="753" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1vu-0y-Gsj">
+                                                    <rect key="frame" x="69" y="0.0" width="285" height="58"/>
+                                                    <string key="text">This is a test of a description
+with two lines</string>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="At3-bV-uru">
+                                                    <rect key="frame" x="362" y="0.0" width="20" height="58"/>
+                                                    <subviews>
+                                                        <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="252" translatesAutoresizingMaskIntoConstraints="NO" id="hl8-aB-hHI">
+                                                            <rect key="frame" x="0.0" y="19" width="20" height="20"/>
+                                                            <constraints>
+                                                                <constraint firstAttribute="width" constant="20" id="GgN-Bh-f4r"/>
+                                                                <constraint firstAttribute="height" constant="20" id="w74-rW-tSe"/>
+                                                            </constraints>
+                                                        </imageView>
+                                                    </subviews>
+                                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <constraints>
+                                                        <constraint firstItem="hl8-aB-hHI" firstAttribute="centerY" secondItem="At3-bV-uru" secondAttribute="centerY" id="Ska-CA-G0v"/>
+                                                        <constraint firstAttribute="width" constant="20" id="dvj-Ia-Zdq"/>
+                                                        <constraint firstItem="hl8-aB-hHI" firstAttribute="centerX" secondItem="At3-bV-uru" secondAttribute="centerX" id="vkN-k5-XHh"/>
+                                                    </constraints>
+                                                </view>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="43" id="swH-hl-9KT"/>
+                                            </constraints>
+                                        </stackView>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="Nwf-Dq-SSB" firstAttribute="top" secondItem="A4Z-5c-eS3" secondAttribute="top" constant="5" id="06V-9W-vjz"/>
+                                        <constraint firstAttribute="bottom" secondItem="Nwf-Dq-SSB" secondAttribute="bottom" constant="5" id="j4c-Ps-VQb"/>
+                                        <constraint firstAttribute="trailing" secondItem="Nwf-Dq-SSB" secondAttribute="trailing" constant="16" id="kjj-ak-muW"/>
+                                        <constraint firstItem="Nwf-Dq-SSB" firstAttribute="leading" secondItem="A4Z-5c-eS3" secondAttribute="leading" constant="16" id="lj4-CF-2UC"/>
+                                    </constraints>
+                                </tableViewCellContentView>
+                                <connections>
+                                    <outlet property="iconImageView" destination="hl8-aB-hHI" id="odx-Tl-Som"/>
+                                    <outlet property="noteLabel" destination="1vu-0y-Gsj" id="Lbc-rI-mdI"/>
+                                    <outlet property="timeLabel" destination="jie-XM-DdZ" id="eoq-D3-wjl"/>
+                                </connections>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="kKa-QN-Hac" id="FV4-2m-7of"/>
+                            <outlet property="delegate" destination="kKa-QN-Hac" id="vvp-Mi-yHE"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" title="Chapters" leftItemsSupplementBackButton="YES" id="owo-Ep-vF9">
+                        <barButtonItem key="rightBarButtonItem" style="done" systemItem="done" id="cdf-Go-Ulv">
+                            <connections>
+                                <action selector="done:" destination="kKa-QN-Hac" id="rzz-pd-fis"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="M1z-Lm-65Q" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2380" y="153"/>
         </scene>
     </scenes>
     <resources>
         <image name="chevron.left" catalog="system" width="96" height="128"/>
         <image name="chevron.right" catalog="system" width="96" height="128"/>
         <image name="maskPlayerClose" width="40" height="14"/>
+        <image name="toolbarIconBookmark" width="22" height="26"/>
         <image name="toolbarIconChapters" width="24" height="24"/>
         <image name="toolbarIconMore" width="24" height="24"/>
         <image name="toolbarIconTimer" width="24" height="24"/>

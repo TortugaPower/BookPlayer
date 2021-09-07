@@ -15,14 +15,16 @@ import StoreKit
 import Themeable
 import UIKit
 
-class PlayerViewController: UIViewController, TelemetryProtocol {
+class PlayerViewController: UIViewController, TelemetryProtocol, Storyboarded {
   @IBOutlet private weak var closeButton: UIButton!
   @IBOutlet private weak var closeButtonTop: NSLayoutConstraint!
   @IBOutlet private weak var bottomToolbar: UIToolbar!
+  @IBOutlet weak var toolbarBottomConstraint: NSLayoutConstraint!
   @IBOutlet private weak var speedButton: UIBarButtonItem!
   @IBOutlet private weak var sleepButton: UIBarButtonItem!
   @IBOutlet private var sleepLabel: UIBarButtonItem!
   @IBOutlet private var chaptersButton: UIBarButtonItem!
+  @IBOutlet private var bookmarkButton: UIBarButtonItem!
   @IBOutlet private weak var moreButton: UIBarButtonItem!
 
   @IBOutlet private weak var artworkControl: ArtworkControl!
@@ -77,7 +79,7 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
     self.containerItemStackView.setCustomSpacing(26, after: self.artworkControl)
   }
 
-  // Prevents dragging the view down from changing the safeAreaInsets.top
+  // Prevents dragging the view down from changing the safeAreaInsets.top and .bottom
   // Note: I'm pretty sure there is a better solution for this that I haven't found yet - @pichfl
   override func viewSafeAreaInsetsDidChange() {
     super.viewSafeAreaInsetsDidChange()
@@ -86,6 +88,7 @@ class PlayerViewController: UIViewController, TelemetryProtocol {
     let insets: UIEdgeInsets = window.safeAreaInsets
 
     self.closeButtonTop.constant = self.view.safeAreaInsets.top == 0.0 ? insets.top : 0
+    self.toolbarBottomConstraint.constant = self.view.safeAreaInsets.bottom == 0.0 ? insets.bottom : 0
   }
 
   func setup() {
@@ -313,14 +316,10 @@ extension PlayerViewController {
     }
 
     items.append(spacer)
-    items.append(self.chaptersButton)
+    items.append(self.bookmarkButton)
 
-    let avRoutePickerBarButtonItem = UIBarButtonItem(customView: AVRoutePickerView(frame: CGRect(x: 0.0, y: 0.0, width: 20.0, height: 20.0)))
-
-    avRoutePickerBarButtonItem.isAccessibilityElement = true
-    avRoutePickerBarButtonItem.accessibilityLabel = "audio_source_title".localized
     items.append(spacer)
-    items.append(avRoutePickerBarButtonItem)
+    items.append(self.chaptersButton)
 
     items.append(spacer)
     items.append(self.moreButton)
@@ -342,6 +341,18 @@ extension PlayerViewController {
 
   // MARK: - Toolbar actions
 
+  @IBAction func showChapters(_ sender: UIBarButtonItem) {
+    let nav = AppNavigationController.instantiate(from: .Player)
+    let vc = ChaptersViewController.instantiate(from: .Player)
+    nav.setViewControllers([vc], animated: false)
+
+    self.present(nav, animated: true, completion: nil)
+  }
+
+  @IBAction func createBookmark(_ sender: UIBarButtonItem) {
+    self.viewModel.createBookmark(vc: self)
+  }
+
   @IBAction func setSpeed() {
     let actionSheet = self.viewModel.getSpeedActionSheet()
     self.present(actionSheet, animated: true, completion: nil)
@@ -358,6 +369,14 @@ extension PlayerViewController {
     }
 
     let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+
+    actionSheet.addAction(UIAlertAction(title: "bookmarks_title".localized, style: .default, handler: { _ in
+      let nav = AppNavigationController.instantiate(from: .Player)
+      let vc = BookmarksViewController.instantiate(from: .Player)
+      nav.setViewControllers([vc], animated: false)
+
+      self.present(nav, animated: true, completion: nil)
+    }))
 
     actionSheet.addAction(UIAlertAction(title: "jump_start_title".localized, style: .default, handler: { _ in
       PlayerManager.shared.pause()

@@ -71,8 +71,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
 
   func showImport() {
     self.fileSubscription?.cancel()
-    let storyboard = UIStoryboard(name: "Main", bundle: nil)
-    let vc = storyboard.instantiateViewController(withIdentifier: "ImportViewController")
+    let vc = ImportViewController.instantiate(from: .Main)
     let nav = UINavigationController(rootViewController: vc)
 
     self.present(nav, animated: true, completion: nil)
@@ -158,7 +157,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
 
             if UserDefaults.standard.bool(forKey: Constants.UserDefaults.showPlayer.rawValue) {
                 UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.showPlayer.rawValue)
-                self.showPlayerView(book: book)
+                self.showPlayerView()
             }
         }
     }

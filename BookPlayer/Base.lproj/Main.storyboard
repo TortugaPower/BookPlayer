@@ -146,10 +146,10 @@
             </objects>
             <point key="canvasLocation" x="-1954.4000000000001" y="-563.56821589205401"/>
         </scene>
-        <!--Audiobook lists-->
+        <!--Root View Controller-->
         <scene sceneID="cIo-ks-gCu">
             <objects>
-                <viewController storyboardIdentifier="RootViewController" title="Audiobook lists" id="1tN-zP-ONE" customClass="RootViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="RootViewController" id="1tN-zP-ONE" customClass="RootViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="EqL-FA-MOg">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
