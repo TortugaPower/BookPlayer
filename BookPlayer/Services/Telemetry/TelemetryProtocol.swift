@@ -10,11 +10,14 @@ import TelemetryClient
 import UIKit
 
 protocol TelemetryProtocol {
-    func sendSignal(_ signal: TelemetrySignal, with params: [String: String]?)
+  func sendSignal(_ signal: TelemetrySignal, with params: [String: String]?)
 }
 
 extension TelemetryProtocol {
-    func sendSignal(_ signal: TelemetrySignal, with params: [String: String]?) {
-        TelemetryManager.shared.send(signal.rawValue, with: params ?? [:])
-    }
+  func sendSignal(_ signal: TelemetrySignal, with params: [String: String]?) {
+    // For the time being only allow tip jar screen and tip action event
+    guard signal == .tipJarScreen || signal == .tipAction else { return }
+
+    TelemetryManager.shared.send(signal.rawValue, with: params ?? [:])
+  }
 }
