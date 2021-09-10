@@ -85,15 +85,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
 
         WatchConnectivityService.sharedManager.startSession()
 
-        let navController = UINavigationController()
-        self.coordinator = MainCoordinator(navigationController: navController)
-        self.coordinator?.start()
 
-        self.window = UIWindow(frame: UIScreen.main.bounds)
-        self.window?.rootViewController = navController
-        self.window?.makeKeyAndVisible()
+      let rootVC = RootViewController.instantiate(from: .Main)
+      let navController = AppNavigationController.instantiate(from: .Main)
+      self.coordinator = MainCoordinator(rootController: rootVC, navigationController: navController)
+      self.coordinator?.start()
 
-        return true
+      self.window = UIWindow(frame: UIScreen.main.bounds)
+      self.window?.rootViewController = rootVC
+      self.window?.makeKeyAndVisible()
+
+      return true
     }
 
     func setupCarPlay() {

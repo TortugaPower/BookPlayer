@@ -13,8 +13,8 @@ import UIKit
 class RootViewController: UIViewController, UIGestureRecognizerDelegate, Storyboarded {
     @IBOutlet private weak var miniPlayerContainer: UIView!
 
+  weak var coordinator: MainCoordinator?
     private weak var miniPlayerViewController: MiniPlayerViewController?
-    private weak var libraryViewController: LibraryViewController!
 
     private var pan: UIPanGestureRecognizer!
 
@@ -26,25 +26,6 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate, Storybo
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return themedStatusBarStyle ?? super.preferredStatusBarStyle
-    }
-
-    // MARK: - Lifecycle
-
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if let viewController = segue.destination as? MiniPlayerViewController {
-            self.miniPlayerViewController = viewController
-            self.miniPlayerViewController!.showPlayer = {
-                guard let currentBook = PlayerManager.shared.currentBook else {
-                    return
-                }
-
-                self.libraryViewController.setupPlayer(book: currentBook)
-            }
-        } else if
-            let navigationVC = segue.destination as? UINavigationController,
-            let libraryVC = navigationVC.children.first as? LibraryViewController {
-            self.libraryViewController = libraryVC
-        }
     }
 
     override func viewDidLoad() {

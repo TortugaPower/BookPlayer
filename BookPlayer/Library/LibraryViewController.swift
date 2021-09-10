@@ -15,7 +15,7 @@ import UIKit
 // swiftlint:disable file_length
 
 class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate {
-    private var fileSubscription: AnyCancellable?
+  private var fileSubscription: AnyCancellable?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -231,7 +231,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         UIAccessibility.post(notification: UIAccessibility.Notification.layoutChanged, argument: self.loadingView.titleLabel)
 
         if let vc = self.navigationController?.visibleViewController as? PlayerViewController {
-            vc.dismissPlayer()
+          vc.coordinator?.dismiss()
         }
 
         self.showLoadView(true, title: loadingTitle)

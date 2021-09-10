@@ -10,7 +10,7 @@ import BookPlayerKit
 import MediaPlayer
 import UIKit
 
-class PlaylistViewController: ItemListViewController, Storyboarded {
+class PlaylistViewController: ItemListViewController {
     var folder: Folder!
 
     override var items: [LibraryItem] {

@@ -13,7 +13,9 @@ import UIKit
 
 // swiftlint:disable file_length
 
-class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemListActions, TelemetryProtocol {
+class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemListActions, TelemetryProtocol, Storyboarded {
+  weak var coordinator: ItemListCoordinator?
+
     @IBOutlet weak var emptyStatePlaceholder: UIView!
     @IBOutlet weak var loadingView: LoadingView!
     @IBOutlet weak var loadingHeightConstraintView: NSLayoutConstraint!
@@ -630,15 +632,7 @@ extension ItemListViewController: UITableViewDelegate {
             return
         }
 
-        if let folder = self.items[indexPath.row] as? Folder {
-            self.presentFolder(folder)
-
-            return
-        }
-
-        if let book = self.items[indexPath.row] as? Book {
-            setupPlayer(book: book)
-        }
+      self.coordinator?.showItemContents(self.items[indexPath.row])
     }
 
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {

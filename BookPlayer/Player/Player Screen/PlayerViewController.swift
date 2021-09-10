@@ -39,6 +39,7 @@ class PlayerViewController: UIViewController, TelemetryProtocol, Storyboarded {
   @IBOutlet weak var forwardIconView: PlayerJumpIconForward!
   @IBOutlet weak var containerItemStackView: UIStackView!
 
+  weak var coordinator: PlayerCoordinator?
   private var themedStatusBarStyle: UIStatusBarStyle?
   private var panGestureRecognizer: UIPanGestureRecognizer!
   private let dismissThreshold: CGFloat = 44.0 * UIScreen.main.nativeScale
@@ -274,6 +275,12 @@ extension PlayerViewController {
       }
       .store(in: &disposeBag)
 
+    self.closeButton.publisher(for: .touchUpInside)
+      .sink { [weak self] _ in
+        self?.coordinator?.dismiss()
+      }
+      .store(in: &disposeBag)
+
     self.viewModel.currentBookObserver().sink { [weak self] book in
       guard let self = self,
             let book = book else { return }
@@ -328,19 +335,9 @@ extension PlayerViewController {
   }
 }
 
-// MARK: - Actions
+// MARK: - Toolbar Actions
 
 extension PlayerViewController {
-  // MARK: - Interface actions
-
-  @IBAction func dismissPlayer() {
-    self.dismiss(animated: true, completion: nil)
-
-    NotificationCenter.default.post(name: .playerDismissed, object: nil, userInfo: nil)
-  }
-
-  // MARK: - Toolbar actions
-
   @IBAction func showChapters(_ sender: UIBarButtonItem) {
     let nav = AppNavigationController.instantiate(from: .Player)
     let vc = ChaptersViewController.instantiate(from: .Player)
@@ -443,7 +440,7 @@ extension PlayerViewController: UIGestureRecognizerDelegate {
       let translation = gestureRecognizer.translation(in: self.view)
 
       if translation.y > self.dismissThreshold {
-        self.dismissPlayer()
+        self.coordinator?.dismiss()
         return
       }
 
