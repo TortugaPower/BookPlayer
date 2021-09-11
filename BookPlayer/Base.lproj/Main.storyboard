@@ -174,25 +174,23 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="88" id="0k2-Tp-H9K"/>
                                 </constraints>
-                                <connections>
-                                    <segue destination="Ty0-3T-NNc" kind="embed" id="sea-uA-YRW"/>
-                                </connections>
                             </containerView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Gny-cx-Bg7"/>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <color key="tintColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstAttribute="bottom" secondItem="dvy-x5-s6P" secondAttribute="bottom" id="A6v-oP-mhM"/>
                             <constraint firstItem="dvy-x5-s6P" firstAttribute="trailing" secondItem="EqL-FA-MOg" secondAttribute="trailing" id="CKz-Rc-yST"/>
                             <constraint firstItem="b0f-6G-C7c" firstAttribute="leading" secondItem="Gny-cx-Bg7" secondAttribute="leading" id="GzD-bs-V3J"/>
                             <constraint firstItem="dvy-x5-s6P" firstAttribute="top" secondItem="EqL-FA-MOg" secondAttribute="top" id="IMf-R8-Xlg"/>
                             <constraint firstItem="dvy-x5-s6P" firstAttribute="leading" secondItem="EqL-FA-MOg" secondAttribute="leading" id="Ig8-T5-6cK"/>
+                            <constraint firstItem="dvy-x5-s6P" firstAttribute="bottom" secondItem="Gny-cx-Bg7" secondAttribute="bottom" id="VMr-U9-Ygn"/>
                             <constraint firstItem="Gny-cx-Bg7" firstAttribute="bottom" secondItem="b0f-6G-C7c" secondAttribute="bottom" id="Wjk-N5-XV4"/>
                             <constraint firstItem="b0f-6G-C7c" firstAttribute="trailing" secondItem="Gny-cx-Bg7" secondAttribute="trailing" id="kpn-MA-Up0"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="mainContainer" destination="dvy-x5-s6P" id="egj-79-4XA"/>
                         <outlet property="miniPlayerContainer" destination="b0f-6G-C7c" id="daD-5R-XW5"/>
                     </connections>
                 </viewController>
@@ -343,7 +341,7 @@
         <!--Mini Player View Controller-->
         <scene sceneID="jEq-1l-rlm">
             <objects>
-                <viewController id="Ty0-3T-NNc" customClass="MiniPlayerViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="MiniPlayerViewController" id="Ty0-3T-NNc" customClass="MiniPlayerViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="r9F-fq-dDO">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="88"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" heightSizable="YES"/>
@@ -388,31 +386,27 @@
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fPh-z9-Tc5">
-                                                    <rect key="frame" x="292" y="5" width="62" height="62"/>
-                                                    <accessibility key="accessibilityConfiguration" label="Play Pause"/>
+                                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FKC-vJ-TcU" customClass="PlayPauseIconView" customModule="BookPlayer" customModuleProvider="target">
+                                                    <rect key="frame" x="292" y="18.5" width="62" height="35"/>
+                                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     <constraints>
-                                                        <constraint firstAttribute="width" constant="62" id="Z7d-Hx-7G7"/>
-                                                        <constraint firstAttribute="height" constant="62" id="b2T-IK-SQp"/>
+                                                        <constraint firstAttribute="width" constant="62" id="NfK-YP-G3R"/>
+                                                        <constraint firstAttribute="height" constant="35" id="wVS-7j-H7b"/>
                                                     </constraints>
-                                                    <state key="normal" image="nowPlayingPlay"/>
-                                                    <connections>
-                                                        <action selector="playPause" destination="Ty0-3T-NNc" eventType="touchUpInside" id="Ube-nV-F7k"/>
-                                                    </connections>
-                                                </button>
+                                                </view>
                                             </subviews>
                                             <color key="backgroundColor" systemColor="groupTableViewBackgroundColor"/>
                                             <constraints>
-                                                <constraint firstAttribute="trailing" secondItem="fPh-z9-Tc5" secondAttribute="trailing" constant="5" id="3s9-EO-WVk"/>
                                                 <constraint firstAttribute="bottom" secondItem="wl3-k5-zZi" secondAttribute="bottom" constant="11" id="Aob-Dm-ykb"/>
                                                 <constraint firstAttribute="height" constant="72" id="FwT-fW-vJb"/>
                                                 <constraint firstItem="jDQ-kp-Eg6" firstAttribute="leading" secondItem="Sfc-n7-Zho" secondAttribute="leading" constant="60" id="MpU-Bo-Zj3"/>
+                                                <constraint firstItem="FKC-vJ-TcU" firstAttribute="leading" secondItem="wl3-k5-zZi" secondAttribute="trailing" id="OLX-EV-5cI"/>
+                                                <constraint firstItem="FKC-vJ-TcU" firstAttribute="leading" secondItem="jDQ-kp-Eg6" secondAttribute="trailing" id="UMr-Q0-8S3"/>
                                                 <constraint firstItem="VVl-ON-iS7" firstAttribute="centerX" secondItem="Sfc-n7-Zho" secondAttribute="leading" constant="36" id="UaH-So-0Pq"/>
-                                                <constraint firstItem="fPh-z9-Tc5" firstAttribute="leading" secondItem="wl3-k5-zZi" secondAttribute="trailing" id="iUm-tS-g3c"/>
-                                                <constraint firstItem="fPh-z9-Tc5" firstAttribute="centerY" secondItem="Sfc-n7-Zho" secondAttribute="centerY" id="oFL-Rk-XjB"/>
+                                                <constraint firstAttribute="trailing" secondItem="FKC-vJ-TcU" secondAttribute="trailing" constant="5" id="icb-fy-5zS"/>
                                                 <constraint firstItem="wl3-k5-zZi" firstAttribute="leading" secondItem="jDQ-kp-Eg6" secondAttribute="leading" id="qEu-2j-aFG"/>
                                                 <constraint firstItem="jDQ-kp-Eg6" firstAttribute="top" secondItem="Sfc-n7-Zho" secondAttribute="top" constant="11" id="spd-ur-9rG"/>
-                                                <constraint firstItem="fPh-z9-Tc5" firstAttribute="leading" secondItem="jDQ-kp-Eg6" secondAttribute="trailing" id="vMM-VE-xgM"/>
+                                                <constraint firstItem="FKC-vJ-TcU" firstAttribute="centerY" secondItem="Sfc-n7-Zho" secondAttribute="centerY" id="tgc-b6-Pb2"/>
                                                 <constraint firstItem="VVl-ON-iS7" firstAttribute="centerY" secondItem="Sfc-n7-Zho" secondAttribute="centerY" id="wTn-m4-kuf"/>
                                             </constraints>
                                         </view>
@@ -433,10 +427,12 @@
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="j2w-eF-Qmt" firstAttribute="leading" secondItem="r9F-fq-dDO" secondAttribute="leading" constant="8" id="1Jc-rN-V88"/>
-                            <constraint firstItem="j2w-eF-Qmt" firstAttribute="bottom" secondItem="r9F-fq-dDO" secondAttribute="bottom" constant="-8" id="CSD-o5-WDf"/>
+                            <constraint firstItem="j2w-eF-Qmt" firstAttribute="top" secondItem="OKP-8n-EqR" secondAttribute="top" constant="8" id="bfN-CC-law"/>
                             <constraint firstAttribute="trailing" secondItem="j2w-eF-Qmt" secondAttribute="trailing" constant="8" id="uhb-cs-X3m"/>
                         </constraints>
                     </view>
+                    <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+                    <size key="freeformSize" width="375" height="88"/>
                     <connections>
                         <outlet property="artwork" destination="VVl-ON-iS7" id="dxh-IM-pw8"/>
                         <outlet property="artworkHeight" destination="QQc-Wc-jpc" id="eVp-sg-UIt"/>
@@ -444,13 +440,13 @@
                         <outlet property="authorLabel" destination="wl3-k5-zZi" id="hUQ-6p-Zko"/>
                         <outlet property="miniPlayerBlur" destination="j2w-eF-Qmt" id="89G-Ab-1lY"/>
                         <outlet property="miniPlayerContainer" destination="Sfc-n7-Zho" id="sE6-Xg-eZZ"/>
-                        <outlet property="playPauseButton" destination="fPh-z9-Tc5" id="y5s-i9-ll4"/>
+                        <outlet property="playIconView" destination="FKC-vJ-TcU" id="uXq-tx-NjO"/>
                         <outlet property="titleLabel" destination="jDQ-kp-Eg6" id="Pxn-Zg-Rp7"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="V8J-76-d47" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1954.4000000000001" y="616.99507389162568"/>
+            <point key="canvasLocation" x="-1954" y="557"/>
         </scene>
         <!--Library-->
         <scene sceneID="sOy-uz-Nh7">
@@ -597,7 +593,6 @@
         <image name="emptyLibrary" width="249" height="249"/>
         <image name="emptyPlaylist" width="249" height="249"/>
         <image name="minus.circle.fill" catalog="system" width="128" height="121"/>
-        <image name="nowPlayingPlay" width="62" height="62"/>
         <systemColor name="groupTableViewBackgroundColor">
             <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>

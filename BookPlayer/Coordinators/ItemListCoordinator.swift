@@ -17,16 +17,18 @@ class ItemListCoordinator: Coordinator {
   let playerManager: PlayerManager
   let library: Library
 
-  init(navigationController: UINavigationController,
-       library: Library,
-       playerManager: PlayerManager) {
+  init(
+    navigationController: UINavigationController,
+    library: Library,
+    playerManager: PlayerManager
+  ) {
     self.navigationController = navigationController
     self.library = library
     self.playerManager = playerManager
   }
 
   func start() {
-    fatalError("derp")
+    fatalError("ItemListCoordinator is an abstract class, override this function in the subclass")
   }
 
   func showItemContents(_ item: LibraryItem) {
@@ -34,7 +36,7 @@ class ItemListCoordinator: Coordinator {
     case let folder as Folder:
       self.showFolder(folder)
     case let book as Book:
-      self.showPlayer(book)
+      self.loadPlayer(book)
     default:
       break
     }
@@ -50,12 +52,7 @@ class ItemListCoordinator: Coordinator {
     child.start()
   }
 
-  func showPlayer(_ book: Book) {
-    guard DataManager.exists(book) else {
-      self.navigationController.showAlert("file_missing_title".localized, message: "\("file_missing_description".localized)\n\(book.originalFileName ?? "")")
-      return
-    }
-
+  func showPlayer() {
     let playerCoordinator = PlayerCoordinator(
       navigationController: self.navigationController,
       playerManager: self.playerManager
@@ -63,6 +60,15 @@ class ItemListCoordinator: Coordinator {
     playerCoordinator.parentCoordinator = self.parentCoordinator
     self.parentCoordinator?.childCoordinators.append(playerCoordinator)
     playerCoordinator.start()
+  }
+
+  func loadPlayer(_ book: Book) {
+    guard DataManager.exists(book) else {
+      self.navigationController.showAlert("file_missing_title".localized, message: "\("file_missing_description".localized)\n\(book.originalFileName ?? "")")
+      return
+    }
+
+    self.showPlayer()
 
     // Only load if loaded book is a different one
     guard book.relativePath != playerManager.currentBook?.relativePath else { return }
@@ -72,5 +78,28 @@ class ItemListCoordinator: Coordinator {
 
       self?.playerManager.playPause()
     }
+  }
+
+  func loadLastBook(_ book: Book) {
+    self.playerManager.load(book) { [weak self] loaded in
+      guard loaded else { return }
+
+      if UserDefaults.standard.bool(forKey: Constants.UserActivityPlayback) {
+        UserDefaults.standard.removeObject(forKey: Constants.UserActivityPlayback)
+        self?.playerManager.play()
+      }
+
+      if UserDefaults.standard.bool(forKey: Constants.UserDefaults.showPlayer.rawValue) {
+        UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.showPlayer.rawValue)
+        self?.showPlayer()
+      }
+    }
+  }
+
+  func showImport() {
+    let child = ImportCoordinator(navigationController: self.navigationController)
+    self.parentCoordinator?.childCoordinators.append(child)
+    child.parentCoordinator = self.parentCoordinator
+    child.start()
   }
 }

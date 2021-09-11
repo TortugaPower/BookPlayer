@@ -102,7 +102,7 @@ class ActionParserService {
             return
         }
 
-        libraryVC.setupPlayer(book: book)
+        libraryVC.coordinator?.loadPlayer(book)
         NotificationCenter.default.post(name: .bookChange,
                                         object: nil,
                                         userInfo: ["book": book])

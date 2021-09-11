@@ -7,6 +7,7 @@
 //
 
 import BookPlayerKit
+import DeviceKit
 import UIKit
 
 class MainCoordinator: Coordinator {
@@ -21,13 +22,19 @@ class MainCoordinator: Coordinator {
     self.navigationController = navigationController
     self.rootViewController = rootController
     self.rootViewController.coordinator = self
-
-    self.rootViewController.addChild(self.navigationController)
-    self.rootViewController.view.addSubview(self.navigationController.view)
-    self.navigationController.didMove(toParent: self.rootViewController)
   }
 
   func start() {
+    self.rootViewController.addChild(self.navigationController)
+    self.rootViewController.mainContainer.addSubview(self.navigationController.view)
+    self.navigationController.didMove(toParent: self.rootViewController)
+
+    let child = MiniPlayerCoordinator(navigationController: self.navigationController,
+                                            parentCoordinator: self,
+                                            playerManager: PlayerManager.shared)
+    self.childCoordinators.append(child)
+    child.start()
+
     let loadingVC = LoadingViewController.instantiate(from: .Main)
     loadingVC.coordinator = self
 
@@ -39,9 +46,12 @@ class MainCoordinator: Coordinator {
   }
 
   func showLibrary() {
+    let offset: CGFloat = Device.current.hasSensorHousing ? 199: 88
+
     let library = try? DataManager.getLibrary()
     let libraryCoordinator = LibraryListCoordinator(navigationController: self.navigationController,
                                                     library: library ?? DataManager.createLibrary(),
+                                                    miniPlayerOffset: offset,
                                                     playerManager: PlayerManager.shared)
     libraryCoordinator.parentCoordinator = self
     self.childCoordinators.append(libraryCoordinator)

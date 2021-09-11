@@ -21,6 +21,8 @@ final class ImportViewController: UIViewController, Storyboarded {
   private var files = [FileItem]()
   private var watchers = [DirectoryWatcher]()
 
+  weak var coordinator: ImportCoordinator?
+
   override func viewDidLoad() {
     super.viewDidLoad()
 
