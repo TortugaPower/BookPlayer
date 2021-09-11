@@ -54,11 +54,6 @@ class MiniPlayerViewController: UIViewController, UIGestureRecognizerDelegate, S
     self.authorLabel.text = currentBook.author
     self.titleLabel.text = currentBook.title
 
-    let ratio = self.artwork.imageRatio
-
-    self.artworkHeight.constant = ratio > 1 ? 50.0 / ratio : 50.0
-    self.artworkWidth.constant = ratio < 1 ? 50.0 * ratio : 50.0
-
     setVoiceOverLabels()
     applyTheme(self.themeProvider.currentTheme)
   }
