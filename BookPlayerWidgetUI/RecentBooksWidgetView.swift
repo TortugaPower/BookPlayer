@@ -11,6 +11,8 @@ import SwiftUI
 import WidgetKit
 
 struct RecentBooksProvider: IntentTimelineProvider {
+    let numberOfBooks = 4
+
     typealias Entry = LibraryEntry
 
     func placeholder(in context: Context) -> LibraryEntry {
@@ -19,7 +21,7 @@ struct RecentBooksProvider: IntentTimelineProvider {
 
     func getSnapshot(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (LibraryEntry) -> Void) {
       guard let library = try? DataManager.getLibrary(),
-            let items = DataManager.getOrderedBooks() else {
+            let items = DataManager.getOrderedBooks(limit: self.numberOfBooks) else {
         completion(placeholder(in: context))
         return
       }
@@ -38,7 +40,7 @@ struct RecentBooksProvider: IntentTimelineProvider {
 
     func getTimeline(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (Timeline<LibraryEntry>) -> Void) {
       guard let library = try? DataManager.getLibrary(),
-            let items = DataManager.getOrderedBooks() else {
+            let items = DataManager.getOrderedBooks(limit: self.numberOfBooks) else {
         completion(Timeline(entries: [], policy: .atEnd))
         return
       }
@@ -104,7 +106,6 @@ struct RecentBooksWidgetView: View {
     var entry: RecentBooksProvider.Entry
 
     var body: some View {
-//      let items = Array(DataManager.getOrderedBooks()?.prefix(4) ?? [])
         let items = Array(entry.items.prefix(4))
 
         let widgetColors = WidgetUtils.getColors(from: entry.theme, with: colorScheme)
