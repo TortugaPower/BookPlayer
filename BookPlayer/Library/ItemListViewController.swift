@@ -151,6 +151,10 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
 
         let notification: Notification.Name = !editing ? .playerDismissed : .playerPresented
 
+        if let mainCoordinator = self.coordinator?.parentCoordinator as? MainCoordinator {
+          mainCoordinator.showMiniPlayer(!editing)
+        }
+
         self.animateView(self.bulkControls, show: editing)
         self.tableView.setEditing(editing, animated: true)
 

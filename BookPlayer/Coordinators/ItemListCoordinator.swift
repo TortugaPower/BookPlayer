@@ -45,7 +45,7 @@ class ItemListCoordinator: Coordinator {
                                       folder: folder,
                                       playerManager: self.playerManager)
     self.childCoordinators.append(child)
-    child.parentCoordinator = self
+    child.parentCoordinator = self.parentCoordinator
     child.start()
   }
 

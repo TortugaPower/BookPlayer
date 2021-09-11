@@ -71,4 +71,8 @@ class MainCoordinator: Coordinator {
     self.childCoordinators.append(playerCoordinator)
     playerCoordinator.start()
   }
+
+  func showMiniPlayer(_ flag: Bool) {
+    self.rootViewController.animateView(self.rootViewController.miniPlayerContainer, show: flag)
+  }
 }
