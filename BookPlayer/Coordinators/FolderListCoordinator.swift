@@ -31,6 +31,7 @@ class FolderListCoordinator: ItemListCoordinator {
     let vc = PlaylistViewController.instantiate(from: .Main)
     vc.coordinator = self
     vc.folder = self.folder
+    vc.library = self.library
     self.navigationController.pushViewController(vc, animated: true)
   }
 }
