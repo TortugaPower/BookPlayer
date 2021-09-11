@@ -28,7 +28,7 @@ class ChapterCoordinator: Coordinator {
     let nav = AppNavigationController.instantiate(from: .Main)
     nav.viewControllers = [vc]
     nav.presentationController?.delegate = self.presentingViewController
-    self.navigationController.presentedViewController?.present(nav, animated: true, completion: nil)
+    self.presentingViewController?.present(nav, animated: true, completion: nil)
   }
 
   override func dismiss() {

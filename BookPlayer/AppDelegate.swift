@@ -85,8 +85,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
 
         WatchConnectivityService.sharedManager.startSession()
 
+      let nav = AppNavigationController.instantiate(from: .Main)
+      let coordinator = LoadingCoordinator(navigationController: nav)
+      coordinator.start()
+
       self.window = UIWindow(frame: UIScreen.main.bounds)
-      self.window?.rootViewController = RootViewController.instantiate(from: .Main)
+      self.window?.rootViewController = nav
       self.window?.makeKeyAndVisible()
 
       return true

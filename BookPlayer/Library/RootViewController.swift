@@ -14,7 +14,7 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate, Storybo
   @IBOutlet public weak var mainContainer: UIView!
   @IBOutlet public weak var miniPlayerContainer: UIView!
 
-  var coordinator: MainCoordinator?
+  weak var coordinator: MainCoordinator!
 
   private var themedStatusBarStyle: UIStatusBarStyle?
 
@@ -25,12 +25,7 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate, Storybo
     override func viewDidLoad() {
       super.viewDidLoad()
 
-      self.coordinator = MainCoordinator(
-        rootController: self,
-        navigationController: AppNavigationController.instantiate(from: .Main)
-      )
-
-      self.coordinator?.start()
+      self.coordinator.start()
 
       setUpTheming()
 

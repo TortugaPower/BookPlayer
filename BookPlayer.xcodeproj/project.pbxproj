@@ -32,6 +32,7 @@
 		41188D1E26ECDAA30017124E /* MiniPlayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D1D26ECDAA30017124E /* MiniPlayerViewModel.swift */; };
 		41188D2026ECDDD50017124E /* BookmarkCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D1F26ECDDD50017124E /* BookmarkCoordinator.swift */; };
 		41188D2226ECFE450017124E /* ChapterCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D2126ECFE450017124E /* ChapterCoordinator.swift */; };
+		41188D2426ED2BA30017124E /* LoadingCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D2326ED2BA30017124E /* LoadingCoordinator.swift */; };
 		4122991D24442E7800CDB416 /* BookPlayerKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */; };
 		4124121A26CF287600B099DB /* StorageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4124121926CF287600B099DB /* StorageViewController.swift */; };
 		4124122626D1640000B099DB /* StorageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4124122526D1640000B099DB /* StorageTableViewCell.swift */; };
@@ -490,6 +491,7 @@
 		41188D1D26ECDAA30017124E /* MiniPlayerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniPlayerViewModel.swift; sourceTree = "<group>"; };
 		41188D1F26ECDDD50017124E /* BookmarkCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkCoordinator.swift; sourceTree = "<group>"; };
 		41188D2126ECFE450017124E /* ChapterCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChapterCoordinator.swift; sourceTree = "<group>"; };
+		41188D2326ED2BA30017124E /* LoadingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingCoordinator.swift; sourceTree = "<group>"; };
 		4124121926CF287600B099DB /* StorageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageViewController.swift; sourceTree = "<group>"; };
 		4124122526D1640000B099DB /* StorageTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageTableViewCell.swift; sourceTree = "<group>"; };
 		4124122726D19A8600B099DB /* StorageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageViewModel.swift; sourceTree = "<group>"; };
@@ -1017,6 +1019,7 @@
 			children = (
 				4151A6DF26E4A17900E49DBE /* Coordinator.swift */,
 				4151A6DC26E4A13900E49DBE /* MainCoordinator.swift */,
+				41188D2326ED2BA30017124E /* LoadingCoordinator.swift */,
 				4158386826EAF4A300F4A12B /* ItemListCoordinator.swift */,
 				4158388226EBD76A00F4A12B /* LibraryListCoordinator.swift */,
 				4158386D26EAF76700F4A12B /* FolderListCoordinator.swift */,
@@ -2196,6 +2199,7 @@
 				C3A479152094CA3800D92122 /* UIImage+BookPlayer.swift in Sources */,
 				413616401D2E21F000E48944 /* LibraryViewController.swift in Sources */,
 				418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */,
+				41188D2426ED2BA30017124E /* LoadingCoordinator.swift in Sources */,
 				4151A6DD26E4A13A00E49DBE /* MainCoordinator.swift in Sources */,
 				41964C832220B4F700FF1A2F /* ContributorCellView.swift in Sources */,
 				41EE378821BFFB9800A55F51 /* ItemListFeedback.swift in Sources */,

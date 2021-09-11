@@ -24,6 +24,7 @@ class MainCoordinator: Coordinator {
   }
 
   override func start() {
+    self.presentingViewController = self.rootViewController
     self.rootViewController.addChild(self.navigationController)
     self.rootViewController.mainContainer.addSubview(self.navigationController.view)
     self.navigationController.didMove(toParent: self.rootViewController)
@@ -37,17 +38,6 @@ class MainCoordinator: Coordinator {
     self.rootViewController.miniPlayerContainer.addSubview(miniPlayerVC.view)
     miniPlayerVC.didMove(toParent: self.rootViewController)
 
-    let loadingVC = LoadingViewController.instantiate(from: .Main)
-    loadingVC.coordinator = self
-
-    self.navigationController.viewControllers = [loadingVC]
-  }
-
-  func didFinishLoadingSequence() {
-    self.showLibrary()
-  }
-
-  func showLibrary() {
     let offset: CGFloat = Device.current.hasSensorHousing ? 199: 88
 
     let library = try? DataManager.getLibrary()
