@@ -25,7 +25,10 @@ class MiniPlayerCoordinator: Coordinator {
 
   func start() {
     let miniPlayerVC = MiniPlayerViewController.instantiate(from: .Main)
-    miniPlayerVC.coordinator = self
+    let viewModel = MiniPlayerViewModel(playerManager: self.playerManager)
+    viewModel.coordinator = self
+    miniPlayerVC.viewModel = viewModel
+
     self.parentCoordinator.rootViewController.addChild(miniPlayerVC)
     self.parentCoordinator.rootViewController.miniPlayerContainer.addSubview(miniPlayerVC.view)
     miniPlayerVC.didMove(toParent: self.parentCoordinator.rootViewController)

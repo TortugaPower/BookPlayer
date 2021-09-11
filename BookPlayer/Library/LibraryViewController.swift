@@ -214,7 +214,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         UIAccessibility.post(notification: UIAccessibility.Notification.layoutChanged, argument: self.loadingView.titleLabel)
 
         if let vc = self.navigationController?.visibleViewController as? PlayerViewController {
-          vc.coordinator?.dismiss()
+          vc.viewModel.dismiss()
         }
 
         self.showLoadView(true, title: loadingTitle)

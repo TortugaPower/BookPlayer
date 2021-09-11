@@ -23,8 +23,7 @@ class MiniPlayerViewController: UIViewController, UIGestureRecognizerDelegate, S
   @IBOutlet private weak var artworkHeight: NSLayoutConstraint!
 
   private var disposeBag = Set<AnyCancellable>()
-  private var viewModel = PlayerViewModel()
-  weak var coordinator: MiniPlayerCoordinator?
+  public var viewModel: MiniPlayerViewModel!
 
   private var tap: UITapGestureRecognizer!
 
@@ -93,8 +92,7 @@ class MiniPlayerViewController: UIViewController, UIGestureRecognizerDelegate, S
   // MARK: Gesture recognizers
 
   @objc func tapAction() {
-    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-    self.coordinator?.showPlayer()
+    self.viewModel.showPlayer()
   }
 
   // MARK: - Voiceover

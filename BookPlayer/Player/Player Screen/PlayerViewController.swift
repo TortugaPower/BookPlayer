@@ -39,7 +39,6 @@ class PlayerViewController: UIViewController, TelemetryProtocol, Storyboarded {
   @IBOutlet weak var forwardIconView: PlayerJumpIconForward!
   @IBOutlet weak var containerItemStackView: UIStackView!
 
-  weak var coordinator: PlayerCoordinator?
   private var themedStatusBarStyle: UIStatusBarStyle?
   private var panGestureRecognizer: UIPanGestureRecognizer!
   private let dismissThreshold: CGFloat = 44.0 * UIScreen.main.nativeScale
@@ -47,7 +46,7 @@ class PlayerViewController: UIViewController, TelemetryProtocol, Storyboarded {
 
   private var disposeBag = Set<AnyCancellable>()
   private var playingProgressSubscriber: AnyCancellable?
-  private var viewModel = PlayerViewModel()
+  public var viewModel: PlayerViewModel!
 
   // computed properties
   override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -277,7 +276,7 @@ extension PlayerViewController {
 
     self.closeButton.publisher(for: .touchUpInside)
       .sink { [weak self] _ in
-        self?.coordinator?.dismiss()
+        self?.viewModel.dismiss()
       }
       .store(in: &disposeBag)
 
@@ -361,7 +360,7 @@ extension PlayerViewController {
   }
 
   @IBAction func showMore() {
-    guard PlayerManager.shared.hasLoadedBook else {
+    guard self.viewModel.hasLoadedBook() else {
       return
     }
 
@@ -375,16 +374,14 @@ extension PlayerViewController {
       self.present(nav, animated: true, completion: nil)
     }))
 
-    actionSheet.addAction(UIAlertAction(title: "jump_start_title".localized, style: .default, handler: { _ in
-      PlayerManager.shared.pause()
-      PlayerManager.shared.jumpTo(0.0)
+    actionSheet.addAction(UIAlertAction(title: "jump_start_title".localized, style: .default, handler: { [weak self] _ in
+      self?.viewModel.handleJumpToStart()
     }))
 
     let markTitle = self.viewModel.isBookFinished() ? "mark_unfinished_title".localized : "mark_finished_title".localized
 
-    actionSheet.addAction(UIAlertAction(title: markTitle, style: .default, handler: { _ in
-      PlayerManager.shared.pause()
-      PlayerManager.shared.markAsCompleted(!self.viewModel.isBookFinished())
+    actionSheet.addAction(UIAlertAction(title: markTitle, style: .default, handler: { [weak self] _ in
+      self?.viewModel.handleMarkCompletion()
     }))
 
     actionSheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
@@ -440,7 +437,7 @@ extension PlayerViewController: UIGestureRecognizerDelegate {
       let translation = gestureRecognizer.translation(in: self.view)
 
       if translation.y > self.dismissThreshold {
-        self.coordinator?.dismiss()
+        self.viewModel.dismiss()
         return
       }
 

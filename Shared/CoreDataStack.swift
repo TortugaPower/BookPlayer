@@ -14,7 +14,8 @@ public class CoreDataStack {
   private let loadCompletionHandler: (NSPersistentStoreDescription, Error?) -> Void
 
     public lazy var managedContext: NSManagedObjectContext = {
-        self.storeContainer.viewContext
+      self.storeContainer.viewContext.undoManager = nil
+      return self.storeContainer.viewContext
     }()
 
     public lazy var storeUrl: URL = {

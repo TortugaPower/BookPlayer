@@ -23,7 +23,9 @@ class PlayerCoordinator: Coordinator {
 
   func start() {
     let vc = PlayerViewController.instantiate(from: .Player)
-    vc.coordinator = self
+    let viewModel = PlayerViewModel(playerManager: self.playerManager)
+    viewModel.coordinator = self
+    vc.viewModel = viewModel
     self.navigationController.present(vc, animated: true, completion: nil)
   }
 

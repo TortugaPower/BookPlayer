@@ -29,6 +29,7 @@
 		411373892552273E00295022 /* TelemetryClient in Frameworks */ = {isa = PBXBuildFile; productRef = 411373882552273E00295022 /* TelemetryClient */; };
 		411373912552371D00295022 /* TelemetryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 411373902552371D00295022 /* TelemetryProtocol.swift */; };
 		411373A025534B8800295022 /* TelemetrySignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4113739F25534B8800295022 /* TelemetrySignal.swift */; };
+		41188D1E26ECDAA30017124E /* MiniPlayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D1D26ECDAA30017124E /* MiniPlayerViewModel.swift */; };
 		4122991D24442E7800CDB416 /* BookPlayerKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */; };
 		4124121A26CF287600B099DB /* StorageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4124121926CF287600B099DB /* StorageViewController.swift */; };
 		4124122626D1640000B099DB /* StorageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4124122526D1640000B099DB /* StorageTableViewCell.swift */; };
@@ -485,6 +486,7 @@
 		4112AFD5223AD27D00BFEA55 /* Sentry.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Sentry.framework; path = Carthage/Build/iOS/Sentry.framework; sourceTree = "<group>"; };
 		411373902552371D00295022 /* TelemetryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryProtocol.swift; sourceTree = "<group>"; };
 		4113739F25534B8800295022 /* TelemetrySignal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetrySignal.swift; sourceTree = "<group>"; };
+		41188D1D26ECDAA30017124E /* MiniPlayerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniPlayerViewModel.swift; sourceTree = "<group>"; };
 		4124121926CF287600B099DB /* StorageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageViewController.swift; sourceTree = "<group>"; };
 		4124122526D1640000B099DB /* StorageTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageTableViewCell.swift; sourceTree = "<group>"; };
 		4124122726D19A8600B099DB /* StorageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageViewModel.swift; sourceTree = "<group>"; };
@@ -1416,6 +1418,7 @@
 			isa = PBXGroup;
 			children = (
 				C36C4D5B20A23E1800AFDB76 /* MiniPlayerViewController.swift */,
+				41188D1D26ECDAA30017124E /* MiniPlayerViewModel.swift */,
 			);
 			path = Containers;
 			sourceTree = "<group>";
@@ -2241,6 +2244,7 @@
 				410D0FED1EDCF4B000A52EB9 /* SettingsViewController.swift in Sources */,
 				4193E202243A91AE004D6A82 /* ActionParserService.swift in Sources */,
 				41C8ABD126836F50003B67D1 /* ImportViewModel.swift in Sources */,
+				41188D1E26ECDAA30017124E /* MiniPlayerViewModel.swift in Sources */,
 				41B2A5DE21CAF20E00917584 /* ThemesViewController.swift in Sources */,
 				41D20DAF25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
 				C398559C20C492FF00BE9EC0 /* AddButton.swift in Sources */,
