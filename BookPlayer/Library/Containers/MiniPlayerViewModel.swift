@@ -13,7 +13,7 @@ import StoreKit
 
 class MiniPlayerViewModel {
   private let playerManager: PlayerManager
-  weak var coordinator: MiniPlayerCoordinator!
+  weak var coordinator: MainCoordinator!
 
   init(playerManager: PlayerManager) {
     self.playerManager = playerManager

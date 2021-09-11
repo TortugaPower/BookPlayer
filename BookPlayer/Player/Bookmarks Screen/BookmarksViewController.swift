@@ -11,7 +11,7 @@ import Themeable
 import UIKit
 
 class BookmarksViewController: UITableViewController, Storyboarded {
-  private var viewModel = BookmarksViewModel()
+  var viewModel: BookmarksViewModel!
 
   var automaticBookmarks = [Bookmark]()
   var userBookmarks = [Bookmark]()
@@ -37,7 +37,7 @@ class BookmarksViewController: UITableViewController, Storyboarded {
   }
 
   @IBAction func done(_ sender: UIBarButtonItem?) {
-    self.dismiss(animated: true, completion: nil)
+    self.viewModel.dismiss()
   }
 
   // MARK: - Table view data source

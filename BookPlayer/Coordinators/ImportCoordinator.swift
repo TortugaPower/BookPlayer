@@ -9,15 +9,7 @@
 import UIKit
 
 class ImportCoordinator: Coordinator {
-  var childCoordinators = [Coordinator]()
-  var navigationController: UINavigationController
-  weak var parentCoordinator: MainCoordinator?
-
-  init(navigationController: UINavigationController) {
-    self.navigationController = navigationController
-  }
-
-  func start() {
+  override func start() {
     let vc = ImportViewController.instantiate(from: .Main)
     vc.coordinator = self
 
@@ -25,11 +17,6 @@ class ImportCoordinator: Coordinator {
     nav.viewControllers = [vc]
 
     self.navigationController.present(nav, animated: true, completion: nil)
-  }
-
-  func dismiss() {
-    self.navigationController.dismiss(animated: true) { [weak self] in
-      self?.parentCoordinator?.childDidFinish(self)
-    }
+    self.presentingViewController = vc
   }
 }

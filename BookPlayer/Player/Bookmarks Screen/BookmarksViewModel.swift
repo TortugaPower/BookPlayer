@@ -10,9 +10,16 @@ import BookPlayerKit
 import Combine
 import Foundation
 
-struct BookmarksViewModel {
+class BookmarksViewModel {
+  weak var coordinator: BookmarkCoordinator!
+  let playerManager: PlayerManager
+
+  init(playerManager: PlayerManager) {
+    self.playerManager = playerManager
+  }
+
   func getAutomaticBookmarks() -> [Bookmark] {
-    guard let bookmarks = PlayerManager.shared.currentBook?.bookmarks as? Set<Bookmark> else {
+    guard let bookmarks = self.playerManager.currentBook?.bookmarks as? Set<Bookmark> else {
       return []
     }
 
@@ -20,7 +27,7 @@ struct BookmarksViewModel {
   }
 
   func getUserBookmarks() -> [Bookmark] {
-    guard let bookmarks = PlayerManager.shared.currentBook?.bookmarks as? Set<Bookmark> else {
+    guard let bookmarks = self.playerManager.currentBook?.bookmarks as? Set<Bookmark> else {
       return []
     }
 
@@ -28,7 +35,7 @@ struct BookmarksViewModel {
   }
 
   func handleBookmarkSelected(_ bookmark: Bookmark) {
-    PlayerManager.shared.jumpTo(bookmark.time + 0.01)
+    self.playerManager.jumpTo(bookmark.time + 0.01)
   }
 
   func getBookmarkImageName(for type: BookmarkType) -> String? {
@@ -69,5 +76,9 @@ struct BookmarksViewModel {
 
   func deleteBookmark(_ bookmark: Bookmark) {
     DataManager.deleteBookmark(bookmark)
+  }
+
+  func dismiss() {
+    self.coordinator.dismiss()
   }
 }

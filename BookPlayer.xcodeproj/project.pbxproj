@@ -30,6 +30,8 @@
 		411373912552371D00295022 /* TelemetryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 411373902552371D00295022 /* TelemetryProtocol.swift */; };
 		411373A025534B8800295022 /* TelemetrySignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4113739F25534B8800295022 /* TelemetrySignal.swift */; };
 		41188D1E26ECDAA30017124E /* MiniPlayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D1D26ECDAA30017124E /* MiniPlayerViewModel.swift */; };
+		41188D2026ECDDD50017124E /* BookmarkCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D1F26ECDDD50017124E /* BookmarkCoordinator.swift */; };
+		41188D2226ECFE450017124E /* ChapterCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D2126ECFE450017124E /* ChapterCoordinator.swift */; };
 		4122991D24442E7800CDB416 /* BookPlayerKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */; };
 		4124121A26CF287600B099DB /* StorageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4124121926CF287600B099DB /* StorageViewController.swift */; };
 		4124122626D1640000B099DB /* StorageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4124122526D1640000B099DB /* StorageTableViewCell.swift */; };
@@ -110,7 +112,6 @@
 		4158387926EB8D8800F4A12B /* LoadingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4158387826EB8D8800F4A12B /* LoadingViewController.swift */; };
 		4158388326EBD76A00F4A12B /* LibraryListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4158388226EBD76A00F4A12B /* LibraryListCoordinator.swift */; };
 		4158388526EBEE9800F4A12B /* PlayerCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4158388426EBEE9800F4A12B /* PlayerCoordinator.swift */; };
-		4158388926EC11A400F4A12B /* MiniPlayerCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4158388826EC11A400F4A12B /* MiniPlayerCoordinator.swift */; };
 		4158388B26EC2CC500F4A12B /* ImportCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4158388A26EC2CC500F4A12B /* ImportCoordinator.swift */; };
 		415A9978264CCD3F002BFD35 /* Debug.template.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 415A9975264CCD3F002BFD35 /* Debug.template.xcconfig */; };
 		415A9979264CCD3F002BFD35 /* Debug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 415A9976264CCD3F002BFD35 /* Debug.xcconfig */; };
@@ -487,6 +488,8 @@
 		411373902552371D00295022 /* TelemetryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryProtocol.swift; sourceTree = "<group>"; };
 		4113739F25534B8800295022 /* TelemetrySignal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetrySignal.swift; sourceTree = "<group>"; };
 		41188D1D26ECDAA30017124E /* MiniPlayerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniPlayerViewModel.swift; sourceTree = "<group>"; };
+		41188D1F26ECDDD50017124E /* BookmarkCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkCoordinator.swift; sourceTree = "<group>"; };
+		41188D2126ECFE450017124E /* ChapterCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChapterCoordinator.swift; sourceTree = "<group>"; };
 		4124121926CF287600B099DB /* StorageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageViewController.swift; sourceTree = "<group>"; };
 		4124122526D1640000B099DB /* StorageTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageTableViewCell.swift; sourceTree = "<group>"; };
 		4124122726D19A8600B099DB /* StorageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageViewModel.swift; sourceTree = "<group>"; };
@@ -549,7 +552,6 @@
 		4158387826EB8D8800F4A12B /* LoadingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingViewController.swift; sourceTree = "<group>"; };
 		4158388226EBD76A00F4A12B /* LibraryListCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryListCoordinator.swift; sourceTree = "<group>"; };
 		4158388426EBEE9800F4A12B /* PlayerCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerCoordinator.swift; sourceTree = "<group>"; };
-		4158388826EC11A400F4A12B /* MiniPlayerCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniPlayerCoordinator.swift; sourceTree = "<group>"; };
 		4158388A26EC2CC500F4A12B /* ImportCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportCoordinator.swift; sourceTree = "<group>"; };
 		415A9975264CCD3F002BFD35 /* Debug.template.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.template.xcconfig; path = BuildConfiguration/Debug.template.xcconfig; sourceTree = SOURCE_ROOT; };
 		415A9976264CCD3F002BFD35 /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = BuildConfiguration/Debug.xcconfig; sourceTree = SOURCE_ROOT; };
@@ -1019,8 +1021,9 @@
 				4158388226EBD76A00F4A12B /* LibraryListCoordinator.swift */,
 				4158386D26EAF76700F4A12B /* FolderListCoordinator.swift */,
 				4158388426EBEE9800F4A12B /* PlayerCoordinator.swift */,
-				4158388826EC11A400F4A12B /* MiniPlayerCoordinator.swift */,
 				4158388A26EC2CC500F4A12B /* ImportCoordinator.swift */,
+				41188D1F26ECDDD50017124E /* BookmarkCoordinator.swift */,
+				41188D2126ECFE450017124E /* ChapterCoordinator.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -2171,6 +2174,7 @@
 				C3FA301E20E0024900393DDA /* BPArtworkView.swift in Sources */,
 				41E79BE926C60BF600EA9FFF /* PlayerViewController.swift in Sources */,
 				41EE378A21BFFBDE00A55F51 /* ItemListAlerts.swift in Sources */,
+				41188D2226ECFE450017124E /* ChapterCoordinator.swift in Sources */,
 				4165EE0520A743D500616EDF /* BookPlayer.xcdatamodeld in Sources */,
 				41B2A5DC21CAEE0E00917584 /* PlayerSettingsViewController.swift in Sources */,
 				41B2A5ED21CCC6D100917584 /* AppNavigationController.swift in Sources */,
@@ -2199,6 +2203,7 @@
 				4158387926EB8D8800F4A12B /* LoadingViewController.swift in Sources */,
 				4151A6E026E4A17900E49DBE /* Coordinator.swift in Sources */,
 				418EA78B268D6EF100F6BAEB /* ImportTableViewCell.swift in Sources */,
+				41188D2026ECDDD50017124E /* BookmarkCoordinator.swift in Sources */,
 				4142964921F2E2BA004356DA /* ThemeCellView.swift in Sources */,
 				4160A0A123F304530039166B /* LocalizableLabel.swift in Sources */,
 				41A1B139226FEDAD00EA0400 /* Chapter+AVFoundation.swift in Sources */,
@@ -2222,7 +2227,6 @@
 				4138CE2126E6546D0014F11E /* BookmarksService.swift in Sources */,
 				415B274421FAE47200F9D9B7 /* LoadingView.swift in Sources */,
 				41E79BED26C61D2B00EA9FFF /* PlayPauseIconView.swift in Sources */,
-				4158388926EC11A400F4A12B /* MiniPlayerCoordinator.swift in Sources */,
 				4193E2002439A1CD004D6A82 /* NetworkService.swift in Sources */,
 				4165EE1020A7CBBE00616EDF /* PlaylistViewController.swift in Sources */,
 				4158386E26EAF76700F4A12B /* FolderListCoordinator.swift in Sources */,

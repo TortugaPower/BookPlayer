@@ -9,29 +9,40 @@
 import UIKit
 
 class PlayerCoordinator: Coordinator {
-  var childCoordinators = [Coordinator]()
-  var navigationController: UINavigationController
-  weak var parentCoordinator: MainCoordinator?
-
   let playerManager: PlayerManager
 
   init(navigationController: UINavigationController,
        playerManager: PlayerManager) {
-    self.navigationController = navigationController
     self.playerManager = playerManager
+
+    super.init(navigationController: navigationController)
   }
 
-  func start() {
+  override func start() {
     let vc = PlayerViewController.instantiate(from: .Player)
     let viewModel = PlayerViewModel(playerManager: self.playerManager)
     viewModel.coordinator = self
     vc.viewModel = viewModel
     self.navigationController.present(vc, animated: true, completion: nil)
+    self.presentingViewController = vc
   }
 
-  func dismiss() {
-    self.navigationController.dismiss(animated: true) { [weak self] in
-      self?.parentCoordinator?.childDidFinish(self)
-    }
+  func showBookmarks() {
+    let bookmarksCoordinator = BookmarkCoordinator(navigationController: self.navigationController,
+                                                   playerManager: self.playerManager)
+    bookmarksCoordinator.parentCoordinator = self
+    bookmarksCoordinator.presentingViewController = self.presentingViewController
+    self.childCoordinators.append(bookmarksCoordinator)
+    bookmarksCoordinator.start()
+  }
+
+  func showChapters() {
+
+    let chaptersCoordinator = ChapterCoordinator(navigationController: self.navigationController,
+                                                 playerManager: self.playerManager)
+    chaptersCoordinator.parentCoordinator = self
+    chaptersCoordinator.presentingViewController = self.presentingViewController
+    self.childCoordinators.append(chaptersCoordinator)
+    chaptersCoordinator.start()
   }
 }

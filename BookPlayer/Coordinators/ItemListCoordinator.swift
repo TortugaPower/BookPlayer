@@ -10,10 +10,6 @@ import BookPlayerKit
 import UIKit
 
 class ItemListCoordinator: Coordinator {
-  var childCoordinators = [Coordinator]()
-  var navigationController: UINavigationController
-  weak var parentCoordinator: MainCoordinator?
-
   let playerManager: PlayerManager
   let library: Library
 
@@ -22,12 +18,13 @@ class ItemListCoordinator: Coordinator {
     library: Library,
     playerManager: PlayerManager
   ) {
-    self.navigationController = navigationController
     self.library = library
     self.playerManager = playerManager
+
+    super.init(navigationController: navigationController)
   }
 
-  func start() {
+  override func start() {
     fatalError("ItemListCoordinator is an abstract class, override this function in the subclass")
   }
 
@@ -47,8 +44,8 @@ class ItemListCoordinator: Coordinator {
                                       library: self.library,
                                       folder: folder,
                                       playerManager: self.playerManager)
-    self.parentCoordinator?.childCoordinators.append(child)
-    child.parentCoordinator = self.parentCoordinator
+    self.childCoordinators.append(child)
+    child.parentCoordinator = self
     child.start()
   }
 
@@ -57,8 +54,8 @@ class ItemListCoordinator: Coordinator {
       navigationController: self.navigationController,
       playerManager: self.playerManager
     )
-    playerCoordinator.parentCoordinator = self.parentCoordinator
-    self.parentCoordinator?.childCoordinators.append(playerCoordinator)
+    playerCoordinator.parentCoordinator = self
+    self.childCoordinators.append(playerCoordinator)
     playerCoordinator.start()
   }
 
@@ -98,8 +95,8 @@ class ItemListCoordinator: Coordinator {
 
   func showImport() {
     let child = ImportCoordinator(navigationController: self.navigationController)
-    self.parentCoordinator?.childCoordinators.append(child)
-    child.parentCoordinator = self.parentCoordinator
+    self.childCoordinators.append(child)
+    child.parentCoordinator = self
     child.start()
   }
 }

@@ -338,11 +338,7 @@ extension PlayerViewController {
 
 extension PlayerViewController {
   @IBAction func showChapters(_ sender: UIBarButtonItem) {
-    let nav = AppNavigationController.instantiate(from: .Player)
-    let vc = ChaptersViewController.instantiate(from: .Player)
-    nav.setViewControllers([vc], animated: false)
-
-    self.present(nav, animated: true, completion: nil)
+    self.viewModel.showChapters()
   }
 
   @IBAction func createBookmark(_ sender: UIBarButtonItem) {
@@ -366,12 +362,8 @@ extension PlayerViewController {
 
     let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
-    actionSheet.addAction(UIAlertAction(title: "bookmarks_title".localized, style: .default, handler: { _ in
-      let nav = AppNavigationController.instantiate(from: .Player)
-      let vc = BookmarksViewController.instantiate(from: .Player)
-      nav.setViewControllers([vc], animated: false)
-
-      self.present(nav, animated: true, completion: nil)
+    actionSheet.addAction(UIAlertAction(title: "bookmarks_title".localized, style: .default, handler: { [weak self] _ in
+      self?.viewModel.showBookmarks()
     }))
 
     actionSheet.addAction(UIAlertAction(title: "jump_start_title".localized, style: .default, handler: { [weak self] _ in
@@ -477,5 +469,17 @@ extension PlayerViewController: Themeable {
     self.progressButton.setTitleColor(theme.primaryColor, for: .normal)
     self.previousChapterButton.tintColor = theme.primaryColor
     self.nextChapterButton.tintColor = theme.primaryColor
+  }
+}
+
+extension PlayerViewController {
+  override public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+    if let nav = presentationController.presentedViewController as? AppNavigationController {
+      if let vc = nav.viewControllers.first as? ChaptersViewController {
+        vc.viewModel.coordinator.detach()
+      } else if let vc = nav.viewControllers.first as? BookmarksViewController {
+        vc.viewModel.coordinator.detach()
+      }
+    }
   }
 }

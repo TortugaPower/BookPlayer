@@ -11,29 +11,31 @@ import DeviceKit
 import UIKit
 
 class MainCoordinator: Coordinator {
-  var childCoordinators = [Coordinator]()
-  var navigationController: UINavigationController
   let rootViewController: RootViewController
+  let playerManager = PlayerManager.shared
 
   init(
     rootController: RootViewController,
     navigationController: UINavigationController
   ) {
-    self.navigationController = navigationController
     self.rootViewController = rootController
-    self.rootViewController.coordinator = self
+
+    super.init(navigationController: navigationController)
   }
 
-  func start() {
+  override func start() {
     self.rootViewController.addChild(self.navigationController)
     self.rootViewController.mainContainer.addSubview(self.navigationController.view)
     self.navigationController.didMove(toParent: self.rootViewController)
 
-    let child = MiniPlayerCoordinator(navigationController: self.navigationController,
-                                            parentCoordinator: self,
-                                            playerManager: PlayerManager.shared)
-    self.childCoordinators.append(child)
-    child.start()
+    let miniPlayerVC = MiniPlayerViewController.instantiate(from: .Main)
+    let viewModel = MiniPlayerViewModel(playerManager: self.playerManager)
+    viewModel.coordinator = self
+    miniPlayerVC.viewModel = viewModel
+
+    self.rootViewController.addChild(miniPlayerVC)
+    self.rootViewController.miniPlayerContainer.addSubview(miniPlayerVC.view)
+    miniPlayerVC.didMove(toParent: self.rootViewController)
 
     let loadingVC = LoadingViewController.instantiate(from: .Main)
     loadingVC.coordinator = self
@@ -49,17 +51,24 @@ class MainCoordinator: Coordinator {
     let offset: CGFloat = Device.current.hasSensorHousing ? 199: 88
 
     let library = try? DataManager.getLibrary()
-    let libraryCoordinator = LibraryListCoordinator(navigationController: self.navigationController,
-                                                    library: library ?? DataManager.createLibrary(),
-                                                    miniPlayerOffset: offset,
-                                                    playerManager: PlayerManager.shared)
+    let libraryCoordinator = LibraryListCoordinator(
+      navigationController: self.navigationController,
+      library: library ?? DataManager.createLibrary(),
+      miniPlayerOffset: offset,
+      playerManager: PlayerManager.shared
+    )
     libraryCoordinator.parentCoordinator = self
     self.childCoordinators.append(libraryCoordinator)
     libraryCoordinator.start()
   }
 
-  func childDidFinish(_ child: Coordinator?) {
-    guard let index = self.childCoordinators.firstIndex(where: { $0 === child }) else { return }
-    self.childCoordinators.remove(at: index)
+  func showPlayer() {
+    let playerCoordinator = PlayerCoordinator(
+      navigationController: self.navigationController,
+      playerManager: self.playerManager
+    )
+    playerCoordinator.parentCoordinator = self
+    self.childCoordinators.append(playerCoordinator)
+    playerCoordinator.start()
   }
 }

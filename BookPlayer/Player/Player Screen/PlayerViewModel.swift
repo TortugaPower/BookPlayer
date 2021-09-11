@@ -232,12 +232,20 @@ class PlayerViewModel {
     return actionSheet
   }
 
+  func showChapters() {
+    self.coordinator.showChapters()
+  }
+
   func dismiss() {
     self.coordinator.dismiss()
   }
 }
 
 extension PlayerViewModel {
+  func showBookmarks() {
+    self.coordinator.showBookmarks()
+  }
+
   func createBookmark(vc: UIViewController) {
     guard let book = self.playerManager.currentBook else { return }
 
@@ -271,11 +279,7 @@ extension PlayerViewModel {
     }
 
     alert.addAction(UIAlertAction(title: "bookmarks_see_title".localized, style: .default, handler: { _ in
-      let nav = AppNavigationController.instantiate(from: .Player)
-      let bookmarksVC = BookmarksViewController.instantiate(from: .Player)
-      nav.setViewControllers([bookmarksVC], animated: false)
-
-      vc.present(nav, animated: true, completion: nil)
+      self.showBookmarks()
     }))
 
     alert.addAction(UIAlertAction(title: "ok_button".localized, style: .cancel, handler: nil))
