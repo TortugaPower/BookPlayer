@@ -256,7 +256,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
         }
 
       MPRemoteCommandCenter.shared().bookmarkCommand.localizedTitle = "bookmark_create_title".localized
-      MPRemoteCommandCenter.shared().bookmarkCommand.isEnabled = true
+      // Enabling this makes the rewind button disappear in the lock screen
+      MPRemoteCommandCenter.shared().bookmarkCommand.isEnabled = false
       MPRemoteCommandCenter.shared().bookmarkCommand.addTarget { _ in
         BookmarksService.remoteCommandCreateBookmark()
         return .success
