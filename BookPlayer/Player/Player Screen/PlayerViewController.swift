@@ -46,7 +46,7 @@ class PlayerViewController: UIViewController, TelemetryProtocol, Storyboarded {
 
   private var disposeBag = Set<AnyCancellable>()
   private var playingProgressSubscriber: AnyCancellable?
-  private var viewModel = PlayerViewModel()
+  public var viewModel: PlayerViewModel!
 
   // computed properties
   override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -274,6 +274,12 @@ extension PlayerViewController {
       }
       .store(in: &disposeBag)
 
+    self.closeButton.publisher(for: .touchUpInside)
+      .sink { [weak self] _ in
+        self?.viewModel.dismiss()
+      }
+      .store(in: &disposeBag)
+
     self.viewModel.currentBookObserver().sink { [weak self] book in
       guard let self = self,
             let book = book else { return }
@@ -328,25 +334,11 @@ extension PlayerViewController {
   }
 }
 
-// MARK: - Actions
+// MARK: - Toolbar Actions
 
 extension PlayerViewController {
-  // MARK: - Interface actions
-
-  @IBAction func dismissPlayer() {
-    self.dismiss(animated: true, completion: nil)
-
-    NotificationCenter.default.post(name: .playerDismissed, object: nil, userInfo: nil)
-  }
-
-  // MARK: - Toolbar actions
-
   @IBAction func showChapters(_ sender: UIBarButtonItem) {
-    let nav = AppNavigationController.instantiate(from: .Player)
-    let vc = ChaptersViewController.instantiate(from: .Player)
-    nav.setViewControllers([vc], animated: false)
-
-    self.present(nav, animated: true, completion: nil)
+    self.viewModel.showChapters()
   }
 
   @IBAction func createBookmark(_ sender: UIBarButtonItem) {
@@ -364,30 +356,24 @@ extension PlayerViewController {
   }
 
   @IBAction func showMore() {
-    guard PlayerManager.shared.hasLoadedBook else {
+    guard self.viewModel.hasLoadedBook() else {
       return
     }
 
     let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
-    actionSheet.addAction(UIAlertAction(title: "bookmarks_title".localized, style: .default, handler: { _ in
-      let nav = AppNavigationController.instantiate(from: .Player)
-      let vc = BookmarksViewController.instantiate(from: .Player)
-      nav.setViewControllers([vc], animated: false)
-
-      self.present(nav, animated: true, completion: nil)
+    actionSheet.addAction(UIAlertAction(title: "bookmarks_title".localized, style: .default, handler: { [weak self] _ in
+      self?.viewModel.showBookmarks()
     }))
 
-    actionSheet.addAction(UIAlertAction(title: "jump_start_title".localized, style: .default, handler: { _ in
-      PlayerManager.shared.pause()
-      PlayerManager.shared.jumpTo(0.0)
+    actionSheet.addAction(UIAlertAction(title: "jump_start_title".localized, style: .default, handler: { [weak self] _ in
+      self?.viewModel.handleJumpToStart()
     }))
 
     let markTitle = self.viewModel.isBookFinished() ? "mark_unfinished_title".localized : "mark_finished_title".localized
 
-    actionSheet.addAction(UIAlertAction(title: markTitle, style: .default, handler: { _ in
-      PlayerManager.shared.pause()
-      PlayerManager.shared.markAsCompleted(!self.viewModel.isBookFinished())
+    actionSheet.addAction(UIAlertAction(title: markTitle, style: .default, handler: { [weak self] _ in
+      self?.viewModel.handleMarkCompletion()
     }))
 
     actionSheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
@@ -443,7 +429,7 @@ extension PlayerViewController: UIGestureRecognizerDelegate {
       let translation = gestureRecognizer.translation(in: self.view)
 
       if translation.y > self.dismissThreshold {
-        self.dismissPlayer()
+        self.viewModel.dismiss()
         return
       }
 
@@ -483,5 +469,17 @@ extension PlayerViewController: Themeable {
     self.progressButton.setTitleColor(theme.primaryColor, for: .normal)
     self.previousChapterButton.tintColor = theme.primaryColor
     self.nextChapterButton.tintColor = theme.primaryColor
+  }
+}
+
+extension PlayerViewController {
+  override public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+    if let nav = presentationController.presentedViewController as? AppNavigationController {
+      if let vc = nav.viewControllers.first as? ChaptersViewController {
+        vc.viewModel.coordinator.detach()
+      } else if let vc = nav.viewControllers.first as? BookmarksViewController {
+        vc.viewModel.coordinator.detach()
+      }
+    }
   }
 }

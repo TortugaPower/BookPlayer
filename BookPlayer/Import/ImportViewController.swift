@@ -21,6 +21,8 @@ final class ImportViewController: UIViewController, Storyboarded {
   private var files = [FileItem]()
   private var watchers = [DirectoryWatcher]()
 
+  weak var coordinator: ImportCoordinator?
+
   override func viewDidLoad() {
     super.viewDidLoad()
 
@@ -49,13 +51,12 @@ final class ImportViewController: UIViewController, Storyboarded {
       self.showAlert("error_title".localized, message: error.localizedDescription)
     }
 
-    self.dismiss(animated: true) {
-      NotificationCenter.default.post(name: .importOperationCancelled, object: nil)
-    }
+    self.coordinator?.dismiss()
+    NotificationCenter.default.post(name: .importOperationCancelled, object: nil)
   }
 
   @IBAction func didPressDone(_ sender: UIBarButtonItem) {
-    self.dismiss(animated: true, completion: nil)
+    self.coordinator?.dismiss()
     self.viewModel.createOperation()
   }
 }

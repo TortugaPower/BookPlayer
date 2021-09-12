@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -24,7 +24,7 @@
                             <constraint firstAttribute="width" constant="22" id="ynx-fV-jAe"/>
                         </constraints>
                     </view>
-                    <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defaultArtwork" translatesAutoresizingMaskIntoConstraints="NO" id="3kC-6m-IJf" customClass="BPArtworkView" customModule="BookPlayer" customModuleProvider="target">
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defaultArtwork" translatesAutoresizingMaskIntoConstraints="NO" id="3kC-6m-IJf" customClass="BPArtworkView" customModule="BookPlayer" customModuleProvider="target">
                         <rect key="frame" x="16" y="22" width="50" height="50"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="50" id="LD8-Eg-YNe"/>
@@ -99,7 +99,6 @@ second line</string>
                     <constraint firstItem="NTM-yi-YfQ" firstAttribute="leading" secondItem="3kC-6m-IJf" secondAttribute="trailing" constant="16" id="pEO-su-Q4n"/>
                     <constraint firstItem="weP-Z4-F5J" firstAttribute="centerX" secondItem="3kC-6m-IJf" secondAttribute="centerX" id="tsv-ES-hE1"/>
                     <constraint firstAttribute="bottomMargin" secondItem="NTM-yi-YfQ" secondAttribute="bottom" id="uXr-9b-Bpt"/>
-                    <constraint firstItem="3kC-6m-IJf" firstAttribute="centerX" secondItem="cUU-yJ-MnU" secondAttribute="leading" constant="41" id="yFI-1d-yGW"/>
                 </constraints>
             </tableViewCellContentView>
             <constraints>

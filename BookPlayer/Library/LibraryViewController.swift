@@ -15,7 +15,7 @@ import UIKit
 // swiftlint:disable file_length
 
 class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate {
-    private var fileSubscription: AnyCancellable?
+  private var fileSubscription: AnyCancellable?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -71,10 +71,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
 
   func showImport() {
     self.fileSubscription?.cancel()
-    let vc = ImportViewController.instantiate(from: .Main)
-    let nav = UINavigationController(rootViewController: vc)
-
-    self.present(nav, animated: true, completion: nil)
+    self.coordinator?.showImport()
   }
 
   func handleCoreDataError() {
@@ -141,25 +138,11 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
     }
 
     func loadLastBook() {
-        guard self.library != nil, let book = self.library.lastPlayedBook else {
-            return
-        }
+      guard self.library != nil, let book = self.library.lastPlayedBook else {
+        return
+      }
 
-        // Preload player
-        PlayerManager.shared.load(book) { loaded in
-            guard loaded else { return }
-
-            NotificationCenter.default.post(name: .playerDismissed, object: nil, userInfo: nil)
-            if UserDefaults.standard.bool(forKey: Constants.UserActivityPlayback) {
-                UserDefaults.standard.removeObject(forKey: Constants.UserActivityPlayback)
-                PlayerManager.shared.play()
-            }
-
-            if UserDefaults.standard.bool(forKey: Constants.UserDefaults.showPlayer.rawValue) {
-                UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.showPlayer.rawValue)
-                self.showPlayerView()
-            }
-        }
+      self.coordinator?.loadLastBook(book)
     }
 
     override func handleOperationCompletion(_ files: [URL]) {
@@ -231,7 +214,7 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         UIAccessibility.post(notification: UIAccessibility.Notification.layoutChanged, argument: self.loadingView.titleLabel)
 
         if let vc = self.navigationController?.visibleViewController as? PlayerViewController {
-            vc.dismissPlayer()
+          vc.viewModel.dismiss()
         }
 
         self.showLoadView(true, title: loadingTitle)

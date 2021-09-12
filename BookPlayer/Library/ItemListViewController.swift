@@ -13,7 +13,9 @@ import UIKit
 
 // swiftlint:disable file_length
 
-class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemListActions, TelemetryProtocol {
+class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemListActions, TelemetryProtocol, Storyboarded {
+  weak var coordinator: ItemListCoordinator?
+
     @IBOutlet weak var emptyStatePlaceholder: UIView!
     @IBOutlet weak var loadingView: LoadingView!
     @IBOutlet weak var loadingHeightConstraintView: NSLayoutConstraint!
@@ -149,6 +151,10 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
 
         let notification: Notification.Name = !editing ? .playerDismissed : .playerPresented
 
+        if let mainCoordinator = self.coordinator?.parentCoordinator as? MainCoordinator {
+          mainCoordinator.showMiniPlayer(!editing)
+        }
+
         self.animateView(self.bulkControls, show: editing)
         self.tableView.setEditing(editing, animated: true)
 
@@ -188,15 +194,6 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         self.editButtonItem.isEnabled = !self.items.isEmpty
     }
 
-    func presentFolder(_ folder: Folder) {
-        let folderVC = PlaylistViewController.instantiate(from: .Main)
-
-        folderVC.library = library
-        folderVC.folder = folder
-
-        navigationController?.pushViewController(folderVC, animated: true)
-    }
-
     func presentAddOptionsAlert() {}
 
     func presentImportFilesAlert() {
@@ -208,46 +205,6 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
         UIApplication.shared.isIdleTimerDisabled = true
 
         self.present(providerList, animated: true, completion: nil)
-    }
-
-  func showPlayerView() {
-    let playerVC = PlayerViewController.instantiate(from: .Player)
-    self.present(playerVC, animated: true)
-  }
-
-    func setupPlayer(book: Book, _ override: Bool = false) {
-        // Make sure player is for a different book
-        guard
-            let currentBook = PlayerManager.shared.currentBook,
-            currentBook == book,
-            !override
-        else {
-            // Handle loading new player
-            self.loadPlayer(book: book)
-
-            return
-        }
-
-        self.showPlayerView()
-    }
-
-    func loadPlayer(book: Book) {
-        guard DataManager.exists(book) else {
-          self.showAlert("file_missing_title".localized, message: "\("file_missing_description".localized)\n\(book.originalFileName ?? "")")
-          return
-        }
-
-        // Replace player with new one
-        PlayerManager.shared.load(book) { loaded in
-            guard loaded else {
-                self.showAlert("file_error_title".localized, message: "file_error_description".localized)
-                return
-            }
-
-            self.showPlayerView()
-
-            PlayerManager.shared.playPause()
-        }
     }
 
     func handleOperationCompletion(_ files: [URL]) {
@@ -448,9 +405,9 @@ extension ItemListViewController {
     }
 
     @objc func adjustBottomOffsetForMiniPlayer() {
-        if let rootViewController = self.parent?.parent as? RootViewController {
-            self.tableView.contentInset.bottom = rootViewController.miniPlayerIsHidden ? 0.0 : 88.0
-        }
+      if let cc = self.coordinator as? LibraryListCoordinator {
+        self.tableView.contentInset.bottom = cc.miniPlayerOffset//199//88
+      }
     }
 
     @objc func selectButtonPressed(_ sender: Any) {
@@ -542,7 +499,7 @@ extension ItemListViewController: UITableViewDataSource {
 
             guard let book = self?.getNextBook(item) else { return }
 
-            self?.setupPlayer(book: book, true)
+          self?.coordinator?.loadPlayer(book)
         }
 
         if let book = item as? Book {
@@ -630,15 +587,7 @@ extension ItemListViewController: UITableViewDelegate {
             return
         }
 
-        if let folder = self.items[indexPath.row] as? Folder {
-            self.presentFolder(folder)
-
-            return
-        }
-
-        if let book = self.items[indexPath.row] as? Book {
-            setupPlayer(book: book)
-        }
+      self.coordinator?.showItemContents(self.items[indexPath.row])
     }
 
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {

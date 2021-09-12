@@ -36,17 +36,17 @@
                     <rect key="frame" x="16" y="0.0" width="244" height="309"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yW4-p2-YoO">
-                            <rect key="frame" x="0.0" y="0.0" width="244" height="149"/>
+                            <rect key="frame" x="0.0" y="0.0" width="244" height="289"/>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         </view>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Neal Stephenson &amp; Nicolle Galland" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IsI-C7-b1P">
-                            <rect key="frame" x="0.0" y="159" width="244" height="57.5"/>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IsI-C7-b1P">
+                            <rect key="frame" x="0.0" y="299" width="244" height="0.0"/>
                             <fontDescription key="fontDescription" type="system" pointSize="24"/>
                             <nil key="textColor"/>
                             <nil key="highlightedColor"/>
                         </label>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="The Rise and Fall of D.O.D.O: A Novel (Unabridged)" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TYJ-3z-lYx">
-                            <rect key="frame" x="0.0" y="226.5" width="244" height="82.5"/>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TYJ-3z-lYx">
+                            <rect key="frame" x="0.0" y="309" width="244" height="0.0"/>
                             <fontDescription key="fontDescription" type="system" pointSize="23"/>
                             <nil key="textColor"/>
                             <nil key="highlightedColor"/>

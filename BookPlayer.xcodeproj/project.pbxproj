@@ -29,6 +29,10 @@
 		411373892552273E00295022 /* TelemetryClient in Frameworks */ = {isa = PBXBuildFile; productRef = 411373882552273E00295022 /* TelemetryClient */; };
 		411373912552371D00295022 /* TelemetryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 411373902552371D00295022 /* TelemetryProtocol.swift */; };
 		411373A025534B8800295022 /* TelemetrySignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4113739F25534B8800295022 /* TelemetrySignal.swift */; };
+		41188D1E26ECDAA30017124E /* MiniPlayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D1D26ECDAA30017124E /* MiniPlayerViewModel.swift */; };
+		41188D2026ECDDD50017124E /* BookmarkCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D1F26ECDDD50017124E /* BookmarkCoordinator.swift */; };
+		41188D2226ECFE450017124E /* ChapterCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D2126ECFE450017124E /* ChapterCoordinator.swift */; };
+		41188D2426ED2BA30017124E /* LoadingCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D2326ED2BA30017124E /* LoadingCoordinator.swift */; };
 		4122991D24442E7800CDB416 /* BookPlayerKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */; };
 		4124121A26CF287600B099DB /* StorageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4124121926CF287600B099DB /* StorageViewController.swift */; };
 		4124122626D1640000B099DB /* StorageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4124122526D1640000B099DB /* StorageTableViewCell.swift */; };
@@ -104,6 +108,12 @@
 		41544A1421BAF41400740AD2 /* ItemSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41544A1321BAF41400740AD2 /* ItemSelectionViewController.swift */; };
 		415460F625E57B4F0085F8D9 /* DefaultArtworkFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415460F525E57B4F0085F8D9 /* DefaultArtworkFactory.swift */; };
 		415758EA2226E18800DDB9B6 /* PlusBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415758E92226E18800DDB9B6 /* PlusBannerView.swift */; };
+		4158386926EAF4A300F4A12B /* ItemListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4158386826EAF4A300F4A12B /* ItemListCoordinator.swift */; };
+		4158386E26EAF76700F4A12B /* FolderListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4158386D26EAF76700F4A12B /* FolderListCoordinator.swift */; };
+		4158387926EB8D8800F4A12B /* LoadingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4158387826EB8D8800F4A12B /* LoadingViewController.swift */; };
+		4158388326EBD76A00F4A12B /* LibraryListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4158388226EBD76A00F4A12B /* LibraryListCoordinator.swift */; };
+		4158388526EBEE9800F4A12B /* PlayerCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4158388426EBEE9800F4A12B /* PlayerCoordinator.swift */; };
+		4158388B26EC2CC500F4A12B /* ImportCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4158388A26EC2CC500F4A12B /* ImportCoordinator.swift */; };
 		415A9978264CCD3F002BFD35 /* Debug.template.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 415A9975264CCD3F002BFD35 /* Debug.template.xcconfig */; };
 		415A9979264CCD3F002BFD35 /* Debug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 415A9976264CCD3F002BFD35 /* Debug.xcconfig */; };
 		415A997A264CCD3F002BFD35 /* Release.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 415A9977264CCD3F002BFD35 /* Release.xcconfig */; };
@@ -478,6 +488,10 @@
 		4112AFD5223AD27D00BFEA55 /* Sentry.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Sentry.framework; path = Carthage/Build/iOS/Sentry.framework; sourceTree = "<group>"; };
 		411373902552371D00295022 /* TelemetryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryProtocol.swift; sourceTree = "<group>"; };
 		4113739F25534B8800295022 /* TelemetrySignal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetrySignal.swift; sourceTree = "<group>"; };
+		41188D1D26ECDAA30017124E /* MiniPlayerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniPlayerViewModel.swift; sourceTree = "<group>"; };
+		41188D1F26ECDDD50017124E /* BookmarkCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkCoordinator.swift; sourceTree = "<group>"; };
+		41188D2126ECFE450017124E /* ChapterCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChapterCoordinator.swift; sourceTree = "<group>"; };
+		41188D2326ED2BA30017124E /* LoadingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingCoordinator.swift; sourceTree = "<group>"; };
 		4124121926CF287600B099DB /* StorageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageViewController.swift; sourceTree = "<group>"; };
 		4124122526D1640000B099DB /* StorageTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageTableViewCell.swift; sourceTree = "<group>"; };
 		4124122726D19A8600B099DB /* StorageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageViewModel.swift; sourceTree = "<group>"; };
@@ -535,6 +549,12 @@
 		41544A1321BAF41400740AD2 /* ItemSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemSelectionViewController.swift; sourceTree = "<group>"; };
 		415460F525E57B4F0085F8D9 /* DefaultArtworkFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultArtworkFactory.swift; sourceTree = "<group>"; };
 		415758E92226E18800DDB9B6 /* PlusBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlusBannerView.swift; sourceTree = "<group>"; };
+		4158386826EAF4A300F4A12B /* ItemListCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListCoordinator.swift; sourceTree = "<group>"; };
+		4158386D26EAF76700F4A12B /* FolderListCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderListCoordinator.swift; sourceTree = "<group>"; };
+		4158387826EB8D8800F4A12B /* LoadingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingViewController.swift; sourceTree = "<group>"; };
+		4158388226EBD76A00F4A12B /* LibraryListCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryListCoordinator.swift; sourceTree = "<group>"; };
+		4158388426EBEE9800F4A12B /* PlayerCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerCoordinator.swift; sourceTree = "<group>"; };
+		4158388A26EC2CC500F4A12B /* ImportCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportCoordinator.swift; sourceTree = "<group>"; };
 		415A9975264CCD3F002BFD35 /* Debug.template.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.template.xcconfig; path = BuildConfiguration/Debug.template.xcconfig; sourceTree = SOURCE_ROOT; };
 		415A9976264CCD3F002BFD35 /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = BuildConfiguration/Debug.xcconfig; sourceTree = SOURCE_ROOT; };
 		415A9977264CCD3F002BFD35 /* Release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = BuildConfiguration/Release.xcconfig; sourceTree = SOURCE_ROOT; };
@@ -999,6 +1019,14 @@
 			children = (
 				4151A6DF26E4A17900E49DBE /* Coordinator.swift */,
 				4151A6DC26E4A13900E49DBE /* MainCoordinator.swift */,
+				41188D2326ED2BA30017124E /* LoadingCoordinator.swift */,
+				4158386826EAF4A300F4A12B /* ItemListCoordinator.swift */,
+				4158388226EBD76A00F4A12B /* LibraryListCoordinator.swift */,
+				4158386D26EAF76700F4A12B /* FolderListCoordinator.swift */,
+				4158388426EBEE9800F4A12B /* PlayerCoordinator.swift */,
+				4158388A26EC2CC500F4A12B /* ImportCoordinator.swift */,
+				41188D1F26ECDDD50017124E /* BookmarkCoordinator.swift */,
+				41188D2126ECFE450017124E /* ChapterCoordinator.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -1086,6 +1114,7 @@
 				C3A479112094C8A800D92122 /* Utils */,
 				C3D3852D20C1F0CA00A0ACC7 /* Views */,
 				418B6CFB1D2707F800F974FB /* AppDelegate.swift */,
+				4158387826EB8D8800F4A12B /* LoadingViewController.swift */,
 				418B6D011D2707F800F974FB /* Main.storyboard */,
 				418B6D061D2707F800F974FB /* LaunchScreen.storyboard */,
 				418B6D041D2707F800F974FB /* Assets.xcassets */,
@@ -1395,6 +1424,7 @@
 			isa = PBXGroup;
 			children = (
 				C36C4D5B20A23E1800AFDB76 /* MiniPlayerViewController.swift */,
+				41188D1D26ECDAA30017124E /* MiniPlayerViewModel.swift */,
 			);
 			path = Containers;
 			sourceTree = "<group>";
@@ -2147,6 +2177,7 @@
 				C3FA301E20E0024900393DDA /* BPArtworkView.swift in Sources */,
 				41E79BE926C60BF600EA9FFF /* PlayerViewController.swift in Sources */,
 				41EE378A21BFFBDE00A55F51 /* ItemListAlerts.swift in Sources */,
+				41188D2226ECFE450017124E /* ChapterCoordinator.swift in Sources */,
 				4165EE0520A743D500616EDF /* BookPlayer.xcdatamodeld in Sources */,
 				41B2A5DC21CAEE0E00917584 /* PlayerSettingsViewController.swift in Sources */,
 				41B2A5ED21CCC6D100917584 /* AppNavigationController.swift in Sources */,
@@ -2156,6 +2187,7 @@
 				C3A479132094C8C300D92122 /* rubberBandDistance.swift in Sources */,
 				41EE378621BF0FCC00A55F51 /* ItemList.swift in Sources */,
 				41A1B137226FED4100EA0400 /* DataManager+CoreData.swift in Sources */,
+				4158388526EBEE9800F4A12B /* PlayerCoordinator.swift in Sources */,
 				4165EE1420A7E8CC00616EDF /* ItemListViewController.swift in Sources */,
 				C318DDBC20A48D4700C3A17B /* BPMarqueeLabel.swift in Sources */,
 				41B30A33230232D200025D69 /* CarPlayManager.swift in Sources */,
@@ -2167,12 +2199,15 @@
 				C3A479152094CA3800D92122 /* UIImage+BookPlayer.swift in Sources */,
 				413616401D2E21F000E48944 /* LibraryViewController.swift in Sources */,
 				418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */,
+				41188D2426ED2BA30017124E /* LoadingCoordinator.swift in Sources */,
 				4151A6DD26E4A13A00E49DBE /* MainCoordinator.swift in Sources */,
 				41964C832220B4F700FF1A2F /* ContributorCellView.swift in Sources */,
 				41EE378821BFFB9800A55F51 /* ItemListFeedback.swift in Sources */,
 				4124122826D19A8700B099DB /* StorageViewModel.swift in Sources */,
+				4158387926EB8D8800F4A12B /* LoadingViewController.swift in Sources */,
 				4151A6E026E4A17900E49DBE /* Coordinator.swift in Sources */,
 				418EA78B268D6EF100F6BAEB /* ImportTableViewCell.swift in Sources */,
+				41188D2026ECDDD50017124E /* BookmarkCoordinator.swift in Sources */,
 				4142964921F2E2BA004356DA /* ThemeCellView.swift in Sources */,
 				4160A0A123F304530039166B /* LocalizableLabel.swift in Sources */,
 				41A1B139226FEDAD00EA0400 /* Chapter+AVFoundation.swift in Sources */,
@@ -2186,6 +2221,7 @@
 				C359C30720A9F35B00A626E3 /* SkipDurationViewController.swift in Sources */,
 				C3A479192094CAF300D92122 /* UIViewController+BookPlayer.swift in Sources */,
 				C375AF1720DD81F800AC034D /* ProgressSlider.swift in Sources */,
+				4158386926EAF4A300F4A12B /* ItemListCoordinator.swift in Sources */,
 				415758EA2226E18800DDB9B6 /* PlusBannerView.swift in Sources */,
 				418CABB125EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
 				410D00FA26DDCE6C00D11A45 /* ChaptersViewModel.swift in Sources */,
@@ -2197,8 +2233,10 @@
 				41E79BED26C61D2B00EA9FFF /* PlayPauseIconView.swift in Sources */,
 				4193E2002439A1CD004D6A82 /* NetworkService.swift in Sources */,
 				4165EE1020A7CBBE00616EDF /* PlaylistViewController.swift in Sources */,
+				4158386E26EAF76700F4A12B /* FolderListCoordinator.swift in Sources */,
 				C3FE94792080086800BCEA37 /* BookCellView.swift in Sources */,
 				41AD3DA7221C850F00DC41E1 /* IconCellView.swift in Sources */,
+				4158388326EBD76A00F4A12B /* LibraryListCoordinator.swift in Sources */,
 				4142964421F21D95004356DA /* BulkControlsView.swift in Sources */,
 				41A1B12C226FC0A200EA0400 /* DataManager+BookPlayer.swift in Sources */,
 				41A1B12D226FC7E500EA0400 /* ImportManager.swift in Sources */,
@@ -2208,11 +2246,13 @@
 				C33E843C20C6E179004A0489 /* ItemProgress.swift in Sources */,
 				411373912552371D00295022 /* TelemetryProtocol.swift in Sources */,
 				62F2F25F25E18C7500E1D6A0 /* ImportableItem.swift in Sources */,
+				4158388B26EC2CC500F4A12B /* ImportCoordinator.swift in Sources */,
 				41A1B12E226FC7E500EA0400 /* ImportOperation.swift in Sources */,
 				5126F121258E9F18009965DC /* URL+BookPlayer.swift in Sources */,
 				410D0FED1EDCF4B000A52EB9 /* SettingsViewController.swift in Sources */,
 				4193E202243A91AE004D6A82 /* ActionParserService.swift in Sources */,
 				41C8ABD126836F50003B67D1 /* ImportViewModel.swift in Sources */,
+				41188D1E26ECDAA30017124E /* MiniPlayerViewModel.swift in Sources */,
 				41B2A5DE21CAF20E00917584 /* ThemesViewController.swift in Sources */,
 				41D20DAF25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
 				C398559C20C492FF00BE9EC0 /* AddButton.swift in Sources */,

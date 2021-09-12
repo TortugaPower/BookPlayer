@@ -8,9 +8,32 @@
 
 import UIKit
 
-protocol Coordinator {
-  var childCoordinators: [Coordinator] { get set }
-  var navigationController: UINavigationController { get set }
+class Coordinator {
+  var childCoordinators = [Coordinator]()
+  var navigationController: UINavigationController
+  weak var parentCoordinator: Coordinator?
+  weak var presentingViewController: UIViewController?
 
-  func start()
+  init(navigationController: UINavigationController) {
+    self.navigationController = navigationController
+  }
+
+  func start() {
+    fatalError("Coordinator is an abstract class, override this function in the subclass")
+  }
+
+  func childDidFinish(_ child: Coordinator?) {
+    guard let index = self.childCoordinators.firstIndex(where: { $0 === child }) else { return }
+    self.childCoordinators.remove(at: index)
+  }
+
+  func dismiss() {
+    self.navigationController.dismiss(animated: true) { [weak self] in
+      self?.parentCoordinator?.childDidFinish(self)
+    }
+  }
+
+  func detach() {
+    self.parentCoordinator?.childDidFinish(self)
+  }
 }

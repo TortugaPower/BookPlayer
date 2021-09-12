@@ -85,15 +85,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
 
         WatchConnectivityService.sharedManager.startSession()
 
-        let navController = UINavigationController()
-        self.coordinator = MainCoordinator(navigationController: navController)
-        self.coordinator?.start()
+      let nav = AppNavigationController.instantiate(from: .Main)
+      let coordinator = LoadingCoordinator(navigationController: nav)
+      coordinator.start()
 
-        self.window = UIWindow(frame: UIScreen.main.bounds)
-        self.window?.rootViewController = navController
-        self.window?.makeKeyAndVisible()
+      self.window = UIWindow(frame: UIScreen.main.bounds)
+      self.window?.rootViewController = nav
+      self.window?.makeKeyAndVisible()
 
-        return true
+      return true
     }
 
     func setupCarPlay() {
@@ -256,7 +256,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
         }
 
       MPRemoteCommandCenter.shared().bookmarkCommand.localizedTitle = "bookmark_create_title".localized
-      MPRemoteCommandCenter.shared().bookmarkCommand.isEnabled = true
+      // Enabling this makes the rewind button disappear in the lock screen
+      MPRemoteCommandCenter.shared().bookmarkCommand.isEnabled = false
       MPRemoteCommandCenter.shared().bookmarkCommand.addTarget { _ in
         BookmarksService.remoteCommandCreateBookmark()
         return .success
@@ -350,7 +351,7 @@ extension AppDelegate {
 
             libraryVC.navigationController?.dismiss(animated: true, completion: nil)
 
-            libraryVC.showPlayerView()
+          libraryVC.coordinator?.showPlayer()
         } else {
             UserDefaults.standard.set(true, forKey: Constants.UserDefaults.showPlayer.rawValue)
         }

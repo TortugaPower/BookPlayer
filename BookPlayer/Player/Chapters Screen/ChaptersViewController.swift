@@ -12,7 +12,7 @@ import Themeable
 import UIKit
 
 final class ChaptersViewController: UITableViewController, Storyboarded {
-  private var viewModel = ChaptersViewModel()
+  var viewModel: ChaptersViewModel!
 
   var chapters = [Chapter]()
   var scrolledToCurrentChapter = false
@@ -44,7 +44,7 @@ final class ChaptersViewController: UITableViewController, Storyboarded {
   }
 
   @IBAction func done(_ sender: UIBarButtonItem?) {
-    self.dismiss(animated: true, completion: nil)
+    self.viewModel.coordinator.dismiss()
   }
 
   // MARK: - Table view data source
