@@ -67,14 +67,13 @@ class MiniPlayerViewController: UIViewController, UIGestureRecognizerDelegate, S
       .store(in: &disposeBag)
 
     self.viewModel.currentBookObserver().sink { [weak self] book in
-      guard let self = self,
-            let book = book else {
+      guard let book = book else {
         self?.view.isHidden = true
         return
       }
 
-      self.view.isHidden = false
-      self.setupPlayerView(with: book)
+      self?.view.isHidden = false
+      self?.setupPlayerView(with: book)
     }.store(in: &disposeBag)
 
     self.playIconView.observeActionEvents()
