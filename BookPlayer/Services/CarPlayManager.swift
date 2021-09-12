@@ -53,8 +53,8 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
   var library: Library?
 
   typealias Tab = (identifier: String, title: String, imageName: String)
-  let tabs: [Tab] = [("tab-library", "library_title".localized, "carplayLibrary"),
-                     ("tab-recent", "carplay_recent_title".localized, "carplayRecent")]
+  let tabs: [Tab] = [("tab-library", "library_title".localized, "books.vertical.fill"),
+                     ("tab-recent", "carplay_recent_title".localized, "clock.fill")]
 
   private override init() {
     guard let library = try? DataManager.getLibrary() else { return }
@@ -68,7 +68,7 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
     item.title = tab.title
     item.isContainer = true
     item.isPlayable = false
-    if let tabImage = UIImage(named: tab.imageName) {
+    if let tabImage = UIImage(systemName: tab.imageName) {
       item.artwork = MPMediaItemArtwork(boundsSize: tabImage.size, requestHandler: { _ -> UIImage in
         tabImage
       })
