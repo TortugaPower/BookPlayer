@@ -33,6 +33,10 @@
 		41188D2026ECDDD50017124E /* BookmarkCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D1F26ECDDD50017124E /* BookmarkCoordinator.swift */; };
 		41188D2226ECFE450017124E /* ChapterCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D2126ECFE450017124E /* ChapterCoordinator.swift */; };
 		41188D2426ED2BA30017124E /* LoadingCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D2326ED2BA30017124E /* LoadingCoordinator.swift */; };
+		41188D2826ED4D5C0017124E /* FolderListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D2726ED4D5C0017124E /* FolderListViewController.swift */; };
+		41188D2A26ED4D8E0017124E /* FolderListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D2926ED4D8E0017124E /* FolderListViewModel.swift */; };
+		41188D3126ED715D0017124E /* SimpleLibraryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D3026ED715D0017124E /* SimpleLibraryItem.swift */; };
+		41188D3C26F00C380017124E /* ItemListTableDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D3B26F00C380017124E /* ItemListTableDataSource.swift */; };
 		4122991D24442E7800CDB416 /* BookPlayerKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */; };
 		4124121A26CF287600B099DB /* StorageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4124121926CF287600B099DB /* StorageViewController.swift */; };
 		4124122626D1640000B099DB /* StorageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4124122526D1640000B099DB /* StorageTableViewCell.swift */; };
@@ -492,6 +496,10 @@
 		41188D1F26ECDDD50017124E /* BookmarkCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkCoordinator.swift; sourceTree = "<group>"; };
 		41188D2126ECFE450017124E /* ChapterCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChapterCoordinator.swift; sourceTree = "<group>"; };
 		41188D2326ED2BA30017124E /* LoadingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingCoordinator.swift; sourceTree = "<group>"; };
+		41188D2726ED4D5C0017124E /* FolderListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderListViewController.swift; sourceTree = "<group>"; };
+		41188D2926ED4D8E0017124E /* FolderListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderListViewModel.swift; sourceTree = "<group>"; };
+		41188D3026ED715D0017124E /* SimpleLibraryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleLibraryItem.swift; sourceTree = "<group>"; };
+		41188D3B26F00C380017124E /* ItemListTableDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListTableDataSource.swift; sourceTree = "<group>"; };
 		4124121926CF287600B099DB /* StorageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageViewController.swift; sourceTree = "<group>"; };
 		4124122526D1640000B099DB /* StorageTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageTableViewCell.swift; sourceTree = "<group>"; };
 		4124122726D19A8600B099DB /* StorageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageViewModel.swift; sourceTree = "<group>"; };
@@ -931,6 +939,24 @@
 				411373902552371D00295022 /* TelemetryProtocol.swift */,
 			);
 			path = Telemetry;
+			sourceTree = "<group>";
+		};
+		41188D2626ED4D470017124E /* Folder Screen */ = {
+			isa = PBXGroup;
+			children = (
+				41188D2726ED4D5C0017124E /* FolderListViewController.swift */,
+				41188D3B26F00C380017124E /* ItemListTableDataSource.swift */,
+				41188D2926ED4D8E0017124E /* FolderListViewModel.swift */,
+			);
+			path = "Folder Screen";
+			sourceTree = "<group>";
+		};
+		41188D2B26ED71020017124E /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				41188D3026ED715D0017124E /* SimpleLibraryItem.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		4124121B26CF289B00B099DB /* Storage */ = {
@@ -1395,7 +1421,9 @@
 				4165EE1120A7D1E100616EDF /* RootViewController.swift */,
 				4165EE1320A7E8CC00616EDF /* ItemListViewController.swift */,
 				4136163F1D2E21F000E48944 /* LibraryViewController.swift */,
+				41188D2B26ED71020017124E /* Models */,
 				4165EE0F20A7CBBE00616EDF /* PlaylistViewController.swift */,
+				41188D2626ED4D470017124E /* Folder Screen */,
 				41544A1321BAF41400740AD2 /* ItemSelectionViewController.swift */,
 				C3D3852E20C1F10F00A0ACC7 /* Views */,
 				C36C4D5820A23DF000AFDB76 /* Containers */,
@@ -2163,6 +2191,7 @@
 				410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */,
 				41AD3DAF221E678600DC41E1 /* PlusViewController.swift in Sources */,
 				41B2A5F121CD857800917584 /* AddCellView.swift in Sources */,
+				41188D3126ED715D0017124E /* SimpleLibraryItem.swift in Sources */,
 				4151A6B326E491A800E49DBE /* NibLoadableView.swift in Sources */,
 				4197FAFC267E480100811CC8 /* ImportViewController.swift in Sources */,
 				41E562C4223896B500C06BC9 /* UserDefaults+BookPlayer.swift in Sources */,
@@ -2185,6 +2214,7 @@
 				4109246C21A2019400D5DF11 /* CheckboxSelectionView.swift in Sources */,
 				41B2A5EF21CD5AAE00917584 /* StaticCellView.swift in Sources */,
 				C3A479132094C8C300D92122 /* rubberBandDistance.swift in Sources */,
+				41188D3C26F00C380017124E /* ItemListTableDataSource.swift in Sources */,
 				41EE378621BF0FCC00A55F51 /* ItemList.swift in Sources */,
 				41A1B137226FED4100EA0400 /* DataManager+CoreData.swift in Sources */,
 				4158388526EBEE9800F4A12B /* PlayerCoordinator.swift in Sources */,
@@ -2199,6 +2229,7 @@
 				C3A479152094CA3800D92122 /* UIImage+BookPlayer.swift in Sources */,
 				413616401D2E21F000E48944 /* LibraryViewController.swift in Sources */,
 				418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */,
+				41188D2826ED4D5C0017124E /* FolderListViewController.swift in Sources */,
 				41188D2426ED2BA30017124E /* LoadingCoordinator.swift in Sources */,
 				4151A6DD26E4A13A00E49DBE /* MainCoordinator.swift in Sources */,
 				41964C832220B4F700FF1A2F /* ContributorCellView.swift in Sources */,
@@ -2255,6 +2286,7 @@
 				41188D1E26ECDAA30017124E /* MiniPlayerViewModel.swift in Sources */,
 				41B2A5DE21CAF20E00917584 /* ThemesViewController.swift in Sources */,
 				41D20DAF25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
+				41188D2A26ED4D8E0017124E /* FolderListViewModel.swift in Sources */,
 				C398559C20C492FF00BE9EC0 /* AddButton.swift in Sources */,
 				41A1B135226FEB3D00EA0400 /* Book+AVFoundation.swift in Sources */,
 				416AAC3323F51031005AD04F /* LocalizableButton.swift in Sources */,

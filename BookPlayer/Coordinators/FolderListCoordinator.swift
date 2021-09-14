@@ -16,22 +16,26 @@ class FolderListCoordinator: ItemListCoordinator {
     navigationController: UINavigationController,
     library: Library,
     folder: Folder,
-    playerManager: PlayerManager
+    playerManager: PlayerManager,
+    miniPlayerOffset: CGFloat
   ) {
     self.folder = folder
 
     super.init(
       navigationController: navigationController,
       library: library,
+      miniPlayerOffset: miniPlayerOffset,
       playerManager: playerManager
     )
   }
 
   override func start() {
-    let vc = PlaylistViewController.instantiate(from: .Main)
+    let vc = FolderListViewController.instantiate(from: .Main)
+    let viewModel = FolderListViewModel(folder: self.folder,
+                                        library: self.library,
+                                        theme: ThemeManager.shared.currentTheme)
+    vc.viewModel = viewModel
     vc.coordinator = self
-    vc.folder = self.folder
-    vc.library = self.library
     self.navigationController.pushViewController(vc, animated: true)
   }
 }

@@ -537,7 +537,7 @@ extension ItemListViewController: UITableViewDataSource {
     }
 
     func numberOfSections(in tableView: UITableView) -> Int {
-        return Section.total.rawValue
+        return Section.allCases.count
     }
 }
 

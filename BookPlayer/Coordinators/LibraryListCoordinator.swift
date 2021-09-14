@@ -10,23 +10,6 @@ import BookPlayerKit
 import UIKit
 
 class LibraryListCoordinator: ItemListCoordinator {
-  let miniPlayerOffset: CGFloat
-
-  init(
-    navigationController: UINavigationController,
-    library: Library,
-    miniPlayerOffset: CGFloat,
-    playerManager: PlayerManager
-  ) {
-    self.miniPlayerOffset = miniPlayerOffset
-
-    super.init(
-      navigationController: navigationController,
-      library: library,
-      playerManager: playerManager
-    )
-  }
-
   override func start() {
     let vc = LibraryViewController.instantiate(from: .Main)
     vc.coordinator = self

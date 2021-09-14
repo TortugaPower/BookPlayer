@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="M4Y-Lb-cyx">
-    <device id="retina4_7" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="M4Y-Lb-cyx">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -26,14 +24,14 @@
                                     <constraint firstAttribute="height" constant="62" id="gJm-c2-35D"/>
                                 </constraints>
                             </imageView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UwH-x3-bZn">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UwH-x3-bZn">
                                 <rect key="frame" x="247" y="24" width="62" height="62"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="62" id="SbF-8J-YUk"/>
                                     <constraint firstAttribute="height" constant="62" id="z1g-T0-mcz"/>
                                 </constraints>
-                                <color key="tintColor" cocoaTouchSystemColor="viewFlipsideBackgroundColor"/>
-                                <state key="normal" image="nowPlayingPlay"/>
+                                <color key="tintColor" systemColor="viewFlipsideBackgroundColor"/>
+                                <state key="normal" image="play.fill" catalog="system"/>
                                 <connections>
                                     <action selector="togglePlay:" destination="M4Y-Lb-cyx" eventType="touchUpInside" id="FB8-RC-aHy"/>
                                 </connections>
@@ -62,6 +60,7 @@
                                 </subviews>
                             </stackView>
                         </subviews>
+                        <viewLayoutGuide key="safeArea" id="ssy-KU-ocm"/>
                         <constraints>
                             <constraint firstItem="EyO-Te-mP0" firstAttribute="top" secondItem="s6P-Gf-op8" secondAttribute="top" constant="-4" id="FZp-1V-rtd"/>
                             <constraint firstItem="UwH-x3-bZn" firstAttribute="centerY" secondItem="ssy-KU-ocm" secondAttribute="centerY" id="KF3-PZ-SdH"/>
@@ -71,7 +70,6 @@
                             <constraint firstItem="s6P-Gf-op8" firstAttribute="leading" secondItem="ssy-KU-ocm" secondAttribute="leading" constant="13" id="l8T-C4-8uR"/>
                             <constraint firstItem="s6P-Gf-op8" firstAttribute="centerY" secondItem="ssy-KU-ocm" secondAttribute="centerY" id="tvn-LP-UXd"/>
                         </constraints>
-                        <viewLayoutGuide key="safeArea" id="ssy-KU-ocm"/>
                     </view>
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
@@ -90,7 +88,10 @@
         </scene>
     </scenes>
     <resources>
-        <image name="defaultArtwork" width="325" height="325"/>
-        <image name="nowPlayingPlay" width="62" height="62"/>
+        <image name="defaultArtwork" width="90" height="90"/>
+        <image name="play.fill" catalog="system" width="116" height="128"/>
+        <systemColor name="viewFlipsideBackgroundColor">
+            <color red="0.1215686274509804" green="0.12941176470588239" blue="0.14117647058823529" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
     </resources>
 </document>

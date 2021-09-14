@@ -238,7 +238,7 @@ extension ThemesViewController: UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
         return tableView == self.localThemesTableView
             ? 1
-            : Section.total.rawValue
+            : Section.allCases.count
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

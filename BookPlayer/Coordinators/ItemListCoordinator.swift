@@ -10,15 +10,18 @@ import BookPlayerKit
 import UIKit
 
 class ItemListCoordinator: Coordinator {
+  let miniPlayerOffset: CGFloat
   let playerManager: PlayerManager
   let library: Library
 
   init(
     navigationController: UINavigationController,
     library: Library,
+    miniPlayerOffset: CGFloat,
     playerManager: PlayerManager
   ) {
     self.library = library
+    self.miniPlayerOffset = miniPlayerOffset
     self.playerManager = playerManager
 
     super.init(navigationController: navigationController)
@@ -43,7 +46,8 @@ class ItemListCoordinator: Coordinator {
     let child = FolderListCoordinator(navigationController: self.navigationController,
                                       library: self.library,
                                       folder: folder,
-                                      playerManager: self.playerManager)
+                                      playerManager: self.playerManager,
+                                      miniPlayerOffset: self.miniPlayerOffset)
     self.childCoordinators.append(child)
     child.parentCoordinator = self.parentCoordinator
     child.start()
