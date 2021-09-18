@@ -367,7 +367,7 @@ extension LibraryViewController {
         accessibilityCustomRotors = [self.rotorFactory(name: "Books", type: .book), self.rotorFactory(name: "Folders", type: .folder)]
     }
 
-    private func rotorFactory(name: String, type: BookCellType) -> UIAccessibilityCustomRotor {
+    private func rotorFactory(name: String, type: SimpleItemType) -> UIAccessibilityCustomRotor {
         return UIAccessibilityCustomRotor(name: name) { (predicate) -> UIAccessibilityCustomRotorItemResult? in
             let forward: Bool = (predicate.searchDirection == .next)
 

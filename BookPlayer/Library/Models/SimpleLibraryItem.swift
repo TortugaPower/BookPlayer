@@ -18,13 +18,18 @@ struct SimpleLibraryItem: Hashable, Identifiable {
   let artworkData: Data?
   let relativePath: String
   let type: SimpleItemType
+  let playbackState: PlaybackState
 
   static func == (lhs: SimpleLibraryItem, rhs: SimpleLibraryItem) -> Bool {
-      return lhs.relativePath == rhs.relativePath
+    return lhs.relativePath == rhs.relativePath
+      && lhs.progress == rhs.progress
+      && lhs.playbackState == rhs.playbackState
   }
 
   func hash(into hasher: inout Hasher) {
-      hasher.combine(relativePath)
+    hasher.combine(relativePath)
+    hasher.combine(progress)
+    hasher.combine(playbackState)
   }
 }
 
@@ -38,6 +43,7 @@ extension SimpleLibraryItem {
     self.artworkData = nil
     self.relativePath = ""
     self.type = .book
+    self.playbackState = .stopped
   }
 
   init(from item: SimpleLibraryItem, defaultArtwork: Data? = nil) {
@@ -49,19 +55,44 @@ extension SimpleLibraryItem {
     self.artworkData = item.artworkData as Data? ?? defaultArtwork
     self.relativePath = item.relativePath
     self.type = item.type
+    self.playbackState = item.playbackState
   }
 
-  init(from item: LibraryItem, defaultArtwork: Data? = nil) {
+  init(from item: SimpleLibraryItem, progress: Double?, playbackState: PlaybackState = .stopped) {
+    self.id = item.id
+    self.title = item.title
+    self.details = item.details
+    self.duration = item.duration
+    self.progress = progress ?? item.progress
+    self.artworkData = item.artworkData as Data?
+    self.relativePath = item.relativePath
+    self.type = item.type
+    self.playbackState = playbackState
+  }
+
+  init(from item: SimpleLibraryItem, playbackState: PlaybackState) {
+    self.id = item.id
+    self.title = item.title
+    self.details = item.details
+    self.duration = item.duration
+    self.progress = item.progress
+    self.artworkData = item.artworkData as Data?
+    self.relativePath = item.relativePath
+    self.type = item.type
+    self.playbackState = playbackState
+  }
+
+  init(from item: LibraryItem, defaultArtwork: Data? = nil, playbackState: PlaybackState = .stopped) {
     if let book = item as? Book {
-      self.init(from: book, defaultArtwork: defaultArtwork)
+      self.init(from: book, defaultArtwork: defaultArtwork, playbackState: playbackState)
     } else {
       // swiftlint:disable force_cast
       let folder = item as! Folder
-      self.init(from: folder, defaultArtwork: defaultArtwork)
+      self.init(from: folder, defaultArtwork: defaultArtwork, playbackState: playbackState)
     }
   }
 
-  init(from book: Book, defaultArtwork: Data? = nil) {
+  init(from book: Book, defaultArtwork: Data? = nil, playbackState: PlaybackState = .stopped) {
     self.id = UUID()
     self.title = book.title
     self.details = book.author
@@ -70,9 +101,10 @@ extension SimpleLibraryItem {
     self.artworkData = book.artworkData as Data? ?? defaultArtwork
     self.relativePath = book.relativePath
     self.type = .book
+    self.playbackState = playbackState
   }
 
-  init(from folder: Folder, defaultArtwork: Data? = nil) {
+  init(from folder: Folder, defaultArtwork: Data? = nil, playbackState: PlaybackState = .stopped) {
     self.id = UUID()
     self.title = folder.title
     self.details = folder.info()
@@ -81,9 +113,6 @@ extension SimpleLibraryItem {
     self.artworkData = folder.artworkData as Data? ?? defaultArtwork
     self.relativePath = folder.relativePath
     self.type = .folder
+    self.playbackState = playbackState
   }
-}
-
-enum SimpleItemType {
-  case book, folder
 }

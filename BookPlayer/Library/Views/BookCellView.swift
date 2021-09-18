@@ -10,18 +10,6 @@ import BookPlayerKit
 import Themeable
 import UIKit
 
-enum PlaybackState {
-    case playing
-    case paused
-    case stopped
-}
-
-enum BookCellType {
-    case book
-    case folder
-    case file // in a playlist
-}
-
 class BookCellView: UITableViewCell {
     @IBOutlet private weak var artworkView: BPArtworkView!
     @IBOutlet private weak var titleLabel: UILabel!
@@ -33,6 +21,7 @@ class BookCellView: UITableViewCell {
     @IBOutlet weak var artworkWidth: NSLayoutConstraint!
     @IBOutlet weak var artworkHeight: NSLayoutConstraint!
 
+    var theme: Theme!
     var onArtworkTap: (() -> Void)?
 
     var artwork: UIImage? {
@@ -84,7 +73,7 @@ class BookCellView: UITableViewCell {
         }
     }
 
-    var type: BookCellType = .book {
+    var type: SimpleItemType = .book {
         didSet {
             switch self.type {
             case .folder:
@@ -95,15 +84,13 @@ class BookCellView: UITableViewCell {
         }
     }
 
-    var playbackState: PlaybackState = PlaybackState.stopped {
-        didSet {
-            let currentTheme = self.themeProvider.currentTheme
-
-            UIView.animate(withDuration: 0.1, animations: {
-                self.setPlaybackColors(currentTheme)
-            })
-        }
+  var playbackState: PlaybackState = PlaybackState.stopped {
+    didSet {
+      UIView.animate(withDuration: 0.1, animations: {
+        self.setPlaybackColors(self.theme)
+      })
     }
+  }
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -178,6 +165,7 @@ extension BookCellView {
 
 extension BookCellView: Themeable {
   func applyTheme(_ theme: Theme) {
+    self.theme = theme
     self.titleLabel.textColor = theme.primaryColor
     self.subtitleLabel.textColor = theme.secondaryColor
     self.durationLabel.textColor = theme.secondaryColor

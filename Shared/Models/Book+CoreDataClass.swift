@@ -151,6 +151,10 @@ public class Book: LibraryItem {
         folder.lastPlayDate = now
     }
 
+  public override func getFolder(matching relativePath: String) -> Folder? {
+    return self.folder?.getFolder(matching: relativePath)
+  }
+
     public override func getBookToPlay() -> Book? {
         return self
     }

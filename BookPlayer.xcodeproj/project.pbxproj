@@ -111,6 +111,8 @@
 		4151A6E026E4A17900E49DBE /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4151A6DF26E4A17900E49DBE /* Coordinator.swift */; };
 		41544A1421BAF41400740AD2 /* ItemSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41544A1321BAF41400740AD2 /* ItemSelectionViewController.swift */; };
 		415460F625E57B4F0085F8D9 /* DefaultArtworkFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415460F525E57B4F0085F8D9 /* DefaultArtworkFactory.swift */; };
+		41546FF126F54F0600825180 /* PlaybackState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41546FF026F54F0600825180 /* PlaybackState.swift */; };
+		41546FF326F559CE00825180 /* SimpleItemType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41546FF226F559CE00825180 /* SimpleItemType.swift */; };
 		415758EA2226E18800DDB9B6 /* PlusBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415758E92226E18800DDB9B6 /* PlusBannerView.swift */; };
 		4158386926EAF4A300F4A12B /* ItemListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4158386826EAF4A300F4A12B /* ItemListCoordinator.swift */; };
 		4158386E26EAF76700F4A12B /* FolderListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4158386D26EAF76700F4A12B /* FolderListCoordinator.swift */; };
@@ -556,6 +558,8 @@
 		41544A1121B86A8B00740AD2 /* DeleteMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteMode.swift; sourceTree = "<group>"; };
 		41544A1321BAF41400740AD2 /* ItemSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemSelectionViewController.swift; sourceTree = "<group>"; };
 		415460F525E57B4F0085F8D9 /* DefaultArtworkFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultArtworkFactory.swift; sourceTree = "<group>"; };
+		41546FF026F54F0600825180 /* PlaybackState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackState.swift; sourceTree = "<group>"; };
+		41546FF226F559CE00825180 /* SimpleItemType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleItemType.swift; sourceTree = "<group>"; };
 		415758E92226E18800DDB9B6 /* PlusBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlusBannerView.swift; sourceTree = "<group>"; };
 		4158386826EAF4A300F4A12B /* ItemListCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListCoordinator.swift; sourceTree = "<group>"; };
 		4158386D26EAF76700F4A12B /* FolderListCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderListCoordinator.swift; sourceTree = "<group>"; };
@@ -955,6 +959,8 @@
 			isa = PBXGroup;
 			children = (
 				41188D3026ED715D0017124E /* SimpleLibraryItem.swift */,
+				41546FF226F559CE00825180 /* SimpleItemType.swift */,
+				41546FF026F54F0600825180 /* PlaybackState.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -2230,6 +2236,7 @@
 				413616401D2E21F000E48944 /* LibraryViewController.swift in Sources */,
 				418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */,
 				41188D2826ED4D5C0017124E /* FolderListViewController.swift in Sources */,
+				41546FF326F559CE00825180 /* SimpleItemType.swift in Sources */,
 				41188D2426ED2BA30017124E /* LoadingCoordinator.swift in Sources */,
 				4151A6DD26E4A13A00E49DBE /* MainCoordinator.swift in Sources */,
 				41964C832220B4F700FF1A2F /* ContributorCellView.swift in Sources */,
@@ -2284,6 +2291,7 @@
 				4193E202243A91AE004D6A82 /* ActionParserService.swift in Sources */,
 				41C8ABD126836F50003B67D1 /* ImportViewModel.swift in Sources */,
 				41188D1E26ECDAA30017124E /* MiniPlayerViewModel.swift in Sources */,
+				41546FF126F54F0600825180 /* PlaybackState.swift in Sources */,
 				41B2A5DE21CAF20E00917584 /* ThemesViewController.swift in Sources */,
 				41D20DAF25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
 				41188D2A26ED4D8E0017124E /* FolderListViewModel.swift in Sources */,

@@ -19,7 +19,9 @@ class FolderListViewController: UIViewController, Storyboarded {
 
   @IBOutlet weak var tableView: UITableView!
 
-  var coordinator: FolderListCoordinator!
+  private var previousLeftButtons: [UIBarButtonItem]?
+  lazy var selectButton: UIBarButtonItem = UIBarButtonItem(title: "select_all_title".localized, style: .plain, target: self, action: #selector(selectButtonPressed))
+
   var viewModel: FolderListViewModel!
   var dataSource: ItemListTableDataSource!
 
@@ -40,6 +42,8 @@ class FolderListViewController: UIViewController, Storyboarded {
 
     self.showLoadView(false)
 
+    self.navigationItem.title = self.viewModel.folder.title
+
     // Remove the line after the last cell
     self.tableView.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: self.tableView.frame.size.width, height: 1))
 
@@ -47,12 +51,17 @@ class FolderListViewController: UIViewController, Storyboarded {
     self.edgesForExtendedLayout = UIRectEdge()
 
     self.setUpTheming()
+
+    let interaction = UIDropInteraction(delegate: self)
+    self.view.addInteraction(interaction)
   }
 
   func configureDataSource() {
     self.tableView.register(UINib(nibName: "BookCellView", bundle: nil), forCellReuseIdentifier: "BookCellView")
     self.tableView.register(UINib(nibName: "AddCellView", bundle: nil), forCellReuseIdentifier: "AddCellView")
 
+    self.tableView.rowHeight = UITableView.automaticDimension
+    self.tableView.estimatedRowHeight = UITableView.automaticDimension
     self.tableView.allowsSelection = true
     self.tableView.allowsMultipleSelectionDuringEditing = true
     self.tableView.dragInteractionEnabled = true
@@ -69,6 +78,8 @@ class FolderListViewController: UIViewController, Storyboarded {
       cell.subtitle = item.details
       cell.progress = item.progress
       cell.duration = item.duration
+      cell.type = item.type
+      cell.playbackState = item.playbackState
 
       if let data = item.artworkData {
         cell.artwork = UIImage(data: data)
@@ -91,7 +102,7 @@ class FolderListViewController: UIViewController, Storyboarded {
   }
 
   func adjustBottomOffsetForMiniPlayer() {
-    self.tableView.contentInset.bottom = self.coordinator.miniPlayerOffset
+    self.tableView.contentInset.bottom = self.viewModel.getMiniPlayerOffset()
   }
 
   func bindDataItems() {
@@ -99,6 +110,29 @@ class FolderListViewController: UIViewController, Storyboarded {
       self?.updateSnapshot(with: items, animated: true)
     }
     .store(in: &disposeBag)
+
+    self.dataSource.reorderUpdates.sink { [weak self] (item, sourceIndexPath, destinationIndexPath) in
+      self?.viewModel.reorder(item: item, sourceIndexPath: sourceIndexPath, destinationIndexPath: destinationIndexPath)
+    }
+    .store(in: &disposeBag)
+  }
+
+  override func setEditing(_ editing: Bool, animated: Bool) {
+    super.setEditing(editing, animated: animated)
+
+    self.viewModel.showMiniPlayer(!editing)
+
+    self.animateView(self.bulkControls, show: editing)
+    self.tableView.setEditing(editing, animated: true)
+
+    if editing {
+      self.previousLeftButtons = navigationItem.leftBarButtonItems
+      self.navigationItem.leftBarButtonItems = [self.selectButton]
+      self.selectButton.isEnabled = self.tableView.numberOfRows(inSection: Section.data.rawValue) > 0
+      self.updateSelectionStatus()
+    } else {
+      self.navigationItem.leftBarButtonItems = self.previousLeftButtons
+    }
   }
 
   func updateSnapshot(with items: [SimpleLibraryItem], animated: Bool) {
@@ -109,15 +143,54 @@ class FolderListViewController: UIViewController, Storyboarded {
     snapshot.appendItems(items, toSection: .data)
     snapshot.appendSections([.add])
     snapshot.appendItems([SimpleLibraryItem()], toSection: .add)
-    self.dataSource.apply(snapshot)
+    self.dataSource.apply(snapshot, animatingDifferences: false)
+  }
+
+  func updateSelectionStatus() {
+    guard self.tableView.isEditing else { return }
+
+    self.selectButton.title = self.tableView.numberOfRows(inSection: Section.data.rawValue) > (self.tableView.indexPathsForSelectedRows?.count ?? 0)
+      ? "select_all_title".localized
+      : "deselect_all_title".localized
+
+    guard self.tableView.indexPathForSelectedRow == nil else {
+      self.bulkControls.moveButton.isEnabled = true
+      self.bulkControls.trashButton.isEnabled = true
+      self.bulkControls.moreButton.isEnabled = true
+      return
+    }
+
+    self.bulkControls.moveButton.isEnabled = false
+    self.bulkControls.trashButton.isEnabled = false
+    self.bulkControls.moreButton.isEnabled = false
   }
 
   @IBAction func addAction() {
-    //
+    print("=== add action")
+  }
+
+  @objc func selectButtonPressed(_ sender: Any) {
+    if self.tableView.numberOfRows(inSection: Section.data.rawValue) == (self.tableView.indexPathsForSelectedRows?.count ?? 0) {
+      for row in 0..<self.tableView.numberOfRows(inSection: Section.data.rawValue) {
+        self.tableView.deselectRow(at: IndexPath(row: row, section: .data), animated: true)
+      }
+    } else {
+      for row in 0..<self.tableView.numberOfRows(inSection: Section.data.rawValue) {
+        self.tableView.selectRow(at: IndexPath(row: row, section: .data), animated: true, scrollPosition: .none)
+      }
+    }
+
+    self.updateSelectionStatus()
   }
 }
 
 extension FolderListViewController: UITableViewDelegate {
+  func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    guard indexPath.sectionValue == .data else { return 66 }
+
+    return UITableView.automaticDimension
+  }
+
   func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
     guard indexPath.sectionValue == .data,
           indexPath.row == (self.viewModel.items.value.count - 1) else { return }
@@ -127,6 +200,39 @@ extension FolderListViewController: UITableViewDelegate {
 
       self.viewModel.loadNextItems()
     }
+  }
+
+  func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
+    guard tableView.isEditing else { return indexPath }
+
+    guard indexPath.sectionValue == .data else { return nil }
+
+    return indexPath
+  }
+
+  func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    self.updateSelectionStatus()
+
+    guard !tableView.isEditing else {
+      return
+    }
+
+    tableView.deselectRow(at: indexPath, animated: true)
+
+    guard indexPath.sectionValue == .data else {
+      if indexPath.sectionValue == .add {
+        print("=== add options alert")
+//        self.presentAddOptionsAlert()
+      }
+
+      return
+    }
+
+    guard let item = self.dataSource.itemIdentifier(for: indexPath) else {
+      return
+    }
+
+    self.viewModel.showItemContents(item)
   }
 }
 
@@ -150,6 +256,35 @@ extension FolderListViewController: UITableViewDropDelegate {
     }
 
     return UITableViewDropProposal(operation: .cancel, intent: .unspecified)
+  }
+}
+
+extension FolderListViewController: UIDropInteractionDelegate {
+  func dropInteraction(_ interaction: UIDropInteraction, canHandle session: UIDropSession) -> Bool {
+    return session.canLoadObjects(ofClass: ImportableItem.self)
+  }
+
+  func dropInteraction(_ interaction: UIDropInteraction, sessionDidEnter session: UIDropSession) {}
+
+  func dropInteraction(_ interaction: UIDropInteraction, sessionDidUpdate session: UIDropSession) -> UIDropProposal {
+    return UIDropProposal(operation: .copy)
+  }
+
+  func dropInteraction(_ interaction: UIDropInteraction, performDrop session: UIDropSession) {
+    for item in session.items {
+      self.handleDroppedItem(item)
+    }
+  }
+
+  func handleDroppedItem(_ item: UIDragItem) {
+    let providerReference = item.itemProvider
+
+    item.itemProvider.loadObject(ofClass: ImportableItem.self) { (object, _) in
+      guard let item = object as? ImportableItem else { return }
+      item.suggestedName = providerReference.suggestedName
+
+      DataManager.importData(from: item)
+    }
   }
 }
 

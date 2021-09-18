@@ -33,9 +33,10 @@ class FolderListCoordinator: ItemListCoordinator {
     let vc = FolderListViewController.instantiate(from: .Main)
     let viewModel = FolderListViewModel(folder: self.folder,
                                         library: self.library,
+                                        player: self.playerManager,
                                         theme: ThemeManager.shared.currentTheme)
+    viewModel.coordinator = self
     vc.viewModel = viewModel
-    vc.coordinator = self
     self.navigationController.pushViewController(vc, animated: true)
   }
 }

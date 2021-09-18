@@ -130,6 +130,14 @@ public class Folder: LibraryItem {
         return itemTime.progress / itemTime.duration
     }
 
+  public override func getFolder(matching relativePath: String) -> Folder? {
+    if self.relativePath == relativePath {
+      return self
+    } else {
+      return self.folder?.getFolder(matching: relativePath)
+    }
+  }
+
     public func getProgressAndDuration() -> (progress: Double, duration: Double) {
         if let cachedProgress = self.cachedProgress,
            let cachedDuration = self.cachedDuration {
