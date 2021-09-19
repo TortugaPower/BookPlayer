@@ -50,24 +50,11 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
       NotificationCenter.default.addObserver(self, selector: #selector(self.reloadData), name: .reloadData, object: nil)
       NotificationCenter.default.addObserver(self, selector: #selector(self.onProcessingFile(_:)), name: .processingFile, object: nil)
       NotificationCenter.default.addObserver(self, selector: #selector(self.onNewFileUrl), name: .newFileUrl, object: nil)
-      NotificationCenter.default.addObserver(self, selector: #selector(self.onNewOperation(_:)), name: .importOperation, object: nil)
       NotificationCenter.default.addObserver(self, selector: #selector(self.onDownloadingProgress(_:)), name: .downloadProgress, object: nil)
-      NotificationCenter.default.addObserver(self, selector: #selector(self.bindImportManager), name: .importOperationCancelled, object: nil)
       NotificationCenter.default.addObserver(forName: .reloadLibrary, object: nil, queue: .main) { [weak self] _ in
         self?.loadLibrary()
       }
-      self.bindImportManager()
     }
-
-  @objc func bindImportManager() {
-    self.fileSubscription?.cancel()
-    self.fileSubscription = ImportManager.shared.observeFiles().sink { [weak self] files in
-      guard let self = self,
-            !files.isEmpty else { return }
-
-      self.showImport()
-    }
-  }
 
   func showImport() {
     self.fileSubscription?.cancel()
@@ -145,46 +132,6 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
       self.coordinator?.loadLastBook(book)
     }
 
-    override func handleOperationCompletion(_ files: [URL]) {
-      self.bindImportManager()
-
-      let processedItems = DataManager.insertItems(from: files, into: nil, library: self.library)
-      self.reloadData()
-
-      guard files.count > 1 else {
-        self.showLoadView(false)
-        return
-      }
-
-      let alert = UIAlertController(title: String.localizedStringWithFormat("import_alert_title".localized, files.count), message: nil, preferredStyle: .alert)
-
-      alert.addAction(UIAlertAction(title: "library_title".localized, style: .default) { _ in
-        self.showLoadView(false)
-      })
-
-      alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { _ in
-        var placeholder = "new_playlist_button".localized
-
-        if let file = files.first {
-          placeholder = file.deletingPathExtension().lastPathComponent
-        }
-
-        self.presentCreateFolderAlert(placeholder, handler: { title in
-          do {
-            let folder = try DataManager.createFolder(with: title, in: nil, library: self.library)
-            try DataManager.moveItems(processedItems, into: folder)
-          } catch {
-            self.showAlert("error_title".localized, message: error.localizedDescription)
-          }
-
-          self.reloadData()
-          self.showLoadView(false)
-        })
-      })
-
-      self.present(alert, animated: true, completion: nil)
-    }
-
     func gestureRecognizerShouldBegin(_: UIGestureRecognizer) -> Bool {
         return navigationController!.viewControllers.count > 1
     }
@@ -239,38 +186,6 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
                 vc.showLoadView(true, title: nil, subtitle: filename)
             }
         }
-    }
-
-    @objc func onNewOperation(_ notification: Notification) {
-        guard
-            let userInfo = notification.userInfo,
-            let operation = userInfo["operation"] as? ImportOperation
-        else {
-            return
-        }
-
-        let loadingTitle = String.localizedStringWithFormat("import_processing_description".localized, operation.files.count)
-
-        self.showLoadView(true, title: loadingTitle)
-
-        if let vc = self.navigationController?.visibleViewController as? PlaylistViewController {
-            vc.showLoadView(true, title: loadingTitle)
-        }
-
-        operation.completionBlock = {
-            DispatchQueue.main.async {
-              guard let vc = self.navigationController?.topViewController as? PlaylistViewController else {
-                self.handleOperationCompletion(operation.processedFiles)
-                return
-              }
-              self.showLoadView(false)
-              vc.handleOperationCompletion(operation.processedFiles)
-              self.bindImportManager()
-            }
-        }
-
-        DataManager.start(operation)
-        self.sendSignal(.importAction, with: operation.getInfo())
     }
 
     // MARK: - IBActions

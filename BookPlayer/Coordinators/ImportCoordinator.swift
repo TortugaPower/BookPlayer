@@ -9,14 +9,39 @@
 import UIKit
 
 class ImportCoordinator: Coordinator {
+  let importManager: ImportManager
+  weak var importViewController: ImportViewController?
+
+  init(
+    navigationController: UINavigationController,
+    importManager: ImportManager
+  ) {
+    self.importManager = importManager
+
+    super.init(navigationController: navigationController)
+  }
+
   override func start() {
     let vc = ImportViewController.instantiate(from: .Main)
-    vc.coordinator = self
+    self.importViewController = vc
+    let viewModel = ImportViewModel(importManager: self.importManager)
+    viewModel.coordinator = self
+    vc.viewModel = viewModel
 
     let nav = AppNavigationController.instantiate(from: .Main)
     nav.viewControllers = [vc]
+    nav.presentationController?.delegate = self
+    self.presentingViewController?.present(nav, animated: true, completion: nil)
+  }
 
-    self.navigationController.present(nav, animated: true, completion: nil)
-    self.presentingViewController = vc
+  override func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+    try? self.importViewController?.viewModel.discardImportOperation()
+    super.presentationControllerDidDismiss(presentationController)
+  }
+
+  override func dismiss() {
+    self.presentingViewController?.dismiss(animated: true, completion: { [weak self] in
+      self?.parentCoordinator?.childDidFinish(self)
+    })
   }
 }

@@ -15,7 +15,7 @@ class LoadingCoordinator: Coordinator {
     loadingVC.coordinator = self
     loadingVC.modalPresentationStyle = .fullScreen
 
-    loadingVC.presentationController?.delegate = self.presentingViewController
+    loadingVC.presentationController?.delegate = self
     self.navigationController.show(loadingVC, sender: self)
   }
 

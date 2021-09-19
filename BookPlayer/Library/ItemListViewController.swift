@@ -79,14 +79,11 @@ class ItemListViewController: UIViewController, ItemList, ItemListAlerts, ItemLi
     }
 
     func setupObservers() {
-        NotificationCenter.default.addObserver(self, selector: #selector(self.bookReady), name: .bookReady, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.updateProgress(_:)), name: .updatePercentage, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.updateProgress(_:)), name: .bookEnd, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.adjustBottomOffsetForMiniPlayer), name: .playerPresented, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.adjustBottomOffsetForMiniPlayer), name: .playerDismissed, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPlay), name: .bookPlayed, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.onBookPause), name: .bookPaused, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.onBookStop(_:)), name: .bookStopped, object: nil)
     }
 
     func setupBulkControls() {
@@ -345,10 +342,6 @@ extension ItemListViewController {
         MPPlayableContentManager.shared().reloadData()
     }
 
-    @objc func bookReady() {
-        self.tableView.reloadData()
-    }
-
   @objc func onBookPlay() {
     guard
       let currentBook = PlayerManager.shared.currentBook,
@@ -406,7 +399,7 @@ extension ItemListViewController {
 
     @objc func adjustBottomOffsetForMiniPlayer() {
       if let cc = self.coordinator as? LibraryListCoordinator {
-        self.tableView.contentInset.bottom = cc.miniPlayerOffset//199//88
+        self.tableView.contentInset.bottom = cc.miniPlayerOffset
       }
     }
 

@@ -17,6 +17,7 @@ class FolderListCoordinator: ItemListCoordinator {
     library: Library,
     folder: Folder,
     playerManager: PlayerManager,
+    importManager: ImportManager,
     miniPlayerOffset: CGFloat
   ) {
     self.folder = folder
@@ -25,7 +26,8 @@ class FolderListCoordinator: ItemListCoordinator {
       navigationController: navigationController,
       library: library,
       miniPlayerOffset: miniPlayerOffset,
-      playerManager: playerManager
+      playerManager: playerManager,
+      importManager: importManager
     )
   }
 
@@ -37,6 +39,32 @@ class FolderListCoordinator: ItemListCoordinator {
                                         theme: ThemeManager.shared.currentTheme)
     viewModel.coordinator = self
     vc.viewModel = viewModel
+    self.presentingViewController = vc
     self.navigationController.pushViewController(vc, animated: true)
+  }
+
+  override func showOperationCompletedAlert(with items: [LibraryItem]) {
+    let alert = UIAlertController(
+      title: String.localizedStringWithFormat("import_alert_title".localized, items.count),
+      message: nil,
+      preferredStyle: .alert)
+
+    alert.addAction(UIAlertAction(title: "current_playlist_title".localized, style: .default, handler: nil))
+
+    alert.addAction(UIAlertAction(title: "library_title".localized, style: .default) { [weak self] _ in
+      self?.onTransition?(.insertIntoLibrary(items))
+    })
+
+    alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { [weak self] _ in
+      var placeholder = "new_playlist_button".localized
+
+      if let item = items.first {
+        placeholder = item.title
+      }
+
+      self?.showCreatePlaylistAlert(placeholder: placeholder, with: items)
+    })
+
+    self.navigationController.present(alert, animated: true, completion: nil)
   }
 }

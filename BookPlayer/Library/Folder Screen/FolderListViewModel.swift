@@ -106,14 +106,6 @@ class FolderListViewModel {
     return displayItems
   }
 
-  func getPlaybackState(for item: LibraryItem) -> PlaybackState {
-    guard let book = self.player.currentBook else {
-      return .stopped
-    }
-
-    return book.relativePath.contains(item.relativePath) ? .playing : .stopped
-  }
-
   func loadNextItems() {
     guard let fetchedItems = DataManager.fetchContents(of: self.folder, limit: self.pageSize, offset: self.offset),
           !fetchedItems.isEmpty else {
@@ -129,12 +121,62 @@ class FolderListViewModel {
     self.items.value += displayItems
   }
 
+  func reloadItems() {
+    _ = self.getInitialItems()
+  }
+
+  func getPlaybackState(for item: LibraryItem) -> PlaybackState {
+    guard let book = self.player.currentBook else {
+      return .stopped
+    }
+
+    return book.relativePath.contains(item.relativePath) ? .playing : .stopped
+  }
+
   func showItemContents(_ item: SimpleLibraryItem) {
     guard let libraryItem = DataManager.getItem(with: item.relativePath) else {
       return
     }
 
     self.coordinator.showItemContents(libraryItem)
+  }
+
+  func createFolder(with title: String, items: [LibraryItem]? = nil) {
+    do {
+      let folder = try DataManager.createFolder(with: title, in: self.folder, library: self.library)
+      if let items = items {
+        try DataManager.moveItems(items, into: folder)
+      }
+    } catch {
+      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
+    }
+
+    self.reloadItems()
+  }
+
+  func handleOperationCompletion(_ files: [URL]) {
+    let processedItems = DataManager.insertItems(from: files, into: nil, library: self.library)
+
+    do {
+      try DataManager.moveItems(processedItems, into: self.folder)
+    } catch {
+      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
+      return
+    }
+
+    self.reloadItems()
+
+    self.coordinator.showOperationCompletedAlert(with: processedItems)
+  }
+
+  func handleInsertionIntoLibrary(_ items: [LibraryItem]) {
+    do {
+      try DataManager.moveItems(items, into: self.library)
+    } catch {
+      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
+    }
+
+    self.reloadItems()
   }
 
   func reorder(item: SimpleLibraryItem, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath) {
@@ -161,8 +203,18 @@ class FolderListViewModel {
   }
 
   func showMiniPlayer(_ flag: Bool) {
-    if let mainCoordinator = self.coordinator?.parentCoordinator as? MainCoordinator {
+    if let mainCoordinator = self.coordinator?.getMainCoordinator() {
       mainCoordinator.showMiniPlayer(flag)
+    }
+  }
+
+  func showAddActions() {
+    self.coordinator.showAddActions()
+  }
+
+  func handleNewFiles(_ urls: [URL]) {
+    for url in urls {
+      DataManager.processFile(at: url)
     }
   }
 }

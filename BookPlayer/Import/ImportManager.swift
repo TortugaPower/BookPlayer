@@ -22,6 +22,8 @@ final class ImportManager {
   private var timer: Timer?
   private var files = CurrentValueSubject<[URL], Never>([])
 
+  public var operationPublisher = PassthroughSubject<ImportOperation, Never>()
+
   public func process(_ fileUrl: URL) {
     // Avoid duplicating files
     guard !self.files.value.contains(where: { $0 == fileUrl }) else { return }
@@ -67,6 +69,6 @@ final class ImportManager {
 
     self.files.value = []
 
-    NotificationCenter.default.post(name: .importOperation, object: nil, userInfo: ["operation": operation])
+    self.operationPublisher.send(operation)
   }
 }

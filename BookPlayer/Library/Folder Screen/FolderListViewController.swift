@@ -8,6 +8,7 @@
 
 import BookPlayerKit
 import Combine
+import DeviceKit
 import Themeable
 import UIKit
 
@@ -16,6 +17,7 @@ class FolderListViewController: UIViewController, Storyboarded {
   @IBOutlet weak var loadingView: LoadingView!
   @IBOutlet weak var loadingHeightConstraintView: NSLayoutConstraint!
   @IBOutlet weak var bulkControls: BulkControlsView!
+  @IBOutlet weak var bulkControlsBottomConstraint: NSLayoutConstraint!
 
   @IBOutlet weak var tableView: UITableView!
 
@@ -51,6 +53,8 @@ class FolderListViewController: UIViewController, Storyboarded {
     self.edgesForExtendedLayout = UIRectEdge()
 
     self.setUpTheming()
+
+    self.setupBulkControls()
 
     let interaction = UIDropInteraction(delegate: self)
     self.view.addInteraction(interaction)
@@ -105,6 +109,46 @@ class FolderListViewController: UIViewController, Storyboarded {
     self.tableView.contentInset.bottom = self.viewModel.getMiniPlayerOffset()
   }
 
+  func setupBulkControls() {
+    self.bulkControlsBottomConstraint.constant = Device.current.hasSensorHousing ? 136: 25
+    self.bulkControls.isHidden = true
+    self.bulkControls.layer.cornerRadius = 13
+    self.bulkControls.layer.shadowOpacity = 0.3
+    self.bulkControls.layer.shadowRadius = 5
+    self.bulkControls.layer.shadowOffset = .zero
+
+    self.bulkControls.onSortTap = {
+      // TODO: handle sort
+    }
+
+    self.bulkControls.onMoveTap = {
+      guard let indexPaths = self.tableView.indexPathsForSelectedRows else {
+        return
+      }
+
+      // TODO: handle move
+      let selectedItems = indexPaths.map({ self.dataSource.itemIdentifier(for: $0) })
+    }
+
+    self.bulkControls.onDeleteTap = {
+      guard let indexPaths = self.tableView.indexPathsForSelectedRows else {
+        return
+      }
+
+      // TODO: handle delete
+      let selectedItems = indexPaths.map({ self.dataSource.itemIdentifier(for: $0) })
+    }
+
+    self.bulkControls.onMoreTap = {
+      guard let indexPaths = self.tableView.indexPathsForSelectedRows else {
+        return
+      }
+
+      // TODO: handle more action
+      let selectedItems = indexPaths.map({ self.dataSource.itemIdentifier(for: $0) })
+    }
+  }
+
   func bindDataItems() {
     self.viewModel.items.sink { [weak self] items in
       self?.updateSnapshot(with: items, animated: true)
@@ -115,6 +159,25 @@ class FolderListViewController: UIViewController, Storyboarded {
       self?.viewModel.reorder(item: item, sourceIndexPath: sourceIndexPath, destinationIndexPath: destinationIndexPath)
     }
     .store(in: &disposeBag)
+
+    self.viewModel.coordinator.onTransition = { route in
+      switch route {
+      case .importOptions:
+        self.viewModel.showAddActions()
+      case .importLocalFiles:
+        self.viewModel.coordinator.showDocumentPicker(in: self)
+      case .newImportOperation(let operation):
+        let loadingTitle = String.localizedStringWithFormat("import_processing_description".localized, operation.files.count)
+        self.showLoadView(true, title: loadingTitle)
+      case .importOperationFinished(let files):
+        self.showLoadView(false)
+        self.viewModel.handleOperationCompletion(files)
+      case .createFolder(let title, let items):
+        self.viewModel.createFolder(with: title, items: items)
+      case .insertIntoLibrary(let items):
+        self.viewModel.handleInsertionIntoLibrary(items)
+      }
+    }
   }
 
   override func setEditing(_ editing: Bool, animated: Bool) {
@@ -166,7 +229,7 @@ class FolderListViewController: UIViewController, Storyboarded {
   }
 
   @IBAction func addAction() {
-    print("=== add action")
+    self.viewModel.showAddActions()
   }
 
   @objc func selectButtonPressed(_ sender: Any) {
@@ -221,8 +284,7 @@ extension FolderListViewController: UITableViewDelegate {
 
     guard indexPath.sectionValue == .data else {
       if indexPath.sectionValue == .add {
-        print("=== add options alert")
-//        self.presentAddOptionsAlert()
+        self.viewModel.showAddActions()
       }
 
       return
@@ -285,6 +347,26 @@ extension FolderListViewController: UIDropInteractionDelegate {
 
       DataManager.importData(from: item)
     }
+  }
+}
+
+// MARK: DocumentPicker Delegate
+
+extension FolderListViewController: UIDocumentPickerDelegate {
+  func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+    UIApplication.shared.isIdleTimerDisabled = false
+  }
+
+  // iOS 11+
+  func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+    UIApplication.shared.isIdleTimerDisabled = false
+    self.viewModel.handleNewFiles(urls)
+  }
+
+  // support iOS 10
+  func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
+    UIApplication.shared.isIdleTimerDisabled = false
+    self.viewModel.handleNewFiles([url])
   }
 }
 

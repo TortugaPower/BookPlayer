@@ -702,11 +702,11 @@
                         <viewLayoutGuide key="safeArea" id="ioY-wv-OwB"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstAttribute="bottom" secondItem="RTy-ml-CPR" secondAttribute="bottom" constant="25" id="3Ki-gC-Nqs"/>
                             <constraint firstItem="oVP-SJ-Vkq" firstAttribute="leading" secondItem="ioY-wv-OwB" secondAttribute="leading" id="8JP-xR-vIY"/>
                             <constraint firstItem="L2f-M1-8fN" firstAttribute="leading" secondItem="ioY-wv-OwB" secondAttribute="leading" id="CMo-xh-I1i"/>
                             <constraint firstItem="RTy-ml-CPR" firstAttribute="centerX" secondItem="ioY-wv-OwB" secondAttribute="centerX" id="DtC-Kv-u06"/>
                             <constraint firstAttribute="bottom" secondItem="oVP-SJ-Vkq" secondAttribute="bottom" id="FX9-z6-KGL"/>
+                            <constraint firstItem="ioY-wv-OwB" firstAttribute="bottom" secondItem="RTy-ml-CPR" secondAttribute="bottom" constant="25" id="Hqj-QX-Wcm"/>
                             <constraint firstItem="TP0-JK-hUQ" firstAttribute="leading" secondItem="ioY-wv-OwB" secondAttribute="leading" id="L0w-MY-1qA"/>
                             <constraint firstItem="TP0-JK-hUQ" firstAttribute="bottom" secondItem="MQO-lV-qyO" secondAttribute="bottom" id="TgH-ym-qmZ"/>
                             <constraint firstItem="oVP-SJ-Vkq" firstAttribute="trailing" secondItem="ioY-wv-OwB" secondAttribute="trailing" id="Vck-ZE-yVH"/>
@@ -720,6 +720,7 @@
                     <navigationItem key="navigationItem" title="Folder" largeTitleDisplayMode="never" id="OLx-6f-yOG"/>
                     <connections>
                         <outlet property="bulkControls" destination="RTy-ml-CPR" id="NUB-39-4GN"/>
+                        <outlet property="bulkControlsBottomConstraint" destination="Hqj-QX-Wcm" id="KFi-Cb-isR"/>
                         <outlet property="emptyStatePlaceholder" destination="oVP-SJ-Vkq" id="egg-c4-R4u"/>
                         <outlet property="loadingHeightConstraintView" destination="69u-wZ-9DI" id="Oyd-Db-o7J"/>
                         <outlet property="loadingView" destination="L2f-M1-8fN" id="ab7-xZ-t0V"/>

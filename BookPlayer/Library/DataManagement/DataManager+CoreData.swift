@@ -157,9 +157,6 @@ extension DataManager {
 
     if let book = item as? Book {
       if book == PlayerManager.shared.currentBook {
-        NotificationCenter.default.post(name: .bookDelete,
-                                        object: nil,
-                                        userInfo: ["book": book])
         PlayerManager.shared.stop()
       }
 

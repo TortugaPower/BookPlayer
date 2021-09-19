@@ -147,8 +147,6 @@ class PlayerManager: NSObject, TelemetryProtocol {
                     self.jumpTo(time, recordBookmark: false)
                 }
 
-                NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["book": book])
-
                 self.hasLoadedBook = true
                 completion(true)
             }
@@ -167,23 +165,10 @@ class PlayerManager: NSObject, TelemetryProtocol {
         let currentTime = CMTimeGetSeconds(self.audioPlayer.currentTime())
         book.setCurrentTime(currentTime)
 
-        let isPercentageDifferent = book.percentage != book.percentCompleted || (book.percentCompleted == 0 && book.progressPercentage > 0)
-
         book.percentCompleted = book.percentage
 
         DataManager.saveContext()
         UserActivityManager.shared.recordTime()
-
-        // Notify
-        if isPercentageDifferent {
-            NotificationCenter.default.post(name: .updatePercentage,
-                                            object: nil,
-                                            userInfo: [
-                                                "progress": book.progressPercentage,
-                                                "fileURL": fileURL,
-                                                "book": book
-                                            ] as [String: Any])
-        }
 
         self.setNowPlayingBookTime()
 
@@ -507,33 +492,23 @@ extension PlayerManager {
         }
     }
 
-    func stop() {
-        self.observeStatus = false
+  func stop() {
+    self.observeStatus = false
 
-        self.audioPlayer.pause()
+    self.audioPlayer.pause()
 
-        UserActivityManager.shared.stopPlaybackActivity()
+    UserActivityManager.shared.stopPlaybackActivity()
 
-        var userInfo: [AnyHashable: Any]?
-
-        if let book = self.currentBook {
-            userInfo = ["book": book]
-
-            if let library = book.library ?? book.folder?.library {
-                library.lastPlayedBook = nil
-                DataManager.saveContext()
-            }
-        }
-
-        self.currentBook = nil
-        self.hasLoadedBook = false
-
-        DispatchQueue.main.async {
-            NotificationCenter.default.post(name: .bookStopped,
-                                            object: nil,
-                                            userInfo: userInfo)
-        }
+    if let book = self.currentBook {
+      if let library = book.library ?? book.folder?.library {
+        library.lastPlayedBook = nil
+        DataManager.saveContext()
+      }
     }
+
+    self.currentBook = nil
+    self.hasLoadedBook = false
+  }
 
     func markAsCompleted(_ flag: Bool) {
         guard let book = self.currentBook,
