@@ -14,10 +14,14 @@ public typealias Transition<T> = ((T) -> Void)
 enum ItemListActionRoutes {
   case importOptions
   case importLocalFiles
-  case createFolder(_ title: String, items: [LibraryItem]?)
+  case importIntoFolder(_ title: String, items: [LibraryItem]?)
+  case createFolder(_ title: String, items: [SimpleLibraryItem]?)
+  case moveIntoLibrary(items: [SimpleLibraryItem])
+  case moveIntoFolder(_ folder: SimpleLibraryItem, items: [SimpleLibraryItem])
   case newImportOperation(_ operation: ImportOperation)
   case importOperationFinished(_ urls: [URL])
   case insertIntoLibrary(_ items: [LibraryItem])
+  case sortItems(_ option: PlayListSortOrder)
 }
 
 class ItemListCoordinator: Coordinator {
@@ -193,7 +197,7 @@ class ItemListCoordinator: Coordinator {
         placeholder = item.title
       }
 
-      self.showCreatePlaylistAlert(placeholder: placeholder, with: items)
+      self.showImportIntoFolderAlert(placeholder: placeholder, with: items)
     })
 
     self.navigationController.present(alert, animated: true, completion: nil)
@@ -201,7 +205,7 @@ class ItemListCoordinator: Coordinator {
 }
 
 extension ItemListCoordinator {
-  func showCreatePlaylistAlert(placeholder: String? = nil, with items: [LibraryItem]? = nil) {
+  func showImportIntoFolderAlert(placeholder: String? = nil, with items: [LibraryItem]? = nil) {
     let alert = UIAlertController(title: "create_playlist_title".localized,
                                   message: "create_playlist_description".localized,
                                   preferredStyle: .alert)
@@ -213,7 +217,24 @@ extension ItemListCoordinator {
     alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
     alert.addAction(UIAlertAction(title: "create_button".localized, style: .default, handler: { _ in
       let title = alert.textFields!.first!.text!
+      self.onTransition?(.importIntoFolder(title, items: items))
+    }))
 
+    self.navigationController.present(alert, animated: true, completion: nil)
+  }
+
+  func showCreateFolderAlert(placeholder: String? = nil, with items: [SimpleLibraryItem]? = nil) {
+    let alert = UIAlertController(title: "create_playlist_title".localized,
+                                  message: "create_playlist_description".localized,
+                                  preferredStyle: .alert)
+
+    alert.addTextField(configurationHandler: { textfield in
+      textfield.text = placeholder ?? "new_playlist_button".localized
+    })
+
+    alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
+    alert.addAction(UIAlertAction(title: "create_button".localized, style: .default, handler: { _ in
+      let title = alert.textFields!.first!.text!
       self.onTransition?(.createFolder(title, items: items))
     }))
 
@@ -230,7 +251,7 @@ extension ItemListCoordinator {
     })
 
     alertController.addAction(UIAlertAction(title: "create_playlist_button".localized, style: .default) { _ in
-      self.showCreatePlaylistAlert()
+      self.showCreateFolderAlert()
     })
 
     alertController.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel))
@@ -247,5 +268,60 @@ extension ItemListCoordinator {
     UIApplication.shared.isIdleTimerDisabled = true
 
     vc.present(providerList, animated: true, completion: nil)
+  }
+
+  func showSortOptions() {
+    let alert = UIAlertController(title: "sort_files_title".localized, message: nil, preferredStyle: .actionSheet)
+
+    alert.addAction(UIAlertAction(title: "sort_title_button".localized, style: .default, handler: { _ in
+      self.onTransition?(.sortItems(.metadataTitle))
+    }))
+
+    alert.addAction(UIAlertAction(title: "sort_filename_button".localized, style: .default, handler: { _ in
+      self.onTransition?(.sortItems(.fileName))
+    }))
+
+    alert.addAction(UIAlertAction(title: "sort_most_recent_button".localized, style: .default, handler: { _ in
+      self.onTransition?(.sortItems(.mostRecent))
+    }))
+
+    alert.addAction(UIAlertAction(title: "sort_reversed_button".localized, style: .default, handler: { _ in
+      self.onTransition?(.sortItems(.reverseOrder))
+    }))
+
+    alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
+
+    self.navigationController.present(alert, animated: true, completion: nil)
+  }
+
+  func showMoveOptions(selectedItems: [SimpleLibraryItem], availableFolders: [SimpleLibraryItem]) {
+    let alert = UIAlertController(title: "choose_destination_title".localized, message: nil, preferredStyle: .alert)
+
+    alert.addAction(UIAlertAction(title: "library_title".localized, style: .default) { [weak self] _ in
+      self?.onTransition?(.moveIntoLibrary(items: selectedItems))
+    })
+
+    alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { _ in
+      self.showCreateFolderAlert(placeholder: nil, with: selectedItems)
+    })
+
+    let existingFolderAction = UIAlertAction(title: "existing_playlist_button".localized, style: .default) { _ in
+      let vc = ItemSelectionViewController()
+      vc.items = availableFolders
+
+      vc.onItemSelected = { selectedFolder in
+        self.onTransition?(.moveIntoFolder(selectedFolder, items: selectedItems))
+      }
+
+      let nav = AppNavigationController(rootViewController: vc)
+      self.navigationController.present(nav, animated: true, completion: nil)
+    }
+
+    existingFolderAction.isEnabled = !availableFolders.isEmpty
+    alert.addAction(existingFolderAction)
+
+    alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel))
+
+    self.navigationController.present(alert, animated: true, completion: nil)
   }
 }

@@ -141,12 +141,51 @@ class FolderListViewModel {
     self.coordinator.showItemContents(libraryItem)
   }
 
-  func createFolder(with title: String, items: [LibraryItem]? = nil) {
+  func importIntoFolder(with title: String, items: [LibraryItem]? = nil) {
     do {
       let folder = try DataManager.createFolder(with: title, in: self.folder, library: self.library)
       if let items = items {
         try DataManager.moveItems(items, into: folder)
       }
+    } catch {
+      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
+    }
+
+    self.reloadItems()
+  }
+
+  func createFolder(with title: String, items: [SimpleLibraryItem]? = nil) {
+    do {
+      let folder = try DataManager.createFolder(with: title, in: self.folder, library: self.library)
+      if let fetchedItems = items?.compactMap({ DataManager.getItem(with: $0.relativePath )}) {
+        try DataManager.moveItems(fetchedItems, into: folder)
+      }
+    } catch {
+      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
+    }
+
+    self.reloadItems()
+  }
+
+  func handleMoveIntoLibrary(items: [SimpleLibraryItem]) {
+    let selectedItems = items.compactMap({ DataManager.getItem(with: $0.relativePath )})
+
+    do {
+      try DataManager.moveItems(selectedItems, into: self.library)
+    } catch {
+      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
+    }
+
+    self.reloadItems()
+  }
+
+  func handleMoveIntoFolder(_ folder: SimpleLibraryItem, items: [SimpleLibraryItem]) {
+    guard let storedFolder = DataManager.getItem(with: folder.relativePath) as? Folder else { return }
+
+    let fetchedItems = items.compactMap({ DataManager.getItem(with: $0.relativePath )})
+
+    do {
+      try DataManager.moveItems(fetchedItems, into: storedFolder)
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
@@ -216,5 +255,33 @@ class FolderListViewModel {
     for url in urls {
       DataManager.processFile(at: url)
     }
+  }
+
+  func showSortOptions() {
+    self.coordinator.showSortOptions()
+  }
+
+  func showMoveOptions(selectedItems: [SimpleLibraryItem]) {
+    var availableFolders = [SimpleLibraryItem]()
+
+    if let existingFolders = DataManager.fetchFolders(in: self.folder) {
+      for folder in existingFolders {
+        if selectedItems.contains(where: { $0.relativePath == folder.relativePath }) { continue }
+
+        availableFolders.append(SimpleLibraryItem(from: folder, defaultArtwork: self.defaultArtwork))
+      }
+    }
+
+    self.coordinator.showMoveOptions(selectedItems: selectedItems, availableFolders: availableFolders)
+  }
+
+  func handleSort(by option: PlayListSortOrder) {
+    // TODO: This must be reworked after the manual rank migration is done
+    let orderedSet = NSOrderedSet(array: self.items.value)
+    guard let sortedItems = BookSortService.sort(orderedSet, by: option).array as? [SimpleLibraryItem] else {
+      return
+    }
+
+    self.items.value = sortedItems
   }
 }

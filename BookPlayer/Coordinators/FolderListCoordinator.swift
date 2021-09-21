@@ -62,7 +62,7 @@ class FolderListCoordinator: ItemListCoordinator {
         placeholder = item.title
       }
 
-      self?.showCreatePlaylistAlert(placeholder: placeholder, with: items)
+      self?.showImportIntoFolderAlert(placeholder: placeholder, with: items)
     })
 
     self.navigationController.present(alert, animated: true, completion: nil)

@@ -244,22 +244,6 @@ class LibraryViewController: ItemListViewController, UIGestureRecognizerDelegate
         }
 
         let existingFolderAction = UIAlertAction(title: "existing_playlist_button".localized, style: .default) { _ in
-
-            let vc = ItemSelectionViewController()
-            vc.items = availableFolders
-
-            vc.onItemSelected = { selectedItem in
-              guard let selectedFolder = selectedItem as? Folder else { return }
-
-              do {
-                try self.move(selectedItems, to: selectedFolder)
-              } catch {
-                self.showAlert("error_title".localized, message: error.localizedDescription)
-              }
-            }
-
-            let nav = AppNavigationController(rootViewController: vc)
-            self.present(nav, animated: true, completion: nil)
         }
 
         existingFolderAction.isEnabled = !availableFolders.isEmpty

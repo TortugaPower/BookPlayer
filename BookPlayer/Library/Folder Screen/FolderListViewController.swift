@@ -126,8 +126,9 @@ class FolderListViewController: UIViewController, Storyboarded {
         return
       }
 
-      // TODO: handle move
-      let selectedItems = indexPaths.map({ self.dataSource.itemIdentifier(for: $0) })
+      let selectedItems = indexPaths.compactMap({ self.dataSource.itemIdentifier(for: $0) })
+
+      self.viewModel.showMoveOptions(selectedItems: selectedItems)
     }
 
     self.bulkControls.onDeleteTap = {
@@ -172,10 +173,23 @@ class FolderListViewController: UIViewController, Storyboarded {
       case .importOperationFinished(let files):
         self.showLoadView(false)
         self.viewModel.handleOperationCompletion(files)
+      case .importIntoFolder(let title, let items):
+        self.viewModel.importIntoFolder(with: title, items: items)
       case .createFolder(let title, let items):
+        self.setEditing(false, animated: true)
         self.viewModel.createFolder(with: title, items: items)
+      case .moveIntoLibrary(let items):
+        self.setEditing(false, animated: true)
+        self.viewModel.handleMoveIntoLibrary(items: items)
+      case .moveIntoFolder(let selectedFolder, let items):
+        self.setEditing(false, animated: true)
+        self.viewModel.handleMoveIntoFolder(selectedFolder, items: items)
       case .insertIntoLibrary(let items):
+        self.setEditing(false, animated: true)
         self.viewModel.handleInsertionIntoLibrary(items)
+      case .sortItems(let option):
+        self.setEditing(false, animated: true)
+        self.viewModel.handleSort(by: option)
       }
     }
   }

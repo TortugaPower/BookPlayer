@@ -112,6 +112,7 @@ class ThemesViewController: UIViewController, TelemetryProtocol {
     }
 
     func extractTheme() {
+      /* Disabled at the moment
         let vc = ItemSelectionViewController()
 
         guard let books = DataManager.getBooks() else { return }
@@ -123,6 +124,7 @@ class ThemesViewController: UIViewController, TelemetryProtocol {
         self.present(nav, animated: true) {
             self.extractedThemesTableView.reloadData()
         }
+       **/
     }
 
     @IBAction func sliderUpdated(_ sender: UISlider) {

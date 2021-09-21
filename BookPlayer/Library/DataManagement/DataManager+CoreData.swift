@@ -223,11 +223,19 @@ extension DataManager {
 
     return try? self.getContext().fetch(fetchRequest).first
   }
+
   public class func fetchContents(of folder: Folder, limit: Int = 30, offset: Int) -> [LibraryItem]? {
     let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
     fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), folder.relativePath)
     fetchRequest.fetchLimit = limit
     fetchRequest.fetchOffset = offset
+
+    return try? self.getContext().fetch(fetchRequest)
+  }
+
+  public class func fetchFolders(in folder: Folder) -> [LibraryItem]? {
+    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+    fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), folder.relativePath)
 
     return try? self.getContext().fetch(fetchRequest)
   }
