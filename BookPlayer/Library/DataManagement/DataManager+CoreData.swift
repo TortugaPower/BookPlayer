@@ -239,4 +239,10 @@ extension DataManager {
 
     return try? self.getContext().fetch(fetchRequest)
   }
+
+  public class func renameItem(_ item: LibraryItem, with newTitle: String) {
+    item.title = newTitle
+
+    self.saveContext()
+  }
 }

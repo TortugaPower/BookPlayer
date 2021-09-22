@@ -27,13 +27,14 @@ extension ItemListActions {
     }
 
     func createExportController(_ item: LibraryItem) -> UIViewController? {
-        guard let book = item as? Book else { return nil }
-
-        let bookProvider = BookActivityItemProvider(book)
-
-        let shareController = UIActivityViewController(activityItems: [bookProvider], applicationActivities: nil)
-        shareController.excludedActivityTypes = [.copyToPasteboard]
-
-        return shareController
+//        guard let book = item as? Book else { return nil }
+//
+//        let bookProvider = BookActivityItemProvider(book)
+//
+//        let shareController = UIActivityViewController(activityItems: [bookProvider], applicationActivities: nil)
+//        shareController.excludedActivityTypes = [.copyToPasteboard]
+//
+//        return shareController
+      return nil
     }
 }

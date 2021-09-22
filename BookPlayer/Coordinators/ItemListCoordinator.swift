@@ -18,6 +18,10 @@ enum ItemListActionRoutes {
   case createFolder(_ title: String, items: [SimpleLibraryItem]?)
   case moveIntoLibrary(items: [SimpleLibraryItem])
   case moveIntoFolder(_ folder: SimpleLibraryItem, items: [SimpleLibraryItem])
+  case delete(_ items: [SimpleLibraryItem], mode: DeleteMode)
+  case rename(_ item: SimpleLibraryItem, newTitle: String)
+  case resetPlaybackPosition(_ items: [SimpleLibraryItem])
+  case markAsFinished(_ items: [SimpleLibraryItem], flag: Bool)
   case newImportOperation(_ operation: ImportOperation)
   case importOperationFinished(_ urls: [URL])
   case insertIntoLibrary(_ items: [LibraryItem])
@@ -259,15 +263,15 @@ extension ItemListCoordinator {
     self.navigationController.present(alertController, animated: true, completion: nil)
   }
 
-  func showDocumentPicker(in vc: UIViewController) {
+  func showDocumentPicker() {
     let providerList = UIDocumentPickerViewController(documentTypes: ["public.audio", "com.pkware.zip-archive", "public.movie"], in: .import)
 
-    providerList.delegate = vc as? UIDocumentPickerDelegate
+    providerList.delegate = self.presentingViewController as? UIDocumentPickerDelegate
     providerList.allowsMultipleSelection = true
 
     UIApplication.shared.isIdleTimerDisabled = true
 
-    vc.present(providerList, animated: true, completion: nil)
+    self.presentingViewController?.present(providerList, animated: true, completion: nil)
   }
 
   func showSortOptions() {
@@ -323,5 +327,105 @@ extension ItemListCoordinator {
     alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel))
 
     self.navigationController.present(alert, animated: true, completion: nil)
+  }
+
+  func showDeleteAlert(selectedItems: [SimpleLibraryItem]) {
+    let alert = UIAlertController(title: String.localizedStringWithFormat("delete_multiple_items_title".localized, selectedItems.count),
+                                  message: "delete_multiple_items_description".localized,
+                                  preferredStyle: .alert)
+
+    alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
+
+    var deleteActionTitle = "delete_button".localized
+
+    if selectedItems.count == 1,
+       let item = selectedItems.first,
+       item.type == .folder {
+        deleteActionTitle = "delete_deep_button".localized
+
+        alert.title = String(format: "delete_single_item_title".localized, item.title)
+        alert.message = "delete_single_playlist_description".localized
+        alert.addAction(UIAlertAction(title: "delete_shallow_button".localized, style: .default, handler: { _ in
+          self.onTransition?(.delete(selectedItems, mode: .shallow))
+        }))
+    }
+
+    alert.addAction(UIAlertAction(title: deleteActionTitle, style: .destructive, handler: { _ in
+      self.onTransition?(.delete(selectedItems, mode: .deep))
+    }))
+
+    self.navigationController.present(alert, animated: true, completion: nil)
+  }
+
+  func showMoreOptionsAlert(selectedItems: [SimpleLibraryItem]) {
+    guard let item = selectedItems.first else {
+      return
+    }
+
+    let isSingle = selectedItems.count == 1
+
+    let sheetTitle = isSingle ? item.title : "options_button".localized
+
+    let sheet = UIAlertController(title: sheetTitle, message: nil, preferredStyle: .actionSheet)
+
+    let renameAction = UIAlertAction(title: "rename_button".localized, style: .default) { _ in
+      self.showRenameAlert(item)
+    }
+
+    renameAction.isEnabled = isSingle
+    sheet.addAction(renameAction)
+
+    sheet.addAction(UIAlertAction(title: "move_title".localized, style: .default, handler: { _ in
+      self.showMoveOptions(selectedItems: selectedItems, availableFolders: [])
+    }))
+
+    let exportAction = UIAlertAction(title: "export_button".localized, style: .default, handler: { _ in
+      self.showExportController(for: item)
+    })
+
+    exportAction.isEnabled = isSingle
+    sheet.addAction(exportAction)
+
+    sheet.addAction(UIAlertAction(title: "jump_start_title".localized, style: .default, handler: { [weak self] _ in
+      self?.onTransition?(.resetPlaybackPosition(selectedItems))
+    }))
+
+    let areFinished = selectedItems.filter({ $0.progress != 1.0 }).isEmpty
+    let markTitle = areFinished ? "mark_unfinished_title".localized : "mark_finished_title".localized
+
+    sheet.addAction(UIAlertAction(title: markTitle, style: .default, handler: { [weak self] _ in
+      self?.onTransition?(.markAsFinished(selectedItems, flag: !areFinished))
+    }))
+
+    sheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
+
+    self.navigationController.present(sheet, animated: true, completion: nil)
+  }
+
+  func showRenameAlert(_ item: SimpleLibraryItem) {
+    let alert = UIAlertController(title: "rename_title".localized, message: nil, preferredStyle: .alert)
+
+    alert.addTextField(configurationHandler: { textfield in
+      textfield.placeholder = item.title
+      textfield.text = item.title
+    })
+
+    alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
+    alert.addAction(UIAlertAction(title: "rename_button".localized, style: .default) { [weak self] _ in
+      if let title = alert.textFields!.first!.text, title != item.title {
+        self?.onTransition?(.rename(item, newTitle: title))
+      }
+    })
+
+    self.navigationController.present(alert, animated: true, completion: nil)
+  }
+
+  func showExportController(for item: SimpleLibraryItem) {
+    let bookProvider = BookActivityItemProvider(item)
+
+    let shareController = UIActivityViewController(activityItems: [bookProvider], applicationActivities: nil)
+    shareController.excludedActivityTypes = [.copyToPasteboard]
+
+    self.navigationController.present(shareController, animated: true, completion: nil)
   }
 }

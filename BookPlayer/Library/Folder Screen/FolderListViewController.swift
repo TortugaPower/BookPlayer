@@ -34,6 +34,7 @@ class FolderListViewController: UIViewController, Storyboarded {
 
     self.configureDataSource()
     self.bindDataItems()
+    self.bindTransitionActions()
     self.configureInitialState()
   }
 
@@ -118,7 +119,7 @@ class FolderListViewController: UIViewController, Storyboarded {
     self.bulkControls.layer.shadowOffset = .zero
 
     self.bulkControls.onSortTap = {
-      // TODO: handle sort
+      self.viewModel.showSortOptions()
     }
 
     self.bulkControls.onMoveTap = {
@@ -136,8 +137,9 @@ class FolderListViewController: UIViewController, Storyboarded {
         return
       }
 
-      // TODO: handle delete
-      let selectedItems = indexPaths.map({ self.dataSource.itemIdentifier(for: $0) })
+      let selectedItems = indexPaths.compactMap({ self.dataSource.itemIdentifier(for: $0) })
+
+      self.viewModel.showDeleteOptions(selectedItems: selectedItems)
     }
 
     self.bulkControls.onMoreTap = {
@@ -146,7 +148,9 @@ class FolderListViewController: UIViewController, Storyboarded {
       }
 
       // TODO: handle more action
-      let selectedItems = indexPaths.map({ self.dataSource.itemIdentifier(for: $0) })
+      let selectedItems = indexPaths.compactMap({ self.dataSource.itemIdentifier(for: $0) })
+
+      self.viewModel.showMoreOptions(selectedItems: selectedItems)
     }
   }
 
@@ -160,13 +164,17 @@ class FolderListViewController: UIViewController, Storyboarded {
       self?.viewModel.reorder(item: item, sourceIndexPath: sourceIndexPath, destinationIndexPath: destinationIndexPath)
     }
     .store(in: &disposeBag)
+  }
 
+  func bindTransitionActions() {
     self.viewModel.coordinator.onTransition = { route in
+      self.setEditing(false, animated: true)
+
       switch route {
       case .importOptions:
         self.viewModel.showAddActions()
       case .importLocalFiles:
-        self.viewModel.coordinator.showDocumentPicker(in: self)
+        self.viewModel.coordinator.showDocumentPicker()
       case .newImportOperation(let operation):
         let loadingTitle = String.localizedStringWithFormat("import_processing_description".localized, operation.files.count)
         self.showLoadView(true, title: loadingTitle)
@@ -176,20 +184,23 @@ class FolderListViewController: UIViewController, Storyboarded {
       case .importIntoFolder(let title, let items):
         self.viewModel.importIntoFolder(with: title, items: items)
       case .createFolder(let title, let items):
-        self.setEditing(false, animated: true)
         self.viewModel.createFolder(with: title, items: items)
       case .moveIntoLibrary(let items):
-        self.setEditing(false, animated: true)
         self.viewModel.handleMoveIntoLibrary(items: items)
       case .moveIntoFolder(let selectedFolder, let items):
-        self.setEditing(false, animated: true)
         self.viewModel.handleMoveIntoFolder(selectedFolder, items: items)
       case .insertIntoLibrary(let items):
-        self.setEditing(false, animated: true)
         self.viewModel.handleInsertionIntoLibrary(items)
+      case .delete(let items, let mode):
+        self.viewModel.handleDelete(items: items, mode: mode)
       case .sortItems(let option):
-        self.setEditing(false, animated: true)
         self.viewModel.handleSort(by: option)
+      case .rename(let item, let newTitle):
+        self.viewModel.handleRename(item: item, with: newTitle)
+      case .resetPlaybackPosition(let items):
+        self.viewModel.handleResetPlaybackPosition(for: items)
+      case .markAsFinished(let items, let flag):
+        self.viewModel.handleMarkAsFinished(for: items, flag: flag)
       }
     }
   }

@@ -193,6 +193,18 @@ class FolderListViewModel {
     self.reloadItems()
   }
 
+  func handleDelete(items: [SimpleLibraryItem], mode: DeleteMode) {
+    let selectedItems = items.compactMap({ DataManager.getItem(with: $0.relativePath )})
+
+    do {
+      try DataManager.delete(selectedItems, library: self.library, mode: mode)
+    } catch {
+      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
+    }
+
+    self.reloadItems()
+  }
+
   func handleOperationCompletion(_ files: [URL]) {
     let processedItems = DataManager.insertItems(from: files, into: nil, library: self.library)
 
@@ -275,6 +287,14 @@ class FolderListViewModel {
     self.coordinator.showMoveOptions(selectedItems: selectedItems, availableFolders: availableFolders)
   }
 
+  func showDeleteOptions(selectedItems: [SimpleLibraryItem]) {
+    self.coordinator.showDeleteAlert(selectedItems: selectedItems)
+  }
+
+  func showMoreOptions(selectedItems: [SimpleLibraryItem]) {
+    self.coordinator.showMoreOptionsAlert(selectedItems: selectedItems)
+  }
+
   func handleSort(by option: PlayListSortOrder) {
     // TODO: This must be reworked after the manual rank migration is done
     let orderedSet = NSOrderedSet(array: self.items.value)
@@ -283,5 +303,35 @@ class FolderListViewModel {
     }
 
     self.items.value = sortedItems
+  }
+
+  func handleRename(item: SimpleLibraryItem, with newTitle: String) {
+    guard let libraryItem = DataManager.getItem(with: item.relativePath) else {
+      return
+    }
+
+    DataManager.renameItem(libraryItem, with: newTitle)
+
+    self.reloadItems()
+  }
+
+  func handleResetPlaybackPosition(for items: [SimpleLibraryItem]) {
+    let selectedItems = items.compactMap({ DataManager.getItem(with: $0.relativePath )})
+
+    for item in selectedItems {
+      DataManager.jumpToStart(item)
+    }
+
+    self.reloadItems()
+  }
+
+  func handleMarkAsFinished(for items: [SimpleLibraryItem], flag: Bool) {
+    let selectedItems = items.compactMap({ DataManager.getItem(with: $0.relativePath )})
+
+    for item in selectedItems {
+      DataManager.mark(item, asFinished: flag)
+    }
+
+    self.reloadItems()
   }
 }

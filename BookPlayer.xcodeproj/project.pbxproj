@@ -181,7 +181,6 @@
 		41A1B0E8226E9BC500EA0400 /* BookPlayerKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		41A1B0F2226E9D1200EA0400 /* BookPlayer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */; };
 		41A1B101226E9D4500EA0400 /* FileItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E3102148606600072AA2 /* FileItem.swift */; };
-		41A1B102226E9D4800EA0400 /* BookActivityItemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D39D40215F177D00B65290 /* BookActivityItemProvider.swift */; };
 		41A1B104226E9DBA00EA0400 /* UIColor+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30B085E209654E3003F325B /* UIColor+BookPlayer.swift */; };
 		41A1B105226E9DBD00EA0400 /* UIColor+Sweetercolor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30CD2A0209791FA00258B09 /* UIColor+Sweetercolor.swift */; };
 		41A1B108226E9DF800EA0400 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4175E1232206CF9600FB7B71 /* DataManager.swift */; };
@@ -261,6 +260,7 @@
 		41D20DB325D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 41D20DAE25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel */; };
 		41D20DB425D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 41D20DAE25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel */; };
 		41D4F2EF21053944009F1B1E /* IndexPath+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D4F2EE21053944009F1B1E /* IndexPath+BookPlayer.swift */; };
+		41DA44BD26FAEC4F00F3A05D /* BookActivityItemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D39D40215F177D00B65290 /* BookActivityItemProvider.swift */; };
 		41E562C4223896B500C06BC9 /* UserDefaults+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41E562C3223896B500C06BC9 /* UserDefaults+BookPlayer.swift */; };
 		41E562CE22394F5200C06BC9 /* ayu-light@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E562CC22394F5200C06BC9 /* ayu-light@2x.png */; };
 		41E562CF22394F5200C06BC9 /* ayu-light@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E562CD22394F5200C06BC9 /* ayu-light@3x.png */; };
@@ -1076,6 +1076,7 @@
 		4163E30F21484C3500072AA2 /* DataManagement */ = {
 			isa = PBXGroup;
 			children = (
+				41D39D40215F177D00B65290 /* BookActivityItemProvider.swift */,
 				41A1B12B226FC0A200EA0400 /* DataManager+BookPlayer.swift */,
 				41A1B136226FED4000EA0400 /* DataManager+CoreData.swift */,
 			);
@@ -1496,7 +1497,6 @@
 				4138CE0E26E5540E0014F11E /* Bookmark+CoreDataProperties.swift */,
 				4138CE1526E584B60014F11E /* BookmarkType.swift */,
 				4163E3102148606600072AA2 /* FileItem.swift */,
-				41D39D40215F177D00B65290 /* BookActivityItemProvider.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -2252,6 +2252,7 @@
 				C318D3AD208CF624000666F8 /* PlayerJumpIcon.swift in Sources */,
 				4138CE2326E66E420014F11E /* BookmarkTableViewCell.swift in Sources */,
 				C37A6875209F13120063AEAC /* CreditsViewController.swift in Sources */,
+				41DA44BD26FAEC4F00F3A05D /* BookActivityItemProvider.swift in Sources */,
 				4138CE1C26E5B42F0014F11E /* BookmarksViewModel.swift in Sources */,
 				4197240021874D5F00AB1190 /* UserActivityManager.swift in Sources */,
 				41D4F2EF21053944009F1B1E /* IndexPath+BookPlayer.swift in Sources */,
@@ -2335,7 +2336,6 @@
 				41A1B126226F88C500EA0400 /* LibraryItem+CoreDataProperties.swift in Sources */,
 				41A1B128226F88C500EA0400 /* Library+CoreDataProperties.swift in Sources */,
 				4138CE1126E5542C0014F11E /* Bookmark+CoreDataClass.swift in Sources */,
-				41A1B102226E9D4800EA0400 /* BookActivityItemProvider.swift in Sources */,
 				41A1B124226F88C500EA0400 /* Book+CoreDataProperties.swift in Sources */,
 				41A1B108226E9DF800EA0400 /* DataManager.swift in Sources */,
 				41A1B131226FE33500EA0400 /* Constants.swift in Sources */,
