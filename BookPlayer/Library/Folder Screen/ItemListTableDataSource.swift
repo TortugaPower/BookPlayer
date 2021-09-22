@@ -57,14 +57,4 @@ class ItemListTableDataSource: UITableViewDiffableDataSource<SectionType, ItemTy
   override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
     return indexPath.sectionValue == .data
   }
-
-  override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-    if editingStyle == .delete {
-      if let identifierToDelete = itemIdentifier(for: indexPath) {
-        var snapshot = self.snapshot()
-        snapshot.deleteItems([identifierToDelete])
-        apply(snapshot)
-      }
-    }
-  }
 }

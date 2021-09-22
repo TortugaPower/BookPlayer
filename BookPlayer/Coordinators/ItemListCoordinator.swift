@@ -397,6 +397,10 @@ extension ItemListCoordinator {
       self?.onTransition?(.markAsFinished(selectedItems, flag: !areFinished))
     }))
 
+    sheet.addAction(UIAlertAction(title: "\("delete_button".localized)", style: .destructive) { _ in
+      self.showDeleteAlert(selectedItems: selectedItems)
+    })
+
     sheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
 
     self.navigationController.present(sheet, animated: true, completion: nil)

@@ -321,6 +321,18 @@ extension FolderListViewController: UITableViewDelegate {
 
     self.viewModel.showItemContents(item)
   }
+
+  func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+    guard indexPath.sectionValue == .data,
+          let item = self.dataSource.itemIdentifier(for: indexPath) else { return nil }
+
+    let optionsAction = UIContextualAction(style: .normal, title: "\("options_button".localized)…") { _, _, completion in
+      self.viewModel.showMoreOptions(selectedItems: [item])
+      completion(true)
+    }
+
+    return UISwipeActionsConfiguration(actions: [optionsAction])
+  }
 }
 
 extension FolderListViewController: UITableViewDragDelegate {
