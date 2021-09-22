@@ -10,6 +10,8 @@ import BookPlayerKit
 import UIKit
 
 class LoadingCoordinator: Coordinator {
+  var pendingURLActions = [Action]()
+
   override func start() {
     let loadingVC = LoadingViewController.instantiate(from: .Main)
     loadingVC.coordinator = self
@@ -39,5 +41,9 @@ class LoadingCoordinator: Coordinator {
     self.presentingViewController?.dismiss(animated: true, completion: { [weak self] in
       self?.parentCoordinator?.childDidFinish(self)
     })
+  }
+
+  override func getMainCoordinator() -> MainCoordinator? {
+    return self.childCoordinators.first as? MainCoordinator
   }
 }

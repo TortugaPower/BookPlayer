@@ -347,4 +347,19 @@ class FolderListViewModel {
 
     self.reloadItems()
   }
+
+  func handleDownload(_ url: URL) {
+    NetworkService.shared.download(from: url) { response in
+      NotificationCenter.default.post(name: .downloadEnd, object: self)
+
+      if response.error != nil,
+         let error = response.error {
+        self.coordinator.showAlert("network_error_title".localized, message: error.localizedDescription)
+      }
+
+      if let response = response.response, response.statusCode >= 300 {
+        self.coordinator.showAlert("network_error_title".localized, message: "Code \(response.statusCode)")
+      }
+    }
+  }
 }

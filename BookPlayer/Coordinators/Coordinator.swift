@@ -40,6 +40,8 @@ class Coordinator: NSObject {
   func showAlert(_ title: String? = nil, message: String? = nil) {
     self.navigationController.showAlert(title, message: message)
   }
+
+  func getMainCoordinator() -> MainCoordinator? { return nil }
 }
 
 extension Coordinator: UINavigationControllerDelegate {

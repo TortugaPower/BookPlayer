@@ -124,28 +124,32 @@ public enum Command: String {
     case widget
 }
 
-public struct Action {
-    public var command: Command
-    public var parameters: [URLQueryItem]
+public struct Action: Equatable {
+  public var command: Command
+  public var parameters: [URLQueryItem]
 
-    public func getParametersDictionary() -> [String: String] {
-        var payload = ["command": self.command.rawValue]
+  public static func == (lhs: Action, rhs: Action) -> Bool {
+    return lhs.command == rhs.command
+  }
 
-        for item in self.parameters {
-            payload[item.name] = item.value ?? ""
-        }
+  public func getParametersDictionary() -> [String: String] {
+    var payload = ["command": self.command.rawValue]
 
-        return payload
+    for item in self.parameters {
+      payload[item.name] = item.value ?? ""
     }
 
-    public init(command: Command, parameters: [URLQueryItem]? = []) {
-        self.command = command
-        self.parameters = parameters ?? []
-    }
+    return payload
+  }
 
-    public func getQueryValue(for key: String) -> String? {
-        return self.parameters.filter { $0.name == key }.first?.value
-    }
+  public init(command: Command, parameters: [URLQueryItem]? = []) {
+    self.command = command
+    self.parameters = parameters ?? []
+  }
+
+  public func getQueryValue(for key: String) -> String? {
+    return self.parameters.filter { $0.name == key }.first?.value
+  }
 }
 
 public class TimeParser {

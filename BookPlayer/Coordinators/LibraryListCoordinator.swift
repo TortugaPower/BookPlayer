@@ -25,6 +25,13 @@ class LibraryListCoordinator: ItemListCoordinator {
     if let book = self.library.lastPlayedBook {
       self.loadLastBook(book)
     }
+
+    if let mainCoordinator = self.getMainCoordinator(),
+       let loadingCoordinator = mainCoordinator.parentCoordinator as? LoadingCoordinator {
+      for action in loadingCoordinator.pendingURLActions {
+        ActionParserService.handleAction(action)
+      }
+    }
   }
 
   // Clean up for interactive pop gestures

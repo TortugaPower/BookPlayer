@@ -31,6 +31,12 @@ class ActionParserService {
     }
 
     public class func handleAction(_ action: Action) {
+      guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+
+      if !appDelegate.coordinator.pendingURLActions.contains(action) {
+        appDelegate.coordinator.pendingURLActions.append(action)
+      }
+
         switch action.command {
         case .play:
             self.handlePlayAction(action)
@@ -70,66 +76,77 @@ class ActionParserService {
         }
     }
 
-    private class func handlePlayAction(_ action: Action) {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
-
-        if let value = action.getQueryValue(for: "showPlayer"),
-            let showPlayer = Bool(value),
-            showPlayer {
-            appDelegate.showPlayer()
-        }
-
-        if let value = action.getQueryValue(for: "autoplay"),
-            let autoplay = Bool(value),
-            !autoplay {
+  private class func handlePlayAction(_ action: Action) {
+    guard let appDelegate = UIApplication.shared.delegate as? AppDelegate,
+          let mainCoordinator = appDelegate.coordinator.getMainCoordinator() else {
             return
-        }
+          }
 
-        guard let bookIdentifier = action.getQueryValue(for: "identifier") else {
-            appDelegate.playLastBook()
-            return
-        }
-
-        if let loadedBook = PlayerManager.shared.currentBook, loadedBook.identifier == bookIdentifier {
-            PlayerManager.shared.play()
-            return
-        }
-
-        guard let library = try? DataManager.getLibrary(),
-              let book = DataManager.getBook(with: bookIdentifier, from: library) else { return }
-
-        guard let libraryVC = appDelegate.getLibraryVC() else {
-            return
-        }
-
-        libraryVC.coordinator?.loadPlayer(book)
-        NotificationCenter.default.post(name: .bookChange,
-                                        object: nil,
-                                        userInfo: ["book": book])
+    if let value = action.getQueryValue(for: "showPlayer"),
+       let showPlayer = Bool(value),
+       showPlayer {
+      appDelegate.showPlayer()
     }
 
-    private class func handleDownloadAction(_ action: Action) {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate,
-            let libraryVC = appDelegate.getLibraryVC() else {
+    if let value = action.getQueryValue(for: "autoplay"),
+       let autoplay = Bool(value),
+       !autoplay {
+      return
+    }
+
+    guard let bookIdentifier = action.getQueryValue(for: "identifier") else {
+      self.removeAction(action)
+      appDelegate.playLastBook()
+      return
+    }
+
+    if let loadedBook = mainCoordinator.playerManager.currentBook,
+       loadedBook.identifier == bookIdentifier {
+      self.removeAction(action)
+      mainCoordinator.playerManager.play()
+      return
+    }
+
+    guard let libraryCoordinator = mainCoordinator.getLibraryCoordinator(),
+          let book = DataManager.getBook(with: bookIdentifier, from: libraryCoordinator.library) else { return }
+    self.removeAction(action)
+    libraryCoordinator.loadPlayer(book)
+  }
+
+  private class func handleDownloadAction(_ action: Action) {
+    guard let appDelegate = UIApplication.shared.delegate as? AppDelegate,
+          let libraryCoordinator = appDelegate.coordinator.getMainCoordinator()?.getLibraryCoordinator(),
+          let urlString = action.getQueryValue(for: "url")?.replacingOccurrences(of: "\"", with: "") else {
             return
-        }
+          }
 
-        libraryVC.navigationController?.dismiss(animated: true, completion: nil)
-
-        if let url = action.getQueryValue(for: "url")?.replacingOccurrences(of: "\"", with: "") {
-            libraryVC.downloadBook(from: url)
-        }
+    guard let url = URL(string: urlString) else {
+      libraryCoordinator.showAlert("error_title".localized, message: String.localizedStringWithFormat("invalid_url_title".localized, urlString))
+      return
     }
 
-    private class func handleWidgetAction(_ action: Action) {
-        if action.getQueryValue(for: "autoplay") != nil {
-            let playAction = Action(command: .play, parameters: action.parameters)
-            self.handleAction(playAction)
-        }
+    self.removeAction(action)
+    libraryCoordinator.onTransition?(.downloadBook(url))
+  }
 
-        if action.getQueryValue(for: "seconds") != nil {
-            let sleepAction = Action(command: .sleep, parameters: action.parameters)
-            self.handleAction(sleepAction)
-        }
+  private class func handleWidgetAction(_ action: Action) {
+    if action.getQueryValue(for: "autoplay") != nil {
+      let playAction = Action(command: .play, parameters: action.parameters)
+      self.handleAction(playAction)
     }
+
+    if action.getQueryValue(for: "seconds") != nil {
+      let sleepAction = Action(command: .sleep, parameters: action.parameters)
+      self.handleAction(sleepAction)
+    }
+  }
+
+  public class func removeAction(_ action: Action) {
+    guard let appDelegate = UIApplication.shared.delegate as? AppDelegate,
+          let index = appDelegate.coordinator.pendingURLActions.firstIndex(of: action) else {
+            return
+          }
+
+    appDelegate.coordinator.pendingURLActions.remove(at: index)
+  }
 }

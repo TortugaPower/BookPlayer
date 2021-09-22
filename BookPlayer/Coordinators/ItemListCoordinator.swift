@@ -15,6 +15,7 @@ enum ItemListActionRoutes {
   case importOptions
   case importLocalFiles
   case importIntoFolder(_ title: String, items: [LibraryItem]?)
+  case downloadBook(_ url: URL)
   case createFolder(_ title: String, items: [SimpleLibraryItem]?)
   case moveIntoLibrary(items: [SimpleLibraryItem])
   case moveIntoFolder(_ folder: SimpleLibraryItem, items: [SimpleLibraryItem])
@@ -89,7 +90,7 @@ class ItemListCoordinator: Coordinator {
     fatalError("ItemListCoordinator is an abstract class, override this function in the subclass")
   }
 
-  func getMainCoordinator() -> MainCoordinator? {
+  override func getMainCoordinator() -> MainCoordinator? {
     switch self.parentCoordinator {
     case let mainCoordinator as MainCoordinator:
       return mainCoordinator

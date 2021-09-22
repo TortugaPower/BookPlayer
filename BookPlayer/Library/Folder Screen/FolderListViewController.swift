@@ -36,6 +36,7 @@ class FolderListViewController: UIViewController, Storyboarded, UIGestureRecogni
     self.bindDataItems()
     self.bindTransitionActions()
     self.configureInitialState()
+    self.bindNetworkObserver()
   }
 
   func configureInitialState() {
@@ -51,6 +52,8 @@ class FolderListViewController: UIViewController, Storyboarded, UIGestureRecogni
         action: #selector(showSettings)
       )
       self.navigationController!.interactivePopGestureRecognizer!.delegate = self
+
+      DataManager.notifyPendingFiles()
     }
 
     self.showLoadView(false)
@@ -108,6 +111,28 @@ class FolderListViewController: UIViewController, Storyboarded, UIGestureRecogni
     self.updateSnapshot(with: self.viewModel.getInitialItems(), animated: false)
   }
 
+  func bindNetworkObserver() {
+    NotificationCenter.default.publisher(for: .downloadProgress)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] notification in
+        guard let self = self,
+              let userInfo = notification.userInfo,
+              let progress = userInfo["progress"] as? String else {
+                return
+              }
+
+        self.showLoadView(true, title: "downloading_file_title".localized, subtitle: "\("progress_title".localized) \(progress)%")
+      }
+      .store(in: &disposeBag)
+
+    NotificationCenter.default.publisher(for: .downloadEnd)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in
+        self?.showLoadView(false)
+      }
+      .store(in: &disposeBag)
+  }
+
   func gestureRecognizerShouldBegin(_: UIGestureRecognizer) -> Bool {
       return (navigationController?.viewControllers.count ?? 0) > 1
   }
@@ -161,7 +186,6 @@ class FolderListViewController: UIViewController, Storyboarded, UIGestureRecogni
         return
       }
 
-      // TODO: handle more action
       let selectedItems = indexPaths.compactMap({ self.dataSource.itemIdentifier(for: $0) })
 
       self.viewModel.showMoreOptions(selectedItems: selectedItems)
@@ -215,6 +239,9 @@ class FolderListViewController: UIViewController, Storyboarded, UIGestureRecogni
         self.viewModel.handleResetPlaybackPosition(for: items)
       case .markAsFinished(let items, let flag):
         self.viewModel.handleMarkAsFinished(for: items, flag: flag)
+      case .downloadBook(let url):
+        self.showLoadView(true, title: "downloading_file_title".localized, subtitle: "\("progress_title".localized) 0%")
+        self.viewModel.handleDownload(url)
       }
     }
   }

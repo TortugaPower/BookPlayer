@@ -65,4 +65,12 @@ class MainCoordinator: Coordinator {
   func showMiniPlayer(_ flag: Bool) {
     self.rootViewController.animateView(self.rootViewController.miniPlayerContainer, show: flag)
   }
+
+  func hasPlayerShown() -> Bool {
+    return self.childCoordinators.contains(where: { $0 is PlayerCoordinator })
+  }
+
+  func getLibraryCoordinator() -> LibraryListCoordinator? {
+    return self.childCoordinators.first as? LibraryListCoordinator
+  }
 }

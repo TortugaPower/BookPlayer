@@ -21,7 +21,7 @@ import WatchConnectivity
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
     var window: UIWindow?
-    var coordinator: MainCoordinator?
+    let coordinator = LoadingCoordinator(navigationController: AppNavigationController.instantiate(from: .Main))
     var wasPlayingBeforeInterruption: Bool = false
     var watcher: DirectoryWatcher?
 
@@ -71,12 +71,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
         // initialize Telemetry
         self.setupTelemetry()
 
-        if let activityDictionary = launchOptions?[.userActivityDictionary] as? [UIApplication.LaunchOptionsKey: Any],
-            let activityType = activityDictionary[.userActivityType] as? String,
-            activityType == Constants.UserActivityPlayback {
-            self.playLastBook()
-        }
-
         // Create a Sentry client
         SentrySDK.start { options in
             options.dsn = "https://23b4d02f7b044c10adb55a0cc8de3881@sentry.io/1414296"
@@ -85,13 +79,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
 
         WatchConnectivityService.sharedManager.startSession()
 
-      let nav = AppNavigationController.instantiate(from: .Main)
-      let coordinator = LoadingCoordinator(navigationController: nav)
-      coordinator.start()
+      self.coordinator.start()
 
       self.window = UIWindow(frame: UIScreen.main.bounds)
-      self.window?.rootViewController = nav
+      self.window?.rootViewController = self.coordinator.navigationController
       self.window?.makeKeyAndVisible()
+
+      if let activityDictionary = launchOptions?[.userActivityDictionary] as? [UIApplication.LaunchOptionsKey: Any],
+          let activityType = activityDictionary[.userActivityType] as? String,
+          activityType == Constants.UserActivityPlayback {
+          self.playLastBook()
+      }
 
       return true
     }
@@ -106,21 +104,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
         TelemetryManager.initialize(with: configuration)
     }
 
-    func getLibraryVC() -> LibraryViewController? {
-        guard let rootVC = UIApplication.shared.keyWindow?.rootViewController! as? RootViewController,
-            let appNav = rootVC.children.first as? AppNavigationController else {
-            return nil
-        }
-
-        return appNav.children.first as? LibraryViewController
-    }
-
     // Handles audio file urls, like when receiving files through AirDrop
     // Also handles custom URL scheme 'bookplayer://'
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
         guard url.isFileURL else {
-            ActionParserService.process(url)
-            return true
+          ActionParserService.process(url)
+          return true
         }
 
         DataManager.processFile(at: url)
@@ -334,28 +323,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
 // MARK: - Actions (custom scheme)
 
 extension AppDelegate {
-    func playLastBook() {
-        if PlayerManager.shared.hasLoadedBook {
-            PlayerManager.shared.play()
-        } else {
-            UserDefaults.standard.set(true, forKey: Constants.UserActivityPlayback)
-        }
-        self.sendSignal(.lastPlayedShortcut, with: nil)
+  func playLastBook() {
+    guard let mainCoordinator = self.coordinator.getMainCoordinator(),
+          mainCoordinator.playerManager.hasLoadedBook else {
+      UserDefaults.standard.set(true, forKey: Constants.UserActivityPlayback)
+      return
     }
 
-    func showPlayer() {
-        if PlayerManager.shared.hasLoadedBook {
-            guard let libraryVC = self.getLibraryVC() else {
-                return
-            }
+    mainCoordinator.playerManager.play()
+  }
 
-            libraryVC.navigationController?.dismiss(animated: true, completion: nil)
-
-          libraryVC.coordinator?.showPlayer()
-        } else {
-            UserDefaults.standard.set(true, forKey: Constants.UserDefaults.showPlayer.rawValue)
-        }
+  func showPlayer() {
+    guard let mainCoordinator = self.coordinator.getMainCoordinator(),
+          mainCoordinator.playerManager.hasLoadedBook else {
+      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.showPlayer.rawValue)
+      return
     }
+
+    if !mainCoordinator.hasPlayerShown() {
+      mainCoordinator.showPlayer()
+    }
+  }
 }
 
 // Helper function inserted by Swift 4.2 migrator.

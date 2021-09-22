@@ -12,6 +12,7 @@ extension Notification.Name {
   static let processingFile = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).file.process")
   static let newFileUrl = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).file.new")
   static let downloadProgress = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).download.progress")
+  static let downloadEnd = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).download.end")
   static let requestReview = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).requestreview")
   static let skipIntervalsChange = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).settings.skip")
   static let reloadData = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).reloaddata")
