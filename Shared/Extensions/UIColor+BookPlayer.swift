@@ -28,7 +28,7 @@ extension UIColor {
         return UIColor(hex: "545454")
     }
 
-    public static var tintColor: UIColor {
+    public static var appTintColor: UIColor {
         return UIColor(hex: "3488D1")
     }
 

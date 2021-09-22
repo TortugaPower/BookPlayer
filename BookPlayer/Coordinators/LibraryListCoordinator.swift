@@ -11,11 +11,20 @@ import UIKit
 
 class LibraryListCoordinator: ItemListCoordinator {
   override func start() {
-    let vc = LibraryViewController.instantiate(from: .Main)
-    vc.coordinator = self
+    let vc = FolderListViewController.instantiate(from: .Main)
+    let viewModel = FolderListViewModel(folder: nil,
+                                        library: self.library,
+                                        player: self.playerManager,
+                                        theme: ThemeManager.shared.currentTheme)
+    viewModel.coordinator = self
+    vc.viewModel = viewModel
+    vc.navigationItem.largeTitleDisplayMode = .automatic
     self.presentingViewController = vc
-    self.navigationController.delegate = self
-    self.navigationController.pushViewController(vc, animated: false)
+    self.navigationController.pushViewController(vc, animated: true)
+
+    if let book = self.library.lastPlayedBook {
+      self.loadLastBook(book)
+    }
   }
 
   // Clean up for interactive pop gestures

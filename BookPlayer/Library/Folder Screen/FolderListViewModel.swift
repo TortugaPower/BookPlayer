@@ -13,8 +13,8 @@ import MediaPlayer
 import Themeable
 
 class FolderListViewModel {
-  weak var coordinator: FolderListCoordinator!
-  let folder: Folder
+  weak var coordinator: ItemListCoordinator!
+  let folder: Folder?
   let library: Library
   let player: PlayerManager
   let pageSize = 10
@@ -26,7 +26,7 @@ class FolderListViewModel {
   private var bookProgressSubscription: AnyCancellable?
   private var containingFolder: Folder?
 
-  init(folder: Folder,
+  init(folder: Folder?,
        library: Library,
        player: PlayerManager,
        theme: Theme) {
@@ -36,6 +36,10 @@ class FolderListViewModel {
 
     self.defaultArtwork = DefaultArtworkFactory.generateArtwork(from: theme.linkColor)?.pngData()
     self.bindBookObserver()
+  }
+
+  func getNavigationTitle() -> String {
+    return self.folder?.title ?? "library_title".localized
   }
 
   func bindBookObserver() {
@@ -92,7 +96,7 @@ class FolderListViewModel {
   }
 
   func getInitialItems() -> [SimpleLibraryItem] {
-    guard let fetchedItems = DataManager.fetchContents(of: self.folder, limit: self.pageSize, offset: 0) else {
+    guard let fetchedItems = DataManager.fetchContents(of: self.folder, or: library, limit: self.pageSize, offset: 0) else {
       return []
     }
 
@@ -107,7 +111,7 @@ class FolderListViewModel {
   }
 
   func loadNextItems() {
-    guard let fetchedItems = DataManager.fetchContents(of: self.folder, limit: self.pageSize, offset: self.offset),
+    guard let fetchedItems = DataManager.fetchContents(of: self.folder, or: library, limit: self.pageSize, offset: self.offset),
           !fetchedItems.isEmpty else {
       return
     }
@@ -209,7 +213,12 @@ class FolderListViewModel {
     let processedItems = DataManager.insertItems(from: files, into: nil, library: self.library)
 
     do {
-      try DataManager.moveItems(processedItems, into: self.folder)
+      if let folder = self.folder {
+        try DataManager.moveItems(processedItems, into: folder)
+      } else {
+        try DataManager.moveItems(processedItems, into: self.library)
+      }
+
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
       return
@@ -232,11 +241,11 @@ class FolderListViewModel {
 
   func reorder(item: SimpleLibraryItem, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath) {
     // TODO: reorder is broken, DB migration required to handle rank manually
-    guard let libraryItem = self.folder.items?.object(at: sourceIndexPath.row) as? LibraryItem,
-          item.relativePath == libraryItem.relativePath else { return }
-
-    self.folder.removeFromItems(at: sourceIndexPath.row)
-    self.folder.insertIntoItems(libraryItem, at: destinationIndexPath.row)
+//    guard let libraryItem = self.folder.items?.object(at: sourceIndexPath.row) as? LibraryItem,
+//          item.relativePath == libraryItem.relativePath else { return }
+//
+//    self.folder.removeFromItems(at: sourceIndexPath.row)
+//    self.folder.insertIntoItems(libraryItem, at: destinationIndexPath.row)
 
     // TODO: Handle when inserting into library
 
@@ -259,6 +268,10 @@ class FolderListViewModel {
     }
   }
 
+  func showSettings() {
+    self.coordinator.showSettings()
+  }
+
   func showAddActions() {
     self.coordinator.showAddActions()
   }
@@ -276,7 +289,7 @@ class FolderListViewModel {
   func showMoveOptions(selectedItems: [SimpleLibraryItem]) {
     var availableFolders = [SimpleLibraryItem]()
 
-    if let existingFolders = DataManager.fetchFolders(in: self.folder) {
+    if let existingFolders = DataManager.fetchFolders(in: self.folder, or: self.library) {
       for folder in existingFolders {
         if selectedItems.contains(where: { $0.relativePath == folder.relativePath }) { continue }
 

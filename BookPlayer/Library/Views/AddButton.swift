@@ -22,7 +22,7 @@ class AddButton: UIButton {
         let add = UIImageView(image: #imageLiteral(resourceName: "listAdd"))
         let distance: CGFloat = 15.0
 
-        add.tintColor = UIColor.tintColor
+        add.tintColor = UIColor.appTintColor
 
         self.setImage(add.image, for: .normal)
 

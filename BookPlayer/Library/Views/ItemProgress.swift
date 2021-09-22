@@ -36,7 +36,7 @@ class ItemProgress: UIView {
         }
     }
 
-    var completionColor = UIColor.tintColor {
+    var completionColor = UIColor.appTintColor {
         didSet {
             self.completionBackground.fillColor = self.completionColor.cgColor
 

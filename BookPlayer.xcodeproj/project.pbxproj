@@ -211,6 +211,7 @@
 		41A1B13E226FEF8000EA0400 /* DataTestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E314214ACB4300072AA2 /* DataTestUtils.swift */; };
 		41A1B13F226FEF9300EA0400 /* DataManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */; };
 		41A1B140226FEF9600EA0400 /* FolderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A6A87420DEECC400B2C621 /* FolderTests.swift */; };
+		41A6AFAA26FB666700A69E6B /* SettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A6AFA926FB666700A69E6B /* SettingsCoordinator.swift */; };
 		41A894202652A5DE0032E972 /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A8941F2652A5DE0032E972 /* Configuration.swift */; };
 		41A894212652A5DE0032E972 /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A8941F2652A5DE0032E972 /* Configuration.swift */; };
 		41A8942A2652A7DF0032E972 /* Bundle+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A894292652A7DF0032E972 /* Bundle+BookPlayer.swift */; };
@@ -686,6 +687,7 @@
 		41A1B136226FED4000EA0400 /* DataManager+CoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataManager+CoreData.swift"; sourceTree = "<group>"; };
 		41A1B138226FEDAD00EA0400 /* Chapter+AVFoundation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Chapter+AVFoundation.swift"; sourceTree = "<group>"; };
 		41A6A87420DEECC400B2C621 /* FolderTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FolderTests.swift; sourceTree = "<group>"; };
+		41A6AFA926FB666700A69E6B /* SettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsCoordinator.swift; sourceTree = "<group>"; };
 		41A7DE7824BC136100396FD3 /* sk-SK */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "sk-SK"; path = "sk-SK.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
 		41A7DE7924BC136200396FD3 /* sk-SK */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "sk-SK"; path = "sk-SK.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		41A7DE7A24BC136200396FD3 /* sk-SK */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "sk-SK"; path = "sk-SK.lproj/Localizable.strings"; sourceTree = "<group>"; };
@@ -1059,6 +1061,7 @@
 				4158388A26EC2CC500F4A12B /* ImportCoordinator.swift */,
 				41188D1F26ECDDD50017124E /* BookmarkCoordinator.swift */,
 				41188D2126ECFE450017124E /* ChapterCoordinator.swift */,
+				41A6AFA926FB666700A69E6B /* SettingsCoordinator.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -2225,6 +2228,7 @@
 				41A1B137226FED4100EA0400 /* DataManager+CoreData.swift in Sources */,
 				4158388526EBEE9800F4A12B /* PlayerCoordinator.swift in Sources */,
 				4165EE1420A7E8CC00616EDF /* ItemListViewController.swift in Sources */,
+				41A6AFAA26FB666700A69E6B /* SettingsCoordinator.swift in Sources */,
 				C318DDBC20A48D4700C3A17B /* BPMarqueeLabel.swift in Sources */,
 				41B30A33230232D200025D69 /* CarPlayManager.swift in Sources */,
 				410D00E426DAB97700D11A45 /* Combine+BookPlayer.swift in Sources */,

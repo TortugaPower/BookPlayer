@@ -167,6 +167,14 @@ class ItemListCoordinator: Coordinator {
     }
   }
 
+  func showSettings() {
+    let settingsCoordinator = SettingsCoordinator(navigationController: self.navigationController)
+    settingsCoordinator.parentCoordinator = self
+    settingsCoordinator.presentingViewController = self.presentingViewController
+    self.childCoordinators.append(settingsCoordinator)
+    settingsCoordinator.start()
+  }
+
   func showImport() {
     let child = ImportCoordinator(
       navigationController: self.navigationController,

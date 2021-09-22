@@ -51,7 +51,7 @@ class ProgressSlider: UISlider {
     }
 
     open override func draw(_ rect: CGRect) {
-        let minColor = self.minimumTrackTintColor ?? UIColor.tintColor
+        let minColor = self.minimumTrackTintColor ?? UIColor.appTintColor
         let maxColor = self.maximumTrackTintColor ?? minColor.withAlphaComponent(0.3)
 
         maxColor.set()

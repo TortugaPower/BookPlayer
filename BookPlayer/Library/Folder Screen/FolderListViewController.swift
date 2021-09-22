@@ -12,7 +12,7 @@ import DeviceKit
 import Themeable
 import UIKit
 
-class FolderListViewController: UIViewController, Storyboarded {
+class FolderListViewController: UIViewController, Storyboarded, UIGestureRecognizerDelegate {
   @IBOutlet weak var emptyStatePlaceholder: UIView!
   @IBOutlet weak var loadingView: LoadingView!
   @IBOutlet weak var loadingHeightConstraintView: NSLayoutConstraint!
@@ -43,9 +43,19 @@ class FolderListViewController: UIViewController, Storyboarded {
 
     self.navigationItem.rightBarButtonItem = self.editButtonItem
 
+    if self.navigationController?.viewControllers.count == 1 {
+      self.navigationItem.leftBarButtonItem =  UIBarButtonItem(
+        title: "settings_title".localized,
+        style: .plain,
+        target: self,
+        action: #selector(showSettings)
+      )
+      self.navigationController!.interactivePopGestureRecognizer!.delegate = self
+    }
+
     self.showLoadView(false)
 
-    self.navigationItem.title = self.viewModel.folder.title
+    self.navigationItem.title = self.viewModel.getNavigationTitle()
 
     // Remove the line after the last cell
     self.tableView.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: self.tableView.frame.size.width, height: 1))
@@ -96,6 +106,10 @@ class FolderListViewController: UIViewController, Storyboarded {
     }
 
     self.updateSnapshot(with: self.viewModel.getInitialItems(), animated: false)
+  }
+
+  func gestureRecognizerShouldBegin(_: UIGestureRecognizer) -> Bool {
+      return (navigationController?.viewControllers.count ?? 0) > 1
   }
 
   override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -255,6 +269,10 @@ class FolderListViewController: UIViewController, Storyboarded {
 
   @IBAction func addAction() {
     self.viewModel.showAddActions()
+  }
+
+  @objc func showSettings() {
+    self.viewModel.showSettings()
   }
 
   @objc func selectButtonPressed(_ sender: Any) {

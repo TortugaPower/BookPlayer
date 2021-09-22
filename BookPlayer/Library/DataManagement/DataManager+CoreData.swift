@@ -224,18 +224,27 @@ extension DataManager {
     return try? self.getContext().fetch(fetchRequest).first
   }
 
-  public class func fetchContents(of folder: Folder, limit: Int = 30, offset: Int) -> [LibraryItem]? {
+  public class func fetchContents(of folder: Folder?, or library: Library, limit: Int = 30, offset: Int) -> [LibraryItem]? {
     let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
-    fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), folder.relativePath)
+    if let folder = folder {
+      fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), folder.relativePath)
+    } else {
+      fetchRequest.predicate = NSPredicate(format: "%K != nil", #keyPath(LibraryItem.library))
+    }
+
     fetchRequest.fetchLimit = limit
     fetchRequest.fetchOffset = offset
 
     return try? self.getContext().fetch(fetchRequest)
   }
 
-  public class func fetchFolders(in folder: Folder) -> [LibraryItem]? {
+  public class func fetchFolders(in folder: Folder?, or library: Library) -> [LibraryItem]? {
     let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
-    fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), folder.relativePath)
+    if let folder = folder {
+      fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), folder.relativePath)
+    } else {
+      fetchRequest.predicate = NSPredicate(format: "%K != nil", #keyPath(LibraryItem.library))
+    }
 
     return try? self.getContext().fetch(fetchRequest)
   }

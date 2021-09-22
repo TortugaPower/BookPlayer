@@ -110,7 +110,7 @@ class WidgetUtils {
 
     class func getColors(from theme: Theme?, with colorScheme: ColorScheme) -> WidgetColors {
         var primaryColor = UIColor.label
-        var accentColor = UIColor.tintColor
+        var accentColor = UIColor.appTintColor
         var backgroundColor = UIColor.systemBackground
 
         if let theme = theme {
