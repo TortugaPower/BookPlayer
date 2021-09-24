@@ -56,6 +56,9 @@ class FolderListViewController: UIViewController, Storyboarded, UIGestureRecogni
       DataManager.notifyPendingFiles()
     }
 
+    // VoiceOver
+    self.setupCustomRotors()
+
     self.showLoadView(false)
 
     self.navigationItem.title = self.viewModel.getNavigationTitle()
@@ -492,6 +495,40 @@ extension FolderListViewController {
       self.view.layoutIfNeeded()
     }
   }
+}
+
+// MARK: Accessibility
+
+extension FolderListViewController {
+    private func setupCustomRotors() {
+        accessibilityCustomRotors = [self.rotorFactory(name: "Books", type: .book), self.rotorFactory(name: "Folders", type: .folder)]
+    }
+
+    private func rotorFactory(name: String, type: SimpleItemType) -> UIAccessibilityCustomRotor {
+        return UIAccessibilityCustomRotor(name: name) { (predicate) -> UIAccessibilityCustomRotorItemResult? in
+            let forward: Bool = (predicate.searchDirection == .next)
+
+            let playListCells = self.tableView.visibleCells.filter { (cell) -> Bool in
+                guard let cell = cell as? BookCellView else { return false }
+                return cell.type == type
+            }
+
+            var currentIndex = forward ? -1 : playListCells.count
+            //
+            if let currentElement = predicate.currentItem.targetElement {
+                if let cell = currentElement as? BookCellView {
+                    currentIndex = playListCells.firstIndex(of: cell) ?? currentIndex
+                }
+            }
+            let nextIndex = forward ? currentIndex + 1 : currentIndex - 1
+
+            while nextIndex >= 0, nextIndex < playListCells.count {
+                let cell = playListCells[nextIndex]
+                return UIAccessibilityCustomRotorItemResult(targetElement: cell, targetRange: nil)
+            }
+            return nil
+        }
+    }
 }
 
 // MARK: - Themeable
