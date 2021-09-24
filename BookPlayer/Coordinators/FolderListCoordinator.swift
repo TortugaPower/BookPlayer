@@ -32,7 +32,7 @@ class FolderListCoordinator: ItemListCoordinator {
   }
 
   override func start() {
-    let vc = FolderListViewController.instantiate(from: .Main)
+    let vc = ItemListViewController.instantiate(from: .Main)
     let viewModel = FolderListViewModel(folder: self.folder,
                                         library: self.library,
                                         player: self.playerManager,

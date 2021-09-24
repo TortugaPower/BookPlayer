@@ -38,6 +38,12 @@ class FolderListViewModel {
     self.bindBookObserver()
   }
 
+  func getEmptyStateImageName() -> String {
+    return self.coordinator is LibraryListCoordinator
+    ? "emptyLibrary"
+    : "emptyPlaylist"
+  }
+
   func getNavigationTitle() -> String {
     return self.folder?.title ?? "library_title".localized
   }

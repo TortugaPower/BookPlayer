@@ -1,5 +1,5 @@
 //
-//  FolderListViewController.swift
+//  ItemListViewController.swift
 //  BookPlayer
 //
 //  Created by Gianni Carlo on 11/9/21.
@@ -12,8 +12,9 @@ import DeviceKit
 import Themeable
 import UIKit
 
-class FolderListViewController: UIViewController, Storyboarded, UIGestureRecognizerDelegate {
+class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognizerDelegate {
   @IBOutlet weak var emptyStatePlaceholder: UIView!
+  @IBOutlet weak var emptyStateImageView: UIImageView!
   @IBOutlet weak var loadingView: LoadingView!
   @IBOutlet weak var loadingHeightConstraintView: NSLayoutConstraint!
   @IBOutlet weak var bulkControls: BulkControlsView!
@@ -55,6 +56,8 @@ class FolderListViewController: UIViewController, Storyboarded, UIGestureRecogni
 
       DataManager.notifyPendingFiles()
     }
+
+    self.emptyStateImageView.image = UIImage(named: self.viewModel.getEmptyStateImageName())
 
     // VoiceOver
     self.setupCustomRotors()
@@ -320,7 +323,7 @@ class FolderListViewController: UIViewController, Storyboarded, UIGestureRecogni
   }
 }
 
-extension FolderListViewController: UITableViewDelegate {
+extension ItemListViewController: UITableViewDelegate {
   func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
     guard indexPath.sectionValue == .data else { return 66 }
 
@@ -383,13 +386,13 @@ extension FolderListViewController: UITableViewDelegate {
   }
 }
 
-extension FolderListViewController: UITableViewDragDelegate {
+extension ItemListViewController: UITableViewDragDelegate {
   func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
     return [UIDragItem(itemProvider: NSItemProvider())]
   }
 }
 
-extension FolderListViewController: UITableViewDropDelegate {
+extension ItemListViewController: UITableViewDropDelegate {
   func tableView(_ tableView: UITableView, performDropWith coordinator: UITableViewDropCoordinator) {}
 
   func tableView(_ tableView: UITableView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UITableViewDropProposal {
@@ -406,7 +409,7 @@ extension FolderListViewController: UITableViewDropDelegate {
   }
 }
 
-extension FolderListViewController: UIDropInteractionDelegate {
+extension ItemListViewController: UIDropInteractionDelegate {
   func dropInteraction(_ interaction: UIDropInteraction, canHandle session: UIDropSession) -> Bool {
     return session.canLoadObjects(ofClass: ImportableItem.self)
   }
@@ -437,7 +440,7 @@ extension FolderListViewController: UIDropInteractionDelegate {
 
 // MARK: DocumentPicker Delegate
 
-extension FolderListViewController: UIDocumentPickerDelegate {
+extension ItemListViewController: UIDocumentPickerDelegate {
   func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
     UIApplication.shared.isIdleTimerDisabled = false
   }
@@ -457,7 +460,7 @@ extension FolderListViewController: UIDocumentPickerDelegate {
 
 // MARK: - Feedback
 
-extension FolderListViewController {
+extension ItemListViewController {
   func toggleEmptyStateView() {
     self.emptyStatePlaceholder.isHidden = !self.viewModel.items.value.isEmpty
     self.editButtonItem.isEnabled = !self.viewModel.items.value.isEmpty
@@ -499,7 +502,7 @@ extension FolderListViewController {
 
 // MARK: Accessibility
 
-extension FolderListViewController {
+extension ItemListViewController {
     private func setupCustomRotors() {
         accessibilityCustomRotors = [self.rotorFactory(name: "Books", type: .book), self.rotorFactory(name: "Folders", type: .folder)]
     }
@@ -533,7 +536,7 @@ extension FolderListViewController {
 
 // MARK: - Themeable
 
-extension FolderListViewController: Themeable {
+extension ItemListViewController: Themeable {
   func applyTheme(_ theme: Theme) {
     self.view.backgroundColor = theme.systemBackgroundColor
     self.tableView.backgroundColor = theme.systemBackgroundColor

@@ -11,7 +11,7 @@ import UIKit
 
 class LibraryListCoordinator: ItemListCoordinator {
   override func start() {
-    let vc = FolderListViewController.instantiate(from: .Main)
+    let vc = ItemListViewController.instantiate(from: .Main)
     let viewModel = FolderListViewModel(folder: nil,
                                         library: self.library,
                                         player: self.playerManager,
@@ -46,7 +46,7 @@ class LibraryListCoordinator: ItemListCoordinator {
         return
     }
 
-    if let folderViewController = fromViewController as? FolderListViewController {
+    if let folderViewController = fromViewController as? ItemListViewController {
       folderViewController.viewModel.coordinator.detach()
     }
   }

@@ -33,8 +33,8 @@
 		41188D2026ECDDD50017124E /* BookmarkCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D1F26ECDDD50017124E /* BookmarkCoordinator.swift */; };
 		41188D2226ECFE450017124E /* ChapterCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D2126ECFE450017124E /* ChapterCoordinator.swift */; };
 		41188D2426ED2BA30017124E /* LoadingCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D2326ED2BA30017124E /* LoadingCoordinator.swift */; };
-		41188D2826ED4D5C0017124E /* FolderListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D2726ED4D5C0017124E /* FolderListViewController.swift */; };
-		41188D2A26ED4D8E0017124E /* FolderListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D2926ED4D8E0017124E /* FolderListViewModel.swift */; };
+		41188D2826ED4D5C0017124E /* ItemListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D2726ED4D5C0017124E /* ItemListViewController.swift */; };
+		41188D2A26ED4D8E0017124E /* ItemListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D2926ED4D8E0017124E /* ItemListViewModel.swift */; };
 		41188D3126ED715D0017124E /* SimpleLibraryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D3026ED715D0017124E /* SimpleLibraryItem.swift */; };
 		41188D3C26F00C380017124E /* ItemListTableDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D3B26F00C380017124E /* ItemListTableDataSource.swift */; };
 		4122991D24442E7800CDB416 /* BookPlayerKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */; };
@@ -50,7 +50,6 @@
 		41342D0524435D9900F0905B /* BookPlayerIntents.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 41342CFE24435D9900F0905B /* BookPlayerIntents.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		41342D0A24435DAD00F0905B /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 41640A3624416EE8004FB97B /* Intents.intentdefinition */; settings = {ATTRIBUTES = (no_codegen, ); }; };
 		41342D0C24435EF800F0905B /* SleepTimerHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41342D0B24435EF800F0905B /* SleepTimerHandler.swift */; };
-		413616401D2E21F000E48944 /* LibraryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4136163F1D2E21F000E48944 /* LibraryViewController.swift */; };
 		4138CE1126E5542C0014F11E /* Bookmark+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4138CE0D26E5540E0014F11E /* Bookmark+CoreDataClass.swift */; };
 		4138CE1226E5542D0014F11E /* Bookmark+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4138CE0D26E5540E0014F11E /* Bookmark+CoreDataClass.swift */; };
 		4138CE1326E554320014F11E /* Bookmark+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4138CE0E26E5540E0014F11E /* Bookmark+CoreDataProperties.swift */; };
@@ -132,9 +131,7 @@
 		41640A452441ACE2004FB97B /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 41640A3624416EE8004FB97B /* Intents.intentdefinition */; };
 		4165EE0520A743D500616EDF /* BookPlayer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */; };
 		4165EE0C20A7A33500616EDF /* BookCellView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4165EE0A20A7A33500616EDF /* BookCellView.xib */; };
-		4165EE1020A7CBBE00616EDF /* PlaylistViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EE0F20A7CBBE00616EDF /* PlaylistViewController.swift */; };
 		4165EE1220A7D1E100616EDF /* RootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EE1120A7D1E100616EDF /* RootViewController.swift */; };
-		4165EE1420A7E8CC00616EDF /* ItemListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4165EE1320A7E8CC00616EDF /* ItemListViewController.swift */; };
 		41670131255B4A2C0054164F /* Sequence+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41670130255B4A2C0054164F /* Sequence+BookPlayer.swift */; };
 		416A297D2568671F00605395 /* AVPlayer+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416A297C2568671F00605395 /* AVPlayer+BookPlayer.swift */; };
 		416A29A52569658100605395 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 416A29A42569658100605395 /* WidgetKit.framework */; };
@@ -295,10 +292,6 @@
 		41E79BEB26C60DC600EA9FFF /* PlayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41E79BEA26C60DC600EA9FFF /* PlayerViewModel.swift */; };
 		41E79BED26C61D2B00EA9FFF /* PlayPauseIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41E79BEC26C61D2B00EA9FFF /* PlayPauseIconView.swift */; };
 		41E79BF526C6255C00EA9FFF /* PlayPauseIconView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 41E79BF426C6255C00EA9FFF /* PlayPauseIconView.xib */; };
-		41EE378621BF0FCC00A55F51 /* ItemList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41EE378521BF0FCC00A55F51 /* ItemList.swift */; };
-		41EE378821BFFB9800A55F51 /* ItemListFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41EE378721BFFB9800A55F51 /* ItemListFeedback.swift */; };
-		41EE378A21BFFBDE00A55F51 /* ItemListAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41EE378921BFFBDE00A55F51 /* ItemListAlerts.swift */; };
-		41EE378C21C0028800A55F51 /* ItemListActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41EE378B21C0028800A55F51 /* ItemListActions.swift */; };
 		41F1A1CE254B07090043FCF3 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 41F1A1CD254B07090043FCF3 /* Alamofire */; };
 		41F1A1D7254B07E80043FCF3 /* MarqueeLabel in Frameworks */ = {isa = PBXBuildFile; productRef = 41F1A1D6254B07E80043FCF3 /* MarqueeLabel */; };
 		41F1A1E0254B08A10043FCF3 /* DeviceKit in Frameworks */ = {isa = PBXBuildFile; productRef = 41F1A1DF254B08A10043FCF3 /* DeviceKit */; };
@@ -499,8 +492,8 @@
 		41188D1F26ECDDD50017124E /* BookmarkCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkCoordinator.swift; sourceTree = "<group>"; };
 		41188D2126ECFE450017124E /* ChapterCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChapterCoordinator.swift; sourceTree = "<group>"; };
 		41188D2326ED2BA30017124E /* LoadingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingCoordinator.swift; sourceTree = "<group>"; };
-		41188D2726ED4D5C0017124E /* FolderListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderListViewController.swift; sourceTree = "<group>"; };
-		41188D2926ED4D8E0017124E /* FolderListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderListViewModel.swift; sourceTree = "<group>"; };
+		41188D2726ED4D5C0017124E /* ItemListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListViewController.swift; sourceTree = "<group>"; };
+		41188D2926ED4D8E0017124E /* ItemListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListViewModel.swift; sourceTree = "<group>"; };
 		41188D3026ED715D0017124E /* SimpleLibraryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleLibraryItem.swift; sourceTree = "<group>"; };
 		41188D3B26F00C380017124E /* ItemListTableDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListTableDataSource.swift; sourceTree = "<group>"; };
 		4124121926CF287600B099DB /* StorageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageViewController.swift; sourceTree = "<group>"; };
@@ -515,7 +508,6 @@
 		41342D0024435D9900F0905B /* IntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentHandler.swift; sourceTree = "<group>"; };
 		41342D0224435D9900F0905B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		41342D0B24435EF800F0905B /* SleepTimerHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepTimerHandler.swift; sourceTree = "<group>"; };
-		4136163F1D2E21F000E48944 /* LibraryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryViewController.swift; sourceTree = "<group>"; };
 		4136175B24019EE700D2DDC1 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
 		4136175C24019EEB00D2DDC1 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = sv; path = sv.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		4136175D24019EF000D2DDC1 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -589,9 +581,7 @@
 		4165EDFA20A743D500616EDF /* Audiobook Player.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Audiobook Player.xcdatamodel"; sourceTree = "<group>"; };
 		4165EE0A20A7A33500616EDF /* BookCellView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BookCellView.xib; sourceTree = "<group>"; };
 		4165EE0D20A7AEC600616EDF /* SwiftReorder.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftReorder.framework; path = Carthage/Build/iOS/SwiftReorder.framework; sourceTree = "<group>"; };
-		4165EE0F20A7CBBE00616EDF /* PlaylistViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistViewController.swift; sourceTree = "<group>"; };
 		4165EE1120A7D1E100616EDF /* RootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewController.swift; sourceTree = "<group>"; };
-		4165EE1320A7E8CC00616EDF /* ItemListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListViewController.swift; sourceTree = "<group>"; };
 		41670130255B4A2C0054164F /* Sequence+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sequence+BookPlayer.swift"; sourceTree = "<group>"; };
 		416A297C2568671F00605395 /* AVPlayer+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVPlayer+BookPlayer.swift"; sourceTree = "<group>"; };
 		416A298A256875B300605395 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "pt-BR"; path = "pt-BR.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
@@ -772,10 +762,6 @@
 		41E79BEA26C60DC600EA9FFF /* PlayerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerViewModel.swift; sourceTree = "<group>"; };
 		41E79BEC26C61D2B00EA9FFF /* PlayPauseIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayPauseIconView.swift; sourceTree = "<group>"; };
 		41E79BF426C6255C00EA9FFF /* PlayPauseIconView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PlayPauseIconView.xib; sourceTree = "<group>"; };
-		41EE378521BF0FCC00A55F51 /* ItemList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemList.swift; sourceTree = "<group>"; };
-		41EE378721BFFB9800A55F51 /* ItemListFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListFeedback.swift; sourceTree = "<group>"; };
-		41EE378921BFFBDE00A55F51 /* ItemListAlerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListAlerts.swift; sourceTree = "<group>"; };
-		41EE378B21C0028800A55F51 /* ItemListActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListActions.swift; sourceTree = "<group>"; };
 		41F516952272CC5300F36C3E /* WatchConnectivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchConnectivityService.swift; sourceTree = "<group>"; };
 		41F898AE2402080C00F58B8A /* ZipArchive.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ZipArchive.framework; path = Carthage/Build/iOS/ZipArchive.framework; sourceTree = "<group>"; };
 		41FCA32625E87EC600BFB9E6 /* Audiobook Player 4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Audiobook Player 4.xcdatamodel"; sourceTree = "<group>"; };
@@ -947,14 +933,14 @@
 			path = Telemetry;
 			sourceTree = "<group>";
 		};
-		41188D2626ED4D470017124E /* Folder Screen */ = {
+		41188D2626ED4D470017124E /* ItemList Screen */ = {
 			isa = PBXGroup;
 			children = (
-				41188D2726ED4D5C0017124E /* FolderListViewController.swift */,
+				41188D2726ED4D5C0017124E /* ItemListViewController.swift */,
+				41188D2926ED4D8E0017124E /* ItemListViewModel.swift */,
 				41188D3B26F00C380017124E /* ItemListTableDataSource.swift */,
-				41188D2926ED4D8E0017124E /* FolderListViewModel.swift */,
 			);
-			path = "Folder Screen";
+			path = "ItemList Screen";
 			sourceTree = "<group>";
 		};
 		41188D2B26ED71020017124E /* Models */ = {
@@ -1378,17 +1364,6 @@
 			path = iPad;
 			sourceTree = "<group>";
 		};
-		41EE378421BF0FAD00A55F51 /* Protocols */ = {
-			isa = PBXGroup;
-			children = (
-				41EE378521BF0FCC00A55F51 /* ItemList.swift */,
-				41EE378B21C0028800A55F51 /* ItemListActions.swift */,
-				41EE378721BFFB9800A55F51 /* ItemListFeedback.swift */,
-				41EE378921BFFBDE00A55F51 /* ItemListAlerts.swift */,
-			);
-			path = Protocols;
-			sourceTree = "<group>";
-		};
 		6906A551217211A300A9E0B2 /* Support */ = {
 			isa = PBXGroup;
 			children = (
@@ -1426,17 +1401,13 @@
 				4163E30F21484C3500072AA2 /* DataManagement */,
 				41AD3D96221C700100DC41E1 /* Icons */,
 				41B2A5DF21CCC1F400917584 /* Themes */,
-				41EE378421BF0FAD00A55F51 /* Protocols */,
-				41B2A5EC21CCC6D100917584 /* AppNavigationController.swift */,
-				4165EE1120A7D1E100616EDF /* RootViewController.swift */,
-				4165EE1320A7E8CC00616EDF /* ItemListViewController.swift */,
-				4136163F1D2E21F000E48944 /* LibraryViewController.swift */,
 				41188D2B26ED71020017124E /* Models */,
-				4165EE0F20A7CBBE00616EDF /* PlaylistViewController.swift */,
-				41188D2626ED4D470017124E /* Folder Screen */,
-				41544A1321BAF41400740AD2 /* ItemSelectionViewController.swift */,
 				C3D3852E20C1F10F00A0ACC7 /* Views */,
 				C36C4D5820A23DF000AFDB76 /* Containers */,
+				41188D2626ED4D470017124E /* ItemList Screen */,
+				41B2A5EC21CCC6D100917584 /* AppNavigationController.swift */,
+				4165EE1120A7D1E100616EDF /* RootViewController.swift */,
+				41544A1321BAF41400740AD2 /* ItemSelectionViewController.swift */,
 			);
 			path = Library;
 			sourceTree = "<group>";
@@ -2214,7 +2185,6 @@
 				41670131255B4A2C0054164F /* Sequence+BookPlayer.swift in Sources */,
 				C3FA301E20E0024900393DDA /* BPArtworkView.swift in Sources */,
 				41E79BE926C60BF600EA9FFF /* PlayerViewController.swift in Sources */,
-				41EE378A21BFFBDE00A55F51 /* ItemListAlerts.swift in Sources */,
 				41188D2226ECFE450017124E /* ChapterCoordinator.swift in Sources */,
 				4165EE0520A743D500616EDF /* BookPlayer.xcdatamodeld in Sources */,
 				41B2A5DC21CAEE0E00917584 /* PlayerSettingsViewController.swift in Sources */,
@@ -2224,10 +2194,8 @@
 				41B2A5EF21CD5AAE00917584 /* StaticCellView.swift in Sources */,
 				C3A479132094C8C300D92122 /* rubberBandDistance.swift in Sources */,
 				41188D3C26F00C380017124E /* ItemListTableDataSource.swift in Sources */,
-				41EE378621BF0FCC00A55F51 /* ItemList.swift in Sources */,
 				41A1B137226FED4100EA0400 /* DataManager+CoreData.swift in Sources */,
 				4158388526EBEE9800F4A12B /* PlayerCoordinator.swift in Sources */,
-				4165EE1420A7E8CC00616EDF /* ItemListViewController.swift in Sources */,
 				41A6AFAA26FB666700A69E6B /* SettingsCoordinator.swift in Sources */,
 				C318DDBC20A48D4700C3A17B /* BPMarqueeLabel.swift in Sources */,
 				41B30A33230232D200025D69 /* CarPlayManager.swift in Sources */,
@@ -2237,14 +2205,12 @@
 				41544A1421BAF41400740AD2 /* ItemSelectionViewController.swift in Sources */,
 				410D00FE26DDD2A900D11A45 /* ProgressObject.swift in Sources */,
 				C3A479152094CA3800D92122 /* UIImage+BookPlayer.swift in Sources */,
-				413616401D2E21F000E48944 /* LibraryViewController.swift in Sources */,
 				418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */,
-				41188D2826ED4D5C0017124E /* FolderListViewController.swift in Sources */,
+				41188D2826ED4D5C0017124E /* ItemListViewController.swift in Sources */,
 				41546FF326F559CE00825180 /* SimpleItemType.swift in Sources */,
 				41188D2426ED2BA30017124E /* LoadingCoordinator.swift in Sources */,
 				4151A6DD26E4A13A00E49DBE /* MainCoordinator.swift in Sources */,
 				41964C832220B4F700FF1A2F /* ContributorCellView.swift in Sources */,
-				41EE378821BFFB9800A55F51 /* ItemListFeedback.swift in Sources */,
 				4124122826D19A8700B099DB /* StorageViewModel.swift in Sources */,
 				4158387926EB8D8800F4A12B /* LoadingViewController.swift in Sources */,
 				4151A6E026E4A17900E49DBE /* Coordinator.swift in Sources */,
@@ -2275,7 +2241,6 @@
 				415B274421FAE47200F9D9B7 /* LoadingView.swift in Sources */,
 				41E79BED26C61D2B00EA9FFF /* PlayPauseIconView.swift in Sources */,
 				4193E2002439A1CD004D6A82 /* NetworkService.swift in Sources */,
-				4165EE1020A7CBBE00616EDF /* PlaylistViewController.swift in Sources */,
 				4158386E26EAF76700F4A12B /* FolderListCoordinator.swift in Sources */,
 				C3FE94792080086800BCEA37 /* BookCellView.swift in Sources */,
 				41AD3DA7221C850F00DC41E1 /* IconCellView.swift in Sources */,
@@ -2283,7 +2248,6 @@
 				4142964421F21D95004356DA /* BulkControlsView.swift in Sources */,
 				41A1B12C226FC0A200EA0400 /* DataManager+BookPlayer.swift in Sources */,
 				41A1B12D226FC7E500EA0400 /* ImportManager.swift in Sources */,
-				41EE378C21C0028800A55F51 /* ItemListActions.swift in Sources */,
 				4151A6A626E3A40600E49DBE /* SpeedManager.swift in Sources */,
 				C36C4D5C20A23E1800AFDB76 /* MiniPlayerViewController.swift in Sources */,
 				C33E843C20C6E179004A0489 /* ItemProgress.swift in Sources */,
@@ -2299,7 +2263,7 @@
 				41546FF126F54F0600825180 /* PlaybackState.swift in Sources */,
 				41B2A5DE21CAF20E00917584 /* ThemesViewController.swift in Sources */,
 				41D20DAF25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
-				41188D2A26ED4D8E0017124E /* FolderListViewModel.swift in Sources */,
+				41188D2A26ED4D8E0017124E /* ItemListViewModel.swift in Sources */,
 				C398559C20C492FF00BE9EC0 /* AddButton.swift in Sources */,
 				41A1B135226FEB3D00EA0400 /* Book+AVFoundation.swift in Sources */,
 				416AAC3323F51031005AD04F /* LocalizableButton.swift in Sources */,
