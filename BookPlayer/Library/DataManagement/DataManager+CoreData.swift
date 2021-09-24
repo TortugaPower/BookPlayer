@@ -238,12 +238,12 @@ extension DataManager {
     return try? self.getContext().fetch(fetchRequest)
   }
 
-  public class func fetchFolders(in folder: Folder?, or library: Library) -> [LibraryItem]? {
-    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+  public class func fetchFolders(in folder: Folder?, or library: Library) -> [Folder]? {
+    let fetchRequest: NSFetchRequest<Folder> = Folder.fetchRequest()
     if let folder = folder {
-      fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), folder.relativePath)
+      fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(Folder.folder.relativePath), folder.relativePath)
     } else {
-      fetchRequest.predicate = NSPredicate(format: "%K != nil", #keyPath(LibraryItem.library))
+      fetchRequest.predicate = NSPredicate(format: "%K != nil", #keyPath(Folder.library))
     }
 
     return try? self.getContext().fetch(fetchRequest)

@@ -305,7 +305,17 @@ class FolderListViewModel {
   }
 
   func showMoreOptions(selectedItems: [SimpleLibraryItem]) {
-    self.coordinator.showMoreOptionsAlert(selectedItems: selectedItems)
+    var availableFolders = [SimpleLibraryItem]()
+
+    if let existingFolders = DataManager.fetchFolders(in: self.folder, or: self.library) {
+      for folder in existingFolders {
+        if selectedItems.contains(where: { $0.relativePath == folder.relativePath }) { continue }
+
+        availableFolders.append(SimpleLibraryItem(from: folder, defaultArtwork: self.defaultArtwork))
+      }
+    }
+
+    self.coordinator.showMoreOptionsAlert(selectedItems: selectedItems, availableFolders: availableFolders)
   }
 
   func handleSort(by option: PlayListSortOrder) {

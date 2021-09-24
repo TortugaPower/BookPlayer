@@ -310,9 +310,11 @@ extension ItemListCoordinator {
   func showMoveOptions(selectedItems: [SimpleLibraryItem], availableFolders: [SimpleLibraryItem]) {
     let alert = UIAlertController(title: "choose_destination_title".localized, message: nil, preferredStyle: .alert)
 
-    alert.addAction(UIAlertAction(title: "library_title".localized, style: .default) { [weak self] _ in
-      self?.onTransition?(.moveIntoLibrary(items: selectedItems))
-    })
+    if self is FolderListCoordinator {
+      alert.addAction(UIAlertAction(title: "library_title".localized, style: .default) { [weak self] _ in
+        self?.onTransition?(.moveIntoLibrary(items: selectedItems))
+      })
+    }
 
     alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { _ in
       self.showCreateFolderAlert(placeholder: nil, with: selectedItems)
@@ -366,7 +368,7 @@ extension ItemListCoordinator {
     self.navigationController.present(alert, animated: true, completion: nil)
   }
 
-  func showMoreOptionsAlert(selectedItems: [SimpleLibraryItem]) {
+  func showMoreOptionsAlert(selectedItems: [SimpleLibraryItem], availableFolders: [SimpleLibraryItem]) {
     guard let item = selectedItems.first else {
       return
     }
@@ -385,7 +387,7 @@ extension ItemListCoordinator {
     sheet.addAction(renameAction)
 
     sheet.addAction(UIAlertAction(title: "move_title".localized, style: .default, handler: { _ in
-      self.showMoveOptions(selectedItems: selectedItems, availableFolders: [])
+      self.showMoveOptions(selectedItems: selectedItems, availableFolders: availableFolders)
     }))
 
     let exportAction = UIAlertAction(title: "export_button".localized, style: .default, handler: { _ in
