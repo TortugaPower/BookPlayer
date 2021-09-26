@@ -80,11 +80,13 @@ extension DataManager {
     DataManager.saveContext()
   }
 
-  public class func moveItems(_ items: [LibraryItem], into library: Library) throws {
+  public class func moveItems(_ items: [LibraryItem], into library: Library, moveFiles: Bool = true) throws {
     let processedFolderURL = self.getProcessedFolderURL()
 
     for item in items {
-      try FileManager.default.moveItem(at: processedFolderURL.appendingPathComponent(item.relativePath), to: processedFolderURL.appendingPathComponent(item.originalFileName))
+      if moveFiles {
+        try FileManager.default.moveItem(at: processedFolderURL.appendingPathComponent(item.relativePath), to: processedFolderURL.appendingPathComponent(item.originalFileName))
+      }
       library.insert(item: item)
     }
 

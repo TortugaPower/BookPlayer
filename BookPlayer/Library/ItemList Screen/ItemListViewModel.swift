@@ -17,7 +17,7 @@ class FolderListViewModel {
   let folder: Folder?
   let library: Library
   let player: PlayerManager
-  let pageSize = 10
+  let pageSize = 15
   var offset = 0
 
   private var defaultArtwork: Data?
@@ -222,7 +222,7 @@ class FolderListViewModel {
       if let folder = self.folder {
         try DataManager.moveItems(processedItems, into: folder)
       } else {
-        try DataManager.moveItems(processedItems, into: self.library)
+        try DataManager.moveItems(processedItems, into: self.library, moveFiles: false)
       }
 
     } catch {
