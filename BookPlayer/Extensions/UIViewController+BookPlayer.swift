@@ -69,8 +69,3 @@ extension UIViewController {
         })
     }
 }
-
-// TODO: handle viewmodel coordinator detach
-extension UIViewController: UIAdaptivePresentationControllerDelegate {
-  public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {}
-}

@@ -4,12 +4,12 @@ import Foundation
 class VoiceOverService {
     var title: String?
     var subtitle: String?
-    var type: BookCellType!
+    var type: SimpleItemType!
     var progress: Double?
 
     // MARK: - BookCellView
 
-    public func bookCellView(type: BookCellType, title: String?, subtitle: String?, progress: Double?) -> String {
+    public func bookCellView(type: SimpleItemType, title: String?, subtitle: String?, progress: Double?) -> String {
         self.type = type
         self.title = title
         self.subtitle = subtitle
@@ -18,8 +18,6 @@ class VoiceOverService {
         switch type {
         case .book:
             return self.bookText()
-        case .file:
-            return self.fileText()
         case .folder:
             return self.folderText()
         }

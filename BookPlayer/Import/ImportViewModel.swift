@@ -17,6 +17,7 @@ final class ImportViewModel: ObservableObject {
   private let importManager: ImportManager
   private var watchers = [DirectoryWatcher]()
   private var observedFiles = [FileItem]()
+  weak var coordinator: ImportCoordinator!
 
   init(importManager: ImportManager = ImportManager.shared) {
     self.importManager = importManager
@@ -25,7 +26,7 @@ final class ImportViewModel: ObservableObject {
   }
 
   private func bindInternalFiles() {
-    ImportManager.shared.observeFiles().sink { [weak self] files in
+    self.importManager.observeFiles().sink { [weak self] files in
       guard let self = self else { return }
 
       self.cleanupWatchters()
@@ -84,14 +85,19 @@ final class ImportViewModel: ObservableObject {
   }
 
   public func deleteItem(_ item: URL) throws {
-    try ImportManager.shared.removeFile(item)
+    try self.importManager.removeFile(item)
   }
 
   public func discardImportOperation() throws {
-    try ImportManager.shared.removeAllFiles()
+    try self.importManager.removeAllFiles()
   }
 
   public func createOperation() {
-    ImportManager.shared.createOperation()
+    self.importManager.createOperation()
+    self.dismiss()
+  }
+
+  func dismiss() {
+    self.coordinator.dismiss()
   }
 }

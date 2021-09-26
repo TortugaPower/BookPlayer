@@ -80,11 +80,13 @@ extension DataManager {
     DataManager.saveContext()
   }
 
-  public class func moveItems(_ items: [LibraryItem], into library: Library) throws {
+  public class func moveItems(_ items: [LibraryItem], into library: Library, moveFiles: Bool = true) throws {
     let processedFolderURL = self.getProcessedFolderURL()
 
     for item in items {
-      try FileManager.default.moveItem(at: processedFolderURL.appendingPathComponent(item.relativePath), to: processedFolderURL.appendingPathComponent(item.originalFileName))
+      if moveFiles {
+        try FileManager.default.moveItem(at: processedFolderURL.appendingPathComponent(item.relativePath), to: processedFolderURL.appendingPathComponent(item.originalFileName))
+      }
       library.insert(item: item)
     }
 
@@ -157,9 +159,6 @@ extension DataManager {
 
     if let book = item as? Book {
       if book == PlayerManager.shared.currentBook {
-        NotificationCenter.default.post(name: .bookDelete,
-                                        object: nil,
-                                        userInfo: ["book": book])
         PlayerManager.shared.stop()
       }
 
@@ -214,5 +213,47 @@ extension DataManager {
     let book = bookmark.book
     book?.removeFromBookmarks(bookmark)
     self.delete(bookmark)
+  }
+}
+
+// MARK: Items
+extension DataManager {
+  public class func getItem(with relativePath: String) -> LibraryItem? {
+    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+    fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
+    fetchRequest.fetchLimit = 1
+
+    return try? self.getContext().fetch(fetchRequest).first
+  }
+
+  public class func fetchContents(of folder: Folder?, or library: Library, limit: Int = 30, offset: Int) -> [LibraryItem]? {
+    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+    if let folder = folder {
+      fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), folder.relativePath)
+    } else {
+      fetchRequest.predicate = NSPredicate(format: "%K != nil", #keyPath(LibraryItem.library))
+    }
+
+    fetchRequest.fetchLimit = limit
+    fetchRequest.fetchOffset = offset
+
+    return try? self.getContext().fetch(fetchRequest)
+  }
+
+  public class func fetchFolders(in folder: Folder?, or library: Library) -> [Folder]? {
+    let fetchRequest: NSFetchRequest<Folder> = Folder.fetchRequest()
+    if let folder = folder {
+      fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(Folder.folder.relativePath), folder.relativePath)
+    } else {
+      fetchRequest.predicate = NSPredicate(format: "%K != nil", #keyPath(Folder.library))
+    }
+
+    return try? self.getContext().fetch(fetchRequest)
+  }
+
+  public class func renameItem(_ item: LibraryItem, with newTitle: String) {
+    item.title = newTitle
+
+    self.saveContext()
   }
 }

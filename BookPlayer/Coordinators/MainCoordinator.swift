@@ -24,7 +24,6 @@ class MainCoordinator: Coordinator {
   }
 
   override func start() {
-    self.presentingViewController = self.rootViewController
     self.rootViewController.addChild(self.navigationController)
     self.rootViewController.mainContainer.addSubview(self.navigationController.view)
     self.navigationController.didMove(toParent: self.rootViewController)
@@ -45,7 +44,8 @@ class MainCoordinator: Coordinator {
       navigationController: self.navigationController,
       library: library ?? DataManager.createLibrary(),
       miniPlayerOffset: offset,
-      playerManager: PlayerManager.shared
+      playerManager: PlayerManager.shared,
+      importManager: ImportManager.shared
     )
     libraryCoordinator.parentCoordinator = self
     self.childCoordinators.append(libraryCoordinator)
@@ -64,5 +64,13 @@ class MainCoordinator: Coordinator {
 
   func showMiniPlayer(_ flag: Bool) {
     self.rootViewController.animateView(self.rootViewController.miniPlayerContainer, show: flag)
+  }
+
+  func hasPlayerShown() -> Bool {
+    return self.childCoordinators.contains(where: { $0 is PlayerCoordinator })
+  }
+
+  func getLibraryCoordinator() -> LibraryListCoordinator? {
+    return self.childCoordinators.first as? LibraryListCoordinator
   }
 }

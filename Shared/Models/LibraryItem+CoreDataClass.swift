@@ -71,6 +71,8 @@ public class LibraryItem: NSManagedObject, Codable {
 
   public func index(for item: LibraryItem) -> Int? { return nil }
 
+  public func getFolder(matching relativePath: String) -> Folder? { return nil }
+
     public func getItem(with relativePath: String) -> LibraryItem? { return nil }
 
     public func encode(to encoder: Encoder) throws {

@@ -10,26 +10,44 @@ import BookPlayerKit
 import UIKit
 
 class LibraryListCoordinator: ItemListCoordinator {
-  let miniPlayerOffset: CGFloat
+  override func start() {
+    let vc = ItemListViewController.instantiate(from: .Main)
+    let viewModel = FolderListViewModel(folder: nil,
+                                        library: self.library,
+                                        player: self.playerManager,
+                                        theme: ThemeManager.shared.currentTheme)
+    viewModel.coordinator = self
+    vc.viewModel = viewModel
+    vc.navigationItem.largeTitleDisplayMode = .automatic
+    self.presentingViewController = vc
+    self.navigationController.pushViewController(vc, animated: true)
 
-  init(
-    navigationController: UINavigationController,
-    library: Library,
-    miniPlayerOffset: CGFloat,
-    playerManager: PlayerManager
-  ) {
-    self.miniPlayerOffset = miniPlayerOffset
+    if let book = self.library.lastPlayedBook {
+      self.loadLastBook(book)
+    }
 
-    super.init(
-      navigationController: navigationController,
-      library: library,
-      playerManager: playerManager
-    )
+    if let mainCoordinator = self.getMainCoordinator(),
+       let loadingCoordinator = mainCoordinator.parentCoordinator as? LoadingCoordinator {
+      for action in loadingCoordinator.pendingURLActions {
+        ActionParserService.handleAction(action)
+      }
+    }
   }
 
-  override func start() {
-    let vc = LibraryViewController.instantiate(from: .Main)
-    vc.coordinator = self
-    self.navigationController.pushViewController(vc, animated: false)
+  // Clean up for interactive pop gestures
+  override func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
+    // Read the view controller we’re moving from.
+    guard let fromViewController = navigationController.transitionCoordinator?.viewController(forKey: .from) else {
+        return
+    }
+
+    // Check whether our view controller array already contains that view controller. If it does it means we’re pushing a different view controller on top rather than popping it, so exit.
+    if navigationController.viewControllers.contains(fromViewController) {
+        return
+    }
+
+    if let folderViewController = fromViewController as? ItemListViewController {
+      folderViewController.viewModel.coordinator.detach()
+    }
   }
 }

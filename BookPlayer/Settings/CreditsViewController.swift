@@ -37,8 +37,8 @@ class CreditsViewController: UIViewController, TelemetryProtocol {
             self.textView.attributedText = attributedString
 
             self.textView.linkTextAttributes = convertToOptionalNSAttributedStringKeyDictionary([
-                NSAttributedString.Key.foregroundColor.rawValue: UIColor.tintColor,
-                NSAttributedString.Key.underlineColor.rawValue: UIColor.tintColor,
+                NSAttributedString.Key.foregroundColor.rawValue: UIColor.appTintColor,
+                NSAttributedString.Key.underlineColor.rawValue: UIColor.appTintColor,
                 NSAttributedString.Key.underlineStyle.rawValue: NSUnderlineStyle.single.rawValue
             ])
         } catch {

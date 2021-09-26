@@ -26,7 +26,7 @@ class BookmarkCoordinator: Coordinator {
 
     let nav = AppNavigationController.instantiate(from: .Main)
     nav.viewControllers = [vc]
-    nav.presentationController?.delegate = self.presentingViewController
+    nav.presentationController?.delegate = self
     self.presentingViewController?.present(nav, animated: true, completion: nil)
   }
 

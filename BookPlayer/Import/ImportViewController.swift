@@ -16,12 +16,10 @@ final class ImportViewController: UIViewController, Storyboarded {
   @IBOutlet weak var descriptionLabel: UILabel!
   @IBOutlet weak var tableView: UITableView!
 
-  private var viewModel = ImportViewModel()
+  var viewModel: ImportViewModel!
   private var disposeBag = Set<AnyCancellable>()
   private var files = [FileItem]()
   private var watchers = [DirectoryWatcher]()
-
-  weak var coordinator: ImportCoordinator?
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -31,10 +29,10 @@ final class ImportViewController: UIViewController, Storyboarded {
     self.navigationController?.navigationBar.prefersLargeTitles = true
     self.tableView.tableFooterView = UIView()
 
-    self.bindViewModel()
+    self.bindFilesObserver()
   }
 
-  private func bindViewModel() {
+  private func bindFilesObserver() {
     self.viewModel.$files.sink { [weak self] files in
       self?.files = files
       self?.tableView.reloadData()
@@ -51,12 +49,10 @@ final class ImportViewController: UIViewController, Storyboarded {
       self.showAlert("error_title".localized, message: error.localizedDescription)
     }
 
-    self.coordinator?.dismiss()
-    NotificationCenter.default.post(name: .importOperationCancelled, object: nil)
+    self.viewModel.dismiss()
   }
 
   @IBAction func didPressDone(_ sender: UIBarButtonItem) {
-    self.coordinator?.dismiss()
     self.viewModel.createOperation()
   }
 }

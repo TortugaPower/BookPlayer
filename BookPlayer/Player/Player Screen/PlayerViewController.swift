@@ -471,15 +471,3 @@ extension PlayerViewController: Themeable {
     self.nextChapterButton.tintColor = theme.primaryColor
   }
 }
-
-extension PlayerViewController {
-  override public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-    if let nav = presentationController.presentedViewController as? AppNavigationController {
-      if let vc = nav.viewControllers.first as? ChaptersViewController {
-        vc.viewModel.coordinator.detach()
-      } else if let vc = nav.viewControllers.first as? BookmarksViewController {
-        vc.viewModel.coordinator.detach()
-      }
-    }
-  }
-}

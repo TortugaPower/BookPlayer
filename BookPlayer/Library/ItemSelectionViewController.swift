@@ -11,9 +11,9 @@ import Themeable
 import UIKit
 
 class ItemSelectionViewController: UITableViewController {
-    var items: [LibraryItem]!
+    var items: [SimpleLibraryItem]!
 
-    var onItemSelected: ((LibraryItem) -> Void)?
+    var onItemSelected: ((SimpleLibraryItem) -> Void)?
 
     override func viewDidLoad() {
         self.title = "select_item_title".localized
@@ -40,17 +40,22 @@ class ItemSelectionViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        // swiftlint:disable force_cast
-        let cell = tableView.dequeueReusableCell(withIdentifier: "BookCellView", for: indexPath) as! BookCellView
+      // swiftlint:disable force_cast
+      let cell = tableView.dequeueReusableCell(withIdentifier: "BookCellView", for: indexPath) as! BookCellView
 
-        let item = self.items[indexPath.row]
+      let item = self.items[indexPath.row]
 
-        cell.artwork = item.getArtwork(for: themeProvider.currentTheme)
-        cell.title = item.title
-        cell.playbackState = .stopped
-        cell.subtitle = item.info()
+      if let data = item.artworkData {
+        cell.artwork = UIImage(data: data)
+      } else {
+        cell.artwork = nil
+      }
 
-        return cell
+      cell.title = item.title
+      cell.playbackState = .stopped
+      cell.subtitle = item.details
+
+      return cell
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

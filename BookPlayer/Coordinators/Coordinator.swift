@@ -8,7 +8,7 @@
 
 import UIKit
 
-class Coordinator {
+class Coordinator: NSObject {
   var childCoordinators = [Coordinator]()
   var navigationController: UINavigationController
   weak var parentCoordinator: Coordinator?
@@ -35,5 +35,23 @@ class Coordinator {
 
   func detach() {
     self.parentCoordinator?.childDidFinish(self)
+  }
+
+  func showAlert(_ title: String? = nil, message: String? = nil) {
+    self.navigationController.showAlert(title, message: message)
+  }
+
+  func getMainCoordinator() -> MainCoordinator? { return nil }
+}
+
+extension Coordinator: UINavigationControllerDelegate {
+  // Handle vcs being popped interactively
+  func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) { }
+}
+
+extension Coordinator: UIAdaptivePresentationControllerDelegate {
+  // Handle modals being dismissed interactively
+  public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+    self.detach()
   }
 }
