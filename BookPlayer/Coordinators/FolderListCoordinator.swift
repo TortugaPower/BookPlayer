@@ -18,6 +18,7 @@ class FolderListCoordinator: ItemListCoordinator {
     folder: Folder,
     playerManager: PlayerManager,
     importManager: ImportManager,
+    dataManager: DataManager,
     miniPlayerOffset: CGFloat
   ) {
     self.folder = folder
@@ -27,7 +28,8 @@ class FolderListCoordinator: ItemListCoordinator {
       library: library,
       miniPlayerOffset: miniPlayerOffset,
       playerManager: playerManager,
-      importManager: importManager
+      importManager: importManager,
+      dataManager: dataManager
     )
   }
 
@@ -36,6 +38,7 @@ class FolderListCoordinator: ItemListCoordinator {
     let viewModel = FolderListViewModel(folder: self.folder,
                                         library: self.library,
                                         player: self.playerManager,
+                                        dataManager: self.dataManager,
                                         theme: ThemeManager.shared.currentTheme)
     viewModel.coordinator = self
     vc.viewModel = viewModel

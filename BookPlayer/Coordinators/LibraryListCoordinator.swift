@@ -15,6 +15,7 @@ class LibraryListCoordinator: ItemListCoordinator {
     let viewModel = FolderListViewModel(folder: nil,
                                         library: self.library,
                                         player: self.playerManager,
+                                        dataManager: self.dataManager,
                                         theme: ThemeManager.shared.currentTheme)
     viewModel.coordinator = self
     vc.viewModel = viewModel

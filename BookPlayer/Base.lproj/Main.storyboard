@@ -159,6 +159,7 @@
                             </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="NQi-uU-LMv"/>
+                        <color key="backgroundColor" red="0.12549019607843137" green="0.13333333333333333" blue="0.14509803921568626" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstItem="qMq-Jo-baa" firstAttribute="centerY" secondItem="NQi-uU-LMv" secondAttribute="centerY" id="Aar-6V-SK3"/>
                             <constraint firstItem="qMq-Jo-baa" firstAttribute="centerX" secondItem="NQi-uU-LMv" secondAttribute="centerX" id="Q0v-Vb-NgA"/>

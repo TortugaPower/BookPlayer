@@ -7,20 +7,25 @@
 //
 
 import UIKit
+import BookPlayerKit
 
 class PlayerCoordinator: Coordinator {
   let playerManager: PlayerManager
+  let dataManager: DataManager
 
   init(navigationController: UINavigationController,
-       playerManager: PlayerManager) {
+       playerManager: PlayerManager,
+       dataManager: DataManager) {
     self.playerManager = playerManager
+    self.dataManager = dataManager
 
     super.init(navigationController: navigationController)
   }
 
   override func start() {
     let vc = PlayerViewController.instantiate(from: .Player)
-    let viewModel = PlayerViewModel(playerManager: self.playerManager)
+    let viewModel = PlayerViewModel(playerManager: self.playerManager,
+                                    dataManager: self.dataManager)
     viewModel.coordinator = self
     vc.viewModel = viewModel
     self.navigationController.present(vc, animated: true, completion: nil)
@@ -29,7 +34,8 @@ class PlayerCoordinator: Coordinator {
 
   func showBookmarks() {
     let bookmarksCoordinator = BookmarkCoordinator(navigationController: self.navigationController,
-                                                   playerManager: self.playerManager)
+                                                   playerManager: self.playerManager,
+                                                   dataManager: self.dataManager)
     bookmarksCoordinator.parentCoordinator = self
     bookmarksCoordinator.presentingViewController = self.presentingViewController
     self.childCoordinators.append(bookmarksCoordinator)

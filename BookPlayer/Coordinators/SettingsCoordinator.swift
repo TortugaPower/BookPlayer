@@ -7,8 +7,18 @@
 //
 
 import UIKit
+import BookPlayerKit
 
 class SettingsCoordinator: Coordinator {
+  let dataManager: DataManager
+
+  init(dataManager: DataManager,
+       navigationController: UINavigationController) {
+    self.dataManager = dataManager
+
+    super.init(navigationController: navigationController)
+  }
+
   override func start() {
     let vc = SettingsViewController.instantiate(from: .Settings)
     vc.coordinator = self
@@ -22,5 +32,13 @@ class SettingsCoordinator: Coordinator {
     self.presentingViewController?.dismiss(animated: true, completion: { [weak self] in
       self?.parentCoordinator?.childDidFinish(self)
     })
+  }
+
+  func showStorageManagement() {
+    let child = StorageCoordinator(dataManager: self.dataManager,
+                                   navigationController: self.navigationController)
+    self.childCoordinators.append(child)
+    child.parentCoordinator = self
+    child.start()
   }
 }

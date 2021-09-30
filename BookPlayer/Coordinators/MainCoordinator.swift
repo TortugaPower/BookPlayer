@@ -8,17 +8,23 @@
 
 import BookPlayerKit
 import DeviceKit
+import MediaPlayer
 import UIKit
 
 class MainCoordinator: Coordinator {
   let rootViewController: RootViewController
-  let playerManager = PlayerManager.shared
+  let playerManager: PlayerManager
+  let dataManager: DataManager
 
   init(
     rootController: RootViewController,
+    dataManager: DataManager,
     navigationController: UINavigationController
   ) {
     self.rootViewController = rootController
+    self.dataManager = dataManager
+    self.playerManager = PlayerManager(dataManager: dataManager)
+    ThemeManager.shared.dataManager = dataManager
 
     super.init(navigationController: navigationController)
   }
@@ -39,23 +45,37 @@ class MainCoordinator: Coordinator {
 
     let offset: CGFloat = Device.current.hasSensorHousing ? 199: 88
 
-    let library = try? DataManager.getLibrary()
+    let library = (try? self.dataManager.getLibrary()) ?? self.dataManager.createLibrary()
     let libraryCoordinator = LibraryListCoordinator(
       navigationController: self.navigationController,
-      library: library ?? DataManager.createLibrary(),
+      library: library,
       miniPlayerOffset: offset,
-      playerManager: PlayerManager.shared,
-      importManager: ImportManager.shared
+      playerManager: self.playerManager,
+      importManager: ImportManager(dataManager: self.dataManager),
+      dataManager: self.dataManager
     )
     libraryCoordinator.parentCoordinator = self
     self.childCoordinators.append(libraryCoordinator)
     libraryCoordinator.start()
+
+    if library.currentTheme != nil {
+      ThemeManager.shared.currentTheme = SimpleTheme(with: library.currentTheme)
+    }
+
+    self.setupCarPlay(with: library)
+  }
+
+  private func setupCarPlay(with library: Library) {
+    let carPlayManager = CarPlayManager(library: library, dataManager: self.dataManager)
+    MPPlayableContentManager.shared().dataSource = carPlayManager
+    MPPlayableContentManager.shared().delegate = carPlayManager
   }
 
   func showPlayer() {
     let playerCoordinator = PlayerCoordinator(
       navigationController: self.navigationController,
-      playerManager: self.playerManager
+      playerManager: self.playerManager,
+      dataManager: self.dataManager
     )
     playerCoordinator.parentCoordinator = self
     self.childCoordinators.append(playerCoordinator)
@@ -72,5 +92,13 @@ class MainCoordinator: Coordinator {
 
   func getLibraryCoordinator() -> LibraryListCoordinator? {
     return self.childCoordinators.first as? LibraryListCoordinator
+  }
+
+  func skipRewindTime() {
+    self.playerManager.rewind()
+  }
+
+  func skipForwardTime() {
+    self.playerManager.forward()
   }
 }

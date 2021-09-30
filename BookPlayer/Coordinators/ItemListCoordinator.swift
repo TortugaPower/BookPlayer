@@ -34,6 +34,7 @@ class ItemListCoordinator: Coordinator {
   let miniPlayerOffset: CGFloat
   let playerManager: PlayerManager
   let importManager: ImportManager
+  let dataManager: DataManager
   let library: Library
 
   var fileSubscription: AnyCancellable?
@@ -44,12 +45,14 @@ class ItemListCoordinator: Coordinator {
     library: Library,
     miniPlayerOffset: CGFloat,
     playerManager: PlayerManager,
-    importManager: ImportManager
+    importManager: ImportManager,
+    dataManager: DataManager
   ) {
     self.library = library
     self.miniPlayerOffset = miniPlayerOffset
     self.playerManager = playerManager
     self.importManager = importManager
+    self.dataManager = dataManager
 
     super.init(navigationController: navigationController)
 
@@ -86,6 +89,12 @@ class ItemListCoordinator: Coordinator {
     })
   }
 
+  func processFiles(urls: [URL]) {
+    for url in urls {
+      self.importManager.process(url)
+    }
+  }
+
   override func start() {
     fatalError("ItemListCoordinator is an abstract class, override this function in the subclass")
   }
@@ -118,6 +127,7 @@ class ItemListCoordinator: Coordinator {
                                       folder: folder,
                                       playerManager: self.playerManager,
                                       importManager: self.importManager,
+                                      dataManager: self.dataManager,
                                       miniPlayerOffset: self.miniPlayerOffset)
     self.childCoordinators.append(child)
     child.parentCoordinator = self
@@ -127,7 +137,8 @@ class ItemListCoordinator: Coordinator {
   func showPlayer() {
     let playerCoordinator = PlayerCoordinator(
       navigationController: self.navigationController,
-      playerManager: self.playerManager
+      playerManager: self.playerManager,
+      dataManager: self.dataManager
     )
     playerCoordinator.parentCoordinator = self
     self.childCoordinators.append(playerCoordinator)
@@ -169,7 +180,8 @@ class ItemListCoordinator: Coordinator {
   }
 
   func showSettings() {
-    let settingsCoordinator = SettingsCoordinator(navigationController: self.navigationController)
+    let settingsCoordinator = SettingsCoordinator(dataManager: self.dataManager,
+                                                  navigationController: self.navigationController)
     settingsCoordinator.parentCoordinator = self
     settingsCoordinator.presentingViewController = self.presentingViewController
     self.childCoordinators.append(settingsCoordinator)
