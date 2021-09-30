@@ -19,7 +19,7 @@ final class ImportViewModel: ObservableObject {
   private var observedFiles = [FileItem]()
   weak var coordinator: ImportCoordinator!
 
-  init(importManager: ImportManager = ImportManager.shared) {
+  init(importManager: ImportManager) {
     self.importManager = importManager
 
     self.bindInternalFiles()

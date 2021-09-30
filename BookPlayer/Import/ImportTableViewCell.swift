@@ -29,7 +29,7 @@ final class ImportTableViewCell: UITableViewCell {
 }
 
 extension ImportTableViewCell: Themeable {
-  func applyTheme(_ theme: Theme) {
+  func applyTheme(_ theme: SimpleTheme) {
     self.filenameLabel?.textColor = theme.primaryColor
     self.iconImageView.tintColor = theme.linkColor
     self.countLabel?.textColor = theme.secondaryColor
