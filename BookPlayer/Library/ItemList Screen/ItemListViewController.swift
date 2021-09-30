@@ -54,7 +54,7 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
       )
       self.navigationController!.interactivePopGestureRecognizer!.delegate = self
 
-      DataManager.notifyPendingFiles()
+      self.viewModel.notifyPendingFiles()
     }
 
     self.emptyStateImageView.image = UIImage(named: self.viewModel.getEmptyStateImageName())
@@ -148,7 +148,7 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
 
     guard self.traitCollection.userInterfaceStyle != .unspecified else { return }
 
-    ThemeManager.shared.checkSystemMode()
+    self.viewModel.checkSystemModeTheme()
   }
 
   func adjustBottomOffsetForMiniPlayer() {
@@ -537,7 +537,7 @@ extension ItemListViewController {
 // MARK: - Themeable
 
 extension ItemListViewController: Themeable {
-  func applyTheme(_ theme: Theme) {
+  func applyTheme(_ theme: SimpleTheme) {
     self.view.backgroundColor = theme.systemBackgroundColor
     self.tableView.backgroundColor = theme.systemBackgroundColor
     self.tableView.separatorColor = theme.separatorColor
