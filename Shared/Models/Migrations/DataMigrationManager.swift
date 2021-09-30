@@ -8,121 +8,92 @@
 
 import CoreData
 import Foundation
+import UIKit
 
-final class DataMigrationManager {
-  let enableMigrations: Bool
-  let modelName: String
-  static let storeName = "BookPlayer"
-  let loadCompletionHandler: (NSPersistentStoreDescription, Error?) -> Void
+public final class DataMigrationManager {
+  private let modelName: String
+  private let currentModel: NSManagedObjectModel
+  private let storeURL: URL
+  private var storeModel: NSManagedObjectModel?
 
-  var stack: CoreDataStack {
-    guard self.enableMigrations,
-          !self.store(at: DataMigrationManager.storeURL, isCompatibleWithModel: self.currentModel) else {
-      return CoreDataStack(modelName: self.modelName, loadCompletionHandler: self.loadCompletionHandler)
-    }
-
-    self.performMigration()
-    return CoreDataStack(modelName: self.modelName, loadCompletionHandler: self.loadCompletionHandler)
+  public init(modelNamed: String) {
+    self.modelName = modelNamed
+    self.currentModel = .model(named: modelNamed)
+    let storeURL =  FileManager.default.containerURL(
+      forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!
+      .appendingPathComponent("BookPlayer.sqlite")
+    self.storeURL = storeURL
+    self.storeModel = NSManagedObjectModel.modelVersionsFor(modelNamed: self.modelName)
+      .filter {
+        self.store(at: storeURL, isCompatibleWithModel: $0)
+      }.first
   }
 
-    private var applicationSupportURL: URL {
-        let path = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory,
-                                                       .userDomainMask, true)
-            .first
-        return URL(fileURLWithPath: path!)
+  public func getCoreDataStack() -> CoreDataStack {
+    return CoreDataStack(modelName: self.modelName)
+  }
+
+  private func store(at storeURL: URL, isCompatibleWithModel model: NSManagedObjectModel) -> Bool {
+    let storeMetadata = self.metadataForStoreAtURL(storeURL: storeURL)
+
+    return model.isConfiguration(withName: nil, compatibleWithStoreMetadata: storeMetadata)
+  }
+
+  private func metadataForStoreAtURL(storeURL: URL) -> [String: Any] {
+    let metadata: [String: Any]
+    do {
+      metadata = try NSPersistentStoreCoordinator
+        .metadataForPersistentStore(ofType: NSSQLiteStoreType,
+                                    at: storeURL, options: nil)
+    } catch {
+      metadata = [:]
+      print("Error retrieving metadata for store at URL: \(storeURL): \(error)")
+    }
+    return metadata
+  }
+
+  private func migrateStoreAt(URL storeURL: URL,
+                              fromModel from: NSManagedObjectModel,
+                              toModel to: NSManagedObjectModel,
+                              mappingModel: NSMappingModel? = nil) throws {
+    let migrationManager = NSMigrationManager(sourceModel: from, destinationModel: to)
+
+    let migrationMappingModel = try? mappingModel
+    ?? NSMappingModel.inferredMappingModel(forSourceModel: from, destinationModel: to)
+
+    let targetURL = storeURL.deletingLastPathComponent()
+    let destinationName = storeURL.lastPathComponent + "~1"
+    let destinationURL = targetURL.appendingPathComponent(destinationName)
+
+    if FileManager.default.fileExists(atPath: destinationURL.path) {
+      try? FileManager.default.removeItem(at: destinationURL)
     }
 
-    private static var storeURL: URL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!.appendingPathComponent("\(DataMigrationManager.storeName).sqlite")
+    try migrationManager.migrateStore(from: storeURL,
+                                      sourceType: NSSQLiteStoreType,
+                                      options: nil,
+                                      with: migrationMappingModel,
+                                      toDestinationURL: destinationURL,
+                                      destinationType: NSSQLiteStoreType,
+                                      destinationOptions: nil)
 
-    private var storeModel: NSManagedObjectModel? {
-        return NSManagedObjectModel.modelVersionsFor(modelNamed: self.modelName)
-            .filter {
-              self.store(at: DataMigrationManager.storeURL, isCompatibleWithModel: $0)
-            }.first
-    }
+    let fileManager = FileManager.default
+    let wal = storeURL.lastPathComponent + "-wal"
+    let shm = storeURL.lastPathComponent + "-shm"
+    let destinationWal = targetURL
+      .appendingPathComponent(wal)
+    let destinationShm = targetURL
+      .appendingPathComponent(shm)
+    // cleanup in case
+    try? fileManager.removeItem(at: destinationWal)
+    try? fileManager.removeItem(at: destinationShm)
 
-    private lazy var currentModel: NSManagedObjectModel = .model(named: self.modelName)
+    try fileManager.removeItem(at: storeURL)
+    try fileManager.moveItem(at: destinationURL, to: storeURL)
+  }
 
-    init(modelNamed: String, enableMigrations: Bool = false, loadCompletionHandler: @escaping (NSPersistentStoreDescription, Error?) -> Void) {
-      self.modelName = modelNamed
-      self.enableMigrations = enableMigrations
-      self.loadCompletionHandler = loadCompletionHandler
-    }
-
-    private func store(at storeURL: URL, isCompatibleWithModel model: NSManagedObjectModel) -> Bool {
-        let storeMetadata = self.metadataForStoreAtURL(storeURL: storeURL)
-
-        return model.isConfiguration(withName: nil, compatibleWithStoreMetadata: storeMetadata)
-    }
-
-    private func metadataForStoreAtURL(storeURL: URL) -> [String: Any] {
-        let metadata: [String: Any]
-        do {
-            metadata = try NSPersistentStoreCoordinator
-                .metadataForPersistentStore(ofType: NSSQLiteStoreType,
-                                            at: storeURL, options: nil)
-        } catch {
-            metadata = [:]
-            print("Error retrieving metadata for store at URL: \(storeURL): \(error)")
-        }
-        return metadata
-    }
-
-    private func migrateStoreAt(URL storeURL: URL,
-                                fromModel from: NSManagedObjectModel,
-                                toModel to: NSManagedObjectModel,
-                                mappingModel: NSMappingModel? = nil) {
-        let migrationManager = NSMigrationManager(sourceModel: from, destinationModel: to)
-
-        let migrationMappingModel = try? mappingModel
-            ?? NSMappingModel.inferredMappingModel(forSourceModel: from, destinationModel: to)
-
-        let targetURL = storeURL.deletingLastPathComponent()
-        let destinationName = storeURL.lastPathComponent + "~1"
-        let destinationURL = targetURL.appendingPathComponent(destinationName)
-
-        if FileManager.default.fileExists(atPath: destinationURL.path) {
-            try? FileManager.default.removeItem(at: destinationURL)
-        }
-
-        let success: Bool
-        do {
-            try migrationManager.migrateStore(from: storeURL,
-                                              sourceType: NSSQLiteStoreType,
-                                              options: nil,
-                                              with: migrationMappingModel,
-                                              toDestinationURL: destinationURL,
-                                              destinationType: NSSQLiteStoreType,
-                                              destinationOptions: nil)
-            success = true
-        } catch {
-            success = false
-            fatalError("Migration failed \(error), \(error.localizedDescription)")
-        }
-
-        if success {
-            let fileManager = FileManager.default
-            let wal = storeURL.lastPathComponent + "-wal"
-            let shm = storeURL.lastPathComponent + "-shm"
-            let destinationWal = targetURL
-                .appendingPathComponent(wal)
-            let destinationShm = targetURL
-                .appendingPathComponent(shm)
-            // cleanup in case
-            try? fileManager.removeItem(at: destinationWal)
-            try? fileManager.removeItem(at: destinationShm)
-
-            do {
-                try fileManager.removeItem(at: storeURL)
-                try fileManager.moveItem(at: destinationURL, to: storeURL)
-            } catch {
-                fatalError("Error moving database: \(error), \(error.localizedDescription)")
-            }
-        }
-    }
-
-  class func cleanupStoreFile() {
-    let storeURL = DataMigrationManager.storeURL
+  public func cleanupStoreFile() {
+    let storeURL = self.storeURL
     let fileManager = FileManager.default
     let wal = storeURL.appendingPathComponent("-wal")
     let shm = storeURL.appendingPathComponent("-shm")
@@ -132,130 +103,139 @@ final class DataMigrationManager {
     try? fileManager.removeItem(at: storeURL)
   }
 
-    func performMigration() {
-        guard let storeModel = self.storeModel else { return }
+  public func canPeformMigration() -> Bool {
+    return self.storeModel != nil
+  }
 
-        if storeModel.isVersion1 {
-            let destinationModel = NSManagedObjectModel.version2
+  public func needsMigration() -> Bool {
+    guard let storeModel = self.storeModel,
+          let lastVersion = DBVersion.allCases.last else { return false }
 
-            let mapPath = Bundle.main.path(forResource: "MappingModel_v1_to_v2", ofType: "cdm")!
-            let mapUrl = URL(fileURLWithPath: mapPath)
+    return storeModel != lastVersion.model()
+  }
 
-            let mappingModel = NSMappingModel(contentsOf: mapUrl)
+  public func performMigration(completionHandler: @escaping (Error?) -> Void) throws {
+    guard let storeModel = self.storeModel,
+          let currentVersion = DBVersion(model: storeModel),
+          let nextVersion = currentVersion.next() else {
+            completionHandler(nil)
+            return
+          }
 
-            self.migrateStoreAt(URL: DataMigrationManager.storeURL,
-                                fromModel: storeModel,
-                                toModel: destinationModel,
-                                mappingModel: mappingModel)
-            self.performMigration()
-        } else if storeModel.isVersion2 {
-            let destinationModel = NSManagedObjectModel.version3
+    let destinationModel = nextVersion.model()
+    var mappingModel: NSMappingModel?
 
-            let mapPath = Bundle.main.path(forResource: "MappingModel_v2_to_v3", ofType: "cdm")!
-            let mapUrl = URL(fileURLWithPath: mapPath)
+    if let mappingModelName = nextVersion.mappingModelName(),
+       let mapPath = Bundle.main.path(forResource: mappingModelName, ofType: "cdm") {
+      let mapUrl = URL(fileURLWithPath: mapPath)
 
-            let mappingModel = NSMappingModel(contentsOf: mapUrl)
-
-            self.migrateStoreAt(URL: DataMigrationManager.storeURL,
-                                fromModel: storeModel,
-                                toModel: destinationModel,
-                                mappingModel: mappingModel)
-            self.performMigration()
-        } else if storeModel.isVersion3 {
-            let destinationModel = NSManagedObjectModel.version4
-
-            let mapPath = Bundle.main.path(forResource: "MappingModel_v3_to_v4", ofType: "cdm")!
-            let mapUrl = URL(fileURLWithPath: mapPath)
-
-            let mappingModel = NSMappingModel(contentsOf: mapUrl)
-
-            self.migrateStoreAt(URL: DataMigrationManager.storeURL,
-                                fromModel: storeModel,
-                                toModel: destinationModel,
-                                mappingModel: mappingModel)
-
-            // Migrate folder hierarchy
-            self.migrateFolderHierarchy()
-            // Migrate books names
-            self.migrateBooks()
-        } else if storeModel.isVersion4 {
-          let destinationModel = NSManagedObjectModel.version5
-
-          self.migrateStoreAt(URL: DataMigrationManager.storeURL,
-                              fromModel: storeModel,
-                              toModel: destinationModel)
-        }
+      mappingModel = NSMappingModel(contentsOf: mapUrl)
     }
+
+    try self.migrateStoreAt(URL: self.storeURL,
+                            fromModel: storeModel,
+                            toModel: destinationModel,
+                            mappingModel: mappingModel)
+
+    // update after migration
+    self.storeModel = destinationModel
+
+    // Only continue if there's extra work to be done
+    guard currentVersion == .v3 || currentVersion == .v5 else {
+      completionHandler(nil)
+      return
+    }
+
+    let stack = self.getCoreDataStack()
+    stack.loadStore { _, error in
+      if let error = error {
+        completionHandler(error)
+        return
+      }
+
+      let dataManager = DataManager(coreDataStack: stack)
+
+      // Extra data migration
+      if currentVersion == .v3 {
+        // Migrate folder hierarchy
+        self.migrateFolderHierarchy(dataManager: dataManager)
+        // Migrate books names
+        self.migrateBooks(dataManager: dataManager)
+      }
+
+      if currentVersion == .v5 {
+        self.migrateLibraryOrder(dataManager: dataManager)
+      }
+
+      completionHandler(nil)
+    }
+  }
+
+  public func setupDefaultState() {
+    let userDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
+
+    // Migrate user defaults app icon
+    if userDefaults?
+        .string(forKey: Constants.UserDefaults.appIcon.rawValue) == nil {
+      let storedIconId = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon.rawValue)
+      userDefaults?.set(storedIconId, forKey: Constants.UserDefaults.appIcon.rawValue)
+    } else if let sharedAppIcon = userDefaults?
+                .string(forKey: Constants.UserDefaults.appIcon.rawValue),
+              let localAppIcon = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon.rawValue),
+              sharedAppIcon != localAppIcon {
+      userDefaults?.set(localAppIcon, forKey: Constants.UserDefaults.appIcon.rawValue)
+      UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.appIcon.rawValue)
+    }
+
+    // Migrate protection for Processed folder
+    if !(userDefaults?
+        .bool(forKey: Constants.UserDefaults.fileProtectionMigration.rawValue) ?? false) {
+      DataManager.getProcessedFolderURL().disableFileProtection()
+      userDefaults?.set(true, forKey: Constants.UserDefaults.fileProtectionMigration.rawValue)
+    }
+
+    // Exclude Processed folder from phone backups
+    var resourceValues = URLResourceValues()
+    resourceValues.isExcludedFromBackup = true
+    var processedFolderURL = DataManager.getProcessedFolderURL()
+
+    try? processedFolderURL.setResourceValues(resourceValues)
+
+    // Set system theme as default
+    if UserDefaults.standard.object(forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue) == nil {
+      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue)
+    }
+  }
 }
 
 extension NSManagedObjectModel {
-    private class func modelURLs(in modelFolder: String) -> [URL] {
-        return Bundle.main
-            .urls(forResourcesWithExtension: "mom",
-                  subdirectory: "\(modelFolder).momd") ?? []
-    }
-
-    class func modelVersionsFor(modelNamed modelName: String) -> [NSManagedObjectModel] {
-        return self.modelURLs(in: modelName)
-            .compactMap(NSManagedObjectModel.init)
-    }
-
-    class func bookplayerModel(named modelName: String) -> NSManagedObjectModel {
-        let model = self.modelURLs(in: "BookPlayer")
-            .filter { $0.lastPathComponent == "\(modelName).mom" }
-            .first
-            .flatMap(NSManagedObjectModel.init)
-        return model ?? NSManagedObjectModel()
-    }
-
-    class var version1: NSManagedObjectModel {
-        return bookplayerModel(named: "Audiobook Player")
-    }
-
-    var isVersion1: Bool {
-        return self == type(of: self).version1
-    }
-
-    class var version2: NSManagedObjectModel {
-        return bookplayerModel(named: "Audiobook Player 2")
-    }
-
-    var isVersion2: Bool {
-        return self == type(of: self).version2
-    }
-
-    class var version3: NSManagedObjectModel {
-        return bookplayerModel(named: "Audiobook Player 3")
-    }
-
-    var isVersion3: Bool {
-        return self == type(of: self).version3
-    }
-
-    class var version4: NSManagedObjectModel {
-        return bookplayerModel(named: "Audiobook Player 4")
-    }
-
-    var isVersion4: Bool {
-        return self == type(of: self).version4
-    }
-
-  var isVersion5: Bool {
-      return self == type(of: self).version5
+  private class func modelURLs(in modelFolder: String) -> [URL] {
+    return Bundle.main
+      .urls(forResourcesWithExtension: "mom",
+            subdirectory: "\(modelFolder).momd") ?? []
   }
 
-  class var version5: NSManagedObjectModel {
-      return bookplayerModel(named: "Audiobook Player 5")
+  class func modelVersionsFor(modelNamed modelName: String) -> [NSManagedObjectModel] {
+    return self.modelURLs(in: modelName)
+      .compactMap(NSManagedObjectModel.init)
   }
 
-    class func model(named modelName: String, in bundle: Bundle = .main) -> NSManagedObjectModel {
-        return bundle.url(forResource: modelName, withExtension: "momd")
-            .flatMap(NSManagedObjectModel.init)
-            ?? NSManagedObjectModel()
-    }
+  class func bookplayerModel(named modelName: String) -> NSManagedObjectModel {
+    let model = self.modelURLs(in: "BookPlayer")
+      .filter { $0.lastPathComponent == "\(modelName).mom" }
+      .first
+      .flatMap(NSManagedObjectModel.init)
+    return model ?? NSManagedObjectModel()
+  }
+
+  class func model(named modelName: String, in bundle: Bundle = .main) -> NSManagedObjectModel {
+    return bundle.url(forResource: modelName, withExtension: "momd")
+      .flatMap(NSManagedObjectModel.init)
+    ?? NSManagedObjectModel()
+  }
 }
 
 func == (firstModel: NSManagedObjectModel,
          otherModel: NSManagedObjectModel) -> Bool {
-    return firstModel.entitiesByName == otherModel.entitiesByName
+  return firstModel.entitiesByName == otherModel.entitiesByName
 }

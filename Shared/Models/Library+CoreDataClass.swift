@@ -201,11 +201,3 @@ public class Library: NSManagedObject, Codable {
         currentTheme = try? values.decode(Theme.self, forKey: .currentTheme)
     }
 }
-
-extension Library: Sortable {
-    public func sort(by sortType: PlayListSortOrder) {
-        guard let items = items else { return }
-        self.items = BookSortService.sort(items, by: sortType)
-        DataManager.saveContext()
-    }
-}

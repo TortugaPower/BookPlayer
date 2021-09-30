@@ -18,20 +18,20 @@ public class Folder: LibraryItem {
 
     // MARK: - Properties
 
-    public override func getArtwork(for theme: Theme?) -> UIImage? {
+    public override func getArtwork(for color: UIColor?) -> UIImage? {
         if let cachedArtwork = self.cachedArtwork {
             return cachedArtwork
         }
 
         guard let book = self.getFirstBookWithArtwork() else {
             #if os(iOS)
-            self.cachedArtwork = DefaultArtworkFactory.generateArtwork(from: theme?.linkColor)
+            self.cachedArtwork = DefaultArtworkFactory.generateArtwork(from: color)
             #endif
 
             return self.cachedArtwork
         }
 
-        self.cachedArtwork = book.getArtwork(for: theme)
+        self.cachedArtwork = book.getArtwork(for: color)
         return self.cachedArtwork
     }
 
@@ -415,13 +415,5 @@ public class Folder: LibraryItem {
         let sortedItems = Array(sortedItemsTuple.map { $0.value })
 
         items = NSOrderedSet(array: sortedItems)
-    }
-}
-
-extension Folder: Sortable {
-    public func sort(by sortType: PlayListSortOrder) {
-        guard let books = items else { return }
-        self.items = BookSortService.sort(books, by: sortType)
-        DataManager.saveContext()
     }
 }
