@@ -73,7 +73,7 @@ class SkipDurationViewController: UITableViewController {
 }
 
 extension SkipDurationViewController: Themeable {
-    func applyTheme(_ theme: Theme) {
+    func applyTheme(_ theme: SimpleTheme) {
         self.tableView.backgroundColor = theme.systemBackgroundColor
         self.tableView.separatorColor = theme.separatorColor
         self.tableView.reloadData()

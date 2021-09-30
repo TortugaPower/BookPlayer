@@ -68,7 +68,7 @@ class ItemSelectionViewController: UITableViewController {
 }
 
 extension ItemSelectionViewController: Themeable {
-    func applyTheme(_ theme: Theme) {
+    func applyTheme(_ theme: SimpleTheme) {
         self.view.backgroundColor = theme.systemBackgroundColor
         self.tableView.backgroundColor = theme.systemBackgroundColor
         self.tableView.separatorColor = theme.separatorColor

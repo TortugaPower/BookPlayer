@@ -43,7 +43,7 @@ public class LibraryItem: NSManagedObject, Codable {
         return 1.0
     }
 
-    public func getArtwork(for theme: Theme?) -> UIImage? {
+    public func getArtwork(for color: UIColor?) -> UIImage? {
         if let cachedArtwork = self.cachedArtwork {
             return cachedArtwork
         }
@@ -51,7 +51,7 @@ public class LibraryItem: NSManagedObject, Codable {
         guard let artworkData = self.artworkData,
               let image = UIImage(data: artworkData as Data) else {
             #if os(iOS)
-            self.cachedArtwork = DefaultArtworkFactory.generateArtwork(from: theme?.linkColor)
+            self.cachedArtwork = DefaultArtworkFactory.generateArtwork(from: color)
             #endif
 
             return self.cachedArtwork

@@ -24,7 +24,8 @@
         "darkSystemFillHex": "647E98",
         "darkSecondarySystemFillHex": "707176",
         "darkTertiarySystemFillHex": "459EEC",
-        "darkQuaternarySystemFillHex": "459EEC"
+        "darkQuaternarySystemFillHex": "459EEC",
+        "locked": false
     },
     {
         "title": "Default / Pure Black",
@@ -51,7 +52,8 @@
         "darkSystemFillHex": "5E7792",
         "darkSecondarySystemFillHex": "68666B",
         "darkTertiarySystemFillHex": "459EEC",
-        "darkQuaternarySystemFillHex": "459EEC"
+        "darkQuaternarySystemFillHex": "459EEC",
+        "locked": false
     },
     {
         "title": "Blue Marine",

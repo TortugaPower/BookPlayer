@@ -131,7 +131,7 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
   public func setupInfo(with book: Book) {
     self.titleLabel.text = book.title
     self.authorLabel.text = book.author
-    self.artwork = book.getArtwork(for: themeProvider.currentTheme)
+    self.artwork = book.getArtwork(for: themeProvider.currentTheme.linkColor)
     self.backgroundGradientColorView.isHidden = book.hasArtwork
     self.infoContainerStackView.isHidden = book.hasArtwork
     self.artworkImage.isHidden = !book.hasArtwork
@@ -139,7 +139,7 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
 }
 
 extension ArtworkControl: Themeable {
-  func applyTheme(_ theme: Theme) {
+  func applyTheme(_ theme: SimpleTheme) {
     self.titleLabel.textColor = .white
     self.authorLabel.textColor = theme.linkColor.mix(with: .white)
     self.backgroundGradientColorView.backgroundColor = theme.linkColor

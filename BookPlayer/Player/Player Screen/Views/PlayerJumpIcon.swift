@@ -85,7 +85,7 @@ class PlayerJumpIcon: UIView {
 }
 
 extension PlayerJumpIcon: Themeable {
-  func applyTheme(_ theme: Theme) {
+  func applyTheme(_ theme: SimpleTheme) {
     self.label.textColor = theme.primaryColor
     self.backgroundImageView.tintColor = theme.primaryColor
     self.tintColor = theme.primaryColor
@@ -105,7 +105,7 @@ class PlayerJumpIconForward: PlayerJumpIcon {
   override func setup() {
     super.setup()
 
-    self.title = "+\(Int(PlayerManager.shared.forwardInterval.rounded())) "
+    self.title = "+\(Int(PlayerManager.forwardInterval.rounded())) "
   }
 }
 
@@ -122,6 +122,6 @@ class PlayerJumpIconRewind: PlayerJumpIcon {
   override func setup() {
     super.setup()
 
-    self.title = "−\(Int(PlayerManager.shared.rewindInterval.rounded())) "
+    self.title = "−\(Int(PlayerManager.rewindInterval.rounded())) "
   }
 }

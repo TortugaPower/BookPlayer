@@ -37,7 +37,7 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate, Storybo
 }
 
 extension RootViewController: Themeable {
-  func applyTheme(_ theme: Theme) {
+  func applyTheme(_ theme: SimpleTheme) {
     self.themedStatusBarStyle = theme.useDarkVariant
       ? .lightContent
       : .default

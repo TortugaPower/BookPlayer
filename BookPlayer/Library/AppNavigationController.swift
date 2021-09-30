@@ -59,7 +59,7 @@ class AppNavigationController: UINavigationController, Storyboarded {
 }
 
 extension AppNavigationController: Themeable {
-    func applyTheme(_ theme: Theme) {
+    func applyTheme(_ theme: SimpleTheme) {
         self.themedStatusBarStyle = theme.useDarkVariant
             ? .lightContent
             : .default

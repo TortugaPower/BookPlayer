@@ -208,7 +208,7 @@ class ItemProgress: UIView {
 }
 
 extension ItemProgress: Themeable {
-    func applyTheme(_ theme: Theme) {
+    func applyTheme(_ theme: SimpleTheme) {
         self.pieColors = PieColors(backgroundColor: theme.tertiarySystemBackgroundColor.cgColor,
                                    fillColor: theme.secondarySystemFillColor.cgColor,
                                    borderColor: theme.secondarySystemFillColor.cgColor)

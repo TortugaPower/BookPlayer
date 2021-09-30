@@ -48,7 +48,7 @@ class BookmarkTableViewCell: UITableViewCell {
 }
 
 extension BookmarkTableViewCell: Themeable {
-  func applyTheme(_ theme: Theme) {
+  func applyTheme(_ theme: SimpleTheme) {
     self.timeLabel?.textColor = theme.secondaryColor
     self.noteLabel?.textColor = theme.primaryColor
     self.iconImageView.tintColor = theme.secondaryColor

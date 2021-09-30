@@ -21,7 +21,7 @@ class BookCellView: UITableViewCell {
     @IBOutlet weak var artworkWidth: NSLayoutConstraint!
     @IBOutlet weak var artworkHeight: NSLayoutConstraint!
 
-    var theme: Theme!
+    var theme: SimpleTheme!
     var onArtworkTap: (() -> Void)?
 
     var artwork: UIImage? {
@@ -136,7 +136,7 @@ class BookCellView: UITableViewCell {
     self.progressView.isHidden = editing
   }
 
-    func setPlaybackColors(_ theme: Theme) {
+    func setPlaybackColors(_ theme: SimpleTheme) {
         switch self.playbackState {
         case .playing, .paused:
             self.artworkButton.backgroundColor = theme.linkColor.withAlpha(newAlpha: 0.3)
@@ -164,7 +164,7 @@ extension BookCellView {
 }
 
 extension BookCellView: Themeable {
-  func applyTheme(_ theme: Theme) {
+  func applyTheme(_ theme: SimpleTheme) {
     self.theme = theme
     self.titleLabel.textColor = theme.primaryColor
     self.subtitleLabel.textColor = theme.secondaryColor
