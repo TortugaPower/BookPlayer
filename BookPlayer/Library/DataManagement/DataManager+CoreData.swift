@@ -11,15 +11,15 @@ import CoreData
 import Foundation
 
 extension DataManager {
-  class func createBook(from url: URL) -> Book {
+  func createBook(from url: URL) -> Book {
     return Book(from: url, context: self.getContext())
   }
 
   // This handles the Core Data objects creation from the Import operation
   // This method doesn't handle moving files on disk, only creating the core data structure for a given file tree
-  class func insertItems(from files: [URL], into folder: Folder?, library: Library, processedItems: [LibraryItem]? = []) -> [LibraryItem] {
+  func insertItems(from files: [URL], into folder: Folder?, library: Library, processedItems: [LibraryItem]? = []) -> [LibraryItem] {
     guard !files.isEmpty else {
-      DataManager.saveContext()
+      self.saveContext()
       return processedItems ?? []
     }
 
@@ -52,7 +52,7 @@ extension DataManager {
     return self.insertItems(from: remainingFiles, into: folder, library: library, processedItems: resultingFiles)
   }
 
-  class func handleDirectory(item: URL, folder: Folder, library: Library) {
+  func handleDirectory(item: URL, folder: Folder, library: Library) {
     let enumerator = FileManager.default.enumerator(
       at: item,
       includingPropertiesForKeys: [.creationDateKey, .isDirectoryKey],
@@ -68,8 +68,8 @@ extension DataManager {
     _ = self.insertItems(from: files, into: folder, library: library)
   }
 
-  public class func moveItems(_ items: [LibraryItem], into folder: Folder) throws {
-    let processedFolderURL = self.getProcessedFolderURL()
+  public func moveItems(_ items: [LibraryItem], into folder: Folder) throws {
+    let processedFolderURL = DataManager.getProcessedFolderURL()
 
     for item in items {
       try FileManager.default.moveItem(at: processedFolderURL.appendingPathComponent(item.relativePath), to: processedFolderURL.appendingPathComponent(folder.relativePath).appendingPathComponent(item.originalFileName))
@@ -77,11 +77,11 @@ extension DataManager {
     }
 
     folder.updateCompletionState()
-    DataManager.saveContext()
+    self.saveContext()
   }
 
-  public class func moveItems(_ items: [LibraryItem], into library: Library, moveFiles: Bool = true) throws {
-    let processedFolderURL = self.getProcessedFolderURL()
+  public func moveItems(_ items: [LibraryItem], into library: Library, moveFiles: Bool = true) throws {
+    let processedFolderURL = DataManager.getProcessedFolderURL()
 
     for item in items {
       if moveFiles {
@@ -90,10 +90,10 @@ extension DataManager {
       library.insert(item: item)
     }
 
-    DataManager.saveContext()
+    self.saveContext()
   }
 
-    public class func delete(_ items: [LibraryItem], library: Library, mode: DeleteMode = .deep) throws {
+    public func delete(_ items: [LibraryItem], library: Library, mode: DeleteMode = .deep) throws {
         for item in items {
             guard let folder = item as? Folder else {
                 // swiftlint:disable force_cast
@@ -105,7 +105,7 @@ extension DataManager {
         }
     }
 
-    public class func delete(_ folder: Folder, library: Library, mode: DeleteMode = .deep) throws {
+    public func delete(_ folder: Folder, library: Library, mode: DeleteMode = .deep) throws {
 
         if mode == .shallow,
            let items = folder.items?.array as? [LibraryItem] {
@@ -123,7 +123,7 @@ extension DataManager {
             } else {
               try FileManager.default.moveItem(
                 at: fileURL,
-                to: self.getProcessedFolderURL().appendingPathComponent(fileURL.lastPathComponent)
+                to: DataManager.getProcessedFolderURL().appendingPathComponent(fileURL.lastPathComponent)
               )
               library.insert(item: item)
             }
@@ -147,7 +147,7 @@ extension DataManager {
       self.delete(folder)
     }
 
-  public class func delete(_ item: LibraryItem, library: Library, mode: DeleteMode) throws {
+  public func delete(_ item: LibraryItem, library: Library, mode: DeleteMode) throws {
     guard mode == .deep else {
       if item.folder != nil {
         library.insert(item: item)
@@ -158,10 +158,6 @@ extension DataManager {
     }
 
     if let book = item as? Book {
-      if book == PlayerManager.shared.currentBook {
-        PlayerManager.shared.stop()
-      }
-
       if let fileURL = book.fileURL {
         if FileManager.default.fileExists(atPath: fileURL.path) {
           try FileManager.default.removeItem(at: fileURL)
@@ -175,14 +171,14 @@ extension DataManager {
 
 // MARK: Bookmarks
 extension DataManager {
-  public class func getBookmark(of type: BookmarkType, for book: Book) -> Bookmark? {
+  public func getBookmark(of type: BookmarkType, for book: Book) -> Bookmark? {
     let fetchRequest: NSFetchRequest<Bookmark> = Bookmark.fetchRequest()
     fetchRequest.predicate = NSPredicate(format: "%K == %@ && type == %d", #keyPath(Bookmark.book.relativePath), book.relativePath, type.rawValue)
 
     return try? self.getContext().fetch(fetchRequest).first
   }
 
-  public class func getBookmark(at time: Double, book: Book, type: BookmarkType) -> Bookmark? {
+  public func getBookmark(at time: Double, book: Book, type: BookmarkType) -> Bookmark? {
     let time = floor(time)
 
     let fetchRequest: NSFetchRequest<Bookmark> = Bookmark.fetchRequest()
@@ -191,7 +187,7 @@ extension DataManager {
     return try? self.getContext().fetch(fetchRequest).first
   }
 
-  public class func createBookmark(at time: Double, book: Book, type: BookmarkType) -> Bookmark {
+  public func createBookmark(at time: Double, book: Book, type: BookmarkType) -> Bookmark {
     if let bookmark = self.getBookmark(at: time, book: book, type: type) {
       return bookmark
     }
@@ -204,12 +200,12 @@ extension DataManager {
     return bookmark
   }
 
-  public class func addNote(_ note: String, bookmark: Bookmark) {
+  public func addNote(_ note: String, bookmark: Bookmark) {
     bookmark.note = note
     self.saveContext()
   }
 
-  public class func deleteBookmark(_ bookmark: Bookmark) {
+  public func deleteBookmark(_ bookmark: Bookmark) {
     let book = bookmark.book
     book?.removeFromBookmarks(bookmark)
     self.delete(bookmark)
@@ -218,7 +214,7 @@ extension DataManager {
 
 // MARK: Items
 extension DataManager {
-  public class func getItem(with relativePath: String) -> LibraryItem? {
+  public func getItem(with relativePath: String) -> LibraryItem? {
     let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
     fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
     fetchRequest.fetchLimit = 1
@@ -226,7 +222,7 @@ extension DataManager {
     return try? self.getContext().fetch(fetchRequest).first
   }
 
-  public class func fetchContents(of folder: Folder?, or library: Library, limit: Int = 30, offset: Int) -> [LibraryItem]? {
+  public func fetchContents(of folder: Folder?, or library: Library, limit: Int = 30, offset: Int) -> [LibraryItem]? {
     let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
     if let folder = folder {
       fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), folder.relativePath)
@@ -240,7 +236,7 @@ extension DataManager {
     return try? self.getContext().fetch(fetchRequest)
   }
 
-  public class func fetchFolders(in folder: Folder?, or library: Library) -> [Folder]? {
+  public func fetchFolders(in folder: Folder?, or library: Library) -> [Folder]? {
     let fetchRequest: NSFetchRequest<Folder> = Folder.fetchRequest()
     if let folder = folder {
       fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(Folder.folder.relativePath), folder.relativePath)
@@ -251,9 +247,20 @@ extension DataManager {
     return try? self.getContext().fetch(fetchRequest)
   }
 
-  public class func renameItem(_ item: LibraryItem, with newTitle: String) {
+  public func renameItem(_ item: LibraryItem, with newTitle: String) {
     item.title = newTitle
 
     self.saveContext()
+  }
+}
+
+// MARK: Themes
+extension DataManager {
+  public func getTheme(with title: String) -> Theme? {
+    let fetchRequest: NSFetchRequest<Theme> = Theme.fetchRequest()
+    fetchRequest.predicate = NSPredicate(format: "title == %@", title)
+    fetchRequest.fetchLimit = 1
+
+    return try? self.getContext().fetch(fetchRequest).first
   }
 }
