@@ -13,13 +13,16 @@ import StoreKit
 
 class PlayerViewModel {
   private let playerManager: PlayerManager
+  private let dataManager: DataManager
   weak var coordinator: PlayerCoordinator!
   private var chapterBeforeSliderValueChange: Chapter?
   private var prefersChapterContext = UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
   private var prefersRemainingTime = UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
 
-  init(playerManager: PlayerManager) {
+  init(playerManager: PlayerManager,
+       dataManager: DataManager) {
     self.playerManager = playerManager
+    self.dataManager = dataManager
   }
 
   func currentBookObserver() -> Published<Book?>.Publisher {
@@ -223,6 +226,7 @@ class PlayerViewModel {
       } else {
         actionSheet.addAction(UIAlertAction(title: "\(speed)", style: .default, handler: { _ in
           SpeedManager.shared.setSpeed(speed, currentBook: self.playerManager.currentBook)
+          self.dataManager.saveContext()
         }))
       }
     }
@@ -251,12 +255,12 @@ extension PlayerViewModel {
 
     let currentTime = book.currentTime
 
-    if let bookmark = BookmarksService.getBookmark(at: currentTime, book: book, type: .user) {
+    if let bookmark = self.dataManager.getBookmark(at: currentTime, book: book, type: .user) {
       self.showBookmarkSuccessAlert(vc: vc, bookmark: bookmark, existed: true)
       return
     }
 
-    let bookmark = BookmarksService.createBookmark(at: currentTime, book: book, type: .user)
+    let bookmark = self.dataManager.createBookmark(at: currentTime, book: book, type: .user)
 
     self.showBookmarkSuccessAlert(vc: vc, bookmark: bookmark, existed: false)
   }
@@ -302,7 +306,7 @@ extension PlayerViewModel {
         return
       }
 
-      DataManager.addNote(note, bookmark: bookmark)
+      self.dataManager.addNote(note, bookmark: bookmark)
     }))
 
     vc.present(alert, animated: true, completion: nil)

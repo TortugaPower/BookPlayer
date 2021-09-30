@@ -25,7 +25,10 @@ class SpeedManager: NSObject {
   }
 
   private func bindCurrentBook() {
-    self.subscription = PlayerManager.shared.$currentBook.sink { [weak self] currentBook in
+    guard let appDelegate = UIApplication.shared.delegate as? AppDelegate,
+          let mainCoordinator = appDelegate.coordinator.getMainCoordinator() else { return }
+
+    self.subscription = mainCoordinator.playerManager.$currentBook.sink { [weak self] currentBook in
       let useGlobalSpeed = UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue)
       let globalSpeed = UserDefaults.standard.float(forKey: "global_speed")
       let localSpeed = currentBook?.folder?.speed ?? currentBook?.speed ?? 1.0
@@ -38,7 +41,6 @@ class SpeedManager: NSObject {
   public func setSpeed(_ newValue: Float, currentBook: Book?) {
     currentBook?.folder?.speed = newValue
     currentBook?.speed = newValue
-    DataManager.saveContext()
 
     // set global speed
     if UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue) {
