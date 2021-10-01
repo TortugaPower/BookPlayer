@@ -76,8 +76,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
             options.debug = true
         }
 
-        WatchConnectivityService.sharedManager.startSession()
-
       self.coordinator.start()
 
       self.window = UIWindow(frame: UIScreen.main.bounds)
@@ -159,7 +157,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
     }
 
     @objc func sendApplicationContext() {
-        WatchConnectivityService.sharedManager.sendApplicationContext()
+      guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return }
+      mainCoordinator.watchConnectivityService.sendApplicationContext()
     }
 
     // Playback may be interrupted by calls. Handle pause

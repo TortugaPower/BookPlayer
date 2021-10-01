@@ -15,6 +15,7 @@ class MainCoordinator: Coordinator {
   let rootViewController: RootViewController
   let playerManager: PlayerManager
   let dataManager: DataManager
+  let watchConnectivityService: WatchConnectivityService
 
   init(
     rootController: RootViewController,
@@ -23,7 +24,10 @@ class MainCoordinator: Coordinator {
   ) {
     self.rootViewController = rootController
     self.dataManager = dataManager
-    self.playerManager = PlayerManager(dataManager: dataManager)
+
+    let watchService = WatchConnectivityService(dataManager: dataManager)
+    self.watchConnectivityService = watchService
+    self.playerManager = PlayerManager(dataManager: dataManager, watchConnectivityService: watchService)
     ThemeManager.shared.dataManager = dataManager
 
     super.init(navigationController: navigationController)
@@ -64,6 +68,7 @@ class MainCoordinator: Coordinator {
     libraryCoordinator.start()
 
     self.setupCarPlay(with: library)
+    self.watchConnectivityService.startSession()
   }
 
   private func setupCarPlay(with library: Library) {
@@ -93,13 +98,5 @@ class MainCoordinator: Coordinator {
 
   func getLibraryCoordinator() -> LibraryListCoordinator? {
     return self.childCoordinators.first as? LibraryListCoordinator
-  }
-
-  func skipRewindTime() {
-    self.playerManager.rewind()
-  }
-
-  func skipForwardTime() {
-    self.playerManager.forward()
   }
 }

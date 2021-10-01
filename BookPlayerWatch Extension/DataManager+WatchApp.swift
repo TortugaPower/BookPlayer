@@ -13,17 +13,17 @@ extension DataManager {
         .urls(for: .documentDirectory, in: .userDomainMask).first!
         .appendingPathComponent("library.data")
 
-    public class func loadLibrary() -> Library {
-        return self.decodeLibrary(FileManager.default.contents(atPath: self.dataUrl.path))
+    public func loadLibrary() -> Library {
+        return self.decodeLibrary(FileManager.default.contents(atPath: DataManager.dataUrl.path))
             ?? Library(context: self.getContext())
     }
 
-    public class func decodeLibrary(_ data: Data?) -> Library? {
+    public func decodeLibrary(_ data: Data?) -> Library? {
         guard let data = data else { return nil }
 
         try? data.write(to: DataManager.dataUrl)
 
-        let bgContext = DataManager.getBackgroundContext()
+        let bgContext = self.getBackgroundContext()
         let decoder = JSONDecoder()
 
         guard let context = CodingUserInfoKey.context else { return nil }

@@ -14,13 +14,19 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     }
 
     func applicationDidBecomeActive() {
-        // Refresh last book in case it was changed
-        guard let controller = WKExtension.shared().rootInterfaceController else {
-            return
-        }
+      // Refresh last book in case it was changed
+      guard let controller = WKExtension.shared().rootInterfaceController else {
+        return
+      }
 
-        let message: [String: AnyObject] = ["command": "refresh" as AnyObject]
-        try? controller.sendMessage(message)
+      let message: [String: AnyObject] = ["command": "refresh" as AnyObject]
+
+      switch controller {
+      case let libraryController as LibraryInterfaceController:
+        try? libraryController.sendMessage(message)
+      default:
+        break
+      }
     }
 
     func applicationWillResignActive() {

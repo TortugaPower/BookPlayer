@@ -15,9 +15,10 @@ import WidgetKit
 
 // swiftlint:disable file_length
 
-class PlayerManager: NSObject, TelemetryProtocol {
+final class PlayerManager: NSObject, TelemetryProtocol {
   private let dataManager: DataManager
   private let userActivityManager: UserActivityManager
+  private let watchConnectivityService: WatchConnectivityService
 
   private var audioPlayer = AVPlayer()
 
@@ -73,8 +74,9 @@ class PlayerManager: NSObject, TelemetryProtocol {
 
   private var rateObserver: NSKeyValueObservation?
 
-  init(dataManager: DataManager) {
+  init(dataManager: DataManager, watchConnectivityService: WatchConnectivityService) {
     self.dataManager = dataManager
+    self.watchConnectivityService = watchConnectivityService
     self.userActivityManager = UserActivityManager(dataManager: dataManager)
 
     super.init()
@@ -84,7 +86,7 @@ class PlayerManager: NSObject, TelemetryProtocol {
       guard let newValue = change.newValue, newValue == 0 else { return }
 
       DispatchQueue.main.async {
-        WatchConnectivityService.sharedManager.sendMessage(message: ["notification": "bookPaused" as AnyObject])
+        self.watchConnectivityService.sendMessage(message: ["notification": "bookPaused" as AnyObject])
       }
     }
     self.audioPlayer.addPeriodicTimeObserver(forInterval: interval, queue: DispatchQueue.main) { [weak self] _ in
@@ -421,7 +423,7 @@ extension PlayerManager {
         DispatchQueue.main.async {
             CarPlayManager.setNowPlayingInfo(with: currentBook)
             NotificationCenter.default.post(name: .bookPlayed, object: nil)
-            WatchConnectivityService.sharedManager.sendMessage(message: ["notification": "bookPlayed" as AnyObject])
+            self.watchConnectivityService.sendMessage(message: ["notification": "bookPlayed" as AnyObject])
             if #available(iOS 14.0, *) {
                 WidgetCenter.shared.reloadAllTimelines()
             }
