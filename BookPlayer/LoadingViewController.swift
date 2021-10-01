@@ -14,7 +14,6 @@ class LoadingViewController: UIViewController, Storyboarded, Themeable {
   var viewModel: LoadingViewModel!
 
   override func viewDidLoad() {
-    self.viewModel.setupDefaultState()
     self.navigationController?.isNavigationBarHidden = true
   }
 

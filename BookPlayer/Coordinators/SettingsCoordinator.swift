@@ -22,10 +22,9 @@ class SettingsCoordinator: Coordinator {
   override func start() {
     let vc = SettingsViewController.instantiate(from: .Settings)
     vc.coordinator = self
-    let nav = AppNavigationController.instantiate(from: .Settings)
-    nav.viewControllers = [vc]
-    nav.presentationController?.delegate = self
-    self.presentingViewController?.present(nav, animated: true, completion: nil)
+    self.navigationController.viewControllers = [vc]
+    self.navigationController.presentationController?.delegate = self
+    self.presentingViewController?.present(self.navigationController, animated: true, completion: nil)
   }
 
   override func dismiss() {

@@ -271,7 +271,6 @@ class FolderListViewModel {
 
   func updateDefaultArtwork(for theme: SimpleTheme) {
     self.defaultArtwork = DefaultArtworkFactory.generateArtwork(from: theme.linkColor)?.pngData()
-    self.items.value = self.items.value.map({ SimpleLibraryItem(from: $0, defaultArtwork: self.defaultArtwork) })
   }
 
   func getMiniPlayerOffset() -> CGFloat {

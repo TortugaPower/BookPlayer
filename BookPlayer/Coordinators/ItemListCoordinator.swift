@@ -180,8 +180,10 @@ class ItemListCoordinator: Coordinator {
   }
 
   func showSettings() {
-    let settingsCoordinator = SettingsCoordinator(dataManager: self.dataManager,
-                                                  navigationController: self.navigationController)
+    let settingsCoordinator = SettingsCoordinator(
+      dataManager: self.dataManager,
+      navigationController: AppNavigationController.instantiate(from: .Settings)
+    )
     settingsCoordinator.parentCoordinator = self
     settingsCoordinator.presentingViewController = self.presentingViewController
     self.childCoordinators.append(settingsCoordinator)

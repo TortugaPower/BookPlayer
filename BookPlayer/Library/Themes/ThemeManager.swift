@@ -56,21 +56,22 @@ final class ThemeManager: ThemeProvider {
       self.useDarkVariant = brightness <= CGFloat(threshold)
     }
 
-    if let themesFile = Bundle.main.url(forResource: "Themes", withExtension: "json"),
-       let data = try? Data(contentsOf: themesFile, options: .mappedIfSafe) {
-
-      do {
-        var themes = try JSONDecoder().decode([SimpleTheme].self, from: data)
-        var defaultTheme = themes.first!
-        defaultTheme.useDarkVariant = self.useDarkVariant
-
-        self.theme = SubscribableValue<SimpleTheme>(value: defaultTheme)
-      } catch {
-        print(error)
-      }
+    if var defaultTheme = ThemeManager.getLocalThemes().first {
+      defaultTheme.useDarkVariant = self.useDarkVariant
+      self.theme = SubscribableValue<SimpleTheme>(value: defaultTheme)
     }
 
     NotificationCenter.default.addObserver(self, selector: #selector(self.brightnessChanged(_:)), name: UIScreen.brightnessDidChangeNotification, object: nil)
+  }
+
+  public class func getLocalThemes() -> [SimpleTheme] {
+    guard let themesFile = Bundle.main.url(forResource: "Themes", withExtension: "json"),
+          let data = try? Data(contentsOf: themesFile, options: .mappedIfSafe),
+          let themes = try? JSONDecoder().decode([SimpleTheme].self, from: data) else {
+            return []
+          }
+
+    return themes
   }
 
     @objc private func brightnessChanged(_ notification: Notification) {

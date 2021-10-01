@@ -110,12 +110,28 @@ extension DataManager {
     return try? self.getContext().fetch(fetchRequest)
   }
 
-  public func getAllThemes() -> [Theme]? {
+  public func hasThemesLoaded() -> Bool {
     let fetchRequest: NSFetchRequest<Theme> = Theme.fetchRequest()
-    fetchRequest.returnsObjectsAsFaults = false
-//    fetchRequest.predicate = NSPredicate(format: "%K != nil", #keyPath(Theme.selected))
+    fetchRequest.fetchLimit = 1
 
-    return try? self.getContext().fetch(fetchRequest)
+    let themes = (try? self.getContext().fetch(fetchRequest)) ?? []
+
+    return !themes.isEmpty
+  }
+
+  public func loadLocalThemes() {
+    guard
+      let themesFile = Bundle.main.url(forResource: "Themes", withExtension: "json"),
+      let data = try? Data(contentsOf: themesFile, options: .mappedIfSafe),
+      let jsonObject = try? JSONSerialization.jsonObject(with: data, options: .mutableLeaves),
+      let themeParams = jsonObject as? [[String: Any]]
+    else { return }
+
+    for themeParam in themeParams {
+      _ = Theme(params: themeParam, context: self.getContext())
+    }
+
+    self.saveContext()
   }
 
   public class func getLocalThemes() -> [Theme] {

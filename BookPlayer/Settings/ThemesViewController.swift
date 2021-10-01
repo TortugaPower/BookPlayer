@@ -42,13 +42,13 @@ class ThemesViewController: UIViewController, TelemetryProtocol {
     let cellHeight = 45
     let expandedHeight = 110
 
-    var localThemes: [Theme]! {
+    var localThemes: [SimpleTheme]! {
         didSet {
             self.localThemesTableHeightConstraint.constant = CGFloat(self.localThemes.count * self.cellHeight)
         }
     }
 
-    var extractedThemes: [Theme]! {
+    var extractedThemes: [SimpleTheme]! {
         didSet {
             self.resizeScrollContent()
         }
@@ -59,8 +59,8 @@ class ThemesViewController: UIViewController, TelemetryProtocol {
 
         self.navigationItem.title = "themes_title".localized
 
-        self.localThemes = DataManager.getLocalThemes()
-        self.extractedThemes = DataManager.getExtractedThemes()
+      self.localThemes = ThemeManager.getLocalThemes()
+      self.extractedThemes = [] // disabled
 
         if !UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) {
             NotificationCenter.default.addObserver(self, selector: #selector(self.donationMade), name: .donationMade, object: nil)
@@ -94,14 +94,14 @@ class ThemesViewController: UIViewController, TelemetryProtocol {
     }
 
     override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
+      super.viewDidLayoutSubviews()
 
-        guard !self.scrolledToCurrentTheme,
+      guard !self.scrolledToCurrentTheme,
             let index = self.extractedThemes.firstIndex(of: ThemeManager.shared.currentTheme) else { return }
 
-        self.scrolledToCurrentTheme = true
-        let indexPath = IndexPath(row: index, section: 0)
-        self.extractedThemesTableView.scrollToRow(at: indexPath, at: .top, animated: false)
+      self.scrolledToCurrentTheme = true
+      let indexPath = IndexPath(row: index, section: 0)
+      self.extractedThemesTableView.scrollToRow(at: indexPath, at: .top, animated: false)
     }
 
     @objc func donationMade() {
@@ -315,7 +315,7 @@ extension ThemesViewController: UITableViewDelegate {
 }
 
 extension ThemesViewController: Themeable {
-    func applyTheme(_ theme: Theme) {
+    func applyTheme(_ theme: SimpleTheme) {
         self.view.backgroundColor = theme.systemGroupedBackgroundColor
 
         self.localThemesTableView.backgroundColor = theme.systemBackgroundColor
