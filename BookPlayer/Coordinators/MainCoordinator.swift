@@ -46,6 +46,11 @@ class MainCoordinator: Coordinator {
     let offset: CGFloat = Device.current.hasSensorHousing ? 199: 88
 
     let library = (try? self.dataManager.getLibrary()) ?? self.dataManager.createLibrary()
+
+    if library.currentTheme != nil {
+      ThemeManager.shared.currentTheme = SimpleTheme(with: library.currentTheme)
+    }
+
     let libraryCoordinator = LibraryListCoordinator(
       navigationController: self.navigationController,
       library: library,
@@ -57,10 +62,6 @@ class MainCoordinator: Coordinator {
     libraryCoordinator.parentCoordinator = self
     self.childCoordinators.append(libraryCoordinator)
     libraryCoordinator.start()
-
-    if library.currentTheme != nil {
-      ThemeManager.shared.currentTheme = SimpleTheme(with: library.currentTheme)
-    }
 
     self.setupCarPlay(with: library)
   }
