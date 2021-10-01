@@ -170,42 +170,6 @@ public final class DataMigrationManager {
       completionHandler(nil)
     }
   }
-
-  public func setupDefaultState() {
-    let userDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
-
-    // Migrate user defaults app icon
-    if userDefaults?
-        .string(forKey: Constants.UserDefaults.appIcon.rawValue) == nil {
-      let storedIconId = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon.rawValue)
-      userDefaults?.set(storedIconId, forKey: Constants.UserDefaults.appIcon.rawValue)
-    } else if let sharedAppIcon = userDefaults?
-                .string(forKey: Constants.UserDefaults.appIcon.rawValue),
-              let localAppIcon = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon.rawValue),
-              sharedAppIcon != localAppIcon {
-      userDefaults?.set(localAppIcon, forKey: Constants.UserDefaults.appIcon.rawValue)
-      UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.appIcon.rawValue)
-    }
-
-    // Migrate protection for Processed folder
-    if !(userDefaults?
-        .bool(forKey: Constants.UserDefaults.fileProtectionMigration.rawValue) ?? false) {
-      DataManager.getProcessedFolderURL().disableFileProtection()
-      userDefaults?.set(true, forKey: Constants.UserDefaults.fileProtectionMigration.rawValue)
-    }
-
-    // Exclude Processed folder from phone backups
-    var resourceValues = URLResourceValues()
-    resourceValues.isExcludedFromBackup = true
-    var processedFolderURL = DataManager.getProcessedFolderURL()
-
-    try? processedFolderURL.setResourceValues(resourceValues)
-
-    // Set system theme as default
-    if UserDefaults.standard.object(forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue) == nil {
-      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue)
-    }
-  }
 }
 
 extension NSManagedObjectModel {
