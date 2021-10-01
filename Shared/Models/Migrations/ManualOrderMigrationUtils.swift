@@ -40,6 +40,12 @@ extension DataMigrationManager {
     guard let items = folder.items?.array as? [LibraryItem] else { return }
 
     for (index, item) in items.enumerated() {
+      // Migrate and overwrite nil folder-artwork data
+      if folder.artworkData == nil,
+         item.artworkData != nil {
+        folder.artworkData = item.artworkData
+      }
+
       item.orderRank = Int16(index)
     }
 
