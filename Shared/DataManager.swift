@@ -99,6 +99,34 @@ public class DataManager {
     return try context.fetch(fetch).first
   }
 
+  public func getLibraryLastBook() throws -> Book? {
+    let context = self.getContext()
+    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "Library")
+    fetchRequest.propertiesToFetch = ["lastPlayedBook"]
+    fetchRequest.resultType = .dictionaryResultType
+
+    guard let dict = try context.fetch(fetchRequest).first as? [String: NSManagedObjectID],
+          let lastPlayedBookId = dict["lastPlayedBook"] else {
+      return nil
+    }
+
+    return try? context.existingObject(with: lastPlayedBookId) as? Book
+  }
+
+  public func getLibraryCurrentTheme() throws -> Theme? {
+    let context = self.getContext()
+    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "Library")
+    fetchRequest.propertiesToFetch = ["currentTheme"]
+    fetchRequest.resultType = .dictionaryResultType
+
+    guard let dict = try context.fetch(fetchRequest).first as? [String: NSManagedObjectID],
+          let themeId = dict["currentTheme"] else {
+      return nil
+    }
+
+    return try? context.existingObject(with: themeId) as? Theme
+  }
+
   public func createLibrary() -> Library {
     let context = self.getContext()
     let library = Library.create(in: context)
@@ -143,6 +171,7 @@ public class DataManager {
 
     let sort = NSSortDescriptor(key: #keyPath(Book.lastPlayDate), ascending: false)
     fetch.sortDescriptors = [sort]
+
     let context = self.coreDataStack.managedContext
 
     return try? context.fetch(fetch)

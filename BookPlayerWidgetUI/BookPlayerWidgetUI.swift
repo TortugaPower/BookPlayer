@@ -15,7 +15,7 @@ struct SimpleEntry: TimelineEntry {
     let title: String?
     let relativePath: String?
     let artwork: UIImage?
-    let theme: Theme?
+    let theme: SimpleTheme?
     let timerSeconds: Double
     let autoplay: Bool
 }
@@ -23,17 +23,18 @@ struct SimpleEntry: TimelineEntry {
 struct LibraryEntry: TimelineEntry {
     let date: Date
     let items: [BookPlayerKit.LibraryItem]
-    let theme: Theme?
+    let theme: SimpleTheme?
     let timerSeconds: Double
     let autoplay: Bool
 }
 
 struct TimeListenedEntry: TimelineEntry {
-    let date: Date
-    let library: Library?
-    let timerSeconds: Double
-    let autoplay: Bool
-    let playbackRecords: [PlaybackRecordViewer]
+  let date: Date
+  let title: String?
+  let theme: SimpleTheme?
+  let timerSeconds: Double
+  let autoplay: Bool
+  let playbackRecords: [PlaybackRecordViewer]
 }
 
 struct BookPlayerWidgetUI_Previews: PreviewProvider {

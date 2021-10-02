@@ -23,7 +23,7 @@ class LoadingCoordinator: Coordinator {
 
     self.loadingViewController.modalPresentationStyle = .fullScreen
 
-    let viewModel = LoadingViewModel(dataMigrationManager: DataMigrationManager(modelNamed: "BookPlayer"))
+    let viewModel = LoadingViewModel(dataMigrationManager: DataMigrationManager())
     viewModel.coordinator = self
     self.loadingViewController.viewModel = viewModel
     self.loadingViewController.presentationController?.delegate = self

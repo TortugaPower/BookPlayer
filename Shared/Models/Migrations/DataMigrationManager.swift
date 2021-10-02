@@ -11,17 +11,16 @@ import Foundation
 import UIKit
 
 public final class DataMigrationManager {
-  private let modelName: String
+  private let modelName: String = "BookPlayer"
   private let currentModel: NSManagedObjectModel
   private let storeURL: URL
   private var storeModel: NSManagedObjectModel?
 
-  public init(modelNamed: String) {
-    self.modelName = modelNamed
-    self.currentModel = .model(named: modelNamed)
+  public init() {
+    self.currentModel = .model(named: self.modelName)
     let storeURL =  FileManager.default.containerURL(
       forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!
-      .appendingPathComponent("BookPlayer.sqlite")
+      .appendingPathComponent("\(self.modelName).sqlite")
     self.storeURL = storeURL
     self.storeModel = NSManagedObjectModel.modelVersionsFor(modelNamed: self.modelName)
       .filter {
