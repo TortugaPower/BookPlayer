@@ -189,7 +189,7 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "voiceover_forward_time" = "Avanza %@";
 "watchapp_last_played_title" = "Ultimo Riprodotto";
 "watchapp_refresh_data_title" = "Aggiorna i dati";
-"carplay_recent_title" = "Recente";
+"recent_title" = "Recente";
 "carplay_library_error" = "Impossibile caricare i libri";
 "siri_invocation_phrase" = "Riprendi il mio libro";
 "siri_activity_title" = "Riprendi l'ultimo libro riprodotto";

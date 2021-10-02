@@ -181,7 +181,7 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "voiceover_forward_time" = "Derulare rapidă înainte%@";
 "watchapp_last_played_title" = "Ultimul redat";
 "watchapp_refresh_data_title" = "Actualizați datele";
-"carplay_recent_title" = "Recent";
+"recent_title" = "Recent";
 "carplay_library_error" = "Imposibil de încărcat cărți";
 "siri_invocation_phrase" = "Continuați-mi cartea";
 "siri_activity_title" = "Continuați ultima carte derulata";

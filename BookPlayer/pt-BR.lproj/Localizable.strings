@@ -193,7 +193,7 @@ A note - in Bulgarian this implies that an audiobook is being marked, which is a
 /* Is this for an action already taking place or for a command to initiate said action?
 for a command to initiate the action on the Apple Watch, I beleive its when you 3d touch the list */
 "watchapp_refresh_data_title" = "Atualizar dados";
-"carplay_recent_title" = "Mais recente";
+"recent_title" = "Mais recente";
 "carplay_library_error" = "Incapaz de carregar livros";
 "siri_invocation_phrase" = "Continue meu livro";
 "siri_activity_title" = "Continuar o último livro reproduzido";

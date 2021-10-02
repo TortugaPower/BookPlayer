@@ -166,7 +166,7 @@
 "voiceover_forward_time" = "Snabbspolning %@";
 "watchapp_last_played_title" = "Senast spelad";
 "watchapp_refresh_data_title" = "Uppdatera data";
-"carplay_recent_title" = "Senaste";
+"recent_title" = "Senaste";
 "carplay_library_error" = "Det gick inte att ladda in böcker";
 "siri_invocation_phrase" = "Fortsätt min bok";
 "siri_activity_title" = "Fortsätt senast spelade bok";

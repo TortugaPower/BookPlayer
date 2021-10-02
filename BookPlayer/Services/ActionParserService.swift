@@ -48,6 +48,7 @@ class ActionParserService {
         self.handleSleepAction(action)
       case .refresh:
         mainCoordinator.watchConnectivityService.sendApplicationContext()
+        self.removeAction(action)
       case .skipRewind:
         mainCoordinator.playerManager.rewind()
       case .skipForward:

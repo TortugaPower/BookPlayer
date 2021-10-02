@@ -68,6 +68,7 @@ class MainCoordinator: Coordinator {
     libraryCoordinator.start()
 
     self.setupCarPlay(with: library)
+    self.watchConnectivityService.library = library
     self.watchConnectivityService.startSession()
   }
 

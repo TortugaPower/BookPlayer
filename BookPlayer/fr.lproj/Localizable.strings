@@ -182,7 +182,7 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "voiceover_forward_time" = "Avance rapide %@";
 "watchapp_last_played_title" = "Dernier lu";
 "watchapp_refresh_data_title" = "Actualiser";
-"carplay_recent_title" = "Récent";
+"recent_title" = "Récent";
 "carplay_library_error" = "Impossible de charger les livres";
 "siri_invocation_phrase" = "Continuer mon livre";
 "siri_activity_title" = "Continuer le dernier livre lu";

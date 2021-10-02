@@ -102,14 +102,7 @@ extension DataManager {
         return FileManager.default.fileExists(atPath: fileURL.path)
     }
 
-    // MARK: - Themes
-  public func getSelectedTheme() -> [Theme]? {
-    let fetchRequest: NSFetchRequest<Theme> = Theme.fetchRequest()
-    fetchRequest.predicate = NSPredicate(format: "%K != nil", #keyPath(Theme.selected))
-
-    return try? self.getContext().fetch(fetchRequest)
-  }
-
+  // MARK: - Themes
   public func hasThemesLoaded() -> Bool {
     let fetchRequest: NSFetchRequest<Theme> = Theme.fetchRequest()
     fetchRequest.fetchLimit = 1

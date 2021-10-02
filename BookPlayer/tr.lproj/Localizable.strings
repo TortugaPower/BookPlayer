@@ -189,7 +189,7 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "voiceover_forward_time" = "%@ Hızlı İleri Sarma";
 "watchapp_last_played_title" = "Son Oynatılan";
 "watchapp_refresh_data_title" = "Verileri yenile";
-"carplay_recent_title" = "Son";
+"recent_title" = "Son";
 "carplay_library_error" = "Kitap yüklenemiyor";
 "siri_invocation_phrase" = "Kitabıma devam et";
 "siri_activity_title" = "En son oynatılan kitaba devam et";

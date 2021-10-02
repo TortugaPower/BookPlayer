@@ -167,7 +167,7 @@
 "voiceover_continue_playback_title" = "Continuar Reproducción";
 "watchapp_last_played_title" = "Última Reproducción";
 "watchapp_refresh_data_title" = "Actualizar data";
-"carplay_recent_title" = "Recientes";
+"recent_title" = "Recientes";
 "carplay_library_error" = "Error al cargar los libros";
 "siri_invocation_phrase" = "Continuar mi libro";
 "siri_activity_title" = "Continuar con el último libro";

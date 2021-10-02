@@ -189,7 +189,7 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "voiceover_forward_time" = "Rýchle pretáčanie vpred %@";
 "watchapp_last_played_title" = "Naposledy prehraté";
 "watchapp_refresh_data_title" = "Obnoviť dáta";
-"carplay_recent_title" = "Nedávne";
+"recent_title" = "Nedávne";
 "carplay_library_error" = "Nemožno načítať audioknihy";
 "siri_invocation_phrase" = "Pokračovať v počúvaní mojej audioknihy";
 "siri_activity_title" = "Pokračovať v naposledy prehrávanej audioknihe";

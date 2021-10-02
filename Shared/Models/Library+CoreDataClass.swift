@@ -135,35 +135,13 @@ public class Library: NSManagedObject, Codable {
     }
 
     public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
+      var container = encoder.container(keyedBy: CodingKeys.self)
 
-        guard let itemsArray = self.items?.array as? [LibraryItem] else { return }
+      if let book = self.lastPlayedBook {
+        try container.encode(book, forKey: .lastPlayedBook)
+      }
 
-        var books = [Int: Book]()
-        var folders = [Int: Folder]()
-
-        for (index, item) in itemsArray.enumerated() {
-            if let book = item as? Book {
-                books[index] = book
-            }
-            if let folder = item as? Folder {
-                folders[index] = folder
-            }
-        }
-
-        if !books.isEmpty {
-            try container.encode(books, forKey: .books)
-        }
-
-        if !folders.isEmpty {
-            try container.encode(folders, forKey: .folders)
-        }
-
-        if let book = self.lastPlayedBook {
-            try container.encode(book, forKey: .lastPlayedBook)
-        }
-
-        try container.encode(currentTheme, forKey: .currentTheme)
+      try container.encode(currentTheme, forKey: .currentTheme)
     }
 
     public required convenience init(from decoder: Decoder) throws {
@@ -176,23 +154,6 @@ public class Library: NSManagedObject, Codable {
         self.init(entity: entity, insertInto: nil)
 
         let values = try decoder.container(keyedBy: CodingKeys.self)
-
-        var books = [Int: LibraryItem]()
-        var folders = [Int: LibraryItem]()
-
-        if let decodedBooks = try? values.decode([Int: Book].self, forKey: .books) {
-            books = decodedBooks
-        }
-
-        if let decodedFolders = try? values.decode([Int: Folder].self, forKey: .folders) {
-            folders = decodedFolders
-        }
-
-        let unsortedItemsDict: [Int: LibraryItem] = books.merging(folders) { (_, new) -> LibraryItem in new }
-        let sortedItemsTuple = unsortedItemsDict.sorted { $0.key < $1.key }
-        let sortedItems = Array(sortedItemsTuple.map { $0.value })
-
-        items = NSOrderedSet(array: sortedItems)
 
         if let book = try? values.decode(Book.self, forKey: .lastPlayedBook) {
             self.lastPlayedBook = book

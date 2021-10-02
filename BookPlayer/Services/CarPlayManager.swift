@@ -50,7 +50,7 @@ enum IndexGuide {
 final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDelegate {
   typealias Tab = (identifier: String, title: String, imageName: String)
   let tabs: [Tab] = [("tab-library", "library_title".localized, "books.vertical.fill"),
-                     ("tab-recent", "carplay_recent_title".localized, "clock.fill")]
+                     ("tab-recent", "recent_title".localized, "clock.fill")]
   let library: Library
   let dataManager: DataManager
 

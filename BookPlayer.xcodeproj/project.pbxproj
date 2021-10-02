@@ -255,6 +255,7 @@
 		41D20DB425D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 41D20DAE25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel */; };
 		41D4F2EF21053944009F1B1E /* IndexPath+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D4F2EE21053944009F1B1E /* IndexPath+BookPlayer.swift */; };
 		41DA44BD26FAEC4F00F3A05D /* BookActivityItemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D39D40215F177D00B65290 /* BookActivityItemProvider.swift */; };
+		41DCC2502708B0E0006BF01F /* SimpleTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 412AB73B2702BDED00969618 /* SimpleTheme.swift */; };
 		41E562C4223896B500C06BC9 /* UserDefaults+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41E562C3223896B500C06BC9 /* UserDefaults+BookPlayer.swift */; };
 		41E562CE22394F5200C06BC9 /* ayu-light@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E562CC22394F5200C06BC9 /* ayu-light@2x.png */; };
 		41E562CF22394F5200C06BC9 /* ayu-light@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E562CD22394F5200C06BC9 /* ayu-light@3x.png */; };
@@ -2089,6 +2090,7 @@
 				417D996F256D73B400C3B753 /* Intents.intentdefinition in Sources */,
 				417D9994256DE3FB00C3B753 /* LastPlayedWidgetView.swift in Sources */,
 				416A29AA2569658100605395 /* BookPlayerWidgetUI.swift in Sources */,
+				41DCC2502708B0E0006BF01F /* SimpleTheme.swift in Sources */,
 				41D20DB425D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
 				410641282579AA2F008EB8D0 /* TimeListenedWidgetView.swift in Sources */,
 				41064152258726D2008EB8D0 /* TimeListenedMediumView.swift in Sources */,

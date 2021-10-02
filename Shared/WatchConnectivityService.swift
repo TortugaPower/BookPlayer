@@ -9,6 +9,7 @@
 import WatchConnectivity
 
 public class WatchConnectivityService: NSObject, WCSessionDelegate {
+  public var library: Library!
   let dataManager: DataManager
 
   public init(dataManager: DataManager) {
@@ -56,16 +57,23 @@ public class WatchConnectivityService: NSObject, WCSessionDelegate {
 
   public func sendApplicationContext() {
     guard self.validReachableSession != nil,
-          let library = try? self.dataManager.getLibrary() else { return }
+          library != nil else { return }
 
-    guard let jsonData = try? JSONEncoder().encode(library) else {
+    guard let jsonData = try? JSONEncoder().encode(self.library) else {
       return
+    }
+
+    var recentBooksData: Data?
+
+    if let recentBooks = self.dataManager.getOrderedBooks(limit: 30) {
+      recentBooksData = try? JSONEncoder().encode(recentBooks)
     }
 
     let rewind = UserDefaults.standard.double(forKey: Constants.UserDefaults.rewindInterval.rawValue)
     let forward = UserDefaults.standard.double(forKey: Constants.UserDefaults.forwardInterval.rawValue)
 
     try? self.updateApplicationContext(applicationContext: ["library": jsonData as AnyObject,
+                                                            "recentBooks": recentBooksData as AnyObject,
                                                             "rewindInterval": rewind as AnyObject,
                                                             "forwardInterval": forward as AnyObject])
   }

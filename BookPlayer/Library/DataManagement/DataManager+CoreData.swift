@@ -230,6 +230,9 @@ extension DataManager {
       fetchRequest.predicate = NSPredicate(format: "%K != nil", #keyPath(LibraryItem.library))
     }
 
+    let sort = NSSortDescriptor(key: #keyPath(LibraryItem.orderRank), ascending: true)
+    fetchRequest.sortDescriptors = [sort]
+
     fetchRequest.fetchLimit = limit
     fetchRequest.fetchOffset = offset
 

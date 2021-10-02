@@ -166,7 +166,7 @@
 "voiceover_forward_time" = "Rychlé přetáčení vpřed%@";
 "watchapp_last_played_title" = "Naposledy přehráno";
 "watchapp_refresh_data_title" = "Obnovit data";
-"carplay_recent_title" = "Nedávné";
+"recent_title" = "Nedávné";
 "carplay_library_error" = "Nelze načíst audioknihy";
 "siri_invocation_phrase" = "Pokračovat v poslechu mé audioknihy";
 "siri_activity_title" = "Pokračovat v naposledy přehrávané audioknize";

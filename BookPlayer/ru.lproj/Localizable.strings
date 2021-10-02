@@ -166,7 +166,7 @@
 "voiceover_forward_time" = "Перемотка вперёд %@";
 "watchapp_last_played_title" = "Последняя воспроизведенная книга";
 "watchapp_refresh_data_title" = "Обновить данные";
-"carplay_recent_title" = "Последние";
+"recent_title" = "Последние";
 "carplay_library_error" = "Невозможно загрузить книги";
 "siri_invocation_phrase" = "Продолжить книгу";
 "siri_activity_title" = "Продолжить последнюю прослушанную книгу";

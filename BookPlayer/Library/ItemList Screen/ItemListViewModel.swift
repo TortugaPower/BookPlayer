@@ -18,7 +18,7 @@ class FolderListViewModel {
   let library: Library
   let player: PlayerManager
   let dataManager: DataManager
-  let pageSize = 15
+  let pageSize = 13
   var offset = 0
 
   private var defaultArtwork: Data?

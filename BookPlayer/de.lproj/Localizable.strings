@@ -166,7 +166,7 @@
 "voiceover_forward_time" = "Vorwärts %@";
 "watchapp_last_played_title" = "Zuletzt gespielt";
 "watchapp_refresh_data_title" = "Daten aktualisieren";
-"carplay_recent_title" = "Kürzlich";
+"recent_title" = "Kürzlich";
 "carplay_library_error" = "Bücher können nicht geladen werden";
 "siri_invocation_phrase" = "Mein Buch fortsetzen";
 "siri_activity_title" = "Zuletzt gespieltes Buch weiter hören";

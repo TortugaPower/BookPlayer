@@ -52,16 +52,18 @@ class LibraryInterfaceController: WKInterfaceController {
 
     self.refreshButton.setTitle("watchapp_refresh_data_title".localized)
     self.lastBookHeaderTitle.setText("watchapp_last_played_title".localized)
-    self.libraryHeaderTitle.setText("library_title".localized)
+    self.libraryHeaderTitle.setText("recent_title".localized)
 
-    let migrationManager = DataMigrationManager(modelNamed: "BookPlayer")
+    let migrationManager = DataMigrationManager()
     let stack = migrationManager.getCoreDataStack()
     stack.loadStore { _, error in
-      self.dataManager = DataManager(coreDataStack: stack)
+      guard error == nil else { return }
 
-      self.watchConnectivityService = WatchConnectivityService(dataManager: self.dataManager)
+      let dataManager = DataManager(coreDataStack: stack)
+      self.dataManager = dataManager
 
-      NotificationCenter.default.addObserver(self, selector: #selector(self.updateApplicationContext), name: .contextUpdate, object: nil)
+      self.watchConnectivityService = WatchConnectivityService(dataManager: dataManager)
+
       self.watchConnectivityService.startSession()
 
       self.loadLibrary()
@@ -70,10 +72,13 @@ class LibraryInterfaceController: WKInterfaceController {
 
       self.setupLibraryTable()
     }
+
+    NotificationCenter.default.addObserver(self, selector: #selector(self.updateApplicationContext), name: .contextUpdate, object: nil)
   }
 
   func loadLibrary(_ library: Library? = nil) {
     self.library = library ?? self.dataManager.loadLibrary()
+    self.watchConnectivityService.library = self.library
 
     if let theme = self.library.currentTheme {
       self.lastBookHeaderTitle.setTextColor(theme.linkColor)
@@ -105,6 +110,7 @@ class LibraryInterfaceController: WKInterfaceController {
     }
 
     let data = applicationContext["library"] as? Data
+    let booksData = applicationContext["recentBooks"] as? Data
 
     if let rewindInterval = applicationContext["rewindInterval"] as? TimeInterval {
       UserDefaults.standard.set(rewindInterval, forKey: Constants.UserDefaults.rewindInterval.rawValue)
@@ -114,7 +120,7 @@ class LibraryInterfaceController: WKInterfaceController {
       UserDefaults.standard.set(forwardInterval, forKey: Constants.UserDefaults.forwardInterval.rawValue)
     }
 
-    guard let library = self.dataManager.decodeLibrary(data) else { return }
+    guard let library = self.dataManager.decodeLibrary(data, booksData: booksData) else { return }
 
     self.loadLibrary(library)
 
@@ -123,7 +129,7 @@ class LibraryInterfaceController: WKInterfaceController {
     self.setupLibraryTable()
   }
 
-  func sendMessage(_ message: [String : AnyObject]) throws {
+  func sendMessage(_ message: [String: AnyObject]) throws {
     guard self.watchConnectivityService != nil,
           self.watchConnectivityService.validReachableSession != nil else {
       let okAction = WKAlertAction(title: "ok_button".localized, style: .default) {}
