@@ -37,8 +37,8 @@ class Coordinator: NSObject {
     self.parentCoordinator?.childDidFinish(self)
   }
 
-  func showAlert(_ title: String? = nil, message: String? = nil) {
-    self.navigationController.showAlert(title, message: message)
+  func showAlert(_ title: String? = nil, message: String? = nil, completion: (() -> Void)? = nil) {
+    self.navigationController.showAlert(title, message: message, completion: completion)
   }
 
   func getMainCoordinator() -> MainCoordinator? { return nil }

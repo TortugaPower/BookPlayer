@@ -7,6 +7,7 @@
 //
 
 import BookPlayerKit
+import CoreData
 import Foundation
 
 class LoadingViewModel {
@@ -48,14 +49,68 @@ class LoadingViewModel {
   func loadLibrary() {
     let stack = self.dataMigrationManager.getCoreDataStack()
 
-    stack.loadStore { _, error in
-      print("=== error: \(error)")
+    stack.loadStore { [weak self] _, error in
+      if let error = error {
+        self?.handleCoreDataError(error)
+        return
+      }
 
       let dataManager = DataManager(coreDataStack: stack)
 
-      self.setupDefaultState(dataManager: dataManager)
+      self?.setupDefaultState(dataManager: dataManager)
 
-      self.coordinator.didFinishLoadingSequence(coreDataStack: stack)
+      self?.coordinator.didFinishLoadingSequence(coreDataStack: stack)
+    }
+  }
+
+  func handleCoreDataError(_ error: Error) {
+    let error = error as NSError
+    // CoreData may fail if device doesn't have space
+    if (error.domain == NSPOSIXErrorDomain && error.code == ENOSPC) ||
+        (error.domain == NSCocoaErrorDomain && error.code == NSFileWriteOutOfSpaceError) {
+      self.coordinator.showAlert("error_title".localized, message: "coredata_error_diskfull_description".localized)
+      return
+    }
+
+    // Handle data error migration by reloading library
+    if error.code == NSMigrationError ||
+        error.code == NSMigrationConstraintViolationError ||
+        error.code == NSMigrationCancelledError ||
+        error.code == NSMigrationMissingSourceModelError ||
+        error.code == NSMigrationMissingMappingModelError ||
+        error.code == NSMigrationManagerSourceStoreError ||
+        error.code == NSMigrationManagerDestinationStoreError ||
+        error.code == NSEntityMigrationPolicyError {
+      self.coordinator.showAlert("error_title".localized, message: "coredata_error_migration_description".localized) {
+        self.dataMigrationManager.cleanupStoreFile()
+        let urls = DataManager.getLibraryFiles()
+        self.reloadLibrary(with: urls)
+      }
+      return
+    }
+
+    fatalError("Unresolved error \(error), \(error.userInfo)")
+  }
+
+  func reloadLibrary(with files: [URL]) {
+    let stack = self.dataMigrationManager.getCoreDataStack()
+    stack.loadStore { [weak self] _, error in
+      if let error = error {
+        self?.handleCoreDataError(error)
+        return
+      }
+
+      let dataManager = DataManager(coreDataStack: stack)
+
+      self?.setupDefaultState(dataManager: dataManager)
+
+      let library = (try? dataManager.getLibrary()) ?? dataManager.createLibrary()
+
+      _ = dataManager.insertItems(from: files, into: nil, library: library)
+
+      dataManager.saveContext()
+
+      self?.coordinator.didFinishLoadingSequence(coreDataStack: stack)
     }
   }
 

@@ -76,6 +76,8 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
 
     self.setupBulkControls()
 
+    self.viewModel.showMiniPlayer(true)
+
     let interaction = UIDropInteraction(delegate: self)
     self.view.addInteraction(interaction)
   }
