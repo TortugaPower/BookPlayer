@@ -346,13 +346,30 @@ class FolderListViewModel {
   }
 
   func handleSort(by option: PlayListSortOrder) {
-    // TODO: This must be reworked after the manual rank migration is done
-    let orderedSet = NSOrderedSet(array: self.items.value)
-    guard let sortedItems = BookSortService.sort(orderedSet, by: option).array as? [SimpleLibraryItem] else {
-      return
+    let itemsToSort: NSOrderedSet?
+
+    if let folder = self.folder {
+      itemsToSort = folder.items
+    } else {
+      itemsToSort = self.library.items
     }
 
-    self.items.value = sortedItems
+    guard let itemsToSort = itemsToSort,
+          itemsToSort.count > 0 else { return }
+
+    let sortedItems = BookSortService.sort(itemsToSort, by: option)
+
+    if let folder = folder {
+      folder.items = sortedItems
+      folder.rebuildOrderRank()
+    } else {
+      self.library.items = sortedItems
+      self.library.rebuildOrderRank()
+    }
+
+    self.dataManager.saveContext()
+
+    self.reloadItems()
   }
 
   func handleRename(item: SimpleLibraryItem, with newTitle: String) {
