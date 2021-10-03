@@ -276,6 +276,7 @@ extension PlayerViewController {
 
     self.closeButton.publisher(for: .touchUpInside)
       .sink { [weak self] _ in
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         self?.viewModel.dismiss()
       }
       .store(in: &disposeBag)
