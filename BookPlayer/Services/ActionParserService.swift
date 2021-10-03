@@ -129,7 +129,7 @@ class ActionParserService {
     }
 
     self.removeAction(action)
-    libraryCoordinator.onTransition?(.downloadBook(url))
+    libraryCoordinator.onAction?(.downloadBook(url))
   }
 
   private class func handleWidgetAction(_ action: Action) {

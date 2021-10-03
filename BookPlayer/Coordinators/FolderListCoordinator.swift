@@ -55,7 +55,7 @@ class FolderListCoordinator: ItemListCoordinator {
     alert.addAction(UIAlertAction(title: "current_playlist_title".localized, style: .default, handler: nil))
 
     alert.addAction(UIAlertAction(title: "library_title".localized, style: .default) { [weak self] _ in
-      self?.onTransition?(.insertIntoLibrary(items))
+      self?.onAction?(.insertIntoLibrary(items))
     })
 
     alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { [weak self] _ in

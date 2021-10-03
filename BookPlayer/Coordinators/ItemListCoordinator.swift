@@ -31,7 +31,7 @@ enum ItemListActionRoutes {
 }
 
 class ItemListCoordinator: Coordinator {
-  public var onTransition: Transition<ItemListActionRoutes>?
+  public var onAction: Transition<ItemListActionRoutes>?
   let miniPlayerOffset: CGFloat
   let playerManager: PlayerManager
   let importManager: ImportManager
@@ -78,11 +78,11 @@ class ItemListCoordinator: Coordinator {
         return
       }
 
-      self.onTransition?(.newImportOperation(operation))
+      self.onAction?(.newImportOperation(operation))
 
       operation.completionBlock = {
         DispatchQueue.main.async {
-          self.onTransition?(.importOperationFinished(operation.processedFiles))
+          self.onAction?(.importOperationFinished(operation.processedFiles))
         }
       }
 
@@ -245,7 +245,7 @@ extension ItemListCoordinator {
     alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
     alert.addAction(UIAlertAction(title: "create_button".localized, style: .default, handler: { _ in
       let title = alert.textFields!.first!.text!
-      self.onTransition?(.importIntoFolder(title, items: items))
+      self.onAction?(.importIntoFolder(title, items: items))
     }))
 
     self.navigationController.present(alert, animated: true, completion: nil)
@@ -263,7 +263,7 @@ extension ItemListCoordinator {
     alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
     alert.addAction(UIAlertAction(title: "create_button".localized, style: .default, handler: { _ in
       let title = alert.textFields!.first!.text!
-      self.onTransition?(.createFolder(title, items: items))
+      self.onAction?(.createFolder(title, items: items))
     }))
 
     self.navigationController.present(alert, animated: true, completion: nil)
@@ -275,7 +275,7 @@ extension ItemListCoordinator {
                                             preferredStyle: .actionSheet)
 
     alertController.addAction(UIAlertAction(title: "import_button".localized, style: .default) { _ in
-      self.onTransition?(.importLocalFiles)
+      self.onAction?(.importLocalFiles)
     })
 
     alertController.addAction(UIAlertAction(title: "create_playlist_button".localized, style: .default) { _ in
@@ -302,19 +302,19 @@ extension ItemListCoordinator {
     let alert = UIAlertController(title: "sort_files_title".localized, message: nil, preferredStyle: .actionSheet)
 
     alert.addAction(UIAlertAction(title: "sort_title_button".localized, style: .default, handler: { _ in
-      self.onTransition?(.sortItems(.metadataTitle))
+      self.onAction?(.sortItems(.metadataTitle))
     }))
 
     alert.addAction(UIAlertAction(title: "sort_filename_button".localized, style: .default, handler: { _ in
-      self.onTransition?(.sortItems(.fileName))
+      self.onAction?(.sortItems(.fileName))
     }))
 
     alert.addAction(UIAlertAction(title: "sort_most_recent_button".localized, style: .default, handler: { _ in
-      self.onTransition?(.sortItems(.mostRecent))
+      self.onAction?(.sortItems(.mostRecent))
     }))
 
     alert.addAction(UIAlertAction(title: "sort_reversed_button".localized, style: .default, handler: { _ in
-      self.onTransition?(.sortItems(.reverseOrder))
+      self.onAction?(.sortItems(.reverseOrder))
     }))
 
     alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
@@ -327,7 +327,7 @@ extension ItemListCoordinator {
 
     if self is FolderListCoordinator {
       alert.addAction(UIAlertAction(title: "library_title".localized, style: .default) { [weak self] _ in
-        self?.onTransition?(.moveIntoLibrary(items: selectedItems))
+        self?.onAction?(.moveIntoLibrary(items: selectedItems))
       })
     }
 
@@ -340,7 +340,7 @@ extension ItemListCoordinator {
       vc.items = availableFolders
 
       vc.onItemSelected = { selectedFolder in
-        self.onTransition?(.moveIntoFolder(selectedFolder, items: selectedItems))
+        self.onAction?(.moveIntoFolder(selectedFolder, items: selectedItems))
       }
 
       let nav = AppNavigationController(rootViewController: vc)
@@ -372,12 +372,12 @@ extension ItemListCoordinator {
         alert.title = String(format: "delete_single_item_title".localized, item.title)
         alert.message = "delete_single_playlist_description".localized
         alert.addAction(UIAlertAction(title: "delete_shallow_button".localized, style: .default, handler: { _ in
-          self.onTransition?(.delete(selectedItems, mode: .shallow))
+          self.onAction?(.delete(selectedItems, mode: .shallow))
         }))
     }
 
     alert.addAction(UIAlertAction(title: deleteActionTitle, style: .destructive, handler: { _ in
-      self.onTransition?(.delete(selectedItems, mode: .deep))
+      self.onAction?(.delete(selectedItems, mode: .deep))
     }))
 
     self.navigationController.present(alert, animated: true, completion: nil)
@@ -413,14 +413,14 @@ extension ItemListCoordinator {
     sheet.addAction(exportAction)
 
     sheet.addAction(UIAlertAction(title: "jump_start_title".localized, style: .default, handler: { [weak self] _ in
-      self?.onTransition?(.resetPlaybackPosition(selectedItems))
+      self?.onAction?(.resetPlaybackPosition(selectedItems))
     }))
 
     let areFinished = selectedItems.filter({ $0.progress != 1.0 }).isEmpty
     let markTitle = areFinished ? "mark_unfinished_title".localized : "mark_finished_title".localized
 
     sheet.addAction(UIAlertAction(title: markTitle, style: .default, handler: { [weak self] _ in
-      self?.onTransition?(.markAsFinished(selectedItems, flag: !areFinished))
+      self?.onAction?(.markAsFinished(selectedItems, flag: !areFinished))
     }))
 
     sheet.addAction(UIAlertAction(title: "\("delete_button".localized)", style: .destructive) { _ in
@@ -443,7 +443,7 @@ extension ItemListCoordinator {
     alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
     alert.addAction(UIAlertAction(title: "rename_button".localized, style: .default) { [weak self] _ in
       if let title = alert.textFields!.first!.text, title != item.title {
-        self?.onTransition?(.rename(item, newTitle: title))
+        self?.onAction?(.rename(item, newTitle: title))
       }
     })
 
@@ -465,6 +465,6 @@ extension ItemListCoordinator {
       coordinator.reloadItemsWithPadding(padding: padding)
     }
 
-    onTransition?(.reloadItems(padding))
+    self.onAction?(.reloadItems(padding))
   }
 }
