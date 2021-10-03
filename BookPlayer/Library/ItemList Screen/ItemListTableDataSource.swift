@@ -25,31 +25,11 @@ class ItemListTableDataSource: UITableViewDiffableDataSource<SectionType, ItemTy
     guard sourceIndexPath.sectionValue == .data,
           destinationIndexPath.sectionValue == .data,
           sourceIndexPath.row != destinationIndexPath.row,
-          let sourceIdentifier = itemIdentifier(for: sourceIndexPath),
-          let destinationIdentifier = itemIdentifier(for: destinationIndexPath) else {
+          let sourceIdentifier = itemIdentifier(for: sourceIndexPath) else {
         return
     }
 
-    var snapshot = self.snapshot()
-
-    guard let sourceIndex = snapshot.indexOfItem(sourceIdentifier),
-          let destinationIndex = snapshot.indexOfItem(destinationIdentifier) else { return }
-
-    let isAfter = destinationIndex > sourceIndex
-      && snapshot.sectionIdentifier(containingItem: sourceIdentifier)
-      == snapshot.sectionIdentifier(containingItem: destinationIdentifier)
-
-    snapshot.deleteItems([sourceIdentifier])
-
-    if isAfter {
-      snapshot.insertItems([sourceIdentifier], afterItem: destinationIdentifier)
-    } else {
-      snapshot.insertItems([sourceIdentifier], beforeItem: destinationIdentifier)
-    }
-
-    apply(snapshot, animatingDifferences: true) { [weak self] in
-      self?.reorderUpdates.send((sourceIdentifier, sourceIndexPath, destinationIndexPath))
-    }
+    self.reorderUpdates.send((sourceIdentifier, sourceIndexPath, destinationIndexPath))
   }
 
   // MARK: editing support

@@ -256,14 +256,17 @@ class FolderListViewModel {
   }
 
   func reorder(item: SimpleLibraryItem, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath) {
-    // TODO: reorder is broken, DB migration required to handle rank manually
-//    guard let libraryItem = self.folder.items?.object(at: sourceIndexPath.row) as? LibraryItem,
-//          item.relativePath == libraryItem.relativePath else { return }
-//
-//    self.folder.removeFromItems(at: sourceIndexPath.row)
-//    self.folder.insertIntoItems(libraryItem, at: destinationIndexPath.row)
+    guard let storedItem = self.dataManager.getItem(with: item.relativePath) else { return }
 
-    // TODO: Handle when inserting into library
+    if let folder = self.folder {
+      folder.removeFromItems(at: sourceIndexPath.row)
+      folder.insertIntoItems(storedItem, at: destinationIndexPath.row)
+      folder.rebuildOrderRank()
+    } else {
+      self.library.removeFromItems(at: sourceIndexPath.row)
+      self.library.insertIntoItems(storedItem, at: destinationIndexPath.row)
+      self.library.rebuildOrderRank()
+    }
 
     self.dataManager.saveContext()
     MPPlayableContentManager.shared().reloadData()

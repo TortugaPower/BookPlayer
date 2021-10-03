@@ -314,33 +314,42 @@ public class Folder: LibraryItem {
         return nil
     }
 
-    public func insert(item: LibraryItem, at index: Int? = nil) {
-        if let parent = item.folder {
-            parent.removeFromItems(item)
-            parent.updateCompletionState()
-        }
-
-        if let library = item.library {
-            library.removeFromItems(item)
-        }
-
-        if let index = index {
-            self.insertIntoItems(item, at: index)
-        } else {
-            self.addToItems(item)
-        }
-
-        self.rebuildRelativePaths(for: item)
+  public func insert(item: LibraryItem, at index: Int? = nil) {
+    if let parent = item.folder {
+      parent.removeFromItems(item)
+      parent.updateCompletionState()
     }
 
-    public func rebuildRelativePaths(for item: LibraryItem) {
-        item.relativePath = self.relativePathBuilder(for: item)
-
-        if let folder = item as? Folder,
-           let items = folder.items?.array as? [LibraryItem] {
-            items.forEach({ folder.rebuildRelativePaths(for: $0) })
-        }
+    if let library = item.library {
+      library.removeFromItems(item)
     }
+
+    if let index = index {
+      self.insertIntoItems(item, at: index)
+    } else {
+      self.addToItems(item)
+    }
+
+    self.rebuildRelativePaths(for: item)
+    self.rebuildOrderRank()
+  }
+
+  public func rebuildRelativePaths(for item: LibraryItem) {
+    item.relativePath = self.relativePathBuilder(for: item)
+
+    if let folder = item as? Folder,
+       let items = folder.items?.array as? [LibraryItem] {
+      items.forEach({ folder.rebuildRelativePaths(for: $0) })
+    }
+  }
+
+  public func rebuildOrderRank() {
+    guard let items = self.items?.array as? [LibraryItem] else { return }
+
+    for (index, item) in items.enumerated() {
+      item.orderRank = Int16(index)
+    }
+  }
 
     public func relativePathBuilder(for item: LibraryItem) -> String {
         let itemRelativePath = item.relativePath.split(separator: "/").map({ String($0) }).last ?? item.relativePath
