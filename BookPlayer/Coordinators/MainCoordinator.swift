@@ -90,7 +90,14 @@ class MainCoordinator: Coordinator {
   }
 
   func showMiniPlayer(_ flag: Bool) {
-    self.rootViewController.animateView(self.rootViewController.miniPlayerContainer, show: flag)
+    guard flag == true else {
+      self.rootViewController.animateView(self.rootViewController.miniPlayerContainer, show: flag)
+      return
+    }
+
+    if self.playerManager.hasLoadedBook {
+      self.rootViewController.animateView(self.rootViewController.miniPlayerContainer, show: flag)
+    }
   }
 
   func hasPlayerShown() -> Bool {

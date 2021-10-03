@@ -1,5 +1,7 @@
 excluded:
   - Carthage
+cyclomatic_complexity:
+  ignores_case_statements: true
 # line_length: 120
 disabled_rules:
   - todo
