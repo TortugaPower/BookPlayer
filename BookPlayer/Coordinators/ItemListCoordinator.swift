@@ -27,6 +27,7 @@ enum ItemListActionRoutes {
   case importOperationFinished(_ urls: [URL])
   case insertIntoLibrary(_ items: [LibraryItem])
   case sortItems(_ option: PlayListSortOrder)
+  case reloadItems(_ pageSizePadding: Int)
 }
 
 class ItemListCoordinator: Coordinator {
@@ -456,5 +457,14 @@ extension ItemListCoordinator {
     shareController.excludedActivityTypes = [.copyToPasteboard]
 
     self.navigationController.present(shareController, animated: true, completion: nil)
+  }
+
+  func reloadItemsWithPadding(padding: Int = 0) {
+    // Reload all preceding screens too
+    if let coordinator = self.parentCoordinator as? ItemListCoordinator {
+      coordinator.reloadItemsWithPadding(padding: padding)
+    }
+
+    onTransition?(.reloadItems(padding))
   }
 }

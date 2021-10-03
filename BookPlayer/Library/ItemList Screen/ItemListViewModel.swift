@@ -18,7 +18,6 @@ class FolderListViewModel {
   let library: Library
   let player: PlayerManager
   let dataManager: DataManager
-  let pageSize = 13
   var offset = 0
 
   private var defaultArtwork: Data?
@@ -104,10 +103,10 @@ class FolderListViewModel {
     self.items.value = self.items.value.map({ SimpleLibraryItem(from: $0, playbackState: .stopped) })
   }
 
-  func getInitialItems() -> [SimpleLibraryItem] {
+  func getInitialItems(pageSize: Int = 13) -> [SimpleLibraryItem] {
     guard let fetchedItems = self.dataManager.fetchContents(of: self.folder,
                                                             or: library,
-                                                            limit: self.pageSize,
+                                                            limit: pageSize,
                                                             offset: 0) else {
       return []
     }
@@ -122,8 +121,8 @@ class FolderListViewModel {
     return displayItems
   }
 
-  func loadNextItems() {
-    guard let fetchedItems = self.dataManager.fetchContents(of: self.folder, or: library, limit: self.pageSize, offset: self.offset),
+  func loadNextItems(pageSize: Int = 13) {
+    guard let fetchedItems = self.dataManager.fetchContents(of: self.folder, or: library, limit: pageSize, offset: self.offset),
           !fetchedItems.isEmpty else {
       return
     }
@@ -137,8 +136,9 @@ class FolderListViewModel {
     self.items.value += displayItems
   }
 
-  func reloadItems() {
-    _ = self.getInitialItems()
+  func reloadItems(pageSizePadding: Int = 0) {
+    let pageSize = self.items.value.count + pageSizePadding
+    _ = self.getInitialItems(pageSize: pageSize)
   }
 
   func checkSystemModeTheme() {
@@ -171,7 +171,7 @@ class FolderListViewModel {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
 
-    self.reloadItems()
+    self.coordinator.reloadItemsWithPadding(padding: 1)
   }
 
   func createFolder(with title: String, items: [SimpleLibraryItem]? = nil) {
@@ -184,7 +184,7 @@ class FolderListViewModel {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
 
-    self.reloadItems()
+    self.coordinator.reloadItemsWithPadding(padding: 1)
   }
 
   func handleMoveIntoLibrary(items: [SimpleLibraryItem]) {
@@ -196,7 +196,7 @@ class FolderListViewModel {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
 
-    self.reloadItems()
+    self.coordinator.reloadItemsWithPadding(padding: selectedItems.count)
   }
 
   func handleMoveIntoFolder(_ folder: SimpleLibraryItem, items: [SimpleLibraryItem]) {
@@ -210,7 +210,7 @@ class FolderListViewModel {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
 
-    self.reloadItems()
+    self.coordinator.reloadItemsWithPadding()
   }
 
   func handleDelete(items: [SimpleLibraryItem], mode: DeleteMode) {
@@ -222,7 +222,7 @@ class FolderListViewModel {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
 
-    self.reloadItems()
+    self.coordinator.reloadItemsWithPadding()
   }
 
   func handleOperationCompletion(_ files: [URL]) {
@@ -240,7 +240,7 @@ class FolderListViewModel {
       return
     }
 
-    self.reloadItems()
+    self.coordinator.reloadItemsWithPadding(padding: processedItems.count)
 
     self.coordinator.showOperationCompletedAlert(with: processedItems)
   }
@@ -252,7 +252,7 @@ class FolderListViewModel {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
 
-    self.reloadItems()
+    self.coordinator.reloadItemsWithPadding(padding: items.count)
   }
 
   func reorder(item: SimpleLibraryItem, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath) {
@@ -379,7 +379,7 @@ class FolderListViewModel {
 
     self.dataManager.renameItem(libraryItem, with: newTitle)
 
-    self.reloadItems()
+    self.coordinator.reloadItemsWithPadding()
   }
 
   func handleResetPlaybackPosition(for items: [SimpleLibraryItem]) {
@@ -389,7 +389,7 @@ class FolderListViewModel {
       self.dataManager.jumpToStart(item)
     }
 
-    self.reloadItems()
+    self.coordinator.reloadItemsWithPadding()
   }
 
   func handleMarkAsFinished(for items: [SimpleLibraryItem], flag: Bool) {
@@ -399,7 +399,7 @@ class FolderListViewModel {
       self.dataManager.mark(item, asFinished: flag)
     }
 
-    self.reloadItems()
+    self.coordinator.reloadItemsWithPadding()
   }
 
   func handleDownload(_ url: URL) {
