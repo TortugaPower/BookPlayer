@@ -19,6 +19,15 @@ class BulkControlsView: NibLoadableView {
     var onDeleteTap: (() -> Void)?
     var onMoreTap: (() -> Void)?
 
+  override func awakeFromNib() {
+    super.awakeFromNib()
+
+    self.sortButton.accessibilityLabel = "sort_title".localized
+    self.moveButton.accessibilityLabel = "move_title".localized
+    self.trashButton.accessibilityLabel = "delete_button".localized
+    self.moreButton.accessibilityLabel = "options_button".localized
+  }
+
     @IBAction func didPressSort(_ sender: UIButton) {
         self.onSortTap?()
     }

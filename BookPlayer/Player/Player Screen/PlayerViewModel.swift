@@ -71,7 +71,19 @@ class PlayerViewModel {
     return self.playerManager.currentBook?.currentTimeInContext(self.prefersChapterContext) ?? 0
   }
 
+  func getCurrentTimeVoiceOverPrefix() -> String {
+    return self.prefersChapterContext
+    ? "voiceover_chapter_time_title".localized
+    : "book_time_current_title".localized
+  }
+
   func getMaxTimeVoiceOverPrefix() -> String {
+    if self.prefersChapterContext {
+      return self.prefersRemainingTime
+      ? "chapter_time_remaining_title".localized
+      : "chapter_duration_title".localized
+    }
+
     return self.prefersRemainingTime
       ? "book_time_remaining_title".localized
       : "book_duration_title".localized

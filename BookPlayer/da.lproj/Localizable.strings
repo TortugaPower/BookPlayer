@@ -221,3 +221,6 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "bookmark_create_title" = "Create Bookmark";
 "storage_duplicate_item_title" = "Duplicate";
 "storage_duplicate_item_description" = "The selected file was a duplicate, the existing file is located at: %@";
+"chapters_previous_title" = "Previous Chapter";
+"chapters_next_title" = "Next Chapter";
+"book_time_current_title" = "Current Book Time: %@";
