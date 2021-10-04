@@ -159,8 +159,19 @@ extension SimpleTheme {
     self.lightSystemGroupedBackgroundHex = theme.lightSystemGroupedBackgroundHex
     self.lightSystemFillHex = theme.lightSystemFillHex
     self.lightSecondarySystemFillHex = theme.lightSecondarySystemFillHex
-    self.lightTertiarySystemFillHex = theme.lightTertiarySystemFillHex
-    self.lightQuaternarySystemFillHex = theme.lightQuaternarySystemFillHex
+
+    if theme.lightTertiarySystemFillHex != nil {
+      self.lightTertiarySystemFillHex = theme.lightTertiarySystemFillHex
+    } else {
+      self.lightTertiarySystemFillHex = "3488D1"
+    }
+
+    if theme.lightQuaternarySystemFillHex != nil {
+      self.lightQuaternarySystemFillHex = theme.lightQuaternarySystemFillHex
+    } else {
+      self.lightQuaternarySystemFillHex = "3488D1"
+    }
+
     self.darkPrimaryHex = theme.darkPrimaryHex
     self.darkSecondaryHex = theme.darkSecondaryHex
     self.darkAccentHex = theme.darkAccentHex
@@ -171,8 +182,19 @@ extension SimpleTheme {
     self.darkSystemGroupedBackgroundHex = theme.darkSystemGroupedBackgroundHex
     self.darkSystemFillHex = theme.darkSystemFillHex
     self.darkSecondarySystemFillHex = theme.darkSecondarySystemFillHex
-    self.darkTertiarySystemFillHex = theme.darkTertiarySystemFillHex
-    self.darkQuaternarySystemFillHex = theme.darkQuaternarySystemFillHex
+
+    if theme.darkTertiarySystemFillHex != nil {
+      self.darkTertiarySystemFillHex = theme.darkTertiarySystemFillHex
+    } else {
+      self.darkTertiarySystemFillHex = "459EEC"
+    }
+
+    if theme.darkQuaternarySystemFillHex != nil {
+      self.darkQuaternarySystemFillHex = theme.darkQuaternarySystemFillHex
+    } else {
+      self.darkQuaternarySystemFillHex = "459EEC"
+    }
+
     self.locked = theme.locked
   }
 
