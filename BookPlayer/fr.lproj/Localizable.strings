@@ -182,7 +182,7 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "voiceover_forward_time" = "Avance rapide %@";
 "watchapp_last_played_title" = "Dernier lu";
 "watchapp_refresh_data_title" = "Actualiser";
-"carplay_recent_title" = "Récent";
+"recent_title" = "Récent";
 "carplay_library_error" = "Impossible de charger les livres";
 "siri_invocation_phrase" = "Continuer mon livre";
 "siri_activity_title" = "Continuer le dernier livre lu";
@@ -229,3 +229,5 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "bookmark_automatic_skip_title" = "Last position before time skip";
 "bookmark_note_edit_title" = "Edit note";
 "bookmark_create_title" = "Create Bookmark";
+"storage_duplicate_item_title" = "Duplicate";
+"storage_duplicate_item_description" = "The selected file was a duplicate, the existing file is located at: %@";

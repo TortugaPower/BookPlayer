@@ -24,7 +24,7 @@ class LoadingView: NibLoadableView {
 }
 
 extension LoadingView: Themeable {
-  func applyTheme(_ theme: Theme) {
+  func applyTheme(_ theme: SimpleTheme) {
     self.backgroundColor = theme.tertiarySystemBackgroundColor
     self.titleLabel.textColor = theme.primaryColor
     self.subtitleLabel.textColor = theme.secondaryColor

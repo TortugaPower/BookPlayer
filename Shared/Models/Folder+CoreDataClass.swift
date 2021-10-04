@@ -18,20 +18,20 @@ public class Folder: LibraryItem {
 
     // MARK: - Properties
 
-    public override func getArtwork(for theme: Theme?) -> UIImage? {
+    public override func getArtwork(for color: UIColor?) -> UIImage? {
         if let cachedArtwork = self.cachedArtwork {
             return cachedArtwork
         }
 
         guard let book = self.getFirstBookWithArtwork() else {
             #if os(iOS)
-            self.cachedArtwork = DefaultArtworkFactory.generateArtwork(from: theme?.linkColor)
+            self.cachedArtwork = DefaultArtworkFactory.generateArtwork(from: color)
             #endif
 
             return self.cachedArtwork
         }
 
-        self.cachedArtwork = book.getArtwork(for: theme)
+        self.cachedArtwork = book.getArtwork(for: color)
         return self.cachedArtwork
     }
 
@@ -314,33 +314,42 @@ public class Folder: LibraryItem {
         return nil
     }
 
-    public func insert(item: LibraryItem, at index: Int? = nil) {
-        if let parent = item.folder {
-            parent.removeFromItems(item)
-            parent.updateCompletionState()
-        }
-
-        if let library = item.library {
-            library.removeFromItems(item)
-        }
-
-        if let index = index {
-            self.insertIntoItems(item, at: index)
-        } else {
-            self.addToItems(item)
-        }
-
-        self.rebuildRelativePaths(for: item)
+  public func insert(item: LibraryItem, at index: Int? = nil) {
+    if let parent = item.folder {
+      parent.removeFromItems(item)
+      parent.updateCompletionState()
     }
 
-    public func rebuildRelativePaths(for item: LibraryItem) {
-        item.relativePath = self.relativePathBuilder(for: item)
-
-        if let folder = item as? Folder,
-           let items = folder.items?.array as? [LibraryItem] {
-            items.forEach({ folder.rebuildRelativePaths(for: $0) })
-        }
+    if let library = item.library {
+      library.removeFromItems(item)
     }
+
+    if let index = index {
+      self.insertIntoItems(item, at: index)
+    } else {
+      self.addToItems(item)
+    }
+
+    self.rebuildRelativePaths(for: item)
+    self.rebuildOrderRank()
+  }
+
+  public func rebuildRelativePaths(for item: LibraryItem) {
+    item.relativePath = self.relativePathBuilder(for: item)
+
+    if let folder = item as? Folder,
+       let items = folder.items?.array as? [LibraryItem] {
+      items.forEach({ folder.rebuildRelativePaths(for: $0) })
+    }
+  }
+
+  public func rebuildOrderRank() {
+    guard let items = self.items?.array as? [LibraryItem] else { return }
+
+    for (index, item) in items.enumerated() {
+      item.orderRank = Int16(index)
+    }
+  }
 
     public func relativePathBuilder(for item: LibraryItem) -> String {
         let itemRelativePath = item.relativePath.split(separator: "/").map({ String($0) }).last ?? item.relativePath
@@ -355,73 +364,35 @@ public class Folder: LibraryItem {
     }
 
     enum CodingKeys: String, CodingKey {
-        case title, desc, books, folders, library
+        case title, desc, books, folders, library, orderRank, items
     }
 
     public override func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(title, forKey: .title)
-        try container.encode(desc, forKey: .desc)
+      var container = encoder.container(keyedBy: CodingKeys.self)
+      try container.encode(title, forKey: .title)
+      try container.encode(desc, forKey: .desc)
+      try container.encode(orderRank, forKey: .orderRank)
 
-        guard let itemsArray = self.items?.array as? [LibraryItem] else { return }
+      guard let itemsArray = self.items?.array as? [LibraryItem] else { return }
 
-        var books = [Int: Book]()
-        var folders = [Int: Folder]()
-
-        for (index, item) in itemsArray.enumerated() {
-            if let book = item as? Book {
-                books[index] = book
-            }
-            if let folder = item as? Folder {
-                folders[index] = folder
-            }
-        }
-
-        if !books.isEmpty {
-            try container.encode(books, forKey: .books)
-        }
-
-        if !folders.isEmpty {
-            try container.encode(folders, forKey: .folders)
-        }
+      try container.encode(itemsArray, forKey: .items)
     }
 
     public required convenience init(from decoder: Decoder) throws {
-        // Create NSEntityDescription with NSManagedObjectContext
-        guard let contextUserInfoKey = CodingUserInfoKey.context,
+      // Create NSEntityDescription with NSManagedObjectContext
+      guard let contextUserInfoKey = CodingUserInfoKey.context,
             let managedObjectContext = decoder.userInfo[contextUserInfoKey] as? NSManagedObjectContext,
             let entity = NSEntityDescription.entity(forEntityName: "Folder", in: managedObjectContext) else {
-            fatalError("Failed to decode Folder!")
-        }
-        self.init(entity: entity, insertInto: nil)
+              fatalError("Failed to decode Folder!")
+            }
+      self.init(entity: entity, insertInto: nil)
 
-        let values = try decoder.container(keyedBy: CodingKeys.self)
-        title = try values.decode(String.self, forKey: .title)
-        desc = try values.decode(String.self, forKey: .desc)
+      let values = try decoder.container(keyedBy: CodingKeys.self)
+      title = try values.decode(String.self, forKey: .title)
+      desc = try values.decode(String.self, forKey: .desc)
 
-        var books = [Int: LibraryItem]()
-        var folders = [Int: LibraryItem]()
-
-        if let decodedBooks = try? values.decode([Int: Book].self, forKey: .books) {
-            books = decodedBooks
-        }
-
-        if let decodedFolders = try? values.decode([Int: Folder].self, forKey: .folders) {
-            folders = decodedFolders
-        }
-
-        let unsortedItemsDict: [Int: LibraryItem] = books.merging(folders) { (_, new) -> LibraryItem in new }
-        let sortedItemsTuple = unsortedItemsDict.sorted { $0.key < $1.key }
-        let sortedItems = Array(sortedItemsTuple.map { $0.value })
-
-        items = NSOrderedSet(array: sortedItems)
-    }
-}
-
-extension Folder: Sortable {
-    public func sort(by sortType: PlayListSortOrder) {
-        guard let books = items else { return }
-        self.items = BookSortService.sort(books, by: sortType)
-        DataManager.saveContext()
+      if let encodedItems = try? values.decode([LibraryItem].self, forKey: .items) {
+        items = NSOrderedSet(array: encodedItems)
+      }
     }
 }

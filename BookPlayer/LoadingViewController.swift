@@ -11,10 +11,9 @@ import Themeable
 import UIKit
 
 class LoadingViewController: UIViewController, Storyboarded, Themeable {
-  var coordinator: LoadingCoordinator!
+  var viewModel: LoadingViewModel!
 
   override func viewDidLoad() {
-    setUpTheming()
     self.navigationController?.isNavigationBarHidden = true
   }
 
@@ -26,11 +25,10 @@ class LoadingViewController: UIViewController, Storyboarded, Themeable {
   override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
 
-    // TODO: Add migration handlers
-    self.coordinator.didFinishLoadingSequence()
+    self.viewModel.performMigrations()
   }
 
-  func applyTheme(_ theme: Theme) {
+  func applyTheme(_ theme: SimpleTheme) {
     self.view.backgroundColor = theme.systemBackgroundColor
   }
 }

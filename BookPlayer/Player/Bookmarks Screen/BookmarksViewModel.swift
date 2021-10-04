@@ -13,9 +13,12 @@ import Foundation
 class BookmarksViewModel {
   weak var coordinator: BookmarkCoordinator!
   let playerManager: PlayerManager
+  let dataManager: DataManager
 
-  init(playerManager: PlayerManager) {
+  init(playerManager: PlayerManager,
+       dataManager: DataManager) {
     self.playerManager = playerManager
+    self.dataManager = dataManager
   }
 
   func getAutomaticBookmarks() -> [Bookmark] {
@@ -50,7 +53,7 @@ class BookmarksViewModel {
   }
 
   func editNote(_ note: String, for bookmark: Bookmark) {
-    BookmarksService.updateNote(note, for: bookmark)
+    self.dataManager.addNote(note, bookmark: bookmark)
   }
 
   func getBookmarkNoteAlert(_ bookmark: Bookmark) -> UIAlertController {
@@ -68,14 +71,14 @@ class BookmarksViewModel {
         return
       }
 
-      DataManager.addNote(note, bookmark: bookmark)
+      self.dataManager.addNote(note, bookmark: bookmark)
     }))
 
     return alert
   }
 
   func deleteBookmark(_ bookmark: Bookmark) {
-    DataManager.deleteBookmark(bookmark)
+    self.dataManager.deleteBookmark(bookmark)
   }
 
   func dismiss() {

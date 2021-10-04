@@ -9,31 +9,42 @@
 import BookPlayerWatchKit
 
 extension DataManager {
-    public static let dataUrl = FileManager.default
-        .urls(for: .documentDirectory, in: .userDomainMask).first!
-        .appendingPathComponent("library.data")
+  public static let libraryDataUrl = FileManager.default
+    .urls(for: .documentDirectory, in: .userDomainMask).first!
+    .appendingPathComponent("library.data")
 
-    public class func loadLibrary() -> Library {
-        return self.decodeLibrary(FileManager.default.contents(atPath: self.dataUrl.path))
-            ?? Library(context: self.getContext())
+  public static let booksDataUrl = FileManager.default
+    .urls(for: .documentDirectory, in: .userDomainMask).first!
+    .appendingPathComponent("library.books.data")
+
+  public func loadLibrary() -> Library {
+    return self.decodeLibrary(FileManager.default.contents(atPath: DataManager.libraryDataUrl.path),
+                              booksData: FileManager.default.contents(atPath: DataManager.booksDataUrl.path))
+    ?? Library(context: self.getContext())
+  }
+
+  public func decodeLibrary(_ data: Data?, booksData: Data?) -> Library? {
+    guard let data = data else { return nil }
+
+    try? data.write(to: DataManager.libraryDataUrl)
+    try? booksData?.write(to: DataManager.booksDataUrl)
+
+    let bgContext = self.getBackgroundContext()
+    let decoder = JSONDecoder()
+
+    guard let context = CodingUserInfoKey.context else { return nil }
+
+    decoder.userInfo[context] = bgContext
+
+    guard let library = try? decoder.decode(Library.self, from: data) else {
+      return nil
     }
 
-    public class func decodeLibrary(_ data: Data?) -> Library? {
-        guard let data = data else { return nil }
-
-        try? data.write(to: DataManager.dataUrl)
-
-        let bgContext = DataManager.getBackgroundContext()
-        let decoder = JSONDecoder()
-
-        guard let context = CodingUserInfoKey.context else { return nil }
-
-        decoder.userInfo[context] = bgContext
-
-        guard let library = try? decoder.decode(Library.self, from: data) else {
-            return nil
-        }
-
-        return library
+    if let booksData = booksData,
+        let books = try? decoder.decode([Book].self, from: booksData) {
+      library.items = NSOrderedSet(array: books)
     }
+
+    return library
+  }
 }

@@ -37,8 +37,8 @@ class PlayerSettingsViewController: UITableViewController, TelemetryProtocol {
         self.globalSpeedSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue), animated: false)
 
         // Retrieve initial skip values from PlayerManager
-        self.rewindIntervalLabel.text = TimeParser.formatDuration(PlayerManager.shared.rewindInterval)
-        self.forwardIntervalLabel.text = TimeParser.formatDuration(PlayerManager.shared.forwardInterval)
+        self.rewindIntervalLabel.text = TimeParser.formatDuration(PlayerManager.rewindInterval)
+        self.forwardIntervalLabel.text = TimeParser.formatDuration(PlayerManager.forwardInterval)
         self.sendSignal(.playerControlsScreen, with: nil)
     }
 
@@ -50,22 +50,22 @@ class PlayerSettingsViewController: UITableViewController, TelemetryProtocol {
         if segue.identifier == "AdjustRewindIntervalSegue" {
             self.sendSignal(.rewindIntervalsScreen, with: nil)
             viewController.title = "settings_skip_rewind_title".localized
-            viewController.selectedInterval = PlayerManager.shared.rewindInterval
+            viewController.selectedInterval = PlayerManager.rewindInterval
             viewController.didSelectInterval = { selectedInterval in
-                PlayerManager.shared.rewindInterval = selectedInterval
+                PlayerManager.rewindInterval = selectedInterval
 
-                self.rewindIntervalLabel.text = TimeParser.formatDuration(PlayerManager.shared.rewindInterval)
+                self.rewindIntervalLabel.text = TimeParser.formatDuration(PlayerManager.rewindInterval)
             }
         }
 
         if segue.identifier == "AdjustForwardIntervalSegue" {
             self.sendSignal(.forwardIntervalsScreen, with: nil)
             viewController.title = "settings_skip_forward_title".localized
-            viewController.selectedInterval = PlayerManager.shared.forwardInterval
+            viewController.selectedInterval = PlayerManager.forwardInterval
             viewController.didSelectInterval = { selectedInterval in
-                PlayerManager.shared.forwardInterval = selectedInterval
+                PlayerManager.forwardInterval = selectedInterval
 
-                self.forwardIntervalLabel.text = TimeParser.formatDuration(PlayerManager.shared.forwardInterval)
+                self.forwardIntervalLabel.text = TimeParser.formatDuration(PlayerManager.forwardInterval)
             }
         }
     }
@@ -110,8 +110,12 @@ class PlayerSettingsViewController: UITableViewController, TelemetryProtocol {
     }
 
     @objc func boostVolumeToggleDidChange() {
-        UserDefaults.standard.set(self.boostVolumeSwitch.isOn, forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
-        PlayerManager.shared.boostVolume = self.boostVolumeSwitch.isOn
+      UserDefaults.standard.set(self.boostVolumeSwitch.isOn, forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
+
+      guard let appDelegate = UIApplication.shared.delegate as? AppDelegate,
+            let mainCoordinator = appDelegate.coordinator.getMainCoordinator() else { return }
+
+      mainCoordinator.playerManager.boostVolume = self.boostVolumeSwitch.isOn
     }
 
     @objc func globalSpeedToggleDidChange() {
@@ -120,7 +124,7 @@ class PlayerSettingsViewController: UITableViewController, TelemetryProtocol {
 }
 
 extension PlayerSettingsViewController: Themeable {
-    func applyTheme(_ theme: Theme) {
+    func applyTheme(_ theme: SimpleTheme) {
         self.tableView.backgroundColor = theme.systemGroupedBackgroundColor
         self.tableView.separatorColor = theme.separatorColor
         self.tableView.reloadData()

@@ -8,17 +8,28 @@
 
 import BookPlayerKit
 import DeviceKit
+import MediaPlayer
 import UIKit
 
 class MainCoordinator: Coordinator {
   let rootViewController: RootViewController
-  let playerManager = PlayerManager.shared
+  let playerManager: PlayerManager
+  let dataManager: DataManager
+  let watchConnectivityService: WatchConnectivityService
+  var carPlayManager: CarPlayManager!
 
   init(
     rootController: RootViewController,
+    dataManager: DataManager,
     navigationController: UINavigationController
   ) {
     self.rootViewController = rootController
+    self.dataManager = dataManager
+
+    let watchService = WatchConnectivityService(dataManager: dataManager)
+    self.watchConnectivityService = watchService
+    self.playerManager = PlayerManager(dataManager: dataManager, watchConnectivityService: watchService)
+    ThemeManager.shared.dataManager = dataManager
 
     super.init(navigationController: navigationController)
   }
@@ -39,23 +50,40 @@ class MainCoordinator: Coordinator {
 
     let offset: CGFloat = Device.current.hasSensorHousing ? 199: 88
 
-    let library = try? DataManager.getLibrary()
+    let library = (try? self.dataManager.getLibrary()) ?? self.dataManager.createLibrary()
+
+    if library.currentTheme != nil {
+      ThemeManager.shared.currentTheme = SimpleTheme(with: library.currentTheme)
+    }
+
     let libraryCoordinator = LibraryListCoordinator(
       navigationController: self.navigationController,
-      library: library ?? DataManager.createLibrary(),
+      library: library,
       miniPlayerOffset: offset,
-      playerManager: PlayerManager.shared,
-      importManager: ImportManager.shared
+      playerManager: self.playerManager,
+      importManager: ImportManager(dataManager: self.dataManager),
+      dataManager: self.dataManager
     )
     libraryCoordinator.parentCoordinator = self
     self.childCoordinators.append(libraryCoordinator)
     libraryCoordinator.start()
+
+    self.setupCarPlay(with: library)
+    self.watchConnectivityService.library = library
+    self.watchConnectivityService.startSession()
+  }
+
+  private func setupCarPlay(with library: Library) {
+    self.carPlayManager = CarPlayManager(library: library, dataManager: self.dataManager)
+    MPPlayableContentManager.shared().dataSource = self.carPlayManager
+    MPPlayableContentManager.shared().delegate = self.carPlayManager
   }
 
   func showPlayer() {
     let playerCoordinator = PlayerCoordinator(
       navigationController: self.navigationController,
-      playerManager: self.playerManager
+      playerManager: self.playerManager,
+      dataManager: self.dataManager
     )
     playerCoordinator.parentCoordinator = self
     self.childCoordinators.append(playerCoordinator)
@@ -63,7 +91,14 @@ class MainCoordinator: Coordinator {
   }
 
   func showMiniPlayer(_ flag: Bool) {
-    self.rootViewController.animateView(self.rootViewController.miniPlayerContainer, show: flag)
+    guard flag == true else {
+      self.rootViewController.animateView(self.rootViewController.miniPlayerContainer, show: flag)
+      return
+    }
+
+    if self.playerManager.hasLoadedBook {
+      self.rootViewController.animateView(self.rootViewController.miniPlayerContainer, show: flag)
+    }
   }
 
   func hasPlayerShown() -> Bool {

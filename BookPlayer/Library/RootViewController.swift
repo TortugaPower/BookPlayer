@@ -33,11 +33,12 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate, Storybo
       self.miniPlayerContainer.layer.shadowOpacity = 0.18
       self.miniPlayerContainer.layer.shadowRadius = 9.0
       self.miniPlayerContainer.clipsToBounds = false
+      self.miniPlayerContainer.isHidden = true
     }
 }
 
 extension RootViewController: Themeable {
-  func applyTheme(_ theme: Theme) {
+  func applyTheme(_ theme: SimpleTheme) {
     self.themedStatusBarStyle = theme.useDarkVariant
       ? .lightContent
       : .default

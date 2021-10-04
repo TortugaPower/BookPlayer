@@ -166,7 +166,7 @@
 "voiceover_forward_time" = "Rychlé přetáčení vpřed%@";
 "watchapp_last_played_title" = "Naposledy přehráno";
 "watchapp_refresh_data_title" = "Obnovit data";
-"carplay_recent_title" = "Nedávné";
+"recent_title" = "Nedávné";
 "carplay_library_error" = "Nelze načíst audioknihy";
 "siri_invocation_phrase" = "Pokračovat v poslechu mé audioknihy";
 "siri_activity_title" = "Pokračovat v naposledy přehrávané audioknize";
@@ -213,3 +213,5 @@
 "bookmark_automatic_skip_title" = "Last position before time skip";
 "bookmark_note_edit_title" = "Edit note";
 "bookmark_create_title" = "Create Bookmark";
+"storage_duplicate_item_title" = "Duplicate";
+"storage_duplicate_item_description" = "The selected file was a duplicate, the existing file is located at: %@";

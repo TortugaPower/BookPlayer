@@ -22,7 +22,7 @@ class AddCellView: UITableViewCell {
 }
 
 extension AddCellView: Themeable {
-    func applyTheme(_ theme: Theme) {
+    func applyTheme(_ theme: SimpleTheme) {
         self.titleLabel.textColor = theme.linkColor
         self.backgroundColor = theme.systemBackgroundColor
         self.addImageView.tintColor = theme.linkColor

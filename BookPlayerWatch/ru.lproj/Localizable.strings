@@ -8,6 +8,7 @@
 
 "library_title" = "Библиотека";
 "ok_button" = "OK";
+"recent_title" = "Recent";
 "watchapp_last_played_title" = "Последняя воспроизведенная книга";
 "watchapp_refresh_data_title" = "Обновить данные";
 "watchapp_connect_error_title" = "Ошибка подключения";

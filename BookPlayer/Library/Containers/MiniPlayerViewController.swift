@@ -50,7 +50,7 @@ class MiniPlayerViewController: UIViewController, UIGestureRecognizerDelegate, S
   func setupPlayerView(with currentBook: Book) {
     self.view.setNeedsLayout()
 
-    self.artwork.image = currentBook.getArtwork(for: themeProvider.currentTheme)
+    self.artwork.image = currentBook.getArtwork(for: themeProvider.currentTheme.linkColor)
     self.authorLabel.text = currentBook.author
     self.titleLabel.text = currentBook.title
 
@@ -102,7 +102,7 @@ class MiniPlayerViewController: UIViewController, UIGestureRecognizerDelegate, S
 }
 
 extension MiniPlayerViewController: Themeable {
-  func applyTheme(_ theme: Theme) {
+  func applyTheme(_ theme: SimpleTheme) {
     self.titleLabel.textColor = theme.primaryColor
     self.authorLabel.textColor = theme.secondaryColor
     self.playIconView.tintColor = theme.linkColor

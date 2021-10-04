@@ -189,7 +189,7 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "voiceover_forward_time" = "Avanza %@";
 "watchapp_last_played_title" = "Ultimo Riprodotto";
 "watchapp_refresh_data_title" = "Aggiorna i dati";
-"carplay_recent_title" = "Recente";
+"recent_title" = "Recente";
 "carplay_library_error" = "Impossibile caricare i libri";
 "siri_invocation_phrase" = "Riprendi il mio libro";
 "siri_activity_title" = "Riprendi l'ultimo libro riprodotto";
@@ -241,3 +241,5 @@ Alessio Franceschi&nbsp;this is the label for the active sleep timer button when
 "bookmark_automatic_skip_title" = "Last position before time skip";
 "bookmark_note_edit_title" = "Edit note";
 "bookmark_create_title" = "Create Bookmark";
+"storage_duplicate_item_title" = "Duplicate";
+"storage_duplicate_item_description" = "The selected file was a duplicate, the existing file is located at: %@";

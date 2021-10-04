@@ -37,27 +37,30 @@ class ActionParserService {
         appDelegate.coordinator.pendingURLActions.append(action)
       }
 
-        switch action.command {
-        case .play:
-            self.handlePlayAction(action)
-        case .download:
-            self.handleDownloadAction(action)
-        case .sleep:
-            self.handleSleepAction(action)
-        case .refresh:
-            WatchConnectivityService.sharedManager.sendApplicationContext()
-        case .skipRewind:
-            PlayerManager.shared.rewind()
-        case .skipForward:
-            PlayerManager.shared.forward()
-        case .widget:
-            self.handleWidgetAction(action)
-        }
+      guard let mainCoordinator = appDelegate.coordinator.getMainCoordinator() else { return }
 
-        // avoid registering actions not (necessarily) initiated by the user
-        if action.command != .refresh {
-            TelemetryManager.shared.send(TelemetrySignal.urlSchemeAction.rawValue, with: action.getParametersDictionary())
-        }
+      switch action.command {
+      case .play:
+        self.handlePlayAction(action)
+      case .download:
+        self.handleDownloadAction(action)
+      case .sleep:
+        self.handleSleepAction(action)
+      case .refresh:
+        mainCoordinator.watchConnectivityService.sendApplicationContext()
+        self.removeAction(action)
+      case .skipRewind:
+        mainCoordinator.playerManager.rewind()
+      case .skipForward:
+        mainCoordinator.playerManager.forward()
+      case .widget:
+        self.handleWidgetAction(action)
+      }
+
+      // avoid registering actions not (necessarily) initiated by the user
+      if action.command != .refresh {
+        TelemetryManager.shared.send(TelemetrySignal.urlSchemeAction.rawValue, with: action.getParametersDictionary())
+      }
     }
 
     private class func handleSleepAction(_ action: Action) {
@@ -108,7 +111,7 @@ class ActionParserService {
     }
 
     guard let libraryCoordinator = mainCoordinator.getLibraryCoordinator(),
-          let book = DataManager.getBook(with: bookIdentifier, from: libraryCoordinator.library) else { return }
+          let book = libraryCoordinator.dataManager.getBook(with: bookIdentifier, from: libraryCoordinator.library) else { return }
     self.removeAction(action)
     libraryCoordinator.loadPlayer(book)
   }
@@ -126,7 +129,7 @@ class ActionParserService {
     }
 
     self.removeAction(action)
-    libraryCoordinator.onTransition?(.downloadBook(url))
+    libraryCoordinator.onAction?(.downloadBook(url))
   }
 
   private class func handleWidgetAction(_ action: Action) {

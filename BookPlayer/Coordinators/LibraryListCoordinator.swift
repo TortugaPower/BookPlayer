@@ -15,13 +15,14 @@ class LibraryListCoordinator: ItemListCoordinator {
     let viewModel = FolderListViewModel(folder: nil,
                                         library: self.library,
                                         player: self.playerManager,
+                                        dataManager: self.dataManager,
                                         theme: ThemeManager.shared.currentTheme)
     viewModel.coordinator = self
     vc.viewModel = viewModel
     vc.navigationItem.largeTitleDisplayMode = .automatic
     self.presentingViewController = vc
     self.navigationController.pushViewController(vc, animated: true)
-
+    self.navigationController.delegate = self
     if let book = self.library.lastPlayedBook {
       self.loadLastBook(book)
     }

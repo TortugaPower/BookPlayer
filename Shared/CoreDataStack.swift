@@ -11,47 +11,60 @@ import Foundation
 
 public class CoreDataStack {
   private let modelName: String
-  private let loadCompletionHandler: (NSPersistentStoreDescription, Error?) -> Void
+  private let storeUrl: URL
+  private let storeContainer: NSPersistentContainer
 
-    public lazy var managedContext: NSManagedObjectContext = {
-      self.storeContainer.viewContext.undoManager = nil
-      return self.storeContainer.viewContext
-    }()
-
-    public lazy var storeUrl: URL = {
-        FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!.appendingPathComponent("BookPlayer.sqlite")
-    }()
-
-  public init(modelName: String, loadCompletionHandler: @escaping (NSPersistentStoreDescription, Error?) -> Void) {
-    self.modelName = modelName
-    self.loadCompletionHandler = loadCompletionHandler
+  public var managedContext: NSManagedObjectContext {
+    return self.storeContainer.viewContext
   }
 
-    private lazy var storeContainer: NSPersistentContainer = {
-        let container = NSPersistentContainer(name: self.modelName)
+  public init(modelName: String) {
+    self.modelName = modelName
+    let storeUrl = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!.appendingPathComponent("BookPlayer.sqlite")
+    self.storeUrl = storeUrl
+    self.storeContainer = NSPersistentContainer(name: modelName)
 
-        let description = NSPersistentStoreDescription()
-        description.shouldInferMappingModelAutomatically = false
-        description.shouldMigrateStoreAutomatically = true
-        description.url = self.storeUrl
+    let description = NSPersistentStoreDescription()
+    description.shouldInferMappingModelAutomatically = false
+    description.shouldMigrateStoreAutomatically = true
+    description.url = self.storeUrl
 
-        container.persistentStoreDescriptions = [description]
+    self.storeContainer.persistentStoreDescriptions = [description]
+  }
 
-        container.loadPersistentStores(completionHandler: self.loadCompletionHandler)
+  public init(testPath: String) {
+    let modelName = "BookPlayer"
+    self.modelName = modelName
+    let storeUrl = URL(fileURLWithPath: testPath)
+    self.storeUrl = storeUrl
+    self.storeContainer = NSPersistentContainer(name: modelName)
 
-        return container
-    }()
+    let description = NSPersistentStoreDescription()
+    description.shouldInferMappingModelAutomatically = false
+    description.shouldMigrateStoreAutomatically = true
+    description.url = self.storeUrl
 
-    public func saveContext() {
-        guard self.managedContext.hasChanges else { return }
-        do {
-            try self.managedContext.save()
-        } catch let error as NSError {
-            fatalError("Unresolved error \(error), \(error.userInfo)")
-        }
+    self.storeContainer.persistentStoreDescriptions = [description]
+    self.storeContainer.loadPersistentStores { _, _ in }
+  }
+
+  public func loadStore(completionHandler: ((NSPersistentStoreDescription, Error?) -> Void)?) {
+    self.storeContainer.loadPersistentStores { storeDescription, error in
+      self.storeContainer.viewContext.undoManager = nil
+      completionHandler?(storeDescription, error)
     }
+  }
 
-    public func getBackgroundContext() -> NSManagedObjectContext {
-        return self.storeContainer.newBackgroundContext()
+  public func saveContext() {
+    guard self.managedContext.hasChanges else { return }
+    do {
+      try self.managedContext.save()
+    } catch let error as NSError {
+      fatalError("Unresolved error \(error), \(error.userInfo)")
     }
+  }
+
+  public func getBackgroundContext() -> NSManagedObjectContext {
+    return self.storeContainer.newBackgroundContext()
+  }
 }

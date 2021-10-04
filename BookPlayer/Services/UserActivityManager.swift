@@ -11,47 +11,48 @@ import Foundation
 import Intents
 
 class UserActivityManager {
-    static let shared = UserActivityManager()
+  let dataManager: DataManager
+  var currentActivity: NSUserActivity
+  var playbackRecord: PlaybackRecord?
 
-    var currentActivity: NSUserActivity
-    var playbackRecord: PlaybackRecord?
+  init(dataManager: DataManager) {
+    self.dataManager = dataManager
 
-    private init() {
-        let intent = INPlayMediaIntent()
-        let interaction = INInteraction(intent: intent, response: nil)
-        interaction.donate(completion: nil)
-        let activity = NSUserActivity(activityType: Constants.UserActivityPlayback)
-        activity.title = "siri_activity_title".localized
-        activity.isEligibleForPrediction = true
-        activity.persistentIdentifier = NSUserActivityPersistentIdentifier(Constants.UserActivityPlayback)
-        activity.suggestedInvocationPhrase = "siri_invocation_phrase".localized
-        activity.isEligibleForSearch = true
+    let intent = INPlayMediaIntent()
+    let interaction = INInteraction(intent: intent, response: nil)
+    interaction.donate(completion: nil)
+    let activity = NSUserActivity(activityType: Constants.UserActivityPlayback)
+    activity.title = "siri_activity_title".localized
+    activity.isEligibleForPrediction = true
+    activity.persistentIdentifier = NSUserActivityPersistentIdentifier(Constants.UserActivityPlayback)
+    activity.suggestedInvocationPhrase = "siri_invocation_phrase".localized
+    activity.isEligibleForSearch = true
 
-        self.currentActivity = activity
+    self.currentActivity = activity
+  }
+
+  func resumePlaybackActivity() {
+    self.currentActivity.becomeCurrent()
+
+    if self.playbackRecord == nil {
+      self.playbackRecord = self.dataManager.getPlaybackRecord()
     }
 
-    func resumePlaybackActivity() {
-        self.currentActivity.becomeCurrent()
+    guard let record = self.playbackRecord else { return }
 
-        if self.playbackRecord == nil {
-            self.playbackRecord = DataManager.getPlaybackRecord()
-        }
+    guard !Calendar.current.isDate(record.date, inSameDayAs: Date()) else { return }
 
-        guard let record = self.playbackRecord else { return }
+    self.playbackRecord = self.dataManager.getPlaybackRecord()
+  }
 
-        guard !Calendar.current.isDate(record.date, inSameDayAs: Date()) else { return }
+  func stopPlaybackActivity() {
+    self.currentActivity.resignCurrent()
+    self.playbackRecord = nil
+  }
 
-        self.playbackRecord = DataManager.getPlaybackRecord()
-    }
+  func recordTime() {
+    guard let record = self.playbackRecord else { return }
 
-    func stopPlaybackActivity() {
-        self.currentActivity.resignCurrent()
-        self.playbackRecord = nil
-    }
-
-    func recordTime() {
-        guard let record = self.playbackRecord else { return }
-
-        DataManager.recordTime(record)
-    }
+    self.dataManager.recordTime(record)
+  }
 }

@@ -7,20 +7,25 @@
 //
 
 import UIKit
+import BookPlayerKit
 
 class BookmarkCoordinator: Coordinator {
   let playerManager: PlayerManager
+  let dataManager: DataManager
 
   init(navigationController: UINavigationController,
-       playerManager: PlayerManager) {
+       playerManager: PlayerManager,
+       dataManager: DataManager) {
     self.playerManager = playerManager
+    self.dataManager = dataManager
 
     super.init(navigationController: navigationController)
   }
 
   override func start() {
     let vc = BookmarksViewController.instantiate(from: .Player)
-    let viewModel = BookmarksViewModel(playerManager: self.playerManager)
+    let viewModel = BookmarksViewModel(playerManager: self.playerManager,
+                                       dataManager: self.dataManager)
     viewModel.coordinator = self
     vc.viewModel = viewModel
 

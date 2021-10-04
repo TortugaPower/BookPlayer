@@ -166,7 +166,7 @@
 "voiceover_forward_time" = "Vorwärts %@";
 "watchapp_last_played_title" = "Zuletzt gespielt";
 "watchapp_refresh_data_title" = "Daten aktualisieren";
-"carplay_recent_title" = "Kürzlich";
+"recent_title" = "Kürzlich";
 "carplay_library_error" = "Bücher können nicht geladen werden";
 "siri_invocation_phrase" = "Mein Buch fortsetzen";
 "siri_activity_title" = "Zuletzt gespieltes Buch weiter hören";
@@ -213,3 +213,5 @@
 "bookmark_automatic_skip_title" = "Last position before time skip";
 "bookmark_note_edit_title" = "Edit note";
 "bookmark_create_title" = "Create Bookmark";
+"storage_duplicate_item_title" = "Duplicate";
+"storage_duplicate_item_description" = "The selected file was a duplicate, the existing file is located at: %@";

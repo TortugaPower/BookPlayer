@@ -19,45 +19,73 @@ struct RecentBooksProvider: IntentTimelineProvider {
       return LibraryEntry(date: Date(), items: [], theme: nil, timerSeconds: 300, autoplay: true)
     }
 
-    func getSnapshot(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (LibraryEntry) -> Void) {
-      guard let library = try? DataManager.getLibrary(),
-            let items = DataManager.getOrderedBooks(limit: self.numberOfBooks) else {
-        completion(placeholder(in: context))
+  func getSnapshot(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (LibraryEntry) -> Void) {
+    let stack = DataMigrationManager().getCoreDataStack()
+    stack.loadStore { _, error in
+      guard error == nil else {
+        completion(self.placeholder(in: context))
         return
       }
+
+      let dataManager = DataManager(coreDataStack: stack)
+
+      guard let items = dataManager.getOrderedBooks(limit: self.numberOfBooks),
+            let currentTheme = try? dataManager.getLibraryCurrentTheme() else {
+              completion(self.placeholder(in: context))
+              return
+            }
+
+      let theme = SimpleTheme(with: currentTheme)
 
       let autoplay = configuration.autoplay?.boolValue ?? true
       let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
 
       let entry = LibraryEntry(date: Date(),
                                items: items,
-                               theme: library.currentTheme,
+                               theme: theme,
                                timerSeconds: seconds,
                                autoplay: autoplay)
 
       completion(entry)
     }
+  }
 
-    func getTimeline(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (Timeline<LibraryEntry>) -> Void) {
-      guard let library = try? DataManager.getLibrary(),
-            let items = DataManager.getOrderedBooks(limit: self.numberOfBooks) else {
+  func getTimeline(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (Timeline<LibraryEntry>) -> Void) {
+    let stack = DataMigrationManager().getCoreDataStack()
+    stack.loadStore { _, error in
+      guard error == nil else {
         completion(Timeline(entries: [], policy: .atEnd))
         return
       }
 
+      let dataManager = DataManager(coreDataStack: stack)
+
+      guard let items = dataManager.getOrderedBooks(limit: self.numberOfBooks),
+            let currentTheme = try? dataManager.getLibraryCurrentTheme() else {
+              completion(Timeline(entries: [], policy: .atEnd))
+              return
+            }
+
+      let theme = SimpleTheme(with: currentTheme)
+
       let autoplay = configuration.autoplay?.boolValue ?? true
       let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
 
-      let entries: [LibraryEntry] = [LibraryEntry(date: Date(), items: items, theme: library.currentTheme, timerSeconds: seconds, autoplay: autoplay)]
-      let timeline = Timeline(entries: entries, policy: .atEnd)
-      completion(timeline)
+      let entry = LibraryEntry(date: Date(),
+                               items: items,
+                               theme: theme,
+                               timerSeconds: seconds,
+                               autoplay: autoplay)
+
+      completion(Timeline(entries: [entry], policy: .atEnd))
     }
+  }
 }
 
 struct BookView: View {
     var item: BookPlayerKit.LibraryItem
     var titleColor: Color
-    var theme: Theme?
+    var theme: SimpleTheme?
     var entry: RecentBooksProvider.Entry
 
     var body: some View {
@@ -74,7 +102,7 @@ struct BookView: View {
 
         let url = WidgetUtils.getWidgetActionURL(with: identifier, autoplay: entry.autoplay, timerSeconds: entry.timerSeconds)
 
-        let artwork = item.getArtwork(for: theme)
+        let artwork = item.getArtwork(for: theme?.linkColor)
 
         return Link(destination: url) {
             VStack(spacing: 5) {

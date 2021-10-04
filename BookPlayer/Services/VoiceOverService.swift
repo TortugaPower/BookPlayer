@@ -67,11 +67,11 @@ class VoiceOverService {
     // MARK: - ArtworkControl
 
     public static func rewindText() -> String {
-        return String(describing: String.localizedStringWithFormat("voiceover_rewind_time".localized, self.secondsToMinutes(PlayerManager.shared.rewindInterval.rounded())))
+        return String(describing: String.localizedStringWithFormat("voiceover_rewind_time".localized, self.secondsToMinutes(PlayerManager.rewindInterval.rounded())))
     }
 
     public static func fastForwardText() -> String {
-        return String(describing: String.localizedStringWithFormat("voiceover_forward_time".localized, self.secondsToMinutes(PlayerManager.shared.forwardInterval.rounded())))
+        return String(describing: String.localizedStringWithFormat("voiceover_forward_time".localized, self.secondsToMinutes(PlayerManager.forwardInterval.rounded())))
     }
 
     public static func secondsToMinutes(_ interval: TimeInterval) -> String {

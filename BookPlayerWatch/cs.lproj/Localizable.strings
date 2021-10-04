@@ -8,6 +8,7 @@
 
 "library_title" = "Knihovna";
 "ok_button" = "OK";
+"recent_title" = "Recent";
 "watchapp_last_played_title" = "Naposledy přehráno";
 "watchapp_refresh_data_title" = "Obnovit data";
 "watchapp_connect_error_title" = "Chyba připojení";

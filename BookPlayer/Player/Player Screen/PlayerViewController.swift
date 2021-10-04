@@ -276,6 +276,7 @@ extension PlayerViewController {
 
     self.closeButton.publisher(for: .touchUpInside)
       .sink { [weak self] _ in
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         self?.viewModel.dismiss()
       }
       .store(in: &disposeBag)
@@ -450,7 +451,7 @@ extension PlayerViewController: UIGestureRecognizerDelegate {
 }
 
 extension PlayerViewController: Themeable {
-  func applyTheme(_ theme: Theme) {
+  func applyTheme(_ theme: SimpleTheme) {
     self.themedStatusBarStyle = theme.useDarkVariant
       ? .lightContent
       : .default

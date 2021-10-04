@@ -10,21 +10,34 @@ import BookPlayerKit
 import UIKit
 
 class LoadingCoordinator: Coordinator {
+  let loadingViewController: LoadingViewController
   var pendingURLActions = [Action]()
 
-  override func start() {
-    let loadingVC = LoadingViewController.instantiate(from: .Main)
-    loadingVC.coordinator = self
-    loadingVC.modalPresentationStyle = .fullScreen
+  init(
+    navigationController: UINavigationController,
+    loadingViewController: LoadingViewController
+  ) {
+    self.loadingViewController = loadingViewController
 
-    loadingVC.presentationController?.delegate = self
-    self.navigationController.show(loadingVC, sender: self)
+    super.init(navigationController: navigationController)
+
+    self.loadingViewController.modalPresentationStyle = .fullScreen
+
+    let viewModel = LoadingViewModel(dataMigrationManager: DataMigrationManager())
+    viewModel.coordinator = self
+    self.loadingViewController.viewModel = viewModel
+    self.loadingViewController.presentationController?.delegate = self
   }
 
-  func didFinishLoadingSequence() {
+  override func start() {
+    self.navigationController.show(self.loadingViewController, sender: self)
+  }
+
+  func didFinishLoadingSequence(coreDataStack: CoreDataStack) {
     let rootVC = RootViewController.instantiate(from: .Main)
     let coordinator = MainCoordinator(
       rootController: rootVC,
+      dataManager: DataManager(coreDataStack: coreDataStack),
       navigationController: AppNavigationController.instantiate(from: .Main)
     )
     rootVC.coordinator = coordinator

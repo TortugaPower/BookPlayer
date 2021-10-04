@@ -335,7 +335,7 @@ extension PlusViewController: UICollectionViewDelegate {
 }
 
 extension PlusViewController: Themeable {
-    func applyTheme(_ theme: Theme) {
+    func applyTheme(_ theme: SimpleTheme) {
         self.view.backgroundColor = theme.systemGroupedBackgroundColor
 
         for label in self.titleLabels {

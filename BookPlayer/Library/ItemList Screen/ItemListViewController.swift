@@ -54,7 +54,7 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
       )
       self.navigationController!.interactivePopGestureRecognizer!.delegate = self
 
-      DataManager.notifyPendingFiles()
+      self.viewModel.notifyPendingFiles()
     }
 
     self.emptyStateImageView.image = UIImage(named: self.viewModel.getEmptyStateImageName())
@@ -75,6 +75,8 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
     self.setUpTheming()
 
     self.setupBulkControls()
+
+    self.viewModel.showMiniPlayer(true)
 
     let interaction = UIDropInteraction(delegate: self)
     self.view.addInteraction(interaction)
@@ -148,7 +150,7 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
 
     guard self.traitCollection.userInterfaceStyle != .unspecified else { return }
 
-    ThemeManager.shared.checkSystemMode()
+    self.viewModel.checkSystemModeTheme()
   }
 
   func adjustBottomOffsetForMiniPlayer() {
@@ -211,8 +213,8 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
   }
 
   func bindTransitionActions() {
-    self.viewModel.coordinator.onTransition = { route in
-      self.setEditing(false, animated: true)
+    self.viewModel.coordinator.onAction = { route in
+      self.setEditing(false, animated: false)
 
       switch route {
       case .importOptions:
@@ -248,6 +250,8 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
       case .downloadBook(let url):
         self.showLoadView(true, title: "downloading_file_title".localized, subtitle: "\("progress_title".localized) 0%")
         self.viewModel.handleDownload(url)
+      case .reloadItems(let pageSizePadding):
+        self.viewModel.reloadItems(pageSizePadding: pageSizePadding)
       }
     }
   }
@@ -537,7 +541,7 @@ extension ItemListViewController {
 // MARK: - Themeable
 
 extension ItemListViewController: Themeable {
-  func applyTheme(_ theme: Theme) {
+  func applyTheme(_ theme: SimpleTheme) {
     self.view.backgroundColor = theme.systemBackgroundColor
     self.tableView.backgroundColor = theme.systemBackgroundColor
     self.tableView.separatorColor = theme.separatorColor

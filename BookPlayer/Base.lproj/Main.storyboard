@@ -159,6 +159,7 @@
                             </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="NQi-uU-LMv"/>
+                        <color key="backgroundColor" red="0.12549019607843137" green="0.13333333333333333" blue="0.14509803921568626" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstItem="qMq-Jo-baa" firstAttribute="centerY" secondItem="NQi-uU-LMv" secondAttribute="centerY" id="Aar-6V-SK3"/>
                             <constraint firstItem="qMq-Jo-baa" firstAttribute="centerX" secondItem="NQi-uU-LMv" secondAttribute="centerX" id="Q0v-Vb-NgA"/>
@@ -319,14 +320,6 @@
             </objects>
             <point key="canvasLocation" x="-1954" y="557"/>
         </scene>
-        <!--Settings-->
-        <scene sceneID="qOx-WT-Aso">
-            <objects>
-                <viewControllerPlaceholder storyboardName="Settings" id="Shd-s4-Pml" sceneMemberID="viewController"/>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="rg7-bg-Ako" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-362" y="616"/>
-        </scene>
         <!--Folder-->
         <scene sceneID="9vX-kW-2JP">
             <objects>
@@ -467,14 +460,6 @@
             <point key="canvasLocation" x="-390" y="152"/>
         </scene>
     </scenes>
-    <designables>
-        <designable name="jDQ-kp-Eg6">
-            <size key="intrinsicContentSize" width="31.5" height="18"/>
-        </designable>
-        <designable name="wl3-k5-zZi">
-            <size key="intrinsicContentSize" width="49" height="18"/>
-        </designable>
-    </designables>
     <color key="tintColor" red="0.20392156862745098" green="0.53333333333333333" blue="0.81960784313725488" alpha="1" colorSpace="calibratedRGB"/>
     <resources>
         <image name="emptyLibrary" width="249" height="249"/>

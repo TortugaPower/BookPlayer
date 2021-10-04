@@ -18,6 +18,7 @@ import ZipArchive
 
 public class ImportOperation: Operation {
   public let files: [URL]
+  public let dataManager: DataManager
   public var processedFiles = [URL]()
 
   private let lockQueue = DispatchQueue(label: "com.swiftlee.asyncoperation", attributes: .concurrent)
@@ -58,8 +59,9 @@ public class ImportOperation: Operation {
     }
   }
 
-  init(files: [URL]) {
+  init(files: [URL], dataManager: DataManager) {
     self.files = files
+    self.dataManager = dataManager
   }
 
   public override func start() {
@@ -151,7 +153,7 @@ public class ImportOperation: Operation {
   }
 
   private func hasExistingBook(_ fileURL: URL) -> Bool {
-    guard let existingBook = DataManager.findBooks(containing: fileURL)?.first,
+    guard let existingBook = self.dataManager.findBooks(containing: fileURL)?.first,
        let existingFileURL = existingBook.fileURL,
        !FileManager.default.fileExists(atPath: existingFileURL.path) else { return false }
 

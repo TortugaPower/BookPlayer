@@ -10,83 +10,83 @@ import CoreData
 import Foundation
 
 extension DataMigrationManager {
-    func migrateBooks() {
-        let fetch: NSFetchRequest<Book> = Book.fetchRequest()
-        let context = self.stack.managedContext
+  func migrateBooks(dataManager: DataManager) {
+    let fetch: NSFetchRequest<Book> = Book.fetchRequest()
+    let context = dataManager.getContext()
 
-        guard let books = try? context.fetch(fetch) else { return }
+    guard let books = try? context.fetch(fetch) else { return }
 
-        let processedFolder = DataManager.getProcessedFolderURL()
-        var index = 0
+    let processedFolder = DataManager.getProcessedFolderURL()
+    var index = 0
 
-        for book in books {
-            guard let identifier = book.identifier,
-                  let originalFilename = book.originalFileName else { continue }
+    for book in books {
+      guard let identifier = book.identifier,
+            let originalFilename = book.originalFileName else { continue }
 
-            let currentURL = processedFolder.appendingPathComponent(identifier)
-            var destinationURL = processedFolder
+      let currentURL = processedFolder.appendingPathComponent(identifier)
+      var destinationURL = processedFolder
 
-            if let folder = book.folder {
-                destinationURL = destinationURL.appendingPathComponent(folder.relativePath)
-            }
+      if let folder = book.folder {
+        destinationURL = destinationURL.appendingPathComponent(folder.relativePath)
+      }
 
-            destinationURL = destinationURL.appendingPathComponent(originalFilename)
+      destinationURL = destinationURL.appendingPathComponent(originalFilename)
 
-            // Just in case there's already a file with that name
-            if FileManager.default.fileExists(atPath: destinationURL.path) {
-                destinationURL = currentURL.deletingLastPathComponent().appendingPathComponent("\(index)_\(originalFilename)")
-            }
+      // Just in case there's already a file with that name
+      if FileManager.default.fileExists(atPath: destinationURL.path) {
+        destinationURL = currentURL.deletingLastPathComponent().appendingPathComponent("\(index)_\(originalFilename)")
+      }
 
-            do {
-                try FileManager.default.moveItem(at: currentURL, to: destinationURL)
-                book.relativePath = destinationURL.relativePath(to: processedFolder)
-            } catch {
-                print(error.localizedDescription)
-            }
+      do {
+        try FileManager.default.moveItem(at: currentURL, to: destinationURL)
+        book.relativePath = destinationURL.relativePath(to: processedFolder)
+      } catch {
+        print(error.localizedDescription)
+      }
 
-            index += 1
-        }
-
-        do {
-            try context.save()
-        } catch let error as NSError {
-            fatalError("Unresolved error \(error), \(error.userInfo)")
-        }
+      index += 1
     }
 
-    func migrateFolderHierarchy() {
-        let fetch: NSFetchRequest<Folder> = Folder.fetchRequest()
-        let context = self.stack.managedContext
-
-        guard let folders = try? context.fetch(fetch) else { return }
-
-        let processedFolder = DataManager.getProcessedFolderURL()
-        var index = 0
-
-        for folder in folders {
-            guard let folderTitle = folder.title else { continue }
-
-            var destinationURL = processedFolder.appendingPathComponent(folderTitle)
-
-            // Just in case there's already a file with that name
-            if FileManager.default.fileExists(atPath: destinationURL.path) {
-                destinationURL = destinationURL.deletingLastPathComponent().appendingPathComponent("\(index)_\(folderTitle)")
-            }
-
-            do {
-                try FileManager.default.createDirectory(at: destinationURL, withIntermediateDirectories: true, attributes: nil)
-                folder.relativePath = destinationURL.lastPathComponent
-            } catch {
-                print(error.localizedDescription)
-            }
-
-            index += 1
-        }
-
-        do {
-            try context.save()
-        } catch let error as NSError {
-            fatalError("Unresolved error \(error), \(error.userInfo)")
-        }
+    do {
+      try context.save()
+    } catch let error as NSError {
+      fatalError("Unresolved error \(error), \(error.userInfo)")
     }
+  }
+
+  func migrateFolderHierarchy(dataManager: DataManager) {
+    let fetch: NSFetchRequest<Folder> = Folder.fetchRequest()
+    let context = dataManager.getContext()
+
+    guard let folders = try? context.fetch(fetch) else { return }
+
+    let processedFolder = DataManager.getProcessedFolderURL()
+    var index = 0
+
+    for folder in folders {
+      guard let folderTitle = folder.title else { continue }
+
+      var destinationURL = processedFolder.appendingPathComponent(folderTitle)
+
+      // Just in case there's already a file with that name
+      if FileManager.default.fileExists(atPath: destinationURL.path) {
+        destinationURL = destinationURL.deletingLastPathComponent().appendingPathComponent("\(index)_\(folderTitle)")
+      }
+
+      do {
+        try FileManager.default.createDirectory(at: destinationURL, withIntermediateDirectories: true, attributes: nil)
+        folder.relativePath = destinationURL.lastPathComponent
+      } catch {
+        print(error.localizedDescription)
+      }
+
+      index += 1
+    }
+
+    do {
+      try context.save()
+    } catch let error as NSError {
+      fatalError("Unresolved error \(error), \(error.userInfo)")
+    }
+  }
 }
