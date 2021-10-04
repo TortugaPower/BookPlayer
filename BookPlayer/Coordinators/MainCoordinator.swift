@@ -16,6 +16,7 @@ class MainCoordinator: Coordinator {
   let playerManager: PlayerManager
   let dataManager: DataManager
   let watchConnectivityService: WatchConnectivityService
+  var carPlayManager: CarPlayManager!
 
   init(
     rootController: RootViewController,
@@ -73,9 +74,9 @@ class MainCoordinator: Coordinator {
   }
 
   private func setupCarPlay(with library: Library) {
-    let carPlayManager = CarPlayManager(library: library, dataManager: self.dataManager)
-    MPPlayableContentManager.shared().dataSource = carPlayManager
-    MPPlayableContentManager.shared().delegate = carPlayManager
+    self.carPlayManager = CarPlayManager(library: library, dataManager: self.dataManager)
+    MPPlayableContentManager.shared().dataSource = self.carPlayManager
+    MPPlayableContentManager.shared().delegate = self.carPlayManager
   }
 
   func showPlayer() {
