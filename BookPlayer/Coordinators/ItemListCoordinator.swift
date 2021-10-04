@@ -160,6 +160,7 @@ class ItemListCoordinator: Coordinator {
     self.playerManager.load(book) { [weak self] loaded in
       guard loaded else { return }
 
+      self?.getMainCoordinator()?.showMiniPlayer(true)
       self?.playerManager.playPause()
     }
   }
@@ -377,6 +378,10 @@ extension ItemListCoordinator {
     }
 
     alert.addAction(UIAlertAction(title: deleteActionTitle, style: .destructive, handler: { _ in
+      if selectedItems.contains(where: { $0.relativePath == self.playerManager.currentBook?.relativePath }) {
+        self.playerManager.stop()
+      }
+
       self.onAction?(.delete(selectedItems, mode: .deep))
     }))
 

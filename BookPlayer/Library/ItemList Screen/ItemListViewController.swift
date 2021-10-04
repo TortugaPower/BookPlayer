@@ -214,7 +214,7 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
 
   func bindTransitionActions() {
     self.viewModel.coordinator.onAction = { route in
-      self.setEditing(false, animated: true)
+      self.setEditing(false, animated: false)
 
       switch route {
       case .importOptions:
