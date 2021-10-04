@@ -120,6 +120,16 @@ final class StorageViewModel: ObservableObject {
       return
     }
 
+    let fetchedBookURL = DataManager.getProcessedFolderURL().appendingPathComponent(fetchedBook.relativePath)
+
+    // Check if existing book already has its file, and this one is a duplicate
+    if FileManager.default.fileExists(atPath: fetchedBookURL.path) {
+      try FileManager.default.removeItem(at: item.fileURL)
+      self.coordinator.showAlert("storage_duplicate_item_title".localized, message: String.localizedStringWithFormat("storage_duplicate_item_description".localized, fetchedBook.relativePath!))
+      self.loadItems()
+      return
+    }
+
     try self.moveBookFile(from: item, with: fetchedBook)
 
     // Book exists, but is dangling without reference
