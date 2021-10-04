@@ -73,7 +73,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
         // Create a Sentry client
         SentrySDK.start { options in
             options.dsn = "https://23b4d02f7b044c10adb55a0cc8de3881@sentry.io/1414296"
-            options.debug = true
+            options.debug = false
         }
 
       self.coordinator.start()

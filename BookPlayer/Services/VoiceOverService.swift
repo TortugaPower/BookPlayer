@@ -50,18 +50,14 @@ class VoiceOverService {
     // MARK: PlayerMetaView
 
     public func playerMetaText(book: Book) -> String {
-        let title: String = book.title != nil
-            ? book.title
-            : "voiceover_unknown_title".localized
-        let author: String = book.author != nil
-            ? book.author
-            : "voiceover_unknown_author".localized
+      let title: String = book.title != nil
+      ? book.title
+      : "voiceover_unknown_title".localized
+      let author: String = book.author != nil
+      ? book.author
+      : "voiceover_unknown_author".localized
 
-        guard let currentChapter = book.currentChapter else {
-            return String(describing: String.localizedStringWithFormat("voiceover_book_info".localized, title, author))
-        }
-
-        return String(describing: String.localizedStringWithFormat("voiceover_book_chapter".localized, title, author, String(describing: currentChapter.index)))
+      return String(describing: String.localizedStringWithFormat("voiceover_book_info".localized, title, author))
     }
 
     // MARK: - ArtworkControl

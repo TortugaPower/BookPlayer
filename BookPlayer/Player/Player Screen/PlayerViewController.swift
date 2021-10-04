@@ -115,13 +115,21 @@ class PlayerViewController: UIViewController, TelemetryProtocol, Storyboarded {
     if shouldSetSliderValue && self.progressSlider.isTracking { return }
 
     self.currentTimeLabel.text = progressObject.formattedCurrentTime
+    self.currentTimeLabel.accessibilityLabel = String(
+      describing: String.localizedStringWithFormat(self.viewModel.getCurrentTimeVoiceOverPrefix(),
+                                                   VoiceOverService.secondsToMinutes(progressObject.currentTime))
+    )
 
     if let progress = progressObject.progress {
       self.progressButton.setTitle(progress, for: .normal)
     }
 
-    if let maxTime = progressObject.formattedMaxTime {
-      self.maxTimeButton.setTitle(maxTime, for: .normal)
+    if let maxTime = progressObject.maxTime,
+       let formattedMaxTime = progressObject.formattedMaxTime {
+      self.maxTimeButton.setTitle(formattedMaxTime, for: .normal)
+      self.maxTimeButton.accessibilityLabel = String(
+        describing: self.viewModel.getMaxTimeVoiceOverPrefix() + VoiceOverService.secondsToMinutes(maxTime)
+      )
     }
 
     if shouldSetSliderValue {
@@ -307,6 +315,9 @@ extension PlayerViewController {
     self.bottomToolbar.setBackgroundImage(UIImage(), forToolbarPosition: .any, barMetrics: .default)
     self.bottomToolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
     self.speedButton.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18.0, weight: .semibold)], for: .normal)
+    self.previousChapterButton.accessibilityLabel = "chapters_previous_title".localized
+    self.nextChapterButton.accessibilityLabel = "chapters_next_title".localized
+    self.bookmarkButton.accessibilityLabel = "bookmark_create_title".localized
   }
 
   func updateToolbar(_ showTimerLabel: Bool = false, animated: Bool = false) {

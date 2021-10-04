@@ -169,6 +169,8 @@ class ItemListCoordinator: Coordinator {
     self.playerManager.load(book) { [weak self] loaded in
       guard loaded else { return }
 
+      self?.getMainCoordinator()?.showMiniPlayer(true)
+
       if UserDefaults.standard.bool(forKey: Constants.UserActivityPlayback) {
         UserDefaults.standard.removeObject(forKey: Constants.UserActivityPlayback)
         self?.playerManager.play()

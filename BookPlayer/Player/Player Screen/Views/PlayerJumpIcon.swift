@@ -64,6 +64,9 @@ class PlayerJumpIcon: UIView {
     self.addSubview(self.label)
     self.addSubview(self.actionButton)
 
+    self.label.isAccessibilityElement = false
+    self.backgroundImageView.isAccessibilityElement = false
+
     setUpTheming()
   }
 
@@ -106,6 +109,7 @@ class PlayerJumpIconForward: PlayerJumpIcon {
     super.setup()
 
     self.title = "+\(Int(PlayerManager.forwardInterval.rounded())) "
+    self.actionButton.accessibilityLabel = VoiceOverService.fastForwardText()
   }
 }
 
@@ -123,5 +127,6 @@ class PlayerJumpIconRewind: PlayerJumpIcon {
     super.setup()
 
     self.title = "−\(Int(PlayerManager.rewindInterval.rounded())) "
+    self.actionButton.accessibilityLabel = VoiceOverService.rewindText()
   }
 }

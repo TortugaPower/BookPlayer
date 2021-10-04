@@ -82,8 +82,6 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     self.contentView.frame = self.bounds
     self.contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 
-    self.isAccessibilityElement = false
-
     // View & Subviews
     self.layer.shadowColor = UIColor.black.cgColor
     self.layer.shadowOffset = CGSize(width: 0.0, height: 4.0)
@@ -135,6 +133,8 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     self.backgroundGradientColorView.isHidden = book.hasArtwork
     self.infoContainerStackView.isHidden = book.hasArtwork
     self.artworkImage.isHidden = !book.hasArtwork
+    self.artworkOverlay.isAccessibilityElement = true
+    self.artworkOverlay.accessibilityLabel = VoiceOverService().playerMetaText(book: book)
   }
 }
 
