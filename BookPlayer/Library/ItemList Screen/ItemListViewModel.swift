@@ -346,15 +346,15 @@ class FolderListViewModel {
   }
 
   func handleSort(by option: PlayListSortOrder) {
-    let itemsToSort: NSOrderedSet?
+    let itemsToSortOptional: NSOrderedSet?
 
     if let folder = self.folder {
-      itemsToSort = folder.items
+      itemsToSortOptional = folder.items
     } else {
-      itemsToSort = self.library.items
+      itemsToSortOptional = self.library.items
     }
 
-    guard let itemsToSort = itemsToSort,
+    guard let itemsToSort = itemsToSortOptional,
           itemsToSort.count > 0 else { return }
 
     let sortedItems = BookSortService.sort(itemsToSort, by: option)
