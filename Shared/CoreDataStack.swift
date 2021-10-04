@@ -32,6 +32,22 @@ public class CoreDataStack {
     self.storeContainer.persistentStoreDescriptions = [description]
   }
 
+  public init(testPath: String) {
+    let modelName = "BookPlayer"
+    self.modelName = modelName
+    let storeUrl = URL(fileURLWithPath: testPath)
+    self.storeUrl = storeUrl
+    self.storeContainer = NSPersistentContainer(name: modelName)
+
+    let description = NSPersistentStoreDescription()
+    description.shouldInferMappingModelAutomatically = false
+    description.shouldMigrateStoreAutomatically = true
+    description.url = self.storeUrl
+
+    self.storeContainer.persistentStoreDescriptions = [description]
+    self.storeContainer.loadPersistentStores { _, _ in }
+  }
+
   public func loadStore(completionHandler: ((NSPersistentStoreDescription, Error?) -> Void)?) {
     self.storeContainer.loadPersistentStores { storeDescription, error in
       self.storeContainer.viewContext.undoManager = nil

@@ -3,19 +3,21 @@
 import XCTest
 
 class BookSortServiceTest: XCTestCase {
-    let unorderedBookNames = [
-        "05 Book 1",
-        "01 Book 1",
-        "09 Book 10",
-        "09 Book 2"
-    ]
+  let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
 
-    let orderedBookNames = [
-        "01 Book 1.txt",
-        "05 Book 1.txt",
-        "09 Book 2.txt",
-        "09 Book 10.txt"
-    ]
+  let unorderedBookNames = [
+    "05 Book 1",
+    "01 Book 1",
+    "09 Book 10",
+    "09 Book 2"
+  ]
+
+  let orderedBookNames = [
+    "01 Book 1.txt",
+    "05 Book 1.txt",
+    "09 Book 2.txt",
+    "09 Book 10.txt"
+  ]
 
     var booksByFile: NSOrderedSet?
 
@@ -25,7 +27,7 @@ class BookSortServiceTest: XCTestCase {
       let processedFolder = DataManager.getProcessedFolderURL()
       DataTestUtils.clearFolderContents(url: processedFolder)
 
-      self.booksByFile = NSOrderedSet(array: self.unorderedBookNames.map { StubFactory.book(title: $0, duration: 1000) })
+      self.booksByFile = NSOrderedSet(array: self.unorderedBookNames.map { StubFactory.book(dataManager: self.dataManager, title: $0, duration: 1000) })
     }
 
     override func tearDown() {}
