@@ -22,19 +22,23 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate, Storybo
     return themedStatusBarStyle ?? super.preferredStatusBarStyle
   }
 
-    override func viewDidLoad() {
-      super.viewDidLoad()
+  override func viewDidLoad() {
+    super.viewDidLoad()
 
-      self.coordinator.start()
+    self.miniPlayerContainer.layer.shadowOffset = CGSize(width: 0.0, height: 3.0)
+    self.miniPlayerContainer.layer.shadowOpacity = 0.18
+    self.miniPlayerContainer.layer.shadowRadius = 9.0
+    self.miniPlayerContainer.clipsToBounds = false
+    self.miniPlayerContainer.isHidden = true
+  }
 
-      setUpTheming()
+  override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
 
-      self.miniPlayerContainer.layer.shadowOffset = CGSize(width: 0.0, height: 3.0)
-      self.miniPlayerContainer.layer.shadowOpacity = 0.18
-      self.miniPlayerContainer.layer.shadowRadius = 9.0
-      self.miniPlayerContainer.clipsToBounds = false
-      self.miniPlayerContainer.isHidden = true
-    }
+    self.coordinator.start()
+
+    setUpTheming()
+  }
 }
 
 extension RootViewController: Themeable {
