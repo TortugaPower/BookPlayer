@@ -54,6 +54,8 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
       )
       self.navigationController!.interactivePopGestureRecognizer!.delegate = self
 
+      self.previousLeftButtons = navigationItem.leftBarButtonItems
+
       self.viewModel.notifyPendingFiles()
     }
 
