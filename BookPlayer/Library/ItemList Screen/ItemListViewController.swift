@@ -22,6 +22,8 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
 
   @IBOutlet weak var tableView: UITableView!
 
+  let searchController = UISearchController(searchResultsController: nil)
+
   private var previousLeftButtons: [UIBarButtonItem]?
   lazy var selectButton: UIBarButtonItem = UIBarButtonItem(title: "select_all_title".localized, style: .plain, target: self, action: #selector(selectButtonPressed))
 
@@ -38,6 +40,32 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
     self.bindTransitionActions()
     self.configureInitialState()
     self.bindNetworkObserver()
+    
+    searchController.searchResultsUpdater = self
+    searchController.obscuresBackgroundDuringPresentation = false
+    searchController.searchBar.placeholder = "Search by Title or Author"
+    navigationItem.searchController = searchController
+    definesPresentationContext = true
+  }
+  
+  func filterItemsForSearchText(_ searchText: String) {
+    let items = self.viewModel.getInitialItems();
+    if (searchText.isEmpty) {
+      self.updateSnapshot(with: items, animated: true)
+      return
+    }
+    
+    let lowercaseSearchText = searchText.localizedLowercase
+    let filteredItems = items.filter { item in
+      if let book = item as? SimpleLibraryItem {
+        return book.title.localizedLowercase.contains(lowercaseSearchText) ||
+          book.details.localizedLowercase.contains(lowercaseSearchText)
+      }
+
+      return item.title.localizedLowercase.contains(searchText.localizedLowercase)
+    }
+    
+    self.updateSnapshot(with: filteredItems, animated: true)
   }
 
   func configureInitialState() {
@@ -324,6 +352,13 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
     }
 
     self.updateSelectionStatus()
+  }
+}
+
+extension ItemListViewController: UISearchResultsUpdating {
+  func updateSearchResults(for searchController: UISearchController) {
+    let searchBar = searchController.searchBar
+    filterItemsForSearchText(searchBar.text!)
   }
 }
 
