@@ -161,17 +161,31 @@ class FolderListViewModel {
     self.coordinator.showItemContents(libraryItem)
   }
 
-  func importIntoFolder(with title: String, items: [LibraryItem]? = nil) {
+  func importIntoNewFolder(with title: String, items: [LibraryItem]? = nil) {
     do {
-      let folder = try self.dataManager.createFolder(with: title, in: self.folder, library: self.library)
+      let folder = try self.dataManager.createFolder(with: title, in: self.folder, library: self.library, at: 0)
       if let items = items {
-        try self.dataManager.moveItems(items, into: folder)
+        try self.dataManager.moveItems(items.reversed(), into: folder, at: 0)
       }
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
 
     self.coordinator.reloadItemsWithPadding(padding: 1)
+  }
+
+  func importIntoFolder(_ folder: SimpleLibraryItem, items: [LibraryItem]) {
+    guard let storedFolder = self.dataManager.getItem(with: folder.relativePath) as? Folder else { return }
+
+    let fetchedItems = items.compactMap({ self.dataManager.getItem(with: $0.relativePath )})
+
+    do {
+      try self.dataManager.moveItems(fetchedItems, into: storedFolder)
+    } catch {
+      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
+    }
+
+    self.coordinator.reloadItemsWithPadding()
   }
 
   func createFolder(with title: String, items: [SimpleLibraryItem]? = nil) {
@@ -228,11 +242,12 @@ class FolderListViewModel {
   func handleOperationCompletion(_ files: [URL]) {
     let processedItems = self.dataManager.insertItems(from: files, into: nil, library: self.library)
 
+    // Reverse order for insertion at the beginning
     do {
       if let folder = self.folder {
-        try self.dataManager.moveItems(processedItems, into: folder)
+        try self.dataManager.moveItems(processedItems.reversed(), into: folder, at: 0)
       } else {
-        try self.dataManager.moveItems(processedItems, into: self.library, moveFiles: false)
+        try self.dataManager.moveItems(processedItems.reversed(), into: self.library, moveFiles: false, at: 0)
       }
 
     } catch {
@@ -242,7 +257,19 @@ class FolderListViewModel {
 
     self.coordinator.reloadItemsWithPadding(padding: processedItems.count)
 
-    self.coordinator.showOperationCompletedAlert(with: processedItems)
+    var availableFolders = [SimpleLibraryItem]()
+
+    if let existingFolders = self.dataManager.fetchFolders(in: self.folder, or: self.library) {
+      for folder in existingFolders {
+        if processedItems.contains(where: { $0.relativePath == folder.relativePath }) { continue }
+
+        availableFolders.append(SimpleLibraryItem(from: folder, defaultArtwork: self.defaultArtwork))
+      }
+    }
+
+    if processedItems.count > 1 {
+      self.coordinator.showOperationCompletedAlert(with: processedItems, availableFolders: availableFolders)
+    }
   }
 
   func handleInsertionIntoLibrary(_ items: [LibraryItem]) {

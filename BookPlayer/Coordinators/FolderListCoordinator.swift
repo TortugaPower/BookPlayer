@@ -46,7 +46,7 @@ class FolderListCoordinator: ItemListCoordinator {
     self.navigationController.pushViewController(vc, animated: true)
   }
 
-  override func showOperationCompletedAlert(with items: [LibraryItem]) {
+  override func showOperationCompletedAlert(with items: [LibraryItem], availableFolders: [SimpleLibraryItem]) {
     let alert = UIAlertController(
       title: String.localizedStringWithFormat("import_alert_title".localized, items.count),
       message: nil,
@@ -65,8 +65,23 @@ class FolderListCoordinator: ItemListCoordinator {
         placeholder = item.title
       }
 
-      self?.showImportIntoFolderAlert(placeholder: placeholder, with: items)
+      self?.showImportIntoNewFolderAlert(placeholder: placeholder, with: items)
     })
+
+    let existingFolderAction = UIAlertAction(title: "existing_playlist_button".localized, style: .default) { _ in
+      let vc = ItemSelectionViewController()
+      vc.items = availableFolders
+
+      vc.onItemSelected = { selectedFolder in
+        self.onAction?(.importIntoFolder(selectedFolder, items: items))
+      }
+
+      let nav = AppNavigationController(rootViewController: vc)
+      self.navigationController.present(nav, animated: true, completion: nil)
+    }
+
+    existingFolderAction.isEnabled = !availableFolders.isEmpty
+    alert.addAction(existingFolderAction)
 
     self.navigationController.present(alert, animated: true, completion: nil)
   }

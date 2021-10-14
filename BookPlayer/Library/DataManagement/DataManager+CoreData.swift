@@ -84,26 +84,29 @@ extension DataManager {
     _ = self.insertItems(from: files, into: folder, library: library)
   }
 
-  public func moveItems(_ items: [LibraryItem], into folder: Folder) throws {
+  public func moveItems(_ items: [LibraryItem], into folder: Folder, at index: Int? = nil) throws {
     let processedFolderURL = DataManager.getProcessedFolderURL()
 
     for item in items {
       try FileManager.default.moveItem(at: processedFolderURL.appendingPathComponent(item.relativePath), to: processedFolderURL.appendingPathComponent(folder.relativePath).appendingPathComponent(item.originalFileName))
-      folder.insert(item: item)
+      folder.insert(item: item, at: index)
     }
 
     folder.updateCompletionState()
     self.saveContext()
   }
 
-  public func moveItems(_ items: [LibraryItem], into library: Library, moveFiles: Bool = true) throws {
+  public func moveItems(_ items: [LibraryItem],
+                        into library: Library,
+                        moveFiles: Bool = true,
+                        at index: Int? = nil) throws {
     let processedFolderURL = DataManager.getProcessedFolderURL()
 
     for item in items {
       if moveFiles {
         try FileManager.default.moveItem(at: processedFolderURL.appendingPathComponent(item.relativePath), to: processedFolderURL.appendingPathComponent(item.originalFileName))
       }
-      library.insert(item: item)
+      library.insert(item: item, at: index)
     }
 
     self.saveContext()

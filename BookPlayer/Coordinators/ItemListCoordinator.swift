@@ -14,7 +14,8 @@ public typealias Transition<T> = ((T) -> Void)
 enum ItemListActionRoutes {
   case importOptions
   case importLocalFiles
-  case importIntoFolder(_ title: String, items: [LibraryItem]?)
+  case importIntoNewFolder(_ title: String, items: [LibraryItem]?)
+  case importIntoFolder(_ folder: SimpleLibraryItem, items: [LibraryItem])
   case downloadBook(_ url: URL)
   case createFolder(_ title: String, items: [SimpleLibraryItem]?)
   case moveIntoLibrary(items: [SimpleLibraryItem])
@@ -213,7 +214,7 @@ class ItemListCoordinator: Coordinator {
     return !self.childCoordinators.contains(where: { $0 is ItemListCoordinator })
   }
 
-  func showOperationCompletedAlert(with items: [LibraryItem]) {
+  func showOperationCompletedAlert(with items: [LibraryItem], availableFolders: [SimpleLibraryItem]) {
     let alert = UIAlertController(
       title: String.localizedStringWithFormat("import_alert_title".localized, items.count),
       message: nil,
@@ -228,15 +229,30 @@ class ItemListCoordinator: Coordinator {
         placeholder = item.title
       }
 
-      self.showImportIntoFolderAlert(placeholder: placeholder, with: items)
+      self.showImportIntoNewFolderAlert(placeholder: placeholder, with: items)
     })
+
+    let existingFolderAction = UIAlertAction(title: "existing_playlist_button".localized, style: .default) { _ in
+      let vc = ItemSelectionViewController()
+      vc.items = availableFolders
+
+      vc.onItemSelected = { selectedFolder in
+        self.onAction?(.importIntoFolder(selectedFolder, items: items))
+      }
+
+      let nav = AppNavigationController(rootViewController: vc)
+      self.navigationController.present(nav, animated: true, completion: nil)
+    }
+
+    existingFolderAction.isEnabled = !availableFolders.isEmpty
+    alert.addAction(existingFolderAction)
 
     self.navigationController.present(alert, animated: true, completion: nil)
   }
 }
 
 extension ItemListCoordinator {
-  func showImportIntoFolderAlert(placeholder: String? = nil, with items: [LibraryItem]? = nil) {
+  func showImportIntoNewFolderAlert(placeholder: String? = nil, with items: [LibraryItem]? = nil) {
     let alert = UIAlertController(title: "create_playlist_title".localized,
                                   message: "create_playlist_description".localized,
                                   preferredStyle: .alert)
@@ -248,7 +264,7 @@ extension ItemListCoordinator {
     alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
     alert.addAction(UIAlertAction(title: "create_button".localized, style: .default, handler: { _ in
       let title = alert.textFields!.first!.text!
-      self.onAction?(.importIntoFolder(title, items: items))
+      self.onAction?(.importIntoNewFolder(title, items: items))
     }))
 
     self.navigationController.present(alert, animated: true, completion: nil)

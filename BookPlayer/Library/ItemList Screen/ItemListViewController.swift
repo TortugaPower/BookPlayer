@@ -227,8 +227,10 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
       case .importOperationFinished(let files):
         self.showLoadView(false)
         self.viewModel.handleOperationCompletion(files)
-      case .importIntoFolder(let title, let items):
-        self.viewModel.importIntoFolder(with: title, items: items)
+      case .importIntoNewFolder(let title, let items):
+        self.viewModel.importIntoNewFolder(with: title, items: items)
+      case .importIntoFolder(let selectedFolder, let items):
+        self.viewModel.importIntoFolder(selectedFolder, items: items)
       case .createFolder(let title, let items):
         self.viewModel.createFolder(with: title, items: items)
       case .moveIntoLibrary(let items):
