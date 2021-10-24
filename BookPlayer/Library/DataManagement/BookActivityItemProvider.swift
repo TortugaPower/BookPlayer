@@ -17,12 +17,7 @@ final class BookActivityItemProvider: UIActivityItemProvider {
   }
 
   public override func activityViewController(_ activityViewController: UIActivityViewController, itemForActivityType activityType: UIActivity.ActivityType?) -> Any? {
-    let fileURL = DataManager.getDocumentsFolderURL().appendingPathComponent(self.book.relativePath)
-
-//    let tempDir = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-//    let tempUrl = tempDir.appendingPathComponent(fileURL.lastPathComponent)
-//
-//    try? FileManager.default.copyItem(at: fileURL, to: tempUrl)
+    let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(self.book.relativePath)
 
     return fileURL
   }

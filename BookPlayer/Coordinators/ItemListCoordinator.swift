@@ -428,12 +428,9 @@ extension ItemListCoordinator {
       self.showMoveOptions(selectedItems: selectedItems, availableFolders: availableFolders)
     }))
 
-    let exportAction = UIAlertAction(title: "export_button".localized, style: .default, handler: { _ in
-      self.showExportController(for: item)
-    })
-
-    exportAction.isEnabled = isSingle
-    sheet.addAction(exportAction)
+    sheet.addAction(UIAlertAction(title: "export_button".localized, style: .default, handler: { _ in
+      self.showExportController(for: selectedItems)
+    }))
 
     sheet.addAction(UIAlertAction(title: "jump_start_title".localized, style: .default, handler: { [weak self] _ in
       self?.onAction?(.resetPlaybackPosition(selectedItems))
@@ -473,10 +470,10 @@ extension ItemListCoordinator {
     self.navigationController.present(alert, animated: true, completion: nil)
   }
 
-  func showExportController(for item: SimpleLibraryItem) {
-    let bookProvider = BookActivityItemProvider(item)
+  func showExportController(for items: [SimpleLibraryItem]) {
+    let providers = items.map { BookActivityItemProvider($0) }
 
-    let shareController = UIActivityViewController(activityItems: [bookProvider], applicationActivities: nil)
+    let shareController = UIActivityViewController(activityItems: providers, applicationActivities: nil)
     shareController.excludedActivityTypes = [.copyToPasteboard]
 
     self.navigationController.present(shareController, animated: true, completion: nil)
