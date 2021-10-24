@@ -45,11 +45,8 @@ class ItemSelectionViewController: UITableViewController {
 
       let item = self.items[indexPath.row]
 
-      if let data = item.artworkData {
-        cell.artwork = UIImage(data: data)
-      } else {
-        cell.artwork = nil
-      }
+      cell.artworkView.kf.setImage(with: ArtworkService.getArtworkProvider(for: item.relativePath),
+                                   placeholder: ArtworkService.generateDefaultArtwork(from: item.themeAccent))
 
       cell.title = item.title
       cell.playbackState = .stopped

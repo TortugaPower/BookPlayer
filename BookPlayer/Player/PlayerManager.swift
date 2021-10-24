@@ -103,60 +103,72 @@ final class PlayerManager: NSObject, TelemetryProtocol {
     NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying(_:)), name: .AVPlayerItemDidPlayToEndTime, object: nil)
   }
 
-    func load(_ book: Book, completion: @escaping (Bool) -> Void) {
-        if self.currentBook != nil {
-            self.stop()
-        }
-
-        self.currentBook = book
-
-        self.queue.addOperation {
-            // try loading the player
-            guard let item = self.playerItem,
-                book.duration > 0 else {
-                DispatchQueue.main.async {
-                    self.currentBook = nil
-
-                    completion(false)
-                }
-
-                return
-            }
-
-            self.audioPlayer.replaceCurrentItem(with: nil)
-            self.audioPlayer.replaceCurrentItem(with: item)
-
-            // Update UI on main thread
-            DispatchQueue.main.async {
-                // Set book metadata for lockscreen and control center
-                self.nowPlayingInfo = [
-                    MPNowPlayingInfoPropertyDefaultPlaybackRate: SpeedManager.shared.getSpeed()
-                ]
-
-                self.setNowPlayingBookTitle()
-                self.setNowPlayingBookTime()
-
-                if let artwork = book.getArtwork(for: ThemeManager.shared.currentTheme.linkColor) {
-                    self.nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: artwork.size,
-                                                                                         requestHandler: { (_) -> UIImage in
-                                                                                            artwork
-                    })
-                }
-
-                MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
-
-                if book.currentTime > 0.0 {
-                    // if book is truly finished, start book again to avoid autoplaying next one
-                    // add 1 second as a finished threshold
-                    let time = (book.currentTime + 1) >= book.duration ? 0 : book.currentTime
-                    self.jumpTo(time, recordBookmark: false)
-                }
-
-                self.hasLoadedBook = true
-                completion(true)
-            }
-        }
+  func load(_ book: Book, completion: @escaping (Bool) -> Void) {
+    if self.currentBook != nil {
+      self.stop()
     }
+
+    self.currentBook = book
+
+    self.queue.addOperation {
+      // try loading the player
+      guard let item = self.playerItem,
+            book.duration > 0 else {
+              DispatchQueue.main.async {
+                self.currentBook = nil
+
+                completion(false)
+              }
+
+              return
+            }
+
+      self.audioPlayer.replaceCurrentItem(with: nil)
+      self.audioPlayer.replaceCurrentItem(with: item)
+
+      // Update UI on main thread
+      DispatchQueue.main.async {
+        // Set book metadata for lockscreen and control center
+        self.nowPlayingInfo = [
+          MPNowPlayingInfoPropertyDefaultPlaybackRate: SpeedManager.shared.getSpeed()
+        ]
+
+        self.setNowPlayingBookTitle()
+        self.setNowPlayingBookTime()
+
+
+        ArtworkService.retrieveImageFromCache(for: book.relativePath) { result in
+          let image: UIImage
+
+          switch result {
+          case .success(let value):
+            image = value.image
+          case .failure(_):
+            image = ArtworkService.generateDefaultArtwork(from: ThemeManager.shared.currentTheme.linkColor)!
+          }
+
+          self.nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: image.size,
+                                                                               requestHandler: { (_) -> UIImage in
+            image
+          })
+
+          MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
+        }
+
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
+
+        if book.currentTime > 0.0 {
+          // if book is truly finished, start book again to avoid autoplaying next one
+          // add 1 second as a finished threshold
+          let time = (book.currentTime + 1) >= book.duration ? 0 : book.currentTime
+          self.jumpTo(time, recordBookmark: false)
+        }
+
+        self.hasLoadedBook = true
+        completion(true)
+      }
+    }
+  }
 
     // Called every second by the timer
     @objc func update() {

@@ -15,7 +15,7 @@ struct SimpleLibraryItem: Hashable, Identifiable {
   let details: String
   let duration: String
   let progress: Double
-  let artworkData: Data?
+  let themeAccent: UIColor
   let relativePath: String
   let type: SimpleItemType
   let playbackState: PlaybackState
@@ -40,19 +40,19 @@ extension SimpleLibraryItem {
     self.details = ""
     self.duration = ""
     self.progress = 0
-    self.artworkData = nil
+    self.themeAccent = UIColor(hex: "3488D1")
     self.relativePath = ""
     self.type = .book
     self.playbackState = .stopped
   }
 
-  init(from item: SimpleLibraryItem, defaultArtwork: Data? = nil) {
+  init(from item: SimpleLibraryItem, themeAccent: UIColor) {
     self.id = item.id
     self.title = item.title
     self.details = item.details
     self.duration = item.duration
     self.progress = item.progress
-    self.artworkData = item.artworkData as Data? ?? defaultArtwork
+    self.themeAccent = item.themeAccent
     self.relativePath = item.relativePath
     self.type = item.type
     self.playbackState = item.playbackState
@@ -64,7 +64,7 @@ extension SimpleLibraryItem {
     self.details = item.details
     self.duration = item.duration
     self.progress = progress ?? item.progress
-    self.artworkData = item.artworkData as Data?
+    self.themeAccent = item.themeAccent
     self.relativePath = item.relativePath
     self.type = item.type
     self.playbackState = playbackState
@@ -76,41 +76,41 @@ extension SimpleLibraryItem {
     self.details = item.details
     self.duration = item.duration
     self.progress = item.progress
-    self.artworkData = item.artworkData as Data?
+    self.themeAccent = item.themeAccent
     self.relativePath = item.relativePath
     self.type = item.type
     self.playbackState = playbackState
   }
 
-  init(from item: LibraryItem, defaultArtwork: Data? = nil, playbackState: PlaybackState = .stopped) {
+  init(from item: LibraryItem, themeAccent: UIColor, playbackState: PlaybackState = .stopped) {
     if let book = item as? Book {
-      self.init(from: book, defaultArtwork: defaultArtwork, playbackState: playbackState)
+      self.init(from: book, themeAccent: themeAccent, playbackState: playbackState)
     } else {
       // swiftlint:disable force_cast
       let folder = item as! Folder
-      self.init(from: folder, defaultArtwork: defaultArtwork, playbackState: playbackState)
+      self.init(from: folder, themeAccent: themeAccent, playbackState: playbackState)
     }
   }
 
-  init(from book: Book, defaultArtwork: Data? = nil, playbackState: PlaybackState = .stopped) {
+  init(from book: Book, themeAccent: UIColor, playbackState: PlaybackState = .stopped) {
     self.id = UUID()
     self.title = book.title
     self.details = book.author
     self.duration = TimeParser.formatTotalDuration(book.duration)
     self.progress = book.isFinished ? 1.0 : book.progressPercentage
-    self.artworkData = book.artworkData as Data? ?? defaultArtwork
+    self.themeAccent = themeAccent
     self.relativePath = book.relativePath
     self.type = .book
     self.playbackState = playbackState
   }
 
-  init(from folder: Folder, defaultArtwork: Data? = nil, playbackState: PlaybackState = .stopped) {
+  init(from folder: Folder, themeAccent: UIColor, playbackState: PlaybackState = .stopped) {
     self.id = UUID()
     self.title = folder.title
     self.details = folder.info()
     self.duration = TimeParser.formatTotalDuration(folder.duration)
     self.progress = folder.isFinished ? 1.0 : folder.progressPercentage
-    self.artworkData = folder.artworkData as Data? ?? defaultArtwork
+    self.themeAccent = themeAccent
     self.relativePath = folder.relativePath
     self.type = .folder
     self.playbackState = playbackState

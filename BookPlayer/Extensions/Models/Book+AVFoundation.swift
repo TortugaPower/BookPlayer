@@ -40,21 +40,6 @@ extension Book {
     public override func awakeFromFetch() {
         super.awakeFromFetch()
 
-        // cleanup bug BKPLY-37
-        if !self.usesDefaultArtwork,
-           self.artworkData == nil,
-           let fileURL = self.fileURL {
-            self.usesDefaultArtwork = true
-            let asset = AVAsset(url: fileURL)
-
-            if fileURL.pathExtension == "mp3" {
-                self.loadMp3Data(from: asset)
-            } else if let data = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtwork, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? NSData {
-                self.artworkData = data
-                self.usesDefaultArtwork = false
-            }
-        }
-
         self.updateCurrentChapter()
     }
 
@@ -70,9 +55,6 @@ extension Book {
                 if self.author == "voiceover_unknown_author".localized {
                     self.author = value as? String
                 }
-            case "artwork" where value is NSData:
-                self.artworkData = value as? NSData
-                self.usesDefaultArtwork = false
             default:
                 continue
             }
@@ -96,13 +78,9 @@ extension Book {
         self.duration = CMTimeGetSeconds(asset.duration)
         self.originalFileName = bookUrl.lastPathComponent
         self.isFinished = false
-        self.usesDefaultArtwork = true
 
         if fileURL.pathExtension == "mp3" {
             self.loadMp3Data(from: asset)
-        } else if let data = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtwork, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? NSData {
-            self.artworkData = data
-            self.usesDefaultArtwork = false
         }
 
         self.setChapters(from: asset, context: context)

@@ -140,7 +140,7 @@ public final class DataMigrationManager {
     self.storeModel = destinationModel
 
     // Only continue if there's extra work to be done
-    guard currentVersion == .v3 || currentVersion == .v5 else {
+    guard currentVersion == .v3 || currentVersion == .v6 else {
       completionHandler(nil)
       return
     }
@@ -162,7 +162,7 @@ public final class DataMigrationManager {
         self.migrateBooks(dataManager: dataManager)
       }
 
-      if currentVersion == .v5 {
+      if currentVersion == .v6 {
         self.migrateLibraryOrder(dataManager: dataManager)
       }
 

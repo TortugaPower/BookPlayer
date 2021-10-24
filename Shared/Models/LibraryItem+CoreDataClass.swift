@@ -19,8 +19,6 @@ public class LibraryItem: NSManagedObject, Codable {
     return DataManager.getProcessedFolderURL().appendingPathComponent(self.relativePath)
   }
 
-  var cachedArtwork: UIImage?
-
   public func getLibrary() -> Library? {
     if let parentFolder = self.folder {
       return parentFolder.getLibrary()
@@ -41,24 +39,6 @@ public class LibraryItem: NSManagedObject, Codable {
     // Percentage represented from 0 to 1
     public var progressPercentage: Double {
         return 1.0
-    }
-
-    public func getArtwork(for color: UIColor?) -> UIImage? {
-        if let cachedArtwork = self.cachedArtwork {
-            return cachedArtwork
-        }
-
-        guard let artworkData = self.artworkData,
-              let image = UIImage(data: artworkData as Data) else {
-            #if os(iOS)
-            self.cachedArtwork = DefaultArtworkFactory.generateArtwork(from: color)
-            #endif
-
-            return self.cachedArtwork
-        }
-
-        self.cachedArtwork = image
-        return image
     }
 
     public func info() -> String { return "" }

@@ -121,7 +121,7 @@ public class DataManager {
 
     guard let dict = try context.fetch(fetchRequest).first as? [String: NSManagedObjectID],
           let themeId = dict["currentTheme"] else {
-      return nil
+      return self.getTheme(with: "Default / Dark")
     }
 
     return try? context.existingObject(with: themeId) as? Theme
@@ -139,6 +139,14 @@ public class DataManager {
     let context = self.coreDataStack.managedContext
 
     return try? context.fetch(fetch)
+  }
+
+  public func getTheme(with title: String) -> Theme? {
+    let fetchRequest: NSFetchRequest<Theme> = Theme.fetchRequest()
+    fetchRequest.predicate = NSPredicate(format: "title == %@", title)
+    fetchRequest.fetchLimit = 1
+
+    return try? self.getContext().fetch(fetchRequest).first
   }
 
   /**

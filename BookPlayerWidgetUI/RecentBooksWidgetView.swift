@@ -36,12 +36,13 @@ struct RecentBooksProvider: IntentTimelineProvider {
             }
 
       let theme = SimpleTheme(with: currentTheme)
+      let mappedItems = items.map { SimpleLibraryItem(from: $0, themeAccent: theme.linkColor) }
 
       let autoplay = configuration.autoplay?.boolValue ?? true
       let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
 
       let entry = LibraryEntry(date: Date(),
-                               items: items,
+                               items: mappedItems,
                                theme: theme,
                                timerSeconds: seconds,
                                autoplay: autoplay)
@@ -67,12 +68,13 @@ struct RecentBooksProvider: IntentTimelineProvider {
             }
 
       let theme = SimpleTheme(with: currentTheme)
+      let mappedItems = items.map { SimpleLibraryItem(from: $0, themeAccent: theme.linkColor) }
 
       let autoplay = configuration.autoplay?.boolValue ?? true
       let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
 
       let entry = LibraryEntry(date: Date(),
-                               items: items,
+                               items: mappedItems,
                                theme: theme,
                                timerSeconds: seconds,
                                autoplay: autoplay)
@@ -83,50 +85,36 @@ struct RecentBooksProvider: IntentTimelineProvider {
 }
 
 struct BookView: View {
-    var item: BookPlayerKit.LibraryItem
-    var titleColor: Color
-    var theme: SimpleTheme?
-    var entry: RecentBooksProvider.Entry
+  var item: SimpleLibraryItem
+  var titleColor: Color
+  var theme: SimpleTheme?
+  var entry: RecentBooksProvider.Entry
 
-    var body: some View {
-        let title = item.title ?? "---"
+  var body: some View {
+    let title = item.title
+    let identifier = item.relativePath
 
-        var identifier: String?
+    let url = WidgetUtils.getWidgetActionURL(with: identifier, autoplay: entry.autoplay, timerSeconds: entry.timerSeconds)
+    let cachedImageURL = ArtworkService.getCachedImageURL(for: identifier)
 
-        if let book = item as? Book {
-            identifier = book.relativePath!
-        } else if let folder = item as? Folder,
-            let book = folder.getBookToPlay() ?? folder.getBook(at: 0) {
-            identifier = book.relativePath!
-        }
+    return Link(destination: url) {
+      VStack(spacing: 5) {
+        Image(uiImage: UIImage(contentsOfFile: cachedImageURL.path)
+              ?? ArtworkService.generateDefaultArtwork(from: entry.theme?.linkColor)!)
+          .resizable()
+          .frame(minWidth: 60, maxWidth: 60, minHeight: 60, maxHeight: 60)
+          .aspectRatio(1.0, contentMode: .fit)
+          .cornerRadius(8.0)
 
-        let url = WidgetUtils.getWidgetActionURL(with: identifier, autoplay: entry.autoplay, timerSeconds: entry.timerSeconds)
-
-        let artwork = item.getArtwork(for: theme?.linkColor)
-
-        return Link(destination: url) {
-            VStack(spacing: 5) {
-                if let artwork = artwork {
-                    Image(uiImage: artwork)
-                        .resizable()
-                        .frame(minWidth: 60, maxWidth: 60, minHeight: 60, maxHeight: 60)
-                        .aspectRatio(1.0, contentMode: .fit)
-                        .cornerRadius(8.0)
-                } else {
-                    Rectangle()
-                        .fill(Color.secondary)
-                        .aspectRatio(1.0, contentMode: .fit)
-                        .cornerRadius(8.0)
-                }
-                Text(title)
-                    .fontWeight(.semibold)
-                    .foregroundColor(titleColor)
-                    .font(.caption)
-                    .lineLimit(2)
-                    .frame(width: nil, height: 34, alignment: .leading)
-            }
-        }
+        Text(title)
+          .fontWeight(.semibold)
+          .foregroundColor(titleColor)
+          .font(.caption)
+          .lineLimit(2)
+          .frame(width: nil, height: 34, alignment: .leading)
+      }
     }
+  }
 }
 
 struct RecentBooksWidgetView: View {
@@ -157,7 +145,7 @@ struct RecentBooksWidgetView: View {
             .padding([.trailing, .bottom], 5)
             .padding([.top], 8)
             HStack {
-                ForEach(items, id: \.identifier) { item in
+                ForEach(items, id: \.relativePath) { item in
                     BookView(item: item, titleColor: widgetColors.primaryColor, theme: entry.theme, entry: entry)
                 }
             }

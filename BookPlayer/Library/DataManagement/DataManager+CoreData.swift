@@ -275,14 +275,3 @@ extension DataManager {
     self.saveContext()
   }
 }
-
-// MARK: Themes
-extension DataManager {
-  public func getTheme(with title: String) -> Theme? {
-    let fetchRequest: NSFetchRequest<Theme> = Theme.fetchRequest()
-    fetchRequest.predicate = NSPredicate(format: "title == %@", title)
-    fetchRequest.fetchLimit = 1
-
-    return try? self.getContext().fetch(fetchRequest).first
-  }
-}

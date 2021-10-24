@@ -14,7 +14,7 @@ struct PlayAndSleepProvider: IntentTimelineProvider {
     typealias Entry = SimpleEntry
 
     func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), title: nil, relativePath: nil, artwork: nil, theme: nil, timerSeconds: 300, autoplay: true)
+        SimpleEntry(date: Date(), title: nil, relativePath: nil, theme: nil, timerSeconds: 300, autoplay: true)
     }
 
     func getSnapshot(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (Entry) -> Void) {
@@ -42,7 +42,6 @@ struct PlayAndSleepProvider: IntentTimelineProvider {
         let entry = SimpleEntry(date: Date(),
                                 title: title,
                                 relativePath: lastPlayedBook.relativePath,
-                                artwork: lastPlayedBook.getArtwork(for: currentTheme.linkColor),
                                 theme: theme,
                                 timerSeconds: seconds,
                                 autoplay: autoplay)
@@ -76,7 +75,6 @@ struct PlayAndSleepProvider: IntentTimelineProvider {
         let entry = SimpleEntry(date: Date(),
                                 title: title,
                                 relativePath: lastPlayedBook.relativePath,
-                                artwork: lastPlayedBook.getArtwork(for: theme.linkColor),
                                 theme: theme,
                                 timerSeconds: seconds,
                                 autoplay: autoplay)
@@ -101,12 +99,13 @@ struct LastPlayedWidgetView: View {
 
         return VStack {
             HStack {
-                if let artwork = entry.artwork {
-                    Image(uiImage: artwork)
-                        .resizable()
-                        .frame(width: 90, height: 90)
-                        .aspectRatio(1.0, contentMode: .fit)
-                        .cornerRadius(8.0)
+                if let relativePath = entry.relativePath {
+                  Image(uiImage: UIImage(contentsOfFile: ArtworkService.getCachedImageURL(for: relativePath).path)
+                        ?? ArtworkService.generateDefaultArtwork(from: entry.theme?.linkColor)!)
+                    .resizable()
+                    .frame(width: 90, height: 90)
+                    .aspectRatio(1.0, contentMode: .fit)
+                    .cornerRadius(8.0)
                 } else {
                     Rectangle()
                         .fill(Color.secondary)
@@ -149,14 +148,14 @@ struct LastPlayedWidgetView: View {
 struct LastPlayedWidgetView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-          LastPlayedWidgetView(entry: SimpleEntry(date: Date(), title: "Test Book Title", relativePath: nil, artwork: UIImage(named: "defaultArtwork"), theme: nil, timerSeconds: 300, autoplay: true))
+          LastPlayedWidgetView(entry: SimpleEntry(date: Date(), title: "Test Book Title", relativePath: nil, theme: nil, timerSeconds: 300, autoplay: true))
                 .previewContext(WidgetPreviewContext(family: .systemSmall))
-          LastPlayedWidgetView(entry: SimpleEntry(date: Date(), title: nil, relativePath: nil, artwork: nil, theme: nil, timerSeconds: 300, autoplay: true))
+          LastPlayedWidgetView(entry: SimpleEntry(date: Date(), title: nil, relativePath: nil, theme: nil, timerSeconds: 300, autoplay: true))
                 .previewContext(WidgetPreviewContext(family: .systemSmall))
-          LastPlayedWidgetView(entry: SimpleEntry(date: Date(), title: "Test Book Title", relativePath: nil, artwork: UIImage(named: "defaultArtwork"), theme: nil, timerSeconds: 300, autoplay: true))
+          LastPlayedWidgetView(entry: SimpleEntry(date: Date(), title: "Test Book Title", relativePath: nil, theme: nil, timerSeconds: 300, autoplay: true))
                 .previewContext(WidgetPreviewContext(family: .systemSmall))
                 .environment(\.colorScheme, .dark)
-          LastPlayedWidgetView(entry: SimpleEntry(date: Date(), title: nil, relativePath: nil, artwork: nil, theme: nil, timerSeconds: 300, autoplay: true))
+          LastPlayedWidgetView(entry: SimpleEntry(date: Date(), title: nil, relativePath: nil, theme: nil, timerSeconds: 300, autoplay: true))
                 .previewContext(WidgetPreviewContext(family: .systemSmall))
                 .environment(\.colorScheme, .dark)
         }

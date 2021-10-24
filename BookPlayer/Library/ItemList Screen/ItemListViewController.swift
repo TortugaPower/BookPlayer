@@ -28,6 +28,10 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
   var viewModel: FolderListViewModel!
   var dataSource: ItemListTableDataSource!
 
+  var defaultArtwork: UIImage? {
+    return UIImage(data: self.viewModel.defaultArtwork!)
+  }
+
   private var disposeBag = Set<AnyCancellable>()
 
   override func viewDidLoad() {
@@ -106,12 +110,8 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
       cell.duration = item.duration
       cell.type = item.type
       cell.playbackState = item.playbackState
-
-      if let data = item.artworkData {
-        cell.artwork = UIImage(data: data)
-      } else {
-        cell.artwork = nil
-      }
+      cell.artworkView.kf.setImage(with: ArtworkService.getArtworkProvider(for: item.relativePath),
+                                   placeholder: self.defaultArtwork)
 
       return cell
     }

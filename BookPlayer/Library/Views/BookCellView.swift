@@ -11,7 +11,7 @@ import Themeable
 import UIKit
 
 class BookCellView: UITableViewCell {
-    @IBOutlet private weak var artworkView: BPArtworkView!
+    @IBOutlet public weak var artworkView: BPArtworkView!
     @IBOutlet private weak var titleLabel: UILabel!
     @IBOutlet private weak var subtitleLabel: UILabel!
     @IBOutlet private weak var progressView: ItemProgress!
@@ -23,15 +23,6 @@ class BookCellView: UITableViewCell {
 
     var theme: SimpleTheme!
     var onArtworkTap: (() -> Void)?
-
-    var artwork: UIImage? {
-        get {
-            return self.artworkView.image
-        }
-        set {
-            self.artworkView.image = newValue
-        }
-    }
 
     var title: String? {
         get {

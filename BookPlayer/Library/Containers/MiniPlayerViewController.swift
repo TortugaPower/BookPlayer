@@ -50,7 +50,8 @@ class MiniPlayerViewController: UIViewController, UIGestureRecognizerDelegate, S
   func setupPlayerView(with currentBook: Book) {
     self.view.setNeedsLayout()
 
-    self.artwork.image = currentBook.getArtwork(for: themeProvider.currentTheme.linkColor)
+    self.artwork.kf.setImage(with: ArtworkService.getArtworkProvider(for: currentBook.relativePath),
+                             placeholder: ArtworkService.generateDefaultArtwork(from: themeProvider.currentTheme.linkColor))
     self.authorLabel.text = currentBook.author
     self.titleLabel.text = currentBook.title
 

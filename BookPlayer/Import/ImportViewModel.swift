@@ -44,7 +44,7 @@ final class ImportViewModel: ObservableObject {
 
   private func subscribeNewFolders() {
     for file in self.observedFiles {
-      guard file.originalUrl.isDirectory else { continue }
+      guard file.originalUrl.isDirectoryFolder else { continue }
 
       let enumerator = FileManager.default.enumerator(at: file.originalUrl,
                                                       includingPropertiesForKeys: [.isDirectoryKey],
@@ -54,7 +54,7 @@ final class ImportViewModel: ObservableObject {
                                                       })!
 
       for case let fileURL as URL in enumerator {
-        if !fileURL.isDirectory {
+        if !fileURL.isDirectoryFolder {
           file.subItems += 1
         } else if !self.watchers.contains(where: { $0.watchedUrl == fileURL }) {
           let watcher = DirectoryWatcher(watchedUrl: fileURL)
@@ -78,7 +78,7 @@ final class ImportViewModel: ObservableObject {
 
   public func getTotalItems() -> Int {
     return self.files.reduce(0) { result, file in
-      return file.originalUrl.isDirectory
+      return file.originalUrl.isDirectoryFolder
         ? result + file.subItems
         : result + 1
     }
