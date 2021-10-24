@@ -7,7 +7,6 @@
 //
 
 import BookPlayerKit
-import KingfisherSwiftUI
 import SwiftUI
 import WidgetKit
 
@@ -100,14 +99,8 @@ struct BookView: View {
 
     return Link(destination: url) {
       VStack(spacing: 5) {
-        KFImage(cachedImageURL)
-          .placeholder {
-            Image(uiImage: ArtworkService.generateDefaultArtwork(from: theme?.linkColor)!)
-              .resizable()
-              .frame(minWidth: 60, maxWidth: 60, minHeight: 60, maxHeight: 60)
-              .aspectRatio(1.0, contentMode: .fit)
-              .cornerRadius(8.0)
-          }
+        Image(uiImage: UIImage(contentsOfFile: cachedImageURL.path)
+              ?? ArtworkService.generateDefaultArtwork(from: entry.theme?.linkColor)!)
           .resizable()
           .frame(minWidth: 60, maxWidth: 60, minHeight: 60, maxHeight: 60)
           .aspectRatio(1.0, contentMode: .fit)

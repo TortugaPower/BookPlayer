@@ -7,7 +7,6 @@
 //
 
 import BookPlayerKit
-import KingfisherSwiftUI
 import SwiftUI
 import WidgetKit
 
@@ -101,14 +100,8 @@ struct LastPlayedWidgetView: View {
         return VStack {
             HStack {
                 if let relativePath = entry.relativePath {
-                  KFImage(ArtworkService.getCachedImageURL(for: relativePath))
-                    .placeholder {
-                      Image(uiImage: ArtworkService.generateDefaultArtwork(from: entry.theme?.linkColor)!)
-                        .resizable()
-                        .frame(width: 90, height: 90)
-                        .aspectRatio(1.0, contentMode: .fit)
-                        .cornerRadius(8.0)
-                    }
+                  Image(uiImage: UIImage(contentsOfFile: ArtworkService.getCachedImageURL(for: relativePath).path)
+                        ?? ArtworkService.generateDefaultArtwork(from: entry.theme?.linkColor)!)
                     .resizable()
                     .frame(width: 90, height: 90)
                     .aspectRatio(1.0, contentMode: .fit)

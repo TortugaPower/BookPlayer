@@ -65,8 +65,10 @@
       allowLocationSimulation = "YES"
       launchAutomaticallySubstyle = "32"
       notificationPayloadFile = "BookPlayerWatch Extension/PushNotificationPayload.apns">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <RemoteRunnable
+         runnableDebuggingMode = "2"
+         BundleIdentifier = "com.apple.Carousel"
+         RemotePath = "/BookPlayer">
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4140EA2E227288ED0009F794"
@@ -74,7 +76,7 @@
             BlueprintName = "BookPlayerWatch"
             ReferencedContainer = "container:BookPlayer.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </RemoteRunnable>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -83,8 +85,10 @@
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES"
       launchAutomaticallySubstyle = "32">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <RemoteRunnable
+         runnableDebuggingMode = "2"
+         BundleIdentifier = "com.apple.Carousel"
+         RemotePath = "/BookPlayer">
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4140EA2E227288ED0009F794"
@@ -92,7 +96,16 @@
             BlueprintName = "BookPlayerWatch"
             ReferencedContainer = "container:BookPlayer.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </RemoteRunnable>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "4140EA2E227288ED0009F794"
+            BuildableName = "BookPlayerWatch.app"
+            BlueprintName = "BookPlayerWatch"
+            ReferencedContainer = "container:BookPlayer.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
