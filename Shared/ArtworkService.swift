@@ -43,6 +43,10 @@ public class ArtworkService {
     return URL(fileURLWithPath: path)
   }
 
+  public class func removeCache(for relativePath: String) {
+    self.cache.removeImage(forKey: relativePath)
+  }
+
   public class func getArtworkProvider(for relativePath: String) -> AVAudioAssetImageDataProvider {
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
 

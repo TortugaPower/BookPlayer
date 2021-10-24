@@ -216,6 +216,8 @@ class FolderListViewModel {
   }
 
   func handleMoveIntoFolder(_ folder: SimpleLibraryItem, items: [SimpleLibraryItem]) {
+    ArtworkService.removeCache(for: folder.relativePath)
+
     guard let storedFolder = self.dataManager.getItem(with: folder.relativePath) as? Folder else { return }
 
     let fetchedItems = items.compactMap({ self.dataManager.getItem(with: $0.relativePath )})
@@ -288,6 +290,7 @@ class FolderListViewModel {
     guard let storedItem = self.dataManager.getItem(with: item.relativePath) else { return }
 
     if let folder = self.folder {
+      ArtworkService.removeCache(for: folder.relativePath)
       folder.removeFromItems(at: sourceIndexPath.row)
       folder.insertIntoItems(storedItem, at: destinationIndexPath.row)
       folder.rebuildOrderRank()
