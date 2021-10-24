@@ -302,6 +302,8 @@ class FolderListViewModel {
 
     self.dataManager.saveContext()
     MPPlayableContentManager.shared().reloadData()
+
+    self.coordinator.reloadItemsWithPadding()
   }
 
   func updateDefaultArtwork(for theme: SimpleTheme) {
