@@ -53,6 +53,7 @@ public class ArtworkService {
     return AVAudioAssetImageDataProvider(fileURL: fileURL, cacheKey: relativePath)
   }
 
+#if os(iOS)
   public class func generateDefaultArtwork(from color: UIColor?, with size: CGSize = CGSize(width: 50, height: 50)) -> UIImage? {
     guard Thread.isMainThread else { return nil }
 
@@ -85,6 +86,7 @@ public class ArtworkService {
 
     return self.image(with: stackView)
   }
+#endif
 
   public class func getLCHColor(from color: UIColor?) -> LCHColor {
     let baseColorLCH: LCHColor
@@ -120,6 +122,7 @@ public class ArtworkService {
     return [rightColor.toRGB().color().cgColor, rightBlankColor.toRGB().color().cgColor]
   }
 
+#if os(iOS)
   public class func image(with view: UIView) -> UIImage? {
     UIGraphicsBeginImageContextWithOptions(view.bounds.size, view.isOpaque, 0.0)
     defer { UIGraphicsEndImageContext() }
@@ -130,4 +133,5 @@ public class ArtworkService {
     }
     return nil
   }
+#endif
 }

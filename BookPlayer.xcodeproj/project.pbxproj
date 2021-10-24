@@ -307,6 +307,8 @@
 		62CADBA82725BCE800A4A98F /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 62CADBA72725BCE800A4A98F /* Kingfisher */; };
 		62CADBAA2725BCF000A4A98F /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 62CADBA92725BCF000A4A98F /* Kingfisher */; };
 		62CADBAB2725C23A00A4A98F /* ArtworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415460F525E57B4F0085F8D9 /* ArtworkService.swift */; };
+		62CADBAE2725FE2900A4A98F /* AVAudioAssetImageDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 624AB20A2724808600F6A486 /* AVAudioAssetImageDataProvider.swift */; };
+		62CADBAF2725FE2C00A4A98F /* ArtworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415460F525E57B4F0085F8D9 /* ArtworkService.swift */; };
 		62F2F25F25E18C7500E1D6A0 /* ImportableItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62F2F25E25E18C7500E1D6A0 /* ImportableItem.swift */; };
 		6906A55021720FDF00A9E0B2 /* BookSortServiceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A54F21720FDF00A9E0B2 /* BookSortServiceTest.swift */; };
 		6906A553217211C600A9E0B2 /* StubFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A552217211C600A9E0B2 /* StubFactory.swift */; };
@@ -2059,6 +2061,7 @@
 				4138CE1726E584B60014F11E /* BookmarkType.swift in Sources */,
 				5126F123258E9F18009965DC /* URL+BookPlayer.swift in Sources */,
 				419BD5992443FD04001E50A0 /* Intents.intentdefinition in Sources */,
+				62CADBAF2725FE2C00A4A98F /* ArtworkService.swift in Sources */,
 				4140EA80227289D50009F794 /* Folder+CoreDataClass.swift in Sources */,
 				4140EA78227289BC0009F794 /* PlaybackRecord+CoreDataClass.swift in Sources */,
 				4140EA79227289BF0009F794 /* PlaybackRecord+CoreDataProperties.swift in Sources */,
@@ -2068,6 +2071,7 @@
 				4140EA702272899D0009F794 /* CommandParser.swift in Sources */,
 				4109F499266915E7007A6FFF /* FolderMigrationUtils.swift in Sources */,
 				4140EA76227289B50009F794 /* Chapter+CoreDataClass.swift in Sources */,
+				62CADBAE2725FE2900A4A98F /* AVAudioAssetImageDataProvider.swift in Sources */,
 				412AB71627017ABE00969618 /* DBVersion.swift in Sources */,
 				410C4693227358CD0040114D /* WatchConnectivityService.swift in Sources */,
 				4138CE1426E554320014F11E /* Bookmark+CoreDataProperties.swift in Sources */,
