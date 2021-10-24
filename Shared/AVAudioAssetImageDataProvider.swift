@@ -65,10 +65,6 @@ public struct AVAudioAssetImageDataProvider: ImageDataProvider {
         imageData = data
       }
 
-      guard let imageData = imageData else {
-        return callback(nil)
-      }
-
       callback(imageData)
     }
   }
