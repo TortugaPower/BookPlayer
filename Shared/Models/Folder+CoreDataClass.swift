@@ -25,7 +25,7 @@ public class Folder: LibraryItem {
 
         guard let book = self.getFirstBookWithArtwork() else {
             #if os(iOS)
-            self.cachedArtwork = DefaultArtworkFactory.generateArtwork(from: color)
+            self.cachedArtwork = ArtworkFactory.generateDefaultArtwork(from: color)
             #endif
 
             return self.cachedArtwork

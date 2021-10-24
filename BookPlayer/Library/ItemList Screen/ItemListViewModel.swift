@@ -20,7 +20,8 @@ class FolderListViewModel {
   let dataManager: DataManager
   var offset = 0
 
-  private var defaultArtwork: Data?
+  public var defaultArtwork: Data?
+  public var themeAccent: UIColor
   var items = CurrentValueSubject<[SimpleLibraryItem], Never>([])
   private var bookSubscription: AnyCancellable?
   private var bookProgressSubscription: AnyCancellable?
@@ -36,7 +37,8 @@ class FolderListViewModel {
     self.player = player
     self.dataManager = dataManager
 
-    self.defaultArtwork = DefaultArtworkFactory.generateArtwork(from: theme.linkColor)?.pngData()
+    self.themeAccent = theme.linkColor
+    self.defaultArtwork = ArtworkFactory.generateDefaultArtwork(from: theme.linkColor)?.pngData()
     self.bindBookObserver()
   }
 
@@ -113,7 +115,7 @@ class FolderListViewModel {
 
     let displayItems = fetchedItems.map({ SimpleLibraryItem(
                                           from: $0,
-                                          defaultArtwork: self.defaultArtwork,
+                                          themeAccent: self.themeAccent,
                                           playbackState: self.getPlaybackState(for: $0)) })
     self.offset = displayItems.count
     self.items.value = displayItems
@@ -129,7 +131,7 @@ class FolderListViewModel {
 
     let displayItems = fetchedItems.map({ SimpleLibraryItem(
                                           from: $0,
-                                          defaultArtwork: self.defaultArtwork,
+                                          themeAccent: self.themeAccent,
                                           playbackState: self.getPlaybackState(for: $0)) })
     self.offset += displayItems.count
 
@@ -263,7 +265,7 @@ class FolderListViewModel {
       for folder in existingFolders {
         if processedItems.contains(where: { $0.relativePath == folder.relativePath }) { continue }
 
-        availableFolders.append(SimpleLibraryItem(from: folder, defaultArtwork: self.defaultArtwork))
+        availableFolders.append(SimpleLibraryItem(from: folder, themeAccent: self.themeAccent))
       }
     }
 
@@ -300,7 +302,7 @@ class FolderListViewModel {
   }
 
   func updateDefaultArtwork(for theme: SimpleTheme) {
-    self.defaultArtwork = DefaultArtworkFactory.generateArtwork(from: theme.linkColor)?.pngData()
+    self.defaultArtwork = ArtworkFactory.generateDefaultArtwork(from: theme.linkColor)?.pngData()
   }
 
   func getMiniPlayerOffset() -> CGFloat {
@@ -347,7 +349,7 @@ class FolderListViewModel {
       for folder in existingFolders {
         if selectedItems.contains(where: { $0.relativePath == folder.relativePath }) { continue }
 
-        availableFolders.append(SimpleLibraryItem(from: folder, defaultArtwork: self.defaultArtwork))
+        availableFolders.append(SimpleLibraryItem(from: folder, themeAccent: self.themeAccent))
       }
     }
 
@@ -365,7 +367,7 @@ class FolderListViewModel {
       for folder in existingFolders {
         if selectedItems.contains(where: { $0.relativePath == folder.relativePath }) { continue }
 
-        availableFolders.append(SimpleLibraryItem(from: folder, defaultArtwork: self.defaultArtwork))
+        availableFolders.append(SimpleLibraryItem(from: folder, themeAccent: self.themeAccent))
       }
     }
 

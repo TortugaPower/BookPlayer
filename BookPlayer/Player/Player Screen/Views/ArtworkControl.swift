@@ -144,8 +144,8 @@ extension ArtworkControl: Themeable {
     self.authorLabel.textColor = theme.linkColor.mix(with: .white)
     self.backgroundGradientColorView.backgroundColor = theme.linkColor
 
-    self.leftGradientLayer.colors = DefaultArtworkFactory.getLeftGradiants(for: theme.linkColor)
-    self.rightGradientLayer.colors = DefaultArtworkFactory.getRightGradiants(for: theme.linkColor)
+    self.leftGradientLayer.colors = ArtworkFactory.getLeftGradiants(for: theme.linkColor)
+    self.rightGradientLayer.colors = ArtworkFactory.getRightGradiants(for: theme.linkColor)
     self.leftGradientLayer.removeFromSuperlayer()
     self.rightGradientLayer.removeFromSuperlayer()
 
