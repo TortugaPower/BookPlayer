@@ -110,7 +110,7 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
       cell.duration = item.duration
       cell.type = item.type
       cell.playbackState = item.playbackState
-      cell.artworkView.kf.setImage(with: ArtworkFactory.getArtworkProvider(for: item.relativePath),
+      cell.artworkView.kf.setImage(with: ArtworkService.getArtworkProvider(for: item.relativePath),
                                    placeholder: self.defaultArtwork)
 
       return cell

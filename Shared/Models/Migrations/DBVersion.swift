@@ -10,7 +10,7 @@ import CoreData
 import Foundation
 
 enum DBVersion: CaseIterable {
-  case v1, v2, v3, v4, v5, v6
+  case v1, v2, v3, v4, v5, v6, v7
 
   func model() -> NSManagedObjectModel {
     let modelURLs = Bundle.main
@@ -30,6 +30,8 @@ enum DBVersion: CaseIterable {
       modelName = "Audiobook Player 5"
     case .v6:
       modelName = "Audiobook Player 6"
+    case .v7:
+      modelName = "Audiobook Player 7"
     }
 
     let model = modelURLs

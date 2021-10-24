@@ -14,7 +14,6 @@ struct SimpleEntry: TimelineEntry {
     let date: Date
     let title: String?
     let relativePath: String?
-    let artwork: UIImage?
     let theme: SimpleTheme?
     let timerSeconds: Double
     let autoplay: Bool
@@ -22,7 +21,7 @@ struct SimpleEntry: TimelineEntry {
 
 struct LibraryEntry: TimelineEntry {
     let date: Date
-    let items: [BookPlayerKit.LibraryItem]
+    let items: [SimpleLibraryItem]
     let theme: SimpleTheme?
     let timerSeconds: Double
     let autoplay: Bool
@@ -40,7 +39,7 @@ struct TimeListenedEntry: TimelineEntry {
 struct BookPlayerWidgetUI_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-          LastPlayedWidgetView(entry: SimpleEntry(date: Date(), title: "Test Book Title", relativePath: nil, artwork: UIImage(named: "defaultArtwork"), theme: nil, timerSeconds: 300, autoplay: true))
+          LastPlayedWidgetView(entry: SimpleEntry(date: Date(), title: "Test Book Title", relativePath: nil, theme: nil, timerSeconds: 300, autoplay: true))
                 .previewContext(WidgetPreviewContext(family: .systemSmall))
         }
     }

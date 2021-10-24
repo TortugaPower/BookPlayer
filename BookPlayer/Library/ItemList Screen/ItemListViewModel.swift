@@ -38,7 +38,7 @@ class FolderListViewModel {
     self.dataManager = dataManager
 
     self.themeAccent = theme.linkColor
-    self.defaultArtwork = ArtworkFactory.generateDefaultArtwork(from: theme.linkColor)?.pngData()
+    self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: theme.linkColor)?.pngData()
     self.bindBookObserver()
   }
 
@@ -302,7 +302,7 @@ class FolderListViewModel {
   }
 
   func updateDefaultArtwork(for theme: SimpleTheme) {
-    self.defaultArtwork = ArtworkFactory.generateDefaultArtwork(from: theme.linkColor)?.pngData()
+    self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: theme.linkColor)?.pngData()
   }
 
   func getMiniPlayerOffset() -> CGFloat {

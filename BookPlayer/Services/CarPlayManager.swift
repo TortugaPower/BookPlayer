@@ -7,6 +7,7 @@
 //
 
 import BookPlayerKit
+import Kingfisher
 import MediaPlayer
 import UIKit
 
@@ -125,11 +126,21 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
     item.title = libraryItem.title
 
     item.playbackProgress = Float(libraryItem.progressPercentage)
-    if let artwork = libraryItem.getArtwork(for: self.library.currentTheme.linkColor) {
-      item.artwork = MPMediaItemArtwork(boundsSize: artwork.size,
+
+    ArtworkService.retrieveImageFromCache(for: libraryItem.relativePath) { result in
+      let image: UIImage
+
+      switch result {
+      case .success(let value):
+        image = value.image
+      case .failure(_):
+        image = ArtworkService.generateDefaultArtwork(from: self.library.currentTheme.linkColor)!
+      }
+
+      item.artwork = MPMediaItemArtwork(boundsSize: image.size,
                                         requestHandler: { (_) -> UIImage in
-                                          artwork
-                                        })
+        image
+      })
     }
 
     if let book = libraryItem as? Book {

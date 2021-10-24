@@ -1,5 +1,5 @@
 //
-//  ArtworkFactory.swift
+//  ArtworkService.swift
 //  BookPlayer
 //
 //  Created by Gianni Carlo on 23/2/21.
@@ -10,7 +10,7 @@ import Foundation
 import Kingfisher
 import UIKit
 
-public class ArtworkFactory {
+public class ArtworkService {
   static private var cache: ImageCache {
     let url = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!
 
@@ -18,6 +18,10 @@ public class ArtworkFactory {
     cache.diskStorage.config.expiration = .never
 
     return cache
+  }
+
+  static private var manager: KingfisherManager {
+    return KingfisherManager(downloader: .default, cache: ArtworkService.cache)
   }
 
   static let baseDefaultColor = UIColor(hex: "#5FBFD5").rgbColor()!
@@ -28,6 +32,16 @@ public class ArtworkFactory {
   static let rightLuminanceGradientOffset: CGFloat = -30.874
   static let rightChromaGradientOffset: CGFloat = 19.337
   static let rightHueGradientOffset: CGFloat = 38.85
+
+  public class func retrieveImageFromCache(for relativePath: String, completionHandler: @escaping (Result<RetrieveImageResult, KingfisherError>) -> Void) {
+    _ = self.manager.retrieveImage(with: .provider(self.getArtworkProvider(for: relativePath)), completionHandler: completionHandler)
+  }
+
+  public class func getCachedImageURL(for relativePath: String) -> URL {
+    let path = self.cache.cachePath(forKey: relativePath)
+
+    return URL(fileURLWithPath: path)
+  }
 
   public class func getArtworkProvider(for relativePath: String) -> AVAudioAssetImageDataProvider {
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)

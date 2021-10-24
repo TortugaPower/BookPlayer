@@ -25,16 +25,6 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
   private var leftGradientLayer: CAGradientLayer!
   private var rightGradientLayer: CAGradientLayer!
 
-  var artwork: UIImage? {
-    get {
-      return self.artworkImage.image
-    }
-
-    set {
-      self.artworkImage.image = newValue
-    }
-  }
-
   var shadowOpacity: CGFloat {
     get {
       return CGFloat(self.artworkImage.layer.shadowOpacity)
@@ -129,10 +119,7 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
   public func setupInfo(with book: Book) {
     self.titleLabel.text = book.title
     self.authorLabel.text = book.author
-    self.artwork = book.getArtwork(for: themeProvider.currentTheme.linkColor)
-    self.backgroundGradientColorView.isHidden = book.hasArtwork
-    self.infoContainerStackView.isHidden = book.hasArtwork
-    self.artworkImage.isHidden = !book.hasArtwork
+    self.artworkImage.kf.setImage(with: ArtworkService.getArtworkProvider(for: book.relativePath))
     self.artworkOverlay.isAccessibilityElement = true
     self.artworkOverlay.accessibilityLabel = VoiceOverService().playerMetaText(book: book)
   }
@@ -144,8 +131,8 @@ extension ArtworkControl: Themeable {
     self.authorLabel.textColor = theme.linkColor.mix(with: .white)
     self.backgroundGradientColorView.backgroundColor = theme.linkColor
 
-    self.leftGradientLayer.colors = ArtworkFactory.getLeftGradiants(for: theme.linkColor)
-    self.rightGradientLayer.colors = ArtworkFactory.getRightGradiants(for: theme.linkColor)
+    self.leftGradientLayer.colors = ArtworkService.getLeftGradiants(for: theme.linkColor)
+    self.rightGradientLayer.colors = ArtworkService.getRightGradiants(for: theme.linkColor)
     self.leftGradientLayer.removeFromSuperlayer()
     self.rightGradientLayer.removeFromSuperlayer()
 
