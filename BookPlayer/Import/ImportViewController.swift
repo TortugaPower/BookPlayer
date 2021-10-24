@@ -67,7 +67,7 @@ extension ImportViewController: UITableViewDataSource {
     let cell = tableView.dequeueReusableCell(withIdentifier: "ImportTableViewCell", for: indexPath) as! ImportTableViewCell
     let fileItem = self.files[indexPath.row]
 
-    let imageName = fileItem.originalUrl.isDirectory ? "folder" : "waveform"
+    let imageName = fileItem.originalUrl.isDirectoryFolder ? "folder" : "waveform"
     cell.iconImageView.image = UIImage(systemName: imageName)
     cell.filenameLabel.text = fileItem.getOriginalName()
     cell.countLabel.text = fileItem.subItems > 0 ? "\(fileItem.subItems) " + "files_title".localized : ""

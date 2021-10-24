@@ -40,7 +40,7 @@ final class StorageViewModel: ObservableObject {
       var items = [StorageItem]()
 
       for case let fileURL as URL in enumerator {
-        guard !fileURL.isDirectory,
+        guard !fileURL.isDirectoryFolder,
               let fileAttributes = try? FileManager.default.attributesOfItem(atPath: fileURL.path) else { continue }
 
         let fetchedBook = self.dataManager.getBook(

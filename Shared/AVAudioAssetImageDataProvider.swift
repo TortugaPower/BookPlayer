@@ -115,18 +115,18 @@ public struct AVAudioAssetImageDataProvider: ImageDataProvider {
       return callback(nil)
     }
 
-    guard let url = url as? URL,
-            !url.isDirectory else {
+    guard let newURL = url as? URL,
+            !newURL.isDirectoryFolder else {
       return self.processNextFolderItem(from: enumerator, callback: callback)
     }
 
-    self.extractDataFrom(url: url) { data in
+    self.extractDataFrom(url: newURL) { data in
       // If item doesn't have an artwork, try with the next one
       if data == nil {
         return self.processNextFolderItem(from: enumerator, callback: callback)
       }
 
-      callback(url)
+      callback(newURL)
     }
   }
 }
