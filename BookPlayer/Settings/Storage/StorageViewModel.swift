@@ -120,6 +120,12 @@ final class StorageViewModel: ObservableObject {
       return
     }
 
+    // Relink book object if it's orphaned
+    if fetchedBook.getLibrary() == nil {
+      self.library.insert(item: fetchedBook)
+      self.dataManager.saveContext()
+    }
+
     let fetchedBookURL = DataManager.getProcessedFolderURL().appendingPathComponent(fetchedBook.relativePath)
 
     // Check if existing book already has its file, and this one is a duplicate
@@ -131,12 +137,6 @@ final class StorageViewModel: ObservableObject {
     }
 
     try self.moveBookFile(from: item, with: fetchedBook)
-
-    // Book exists, but is dangling without reference
-    if fetchedBook.getLibrary() == nil {
-      self.library.insert(item: fetchedBook)
-      self.dataManager.saveContext()
-    }
 
     self.loadItems()
   }
