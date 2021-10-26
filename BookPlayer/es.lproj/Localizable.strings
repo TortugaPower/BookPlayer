@@ -1,4 +1,4 @@
-/* 
+/*
   Localizable.strings
   BookPlayer
 
@@ -164,7 +164,6 @@
 "voiceover_book_chapter" = "%@ por %@ , capítulo %@";
 "voiceover_rewind_time" = "Retroceder %@";
 "voiceover_forward_time" = "Avanzar %@";
-"voiceover_continue_playback_title" = "Continuar Reproducción";
 "watchapp_last_played_title" = "Última Reproducción";
 "watchapp_refresh_data_title" = "Actualizar data";
 "recent_title" = "Recientes";
@@ -194,28 +193,29 @@
 "sort_most_recent_button" = "Más Reciente";
 /* One of the sort options, this one reverts the current order of selected items */
 "sort_reversed_button" = "Invertir Orden";
-"coredata_error_diskfull_description" = "The library couldn't be loaded, the device is out of disk space.";
-"coredata_error_migration_description" = "A migration of the database failed, the library will have to be reinitialized.";
-"import_warning_description" = "Transfering files may take a while, please make sure the number of files is complete before proceeding.";
+"voiceover_continue_playback_title" = "Continuar Reproducción";
+"coredata_error_diskfull_description" = "No se pudo cargar la biblioteca, el dispositivo no tiene espacio en disco.";
+"coredata_error_migration_description" = "Una migración de la base de datos falló, la biblioteca tendrá que ser reinicializada.";
+"import_warning_description" = "La transferencia de archivos puede tardar un poco, por favor asegúrese de que el número de archivos está completo antes de proceder.";
 "files_caps_title" = "ARCHIVOS";
-"settings_storage_description" = "Manage your files";
-"storage_total_title" = "Total space used";
-"settings_storage_title" = "Storage Management";
-"storage_fix_file_button" = "Fix";
-"storage_fix_file_description" = "The book item is missing, if the corresponding item cannot be found, a new one will be created";
-"bookmarks_title" = "Bookmarks";
-"bookmark_created_title" = "Your bookmark has been saved at %@";
-"bookmark_exists_title" = "You have already created a bookmark at %@";
-"bookmark_note_action_title" = "Add note";
-"bookmarks_see_title" = "See bookmarks";
-"bookmark_type_automatic_title" = "Automatic";
+"settings_storage_description" = "Gestiona tus archivos";
+"storage_total_title" = "Espacio total utilizado";
+"settings_storage_title" = "Administración de almacenamiento";
+"storage_fix_file_button" = "Reparar";
+"storage_fix_file_description" = "Falta el elemento del libro, si no se puede encontrar el elemento correspondiente, se creará uno nuevo";
+"bookmarks_title" = "Marcadores";
+"bookmark_created_title" = "Tu marcador se ha guardado en %@";
+"bookmark_exists_title" = "Ya has creado un marcador en %@";
+"bookmark_note_action_title" = "Añadir nota";
+"bookmarks_see_title" = "Ver marcadores";
+"bookmark_type_automatic_title" = "Automático";
 "bookmark_type_user_title" = "Manual";
-"bookmark_automatic_play_title" = "Last position before playback started";
-"bookmark_automatic_skip_title" = "Last position before time skip";
-"bookmark_note_edit_title" = "Edit note";
-"bookmark_create_title" = "Create Bookmark";
-"storage_duplicate_item_title" = "Duplicate";
-"storage_duplicate_item_description" = "The selected file was a duplicate, the existing file is located at: %@";
-"chapters_previous_title" = "Previous Chapter";
-"chapters_next_title" = "Next Chapter";
-"book_time_current_title" = "Current Book Time: %@";
+"bookmark_automatic_play_title" = "Última posición antes de que se inicie la reproducción";
+"bookmark_automatic_skip_title" = "Última posición antes del salto de tiempo";
+"bookmark_note_edit_title" = "Editar nota";
+"bookmark_create_title" = "Crear Marcador";
+"storage_duplicate_item_title" = "Duplicado";
+"storage_duplicate_item_description" = "El archivo seleccionado era un duplicado, el archivo existente se encuentra en: %@";
+"chapters_previous_title" = "Anterior Capítulo";
+"chapters_next_title" = "Siguiente Capítulo";
+"book_time_current_title" = "Tiempo actual del libro: %@";

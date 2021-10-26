@@ -215,3 +215,4 @@
 "chapters_previous_title" = "Previous Chapter";
 "chapters_next_title" = "Next Chapter";
 "book_time_current_title" = "Current Book Time: %@";
+"voiceover_continue_playback_title" = "Continue Playback";
