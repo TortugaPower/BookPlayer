@@ -153,5 +153,14 @@ class LoadingViewModel {
     if !dataManager.hasThemesLoaded() {
       dataManager.loadLocalThemes()
     }
+
+    // Load default theme into library if needed
+    let library = (try? dataManager.getLibrary()) ?? dataManager.createLibrary()
+
+    if library.currentTheme == nil,
+       let defaultTheme = dataManager.getTheme(with: "Default / Dark") {
+      library.currentTheme = defaultTheme
+      dataManager.saveContext()
+    }
   }
 }
