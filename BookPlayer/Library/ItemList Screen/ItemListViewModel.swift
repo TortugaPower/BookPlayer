@@ -138,6 +138,42 @@ class FolderListViewModel {
     self.items.value += displayItems
   }
 
+  func playNextBook(after item: SimpleLibraryItem) {
+    guard let libraryItem = self.dataManager.getItem(with: item.relativePath) else {
+      return
+    }
+
+    var bookToPlay: Book?
+
+    defer {
+      if let book = bookToPlay {
+        self.coordinator.loadPlayer(book)
+      }
+    }
+
+    guard let folder = libraryItem as? Folder else {
+      bookToPlay = libraryItem.getBookToPlay()
+      return
+    }
+
+    // Special treatment for folders
+    guard
+      let bookPlaying = self.player.currentBook,
+      let currentFolder = bookPlaying.folder,
+      currentFolder == folder else {
+        // restart the selected folder if current playing book has no relation to it
+        if libraryItem.isFinished {
+          self.dataManager.jumpToStart(libraryItem)
+        }
+
+        bookToPlay = libraryItem.getBookToPlay()
+        return
+      }
+
+    // override next book with the one already playing
+    bookToPlay = bookPlaying
+  }
+
   func reloadItems(pageSizePadding: Int = 0) {
     let pageSize = self.items.value.count + pageSizePadding
     _ = self.getInitialItems(pageSize: pageSize)

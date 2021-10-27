@@ -104,6 +104,19 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
           return tableView.dequeueReusableCell(withIdentifier: "AddCellView", for: indexPath)
       }
 
+      cell.onArtworkTap = { [weak self] in
+        guard !tableView.isEditing else {
+          if cell.isSelected {
+            tableView.deselectRow(at: indexPath, animated: true)
+          } else {
+            tableView.selectRow(at: indexPath, animated: true, scrollPosition: .none)
+          }
+          return
+        }
+
+        self?.viewModel.playNextBook(after: item)
+      }
+
       cell.title = item.title
       cell.subtitle = item.details
       cell.progress = item.progress

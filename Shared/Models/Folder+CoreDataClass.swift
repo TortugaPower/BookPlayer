@@ -239,7 +239,9 @@ public class Folder: LibraryItem {
                !book.isFinished {
                 return book
             } else if let folder = item as? Folder {
-                return folder.getBookToPlay()
+              if let book = folder.getBookToPlay() {
+                return book
+              }
             }
         }
 
