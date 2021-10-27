@@ -20,6 +20,7 @@ class BookCellView: UITableViewCell {
     @IBOutlet private weak var artworkButton: UIButton!
     @IBOutlet weak var artworkWidth: NSLayoutConstraint!
     @IBOutlet weak var artworkHeight: NSLayoutConstraint!
+    @IBOutlet weak var customSeparatorView: UIView!
 
     var theme: SimpleTheme!
     var onArtworkTap: (() -> Void)?
@@ -161,6 +162,7 @@ extension BookCellView: Themeable {
     self.subtitleLabel.textColor = theme.secondaryColor
     self.durationLabel.textColor = theme.secondaryColor
     self.backgroundColor = theme.systemBackgroundColor
+    self.customSeparatorView.backgroundColor = theme.separatorColor
     self.setPlaybackColors(theme)
     self.selectionView.defaultColor = theme.secondarySystemFillColor
     self.selectionView.selectedColor = theme.systemFillColor
