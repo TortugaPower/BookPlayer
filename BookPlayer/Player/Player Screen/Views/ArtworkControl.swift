@@ -81,17 +81,17 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     self.artworkImage.clipsToBounds = false
     // artwork now has the main info regarding the title and author
     self.artworkImage.contentMode = .scaleToFill
-    self.artworkImage.layer.cornerRadius = 6.0
+    self.artworkImage.layer.cornerRadius = 9.5
     self.artworkImage.layer.masksToBounds = true
     self.artworkImage.layer.borderColor = UIColor.clear.cgColor
 
     self.artworkOverlay.clipsToBounds = false
     self.artworkOverlay.contentMode = .scaleAspectFit
-    self.artworkOverlay.layer.cornerRadius = 6.0
+    self.artworkOverlay.layer.cornerRadius = 9.5
     self.artworkOverlay.layer.masksToBounds = true
 
     self.backgroundGradientColorView.clipsToBounds = false
-    self.backgroundGradientColorView.layer.cornerRadius = 6.0
+    self.backgroundGradientColorView.layer.cornerRadius = 9.5
     self.backgroundGradientColorView.layer.masksToBounds = true
     self.backgroundGradientColorView.layer.borderColor = UIColor.clear.cgColor
     self.setupAirplayView()

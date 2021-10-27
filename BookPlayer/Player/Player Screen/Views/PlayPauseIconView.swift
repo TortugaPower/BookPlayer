@@ -41,6 +41,6 @@ class PlayPauseIconView: NibLoadableView {
 
 extension PlayPauseIconView: Themeable {
   func applyTheme(_ theme: ThemeManager.Theme) {
-    self.tintColor = theme.primaryColor
+    self.tintColor = theme.linkColor
   }
 }

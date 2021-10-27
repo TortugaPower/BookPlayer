@@ -89,9 +89,9 @@ class PlayerJumpIcon: UIView {
 
 extension PlayerJumpIcon: Themeable {
   func applyTheme(_ theme: SimpleTheme) {
-    self.label.textColor = theme.primaryColor
-    self.backgroundImageView.tintColor = theme.primaryColor
-    self.tintColor = theme.primaryColor
+    self.label.textColor = theme.linkColor
+    self.backgroundImageView.tintColor = theme.linkColor
+    self.tintColor = theme.linkColor
   }
 }
 

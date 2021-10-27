@@ -94,6 +94,20 @@ class PlayerViewController: UIViewController, TelemetryProtocol, Storyboarded {
   func setup() {
     NotificationCenter.default.post(name: .playerPresented, object: nil)
     self.closeButton.accessibilityLabel = "voiceover_dismiss_player_title".localized
+
+    let leftChevron = UIImage(
+      systemName: "chevron.left",
+      withConfiguration: UIImage.SymbolConfiguration(pointSize: 18,
+                                                     weight: .semibold)
+    )
+    self.previousChapterButton.setImage(leftChevron, for: .normal)
+
+    let rightChevron = UIImage(
+      systemName: "chevron.right",
+      withConfiguration: UIImage.SymbolConfiguration(pointSize: 18,
+                                                     weight: .semibold)
+    )
+    self.nextChapterButton.setImage(rightChevron, for: .normal)
   }
 
   func setupPlayerView(with currentBook: Book) {
@@ -469,15 +483,15 @@ extension PlayerViewController: Themeable {
     setNeedsStatusBarAppearanceUpdate()
 
     self.view.backgroundColor = theme.systemBackgroundColor
-    self.bottomToolbar.tintColor = theme.primaryColor
+    self.bottomToolbar.tintColor = theme.secondaryColor
     self.closeButton.tintColor = theme.linkColor
 
     self.progressSlider.tintColor = theme.linkColor
     self.progressSlider.minimumTrackTintColor = theme.linkColor
     self.progressSlider.maximumTrackTintColor = theme.linkColor.withAlpha(newAlpha: 0.3)
 
-    self.currentTimeLabel.textColor = theme.primaryColor
-    self.maxTimeButton.setTitleColor(theme.primaryColor, for: .normal)
+    self.currentTimeLabel.textColor = theme.secondaryColor
+    self.maxTimeButton.setTitleColor(theme.secondaryColor, for: .normal)
     self.progressButton.setTitleColor(theme.primaryColor, for: .normal)
     self.previousChapterButton.tintColor = theme.primaryColor
     self.nextChapterButton.tintColor = theme.primaryColor
