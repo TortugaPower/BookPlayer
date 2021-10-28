@@ -92,7 +92,6 @@ public struct AVAudioAssetImageDataProvider: ImageDataProvider {
         return true
       })!
 
-
     self.processNextFolderItem(from: enumerator) { url in
       guard let url = url else {
         return handler(.failure(AVAudioAssetImageDataProviderError.missingImage))
@@ -102,9 +101,8 @@ public struct AVAudioAssetImageDataProvider: ImageDataProvider {
     }
   }
 
-
   private func processNextFolderItem(from enumerator: FileManager.DirectoryEnumerator,
-                           callback: @escaping (URL?) -> Void) {
+                                     callback: @escaping (URL?) -> Void) {
     let url = enumerator.nextObject()
 
     if url == nil {
