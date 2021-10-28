@@ -14,6 +14,7 @@ struct ProgressObject {
   let progress: String?
   let maxTime: TimeInterval?
   let sliderValue: Float
+  let chapterTitle: String
 
   var formattedCurrentTime: String {
     return TimeParser.formatTime(self.currentTime)

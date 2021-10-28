@@ -156,7 +156,10 @@ class PlayerViewModel {
       currentTime: currentTime,
       progress: progress,
       maxTime: maxTimeInContext,
-      sliderValue: sliderValue
+      sliderValue: sliderValue,
+      chapterTitle: self.playerManager.currentBook?.currentChapter?.title
+      ?? self.playerManager.currentBook?.lastPathComponent
+      ?? ""
     )
   }
 
@@ -172,10 +175,12 @@ class PlayerViewModel {
 
   func processSliderValueChangedEvent(with value: Float) -> ProgressObject {
     var newCurrentTime = getBookTimeFromSlider(value: value)
+    var chapterTitle: String?
 
     if self.prefersChapterContext,
        let currentChapter = self.chapterBeforeSliderValueChange {
       newCurrentTime = TimeInterval(value) * currentChapter.duration
+      chapterTitle = currentChapter.title
     }
 
     var newMaxTime: TimeInterval?
@@ -196,7 +201,8 @@ class PlayerViewModel {
       currentTime: newCurrentTime,
       progress: progress,
       maxTime: newMaxTime,
-      sliderValue: value
+      sliderValue: value,
+      chapterTitle: chapterTitle ?? self.playerManager.currentBook?.lastPathComponent ?? ""
     )
   }
 

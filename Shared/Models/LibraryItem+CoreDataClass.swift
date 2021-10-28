@@ -19,6 +19,13 @@ public class LibraryItem: NSManagedObject, Codable {
     return DataManager.getProcessedFolderURL().appendingPathComponent(self.relativePath)
   }
 
+  public var lastPathComponent: String? {
+    guard self.relativePath != nil,
+          let lastComponent = self.relativePath.split(separator: "/").last else { return nil }
+
+    return String(lastComponent)
+  }
+
   public func getLibrary() -> Library? {
     if let parentFolder = self.folder {
       return parentFolder.getLibrary()

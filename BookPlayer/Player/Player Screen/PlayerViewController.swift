@@ -30,6 +30,7 @@ class PlayerViewController: UIViewController, TelemetryProtocol, Storyboarded {
   @IBOutlet private weak var artworkControl: ArtworkControl!
   @IBOutlet private weak var progressSlider: ProgressSlider!
   @IBOutlet private weak var currentTimeLabel: UILabel!
+  @IBOutlet private weak var chapterTitleButton: UIButton!
   @IBOutlet private weak var maxTimeButton: UIButton!
   @IBOutlet private weak var progressButton: UIButton!
   @IBOutlet weak var previousChapterButton: UIButton!
@@ -108,6 +109,9 @@ class PlayerViewController: UIViewController, TelemetryProtocol, Storyboarded {
                                                      weight: .semibold)
     )
     self.nextChapterButton.setImage(rightChevron, for: .normal)
+
+    self.chapterTitleButton.titleLabel?.numberOfLines = 2
+    self.chapterTitleButton.titleLabel?.textAlignment = .center
   }
 
   func setupPlayerView(with currentBook: Book) {
@@ -145,6 +149,8 @@ class PlayerViewController: UIViewController, TelemetryProtocol, Storyboarded {
         describing: self.viewModel.getMaxTimeVoiceOverPrefix() + VoiceOverService.secondsToMinutes(maxTime)
       )
     }
+
+    self.chapterTitleButton.setTitle(progressObject.chapterTitle, for: .normal)
 
     if shouldSetSliderValue {
       self.progressSlider.setProgress(progressObject.sliderValue)
@@ -217,6 +223,7 @@ extension PlayerViewController {
       }.store(in: &disposeBag)
 
     self.progressButton.publisher(for: .touchUpInside)
+      .merge(with: self.chapterTitleButton.publisher(for: .touchUpInside))
       .sink { [weak self] _ in
         guard let self = self,
               !self.progressSlider.isTracking else { return }
@@ -492,7 +499,8 @@ extension PlayerViewController: Themeable {
 
     self.currentTimeLabel.textColor = theme.secondaryColor
     self.maxTimeButton.setTitleColor(theme.secondaryColor, for: .normal)
-    self.progressButton.setTitleColor(theme.primaryColor, for: .normal)
+    self.progressButton.setTitleColor(theme.secondaryColor, for: .normal)
+    self.chapterTitleButton.setTitleColor(theme.primaryColor, for: .normal)
     self.previousChapterButton.tintColor = theme.primaryColor
     self.nextChapterButton.tintColor = theme.primaryColor
   }
