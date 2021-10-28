@@ -103,13 +103,15 @@ final class PlayerManager: NSObject, TelemetryProtocol {
     NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying(_:)), name: .AVPlayerItemDidPlayToEndTime, object: nil)
   }
 
-  func load(_ book: Book, completion: @escaping (Bool) -> Void) {
+  func preload(_ book: Book) {
     if self.currentBook != nil {
       self.stop()
     }
 
     self.currentBook = book
+  }
 
+  func load(_ book: Book, completion: @escaping (Bool) -> Void) {
     self.queue.addOperation {
       // try loading the player
       guard let item = self.playerItem,
@@ -135,7 +137,6 @@ final class PlayerManager: NSObject, TelemetryProtocol {
 
         self.setNowPlayingBookTitle()
         self.setNowPlayingBookTime()
-
 
         ArtworkService.retrieveImageFromCache(for: book.relativePath) { result in
           let image: UIImage

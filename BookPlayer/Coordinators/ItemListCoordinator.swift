@@ -153,10 +153,14 @@ class ItemListCoordinator: Coordinator {
       return
     }
 
-    self.showPlayer()
-
     // Only load if loaded book is a different one
-    guard book.relativePath != playerManager.currentBook?.relativePath else { return }
+    guard book.relativePath != playerManager.currentBook?.relativePath else {
+      self.showPlayer()
+      return
+    }
+
+    self.playerManager.preload(book)
+    self.showPlayer()
 
     self.playerManager.load(book) { [weak self] loaded in
       guard loaded else { return }
@@ -167,6 +171,7 @@ class ItemListCoordinator: Coordinator {
   }
 
   func loadLastBook(_ book: Book) {
+    self.playerManager.preload(book)
     self.playerManager.load(book) { [weak self] loaded in
       guard loaded else { return }
 
