@@ -99,7 +99,6 @@
 		4140EA7F227289D20009F794 /* Library+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A1B11A226F88C500EA0400 /* Library+CoreDataProperties.swift */; };
 		4140EA80227289D50009F794 /* Folder+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A1B11B226F88C500EA0400 /* Folder+CoreDataClass.swift */; };
 		4140EA81227289D80009F794 /* Folder+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A1B11C226F88C500EA0400 /* Folder+CoreDataProperties.swift */; };
-		4140EA82227289DB0009F794 /* FileItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E3102148606600072AA2 /* FileItem.swift */; };
 		4140EA84227289E60009F794 /* BookPlayer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */; };
 		4140EA8522728A160009F794 /* BookPlayer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */; };
 		4140EA8922729EDD0009F794 /* ItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4140EA8822729EDD0009F794 /* ItemRow.swift */; };
@@ -180,7 +179,6 @@
 		41A1B0E7226E9BC500EA0400 /* BookPlayerKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */; };
 		41A1B0E8226E9BC500EA0400 /* BookPlayerKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		41A1B0F2226E9D1200EA0400 /* BookPlayer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */; };
-		41A1B101226E9D4500EA0400 /* FileItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E3102148606600072AA2 /* FileItem.swift */; };
 		41A1B104226E9DBA00EA0400 /* UIColor+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30B085E209654E3003F325B /* UIColor+BookPlayer.swift */; };
 		41A1B105226E9DBD00EA0400 /* UIColor+Sweetercolor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30CD2A0209791FA00258B09 /* UIColor+Sweetercolor.swift */; };
 		41A1B108226E9DF800EA0400 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4175E1232206CF9600FB7B71 /* DataManager.swift */; };
@@ -300,6 +298,7 @@
 		5126F121258E9F18009965DC /* URL+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5126F120258E9F18009965DC /* URL+BookPlayer.swift */; };
 		5126F122258E9F18009965DC /* URL+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5126F120258E9F18009965DC /* URL+BookPlayer.swift */; };
 		5126F123258E9F18009965DC /* URL+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5126F120258E9F18009965DC /* URL+BookPlayer.swift */; };
+		62793611272CBE910097837D /* ImportFileItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E3102148606600072AA2 /* ImportFileItem.swift */; };
 		62CADB902725347500A4A98F /* SimpleLibraryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D3026ED715D0017124E /* SimpleLibraryItem.swift */; };
 		62CADB912725349300A4A98F /* SimpleItemType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41546FF226F559CE00825180 /* SimpleItemType.swift */; };
 		62CADB922725349900A4A98F /* PlaybackState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41546FF026F54F0600825180 /* PlaybackState.swift */; };
@@ -573,7 +572,7 @@
 		4161D495245660B800D1C01B /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ro; path = ro.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		4161D496245660B800D1C01B /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ro; path = ro.lproj/Localizable.strings; sourceTree = "<group>"; };
 		4161D497245660B900D1C01B /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ro; path = ro.lproj/Localizable.strings; sourceTree = "<group>"; };
-		4163E3102148606600072AA2 /* FileItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileItem.swift; sourceTree = "<group>"; };
+		4163E3102148606600072AA2 /* ImportFileItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportFileItem.swift; sourceTree = "<group>"; };
 		4163E312214AC43000072AA2 /* ImportOperationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportOperationTests.swift; sourceTree = "<group>"; };
 		4163E314214ACB4300072AA2 /* DataTestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTestUtils.swift; sourceTree = "<group>"; };
 		41640A1F24416774004FB97B /* IntentsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IntentsUI.framework; path = System/Library/Frameworks/IntentsUI.framework; sourceTree = SDKROOT; };
@@ -1279,6 +1278,7 @@
 				4197FAFB267E480100811CC8 /* ImportViewController.swift */,
 				41C8ABD026836F50003B67D1 /* ImportViewModel.swift */,
 				418EA78A268D6EF100F6BAEB /* ImportTableViewCell.swift */,
+				4163E3102148606600072AA2 /* ImportFileItem.swift */,
 			);
 			path = Import;
 			sourceTree = "<group>";
@@ -1452,7 +1452,6 @@
 				4138CE0D26E5540E0014F11E /* Bookmark+CoreDataClass.swift */,
 				4138CE0E26E5540E0014F11E /* Bookmark+CoreDataProperties.swift */,
 				4138CE1526E584B60014F11E /* BookmarkType.swift */,
-				4163E3102148606600072AA2 /* FileItem.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -2055,7 +2054,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4140EA82227289DB0009F794 /* FileItem.swift in Sources */,
 				4140EA6C2272898F0009F794 /* DataManager.swift in Sources */,
 				4140EA71227289A20009F794 /* UIColor+BookPlayer.swift in Sources */,
 				4138CE1726E584B60014F11E /* BookmarkType.swift in Sources */,
@@ -2185,6 +2183,7 @@
 				4138CE2326E66E420014F11E /* BookmarkTableViewCell.swift in Sources */,
 				C37A6875209F13120063AEAC /* CreditsViewController.swift in Sources */,
 				41DA44BD26FAEC4F00F3A05D /* BookActivityItemProvider.swift in Sources */,
+				62793611272CBE910097837D /* ImportFileItem.swift in Sources */,
 				4138CE1C26E5B42F0014F11E /* BookmarksViewModel.swift in Sources */,
 				4197240021874D5F00AB1190 /* UserActivityManager.swift in Sources */,
 				41D4F2EF21053944009F1B1E /* IndexPath+BookPlayer.swift in Sources */,
@@ -2291,7 +2290,6 @@
 				41A1B105226E9DBD00EA0400 /* UIColor+Sweetercolor.swift in Sources */,
 				41A1B10C226E9E9700EA0400 /* DeleteMode.swift in Sources */,
 				5126F122258E9F18009965DC /* URL+BookPlayer.swift in Sources */,
-				41A1B101226E9D4500EA0400 /* FileItem.swift in Sources */,
 				418CABB425EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
 				41A1B121226F88C500EA0400 /* PlaybackRecord+CoreDataClass.swift in Sources */,
 				41A1B104226E9DBA00EA0400 /* UIColor+BookPlayer.swift in Sources */,
