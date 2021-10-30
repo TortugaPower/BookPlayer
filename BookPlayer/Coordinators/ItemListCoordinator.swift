@@ -56,7 +56,8 @@ class ItemListCoordinator: Coordinator {
     self.importManager = importManager
     self.dataManager = dataManager
 
-    super.init(navigationController: navigationController)
+    super.init(navigationController: navigationController,
+               flowType: .push)
 
     self.bindImportObserver()
   }

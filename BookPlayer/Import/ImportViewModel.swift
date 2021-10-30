@@ -11,16 +11,16 @@ import Combine
 import DirectoryWatcher
 import Foundation
 
-final class ImportViewModel: ObservableObject {
+final class ImportViewModel: BaseViewModel<ImportCoordinator>, ObservableObject {
   @Published private(set) var files = [ImportFileItem]()
   private var disposeBag = Set<AnyCancellable>()
   private let importManager: ImportManager
   private var watchers = [DirectoryWatcher]()
   private var observedFiles = [ImportFileItem]()
-  weak var coordinator: ImportCoordinator!
 
   init(importManager: ImportManager) {
     self.importManager = importManager
+    super.init()
 
     self.bindInternalFiles()
   }
@@ -98,6 +98,6 @@ final class ImportViewModel: ObservableObject {
   }
 
   func dismiss() {
-    self.coordinator.dismiss()
+    self.coordinator.didFinish()
   }
 }

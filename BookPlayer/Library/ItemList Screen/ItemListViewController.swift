@@ -12,7 +12,10 @@ import DeviceKit
 import Themeable
 import UIKit
 
-class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognizerDelegate {
+class ItemListViewController: BaseViewController<ItemListCoordinator, FolderListViewModel>,
+                              Storyboarded,
+                              UIGestureRecognizerDelegate {
+
   @IBOutlet weak var emptyStatePlaceholder: UIView!
   @IBOutlet weak var emptyStateImageView: UIImageView!
   @IBOutlet weak var loadingView: LoadingView!
@@ -25,7 +28,6 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
   private var previousLeftButtons: [UIBarButtonItem]?
   lazy var selectButton: UIBarButtonItem = UIBarButtonItem(title: "select_all_title".localized, style: .plain, target: self, action: #selector(selectButtonPressed))
 
-  var viewModel: FolderListViewModel!
   var dataSource: ItemListTableDataSource!
 
   var defaultArtwork: UIImage? {

@@ -31,7 +31,7 @@ class MainCoordinator: Coordinator {
     self.playerManager = PlayerManager(dataManager: dataManager, watchConnectivityService: watchService)
     ThemeManager.shared.dataManager = dataManager
 
-    super.init(navigationController: navigationController)
+    super.init(navigationController: navigationController, flowType: .modal)
   }
 
   override func start() {

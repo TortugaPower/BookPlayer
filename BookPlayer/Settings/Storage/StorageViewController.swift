@@ -11,7 +11,7 @@ import Combine
 import Themeable
 import UIKit
 
-final class StorageViewController: UIViewController, Storyboarded {
+final class StorageViewController: BaseViewController<StorageCoordinator, StorageViewModel>, Storyboarded {
   @IBOutlet weak var filesTitleLabel: LocalizableLabel!
   @IBOutlet weak var storageSpaceLabel: UILabel!
   @IBOutlet weak var tableView: UITableView!
@@ -21,7 +21,6 @@ final class StorageViewController: UIViewController, Storyboarded {
   @IBOutlet var containerViews: [UIView]!
   @IBOutlet var separatorViews: [UIView]!
 
-  public var viewModel: StorageViewModel!
   private var disposeBag = Set<AnyCancellable>()
   private var items = [StorageItem]()
 

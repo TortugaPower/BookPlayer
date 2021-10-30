@@ -10,8 +10,7 @@ import BookPlayerKit
 import CoreData
 import Foundation
 
-class LoadingViewModel {
-  var coordinator: LoadingCoordinator!
+class LoadingViewModel: BaseViewModel<LoadingCoordinator> {
   let dataMigrationManager: DataMigrationManager
 
   init(dataMigrationManager: DataMigrationManager) {

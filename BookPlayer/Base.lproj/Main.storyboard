@@ -466,14 +466,6 @@
             <point key="canvasLocation" x="-390" y="152"/>
         </scene>
     </scenes>
-    <designables>
-        <designable name="jDQ-kp-Eg6">
-            <size key="intrinsicContentSize" width="31.5" height="18"/>
-        </designable>
-        <designable name="wl3-k5-zZi">
-            <size key="intrinsicContentSize" width="49" height="18"/>
-        </designable>
-    </designables>
     <color key="tintColor" red="0.20392156862745098" green="0.53333333333333333" blue="0.81960784313725488" alpha="1" colorSpace="calibratedRGB"/>
     <resources>
         <image name="emptyLibrary" width="249" height="249"/>

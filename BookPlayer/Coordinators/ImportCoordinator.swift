@@ -18,7 +18,8 @@ class ImportCoordinator: Coordinator {
   ) {
     self.importManager = importManager
 
-    super.init(navigationController: navigationController)
+    super.init(navigationController: navigationController,
+               flowType: .modal)
   }
 
   override func start() {
@@ -37,11 +38,5 @@ class ImportCoordinator: Coordinator {
   override func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
     try? self.importViewController?.viewModel.discardImportOperation()
     super.presentationControllerDidDismiss(presentationController)
-  }
-
-  override func dismiss() {
-    self.presentingViewController?.dismiss(animated: true, completion: { [weak self] in
-      self?.parentCoordinator?.childDidFinish(self)
-    })
   }
 }

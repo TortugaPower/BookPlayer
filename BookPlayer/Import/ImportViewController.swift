@@ -12,11 +12,10 @@ import Combine
 import Themeable
 import UIKit
 
-final class ImportViewController: UIViewController, Storyboarded {
+final class ImportViewController: BaseViewController<ImportCoordinator, ImportViewModel>, Storyboarded {
   @IBOutlet weak var descriptionLabel: UILabel!
   @IBOutlet weak var tableView: UITableView!
 
-  var viewModel: ImportViewModel!
   private var disposeBag = Set<AnyCancellable>()
   private var files = [ImportFileItem]()
   private var watchers = [DirectoryWatcher]()

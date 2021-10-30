@@ -16,7 +16,8 @@ class ChapterCoordinator: Coordinator {
        playerManager: PlayerManager) {
     self.playerManager = playerManager
 
-    super.init(navigationController: navigationController)
+    super.init(navigationController: navigationController,
+               flowType: .modal)
   }
 
   override func start() {
@@ -29,11 +30,5 @@ class ChapterCoordinator: Coordinator {
     nav.viewControllers = [vc]
     nav.presentationController?.delegate = self
     self.presentingViewController?.present(nav, animated: true, completion: nil)
-  }
-
-  override func dismiss() {
-    self.presentingViewController?.dismiss(animated: true, completion: { [weak self] in
-      self?.parentCoordinator?.childDidFinish(self)
-    })
   }
 }

@@ -12,7 +12,9 @@ import MarqueeLabel
 import Themeable
 import UIKit
 
-class MiniPlayerViewController: UIViewController, UIGestureRecognizerDelegate, Storyboarded {
+class MiniPlayerViewController: BaseViewController<MainCoordinator, MiniPlayerViewModel>,
+                                UIGestureRecognizerDelegate,
+                                Storyboarded {
   @IBOutlet private weak var miniPlayerBlur: UIVisualEffectView!
   @IBOutlet private weak var miniPlayerContainer: UIView!
   @IBOutlet private weak var artwork: BPArtworkView!
@@ -23,7 +25,6 @@ class MiniPlayerViewController: UIViewController, UIGestureRecognizerDelegate, S
   @IBOutlet private weak var artworkHeight: NSLayoutConstraint!
 
   private var disposeBag = Set<AnyCancellable>()
-  public var viewModel: MiniPlayerViewModel!
 
   private var tap: UITapGestureRecognizer!
 

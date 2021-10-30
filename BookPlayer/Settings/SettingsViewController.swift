@@ -18,7 +18,10 @@ protocol IntentSelectionDelegate: AnyObject {
     func didSelectIntent(_ intent: INIntent)
 }
 
-class SettingsViewController: UITableViewController, MFMailComposeViewControllerDelegate, TelemetryProtocol, Storyboarded {
+class SettingsViewController: BaseTableViewController<SettingsCoordinator, SettingsViewModel>,
+                              MFMailComposeViewControllerDelegate,
+                              TelemetryProtocol,
+                              Storyboarded {
     @IBOutlet weak var autoplayLibrarySwitch: UISwitch!
     @IBOutlet weak var disableAutolockSwitch: UISwitch!
     @IBOutlet weak var autolockDisabledOnlyWhenPoweredSwitch: UISwitch!
@@ -51,8 +54,6 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     var systemVersion: String {
         return "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
     }
-
-    weak var coordinator: SettingsCoordinator!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -118,7 +119,7 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     }
 
     @IBAction func done(_ sender: UIBarButtonItem) {
-      self.coordinator.dismiss()
+      self.viewModel.coordinator.didFinish()
     }
 
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -160,7 +161,7 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         case self.sleepTimerShortcutPath:
           self.showSleepTimerShortcut()
         case self.storageIndexPath:
-          self.coordinator.showStorageManagement()
+          self.viewModel.coordinator.showStorageManagement()
         default: break
         }
     }

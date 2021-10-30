@@ -15,7 +15,7 @@ import StoreKit
 import Themeable
 import UIKit
 
-class PlayerViewController: UIViewController, TelemetryProtocol, Storyboarded {
+class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewModel>, TelemetryProtocol, Storyboarded {
   @IBOutlet private weak var closeButton: UIButton!
   @IBOutlet private weak var closeButtonTop: NSLayoutConstraint!
   @IBOutlet private weak var bottomToolbar: UIToolbar!
@@ -47,7 +47,6 @@ class PlayerViewController: UIViewController, TelemetryProtocol, Storyboarded {
 
   private var disposeBag = Set<AnyCancellable>()
   private var playingProgressSubscriber: AnyCancellable?
-  public var viewModel: PlayerViewModel!
 
   // computed properties
   override var preferredStatusBarStyle: UIStatusBarStyle {

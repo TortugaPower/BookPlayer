@@ -12,8 +12,7 @@ import Foundation
 import MediaPlayer
 import Themeable
 
-class FolderListViewModel {
-  weak var coordinator: ItemListCoordinator!
+class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
   let folder: Folder?
   let library: Library
   let player: PlayerManager
@@ -36,9 +35,10 @@ class FolderListViewModel {
     self.library = library
     self.player = player
     self.dataManager = dataManager
-
     self.themeAccent = theme.linkColor
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: theme.linkColor)?.pngData()
+    super.init()
+
     self.bindBookObserver()
   }
 
