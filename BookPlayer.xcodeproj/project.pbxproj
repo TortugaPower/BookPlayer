@@ -927,6 +927,7 @@
 			children = (
 				41188D2726ED4D5C0017124E /* ItemListViewController.swift */,
 				41188D2926ED4D8E0017124E /* ItemListViewModel.swift */,
+				62F2F25E25E18C7500E1D6A0 /* ImportableItem.swift */,
 				41188D3B26F00C380017124E /* ItemListTableDataSource.swift */,
 			);
 			path = "ItemList Screen";
@@ -1272,13 +1273,11 @@
 		41C8ABCF26836F03003B67D1 /* Import */ = {
 			isa = PBXGroup;
 			children = (
+				62793612272CC19E0097837D /* Models */,
+				62793613272CC9D50097837D /* Views */,
 				416B63A72146354B007D04B1 /* ImportManager.swift */,
-				62F2F25E25E18C7500E1D6A0 /* ImportableItem.swift */,
-				41E34E4F2138EA8200A3997C /* ImportOperation.swift */,
 				4197FAFB267E480100811CC8 /* ImportViewController.swift */,
 				41C8ABD026836F50003B67D1 /* ImportViewModel.swift */,
-				418EA78A268D6EF100F6BAEB /* ImportTableViewCell.swift */,
-				4163E3102148606600072AA2 /* ImportFileItem.swift */,
 			);
 			path = Import;
 			sourceTree = "<group>";
@@ -1345,6 +1344,23 @@
 				41E562E82239531E00C06BC9 /* songs-ipad@3x.png */,
 			);
 			path = iPad;
+			sourceTree = "<group>";
+		};
+		62793612272CC19E0097837D /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				41E34E4F2138EA8200A3997C /* ImportOperation.swift */,
+				4163E3102148606600072AA2 /* ImportFileItem.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		62793613272CC9D50097837D /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				418EA78A268D6EF100F6BAEB /* ImportTableViewCell.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		6906A551217211A300A9E0B2 /* Support */ = {
