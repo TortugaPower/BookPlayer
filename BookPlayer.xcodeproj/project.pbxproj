@@ -925,9 +925,10 @@
 		41188D2626ED4D470017124E /* ItemList Screen */ = {
 			isa = PBXGroup;
 			children = (
+				41188D2B26ED71020017124E /* Models */,
+				C3D3852E20C1F10F00A0ACC7 /* Views */,
 				41188D2726ED4D5C0017124E /* ItemListViewController.swift */,
 				41188D2926ED4D8E0017124E /* ItemListViewModel.swift */,
-				62F2F25E25E18C7500E1D6A0 /* ImportableItem.swift */,
 				41188D3B26F00C380017124E /* ItemListTableDataSource.swift */,
 			);
 			path = "ItemList Screen";
@@ -940,6 +941,7 @@
 				41546FF226F559CE00825180 /* SimpleItemType.swift */,
 				412AB73B2702BDED00969618 /* SimpleTheme.swift */,
 				41546FF026F54F0600825180 /* PlaybackState.swift */,
+				62F2F25E25E18C7500E1D6A0 /* ImportableItem.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -1017,10 +1019,9 @@
 		4151A6AF26E490C900E49DBE /* Plus Screen */ = {
 			isa = PBXGroup;
 			children = (
+				62793616272CCE350097837D /* Views */,
 				41AD3DAE221E678600DC41E1 /* PlusViewController.swift */,
 				4151A6B026E490FF00E49DBE /* PlusNavigationController.swift */,
-				419B374423B8D18000128A8F /* PlusBannerView.xib */,
-				415758E92226E18800DDB9B6 /* PlusBannerView.swift */,
 			);
 			path = "Plus Screen";
 			sourceTree = "<group>";
@@ -1052,16 +1053,6 @@
 				415A9977264CCD3F002BFD35 /* Release.xcconfig */,
 			);
 			path = BuildConfiguration;
-			sourceTree = "<group>";
-		};
-		4163E30F21484C3500072AA2 /* DataManagement */ = {
-			isa = PBXGroup;
-			children = (
-				41D39D40215F177D00B65290 /* BookActivityItemProvider.swift */,
-				41A1B12B226FC0A200EA0400 /* DataManager+BookPlayer.swift */,
-				41A1B136226FED4000EA0400 /* DataManager+CoreData.swift */,
-			);
-			path = DataManagement;
 			sourceTree = "<group>";
 		};
 		416A29A82569658100605395 /* BookPlayerWidgetUI */ = {
@@ -1117,17 +1108,16 @@
 			isa = PBXGroup;
 			children = (
 				4151A6DE26E4A13E00E49DBE /* Coordinators */,
-				41C8ABCF26836F03003B67D1 /* Import */,
 				69343D3121338440000C425E /* Services */,
+				C3A479112094C8A800D92122 /* Utils */,
+				62793618272CCEA20097837D /* Loading */,
+				41C8ABCF26836F03003B67D1 /* Import */,
 				C35E04F1207E8D0F007D3370 /* Library */,
 				C3EC372A206EDB9A0094B4E8 /* Player */,
 				C35E04F2207E8D4C007D3370 /* Settings */,
-				C3EF535F20800D8B00B9629D /* Extensions */,
-				C3A479112094C8A800D92122 /* Utils */,
-				C3D3852D20C1F0CA00A0ACC7 /* Views */,
+				41B2A5EC21CCC6D100917584 /* AppNavigationController.swift */,
+				4165EE1120A7D1E100616EDF /* RootViewController.swift */,
 				418B6CFB1D2707F800F974FB /* AppDelegate.swift */,
-				4158387826EB8D8800F4A12B /* LoadingViewController.swift */,
-				412AB70D2701463100969618 /* LoadingViewModel.swift */,
 				418B6D011D2707F800F974FB /* Main.storyboard */,
 				418B6D061D2707F800F974FB /* LaunchScreen.storyboard */,
 				418B6D041D2707F800F974FB /* Assets.xcassets */,
@@ -1160,9 +1150,7 @@
 		41964C842220C74D00FF1A2F /* Cells */ = {
 			isa = PBXGroup;
 			children = (
-				4142964721F2E2BA004356DA /* ThemeCellView.swift */,
-				41AD3DA6221C850F00DC41E1 /* IconCellView.swift */,
-				41964C822220B4F700FF1A2F /* ContributorCellView.swift */,
+				41B2A5EE21CD5AAE00917584 /* StaticCellView.swift */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -1242,14 +1230,16 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		41AD3D96221C700100DC41E1 /* Icons */ = {
+		41AD3D96221C700100DC41E1 /* Icons Screen */ = {
 			isa = PBXGroup;
 			children = (
+				62793615272CCE150097837D /* Views */,
+				41AD3D9F221C7C8A00DC41E1 /* assets */,
 				41AD3D9D221C750E00DC41E1 /* Icons.json */,
 				41AD3DA0221C7CAB00DC41E1 /* Icon.swift */,
-				41AD3D9F221C7C8A00DC41E1 /* assets */,
+				41AD3DA2221C7DCE00DC41E1 /* IconsViewController.swift */,
 			);
-			path = Icons;
+			path = "Icons Screen";
 			sourceTree = "<group>";
 		};
 		41AD3D9F221C7C8A00DC41E1 /* assets */ = {
@@ -1261,13 +1251,15 @@
 			path = assets;
 			sourceTree = "<group>";
 		};
-		41B2A5DF21CCC1F400917584 /* Themes */ = {
+		41B2A5DF21CCC1F400917584 /* Themes Screen */ = {
 			isa = PBXGroup;
 			children = (
+				62793614272CCDF90097837D /* Views */,
 				4149539921F0D456003C5D27 /* Themes.json */,
 				41B2A5E021CCC21000917584 /* ThemeManager.swift */,
+				41B2A5DD21CAF20E00917584 /* ThemesViewController.swift */,
 			);
-			path = Themes;
+			path = "Themes Screen";
 			sourceTree = "<group>";
 		};
 		41C8ABCF26836F03003B67D1 /* Import */ = {
@@ -1363,6 +1355,49 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		62793614272CCDF90097837D /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				4142964721F2E2BA004356DA /* ThemeCellView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		62793615272CCE150097837D /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				41AD3DA6221C850F00DC41E1 /* IconCellView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		62793616272CCE350097837D /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				419B374423B8D18000128A8F /* PlusBannerView.xib */,
+				415758E92226E18800DDB9B6 /* PlusBannerView.swift */,
+				41964C822220B4F700FF1A2F /* ContributorCellView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		62793617272CCE720097837D /* ItemSelection Screen */ = {
+			isa = PBXGroup;
+			children = (
+				41544A1321BAF41400740AD2 /* ItemSelectionViewController.swift */,
+			);
+			path = "ItemSelection Screen";
+			sourceTree = "<group>";
+		};
+		62793618272CCEA20097837D /* Loading */ = {
+			isa = PBXGroup;
+			children = (
+				4158387826EB8D8800F4A12B /* LoadingViewController.swift */,
+				412AB70D2701463100969618 /* LoadingViewModel.swift */,
+			);
+			path = Loading;
+			sourceTree = "<group>";
+		};
 		6906A551217211A300A9E0B2 /* Support */ = {
 			isa = PBXGroup;
 			children = (
@@ -1374,12 +1409,13 @@
 		69343D3121338440000C425E /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				4113739E25534B7500295022 /* Telemetry */,
 				69343D322133844D000C425E /* VoiceOverService.swift */,
 				4193E1FE2439A0A1004D6A82 /* NetworkService.swift */,
 				419723FF21874D5F00AB1190 /* UserActivityManager.swift */,
+				41D39D40215F177D00B65290 /* BookActivityItemProvider.swift */,
 				41B30A32230232D200025D69 /* CarPlayManager.swift */,
 				4193E201243A91AE004D6A82 /* ActionParserService.swift */,
-				4113739E25534B7500295022 /* Telemetry */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -1396,16 +1432,9 @@
 		C35E04F1207E8D0F007D3370 /* Library */ = {
 			isa = PBXGroup;
 			children = (
-				4163E30F21484C3500072AA2 /* DataManagement */,
-				41AD3D96221C700100DC41E1 /* Icons */,
-				41B2A5DF21CCC1F400917584 /* Themes */,
-				41188D2B26ED71020017124E /* Models */,
-				C3D3852E20C1F10F00A0ACC7 /* Views */,
-				C36C4D5820A23DF000AFDB76 /* Containers */,
+				C36C4D5820A23DF000AFDB76 /* MiniPlayer */,
 				41188D2626ED4D470017124E /* ItemList Screen */,
-				41B2A5EC21CCC6D100917584 /* AppNavigationController.swift */,
-				4165EE1120A7D1E100616EDF /* RootViewController.swift */,
-				41544A1321BAF41400740AD2 /* ItemSelectionViewController.swift */,
+				62793617272CCE720097837D /* ItemSelection Screen */,
 			);
 			path = Library;
 			sourceTree = "<group>";
@@ -1413,6 +1442,8 @@
 		C35E04F2207E8D4C007D3370 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				41B2A5DF21CCC1F400917584 /* Themes Screen */,
+				41AD3D96221C700100DC41E1 /* Icons Screen */,
 				4151A6AF26E490C900E49DBE /* Plus Screen */,
 				4124121B26CF289B00B099DB /* Storage */,
 				41964C842220C74D00FF1A2F /* Cells */,
@@ -1420,25 +1451,25 @@
 				C37A6874209F13120063AEAC /* CreditsViewController.swift */,
 				C359C30620A9F35B00A626E3 /* SkipDurationViewController.swift */,
 				41B2A5DB21CAEE0E00917584 /* PlayerSettingsViewController.swift */,
-				41B2A5DD21CAF20E00917584 /* ThemesViewController.swift */,
-				41AD3DA2221C7DCE00DC41E1 /* IconsViewController.swift */,
 				41B2A5D821CAE42600917584 /* Settings.storyboard */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
 		};
-		C36C4D5820A23DF000AFDB76 /* Containers */ = {
+		C36C4D5820A23DF000AFDB76 /* MiniPlayer */ = {
 			isa = PBXGroup;
 			children = (
 				C36C4D5B20A23E1800AFDB76 /* MiniPlayerViewController.swift */,
 				41188D1D26ECDAA30017124E /* MiniPlayerViewModel.swift */,
 			);
-			path = Containers;
+			path = MiniPlayer;
 			sourceTree = "<group>";
 		};
 		C3A479112094C8A800D92122 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				C3D3852D20C1F0CA00A0ACC7 /* Views */,
+				C3EF535F20800D8B00B9629D /* Extensions */,
 				C3A479122094C8C300D92122 /* rubberBandDistance.swift */,
 				C3FE3F8120A090880055B9C6 /* limitPanAngle.swift */,
 				4151A6A726E48C3400E49DBE /* Storyboarded.swift */,
@@ -1503,7 +1534,6 @@
 				4109246B21A2019400D5DF11 /* CheckboxSelectionView.swift */,
 				C33E843B20C6E179004A0489 /* ItemProgress.swift */,
 				C398559B20C492FF00BE9EC0 /* AddButton.swift */,
-				41B2A5EE21CD5AAE00917584 /* StaticCellView.swift */,
 				C3FE94782080086800BCEA37 /* BookCellView.swift */,
 				419B373E23B8D12200128A8F /* AddCellView.xib */,
 				41B2A5F021CD857800917584 /* AddCellView.swift */,
@@ -1543,6 +1573,8 @@
 				41670130255B4A2C0054164F /* Sequence+BookPlayer.swift */,
 				416A297C2568671F00605395 /* AVPlayer+BookPlayer.swift */,
 				410D00E326DAB97700D11A45 /* Combine+BookPlayer.swift */,
+				41A1B12B226FC0A200EA0400 /* DataManager+BookPlayer.swift */,
+				41A1B136226FED4000EA0400 /* DataManager+CoreData.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
