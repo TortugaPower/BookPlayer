@@ -169,7 +169,7 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, FolderList
   }
 
   func adjustBottomOffsetForMiniPlayer() {
-    self.tableView.contentInset.bottom = self.viewModel.getMiniPlayerOffset()
+    self.tableView.contentInset.bottom = Device.current.hasSensorHousing ? 199: 88
   }
 
   func setupBulkControls() {

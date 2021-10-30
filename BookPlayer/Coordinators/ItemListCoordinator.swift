@@ -33,7 +33,6 @@ enum ItemListActionRoutes {
 
 class ItemListCoordinator: Coordinator {
   public var onAction: Transition<ItemListActionRoutes>?
-  let miniPlayerOffset: CGFloat
   let playerManager: PlayerManager
   let importManager: ImportManager
   let dataManager: DataManager
@@ -45,13 +44,11 @@ class ItemListCoordinator: Coordinator {
   init(
     navigationController: UINavigationController,
     library: Library,
-    miniPlayerOffset: CGFloat,
     playerManager: PlayerManager,
     importManager: ImportManager,
     dataManager: DataManager
   ) {
     self.library = library
-    self.miniPlayerOffset = miniPlayerOffset
     self.playerManager = playerManager
     self.importManager = importManager
     self.dataManager = dataManager
@@ -130,8 +127,7 @@ class ItemListCoordinator: Coordinator {
                                       folder: folder,
                                       playerManager: self.playerManager,
                                       importManager: self.importManager,
-                                      dataManager: self.dataManager,
-                                      miniPlayerOffset: self.miniPlayerOffset)
+                                      dataManager: self.dataManager)
     self.childCoordinators.append(child)
     child.parentCoordinator = self
     child.start()
@@ -193,6 +189,7 @@ class ItemListCoordinator: Coordinator {
   func showSettings() {
     let settingsCoordinator = SettingsCoordinator(
       dataManager: self.dataManager,
+      library: self.library,
       navigationController: AppNavigationController.instantiate(from: .Settings)
     )
     settingsCoordinator.parentCoordinator = self
@@ -212,11 +209,11 @@ class ItemListCoordinator: Coordinator {
     child.start()
   }
 
-  private func shouldShowImportScreen() -> Bool {
+  func shouldShowImportScreen() -> Bool {
     return !self.childCoordinators.contains(where: { $0 is ItemListCoordinator || $0 is ImportCoordinator })
   }
 
-  private func shouldHandleImport() -> Bool {
+  func shouldHandleImport() -> Bool {
     return !self.childCoordinators.contains(where: { $0 is ItemListCoordinator })
   }
 

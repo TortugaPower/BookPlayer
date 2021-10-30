@@ -14,12 +14,12 @@ import Foundation
 final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObject {
   private var files = CurrentValueSubject<[StorageItem], Never>([])
   private var disposeBag = Set<AnyCancellable>()
-  private var library: Library!
+  private let library: Library
   private let dataManager: DataManager
 
-  init(dataManager: DataManager) {
+  init(dataManager: DataManager, library: Library) {
     self.dataManager = dataManager
-    self.library = try! dataManager.getLibrary()
+    self.library = library
 
     super.init()
     self.loadItems()

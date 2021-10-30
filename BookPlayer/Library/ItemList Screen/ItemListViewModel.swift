@@ -346,10 +346,6 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: theme.linkColor)?.pngData()
   }
 
-  func getMiniPlayerOffset() -> CGFloat {
-    return self.coordinator.miniPlayerOffset
-  }
-
   func showMiniPlayer(_ flag: Bool) {
     if let mainCoordinator = self.coordinator?.getMainCoordinator() {
       mainCoordinator.showMiniPlayer(flag)
