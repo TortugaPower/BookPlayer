@@ -11,38 +11,31 @@ import BookPlayerKit
 
 class StorageCoordinator: Coordinator {
   let dataManager: DataManager
+  let library: Library
 
   init(dataManager: DataManager,
+       library: Library,
        navigationController: UINavigationController) {
     self.dataManager = dataManager
+    self.library = library
 
-    super.init(navigationController: navigationController)
+    super.init(navigationController: navigationController, flowType: .push)
   }
 
   override func start() {
     let vc = StorageViewController.instantiate(from: .Settings)
 
-    let viewModel = StorageViewModel(dataManager: self.dataManager)
+    let viewModel = StorageViewModel(dataManager: self.dataManager,
+                                     library: self.library)
     viewModel.coordinator = self
     vc.viewModel = viewModel
     self.navigationController.delegate = self
     self.navigationController.pushViewController(vc, animated: true)
   }
 
-  // Clean up for interactive pop gestures
-  override func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
-    // Read the view controller we’re moving from.
-    guard let fromViewController = navigationController.transitionCoordinator?.viewController(forKey: .from) else {
-        return
-    }
+  override func interactiveDidFinish(vc: UIViewController) {
+    guard let vc = vc as? StorageViewController else { return }
 
-    // Check whether our view controller array already contains that view controller. If it does it means we’re pushing a different view controller on top rather than popping it, so exit.
-    if navigationController.viewControllers.contains(fromViewController) {
-        return
-    }
-
-    if let storageViewController = fromViewController as? StorageViewController {
-      storageViewController.viewModel.coordinator.detach()
-    }
+    vc.viewModel.coordinator.detach()
   }
 }

@@ -11,9 +11,8 @@ import Combine
 import UIKit
 import StoreKit
 
-class MiniPlayerViewModel {
+class MiniPlayerViewModel: BaseViewModel<MainCoordinator> {
   private let playerManager: PlayerManager
-  weak var coordinator: MainCoordinator!
 
   init(playerManager: PlayerManager) {
     self.playerManager = playerManager

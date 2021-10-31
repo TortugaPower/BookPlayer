@@ -11,10 +11,9 @@ import Combine
 import UIKit
 import StoreKit
 
-class PlayerViewModel {
+class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   private let playerManager: PlayerManager
   private let dataManager: DataManager
-  weak var coordinator: PlayerCoordinator!
   private var chapterBeforeSliderValueChange: Chapter?
   private var prefersChapterContext = UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
   private var prefersRemainingTime = UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
@@ -259,7 +258,7 @@ class PlayerViewModel {
   }
 
   func dismiss() {
-    self.coordinator.dismiss()
+    self.coordinator.didFinish()
   }
 }
 

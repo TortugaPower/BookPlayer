@@ -21,5 +21,6 @@ extension Storyboarded where Self: UIViewController {
     let storyboard = UIStoryboard(name: storyboard.rawValue, bundle: Bundle(for: self))
     // swiftlint:disable force_cast
     return storyboard.instantiateViewController(withIdentifier: String(describing: self)) as! Self
+    // swiftlint:enable force_cast
   }
 }

@@ -19,7 +19,7 @@ class PlayerCoordinator: Coordinator {
     self.playerManager = playerManager
     self.dataManager = dataManager
 
-    super.init(navigationController: navigationController)
+    super.init(navigationController: navigationController, flowType: .modal)
   }
 
   override func start() {

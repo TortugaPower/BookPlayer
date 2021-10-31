@@ -48,30 +48,34 @@ class GetFilesTests: DataManagerTests {
 
 class ProcessFilesTests: DataManagerTests {
   var importManager: ImportManager!
+  var subscription: AnyCancellable?
 
-    func testProcessOneFile() {
-      let filename = "file.txt"
-      let bookContents = "bookcontents".data(using: .utf8)!
-      let documentsFolder = DataManager.getDocumentsFolderURL()
-      var subscription: AnyCancellable?
+  override func setUp() {
+    self.subscription?.cancel()
+  }
 
-      // Add test file to Documents folder
-      let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
+  func testProcessOneFile() {
+    let filename = "file.txt"
+    let bookContents = "bookcontents".data(using: .utf8)!
+    let documentsFolder = DataManager.getDocumentsFolderURL()
 
-      let expectation = XCTestExpectation(description: "File import notification")
+    // Add test file to Documents folder
+    let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
 
-      self.importManager = ImportManager(dataManager: self.dataManager)
+    let expectation = XCTestExpectation(description: "File import notification")
 
-      subscription = self.importManager.observeFiles().sink { files in
-        guard !files.isEmpty else { return }
+    self.importManager = ImportManager(dataManager: self.dataManager)
 
-        expectation.fulfill()
-      }
+    self.subscription = self.importManager.observeFiles().sink { files in
+      guard !files.isEmpty else { return }
 
-      self.importManager.process(fileUrl)
-
-      wait(for: [expectation], timeout: 15)
+      expectation.fulfill()
     }
+
+    self.importManager.process(fileUrl)
+
+    wait(for: [expectation], timeout: 15)
+  }
 }
 
 // MARK: - insertBooks(from:into:or:completion:)

@@ -18,15 +18,13 @@ class FolderListCoordinator: ItemListCoordinator {
     folder: Folder,
     playerManager: PlayerManager,
     importManager: ImportManager,
-    dataManager: DataManager,
-    miniPlayerOffset: CGFloat
+    dataManager: DataManager
   ) {
     self.folder = folder
 
     super.init(
       navigationController: navigationController,
       library: library,
-      miniPlayerOffset: miniPlayerOffset,
       playerManager: playerManager,
       importManager: importManager,
       dataManager: dataManager

@@ -369,10 +369,9 @@ extension PlayerManager {
 
 extension PlayerManager {
     func play(_ autoplayed: Bool = false) {
-        guard let currentBook = self.currentBook else { return }
+        guard let currentBook = self.currentBook, let item = self.playerItem else { return }
 
-        guard let item = self.playerItem,
-            item.status == .readyToPlay else {
+        guard item.status == .readyToPlay else {
             // queue playback
             self.observeStatus = true
             return
@@ -443,7 +442,6 @@ extension PlayerManager {
         }
 
         self.update()
-        self.sendSignal(.playAction, with: nil)
     }
 
     // swiftlint:disable block_based_kvo

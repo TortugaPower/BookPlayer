@@ -8,7 +8,10 @@
 
 import Foundation
 
-public class ImportableItem: NSObject, NSItemProviderReading {
+/**
+ Defines the type of items the app supports for drop operations
+ */
+final public class ImportableItem: NSObject, NSItemProviderReading {
     let data: Data
     let typeIdentifier: String
     var suggestedName: String?

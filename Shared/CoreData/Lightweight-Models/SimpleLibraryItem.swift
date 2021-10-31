@@ -6,27 +6,32 @@
 //  Copyright © 2021 Tortuga Power. All rights reserved.
 //
 
-import BookPlayerKit
 import Foundation
 
-struct SimpleLibraryItem: Hashable, Identifiable {
-  let id: UUID
-  let title: String
-  let details: String
-  let duration: String
-  let progress: Double
-  let themeAccent: UIColor
-  let relativePath: String
-  let type: SimpleItemType
-  let playbackState: PlaybackState
+public struct SimpleLibraryItem: Hashable, Identifiable {
+  public var id: String {
+    return self.relativePath
+  }
+  public let title: String
+  public let details: String
+  public let duration: String
+  public let progress: Double
+  public let themeAccent: UIColor
+  public let relativePath: String
+  public let type: SimpleItemType
+  public let playbackState: PlaybackState
 
-  static func == (lhs: SimpleLibraryItem, rhs: SimpleLibraryItem) -> Bool {
-    return lhs.relativePath == rhs.relativePath
+  public static func == (lhs: SimpleLibraryItem, rhs: SimpleLibraryItem) -> Bool {
+    return lhs.id == rhs.id
+    && lhs.title == rhs.title
+    && lhs.details == rhs.details
+    && lhs.relativePath == rhs.relativePath
     && lhs.progress == rhs.progress
     && lhs.playbackState == rhs.playbackState
   }
 
-  func hash(into hasher: inout Hasher) {
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(id)
     hasher.combine(title)
     hasher.combine(details)
     hasher.combine(relativePath)
@@ -36,20 +41,19 @@ struct SimpleLibraryItem: Hashable, Identifiable {
 }
 
 extension SimpleLibraryItem {
-  init() {
-    self.id = UUID()
-    self.title = ""
+  // Reserved for Add item
+  public init() {
+    self.title = "Add Button"
     self.details = ""
     self.duration = ""
     self.progress = 0
     self.themeAccent = UIColor(hex: "3488D1")
-    self.relativePath = ""
+    self.relativePath = "bookplayer/add-button"
     self.type = .book
     self.playbackState = .stopped
   }
 
-  init(from item: SimpleLibraryItem, themeAccent: UIColor) {
-    self.id = item.id
+  public init(from item: SimpleLibraryItem, themeAccent: UIColor) {
     self.title = item.title
     self.details = item.details
     self.duration = item.duration
@@ -60,8 +64,7 @@ extension SimpleLibraryItem {
     self.playbackState = item.playbackState
   }
 
-  init(from item: SimpleLibraryItem, progress: Double?, playbackState: PlaybackState = .stopped) {
-    self.id = item.id
+  public init(from item: SimpleLibraryItem, progress: Double?, playbackState: PlaybackState = .stopped) {
     self.title = item.title
     self.details = item.details
     self.duration = item.duration
@@ -72,8 +75,7 @@ extension SimpleLibraryItem {
     self.playbackState = playbackState
   }
 
-  init(from item: SimpleLibraryItem, playbackState: PlaybackState) {
-    self.id = item.id
+  public init(from item: SimpleLibraryItem, playbackState: PlaybackState) {
     self.title = item.title
     self.details = item.details
     self.duration = item.duration
@@ -84,7 +86,7 @@ extension SimpleLibraryItem {
     self.playbackState = playbackState
   }
 
-  init(from item: LibraryItem, themeAccent: UIColor, playbackState: PlaybackState = .stopped) {
+  public init(from item: LibraryItem, themeAccent: UIColor, playbackState: PlaybackState = .stopped) {
     if let book = item as? Book {
       self.init(from: book, themeAccent: themeAccent, playbackState: playbackState)
     } else {
@@ -94,8 +96,7 @@ extension SimpleLibraryItem {
     }
   }
 
-  init(from book: Book, themeAccent: UIColor, playbackState: PlaybackState = .stopped) {
-    self.id = UUID()
+  public init(from book: Book, themeAccent: UIColor, playbackState: PlaybackState = .stopped) {
     self.title = book.title
     self.details = book.author
     self.duration = TimeParser.formatTotalDuration(book.duration)
@@ -106,8 +107,7 @@ extension SimpleLibraryItem {
     self.playbackState = playbackState
   }
 
-  init(from folder: Folder, themeAccent: UIColor, playbackState: PlaybackState = .stopped) {
-    self.id = UUID()
+  public init(from folder: Folder, themeAccent: UIColor, playbackState: PlaybackState = .stopped) {
     self.title = folder.title
     self.details = folder.info()
     self.duration = TimeParser.formatTotalDuration(folder.duration)

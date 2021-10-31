@@ -11,17 +11,17 @@ import Combine
 import DirectoryWatcher
 import Foundation
 
-final class StorageViewModel: ObservableObject {
+final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObject {
   private var files = CurrentValueSubject<[StorageItem], Never>([])
   private var disposeBag = Set<AnyCancellable>()
-  private var library: Library!
+  private let library: Library
   private let dataManager: DataManager
-  public weak var coordinator: StorageCoordinator!
 
-  init(dataManager: DataManager) {
+  init(dataManager: DataManager, library: Library) {
     self.dataManager = dataManager
-    self.library = try! dataManager.getLibrary()
+    self.library = library
 
+    super.init()
     self.loadItems()
   }
 

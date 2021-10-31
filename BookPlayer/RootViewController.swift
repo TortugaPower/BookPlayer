@@ -10,11 +10,11 @@ import BookPlayerKit
 import Themeable
 import UIKit
 
-class RootViewController: UIViewController, UIGestureRecognizerDelegate, Storyboarded {
+class RootViewController: BaseViewController<MainCoordinator, BaseViewModel<MainCoordinator>>,
+                          UIGestureRecognizerDelegate,
+                          Storyboarded {
   @IBOutlet public weak var mainContainer: UIView!
   @IBOutlet public weak var miniPlayerContainer: UIView!
-
-  weak var coordinator: MainCoordinator!
 
   private var themedStatusBarStyle: UIStatusBarStyle?
 
@@ -35,7 +35,7 @@ class RootViewController: UIViewController, UIGestureRecognizerDelegate, Storybo
   override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
 
-    self.coordinator.start()
+    self.viewModel.coordinator.start()
 
     setUpTheming()
   }

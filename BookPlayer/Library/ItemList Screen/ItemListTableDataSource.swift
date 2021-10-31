@@ -6,6 +6,7 @@
 //  Copyright © 2021 Tortuga Power. All rights reserved.
 //
 
+import BookPlayerKit
 import Combine
 import UIKit
 

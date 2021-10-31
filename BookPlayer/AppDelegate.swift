@@ -20,13 +20,24 @@ import WatchConnectivity
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
-    var window: UIWindow?
+  var window: UIWindow?
   let coordinator = LoadingCoordinator(
     navigationController: UINavigationController(),
     loadingViewController: LoadingViewController.instantiate(from: .Main)
   )
-    var wasPlayingBeforeInterruption: Bool = false
-    var watcher: DirectoryWatcher?
+  var wasPlayingBeforeInterruption: Bool = false
+  var watcher: DirectoryWatcher?
+  var keyWindowRootVC: UIViewController? {
+    return UIApplication.shared.connectedScenes.filter({ $0.activationState == .foregroundActive })
+      .compactMap({ $0 as? UIWindowScene }).first?.windows
+      .filter({ $0.isKeyWindow }).first?.rootViewController
+  }
+
+  static var delegateInstance: AppDelegate {
+    // swiftlint:disable force_cast
+    return (UIApplication.shared.delegate as! AppDelegate)
+    // swiftlint:enable force_cast
+  }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
@@ -127,18 +138,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
         completionHandler(response)
     }
 
-    func applicationDidBecomeActive(_ application: UIApplication) {
-        // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-
-        // Check if the app is on the PlayerViewController
-        // TODO: Check if this still works as expected given the new storyboard structure
-        guard let navigationVC = UIApplication.shared.keyWindow?.rootViewController!, navigationVC.children.count > 1 else {
+  func applicationDidBecomeActive(_ application: UIApplication) {
+    // Check if the app is on the PlayerViewController
+    guard let navigationVC = self.keyWindowRootVC,
+          navigationVC.presentedViewController?.presentedViewController is PlayerViewController else {
             return
-        }
+          }
 
-        // Notify controller to see if it should ask for review
-        NotificationCenter.default.post(name: .requestReview, object: nil)
-    }
+    // Notify controller to see if it should ask for review
+    NotificationCenter.default.post(name: .requestReview, object: nil)
+  }
 
     func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
         self.playLastBook()
@@ -201,101 +210,108 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
     return true
   }
 
-    // For now, seek forward/backward and next/previous track perform the same function
-    func setupMPRemoteCommands() {
-        // Play / Pause
-        MPRemoteCommandCenter.shared().togglePlayPauseCommand.isEnabled = true
-        MPRemoteCommandCenter.shared().togglePlayPauseCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
-          guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .commandFailed }
+  func setupMPRemoteCommands() {
+    self.setupMPPlaybackRemoteCommands()
+    self.setupMPSkipRemoteCommands()
 
-          mainCoordinator.playerManager.playPause()
-          return .success
-        }
+    MPRemoteCommandCenter.shared().bookmarkCommand.localizedTitle = "bookmark_create_title".localized
+    // Enabling this makes the rewind button disappear in the lock screen
+    MPRemoteCommandCenter.shared().bookmarkCommand.isEnabled = false
+    MPRemoteCommandCenter.shared().bookmarkCommand.addTarget { _ in
+      guard let mainCoordinator = self.coordinator.getMainCoordinator(),
+            let currentBook = mainCoordinator.playerManager.currentBook else { return .commandFailed }
 
-        MPRemoteCommandCenter.shared().playCommand.isEnabled = true
-        MPRemoteCommandCenter.shared().playCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
-          guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .commandFailed }
+      _ = mainCoordinator.dataManager.createBookmark(at: currentBook.currentTime, book: currentBook, type: .user)
 
-          mainCoordinator.playerManager.play()
-          return .success
-        }
+      return .success
+    }
+  }
 
-        MPRemoteCommandCenter.shared().pauseCommand.isEnabled = true
-        MPRemoteCommandCenter.shared().pauseCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
-          guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .commandFailed }
+  func setupMPPlaybackRemoteCommands() {
+    // Play / Pause
+    MPRemoteCommandCenter.shared().togglePlayPauseCommand.isEnabled = true
+    MPRemoteCommandCenter.shared().togglePlayPauseCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
+      guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .commandFailed }
 
-          mainCoordinator.playerManager.pause()
-          return .success
-        }
+      mainCoordinator.playerManager.playPause()
+      return .success
+    }
 
-        // Forward
-        MPRemoteCommandCenter.shared().skipForwardCommand.preferredIntervals = [NSNumber(value: PlayerManager.forwardInterval)]
-        MPRemoteCommandCenter.shared().skipForwardCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
-          guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .commandFailed }
+    MPRemoteCommandCenter.shared().playCommand.isEnabled = true
+    MPRemoteCommandCenter.shared().playCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
+      guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .commandFailed }
 
-          mainCoordinator.playerManager.forward()
-          return .success
-        }
+      mainCoordinator.playerManager.play()
+      return .success
+    }
 
-        MPRemoteCommandCenter.shared().nextTrackCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
-          guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .commandFailed }
+    MPRemoteCommandCenter.shared().pauseCommand.isEnabled = true
+    MPRemoteCommandCenter.shared().pauseCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
+      guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .commandFailed }
 
-          mainCoordinator.playerManager.forward()
-          return .success
-        }
+      mainCoordinator.playerManager.pause()
+      return .success
+    }
+  }
 
-      MPRemoteCommandCenter.shared().bookmarkCommand.localizedTitle = "bookmark_create_title".localized
-      // Enabling this makes the rewind button disappear in the lock screen
-      MPRemoteCommandCenter.shared().bookmarkCommand.isEnabled = false
-      MPRemoteCommandCenter.shared().bookmarkCommand.addTarget { _ in
-        guard let mainCoordinator = self.coordinator.getMainCoordinator(),
-              let currentBook = mainCoordinator.playerManager.currentBook else { return .commandFailed }
+  // For now, seek forward/backward and next/previous track perform the same function
+  func setupMPSkipRemoteCommands() {
+    // Forward
+    MPRemoteCommandCenter.shared().skipForwardCommand.preferredIntervals = [NSNumber(value: PlayerManager.forwardInterval)]
+    MPRemoteCommandCenter.shared().skipForwardCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
+      guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .commandFailed }
 
-        _ = mainCoordinator.dataManager.createBookmark(at: currentBook.currentTime, book: currentBook, type: .user)
+      mainCoordinator.playerManager.forward()
+      return .success
+    }
 
+    MPRemoteCommandCenter.shared().nextTrackCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
+      guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .commandFailed }
+
+      mainCoordinator.playerManager.forward()
+      return .success
+    }
+
+    MPRemoteCommandCenter.shared().seekForwardCommand.addTarget { (commandEvent) -> MPRemoteCommandHandlerStatus in
+      guard let cmd = commandEvent as? MPSeekCommandEvent, cmd.type == .endSeeking else {
         return .success
       }
 
-        MPRemoteCommandCenter.shared().seekForwardCommand.addTarget { (commandEvent) -> MPRemoteCommandHandlerStatus in
-          guard let cmd = commandEvent as? MPSeekCommandEvent, cmd.type == .endSeeking else {
-            return .success
-          }
+      guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .success }
 
-          guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .success }
-
-          // End seeking
-          mainCoordinator.playerManager.forward()
-          return .success
-        }
-
-        // Rewind
-        MPRemoteCommandCenter.shared().skipBackwardCommand.preferredIntervals = [NSNumber(value: PlayerManager.rewindInterval)]
-        MPRemoteCommandCenter.shared().skipBackwardCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
-          guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .commandFailed }
-
-          mainCoordinator.playerManager.rewind()
-          return .success
-        }
-
-        MPRemoteCommandCenter.shared().previousTrackCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
-          guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .commandFailed }
-
-          mainCoordinator.playerManager.rewind()
-          return .success
-        }
-
-        MPRemoteCommandCenter.shared().seekBackwardCommand.addTarget { (commandEvent) -> MPRemoteCommandHandlerStatus in
-          guard let cmd = commandEvent as? MPSeekCommandEvent, cmd.type == .endSeeking else {
-            return .success
-          }
-
-          guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .success }
-
-          // End seeking
-          mainCoordinator.playerManager.rewind()
-          return .success
-        }
+      // End seeking
+      mainCoordinator.playerManager.forward()
+      return .success
     }
+
+    // Rewind
+    MPRemoteCommandCenter.shared().skipBackwardCommand.preferredIntervals = [NSNumber(value: PlayerManager.rewindInterval)]
+    MPRemoteCommandCenter.shared().skipBackwardCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
+      guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .commandFailed }
+
+      mainCoordinator.playerManager.rewind()
+      return .success
+    }
+
+    MPRemoteCommandCenter.shared().previousTrackCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
+      guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .commandFailed }
+
+      mainCoordinator.playerManager.rewind()
+      return .success
+    }
+
+    MPRemoteCommandCenter.shared().seekBackwardCommand.addTarget { (commandEvent) -> MPRemoteCommandHandlerStatus in
+      guard let cmd = commandEvent as? MPSeekCommandEvent, cmd.type == .endSeeking else {
+        return .success
+      }
+
+      guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .success }
+
+      // End seeking
+      mainCoordinator.playerManager.rewind()
+      return .success
+    }
+  }
 
   func setupDocumentListener() {
     let documentsUrl = DataManager.getDocumentsFolderURL()

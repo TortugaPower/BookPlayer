@@ -115,9 +115,10 @@ extension DataManager {
     public func delete(_ items: [LibraryItem], library: Library, mode: DeleteMode = .deep) throws {
         for item in items {
             guard let folder = item as? Folder else {
-                // swiftlint:disable force_cast
-                try self.delete(item as! Book, library: library, mode: mode)
-                continue
+              // swiftlint:disable force_cast
+              try self.delete(item as! Book, library: library, mode: mode)
+              // swiftlint:enable force_cast
+              continue
             }
 
             try self.delete(folder, library: library, mode: mode)
@@ -151,8 +152,9 @@ extension DataManager {
 
         // swiftlint:disable force_cast
         for item in folder.items?.array as! [LibraryItem] {
-            guard mode == .deep else { continue }
-            try self.delete(item, library: library, mode: .deep)
+          // swiftlint:enable force_cast
+          guard mode == .deep else { continue }
+          try self.delete(item, library: library, mode: .deep)
         }
 
       library.removeFromItems(folder)

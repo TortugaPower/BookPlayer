@@ -8,133 +8,132 @@
 
 import Foundation
 import UIKit
-import BookPlayerKit
 
-struct SimpleTheme: Codable {
-  var useDarkVariant: Bool = false
+public struct SimpleTheme: Codable {
+  public var useDarkVariant: Bool = false
 
-  let lightPrimaryHex: String
-  let lightSecondaryHex: String
-  let lightAccentHex: String
-  let lightSeparatorHex: String
-  let lightSystemBackgroundHex: String
-  let lightSecondarySystemBackgroundHex: String
-  let lightTertiarySystemBackgroundHex: String
-  let lightSystemGroupedBackgroundHex: String
-  let lightSystemFillHex: String
-  let lightSecondarySystemFillHex: String
-  let lightTertiarySystemFillHex: String
-  let lightQuaternarySystemFillHex: String
-  let darkPrimaryHex: String
-  let darkSecondaryHex: String
-  let darkAccentHex: String
-  let darkSeparatorHex: String
-  let darkSystemBackgroundHex: String
-  let darkSecondarySystemBackgroundHex: String
-  let darkTertiarySystemBackgroundHex: String
-  let darkSystemGroupedBackgroundHex: String
-  let darkSystemFillHex: String
-  let darkSecondarySystemFillHex: String
-  let darkTertiarySystemFillHex: String
-  let darkQuaternarySystemFillHex: String
-  let locked: Bool
+  public let lightPrimaryHex: String
+  public let lightSecondaryHex: String
+  public let lightAccentHex: String
+  public let lightSeparatorHex: String
+  public let lightSystemBackgroundHex: String
+  public let lightSecondarySystemBackgroundHex: String
+  public let lightTertiarySystemBackgroundHex: String
+  public let lightSystemGroupedBackgroundHex: String
+  public let lightSystemFillHex: String
+  public let lightSecondarySystemFillHex: String
+  public let lightTertiarySystemFillHex: String
+  public let lightQuaternarySystemFillHex: String
+  public let darkPrimaryHex: String
+  public let darkSecondaryHex: String
+  public let darkAccentHex: String
+  public let darkSeparatorHex: String
+  public let darkSystemBackgroundHex: String
+  public let darkSecondarySystemBackgroundHex: String
+  public let darkTertiarySystemBackgroundHex: String
+  public let darkSystemGroupedBackgroundHex: String
+  public let darkSystemFillHex: String
+  public let darkSecondarySystemFillHex: String
+  public let darkTertiarySystemFillHex: String
+  public let darkQuaternarySystemFillHex: String
+  public let locked: Bool
 
-  let title: String?
+  public let title: String?
 
-  var lightPrimaryColor: UIColor {
+  public var lightPrimaryColor: UIColor {
       return UIColor(hex: lightPrimaryHex)
   }
 
-  var lightSecondaryColor: UIColor {
+  public var lightSecondaryColor: UIColor {
       return UIColor(hex: lightSecondaryHex)
   }
 
-  var lightLinkColor: UIColor {
+  public var lightLinkColor: UIColor {
       return UIColor(hex: lightAccentHex)
   }
 
-  var lightSystemBackgroundColor: UIColor {
+  public var lightSystemBackgroundColor: UIColor {
       return UIColor(hex: lightSystemBackgroundHex)
   }
 
-  var primaryColor: UIColor {
+  public var primaryColor: UIColor {
       let hex: String = self.useDarkVariant
           ? darkPrimaryHex
           : lightPrimaryHex
       return UIColor(hex: hex)
   }
 
-  var secondaryColor: UIColor {
+  public var secondaryColor: UIColor {
       let hex: String = self.useDarkVariant
           ? darkSecondaryHex
           : lightSecondaryHex
       return UIColor(hex: hex)
   }
 
-  var linkColor: UIColor {
+  public var linkColor: UIColor {
       let hex: String = self.useDarkVariant
           ? darkAccentHex
           : lightAccentHex
       return UIColor(hex: hex)
   }
 
-  var separatorColor: UIColor {
+  public var separatorColor: UIColor {
       let hex: String = self.useDarkVariant
           ? darkSeparatorHex
           : lightSeparatorHex
       return UIColor(hex: hex)
   }
 
-  var systemBackgroundColor: UIColor {
+  public var systemBackgroundColor: UIColor {
       let hex: String = self.useDarkVariant
           ? darkSystemBackgroundHex
           : lightSystemBackgroundHex
       return UIColor(hex: hex)
   }
 
-  var secondarySystemBackgroundColor: UIColor {
+  public var secondarySystemBackgroundColor: UIColor {
       let hex: String = self.useDarkVariant
           ? darkSecondarySystemBackgroundHex
           : lightSecondarySystemBackgroundHex
       return UIColor(hex: hex)
   }
 
-  var tertiarySystemBackgroundColor: UIColor {
+  public var tertiarySystemBackgroundColor: UIColor {
       let hex: String = self.useDarkVariant
           ? darkTertiarySystemBackgroundHex
           : lightTertiarySystemBackgroundHex
       return UIColor(hex: hex)
   }
 
-  var systemGroupedBackgroundColor: UIColor {
+  public var systemGroupedBackgroundColor: UIColor {
       let hex: String = self.useDarkVariant
           ? darkSystemGroupedBackgroundHex
           : lightSystemGroupedBackgroundHex
       return UIColor(hex: hex)
   }
 
-  var systemFillColor: UIColor {
+  public var systemFillColor: UIColor {
       let hex: String = self.useDarkVariant
           ? darkSystemFillHex
           : lightSystemFillHex
       return UIColor(hex: hex)
   }
 
-  var secondarySystemFillColor: UIColor {
+  public var secondarySystemFillColor: UIColor {
       let hex: String = self.useDarkVariant
           ? darkSecondarySystemFillHex
           : lightSecondarySystemFillHex
       return UIColor(hex: hex)
   }
 
-  var tertiarySystemFillColor: UIColor {
+  public var tertiarySystemFillColor: UIColor {
       let hex: String = self.useDarkVariant
           ? darkTertiarySystemFillHex
           : lightTertiarySystemFillHex
       return UIColor(hex: hex)
   }
 
-  var quaternarySystemFillColor: UIColor {
+  public var quaternarySystemFillColor: UIColor {
       let hex: String = self.useDarkVariant
           ? darkQuaternarySystemFillHex
           : lightQuaternarySystemFillHex
@@ -147,7 +146,7 @@ struct SimpleTheme: Codable {
 }
 
 extension SimpleTheme {
-  init(with theme: Theme) {
+  public init(with theme: Theme) {
     self.title = theme.title
     self.lightPrimaryHex = theme.lightPrimaryHex
     self.lightSecondaryHex = theme.lightSecondaryHex
@@ -198,7 +197,7 @@ extension SimpleTheme {
     self.locked = theme.locked
   }
 
-  init(with theme: SimpleTheme, useDarkVariant: Bool) {
+  public init(with theme: SimpleTheme, useDarkVariant: Bool) {
     self.title = theme.title
     self.lightPrimaryHex = theme.lightPrimaryHex
     self.lightSecondaryHex = theme.lightSecondaryHex
@@ -230,7 +229,7 @@ extension SimpleTheme {
 }
 
 extension SimpleTheme: Equatable {
-  static func == (lhs: SimpleTheme, rhs: SimpleTheme) -> Bool {
+  public static func == (lhs: SimpleTheme, rhs: SimpleTheme) -> Bool {
     return lhs.title == rhs.title
   }
 }

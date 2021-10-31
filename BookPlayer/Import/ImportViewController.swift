@@ -12,13 +12,12 @@ import Combine
 import Themeable
 import UIKit
 
-final class ImportViewController: UIViewController, Storyboarded {
+final class ImportViewController: BaseViewController<ImportCoordinator, ImportViewModel>, Storyboarded {
   @IBOutlet weak var descriptionLabel: UILabel!
   @IBOutlet weak var tableView: UITableView!
 
-  var viewModel: ImportViewModel!
   private var disposeBag = Set<AnyCancellable>()
-  private var files = [FileItem]()
+  private var files = [ImportFileItem]()
   private var watchers = [DirectoryWatcher]()
 
   override func viewDidLoad() {
@@ -65,16 +64,17 @@ extension ImportViewController: UITableViewDataSource {
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     // swiftlint:disable force_cast
     let cell = tableView.dequeueReusableCell(withIdentifier: "ImportTableViewCell", for: indexPath) as! ImportTableViewCell
+    // swiftlint:enable force_cast
     let fileItem = self.files[indexPath.row]
 
-    let imageName = fileItem.originalUrl.isDirectoryFolder ? "folder" : "waveform"
+    let imageName = fileItem.fileUrl.isDirectoryFolder ? "folder" : "waveform"
     cell.iconImageView.image = UIImage(systemName: imageName)
-    cell.filenameLabel.text = fileItem.getOriginalName()
+    cell.filenameLabel.text = fileItem.getFileName()
     cell.countLabel.text = fileItem.subItems > 0 ? "\(fileItem.subItems) " + "files_title".localized : ""
 
     cell.onDeleteTap = { [weak self] in
       do {
-        try self?.viewModel.deleteItem(fileItem.originalUrl)
+        try self?.viewModel.deleteItem(fileItem.fileUrl)
       } catch {
         self?.showAlert("error_title".localized, message: error.localizedDescription)
       }

@@ -26,7 +26,7 @@ class PlusBannerView: NibLoadableView {
     @IBAction func showPlus(_ sender: UIButton) {
       let vc = PlusNavigationController.instantiate(from: .Settings)
 
-      var topController = UIApplication.shared.keyWindow?.rootViewController
+      var topController = AppDelegate.delegateInstance.keyWindowRootVC
 
       while let newTopController = topController?.presentedViewController {
         topController = newTopController

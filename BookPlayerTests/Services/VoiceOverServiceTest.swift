@@ -34,8 +34,4 @@ class VoiceOverServiceTest: XCTestCase {
 
         XCTAssert(VoiceOverService.fastForwardText() == localizedString)
     }
-
-    func testPerformanceExample() {
-        self.measure {}
-    }
 }

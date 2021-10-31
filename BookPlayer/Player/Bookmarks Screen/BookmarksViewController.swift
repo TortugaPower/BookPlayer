@@ -10,9 +10,7 @@ import BookPlayerKit
 import Themeable
 import UIKit
 
-class BookmarksViewController: UITableViewController, Storyboarded {
-  var viewModel: BookmarksViewModel!
-
+class BookmarksViewController: BaseTableViewController<BookmarkCoordinator, BookmarksViewModel>, Storyboarded {
   var automaticBookmarks = [Bookmark]()
   var userBookmarks = [Bookmark]()
 
