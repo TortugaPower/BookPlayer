@@ -9,7 +9,9 @@
 import Foundation
 
 public struct SimpleLibraryItem: Hashable, Identifiable {
-  public let id: UUID
+  public var id: String {
+    return self.relativePath
+  }
   public let title: String
   public let details: String
   public let duration: String
@@ -20,12 +22,16 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
   public let playbackState: PlaybackState
 
   public static func == (lhs: SimpleLibraryItem, rhs: SimpleLibraryItem) -> Bool {
-    return lhs.relativePath == rhs.relativePath
+    return lhs.id == rhs.id
+    && lhs.title == rhs.title
+    && lhs.details == rhs.details
+    && lhs.relativePath == rhs.relativePath
     && lhs.progress == rhs.progress
     && lhs.playbackState == rhs.playbackState
   }
 
   public func hash(into hasher: inout Hasher) {
+    hasher.combine(id)
     hasher.combine(title)
     hasher.combine(details)
     hasher.combine(relativePath)
@@ -35,20 +41,19 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
 }
 
 extension SimpleLibraryItem {
+  // Reserved for Add item
   public init() {
-    self.id = UUID()
-    self.title = ""
+    self.title = "Add Button"
     self.details = ""
     self.duration = ""
     self.progress = 0
     self.themeAccent = UIColor(hex: "3488D1")
-    self.relativePath = ""
+    self.relativePath = "bookplayer/add-button"
     self.type = .book
     self.playbackState = .stopped
   }
 
   public init(from item: SimpleLibraryItem, themeAccent: UIColor) {
-    self.id = item.id
     self.title = item.title
     self.details = item.details
     self.duration = item.duration
@@ -60,7 +65,6 @@ extension SimpleLibraryItem {
   }
 
   public init(from item: SimpleLibraryItem, progress: Double?, playbackState: PlaybackState = .stopped) {
-    self.id = item.id
     self.title = item.title
     self.details = item.details
     self.duration = item.duration
@@ -72,7 +76,6 @@ extension SimpleLibraryItem {
   }
 
   public init(from item: SimpleLibraryItem, playbackState: PlaybackState) {
-    self.id = item.id
     self.title = item.title
     self.details = item.details
     self.duration = item.duration
@@ -94,7 +97,6 @@ extension SimpleLibraryItem {
   }
 
   public init(from book: Book, themeAccent: UIColor, playbackState: PlaybackState = .stopped) {
-    self.id = UUID()
     self.title = book.title
     self.details = book.author
     self.duration = TimeParser.formatTotalDuration(book.duration)
@@ -106,7 +108,6 @@ extension SimpleLibraryItem {
   }
 
   public init(from folder: Folder, themeAccent: UIColor, playbackState: PlaybackState = .stopped) {
-    self.id = UUID()
     self.title = folder.title
     self.details = folder.info()
     self.duration = TimeParser.formatTotalDuration(folder.duration)
