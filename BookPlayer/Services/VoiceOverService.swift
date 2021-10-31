@@ -4,12 +4,12 @@ import Foundation
 class VoiceOverService {
     var title: String?
     var subtitle: String?
-    var type: BookCellType!
+    var type: SimpleItemType!
     var progress: Double?
 
     // MARK: - BookCellView
 
-    public func bookCellView(type: BookCellType, title: String?, subtitle: String?, progress: Double?) -> String {
+    public func bookCellView(type: SimpleItemType, title: String?, subtitle: String?, progress: Double?) -> String {
         self.type = type
         self.title = title
         self.subtitle = subtitle
@@ -18,8 +18,6 @@ class VoiceOverService {
         switch type {
         case .book:
             return self.bookText()
-        case .file:
-            return self.fileText()
         case .folder:
             return self.folderText()
         }
@@ -52,28 +50,24 @@ class VoiceOverService {
     // MARK: PlayerMetaView
 
     public func playerMetaText(book: Book) -> String {
-        let title: String = book.title != nil
-            ? book.title
-            : "voiceover_unknown_title".localized
-        let author: String = book.author != nil
-            ? book.author
-            : "voiceover_unknown_author".localized
+      let title: String = book.title != nil
+      ? book.title
+      : "voiceover_unknown_title".localized
+      let author: String = book.author != nil
+      ? book.author
+      : "voiceover_unknown_author".localized
 
-        guard let currentChapter = book.currentChapter else {
-            return String(describing: String.localizedStringWithFormat("voiceover_book_info".localized, title, author))
-        }
-
-        return String(describing: String.localizedStringWithFormat("voiceover_book_chapter".localized, title, author, String(describing: currentChapter.index)))
+      return String(describing: String.localizedStringWithFormat("voiceover_book_info".localized, title, author))
     }
 
     // MARK: - ArtworkControl
 
     public static func rewindText() -> String {
-        return String(describing: String.localizedStringWithFormat("voiceover_rewind_time".localized, self.secondsToMinutes(PlayerManager.shared.rewindInterval.rounded())))
+        return String(describing: String.localizedStringWithFormat("voiceover_rewind_time".localized, self.secondsToMinutes(PlayerManager.rewindInterval.rounded())))
     }
 
     public static func fastForwardText() -> String {
-        return String(describing: String.localizedStringWithFormat("voiceover_forward_time".localized, self.secondsToMinutes(PlayerManager.shared.forwardInterval.rounded())))
+        return String(describing: String.localizedStringWithFormat("voiceover_forward_time".localized, self.secondsToMinutes(PlayerManager.forwardInterval.rounded())))
     }
 
     public static func secondsToMinutes(_ interval: TimeInterval) -> String {

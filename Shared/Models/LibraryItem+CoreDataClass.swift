@@ -19,7 +19,12 @@ public class LibraryItem: NSManagedObject, Codable {
     return DataManager.getProcessedFolderURL().appendingPathComponent(self.relativePath)
   }
 
-  var cachedArtwork: UIImage?
+  public var lastPathComponent: String? {
+    guard self.relativePath != nil,
+          let lastComponent = self.relativePath.split(separator: "/").last else { return nil }
+
+    return String(lastComponent)
+  }
 
   public func getLibrary() -> Library? {
     if let parentFolder = self.folder {
@@ -43,24 +48,6 @@ public class LibraryItem: NSManagedObject, Codable {
         return 1.0
     }
 
-    public func getArtwork(for theme: Theme?) -> UIImage? {
-        if let cachedArtwork = self.cachedArtwork {
-            return cachedArtwork
-        }
-
-        guard let artworkData = self.artworkData,
-              let image = UIImage(data: artworkData as Data) else {
-            #if os(iOS)
-            self.cachedArtwork = DefaultArtworkFactory.generateArtwork(from: theme?.linkColor)
-            #endif
-
-            return self.cachedArtwork
-        }
-
-        self.cachedArtwork = image
-        return image
-    }
-
     public func info() -> String { return "" }
 
     public func jumpToStart() {}
@@ -70,6 +57,8 @@ public class LibraryItem: NSManagedObject, Codable {
     public func setCurrentTime(_ time: Double) {}
 
   public func index(for item: LibraryItem) -> Int? { return nil }
+
+  public func getFolder(matching relativePath: String) -> Folder? { return nil }
 
     public func getItem(with relativePath: String) -> LibraryItem? { return nil }
 

@@ -35,7 +35,7 @@ class ThemeCellView: UITableViewCell {
         setUpTheming()
     }
 
-    func setupShowCaseView(for theme: Theme) {
+    func setupShowCaseView(for theme: SimpleTheme) {
         self.showCaseView.layer.sublayers = nil
         self.showCaseView.addLayerMask("themeColorBackgroundMask", backgroundColor: theme.lightSystemBackgroundColor)
         self.showCaseView.addLayerMask("themeColorAccentMask", backgroundColor: theme.lightLinkColor)
@@ -45,7 +45,7 @@ class ThemeCellView: UITableViewCell {
 }
 
 extension ThemeCellView: Themeable {
-    func applyTheme(_ theme: Theme) {
+    func applyTheme(_ theme: SimpleTheme) {
         self.titleLabel?.textColor = theme.primaryColor
         self.lockImageView.tintColor = theme.linkColor
         self.backgroundColor = theme.systemBackgroundColor

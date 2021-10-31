@@ -21,6 +21,10 @@ import WatchConnectivity
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
     var window: UIWindow?
+  let coordinator = LoadingCoordinator(
+    navigationController: UINavigationController(),
+    loadingViewController: LoadingViewController.instantiate(from: .Main)
+  )
     var wasPlayingBeforeInterruption: Bool = false
     var watcher: DirectoryWatcher?
 
@@ -61,35 +65,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
         self.setupMPRemoteCommands()
         // register document's folder listener
         self.setupDocumentListener()
-        // load themes if necessary
-        DataManager.setupDefaultState()
         // setup store required listeners
         self.setupStoreListener()
-        // register for CarPlay
-        self.setupCarPlay()
         // initialize Telemetry
         self.setupTelemetry()
-
-        if let activityDictionary = launchOptions?[.userActivityDictionary] as? [UIApplication.LaunchOptionsKey: Any],
-            let activityType = activityDictionary[.userActivityType] as? String,
-            activityType == Constants.UserActivityPlayback {
-            self.playLastBook()
-        }
 
         // Create a Sentry client
         SentrySDK.start { options in
             options.dsn = "https://23b4d02f7b044c10adb55a0cc8de3881@sentry.io/1414296"
-            options.debug = true
+            options.debug = false
         }
 
-        WatchConnectivityService.sharedManager.startSession()
+      self.coordinator.start()
 
-        return true
-    }
+      self.window = UIWindow(frame: UIScreen.main.bounds)
+      self.window?.rootViewController = self.coordinator.navigationController
+      self.window?.makeKeyAndVisible()
 
-    func setupCarPlay() {
-        MPPlayableContentManager.shared().dataSource = CarPlayManager.shared
-        MPPlayableContentManager.shared().delegate = CarPlayManager.shared
+      if let activityDictionary = launchOptions?[.userActivityDictionary] as? [UIApplication.LaunchOptionsKey: Any],
+          let activityType = activityDictionary[.userActivityType] as? String,
+          activityType == Constants.UserActivityPlayback {
+          self.playLastBook()
+      }
+
+      return true
     }
 
     func setupTelemetry() {
@@ -97,26 +96,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
         TelemetryManager.initialize(with: configuration)
     }
 
-    func getLibraryVC() -> LibraryViewController? {
-        guard let rootVC = UIApplication.shared.keyWindow?.rootViewController! as? RootViewController,
-            let appNav = rootVC.children.first as? AppNavigationController else {
-            return nil
-        }
-
-        return appNav.children.first as? LibraryViewController
-    }
-
     // Handles audio file urls, like when receiving files through AirDrop
     // Also handles custom URL scheme 'bookplayer://'
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
-        guard url.isFileURL else {
-            ActionParserService.process(url)
-            return true
-        }
-
-        DataManager.processFile(at: url)
-
+      guard url.isFileURL else {
+        ActionParserService.process(url)
         return true
+      }
+
+      guard let mainCoordinator = self.coordinator.getMainCoordinator(),
+            let libraryCoordinator = mainCoordinator.getLibraryCoordinator() else {
+        return true
+      }
+
+      libraryCoordinator.processFiles(urls: [url])
+
+      return true
     }
 
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
@@ -130,16 +125,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
 
         let response = INPlayMediaIntentResponse(code: .success, userActivity: nil)
         completionHandler(response)
-    }
-
-    func applicationWillEnterForeground(_ application: UIApplication) {
-        // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
-
-        DispatchQueue.main.async {
-            if !PlayerManager.shared.isPlaying {
-                NotificationCenter.default.post(name: .bookPaused, object: nil)
-            }
-        }
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
@@ -172,22 +157,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
     }
 
     @objc func sendApplicationContext() {
-        WatchConnectivityService.sharedManager.sendApplicationContext()
+      guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return }
+      mainCoordinator.watchConnectivityService.sendApplicationContext()
     }
 
     // Playback may be interrupted by calls. Handle pause
     @objc func handleAudioInterruptions(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
+      guard let userInfo = notification.userInfo,
             let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
-            let type = AVAudioSession.InterruptionType(rawValue: typeValue) else {
+            let type = AVAudioSession.InterruptionType(rawValue: typeValue),
+            let mainCoordinator = self.coordinator.getMainCoordinator() else {
             return
         }
 
         switch type {
         case .began:
-            if PlayerManager.shared.isPlaying {
-                PlayerManager.shared.pause()
-            }
+          if mainCoordinator.playerManager.isPlaying {
+            mainCoordinator.playerManager.pause()
+          }
         case .ended:
             guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else {
                 return
@@ -195,87 +182,118 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
 
             let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
             if options.contains(.shouldResume) {
-                PlayerManager.shared.play()
+              mainCoordinator.playerManager.play()
             }
             @unknown default:
             break
         }
     }
 
-    override func accessibilityPerformMagicTap() -> Bool {
-        guard PlayerManager.shared.currentBook != nil else {
+  override func accessibilityPerformMagicTap() -> Bool {
+    guard let mainCoordinator = self.coordinator.getMainCoordinator(),
+          mainCoordinator.playerManager.currentBook != nil else {
             UIAccessibility.post(notification: .announcement, argument: "voiceover_no_title".localized)
             return false
-        }
+          }
 
-        PlayerManager.shared.playPause()
-        self.sendSignal(.magicTapAction, with: nil)
-        return true
-    }
+    mainCoordinator.playerManager.playPause()
+    self.sendSignal(.magicTapAction, with: nil)
+    return true
+  }
 
     // For now, seek forward/backward and next/previous track perform the same function
     func setupMPRemoteCommands() {
         // Play / Pause
         MPRemoteCommandCenter.shared().togglePlayPauseCommand.isEnabled = true
         MPRemoteCommandCenter.shared().togglePlayPauseCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
-            PlayerManager.shared.playPause()
-            return .success
+          guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .commandFailed }
+
+          mainCoordinator.playerManager.playPause()
+          return .success
         }
 
         MPRemoteCommandCenter.shared().playCommand.isEnabled = true
         MPRemoteCommandCenter.shared().playCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
-            PlayerManager.shared.play()
-            return .success
+          guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .commandFailed }
+
+          mainCoordinator.playerManager.play()
+          return .success
         }
 
         MPRemoteCommandCenter.shared().pauseCommand.isEnabled = true
         MPRemoteCommandCenter.shared().pauseCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
-            PlayerManager.shared.pause()
-            return .success
+          guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .commandFailed }
+
+          mainCoordinator.playerManager.pause()
+          return .success
         }
 
         // Forward
-        MPRemoteCommandCenter.shared().skipForwardCommand.preferredIntervals = [NSNumber(value: PlayerManager.shared.forwardInterval)]
+        MPRemoteCommandCenter.shared().skipForwardCommand.preferredIntervals = [NSNumber(value: PlayerManager.forwardInterval)]
         MPRemoteCommandCenter.shared().skipForwardCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
-            PlayerManager.shared.forward()
-            return .success
+          guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .commandFailed }
+
+          mainCoordinator.playerManager.forward()
+          return .success
         }
 
         MPRemoteCommandCenter.shared().nextTrackCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
-            PlayerManager.shared.forward()
-            return .success
+          guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .commandFailed }
+
+          mainCoordinator.playerManager.forward()
+          return .success
         }
 
-        MPRemoteCommandCenter.shared().seekForwardCommand.addTarget { (commandEvent) -> MPRemoteCommandHandlerStatus in
-            guard let cmd = commandEvent as? MPSeekCommandEvent, cmd.type == .endSeeking else {
-                return .success
-            }
+      MPRemoteCommandCenter.shared().bookmarkCommand.localizedTitle = "bookmark_create_title".localized
+      // Enabling this makes the rewind button disappear in the lock screen
+      MPRemoteCommandCenter.shared().bookmarkCommand.isEnabled = false
+      MPRemoteCommandCenter.shared().bookmarkCommand.addTarget { _ in
+        guard let mainCoordinator = self.coordinator.getMainCoordinator(),
+              let currentBook = mainCoordinator.playerManager.currentBook else { return .commandFailed }
 
-            // End seeking
-            PlayerManager.shared.forward()
+        _ = mainCoordinator.dataManager.createBookmark(at: currentBook.currentTime, book: currentBook, type: .user)
+
+        return .success
+      }
+
+        MPRemoteCommandCenter.shared().seekForwardCommand.addTarget { (commandEvent) -> MPRemoteCommandHandlerStatus in
+          guard let cmd = commandEvent as? MPSeekCommandEvent, cmd.type == .endSeeking else {
             return .success
+          }
+
+          guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .success }
+
+          // End seeking
+          mainCoordinator.playerManager.forward()
+          return .success
         }
 
         // Rewind
-        MPRemoteCommandCenter.shared().skipBackwardCommand.preferredIntervals = [NSNumber(value: PlayerManager.shared.rewindInterval)]
+        MPRemoteCommandCenter.shared().skipBackwardCommand.preferredIntervals = [NSNumber(value: PlayerManager.rewindInterval)]
         MPRemoteCommandCenter.shared().skipBackwardCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
-            PlayerManager.shared.rewind()
-            return .success
+          guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .commandFailed }
+
+          mainCoordinator.playerManager.rewind()
+          return .success
         }
 
         MPRemoteCommandCenter.shared().previousTrackCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
-            PlayerManager.shared.rewind()
-            return .success
+          guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .commandFailed }
+
+          mainCoordinator.playerManager.rewind()
+          return .success
         }
 
         MPRemoteCommandCenter.shared().seekBackwardCommand.addTarget { (commandEvent) -> MPRemoteCommandHandlerStatus in
-            guard let cmd = commandEvent as? MPSeekCommandEvent, cmd.type == .endSeeking else {
-                return .success
-            }
-
-            // End seeking
-            PlayerManager.shared.rewind()
+          guard let cmd = commandEvent as? MPSeekCommandEvent, cmd.type == .endSeeking else {
             return .success
+          }
+
+          guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .success }
+
+          // End seeking
+          mainCoordinator.playerManager.rewind()
+          return .success
         }
     }
 
@@ -286,9 +304,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
     self.watcher?.ignoreDirectories = false
 
     self.watcher?.onNewFiles = { newFiles in
-      for url in newFiles {
-        DataManager.processFile(at: url)
+      guard let mainCoordinator = self.coordinator.getMainCoordinator(),
+            let libraryCoordinator = mainCoordinator.getLibraryCoordinator() else {
+        return
       }
+
+      libraryCoordinator.processFiles(urls: newFiles)
     }
   }
 
@@ -317,29 +338,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
 // MARK: - Actions (custom scheme)
 
 extension AppDelegate {
-    func playLastBook() {
-        if PlayerManager.shared.hasLoadedBook {
-            PlayerManager.shared.play()
-        } else {
-            UserDefaults.standard.set(true, forKey: Constants.UserActivityPlayback)
-        }
-        self.sendSignal(.lastPlayedShortcut, with: nil)
+  func playLastBook() {
+    guard let mainCoordinator = self.coordinator.getMainCoordinator(),
+          mainCoordinator.playerManager.hasLoadedBook else {
+      UserDefaults.standard.set(true, forKey: Constants.UserActivityPlayback)
+      return
     }
 
-    func showPlayer() {
-        if PlayerManager.shared.hasLoadedBook {
-            guard let libraryVC = self.getLibraryVC(),
-                let book = PlayerManager.shared.currentBook else {
-                return
-            }
+    mainCoordinator.playerManager.play()
+  }
 
-            libraryVC.navigationController?.dismiss(animated: true, completion: nil)
-
-            libraryVC.showPlayerView(book: book)
-        } else {
-            UserDefaults.standard.set(true, forKey: Constants.UserDefaults.showPlayer.rawValue)
-        }
+  func showPlayer() {
+    guard let mainCoordinator = self.coordinator.getMainCoordinator(),
+          mainCoordinator.playerManager.hasLoadedBook else {
+      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.showPlayer.rawValue)
+      return
     }
+
+    if !mainCoordinator.hasPlayerShown() {
+      mainCoordinator.showPlayer()
+    }
+  }
 }
 
 // Helper function inserted by Swift 4.2 migrator.

@@ -55,7 +55,7 @@ class SkipDurationViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "IntervalCell", for: indexPath)
         let interval = self.intervals[indexPath.row]
 
-        cell.textLabel?.text = self.formatDuration(interval)
+        cell.textLabel?.text = TimeParser.formatDuration(interval)
 
         if interval == self.selectedInterval {
             cell.accessoryType = .checkmark
@@ -73,7 +73,7 @@ class SkipDurationViewController: UITableViewController {
 }
 
 extension SkipDurationViewController: Themeable {
-    func applyTheme(_ theme: Theme) {
+    func applyTheme(_ theme: SimpleTheme) {
         self.tableView.backgroundColor = theme.systemBackgroundColor
         self.tableView.separatorColor = theme.separatorColor
         self.tableView.reloadData()

@@ -193,7 +193,7 @@ A note - in Bulgarian this implies that an audiobook is being marked, which is a
 /* Is this for an action already taking place or for a command to initiate said action?
 for a command to initiate the action on the Apple Watch, I beleive its when you 3d touch the list */
 "watchapp_refresh_data_title" = "Adatok frissítése";
-"carplay_recent_title" = "Friss";
+"recent_title" = "Friss";
 "carplay_library_error" = "Nem lehet betölteni a könyveket";
 "siri_invocation_phrase" = "Folytassa a könyvemet";
 "siri_activity_title" = "Folytassa a legutóbb lejátszott könyvet";
@@ -239,3 +239,19 @@ Alessio Franceschi&nbsp;this is the label for the active sleep timer button when
 "settings_storage_title" = "Storage Management";
 "storage_fix_file_button" = "Fix";
 "storage_fix_file_description" = "The book item is missing, if the corresponding item cannot be found, a new one will be created";
+"bookmarks_title" = "Bookmarks";
+"bookmark_created_title" = "Your bookmark has been saved at %@";
+"bookmark_exists_title" = "You have already created a bookmark at %@";
+"bookmark_note_action_title" = "Add note";
+"bookmarks_see_title" = "See bookmarks";
+"bookmark_type_automatic_title" = "Automatic";
+"bookmark_type_user_title" = "Manual";
+"bookmark_automatic_play_title" = "Last position before playback started";
+"bookmark_automatic_skip_title" = "Last position before time skip";
+"bookmark_note_edit_title" = "Edit note";
+"bookmark_create_title" = "Create Bookmark";
+"storage_duplicate_item_title" = "Duplicate";
+"storage_duplicate_item_description" = "The selected file was a duplicate, the existing file is located at: %@";
+"chapters_previous_title" = "Previous Chapter";
+"chapters_next_title" = "Next Chapter";
+"book_time_current_title" = "Current Book Time: %@";

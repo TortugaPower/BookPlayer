@@ -189,7 +189,7 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "voiceover_forward_time" = "Rýchle pretáčanie vpred %@";
 "watchapp_last_played_title" = "Naposledy prehraté";
 "watchapp_refresh_data_title" = "Obnoviť dáta";
-"carplay_recent_title" = "Nedávne";
+"recent_title" = "Nedávne";
 "carplay_library_error" = "Nemožno načítať audioknihy";
 "siri_invocation_phrase" = "Pokračovať v počúvaní mojej audioknihy";
 "siri_activity_title" = "Pokračovať v naposledy prehrávanej audioknihe";
@@ -218,15 +218,31 @@ Alessio Franceschi&nbsp;this is the label for the active sleep timer button when
 /* When you're in the player view, and the voice over cursor is focused on the top bar (the one with the arrow-down), it will read to the user that the player view will be closed if he double taps that button */
 "voiceover_dismiss_player_title" = "Zavrieť prehrávač";
 /* Sort items by most recent playback */
-"sort_most_recent_button" = "Most Recent";
-/* One of the sort options, this one reverts the current order of selected items */
-"sort_reversed_button" = "Reverse Order";
-"coredata_error_diskfull_description" = "The library couldn't be loaded, the device is out of disk space.";
-"coredata_error_migration_description" = "A migration of the database failed, the library will have to be reinitialized.";
-"import_warning_description" = "Transfering files may take a while, please make sure the number of files is complete before proceeding.";
+"sort_most_recent_button" = "Najnovšie";
+"sort_reversed_button" = "Opačné poradie";
+"voiceover_continue_playback_title" = "Pokračovať v prehrávaní";
+"coredata_error_diskfull_description" = "Knižnicu sa nepodarilo načítať. V zariadení nie je dostatok miesta na disku.";
+"coredata_error_migration_description" = "Migrácia databázy zlyhala, knižnicu bude potrebné znova inicializovať.";
+"import_warning_description" = "Prenos súborov môže chvíľu trvať. Pred pokračovaním sa uistite, že je počet súborov je finálny.";
 "files_caps_title" = "SÚBORY";
-"settings_storage_description" = "Manage your files";
-"storage_total_title" = "Total space used";
-"settings_storage_title" = "Storage Management";
-"storage_fix_file_button" = "Fix";
-"storage_fix_file_description" = "The book item is missing, if the corresponding item cannot be found, a new one will be created";
+"settings_storage_description" = "Spravujte svoje súbory";
+"storage_total_title" = "Celkový využitý priestor";
+"settings_storage_title" = "Správa úložiska";
+"storage_fix_file_button" = "Opraviť";
+"storage_fix_file_description" = "Položka knihy chýba, ak sa príslušná položka nedá nájsť, vytvorí sa nová.";
+"bookmarks_title" = "Záložky";
+"bookmark_created_title" = "Vaša záložka bola uložená na %@";
+"bookmark_exists_title" = "Už ste si vytvorili záložku na %@";
+"bookmark_note_action_title" = "Pridať poznámku";
+"bookmarks_see_title" = "Viď záložky";
+"bookmark_type_automatic_title" = "Automaticky";
+"bookmark_type_user_title" = "Ručne";
+"bookmark_automatic_play_title" = "Posledná pozícia pred spustením prehrávania";
+"bookmark_automatic_skip_title" = "Posledná pozícia pred preskočením času";
+"bookmark_note_edit_title" = "Upraviť poznámku";
+"bookmark_create_title" = "Vytvoriť záložku";
+"storage_duplicate_item_title" = "Duplikát";
+"storage_duplicate_item_description" = "Vybratý súbor bol duplikát. Existujúci súbor je umiestnený v: %@";
+"chapters_previous_title" = "Predchádzajúca kapitola";
+"chapters_next_title" = "Ďalšia kapitola";
+"book_time_current_title" = "Aktuálny čas audioknihy: %@";

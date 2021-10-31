@@ -10,7 +10,7 @@ public extension URL {
         return self.path.components(separatedBy: baseURL.path).last ?? ""
     }
 
-    var isDirectory: Bool {
+    var isDirectoryFolder: Bool {
         return (try? resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory == true
     }
 
@@ -18,7 +18,7 @@ public extension URL {
   func disableFileProtection() {
     try? (self as NSURL).setResourceValue(URLFileProtection.none, forKey: .fileProtectionKey)
 
-    guard self.isDirectory else { return }
+    guard self.isDirectoryFolder else { return }
 
     let enumerator = FileManager.default.enumerator(at: self,
                                                     includingPropertiesForKeys: [.isDirectoryKey],

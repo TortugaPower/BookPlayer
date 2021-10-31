@@ -11,92 +11,110 @@ import SwiftUI
 import WidgetKit
 
 struct RecentBooksProvider: IntentTimelineProvider {
+    let numberOfBooks = 4
+
     typealias Entry = LibraryEntry
 
     func placeholder(in context: Context) -> LibraryEntry {
       return LibraryEntry(date: Date(), items: [], theme: nil, timerSeconds: 300, autoplay: true)
     }
 
-    func getSnapshot(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (LibraryEntry) -> Void) {
-      guard let library = try? DataManager.getLibrary(),
-            let items = DataManager.getOrderedBooks() else {
-        completion(placeholder(in: context))
+  func getSnapshot(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (LibraryEntry) -> Void) {
+    let stack = DataMigrationManager().getCoreDataStack()
+    stack.loadStore { _, error in
+      guard error == nil else {
+        completion(self.placeholder(in: context))
         return
       }
+
+      let dataManager = DataManager(coreDataStack: stack)
+
+      guard let items = dataManager.getOrderedBooks(limit: self.numberOfBooks),
+            let currentTheme = try? dataManager.getLibraryCurrentTheme() else {
+              completion(self.placeholder(in: context))
+              return
+            }
+
+      let theme = SimpleTheme(with: currentTheme)
+      let mappedItems = items.map { SimpleLibraryItem(from: $0, themeAccent: theme.linkColor) }
 
       let autoplay = configuration.autoplay?.boolValue ?? true
       let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
 
       let entry = LibraryEntry(date: Date(),
-                               items: items,
-                               theme: library.currentTheme,
+                               items: mappedItems,
+                               theme: theme,
                                timerSeconds: seconds,
                                autoplay: autoplay)
 
       completion(entry)
     }
+  }
 
-    func getTimeline(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (Timeline<LibraryEntry>) -> Void) {
-      guard let library = try? DataManager.getLibrary(),
-            let items = DataManager.getOrderedBooks() else {
+  func getTimeline(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (Timeline<LibraryEntry>) -> Void) {
+    let stack = DataMigrationManager().getCoreDataStack()
+    stack.loadStore { _, error in
+      guard error == nil else {
         completion(Timeline(entries: [], policy: .atEnd))
         return
       }
 
+      let dataManager = DataManager(coreDataStack: stack)
+
+      guard let items = dataManager.getOrderedBooks(limit: self.numberOfBooks),
+            let currentTheme = try? dataManager.getLibraryCurrentTheme() else {
+              completion(Timeline(entries: [], policy: .atEnd))
+              return
+            }
+
+      let theme = SimpleTheme(with: currentTheme)
+      let mappedItems = items.map { SimpleLibraryItem(from: $0, themeAccent: theme.linkColor) }
+
       let autoplay = configuration.autoplay?.boolValue ?? true
       let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
 
-      let entries: [LibraryEntry] = [LibraryEntry(date: Date(), items: items, theme: library.currentTheme, timerSeconds: seconds, autoplay: autoplay)]
-      let timeline = Timeline(entries: entries, policy: .atEnd)
-      completion(timeline)
+      let entry = LibraryEntry(date: Date(),
+                               items: mappedItems,
+                               theme: theme,
+                               timerSeconds: seconds,
+                               autoplay: autoplay)
+
+      completion(Timeline(entries: [entry], policy: .atEnd))
     }
+  }
 }
 
 struct BookView: View {
-    var item: BookPlayerKit.LibraryItem
-    var titleColor: Color
-    var theme: Theme?
-    var entry: RecentBooksProvider.Entry
+  var item: SimpleLibraryItem
+  var titleColor: Color
+  var theme: SimpleTheme?
+  var entry: RecentBooksProvider.Entry
 
-    var body: some View {
-        let title = item.title ?? "---"
+  var body: some View {
+    let title = item.title
+    let identifier = item.relativePath
 
-        var identifier: String?
+    let url = WidgetUtils.getWidgetActionURL(with: identifier, autoplay: entry.autoplay, timerSeconds: entry.timerSeconds)
+    let cachedImageURL = ArtworkService.getCachedImageURL(for: identifier)
 
-        if let book = item as? Book {
-            identifier = book.relativePath!
-        } else if let folder = item as? Folder,
-            let book = folder.getBookToPlay() ?? folder.getBook(at: 0) {
-            identifier = book.relativePath!
-        }
+    return Link(destination: url) {
+      VStack(spacing: 5) {
+        Image(uiImage: UIImage(contentsOfFile: cachedImageURL.path)
+              ?? ArtworkService.generateDefaultArtwork(from: entry.theme?.linkColor)!)
+          .resizable()
+          .frame(minWidth: 60, maxWidth: 60, minHeight: 60, maxHeight: 60)
+          .aspectRatio(1.0, contentMode: .fit)
+          .cornerRadius(8.0)
 
-        let url = WidgetUtils.getWidgetActionURL(with: identifier, autoplay: entry.autoplay, timerSeconds: entry.timerSeconds)
-
-        let artwork = item.getArtwork(for: theme)
-
-        return Link(destination: url) {
-            VStack(spacing: 5) {
-                if let artwork = artwork {
-                    Image(uiImage: artwork)
-                        .resizable()
-                        .frame(minWidth: 60, maxWidth: 60, minHeight: 60, maxHeight: 60)
-                        .aspectRatio(1.0, contentMode: .fit)
-                        .cornerRadius(8.0)
-                } else {
-                    Rectangle()
-                        .fill(Color.secondary)
-                        .aspectRatio(1.0, contentMode: .fit)
-                        .cornerRadius(8.0)
-                }
-                Text(title)
-                    .fontWeight(.semibold)
-                    .foregroundColor(titleColor)
-                    .font(.caption)
-                    .lineLimit(2)
-                    .frame(width: nil, height: 34, alignment: .leading)
-            }
-        }
+        Text(title)
+          .fontWeight(.semibold)
+          .foregroundColor(titleColor)
+          .font(.caption)
+          .lineLimit(2)
+          .frame(width: nil, height: 34, alignment: .leading)
+      }
     }
+  }
 }
 
 struct RecentBooksWidgetView: View {
@@ -104,7 +122,6 @@ struct RecentBooksWidgetView: View {
     var entry: RecentBooksProvider.Entry
 
     var body: some View {
-//      let items = Array(DataManager.getOrderedBooks()?.prefix(4) ?? [])
         let items = Array(entry.items.prefix(4))
 
         let widgetColors = WidgetUtils.getColors(from: entry.theme, with: colorScheme)
@@ -128,7 +145,7 @@ struct RecentBooksWidgetView: View {
             .padding([.trailing, .bottom], 5)
             .padding([.top], 8)
             HStack {
-                ForEach(items, id: \.identifier) { item in
+                ForEach(items, id: \.relativePath) { item in
                     BookView(item: item, titleColor: widgetColors.primaryColor, theme: entry.theme, entry: entry)
                 }
             }

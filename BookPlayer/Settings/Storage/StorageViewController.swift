@@ -11,7 +11,7 @@ import Combine
 import Themeable
 import UIKit
 
-final class StorageViewController: UIViewController {
+final class StorageViewController: UIViewController, Storyboarded {
   @IBOutlet weak var filesTitleLabel: LocalizableLabel!
   @IBOutlet weak var storageSpaceLabel: UILabel!
   @IBOutlet weak var tableView: UITableView!
@@ -21,7 +21,7 @@ final class StorageViewController: UIViewController {
   @IBOutlet var containerViews: [UIView]!
   @IBOutlet var separatorViews: [UIView]!
 
-  private var viewModel = StorageViewModel()
+  public var viewModel: StorageViewModel!
   private var disposeBag = Set<AnyCancellable>()
   private var items = [StorageItem]()
 
@@ -116,7 +116,7 @@ extension StorageViewController: UITableViewDelegate {
 }
 
 extension StorageViewController: Themeable {
-  func applyTheme(_ theme: Theme) {
+  func applyTheme(_ theme: SimpleTheme) {
     self.view.backgroundColor = theme.systemGroupedBackgroundColor
 
     self.tableView.backgroundColor = theme.systemBackgroundColor

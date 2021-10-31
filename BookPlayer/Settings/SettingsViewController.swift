@@ -18,7 +18,7 @@ protocol IntentSelectionDelegate: AnyObject {
     func didSelectIntent(_ intent: INIntent)
 }
 
-class SettingsViewController: UITableViewController, MFMailComposeViewControllerDelegate, TelemetryProtocol {
+class SettingsViewController: UITableViewController, MFMailComposeViewControllerDelegate, TelemetryProtocol, Storyboarded {
     @IBOutlet weak var autoplayLibrarySwitch: UISwitch!
     @IBOutlet weak var disableAutolockSwitch: UISwitch!
     @IBOutlet weak var autolockDisabledOnlyWhenPoweredSwitch: UISwitch!
@@ -32,6 +32,7 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
         case plus = 0, theme, playback, storage, autoplay, autolock, siri, support, credits
     }
 
+    let storageIndexPath = IndexPath(row: 0, section: 3)
     let lastPlayedShortcutPath = IndexPath(row: 0, section: 6)
     let sleepTimerShortcutPath = IndexPath(row: 1, section: 6)
 
@@ -50,6 +51,8 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     var systemVersion: String {
         return "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
     }
+
+    weak var coordinator: SettingsCoordinator!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -115,7 +118,7 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
     }
 
     @IBAction func done(_ sender: UIBarButtonItem) {
-        self.dismiss(animated: true, completion: nil)
+      self.coordinator.dismiss()
     }
 
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -149,13 +152,15 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
 
         switch indexPath {
         case self.supportEmailPath:
-            self.sendSupportEmail()
+          self.sendSupportEmail()
         case self.githubLinkPath:
-            self.showProjectOnGitHub()
+          self.showProjectOnGitHub()
         case self.lastPlayedShortcutPath:
-            self.showLastPlayedShortcut()
+          self.showLastPlayedShortcut()
         case self.sleepTimerShortcutPath:
-            self.showSleepTimerShortcut()
+          self.showSleepTimerShortcut()
+        case self.storageIndexPath:
+          self.coordinator.showStorageManagement()
         default: break
         }
     }
@@ -296,7 +301,7 @@ extension SettingsViewController: IntentSelectionDelegate {
 }
 
 extension SettingsViewController: Themeable {
-    func applyTheme(_ theme: Theme) {
+    func applyTheme(_ theme: SimpleTheme) {
       self.themeLabel.text = theme.title
       self.tableView.backgroundColor = theme.systemGroupedBackgroundColor
       self.tableView.separatorColor = theme.systemGroupedBackgroundColor

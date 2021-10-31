@@ -12,11 +12,11 @@ import Combine
 import Themeable
 import UIKit
 
-final class ImportViewController: UIViewController {
+final class ImportViewController: UIViewController, Storyboarded {
   @IBOutlet weak var descriptionLabel: UILabel!
   @IBOutlet weak var tableView: UITableView!
 
-  private var viewModel = ImportViewModel()
+  var viewModel: ImportViewModel!
   private var disposeBag = Set<AnyCancellable>()
   private var files = [FileItem]()
   private var watchers = [DirectoryWatcher]()
@@ -29,10 +29,10 @@ final class ImportViewController: UIViewController {
     self.navigationController?.navigationBar.prefersLargeTitles = true
     self.tableView.tableFooterView = UIView()
 
-    self.bindViewModel()
+    self.bindFilesObserver()
   }
 
-  private func bindViewModel() {
+  private func bindFilesObserver() {
     self.viewModel.$files.sink { [weak self] files in
       self?.files = files
       self?.tableView.reloadData()
@@ -49,13 +49,10 @@ final class ImportViewController: UIViewController {
       self.showAlert("error_title".localized, message: error.localizedDescription)
     }
 
-    self.dismiss(animated: true) {
-      NotificationCenter.default.post(name: .importOperationCancelled, object: nil)
-    }
+    self.viewModel.dismiss()
   }
 
   @IBAction func didPressDone(_ sender: UIBarButtonItem) {
-    self.dismiss(animated: true, completion: nil)
     self.viewModel.createOperation()
   }
 }
@@ -70,7 +67,7 @@ extension ImportViewController: UITableViewDataSource {
     let cell = tableView.dequeueReusableCell(withIdentifier: "ImportTableViewCell", for: indexPath) as! ImportTableViewCell
     let fileItem = self.files[indexPath.row]
 
-    let imageName = fileItem.originalUrl.isDirectory ? "folder" : "waveform"
+    let imageName = fileItem.originalUrl.isDirectoryFolder ? "folder" : "waveform"
     cell.iconImageView.image = UIImage(systemName: imageName)
     cell.filenameLabel.text = fileItem.getOriginalName()
     cell.countLabel.text = fileItem.subItems > 0 ? "\(fileItem.subItems) " + "files_title".localized : ""
@@ -94,7 +91,7 @@ extension ImportViewController: UITableViewDelegate {
 }
 
 extension ImportViewController: Themeable {
-  func applyTheme(_ theme: Theme) {
+  func applyTheme(_ theme: SimpleTheme) {
     self.view.backgroundColor = theme.systemBackgroundColor
     self.tableView.backgroundColor = theme.systemBackgroundColor
     self.tableView.separatorColor = theme.separatorColor

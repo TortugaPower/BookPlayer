@@ -11,32 +11,37 @@ import Themeable
 import UIKit
 
 final class ThemeManager: ThemeProvider {
-    static let shared = ThemeManager()
+  static let shared = ThemeManager()
 
-    private var theme: SubscribableValue<Theme>!
+  var dataManager: DataManager!
+  private var theme: SubscribableValue<SimpleTheme>!
 
-    /// The current theme that is active
-    var currentTheme: Theme {
-        get {
-            return self.theme.value
-        }
-        set {
-            self.setNewTheme(newValue)
-            DataManager.setCurrentTheme(newValue)
-        }
+  /// The current theme that is active
+  var currentTheme: SimpleTheme {
+    get {
+      return self.theme.value
     }
+    set {
+      self.setNewTheme(newValue)
 
-    var useDarkVariant: Bool {
-        didSet {
-            self.setNewTheme(self.currentTheme)
-        }
+      if let title = newValue.title,
+         let storedTheme = self.dataManager.getTheme(with: title) {
+        self.dataManager.setCurrentTheme(storedTheme)
+      }
     }
+  }
 
-    public func checkSystemMode() {
-        guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue) else { return }
-
-        self.useDarkVariant = UIScreen.main.traitCollection.userInterfaceStyle == .dark
+  var useDarkVariant: Bool {
+    didSet {
+      self.setNewTheme(self.currentTheme)
     }
+  }
+
+  public func checkSystemMode() {
+    guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue) else { return }
+
+    self.useDarkVariant = UIScreen.main.traitCollection.userInterfaceStyle == .dark
+  }
 
   private init() {
     if UserDefaults.standard.bool(forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue) {
@@ -51,18 +56,22 @@ final class ThemeManager: ThemeProvider {
       self.useDarkVariant = brightness <= CGFloat(threshold)
     }
 
-    guard let library = try? DataManager.getLibrary() else {
-      let defaultTheme = DataManager.getLocalThemes().first!
+    if var defaultTheme = ThemeManager.getLocalThemes().first {
       defaultTheme.useDarkVariant = self.useDarkVariant
-      self.theme = SubscribableValue<Theme>(value: defaultTheme)
-      return
+      self.theme = SubscribableValue<SimpleTheme>(value: defaultTheme)
     }
 
-    let currentTheme: Theme = library.currentTheme
-    currentTheme.useDarkVariant = self.useDarkVariant
-    self.theme = SubscribableValue<Theme>(value: currentTheme)
-
     NotificationCenter.default.addObserver(self, selector: #selector(self.brightnessChanged(_:)), name: UIScreen.brightnessDidChangeNotification, object: nil)
+  }
+
+  public class func getLocalThemes() -> [SimpleTheme] {
+    guard let themesFile = Bundle.main.url(forResource: "Themes", withExtension: "json"),
+          let data = try? Data(contentsOf: themesFile, options: .mappedIfSafe),
+          let themes = try? JSONDecoder().decode([SimpleTheme].self, from: data) else {
+            return []
+          }
+
+    return themes
   }
 
     @objc private func brightnessChanged(_ notification: Notification) {
@@ -77,21 +86,19 @@ final class ThemeManager: ThemeProvider {
         }
     }
 
-    private func setNewTheme(_ newTheme: Theme) {
-        newTheme.useDarkVariant = self.useDarkVariant
-        let window = UIApplication.shared.delegate!.window!!
-        UIView.transition(with: window,
-                          duration: 0.3,
-                          options: [.transitionCrossDissolve],
-                          animations: {
-                              self.theme.value = newTheme
-                          },
-                          completion: nil)
-    }
+  private func setNewTheme(_ newTheme: SimpleTheme) {
+    let newTheme = SimpleTheme(with: newTheme, useDarkVariant: self.useDarkVariant)
+    let window = UIApplication.shared.delegate!.window!!
+    UIView.transition(with: window,
+                      duration: 0.3,
+                      options: [.transitionCrossDissolve],
+                      animations: { self.theme.value = newTheme },
+                      completion: nil)
+  }
 
     /// Subscribe to be notified when the theme changes. Handler will be
     /// remove from subscription when `object` is deallocated.
-    func subscribeToChanges(_ object: AnyObject, handler: @escaping (Theme) -> Void) {
+    func subscribeToChanges(_ object: AnyObject, handler: @escaping (SimpleTheme) -> Void) {
         self.theme.subscribe(object, using: handler)
     }
 }

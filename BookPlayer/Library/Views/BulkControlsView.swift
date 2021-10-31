@@ -8,7 +8,7 @@
 
 import UIKit
 
-class BulkControlsView: UIView {
+class BulkControlsView: NibLoadableView {
     @IBOutlet weak var sortButton: UIButton!
     @IBOutlet weak var moveButton: UIButton!
     @IBOutlet weak var trashButton: UIButton!
@@ -19,23 +19,14 @@ class BulkControlsView: UIView {
     var onDeleteTap: (() -> Void)?
     var onMoreTap: (() -> Void)?
 
-    let nibName = "BulkControlsView"
-    var contentView: UIView?
+  override func awakeFromNib() {
+    super.awakeFromNib()
 
-    func loadViewFromNib() -> UIView? {
-        let bundle = Bundle(for: type(of: self))
-        let nib = UINib(nibName: nibName, bundle: bundle)
-        return nib.instantiate(withOwner: self, options: nil).first as? UIView
-    }
-
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-
-        guard let view = loadViewFromNib() else { return }
-        view.frame = self.bounds
-        self.addSubview(view)
-        self.contentView = view
-    }
+    self.sortButton.accessibilityLabel = "sort_title".localized
+    self.moveButton.accessibilityLabel = "move_title".localized
+    self.trashButton.accessibilityLabel = "delete_button".localized
+    self.moreButton.accessibilityLabel = "options_button".localized
+  }
 
     @IBAction func didPressSort(_ sender: UIButton) {
         self.onSortTap?()

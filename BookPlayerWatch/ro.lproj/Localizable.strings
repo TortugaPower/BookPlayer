@@ -8,6 +8,7 @@
 
 "library_title" = "Bibliotecă";
 "ok_button" = "OK";
+"recent_title" = "Recent";
 "watchapp_last_played_title" = "Ultimul redat";
 "watchapp_refresh_data_title" = "Actualizați datele";
 "watchapp_connect_error_title" = "Eroare de conectivitate";

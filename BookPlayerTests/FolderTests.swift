@@ -11,9 +11,13 @@
 import XCTest
 
 class FolderTests: XCTestCase {
+  let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
+
     override func setUp() {
       super.setUp()
 
+      let library = StubFactory.library(dataManager: self.dataManager)
+      self.dataManager.delete(library)
       let documentsFolder = DataManager.getDocumentsFolderURL()
       DataTestUtils.clearFolderContents(url: documentsFolder)
       let processedFolder = DataManager.getProcessedFolderURL()
@@ -21,7 +25,7 @@ class FolderTests: XCTestCase {
     }
 
     func testGetNilBook() throws {
-        let folder = try StubFactory.folder(title: "folder")
+        let folder = try StubFactory.folder(dataManager: self.dataManager, title: "folder")
 
         let fetchedBookByIdentifier = folder.getItem(with: "book1")
 
@@ -29,9 +33,9 @@ class FolderTests: XCTestCase {
     }
 
     func testGetBook() throws {
-        let book1 = StubFactory.book(title: "book1", duration: 100)
+        let book1 = StubFactory.book(dataManager: self.dataManager, title: "book1", duration: 100)
 
-        let folder = try StubFactory.folder(title: "folder")
+        let folder = try StubFactory.folder(dataManager: self.dataManager, title: "folder")
         folder.insert(item: book1)
 
         let fetchedBookByIdentifier = folder.getItem(with: book1.relativePath)
@@ -40,12 +44,12 @@ class FolderTests: XCTestCase {
     }
 
     func testGetNestedBook() throws {
-        let book1 = StubFactory.book(title: "book1", duration: 100)
-        let book2 = StubFactory.book(title: "book2", duration: 100)
+        let book1 = StubFactory.book(dataManager: self.dataManager, title: "book1", duration: 100)
+        let book2 = StubFactory.book(dataManager: self.dataManager, title: "book2", duration: 100)
 
-        let folder = try StubFactory.folder(title: "folder")
+        let folder = try StubFactory.folder(dataManager: self.dataManager, title: "folder")
         folder.insert(item: book1)
-        let folder2 = try StubFactory.folder(title: "folder2")
+        let folder2 = try StubFactory.folder(dataManager: self.dataManager, title: "folder2")
         folder2.insert(item: folder)
         folder2.insert(item: book2)
 
@@ -55,14 +59,14 @@ class FolderTests: XCTestCase {
     }
 
     func testAccumulatedProgress() throws {
-        let book1 = StubFactory.book(title: "book1", duration: 100)
-        let book2 = StubFactory.book(title: "book2", duration: 100)
-        let book3 = StubFactory.book(title: "book3", duration: 100)
+        let book1 = StubFactory.book(dataManager: self.dataManager, title: "book1", duration: 100)
+        let book2 = StubFactory.book(dataManager: self.dataManager, title: "book2", duration: 100)
+        let book3 = StubFactory.book(dataManager: self.dataManager, title: "book3", duration: 100)
 
-        let folder = try StubFactory.folder(title: "folder")
+        let folder = try StubFactory.folder(dataManager: self.dataManager, title: "folder")
         folder.insert(item: book1)
         folder.insert(item: book2)
-        let folder2 = try StubFactory.folder(title: "folder2")
+        let folder2 = try StubFactory.folder(dataManager: self.dataManager, title: "folder2")
         folder2.insert(item: folder)
         folder2.insert(item: book3)
 
@@ -94,14 +98,14 @@ class FolderTests: XCTestCase {
     }
 
     func testNextBookFromPlayer() throws {
-        let book1 = StubFactory.book(title: "book1", duration: 100)
-        let book2 = StubFactory.book(title: "book2", duration: 100)
-        let book3 = StubFactory.book(title: "book3", duration: 100)
+        let book1 = StubFactory.book(dataManager: self.dataManager, title: "book1", duration: 100)
+        let book2 = StubFactory.book(dataManager: self.dataManager, title: "book2", duration: 100)
+        let book3 = StubFactory.book(dataManager: self.dataManager, title: "book3", duration: 100)
 
-        let folder = try StubFactory.folder(title: "playlist")
+        let folder = try StubFactory.folder(dataManager: self.dataManager, title: "playlist")
         folder.insert(item: book1)
         folder.insert(item: book2)
-        let folder2 = try StubFactory.folder(title: "folder2")
+        let folder2 = try StubFactory.folder(dataManager: self.dataManager, title: "folder2")
         folder2.insert(item: folder)
         folder2.insert(item: book3)
 
@@ -113,16 +117,16 @@ class FolderTests: XCTestCase {
     }
 
     func testNextBookFromArtwork() throws {
-        let book1 = StubFactory.book(title: "book1", duration: 100)
+        let book1 = StubFactory.book(dataManager: self.dataManager, title: "book1", duration: 100)
         book1.setCurrentTime(100)
         book1.isFinished = true
-        let book2 = StubFactory.book(title: "book2", duration: 100)
-        let book3 = StubFactory.book(title: "book3", duration: 100)
+        let book2 = StubFactory.book(dataManager: self.dataManager, title: "book2", duration: 100)
+        let book3 = StubFactory.book(dataManager: self.dataManager, title: "book3", duration: 100)
 
-        let folder = try StubFactory.folder(title: "playlist")
+        let folder = try StubFactory.folder(dataManager: self.dataManager, title: "playlist")
         folder.insert(item: book1)
         folder.insert(item: book2)
-        let folder2 = try StubFactory.folder(title: "folder2")
+        let folder2 = try StubFactory.folder(dataManager: self.dataManager, title: "folder2")
         folder2.insert(item: folder)
         folder2.insert(item: book3)
 
@@ -134,14 +138,14 @@ class FolderTests: XCTestCase {
     }
 
     func testRelativePath() throws {
-        let book1 = StubFactory.book(title: "book1", duration: 100)
-        let book2 = StubFactory.book(title: "book2", duration: 100)
-        let book3 = StubFactory.book(title: "book3", duration: 100)
+        let book1 = StubFactory.book(dataManager: self.dataManager, title: "book1", duration: 100)
+        let book2 = StubFactory.book(dataManager: self.dataManager, title: "book2", duration: 100)
+        let book3 = StubFactory.book(dataManager: self.dataManager, title: "book3", duration: 100)
 
-        let folder = try StubFactory.folder(title: "folder")
+        let folder = try StubFactory.folder(dataManager: self.dataManager, title: "folder")
         folder.insert(item: book1)
         folder.insert(item: book2)
-        let folder2 = try StubFactory.folder(title: "folder2")
+        let folder2 = try StubFactory.folder(dataManager: self.dataManager, title: "folder2")
         folder2.insert(item: folder)
         folder2.insert(item: book3)
 

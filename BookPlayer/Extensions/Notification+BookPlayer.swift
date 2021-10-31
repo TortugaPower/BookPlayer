@@ -12,7 +12,7 @@ extension Notification.Name {
   static let processingFile = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).file.process")
   static let newFileUrl = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).file.new")
   static let downloadProgress = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).download.progress")
-  static let importOperation = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).operation.new")
+  static let downloadEnd = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).download.end")
   static let requestReview = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).requestreview")
   static let skipIntervalsChange = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).settings.skip")
   static let reloadData = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).reloaddata")
@@ -20,7 +20,5 @@ extension Notification.Name {
   static let playerDismissed = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).player.dismissed")
   static let themeChange = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).theme.change")
   static let donationMade = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).donation.made")
-  static let timerSelected = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).timer.new")
-  static let importOperationCancelled = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).operation.cancelled")
   static let reloadLibrary = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).reloadlibrary")
 }

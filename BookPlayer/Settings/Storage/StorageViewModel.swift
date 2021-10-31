@@ -15,9 +15,12 @@ final class StorageViewModel: ObservableObject {
   private var files = CurrentValueSubject<[StorageItem], Never>([])
   private var disposeBag = Set<AnyCancellable>()
   private var library: Library!
+  private let dataManager: DataManager
+  public weak var coordinator: StorageCoordinator!
 
-  init() {
-    self.library = try! DataManager.getLibrary()
+  init(dataManager: DataManager) {
+    self.dataManager = dataManager
+    self.library = try! dataManager.getLibrary()
 
     self.loadItems()
   }
@@ -37,10 +40,10 @@ final class StorageViewModel: ObservableObject {
       var items = [StorageItem]()
 
       for case let fileURL as URL in enumerator {
-        guard !fileURL.isDirectory,
+        guard !fileURL.isDirectoryFolder,
               let fileAttributes = try? FileManager.default.attributesOfItem(atPath: fileURL.path) else { continue }
 
-        let fetchedBook = DataManager.getBook(
+        let fetchedBook = self.dataManager.getBook(
           with: String(fileURL.relativePath(to: processedFolder).dropFirst()),
           from: self.library
         )
@@ -63,11 +66,11 @@ final class StorageViewModel: ObservableObject {
   }
 
   private func createBook(from item: StorageItem) throws {
-    let book = DataManager.createBook(from: item.fileURL)
+    let book = self.dataManager.createBook(from: item.fileURL)
     try moveBookFile(from: item, with: book)
     self.library.insert(item: book)
 
-    DataManager.saveContext()
+    self.dataManager.saveContext()
     NotificationCenter.default.post(name: .reloadLibrary, object: nil)
   }
 
@@ -110,20 +113,30 @@ final class StorageViewModel: ObservableObject {
   }
 
   public func handleFix(for item: StorageItem) throws {
-    guard let fetchedBook = DataManager.findBooks(containing: item.fileURL)?.first else {
+    guard let fetchedBook = self.dataManager.findBooks(containing: item.fileURL)?.first else {
       // create a new book
       try self.createBook(from: item)
       self.loadItems()
       return
     }
 
-    try self.moveBookFile(from: item, with: fetchedBook)
-
-    // Book exists, but is dangling without reference
+    // Relink book object if it's orphaned
     if fetchedBook.getLibrary() == nil {
       self.library.insert(item: fetchedBook)
-      DataManager.saveContext()
+      self.dataManager.saveContext()
     }
+
+    let fetchedBookURL = DataManager.getProcessedFolderURL().appendingPathComponent(fetchedBook.relativePath)
+
+    // Check if existing book already has its file, and this one is a duplicate
+    if FileManager.default.fileExists(atPath: fetchedBookURL.path) {
+      try FileManager.default.removeItem(at: item.fileURL)
+      self.coordinator.showAlert("storage_duplicate_item_title".localized, message: String.localizedStringWithFormat("storage_duplicate_item_description".localized, fetchedBook.relativePath!))
+      self.loadItems()
+      return
+    }
+
+    try self.moveBookFile(from: item, with: fetchedBook)
 
     self.loadItems()
   }

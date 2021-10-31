@@ -35,7 +35,7 @@ final class StorageTableViewCell: UITableViewCell {
 }
 
 extension StorageTableViewCell: Themeable {
-  func applyTheme(_ theme: Theme) {
+  func applyTheme(_ theme: SimpleTheme) {
     self.titleLabel.textColor = theme.primaryColor
     self.filenameLabel?.textColor = theme.secondaryColor
     self.sizeLabel.textColor = theme.secondaryColor

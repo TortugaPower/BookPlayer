@@ -48,10 +48,6 @@ public class Book: LibraryItem {
         return !(self.chapters?.array.isEmpty ?? true)
     }
 
-    public var hasArtwork: Bool {
-        return self.artworkData != nil
-    }
-
     public override func getItem(with relativePath: String) -> LibraryItem? {
         return self.relativePath == relativePath ? self : nil
     }
@@ -151,6 +147,10 @@ public class Book: LibraryItem {
         folder.lastPlayDate = now
     }
 
+  public override func getFolder(matching relativePath: String) -> Folder? {
+    return self.folder?.getFolder(matching: relativePath)
+  }
+
     public override func getBookToPlay() -> Book? {
         return self
     }
@@ -242,19 +242,20 @@ public class Book: LibraryItem {
     }
 
     enum CodingKeys: String, CodingKey {
-        case currentTime, duration, identifier, relativePath, percentCompleted, title, author, ext, folder
+        case currentTime, duration, identifier, relativePath, percentCompleted, title, author, ext, folder, orderRank
     }
 
     public override func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(currentTime, forKey: .currentTime)
-        try container.encode(duration, forKey: .duration)
-        try container.encode(identifier, forKey: .identifier)
-        try container.encode(relativePath, forKey: .identifier)
-        try container.encode(percentCompleted, forKey: .percentCompleted)
-        try container.encode(title, forKey: .title)
-        try container.encode(author, forKey: .author)
-        try container.encode(ext, forKey: .ext)
+      var container = encoder.container(keyedBy: CodingKeys.self)
+      try container.encode(currentTime, forKey: .currentTime)
+      try container.encode(duration, forKey: .duration)
+      try container.encode(identifier, forKey: .identifier)
+      try container.encode(relativePath, forKey: .relativePath)
+      try container.encode(percentCompleted, forKey: .percentCompleted)
+      try container.encode(title, forKey: .title)
+      try container.encode(author, forKey: .author)
+      try container.encode(ext, forKey: .ext)
+      try container.encode(orderRank, forKey: .orderRank)
     }
 
     public required convenience init(from decoder: Decoder) throws {
@@ -270,7 +271,7 @@ public class Book: LibraryItem {
         currentTime = try values.decode(Double.self, forKey: .currentTime)
         duration = try values.decode(Double.self, forKey: .duration)
         identifier = try values.decode(String.self, forKey: .identifier)
-        relativePath = try values.decode(String.self, forKey: .identifier)
+        relativePath = try values.decode(String.self, forKey: .relativePath)
         percentCompleted = try values.decode(Double.self, forKey: .percentCompleted)
         title = try values.decode(String.self, forKey: .title)
         author = try values.decode(String.self, forKey: .author)

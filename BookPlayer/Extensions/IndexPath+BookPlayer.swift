@@ -18,8 +18,7 @@ extension IndexPath {
     }
 }
 
-enum Section: Int {
-    case data,
-        add,
-        total
+enum Section: Int, CaseIterable {
+  case data,
+       add
 }

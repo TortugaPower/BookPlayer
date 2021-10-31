@@ -7,6 +7,7 @@
 //
 
 import BookPlayerKit
+import Kingfisher
 import MediaPlayer
 import UIKit
 
@@ -48,18 +49,15 @@ enum IndexGuide {
 }
 
 final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableContentDelegate {
-  static let shared = CarPlayManager()
-
-  var library: Library?
-
   typealias Tab = (identifier: String, title: String, imageName: String)
-  let tabs: [Tab] = [("tab-library", "library_title".localized, "carplayLibrary"),
-                     ("tab-recent", "carplay_recent_title".localized, "carplayRecent")]
+  let tabs: [Tab] = [("tab-library", "library_title".localized, "books.vertical.fill"),
+                     ("tab-recent", "recent_title".localized, "clock.fill")]
+  let library: Library
+  let dataManager: DataManager
 
-  private override init() {
-    guard let library = try? DataManager.getLibrary() else { return }
-
+  init(library: Library, dataManager: DataManager) {
     self.library = library
+    self.dataManager = dataManager
   }
 
   func createTabItem(for indexPath: IndexPath) -> MPContentItem {
@@ -68,7 +66,7 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
     item.title = tab.title
     item.isContainer = true
     item.isPlayable = false
-    if let tabImage = UIImage(named: tab.imageName) {
+    if let tabImage = UIImage(systemName: tab.imageName) {
       item.artwork = MPMediaItemArtwork(boundsSize: tabImage.size, requestHandler: { _ -> UIImage in
         tabImage
       })
@@ -128,11 +126,21 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
     item.title = libraryItem.title
 
     item.playbackProgress = Float(libraryItem.progressPercentage)
-    if let artwork = libraryItem.getArtwork(for: ThemeManager.shared.currentTheme) {
-      item.artwork = MPMediaItemArtwork(boundsSize: artwork.size,
+
+    ArtworkService.retrieveImageFromCache(for: libraryItem.relativePath) { result in
+      let image: UIImage
+
+      switch result {
+      case .success(let value):
+        image = value.image
+      case .failure(_):
+        image = ArtworkService.generateDefaultArtwork(from: self.library.currentTheme.linkColor)!
+      }
+
+      item.artwork = MPMediaItemArtwork(boundsSize: image.size,
                                         requestHandler: { (_) -> UIImage in
-                                          artwork
-                                        })
+        image
+      })
     }
 
     if let book = libraryItem as? Book {
@@ -206,14 +214,14 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
   private func getSourceItems(for index: Int) -> [LibraryItem]? {
     // Recently played items
     if index == IndexGuide.tab.recentlyPlayed {
-      return DataManager.getOrderedBooks()
+      return self.dataManager.getOrderedBooks()
     }
 
     // Library items
-    return self.library?.items?.array as? [LibraryItem]
+    return self.library.items?.array as? [LibraryItem]
   }
 
-  func setNowPlayingInfo(with book: Book) {
+  class func setNowPlayingInfo(with book: Book) {
     var identifiers = [book.identifier!]
 
     if let folder = book.folder {

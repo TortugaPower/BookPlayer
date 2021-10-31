@@ -15,12 +15,17 @@ import Foundation
  It waits a specified time wherein new files may be added before the operation is created
  */
 final class ImportManager {
-  static let shared = ImportManager()
-
+  public let dataManager: DataManager
   private let timeout = 2.0
   private var subscription: AnyCancellable?
   private var timer: Timer?
   private var files = CurrentValueSubject<[URL], Never>([])
+
+  public var operationPublisher = PassthroughSubject<ImportOperation, Never>()
+
+  init(dataManager: DataManager) {
+    self.dataManager = dataManager
+  }
 
   public func process(_ fileUrl: URL) {
     // Avoid duplicating files
@@ -63,10 +68,10 @@ final class ImportManager {
 
     guard let sortedFiles = orderedSet.sortedArray(using: [sortDescriptor]) as? [URL] else { return }
 
-    let operation = ImportOperation(files: sortedFiles)
+    let operation = ImportOperation(files: sortedFiles, dataManager: self.dataManager)
 
     self.files.value = []
 
-    NotificationCenter.default.post(name: .importOperation, object: nil, userInfo: ["operation": operation])
+    self.operationPublisher.send(operation)
   }
 }

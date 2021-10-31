@@ -10,7 +10,7 @@ import BookPlayerKit
 import Themeable
 import UIKit
 
-class AppNavigationController: UINavigationController {
+class AppNavigationController: UINavigationController, Storyboarded {
     private var separatorView: UIView!
     private var themedStatusBarStyle: UIStatusBarStyle?
 
@@ -59,7 +59,7 @@ class AppNavigationController: UINavigationController {
 }
 
 extension AppNavigationController: Themeable {
-    func applyTheme(_ theme: Theme) {
+    func applyTheme(_ theme: SimpleTheme) {
         self.themedStatusBarStyle = theme.useDarkVariant
             ? .lightContent
             : .default

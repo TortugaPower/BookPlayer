@@ -125,7 +125,7 @@ extension IconsViewController: UITableViewDelegate {
 }
 
 extension IconsViewController: Themeable {
-    func applyTheme(_ theme: Theme) {
+    func applyTheme(_ theme: SimpleTheme) {
         self.view.backgroundColor = theme.systemGroupedBackgroundColor
 
         self.tableView.backgroundColor = theme.systemGroupedBackgroundColor

@@ -31,7 +31,8 @@ class ImportOperationTests: XCTestCase {
         let promise = XCTestExpectation(description: "Process file")
         let promiseFile = expectation(forNotification: .processingFile, object: nil)
 
-        let operation = ImportOperation(files: [fileUrl])
+        let operation = ImportOperation(files: [fileUrl],
+                                        dataManager: DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null")))
 
         operation.completionBlock = {
           // Test file should no longer be in the Documents folder

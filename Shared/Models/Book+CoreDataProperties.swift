@@ -33,8 +33,8 @@ extension Book {
 
     @NSManaged public var author: String!
     @NSManaged public var ext: String!
-    @NSManaged public var usesDefaultArtwork: Bool
     @NSManaged public var chapters: NSOrderedSet?
+    @NSManaged public var bookmarks: NSSet?
     @NSManaged public var lastPlayed: Library?
 }
 
@@ -70,4 +70,20 @@ extension Book {
 
     @objc(removeChapters:)
     @NSManaged public func removeFromChapters(_ values: NSOrderedSet)
+}
+
+// MARK: Generated accessors for bookmarks
+
+extension Book {
+  @objc(addBookmarksObject:)
+  @NSManaged public func addToBookmarks(_ value: Bookmark)
+
+  @objc(removeBookmarksObject:)
+  @NSManaged public func removeFromBookmarks(_ value: Bookmark)
+
+  @objc(addBookmarks:)
+  @NSManaged public func addToBookmarks(_ values: NSSet)
+
+  @objc(removeBookmarks:)
+  @NSManaged public func removeFromBookmarks(_ values: NSSet)
 }

@@ -15,7 +15,6 @@ extension LibraryItem {
         return NSFetchRequest<LibraryItem>(entityName: "LibraryItem")
     }
 
-    @NSManaged public var artworkData: NSData?
     @NSManaged public var currentTime: Double
     @NSManaged public var duration: Double
     @NSManaged public var title: String!
@@ -28,4 +27,5 @@ extension LibraryItem {
     @NSManaged public var relativePath: String!
     @NSManaged public var originalFileName: String!
     @NSManaged public var identifier: String!
+    @NSManaged public var orderRank: Int16
 }

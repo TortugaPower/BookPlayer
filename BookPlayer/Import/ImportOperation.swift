@@ -18,39 +18,109 @@ import ZipArchive
 
 public class ImportOperation: Operation {
   public let files: [URL]
+  public let dataManager: DataManager
   public var processedFiles = [URL]()
 
-    init(files: [URL]) {
-        self.files = files
-    }
+  private let lockQueue = DispatchQueue(label: "com.swiftlee.asyncoperation", attributes: .concurrent)
 
-    func getInfo() -> [String: String] {
-        var dictionary = [String: Int]()
-        for file in self.files {
-            dictionary[file.pathExtension] = (dictionary[file.pathExtension] ?? 0) + 1
-        }
-        var finalInfo = [String: String]()
-        for (key, value) in dictionary {
-            finalInfo[key] = "\(value)"
-        }
+  public override var isAsynchronous: Bool {
+    return true
+  }
 
-        return finalInfo
-    }
-
-  func handleZip(file: URL) {
-    guard file.pathExtension == "zip" else { return }
-
-    // Unzip to documents directory
-    SSZipArchive.unzipFile(atPath: file.path, toDestination: DataManager.getDocumentsFolderURL().path, progressHandler: nil) { _, success, error in
-      defer {
-        // Delete original zip file
-        try? FileManager.default.removeItem(at: file)
+  private var _isExecuting: Bool = false
+  public override private(set) var isExecuting: Bool {
+    get {
+      return lockQueue.sync { () -> Bool in
+        return _isExecuting
       }
+    }
+    set {
+      willChangeValue(forKey: "isExecuting")
+      lockQueue.sync(flags: [.barrier]) {
+        _isExecuting = newValue
+      }
+      didChangeValue(forKey: "isExecuting")
+    }
+  }
+
+  private var _isFinished: Bool = false
+  public override private(set) var isFinished: Bool {
+    get {
+      return lockQueue.sync { () -> Bool in
+        return _isFinished
+      }
+    }
+    set {
+      willChangeValue(forKey: "isFinished")
+      lockQueue.sync(flags: [.barrier]) {
+        _isFinished = newValue
+      }
+      didChangeValue(forKey: "isFinished")
+    }
+  }
+
+  init(files: [URL], dataManager: DataManager) {
+    self.files = files
+    self.dataManager = dataManager
+  }
+
+  public override func start() {
+    isFinished = false
+    isExecuting = true
+    main()
+  }
+
+  func finish() {
+    isExecuting = false
+    isFinished = true
+  }
+
+  func getInfo() -> [String: String] {
+    var dictionary = [String: Int]()
+    for file in self.files {
+      dictionary[file.pathExtension] = (dictionary[file.pathExtension] ?? 0) + 1
+    }
+    var finalInfo = [String: String]()
+    for (key, value) in dictionary {
+      finalInfo[key] = "\(value)"
+    }
+
+    return finalInfo
+  }
+
+  func handleZip(file: URL, remainingFiles: [URL]) {
+    // Unzip to temporary directory
+    let documentsURL = DataManager.getDocumentsFolderURL()
+
+    let tempDirectoryURL = try! FileManager.default.url(
+      for: .itemReplacementDirectory,
+         in: .userDomainMask,
+         appropriateFor: documentsURL,
+         create: true
+    )
+
+    SSZipArchive.unzipFile(atPath: file.path, toDestination: tempDirectoryURL.path, progressHandler: nil) { _, success, error in
+      try? FileManager.default.removeItem(at: file)
 
       guard success else {
-        print("Extraction of ZIP archive failed with error:\(String(describing: error))")
+        self.processFile(from: remainingFiles)
         return
       }
+
+      let enumerator = FileManager.default.enumerator(
+        at: tempDirectoryURL,
+        includingPropertiesForKeys: [.creationDateKey, .isDirectoryKey],
+        options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants], errorHandler: { (url, error) -> Bool in
+          print("directoryEnumerator error at \(url): ", error)
+          return true
+        })!
+
+      var files = [URL]()
+      for case let fileURL as URL in enumerator {
+        files.append(fileURL)
+      }
+
+      self.processFile(from: remainingFiles + files)
     }
   }
 
@@ -83,7 +153,7 @@ public class ImportOperation: Operation {
   }
 
   private func hasExistingBook(_ fileURL: URL) -> Bool {
-    guard let existingBook = DataManager.findBooks(containing: fileURL)?.first,
+    guard let existingBook = self.dataManager.findBooks(containing: fileURL)?.first,
        let existingFileURL = existingBook.fileURL,
        !FileManager.default.fileExists(atPath: existingFileURL.path) else { return false }
 
@@ -105,26 +175,38 @@ public class ImportOperation: Operation {
   }
 
   public override func main() {
-    for file in self.files {
-      guard !self.hasExistingBook(file) else { continue }
+    self.processFile(from: self.files)
+  }
 
-      NotificationCenter.default.post(name: .processingFile, object: nil, userInfo: ["filename": file.lastPathComponent])
-
-      guard file.pathExtension != "zip" else {
-        self.handleZip(file: file)
-        continue
-      }
-
-      let destinationURL = self.getNextAvailableURL(for: file)
-
-      do {
-        try FileManager.default.moveItem(at: file, to: destinationURL)
-        destinationURL.disableFileProtection()
-      } catch {
-        fatalError("Fail to move file from \(file) to \(destinationURL)")
-      }
-
-      self.processedFiles.append(destinationURL)
+  func processFile(from files: [URL]) {
+    var mutableFiles = files
+    guard !mutableFiles.isEmpty else {
+      return self.finish()
     }
+
+    let currentFile = mutableFiles.removeFirst()
+
+    guard !self.hasExistingBook(currentFile) else {
+      return processFile(from: mutableFiles)
+    }
+
+    NotificationCenter.default.post(name: .processingFile, object: nil, userInfo: ["filename": currentFile.lastPathComponent])
+
+    guard currentFile.pathExtension != "zip" else {
+      self.handleZip(file: currentFile, remainingFiles: mutableFiles)
+      return
+    }
+
+    let destinationURL = self.getNextAvailableURL(for: currentFile)
+
+    do {
+      try FileManager.default.moveItem(at: currentFile, to: destinationURL)
+      destinationURL.disableFileProtection()
+    } catch {
+      fatalError("Fail to move file from \(currentFile) to \(destinationURL)")
+    }
+
+    self.processedFiles.append(destinationURL)
+    self.processFile(from: mutableFiles)
   }
 }

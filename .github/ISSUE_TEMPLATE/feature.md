@@ -7,30 +7,23 @@ assignees: ''
 
 ---
 
-# 🗣 Context
+## Feature request
 
-_Describe the context..._
+- Describe in broad strokes the changes or enhancements you'd like to see
 
-# 💬 Narrative
+## Narrative
 
-As a ...
-I want ...
-So that ...
+- Feel free to change the following format to better suit the details of the enhancement
 
-# 📝 Notes
+**GIVEN:**
+- Provide the context of the application
+**WHEN:**
+- Describe the action or trigger
+**THEN:** 
+- Describe the resulting change of the state in the application
 
-_Provide additional notes..._
-
-# 🎨 Design
+## Design
 
 _Provide design example, screenshot, text input/output etc_
 
-# ✅ Acceptance Criteria
 
-**GIVEN** ...
-**WHEN** ...
-**THEN** ...
-
-# 🚫 Out of Scope
-
-_Describe what is out of scope_

@@ -10,20 +10,8 @@ import BookPlayerKit
 import Themeable
 import UIKit
 
-enum PlaybackState {
-    case playing
-    case paused
-    case stopped
-}
-
-enum BookCellType {
-    case book
-    case folder
-    case file // in a playlist
-}
-
 class BookCellView: UITableViewCell {
-    @IBOutlet private weak var artworkView: BPArtworkView!
+    @IBOutlet public weak var artworkView: BPArtworkView!
     @IBOutlet private weak var titleLabel: UILabel!
     @IBOutlet private weak var subtitleLabel: UILabel!
     @IBOutlet private weak var progressView: ItemProgress!
@@ -32,22 +20,10 @@ class BookCellView: UITableViewCell {
     @IBOutlet private weak var artworkButton: UIButton!
     @IBOutlet weak var artworkWidth: NSLayoutConstraint!
     @IBOutlet weak var artworkHeight: NSLayoutConstraint!
+    @IBOutlet weak var customSeparatorView: UIView!
 
+    var theme: SimpleTheme!
     var onArtworkTap: (() -> Void)?
-
-    var artwork: UIImage? {
-        get {
-            return self.artworkView.image
-        }
-        set {
-            self.artworkView.image = newValue
-
-            let ratio = self.artworkView.imageRatio
-
-            self.artworkHeight.constant = ratio > 1 ? 50.0 / ratio : 50.0
-            self.artworkWidth.constant = ratio < 1 ? 50.0 * ratio : 50.0
-        }
-    }
 
     var title: String? {
         get {
@@ -89,7 +65,7 @@ class BookCellView: UITableViewCell {
         }
     }
 
-    var type: BookCellType = .book {
+    var type: SimpleItemType = .book {
         didSet {
             switch self.type {
             case .folder:
@@ -100,15 +76,13 @@ class BookCellView: UITableViewCell {
         }
     }
 
-    var playbackState: PlaybackState = PlaybackState.stopped {
-        didSet {
-            let currentTheme = self.themeProvider.currentTheme
-
-            UIView.animate(withDuration: 0.1, animations: {
-                self.setPlaybackColors(currentTheme)
-            })
-        }
+  var playbackState: PlaybackState = PlaybackState.stopped {
+    didSet {
+      UIView.animate(withDuration: 0.1, animations: {
+        self.setPlaybackColors(self.theme)
+      })
     }
+  }
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -154,7 +128,7 @@ class BookCellView: UITableViewCell {
     self.progressView.isHidden = editing
   }
 
-    func setPlaybackColors(_ theme: Theme) {
+    func setPlaybackColors(_ theme: SimpleTheme) {
         switch self.playbackState {
         case .playing, .paused:
             self.artworkButton.backgroundColor = theme.linkColor.withAlpha(newAlpha: 0.3)
@@ -182,11 +156,13 @@ extension BookCellView {
 }
 
 extension BookCellView: Themeable {
-  func applyTheme(_ theme: Theme) {
+  func applyTheme(_ theme: SimpleTheme) {
+    self.theme = theme
     self.titleLabel.textColor = theme.primaryColor
     self.subtitleLabel.textColor = theme.secondaryColor
     self.durationLabel.textColor = theme.secondaryColor
     self.backgroundColor = theme.systemBackgroundColor
+    self.customSeparatorView.backgroundColor = theme.separatorColor
     self.setPlaybackColors(theme)
     self.selectionView.defaultColor = theme.secondarySystemFillColor
     self.selectionView.selectedColor = theme.systemFillColor
