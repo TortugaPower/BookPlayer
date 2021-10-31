@@ -26,5 +26,6 @@ class NibLoadableView: UIView {
     let nib = UINib(nibName: className, bundle: Bundle(for: type(of: self)))
     // swiftlint:disable force_cast
     return nib.instantiate(withOwner: self, options: nil).first as! UIView
+    // swiftlint:enable force_cast
   }
 }

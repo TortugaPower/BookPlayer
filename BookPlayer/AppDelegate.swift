@@ -20,13 +20,24 @@ import WatchConnectivity
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
-    var window: UIWindow?
+  var window: UIWindow?
   let coordinator = LoadingCoordinator(
     navigationController: UINavigationController(),
     loadingViewController: LoadingViewController.instantiate(from: .Main)
   )
-    var wasPlayingBeforeInterruption: Bool = false
-    var watcher: DirectoryWatcher?
+  var wasPlayingBeforeInterruption: Bool = false
+  var watcher: DirectoryWatcher?
+  var keyWindowRootVC: UIViewController? {
+    return UIApplication.shared.connectedScenes.filter({ $0.activationState == .foregroundActive })
+      .compactMap({ $0 as? UIWindowScene }).first?.windows
+      .filter({ $0.isKeyWindow }).first?.rootViewController
+  }
+
+  static var delegateInstance: AppDelegate {
+    // swiftlint:disable force_cast
+    return (UIApplication.shared.delegate as! AppDelegate)
+    // swiftlint:enable force_cast
+  }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
@@ -132,7 +143,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
 
         // Check if the app is on the PlayerViewController
         // TODO: Check if this still works as expected given the new storyboard structure
-        guard let navigationVC = UIApplication.shared.keyWindow?.rootViewController!, navigationVC.children.count > 1 else {
+        guard let navigationVC = self.keyWindowRootVC, navigationVC.children.count > 1 else {
             return
         }
 

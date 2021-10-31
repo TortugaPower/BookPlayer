@@ -64,6 +64,7 @@ extension ImportViewController: UITableViewDataSource {
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     // swiftlint:disable force_cast
     let cell = tableView.dequeueReusableCell(withIdentifier: "ImportTableViewCell", for: indexPath) as! ImportTableViewCell
+    // swiftlint:enable force_cast
     let fileItem = self.files[indexPath.row]
 
     let imageName = fileItem.fileUrl.isDirectoryFolder ? "folder" : "waveform"
