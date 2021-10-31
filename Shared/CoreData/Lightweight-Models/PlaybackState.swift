@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum PlaybackState {
+public enum PlaybackState {
     case playing
     case paused
     case stopped

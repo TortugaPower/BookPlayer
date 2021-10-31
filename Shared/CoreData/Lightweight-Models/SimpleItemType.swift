@@ -8,6 +8,6 @@
 
 import Foundation
 
-enum SimpleItemType {
+public enum SimpleItemType {
   case book, folder
 }
