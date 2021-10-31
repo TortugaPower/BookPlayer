@@ -138,18 +138,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
         completionHandler(response)
     }
 
-    func applicationDidBecomeActive(_ application: UIApplication) {
-        // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-
-        // Check if the app is on the PlayerViewController
-        // TODO: Check if this still works as expected given the new storyboard structure
-        guard let navigationVC = self.keyWindowRootVC, navigationVC.children.count > 1 else {
+  func applicationDidBecomeActive(_ application: UIApplication) {
+    // Check if the app is on the PlayerViewController
+    guard let navigationVC = self.keyWindowRootVC,
+          navigationVC.presentedViewController?.presentedViewController is PlayerViewController else {
             return
-        }
+          }
 
-        // Notify controller to see if it should ask for review
-        NotificationCenter.default.post(name: .requestReview, object: nil)
-    }
+    // Notify controller to see if it should ask for review
+    NotificationCenter.default.post(name: .requestReview, object: nil)
+  }
 
     func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
         self.playLastBook()
