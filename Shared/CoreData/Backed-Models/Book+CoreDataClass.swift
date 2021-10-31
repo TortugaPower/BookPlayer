@@ -132,7 +132,7 @@ public class Book: LibraryItem {
         }
 
         guard let currentChapter = (chapters.first { (chapter) -> Bool in
-            chapter.start <= self.currentTime && chapter.end > self.currentTime
+          return chapter.start <= self.currentTime && chapter.end >= self.currentTime
         }) else { return }
 
         self.currentChapter = currentChapter
