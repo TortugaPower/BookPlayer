@@ -14,6 +14,8 @@ struct ProgressObject {
   let progress: String?
   let maxTime: TimeInterval?
   let sliderValue: Float
+  let prevChapterImageName: String
+  let nextChapterImageName: String
   let chapterTitle: String
 
   var formattedCurrentTime: String {

@@ -65,22 +65,55 @@ public class Library: NSManagedObject, Codable {
         return itemFound
     }
 
-    func getNextItem(after item: LibraryItem) -> LibraryItem? {
-        guard let items = self.items?.array as? [LibraryItem] else { return nil }
-
-        guard let indexFound = self.itemIndex(with: item.relativePath) else { return nil }
-
-        for (index, item) in items.enumerated() {
-            guard index > indexFound,
-                !item.isFinished else { continue }
-
-            if let folder = item as? Folder, !folder.hasBooks() { continue }
-
-            return item
-        }
-
-        return nil
+  func getPreviousBook(before book: Book) -> Book? {
+    guard let items = self.items?.array as? [LibraryItem] else {
+      return nil
     }
+
+    guard let indexFound = self.itemIndex(with: book.relativePath) else {
+      return nil
+    }
+
+    let targetIndex = indexFound - 1
+
+    for (index, item) in items.enumerated() {
+      guard index == targetIndex else { continue }
+
+      if item.isFinished {
+        item.setCurrentTime(0.0)
+      }
+
+      if let book = item as? Book {
+        return book
+      } else if let folder = item as? Folder {
+        return folder.getPreviousBook(before: book)
+      }
+    }
+
+    return nil
+  }
+
+  func getNextBook(after book: Book) -> Book? {
+    guard let items = self.items?.array as? [LibraryItem] else { return nil }
+
+    guard let indexFound = self.itemIndex(with: book.relativePath) else { return nil }
+
+    for (index, item) in items.enumerated() {
+      guard index > indexFound else { continue }
+
+      if item.isFinished {
+        item.setCurrentTime(0.0)
+      }
+
+      if let book = item as? Book {
+        return book
+      } else if let folder = item as? Folder {
+        return folder.getNextBook(after: book)
+      }
+    }
+
+    return nil
+  }
 
     public func getItemsOrderedByDate() -> [LibraryItem] {
         guard let items = self.items?.array as? [LibraryItem] else {

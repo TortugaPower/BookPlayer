@@ -126,82 +126,92 @@ public class Book: LibraryItem {
         self.updateCurrentChapter()
     }
 
-    public func updateCurrentChapter() {
-        guard let chapters = self.chapters?.array as? [Chapter], !chapters.isEmpty else {
-            return
-        }
+  public func updateCurrentChapter() {
+    guard let chapter = self.getChapter(at: self.currentTime) else { return }
 
-        guard let currentChapter = (chapters.first { (chapter) -> Bool in
-          return chapter.start <= self.currentTime && chapter.end >= self.currentTime
-        }) else { return }
+    self.currentChapter = chapter
+  }
 
-        self.currentChapter = currentChapter
-    }
+  public func updatePlayDate() {
+    let now = Date()
+    self.lastPlayDate = now
 
-    public func updatePlayDate() {
-        let now = Date()
-        self.lastPlayDate = now
+    guard let folder = self.folder else { return }
 
-        guard let folder = self.folder else { return }
-
-        folder.lastPlayDate = now
-    }
+    folder.lastPlayDate = now
+  }
 
   public override func getFolder(matching relativePath: String) -> Folder? {
     return self.folder?.getFolder(matching: relativePath)
   }
 
-    public override func getBookToPlay() -> Book? {
-        return self
-    }
+  public override func getBookToPlay() -> Book? {
+    return self
+  }
 
-    public func nextChapter() -> Chapter? {
-        guard let chapters = self.chapters?.array as? [Chapter],
-            !chapters.isEmpty,
-            let chapter = self.currentChapter else {
+  public func hasChapter(after chapter: Chapter) -> Bool {
+    return self.nextChapter(after: chapter) != nil
+  }
+
+  public func hasChapter(before chapter: Chapter) -> Bool {
+    return self.previousChapter(before: chapter) != nil
+  }
+
+  public func nextChapter(after chapter: Chapter) -> Chapter? {
+    guard let chapters = self.chapters?.array as? [Chapter],
+          !chapters.isEmpty else {
             return nil
-        }
+          }
 
-        if self.currentChapter == chapters.last { return nil }
+    if chapter == chapters.last { return nil }
 
-        return chapters[Int(chapter.index)]
-    }
+    return chapters[Int(chapter.index)]
+  }
 
-    public func previousChapter() -> Chapter? {
-        guard let chapters = self.chapters?.array as? [Chapter],
-            !chapters.isEmpty,
-            let chapter = self.currentChapter else {
+  public func previousChapter(before chapter: Chapter) -> Chapter? {
+    guard let chapters = self.chapters?.array as? [Chapter],
+          !chapters.isEmpty else {
             return nil
-        }
+          }
 
-        if self.currentChapter == chapters.first { return nil }
+    if chapter == chapters.first { return nil }
 
-        return chapters[Int(chapter.index) - 2]
-    }
+    return chapters[Int(chapter.index) - 2]
+  }
 
-    public func nextBook() -> Book? {
-        if
-            let folder = self.folder,
-            let next = folder.getNextBook(after: self) {
-            return next
-        }
-
-        guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue) else {
-            return nil
-        }
-
-        let item = self.folder ?? self
-
-        guard let nextItem = item.library?.getNextItem(after: item) else { return nil }
-
-        if let book = nextItem as? Book {
-            return book
-        } else if let folder = nextItem as? Folder, let book = folder.getBookToPlay() {
-            return book
-        }
-
+  public func getChapter(at globalTime: Double) -> Chapter? {
+    guard let chapters = self.chapters?.array as? [Chapter], !chapters.isEmpty else {
         return nil
     }
+
+    return chapters.first { $0.start <= globalTime && $0.end >= globalTime }
+  }
+
+  public func previousBook() -> Book? {
+    if
+      let folder = self.folder,
+      let previous = folder.getPreviousBook(before: self) {
+      return previous
+    }
+
+    return self.getLibrary()?.getPreviousBook(before: self)
+  }
+
+  public func nextBook(autoplayed: Bool) -> Book? {
+    if
+      let folder = self.folder,
+      let next = folder.getNextBook(after: self) {
+      return next
+    }
+
+    if autoplayed {
+      guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue) else {
+        return nil
+      }
+    }
+
+    return self.getLibrary()?.getNextBook(after: self)
+  }
 
     public func getInterval(from proposedInterval: TimeInterval) -> TimeInterval {
         let interval = proposedInterval > 0

@@ -23,18 +23,12 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
 
   public static func == (lhs: SimpleLibraryItem, rhs: SimpleLibraryItem) -> Bool {
     return lhs.id == rhs.id
-    && lhs.title == rhs.title
-    && lhs.details == rhs.details
-    && lhs.relativePath == rhs.relativePath
-    && lhs.progress == rhs.progress
-    && lhs.playbackState == rhs.playbackState
   }
 
   public func hash(into hasher: inout Hasher) {
     hasher.combine(id)
     hasher.combine(title)
     hasher.combine(details)
-    hasher.combine(relativePath)
     hasher.combine(progress)
     hasher.combine(playbackState)
   }

@@ -95,20 +95,6 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
     NotificationCenter.default.post(name: .playerPresented, object: nil)
     self.closeButton.accessibilityLabel = "voiceover_dismiss_player_title".localized
 
-    let leftChevron = UIImage(
-      systemName: "chevron.left",
-      withConfiguration: UIImage.SymbolConfiguration(pointSize: 18,
-                                                     weight: .semibold)
-    )
-    self.previousChapterButton.setImage(leftChevron, for: .normal)
-
-    let rightChevron = UIImage(
-      systemName: "chevron.right",
-      withConfiguration: UIImage.SymbolConfiguration(pointSize: 18,
-                                                     weight: .semibold)
-    )
-    self.nextChapterButton.setImage(rightChevron, for: .normal)
-
     self.chapterTitleButton.titleLabel?.numberOfLines = 2
     self.chapterTitleButton.titleLabel?.textAlignment = .center
   }
@@ -155,8 +141,19 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
       self.progressSlider.setProgress(progressObject.sliderValue)
     }
 
-    self.previousChapterButton.isEnabled = self.viewModel.hasPreviousChapter()
-    self.nextChapterButton.isEnabled = self.viewModel.hasNextChapter()
+    let leftChevron = UIImage(
+      systemName: progressObject.prevChapterImageName,
+      withConfiguration: UIImage.SymbolConfiguration(pointSize: 18,
+                                                     weight: .semibold)
+    )
+    let rightChevron = UIImage(
+      systemName: progressObject.nextChapterImageName,
+      withConfiguration: UIImage.SymbolConfiguration(pointSize: 18,
+                                                     weight: .semibold)
+    )
+
+    self.previousChapterButton.setImage(leftChevron, for: .normal)
+    self.nextChapterButton.setImage(rightChevron, for: .normal)
   }
 }
 
