@@ -33,6 +33,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
       .filter({ $0.isKeyWindow }).first?.rootViewController
   }
 
+  var topController: UIViewController? {
+    var topController = AppDelegate.delegateInstance.keyWindowRootVC
+
+    while let newTopController = topController?.presentedViewController {
+      topController = newTopController
+    }
+
+    return topController
+  }
+
   static var delegateInstance: AppDelegate {
     // swiftlint:disable force_cast
     return (UIApplication.shared.delegate as! AppDelegate)

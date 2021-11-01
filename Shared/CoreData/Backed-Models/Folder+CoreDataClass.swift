@@ -248,6 +248,34 @@ public class Folder: LibraryItem {
         return nil
     }
 
+  func getPreviousBook(before book: Book) -> Book? {
+    guard let items = self.items?.array as? [LibraryItem] else {
+      return nil
+    }
+
+    guard let indexFound = self.itemIndex(with: book.relativePath) else {
+      return nil
+    }
+
+    let targetIndex = indexFound - 1
+
+    for (index, item) in items.enumerated() {
+      guard index == targetIndex else { continue }
+
+      if item.isFinished {
+        item.setCurrentTime(0.0)
+      }
+
+      if let book = item as? Book {
+        return book
+      } else if let folder = item as? Folder {
+        return folder.getPreviousBook(before: book)
+      }
+    }
+
+    return nil
+  }
+
     // Used for player autoplay
     func getNextBook(after book: Book) -> Book? {
         guard let items = self.items?.array as? [LibraryItem] else {

@@ -447,15 +447,22 @@ extension PlayerManager {
   // swiftlint:disable block_based_kvo
   // Using this instead of new form, because the new one wouldn't work properly on AVPlayerItem
   override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
-    guard let path = keyPath, path == "status",
-          let item = object as? AVPlayerItem,
-          item.status == .readyToPlay else {
+    guard let path = keyPath,
+          path == "status",
+          let item = object as? AVPlayerItem else {
             super.observeValue(forKeyPath: keyPath,
                                of: object,
                                change: change,
                                context: context)
             return
           }
+
+    guard item.status == .readyToPlay else {
+      if item.status == .failed {
+        AppDelegate.delegateInstance.topController?.showAlert("error_title".localized, message: item.error?.localizedDescription)
+      }
+      return
+    }
 
     self.observeStatus = false
 
@@ -542,19 +549,27 @@ extension PlayerManager {
                                     ])
   }
 
-  @objc
-  func playerDidFinishPlaying(_ notification: Notification) {
-    if let book = self.currentBook,
-       let library = book.library ?? book.folder?.library {
-      library.lastPlayedBook = nil
-      self.dataManager.saveContext()
-    }
+  func playPreviousItem() {
+    guard let previousBook = self.currentBook?.previousBook() else { return }
 
-    self.update()
+    self.preload(previousBook)
+    self.load(previousBook, completion: { success in
+      guard success else { return }
 
-    self.markAsCompleted(true)
+      let userInfo = ["book": previousBook]
 
-    guard let nextBook = self.currentBook?.nextBook() else { return }
+      NotificationCenter.default.post(name: .bookChange,
+                                      object: nil,
+                                      userInfo: userInfo)
+      // Resume playback if it's paused
+      if !self.isPlaying {
+        self.play()
+      }
+    })
+  }
+
+  func playNextItem(autoPlayed: Bool = false) {
+    guard let nextBook = self.currentBook?.nextBook(autoplayed: autoPlayed) else { return }
 
     self.preload(nextBook)
     self.load(nextBook, completion: { success in
@@ -570,6 +585,21 @@ extension PlayerManager {
         self.play()
       }
     })
+  }
+
+  @objc
+  func playerDidFinishPlaying(_ notification: Notification) {
+    if let book = self.currentBook,
+       let library = book.library ?? book.folder?.library {
+      library.lastPlayedBook = nil
+      self.dataManager.saveContext()
+    }
+
+    self.update()
+
+    self.markAsCompleted(true)
+
+    self.playNextItem(autoPlayed: true)
   }
 }
 
