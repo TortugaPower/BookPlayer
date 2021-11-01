@@ -96,10 +96,12 @@ public class Library: NSManagedObject, Codable {
   func getNextBook(after book: Book) -> Book? {
     guard let items = self.items?.array as? [LibraryItem] else { return nil }
 
-    guard let indexFound = self.itemIndex(with: book.relativePath) else { return nil }
+    let indexFound = self.itemIndex(with: book.relativePath)
 
     for (index, item) in items.enumerated() {
-      guard index > indexFound else { continue }
+      if let indexFound = indexFound {
+        guard index > indexFound else { continue }
+      }
 
       if item.isFinished {
         item.setCurrentTime(0.0)
