@@ -80,7 +80,7 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
 
     self.artworkImage.clipsToBounds = false
     // artwork now has the main info regarding the title and author
-    self.artworkImage.contentMode = .scaleToFill
+    self.artworkImage.contentMode = .scaleAspectFit
     self.artworkImage.layer.cornerRadius = 9.5
     self.artworkImage.layer.masksToBounds = true
     self.artworkImage.layer.borderColor = UIColor.clear.cgColor
@@ -119,7 +119,19 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
   public func setupInfo(with book: Book) {
     self.titleLabel.text = book.title
     self.authorLabel.text = book.author
-    self.artworkImage.kf.setImage(with: ArtworkService.getArtworkProvider(for: book.relativePath))
+    self.artworkImage.kf.setImage(
+      with: ArtworkService.getArtworkProvider(for: book.relativePath),
+      completionHandler: { result in
+        switch result {
+        case .success(let value):
+          self.artworkImage.image = value.image
+          self.artworkImage.isHidden = false
+        case .failure(_):
+          self.artworkImage.image = nil
+          self.artworkImage.isHidden = true
+        }
+      }
+    )
     self.artworkOverlay.isAccessibilityElement = true
     self.artworkOverlay.accessibilityLabel = VoiceOverService().playerMetaText(book: book)
   }
