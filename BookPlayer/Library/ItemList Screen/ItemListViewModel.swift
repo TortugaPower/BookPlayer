@@ -124,6 +124,10 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func loadNextItems(pageSize: Int = 13) {
+    let maxItems = self.folder?.items?.count ?? self.library.items?.count ?? 0
+
+    guard self.offset < maxItems else { return }
+
     guard let fetchedItems = self.dataManager.fetchContents(of: self.folder, or: library, limit: pageSize, offset: self.offset),
           !fetchedItems.isEmpty else {
       return

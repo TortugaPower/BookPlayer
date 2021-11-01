@@ -282,22 +282,22 @@ public class Folder: LibraryItem {
             return nil
         }
 
-        guard let indexFound = self.itemIndex(with: book.relativePath) else {
-            return nil
-        }
+        let indexFound = self.itemIndex(with: book.relativePath)
 
         for (index, item) in items.enumerated() {
+          if let indexFound = indexFound {
             guard index > indexFound else { continue }
+          }
 
-            if item.isFinished {
-                item.setCurrentTime(0.0)
-            }
+          if item.isFinished {
+            item.setCurrentTime(0.0)
+          }
 
-            if let book = item as? Book {
-                return book
-            } else if let folder = item as? Folder {
-                return folder.getNextBook(after: book)
-            }
+          if let book = item as? Book {
+            return book
+          } else if let folder = item as? Folder {
+            return folder.getNextBook(after: book)
+          }
         }
 
         return nil
