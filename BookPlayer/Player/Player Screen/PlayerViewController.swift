@@ -102,6 +102,8 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
   func setupPlayerView(with currentBook: Book) {
     guard !currentBook.isFault else { return }
 
+    self.chapterTitleButton.titleLabel?.lineBreakMode = currentBook.hasChapters ? .byWordWrapping : .byCharWrapping
+
     self.artworkControl.setupInfo(with: currentBook)
 
     self.updateView(with: self.viewModel.getCurrentProgressState())
