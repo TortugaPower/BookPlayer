@@ -31,7 +31,7 @@ class MainCoordinator: Coordinator {
     self.playerManager = PlayerManager(dataManager: dataManager, watchConnectivityService: watchService)
     ThemeManager.shared.dataManager = dataManager
 
-    super.init(navigationController: navigationController)
+    super.init(navigationController: navigationController, flowType: .modal)
   }
 
   override func start() {
@@ -48,8 +48,6 @@ class MainCoordinator: Coordinator {
     self.rootViewController.miniPlayerContainer.addSubview(miniPlayerVC.view)
     miniPlayerVC.didMove(toParent: self.rootViewController)
 
-    let offset: CGFloat = Device.current.hasSensorHousing ? 199: 88
-
     let library = (try? self.dataManager.getLibrary()) ?? self.dataManager.createLibrary()
 
     if library.currentTheme != nil {
@@ -59,7 +57,6 @@ class MainCoordinator: Coordinator {
     let libraryCoordinator = LibraryListCoordinator(
       navigationController: self.navigationController,
       library: library,
-      miniPlayerOffset: offset,
       playerManager: self.playerManager,
       importManager: ImportManager(dataManager: self.dataManager),
       dataManager: self.dataManager

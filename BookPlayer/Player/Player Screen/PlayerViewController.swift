@@ -15,7 +15,7 @@ import StoreKit
 import Themeable
 import UIKit
 
-class PlayerViewController: UIViewController, TelemetryProtocol, Storyboarded {
+class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewModel>, TelemetryProtocol, Storyboarded {
   @IBOutlet private weak var closeButton: UIButton!
   @IBOutlet private weak var closeButtonTop: NSLayoutConstraint!
   @IBOutlet private weak var bottomToolbar: UIToolbar!
@@ -47,7 +47,6 @@ class PlayerViewController: UIViewController, TelemetryProtocol, Storyboarded {
 
   private var disposeBag = Set<AnyCancellable>()
   private var playingProgressSubscriber: AnyCancellable?
-  public var viewModel: PlayerViewModel!
 
   // computed properties
   override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -96,20 +95,6 @@ class PlayerViewController: UIViewController, TelemetryProtocol, Storyboarded {
     NotificationCenter.default.post(name: .playerPresented, object: nil)
     self.closeButton.accessibilityLabel = "voiceover_dismiss_player_title".localized
 
-    let leftChevron = UIImage(
-      systemName: "chevron.left",
-      withConfiguration: UIImage.SymbolConfiguration(pointSize: 18,
-                                                     weight: .semibold)
-    )
-    self.previousChapterButton.setImage(leftChevron, for: .normal)
-
-    let rightChevron = UIImage(
-      systemName: "chevron.right",
-      withConfiguration: UIImage.SymbolConfiguration(pointSize: 18,
-                                                     weight: .semibold)
-    )
-    self.nextChapterButton.setImage(rightChevron, for: .normal)
-
     self.chapterTitleButton.titleLabel?.numberOfLines = 2
     self.chapterTitleButton.titleLabel?.textAlignment = .center
   }
@@ -156,8 +141,19 @@ class PlayerViewController: UIViewController, TelemetryProtocol, Storyboarded {
       self.progressSlider.setProgress(progressObject.sliderValue)
     }
 
-    self.previousChapterButton.isEnabled = self.viewModel.hasPreviousChapter()
-    self.nextChapterButton.isEnabled = self.viewModel.hasNextChapter()
+    let leftChevron = UIImage(
+      systemName: progressObject.prevChapterImageName,
+      withConfiguration: UIImage.SymbolConfiguration(pointSize: 18,
+                                                     weight: .semibold)
+    )
+    let rightChevron = UIImage(
+      systemName: progressObject.nextChapterImageName,
+      withConfiguration: UIImage.SymbolConfiguration(pointSize: 18,
+                                                     weight: .semibold)
+    )
+
+    self.previousChapterButton.setImage(leftChevron, for: .normal)
+    self.nextChapterButton.setImage(rightChevron, for: .normal)
   }
 }
 

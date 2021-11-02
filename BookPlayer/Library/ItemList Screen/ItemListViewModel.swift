@@ -12,8 +12,7 @@ import Foundation
 import MediaPlayer
 import Themeable
 
-class FolderListViewModel {
-  weak var coordinator: ItemListCoordinator!
+class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
   let folder: Folder?
   let library: Library
   let player: PlayerManager
@@ -36,9 +35,10 @@ class FolderListViewModel {
     self.library = library
     self.player = player
     self.dataManager = dataManager
-
     self.themeAccent = theme.linkColor
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: theme.linkColor)?.pngData()
+    super.init()
+
     self.bindBookObserver()
   }
 
@@ -124,6 +124,10 @@ class FolderListViewModel {
   }
 
   func loadNextItems(pageSize: Int = 13) {
+    let maxItems = self.folder?.items?.count ?? self.library.items?.count ?? 0
+
+    guard self.offset < maxItems else { return }
+
     guard let fetchedItems = self.dataManager.fetchContents(of: self.folder, or: library, limit: pageSize, offset: self.offset),
           !fetchedItems.isEmpty else {
       return
@@ -344,10 +348,6 @@ class FolderListViewModel {
 
   func updateDefaultArtwork(for theme: SimpleTheme) {
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: theme.linkColor)?.pngData()
-  }
-
-  func getMiniPlayerOffset() -> CGFloat {
-    return self.coordinator.miniPlayerOffset
   }
 
   func showMiniPlayer(_ flag: Bool) {

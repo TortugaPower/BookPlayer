@@ -19,7 +19,7 @@ class LoadingCoordinator: Coordinator {
   ) {
     self.loadingViewController = loadingViewController
 
-    super.init(navigationController: navigationController)
+    super.init(navigationController: navigationController, flowType: .modal)
 
     self.loadingViewController.modalPresentationStyle = .fullScreen
 
@@ -40,7 +40,8 @@ class LoadingCoordinator: Coordinator {
       dataManager: DataManager(coreDataStack: coreDataStack),
       navigationController: AppNavigationController.instantiate(from: .Main)
     )
-    rootVC.coordinator = coordinator
+    rootVC.viewModel = BaseViewModel<MainCoordinator>()
+    rootVC.viewModel.coordinator = coordinator
     rootVC.modalPresentationStyle = .fullScreen
     rootVC.modalTransitionStyle = .crossDissolve
     coordinator.parentCoordinator = self
@@ -48,12 +49,6 @@ class LoadingCoordinator: Coordinator {
     self.childCoordinators.append(coordinator)
 
     self.navigationController.present(rootVC, animated: true, completion: nil)
-  }
-
-  override func dismiss() {
-    self.presentingViewController?.dismiss(animated: true, completion: { [weak self] in
-      self?.parentCoordinator?.childDidFinish(self)
-    })
   }
 
   override func getMainCoordinator() -> MainCoordinator? {

@@ -11,30 +11,29 @@ import BookPlayerKit
 
 class SettingsCoordinator: Coordinator {
   let dataManager: DataManager
+  let library: Library
 
   init(dataManager: DataManager,
+       library: Library,
        navigationController: UINavigationController) {
     self.dataManager = dataManager
+    self.library = library
 
-    super.init(navigationController: navigationController)
+    super.init(navigationController: navigationController, flowType: .modal)
   }
 
   override func start() {
     let vc = SettingsViewController.instantiate(from: .Settings)
-    vc.coordinator = self
+    vc.viewModel = SettingsViewModel()
+    vc.viewModel.coordinator = self
     self.navigationController.viewControllers = [vc]
     self.navigationController.presentationController?.delegate = self
     self.presentingViewController?.present(self.navigationController, animated: true, completion: nil)
   }
 
-  override func dismiss() {
-    self.presentingViewController?.dismiss(animated: true, completion: { [weak self] in
-      self?.parentCoordinator?.childDidFinish(self)
-    })
-  }
-
   func showStorageManagement() {
     let child = StorageCoordinator(dataManager: self.dataManager,
+                                   library: self.library,
                                    navigationController: self.navigationController)
     self.childCoordinators.append(child)
     child.parentCoordinator = self

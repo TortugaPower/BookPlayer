@@ -33,8 +33,8 @@ extension UIColor {
         }
 
         let scanner = Scanner(string: hex)
-        var rgb: UInt32 = 0
-        scanner.scanHexInt32(&rgb)
+        var rgb: UInt64 = 0
+        scanner.scanHexInt64(&rgb)
 
         let R = CGFloat((rgb >> 16) & 0xff) / 255
         let G = CGFloat((rgb >> 8) & 0xff) / 255

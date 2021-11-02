@@ -10,8 +10,7 @@ import BookPlayerKit
 import Combine
 import Foundation
 
-class BookmarksViewModel {
-  weak var coordinator: BookmarkCoordinator!
+class BookmarksViewModel: BaseViewModel<BookmarkCoordinator> {
   let playerManager: PlayerManager
   let dataManager: DataManager
 
@@ -82,6 +81,6 @@ class BookmarksViewModel {
   }
 
   func dismiss() {
-    self.coordinator.dismiss()
+    self.coordinator.didFinish()
   }
 }

@@ -12,7 +12,10 @@ import DeviceKit
 import Themeable
 import UIKit
 
-class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognizerDelegate {
+class ItemListViewController: BaseViewController<ItemListCoordinator, FolderListViewModel>,
+                              Storyboarded,
+                              UIGestureRecognizerDelegate {
+
   @IBOutlet weak var emptyStatePlaceholder: UIView!
   @IBOutlet weak var emptyStateImageView: UIImageView!
   @IBOutlet weak var loadingView: LoadingView!
@@ -24,9 +27,6 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
 
   private var previousLeftButtons: [UIBarButtonItem]?
   lazy var selectButton: UIBarButtonItem = UIBarButtonItem(title: "select_all_title".localized, style: .plain, target: self, action: #selector(selectButtonPressed))
-
-  var viewModel: FolderListViewModel!
-  var dataSource: ItemListTableDataSource!
 
   var defaultArtwork: UIImage? {
     return UIImage(data: self.viewModel.defaultArtwork!)
@@ -98,37 +98,6 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
     self.tableView.dragDelegate = self
     self.tableView.dropDelegate = self
 
-    self.dataSource = ItemListTableDataSource(tableView: tableView) { (tableView, indexPath, item) -> UITableViewCell? in
-      guard indexPath.sectionValue != .add,
-          let cell = tableView.dequeueReusableCell(withIdentifier: "BookCellView", for: indexPath) as? BookCellView else {
-          return tableView.dequeueReusableCell(withIdentifier: "AddCellView", for: indexPath)
-      }
-
-      cell.onArtworkTap = { [weak self] in
-        guard !tableView.isEditing else {
-          if cell.isSelected {
-            tableView.deselectRow(at: indexPath, animated: true)
-          } else {
-            tableView.selectRow(at: indexPath, animated: true, scrollPosition: .none)
-          }
-          return
-        }
-
-        self?.viewModel.playNextBook(after: item)
-      }
-
-      cell.title = item.title
-      cell.subtitle = item.details
-      cell.progress = item.progress
-      cell.duration = item.duration
-      cell.type = item.type
-      cell.playbackState = item.playbackState
-      cell.artworkView.kf.setImage(with: ArtworkService.getArtworkProvider(for: item.relativePath),
-                                   placeholder: self.defaultArtwork)
-
-      return cell
-    }
-
     self.updateSnapshot(with: self.viewModel.getInitialItems(), animated: false)
   }
 
@@ -167,7 +136,7 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
   }
 
   func adjustBottomOffsetForMiniPlayer() {
-    self.tableView.contentInset.bottom = self.viewModel.getMiniPlayerOffset()
+    self.tableView.contentInset.bottom = Device.current.hasSensorHousing ? 199: 88
   }
 
   func setupBulkControls() {
@@ -187,7 +156,7 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
         return
       }
 
-      let selectedItems = indexPaths.compactMap({ self.dataSource.itemIdentifier(for: $0) })
+      let selectedItems = indexPaths.compactMap({ self.viewModel.items.value[$0.row] })
 
       self.viewModel.showMoveOptions(selectedItems: selectedItems)
     }
@@ -197,7 +166,7 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
         return
       }
 
-      let selectedItems = indexPaths.compactMap({ self.dataSource.itemIdentifier(for: $0) })
+      let selectedItems = indexPaths.compactMap({ self.viewModel.items.value[$0.row] })
 
       self.viewModel.showDeleteOptions(selectedItems: selectedItems)
     }
@@ -207,7 +176,7 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
         return
       }
 
-      let selectedItems = indexPaths.compactMap({ self.dataSource.itemIdentifier(for: $0) })
+      let selectedItems = indexPaths.compactMap({ self.viewModel.items.value[$0.row] })
 
       self.viewModel.showMoreOptions(selectedItems: selectedItems)
     }
@@ -216,11 +185,6 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
   func bindDataItems() {
     self.viewModel.items.sink { [weak self] items in
       self?.updateSnapshot(with: items, animated: true)
-    }
-    .store(in: &disposeBag)
-
-    self.dataSource.reorderUpdates.sink { [weak self] (item, sourceIndexPath, destinationIndexPath) in
-      self?.viewModel.reorder(item: item, sourceIndexPath: sourceIndexPath, destinationIndexPath: destinationIndexPath)
     }
     .store(in: &disposeBag)
   }
@@ -292,12 +256,7 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
   func updateSnapshot(with items: [SimpleLibraryItem], animated: Bool) {
     self.toggleEmptyStateView()
 
-    var snapshot = NSDiffableDataSourceSnapshot<SectionType, SimpleLibraryItem>()
-    snapshot.appendSections([.data])
-    snapshot.appendItems(items, toSection: .data)
-    snapshot.appendSections([.add])
-    snapshot.appendItems([SimpleLibraryItem()], toSection: .add)
-    self.dataSource.apply(snapshot, animatingDifferences: false)
+    self.tableView.reloadData()
   }
 
   func updateSelectionStatus() {
@@ -342,7 +301,75 @@ class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognize
   }
 }
 
+extension ItemListViewController: UITableViewDataSource {
+  func numberOfSections(in tableView: UITableView) -> Int {
+    return Section.allCases.count
+  }
+
+  func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    guard section == SectionType.data.rawValue else { return 1 }
+
+    return self.viewModel.items.value.count
+  }
+
+  func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    guard indexPath.sectionValue != .add,
+          let cell = tableView.dequeueReusableCell(withIdentifier: "BookCellView", for: indexPath) as? BookCellView else {
+            return tableView.dequeueReusableCell(withIdentifier: "AddCellView", for: indexPath)
+          }
+
+    let item = self.viewModel.items.value[indexPath.row]
+
+    cell.onArtworkTap = { [weak self] in
+      guard !tableView.isEditing else {
+        if cell.isSelected {
+          tableView.deselectRow(at: indexPath, animated: true)
+        } else {
+          tableView.selectRow(at: indexPath, animated: true, scrollPosition: .none)
+        }
+        return
+      }
+
+      self?.viewModel.playNextBook(after: item)
+    }
+
+    cell.title = item.title
+    cell.subtitle = item.details
+    cell.progress = item.progress
+    cell.duration = item.duration
+    cell.type = item.type
+    cell.playbackState = item.playbackState
+    cell.artworkView.kf.setImage(with: ArtworkService.getArtworkProvider(for: item.relativePath),
+                                 placeholder: self.defaultArtwork)
+
+    return cell
+  }
+}
+
 extension ItemListViewController: UITableViewDelegate {
+  // MARK: reordering support
+
+  func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+    return indexPath.sectionValue == .data
+  }
+
+  func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+    guard sourceIndexPath.sectionValue == .data,
+          destinationIndexPath.sectionValue == .data,
+          sourceIndexPath.row != destinationIndexPath.row else {
+        return
+    }
+
+    let item = self.viewModel.items.value[sourceIndexPath.row]
+    self.viewModel.reorder(item: item, sourceIndexPath: sourceIndexPath, destinationIndexPath: destinationIndexPath)
+  }
+
+  // MARK: editing support
+
+  func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+    return indexPath.sectionValue == .data
+  }
+
   func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
     guard indexPath.sectionValue == .data else { return 66 }
 
@@ -355,7 +382,6 @@ extension ItemListViewController: UITableViewDelegate {
 
     DispatchQueue.main.async { [weak self] in
       guard let self = self else { return }
-
       self.viewModel.loadNextItems()
     }
   }
@@ -385,16 +411,14 @@ extension ItemListViewController: UITableViewDelegate {
       return
     }
 
-    guard let item = self.dataSource.itemIdentifier(for: indexPath) else {
-      return
-    }
-
+    let item = self.viewModel.items.value[indexPath.row]
     self.viewModel.showItemContents(item)
   }
 
   func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-    guard indexPath.sectionValue == .data,
-          let item = self.dataSource.itemIdentifier(for: indexPath) else { return nil }
+    guard indexPath.sectionValue == .data else { return nil }
+
+    let item = self.viewModel.items.value[indexPath.row]
 
     let optionsAction = UIContextualAction(style: .normal, title: "\("options_button".localized)…") { _, _, completion in
       self.viewModel.showMoreOptions(selectedItems: [item])

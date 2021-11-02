@@ -11,16 +11,16 @@ import Combine
 import DirectoryWatcher
 import Foundation
 
-final class ImportViewModel: ObservableObject {
-  @Published private(set) var files = [FileItem]()
+final class ImportViewModel: BaseViewModel<ImportCoordinator>, ObservableObject {
+  @Published private(set) var files = [ImportFileItem]()
   private var disposeBag = Set<AnyCancellable>()
   private let importManager: ImportManager
   private var watchers = [DirectoryWatcher]()
-  private var observedFiles = [FileItem]()
-  weak var coordinator: ImportCoordinator!
+  private var observedFiles = [ImportFileItem]()
 
   init(importManager: ImportManager) {
     self.importManager = importManager
+    super.init()
 
     self.bindInternalFiles()
   }
@@ -31,7 +31,7 @@ final class ImportViewModel: ObservableObject {
 
       self.cleanupWatchters()
       // make a copy of the files
-      self.observedFiles = files.map({ FileItem(originalUrl: $0, destinationFolder: $0) })
+      self.observedFiles = files.map { ImportFileItem(fileUrl: $0) }
       self.subscribeNewFolders()
       self.refreshData()
     }.store(in: &disposeBag)
@@ -43,10 +43,10 @@ final class ImportViewModel: ObservableObject {
   }
 
   private func subscribeNewFolders() {
-    for file in self.observedFiles {
-      guard file.originalUrl.isDirectoryFolder else { continue }
+    for item in self.observedFiles {
+      guard item.fileUrl.isDirectoryFolder else { continue }
 
-      let enumerator = FileManager.default.enumerator(at: file.originalUrl,
+      let enumerator = FileManager.default.enumerator(at: item.fileUrl,
                                                       includingPropertiesForKeys: [.isDirectoryKey],
                                                       options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
                                                         print("directoryEnumerator error at \(url): ", error)
@@ -55,14 +55,14 @@ final class ImportViewModel: ObservableObject {
 
       for case let fileURL as URL in enumerator {
         if !fileURL.isDirectoryFolder {
-          file.subItems += 1
+          item.subItems += 1
         } else if !self.watchers.contains(where: { $0.watchedUrl == fileURL }) {
           let watcher = DirectoryWatcher(watchedUrl: fileURL)
           self.watchers.append(watcher)
 
           watcher.onNewFiles = { [weak self] newFiles in
             guard let self = self else { return }
-            file.subItems += newFiles.count
+            item.subItems += newFiles.count
             self.refreshData()
           }
 
@@ -77,9 +77,9 @@ final class ImportViewModel: ObservableObject {
   }
 
   public func getTotalItems() -> Int {
-    return self.files.reduce(0) { result, file in
-      return file.originalUrl.isDirectoryFolder
-        ? result + file.subItems
+    return self.files.reduce(0) { result, item in
+      return item.fileUrl.isDirectoryFolder
+        ? result + item.subItems
         : result + 1
     }
   }
@@ -98,6 +98,6 @@ final class ImportViewModel: ObservableObject {
   }
 
   func dismiss() {
-    self.coordinator.dismiss()
+    self.coordinator.didFinish()
   }
 }
