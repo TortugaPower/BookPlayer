@@ -50,8 +50,8 @@ class MainCoordinator: Coordinator {
 
     let library = (try? self.dataManager.getLibrary()) ?? self.dataManager.createLibrary()
 
-    if library.currentTheme != nil {
-      ThemeManager.shared.currentTheme = SimpleTheme(with: library.currentTheme)
+    if let currentTheme = try? dataManager.getLibraryCurrentTheme() {
+      ThemeManager.shared.currentTheme = SimpleTheme(with: currentTheme)
     }
 
     let libraryCoordinator = LibraryListCoordinator(
