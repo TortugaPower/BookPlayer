@@ -240,9 +240,9 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
 
   func importIntoNewFolder(with title: String, items: [LibraryItem]? = nil) {
     do {
-      let folder = try self.dataManager.createFolder(with: title, in: self.folder, library: self.library, at: 0)
+      let folder = try self.dataManager.createFolder(with: title, in: self.folder, library: self.library)
       if let items = items {
-        try self.dataManager.moveItems(items.reversed(), into: folder, at: 0)
+        try self.dataManager.moveItems(items, into: folder)
       }
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
@@ -321,12 +321,11 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
   func handleOperationCompletion(_ files: [URL]) {
     let processedItems = self.dataManager.insertItems(from: files, into: nil, library: self.library)
 
-    // Reverse order for insertion at the beginning
     do {
       if let folder = self.folder {
-        try self.dataManager.moveItems(processedItems.reversed(), into: folder, at: 0)
+        try self.dataManager.moveItems(processedItems, into: folder)
       } else {
-        try self.dataManager.moveItems(processedItems.reversed(), into: self.library, moveFiles: false, at: 0)
+        try self.dataManager.moveItems(processedItems, into: self.library, moveFiles: false)
       }
 
     } catch {
