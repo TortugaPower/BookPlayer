@@ -146,6 +146,7 @@ public struct SimpleTheme: Codable {
 }
 
 extension SimpleTheme {
+  // swiftlint:disable all
   public init(with theme: Theme) {
     if theme.title != nil {
       self.title = theme.title
@@ -299,6 +300,7 @@ extension SimpleTheme {
 
     self.locked = theme.locked
   }
+  // swiftlint:enable all
 
   public init(with theme: SimpleTheme, useDarkVariant: Bool) {
     self.title = theme.title
