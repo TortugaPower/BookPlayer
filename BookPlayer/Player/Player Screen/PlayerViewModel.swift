@@ -176,7 +176,7 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
       prevChapterImageName: prevChapterImageName,
       nextChapterImageName: nextChapterImageName,
       chapterTitle: self.playerManager.currentBook?.currentChapter?.title
-      ?? self.playerManager.currentBook?.lastPathComponent
+      ?? self.playerManager.currentBook?.title
       ?? ""
     )
   }
@@ -241,7 +241,7 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
       prevChapterImageName: prevChapterImageName,
       nextChapterImageName: nextChapterImageName,
       chapterTitle: chapterTitle ?? self.chapterBeforeSliderValueChange?.title
-      ?? self.playerManager.currentBook?.lastPathComponent
+      ?? self.playerManager.currentBook?.title
       ?? ""
     )
   }
