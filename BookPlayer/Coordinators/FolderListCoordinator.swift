@@ -37,7 +37,7 @@ class FolderListCoordinator: ItemListCoordinator {
                                         library: self.library,
                                         player: self.playerManager,
                                         dataManager: self.dataManager,
-                                        theme: ThemeManager.shared.currentTheme)
+                                        themeAccent: ThemeManager.shared.currentTheme.linkColor)
     viewModel.coordinator = self
     vc.viewModel = viewModel
     self.presentingViewController = vc

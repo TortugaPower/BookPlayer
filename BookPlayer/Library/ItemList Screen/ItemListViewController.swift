@@ -98,7 +98,7 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, FolderList
     self.tableView.dragDelegate = self
     self.tableView.dropDelegate = self
 
-    self.updateSnapshot(with: self.viewModel.getInitialItems(), animated: false)
+    self.updateSnapshot(with: self.viewModel.loadInitialItems(), animated: false)
   }
 
   func bindNetworkObserver() {
@@ -156,7 +156,7 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, FolderList
         return
       }
 
-      let selectedItems = indexPaths.compactMap({ self.viewModel.items.value[$0.row] })
+      let selectedItems = indexPaths.compactMap({ self.viewModel.items[$0.row] })
 
       self.viewModel.showMoveOptions(selectedItems: selectedItems)
     }
@@ -166,7 +166,7 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, FolderList
         return
       }
 
-      let selectedItems = indexPaths.compactMap({ self.viewModel.items.value[$0.row] })
+      let selectedItems = indexPaths.compactMap({ self.viewModel.items[$0.row] })
 
       self.viewModel.showDeleteOptions(selectedItems: selectedItems)
     }
@@ -176,15 +176,20 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, FolderList
         return
       }
 
-      let selectedItems = indexPaths.compactMap({ self.viewModel.items.value[$0.row] })
+      let selectedItems = indexPaths.compactMap({ self.viewModel.items[$0.row] })
 
       self.viewModel.showMoreOptions(selectedItems: selectedItems)
     }
   }
 
   func bindDataItems() {
-    self.viewModel.items.sink { [weak self] items in
+    self.viewModel.itemsUpdates.sink { [weak self] items in
       self?.updateSnapshot(with: items, animated: true)
+    }
+    .store(in: &disposeBag)
+
+    self.viewModel.itemProgressUpdates.sink { [weak self] indexPath in
+      self?.tableView.reloadRows(at: [indexPath], with: .none)
     }
     .store(in: &disposeBag)
   }
@@ -256,7 +261,14 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, FolderList
   func updateSnapshot(with items: [SimpleLibraryItem], animated: Bool) {
     self.toggleEmptyStateView()
 
+    var selectedIndexPaths: [IndexPath]?
+    if self.isEditing {
+      selectedIndexPaths = self.tableView.indexPathsForSelectedRows
+    }
+
     self.tableView.reloadData()
+
+    selectedIndexPaths?.forEach({ self.tableView.selectRow(at: $0, animated: false, scrollPosition: .none) })
   }
 
   func updateSelectionStatus() {
@@ -287,6 +299,8 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, FolderList
   }
 
   @objc func selectButtonPressed(_ sender: Any) {
+    self.viewModel.loadAllItemsIfNeeded()
+
     if self.tableView.numberOfRows(inSection: Section.data.rawValue) == (self.tableView.indexPathsForSelectedRows?.count ?? 0) {
       for row in 0..<self.tableView.numberOfRows(inSection: Section.data.rawValue) {
         self.tableView.deselectRow(at: IndexPath(row: row, section: .data), animated: true)
@@ -309,7 +323,7 @@ extension ItemListViewController: UITableViewDataSource {
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     guard section == SectionType.data.rawValue else { return 1 }
 
-    return self.viewModel.items.value.count
+    return self.viewModel.items.count
   }
 
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -318,7 +332,7 @@ extension ItemListViewController: UITableViewDataSource {
             return tableView.dequeueReusableCell(withIdentifier: "AddCellView", for: indexPath)
           }
 
-    let item = self.viewModel.items.value[indexPath.row]
+    let item = self.viewModel.items[indexPath.row]
 
     cell.onArtworkTap = { [weak self] in
       guard !tableView.isEditing else {
@@ -360,7 +374,7 @@ extension ItemListViewController: UITableViewDelegate {
         return
     }
 
-    let item = self.viewModel.items.value[sourceIndexPath.row]
+    let item = self.viewModel.items[sourceIndexPath.row]
     self.viewModel.reorder(item: item, sourceIndexPath: sourceIndexPath, destinationIndexPath: destinationIndexPath)
   }
 
@@ -378,7 +392,7 @@ extension ItemListViewController: UITableViewDelegate {
 
   func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
     guard indexPath.sectionValue == .data,
-          indexPath.row == (self.viewModel.items.value.count - 1) else { return }
+          indexPath.row == (self.viewModel.items.count - 1) else { return }
 
     DispatchQueue.main.async { [weak self] in
       guard let self = self else { return }
@@ -411,14 +425,14 @@ extension ItemListViewController: UITableViewDelegate {
       return
     }
 
-    let item = self.viewModel.items.value[indexPath.row]
+    let item = self.viewModel.items[indexPath.row]
     self.viewModel.showItemContents(item)
   }
 
   func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
     guard indexPath.sectionValue == .data else { return nil }
 
-    let item = self.viewModel.items.value[indexPath.row]
+    let item = self.viewModel.items[indexPath.row]
 
     let optionsAction = UIContextualAction(style: .normal, title: "\("options_button".localized)…") { _, _, completion in
       self.viewModel.showMoreOptions(selectedItems: [item])
@@ -505,8 +519,8 @@ extension ItemListViewController: UIDocumentPickerDelegate {
 
 extension ItemListViewController {
   func toggleEmptyStateView() {
-    self.emptyStatePlaceholder.isHidden = !self.viewModel.items.value.isEmpty
-    self.editButtonItem.isEnabled = !self.viewModel.items.value.isEmpty
+    self.emptyStatePlaceholder.isHidden = !self.viewModel.items.isEmpty
+    self.editButtonItem.isEnabled = !self.viewModel.items.isEmpty
   }
 
   func showLoadView(_ show: Bool, title: String? = nil, subtitle: String? = nil) {
