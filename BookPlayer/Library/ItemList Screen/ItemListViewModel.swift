@@ -21,10 +21,16 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
 
   public var defaultArtwork: Data?
   public var themeAccent: UIColor
-  var items = CurrentValueSubject<[SimpleLibraryItem], Never>([])
+  public var itemsUpdates = PassthroughSubject<[SimpleLibraryItem], Never>()
+  public var itemProgressUpdates = PassthroughSubject<IndexPath, Never>()
+  public var items = [SimpleLibraryItem]()
   private var bookSubscription: AnyCancellable?
   private var bookProgressSubscription: AnyCancellable?
   private var containingFolder: Folder?
+
+  private var maxItems: Int {
+    return self.folder?.items?.count ?? self.library.items?.count ?? 0
+  }
 
   init(folder: Folder?,
        library: Library,
@@ -65,7 +71,7 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
       }
 
       // Get folder reference for progress calculation
-      if let item = self.items.value.first(where: { book.relativePath.contains($0.relativePath) && $0.type == .folder }) {
+      if let item = self.items.first(where: { book.relativePath.contains($0.relativePath) && $0.type == .folder }) {
         self.containingFolder = book.getFolder(matching: item.relativePath)
       }
 
@@ -82,9 +88,9 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
       .sink(receiveValue: { [weak self] (percentCompleted, relativePath) in
         guard let self = self,
               let relativePath = relativePath,
-              let index = self.items.value.firstIndex(where: { relativePath.contains($0.relativePath) }) else { return }
+              let index = self.items.firstIndex(where: { relativePath.contains($0.relativePath) }) else { return }
 
-        let currentItem = self.items.value[index]
+        let currentItem = self.items[index]
 
         var progress: Double?
 
@@ -97,15 +103,19 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
 
         let updatedItem = SimpleLibraryItem(from: currentItem, progress: progress, playbackState: .playing)
 
-        self.items.value[index] = updatedItem
+        self.items[index] = updatedItem
+
+        let indexModified = IndexPath(row: index, section: Section.data.rawValue)
+        self.itemProgressUpdates.send(indexModified)
       })
   }
 
   func clearPlaybackState() {
-    self.items.value = self.items.value.map({ SimpleLibraryItem(from: $0, playbackState: .stopped) })
+    self.items = self.items.map({ SimpleLibraryItem(from: $0, playbackState: .stopped) })
+    self.itemsUpdates.send(self.items)
   }
 
-  func getInitialItems(pageSize: Int = 13) -> [SimpleLibraryItem] {
+  func loadInitialItems(pageSize: Int = 13) -> [SimpleLibraryItem] {
     guard let fetchedItems = self.dataManager.fetchContents(of: self.folder,
                                                             or: library,
                                                             limit: pageSize,
@@ -118,15 +128,15 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
                                           themeAccent: self.themeAccent,
                                           playbackState: self.getPlaybackState(for: $0)) })
     self.offset = displayItems.count
-    self.items.value = displayItems
+    self.items = displayItems
+
+    MPPlayableContentManager.shared().reloadData()
 
     return displayItems
   }
 
   func loadNextItems(pageSize: Int = 13) {
-    let maxItems = self.folder?.items?.count ?? self.library.items?.count ?? 0
-
-    guard self.offset < maxItems else { return }
+    guard self.offset < self.maxItems else { return }
 
     guard let fetchedItems = self.dataManager.fetchContents(of: self.folder, or: library, limit: pageSize, offset: self.offset),
           !fetchedItems.isEmpty else {
@@ -139,7 +149,31 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
                                           playbackState: self.getPlaybackState(for: $0)) })
     self.offset += displayItems.count
 
-    self.items.value += displayItems
+    self.items += displayItems
+    self.itemsUpdates.send(self.items)
+    MPPlayableContentManager.shared().reloadData()
+  }
+
+  func loadAllItemsIfNeeded() {
+    guard self.offset < self.maxItems else { return }
+
+    guard let fetchedItems = self.dataManager.fetchContents(of: self.folder,
+                                                            or: library,
+                                                            limit: self.maxItems,
+                                                            offset: 0),
+          !fetchedItems.isEmpty else {
+      return
+    }
+
+    let displayItems = fetchedItems.map({ SimpleLibraryItem(
+                                          from: $0,
+                                          themeAccent: self.themeAccent,
+                                          playbackState: self.getPlaybackState(for: $0)) })
+    self.offset = displayItems.count
+
+    self.items = displayItems
+    self.itemsUpdates.send(self.items)
+    MPPlayableContentManager.shared().reloadData()
   }
 
   func playNextBook(after item: SimpleLibraryItem) {
@@ -179,8 +213,9 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func reloadItems(pageSizePadding: Int = 0) {
-    let pageSize = self.items.value.count + pageSizePadding
-    _ = self.getInitialItems(pageSize: pageSize)
+    let pageSize = self.items.count + pageSizePadding
+    let loadedItems = self.loadInitialItems(pageSize: pageSize)
+    self.itemsUpdates.send(loadedItems)
   }
 
   func checkSystemModeTheme() {
@@ -343,7 +378,7 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
     self.dataManager.saveContext()
     MPPlayableContentManager.shared().reloadData()
 
-    self.coordinator.reloadItemsWithPadding()
+    _ = self.loadInitialItems(pageSize: self.items.count)
   }
 
   func updateDefaultArtwork(for theme: SimpleTheme) {
