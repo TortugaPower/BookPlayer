@@ -552,38 +552,30 @@ extension PlayerManager {
   func playPreviousItem() {
     guard let previousBook = self.currentBook?.previousBook() else { return }
 
-    self.preload(previousBook)
-    self.load(previousBook, completion: { success in
-      guard success else { return }
-
-      let userInfo = ["book": previousBook]
-
-      NotificationCenter.default.post(name: .bookChange,
-                                      object: nil,
-                                      userInfo: userInfo)
-      // Resume playback if it's paused
-      if !self.isPlaying {
-        self.play()
-      }
-    })
+    self.playItem(previousBook)
   }
 
   func playNextItem(autoPlayed: Bool = false) {
     guard let nextBook = self.currentBook?.nextBook(autoplayed: autoPlayed) else { return }
 
-    self.preload(nextBook)
-    self.load(nextBook, completion: { success in
+    self.playItem(nextBook)
+  }
+
+  func playItem(_ book: Book) {
+    self.preload(book)
+    self.load(book, completion: { success in
       guard success else { return }
 
-      let userInfo = ["book": nextBook]
-
-      NotificationCenter.default.post(name: .bookChange,
-                                      object: nil,
-                                      userInfo: userInfo)
       // Resume playback if it's paused
       if !self.isPlaying {
         self.play()
       }
+
+      let userInfo = ["book": book]
+
+      NotificationCenter.default.post(name: .bookChange,
+                                      object: nil,
+                                      userInfo: userInfo)
     })
   }
 
