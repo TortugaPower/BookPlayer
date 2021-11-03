@@ -97,16 +97,15 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
 
     self.chapterTitleButton.titleLabel?.numberOfLines = 2
     self.chapterTitleButton.titleLabel?.textAlignment = .center
+    self.chapterTitleButton.titleLabel?.lineBreakMode = .byWordWrapping
   }
 
   func setupPlayerView(with currentBook: Book) {
     guard !currentBook.isFault else { return }
 
-    self.chapterTitleButton.titleLabel?.lineBreakMode = currentBook.hasChapters ? .byWordWrapping : .byCharWrapping
-
     self.artworkControl.setupInfo(with: currentBook)
 
-    self.updateView(with: self.viewModel.getCurrentProgressState())
+    self.updateView(with: self.viewModel.getCurrentProgressState(currentBook))
 
     applyTheme(self.themeProvider.currentTheme)
 
