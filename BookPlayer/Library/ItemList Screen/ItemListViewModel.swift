@@ -19,16 +19,16 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
   let dataManager: DataManager
   var offset = 0
 
-  public var defaultArtwork: Data?
-  public var themeAccent: UIColor
-  public var itemsUpdates = PassthroughSubject<[SimpleLibraryItem], Never>()
-  public var itemProgressUpdates = PassthroughSubject<IndexPath, Never>()
-  public var items = [SimpleLibraryItem]()
+  public private(set) var defaultArtwork: Data?
+  private var themeAccent: UIColor
+  public private(set) var itemsUpdates = PassthroughSubject<[SimpleLibraryItem], Never>()
+  public private(set) var itemProgressUpdates = PassthroughSubject<IndexPath, Never>()
+  public private(set) var items = [SimpleLibraryItem]()
   private var bookSubscription: AnyCancellable?
   private var bookProgressSubscription: AnyCancellable?
   private var containingFolder: Folder?
 
-  private var maxItems: Int {
+  public var maxItems: Int {
     return self.folder?.items?.count ?? self.library.items?.count ?? 0
   }
 
@@ -36,13 +36,13 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
        library: Library,
        player: PlayerManager,
        dataManager: DataManager,
-       theme: SimpleTheme) {
+       themeAccent: UIColor) {
     self.folder = folder
     self.library = library
     self.player = player
     self.dataManager = dataManager
-    self.themeAccent = theme.linkColor
-    self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: theme.linkColor)?.pngData()
+    self.themeAccent = themeAccent
+    self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: themeAccent)?.pngData()
     super.init()
 
     self.bindBookObserver()

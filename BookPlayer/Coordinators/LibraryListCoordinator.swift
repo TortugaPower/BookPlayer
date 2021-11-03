@@ -16,7 +16,7 @@ class LibraryListCoordinator: ItemListCoordinator {
                                         library: self.library,
                                         player: self.playerManager,
                                         dataManager: self.dataManager,
-                                        theme: ThemeManager.shared.currentTheme)
+                                        themeAccent: ThemeManager.shared.currentTheme.linkColor)
     viewModel.coordinator = self
     vc.viewModel = viewModel
     vc.navigationItem.largeTitleDisplayMode = .automatic
