@@ -140,31 +140,33 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     return self.getCurrentProgressState()
   }
 
-  func getCurrentProgressState() -> ProgressObject {
+  func getCurrentProgressState(_ book: Book? = nil) -> ProgressObject {
     let currentTime = self.getBookCurrentTime()
     let maxTimeInContext = self.getBookMaxTime()
     let progress: String
     let sliderValue: Float
 
+    let currentBook = book ?? self.playerManager.currentBook
+
     if self.prefersChapterContext,
-       let currentBook = self.playerManager.currentBook,
+       let currentBook = currentBook,
        currentBook.hasChapters,
        let chapters = currentBook.chapters,
        let currentChapter = currentBook.currentChapter {
       progress = String.localizedStringWithFormat("player_chapter_description".localized, currentChapter.index, chapters.count)
       sliderValue = Float((currentBook.currentTime - currentChapter.start) / currentChapter.duration)
     } else {
-      progress = "\(Int(round((self.playerManager.currentBook?.progressPercentage ?? 0) * 100)))%"
-      sliderValue = Float(self.playerManager.currentBook?.progressPercentage ?? 0)
+      progress = "\(Int(round((currentBook?.progressPercentage ?? 0) * 100)))%"
+      sliderValue = Float(currentBook?.progressPercentage ?? 0)
     }
 
     // Update local chapter
-    self.chapterBeforeSliderValueChange = self.playerManager.currentBook?.currentChapter
+    self.chapterBeforeSliderValueChange = currentBook?.currentChapter
 
-    let prevChapterImageName = self.hasChapter(before: self.playerManager.currentBook?.currentChapter)
+    let prevChapterImageName = self.hasChapter(before: currentBook?.currentChapter)
     ? "chevron.left"
     : "chevron.left.2"
-    let nextChapterImageName = self.hasChapter(after: self.playerManager.currentBook?.currentChapter)
+    let nextChapterImageName = self.hasChapter(after: currentBook?.currentChapter)
     ? "chevron.right"
     : "chevron.right.2"
 
@@ -175,8 +177,8 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
       sliderValue: sliderValue,
       prevChapterImageName: prevChapterImageName,
       nextChapterImageName: nextChapterImageName,
-      chapterTitle: self.playerManager.currentBook?.currentChapter?.title
-      ?? self.playerManager.currentBook?.title
+      chapterTitle: currentBook?.currentChapter?.title
+      ?? currentBook?.title
       ?? ""
     )
   }

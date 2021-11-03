@@ -106,7 +106,7 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
 
     self.artworkControl.setupInfo(with: currentBook)
 
-    self.updateView(with: self.viewModel.getCurrentProgressState())
+    self.updateView(with: self.viewModel.getCurrentProgressState(currentBook))
 
     applyTheme(self.themeProvider.currentTheme)
 
