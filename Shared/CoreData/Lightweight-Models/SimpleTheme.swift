@@ -146,18 +146,73 @@ public struct SimpleTheme: Codable {
 }
 
 extension SimpleTheme {
+  // swiftlint:disable all
   public init(with theme: Theme) {
-    self.title = theme.title
-    self.lightPrimaryHex = theme.lightPrimaryHex
-    self.lightSecondaryHex = theme.lightSecondaryHex
-    self.lightAccentHex = theme.lightAccentHex
-    self.lightSeparatorHex = theme.lightSeparatorHex
-    self.lightSystemBackgroundHex = theme.lightSystemBackgroundHex
-    self.lightSecondarySystemBackgroundHex = theme.lightSecondarySystemBackgroundHex
-    self.lightTertiarySystemBackgroundHex = theme.lightTertiarySystemBackgroundHex
-    self.lightSystemGroupedBackgroundHex = theme.lightSystemGroupedBackgroundHex
-    self.lightSystemFillHex = theme.lightSystemFillHex
-    self.lightSecondarySystemFillHex = theme.lightSecondarySystemFillHex
+    if theme.title != nil {
+      self.title = theme.title
+    } else {
+      self.title = "Default / Dark"
+    }
+
+    if theme.lightPrimaryHex != nil {
+      self.lightPrimaryHex = theme.lightPrimaryHex
+    } else {
+      self.lightPrimaryHex = "242320"
+    }
+
+    if theme.lightSecondaryHex != nil {
+      self.lightSecondaryHex = theme.lightSecondaryHex
+    } else {
+      self.lightSecondaryHex = "8F8E95"
+    }
+
+    if theme.lightAccentHex != nil {
+      self.lightAccentHex = theme.lightAccentHex
+    } else {
+      self.lightAccentHex = "3488D1"
+    }
+
+    if theme.lightSeparatorHex != nil {
+      self.lightSeparatorHex = theme.lightSeparatorHex
+    } else {
+      self.lightSeparatorHex = "DCDCDC"
+    }
+
+    if theme.lightSystemBackgroundHex != nil {
+      self.lightSystemBackgroundHex = theme.lightSystemBackgroundHex
+    } else {
+      self.lightSystemBackgroundHex = "FAFAFA"
+    }
+
+    if theme.lightSecondarySystemBackgroundHex != nil {
+      self.lightSecondarySystemBackgroundHex = theme.lightSecondarySystemBackgroundHex
+    } else {
+      self.lightSecondarySystemBackgroundHex = "FCFBFC"
+    }
+
+    if theme.lightTertiarySystemBackgroundHex != nil {
+      self.lightTertiarySystemBackgroundHex = theme.lightTertiarySystemBackgroundHex
+    } else {
+      self.lightTertiarySystemBackgroundHex = "E8E7E9"
+    }
+
+    if theme.lightSystemGroupedBackgroundHex != nil {
+      self.lightSystemGroupedBackgroundHex = theme.lightSystemGroupedBackgroundHex
+    } else {
+      self.lightSystemGroupedBackgroundHex = "EFEEF0"
+    }
+
+    if theme.lightSystemFillHex != nil {
+      self.lightSystemFillHex = theme.lightSystemFillHex
+    } else {
+      self.lightSystemFillHex = "87A0BA"
+    }
+
+    if theme.lightSecondarySystemFillHex != nil {
+      self.lightSecondarySystemFillHex = theme.lightSecondarySystemFillHex
+    } else {
+      self.lightSecondarySystemFillHex = "ACAAB1"
+    }
 
     if theme.lightTertiarySystemFillHex != nil {
       self.lightTertiarySystemFillHex = theme.lightTertiarySystemFillHex
@@ -171,16 +226,65 @@ extension SimpleTheme {
       self.lightQuaternarySystemFillHex = "3488D1"
     }
 
-    self.darkPrimaryHex = theme.darkPrimaryHex
-    self.darkSecondaryHex = theme.darkSecondaryHex
-    self.darkAccentHex = theme.darkAccentHex
-    self.darkSeparatorHex = theme.darkSeparatorHex
-    self.darkSystemBackgroundHex = theme.darkSystemBackgroundHex
-    self.darkSecondarySystemBackgroundHex = theme.darkSecondarySystemBackgroundHex
-    self.darkTertiarySystemBackgroundHex = theme.darkTertiarySystemBackgroundHex
-    self.darkSystemGroupedBackgroundHex = theme.darkSystemGroupedBackgroundHex
-    self.darkSystemFillHex = theme.darkSystemFillHex
-    self.darkSecondarySystemFillHex = theme.darkSecondarySystemFillHex
+    if theme.darkPrimaryHex != nil {
+      self.darkPrimaryHex = theme.darkPrimaryHex
+    } else {
+      self.darkPrimaryHex = "FAFBFC"
+    }
+
+    if theme.darkSecondaryHex != nil {
+      self.darkSecondaryHex = theme.darkSecondaryHex
+    } else {
+      self.darkSecondaryHex = "8F8E94"
+    }
+
+    if theme.darkAccentHex != nil {
+      self.darkAccentHex = theme.darkAccentHex
+    } else {
+      self.darkAccentHex = "459EEC"
+    }
+
+    if theme.darkSeparatorHex != nil {
+      self.darkSeparatorHex = theme.darkSeparatorHex
+    } else {
+      self.darkSeparatorHex = "434448"
+    }
+
+    if theme.darkSystemBackgroundHex != nil {
+      self.darkSystemBackgroundHex = theme.darkSystemBackgroundHex
+    } else {
+      self.darkSystemBackgroundHex = "202225"
+    }
+
+    if theme.darkSecondarySystemBackgroundHex != nil {
+      self.darkSecondarySystemBackgroundHex = theme.darkSecondarySystemBackgroundHex
+    } else {
+      self.darkSecondarySystemBackgroundHex = "111113"
+    }
+
+    if theme.darkTertiarySystemBackgroundHex != nil {
+      self.darkTertiarySystemBackgroundHex = theme.darkTertiarySystemBackgroundHex
+    } else {
+      self.darkTertiarySystemBackgroundHex = "333538"
+    }
+
+    if theme.darkSystemGroupedBackgroundHex != nil {
+      self.darkSystemGroupedBackgroundHex = theme.darkSystemGroupedBackgroundHex
+    } else {
+      self.darkSystemGroupedBackgroundHex = "2C2D30"
+    }
+
+    if theme.darkSystemFillHex != nil {
+      self.darkSystemFillHex = theme.darkSystemFillHex
+    } else {
+      self.darkSystemFillHex = "647E98"
+    }
+
+    if theme.darkSecondarySystemFillHex != nil {
+      self.darkSecondarySystemFillHex = theme.darkSecondarySystemFillHex
+    } else {
+      self.darkSecondarySystemFillHex = "707176"
+    }
 
     if theme.darkTertiarySystemFillHex != nil {
       self.darkTertiarySystemFillHex = theme.darkTertiarySystemFillHex
@@ -196,6 +300,7 @@ extension SimpleTheme {
 
     self.locked = theme.locked
   }
+  // swiftlint:enable all
 
   public init(with theme: SimpleTheme, useDarkVariant: Bool) {
     self.title = theme.title
