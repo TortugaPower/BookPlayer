@@ -7,6 +7,7 @@
 //
 
 import BookPlayerKit
+import Combine
 import Kingfisher
 import MediaPlayer
 import UIKit
@@ -52,12 +53,32 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
   typealias Tab = (identifier: String, title: String, imageName: String)
   let tabs: [Tab] = [("tab-library", "library_title".localized, "books.vertical.fill"),
                      ("tab-recent", "recent_title".localized, "clock.fill")]
+  var recentBooks: [Book]?
   let library: Library
   let dataManager: DataManager
+  private var disposeBag = Set<AnyCancellable>()
 
   init(library: Library, dataManager: DataManager) {
     self.library = library
     self.dataManager = dataManager
+    self.recentBooks = dataManager.getOrderedBooks(limit: 20)
+
+    super.init()
+    self.bindObservers()
+  }
+
+  func bindObservers() {
+    NotificationCenter.default.publisher(for: .bookPlayed)
+      .sink { [weak self] notification in
+        guard let self = self,
+              let userInfo = notification.userInfo,
+              let book = userInfo["book"] as? Book else {
+                return
+              }
+
+        self.setNowPlayingInfo(with: book)
+      }
+      .store(in: &disposeBag)
   }
 
   func createTabItem(for indexPath: IndexPath) -> MPContentItem {
@@ -214,19 +235,21 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
   private func getSourceItems(for index: Int) -> [LibraryItem]? {
     // Recently played items
     if index == IndexGuide.tab.recentlyPlayed {
-      return self.dataManager.getOrderedBooks()
+      return self.recentBooks
     }
 
     // Library items
     return self.library.items?.array as? [LibraryItem]
   }
 
-  class func setNowPlayingInfo(with book: Book) {
+  func setNowPlayingInfo(with book: Book) {
     var identifiers = [book.identifier!]
 
     if let folder = book.folder {
       identifiers.append(folder.identifier)
     }
+
+    self.recentBooks = self.dataManager.getOrderedBooks(limit: 20)
 
     MPPlayableContentManager.shared().nowPlayingIdentifiers = identifiers
     MPPlayableContentManager.shared().reloadData()

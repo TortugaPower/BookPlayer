@@ -92,7 +92,6 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
   }
 
   func setup() {
-    NotificationCenter.default.post(name: .playerPresented, object: nil)
     self.closeButton.accessibilityLabel = "voiceover_dismiss_player_title".localized
 
     self.chapterTitleButton.titleLabel?.numberOfLines = 2

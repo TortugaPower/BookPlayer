@@ -433,8 +433,7 @@ extension PlayerManager {
     self.setNowPlayingBookTitle()
 
     DispatchQueue.main.async {
-      CarPlayManager.setNowPlayingInfo(with: currentBook)
-      NotificationCenter.default.post(name: .bookPlayed, object: nil)
+      NotificationCenter.default.post(name: .bookPlayed, object: nil, userInfo: ["book": currentBook])
       self.watchConnectivityService.sendMessage(message: ["notification": "bookPlayed" as AnyObject])
       if #available(iOS 14.0, *) {
         WidgetCenter.shared.reloadAllTimelines()

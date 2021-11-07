@@ -130,8 +130,6 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
     self.offset = displayItems.count
     self.items = displayItems
 
-    MPPlayableContentManager.shared().reloadData()
-
     return displayItems
   }
 
@@ -151,7 +149,6 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
 
     self.items += displayItems
     self.itemsUpdates.send(self.items)
-    MPPlayableContentManager.shared().reloadData()
   }
 
   func loadAllItemsIfNeeded() {
@@ -173,7 +170,6 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
 
     self.items = displayItems
     self.itemsUpdates.send(self.items)
-    MPPlayableContentManager.shared().reloadData()
   }
 
   func playNextBook(after item: SimpleLibraryItem) {
@@ -375,7 +371,6 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
     }
 
     self.dataManager.saveContext()
-    MPPlayableContentManager.shared().reloadData()
 
     _ = self.loadInitialItems(pageSize: self.items.count)
   }
