@@ -54,8 +54,6 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
   typealias Tab = (identifier: String, title: String, imageName: String)
   let tabs: [Tab] = [("tab-library", "library_title".localized, "books.vertical.fill"),
                      ("tab-recent", "recent_title".localized, "clock.fill")]
-  var recentBooks = [SimpleLibraryItem]()
-  var libraryItems = [SimpleLibraryItem]()
   var cachedDataStore = [IndexPath: [SimpleLibraryItem]]()
   let dataManager: DataManager
   var themeAccent: UIColor
@@ -68,7 +66,6 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: nil)!
 
     super.init()
-    self.setupInitialData()
     self.bindObservers()
     self.setUpTheming()
   }
@@ -85,19 +82,6 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
         self.setNowPlayingInfo(with: book)
       }
       .store(in: &disposeBag)
-  }
-
-  func setupInitialData() {
-    if let orderedBooks = dataManager.getOrderedBooks(limit: 20) {
-      self.recentBooks = orderedBooks.map({ SimpleLibraryItem(from: $0,
-                                                              themeAccent: themeAccent)
-      })
-    }
-
-    self.libraryItems = (self.dataManager.fetchContents(at: nil) ?? [])
-      .map({ SimpleLibraryItem(from: $0,
-                               themeAccent: themeAccent)
-    })
   }
 
   func createTabItem(for indexPath: IndexPath) -> MPContentItem {
@@ -119,7 +103,10 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
     var mutableIndexPath = indexPath
     let sourceIndex = mutableIndexPath.removeFirst()
 
-    guard let items = self.getSourceItems(for: sourceIndex) else {
+    let baseIndex = IndexPath(index: sourceIndex)
+
+    guard let items = self.cachedDataStore[baseIndex]
+            ?? self.getSourceItems(for: sourceIndex) else {
       return 0
     }
 
@@ -250,13 +237,13 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
   }
 
   private func getSourceItems(for index: Int) -> [SimpleLibraryItem]? {
-    // Recently played items
-    if index == IndexGuide.tab.recentlyPlayed {
-      return self.recentBooks
-    }
-
-    // Library items
-    return self.libraryItems
+    // Recently played items or library items
+    return (index == IndexGuide.tab.recentlyPlayed
+    ? self.dataManager.getOrderedBooks(limit: 20) ?? []
+    : self.dataManager.fetchContents(at: nil) ?? [])
+      .map({ SimpleLibraryItem(from: $0,
+                               themeAccent: themeAccent)
+      })
   }
 
   func setNowPlayingInfo(with book: Book) {
@@ -266,12 +253,7 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
       identifiers.append(folder.identifier)
     }
 
-    if let orderedBooks = dataManager.getOrderedBooks(limit: 20) {
-      self.recentBooks = orderedBooks.map({ SimpleLibraryItem(from: $0,
-                                                              themeAccent: themeAccent)
-      })
-      self.cachedDataStore = [:]
-    }
+    self.cachedDataStore = [:]
 
     MPPlayableContentManager.shared().nowPlayingIdentifiers = identifiers
     MPPlayableContentManager.shared().reloadData()
