@@ -116,8 +116,7 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func loadInitialItems(pageSize: Int = 13) -> [SimpleLibraryItem] {
-    guard let fetchedItems = self.dataManager.fetchContents(of: self.folder,
-                                                            or: library,
+    guard let fetchedItems = self.dataManager.fetchContents(at: self.folder?.relativePath,
                                                             limit: pageSize,
                                                             offset: 0) else {
       return []
@@ -130,15 +129,15 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
     self.offset = displayItems.count
     self.items = displayItems
 
-    MPPlayableContentManager.shared().reloadData()
-
     return displayItems
   }
 
   func loadNextItems(pageSize: Int = 13) {
     guard self.offset < self.maxItems else { return }
 
-    guard let fetchedItems = self.dataManager.fetchContents(of: self.folder, or: library, limit: pageSize, offset: self.offset),
+    guard let fetchedItems = self.dataManager.fetchContents(at: self.folder?.relativePath,
+                                                            limit: pageSize,
+                                                            offset: self.offset),
           !fetchedItems.isEmpty else {
       return
     }
@@ -151,14 +150,12 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
 
     self.items += displayItems
     self.itemsUpdates.send(self.items)
-    MPPlayableContentManager.shared().reloadData()
   }
 
   func loadAllItemsIfNeeded() {
     guard self.offset < self.maxItems else { return }
 
-    guard let fetchedItems = self.dataManager.fetchContents(of: self.folder,
-                                                            or: library,
+    guard let fetchedItems = self.dataManager.fetchContents(at: self.folder?.relativePath,
                                                             limit: self.maxItems,
                                                             offset: 0),
           !fetchedItems.isEmpty else {
@@ -173,7 +170,6 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
 
     self.items = displayItems
     self.itemsUpdates.send(self.items)
-    MPPlayableContentManager.shared().reloadData()
   }
 
   func playNextBook(after item: SimpleLibraryItem) {
@@ -375,7 +371,6 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
     }
 
     self.dataManager.saveContext()
-    MPPlayableContentManager.shared().reloadData()
 
     _ = self.loadInitialItems(pageSize: self.items.count)
   }
