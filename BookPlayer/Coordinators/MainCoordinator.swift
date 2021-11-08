@@ -71,7 +71,7 @@ class MainCoordinator: Coordinator {
   }
 
   private func setupCarPlay(with library: Library) {
-    self.carPlayManager = CarPlayManager(library: library, dataManager: self.dataManager)
+    self.carPlayManager = CarPlayManager(dataManager: self.dataManager)
     MPPlayableContentManager.shared().dataSource = self.carPlayManager
     MPPlayableContentManager.shared().delegate = self.carPlayManager
   }

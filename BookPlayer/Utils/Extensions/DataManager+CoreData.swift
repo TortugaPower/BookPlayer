@@ -243,10 +243,10 @@ extension DataManager {
     return try? self.getContext().fetch(fetchRequest).first
   }
 
-  public func fetchContents(of folder: Folder?, or library: Library, limit: Int = 30, offset: Int) -> [LibraryItem]? {
+  public func fetchContents(at relativePath: String?, limit: Int? = nil, offset: Int? = nil) -> [LibraryItem]? {
     let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
-    if let folder = folder {
-      fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), folder.relativePath)
+    if let relativePath = relativePath {
+      fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), relativePath)
     } else {
       fetchRequest.predicate = NSPredicate(format: "%K != nil", #keyPath(LibraryItem.library))
     }
@@ -254,8 +254,13 @@ extension DataManager {
     let sort = NSSortDescriptor(key: #keyPath(LibraryItem.orderRank), ascending: true)
     fetchRequest.sortDescriptors = [sort]
 
-    fetchRequest.fetchLimit = limit
-    fetchRequest.fetchOffset = offset
+    if let limit = limit {
+      fetchRequest.fetchLimit = limit
+    }
+
+    if let offset = offset {
+      fetchRequest.fetchOffset = offset
+    }
 
     return try? self.getContext().fetch(fetchRequest)
   }
