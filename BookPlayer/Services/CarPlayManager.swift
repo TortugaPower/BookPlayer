@@ -115,7 +115,7 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
       return items.count
     }
 
-    let item = self.getItem(from: items, and: mutableIndexPath, originalIndexPath: indexPath)
+    let item = self.getItem(from: items, and: mutableIndexPath)
 
     if item.type == .folder,
        let folderItems = self.dataManager.fetchContents(at: item.relativePath) {
@@ -219,8 +219,7 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
   }
 
   private func getItem(from items: [SimpleLibraryItem],
-                       and indexPath: IndexPath,
-                       originalIndexPath: IndexPath) -> SimpleLibraryItem {
+                       and indexPath: IndexPath) -> SimpleLibraryItem {
     var mutableIndexPath = indexPath
     let index = mutableIndexPath.removeFirst()
     let item = items[index]
@@ -233,7 +232,7 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
 
     let simpleItems = folderItems.map({ SimpleLibraryItem(from: $0,
                                                           themeAccent: themeAccent) })
-    return getItem(from: simpleItems, and: mutableIndexPath, originalIndexPath: originalIndexPath)
+    return getItem(from: simpleItems, and: mutableIndexPath)
   }
 
   private func getSourceItems(for index: Int) -> [SimpleLibraryItem]? {
