@@ -51,7 +51,6 @@ class BookCellView: UITableViewCell {
             self.progressView.value = newValue.isNaN
                 ? 0.0
                 : newValue
-            setAccessibilityLabels()
         }
     }
 
@@ -145,14 +144,14 @@ class BookCellView: UITableViewCell {
 // MARK: - Voiceover
 
 extension BookCellView {
-    private func setAccessibilityLabels() {
-        let voiceOverService = VoiceOverService()
-        isAccessibilityElement = true
-        accessibilityLabel = voiceOverService.bookCellView(type: self.type,
-                                                           title: self.title,
-                                                           subtitle: self.subtitle,
-                                                           progress: self.progress)
-    }
+  public func setAccessibilityLabels() {
+    let voiceOverService = VoiceOverService()
+    isAccessibilityElement = true
+    accessibilityLabel = voiceOverService.bookCellView(type: self.type,
+                                                       title: self.title,
+                                                       subtitle: self.subtitle,
+                                                       progress: self.progress)
+  }
 }
 
 extension BookCellView: Themeable {

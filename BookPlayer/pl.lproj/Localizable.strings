@@ -180,7 +180,7 @@ A note - in Bulgarian this implies that an audiobook is being marked, which is a
 "voiceover_no_file_subtitle" = "Brak podtytułu pliku";
 "voiceover_no_playlist_title" = "Brak tytułu playlisty";
 /* &lt;Playlist title&gt; Playlist &lt;percentage in number&gt;% Completed */
-"voiceover_playlist_progress" = "%@ Playlista, ukończono %d procent";
+"voiceover_playlist_progress" = "%@, Playlista, ukończono %d procent";
 "voiceover_unknown_title" = "Nieznany tytuł";
 "voiceover_unknown_author" = "Nieznany autor";
 /* &lt;book title&gt; by &lt;book author&gt; */

@@ -355,7 +355,7 @@ extension ItemListViewController: UITableViewDataSource {
     cell.playbackState = item.playbackState
     cell.artworkView.kf.setImage(with: ArtworkService.getArtworkProvider(for: item.relativePath),
                                  placeholder: self.defaultArtwork)
-
+    cell.setAccessibilityLabels()
     return cell
   }
 }
