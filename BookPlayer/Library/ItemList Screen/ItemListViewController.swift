@@ -577,9 +577,9 @@ extension ItemListViewController {
       ? self.viewModel.getItem(of: type, after: indexPath.row)
       : self.viewModel.getItem(of: type, before: indexPath.row)
 
-      guard let newIndex = newIndex else { return nil }
+      guard let foundIndex = newIndex else { return nil }
 
-      let newIndexPath = IndexPath(row: newIndex, section: .data)
+      let newIndexPath = IndexPath(row: foundIndex, section: .data)
 
       self.tableView.scrollToRow(at: newIndexPath, at: .none, animated: false)
       let newCell = self.tableView.cellForRow(at: newIndexPath)!
