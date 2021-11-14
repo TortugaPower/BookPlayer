@@ -79,8 +79,4 @@ class BookmarksViewModel: BaseViewModel<BookmarkCoordinator> {
   func deleteBookmark(_ bookmark: Bookmark) {
     self.dataManager.deleteBookmark(bookmark)
   }
-
-  func dismiss() {
-    self.coordinator.didFinish()
-  }
 }

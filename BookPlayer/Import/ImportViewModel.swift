@@ -96,8 +96,4 @@ final class ImportViewModel: BaseViewModel<ImportCoordinator>, ObservableObject 
     self.importManager.createOperation()
     self.dismiss()
   }
-
-  func dismiss() {
-    self.coordinator.didFinish()
-  }
 }
