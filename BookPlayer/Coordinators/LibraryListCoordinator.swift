@@ -36,7 +36,9 @@ class LibraryListCoordinator: ItemListCoordinator {
   }
 
   override func interactiveDidFinish(vc: UIViewController) {
-    guard let vc = vc as? ItemListViewController else { return }
+    // Coordinator may be already released if popped by VoiceOver gesture
+    guard let vc = vc as? ItemListViewController,
+          vc.viewModel.coordinator != nil else { return }
 
     vc.viewModel.coordinator.detach()
   }

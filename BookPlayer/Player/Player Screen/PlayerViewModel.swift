@@ -299,10 +299,6 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   func showChapters() {
     self.coordinator.showChapters()
   }
-
-  func dismiss() {
-    self.coordinator.didFinish()
-  }
 }
 
 extension PlayerViewModel {
