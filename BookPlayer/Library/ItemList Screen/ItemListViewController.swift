@@ -560,35 +560,33 @@ extension ItemListViewController {
 // MARK: Accessibility
 
 extension ItemListViewController {
-    private func setupCustomRotors() {
-        accessibilityCustomRotors = [self.rotorFactory(name: "Books", type: .book), self.rotorFactory(name: "Folders", type: .folder)]
+  private func setupCustomRotors() {
+    self.accessibilityCustomRotors = [self.rotorFactory(name: "Books", type: .book), self.rotorFactory(name: "Folders", type: .folder)]
+  }
+
+  private func rotorFactory(name: String, type: SimpleItemType) -> UIAccessibilityCustomRotor {
+    return UIAccessibilityCustomRotor(name: name) { (predicate) -> UIAccessibilityCustomRotorItemResult? in
+
+      guard let cell = predicate.currentItem.targetElement as? BookCellView,
+            let indexPath = self.tableView.indexPath(for: cell) else { return nil }
+
+      // Load all items just in case
+      self.viewModel.loadAllItemsIfNeeded()
+
+      let newIndex = predicate.searchDirection == .next
+      ? self.viewModel.getItem(of: type, after: indexPath.row)
+      : self.viewModel.getItem(of: type, before: indexPath.row)
+
+      guard let newIndex = newIndex else { return nil }
+
+      let newIndexPath = IndexPath(row: newIndex, section: .data)
+
+      self.tableView.scrollToRow(at: newIndexPath, at: .none, animated: false)
+      let newCell = self.tableView.cellForRow(at: newIndexPath)!
+
+      return UIAccessibilityCustomRotorItemResult(targetElement: newCell, targetRange: nil)
     }
-
-    private func rotorFactory(name: String, type: SimpleItemType) -> UIAccessibilityCustomRotor {
-        return UIAccessibilityCustomRotor(name: name) { (predicate) -> UIAccessibilityCustomRotorItemResult? in
-            let forward: Bool = (predicate.searchDirection == .next)
-
-            let playListCells = self.tableView.visibleCells.filter { (cell) -> Bool in
-                guard let cell = cell as? BookCellView else { return false }
-                return cell.type == type
-            }
-
-            var currentIndex = forward ? -1 : playListCells.count
-            //
-            if let currentElement = predicate.currentItem.targetElement {
-                if let cell = currentElement as? BookCellView {
-                    currentIndex = playListCells.firstIndex(of: cell) ?? currentIndex
-                }
-            }
-            let nextIndex = forward ? currentIndex + 1 : currentIndex - 1
-
-            while nextIndex >= 0, nextIndex < playListCells.count {
-                let cell = playListCells[nextIndex]
-                return UIAccessibilityCustomRotorItemResult(targetElement: cell, targetRange: nil)
-            }
-            return nil
-        }
-    }
+  }
 }
 
 // MARK: - Themeable
