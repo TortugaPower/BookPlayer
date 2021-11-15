@@ -97,6 +97,7 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
     self.chapterTitleButton.titleLabel?.numberOfLines = 2
     self.chapterTitleButton.titleLabel?.textAlignment = .center
     self.chapterTitleButton.titleLabel?.lineBreakMode = .byWordWrapping
+    self.chapterTitleButton.isAccessibilityElement = false
   }
 
   func setupPlayerView(with currentBook: Book) {

@@ -78,6 +78,9 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     self.layer.shadowOpacity = 0.15
     self.layer.shadowRadius = 12.0
 
+    self.titleLabel.isAccessibilityElement = false
+    self.authorLabel.isAccessibilityElement = false
+
     self.artworkImage.clipsToBounds = false
     // artwork now has the main info regarding the title and author
     self.artworkImage.contentMode = .scaleAspectFit
