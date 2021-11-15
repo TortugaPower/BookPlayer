@@ -71,6 +71,13 @@ public class ImportOperation: Operation {
   }
 
   func finish() {
+    let sortDescriptor = NSSortDescriptor(key: "path", ascending: true, selector: #selector(NSString.localizedStandardCompare(_:)))
+    let orderedSet = NSOrderedSet(array: self.processedFiles)
+
+    if let sortedFiles = orderedSet.sortedArray(using: [sortDescriptor]) as? [URL] {
+      self.processedFiles = sortedFiles
+    }
+
     isExecuting = false
     isFinished = true
   }
