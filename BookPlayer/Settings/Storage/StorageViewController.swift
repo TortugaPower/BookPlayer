@@ -14,6 +14,7 @@ import UIKit
 final class StorageViewController: BaseViewController<StorageCoordinator, StorageViewModel>, Storyboarded {
   @IBOutlet weak var filesTitleLabel: LocalizableLabel!
   @IBOutlet weak var storageSpaceLabel: UILabel!
+  @IBOutlet weak var fixAllButton: UIButton!
   @IBOutlet weak var tableView: UITableView!
   @IBOutlet weak var loadingViewIndicator: UIActivityIndicatorView!
 
@@ -22,34 +23,68 @@ final class StorageViewController: BaseViewController<StorageCoordinator, Storag
   @IBOutlet var separatorViews: [UIView]!
 
   private var disposeBag = Set<AnyCancellable>()
-  private var items = [StorageItem]()
+  private var items = [StorageItem]() {
+    didSet {
+      self.fixAllButton.isHidden = !self.items.contains { $0.showWarning }
+    }
+  }
 
   override func viewDidLoad() {
     super.viewDidLoad()
 
     self.navigationItem.title = "settings_storage_title".localized
+    self.fixAllButton.setTitle("storage_fix_all_title".localized, for: .normal)
 
     self.tableView.tableFooterView = UIView()
     self.tableView.isScrollEnabled = true
 
     self.storageSpaceLabel.text = viewModel.getLibrarySize()
 
-    self.bindItems()
+    self.bindObservers()
 
     setUpTheming()
   }
 
-  private func bindItems() {
+  private func bindObservers() {
     self.viewModel.observeFiles()
       .receive(on: DispatchQueue.main)
       .sink { [weak self] storageItems in
-        guard !storageItems.isEmpty else { return }
+        guard let loadedItems = storageItems else { return }
 
-        self?.items = storageItems
-        self?.filesTitleLabel.text = "\("files_caps_title".localized) - \(storageItems.count)"
+        self?.items = loadedItems
+        self?.filesTitleLabel.text = "\("files_caps_title".localized) - \(loadedItems.count)"
         self?.tableView.reloadData()
         self?.loadingViewIndicator.stopAnimating()
     }.store(in: &disposeBag)
+
+    self.fixAllButton.publisher(for: .touchUpInside)
+      .sink { [weak self] _ in
+        guard let self = self else { return }
+
+        let brokenItems = self.viewModel.getBrokenItems()
+
+        guard !brokenItems.isEmpty else { return }
+
+        let alert = UIAlertController(title: nil,
+                                      message: "storage_fix_files_description".localized,
+                                      preferredStyle: .alert)
+
+        alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
+
+        alert.addAction(UIAlertAction(title: "storage_fix_file_button".localized, style: .default, handler: { _ in
+          self.loadingViewIndicator.startAnimating()
+          do {
+            try self.viewModel.handleFix(for: brokenItems) {
+              self.loadingViewIndicator.stopAnimating()
+            }
+          } catch {
+            self.loadingViewIndicator.stopAnimating()
+            self.showAlert("error_title".localized, message: error.localizedDescription)
+          }
+        }))
+
+        self.present(alert, animated: true, completion: nil)
+      }.store(in: &disposeBag)
   }
 }
 
@@ -117,23 +152,19 @@ extension StorageViewController: UITableViewDelegate {
 extension StorageViewController: Themeable {
   func applyTheme(_ theme: SimpleTheme) {
     self.view.backgroundColor = theme.systemGroupedBackgroundColor
+    self.fixAllButton.tintColor = theme.linkColor
 
     self.tableView.backgroundColor = theme.systemBackgroundColor
     self.tableView.separatorColor = theme.separatorColor
 
     self.storageSpaceLabel.textColor = theme.secondaryColor
 
-    self.separatorViews.forEach { separatorView in
-      separatorView.backgroundColor = theme.separatorColor
-    }
+    self.separatorViews.forEach { $0.backgroundColor = theme.separatorColor }
 
-    self.containerViews.forEach { view in
-      view.backgroundColor = theme.systemBackgroundColor
-    }
+    self.containerViews.forEach { $0.backgroundColor = theme.systemBackgroundColor }
 
-    self.titleLabels.forEach { label in
-      label.textColor = theme.primaryColor
-    }
+    self.titleLabels.forEach { $0.textColor = theme.primaryColor }
+
     self.tableView.reloadData()
 
     self.overrideUserInterfaceStyle = theme.useDarkVariant

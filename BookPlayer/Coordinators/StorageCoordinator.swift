@@ -26,7 +26,8 @@ class StorageCoordinator: Coordinator {
     let vc = StorageViewController.instantiate(from: .Settings)
 
     let viewModel = StorageViewModel(dataManager: self.dataManager,
-                                     library: self.library)
+                                     library: self.library,
+                                     folderURL: DataManager.getProcessedFolderURL())
     viewModel.coordinator = self
     vc.viewModel = viewModel
     self.navigationController.delegate = self

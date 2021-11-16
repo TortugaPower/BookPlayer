@@ -12,14 +12,16 @@ import DirectoryWatcher
 import Foundation
 
 final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObject {
-  private var files = CurrentValueSubject<[StorageItem], Never>([])
+  private var files = CurrentValueSubject<[StorageItem]?, Never>(nil)
   private var disposeBag = Set<AnyCancellable>()
   private let library: Library
   private let dataManager: DataManager
+  private let folderURL: URL
 
-  init(dataManager: DataManager, library: Library) {
+  init(dataManager: DataManager, library: Library, folderURL: URL) {
     self.dataManager = dataManager
     self.library = library
+    self.folderURL = folderURL
 
     super.init()
     self.loadItems()
@@ -27,10 +29,10 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
 
   private func loadItems() {
     DispatchQueue.global(qos: .userInteractive).async {
-      let processedFolder = DataManager.getProcessedFolderURL()
+      let processedFolder = self.folderURL
 
       let enumerator = FileManager.default.enumerator(
-        at: DataManager.getProcessedFolderURL(),
+        at: self.folderURL,
         includingPropertiesForKeys: [.isDirectoryKey],
         options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
           print("directoryEnumerator error at \(url): ", error)
@@ -75,7 +77,7 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
 
   private func moveBookFile(from item: StorageItem, with book: Book) throws {
     let isOrphaned = book.getLibrary() == nil
-    let defaultDestinationURL = DataManager.getProcessedFolderURL().appendingPathComponent(item.fileURL.lastPathComponent)
+    let defaultDestinationURL = self.folderURL.appendingPathComponent(item.fileURL.lastPathComponent)
     let destinationURL = !isOrphaned
       ? book.fileURL ?? defaultDestinationURL
       : defaultDestinationURL
@@ -94,28 +96,50 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
   }
 
   public func getLibrarySize() -> String {
-    return DataManager.sizeOfItem(at: DataManager.getProcessedFolderURL())
+    return DataManager.sizeOfItem(at: self.folderURL)
   }
 
-  public func observeFiles() -> AnyPublisher<[StorageItem], Never> {
+  public func observeFiles() -> AnyPublisher<[StorageItem]?, Never> {
     self.files.map({ items in
-      return items.sorted { $0.size > $1.size }
+      return items?.sorted { $0.size > $1.size }
     }).map({ items in
-      return items.sorted { $0.showWarning && !$1.showWarning }
+      return items?.sorted { $0.showWarning && !$1.showWarning }
     }).eraseToAnyPublisher()
   }
 
   public func handleDelete(for item: StorageItem) throws {
-    self.files.value = self.files.value.filter { $0.fileURL != item.fileURL }
+    self.files.value = self.files.value?.filter { $0.fileURL != item.fileURL }
 
     try FileManager.default.removeItem(at: item.fileURL)
   }
 
-  public func handleFix(for item: StorageItem) throws {
+  public func getBrokenItems() -> [StorageItem] {
+    return self.files.value?.filter({ $0.showWarning }) ?? []
+  }
+
+  public func handleFix(for items: [StorageItem], completion: (() -> Void)) throws {
+    guard !items.isEmpty else {
+      self.loadItems()
+      completion()
+      return
+    }
+
+    var mutableItems = items
+
+    let currentItem = mutableItems.removeFirst()
+
+    try self.handleFix(for: currentItem, shouldReloadItems: false)
+
+    try self.handleFix(for: mutableItems, completion: completion)
+  }
+
+  public func handleFix(for item: StorageItem, shouldReloadItems: Bool = true) throws {
     guard let fetchedBook = self.dataManager.findBooks(containing: item.fileURL)?.first else {
       // create a new book
       try self.createBook(from: item)
-      self.loadItems()
+      if shouldReloadItems {
+        self.loadItems()
+      }
       return
     }
 
@@ -125,18 +149,22 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
       self.dataManager.saveContext()
     }
 
-    let fetchedBookURL = DataManager.getProcessedFolderURL().appendingPathComponent(fetchedBook.relativePath)
+    let fetchedBookURL = self.folderURL.appendingPathComponent(fetchedBook.relativePath)
 
     // Check if existing book already has its file, and this one is a duplicate
     if FileManager.default.fileExists(atPath: fetchedBookURL.path) {
       try FileManager.default.removeItem(at: item.fileURL)
       self.coordinator.showAlert("storage_duplicate_item_title".localized, message: String.localizedStringWithFormat("storage_duplicate_item_description".localized, fetchedBook.relativePath!))
-      self.loadItems()
+      if shouldReloadItems {
+        self.loadItems()
+      }
       return
     }
 
     try self.moveBookFile(from: item, with: fetchedBook)
 
-    self.loadItems()
+    if shouldReloadItems {
+      self.loadItems()
+    }
   }
 }
