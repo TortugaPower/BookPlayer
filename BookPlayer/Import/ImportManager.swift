@@ -19,7 +19,7 @@ final class ImportManager {
   private let timeout = 2.0
   private var subscription: AnyCancellable?
   private var timer: Timer?
-  private var files = CurrentValueSubject<[URL], Never>([])
+  private var files = CurrentValueSubject<Set<URL>, Never>(Set())
 
   public var operationPublisher = PassthroughSubject<ImportOperation, Never>()
 
@@ -28,18 +28,17 @@ final class ImportManager {
   }
 
   public func process(_ fileUrl: URL) {
-    // Avoid duplicating files
-    guard !self.files.value.contains(where: { $0 == fileUrl }) else { return }
-
     // Avoid processing the creation of the Processed and Inbox folder
     if fileUrl.lastPathComponent == DataManager.processedFolderName
         || fileUrl.lastPathComponent == "Inbox" { return }
 
-    self.files.value.append(fileUrl)
+    self.files.value.insert(fileUrl)
   }
 
   public func observeFiles() -> AnyPublisher<[URL], Never> {
-    return self.files.eraseToAnyPublisher()
+    return self.files
+      .map({ Array($0) })
+      .eraseToAnyPublisher()
   }
 
   public func removeFile(_ item: URL, updateCollection: Bool = true) throws {
@@ -53,20 +52,22 @@ final class ImportManager {
   }
 
   public func removeAllFiles() throws {
-    for file in self.files.value {
+    let loadedFiles = self.files.value
+    self.files.value = []
+
+    for file in loadedFiles {
       try self.removeFile(file, updateCollection: false)
     }
-
-    self.files.value = []
   }
 
   public func createOperation() {
     guard !self.files.value.isEmpty else { return }
 
     let sortDescriptor = NSSortDescriptor(key: "path", ascending: true, selector: #selector(NSString.localizedStandardCompare(_:)))
-    let orderedSet = NSOrderedSet(array: self.files.value)
-
-    guard let sortedFiles = orderedSet.sortedArray(using: [sortDescriptor]) as? [URL] else { return }
+    let orderedSet = NSOrderedSet(set: self.files.value)
+    // swiftlint:disable force_cast
+    let sortedFiles = orderedSet.sortedArray(using: [sortDescriptor]) as! [URL]
+    // swiftlint:enable force_cast
 
     let operation = ImportOperation(files: sortedFiles, dataManager: self.dataManager)
 
