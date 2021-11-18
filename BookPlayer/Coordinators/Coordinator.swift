@@ -36,9 +36,8 @@ class Coordinator: NSObject {
         self?.detach()
       })
     case .push:
-      self.navigationController.dismiss(animated: true) { [weak self] in
-        self?.detach()
-      }
+      self.navigationController.popViewController(animated: true)
+      self.detach()
     }
   }
 

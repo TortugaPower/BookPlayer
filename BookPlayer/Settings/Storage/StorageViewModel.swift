@@ -71,7 +71,6 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
     self.library.insert(item: book)
 
     self.dataManager.saveContext()
-    NotificationCenter.default.post(name: .reloadLibrary, object: nil)
   }
 
   private func moveBookFile(from item: StorageItem, with book: Book) throws {
