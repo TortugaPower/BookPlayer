@@ -219,3 +219,5 @@
 "chapters_previous_title" = "Previous Chapter";
 "chapters_next_title" = "Next Chapter";
 "book_time_current_title" = "Current Book Time: %@";
+"storage_fix_files_description" = "The link between the files and the digital book items are missing, if the corresponding item cannot be found for each file, a new one will be created";
+"storage_fix_all_title" = "Fix All";

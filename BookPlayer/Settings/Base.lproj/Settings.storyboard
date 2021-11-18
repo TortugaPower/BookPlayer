@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="19162" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="nNa-3d-7ZC">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="19455" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="nNa-3d-7ZC">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19144"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19454"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -1956,18 +1956,31 @@ second line</string>
                                     </view>
                                 </subviews>
                             </stackView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="FILES" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Jt5-NR-llg" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
-                                <rect key="frame" x="15" y="89" width="345" height="16"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="F2n-b4-57S">
+                                <rect key="frame" x="15" y="89" width="355" height="16"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="249" verticalHuggingPriority="251" text="FILES" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Jt5-NR-llg" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="0.0" width="292.5" height="16"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="16" id="Gha-dS-EpK"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="string" keyPath="localizedKey" value="files_caps_title"/>
+                                        </userDefinedRuntimeAttributes>
+                                    </label>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="trailing" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="f6d-Tb-whR">
+                                        <rect key="frame" x="292.5" y="0.0" width="62.5" height="16"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="plain" title="Fix All"/>
+                                    </button>
+                                </subviews>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="16" id="Gha-dS-EpK"/>
+                                    <constraint firstAttribute="height" constant="16" id="O3e-BY-6Jk"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="string" keyPath="localizedKey" value="files_caps_title"/>
-                                </userDefinedRuntimeAttributes>
-                            </label>
+                            </stackView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kHX-5q-lMZ" userLabel="Separator View">
                                 <rect key="frame" x="0.0" y="112.5" width="375" height="0.5"/>
                                 <color key="backgroundColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -1980,17 +1993,17 @@ second line</string>
                         <color key="backgroundColor" red="0.93345028159999999" green="0.93702846770000003" blue="0.94902259109999998" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                         <constraints>
                             <constraint firstItem="kHX-5q-lMZ" firstAttribute="leading" secondItem="B6j-AA-kzz" secondAttribute="leading" id="0Sb-cO-jxD"/>
+                            <constraint firstItem="fzw-Ck-HgH" firstAttribute="trailing" secondItem="F2n-b4-57S" secondAttribute="trailing" constant="5" id="0eq-JQ-3bJ"/>
                             <constraint firstItem="k0M-TZ-Hac" firstAttribute="trailing" secondItem="fzw-Ck-HgH" secondAttribute="trailing" id="2Fb-8Z-wEu"/>
                             <constraint firstItem="fzw-Ck-HgH" firstAttribute="bottom" secondItem="B6j-AA-kzz" secondAttribute="bottom" id="CwE-CD-CrH"/>
+                            <constraint firstItem="F2n-b4-57S" firstAttribute="leading" secondItem="fzw-Ck-HgH" secondAttribute="leading" constant="15" id="F4t-uC-CdB"/>
                             <constraint firstItem="yoJ-5R-iqu" firstAttribute="top" secondItem="kHX-5q-lMZ" secondAttribute="bottom" constant="20" id="HbQ-qA-uSt"/>
                             <constraint firstItem="B6j-AA-kzz" firstAttribute="top" secondItem="kHX-5q-lMZ" secondAttribute="bottom" id="Hga-2r-qi5"/>
                             <constraint firstItem="k0M-TZ-Hac" firstAttribute="top" secondItem="fzw-Ck-HgH" secondAttribute="top" constant="14" id="JTu-Ng-ofc"/>
-                            <constraint firstItem="kHX-5q-lMZ" firstAttribute="top" secondItem="Jt5-NR-llg" secondAttribute="bottom" constant="7.5" id="MNV-ci-ISc"/>
-                            <constraint firstItem="Jt5-NR-llg" firstAttribute="top" secondItem="k0M-TZ-Hac" secondAttribute="bottom" constant="30" id="OHz-qw-Vl6"/>
+                            <constraint firstItem="F2n-b4-57S" firstAttribute="top" secondItem="k0M-TZ-Hac" secondAttribute="bottom" constant="30" id="SLQ-Mu-X1Z"/>
                             <constraint firstItem="B6j-AA-kzz" firstAttribute="leading" secondItem="fzw-Ck-HgH" secondAttribute="leading" id="Z4m-cj-COy"/>
-                            <constraint firstItem="Jt5-NR-llg" firstAttribute="leading" secondItem="fzw-Ck-HgH" secondAttribute="leading" constant="15" id="oZq-Pu-wz1"/>
-                            <constraint firstItem="fzw-Ck-HgH" firstAttribute="trailing" secondItem="Jt5-NR-llg" secondAttribute="trailing" constant="15" id="rzn-Qy-nPG"/>
                             <constraint firstItem="B6j-AA-kzz" firstAttribute="trailing" secondItem="fzw-Ck-HgH" secondAttribute="trailing" id="sh3-rj-cNl"/>
+                            <constraint firstItem="kHX-5q-lMZ" firstAttribute="top" secondItem="F2n-b4-57S" secondAttribute="bottom" constant="7.5" id="stL-h3-Qyh"/>
                             <constraint firstItem="yoJ-5R-iqu" firstAttribute="centerX" secondItem="fzw-Ck-HgH" secondAttribute="centerX" id="tDD-5f-TIR"/>
                             <constraint firstItem="kHX-5q-lMZ" firstAttribute="trailing" secondItem="B6j-AA-kzz" secondAttribute="trailing" id="v0c-ae-Dnc"/>
                             <constraint firstItem="k0M-TZ-Hac" firstAttribute="leading" secondItem="fzw-Ck-HgH" secondAttribute="leading" id="yZU-fA-qpH"/>
@@ -2000,6 +2013,7 @@ second line</string>
                     <size key="freeformSize" width="375" height="736"/>
                     <connections>
                         <outlet property="filesTitleLabel" destination="Jt5-NR-llg" id="fcY-5w-ZK0"/>
+                        <outlet property="fixAllButton" destination="f6d-Tb-whR" id="NuK-d0-nZF"/>
                         <outlet property="loadingViewIndicator" destination="yoJ-5R-iqu" id="Vhp-NF-Tmf"/>
                         <outlet property="storageSpaceLabel" destination="1HD-0Y-1on" id="FoR-P1-1XJ"/>
                         <outlet property="tableView" destination="B6j-AA-kzz" id="O6S-kU-Kfs"/>
