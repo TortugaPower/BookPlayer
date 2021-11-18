@@ -228,6 +228,7 @@
 		41AD3DAF221E678600DC41E1 /* PlusViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41AD3DAE221E678600DC41E1 /* PlusViewController.swift */; };
 		41ADD6A72570651200660C64 /* PlayAndSleepActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41ADD6A62570651200660C64 /* PlayAndSleepActionHandler.swift */; };
 		41ADD6DA2570AC6300660C64 /* RecentBooksWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41ADD6D92570AC6300660C64 /* RecentBooksWidgetView.swift */; };
+		41B0A9872746F47600DE9E48 /* ThemedTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B0A9862746F47600DE9E48 /* ThemedTableViewCell.swift */; };
 		41B2A5DA21CAE42600917584 /* Settings.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 41B2A5D821CAE42600917584 /* Settings.storyboard */; };
 		41B2A5DC21CAEE0E00917584 /* PlayerSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2A5DB21CAEE0E00917584 /* PlayerSettingsViewController.swift */; };
 		41B2A5DE21CAF20E00917584 /* ThemesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2A5DD21CAF20E00917584 /* ThemesViewController.swift */; };
@@ -710,6 +711,7 @@
 		41AD3DB222205C5A00DC41E1 /* Kingfisher.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Kingfisher.framework; path = Carthage/Build/iOS/Kingfisher.framework; sourceTree = "<group>"; };
 		41ADD6A62570651200660C64 /* PlayAndSleepActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayAndSleepActionHandler.swift; sourceTree = "<group>"; };
 		41ADD6D92570AC6300660C64 /* RecentBooksWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentBooksWidgetView.swift; sourceTree = "<group>"; };
+		41B0A9862746F47600DE9E48 /* ThemedTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemedTableViewCell.swift; sourceTree = "<group>"; };
 		41B2A5D921CAE42600917584 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Settings.storyboard; sourceTree = "<group>"; };
 		41B2A5DB21CAEE0E00917584 /* PlayerSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerSettingsViewController.swift; sourceTree = "<group>"; };
 		41B2A5DD21CAF20E00917584 /* ThemesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemesViewController.swift; sourceTree = "<group>"; };
@@ -1579,6 +1581,7 @@
 			children = (
 				4151A6B226E491A800E49DBE /* NibLoadableView.swift */,
 				4160A0A023F304530039166B /* LocalizableLabel.swift */,
+				41B0A9862746F47600DE9E48 /* ThemedTableViewCell.swift */,
 				416AAC3223F51031005AD04F /* LocalizableButton.swift */,
 				C318DDBB20A48D4700C3A17B /* BPMarqueeLabel.swift */,
 				C3FA301D20E0024900393DDA /* BPArtworkView.swift */,
@@ -2264,6 +2267,7 @@
 				C318DDBC20A48D4700C3A17B /* BPMarqueeLabel.swift in Sources */,
 				41B30A33230232D200025D69 /* CarPlayManager.swift in Sources */,
 				4137BBCE272DBB16009ED9FE /* SettingsViewModel.swift in Sources */,
+				41B0A9872746F47600DE9E48 /* ThemedTableViewCell.swift in Sources */,
 				410D00E426DAB97700D11A45 /* Combine+BookPlayer.swift in Sources */,
 				411373A025534B8800295022 /* TelemetrySignal.swift in Sources */,
 				C375AF1920DD99E000AC034D /* ArtworkControl.swift in Sources */,
