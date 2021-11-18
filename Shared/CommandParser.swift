@@ -42,6 +42,10 @@ public class CommandParser {
   }
 
   public class func parse(_ url: URL) -> Action? {
+    if url.isFileURL {
+      return Action(command: .fileImport, parameters: [URLQueryItem(name: "url", value: url.path)])
+    }
+
     guard let host = url.host else {
       return nil
     }
@@ -122,6 +126,7 @@ public enum Command: String {
   case skipForward
   case sleep
   case widget
+  case fileImport
 }
 
 public struct Action: Equatable {

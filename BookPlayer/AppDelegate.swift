@@ -120,18 +120,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
     // Handles audio file urls, like when receiving files through AirDrop
     // Also handles custom URL scheme 'bookplayer://'
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
-      guard url.isFileURL else {
-        ActionParserService.process(url)
-        return true
-      }
-
-      guard let mainCoordinator = self.coordinator.getMainCoordinator(),
-            let libraryCoordinator = mainCoordinator.getLibraryCoordinator() else {
-        return true
-      }
-
-      libraryCoordinator.processFiles(urls: [url])
-
+      ActionParserService.process(url)
       return true
     }
 
