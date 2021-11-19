@@ -25,6 +25,7 @@ public enum Constants {
         case boostVolumeEnabled = "userSettingsBoostVolume"
         case globalSpeedEnabled = "userSettingsGlobalSpeed"
         case autoplayEnabled = "userSettingsAutoplay"
+        case iCloudBackupsEnabled = "userSettingsiCloudBackupsEnabled"
         case autolockDisabled = "userSettingsDisableAutolock"
         case autolockDisabledOnlyWhenPowered = "userSettingsAutolockOnlyWhenPowered"
 
