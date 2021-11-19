@@ -246,7 +246,7 @@ Alessio Franceschi&nbsp;this is the label for the active sleep timer button when
 "chapters_previous_title" = "Predchádzajúca kapitola";
 "chapters_next_title" = "Ďalšia kapitola";
 "book_time_current_title" = "Aktuálny čas audioknihy: %@";
-"storage_fix_files_description" = "The link between the files and the digital book items are missing, if the corresponding item cannot be found for each file, a new one will be created";
-"storage_fix_all_title" = "Fix All";
-"settings_backup_title" = "iCloud Backups";
-"settings_backup_files_title" = "Include book files";
+"storage_fix_files_description" = "Prepojenie medzi súbormi a položkami digitálnej knihy chýba. Ak súvisiaca položka nemôže byť nájdená pre každý súbor, vytvorí sa nová.";
+"storage_fix_all_title" = "Opraviť všetko";
+"settings_backup_title" = "iCloud zálohy";
+"settings_backup_files_title" = "Zahrnúť súbory kníh";
