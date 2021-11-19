@@ -33,6 +33,8 @@ class LibraryListCoordinator: ItemListCoordinator {
         ActionParserService.handleAction(action)
       }
     }
+
+    self.documentPickerDelegate = vc
   }
 
   override func interactiveDidFinish(vc: UIViewController) {
