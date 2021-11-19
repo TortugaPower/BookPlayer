@@ -20,7 +20,7 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
   @IBOutlet weak var authorLabel: UILabel!
   @IBOutlet weak var titleLabel: UILabel!
   @IBOutlet weak var infoContainerStackView: UIStackView!
-  @IBOutlet weak var airplayView: AVRoutePickerView!
+  @IBOutlet weak var airplayView: UIView!
 
   private var leftGradientLayer: CAGradientLayer!
   private var rightGradientLayer: CAGradientLayer!
@@ -104,16 +104,28 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
   }
 
   private func setupAirplayView() {
+    let airplayRoutePickerView = AVRoutePickerView()
+
+    self.airplayView.addSubview(airplayRoutePickerView)
+    airplayRoutePickerView.translatesAutoresizingMaskIntoConstraints = false
+
+    NSLayoutConstraint.activate([
+      airplayRoutePickerView.topAnchor.constraint(equalTo: self.airplayView.topAnchor),
+      airplayRoutePickerView.bottomAnchor.constraint(equalTo: self.airplayView.bottomAnchor),
+      airplayRoutePickerView.leadingAnchor.constraint(equalTo: self.airplayView.leadingAnchor),
+      airplayRoutePickerView.trailingAnchor.constraint(equalTo: self.airplayView.trailingAnchor, constant: -5)
+    ])
+
     // Adjust icon size
-    self.airplayView.transform = CGAffineTransform(scaleX: 1.4, y: 1.4)
-    self.airplayView.tintColor = .white
-    self.airplayView.activeTintColor = .white
+    airplayRoutePickerView.transform = CGAffineTransform(scaleX: 1.4, y: 1.4)
+    airplayRoutePickerView.tintColor = .white
+    airplayRoutePickerView.activeTintColor = .white
 
     // Add drop shadow
-    self.airplayView.layer.shadowColor = UIColor.black.cgColor
-    self.airplayView.layer.shadowOpacity = 1
-    self.airplayView.layer.shadowRadius = 3.0
-    self.airplayView.layer.shadowOffset = CGSize(width: 0.0, height: 2.0)
+    airplayRoutePickerView.layer.shadowColor = UIColor.black.cgColor
+    airplayRoutePickerView.layer.shadowOpacity = 1
+    airplayRoutePickerView.layer.shadowRadius = 3.0
+    airplayRoutePickerView.layer.shadowOffset = CGSize(width: 0.0, height: 2.0)
 
     self.airplayView.isAccessibilityElement = true
     self.airplayView.accessibilityLabel = "audio_source_title".localized
