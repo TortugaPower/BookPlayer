@@ -25,11 +25,11 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   }
 
   func currentBookObserver() -> Published<Book?>.Publisher {
-    return self.playerManager.$currentBook
+    return self.playerManager.currentBookPublisher()
   }
 
   func isPlayingObserver() -> AnyPublisher<Bool, Never> {
-    return self.playerManager.isPlayingPublisher
+    return self.playerManager.isPlayingPublisher()
   }
 
   func hasLoadedBook() -> Bool {

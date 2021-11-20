@@ -59,7 +59,7 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func bindBookObserver() {
-    self.bookSubscription = self.player.$currentBook.sink { [weak self] book in
+    self.bookSubscription = self.player.currentBookPublisher().sink { [weak self] book in
       guard let self = self else { return }
 
       self.bookProgressSubscription?.cancel()

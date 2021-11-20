@@ -28,7 +28,7 @@ class SpeedManager: NSObject {
     guard let appDelegate = UIApplication.shared.delegate as? AppDelegate,
           let mainCoordinator = appDelegate.coordinator.getMainCoordinator() else { return }
 
-    self.subscription = mainCoordinator.playerManager.$currentBook.sink { [weak self] currentBook in
+    self.subscription = mainCoordinator.playerManager.currentBookPublisher().sink { [weak self] currentBook in
       let useGlobalSpeed = UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue)
       let globalSpeed = UserDefaults.standard.float(forKey: "global_speed")
       let localSpeed = currentBook?.folder?.speed ?? currentBook?.speed ?? 1.0
