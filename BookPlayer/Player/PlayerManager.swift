@@ -16,9 +16,26 @@ import WidgetKit
 // swiftlint:disable file_length
 
 protocol PlayerManagerProtocol {
+  var currentBook: Book? { get set }
+
+  func load(_ book: Book, completion: @escaping (Bool) -> Void)
+  func hasLoadedBook() -> Bool
+
+  func playItem(_ book: Book)
+  func playPreviousItem()
+  func playNextItem(autoPlayed: Bool)
+  func play()
   func playPause()
+  func pause(fade: Bool)
+  func stop()
+  func rewind()
+  func forward()
+  func jumpTo(_ time: Double, recordBookmark: Bool)
+  func markAsCompleted(_ flag: Bool)
+
   func isPlayingPublisher() -> AnyPublisher<Bool, Never>
   func currentBookPublisher() -> Published<Book?>.Publisher
+  func hasChaptersPublisher() -> Published<Bool>.Publisher
 }
 
 final class PlayerManager: NSObject, PlayerManagerProtocol {
@@ -52,7 +69,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   @Published var currentBook: Book? {
     didSet {
       defer {
-        self.hasChapters.value = currentBook?.hasChapters ?? false
+        self.hasChapters = currentBook?.hasChapters ?? false
       }
 
       guard let book = currentBook,
@@ -70,13 +87,11 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     }
   }
 
-  public var hasChapters = CurrentValueSubject<Bool, Never>(false)
+  @Published var hasChapters = false
 
   private var nowPlayingInfo = [String: Any]()
 
   private let queue = OperationQueue()
-
-  private(set) var hasLoadedBook = false
 
   private var rateObserver: NSKeyValueObservation?
 
@@ -112,15 +127,27 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     return self.$currentBook
   }
 
-  func preload(_ book: Book) {
+  func hasChaptersPublisher() -> Published<Bool>.Publisher {
+    return self.$hasChapters
+  }
+
+  func hasLoadedBook() -> Bool {
+    return self.audioPlayer.currentItem != nil
+  }
+
+  func load(_ book: Book, completion: @escaping (Bool) -> Void) {
+    // Recover in case of failure
+    if self.audioPlayer.status == .failed {
+      self.audioPlayer = AVPlayer()
+    }
+
+    // Preload book
     if self.currentBook != nil {
       self.stop()
     }
 
     self.currentBook = book
-  }
 
-  func load(_ book: Book, completion: @escaping (Bool) -> Void) {
     self.queue.addOperation {
       // try loading the player
       guard let item = self.playerItem,
@@ -174,7 +201,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
           self.jumpTo(time, recordBookmark: false)
         }
 
-        self.hasLoadedBook = true
         completion(true)
       }
     }
@@ -329,19 +355,21 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     self.nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = maxTimeInContext
     self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackProgress] = currentTimeInContext / maxTimeInContext
   }
+
+  
 }
 
 // MARK: - Seek Controls
 
 extension PlayerManager {
-  func jumpTo(_ time: Double, fromEnd: Bool = false, recordBookmark: Bool = true) {
+  func jumpTo(_ time: Double, recordBookmark: Bool = true) {
     guard let currentBook = self.currentBook else { return }
 
     if recordBookmark {
       self.createOrUpdateBookmark(at: self.audioPlayer.currentTime().seconds, book: currentBook, type: .skip)
     }
 
-    let newTime = min(max(fromEnd ? currentBook.duration - time : time, 0), currentBook.duration)
+    let newTime = min(max(time, 0), currentBook.duration)
 
     self.audioPlayer.seek(to: CMTime(seconds: newTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
 
@@ -375,7 +403,7 @@ extension PlayerManager {
 // MARK: - Playback
 
 extension PlayerManager {
-  func play(_ autoplayed: Bool = false) {
+  func play() {
     guard let currentBook = self.currentBook, let item = self.playerItem else { return }
 
     guard item.status == .readyToPlay else {
@@ -401,7 +429,7 @@ extension PlayerManager {
 
     let completed = Int(currentBook.duration) == Int(CMTimeGetSeconds(self.audioPlayer.currentTime()))
 
-    if autoplayed, completed { return }
+    if completed { return }
 
     // If book is completed, reset to start
     if completed {
@@ -475,7 +503,7 @@ extension PlayerManager {
     self.play()
   }
 
-  func pause(fade: Bool = false) {
+  func pause(fade: Bool) {
     guard let currentBook = self.currentBook else {
       return
     }
@@ -515,7 +543,7 @@ extension PlayerManager {
   func playPause() {
     // Pause player if it's playing
     if self.audioPlayer.timeControlStatus == .playing {
-      self.pause()
+      self.pause(fade: false)
     } else {
       self.play()
     }
@@ -536,7 +564,6 @@ extension PlayerManager {
     }
 
     self.currentBook = nil
-    self.hasLoadedBook = false
   }
 
   func markAsCompleted(_ flag: Bool) {
@@ -568,7 +595,6 @@ extension PlayerManager {
   }
 
   func playItem(_ book: Book) {
-    self.preload(book)
     self.load(book, completion: { success in
       guard success else { return }
 

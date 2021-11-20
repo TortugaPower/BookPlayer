@@ -12,11 +12,12 @@ import Foundation
 @testable import BookPlayer
 
 class PlayerManagerMock: PlayerManagerProtocol {
-  @Published var book: Book?
-  var didTriggerPlayPause = false
+  @Published var currentBook: Book?
+  @Published var hasChapters = false
+  var didPlayPause = false
 
   func playPause() {
-    self.didTriggerPlayPause = true
+    self.didPlayPause = true
   }
 
   func isPlayingPublisher() -> AnyPublisher<Bool, Never> {
@@ -24,6 +25,34 @@ class PlayerManagerMock: PlayerManagerProtocol {
   }
 
   func currentBookPublisher() -> Published<Book?>.Publisher {
-    return self.$book
+    return self.$currentBook
+  }
+
+  func play() {}
+
+  func pause(fade: Bool) {}
+
+  func stop() {}
+
+  func load(_ book: Book, completion: @escaping (Bool) -> Void) {}
+
+  func hasLoadedBook() -> Bool { return true }
+
+  func rewind() {}
+
+  func forward() {}
+
+  func jumpTo(_ time: Double, recordBookmark: Bool) {}
+
+  func markAsCompleted(_ flag: Bool) {}
+
+  func playPreviousItem() {}
+
+  func playNextItem(autoPlayed: Bool) {}
+
+  func playItem(_ book: Book) {}
+
+  func hasChaptersPublisher() -> Published<Bool>.Publisher {
+    return self.$hasChapters
   }
 }

@@ -16,7 +16,7 @@ class FolderListCoordinator: ItemListCoordinator {
     navigationController: UINavigationController,
     library: Library,
     folder: Folder,
-    playerManager: PlayerManager,
+    playerManager: PlayerManagerProtocol,
     importManager: ImportManager,
     dataManager: DataManager
   ) {
@@ -33,11 +33,11 @@ class FolderListCoordinator: ItemListCoordinator {
 
   override func start() {
     let vc = ItemListViewController.instantiate(from: .Main)
-    let viewModel = FolderListViewModel(folder: self.folder,
-                                        library: self.library,
-                                        player: self.playerManager,
-                                        dataManager: self.dataManager,
-                                        themeAccent: ThemeManager.shared.currentTheme.linkColor)
+    let viewModel = ItemListViewModel(folder: self.folder,
+                                      library: self.library,
+                                      playerManager: self.playerManager,
+                                      dataManager: self.dataManager,
+                                      themeAccent: ThemeManager.shared.currentTheme.linkColor)
     viewModel.coordinator = self
     vc.viewModel = viewModel
     self.presentingViewController = self.navigationController

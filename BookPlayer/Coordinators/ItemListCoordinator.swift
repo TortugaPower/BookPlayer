@@ -33,7 +33,7 @@ enum ItemListActionRoutes {
 
 class ItemListCoordinator: Coordinator {
   public var onAction: Transition<ItemListActionRoutes>?
-  let playerManager: PlayerManager
+  let playerManager: PlayerManagerProtocol
   let importManager: ImportManager
   let dataManager: DataManager
   let library: Library
@@ -45,7 +45,7 @@ class ItemListCoordinator: Coordinator {
   init(
     navigationController: UINavigationController,
     library: Library,
-    playerManager: PlayerManager,
+    playerManager: PlayerManagerProtocol,
     importManager: ImportManager,
     dataManager: DataManager
   ) {
@@ -157,19 +157,16 @@ class ItemListCoordinator: Coordinator {
       return
     }
 
-    self.playerManager.preload(book)
-    self.showPlayer()
-
     self.playerManager.load(book) { [weak self] loaded in
       guard loaded else { return }
 
       self?.getMainCoordinator()?.showMiniPlayer(true)
       self?.playerManager.playPause()
     }
+    self.showPlayer()
   }
 
   func loadLastBook(_ book: Book) {
-    self.playerManager.preload(book)
     self.playerManager.load(book) { [weak self] loaded in
       guard loaded else { return }
 

@@ -40,6 +40,6 @@ class MiniPlayerViewModelTests: XCTestCase {
   func testPlayPause() {
     self.sut.handlePlayPauseAction()
 
-    XCTAssert(self.playerMock.didTriggerPlayPause == true)
+    XCTAssert(self.playerMock.didPlayPause == true)
   }
 }

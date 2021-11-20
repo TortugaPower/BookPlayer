@@ -12,13 +12,13 @@ import UIKit
 import StoreKit
 
 class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
-  private let playerManager: PlayerManager
+  private let playerManager: PlayerManagerProtocol
   private let dataManager: DataManager
   private var chapterBeforeSliderValueChange: Chapter?
   private var prefersChapterContext = UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
   private var prefersRemainingTime = UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
 
-  init(playerManager: PlayerManager,
+  init(playerManager: PlayerManagerProtocol,
        dataManager: DataManager) {
     self.playerManager = playerManager
     self.dataManager = dataManager
@@ -33,11 +33,11 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   }
 
   func hasLoadedBook() -> Bool {
-    return self.playerManager.hasLoadedBook
+    return self.playerManager.hasLoadedBook()
   }
 
-  func hasChapters() -> AnyPublisher<Bool, Never> {
-    return self.playerManager.hasChapters.eraseToAnyPublisher()
+  func hasChaptersPublisher() -> AnyPublisher<Bool, Never> {
+    return self.playerManager.hasChaptersPublisher().eraseToAnyPublisher()
   }
 
   func hasChapter(before chapter: Chapter?) -> Bool {
@@ -55,7 +55,7 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
 
     if let currentChapter = self.playerManager.currentBook?.currentChapter,
        let previousChapter = self.playerManager.currentBook?.previousChapter(before: currentChapter) {
-      self.playerManager.jumpTo(previousChapter.start + 0.5)
+      self.playerManager.jumpTo(previousChapter.start + 0.5, recordBookmark: false)
     } else {
       self.playerManager.playPreviousItem()
     }
@@ -66,9 +66,9 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
 
     if let currentChapter = self.playerManager.currentBook?.currentChapter,
        let nextChapter = self.playerManager.currentBook?.nextChapter(after: currentChapter) {
-      self.playerManager.jumpTo(nextChapter.start + 0.5)
+      self.playerManager.jumpTo(nextChapter.start + 0.5, recordBookmark: false)
     } else {
-      self.playerManager.playNextItem()
+      self.playerManager.playNextItem(autoPlayed: false)
     }
   }
 
@@ -117,12 +117,12 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   }
 
   func handleJumpToStart() {
-    self.playerManager.pause()
-    self.playerManager.jumpTo(0.0)
+    self.playerManager.pause(fade: false)
+    self.playerManager.jumpTo(0.0, recordBookmark: false)
   }
 
   func handleMarkCompletion() {
-    self.playerManager.pause()
+    self.playerManager.pause(fade: false)
     self.playerManager.markAsCompleted(!self.isBookFinished())
   }
 
@@ -190,7 +190,7 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   func handleSliderUpEvent(with value: Float) {
     let newTime = getBookTimeFromSlider(value: value)
 
-    self.playerManager.jumpTo(newTime)
+    self.playerManager.jumpTo(newTime, recordBookmark: false)
   }
 
   func processSliderValueChangedEvent(with value: Float) -> ProgressObject {
@@ -224,7 +224,8 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     }
 
     var progress: String?
-    if !self.playerManager.hasChapters.value || !self.prefersChapterContext {
+    if !(self.playerManager.currentBook?.hasChapters ?? false)
+        || !self.prefersChapterContext {
       progress = "\(Int(round(value * 100)))%"
     }
 

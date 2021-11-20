@@ -93,7 +93,7 @@ class MainCoordinator: Coordinator {
       return
     }
 
-    if self.playerManager.hasLoadedBook {
+    if self.playerManager.hasLoadedBook() {
       self.rootViewController.animateView(self.rootViewController.miniPlayerContainer, show: flag)
     }
   }

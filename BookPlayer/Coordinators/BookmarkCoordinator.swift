@@ -10,11 +10,11 @@ import UIKit
 import BookPlayerKit
 
 class BookmarkCoordinator: Coordinator {
-  let playerManager: PlayerManager
+  let playerManager: PlayerManagerProtocol
   let dataManager: DataManager
 
   init(navigationController: UINavigationController,
-       playerManager: PlayerManager,
+       playerManager: PlayerManagerProtocol,
        dataManager: DataManager) {
     self.playerManager = playerManager
     self.dataManager = dataManager
