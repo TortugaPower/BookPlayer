@@ -38,6 +38,7 @@ class ItemListCoordinator: Coordinator {
   let dataManager: DataManager
   let library: Library
 
+  var documentPickerDelegate: UIDocumentPickerDelegate?
   var fileSubscription: AnyCancellable?
   var importOperationSubscription: AnyCancellable?
 
@@ -312,7 +313,7 @@ extension ItemListCoordinator {
   func showDocumentPicker() {
     let providerList = UIDocumentPickerViewController(documentTypes: ["public.audio", "com.pkware.zip-archive", "public.movie"], in: .import)
 
-    providerList.delegate = self.presentingViewController as? UIDocumentPickerDelegate
+    providerList.delegate = self.documentPickerDelegate
     providerList.allowsMultipleSelection = true
 
     UIApplication.shared.isIdleTimerDisabled = true

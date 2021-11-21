@@ -38,6 +38,10 @@ class LibraryListCoordinatorTests: XCTestCase {
     XCTAssert(self.libraryListCoordinator.shouldHandleImport())
   }
 
+  func testDocumentPickerDelegate() {
+    XCTAssertNotNil(self.libraryListCoordinator.documentPickerDelegate)
+  }
+
   func testShowFolder() {
     let folder = self.libraryListCoordinator.dataManager.createFolder(title: "folder 1")
     self.libraryListCoordinator.library.insert(item: folder)
@@ -77,5 +81,31 @@ class LibraryListCoordinatorTests: XCTestCase {
 
     self.libraryListCoordinator.showItemContents(book)
     XCTAssert(self.libraryListCoordinator.childCoordinators.first is PlayerCoordinator)
+  }
+}
+
+class FolderListCoordinatorTests: XCTestCase {
+  var folderListCoordinator: FolderListCoordinator!
+
+  override func setUp() {
+    let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
+
+    let playerManager = PlayerManager(dataManager: dataManager,
+                                      watchConnectivityService: WatchConnectivityService(dataManager: dataManager))
+
+    self.folderListCoordinator = FolderListCoordinator(
+      navigationController: UINavigationController(),
+      library: dataManager.createLibrary(),
+      folder: try! StubFactory.folder(dataManager: dataManager, title: "folder 1"),
+      playerManager: playerManager,
+      importManager: ImportManager(dataManager: dataManager),
+      dataManager: dataManager
+    )
+
+    self.folderListCoordinator.start()
+  }
+
+  func testDocumentPickerDelegate() {
+    XCTAssertNotNil(self.folderListCoordinator.documentPickerDelegate)
   }
 }

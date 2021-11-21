@@ -219,3 +219,7 @@
 "chapters_previous_title" = "Anterior Capítulo";
 "chapters_next_title" = "Siguiente Capítulo";
 "book_time_current_title" = "Tiempo actual del libro: %@";
+"storage_fix_files_description" = "The link between the files and the digital book items are missing, if the corresponding item cannot be found for each file, a new one will be created";
+"storage_fix_all_title" = "Fix All";
+"settings_backup_title" = "Respaldos en iCloud";
+"settings_backup_files_title" = "Incluir archivos de libros";

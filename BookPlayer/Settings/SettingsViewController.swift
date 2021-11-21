@@ -22,26 +22,27 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
                               MFMailComposeViewControllerDelegate,
                               TelemetryProtocol,
                               Storyboarded {
-    @IBOutlet weak var autoplayLibrarySwitch: UISwitch!
-    @IBOutlet weak var disableAutolockSwitch: UISwitch!
-    @IBOutlet weak var autolockDisabledOnlyWhenPoweredSwitch: UISwitch!
-    @IBOutlet weak var autolockDisabledOnlyWhenPoweredLabel: UILabel!
-    @IBOutlet weak var themeLabel: UILabel!
-    @IBOutlet weak var appIconLabel: UILabel!
+  @IBOutlet weak var autoplayLibrarySwitch: UISwitch!
+  @IBOutlet weak var disableAutolockSwitch: UISwitch!
+  @IBOutlet weak var autolockDisabledOnlyWhenPoweredSwitch: UISwitch!
+  @IBOutlet weak var iCloudBackupsSwitch: UISwitch!
+  @IBOutlet weak var autolockDisabledOnlyWhenPoweredLabel: UILabel!
+  @IBOutlet weak var themeLabel: UILabel!
+  @IBOutlet weak var appIconLabel: UILabel!
 
     var iconObserver: NSKeyValueObservation!
 
     enum SettingsSection: Int {
-        case plus = 0, theme, playback, storage, autoplay, autolock, siri, support, credits
+        case plus = 0, theme, playback, storage, autoplay, autolock, siri, backups, support, credits
     }
 
     let storageIndexPath = IndexPath(row: 0, section: 3)
     let lastPlayedShortcutPath = IndexPath(row: 0, section: 6)
     let sleepTimerShortcutPath = IndexPath(row: 1, section: 6)
 
-    let supportSection: Int = 7
-    let githubLinkPath = IndexPath(row: 0, section: 7)
-    let supportEmailPath = IndexPath(row: 1, section: 7)
+    let supportSection: Int = 8
+    let githubLinkPath = IndexPath(row: 0, section: 8)
+    let supportEmailPath = IndexPath(row: 1, section: 8)
 
     var version: String = "0.0.0"
     var build: String = "0"
@@ -75,16 +76,7 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
             NotificationCenter.default.addObserver(self, selector: #selector(self.donationMade), name: .donationMade, object: nil)
         }
 
-        self.autoplayLibrarySwitch.addTarget(self, action: #selector(self.autoplayToggleDidChange), for: .valueChanged)
-        self.disableAutolockSwitch.addTarget(self, action: #selector(self.disableAutolockDidChange), for: .valueChanged)
-        self.autolockDisabledOnlyWhenPoweredSwitch.addTarget(self, action: #selector(self.autolockOnlyWhenPoweredDidChange), for: .valueChanged)
-
-        // Set initial switch positions
-        self.autoplayLibrarySwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue), animated: false)
-        self.disableAutolockSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue), animated: false)
-        self.autolockDisabledOnlyWhenPoweredSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered.rawValue), animated: false)
-        self.autolockDisabledOnlyWhenPoweredSwitch.isEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue)
-        self.autolockDisabledOnlyWhenPoweredLabel.isEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue)
+      self.setupSwitchValues()
 
         guard
             let version = Bundle.main.infoDictionary!["CFBundleShortVersionString"] as? String,
@@ -96,6 +88,21 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
         self.version = version
         self.build = build
     }
+
+  func setupSwitchValues() {
+    self.autoplayLibrarySwitch.addTarget(self, action: #selector(self.autoplayToggleDidChange), for: .valueChanged)
+    self.disableAutolockSwitch.addTarget(self, action: #selector(self.disableAutolockDidChange), for: .valueChanged)
+    self.autolockDisabledOnlyWhenPoweredSwitch.addTarget(self, action: #selector(self.autolockOnlyWhenPoweredDidChange), for: .valueChanged)
+    self.iCloudBackupsSwitch.addTarget(self, action: #selector(self.iCloudBackupsDidChange), for: .valueChanged)
+
+    // Set initial switch positions
+    self.iCloudBackupsSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.iCloudBackupsEnabled.rawValue), animated: false)
+    self.autoplayLibrarySwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue), animated: false)
+    self.disableAutolockSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue), animated: false)
+    self.autolockDisabledOnlyWhenPoweredSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered.rawValue), animated: false)
+    self.autolockDisabledOnlyWhenPoweredSwitch.isEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue)
+    self.autolockDisabledOnlyWhenPoweredLabel.isEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue)
+  }
 
     @objc func donationMade() {
         self.tableView.reloadData()
@@ -117,6 +124,10 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
         UserDefaults.standard.set(self.autolockDisabledOnlyWhenPoweredSwitch.isOn, forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered.rawValue)
         self.sendSignal(.disableAutolockOnPowerAction, with: ["isOn": "\(self.autolockDisabledOnlyWhenPoweredSwitch.isOn)"])
     }
+
+  @objc func iCloudBackupsDidChange() {
+    self.viewModel.toggleFileBackupsPreference(self.iCloudBackupsSwitch.isOn)
+  }
 
     @IBAction func done(_ sender: UIBarButtonItem) {
       self.viewModel.coordinator.didFinish()
@@ -166,26 +177,28 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
         }
     }
 
-    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        guard let settingsSection = SettingsSection(rawValue: section) else {
-            return super.tableView(tableView, titleForFooterInSection: section)
-        }
-
-        switch settingsSection {
-        case .theme:
-            return "settings_appearance_title".localized
-        case .playback:
-            return "settings_playback_title".localized
-        case .storage:
-            return "settings_storage_title".localized
-        case .siri:
-            return "settings_siri_title".localized
-        case .support:
-            return "settings_support_title".localized
-        default:
-            return super.tableView(tableView, titleForHeaderInSection: section)
-        }
+  override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    guard let settingsSection = SettingsSection(rawValue: section) else {
+      return super.tableView(tableView, titleForFooterInSection: section)
     }
+
+    switch settingsSection {
+    case .theme:
+      return "settings_appearance_title".localized
+    case .playback:
+      return "settings_playback_title".localized
+    case .storage:
+      return "settings_storage_title".localized
+    case .siri:
+      return "settings_siri_title".localized
+    case .backups:
+      return "settings_backup_title".localized
+    case .support:
+      return "settings_support_title".localized
+    default:
+      return super.tableView(tableView, titleForHeaderInSection: section)
+    }
+  }
 
     override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
         guard let settingsSection = SettingsSection(rawValue: section) else {

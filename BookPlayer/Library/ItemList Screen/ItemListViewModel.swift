@@ -239,7 +239,8 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func getPlaybackState(for item: LibraryItem) -> PlaybackState {
-    guard let book = self.player.currentBook else {
+    // TODO: refactor PlayerManager to stop using backed coredata objects
+    guard let book = self.player.currentBook, !book.isFault else {
       return .stopped
     }
 

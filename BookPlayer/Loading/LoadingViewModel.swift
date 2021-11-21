@@ -136,12 +136,18 @@ class LoadingViewModel: BaseViewModel<LoadingCoordinator> {
       userDefaults?.set(true, forKey: Constants.UserDefaults.fileProtectionMigration.rawValue)
     }
 
-    // Exclude Processed folder from phone backups
-    var resourceValues = URLResourceValues()
-    resourceValues.isExcludedFromBackup = true
-    var processedFolderURL = DataManager.getProcessedFolderURL()
+    // Default to include Processed folder in phone backups,
+    // when migrating between phones, having the folder excluded have generated issues for users,
+    // this can be set to false from within the app settings
+    if UserDefaults.standard.object(forKey: Constants.UserDefaults.iCloudBackupsEnabled.rawValue) == nil {
+      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.iCloudBackupsEnabled.rawValue)
 
-    try? processedFolderURL.setResourceValues(resourceValues)
+      var resourceValues = URLResourceValues()
+      resourceValues.isExcludedFromBackup = false
+      var processedFolderURL = DataManager.getProcessedFolderURL()
+
+      try? processedFolderURL.setResourceValues(resourceValues)
+    }
 
     // Set system theme as default
     if UserDefaults.standard.object(forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue) == nil {

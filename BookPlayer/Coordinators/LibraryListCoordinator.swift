@@ -20,7 +20,7 @@ class LibraryListCoordinator: ItemListCoordinator {
     viewModel.coordinator = self
     vc.viewModel = viewModel
     vc.navigationItem.largeTitleDisplayMode = .automatic
-    self.presentingViewController = vc
+    self.presentingViewController = self.navigationController
     self.navigationController.pushViewController(vc, animated: true)
     self.navigationController.delegate = self
     if let book = self.library.lastPlayedBook {
@@ -33,6 +33,8 @@ class LibraryListCoordinator: ItemListCoordinator {
         ActionParserService.handleAction(action)
       }
     }
+
+    self.documentPickerDelegate = vc
   }
 
   override func interactiveDidFinish(vc: UIViewController) {

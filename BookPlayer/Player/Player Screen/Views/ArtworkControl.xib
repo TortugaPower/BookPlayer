@@ -10,7 +10,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ArtworkControl" customModule="BookPlayer" customModuleProvider="target">
             <connections>
-                <outlet property="airplayView" destination="QW8-uv-3SO" id="cgh-OZ-th3"/>
+                <outlet property="airplayView" destination="QW8-uv-3SO" id="Q2D-mu-FQE"/>
                 <outlet property="artworkImage" destination="b1B-eO-wd8" id="4zU-us-epG"/>
                 <outlet property="artworkOverlay" destination="x0G-a6-XTv" id="QXe-HH-SIY"/>
                 <outlet property="authorLabel" destination="IsI-C7-b1P" id="UZV-qO-jRC"/>
@@ -58,7 +58,7 @@
                     <rect key="frame" x="0.0" y="0.0" width="325" height="325"/>
                     <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 </imageView>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="QW8-uv-3SO" customClass="AVRoutePickerView">
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="QW8-uv-3SO">
                     <rect key="frame" x="284" y="12" width="29" height="29"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

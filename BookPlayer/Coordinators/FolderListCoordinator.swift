@@ -40,8 +40,10 @@ class FolderListCoordinator: ItemListCoordinator {
                                         themeAccent: ThemeManager.shared.currentTheme.linkColor)
     viewModel.coordinator = self
     vc.viewModel = viewModel
-    self.presentingViewController = vc
+    self.presentingViewController = self.navigationController
     self.navigationController.pushViewController(vc, animated: true)
+
+    self.documentPickerDelegate = vc
   }
 
   override func showOperationCompletedAlert(with items: [LibraryItem], availableFolders: [SimpleLibraryItem]) {

@@ -85,5 +85,6 @@ extension ChaptersViewController: Themeable {
   func applyTheme(_ theme: SimpleTheme) {
     self.view.backgroundColor = theme.systemBackgroundColor
     self.tableView.backgroundColor = theme.systemBackgroundColor
+    self.tableView.separatorColor = theme.separatorColor
   }
 }
