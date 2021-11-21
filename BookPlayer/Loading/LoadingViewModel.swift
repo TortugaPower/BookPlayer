@@ -103,7 +103,9 @@ class LoadingViewModel: BaseViewModel<LoadingCoordinator> {
 
       self?.setupDefaultState(dataManager: dataManager)
 
-      let library = (try? dataManager.getLibrary()) ?? dataManager.createLibrary()
+      let libraryService = LibraryService(dataManager: dataManager)
+
+      let library = libraryService.getLibrary()
 
       _ = dataManager.insertItems(from: files, into: nil, library: library)
 
@@ -160,7 +162,8 @@ class LoadingViewModel: BaseViewModel<LoadingCoordinator> {
     }
 
     // Load default theme into library if needed
-    let library = (try? dataManager.getLibrary()) ?? dataManager.createLibrary()
+    let libraryService = LibraryService(dataManager: dataManager)
+    let library = libraryService.getLibrary()
 
     if library.currentTheme == nil,
        let defaultTheme = dataManager.getTheme(with: "Default / Dark") {

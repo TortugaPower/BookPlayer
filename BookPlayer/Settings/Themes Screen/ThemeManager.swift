@@ -26,7 +26,9 @@ final class ThemeManager: ThemeProvider {
 
       if let title = newValue.title,
          let storedTheme = self.dataManager.getTheme(with: title) {
-        self.dataManager.setCurrentTheme(storedTheme)
+        let libraryService = LibraryService(dataManager: dataManager)
+        let library = libraryService.getLibrary()
+        self.dataManager.setCurrentTheme(storedTheme, for: library)
       }
     }
   }

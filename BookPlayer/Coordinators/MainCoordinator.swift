@@ -48,9 +48,10 @@ class MainCoordinator: Coordinator {
     self.rootViewController.miniPlayerContainer.addSubview(miniPlayerVC.view)
     miniPlayerVC.didMove(toParent: self.rootViewController)
 
-    let library = (try? self.dataManager.getLibrary()) ?? self.dataManager.createLibrary()
+    let libraryService = LibraryService(dataManager: dataManager)
+    let library = libraryService.getLibrary()
 
-    if let currentTheme = try? dataManager.getLibraryCurrentTheme() {
+    if let currentTheme = try? libraryService.getLibraryCurrentTheme() {
       ThemeManager.shared.currentTheme = SimpleTheme(with: currentTheme)
     }
 

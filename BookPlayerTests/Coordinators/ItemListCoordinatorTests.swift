@@ -20,7 +20,7 @@ class LibraryListCoordinatorTests: XCTestCase {
 
     self.libraryListCoordinator = LibraryListCoordinator(
       navigationController: UINavigationController(),
-      library: dataManager.createLibrary(),
+      library: StubFactory.library(dataManager: dataManager),
       playerManager: PlayerManagerMock(),
       importManager: ImportManager(dataManager: dataManager),
       dataManager: dataManager
@@ -89,7 +89,7 @@ class FolderListCoordinatorTests: XCTestCase {
 
     self.folderListCoordinator = FolderListCoordinator(
       navigationController: UINavigationController(),
-      library: dataManager.createLibrary(),
+      library: StubFactory.library(dataManager: dataManager),
       folder: try! StubFactory.folder(dataManager: dataManager, title: "folder 1"),
       playerManager: PlayerManagerMock(),
       importManager: ImportManager(dataManager: dataManager),

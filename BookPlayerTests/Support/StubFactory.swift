@@ -3,7 +3,7 @@
 import Foundation
 
 class StubFactory {
-  public class func book(dataManager: DataManager, title: String, duration: Double, metaDataTitle: String? = nil) -> Book {
+  public class func book(dataManager: DataManager, title: String, duration: Double) -> Book {
     let filename = "\(title).txt"
     let bookContents = "bookcontents".data(using: .utf8)!
     let processedFolder = DataManager.getProcessedFolderURL()
@@ -28,6 +28,7 @@ class StubFactory {
   }
 
   public class func library(dataManager: DataManager) -> Library {
-    return (try? dataManager.getLibrary()) ?? dataManager.createLibrary()
+    let libraryService = LibraryService(dataManager: dataManager)
+    return libraryService.getLibrary()
   }
 }

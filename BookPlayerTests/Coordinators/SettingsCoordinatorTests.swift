@@ -20,7 +20,7 @@ class SettingsCoordinatorTests: XCTestCase {
 
     self.settingsCoordinator = SettingsCoordinator(
       dataManager: dataManager,
-      library: dataManager.createLibrary(),
+      library: StubFactory.library(dataManager: dataManager),
       navigationController: UINavigationController()
     )
     self.settingsCoordinator.start()

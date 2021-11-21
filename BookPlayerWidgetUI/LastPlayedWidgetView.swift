@@ -26,9 +26,10 @@ struct PlayAndSleepProvider: IntentTimelineProvider {
         }
 
         let dataManager = DataManager(coreDataStack: stack)
+        let libraryService = LibraryService(dataManager: dataManager)
 
-        guard let lastPlayedBook = try? dataManager.getLibraryLastBook(),
-              let currentTheme = try? dataManager.getLibraryCurrentTheme() else {
+        guard let lastPlayedBook = try? libraryService.getLibraryLastBook(),
+              let currentTheme = try? libraryService.getLibraryCurrentTheme() else {
                 completion(self.placeholder(in: context))
                 return
               }
@@ -59,9 +60,10 @@ struct PlayAndSleepProvider: IntentTimelineProvider {
         }
 
         let dataManager = DataManager(coreDataStack: stack)
+        let libraryService = LibraryService(dataManager: dataManager)
 
-        guard let lastPlayedBook = try? dataManager.getLibraryLastBook(),
-              let currentTheme = try? dataManager.getLibraryCurrentTheme() else {
+        guard let lastPlayedBook = try? libraryService.getLibraryLastBook(),
+              let currentTheme = try? libraryService.getLibraryCurrentTheme() else {
                 completion(Timeline(entries: [], policy: .atEnd))
                 return
               }

@@ -137,20 +137,7 @@ extension DataManager {
     return response
   }
 
-  public func getExtractedThemes() -> [Theme] {
-    let library = try? self.getLibrary()
-    return library?.extractedThemes?.array as? [Theme] ?? []
-  }
-
-  public func addExtractedTheme(_ theme: Theme) {
-    guard let library = try? self.getLibrary() else { return }
-
-    library.addToExtractedThemes(theme)
-    self.saveContext()
-  }
-
-  public func setCurrentTheme(_ theme: Theme) {
-    guard let library = try? self.getLibrary() else { return }
+  public func setCurrentTheme(_ theme: Theme, for library: Library) {
     library.currentTheme = theme
     self.saveContext()
   }
