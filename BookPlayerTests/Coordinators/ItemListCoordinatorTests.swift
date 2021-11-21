@@ -18,13 +18,10 @@ class LibraryListCoordinatorTests: XCTestCase {
   override func setUp() {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
 
-    let playerManager = PlayerManager(dataManager: dataManager,
-                                      watchConnectivityService: WatchConnectivityService(dataManager: dataManager))
-
     self.libraryListCoordinator = LibraryListCoordinator(
       navigationController: UINavigationController(),
       library: dataManager.createLibrary(),
-      playerManager: playerManager,
+      playerManager: PlayerManagerMock(),
       importManager: ImportManager(dataManager: dataManager),
       dataManager: dataManager
     )
@@ -90,14 +87,11 @@ class FolderListCoordinatorTests: XCTestCase {
   override func setUp() {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
 
-    let playerManager = PlayerManager(dataManager: dataManager,
-                                      watchConnectivityService: WatchConnectivityService(dataManager: dataManager))
-
     self.folderListCoordinator = FolderListCoordinator(
       navigationController: UINavigationController(),
       library: dataManager.createLibrary(),
       folder: try! StubFactory.folder(dataManager: dataManager, title: "folder 1"),
-      playerManager: playerManager,
+      playerManager: PlayerManagerMock(),
       importManager: ImportManager(dataManager: dataManager),
       dataManager: dataManager
     )

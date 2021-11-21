@@ -11,10 +11,10 @@ import Combine
 import Foundation
 
 class BookmarksViewModel: BaseViewModel<BookmarkCoordinator> {
-  let playerManager: PlayerManager
+  let playerManager: PlayerManagerProtocol
   let dataManager: DataManager
 
-  init(playerManager: PlayerManager,
+  init(playerManager: PlayerManagerProtocol,
        dataManager: DataManager) {
     self.playerManager = playerManager
     self.dataManager = dataManager
@@ -37,7 +37,7 @@ class BookmarksViewModel: BaseViewModel<BookmarkCoordinator> {
   }
 
   func handleBookmarkSelected(_ bookmark: Bookmark) {
-    self.playerManager.jumpTo(bookmark.time + 0.01)
+    self.playerManager.jumpTo(bookmark.time + 0.01, recordBookmark: false)
   }
 
   func getBookmarkImageName(for type: BookmarkType) -> String? {

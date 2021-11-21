@@ -12,11 +12,11 @@ import UIKit
 class LibraryListCoordinator: ItemListCoordinator {
   override func start() {
     let vc = ItemListViewController.instantiate(from: .Main)
-    let viewModel = FolderListViewModel(folder: nil,
-                                        library: self.library,
-                                        player: self.playerManager,
-                                        dataManager: self.dataManager,
-                                        themeAccent: ThemeManager.shared.currentTheme.linkColor)
+    let viewModel = ItemListViewModel(folder: nil,
+                                      library: self.library,
+                                      playerManager: self.playerManager,
+                                      dataManager: self.dataManager,
+                                      themeAccent: ThemeManager.shared.currentTheme.linkColor)
     viewModel.coordinator = self
     vc.viewModel = viewModel
     vc.navigationItem.largeTitleDisplayMode = .automatic

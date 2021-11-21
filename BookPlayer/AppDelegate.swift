@@ -181,7 +181,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
         switch type {
         case .began:
           if mainCoordinator.playerManager.isPlaying {
-            mainCoordinator.playerManager.pause()
+            mainCoordinator.playerManager.pause(fade: false)
           }
         case .ended:
             guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else {
@@ -248,7 +248,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
     MPRemoteCommandCenter.shared().pauseCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
       guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .commandFailed }
 
-      mainCoordinator.playerManager.pause()
+      mainCoordinator.playerManager.pause(fade: false)
       return .success
     }
   }
@@ -355,7 +355,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
 extension AppDelegate {
   func playLastBook() {
     guard let mainCoordinator = self.coordinator.getMainCoordinator(),
-          mainCoordinator.playerManager.hasLoadedBook else {
+          mainCoordinator.playerManager.hasLoadedBook() else {
       UserDefaults.standard.set(true, forKey: Constants.UserActivityPlayback)
       return
     }
@@ -365,7 +365,7 @@ extension AppDelegate {
 
   func showPlayer() {
     guard let mainCoordinator = self.coordinator.getMainCoordinator(),
-          mainCoordinator.playerManager.hasLoadedBook else {
+          mainCoordinator.playerManager.hasLoadedBook() else {
       UserDefaults.standard.set(true, forKey: Constants.UserDefaults.showPlayer.rawValue)
       return
     }

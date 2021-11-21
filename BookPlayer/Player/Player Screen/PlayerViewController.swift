@@ -314,7 +314,7 @@ extension PlayerViewController {
       self.setupPlayerView(with: book)
     }.store(in: &disposeBag)
 
-    self.viewModel.hasChapters().sink { hasChapters in
+    self.viewModel.hasChaptersPublisher().sink { hasChapters in
       self.chaptersButton.isEnabled = hasChapters
     }.store(in: &disposeBag)
 

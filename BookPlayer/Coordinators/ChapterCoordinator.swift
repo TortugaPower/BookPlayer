@@ -10,10 +10,10 @@ import BookPlayerKit
 import UIKit
 
 class ChapterCoordinator: Coordinator {
-  let playerManager: PlayerManager
+  let playerManager: PlayerManagerProtocol
 
   init(navigationController: UINavigationController,
-       playerManager: PlayerManager) {
+       playerManager: PlayerManagerProtocol) {
     self.playerManager = playerManager
 
     super.init(navigationController: navigationController,

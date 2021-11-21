@@ -11,9 +11,9 @@ import Combine
 import Foundation
 
 class ChaptersViewModel: BaseViewModel<ChapterCoordinator> {
-  let playerManager: PlayerManager
+  let playerManager: PlayerManagerProtocol
 
-  init(playerManager: PlayerManager) {
+  init(playerManager: PlayerManagerProtocol) {
     self.playerManager = playerManager
   }
 
@@ -28,6 +28,6 @@ class ChaptersViewModel: BaseViewModel<ChapterCoordinator> {
   // Don't set the chapter, set the new time which will set the chapter in didSet
   // Add a fraction of a second to make sure we start after the end of the previous chapter
   func handleChapterSelected(_ chapter: Chapter) {
-    self.playerManager.jumpTo(chapter.start + 0.01)
+    self.playerManager.jumpTo(chapter.start + 0.01, recordBookmark: false)
   }
 }

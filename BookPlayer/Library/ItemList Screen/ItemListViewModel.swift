@@ -1,5 +1,5 @@
 //
-//  FolderListViewModel.swift
+//  ItemListViewModel.swift
 //  BookPlayer
 //
 //  Created by Gianni Carlo on 11/9/21.
@@ -12,10 +12,10 @@ import Foundation
 import MediaPlayer
 import Themeable
 
-class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
+class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   let folder: Folder?
   let library: Library
-  let player: PlayerManager
+  let playerManager: PlayerManagerProtocol
   let dataManager: DataManager
   var offset = 0
 
@@ -34,12 +34,12 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
 
   init(folder: Folder?,
        library: Library,
-       player: PlayerManager,
+       playerManager: PlayerManagerProtocol,
        dataManager: DataManager,
        themeAccent: UIColor) {
     self.folder = folder
     self.library = library
-    self.player = player
+    self.playerManager = playerManager
     self.dataManager = dataManager
     self.themeAccent = themeAccent
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: themeAccent)?.pngData()
@@ -59,7 +59,7 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func bindBookObserver() {
-    self.bookSubscription = self.player.$currentBook.sink { [weak self] book in
+    self.bookSubscription = self.playerManager.currentBookPublisher().sink { [weak self] book in
       guard let self = self else { return }
 
       self.bookProgressSubscription?.cancel()
@@ -212,7 +212,7 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
 
     // Special treatment for folders
     guard
-      let bookPlaying = self.player.currentBook,
+      let bookPlaying = self.playerManager.currentBook,
       let currentFolder = bookPlaying.folder,
       currentFolder == folder else {
         // restart the selected folder if current playing book has no relation to it
@@ -240,7 +240,7 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
 
   func getPlaybackState(for item: LibraryItem) -> PlaybackState {
     // TODO: refactor PlayerManager to stop using backed coredata objects
-    guard let book = self.player.currentBook, !book.isFault else {
+    guard let book = self.playerManager.currentBook, !book.isFault else {
       return .stopped
     }
 

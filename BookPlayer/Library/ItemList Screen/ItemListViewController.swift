@@ -12,7 +12,7 @@ import DeviceKit
 import Themeable
 import UIKit
 
-class ItemListViewController: BaseViewController<ItemListCoordinator, FolderListViewModel>,
+class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListViewModel>,
                               Storyboarded,
                               UIGestureRecognizerDelegate {
 
