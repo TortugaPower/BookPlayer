@@ -21,7 +21,7 @@ class ItemListViewModelTests: XCTestCase {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
 
     self.sut = ItemListViewModel(folder: nil,
-                                 library: dataManager.createLibrary(),
+                                 library: StubFactory.library(dataManager: dataManager),
                                  playerManager: PlayerManagerMock(),
                                  dataManager: dataManager,
                                  themeAccent: .blue)

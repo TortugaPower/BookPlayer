@@ -24,10 +24,6 @@ public class Book: LibraryItem {
         self.folder?.resetCachedProgress()
     }
 
-    var displayTitle: String {
-        return self.title
-    }
-
     public override var progress: Double {
         guard self.duration > 0 else { return 0 }
 

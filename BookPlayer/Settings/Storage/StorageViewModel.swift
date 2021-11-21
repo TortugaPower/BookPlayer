@@ -96,7 +96,22 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
   }
 
   public func getLibrarySize() -> String {
-    return DataManager.sizeOfItem(at: self.folderURL)
+    var folderSize: Int64 = 0
+
+    let enumerator = FileManager.default.enumerator(
+      at: self.folderURL,
+      includingPropertiesForKeys: [],
+      options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
+        print("directoryEnumerator error at \(url): ", error)
+        return true
+      })!
+
+    for case let fileURL as URL in enumerator {
+      guard let fileAttributes = try? FileManager.default.attributesOfItem(atPath: fileURL.path) else { continue }
+      folderSize += fileAttributes[FileAttributeKey.size] as? Int64 ?? 0
+    }
+
+    return ByteCountFormatter.string(fromByteCount: folderSize, countStyle: ByteCountFormatter.CountStyle.file)
   }
 
   public func observeFiles() -> AnyPublisher<[StorageItem]?, Never> {

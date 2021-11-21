@@ -38,8 +38,10 @@ struct TimeListenedProvider: IntentTimelineProvider {
       var title: String?
       var theme: SimpleTheme?
 
-      if let lastPlayedBook = try? dataManager.getLibraryLastBook(),
-         let currentTheme = try? dataManager.getLibraryCurrentTheme() {
+      let libraryService = LibraryService(dataManager: dataManager)
+
+      if let lastPlayedBook = try? libraryService.getLibraryLastBook(),
+         let currentTheme = try? libraryService.getLibraryCurrentTheme() {
         title = lastPlayedBook.title
         theme = SimpleTheme(with: currentTheme)
       }
@@ -79,8 +81,10 @@ struct TimeListenedProvider: IntentTimelineProvider {
       var title: String?
       var theme: SimpleTheme?
 
-      if let lastPlayedBook = try? dataManager.getLibraryLastBook(),
-         let currentTheme = try? dataManager.getLibraryCurrentTheme() {
+      let libraryService = LibraryService(dataManager: dataManager)
+
+      if let lastPlayedBook = try? libraryService.getLibraryLastBook(),
+         let currentTheme = try? libraryService.getLibraryCurrentTheme() {
         title = lastPlayedBook.title
         theme = SimpleTheme(with: currentTheme)
       }

@@ -18,61 +18,26 @@ public class DataManager {
   public init(coreDataStack: CoreDataStack) {
     self.coreDataStack = coreDataStack
   }
-    // MARK: - Folder URLs
+  // MARK: - Folder URLs
 
-    public class func getDocumentsFolderURL() -> URL {
-        return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+  public class func getDocumentsFolderURL() -> URL {
+    return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+  }
+
+  public class func getProcessedFolderURL() -> URL {
+    let documentsURL = self.getDocumentsFolderURL()
+
+    let processedFolderURL = documentsURL.appendingPathComponent(self.processedFolderName)
+
+    if !FileManager.default.fileExists(atPath: processedFolderURL.path) {
+      do {
+        try FileManager.default.createDirectory(at: processedFolderURL, withIntermediateDirectories: true, attributes: nil)
+      } catch {
+        fatalError("Couldn't create Processed folder")
+      }
     }
 
-    public class func getProcessedFolderURL() -> URL {
-        let documentsURL = self.getDocumentsFolderURL()
-
-        let processedFolderURL = documentsURL.appendingPathComponent(self.processedFolderName)
-
-        if !FileManager.default.fileExists(atPath: processedFolderURL.path) {
-            do {
-                try FileManager.default.createDirectory(at: processedFolderURL, withIntermediateDirectories: true, attributes: nil)
-            } catch {
-                fatalError("Couldn't create Processed folder")
-            }
-        }
-
-        return processedFolderURL
-    }
-
-    public class func getInboxFolderURL() -> URL {
-        let documentsURL = self.getDocumentsFolderURL()
-
-        let inboxFolderURL = documentsURL.appendingPathComponent(self.inboxFolderName)
-
-        if !FileManager.default.fileExists(atPath: inboxFolderURL.path) {
-            do {
-                try FileManager.default.createDirectory(at: inboxFolderURL, withIntermediateDirectories: true, attributes: nil)
-            } catch {
-                fatalError("Couldn't create Inbox folder")
-            }
-        }
-
-        return inboxFolderURL
-    }
-
-  public class func sizeOfItem(at url: URL) -> String {
-    var folderSize: Int64 = 0
-
-    let enumerator = FileManager.default.enumerator(
-      at: url,
-      includingPropertiesForKeys: [],
-      options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
-        print("directoryEnumerator error at \(url): ", error)
-        return true
-      })!
-
-    for case let fileURL as URL in enumerator {
-      guard let fileAttributes = try? FileManager.default.attributesOfItem(atPath: fileURL.path) else { continue }
-      folderSize += fileAttributes[FileAttributeKey.size] as? Int64 ?? 0
-    }
-
-    return ByteCountFormatter.string(fromByteCount: folderSize, countStyle: ByteCountFormatter.CountStyle.file)
+    return processedFolderURL
   }
 
   public func getContext() -> NSManagedObjectContext {
@@ -88,58 +53,6 @@ public class DataManager {
   }
 
   // MARK: - Models handler
-
-  /**
-   Gets the library for the App. There should be only one Library object at all times
-   */
-  public func getLibrary() throws -> Library? {
-    let context = self.getContext()
-    let fetch: NSFetchRequest<Library> = Library.fetchRequest()
-    fetch.returnsObjectsAsFaults = false
-    return try context.fetch(fetch).first
-  }
-
-  public func getLibraryLastBook() throws -> Book? {
-    let context = self.getContext()
-    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "Library")
-    fetchRequest.propertiesToFetch = ["lastPlayedBook"]
-    fetchRequest.resultType = .dictionaryResultType
-
-    guard let dict = try context.fetch(fetchRequest).first as? [String: NSManagedObjectID],
-          let lastPlayedBookId = dict["lastPlayedBook"] else {
-      return nil
-    }
-
-    return try? context.existingObject(with: lastPlayedBookId) as? Book
-  }
-
-  public func getLibraryCurrentTheme() throws -> Theme? {
-    let context = self.getContext()
-    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "Library")
-    fetchRequest.propertiesToFetch = ["currentTheme"]
-    fetchRequest.resultType = .dictionaryResultType
-
-    guard let dict = try context.fetch(fetchRequest).first as? [String: NSManagedObjectID],
-          let themeId = dict["currentTheme"] else {
-      return self.getTheme(with: "Default / Dark")
-    }
-
-    return try? context.existingObject(with: themeId) as? Theme
-  }
-
-  public func createLibrary() -> Library {
-    let context = self.getContext()
-    let library = Library.create(in: context)
-    self.saveContext()
-    return library
-  }
-
-  public func getBooks() -> [Book]? {
-    let fetch: NSFetchRequest<Book> = Book.fetchRequest()
-    let context = self.coreDataStack.managedContext
-
-    return try? context.fetch(fetch)
-  }
 
   public func getTheme(with title: String) -> Theme? {
     let fetchRequest: NSFetchRequest<Theme> = Theme.fetchRequest()
