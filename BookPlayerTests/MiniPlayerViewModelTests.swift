@@ -25,9 +25,13 @@ class MiniPlayerViewModelTests: XCTestCase {
   func testShowPlayer() {
     let rootVC = RootViewController.instantiate(from: .Main)
     rootVC.loadView()
-    let mainCoordinator = MainCoordinator(rootController: rootVC,
-                                          dataManager: DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null")),
-                                          navigationController: UINavigationController())
+    let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
+    let mainCoordinator = MainCoordinator(
+      rootController: rootVC,
+      dataManager: dataManager,
+      libraryService: LibraryService(dataManager: dataManager),
+      navigationController: UINavigationController()
+    )
     self.sut.coordinator = mainCoordinator
 
     XCTAssert(mainCoordinator.childCoordinators.isEmpty)

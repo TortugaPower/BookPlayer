@@ -60,9 +60,11 @@ class LibraryInterfaceController: WKInterfaceController {
       guard error == nil else { return }
 
       let dataManager = DataManager(coreDataStack: stack)
+      let libraryService = LibraryService(dataManager: dataManager)
       self.dataManager = dataManager
 
-      self.watchConnectivityService = WatchConnectivityService(dataManager: dataManager)
+      self.watchConnectivityService = WatchConnectivityService(dataManager: dataManager,
+                                                               libraryService: libraryService)
 
       self.watchConnectivityService.startSession()
 

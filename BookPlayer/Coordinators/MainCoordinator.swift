@@ -15,18 +15,22 @@ class MainCoordinator: Coordinator {
   let rootViewController: RootViewController
   let playerManager: PlayerManager
   let dataManager: DataManager
+  let libraryService: LibraryServiceProtocol
   let watchConnectivityService: WatchConnectivityService
   var carPlayManager: CarPlayManager!
 
   init(
     rootController: RootViewController,
     dataManager: DataManager,
+    libraryService: LibraryServiceProtocol,
     navigationController: UINavigationController
   ) {
     self.rootViewController = rootController
     self.dataManager = dataManager
+    self.libraryService = libraryService
 
-    let watchService = WatchConnectivityService(dataManager: dataManager)
+    let watchService = WatchConnectivityService(dataManager: dataManager,
+                                                libraryService: libraryService)
     self.watchConnectivityService = watchService
     self.playerManager = PlayerManager(dataManager: dataManager, watchConnectivityService: watchService)
     ThemeManager.shared.dataManager = dataManager
@@ -48,10 +52,9 @@ class MainCoordinator: Coordinator {
     self.rootViewController.miniPlayerContainer.addSubview(miniPlayerVC.view)
     miniPlayerVC.didMove(toParent: self.rootViewController)
 
-    let libraryService = LibraryService(dataManager: dataManager)
-    let library = libraryService.getLibrary()
+    let library = self.libraryService.getLibrary()
 
-    if let currentTheme = try? libraryService.getLibraryCurrentTheme() {
+    if let currentTheme = try? self.libraryService.getLibraryCurrentTheme() {
       ThemeManager.shared.currentTheme = SimpleTheme(with: currentTheme)
     }
 
@@ -72,7 +75,8 @@ class MainCoordinator: Coordinator {
   }
 
   private func setupCarPlay(with library: Library) {
-    self.carPlayManager = CarPlayManager(dataManager: self.dataManager)
+    self.carPlayManager = CarPlayManager(dataManager: self.dataManager,
+                                         libraryService: self.libraryService)
     MPPlayableContentManager.shared().dataSource = self.carPlayManager
     MPPlayableContentManager.shared().delegate = self.carPlayManager
   }

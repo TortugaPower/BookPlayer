@@ -16,6 +16,7 @@ public protocol LibraryServiceProtocol {
   func getLibraryCurrentTheme() throws -> Theme?
   func getBook(with relativePath: String) -> Book?
   func findBooks(containing fileURL: URL) -> [Book]?
+  func getOrderedBooks(limit: Int?) -> [Book]?
 }
 
 public final class LibraryService: LibraryServiceProtocol {
@@ -85,6 +86,22 @@ public final class LibraryService: LibraryServiceProtocol {
   public func findBooks(containing fileURL: URL) -> [Book]? {
     let fetch: NSFetchRequest<Book> = Book.fetchRequest()
     fetch.predicate = NSPredicate(format: "relativePath ENDSWITH[C] %@", fileURL.lastPathComponent)
+    let context = self.dataManager.getContext()
+
+    return try? context.fetch(fetch)
+  }
+
+  public func getOrderedBooks(limit: Int? = nil) -> [Book]? {
+    let fetch: NSFetchRequest<Book> = Book.fetchRequest()
+    fetch.predicate = NSPredicate(format: "lastPlayDate != nil")
+
+    if let limit = limit {
+      fetch.fetchLimit = limit
+    }
+
+    let sort = NSSortDescriptor(key: #keyPath(Book.lastPlayDate), ascending: false)
+    fetch.sortDescriptors = [sort]
+
     let context = self.dataManager.getContext()
 
     return try? context.fetch(fetch)

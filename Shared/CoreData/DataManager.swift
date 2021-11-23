@@ -62,22 +62,6 @@ public class DataManager {
     return try? self.getContext().fetch(fetchRequest).first
   }
 
-  public func getOrderedBooks(limit: Int? = nil) -> [Book]? {
-    let fetch: NSFetchRequest<Book> = Book.fetchRequest()
-    fetch.predicate = NSPredicate(format: "lastPlayDate != nil")
-
-    if let limit = limit {
-      fetch.fetchLimit = limit
-    }
-
-    let sort = NSSortDescriptor(key: #keyPath(Book.lastPlayDate), ascending: false)
-    fetch.sortDescriptors = [sort]
-
-    let context = self.coreDataStack.managedContext
-
-    return try? context.fetch(fetch)
-  }
-
   public func createFolder(title: String) -> Folder {
     return Folder(title: title, context: self.getContext())
   }

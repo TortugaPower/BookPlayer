@@ -35,9 +35,11 @@ class LoadingCoordinator: Coordinator {
 
   func didFinishLoadingSequence(coreDataStack: CoreDataStack) {
     let rootVC = RootViewController.instantiate(from: .Main)
+    let dataManager = DataManager(coreDataStack: coreDataStack)
     let coordinator = MainCoordinator(
       rootController: rootVC,
-      dataManager: DataManager(coreDataStack: coreDataStack),
+      dataManager: dataManager,
+      libraryService: LibraryService(dataManager: dataManager),
       navigationController: AppNavigationController.instantiate(from: .Main)
     )
     rootVC.viewModel = BaseViewModel<MainCoordinator>()

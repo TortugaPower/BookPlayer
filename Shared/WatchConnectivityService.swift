@@ -11,9 +11,11 @@ import WatchConnectivity
 public class WatchConnectivityService: NSObject, WCSessionDelegate {
   public var library: Library!
   let dataManager: DataManager
+  let libraryService: LibraryServiceProtocol
 
-  public init(dataManager: DataManager) {
+  public init(dataManager: DataManager, libraryService: LibraryServiceProtocol) {
     self.dataManager = dataManager
+    self.libraryService = libraryService
   }
 
   private let session: WCSession? = WCSession.isSupported() ? WCSession.default : nil
@@ -65,7 +67,7 @@ public class WatchConnectivityService: NSObject, WCSessionDelegate {
 
     var recentBooksData: Data?
 
-    if let recentBooks = self.dataManager.getOrderedBooks(limit: 30) {
+    if let recentBooks = self.libraryService.getOrderedBooks(limit: 30) {
       recentBooksData = try? JSONEncoder().encode(recentBooks)
     }
 

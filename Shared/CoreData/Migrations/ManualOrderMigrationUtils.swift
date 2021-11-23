@@ -13,7 +13,7 @@ extension DataMigrationManager {
   func migrateLibraryOrder(dataManager: DataManager) {
     let libraryService = LibraryService(dataManager: dataManager)
     let library = libraryService.getLibrary()
-    
+
     guard let items = library.items?.array as? [LibraryItem] else { return }
 
     for (index, item) in items.enumerated() {

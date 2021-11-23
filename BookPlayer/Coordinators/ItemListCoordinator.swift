@@ -38,7 +38,7 @@ class ItemListCoordinator: Coordinator {
   let dataManager: DataManager
   let library: Library
 
-  var documentPickerDelegate: UIDocumentPickerDelegate?
+  weak var documentPickerDelegate: UIDocumentPickerDelegate?
   var fileSubscription: AnyCancellable?
   var importOperationSubscription: AnyCancellable?
 

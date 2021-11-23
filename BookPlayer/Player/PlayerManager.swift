@@ -355,8 +355,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     self.nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = maxTimeInContext
     self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackProgress] = currentTimeInContext / maxTimeInContext
   }
-
-  
 }
 
 // MARK: - Seek Controls

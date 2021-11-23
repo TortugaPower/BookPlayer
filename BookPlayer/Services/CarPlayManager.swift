@@ -56,12 +56,15 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
                      ("tab-recent", "recent_title".localized, "clock.fill")]
   var cachedDataStore = [IndexPath: [SimpleLibraryItem]]()
   let dataManager: DataManager
+  let libraryService: LibraryServiceProtocol
   var themeAccent: UIColor
   private var disposeBag = Set<AnyCancellable>()
   public private(set) var defaultArtwork: UIImage
 
-  init(dataManager: DataManager) {
+  init(dataManager: DataManager,
+       libraryService: LibraryServiceProtocol) {
     self.dataManager = dataManager
+    self.libraryService = libraryService
     self.themeAccent = UIColor(hex: "3488D1")
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: nil)!
 
@@ -238,7 +241,7 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
   private func getSourceItems(for index: Int) -> [SimpleLibraryItem]? {
     // Recently played items or library items
     return (index == IndexGuide.tab.recentlyPlayed
-    ? self.dataManager.getOrderedBooks(limit: 20) ?? []
+    ? self.libraryService.getOrderedBooks(limit: 20) ?? []
     : self.dataManager.fetchContents(at: nil) ?? [])
       .map({ SimpleLibraryItem(from: $0,
                                themeAccent: themeAccent)

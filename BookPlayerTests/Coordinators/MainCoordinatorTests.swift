@@ -18,9 +18,13 @@ class MainCoordinatorTests: XCTestCase {
   override func setUp() {
     let rootVC = RootViewController.instantiate(from: .Main)
     rootVC.loadView()
-    self.mainCoordinator = MainCoordinator(rootController: rootVC,
-                                           dataManager: DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null")),
-                                           navigationController: UINavigationController())
+    let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
+    self.mainCoordinator = MainCoordinator(
+      rootController: rootVC,
+      dataManager: dataManager,
+      libraryService: LibraryService(dataManager: dataManager),
+      navigationController: UINavigationController()
+    )
     self.mainCoordinator.start()
   }
 

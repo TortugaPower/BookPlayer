@@ -17,6 +17,7 @@ class LibraryServiceTests: XCTestCase {
   var sut: LibraryService!
 
   override func setUp() {
+    DataTestUtils.clearFolderContents(url: DataManager.getProcessedFolderURL())
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
     self.sut = LibraryService(dataManager: dataManager)
   }
@@ -124,5 +125,35 @@ class LibraryServiceTests: XCTestCase {
 
     let books = self.sut.findBooks(containing: testURL)!
     XCTAssert(books.count == 2)
+  }
+
+  func testFindEmptyOrderedBooks() {
+    let books = self.sut.getOrderedBooks(limit: 20)!
+    XCTAssert(books.isEmpty)
+  }
+
+  func testFindOrderedBooks() {
+    let book1 = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test1-book",
+      duration: 100
+    )
+    book1.lastPlayDate = Date(timeIntervalSince1970: 1637636787)
+
+    let book2 = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test2-book",
+      duration: 100
+    )
+    book2.lastPlayDate = Date()
+
+    self.sut.dataManager.saveContext()
+
+    let books = self.sut.getOrderedBooks(limit: 20)!
+    XCTAssert(books.count == 2)
+    let fetchedBook1 = books.first!
+    XCTAssert(fetchedBook1.relativePath == book2.relativePath)
+    let fetchedBook2 = books.last!
+    XCTAssert(fetchedBook2.relativePath == book1.relativePath)
   }
 }
