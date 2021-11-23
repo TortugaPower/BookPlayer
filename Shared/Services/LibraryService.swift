@@ -13,9 +13,12 @@ import UIKit
 public protocol LibraryServiceProtocol {
   func getLibrary() -> Library
   func getLibraryLastBook() throws -> Book?
+  func getLibraryCurrentTheme() throws -> Theme?
+  func getBook(with relativePath: String) -> Book?
+  func findBooks(containing fileURL: URL) -> [Book]?
 }
 
-public final class LibraryService {
+public final class LibraryService: LibraryServiceProtocol {
   let dataManager: DataManager
 
   public init(dataManager: DataManager) {
@@ -69,7 +72,7 @@ public final class LibraryService {
   }
 
   /**
-   Gets a stored book from an identifier.
+   Gets a stored book from a relative path
    */
   public func getBook(with relativePath: String) -> Book? {
     let fetch: NSFetchRequest<Book> = Book.fetchRequest()
@@ -77,5 +80,13 @@ public final class LibraryService {
     let context = self.dataManager.getContext()
 
     return try? context.fetch(fetch).first
+  }
+
+  public func findBooks(containing fileURL: URL) -> [Book]? {
+    let fetch: NSFetchRequest<Book> = Book.fetchRequest()
+    fetch.predicate = NSPredicate(format: "relativePath ENDSWITH[C] %@", fileURL.lastPathComponent)
+    let context = self.dataManager.getContext()
+
+    return try? context.fetch(fetch)
   }
 }

@@ -99,5 +99,30 @@ class LibraryServiceTests: XCTestCase {
     let book = self.sut.getBook(with: testBook.relativePath)
     XCTAssert(testBook.relativePath == book?.relativePath)
   }
-}
 
+  func testFindEmptyBooksWithURL() {
+    let books = self.sut.findBooks(containing: URL(string: "test/url")!)!
+    XCTAssert(books.isEmpty)
+  }
+
+  func testFindBooksWithURL() {
+    _ = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test1-book",
+      duration: 100
+    )
+
+    _ = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test2-book",
+      duration: 100
+    )
+
+    self.sut.dataManager.saveContext()
+
+    let testURL = DataManager.getProcessedFolderURL().appendingPathComponent("-book.txt")
+
+    let books = self.sut.findBooks(containing: testURL)!
+    XCTAssert(books.count == 2)
+  }
+}

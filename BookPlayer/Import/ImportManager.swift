@@ -69,7 +69,10 @@ final class ImportManager {
     let sortedFiles = orderedSet.sortedArray(using: [sortDescriptor]) as! [URL]
     // swiftlint:enable force_cast
 
-    let operation = ImportOperation(files: sortedFiles, dataManager: self.dataManager)
+    let libraryService = LibraryService(dataManager: self.dataManager)
+    let operation = ImportOperation(files: sortedFiles,
+                                    dataManager: self.dataManager,
+                                    libraryService: libraryService)
 
     self.files.value = []
 

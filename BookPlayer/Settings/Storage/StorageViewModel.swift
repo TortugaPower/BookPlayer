@@ -150,7 +150,7 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
   }
 
   public func handleFix(for item: StorageItem, shouldReloadItems: Bool = true) throws {
-    guard let fetchedBook = self.dataManager.findBooks(containing: item.fileURL)?.first else {
+    guard let fetchedBook = self.libraryService.findBooks(containing: item.fileURL)?.first else {
       // create a new book
       try self.createBook(from: item)
       if shouldReloadItems {
