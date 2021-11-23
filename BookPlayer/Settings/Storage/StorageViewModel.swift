@@ -15,11 +15,13 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
   private var files = CurrentValueSubject<[StorageItem]?, Never>(nil)
   private var disposeBag = Set<AnyCancellable>()
   private let library: Library
+  private let libraryService: LibraryService
   private let dataManager: DataManager
   private let folderURL: URL
 
   init(dataManager: DataManager, library: Library, folderURL: URL) {
     self.dataManager = dataManager
+    self.libraryService = LibraryService(dataManager: dataManager)
     self.library = library
     self.folderURL = folderURL
 
@@ -45,9 +47,8 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
         guard !fileURL.isDirectoryFolder,
               let fileAttributes = try? FileManager.default.attributesOfItem(atPath: fileURL.path) else { continue }
 
-        let fetchedBook = self.dataManager.getBook(
-          with: String(fileURL.relativePath(to: processedFolder).dropFirst()),
-          from: self.library
+        let fetchedBook = self.libraryService.getBook(
+          with: String(fileURL.relativePath(to: processedFolder).dropFirst())
         )
 
         let bookTitle = fetchedBook?.title ?? Book.getBookTitle(from: fileURL)

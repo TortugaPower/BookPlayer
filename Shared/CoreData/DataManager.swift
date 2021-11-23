@@ -62,18 +62,6 @@ public class DataManager {
     return try? self.getContext().fetch(fetchRequest).first
   }
 
-  /**
-   Gets a stored book from an identifier.
-   */
-  public func getBook(with identifier: String, from library: Library) -> Book? {
-    guard let item = library.getItem(with: identifier)
-    else {
-      return nil
-    }
-
-    return item as? Book
-  }
-
   public func findBooks(containing fileURL: URL) -> [Book]? {
     let fetch: NSFetchRequest<Book> = Book.fetchRequest()
     fetch.predicate = NSPredicate(format: "relativePath ENDSWITH[C] %@", fileURL.lastPathComponent)

@@ -67,4 +67,15 @@ public final class LibraryService {
 
     return try? context.existingObject(with: themeId) as? Theme
   }
+
+  /**
+   Gets a stored book from an identifier.
+   */
+  public func getBook(with relativePath: String) -> Book? {
+    let fetch: NSFetchRequest<Book> = Book.fetchRequest()
+    fetch.predicate = NSPredicate(format: "relativePath ENDSWITH[C] %@", relativePath)
+    let context = self.dataManager.getContext()
+
+    return try? context.fetch(fetch).first
+  }
 }
