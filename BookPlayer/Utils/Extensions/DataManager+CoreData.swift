@@ -235,14 +235,6 @@ extension DataManager {
 
 // MARK: Items
 extension DataManager {
-  public func getItem(with relativePath: String) -> LibraryItem? {
-    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
-    fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
-    fetchRequest.fetchLimit = 1
-
-    return try? self.getContext().fetch(fetchRequest).first
-  }
-
   public func fetchContents(at relativePath: String?, limit: Int? = nil, offset: Int? = nil) -> [LibraryItem]? {
     let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
     if let relativePath = relativePath {

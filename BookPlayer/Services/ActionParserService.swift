@@ -126,7 +126,7 @@ class ActionParserService {
 
     let libraryService = LibraryService(dataManager: libraryCoordinator.dataManager)
 
-    guard let book = libraryService.getBook(with: bookIdentifier) else { return }
+    guard let book = libraryService.getItem(with: bookIdentifier) as? Book else { return }
 
     self.removeAction(action)
     libraryCoordinator.loadPlayer(book)

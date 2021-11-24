@@ -8,13 +8,12 @@
 
 import CoreData
 import Foundation
-import UIKit
 
 public protocol LibraryServiceProtocol {
   func getLibrary() -> Library
   func getLibraryLastBook() throws -> Book?
   func getLibraryCurrentTheme() throws -> Theme?
-  func getBook(with relativePath: String) -> Book?
+  func getItem(with relativePath: String) -> LibraryItem?
   func findBooks(containing fileURL: URL) -> [Book]?
   func getOrderedBooks(limit: Int?) -> [Book]?
   func findFolder(with fileURL: URL) -> Folder?
@@ -76,15 +75,12 @@ public final class LibraryService: LibraryServiceProtocol {
     return try? context.existingObject(with: themeId) as? Theme
   }
 
-  /**
-   Gets a stored book from a relative path
-   */
-  public func getBook(with relativePath: String) -> Book? {
-    let fetch: NSFetchRequest<Book> = Book.fetchRequest()
-    fetch.predicate = NSPredicate(format: "relativePath ENDSWITH[C] %@", relativePath)
-    let context = self.dataManager.getContext()
+  public func getItem(with relativePath: String) -> LibraryItem? {
+    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+    fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
+    fetchRequest.fetchLimit = 1
 
-    return try? context.fetch(fetch).first
+    return try? self.dataManager.getContext().fetch(fetchRequest).first
   }
 
   public func findBooks(containing fileURL: URL) -> [Book]? {

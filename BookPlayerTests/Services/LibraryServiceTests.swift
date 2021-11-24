@@ -83,12 +83,10 @@ class LibraryServiceTests: XCTestCase {
     XCTAssert(currentTheme?.title == theme.title)
   }
 
-  func testGetEmptyBookWithIdentifier() {
-    let book = self.sut.getBook(with: "test-book1")
-    XCTAssert(book == nil)
-  }
+  func testGetItemWithIdentifier() {
+    let nilBook = self.sut.getItem(with: "test-book1")
+    XCTAssert(nilBook == nil)
 
-  func testGetBookWithIdentifier() {
     let testBook = StubFactory.book(
       dataManager: self.sut.dataManager,
       title: "test-book1",
@@ -97,7 +95,7 @@ class LibraryServiceTests: XCTestCase {
 
     self.sut.dataManager.saveContext()
 
-    let book = self.sut.getBook(with: testBook.relativePath)
+    let book = self.sut.getItem(with: testBook.relativePath)
     XCTAssert(testBook.relativePath == book?.relativePath)
   }
 

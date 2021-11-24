@@ -67,16 +67,6 @@ public class DataManager {
     return try? self.getContext().fetch(fetchRequest).first
   }
 
-  public func insert(_ folder: Folder, into library: Library, at index: Int? = nil) {
-    library.insert(item: folder, at: index)
-    self.saveContext()
-  }
-
-  public func insert(_ item: LibraryItem, into folder: Folder, at index: Int? = nil) {
-    folder.insert(item: item, at: index)
-    self.saveContext()
-  }
-
   public func jumpToStart(_ item: LibraryItem) {
     item.jumpToStart()
     item.markAsFinished(false)

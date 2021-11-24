@@ -196,7 +196,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func playNextBook(after item: SimpleLibraryItem) {
-    guard let libraryItem = self.dataManager.getItem(with: item.relativePath) else {
+    guard let libraryItem = self.libraryService.getItem(with: item.relativePath) else {
       return
     }
 
@@ -251,7 +251,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func showItemContents(_ item: SimpleLibraryItem) {
-    guard let libraryItem = self.dataManager.getItem(with: item.relativePath) else {
+    guard let libraryItem = self.libraryService.getItem(with: item.relativePath) else {
       return
     }
 
@@ -272,9 +272,9 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func importIntoFolder(_ folder: SimpleLibraryItem, items: [LibraryItem]) {
-    guard let storedFolder = self.dataManager.getItem(with: folder.relativePath) as? Folder else { return }
+    guard let storedFolder = self.libraryService.getItem(with: folder.relativePath) as? Folder else { return }
 
-    let fetchedItems = items.compactMap({ self.dataManager.getItem(with: $0.relativePath )})
+    let fetchedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
 
     do {
       try self.dataManager.moveItems(fetchedItems, into: storedFolder)
@@ -288,7 +288,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   func createFolder(with title: String, items: [SimpleLibraryItem]? = nil) {
     do {
       let folder = try self.libraryService.createFolder(with: title, inside: self.folder?.relativePath, at: nil)
-      if let fetchedItems = items?.compactMap({ self.dataManager.getItem(with: $0.relativePath )}) {
+      if let fetchedItems = items?.compactMap({ self.libraryService.getItem(with: $0.relativePath )}) {
         try self.dataManager.moveItems(fetchedItems, into: folder)
       }
     } catch {
@@ -299,7 +299,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func handleMoveIntoLibrary(items: [SimpleLibraryItem]) {
-    let selectedItems = items.compactMap({ self.dataManager.getItem(with: $0.relativePath )})
+    let selectedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
 
     do {
       try self.dataManager.moveItems(selectedItems, into: self.library)
@@ -313,9 +313,9 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   func handleMoveIntoFolder(_ folder: SimpleLibraryItem, items: [SimpleLibraryItem]) {
     ArtworkService.removeCache(for: folder.relativePath)
 
-    guard let storedFolder = self.dataManager.getItem(with: folder.relativePath) as? Folder else { return }
+    guard let storedFolder = self.libraryService.getItem(with: folder.relativePath) as? Folder else { return }
 
-    let fetchedItems = items.compactMap({ self.dataManager.getItem(with: $0.relativePath )})
+    let fetchedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
 
     do {
       try self.dataManager.moveItems(fetchedItems, into: storedFolder)
@@ -327,7 +327,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func handleDelete(items: [SimpleLibraryItem], mode: DeleteMode) {
-    let selectedItems = items.compactMap({ self.dataManager.getItem(with: $0.relativePath )})
+    let selectedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
 
     do {
       try self.dataManager.delete(selectedItems, library: self.library, mode: mode)
@@ -381,7 +381,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func reorder(item: SimpleLibraryItem, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath) {
-    guard let storedItem = self.dataManager.getItem(with: item.relativePath) else { return }
+    guard let storedItem = self.libraryService.getItem(with: item.relativePath) else { return }
 
     if let folder = self.folder {
       ArtworkService.removeCache(for: folder.relativePath)
@@ -496,7 +496,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func handleRename(item: SimpleLibraryItem, with newTitle: String) {
-    guard let libraryItem = self.dataManager.getItem(with: item.relativePath) else {
+    guard let libraryItem = self.libraryService.getItem(with: item.relativePath) else {
       return
     }
 
@@ -506,7 +506,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func handleResetPlaybackPosition(for items: [SimpleLibraryItem]) {
-    let selectedItems = items.compactMap({ self.dataManager.getItem(with: $0.relativePath )})
+    let selectedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
 
     for item in selectedItems {
       self.dataManager.jumpToStart(item)
@@ -516,7 +516,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func handleMarkAsFinished(for items: [SimpleLibraryItem], flag: Bool) {
-    let selectedItems = items.compactMap({ self.dataManager.getItem(with: $0.relativePath )})
+    let selectedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
 
     for item in selectedItems {
       self.dataManager.mark(item, asFinished: flag)

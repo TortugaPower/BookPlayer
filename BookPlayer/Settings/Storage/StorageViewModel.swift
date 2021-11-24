@@ -47,9 +47,9 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
         guard !fileURL.isDirectoryFolder,
               let fileAttributes = try? FileManager.default.attributesOfItem(atPath: fileURL.path) else { continue }
 
-        let fetchedBook = self.libraryService.getBook(
+        let fetchedBook = self.libraryService.getItem(
           with: String(fileURL.relativePath(to: processedFolder).dropFirst())
-        )
+        ) as? Book
 
         let bookTitle = fetchedBook?.title ?? Book.getBookTitle(from: fileURL)
 
