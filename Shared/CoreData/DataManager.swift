@@ -52,6 +52,11 @@ public class DataManager {
     return self.coreDataStack.getBackgroundContext()
   }
 
+  public func delete(_ item: NSManagedObject) {
+    self.coreDataStack.managedContext.delete(item)
+    self.saveContext()
+  }
+
   // MARK: - Models handler
 
   public func getTheme(with title: String) -> Theme? {
@@ -62,64 +67,6 @@ public class DataManager {
     return try? self.getContext().fetch(fetchRequest).first
   }
 
-  public func createFolder(title: String) -> Folder {
-    return Folder(title: title, context: self.getContext())
-  }
-
-  public func removeFolderIfNeeded(_ fileURL: URL) throws {
-    guard FileManager.default.fileExists(atPath: fileURL.path) else { return }
-
-    // Delete folder if it belongs to an orphaned folder
-    if let existingFolder = self.findFolder(with: fileURL)?.first {
-      if existingFolder.getLibrary() == nil {
-        // Delete folder if it doesn't belong to active folder
-        try FileManager.default.removeItem(at: fileURL)
-        self.delete(existingFolder)
-      }
-    } else {
-      // Delete folder if it doesn't belong to active folder
-      try FileManager.default.removeItem(at: fileURL)
-    }
-  }
-
-  public func createFolder(with title: String, in folder: Folder?, library: Library, at index: Int? = nil) throws -> Folder {
-    let newFolder: Folder
-    let processedFolder = DataManager.getProcessedFolderURL()
-
-    if let folder = folder {
-      let destinationURL = processedFolder.appendingPathComponent(folder.relativePath).appendingPathComponent(title)
-
-      try? removeFolderIfNeeded(destinationURL)
-
-      try FileManager.default.createDirectory(at: destinationURL, withIntermediateDirectories: false, attributes: nil)
-
-      newFolder = Folder(title: title, context: self.getContext())
-      folder.insert(item: newFolder, at: index)
-    } else {
-      let destinationURL = processedFolder.appendingPathComponent(title)
-
-      try? removeFolderIfNeeded(destinationURL)
-
-      try FileManager.default.createDirectory(at: destinationURL, withIntermediateDirectories: false, attributes: nil)
-
-      newFolder = Folder(title: title, context: self.getContext())
-      library.insert(item: newFolder, at: index)
-    }
-
-    self.saveContext()
-
-    return newFolder
-  }
-
-  public func findFolder(with fileURL: URL) -> [Folder]? {
-    let fetch: NSFetchRequest<Folder> = Folder.fetchRequest()
-
-    fetch.predicate = NSPredicate(format: "relativePath == %@", String(fileURL.relativePath(to: DataManager.getProcessedFolderURL()).dropFirst()))
-    let context = self.coreDataStack.managedContext
-
-    return try? context.fetch(fetch)
-  }
-
   public func insert(_ folder: Folder, into library: Library, at index: Int? = nil) {
     library.insert(item: folder, at: index)
     self.saveContext()
@@ -127,11 +74,6 @@ public class DataManager {
 
   public func insert(_ item: LibraryItem, into folder: Folder, at index: Int? = nil) {
     folder.insert(item: item, at: index)
-    self.saveContext()
-  }
-
-  public func delete(_ item: NSManagedObject) {
-    self.coreDataStack.managedContext.delete(item)
     self.saveContext()
   }
 

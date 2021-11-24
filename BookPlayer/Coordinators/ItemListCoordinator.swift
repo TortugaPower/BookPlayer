@@ -36,6 +36,7 @@ class ItemListCoordinator: Coordinator {
   let playerManager: PlayerManagerProtocol
   let importManager: ImportManager
   let dataManager: DataManager
+  let libraryService: LibraryServiceProtocol
   let library: Library
 
   weak var documentPickerDelegate: UIDocumentPickerDelegate?
@@ -47,12 +48,14 @@ class ItemListCoordinator: Coordinator {
     library: Library,
     playerManager: PlayerManagerProtocol,
     importManager: ImportManager,
-    dataManager: DataManager
+    dataManager: DataManager,
+    libraryService: LibraryServiceProtocol
   ) {
     self.library = library
     self.playerManager = playerManager
     self.importManager = importManager
     self.dataManager = dataManager
+    self.libraryService = libraryService
 
     super.init(navigationController: navigationController,
                flowType: .push)
@@ -128,7 +131,8 @@ class ItemListCoordinator: Coordinator {
                                       folder: folder,
                                       playerManager: self.playerManager,
                                       importManager: self.importManager,
-                                      dataManager: self.dataManager)
+                                      dataManager: self.dataManager,
+                                      libraryService: self.libraryService)
     self.childCoordinators.append(child)
     child.parentCoordinator = self
     child.start()

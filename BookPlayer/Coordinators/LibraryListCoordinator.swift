@@ -16,6 +16,7 @@ class LibraryListCoordinator: ItemListCoordinator {
                                       library: self.library,
                                       playerManager: self.playerManager,
                                       dataManager: self.dataManager,
+                                      libraryService: self.libraryService,
                                       themeAccent: ThemeManager.shared.currentTheme.linkColor)
     viewModel.coordinator = self
     vc.viewModel = viewModel

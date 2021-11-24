@@ -23,7 +23,8 @@ class LibraryListCoordinatorTests: XCTestCase {
       library: StubFactory.library(dataManager: dataManager),
       playerManager: PlayerManagerMock(),
       importManager: ImportManager(dataManager: dataManager),
-      dataManager: dataManager
+      dataManager: dataManager,
+      libraryService: LibraryService(dataManager: dataManager)
     )
 
     self.libraryListCoordinator.start()
@@ -40,7 +41,7 @@ class LibraryListCoordinatorTests: XCTestCase {
   }
 
   func testShowFolder() {
-    let folder = self.libraryListCoordinator.dataManager.createFolder(title: "folder 1")
+    let folder = try! StubFactory.folder(dataManager: self.libraryListCoordinator.dataManager, title: "folder 1")
     self.libraryListCoordinator.library.insert(item: folder)
 
     self.libraryListCoordinator.showFolder(folder)
@@ -65,7 +66,7 @@ class LibraryListCoordinatorTests: XCTestCase {
   }
 
   func testShowItemContentsFolder() {
-    let folder = self.libraryListCoordinator.dataManager.createFolder(title: "folder 1")
+    let folder = try! StubFactory.folder(dataManager: self.libraryListCoordinator.dataManager, title: "folder 1")
     self.libraryListCoordinator.library.insert(item: folder)
 
     self.libraryListCoordinator.showItemContents(folder)
@@ -93,7 +94,8 @@ class FolderListCoordinatorTests: XCTestCase {
       folder: try! StubFactory.folder(dataManager: dataManager, title: "folder 1"),
       playerManager: PlayerManagerMock(),
       importManager: ImportManager(dataManager: dataManager),
-      dataManager: dataManager
+      dataManager: dataManager,
+      libraryService: LibraryService(dataManager: dataManager)
     )
 
     self.folderListCoordinator.start()

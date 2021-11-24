@@ -63,7 +63,8 @@ class MainCoordinator: Coordinator {
       library: library,
       playerManager: self.playerManager,
       importManager: ImportManager(dataManager: self.dataManager),
-      dataManager: self.dataManager
+      dataManager: self.dataManager,
+      libraryService: self.libraryService
     )
     libraryCoordinator.parentCoordinator = self
     self.childCoordinators.append(libraryCoordinator)

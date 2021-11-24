@@ -12,10 +12,11 @@ import Combine
 import XCTest
 
 class DataManagerTests: XCTestCase {
-  let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
+  var dataManager: DataManager!
 
   override func setUp() {
     super.setUp()
+    self.dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
     // Put setup code here. This method is called before the invocation of each test method in the class.
     let documentsFolder = DataManager.getDocumentsFolderURL()
     DataTestUtils.clearFolderContents(url: documentsFolder)
@@ -52,6 +53,7 @@ class ProcessFilesTests: DataManagerTests {
 
   override func setUp() {
     self.subscription?.cancel()
+    super.setUp()
   }
 
   func testProcessOneFile() {
@@ -81,13 +83,6 @@ class ProcessFilesTests: DataManagerTests {
 // MARK: - insertBooks(from:into:or:completion:)
 
 class InsertBooksTests: DataManagerTests {
-  override func setUp() {
-    super.setUp()
-
-    let library = StubFactory.library(dataManager: self.dataManager)
-    self.dataManager.delete(library)
-  }
-
   func testInsertEmptyBooksInLibrary() throws {
 
     let library = StubFactory.library(dataManager: self.dataManager)
@@ -133,8 +128,10 @@ class InsertBooksTests: DataManagerTests {
   }
 
   func testInsertEmptyBooksIntoPlaylist() throws {
-    let library = StubFactory.library(dataManager: self.dataManager)
-    let folder = try XCTUnwrap(try self.dataManager.createFolder(with: "test-folder", in: nil, library: library))
+    let libraryService = LibraryService(dataManager: self.dataManager)
+    let library = libraryService.getLibrary()
+
+    let folder = try libraryService.createFolder(with: "test-folder", inside: nil, at: nil)
     XCTAssert(library.items?.count == 1)
 
     try? self.dataManager.moveItems([], into: folder)
@@ -142,8 +139,10 @@ class InsertBooksTests: DataManagerTests {
   }
 
   func testInsertOneBookIntoPlaylist() throws {
-    let library = StubFactory.library(dataManager: self.dataManager)
-    let folder = try self.dataManager.createFolder(with: "test-folder", in: nil, library: library)
+    let libraryService = LibraryService(dataManager: self.dataManager)
+    let library = libraryService.getLibrary()
+
+    let folder = try libraryService.createFolder(with: "test-folder", inside: nil, at: nil)
 
     XCTAssert(library.items?.count == 1)
 
@@ -161,8 +160,10 @@ class InsertBooksTests: DataManagerTests {
   }
 
   func testInsertMultipleBooksIntoPlaylist() throws {
-    let library = StubFactory.library(dataManager: self.dataManager)
-    let folder = try self.dataManager.createFolder(with: "test-folder", in: nil, library: library)
+    let libraryService = LibraryService(dataManager: self.dataManager)
+    let library = libraryService.getLibrary()
+
+    let folder = try libraryService.createFolder(with: "test-folder", inside: nil, at: nil)
 
     XCTAssert(library.items?.count == 1)
 
@@ -184,8 +185,10 @@ class InsertBooksTests: DataManagerTests {
   }
 
   func testInsertExistingBookFromLibraryIntoPlaylist() throws {
-    let library = StubFactory.library(dataManager: self.dataManager)
-    let folder = try self.dataManager.createFolder(with: "test-folder", in: nil, library: library)
+    let libraryService = LibraryService(dataManager: self.dataManager)
+    let library = libraryService.getLibrary()
+
+    let folder = try libraryService.createFolder(with: "test-folder", inside: nil, at: nil)
 
     XCTAssert(library.items?.count == 1)
 
@@ -208,8 +211,10 @@ class InsertBooksTests: DataManagerTests {
   }
 
   func testInsertExistingBookFromPlaylistIntoLibrary() throws {
-    let library = StubFactory.library(dataManager: self.dataManager)
-    let folder = try self.dataManager.createFolder(with: "test-folder", in: nil, library: library)
+    let libraryService = LibraryService(dataManager: self.dataManager)
+    let library = libraryService.getLibrary()
+
+    let folder = try libraryService.createFolder(with: "test-folder", inside: nil, at: nil)
 
     XCTAssert(library.items?.count == 1)
 
@@ -235,9 +240,11 @@ class InsertBooksTests: DataManagerTests {
   }
 
   func testInsertExistingBookFromPlaylistIntoPlaylist() throws {
-    let library = StubFactory.library(dataManager: self.dataManager)
-    let folder1 = try self.dataManager.createFolder(with: "test-folder1", in: nil, library: library)
-    let folder2 = try self.dataManager.createFolder(with: "test-folder2", in: nil, library: library)
+    let libraryService = LibraryService(dataManager: self.dataManager)
+    let library = libraryService.getLibrary()
+
+    let folder1 = try libraryService.createFolder(with: "test-folder1", inside: nil, at: nil)
+    let folder2 = try libraryService.createFolder(with: "test-folder2", inside: nil, at: nil)
 
     XCTAssert(library.items?.count == 2)
 
@@ -268,13 +275,6 @@ class InsertBooksTests: DataManagerTests {
 // MARK: - Modify Library
 
 class ModifyLibraryTests: DataManagerTests {
-  override func setUp() {
-    super.setUp()
-
-    let library = StubFactory.library(dataManager: self.dataManager)
-    self.dataManager.delete(library)
-  }
-
   func testMoveItemsIntoFolder() throws {
     let library = StubFactory.library(dataManager: self.dataManager)
     let book1 = StubFactory.book(dataManager: self.dataManager, title: "book1", duration: 100)

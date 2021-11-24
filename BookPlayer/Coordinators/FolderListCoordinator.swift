@@ -18,7 +18,8 @@ class FolderListCoordinator: ItemListCoordinator {
     folder: Folder,
     playerManager: PlayerManagerProtocol,
     importManager: ImportManager,
-    dataManager: DataManager
+    dataManager: DataManager,
+    libraryService: LibraryServiceProtocol
   ) {
     self.folder = folder
 
@@ -27,7 +28,8 @@ class FolderListCoordinator: ItemListCoordinator {
       library: library,
       playerManager: playerManager,
       importManager: importManager,
-      dataManager: dataManager
+      dataManager: dataManager,
+      libraryService: libraryService
     )
   }
 
@@ -37,6 +39,7 @@ class FolderListCoordinator: ItemListCoordinator {
                                       library: self.library,
                                       playerManager: self.playerManager,
                                       dataManager: self.dataManager,
+                                      libraryService: self.libraryService,
                                       themeAccent: ThemeManager.shared.currentTheme.linkColor)
     viewModel.coordinator = self
     vc.viewModel = viewModel

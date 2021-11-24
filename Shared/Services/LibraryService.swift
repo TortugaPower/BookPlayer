@@ -17,6 +17,10 @@ public protocol LibraryServiceProtocol {
   func getBook(with relativePath: String) -> Book?
   func findBooks(containing fileURL: URL) -> [Book]?
   func getOrderedBooks(limit: Int?) -> [Book]?
+  func findFolder(with fileURL: URL) -> Folder?
+  func findFolder(with relativePath: String) -> Folder?
+  func hasLibraryLinked(item: LibraryItem) -> Bool
+  func createFolder(with title: String, inside relativePath: String?, at index: Int?) throws -> Folder
 }
 
 public final class LibraryService: LibraryServiceProtocol {
@@ -91,7 +95,7 @@ public final class LibraryService: LibraryServiceProtocol {
     return try? context.fetch(fetch)
   }
 
-  public func getOrderedBooks(limit: Int? = nil) -> [Book]? {
+  public func getOrderedBooks(limit: Int?) -> [Book]? {
     let fetch: NSFetchRequest<Book> = Book.fetchRequest()
     fetch.predicate = NSPredicate(format: "lastPlayDate != nil")
 
@@ -105,5 +109,82 @@ public final class LibraryService: LibraryServiceProtocol {
     let context = self.dataManager.getContext()
 
     return try? context.fetch(fetch)
+  }
+
+  // MARK: - Folders
+  public func findFolder(with fileURL: URL) -> Folder? {
+    return self.findFolder(
+      with: String(fileURL.relativePath(to: DataManager.getProcessedFolderURL()).dropFirst())
+    )
+  }
+
+  public func findFolder(with relativePath: String) -> Folder? {
+    let fetch: NSFetchRequest<Folder> = Folder.fetchRequest()
+
+    fetch.predicate = NSPredicate(format: "relativePath == %@", relativePath)
+
+    return try? self.dataManager.getContext().fetch(fetch).first
+  }
+
+  public func hasLibraryLinked(item: LibraryItem) -> Bool {
+
+    var keyPath = item.relativePath.split(separator: "/")
+      .dropLast()
+      .map({ _ in return "folder" })
+      .joined(separator: ".")
+
+    keyPath += keyPath.isEmpty ? "library" : ".library"
+
+    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+
+    fetchRequest.predicate = NSPredicate(format: "relativePath == %@ && \(keyPath) != nil", item.relativePath)
+
+    return (try? self.dataManager.getContext().fetch(fetchRequest).first) != nil
+  }
+
+  func removeFolderIfNeeded(_ fileURL: URL) throws {
+    guard FileManager.default.fileExists(atPath: fileURL.path) else { return }
+
+    // Delete folder if it belongs to an orphaned folder
+    if let existingFolder = self.findFolder(with: fileURL) {
+      if !self.hasLibraryLinked(item: existingFolder) {
+        // Delete folder if it doesn't belong to active folder
+        try FileManager.default.removeItem(at: fileURL)
+        self.dataManager.delete(existingFolder)
+      }
+    } else {
+      // Delete folder if it doesn't belong to active folder
+      try FileManager.default.removeItem(at: fileURL)
+    }
+  }
+
+  public func createFolder(with title: String, inside relativePath: String?, at index: Int?) throws -> Folder {
+    let processedFolder = DataManager.getProcessedFolderURL()
+    let destinationURL: URL
+
+    if let relativePath = relativePath {
+      destinationURL = processedFolder.appendingPathComponent(relativePath).appendingPathComponent(title)
+    } else {
+      destinationURL = processedFolder.appendingPathComponent(title)
+    }
+
+    try? removeFolderIfNeeded(destinationURL)
+    try FileManager.default.createDirectory(at: destinationURL, withIntermediateDirectories: false, attributes: nil)
+
+    let newFolder = Folder(title: title, context: self.dataManager.getContext())
+
+    // insert into existing folder or library at index
+    if let relativePath = relativePath {
+      // The folder object must exist
+      let folder = self.findFolder(with: relativePath)!
+      folder.insert(item: newFolder, at: index)
+    } else {
+      let library = self.getLibrary()
+      library.insert(item: newFolder, at: index)
+    }
+
+    self.dataManager.saveContext()
+
+    return newFolder
   }
 }

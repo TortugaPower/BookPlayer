@@ -156,4 +156,201 @@ class LibraryServiceTests: XCTestCase {
     let fetchedBook2 = books.last!
     XCTAssert(fetchedBook2.relativePath == book1.relativePath)
   }
+
+  func testFindEmptyFolder() {
+    let folder = self.sut.findFolder(with: URL(string: "test/url")!)
+    XCTAssert(folder == nil)
+  }
+
+  func testFindFolder() {
+    _ = try! StubFactory.folder(dataManager: self.sut.dataManager, title: "test1-folder")
+
+    self.sut.dataManager.saveContext()
+
+    let testURL = DataManager.getProcessedFolderURL().appendingPathComponent("test1-folder")
+
+    let folder = self.sut.findFolder(with: testURL)
+    XCTAssert(folder?.relativePath == "test1-folder")
+  }
+
+  func testHasNoLibraryLinked() {
+    let book1 = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test1-book",
+      duration: 100
+    )
+    XCTAssert(self.sut.hasLibraryLinked(item: book1) == false)
+  }
+
+  func testHasLibraryLinked() {
+    let library = self.sut.getLibrary()
+
+    let book1 = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test1-book",
+      duration: 100
+    )
+    library.insert(item: book1)
+
+    XCTAssert(self.sut.hasLibraryLinked(item: book1) == true)
+
+    let folder1 = try! StubFactory.folder(
+      dataManager: self.sut.dataManager,
+      title: "test1-folder"
+    )
+    folder1.insert(item: book1)
+
+    XCTAssert(self.sut.hasLibraryLinked(item: folder1) == false)
+    XCTAssert(self.sut.hasLibraryLinked(item: book1) == false)
+
+    library.insert(item: folder1)
+
+    XCTAssert(self.sut.hasLibraryLinked(item: folder1) == true)
+    XCTAssert(self.sut.hasLibraryLinked(item: book1) == true)
+
+    let folder2 = try! StubFactory.folder(
+      dataManager: self.sut.dataManager,
+      title: "test2-folder",
+      destinationFolder: DataManager.getProcessedFolderURL().appendingPathComponent(folder1.relativePath)
+    )
+
+    XCTAssert(self.sut.hasLibraryLinked(item: folder2) == false)
+
+    folder1.insert(item: folder2)
+
+    XCTAssert(self.sut.hasLibraryLinked(item: folder2) == true)
+    XCTAssert(self.sut.hasLibraryLinked(item: book1) == true)
+    XCTAssert(self.sut.hasLibraryLinked(item: folder1) == true)
+
+    folder1.library = nil
+
+    XCTAssert(self.sut.hasLibraryLinked(item: folder2) == false)
+    XCTAssert(self.sut.hasLibraryLinked(item: book1) == false)
+    XCTAssert(self.sut.hasLibraryLinked(item: folder1) == false)
+  }
+
+  func testNotRemovingFolderIfNeeded() {
+    let library = self.sut.getLibrary()
+    let folder1 = try! StubFactory.folder(
+      dataManager: self.sut.dataManager,
+      title: "test1-folder"
+    )
+    library.insert(item: folder1)
+
+    let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent("test1-folder")
+
+    XCTAssert(FileManager.default.fileExists(atPath: fileURL.path))
+
+    try! self.sut.removeFolderIfNeeded(
+      DataManager.getProcessedFolderURL().appendingPathComponent("test1-folder")
+    )
+
+    XCTAssert(FileManager.default.fileExists(atPath: fileURL.path))
+  }
+
+  func testRemoveFolderIfNeeded() {
+    _ = try! StubFactory.folder(
+      dataManager: self.sut.dataManager,
+      title: "test1-folder"
+    )
+
+    let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent("test1-folder")
+
+    XCTAssert(FileManager.default.fileExists(atPath: fileURL.path))
+
+    try! self.sut.removeFolderIfNeeded(fileURL)
+
+    XCTAssert(FileManager.default.fileExists(atPath: fileURL.path) == false)
+
+    let library = self.sut.getLibrary()
+
+    let book1 = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test1-book",
+      duration: 100
+    )
+    library.insert(item: book1)
+
+    let folder2 = try! StubFactory.folder(
+      dataManager: self.sut.dataManager,
+      title: "test2-folder"
+    )
+    folder2.insert(item: book1)
+    library.insert(item: folder2)
+
+    let nestedURL = DataManager.getProcessedFolderURL().appendingPathComponent(folder2.relativePath)
+
+    let folder3 = try! StubFactory.folder(
+      dataManager: self.sut.dataManager,
+      title: "test3-folder",
+      destinationFolder: nestedURL
+    )
+    folder2.insert(item: folder3)
+
+    XCTAssert(FileManager.default.fileExists(atPath: nestedURL.path))
+    try! self.sut.removeFolderIfNeeded(nestedURL)
+    XCTAssert(FileManager.default.fileExists(atPath: nestedURL.path))
+    folder2.library = nil
+    try! self.sut.removeFolderIfNeeded(nestedURL)
+    XCTAssert(FileManager.default.fileExists(atPath: nestedURL.path) == false)
+  }
+
+  func testCreateFolderInLibrary() {
+    let folder = try! self.sut.createFolder(with: "test-folder", inside: nil, at: nil)
+
+    let library = self.sut.getLibrary()
+
+    XCTAssert(library.itemsArray.first?.relativePath == folder.relativePath)
+    XCTAssert(folder.items?.count == 0)
+
+    let folder2 = try! self.sut.createFolder(with: "test-folder2", inside: nil, at: nil)
+
+    XCTAssert(library.itemsArray.count == 2)
+    XCTAssert(library.itemsArray.first?.relativePath == folder.relativePath)
+    XCTAssert(library.itemsArray.last?.relativePath == folder2.relativePath)
+
+    let folder3 = try! self.sut.createFolder(with: "test-folder3", inside: nil, at: 0)
+
+    XCTAssert(library.itemsArray.count == 3)
+    XCTAssert(library.itemsArray[0].relativePath == folder3.relativePath)
+    XCTAssert(library.itemsArray[1].relativePath == folder.relativePath)
+    XCTAssert(library.itemsArray[2].relativePath == folder2.relativePath)
+
+    let folder4 = try! self.sut.createFolder(with: "test-folder4", inside: nil, at: 1)
+
+    XCTAssert(library.itemsArray.count == 4)
+    XCTAssert(library.itemsArray[0].relativePath == folder3.relativePath)
+    XCTAssert(library.itemsArray[1].relativePath == folder4.relativePath)
+    XCTAssert(library.itemsArray[2].relativePath == folder.relativePath)
+    XCTAssert(library.itemsArray[3].relativePath == folder2.relativePath)
+  }
+
+  func testCreateFolderInFolder() {
+    let folder = try! self.sut.createFolder(with: "test-folder", inside: nil, at: nil)
+    let folder2 = try! self.sut.createFolder(with: "test-folder2", inside: "test-folder", at: nil)
+
+    XCTAssert(folder.items?.count == 1)
+    XCTAssert((folder.items?.firstObject as? Folder)?.relativePath == folder2.relativePath)
+
+    let folder3 = try! self.sut.createFolder(with: "test-folder3", inside: "test-folder", at: nil)
+
+    XCTAssert(folder.items?.count == 2)
+    XCTAssert((folder.items?.firstObject as? Folder)?.relativePath == folder2.relativePath)
+    XCTAssert((folder.items?.lastObject as? Folder)?.relativePath == folder3.relativePath)
+
+    let folder4 = try! self.sut.createFolder(with: "test-folder4", inside: "test-folder", at: 0)
+
+    XCTAssert(folder.items?.count == 3)
+    XCTAssert((folder.items?[0] as? Folder)?.relativePath == folder4.relativePath)
+    XCTAssert((folder.items?[1] as? Folder)?.relativePath == folder2.relativePath)
+    XCTAssert((folder.items?[2] as? Folder)?.relativePath == folder3.relativePath)
+
+    let folder5 = try! self.sut.createFolder(with: "test-folder5", inside: "test-folder", at: 1)
+
+    XCTAssert(folder.items?.count == 4)
+    XCTAssert((folder.items?[0] as? Folder)?.relativePath == folder4.relativePath)
+    XCTAssert((folder.items?[1] as? Folder)?.relativePath == folder5.relativePath)
+    XCTAssert((folder.items?[2] as? Folder)?.relativePath == folder2.relativePath)
+    XCTAssert((folder.items?[3] as? Folder)?.relativePath == folder3.relativePath)
+  }
 }

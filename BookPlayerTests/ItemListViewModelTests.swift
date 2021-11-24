@@ -24,6 +24,7 @@ class ItemListViewModelTests: XCTestCase {
                                  library: StubFactory.library(dataManager: dataManager),
                                  playerManager: PlayerManagerMock(),
                                  dataManager: dataManager,
+                                 libraryService: LibraryService(dataManager: dataManager),
                                  themeAccent: .blue)
 
     self.sut.library.insert(

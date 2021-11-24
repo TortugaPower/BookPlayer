@@ -17,6 +17,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   let library: Library
   let playerManager: PlayerManagerProtocol
   let dataManager: DataManager
+  let libraryService: LibraryServiceProtocol
   var offset = 0
 
   public private(set) var defaultArtwork: Data?
@@ -36,11 +37,13 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
        library: Library,
        playerManager: PlayerManagerProtocol,
        dataManager: DataManager,
+       libraryService: LibraryServiceProtocol,
        themeAccent: UIColor) {
     self.folder = folder
     self.library = library
     self.playerManager = playerManager
     self.dataManager = dataManager
+    self.libraryService = libraryService
     self.themeAccent = themeAccent
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: themeAccent)?.pngData()
     super.init()
@@ -257,7 +260,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
   func importIntoNewFolder(with title: String, items: [LibraryItem]? = nil) {
     do {
-      let folder = try self.dataManager.createFolder(with: title, in: self.folder, library: self.library)
+      let folder = try self.libraryService.createFolder(with: title, inside: self.folder?.relativePath, at: nil)
       if let items = items {
         try self.dataManager.moveItems(items, into: folder)
       }
@@ -284,7 +287,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
   func createFolder(with title: String, items: [SimpleLibraryItem]? = nil) {
     do {
-      let folder = try self.dataManager.createFolder(with: title, in: self.folder, library: self.library)
+      let folder = try self.libraryService.createFolder(with: title, inside: self.folder?.relativePath, at: nil)
       if let fetchedItems = items?.compactMap({ self.dataManager.getItem(with: $0.relativePath )}) {
         try self.dataManager.moveItems(fetchedItems, into: folder)
       }
