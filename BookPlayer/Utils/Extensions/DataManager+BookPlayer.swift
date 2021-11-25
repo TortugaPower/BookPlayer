@@ -136,9 +136,4 @@ extension DataManager {
 
     return response
   }
-
-  public func setCurrentTheme(_ theme: Theme, for library: Library) {
-    library.currentTheme = theme
-    self.saveContext()
-  }
 }

@@ -33,7 +33,7 @@ class MainCoordinator: Coordinator {
                                                 libraryService: libraryService)
     self.watchConnectivityService = watchService
     self.playerManager = PlayerManager(dataManager: dataManager, watchConnectivityService: watchService)
-    ThemeManager.shared.dataManager = dataManager
+    ThemeManager.shared.libraryService = libraryService
 
     super.init(navigationController: navigationController, flowType: .modal)
   }

@@ -83,6 +83,31 @@ class LibraryServiceTests: XCTestCase {
     XCTAssert(currentTheme?.title == theme.title)
   }
 
+  func testGetTheme() {
+    XCTAssert(self.sut.getTheme(with: "theme-test") == nil)
+
+    let theme = Theme(context: self.sut.dataManager.getContext())
+    theme.title = "theme-test"
+
+    self.sut.dataManager.saveContext()
+
+    XCTAssert(self.sut.getTheme(with: "theme-test") != nil)
+  }
+
+  func testSetLibraryTheme() {
+    let library = self.sut.getLibrary()
+    XCTAssert(library.currentTheme == nil)
+
+    let theme = Theme(context: self.sut.dataManager.getContext())
+    theme.title = "theme-test"
+
+    self.sut.setLibraryTheme(with: "theme-test")
+    self.sut.dataManager.saveContext()
+
+    let testLibrary = self.sut.getLibrary()
+    XCTAssert(testLibrary.currentTheme.title == "theme-test")
+  }
+
   func testGetItemWithIdentifier() {
     let nilBook = self.sut.getItem(with: "test-book1")
     XCTAssert(nilBook == nil)

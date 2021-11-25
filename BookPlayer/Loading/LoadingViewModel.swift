@@ -166,7 +166,7 @@ class LoadingViewModel: BaseViewModel<LoadingCoordinator> {
     let library = libraryService.getLibrary()
 
     if library.currentTheme == nil,
-       let defaultTheme = dataManager.getTheme(with: "Default / Dark") {
+       let defaultTheme = libraryService.getTheme(with: "Default / Dark") {
       library.currentTheme = defaultTheme
       dataManager.saveContext()
     }

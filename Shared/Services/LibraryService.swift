@@ -13,6 +13,8 @@ public protocol LibraryServiceProtocol {
   func getLibrary() -> Library
   func getLibraryLastBook() throws -> Book?
   func getLibraryCurrentTheme() throws -> Theme?
+  func getTheme(with title: String) -> Theme?
+  func setLibraryTheme(with title: String)
   func getItem(with relativePath: String) -> LibraryItem?
   func findBooks(containing fileURL: URL) -> [Book]?
   func getOrderedBooks(limit: Int?) -> [Book]?
@@ -61,8 +63,8 @@ public final class LibraryService: LibraryServiceProtocol {
 
     guard let dict = try context.fetch(fetchRequest).first as? [String: NSManagedObjectID],
           let lastPlayedBookId = dict["lastPlayedBook"] else {
-      return nil
-    }
+            return nil
+          }
 
     return try? context.existingObject(with: lastPlayedBookId) as? Book
   }
@@ -75,10 +77,25 @@ public final class LibraryService: LibraryServiceProtocol {
 
     guard let dict = try context.fetch(fetchRequest).first as? [String: NSManagedObjectID],
           let themeId = dict["currentTheme"] else {
-            return self.dataManager.getTheme(with: "Default / Dark")
+            return self.getTheme(with: "Default / Dark")
           }
 
     return try? context.existingObject(with: themeId) as? Theme
+  }
+
+  public func getTheme(with title: String) -> Theme? {
+    let fetchRequest: NSFetchRequest<Theme> = Theme.fetchRequest()
+    fetchRequest.predicate = NSPredicate(format: "title == %@", title)
+    fetchRequest.fetchLimit = 1
+
+    return try? self.dataManager.getContext().fetch(fetchRequest).first
+  }
+
+  public func setLibraryTheme(with title: String) {
+    guard let theme = self.getTheme(with: title) else { return }
+    let library = self.getLibrary()
+    library.currentTheme = theme
+    self.dataManager.saveContext()
   }
 
   public func getItem(with relativePath: String) -> LibraryItem? {

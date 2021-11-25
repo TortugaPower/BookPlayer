@@ -56,14 +56,4 @@ public class DataManager {
     self.coreDataStack.managedContext.delete(item)
     self.saveContext()
   }
-
-  // MARK: - Models handler
-
-  public func getTheme(with title: String) -> Theme? {
-    let fetchRequest: NSFetchRequest<Theme> = Theme.fetchRequest()
-    fetchRequest.predicate = NSPredicate(format: "title == %@", title)
-    fetchRequest.fetchLimit = 1
-
-    return try? self.getContext().fetch(fetchRequest).first
-  }
 }
