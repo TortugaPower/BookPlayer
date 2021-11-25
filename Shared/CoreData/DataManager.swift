@@ -67,17 +67,6 @@ public class DataManager {
     return try? self.getContext().fetch(fetchRequest).first
   }
 
-  public func jumpToStart(_ item: LibraryItem) {
-    item.jumpToStart()
-    item.markAsFinished(false)
-    self.saveContext()
-  }
-
-  public func mark(_ item: LibraryItem, asFinished: Bool) {
-    item.markAsFinished(asFinished)
-    self.saveContext()
-  }
-
   // MARK: - TimeRecord
 
   public func getPlaybackRecord() -> PlaybackRecord {

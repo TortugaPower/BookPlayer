@@ -50,10 +50,6 @@ public class LibraryItem: NSManagedObject, Codable {
 
     public func info() -> String { return "" }
 
-    public func jumpToStart() {}
-
-    public func markAsFinished(_ flag: Bool) {}
-
     public func setCurrentTime(_ time: Double) {}
 
   public func index(for item: LibraryItem) -> Int? { return nil }

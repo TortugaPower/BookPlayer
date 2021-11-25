@@ -20,6 +20,9 @@ public protocol LibraryServiceProtocol {
   func findFolder(with relativePath: String) -> Folder?
   func hasLibraryLinked(item: LibraryItem) -> Bool
   func createFolder(with title: String, inside relativePath: String?, at index: Int?) throws -> Folder
+  func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [LibraryItem]?
+  func markAsFinished(flag: Bool, relativePath: String)
+  func jumpToStart(relativePath: String)
 }
 
 public final class LibraryService: LibraryServiceProtocol {
@@ -182,5 +185,83 @@ public final class LibraryService: LibraryServiceProtocol {
     self.dataManager.saveContext()
 
     return newFolder
+  }
+
+  public func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [LibraryItem]? {
+    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+    if let relativePath = relativePath {
+      fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), relativePath)
+    } else {
+      fetchRequest.predicate = NSPredicate(format: "%K != nil", #keyPath(LibraryItem.library))
+    }
+
+    let sort = NSSortDescriptor(key: #keyPath(LibraryItem.orderRank), ascending: true)
+    fetchRequest.sortDescriptors = [sort]
+
+    if let limit = limit {
+      fetchRequest.fetchLimit = limit
+    }
+
+    if let offset = offset {
+      fetchRequest.fetchOffset = offset
+    }
+
+    return try? self.dataManager.getContext().fetch(fetchRequest)
+  }
+
+  public func markAsFinished(flag: Bool, relativePath: String) {
+    guard let item = self.getItem(with: relativePath) else { return }
+
+    switch item {
+    case let folder as Folder:
+      self.markAsFinished(flag: flag, folder: folder)
+    case let book as Book:
+      self.markAsFinished(flag: flag, book: book)
+    default:
+      break
+    }
+  }
+
+  func markAsFinished(flag: Bool, book: Book) {
+    book.isFinished = flag
+    // To avoid progress display side-effects
+    if !flag,
+       book.currentTime.rounded(.up) == book.duration.rounded(.up) {
+      book.currentTime = 0.0
+    }
+    self.dataManager.saveContext()
+  }
+
+  func markAsFinished(flag: Bool, folder: Folder) {
+    folder.isFinished = flag
+
+    guard let items =  self.fetchContents(at: folder.relativePath, limit: nil, offset: nil) else { return }
+
+    items.forEach({ self.markAsFinished(flag: flag, relativePath: $0.relativePath) })
+  }
+
+  public func jumpToStart(relativePath: String) {
+    guard let item = self.getItem(with: relativePath) else { return }
+
+    switch item {
+    case let folder as Folder:
+      self.jumpToStart(folder: folder)
+    case let book as Book:
+      self.jumpToStart(book: book)
+    default:
+      break
+    }
+  }
+
+  func jumpToStart(book: Book) {
+    book.currentTime = 0
+    book.isFinished = false
+    self.dataManager.saveContext()
+  }
+
+  func jumpToStart(folder: Folder) {
+    guard let items =  self.fetchContents(at: folder.relativePath, limit: nil, offset: nil) else { return }
+
+    items.forEach({ self.jumpToStart(relativePath: $0.relativePath) })
   }
 }

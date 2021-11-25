@@ -16,35 +16,6 @@ public class Folder: LibraryItem {
     var cachedDuration: Double?
     var cachedProgress: Double?
 
-    // MARK: - Properties
-    public override func jumpToStart() {
-        self.resetCachedProgress()
-        guard let items = self.items?.array as? [LibraryItem] else { return }
-
-        for item in items {
-            if let book = item as? Book {
-                book.currentTime = 0
-            } else if let folder = item as? Folder {
-                folder.jumpToStart()
-            }
-        }
-    }
-
-    public override func markAsFinished(_ flag: Bool) {
-        self.resetCachedProgress()
-        guard let items = self.items?.array as? [LibraryItem] else { return }
-
-        for item in items {
-            if let book = item as? Book {
-                book.isFinished = flag
-            } else if let folder = item as? Folder {
-                folder.markAsFinished(flag)
-            }
-        }
-
-        self.isFinished = flag
-    }
-
     // MARK: - Init
 
   public convenience init(title: String, context: NSManagedObjectContext) {

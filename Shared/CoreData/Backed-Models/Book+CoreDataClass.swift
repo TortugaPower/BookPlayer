@@ -48,22 +48,6 @@ public class Book: LibraryItem {
         return self.relativePath == relativePath ? self : nil
     }
 
-    public override func jumpToStart() {
-        self.setCurrentTime(0.0)
-    }
-
-    public override func markAsFinished(_ flag: Bool) {
-        self.isFinished = flag
-
-        // To avoid progress display side-effects
-        if !flag,
-            self.currentTime.rounded(.up) == self.duration.rounded(.up) {
-            self.setCurrentTime(0.0)
-        }
-
-        self.folder?.updateCompletionState()
-    }
-
     public func currentTimeInContext(_ prefersChapterContext: Bool) -> TimeInterval {
         guard !self.isFault else {
             return 0.0

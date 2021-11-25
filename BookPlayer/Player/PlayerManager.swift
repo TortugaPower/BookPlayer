@@ -569,7 +569,7 @@ extension PlayerManager {
           let fileURL = book.fileURL,
           let bookIdentifier = book.identifier else { return }
 
-    book.markAsFinished(flag)
+    book.isFinished = flag
     self.dataManager.saveContext()
 
     NotificationCenter.default.post(name: .bookEnd,

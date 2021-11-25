@@ -351,4 +351,112 @@ class LibraryServiceTests: XCTestCase {
     XCTAssert((folder.items?[2] as? Folder)?.relativePath == folder2.relativePath)
     XCTAssert((folder.items?[3] as? Folder)?.relativePath == folder3.relativePath)
   }
+
+  func testFetchContents() {
+    let folder = try! self.sut.createFolder(with: "test-folder", inside: nil, at: nil)
+    let folder2 = try! self.sut.createFolder(with: "test-folder2", inside: "test-folder", at: nil)
+    let folder3 = try! self.sut.createFolder(with: "test-folder3", inside: "test-folder", at: nil)
+    _ = try! self.sut.createFolder(with: "test-folder4", inside: "test-folder", at: nil)
+
+    let totalResults = self.sut.fetchContents(at: "test-folder", limit: nil, offset: nil)
+    XCTAssert(totalResults?.count == 3)
+
+    let partialResults1 = self.sut.fetchContents(at: "test-folder", limit: 1, offset: nil)
+    XCTAssert(partialResults1?.count == 1)
+    XCTAssert(partialResults1?[0].relativePath == folder2.relativePath)
+
+    let partialResults2 = self.sut.fetchContents(at: "test-folder", limit: 1, offset: 1)
+    XCTAssert(partialResults2?.count == 1)
+    XCTAssert(partialResults2?[0].relativePath == folder3.relativePath)
+
+    let folder5 = try! self.sut.createFolder(with: "test-folder5", inside: nil, at: nil)
+    _ = try! self.sut.createFolder(with: "test-folder6", inside: nil, at: nil)
+
+    let totalLibraryResults = self.sut.fetchContents(at: nil, limit: nil, offset: nil)
+    XCTAssert(totalLibraryResults?.count == 3)
+
+    let partialLibraryResults1 = self.sut.fetchContents(at: nil, limit: 1, offset: nil)
+    XCTAssert(partialLibraryResults1?.count == 1)
+    XCTAssert(partialLibraryResults1?[0].relativePath == folder.relativePath)
+
+    let partialLibraryResults2 = self.sut.fetchContents(at: nil, limit: 1, offset: 1)
+    XCTAssert(partialLibraryResults2?.count == 1)
+    XCTAssert(partialLibraryResults2?[0].relativePath == folder5.relativePath)
+  }
+
+  func testMarkAsFinished() {
+    let book = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test-book1",
+      duration: 100
+    )
+
+    XCTAssert(book.isFinished == false)
+    self.sut.markAsFinished(flag: true, relativePath: book.relativePath)
+    XCTAssert(book.isFinished == true)
+
+    let folder = try! self.sut.createFolder(with: "test-folder", inside: nil, at: nil)
+
+    let book2 = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test-book2",
+      duration: 100
+    )
+    book2.currentTime = 70
+
+    let book3 = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test-book3",
+      duration: 100
+    )
+    book3.currentTime = 40
+
+    folder.insert(item: book2)
+    folder.insert(item: book3)
+
+    XCTAssert(book2.isFinished == false)
+    XCTAssert(book3.isFinished == false)
+    self.sut.markAsFinished(flag: true, relativePath: folder.relativePath)
+    XCTAssert(book2.isFinished == true)
+    XCTAssert(book3.isFinished == true)
+    self.sut.markAsFinished(flag: false, relativePath: folder.relativePath)
+    XCTAssert(book2.isFinished == false)
+    XCTAssert(book3.isFinished == false)
+  }
+
+  func testJumpToStart() {
+    let book = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test-book1",
+      duration: 100
+    )
+    book.currentTime = 50
+
+    self.sut.jumpToStart(relativePath: book.relativePath)
+    XCTAssert(book.currentTime == 0)
+
+    let folder = try! self.sut.createFolder(with: "test-folder", inside: nil, at: nil)
+
+    let book2 = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test-book2",
+      duration: 100
+    )
+    book2.currentTime = 70
+
+    let book3 = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test-book3",
+      duration: 100
+    )
+    book3.currentTime = 40
+
+    folder.insert(item: book2)
+    folder.insert(item: book3)
+
+    self.sut.jumpToStart(relativePath: folder.relativePath)
+
+    XCTAssert(book2.currentTime == 0)
+    XCTAssert(book3.currentTime == 0)
+  }
 }

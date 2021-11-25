@@ -119,7 +119,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func loadInitialItems(pageSize: Int = 13) -> [SimpleLibraryItem] {
-    guard let fetchedItems = self.dataManager.fetchContents(at: self.folder?.relativePath,
+    guard let fetchedItems = self.libraryService.fetchContents(at: self.folder?.relativePath,
                                                             limit: pageSize,
                                                             offset: 0) else {
       return []
@@ -138,7 +138,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   func loadNextItems(pageSize: Int = 13) {
     guard self.offset < self.maxItems else { return }
 
-    guard let fetchedItems = self.dataManager.fetchContents(at: self.folder?.relativePath,
+    guard let fetchedItems = self.libraryService.fetchContents(at: self.folder?.relativePath,
                                                             limit: pageSize,
                                                             offset: self.offset),
           !fetchedItems.isEmpty else {
@@ -158,7 +158,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   func loadAllItemsIfNeeded() {
     guard self.offset < self.maxItems else { return }
 
-    guard let fetchedItems = self.dataManager.fetchContents(at: self.folder?.relativePath,
+    guard let fetchedItems = self.libraryService.fetchContents(at: self.folder?.relativePath,
                                                             limit: self.maxItems,
                                                             offset: 0),
           !fetchedItems.isEmpty else {
@@ -220,7 +220,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       currentFolder == folder else {
         // restart the selected folder if current playing book has no relation to it
         if libraryItem.isFinished {
-          self.dataManager.jumpToStart(libraryItem)
+          self.libraryService.jumpToStart(relativePath: libraryItem.relativePath)
         }
 
         bookToPlay = libraryItem.getBookToPlay()
@@ -506,21 +506,13 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func handleResetPlaybackPosition(for items: [SimpleLibraryItem]) {
-    let selectedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
-
-    for item in selectedItems {
-      self.dataManager.jumpToStart(item)
-    }
+    items.forEach({ self.libraryService.jumpToStart(relativePath: $0.relativePath) })
 
     self.coordinator.reloadItemsWithPadding()
   }
 
   func handleMarkAsFinished(for items: [SimpleLibraryItem], flag: Bool) {
-    let selectedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
-
-    for item in selectedItems {
-      self.dataManager.mark(item, asFinished: flag)
-    }
+    items.forEach({ self.libraryService.markAsFinished(flag: flag, relativePath: $0.relativePath) })
 
     self.coordinator.reloadItemsWithPadding()
   }
