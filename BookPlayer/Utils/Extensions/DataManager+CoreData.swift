@@ -235,17 +235,6 @@ extension DataManager {
 
 // MARK: Items
 extension DataManager {
-  public func fetchFolders(in folder: Folder?, or library: Library) -> [Folder]? {
-    let fetchRequest: NSFetchRequest<Folder> = Folder.fetchRequest()
-    if let folder = folder {
-      fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(Folder.folder.relativePath), folder.relativePath)
-    } else {
-      fetchRequest.predicate = NSPredicate(format: "%K != nil", #keyPath(Folder.library))
-    }
-
-    return try? self.getContext().fetch(fetchRequest)
-  }
-
   public func renameItem(_ item: LibraryItem, with newTitle: String) {
     item.title = newTitle
 

@@ -357,7 +357,8 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
     var availableFolders = [SimpleLibraryItem]()
 
-    if let existingFolders = self.dataManager.fetchFolders(in: self.folder, or: self.library) {
+    if let existingFolders = (self.libraryService.fetchContents(at: self.folder?.relativePath, limit: nil, offset: nil)?
+                                .compactMap({ $0 as? Folder })) {
       for folder in existingFolders {
         if processedItems.contains(where: { $0.relativePath == folder.relativePath }) { continue }
 
@@ -439,7 +440,8 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   func showMoveOptions(selectedItems: [SimpleLibraryItem]) {
     var availableFolders = [SimpleLibraryItem]()
 
-    if let existingFolders = self.dataManager.fetchFolders(in: self.folder, or: self.library) {
+    if let existingFolders = (self.libraryService.fetchContents(at: self.folder?.relativePath, limit: nil, offset: nil)?
+                                .compactMap({ $0 as? Folder })) {
       for folder in existingFolders {
         if selectedItems.contains(where: { $0.relativePath == folder.relativePath }) { continue }
 
@@ -457,7 +459,8 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   func showMoreOptions(selectedItems: [SimpleLibraryItem]) {
     var availableFolders = [SimpleLibraryItem]()
 
-    if let existingFolders = self.dataManager.fetchFolders(in: self.folder, or: self.library) {
+    if let existingFolders = (self.libraryService.fetchContents(at: self.folder?.relativePath, limit: nil, offset: nil)?
+                                .compactMap({ $0 as? Folder })) {
       for folder in existingFolders {
         if selectedItems.contains(where: { $0.relativePath == folder.relativePath }) { continue }
 
