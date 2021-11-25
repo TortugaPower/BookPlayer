@@ -66,44 +66,4 @@ public class DataManager {
 
     return try? self.getContext().fetch(fetchRequest).first
   }
-
-  // MARK: - TimeRecord
-
-  public func getPlaybackRecord() -> PlaybackRecord {
-    let calendar = Calendar.current
-
-    let today = Date()
-    let dateFrom = calendar.startOfDay(for: today)
-    let dateTo = calendar.date(byAdding: .day, value: 1, to: dateFrom)!
-
-    // Set predicate as date being today's date
-    let fromPredicate = NSPredicate(format: "date >= %@", dateFrom as NSDate)
-    let toPredicate = NSPredicate(format: "date < %@", dateTo as NSDate)
-    let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate])
-
-    let context = self.coreDataStack.managedContext
-    let fetch: NSFetchRequest<PlaybackRecord> = PlaybackRecord.fetchRequest()
-    fetch.predicate = datePredicate
-
-    let record = try? context.fetch(fetch).first
-
-    return record ?? PlaybackRecord.create(in: context)
-  }
-
-  public func getPlaybackRecords(from startDate: Date, to endDate: Date) -> [PlaybackRecord]? {
-    let fromPredicate = NSPredicate(format: "date >= %@", startDate as NSDate)
-    let toPredicate = NSPredicate(format: "date < %@", endDate as NSDate)
-    let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate])
-
-    let fetch: NSFetchRequest<PlaybackRecord> = PlaybackRecord.fetchRequest()
-    fetch.predicate = datePredicate
-    let context = self.coreDataStack.managedContext
-
-    return try? context.fetch(fetch)
-  }
-
-  public func recordTime(_ playbackRecord: PlaybackRecord) {
-    playbackRecord.time += 1
-    self.saveContext()
-  }
 }

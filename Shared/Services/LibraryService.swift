@@ -23,6 +23,9 @@ public protocol LibraryServiceProtocol {
   func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [LibraryItem]?
   func markAsFinished(flag: Bool, relativePath: String)
   func jumpToStart(relativePath: String)
+  func getCurrentPlaybackRecord() -> PlaybackRecord
+  func getPlaybackRecords(from startDate: Date, to endDate: Date) -> [PlaybackRecord]?
+  func recordTime(_ playbackRecord: PlaybackRecord)
 }
 
 public final class LibraryService: LibraryServiceProtocol {
@@ -263,5 +266,35 @@ public final class LibraryService: LibraryServiceProtocol {
     guard let items =  self.fetchContents(at: folder.relativePath, limit: nil, offset: nil) else { return }
 
     items.forEach({ self.jumpToStart(relativePath: $0.relativePath) })
+  }
+
+  // MARK: - TimeRecord
+  public func getCurrentPlaybackRecord() -> PlaybackRecord {
+    let calendar = Calendar.current
+
+    let today = Date()
+    let dateFrom = calendar.startOfDay(for: today)
+    let dateTo = calendar.date(byAdding: .day, value: 1, to: dateFrom)!
+
+    let record = self.getPlaybackRecords(from: dateFrom, to: dateTo)?.first
+
+    return record ?? PlaybackRecord.create(in: self.dataManager.getContext())
+  }
+
+  public func getPlaybackRecords(from startDate: Date, to endDate: Date) -> [PlaybackRecord]? {
+    let fromPredicate = NSPredicate(format: "date >= %@", startDate as NSDate)
+    let toPredicate = NSPredicate(format: "date < %@", endDate as NSDate)
+    let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate])
+
+    let fetch: NSFetchRequest<PlaybackRecord> = PlaybackRecord.fetchRequest()
+    fetch.predicate = datePredicate
+    let context = self.dataManager.getContext()
+
+    return try? context.fetch(fetch)
+  }
+
+  public func recordTime(_ playbackRecord: PlaybackRecord) {
+    playbackRecord.time += 1
+    self.dataManager.saveContext()
   }
 }

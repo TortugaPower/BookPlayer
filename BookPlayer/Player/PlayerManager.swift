@@ -98,7 +98,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   init(dataManager: DataManager, watchConnectivityService: WatchConnectivityService) {
     self.dataManager = dataManager
     self.watchConnectivityService = watchConnectivityService
-    self.userActivityManager = UserActivityManager(dataManager: dataManager)
+    self.userActivityManager = UserActivityManager(libraryService: LibraryService(dataManager: dataManager))
 
     super.init()
     let interval = CMTime(seconds: 1.0, preferredTimescale: CMTimeScale(NSEC_PER_SEC))

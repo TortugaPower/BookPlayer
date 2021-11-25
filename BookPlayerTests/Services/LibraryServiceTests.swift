@@ -459,4 +459,73 @@ class LibraryServiceTests: XCTestCase {
     XCTAssert(book2.currentTime == 0)
     XCTAssert(book3.currentTime == 0)
   }
+
+  func testRecordTime() {
+    let record = self.sut.getCurrentPlaybackRecord()
+    XCTAssert(record.time == 0)
+    self.sut.recordTime(record)
+    XCTAssert(record.time == 1)
+  }
+
+  func testGetCurrentPlaybackRecord() {
+    let record = self.sut.getCurrentPlaybackRecord()
+    self.sut.recordTime(record)
+    XCTAssert(record.time == 1)
+    let record2 = self.sut.getCurrentPlaybackRecord()
+    XCTAssert(record2.time == 1)
+  }
+
+  // swiftlint:disable:next function_body_length
+  func testGetPlaybackRecordsFromDate() {
+    let calendar = Calendar.current
+    let startToday = calendar.startOfDay(for: Date())
+    let endDate = calendar.date(byAdding: .day, value: 1, to: startToday)!
+
+    let startFirstDay = calendar.date(byAdding: .day, value: -7, to: endDate)!
+    let startSecondDay = calendar.date(byAdding: .day, value: 1, to: startFirstDay)!
+    let startThirdDay = calendar.date(byAdding: .day, value: 1, to: startSecondDay)!
+    let startFourthDay = calendar.date(byAdding: .day, value: 1, to: startThirdDay)!
+    let startFifthDay = calendar.date(byAdding: .day, value: 1, to: startFourthDay)!
+    let startSixthDay = calendar.date(byAdding: .day, value: 1, to: startFifthDay)!
+    let startSeventhDay = calendar.date(byAdding: .day, value: 1, to: startSixthDay)!
+
+    let record1 = PlaybackRecord.create(in: self.sut.dataManager.getContext())
+    record1.date = startFirstDay
+    record1.time = 1
+    let record2 = PlaybackRecord.create(in: self.sut.dataManager.getContext())
+    record2.date = startSecondDay
+    record2.time = 2
+    let record3 = PlaybackRecord.create(in: self.sut.dataManager.getContext())
+    record3.date = startThirdDay
+    record3.time = 3
+    let record4 = PlaybackRecord.create(in: self.sut.dataManager.getContext())
+    record4.date = startFourthDay
+    record4.time = 4
+    let record5 = PlaybackRecord.create(in: self.sut.dataManager.getContext())
+    record5.date = startFifthDay
+    record5.time = 5
+    let record6 = PlaybackRecord.create(in: self.sut.dataManager.getContext())
+    record6.date = startSixthDay
+    record6.time = 6
+    let record7 = PlaybackRecord.create(in: self.sut.dataManager.getContext())
+    record7.date = startSeventhDay
+    record7.time = 7
+
+    self.sut.dataManager.saveContext()
+
+    let firstRecord = (self.sut.getPlaybackRecords(from: startFirstDay, to: startSecondDay) ?? []).first
+    XCTAssert(firstRecord?.time == 1)
+    let secondRecord = (self.sut.getPlaybackRecords(from: startSecondDay, to: startThirdDay) ?? []).first
+    XCTAssert(secondRecord?.time == 2)
+    let thirdRecord = (self.sut.getPlaybackRecords(from: startThirdDay, to: startFourthDay) ?? []).first
+    XCTAssert(thirdRecord?.time == 3)
+    let fourthRecord = (self.sut.getPlaybackRecords(from: startFourthDay, to: startFifthDay) ?? []).first
+    XCTAssert(fourthRecord?.time == 4)
+    let fifthRecord = (self.sut.getPlaybackRecords(from: startFifthDay, to: startSixthDay) ?? []).first
+    XCTAssert(fifthRecord?.time == 5)
+    let sixthRecord = (self.sut.getPlaybackRecords(from: startSixthDay, to: startSeventhDay) ?? []).first
+    XCTAssert(sixthRecord?.time == 6)
+    let seventhRecord = (self.sut.getPlaybackRecords(from: startSeventhDay, to: endDate) ?? []).first
+    XCTAssert(seventhRecord?.time == 7)
+  }
 }

@@ -11,12 +11,12 @@ import Foundation
 import Intents
 
 class UserActivityManager {
-  let dataManager: DataManager
+  let libraryService: LibraryService
   var currentActivity: NSUserActivity
   var playbackRecord: PlaybackRecord?
 
-  init(dataManager: DataManager) {
-    self.dataManager = dataManager
+  init(libraryService: LibraryService) {
+    self.libraryService = libraryService
 
     let intent = INPlayMediaIntent()
     let interaction = INInteraction(intent: intent, response: nil)
@@ -34,15 +34,13 @@ class UserActivityManager {
   func resumePlaybackActivity() {
     self.currentActivity.becomeCurrent()
 
-    if self.playbackRecord == nil {
-      self.playbackRecord = self.dataManager.getPlaybackRecord()
-    }
+    self.playbackRecord = self.libraryService.getCurrentPlaybackRecord()
 
     guard let record = self.playbackRecord else { return }
 
     guard !Calendar.current.isDate(record.date, inSameDayAs: Date()) else { return }
 
-    self.playbackRecord = self.dataManager.getPlaybackRecord()
+    self.playbackRecord = self.libraryService.getCurrentPlaybackRecord()
   }
 
   func stopPlaybackActivity() {
@@ -53,6 +51,6 @@ class UserActivityManager {
   func recordTime() {
     guard let record = self.playbackRecord else { return }
 
-    self.dataManager.recordTime(record)
+    self.libraryService.recordTime(record)
   }
 }
