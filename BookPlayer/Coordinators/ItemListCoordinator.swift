@@ -150,7 +150,8 @@ class ItemListCoordinator: Coordinator {
   }
 
   func loadPlayer(_ book: Book) {
-    guard DataManager.exists(book) else {
+    let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(book.relativePath)
+    guard FileManager.default.fileExists(atPath: fileURL.path) else {
       self.navigationController.showAlert("file_missing_title".localized, message: "\("file_missing_description".localized)\n\(book.originalFileName ?? "")")
       return
     }

@@ -64,12 +64,9 @@ class LibraryServiceTests: XCTestCase {
     XCTAssert(lastBook?.relativePath == book.relativePath)
   }
 
-  func testGetEmptyLibraryCurrentTheme() {
-    let currentTheme = try! self.sut.getLibraryCurrentTheme()
-    XCTAssert(currentTheme == nil)
-  }
-
   func testGetLibraryCurrentTheme() {
+    XCTAssert(try! self.sut.getLibraryCurrentTheme() == nil)
+
     let theme = Theme(context: self.sut.dataManager.getContext())
     theme.title = "theme-test"
 
@@ -106,6 +103,42 @@ class LibraryServiceTests: XCTestCase {
 
     let testLibrary = self.sut.getLibrary()
     XCTAssert(testLibrary.currentTheme.title == "theme-test")
+  }
+
+  func testCreateThemeFromParams() {
+    let params: [String: Any] = [
+      "title": "Default / Dark",
+      "lightPrimaryHex": "242320",
+      "lightSecondaryHex": "8F8E95",
+      "lightAccentHex": "3488D1",
+      "lightSeparatorHex": "DCDCDC",
+      "lightSystemBackgroundHex": "FAFAFA",
+      "lightSecondarySystemBackgroundHex": "FCFBFC",
+      "lightTertiarySystemBackgroundHex": "E8E7E9",
+      "lightSystemGroupedBackgroundHex": "EFEEF0",
+      "lightSystemFillHex": "87A0BA",
+      "lightSecondarySystemFillHex": "ACAAB1",
+      "lightTertiarySystemFillHex": "3488D1",
+      "lightQuaternarySystemFillHex": "3488D1",
+      "darkPrimaryHex": "FAFBFC",
+      "darkSecondaryHex": "8F8E94",
+      "darkAccentHex": "459EEC",
+      "darkSeparatorHex": "434448",
+      "darkSystemBackgroundHex": "202225",
+      "darkSecondarySystemBackgroundHex": "111113",
+      "darkTertiarySystemBackgroundHex": "333538",
+      "darkSystemGroupedBackgroundHex": "2C2D30",
+      "darkSystemFillHex": "647E98",
+      "darkSecondarySystemFillHex": "707176",
+      "darkTertiarySystemFillHex": "459EEC",
+      "darkQuaternarySystemFillHex": "459EEC",
+      "locked": false
+    ]
+
+    let theme = self.sut.createTheme(params: params)
+    XCTAssert(theme.title == "Default / Dark")
+    XCTAssert(theme.lightPrimaryHex == "242320")
+    XCTAssert(theme.darkPrimaryHex == "FAFBFC")
   }
 
   func testGetItemWithIdentifier() {
