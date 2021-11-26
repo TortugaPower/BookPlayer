@@ -421,12 +421,20 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   func notifyPendingFiles() {
     let documentsFolder = DataManager.getDocumentsFolderURL()
 
-    // Get reference of all the files located inside the folder
-    guard let urls = DataManager.getFiles(from: documentsFolder) else {
+    // Get reference of all the files located inside the Documents folder
+    guard let urls = try? FileManager.default.contentsOfDirectory(at: documentsFolder, includingPropertiesForKeys: nil, options: .skipsSubdirectoryDescendants) else {
       return
     }
 
-    self.handleNewFiles(urls)
+    // Filter out Processed and Inbox folders from file URLs.
+    let filteredUrls = urls.filter {
+      $0.lastPathComponent != DataManager.processedFolderName
+      && $0.lastPathComponent != DataManager.inboxFolderName
+    }
+
+    guard !filteredUrls.isEmpty else { return }
+
+    self.handleNewFiles(filteredUrls)
   }
 
   func handleNewFiles(_ urls: [URL]) {
@@ -532,6 +540,19 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       if let response = response.response, response.statusCode >= 300 {
         self.coordinator.showAlert("network_error_title".localized, message: "Code \(response.statusCode)")
       }
+    }
+  }
+
+  func importData(from item: ImportableItem) {
+    let filename = item.suggestedName ?? "\(Date().timeIntervalSince1970).\(item.fileExtension)"
+
+    let destinationURL = DataManager.getDocumentsFolderURL()
+      .appendingPathComponent(filename)
+
+    do {
+      try item.data.write(to: destinationURL)
+    } catch {
+      print("Fail to move dropped file to the Documents directory: \(error.localizedDescription)")
     }
   }
 }

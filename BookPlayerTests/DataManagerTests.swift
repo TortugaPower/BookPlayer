@@ -25,26 +25,6 @@ class DataManagerTests: XCTestCase {
   }
 }
 
-// MARK: - getFiles()
-
-class GetFilesTests: DataManagerTests {
-    func testGetFilesFromNilFolder() {
-        let nonExistingFolder = URL(fileURLWithPath: "derp")
-        XCTAssertNil(DataManager.getFiles(from: nonExistingFolder))
-    }
-
-    func testGetFiles() {
-        let filename = "file.txt"
-        let bookContents = "bookcontents".data(using: .utf8)!
-        let documentsFolder = DataManager.getDocumentsFolderURL()
-
-        _ = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
-
-        let urls = DataManager.getFiles(from: documentsFolder)!
-        XCTAssert(urls.count == 1)
-    }
-}
-
 // MARK: - processFiles()
 
 class ProcessFilesTests: DataManagerTests {

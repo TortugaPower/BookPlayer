@@ -15,6 +15,7 @@ import Foundation
  It waits a specified time wherein new files may be added before the operation is created
  */
 final class ImportManager {
+  let queue = OperationQueue()
   public let dataManager: DataManager
   private let timeout = 2.0
   private var subscription: AnyCancellable?
@@ -77,5 +78,9 @@ final class ImportManager {
     self.files.value = []
 
     self.operationPublisher.send(operation)
+  }
+
+  public func start(_ operation: Operation) {
+    self.queue.addOperation(operation)
   }
 }

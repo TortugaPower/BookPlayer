@@ -490,7 +490,7 @@ extension ItemListViewController: UIDropInteractionDelegate {
       guard let item = object as? ImportableItem else { return }
       item.suggestedName = providerReference.suggestedName
 
-      DataManager.importData(from: item)
+      self.viewModel.importData(from: item)
     }
   }
 }

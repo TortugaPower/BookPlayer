@@ -89,7 +89,7 @@ class ItemListCoordinator: Coordinator {
         }
       }
 
-      DataManager.start(operation)
+      self.importManager.start(operation)
     })
   }
 
