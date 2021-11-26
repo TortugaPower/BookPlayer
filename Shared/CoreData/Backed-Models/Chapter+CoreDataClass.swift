@@ -7,12 +7,18 @@
 //
 //
 
+import AVFoundation
 import CoreData
 import Foundation
 
 @objc(Chapter)
 public class Chapter: NSManagedObject {
-    public var end: TimeInterval {
-        return start + duration
-    }
+  public var end: TimeInterval {
+    return start + duration
+  }
+
+  public convenience init(from asset: AVAsset, context: NSManagedObjectContext) {
+    let entity = NSEntityDescription.entity(forEntityName: "Chapter", in: context)!
+    self.init(entity: entity, insertInto: context)
+  }
 }

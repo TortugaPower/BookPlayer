@@ -39,7 +39,7 @@ protocol PlayerManagerProtocol {
 }
 
 final class PlayerManager: NSObject, PlayerManagerProtocol {
-  private let dataManager: DataManager
+  private let libraryService: LibraryServiceProtocol
   private let userActivityManager: UserActivityManager
   private let watchConnectivityService: WatchConnectivityService
 
@@ -95,10 +95,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
   private var rateObserver: NSKeyValueObservation?
 
-  init(dataManager: DataManager, watchConnectivityService: WatchConnectivityService) {
-    self.dataManager = dataManager
+  init(libraryService: LibraryServiceProtocol, watchConnectivityService: WatchConnectivityService) {
+    self.libraryService = libraryService
     self.watchConnectivityService = watchConnectivityService
-    self.userActivityManager = UserActivityManager(libraryService: LibraryService(dataManager: dataManager))
+    self.userActivityManager = UserActivityManager(libraryService: libraryService)
 
     super.init()
     let interval = CMTime(seconds: 1.0, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
@@ -220,7 +220,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
     book.percentCompleted = book.percentage
 
-    self.dataManager.saveContext()
+    self.libraryService.saveContext()
     self.userActivityManager.recordTime()
 
     self.setNowPlayingBookTime()
@@ -239,7 +239,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       book.updateCurrentChapter()
       self.setNowPlayingBookTitle()
       NotificationCenter.default.post(name: .chapterChange, object: nil, userInfo: nil)
-      self.dataManager.saveContext()
+      self.libraryService.saveContext()
     }
 
     let userInfo = [
@@ -414,7 +414,7 @@ extension PlayerManager {
 
     if let library = currentBook.getLibrary() {
       library.lastPlayedBook = currentBook
-      self.dataManager.saveContext()
+      self.libraryService.saveContext()
     }
 
     do {
@@ -512,7 +512,7 @@ extension PlayerManager {
 
     if let library = currentBook.getLibrary() {
       library.lastPlayedBook = currentBook
-      self.dataManager.saveContext()
+      self.libraryService.saveContext()
     }
 
     self.updateTime()
@@ -557,7 +557,7 @@ extension PlayerManager {
     if let book = self.currentBook {
       if let library = book.library ?? book.folder?.library {
         library.lastPlayedBook = nil
-        self.dataManager.saveContext()
+        self.libraryService.saveContext()
       }
     }
 
@@ -570,7 +570,7 @@ extension PlayerManager {
           let bookIdentifier = book.identifier else { return }
 
     book.isFinished = flag
-    self.dataManager.saveContext()
+    self.libraryService.saveContext()
 
     NotificationCenter.default.post(name: .bookEnd,
                                     object: nil,
@@ -614,7 +614,7 @@ extension PlayerManager {
     if let book = self.currentBook,
        let library = book.library ?? book.folder?.library {
       library.lastPlayedBook = nil
-      self.dataManager.saveContext()
+      self.libraryService.saveContext()
     }
 
     self.updateTime()
@@ -628,10 +628,10 @@ extension PlayerManager {
 // MARK: - BookMarks
 extension PlayerManager {
   public func createOrUpdateBookmark(at time: Double, book: Book, type: BookmarkType) {
-    let bookmark = self.dataManager.getBookmark(of: type, for: book)
-    ?? self.dataManager.createBookmark(at: time, book: book, type: type)
+    let bookmark = self.libraryService.getBookmark(of: type, relativePath: book.relativePath)
+    ?? self.libraryService.createBookmark(at: time, relativePath: book.relativePath, type: type)
     bookmark.time = floor(time)
     bookmark.note = type.getNote()
-    self.dataManager.saveContext()
+    self.libraryService.saveContext()
   }
 }

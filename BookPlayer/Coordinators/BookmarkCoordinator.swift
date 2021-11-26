@@ -11,13 +11,13 @@ import BookPlayerKit
 
 class BookmarkCoordinator: Coordinator {
   let playerManager: PlayerManagerProtocol
-  let dataManager: DataManager
+  let libraryService: LibraryServiceProtocol
 
   init(navigationController: UINavigationController,
        playerManager: PlayerManagerProtocol,
-       dataManager: DataManager) {
+       libraryService: LibraryServiceProtocol) {
     self.playerManager = playerManager
-    self.dataManager = dataManager
+    self.libraryService = libraryService
 
     super.init(navigationController: navigationController,
                flowType: .modal)
@@ -26,7 +26,7 @@ class BookmarkCoordinator: Coordinator {
   override func start() {
     let vc = BookmarksViewController.instantiate(from: .Player)
     let viewModel = BookmarksViewModel(playerManager: self.playerManager,
-                                       dataManager: self.dataManager)
+                                       libraryService: self.libraryService)
     viewModel.coordinator = self
     vc.viewModel = viewModel
 

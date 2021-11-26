@@ -12,12 +12,12 @@ import Foundation
 
 class BookmarksViewModel: BaseViewModel<BookmarkCoordinator> {
   let playerManager: PlayerManagerProtocol
-  let dataManager: DataManager
+  let libraryService: LibraryServiceProtocol
 
   init(playerManager: PlayerManagerProtocol,
-       dataManager: DataManager) {
+       libraryService: LibraryServiceProtocol) {
     self.playerManager = playerManager
-    self.dataManager = dataManager
+    self.libraryService = libraryService
   }
 
   func getAutomaticBookmarks() -> [Bookmark] {
@@ -52,7 +52,7 @@ class BookmarksViewModel: BaseViewModel<BookmarkCoordinator> {
   }
 
   func editNote(_ note: String, for bookmark: Bookmark) {
-    self.dataManager.addNote(note, bookmark: bookmark)
+    self.libraryService.addNote(note, bookmark: bookmark)
   }
 
   func getBookmarkNoteAlert(_ bookmark: Bookmark) -> UIAlertController {
@@ -70,13 +70,13 @@ class BookmarksViewModel: BaseViewModel<BookmarkCoordinator> {
         return
       }
 
-      self.dataManager.addNote(note, bookmark: bookmark)
+      self.libraryService.addNote(note, bookmark: bookmark)
     }))
 
     return alert
   }
 
   func deleteBookmark(_ bookmark: Bookmark) {
-    self.dataManager.deleteBookmark(bookmark)
+    self.libraryService.deleteBookmark(bookmark)
   }
 }

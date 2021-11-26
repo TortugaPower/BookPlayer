@@ -32,7 +32,7 @@ class MainCoordinator: Coordinator {
     let watchService = WatchConnectivityService(dataManager: dataManager,
                                                 libraryService: libraryService)
     self.watchConnectivityService = watchService
-    self.playerManager = PlayerManager(dataManager: dataManager, watchConnectivityService: watchService)
+    self.playerManager = PlayerManager(libraryService: libraryService, watchConnectivityService: watchService)
     ThemeManager.shared.libraryService = libraryService
 
     super.init(navigationController: navigationController, flowType: .modal)
@@ -86,7 +86,7 @@ class MainCoordinator: Coordinator {
     let playerCoordinator = PlayerCoordinator(
       navigationController: self.navigationController,
       playerManager: self.playerManager,
-      dataManager: self.dataManager
+      libraryService: self.libraryService
     )
     playerCoordinator.parentCoordinator = self
     self.childCoordinators.append(playerCoordinator)

@@ -13,15 +13,15 @@ import StoreKit
 
 class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   private let playerManager: PlayerManagerProtocol
-  private let dataManager: DataManager
+  private let libraryService: LibraryServiceProtocol
   private var chapterBeforeSliderValueChange: Chapter?
   private var prefersChapterContext = UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
   private var prefersRemainingTime = UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
 
   init(playerManager: PlayerManagerProtocol,
-       dataManager: DataManager) {
+       libraryService: LibraryServiceProtocol) {
     self.playerManager = playerManager
-    self.dataManager = dataManager
+    self.libraryService = libraryService
   }
 
   func currentBookObserver() -> Published<Book?>.Publisher {
@@ -287,7 +287,7 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
       } else {
         actionSheet.addAction(UIAlertAction(title: "\(speed)", style: .default, handler: { _ in
           SpeedManager.shared.setSpeed(speed, currentBook: self.playerManager.currentBook)
-          self.dataManager.saveContext()
+          self.libraryService.saveContext()
         }))
       }
     }
@@ -312,12 +312,20 @@ extension PlayerViewModel {
 
     let currentTime = book.currentTime
 
-    if let bookmark = self.dataManager.getBookmark(at: currentTime, book: book, type: .user) {
+    if let bookmark = self.libraryService.getBookmark(
+      at: currentTime,
+      relativePath: book.relativePath,
+      type: .user
+    ) {
       self.showBookmarkSuccessAlert(vc: vc, bookmark: bookmark, existed: true)
       return
     }
 
-    let bookmark = self.dataManager.createBookmark(at: currentTime, book: book, type: .user)
+    let bookmark = self.libraryService.createBookmark(
+      at: currentTime,
+      relativePath: book.relativePath,
+      type: .user
+    )
 
     self.showBookmarkSuccessAlert(vc: vc, bookmark: bookmark, existed: false)
   }
@@ -363,7 +371,7 @@ extension PlayerViewModel {
         return
       }
 
-      self.dataManager.addNote(note, bookmark: bookmark)
+      self.libraryService.addNote(note, bookmark: bookmark)
     }))
 
     vc.present(alert, animated: true, completion: nil)

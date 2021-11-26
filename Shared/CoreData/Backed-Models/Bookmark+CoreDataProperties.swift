@@ -15,6 +15,11 @@ extension Bookmark {
     return NSFetchRequest<Bookmark>(entityName: "Bookmark")
   }
 
+  @nonobjc public class func create(in context: NSManagedObjectContext) -> Bookmark {
+    // swiftlint:disable:next force_cast
+    return NSEntityDescription.insertNewObject(forEntityName: "Bookmark", into: context) as! Bookmark
+  }
+
   @NSManaged public var time: Double
   @NSManaged public var note: String?
   @NSManaged public var type: BookmarkType

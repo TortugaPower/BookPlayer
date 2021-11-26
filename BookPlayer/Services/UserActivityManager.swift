@@ -11,11 +11,11 @@ import Foundation
 import Intents
 
 class UserActivityManager {
-  let libraryService: LibraryService
+  let libraryService: LibraryServiceProtocol
   var currentActivity: NSUserActivity
   var playbackRecord: PlaybackRecord?
 
-  init(libraryService: LibraryService) {
+  init(libraryService: LibraryServiceProtocol) {
     self.libraryService = libraryService
 
     let intent = INPlayMediaIntent()

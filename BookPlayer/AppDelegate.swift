@@ -220,7 +220,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
       guard let mainCoordinator = self.coordinator.getMainCoordinator(),
             let currentBook = mainCoordinator.playerManager.currentBook else { return .commandFailed }
 
-      _ = mainCoordinator.dataManager.createBookmark(at: currentBook.currentTime, book: currentBook, type: .user)
+      _ = mainCoordinator.libraryService.createBookmark(at: currentBook.currentTime,
+                                                        relativePath: currentBook.relativePath,
+                                                        type: .user)
 
       return .success
     }

@@ -204,9 +204,7 @@
 		41A1B12E226FC7E500EA0400 /* ImportOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41E34E4F2138EA8200A3997C /* ImportOperation.swift */; };
 		41A1B12F226FE0F900EA0400 /* Notification+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416B640C1E72F362000E955A /* Notification+BookPlayer.swift */; };
 		41A1B131226FE33500EA0400 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = D367F7671FA2A6F000FEDB37 /* Constants.swift */; };
-		41A1B135226FEB3D00EA0400 /* Book+AVFoundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A1B134226FEB3C00EA0400 /* Book+AVFoundation.swift */; };
 		41A1B137226FED4100EA0400 /* DataManager+CoreData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A1B136226FED4000EA0400 /* DataManager+CoreData.swift */; };
-		41A1B139226FEDAD00EA0400 /* Chapter+AVFoundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A1B138226FEDAD00EA0400 /* Chapter+AVFoundation.swift */; };
 		41A1B13E226FEF8000EA0400 /* DataTestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E314214ACB4300072AA2 /* DataTestUtils.swift */; };
 		41A1B13F226FEF9300EA0400 /* DataManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */; };
 		41A1B140226FEF9600EA0400 /* FolderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A6A87420DEECC400B2C621 /* FolderTests.swift */; };
@@ -693,9 +691,7 @@
 		41A1B11B226F88C500EA0400 /* Folder+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Folder+CoreDataClass.swift"; sourceTree = "<group>"; };
 		41A1B11C226F88C500EA0400 /* Folder+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Folder+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		41A1B12B226FC0A200EA0400 /* DataManager+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataManager+BookPlayer.swift"; sourceTree = "<group>"; };
-		41A1B134226FEB3C00EA0400 /* Book+AVFoundation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Book+AVFoundation.swift"; sourceTree = "<group>"; };
 		41A1B136226FED4000EA0400 /* DataManager+CoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataManager+CoreData.swift"; sourceTree = "<group>"; };
-		41A1B138226FEDAD00EA0400 /* Chapter+AVFoundation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Chapter+AVFoundation.swift"; sourceTree = "<group>"; };
 		41A6A87420DEECC400B2C621 /* FolderTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FolderTests.swift; sourceTree = "<group>"; };
 		41A6AFA926FB666700A69E6B /* SettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsCoordinator.swift; sourceTree = "<group>"; };
 		41A7DE7824BC136100396FD3 /* sk-SK */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "sk-SK"; path = "sk-SK.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
@@ -1220,15 +1216,6 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
-		41A1B13A226FEE6400EA0400 /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				41A1B134226FEB3C00EA0400 /* Book+AVFoundation.swift */,
-				41A1B138226FEDAD00EA0400 /* Chapter+AVFoundation.swift */,
-			);
-			path = Models;
-			sourceTree = "<group>";
-		};
 		41AABFFA1E705D18006BD2E0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -1653,7 +1640,6 @@
 		C3EF535F20800D8B00B9629D /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				41A1B13A226FEE6400EA0400 /* Models */,
 				416B640C1E72F362000E955A /* Notification+BookPlayer.swift */,
 				41D4F2EE21053944009F1B1E /* IndexPath+BookPlayer.swift */,
 				C3A479142094CA3800D92122 /* UIImage+BookPlayer.swift */,
@@ -2317,7 +2303,6 @@
 				4142964921F2E2BA004356DA /* ThemeCellView.swift in Sources */,
 				4160A0A123F304530039166B /* LocalizableLabel.swift in Sources */,
 				4137BBCC272DAF2E009ED9FE /* BaseViewController.swift in Sources */,
-				41A1B139226FEDAD00EA0400 /* Chapter+AVFoundation.swift in Sources */,
 				C318D3AD208CF624000666F8 /* PlayerJumpIcon.swift in Sources */,
 				4138CE2326E66E420014F11E /* BookmarkTableViewCell.swift in Sources */,
 				C37A6875209F13120063AEAC /* CreditsViewController.swift in Sources */,
@@ -2363,7 +2348,6 @@
 				41D20DAF25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
 				41188D2A26ED4D8E0017124E /* ItemListViewModel.swift in Sources */,
 				C398559C20C492FF00BE9EC0 /* AddButton.swift in Sources */,
-				41A1B135226FEB3D00EA0400 /* Book+AVFoundation.swift in Sources */,
 				416AAC3323F51031005AD04F /* LocalizableButton.swift in Sources */,
 				416A297D2568671F00605395 /* AVPlayer+BookPlayer.swift in Sources */,
 				41E79BEB26C60DC600EA9FFF /* PlayerViewModel.swift in Sources */,
@@ -2783,7 +2767,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 5.2;
+				WATCHOS_DEPLOYMENT_TARGET = 6.0;
 			};
 			name = Debug;
 		};
@@ -2821,7 +2805,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 5.2;
+				WATCHOS_DEPLOYMENT_TARGET = 6.0;
 			};
 			name = Release;
 		};
@@ -2859,7 +2843,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 5.2;
+				WATCHOS_DEPLOYMENT_TARGET = 6.0;
 			};
 			name = Beta;
 		};
@@ -2896,7 +2880,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 5.2;
+				WATCHOS_DEPLOYMENT_TARGET = 6.0;
 			};
 			name = Debug;
 		};
@@ -2931,7 +2915,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 5.2;
+				WATCHOS_DEPLOYMENT_TARGET = 6.0;
 			};
 			name = Release;
 		};
@@ -2966,7 +2950,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 5.2;
+				WATCHOS_DEPLOYMENT_TARGET = 6.0;
 			};
 			name = Beta;
 		};
@@ -3008,7 +2992,7 @@
 				TARGETED_DEVICE_FAMILY = 4;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
-				WATCHOS_DEPLOYMENT_TARGET = 5.2;
+				WATCHOS_DEPLOYMENT_TARGET = 6.0;
 			};
 			name = Debug;
 		};
@@ -3048,7 +3032,7 @@
 				TARGETED_DEVICE_FAMILY = 4;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
-				WATCHOS_DEPLOYMENT_TARGET = 5.2;
+				WATCHOS_DEPLOYMENT_TARGET = 6.0;
 			};
 			name = Release;
 		};
@@ -3088,7 +3072,7 @@
 				TARGETED_DEVICE_FAMILY = 4;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
-				WATCHOS_DEPLOYMENT_TARGET = 5.2;
+				WATCHOS_DEPLOYMENT_TARGET = 6.0;
 			};
 			name = Beta;
 		};

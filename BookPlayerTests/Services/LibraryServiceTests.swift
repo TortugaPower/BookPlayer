@@ -553,4 +553,77 @@ class LibraryServiceTests: XCTestCase {
     let seventhRecord = (self.sut.getPlaybackRecords(from: startSeventhDay, to: endDate) ?? []).first
     XCTAssert(seventhRecord?.time == 7)
   }
+
+  func testCreateBookmark() {
+    let book = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test-book1",
+      duration: 100
+    )
+
+    let bookmark = self.sut.createBookmark(at: 5, relativePath: book.relativePath, type: .skip)
+    XCTAssert(bookmark.time == 5)
+    XCTAssert(bookmark.type == .skip)
+    XCTAssert(bookmark.book?.relativePath == book.relativePath)
+  }
+
+  func testGetBookmark() {
+    let book = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test-book1",
+      duration: 100
+    )
+
+    XCTAssert(self.sut.getBookmark(of: .user, relativePath: book.relativePath) == nil)
+
+    let bookmark = Bookmark.create(in: self.sut.dataManager.getContext())
+    bookmark.type = .user
+    book.addToBookmarks(bookmark)
+
+    self.sut.saveContext()
+
+    XCTAssert(self.sut.getBookmark(of: .user, relativePath: book.relativePath) != nil)
+  }
+
+  func testGetBookmarkOfType() {
+    let book = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test-book1",
+      duration: 100
+    )
+
+    XCTAssert(self.sut.getBookmark(at: 10, relativePath: book.relativePath, type: .play) == nil)
+
+    let bookmark = Bookmark.create(in: self.sut.dataManager.getContext())
+    bookmark.type = .play
+    bookmark.time = 10
+    book.addToBookmarks(bookmark)
+
+    XCTAssert(self.sut.getBookmark(at: 10, relativePath: book.relativePath, type: .play) != nil)
+  }
+
+  func testAddNote() {
+    let book = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test-book1",
+      duration: 100
+    )
+
+    let bookmark = self.sut.createBookmark(at: 5, relativePath: book.relativePath, type: .skip)
+    XCTAssert(bookmark.note == nil)
+    self.sut.addNote("Test bookmark", bookmark: bookmark)
+    XCTAssert(bookmark.note == "Test bookmark")
+  }
+
+  func testDeleteBookmark() {
+    let book = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test-book1",
+      duration: 100
+    )
+
+    let bookmark = self.sut.createBookmark(at: 5, relativePath: book.relativePath, type: .skip)
+    self.sut.deleteBookmark(bookmark)
+    XCTAssert(bookmark.isFault)
+  }
 }

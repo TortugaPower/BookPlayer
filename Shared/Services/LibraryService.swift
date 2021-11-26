@@ -10,6 +10,7 @@ import CoreData
 import Foundation
 
 public protocol LibraryServiceProtocol {
+  func saveContext()
   func getLibrary() -> Library
   func getLibraryLastBook() throws -> Book?
   func getLibraryCurrentTheme() throws -> Theme?
@@ -28,6 +29,12 @@ public protocol LibraryServiceProtocol {
   func getCurrentPlaybackRecord() -> PlaybackRecord
   func getPlaybackRecords(from startDate: Date, to endDate: Date) -> [PlaybackRecord]?
   func recordTime(_ playbackRecord: PlaybackRecord)
+
+  func getBookmark(of type: BookmarkType, relativePath: String) -> Bookmark?
+  func getBookmark(at time: Double, relativePath: String, type: BookmarkType) -> Bookmark?
+  func createBookmark(at time: Double, relativePath: String, type: BookmarkType) -> Bookmark
+  func addNote(_ note: String, bookmark: Bookmark)
+  func deleteBookmark(_ bookmark: Bookmark)
 }
 
 public final class LibraryService: LibraryServiceProtocol {
@@ -35,6 +42,10 @@ public final class LibraryService: LibraryServiceProtocol {
 
   public init(dataManager: DataManager) {
     self.dataManager = dataManager
+  }
+
+  public func saveContext() {
+    self.dataManager.saveContext()
   }
 
   /**
@@ -313,5 +324,55 @@ public final class LibraryService: LibraryServiceProtocol {
   public func recordTime(_ playbackRecord: PlaybackRecord) {
     playbackRecord.time += 1
     self.dataManager.saveContext()
+  }
+
+  // MARK: - Bookmarks
+
+  public func getBookmark(of type: BookmarkType, relativePath: String) -> Bookmark? {
+    let fetchRequest: NSFetchRequest<Bookmark> = Bookmark.fetchRequest()
+    fetchRequest.predicate = NSPredicate(format: "%K == %@ && type == %d",
+                                         #keyPath(Bookmark.book.relativePath),
+                                         relativePath,
+                                         type.rawValue)
+
+    return try? self.dataManager.getContext().fetch(fetchRequest).first
+  }
+
+  public func getBookmark(at time: Double, relativePath: String, type: BookmarkType) -> Bookmark? {
+    let time = floor(time)
+
+    let fetchRequest: NSFetchRequest<Bookmark> = Bookmark.fetchRequest()
+    fetchRequest.predicate = NSPredicate(format: "%K == %@ && type == %d && time == %f",
+                                         #keyPath(Bookmark.book.relativePath),
+                                         relativePath,
+                                         type.rawValue,
+                                         floor(time))
+
+    return try? self.dataManager.getContext().fetch(fetchRequest).first
+  }
+
+  public func createBookmark(at time: Double, relativePath: String, type: BookmarkType) -> Bookmark {
+    if let bookmark = self.getBookmark(at: time, relativePath: relativePath, type: type) {
+      return bookmark
+    }
+
+    let bookmark = Bookmark(with: floor(time), type: type, context: self.dataManager.getContext())
+    let book = self.getItem(with: relativePath) as? Book
+    book?.addToBookmarks(bookmark)
+
+    self.dataManager.saveContext()
+
+    return bookmark
+  }
+
+  public func addNote(_ note: String, bookmark: Bookmark) {
+    bookmark.note = note
+    self.dataManager.saveContext()
+  }
+
+  public func deleteBookmark(_ bookmark: Bookmark) {
+    let book = bookmark.book
+    book?.removeFromBookmarks(bookmark)
+    self.dataManager.delete(bookmark)
   }
 }

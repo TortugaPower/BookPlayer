@@ -142,7 +142,7 @@ class ItemListCoordinator: Coordinator {
     let playerCoordinator = PlayerCoordinator(
       navigationController: self.navigationController,
       playerManager: self.playerManager,
-      dataManager: self.dataManager
+      libraryService: self.libraryService
     )
     playerCoordinator.parentCoordinator = self
     self.childCoordinators.append(playerCoordinator)
