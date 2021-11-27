@@ -28,7 +28,6 @@ class MiniPlayerViewModelTests: XCTestCase {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
     let mainCoordinator = MainCoordinator(
       rootController: rootVC,
-      dataManager: dataManager,
       libraryService: LibraryService(dataManager: dataManager),
       navigationController: UINavigationController()
     )

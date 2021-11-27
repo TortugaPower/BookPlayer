@@ -16,7 +16,6 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   let folder: Folder?
   let library: Library
   let playerManager: PlayerManagerProtocol
-  let dataManager: DataManager
   let libraryService: LibraryServiceProtocol
   var offset = 0
 
@@ -36,13 +35,11 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   init(folder: Folder?,
        library: Library,
        playerManager: PlayerManagerProtocol,
-       dataManager: DataManager,
        libraryService: LibraryServiceProtocol,
        themeAccent: UIColor) {
     self.folder = folder
     self.library = library
     self.playerManager = playerManager
-    self.dataManager = dataManager
     self.libraryService = libraryService
     self.themeAccent = themeAccent
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: themeAccent)?.pngData()
@@ -262,7 +259,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     do {
       let folder = try self.libraryService.createFolder(with: title, inside: self.folder?.relativePath, at: nil)
       if let items = items {
-        try self.dataManager.moveItems(items, into: folder)
+        try self.libraryService.moveItems(items, into: folder, at: nil)
       }
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
@@ -277,7 +274,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     let fetchedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
 
     do {
-      try self.dataManager.moveItems(fetchedItems, into: storedFolder)
+      try self.libraryService.moveItems(fetchedItems, into: storedFolder, at: nil)
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
@@ -289,7 +286,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     do {
       let folder = try self.libraryService.createFolder(with: title, inside: self.folder?.relativePath, at: nil)
       if let fetchedItems = items?.compactMap({ self.libraryService.getItem(with: $0.relativePath )}) {
-        try self.dataManager.moveItems(fetchedItems, into: folder)
+        try self.libraryService.moveItems(fetchedItems, into: folder, at: nil)
       }
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
@@ -302,7 +299,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     let selectedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
 
     do {
-      try self.dataManager.moveItems(selectedItems, into: self.library)
+      try self.libraryService.moveItems(selectedItems, into: self.library, moveFiles: true, at: nil)
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
@@ -318,7 +315,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     let fetchedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
 
     do {
-      try self.dataManager.moveItems(fetchedItems, into: storedFolder)
+      try self.libraryService.moveItems(fetchedItems, into: storedFolder, at: nil)
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
@@ -330,7 +327,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     let selectedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
 
     do {
-      try self.dataManager.delete(selectedItems, library: self.library, mode: mode)
+      try self.libraryService.delete(selectedItems, library: self.library, mode: mode)
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
@@ -339,13 +336,13 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func handleOperationCompletion(_ files: [URL]) {
-    let processedItems = self.dataManager.insertItems(from: files, into: nil, library: self.library)
+    let processedItems = self.libraryService.insertItems(from: files, into: nil, library: self.library, processedItems: [])
 
     do {
       if let folder = self.folder {
-        try self.dataManager.moveItems(processedItems, into: folder)
+        try self.libraryService.moveItems(processedItems, into: folder, at: nil)
       } else {
-        try self.dataManager.moveItems(processedItems, into: self.library, moveFiles: false)
+        try self.libraryService.moveItems(processedItems, into: self.library, moveFiles: false, at: nil)
       }
 
     } catch {
@@ -373,7 +370,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
   func handleInsertionIntoLibrary(_ items: [LibraryItem]) {
     do {
-      try self.dataManager.moveItems(items, into: self.library)
+      try self.libraryService.moveItems(items, into: self.library, moveFiles: true, at: nil)
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
@@ -395,7 +392,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       self.library.rebuildOrderRank()
     }
 
-    self.dataManager.saveContext()
+    self.libraryService.saveContext()
 
     _ = self.loadInitialItems(pageSize: self.items.count)
   }
@@ -501,7 +498,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       self.library.rebuildOrderRank()
     }
 
-    self.dataManager.saveContext()
+    self.libraryService.saveContext()
 
     self.reloadItems()
   }

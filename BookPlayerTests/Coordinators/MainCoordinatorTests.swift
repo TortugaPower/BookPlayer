@@ -21,7 +21,6 @@ class MainCoordinatorTests: XCTestCase {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
     self.mainCoordinator = MainCoordinator(
       rootController: rootVC,
-      dataManager: dataManager,
       libraryService: LibraryService(dataManager: dataManager),
       navigationController: UINavigationController()
     )

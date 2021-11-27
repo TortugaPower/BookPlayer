@@ -14,17 +14,18 @@ import XCTest
 
 class LibraryListCoordinatorTests: XCTestCase {
   var libraryListCoordinator: LibraryListCoordinator!
+  var dataManager: DataManager!
 
   override func setUp() {
-    let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
+    self.dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
+    let libraryService = LibraryService(dataManager: self.dataManager)
 
     self.libraryListCoordinator = LibraryListCoordinator(
       navigationController: UINavigationController(),
       library: StubFactory.library(dataManager: dataManager),
       playerManager: PlayerManagerMock(),
-      importManager: ImportManager(dataManager: dataManager),
-      dataManager: dataManager,
-      libraryService: LibraryService(dataManager: dataManager)
+      importManager: ImportManager(libraryService: libraryService),
+      libraryService: libraryService
     )
 
     self.libraryListCoordinator.start()
@@ -41,7 +42,7 @@ class LibraryListCoordinatorTests: XCTestCase {
   }
 
   func testShowFolder() {
-    let folder = try! StubFactory.folder(dataManager: self.libraryListCoordinator.dataManager, title: "folder 1")
+    let folder = try! StubFactory.folder(dataManager: self.dataManager, title: "folder 1")
     self.libraryListCoordinator.library.insert(item: folder)
 
     self.libraryListCoordinator.showFolder(folder)
@@ -66,7 +67,7 @@ class LibraryListCoordinatorTests: XCTestCase {
   }
 
   func testShowItemContentsFolder() {
-    let folder = try! StubFactory.folder(dataManager: self.libraryListCoordinator.dataManager, title: "folder 1")
+    let folder = try! StubFactory.folder(dataManager: self.dataManager, title: "folder 1")
     self.libraryListCoordinator.library.insert(item: folder)
 
     self.libraryListCoordinator.showItemContents(folder)
@@ -74,7 +75,7 @@ class LibraryListCoordinatorTests: XCTestCase {
   }
 
   func testShowItemContentsBook() {
-    let book = StubFactory.book(dataManager: self.libraryListCoordinator.dataManager, title: "book 1", duration: 10)
+    let book = StubFactory.book(dataManager: self.dataManager, title: "book 1", duration: 10)
     self.libraryListCoordinator.library.insert(item: book)
 
     self.libraryListCoordinator.showItemContents(book)
@@ -87,15 +88,15 @@ class FolderListCoordinatorTests: XCTestCase {
 
   override func setUp() {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
+    let libraryService = LibraryService(dataManager: dataManager)
 
     self.folderListCoordinator = FolderListCoordinator(
       navigationController: UINavigationController(),
       library: StubFactory.library(dataManager: dataManager),
       folder: try! StubFactory.folder(dataManager: dataManager, title: "folder 1"),
       playerManager: PlayerManagerMock(),
-      importManager: ImportManager(dataManager: dataManager),
-      dataManager: dataManager,
-      libraryService: LibraryService(dataManager: dataManager)
+      importManager: ImportManager(libraryService: libraryService),
+      libraryService: libraryService
     )
 
     self.folderListCoordinator.start()

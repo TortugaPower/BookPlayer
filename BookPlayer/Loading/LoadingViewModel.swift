@@ -123,7 +123,7 @@ class LoadingViewModel: BaseViewModel<LoadingCoordinator> {
 
       let library = libraryService.getLibrary()
 
-      _ = dataManager.insertItems(from: files, into: nil, library: library)
+      _ = libraryService.insertItems(from: files, into: nil, library: library, processedItems: [])
 
       dataManager.saveContext()
 

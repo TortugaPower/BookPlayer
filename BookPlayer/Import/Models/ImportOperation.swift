@@ -18,7 +18,6 @@ import ZipArchive
 
 public class ImportOperation: Operation {
   public let files: [URL]
-  public let dataManager: DataManager
   public let libraryService: LibraryServiceProtocol
   public var processedFiles = [URL]()
 
@@ -61,10 +60,8 @@ public class ImportOperation: Operation {
   }
 
   init(files: [URL],
-       dataManager: DataManager,
        libraryService: LibraryServiceProtocol) {
     self.files = files
-    self.dataManager = dataManager
     self.libraryService = libraryService
   }
 

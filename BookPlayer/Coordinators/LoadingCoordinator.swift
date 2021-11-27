@@ -38,7 +38,6 @@ class LoadingCoordinator: Coordinator {
     let dataManager = DataManager(coreDataStack: coreDataStack)
     let coordinator = MainCoordinator(
       rootController: rootVC,
-      dataManager: dataManager,
       libraryService: LibraryService(dataManager: dataManager),
       navigationController: AppNavigationController.instantiate(from: .Main)
     )

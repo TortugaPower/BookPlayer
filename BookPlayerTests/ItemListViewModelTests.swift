@@ -16,28 +16,28 @@ import XCTest
 class ItemListViewModelTests: XCTestCase {
   var sut: ItemListViewModel!
   var subscription: AnyCancellable?
+  var dataManager: DataManager!
 
   override func setUp() {
-    let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
+    self.dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
 
     self.sut = ItemListViewModel(folder: nil,
                                  library: StubFactory.library(dataManager: dataManager),
                                  playerManager: PlayerManagerMock(),
-                                 dataManager: dataManager,
                                  libraryService: LibraryService(dataManager: dataManager),
                                  themeAccent: .blue)
 
     self.sut.library.insert(
-      item: StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
+      item: StubFactory.book(dataManager: self.dataManager, title: "book1", duration: 100)
     )
     self.sut.library.insert(
-      item: StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
+      item: StubFactory.book(dataManager: self.dataManager, title: "book2", duration: 100)
     )
     self.sut.library.insert(
-      item: StubFactory.book(dataManager: self.sut.dataManager, title: "book3", duration: 100)
+      item: StubFactory.book(dataManager: self.dataManager, title: "book3", duration: 100)
     )
     self.sut.library.insert(
-      item: StubFactory.book(dataManager: self.sut.dataManager, title: "book4", duration: 100)
+      item: StubFactory.book(dataManager: self.dataManager, title: "book4", duration: 100)
     )
   }
 

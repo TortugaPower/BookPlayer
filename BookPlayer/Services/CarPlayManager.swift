@@ -55,15 +55,12 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
   let tabs: [Tab] = [("tab-library", "library_title".localized, "books.vertical.fill"),
                      ("tab-recent", "recent_title".localized, "clock.fill")]
   var cachedDataStore = [IndexPath: [SimpleLibraryItem]]()
-  let dataManager: DataManager
   let libraryService: LibraryServiceProtocol
   var themeAccent: UIColor
   private var disposeBag = Set<AnyCancellable>()
   public private(set) var defaultArtwork: UIImage
 
-  init(dataManager: DataManager,
-       libraryService: LibraryServiceProtocol) {
-    self.dataManager = dataManager
+  init(libraryService: LibraryServiceProtocol) {
     self.libraryService = libraryService
     self.themeAccent = UIColor(hex: "3488D1")
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: nil)!

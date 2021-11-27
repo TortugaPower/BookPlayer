@@ -63,8 +63,7 @@ class LibraryInterfaceController: WKInterfaceController {
       let libraryService = LibraryService(dataManager: dataManager)
       self.dataManager = dataManager
 
-      self.watchConnectivityService = WatchConnectivityService(dataManager: dataManager,
-                                                               libraryService: libraryService)
+      self.watchConnectivityService = WatchConnectivityService(libraryService: libraryService)
 
       self.watchConnectivityService.startSession()
 

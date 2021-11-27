@@ -10,11 +10,9 @@ import WatchConnectivity
 
 public class WatchConnectivityService: NSObject, WCSessionDelegate {
   public var library: Library!
-  let dataManager: DataManager
   let libraryService: LibraryServiceProtocol
 
-  public init(dataManager: DataManager, libraryService: LibraryServiceProtocol) {
-    self.dataManager = dataManager
+  public init(libraryService: LibraryServiceProtocol) {
     self.libraryService = libraryService
   }
 

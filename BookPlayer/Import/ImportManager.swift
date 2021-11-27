@@ -16,7 +16,7 @@ import Foundation
  */
 final class ImportManager {
   let queue = OperationQueue()
-  public let dataManager: DataManager
+  private let libraryService: LibraryServiceProtocol
   private let timeout = 2.0
   private var subscription: AnyCancellable?
   private var timer: Timer?
@@ -24,8 +24,8 @@ final class ImportManager {
 
   public var operationPublisher = PassthroughSubject<ImportOperation, Never>()
 
-  init(dataManager: DataManager) {
-    self.dataManager = dataManager
+  init(libraryService: LibraryServiceProtocol) {
+    self.libraryService = libraryService
   }
 
   public func process(_ fileUrl: URL) {
@@ -70,10 +70,8 @@ final class ImportManager {
     let sortedFiles = orderedSet.sortedArray(using: [sortDescriptor]) as! [URL]
     // swiftlint:enable force_cast
 
-    let libraryService = LibraryService(dataManager: self.dataManager)
     let operation = ImportOperation(files: sortedFiles,
-                                    dataManager: self.dataManager,
-                                    libraryService: libraryService)
+                                    libraryService: self.libraryService)
 
     self.files.value = []
 

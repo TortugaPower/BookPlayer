@@ -35,7 +35,6 @@ class ItemListCoordinator: Coordinator {
   public var onAction: Transition<ItemListActionRoutes>?
   let playerManager: PlayerManagerProtocol
   let importManager: ImportManager
-  let dataManager: DataManager
   let libraryService: LibraryServiceProtocol
   let library: Library
 
@@ -48,13 +47,11 @@ class ItemListCoordinator: Coordinator {
     library: Library,
     playerManager: PlayerManagerProtocol,
     importManager: ImportManager,
-    dataManager: DataManager,
     libraryService: LibraryServiceProtocol
   ) {
     self.library = library
     self.playerManager = playerManager
     self.importManager = importManager
-    self.dataManager = dataManager
     self.libraryService = libraryService
 
     super.init(navigationController: navigationController,
@@ -131,7 +128,6 @@ class ItemListCoordinator: Coordinator {
                                       folder: folder,
                                       playerManager: self.playerManager,
                                       importManager: self.importManager,
-                                      dataManager: self.dataManager,
                                       libraryService: self.libraryService)
     self.childCoordinators.append(child)
     child.parentCoordinator = self

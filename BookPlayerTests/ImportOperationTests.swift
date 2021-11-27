@@ -32,7 +32,6 @@ class ImportOperationTests: XCTestCase {
         let promiseFile = expectation(forNotification: .processingFile, object: nil)
         let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
         let operation = ImportOperation(files: [fileUrl],
-                                        dataManager: dataManager,
                                         libraryService: LibraryService(dataManager: dataManager))
 
         operation.completionBlock = {
