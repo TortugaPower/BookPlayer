@@ -23,9 +23,7 @@ class LibraryListCoordinator: ItemListCoordinator {
     self.navigationController.pushViewController(vc, animated: true)
     self.navigationController.delegate = self
 
-    if let book = try? self.libraryService.getLibraryLastBook() {
-      self.loadLastBook(book)
-    }
+    self.loadLastBookIfAvailable()
 
     if let mainCoordinator = self.getMainCoordinator(),
        let loadingCoordinator = mainCoordinator.parentCoordinator as? LoadingCoordinator {

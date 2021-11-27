@@ -206,7 +206,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
     defer {
       if let book = bookToPlay {
-        self.coordinator.loadPlayer(book)
+        self.coordinator.loadPlayer(book.relativePath)
       }
     }
 
@@ -253,11 +253,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func showItemContents(_ item: SimpleLibraryItem) {
-    guard let libraryItem = self.libraryService.getItem(with: item.relativePath) else {
-      return
-    }
-
-    self.coordinator.showItemContents(libraryItem)
+    self.coordinator.showItemContents(item)
   }
 
   func importIntoNewFolder(with title: String, items: [LibraryItem]? = nil) {

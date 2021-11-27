@@ -45,7 +45,7 @@ class LibraryListCoordinatorTests: XCTestCase {
     let library = self.libraryListCoordinator.libraryService.getLibrary()
     library.insert(item: folder)
 
-    self.libraryListCoordinator.showFolder(folder)
+    self.libraryListCoordinator.showFolder(folder.relativePath)
     XCTAssert(self.libraryListCoordinator.childCoordinators.first is ItemListCoordinator)
     XCTAssertFalse(self.libraryListCoordinator.shouldShowImportScreen())
     XCTAssertFalse(self.libraryListCoordinator.shouldHandleImport())
@@ -71,7 +71,7 @@ class LibraryListCoordinatorTests: XCTestCase {
     let library = self.libraryListCoordinator.libraryService.getLibrary()
     library.insert(item: folder)
 
-    self.libraryListCoordinator.showItemContents(folder)
+    self.libraryListCoordinator.showItemContents(SimpleLibraryItem(from: folder, themeAccent: .blue))
     XCTAssert(self.libraryListCoordinator.childCoordinators.first is ItemListCoordinator)
   }
 
@@ -80,7 +80,7 @@ class LibraryListCoordinatorTests: XCTestCase {
     let library = self.libraryListCoordinator.libraryService.getLibrary()
     library.insert(item: book)
 
-    self.libraryListCoordinator.showItemContents(book)
+    self.libraryListCoordinator.showItemContents(SimpleLibraryItem(from: book, themeAccent: .blue))
     XCTAssert(self.libraryListCoordinator.childCoordinators.first is PlayerCoordinator)
   }
 }
