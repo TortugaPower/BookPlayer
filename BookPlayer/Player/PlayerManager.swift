@@ -218,18 +218,14 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   // Called every second by the timer
   func updateTime() {
     guard let book = self.currentBook,
-          let fileURL = book.fileURL,
           let playerItem = self.playerItem,
           playerItem.status == .readyToPlay else {
             return
           }
 
     let currentTime = CMTimeGetSeconds(self.audioPlayer.currentTime())
-    book.setCurrentTime(currentTime)
+    self.libraryService.updateBookTime(book, time: currentTime)
 
-    book.percentCompleted = book.percentage
-
-    self.libraryService.saveContext()
     self.userActivityManager.recordTime()
 
     self.setNowPlayingBookTime()
@@ -248,16 +244,9 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       book.updateCurrentChapter()
       self.setNowPlayingBookTitle()
       NotificationCenter.default.post(name: .chapterChange, object: nil, userInfo: nil)
-      self.libraryService.saveContext()
     }
 
-    let userInfo = [
-      "time": currentTime,
-      "fileURL": fileURL
-    ] as [String: Any]
-
-    // Notify
-    NotificationCenter.default.post(name: .bookPlaying, object: nil, userInfo: userInfo)
+    NotificationCenter.default.post(name: .bookPlaying, object: nil, userInfo: nil)
   }
 
   private func bindSpeedObserver() {
@@ -335,9 +324,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   }
 
   func setNowPlayingBookTitle() {
-    guard let currentBook = self.currentBook else {
-      return
-    }
+    guard let currentBook = self.currentBook else { return }
 
     if currentBook.hasChapters, let currentChapter = currentBook.currentChapter {
       self.nowPlayingInfo[MPMediaItemPropertyTitle] = currentChapter.title
@@ -373,7 +360,7 @@ extension PlayerManager {
     guard let currentBook = self.currentBook else { return }
 
     if recordBookmark {
-      self.createOrUpdateBookmark(at: self.audioPlayer.currentTime().seconds, book: currentBook, type: .skip)
+      self.createOrUpdateAutomaticBookmark(at: self.audioPlayer.currentTime().seconds, book: currentBook, type: .skip)
     }
 
     let newTime = min(max(time, 0), currentBook.duration)
@@ -390,7 +377,7 @@ extension PlayerManager {
   func jumpBy(_ direction: Double) {
     guard let book = self.currentBook else { return }
 
-    self.createOrUpdateBookmark(at: self.audioPlayer.currentTime().seconds, book: book, type: .skip)
+    self.createOrUpdateAutomaticBookmark(at: self.audioPlayer.currentTime().seconds, book: book, type: .skip)
 
     let newTime = book.getInterval(from: direction) + CMTimeGetSeconds(self.audioPlayer.currentTime())
     self.audioPlayer.seek(to: CMTime(seconds: newTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
@@ -421,10 +408,7 @@ extension PlayerManager {
 
     self.userActivityManager.resumePlaybackActivity()
 
-    if let library = currentBook.getLibrary() {
-      library.lastPlayedBook = currentBook
-      self.libraryService.saveContext()
-    }
+    self.libraryService.setLibraryLastBook(with: currentBook.relativePath)
 
     do {
       try AVAudioSession.sharedInstance().setActive(true)
@@ -432,7 +416,7 @@ extension PlayerManager {
       fatalError("Failed to activate the audio session")
     }
 
-    self.createOrUpdateBookmark(at: self.audioPlayer.currentTime().seconds, book: currentBook, type: .play)
+    self.createOrUpdateAutomaticBookmark(at: self.audioPlayer.currentTime().seconds, book: currentBook, type: .play)
 
     let completed = Int(currentBook.duration) == Int(CMTimeGetSeconds(self.audioPlayer.currentTime()))
 
@@ -519,10 +503,7 @@ extension PlayerManager {
 
     self.userActivityManager.stopPlaybackActivity()
 
-    if let library = currentBook.getLibrary() {
-      library.lastPlayedBook = currentBook
-      self.libraryService.saveContext()
-    }
+    self.libraryService.setLibraryLastBook(with: currentBook.relativePath)
 
     self.updateTime()
 
@@ -563,30 +544,19 @@ extension PlayerManager {
 
     self.userActivityManager.stopPlaybackActivity()
 
-    if let book = self.currentBook {
-      if let library = book.library ?? book.folder?.library {
-        library.lastPlayedBook = nil
-        self.libraryService.saveContext()
-      }
-    }
+    self.libraryService.setLibraryLastBook(with: nil)
 
     self.currentBook = nil
   }
 
   func markAsCompleted(_ flag: Bool) {
-    guard let book = self.currentBook,
-          let fileURL = book.fileURL,
-          let bookIdentifier = book.identifier else { return }
+    guard let book = self.currentBook else { return }
 
-    book.isFinished = flag
-    self.libraryService.saveContext()
+    self.libraryService.markAsFinished(flag: true, relativePath: book.relativePath)
 
     NotificationCenter.default.post(name: .bookEnd,
                                     object: nil,
-                                    userInfo: [
-                                      "fileURL": fileURL,
-                                      "bookIdentifier": bookIdentifier
-                                    ])
+                                    userInfo: [ "bookIdentifier": book.relativePath! ])
   }
 
   func getSpeedOptions() -> [Float] {
@@ -636,11 +606,7 @@ extension PlayerManager {
 
   @objc
   func playerDidFinishPlaying(_ notification: Notification) {
-    if let book = self.currentBook,
-       let library = book.library ?? book.folder?.library {
-      library.lastPlayedBook = nil
-      self.libraryService.saveContext()
-    }
+    self.libraryService.setLibraryLastBook(with: nil)
 
     self.updateTime()
 
@@ -652,11 +618,11 @@ extension PlayerManager {
 
 // MARK: - BookMarks
 extension PlayerManager {
-  public func createOrUpdateBookmark(at time: Double, book: Book, type: BookmarkType) {
+  public func createOrUpdateAutomaticBookmark(at time: Double, book: Book, type: BookmarkType) {
     let bookmark = self.libraryService.getBookmark(of: type, relativePath: book.relativePath)
     ?? self.libraryService.createBookmark(at: time, relativePath: book.relativePath, type: type)
     bookmark.time = floor(time)
-    bookmark.note = type.getNote()
-    self.libraryService.saveContext()
+
+    self.libraryService.addNote(type.getNote() ?? "", bookmark: bookmark)
   }
 }

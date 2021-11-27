@@ -1130,4 +1130,23 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(book.speed == 2.0)
     XCTAssert(folder.speed == 2.0)
   }
+
+  func testSetLibraryLastPlayedBook() {
+    let library = self.sut.getLibrary()
+    XCTAssert(library.lastPlayedBook == nil)
+
+    let book = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test-book1",
+      duration: 100
+    )
+
+    self.sut.setLibraryLastBook(with: book.relativePath)
+
+    XCTAssert(library.lastPlayedBook?.relativePath == book.relativePath)
+
+    self.sut.setLibraryLastBook(with: nil)
+
+    XCTAssert(library.lastPlayedBook == nil)
+  }
 }

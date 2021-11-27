@@ -10,13 +10,13 @@ import CoreData
 import Foundation
 
 public protocol LibraryServiceProtocol {
-  func saveContext()
   func getLibrary() -> Library
   func getLibraryLastBook() throws -> Book?
 
   func getLibraryCurrentTheme() throws -> Theme?
   func getTheme(with title: String) -> Theme?
   func setLibraryTheme(with title: String)
+  func setLibraryLastBook(with relativePath: String?)
   func createTheme(params: [String: Any]) -> Theme
 
   func createBook(from url: URL) -> Book
@@ -32,6 +32,7 @@ public protocol LibraryServiceProtocol {
   func replaceOrderedItems(_ items: NSOrderedSet, at relativePath: String?)
   func reorderItem(at relativePath: String, inside folderRelativePath: String?, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath)
 
+  func updateBookTime(_ book: Book, time: Double)
   func updateBookSpeed(at relativePath: String, speed: Float)
   func markAsFinished(flag: Bool, relativePath: String)
   func jumpToStart(relativePath: String)
@@ -59,10 +60,6 @@ public final class LibraryService: LibraryServiceProtocol {
 
   public init(dataManager: DataManager) {
     self.dataManager = dataManager
-  }
-
-  public func saveContext() {
-    self.dataManager.saveContext()
   }
 
   /**
@@ -123,6 +120,18 @@ public final class LibraryService: LibraryServiceProtocol {
     guard let theme = self.getTheme(with: title) else { return }
     let library = self.getLibrary()
     library.currentTheme = theme
+    self.dataManager.saveContext()
+  }
+
+  public func setLibraryLastBook(with relativePath: String?) {
+    let library = self.getLibrary()
+
+    if let relativePath = relativePath {
+      library.lastPlayedBook = self.getItem(with: relativePath) as? Book
+    } else {
+      library.lastPlayedBook = nil
+    }
+
     self.dataManager.saveContext()
   }
 
@@ -313,6 +322,13 @@ public final class LibraryService: LibraryServiceProtocol {
       library.insertIntoItems(storedItem, at: destinationIndexPath.row)
       library.rebuildOrderRank()
     }
+
+    self.dataManager.saveContext()
+  }
+
+  public func updateBookTime(_ book: Book, time: Double) {
+    book.setCurrentTime(time)
+    book.percentCompleted = book.percentage
 
     self.dataManager.saveContext()
   }
