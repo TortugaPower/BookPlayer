@@ -507,11 +507,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func handleRename(item: SimpleLibraryItem, with newTitle: String) {
-    guard let libraryItem = self.libraryService.getItem(with: item.relativePath) else {
-      return
-    }
-
-    self.dataManager.renameItem(libraryItem, with: newTitle)
+    self.libraryService.renameItem(at: item.relativePath, with: newTitle)
 
     self.coordinator.reloadItemsWithPadding()
   }

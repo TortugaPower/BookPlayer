@@ -38,6 +38,8 @@ public protocol LibraryServiceProtocol {
   func createBookmark(at time: Double, relativePath: String, type: BookmarkType) -> Bookmark
   func addNote(_ note: String, bookmark: Bookmark)
   func deleteBookmark(_ bookmark: Bookmark)
+
+  func renameItem(at relativePath: String, with newTitle: String)
 }
 
 public final class LibraryService: LibraryServiceProtocol {
@@ -383,5 +385,13 @@ public final class LibraryService: LibraryServiceProtocol {
     let book = bookmark.book
     book?.removeFromBookmarks(bookmark)
     self.dataManager.delete(bookmark)
+  }
+
+  public func renameItem(at relativePath: String, with newTitle: String) {
+    guard let item = self.getItem(with: relativePath) else { return }
+
+    item.title = newTitle
+
+    self.saveContext()
   }
 }

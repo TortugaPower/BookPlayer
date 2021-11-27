@@ -15,22 +15,6 @@ extension DataManager {
     return Book(from: url, context: self.getContext())
   }
 
-  class func getLibraryFiles() -> [URL] {
-    let enumerator = FileManager.default.enumerator(
-      at: DataManager.getProcessedFolderURL(),
-      includingPropertiesForKeys: [.creationDateKey, .isDirectoryKey],
-      options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants], errorHandler: { (url, error) -> Bool in
-        print("directoryEnumerator error at \(url): ", error)
-        return true
-      })!
-    var files = [URL]()
-    for case let fileURL as URL in enumerator {
-      files.append(fileURL)
-    }
-
-    return files
-  }
-
   // This handles the Core Data objects creation from the Import operation
   // This method doesn't handle moving files on disk, only creating the core data structure for a given file tree
   func insertItems(from files: [URL], into folder: Folder?, library: Library, processedItems: [LibraryItem]? = []) -> [LibraryItem] {
@@ -187,14 +171,5 @@ extension DataManager {
     }
 
     self.delete(item)
-  }
-}
-
-// MARK: Items
-extension DataManager {
-  public func renameItem(_ item: LibraryItem, with newTitle: String) {
-    item.title = newTitle
-
-    self.saveContext()
   }
 }

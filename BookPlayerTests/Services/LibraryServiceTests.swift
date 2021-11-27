@@ -659,4 +659,15 @@ class LibraryServiceTests: XCTestCase {
     self.sut.deleteBookmark(bookmark)
     XCTAssert(bookmark.isFault)
   }
+
+  func testRenameItem() {
+    let book = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test-book1",
+      duration: 100
+    )
+
+    self.sut.renameItem(at: book.relativePath, with: "rename-test")
+    XCTAssert(book.title == "rename-test")
+  }
 }
