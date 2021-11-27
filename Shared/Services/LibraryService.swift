@@ -45,8 +45,7 @@ public protocol LibraryServiceProtocol {
 
   func insertItems(from files: [URL], into folder: Folder?, library: Library, processedItems: [LibraryItem]?) -> [LibraryItem]
   func handleDirectory(item: URL, folder: Folder, library: Library)
-  func moveItems(_ items: [LibraryItem], into folder: Folder) throws
-  func moveItems(_ items: [LibraryItem], into library: Library, moveFiles: Bool) throws
+  func moveItems(_ items: [LibraryItem], inside relativePath: String?, moveFiles: Bool) throws
   func delete(_ items: [LibraryItem], library: Library, mode: DeleteMode) throws
   func delete(_ item: LibraryItem, library: Library, mode: DeleteMode) throws
 }
@@ -474,26 +473,50 @@ public final class LibraryService: LibraryServiceProtocol {
     _ = self.insertItems(from: files, into: folder, library: library, processedItems: [])
   }
 
-  public func moveItems(_ items: [LibraryItem], into folder: Folder) throws {
+  public func moveItems(_ items: [LibraryItem], inside relativePath: String?, moveFiles: Bool) throws {
     let processedFolderURL = DataManager.getProcessedFolderURL()
 
-    for item in items {
-      try FileManager.default.moveItem(at: processedFolderURL.appendingPathComponent(item.relativePath), to: processedFolderURL.appendingPathComponent(folder.relativePath).appendingPathComponent(item.originalFileName))
-      folder.insert(item: item)
+    var folder: Folder?
+    var library: Library?
+
+    // insert into existing folder or library at index
+    if let relativePath = relativePath {
+      // The folder object must exist
+      folder = self.findFolder(with: relativePath)!
+    } else {
+      library = self.getLibrary()
     }
-
-    folder.updateCompletionState()
-    self.saveContext()
-  }
-
-  public func moveItems(_ items: [LibraryItem], into library: Library, moveFiles: Bool) throws {
-    let processedFolderURL = DataManager.getProcessedFolderURL()
 
     for item in items {
       if moveFiles {
-        try FileManager.default.moveItem(at: processedFolderURL.appendingPathComponent(item.relativePath), to: processedFolderURL.appendingPathComponent(item.originalFileName))
+        let sourceUrl = processedFolderURL
+          .appendingPathComponent(item.relativePath)
+        let destinationUrl: URL
+
+        if let folder = folder {
+          destinationUrl = processedFolderURL
+            .appendingPathComponent(folder.relativePath)
+            .appendingPathComponent(item.originalFileName)
+        } else {
+          destinationUrl = processedFolderURL
+            .appendingPathComponent(item.originalFileName)
+        }
+
+        try FileManager.default.moveItem(
+          at: sourceUrl,
+          to: destinationUrl
+        )
       }
-      library.insert(item: item)
+
+      if let folder = folder {
+        folder.insert(item: item)
+      } else {
+        library?.insert(item: item)
+      }
+    }
+
+    if let folder = folder {
+      folder.updateCompletionState()
     }
 
     self.saveContext()
