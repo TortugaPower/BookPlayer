@@ -480,17 +480,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
     let sortedItems = BookSortService.sort(NSOrderedSet(array: itemsToSort), by: option)
 
-    if let folderRelativePath = self.folderRelativePath,
-       let folder = self.libraryService.getItem(with: folderRelativePath) as? Folder {
-      folder.items = sortedItems
-      folder.rebuildOrderRank()
-    } else {
-      let library = self.libraryService.getLibrary()
-      library.items = sortedItems
-      library.rebuildOrderRank()
-    }
-
-    self.libraryService.saveContext()
+    self.libraryService.replaceOrderedItems(sortedItems, at: self.folderRelativePath)
 
     self.reloadItems()
   }

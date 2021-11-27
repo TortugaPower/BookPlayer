@@ -29,6 +29,8 @@ public protocol LibraryServiceProtocol {
   func createFolder(with title: String, inside relativePath: String?) throws -> Folder
   func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [LibraryItem]?
   func getMaxItemsCount(at relativePath: String?) -> Int
+  func replaceOrderedItems(_ items: NSOrderedSet, at relativePath: String?)
+
   func markAsFinished(flag: Bool, relativePath: String)
   func jumpToStart(relativePath: String)
   func getCurrentPlaybackRecord() -> PlaybackRecord
@@ -274,6 +276,20 @@ public final class LibraryService: LibraryServiceProtocol {
     }
 
     return (try? self.dataManager.getContext().count(for: fetchRequest)) ?? 0
+  }
+
+  public func replaceOrderedItems(_ items: NSOrderedSet, at relativePath: String?) {
+    if let relativePath = relativePath,
+       let folder = self.getItem(with: relativePath) as? Folder {
+      folder.items = items
+      folder.rebuildOrderRank()
+    } else {
+      let library = self.getLibrary()
+      library.items = items
+      library.rebuildOrderRank()
+    }
+
+    self.saveContext()
   }
 
   public func markAsFinished(flag: Bool, relativePath: String) {

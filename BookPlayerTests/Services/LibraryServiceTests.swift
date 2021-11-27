@@ -1042,4 +1042,36 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(self.sut.getMaxItemsCount(at: nil) == 1)
     XCTAssert(self.sut.getMaxItemsCount(at: "folder") == 4)
   }
+
+  func testReplaceOrderItems() throws {
+    let library = self.sut.getLibrary()
+    let book4 = StubFactory.book(dataManager: self.sut.dataManager, title: "book4", duration: 100)
+    library.insert(item: book4)
+    let book3 = StubFactory.book(dataManager: self.sut.dataManager, title: "book3", duration: 100)
+    library.insert(item: book3)
+    let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
+    library.insert(item: book2)
+    let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
+    library.insert(item: book1)
+
+    XCTAssert(library.itemsArray[0].title == book4.title)
+    XCTAssert(library.itemsArray[3].title == book1.title)
+
+    self.sut.replaceOrderedItems(NSOrderedSet(array: [book1, book2, book3, book4]), at: nil)
+
+    XCTAssert(library.itemsArray[0].title == book1.title)
+    XCTAssert(library.itemsArray[3].title == book4.title)
+
+    let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
+    library.insert(item: folder)
+    try self.sut.moveItems([book1, book2, book3, book4], inside: folder.relativePath, moveFiles: true)
+
+    XCTAssert((folder.items?.array[0] as? Book)?.title == book1.title)
+    XCTAssert((folder.items?.array[3] as? Book)?.title == book4.title)
+
+    self.sut.replaceOrderedItems(NSOrderedSet(array: [book4, book3, book2, book1]), at: folder.relativePath)
+
+    XCTAssert((folder.items?.array[0] as? Book)?.title == book4.title)
+    XCTAssert((folder.items?.array[3] as? Book)?.title == book1.title)
+  }
 }
