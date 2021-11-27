@@ -1074,4 +1074,45 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert((folder.items?.array[0] as? Book)?.title == book4.title)
     XCTAssert((folder.items?.array[3] as? Book)?.title == book1.title)
   }
+
+  func testReorderItem() throws {
+    let library = self.sut.getLibrary()
+    let book3 = StubFactory.book(dataManager: self.sut.dataManager, title: "book3", duration: 100)
+    library.insert(item: book3)
+    let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
+    library.insert(item: book2)
+    let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
+    library.insert(item: book1)
+
+    XCTAssert(library.itemsArray[0].title == book3.title)
+    XCTAssert(library.itemsArray[2].title == book1.title)
+
+
+    self.sut.reorderItem(
+      at: book3.relativePath,
+      inside: nil,
+      sourceIndexPath: IndexPath(row: 0, section: .data),
+      destinationIndexPath: IndexPath(row: 2, section: .data)
+    )
+
+    XCTAssert(library.itemsArray[0].title == book2.title)
+    XCTAssert(library.itemsArray[2].title == book3.title)
+
+    let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
+    library.insert(item: folder)
+    try self.sut.moveItems([book1, book2, book3], inside: folder.relativePath, moveFiles: true)
+
+    XCTAssert((folder.items?.array[0] as? Book)?.title == book1.title)
+    XCTAssert((folder.items?.array[2] as? Book)?.title == book3.title)
+
+    self.sut.reorderItem(
+      at: book3.relativePath,
+      inside: folder.relativePath,
+      sourceIndexPath: IndexPath(row: 2, section: .data),
+      destinationIndexPath: IndexPath(row: 0, section: .data)
+    )
+
+    XCTAssert((folder.items?.array[0] as? Book)?.title == book3.title)
+    XCTAssert((folder.items?.array[2] as? Book)?.title == book2.title)
+  }
 }

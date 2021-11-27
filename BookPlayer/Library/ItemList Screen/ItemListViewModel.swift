@@ -375,22 +375,16 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func reorder(item: SimpleLibraryItem, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath) {
-    guard let storedItem = self.libraryService.getItem(with: item.relativePath) else { return }
-
-    if let folderRelativePath = self.folderRelativePath,
-       let folder = self.libraryService.getItem(with: folderRelativePath) as? Folder {
+    if let folderRelativePath = folderRelativePath {
       ArtworkService.removeCache(for: folderRelativePath)
-      folder.removeFromItems(at: sourceIndexPath.row)
-      folder.insertIntoItems(storedItem, at: destinationIndexPath.row)
-      folder.rebuildOrderRank()
-    } else {
-      let library = self.libraryService.getLibrary()
-      library.removeFromItems(at: sourceIndexPath.row)
-      library.insertIntoItems(storedItem, at: destinationIndexPath.row)
-      library.rebuildOrderRank()
     }
 
-    self.libraryService.saveContext()
+    self.libraryService.reorderItem(
+      at: item.relativePath,
+      inside: self.folderRelativePath,
+      sourceIndexPath: sourceIndexPath,
+      destinationIndexPath: destinationIndexPath
+    )
 
     _ = self.loadInitialItems(pageSize: self.items.count)
   }

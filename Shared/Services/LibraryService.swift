@@ -30,6 +30,7 @@ public protocol LibraryServiceProtocol {
   func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [LibraryItem]?
   func getMaxItemsCount(at relativePath: String?) -> Int
   func replaceOrderedItems(_ items: NSOrderedSet, at relativePath: String?)
+  func reorderItem(at relativePath: String, inside folderRelativePath: String?, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath)
 
   func markAsFinished(flag: Bool, relativePath: String)
   func jumpToStart(relativePath: String)
@@ -286,6 +287,29 @@ public final class LibraryService: LibraryServiceProtocol {
     } else {
       let library = self.getLibrary()
       library.items = items
+      library.rebuildOrderRank()
+    }
+
+    self.saveContext()
+  }
+
+  public func reorderItem(
+    at relativePath: String,
+    inside folderRelativePath: String?,
+    sourceIndexPath: IndexPath,
+    destinationIndexPath: IndexPath
+  ) {
+    guard let storedItem = self.getItem(with: relativePath) else { return }
+
+    if let folderRelativePath = folderRelativePath,
+       let folder = self.getItem(with: folderRelativePath) as? Folder {
+      folder.removeFromItems(at: sourceIndexPath.row)
+      folder.insertIntoItems(storedItem, at: destinationIndexPath.row)
+      folder.rebuildOrderRank()
+    } else {
+      let library = self.getLibrary()
+      library.removeFromItems(at: sourceIndexPath.row)
+      library.insertIntoItems(storedItem, at: destinationIndexPath.row)
       library.rebuildOrderRank()
     }
 
