@@ -36,7 +36,6 @@ class ItemListCoordinator: Coordinator {
   let playerManager: PlayerManagerProtocol
   let importManager: ImportManager
   let libraryService: LibraryServiceProtocol
-  let library: Library
 
   weak var documentPickerDelegate: UIDocumentPickerDelegate?
   var fileSubscription: AnyCancellable?
@@ -44,12 +43,10 @@ class ItemListCoordinator: Coordinator {
 
   init(
     navigationController: UINavigationController,
-    library: Library,
     playerManager: PlayerManagerProtocol,
     importManager: ImportManager,
     libraryService: LibraryServiceProtocol
   ) {
-    self.library = library
     self.playerManager = playerManager
     self.importManager = importManager
     self.libraryService = libraryService
@@ -124,8 +121,7 @@ class ItemListCoordinator: Coordinator {
 
   func showFolder(_ folder: Folder) {
     let child = FolderListCoordinator(navigationController: self.navigationController,
-                                      library: self.library,
-                                      folder: folder,
+                                      folderRelativePath: folder.relativePath,
                                       playerManager: self.playerManager,
                                       importManager: self.importManager,
                                       libraryService: self.libraryService)
@@ -188,7 +184,6 @@ class ItemListCoordinator: Coordinator {
   func showSettings() {
     let settingsCoordinator = SettingsCoordinator(
       libraryService: self.libraryService,
-      library: self.library,
       navigationController: AppNavigationController.instantiate(from: .Settings)
     )
     settingsCoordinator.parentCoordinator = self

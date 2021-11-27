@@ -11,13 +11,10 @@ import BookPlayerKit
 
 class StorageCoordinator: Coordinator {
   let libraryService: LibraryServiceProtocol
-  let library: Library
 
   init(libraryService: LibraryServiceProtocol,
-       library: Library,
        navigationController: UINavigationController) {
     self.libraryService = libraryService
-    self.library = library
 
     super.init(navigationController: navigationController, flowType: .push)
   }
@@ -26,7 +23,6 @@ class StorageCoordinator: Coordinator {
     let vc = StorageViewController.instantiate(from: .Settings)
 
     let viewModel = StorageViewModel(libraryService: self.libraryService,
-                                     library: self.library,
                                      folderURL: DataManager.getProcessedFolderURL())
     viewModel.coordinator = self
     vc.viewModel = viewModel

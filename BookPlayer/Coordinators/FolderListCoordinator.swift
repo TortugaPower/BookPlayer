@@ -10,21 +10,19 @@ import BookPlayerKit
 import UIKit
 
 class FolderListCoordinator: ItemListCoordinator {
-  var folder: Folder
+  var folderRelativePath: String
 
   init(
     navigationController: UINavigationController,
-    library: Library,
-    folder: Folder,
+    folderRelativePath: String,
     playerManager: PlayerManagerProtocol,
     importManager: ImportManager,
     libraryService: LibraryServiceProtocol
   ) {
-    self.folder = folder
+    self.folderRelativePath = folderRelativePath
 
     super.init(
       navigationController: navigationController,
-      library: library,
       playerManager: playerManager,
       importManager: importManager,
       libraryService: libraryService
@@ -33,8 +31,7 @@ class FolderListCoordinator: ItemListCoordinator {
 
   override func start() {
     let vc = ItemListViewController.instantiate(from: .Main)
-    let viewModel = ItemListViewModel(folder: self.folder,
-                                      library: self.library,
+    let viewModel = ItemListViewModel(folderRelativePath: self.folderRelativePath,
                                       playerManager: self.playerManager,
                                       libraryService: self.libraryService,
                                       themeAccent: ThemeManager.shared.currentTheme.linkColor)

@@ -20,7 +20,6 @@ class SettingsCoordinatorTests: XCTestCase {
     let libraryService = LibraryService(dataManager: dataManager)
     self.settingsCoordinator = SettingsCoordinator(
       libraryService: libraryService,
-      library: StubFactory.library(dataManager: dataManager),
       navigationController: UINavigationController()
     )
     self.settingsCoordinator.start()

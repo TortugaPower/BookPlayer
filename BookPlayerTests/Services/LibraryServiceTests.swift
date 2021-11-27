@@ -1036,4 +1036,26 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(library.items?.count == 1)
     XCTAssert((library.items?.array as? [LibraryItem])?.first == book1)
   }
+
+  func testGetMaxItemsCount() throws {
+    XCTAssert(self.sut.getMaxItemsCount(at: nil) == 0)
+    let library = self.sut.getLibrary()
+    let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
+    library.insert(item: book1)
+    let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
+    library.insert(item: book2)
+    let book3 = StubFactory.book(dataManager: self.sut.dataManager, title: "book3", duration: 100)
+    library.insert(item: book3)
+    let book4 = StubFactory.book(dataManager: self.sut.dataManager, title: "book4", duration: 100)
+    library.insert(item: book4)
+
+    XCTAssert(self.sut.getMaxItemsCount(at: nil) == 4)
+
+    let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
+    library.insert(item: folder)
+    try self.sut.moveItems([book1, book2, book3, book4], into: folder, at: nil)
+
+    XCTAssert(self.sut.getMaxItemsCount(at: nil) == 1)
+    XCTAssert(self.sut.getMaxItemsCount(at: "folder") == 4)
+  }
 }

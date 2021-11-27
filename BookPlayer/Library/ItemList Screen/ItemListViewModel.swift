@@ -13,8 +13,7 @@ import MediaPlayer
 import Themeable
 
 class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
-  let folder: Folder?
-  let library: Library
+  let folderRelativePath: String?
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
   var offset = 0
@@ -29,16 +28,14 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   private var containingFolder: Folder?
 
   public var maxItems: Int {
-    return self.folder?.items?.count ?? self.library.items?.count ?? 0
+    return self.libraryService.getMaxItemsCount(at: self.folderRelativePath)
   }
 
-  init(folder: Folder?,
-       library: Library,
+  init(folderRelativePath: String?,
        playerManager: PlayerManagerProtocol,
        libraryService: LibraryServiceProtocol,
        themeAccent: UIColor) {
-    self.folder = folder
-    self.library = library
+    self.folderRelativePath = folderRelativePath
     self.playerManager = playerManager
     self.libraryService = libraryService
     self.themeAccent = themeAccent
@@ -55,7 +52,15 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func getNavigationTitle() -> String {
-    return self.folder?.title ?? "library_title".localized
+    guard let folderRelativePath = folderRelativePath else {
+      return "library_title".localized
+    }
+
+    guard let item = self.libraryService.getItem(with: folderRelativePath) else {
+      return ""
+    }
+
+    return item.title
   }
 
   func bindBookObserver() {
@@ -116,7 +121,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func loadInitialItems(pageSize: Int = 13) -> [SimpleLibraryItem] {
-    guard let fetchedItems = self.libraryService.fetchContents(at: self.folder?.relativePath,
+    guard let fetchedItems = self.libraryService.fetchContents(at: self.folderRelativePath,
                                                             limit: pageSize,
                                                             offset: 0) else {
       return []
@@ -135,7 +140,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   func loadNextItems(pageSize: Int = 13) {
     guard self.offset < self.maxItems else { return }
 
-    guard let fetchedItems = self.libraryService.fetchContents(at: self.folder?.relativePath,
+    guard let fetchedItems = self.libraryService.fetchContents(at: self.folderRelativePath,
                                                             limit: pageSize,
                                                             offset: self.offset),
           !fetchedItems.isEmpty else {
@@ -155,7 +160,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   func loadAllItemsIfNeeded() {
     guard self.offset < self.maxItems else { return }
 
-    guard let fetchedItems = self.libraryService.fetchContents(at: self.folder?.relativePath,
+    guard let fetchedItems = self.libraryService.fetchContents(at: self.folderRelativePath,
                                                             limit: self.maxItems,
                                                             offset: 0),
           !fetchedItems.isEmpty else {
@@ -257,7 +262,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
   func importIntoNewFolder(with title: String, items: [LibraryItem]? = nil) {
     do {
-      let folder = try self.libraryService.createFolder(with: title, inside: self.folder?.relativePath, at: nil)
+      let folder = try self.libraryService.createFolder(with: title, inside: self.folderRelativePath, at: nil)
       if let items = items {
         try self.libraryService.moveItems(items, into: folder, at: nil)
       }
@@ -284,7 +289,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
   func createFolder(with title: String, items: [SimpleLibraryItem]? = nil) {
     do {
-      let folder = try self.libraryService.createFolder(with: title, inside: self.folder?.relativePath, at: nil)
+      let folder = try self.libraryService.createFolder(with: title, inside: self.folderRelativePath, at: nil)
       if let fetchedItems = items?.compactMap({ self.libraryService.getItem(with: $0.relativePath )}) {
         try self.libraryService.moveItems(fetchedItems, into: folder, at: nil)
       }
@@ -299,7 +304,8 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     let selectedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
 
     do {
-      try self.libraryService.moveItems(selectedItems, into: self.library, moveFiles: true, at: nil)
+      let library = self.libraryService.getLibrary()
+      try self.libraryService.moveItems(selectedItems, into: library, moveFiles: true, at: nil)
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
@@ -327,7 +333,8 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     let selectedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
 
     do {
-      try self.libraryService.delete(selectedItems, library: self.library, mode: mode)
+      let library = self.libraryService.getLibrary()
+      try self.libraryService.delete(selectedItems, library: library, mode: mode)
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
@@ -336,13 +343,15 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func handleOperationCompletion(_ files: [URL]) {
-    let processedItems = self.libraryService.insertItems(from: files, into: nil, library: self.library, processedItems: [])
+    let library = self.libraryService.getLibrary()
+    let processedItems = self.libraryService.insertItems(from: files, into: nil, library: library, processedItems: [])
 
     do {
-      if let folder = self.folder {
+      if let folderRelativePath = self.folderRelativePath,
+         let folder = self.libraryService.getItem(with: folderRelativePath) as? Folder  {
         try self.libraryService.moveItems(processedItems, into: folder, at: nil)
       } else {
-        try self.libraryService.moveItems(processedItems, into: self.library, moveFiles: false, at: nil)
+        try self.libraryService.moveItems(processedItems, into: library, moveFiles: false, at: nil)
       }
 
     } catch {
@@ -354,7 +363,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
     var availableFolders = [SimpleLibraryItem]()
 
-    if let existingFolders = (self.libraryService.fetchContents(at: self.folder?.relativePath, limit: nil, offset: nil)?
+    if let existingFolders = (self.libraryService.fetchContents(at: self.folderRelativePath, limit: nil, offset: nil)?
                                 .compactMap({ $0 as? Folder })) {
       for folder in existingFolders {
         if processedItems.contains(where: { $0.relativePath == folder.relativePath }) { continue }
@@ -370,7 +379,8 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
   func handleInsertionIntoLibrary(_ items: [LibraryItem]) {
     do {
-      try self.libraryService.moveItems(items, into: self.library, moveFiles: true, at: nil)
+      let library = self.libraryService.getLibrary()
+      try self.libraryService.moveItems(items, into: library, moveFiles: true, at: nil)
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
@@ -381,15 +391,17 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   func reorder(item: SimpleLibraryItem, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath) {
     guard let storedItem = self.libraryService.getItem(with: item.relativePath) else { return }
 
-    if let folder = self.folder {
-      ArtworkService.removeCache(for: folder.relativePath)
+    if let folderRelativePath = self.folderRelativePath,
+       let folder = self.libraryService.getItem(with: folderRelativePath) as? Folder {
+      ArtworkService.removeCache(for: folderRelativePath)
       folder.removeFromItems(at: sourceIndexPath.row)
       folder.insertIntoItems(storedItem, at: destinationIndexPath.row)
       folder.rebuildOrderRank()
     } else {
-      self.library.removeFromItems(at: sourceIndexPath.row)
-      self.library.insertIntoItems(storedItem, at: destinationIndexPath.row)
-      self.library.rebuildOrderRank()
+      let library = self.libraryService.getLibrary()
+      library.removeFromItems(at: sourceIndexPath.row)
+      library.insertIntoItems(storedItem, at: destinationIndexPath.row)
+      library.rebuildOrderRank()
     }
 
     self.libraryService.saveContext()
@@ -445,7 +457,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   func showMoveOptions(selectedItems: [SimpleLibraryItem]) {
     var availableFolders = [SimpleLibraryItem]()
 
-    if let existingFolders = (self.libraryService.fetchContents(at: self.folder?.relativePath, limit: nil, offset: nil)?
+    if let existingFolders = (self.libraryService.fetchContents(at: self.folderRelativePath, limit: nil, offset: nil)?
                                 .compactMap({ $0 as? Folder })) {
       for folder in existingFolders {
         if selectedItems.contains(where: { $0.relativePath == folder.relativePath }) { continue }
@@ -464,7 +476,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   func showMoreOptions(selectedItems: [SimpleLibraryItem]) {
     var availableFolders = [SimpleLibraryItem]()
 
-    if let existingFolders = (self.libraryService.fetchContents(at: self.folder?.relativePath, limit: nil, offset: nil)?
+    if let existingFolders = (self.libraryService.fetchContents(at: self.folderRelativePath, limit: nil, offset: nil)?
                                 .compactMap({ $0 as? Folder })) {
       for folder in existingFolders {
         if selectedItems.contains(where: { $0.relativePath == folder.relativePath }) { continue }
@@ -479,10 +491,12 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   func handleSort(by option: PlayListSortOrder) {
     let itemsToSortOptional: NSOrderedSet?
 
-    if let folder = self.folder {
+    if let folderRelativePath = self.folderRelativePath,
+       let folder = self.libraryService.getItem(with: folderRelativePath) as? Folder {
       itemsToSortOptional = folder.items
     } else {
-      itemsToSortOptional = self.library.items
+      let library = self.libraryService.getLibrary()
+      itemsToSortOptional = library.items
     }
 
     guard let itemsToSort = itemsToSortOptional,
@@ -490,12 +504,14 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
     let sortedItems = BookSortService.sort(itemsToSort, by: option)
 
-    if let folder = folder {
+    if let folderRelativePath = self.folderRelativePath,
+       let folder = self.libraryService.getItem(with: folderRelativePath) as? Folder {
       folder.items = sortedItems
       folder.rebuildOrderRank()
     } else {
-      self.library.items = sortedItems
-      self.library.rebuildOrderRank()
+      let library = self.libraryService.getLibrary()
+      library.items = sortedItems
+      library.rebuildOrderRank()
     }
 
     self.libraryService.saveContext()

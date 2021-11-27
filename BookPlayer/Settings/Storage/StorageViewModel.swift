@@ -14,13 +14,11 @@ import Foundation
 final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObject {
   private var files = CurrentValueSubject<[StorageItem]?, Never>(nil)
   private var disposeBag = Set<AnyCancellable>()
-  private let library: Library
   private let libraryService: LibraryServiceProtocol
   private let folderURL: URL
 
-  init(libraryService: LibraryServiceProtocol, library: Library, folderURL: URL) {
+  init(libraryService: LibraryServiceProtocol, folderURL: URL) {
     self.libraryService = libraryService
-    self.library = library
     self.folderURL = folderURL
 
     super.init()
@@ -69,7 +67,8 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
   private func createBook(from item: StorageItem) throws {
     let book = self.libraryService.createBook(from: item.fileURL)
     try moveBookFile(from: item, with: book)
-    self.library.insert(item: book)
+    let library = self.libraryService.getLibrary()
+    library.insert(item: book)
   }
 
   private func moveBookFile(from item: StorageItem, with book: Book) throws {
@@ -157,7 +156,8 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
 
     // Relink book object if it's orphaned
     if fetchedBook.getLibrary() == nil {
-      self.library.insert(item: fetchedBook)
+      let library = self.libraryService.getLibrary()
+      library.insert(item: fetchedBook)
     }
 
     let fetchedBookURL = self.folderURL.appendingPathComponent(fetchedBook.relativePath)

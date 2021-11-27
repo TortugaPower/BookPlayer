@@ -11,13 +11,10 @@ import BookPlayerKit
 
 class SettingsCoordinator: Coordinator {
   let libraryService: LibraryServiceProtocol
-  let library: Library
 
   init(libraryService: LibraryServiceProtocol,
-       library: Library,
        navigationController: UINavigationController) {
     self.libraryService = libraryService
-    self.library = library
 
     super.init(navigationController: navigationController, flowType: .modal)
   }
@@ -33,7 +30,6 @@ class SettingsCoordinator: Coordinator {
 
   func showStorageManagement() {
     let child = StorageCoordinator(libraryService: self.libraryService,
-                                   library: self.library,
                                    navigationController: self.navigationController)
     self.childCoordinators.append(child)
     child.parentCoordinator = self

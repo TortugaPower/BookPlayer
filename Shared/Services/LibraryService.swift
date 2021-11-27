@@ -28,6 +28,7 @@ public protocol LibraryServiceProtocol {
   func hasLibraryLinked(item: LibraryItem) -> Bool
   func createFolder(with title: String, inside relativePath: String?, at index: Int?) throws -> Folder
   func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [LibraryItem]?
+  func getMaxItemsCount(at relativePath: String?) -> Int
   func markAsFinished(flag: Bool, relativePath: String)
   func jumpToStart(relativePath: String)
   func getCurrentPlaybackRecord() -> PlaybackRecord
@@ -263,6 +264,17 @@ public final class LibraryService: LibraryServiceProtocol {
     }
 
     return try? self.dataManager.getContext().fetch(fetchRequest)
+  }
+
+  public func getMaxItemsCount(at relativePath: String?) -> Int {
+    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+    if let relativePath = relativePath {
+      fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), relativePath)
+    } else {
+      fetchRequest.predicate = NSPredicate(format: "%K != nil", #keyPath(LibraryItem.library))
+    }
+
+    return (try? self.dataManager.getContext().count(for: fetchRequest)) ?? 0
   }
 
   public func markAsFinished(flag: Bool, relativePath: String) {

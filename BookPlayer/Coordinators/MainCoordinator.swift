@@ -56,7 +56,6 @@ class MainCoordinator: Coordinator {
 
     let libraryCoordinator = LibraryListCoordinator(
       navigationController: self.navigationController,
-      library: library,
       playerManager: self.playerManager,
       importManager: ImportManager(libraryService: self.libraryService),
       libraryService: self.libraryService
