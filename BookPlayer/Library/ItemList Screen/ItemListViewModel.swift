@@ -258,7 +258,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
   func importIntoNewFolder(with title: String, items: [LibraryItem]? = nil) {
     do {
-      let folder = try self.libraryService.createFolder(with: title, inside: self.folderRelativePath, at: nil)
+      let folder = try self.libraryService.createFolder(with: title, inside: self.folderRelativePath)
       if let items = items {
         try self.libraryService.moveItems(items, into: folder, at: nil)
       }
@@ -285,7 +285,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
   func createFolder(with title: String, items: [SimpleLibraryItem]? = nil) {
     do {
-      let folder = try self.libraryService.createFolder(with: title, inside: self.folderRelativePath, at: nil)
+      let folder = try self.libraryService.createFolder(with: title, inside: self.folderRelativePath)
       if let fetchedItems = items?.compactMap({ self.libraryService.getItem(with: $0.relativePath )}) {
         try self.libraryService.moveItems(fetchedItems, into: folder, at: nil)
       }
@@ -485,20 +485,10 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func handleSort(by option: PlayListSortOrder) {
-    let itemsToSortOptional: NSOrderedSet?
-
-    if let folderRelativePath = self.folderRelativePath,
-       let folder = self.libraryService.getItem(with: folderRelativePath) as? Folder {
-      itemsToSortOptional = folder.items
-    } else {
-      let library = self.libraryService.getLibrary()
-      itemsToSortOptional = library.items
-    }
-
-    guard let itemsToSort = itemsToSortOptional,
+    guard let itemsToSort = self.libraryService.fetchContents(at: self.folderRelativePath, limit: nil, offset: nil),
           itemsToSort.count > 0 else { return }
 
-    let sortedItems = BookSortService.sort(itemsToSort, by: option)
+    let sortedItems = BookSortService.sort(NSOrderedSet(array: itemsToSort), by: option)
 
     if let folderRelativePath = self.folderRelativePath,
        let folder = self.libraryService.getItem(with: folderRelativePath) as? Folder {

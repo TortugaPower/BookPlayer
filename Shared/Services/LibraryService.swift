@@ -26,7 +26,7 @@ public protocol LibraryServiceProtocol {
   func findFolder(with fileURL: URL) -> Folder?
   func findFolder(with relativePath: String) -> Folder?
   func hasLibraryLinked(item: LibraryItem) -> Bool
-  func createFolder(with title: String, inside relativePath: String?, at index: Int?) throws -> Folder
+  func createFolder(with title: String, inside relativePath: String?) throws -> Folder
   func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [LibraryItem]?
   func getMaxItemsCount(at relativePath: String?) -> Int
   func markAsFinished(flag: Bool, relativePath: String)
@@ -214,7 +214,7 @@ public final class LibraryService: LibraryServiceProtocol {
     }
   }
 
-  public func createFolder(with title: String, inside relativePath: String?, at index: Int?) throws -> Folder {
+  public func createFolder(with title: String, inside relativePath: String?) throws -> Folder {
     let processedFolder = DataManager.getProcessedFolderURL()
     let destinationURL: URL
 
@@ -233,10 +233,10 @@ public final class LibraryService: LibraryServiceProtocol {
     if let relativePath = relativePath {
       // The folder object must exist
       let folder = self.findFolder(with: relativePath)!
-      folder.insert(item: newFolder, at: index)
+      folder.insert(item: newFolder)
     } else {
       let library = self.getLibrary()
-      library.insert(item: newFolder, at: index)
+      library.insert(item: newFolder)
     }
 
     self.dataManager.saveContext()
