@@ -13,7 +13,7 @@ import UIKit
 final class ThemeManager: ThemeProvider {
   static let shared = ThemeManager()
 
-  var dataManager: DataManager!
+  var libraryService: LibraryServiceProtocol!
   private var theme: SubscribableValue<SimpleTheme>!
 
   /// The current theme that is active
@@ -24,11 +24,8 @@ final class ThemeManager: ThemeProvider {
     set {
       self.setNewTheme(newValue)
 
-      if let title = newValue.title,
-         let storedTheme = self.dataManager.getTheme(with: title) {
-        let libraryService = LibraryService(dataManager: dataManager)
-        let library = libraryService.getLibrary()
-        self.dataManager.setCurrentTheme(storedTheme, for: library)
+      if let title = newValue.title {
+        self.libraryService.setLibraryTheme(with: title)
       }
     }
   }
@@ -76,17 +73,17 @@ final class ThemeManager: ThemeProvider {
     return themes
   }
 
-    @objc private func brightnessChanged(_ notification: Notification) {
-        guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeBrightnessEnabled.rawValue) else { return }
+  @objc private func brightnessChanged(_ notification: Notification) {
+    guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeBrightnessEnabled.rawValue) else { return }
 
-        let threshold = UserDefaults.standard.float(forKey: Constants.UserDefaults.themeBrightnessThreshold.rawValue)
-        let brightness = (UIScreen.main.brightness * 100).rounded() / 100
-        let shouldUseDarkVariant = brightness <= CGFloat(threshold)
+    let threshold = UserDefaults.standard.float(forKey: Constants.UserDefaults.themeBrightnessThreshold.rawValue)
+    let brightness = (UIScreen.main.brightness * 100).rounded() / 100
+    let shouldUseDarkVariant = brightness <= CGFloat(threshold)
 
-        if shouldUseDarkVariant != self.useDarkVariant {
-            self.useDarkVariant = shouldUseDarkVariant
-        }
+    if shouldUseDarkVariant != self.useDarkVariant {
+      self.useDarkVariant = shouldUseDarkVariant
     }
+  }
 
   private func setNewTheme(_ newTheme: SimpleTheme) {
     let newTheme = SimpleTheme(with: newTheme, useDarkVariant: self.useDarkVariant)
@@ -98,15 +95,15 @@ final class ThemeManager: ThemeProvider {
                       completion: nil)
   }
 
-    /// Subscribe to be notified when the theme changes. Handler will be
-    /// remove from subscription when `object` is deallocated.
-    func subscribeToChanges(_ object: AnyObject, handler: @escaping (SimpleTheme) -> Void) {
-        self.theme.subscribe(object, using: handler)
-    }
+  /// Subscribe to be notified when the theme changes. Handler will be
+  /// remove from subscription when `object` is deallocated.
+  func subscribeToChanges(_ object: AnyObject, handler: @escaping (SimpleTheme) -> Void) {
+    self.theme.subscribe(object, using: handler)
+  }
 }
 
 extension Themeable where Self: AnyObject {
-    var themeProvider: ThemeManager {
-        return ThemeManager.shared
-    }
+  var themeProvider: ThemeManager {
+    return ThemeManager.shared
+  }
 }

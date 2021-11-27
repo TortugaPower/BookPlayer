@@ -15,7 +15,8 @@ import Foundation
  It waits a specified time wherein new files may be added before the operation is created
  */
 final class ImportManager {
-  public let dataManager: DataManager
+  let queue = OperationQueue()
+  private let libraryService: LibraryServiceProtocol
   private let timeout = 2.0
   private var subscription: AnyCancellable?
   private var timer: Timer?
@@ -23,8 +24,8 @@ final class ImportManager {
 
   public var operationPublisher = PassthroughSubject<ImportOperation, Never>()
 
-  init(dataManager: DataManager) {
-    self.dataManager = dataManager
+  init(libraryService: LibraryServiceProtocol) {
+    self.libraryService = libraryService
   }
 
   public func process(_ fileUrl: URL) {
@@ -69,10 +70,15 @@ final class ImportManager {
     let sortedFiles = orderedSet.sortedArray(using: [sortDescriptor]) as! [URL]
     // swiftlint:enable force_cast
 
-    let operation = ImportOperation(files: sortedFiles, dataManager: self.dataManager)
+    let operation = ImportOperation(files: sortedFiles,
+                                    libraryService: self.libraryService)
 
     self.files.value = []
 
     self.operationPublisher.send(operation)
+  }
+
+  public func start(_ operation: Operation) {
+    self.queue.addOperation(operation)
   }
 }

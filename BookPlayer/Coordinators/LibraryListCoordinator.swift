@@ -12,10 +12,9 @@ import UIKit
 class LibraryListCoordinator: ItemListCoordinator {
   override func start() {
     let vc = ItemListViewController.instantiate(from: .Main)
-    let viewModel = ItemListViewModel(folder: nil,
-                                      library: self.library,
+    let viewModel = ItemListViewModel(folderRelativePath: nil,
                                       playerManager: self.playerManager,
-                                      dataManager: self.dataManager,
+                                      libraryService: self.libraryService,
                                       themeAccent: ThemeManager.shared.currentTheme.linkColor)
     viewModel.coordinator = self
     vc.viewModel = viewModel
@@ -23,9 +22,8 @@ class LibraryListCoordinator: ItemListCoordinator {
     self.presentingViewController = self.navigationController
     self.navigationController.pushViewController(vc, animated: true)
     self.navigationController.delegate = self
-    if let book = self.library.lastPlayedBook {
-      self.loadLastBook(book)
-    }
+
+    self.loadLastBookIfAvailable()
 
     if let mainCoordinator = self.getMainCoordinator(),
        let loadingCoordinator = mainCoordinator.parentCoordinator as? LoadingCoordinator {

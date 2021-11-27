@@ -55,13 +55,13 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
   let tabs: [Tab] = [("tab-library", "library_title".localized, "books.vertical.fill"),
                      ("tab-recent", "recent_title".localized, "clock.fill")]
   var cachedDataStore = [IndexPath: [SimpleLibraryItem]]()
-  let dataManager: DataManager
+  let libraryService: LibraryServiceProtocol
   var themeAccent: UIColor
   private var disposeBag = Set<AnyCancellable>()
   public private(set) var defaultArtwork: UIImage
 
-  init(dataManager: DataManager) {
-    self.dataManager = dataManager
+  init(libraryService: LibraryServiceProtocol) {
+    self.libraryService = libraryService
     self.themeAccent = UIColor(hex: "3488D1")
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: nil)!
 
@@ -118,7 +118,7 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
     let item = self.getItem(from: items, and: mutableIndexPath)
 
     if item.type == .folder,
-       let folderItems = self.dataManager.fetchContents(at: item.relativePath) {
+       let folderItems = self.libraryService.fetchContents(at: item.relativePath, limit: nil, offset: nil) {
       let folderItems = folderItems.map({ SimpleLibraryItem(from: $0,
                                                             themeAccent: themeAccent) })
       self.cachedDataStore[indexPath] = folderItems
@@ -226,7 +226,7 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
 
     guard !mutableIndexPath.isEmpty,
           item.type == .folder,
-          let folderItems = self.dataManager.fetchContents(at: item.relativePath) else {
+          let folderItems = self.libraryService.fetchContents(at: item.relativePath, limit: nil, offset: nil) else {
       return item
     }
 
@@ -238,8 +238,8 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
   private func getSourceItems(for index: Int) -> [SimpleLibraryItem]? {
     // Recently played items or library items
     return (index == IndexGuide.tab.recentlyPlayed
-    ? self.dataManager.getOrderedBooks(limit: 20) ?? []
-    : self.dataManager.fetchContents(at: nil) ?? [])
+            ? self.libraryService.getOrderedBooks(limit: 20) ?? []
+            : self.libraryService.fetchContents(at: nil, limit: nil, offset: nil) ?? [])
       .map({ SimpleLibraryItem(from: $0,
                                themeAccent: themeAccent)
       })

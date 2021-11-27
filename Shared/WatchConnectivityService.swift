@@ -9,11 +9,10 @@
 import WatchConnectivity
 
 public class WatchConnectivityService: NSObject, WCSessionDelegate {
-  public var library: Library!
-  let dataManager: DataManager
+  let libraryService: LibraryServiceProtocol
 
-  public init(dataManager: DataManager) {
-    self.dataManager = dataManager
+  public init(libraryService: LibraryServiceProtocol) {
+    self.libraryService = libraryService
   }
 
   private let session: WCSession? = WCSession.isSupported() ? WCSession.default : nil
@@ -57,22 +56,19 @@ public class WatchConnectivityService: NSObject, WCSessionDelegate {
 
   public func sendApplicationContext() {
     guard self.validReachableSession != nil,
-          library != nil else { return }
-
-    guard let jsonData = try? JSONEncoder().encode(self.library) else {
-      return
-    }
+          let currentTheme = try? self.libraryService.getLibraryCurrentTheme(),
+          let jsonData = try? JSONEncoder().encode(currentTheme) else { return }
 
     var recentBooksData: Data?
 
-    if let recentBooks = self.dataManager.getOrderedBooks(limit: 30) {
+    if let recentBooks = self.libraryService.getOrderedBooks(limit: 30) {
       recentBooksData = try? JSONEncoder().encode(recentBooks)
     }
 
     let rewind = UserDefaults.standard.double(forKey: Constants.UserDefaults.rewindInterval.rawValue)
     let forward = UserDefaults.standard.double(forKey: Constants.UserDefaults.forwardInterval.rawValue)
 
-    try? self.updateApplicationContext(applicationContext: ["library": jsonData as AnyObject,
+    try? self.updateApplicationContext(applicationContext: ["currentTheme": jsonData as AnyObject,
                                                             "recentBooks": recentBooksData as AnyObject,
                                                             "rewindInterval": rewind as AnyObject,
                                                             "forwardInterval": forward as AnyObject])

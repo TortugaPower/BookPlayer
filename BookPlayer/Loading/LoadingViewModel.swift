@@ -82,13 +82,29 @@ class LoadingViewModel: BaseViewModel<LoadingCoordinator> {
         error.code == NSEntityMigrationPolicyError {
       self.coordinator.showAlert("error_title".localized, message: "coredata_error_migration_description".localized) {
         self.dataMigrationManager.cleanupStoreFile()
-        let urls = DataManager.getLibraryFiles()
+        let urls = self.getLibraryFiles()
         self.reloadLibrary(with: urls)
       }
       return
     }
 
     fatalError("Unresolved error \(error), \(error.userInfo)")
+  }
+
+  func getLibraryFiles() -> [URL] {
+    let enumerator = FileManager.default.enumerator(
+      at: DataManager.getProcessedFolderURL(),
+      includingPropertiesForKeys: [.creationDateKey, .isDirectoryKey],
+      options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants], errorHandler: { (url, error) -> Bool in
+        print("directoryEnumerator error at \(url): ", error)
+        return true
+      })!
+    var files = [URL]()
+    for case let fileURL as URL in enumerator {
+      files.append(fileURL)
+    }
+
+    return files
   }
 
   func reloadLibrary(with files: [URL]) {
@@ -107,9 +123,7 @@ class LoadingViewModel: BaseViewModel<LoadingCoordinator> {
 
       let library = libraryService.getLibrary()
 
-      _ = dataManager.insertItems(from: files, into: nil, library: library)
-
-      dataManager.saveContext()
+      _ = libraryService.insertItems(from: files, into: nil, library: library, processedItems: [])
 
       self?.coordinator.didFinishLoadingSequence(coreDataStack: stack)
     }
@@ -156,19 +170,28 @@ class LoadingViewModel: BaseViewModel<LoadingCoordinator> {
       UserDefaults.standard.set(true, forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue)
     }
 
+    let libraryService = LibraryService(dataManager: dataManager)
+
     // Load themes into DB if necessary
-    if !dataManager.hasThemesLoaded() {
-      dataManager.loadLocalThemes()
-    }
+    self.loadLocalThemesIfNeeded(libraryService)
 
     // Load default theme into library if needed
-    let libraryService = LibraryService(dataManager: dataManager)
     let library = libraryService.getLibrary()
 
-    if library.currentTheme == nil,
-       let defaultTheme = dataManager.getTheme(with: "Default / Dark") {
-      library.currentTheme = defaultTheme
-      dataManager.saveContext()
+    if library.currentTheme == nil {
+      libraryService.setLibraryTheme(with: "Default / Dark")
     }
+  }
+
+  public func loadLocalThemesIfNeeded(_ libraryService: LibraryService) {
+    guard
+      libraryService.getTheme(with: "Default / Dark") == nil,
+      let themesFile = Bundle.main.url(forResource: "Themes", withExtension: "json"),
+      let data = try? Data(contentsOf: themesFile, options: .mappedIfSafe),
+      let jsonObject = try? JSONSerialization.jsonObject(with: data, options: .mutableLeaves),
+      let themeParams = jsonObject as? [[String: Any]]
+    else { return }
+
+    themeParams.forEach({ _ = libraryService.createTheme(params: $0) })
   }
 }

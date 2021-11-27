@@ -34,12 +34,12 @@ extension PlaybackRecordViewer {
 }
 
 class WidgetUtils {
-  class func getPlaybackRecord(with dataManager: DataManager) -> PlaybackRecordViewer {
-    let record = dataManager.getPlaybackRecord()
+  class func getPlaybackRecord(with libraryService: LibraryService) -> PlaybackRecordViewer {
+    let record = libraryService.getCurrentPlaybackRecord()
     return PlaybackRecordViewer(record: record, date: Date())
   }
 
-  class func getPlaybackRecords(with dataManager: DataManager) -> [PlaybackRecordViewer] {
+  class func getPlaybackRecords(with libraryService: LibraryService) -> [PlaybackRecordViewer] {
       let calendar = Calendar.current
       let now = Date()
       let startToday = calendar.startOfDay(for: now)
@@ -53,19 +53,19 @@ class WidgetUtils {
       let startSixthDay = calendar.date(byAdding: .day, value: 1, to: startFifthDay)!
       let startSeventhDay = calendar.date(byAdding: .day, value: 1, to: startSixthDay)!
 
-      let firstRecord = (dataManager.getPlaybackRecords(from: startFirstDay, to: startSecondDay) ?? []).first
+      let firstRecord = (libraryService.getPlaybackRecords(from: startFirstDay, to: startSecondDay) ?? []).first
       let firstRecordViewer = PlaybackRecordViewer(record: firstRecord, date: startFirstDay)
-      let secondRecord = (dataManager.getPlaybackRecords(from: startSecondDay, to: startThirdDay) ?? []).first
+      let secondRecord = (libraryService.getPlaybackRecords(from: startSecondDay, to: startThirdDay) ?? []).first
       let secondRecordViewer = PlaybackRecordViewer(record: secondRecord, date: startSecondDay)
-      let thirdRecord = (dataManager.getPlaybackRecords(from: startThirdDay, to: startFourthDay) ?? []).first
+      let thirdRecord = (libraryService.getPlaybackRecords(from: startThirdDay, to: startFourthDay) ?? []).first
       let thirdRecordViewer = PlaybackRecordViewer(record: thirdRecord, date: startThirdDay)
-      let fourthRecord = (dataManager.getPlaybackRecords(from: startFourthDay, to: startFifthDay) ?? []).first
+      let fourthRecord = (libraryService.getPlaybackRecords(from: startFourthDay, to: startFifthDay) ?? []).first
       let fourthRecordViewer = PlaybackRecordViewer(record: fourthRecord, date: startFourthDay)
-      let fifthRecord = (dataManager.getPlaybackRecords(from: startFifthDay, to: startSixthDay) ?? []).first
+      let fifthRecord = (libraryService.getPlaybackRecords(from: startFifthDay, to: startSixthDay) ?? []).first
       let fifthRecordViewer = PlaybackRecordViewer(record: fifthRecord, date: startFifthDay)
-      let sixthRecord = (dataManager.getPlaybackRecords(from: startSixthDay, to: startSeventhDay) ?? []).first
+      let sixthRecord = (libraryService.getPlaybackRecords(from: startSixthDay, to: startSeventhDay) ?? []).first
       let sixthRecordViewer = PlaybackRecordViewer(record: sixthRecord, date: startSixthDay)
-      let seventhRecord = (dataManager.getPlaybackRecords(from: startSeventhDay, to: endDate) ?? []).first
+      let seventhRecord = (libraryService.getPlaybackRecords(from: startSeventhDay, to: endDate) ?? []).first
       let seventhRecordViewer = PlaybackRecordViewer(record: seventhRecord, date: startSeventhDay)
 
       return [firstRecordViewer, secondRecordViewer, thirdRecordViewer, fourthRecordViewer, fifthRecordViewer, sixthRecordViewer, seventhRecordViewer]

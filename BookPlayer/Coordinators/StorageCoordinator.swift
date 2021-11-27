@@ -10,14 +10,11 @@ import Foundation
 import BookPlayerKit
 
 class StorageCoordinator: Coordinator {
-  let dataManager: DataManager
-  let library: Library
+  let libraryService: LibraryServiceProtocol
 
-  init(dataManager: DataManager,
-       library: Library,
+  init(libraryService: LibraryServiceProtocol,
        navigationController: UINavigationController) {
-    self.dataManager = dataManager
-    self.library = library
+    self.libraryService = libraryService
 
     super.init(navigationController: navigationController, flowType: .push)
   }
@@ -25,8 +22,7 @@ class StorageCoordinator: Coordinator {
   override func start() {
     let vc = StorageViewController.instantiate(from: .Settings)
 
-    let viewModel = StorageViewModel(dataManager: self.dataManager,
-                                     library: self.library,
+    let viewModel = StorageViewModel(libraryService: self.libraryService,
                                      folderURL: DataManager.getProcessedFolderURL())
     viewModel.coordinator = self
     vc.viewModel = viewModel

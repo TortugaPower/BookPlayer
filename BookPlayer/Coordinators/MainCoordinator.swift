@@ -14,22 +14,26 @@ import UIKit
 class MainCoordinator: Coordinator {
   let rootViewController: RootViewController
   let playerManager: PlayerManager
-  let dataManager: DataManager
+  let libraryService: LibraryServiceProtocol
   let watchConnectivityService: WatchConnectivityService
   var carPlayManager: CarPlayManager!
 
   init(
     rootController: RootViewController,
-    dataManager: DataManager,
+    libraryService: LibraryServiceProtocol,
     navigationController: UINavigationController
   ) {
     self.rootViewController = rootController
-    self.dataManager = dataManager
+    self.libraryService = libraryService
 
-    let watchService = WatchConnectivityService(dataManager: dataManager)
+    let watchService = WatchConnectivityService(libraryService: libraryService)
     self.watchConnectivityService = watchService
-    self.playerManager = PlayerManager(dataManager: dataManager, watchConnectivityService: watchService)
-    ThemeManager.shared.dataManager = dataManager
+    self.playerManager = PlayerManager(
+      libraryService: libraryService,
+      speedManager: SpeedManager(libraryService: libraryService),
+      watchConnectivityService: watchService
+    )
+    ThemeManager.shared.libraryService = libraryService
 
     super.init(navigationController: navigationController, flowType: .modal)
   }
@@ -48,31 +52,26 @@ class MainCoordinator: Coordinator {
     self.rootViewController.miniPlayerContainer.addSubview(miniPlayerVC.view)
     miniPlayerVC.didMove(toParent: self.rootViewController)
 
-    let libraryService = LibraryService(dataManager: dataManager)
-    let library = libraryService.getLibrary()
-
-    if let currentTheme = try? libraryService.getLibraryCurrentTheme() {
+    if let currentTheme = try? self.libraryService.getLibraryCurrentTheme() {
       ThemeManager.shared.currentTheme = SimpleTheme(with: currentTheme)
     }
 
     let libraryCoordinator = LibraryListCoordinator(
       navigationController: self.navigationController,
-      library: library,
       playerManager: self.playerManager,
-      importManager: ImportManager(dataManager: self.dataManager),
-      dataManager: self.dataManager
+      importManager: ImportManager(libraryService: self.libraryService),
+      libraryService: self.libraryService
     )
     libraryCoordinator.parentCoordinator = self
     self.childCoordinators.append(libraryCoordinator)
     libraryCoordinator.start()
 
-    self.setupCarPlay(with: library)
-    self.watchConnectivityService.library = library
+    self.setupCarPlay()
     self.watchConnectivityService.startSession()
   }
 
-  private func setupCarPlay(with library: Library) {
-    self.carPlayManager = CarPlayManager(dataManager: self.dataManager)
+  private func setupCarPlay() {
+    self.carPlayManager = CarPlayManager(libraryService: self.libraryService)
     MPPlayableContentManager.shared().dataSource = self.carPlayManager
     MPPlayableContentManager.shared().delegate = self.carPlayManager
   }
@@ -81,7 +80,7 @@ class MainCoordinator: Coordinator {
     let playerCoordinator = PlayerCoordinator(
       navigationController: self.navigationController,
       playerManager: self.playerManager,
-      dataManager: self.dataManager
+      libraryService: self.libraryService
     )
     playerCoordinator.parentCoordinator = self
     self.childCoordinators.append(playerCoordinator)

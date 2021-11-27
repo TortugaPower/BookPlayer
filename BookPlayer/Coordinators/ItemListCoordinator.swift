@@ -35,24 +35,21 @@ class ItemListCoordinator: Coordinator {
   public var onAction: Transition<ItemListActionRoutes>?
   let playerManager: PlayerManagerProtocol
   let importManager: ImportManager
-  let dataManager: DataManager
-  let library: Library
+  let libraryService: LibraryServiceProtocol
 
-  var documentPickerDelegate: UIDocumentPickerDelegate?
+  weak var documentPickerDelegate: UIDocumentPickerDelegate?
   var fileSubscription: AnyCancellable?
   var importOperationSubscription: AnyCancellable?
 
   init(
     navigationController: UINavigationController,
-    library: Library,
     playerManager: PlayerManagerProtocol,
     importManager: ImportManager,
-    dataManager: DataManager
+    libraryService: LibraryServiceProtocol
   ) {
-    self.library = library
     self.playerManager = playerManager
     self.importManager = importManager
-    self.dataManager = dataManager
+    self.libraryService = libraryService
 
     super.init(navigationController: navigationController,
                flowType: .push)
@@ -86,7 +83,7 @@ class ItemListCoordinator: Coordinator {
         }
       }
 
-      DataManager.start(operation)
+      self.importManager.start(operation)
     })
   }
 
@@ -111,24 +108,21 @@ class ItemListCoordinator: Coordinator {
     }
   }
 
-  func showItemContents(_ item: LibraryItem) {
-    switch item {
-    case let folder as Folder:
-      self.showFolder(folder)
-    case let book as Book:
-      self.loadPlayer(book)
-    default:
-      break
+  func showItemContents(_ item: SimpleLibraryItem) {
+    switch item.type {
+    case .folder:
+      self.showFolder(item.relativePath)
+    case .book:
+      self.loadPlayer(item.relativePath)
     }
   }
 
-  func showFolder(_ folder: Folder) {
+  func showFolder(_ relativePath: String) {
     let child = FolderListCoordinator(navigationController: self.navigationController,
-                                      library: self.library,
-                                      folder: folder,
+                                      folderRelativePath: relativePath,
                                       playerManager: self.playerManager,
                                       importManager: self.importManager,
-                                      dataManager: self.dataManager)
+                                      libraryService: self.libraryService)
     self.childCoordinators.append(child)
     child.parentCoordinator = self
     child.start()
@@ -138,24 +132,27 @@ class ItemListCoordinator: Coordinator {
     let playerCoordinator = PlayerCoordinator(
       navigationController: self.navigationController,
       playerManager: self.playerManager,
-      dataManager: self.dataManager
+      libraryService: self.libraryService
     )
     playerCoordinator.parentCoordinator = self
     self.childCoordinators.append(playerCoordinator)
     playerCoordinator.start()
   }
 
-  func loadPlayer(_ book: Book) {
-    guard DataManager.exists(book) else {
-      self.navigationController.showAlert("file_missing_title".localized, message: "\("file_missing_description".localized)\n\(book.originalFileName ?? "")")
+  func loadPlayer(_ relativePath: String) {
+    let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
+    guard FileManager.default.fileExists(atPath: fileURL.path) else {
+      self.navigationController.showAlert("file_missing_title".localized, message: "\("file_missing_description".localized)\n\(fileURL.lastPathComponent)")
       return
     }
 
     // Only load if loaded book is a different one
-    guard book.relativePath != playerManager.currentBook?.relativePath else {
+    guard relativePath != playerManager.currentBook?.relativePath else {
       self.showPlayer()
       return
     }
+
+    guard let book = self.libraryService.getItem(with: relativePath) as? Book else { return }
 
     self.playerManager.load(book) { [weak self] loaded in
       guard loaded else { return }
@@ -166,7 +163,9 @@ class ItemListCoordinator: Coordinator {
     self.showPlayer()
   }
 
-  func loadLastBook(_ book: Book) {
+  func loadLastBookIfAvailable() {
+    guard let book = try? self.libraryService.getLibraryLastBook() else { return }
+
     self.playerManager.load(book) { [weak self] loaded in
       guard loaded else { return }
 
@@ -186,8 +185,7 @@ class ItemListCoordinator: Coordinator {
 
   func showSettings() {
     let settingsCoordinator = SettingsCoordinator(
-      dataManager: self.dataManager,
-      library: self.library,
+      libraryService: self.libraryService,
       navigationController: AppNavigationController.instantiate(from: .Settings)
     )
     settingsCoordinator.parentCoordinator = self

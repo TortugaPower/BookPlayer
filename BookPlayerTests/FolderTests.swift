@@ -11,13 +11,12 @@
 import XCTest
 
 class FolderTests: XCTestCase {
-  let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
+  var dataManager: DataManager!
 
     override func setUp() {
       super.setUp()
 
-      let library = StubFactory.library(dataManager: self.dataManager)
-      self.dataManager.delete(library)
+      self.dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
       let documentsFolder = DataManager.getDocumentsFolderURL()
       DataTestUtils.clearFolderContents(url: documentsFolder)
       let processedFolder = DataManager.getProcessedFolderURL()

@@ -318,7 +318,7 @@ extension PlayerViewController {
       self.chaptersButton.isEnabled = hasChapters
     }.store(in: &disposeBag)
 
-    SpeedManager.shared.currentSpeed.sink { [weak self] speed in
+    self.viewModel.currentSpeedObserver().sink { [weak self] speed in
       guard let self = self else { return }
 
       self.speedButton.title = self.formatSpeed(speed)

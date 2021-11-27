@@ -122,10 +122,10 @@ class ActionParserService {
       return
     }
 
-    guard let libraryCoordinator = mainCoordinator.getLibraryCoordinator(),
-          let book = libraryCoordinator.dataManager.getBook(with: bookIdentifier, from: libraryCoordinator.library) else { return }
+    guard let libraryCoordinator = mainCoordinator.getLibraryCoordinator() else { return }
+
     self.removeAction(action)
-    libraryCoordinator.loadPlayer(book)
+    libraryCoordinator.loadPlayer(bookIdentifier)
   }
 
   private class func handleDownloadAction(_ action: Action) {

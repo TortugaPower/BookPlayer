@@ -16,27 +16,28 @@ import XCTest
 class ItemListViewModelTests: XCTestCase {
   var sut: ItemListViewModel!
   var subscription: AnyCancellable?
+  var dataManager: DataManager!
 
   override func setUp() {
-    let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
-
-    self.sut = ItemListViewModel(folder: nil,
-                                 library: StubFactory.library(dataManager: dataManager),
+    self.dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
+    let libraryService = LibraryService(dataManager: dataManager)
+    self.sut = ItemListViewModel(folderRelativePath: nil,
                                  playerManager: PlayerManagerMock(),
-                                 dataManager: dataManager,
+                                 libraryService: libraryService,
                                  themeAccent: .blue)
 
-    self.sut.library.insert(
-      item: StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
+    let library = libraryService.getLibrary()
+    library.insert(
+      item: StubFactory.book(dataManager: self.dataManager, title: "book1", duration: 100)
     )
-    self.sut.library.insert(
-      item: StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
+    library.insert(
+      item: StubFactory.book(dataManager: self.dataManager, title: "book2", duration: 100)
     )
-    self.sut.library.insert(
-      item: StubFactory.book(dataManager: self.sut.dataManager, title: "book3", duration: 100)
+    library.insert(
+      item: StubFactory.book(dataManager: self.dataManager, title: "book3", duration: 100)
     )
-    self.sut.library.insert(
-      item: StubFactory.book(dataManager: self.sut.dataManager, title: "book4", duration: 100)
+    library.insert(
+      item: StubFactory.book(dataManager: self.dataManager, title: "book4", duration: 100)
     )
   }
 

@@ -26,19 +26,18 @@ struct TimeListenedProvider: IntentTimelineProvider {
       }
 
       let dataManager = DataManager(coreDataStack: stack)
+      let libraryService = LibraryService(dataManager: dataManager)
 
       var records: [PlaybackRecordViewer]
 
       if context.family == .systemMedium {
-        records = WidgetUtils.getPlaybackRecords(with: dataManager)
+        records = WidgetUtils.getPlaybackRecords(with: libraryService)
       } else {
-        records = [WidgetUtils.getPlaybackRecord(with: dataManager)]
+        records = [WidgetUtils.getPlaybackRecord(with: libraryService)]
       }
 
       var title: String?
       var theme: SimpleTheme?
-
-      let libraryService = LibraryService(dataManager: dataManager)
 
       if let lastPlayedBook = try? libraryService.getLibraryLastBook(),
          let currentTheme = try? libraryService.getLibraryCurrentTheme() {
@@ -69,19 +68,18 @@ struct TimeListenedProvider: IntentTimelineProvider {
       }
 
       let dataManager = DataManager(coreDataStack: stack)
+      let libraryService = LibraryService(dataManager: dataManager)
 
       var records: [PlaybackRecordViewer]
 
       if context.family == .systemMedium {
-        records = WidgetUtils.getPlaybackRecords(with: dataManager)
+        records = WidgetUtils.getPlaybackRecords(with: libraryService)
       } else {
-        records = [WidgetUtils.getPlaybackRecord(with: dataManager)]
+        records = [WidgetUtils.getPlaybackRecord(with: libraryService)]
       }
 
       var title: String?
       var theme: SimpleTheme?
-
-      let libraryService = LibraryService(dataManager: dataManager)
 
       if let lastPlayedBook = try? libraryService.getLibraryLastBook(),
          let currentTheme = try? libraryService.getLibraryCurrentTheme() {

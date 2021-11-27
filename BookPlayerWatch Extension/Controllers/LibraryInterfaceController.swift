@@ -16,6 +16,8 @@ enum ConnectionError: Error {
   case connectivityError
 }
 
+public typealias WatchDataObject = (books: [LibraryItem], currentTheme: Theme?)
+
 class LibraryInterfaceController: WKInterfaceController {
   @IBOutlet weak var separatorLastBookView: WKInterfaceSeparator!
   @IBOutlet var lastBookHeaderTitle: WKInterfaceLabel!
@@ -32,19 +34,12 @@ class LibraryInterfaceController: WKInterfaceController {
   @IBOutlet weak var playlistTableView: WKInterfaceTable!
   @IBOutlet weak var refreshButton: WKInterfaceButton!
 
-  var library: Library!
   var dataManager: DataManager!
   var watchConnectivityService: WatchConnectivityService!
 
   // TableView's datasource
-  var items: [LibraryItem] {
-    guard self.library != nil else {
-      return []
-    }
-
-    return self.library.items?.array as? [LibraryItem] ?? []
-  }
-
+  var items = [LibraryItem]()
+  var currentTheme: Theme?
   var selectedFolder: Folder?
 
   override func awake(withContext context: Any?) {
@@ -60,13 +55,14 @@ class LibraryInterfaceController: WKInterfaceController {
       guard error == nil else { return }
 
       let dataManager = DataManager(coreDataStack: stack)
+      let libraryService = LibraryService(dataManager: dataManager)
       self.dataManager = dataManager
 
-      self.watchConnectivityService = WatchConnectivityService(dataManager: dataManager)
+      self.watchConnectivityService = WatchConnectivityService(libraryService: libraryService)
 
       self.watchConnectivityService.startSession()
 
-      self.loadLibrary()
+      self.loadLibraryData()
 
       self.setupLastBook()
 
@@ -76,11 +72,12 @@ class LibraryInterfaceController: WKInterfaceController {
     NotificationCenter.default.addObserver(self, selector: #selector(self.updateApplicationContext), name: .contextUpdate, object: nil)
   }
 
-  func loadLibrary(_ library: Library? = nil) {
-    self.library = library ?? self.dataManager.loadLibrary()
-    self.watchConnectivityService.library = self.library
+  func loadLibraryData(_ data: WatchDataObject? = nil) {
+    guard let dataObject = data ?? self.dataManager.loadLibraryData() else { return }
 
-    if let theme = self.library.currentTheme {
+    self.items = dataObject.books
+
+    if let theme = dataObject.currentTheme {
       self.lastBookHeaderTitle.setTextColor(theme.linkColor)
       self.separatorLastBookView.setColor(theme.linkColor)
       self.separatorView.setColor(theme.linkColor)
@@ -109,7 +106,7 @@ class LibraryInterfaceController: WKInterfaceController {
       return
     }
 
-    let data = applicationContext["library"] as? Data
+    let themeData = applicationContext["currentTheme"] as? Data
     let booksData = applicationContext["recentBooks"] as? Data
 
     if let rewindInterval = applicationContext["rewindInterval"] as? TimeInterval {
@@ -120,12 +117,16 @@ class LibraryInterfaceController: WKInterfaceController {
       UserDefaults.standard.set(forwardInterval, forKey: Constants.UserDefaults.forwardInterval.rawValue)
     }
 
-    guard let library = self.dataManager.decodeLibrary(data, booksData: booksData) else { return }
+    guard let (books, currentTheme) = self.dataManager.decodeLibraryData(booksData: booksData, themeData: themeData) else { return }
 
-    self.loadLibrary(library)
-
-    self.setupLastBook()
-
+    self.currentTheme = currentTheme
+    self.items = books
+//    guard let library = self.dataManager.decodeLibrary(data, booksData: booksData) else { return }
+//
+//    self.loadLibrary(library)
+//
+//    self.setupLastBook()
+//
     self.setupLibraryTable()
   }
 
@@ -143,20 +144,8 @@ class LibraryInterfaceController: WKInterfaceController {
   // MARK: - TableView lifecycle
 
   func setupLastBook() {
-    guard let book = self.library.lastPlayedBook else {
-      self.hideLastBook(true)
-      return
-    }
-
-    self.hideLastBook(false)
-
-    self.lastBookTableView.setNumberOfRows(1, withRowType: "LibraryRow")
-
-    NotificationCenter.default.post(name: .lastBook, object: nil, userInfo: ["book": book])
-
-    guard let row = self.lastBookTableView.rowController(at: 0) as? ItemRow else { return }
-
-    row.titleLabel.setText(book.title)
+    // This has been disabled, as it wasn't adding much to the funcionality
+    self.hideLastBook(true)
   }
 
   func hideLastBook(_ flag: Bool) {
@@ -197,12 +186,6 @@ class LibraryInterfaceController: WKInterfaceController {
   }
 
   override func table(_ table: WKInterfaceTable, didSelectRowAt rowIndex: Int) {
-    if table == self.lastBookTableView {
-      guard let book = self.library.lastPlayedBook else { return }
-      self.play(book)
-      return
-    }
-
     let localItems = self.selectedFolder?.items?.array as? [LibraryItem] ?? self.items
 
     let item = localItems[rowIndex]

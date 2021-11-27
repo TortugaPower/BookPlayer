@@ -13,6 +13,7 @@ import Foundation
 
 class PlayerManagerMock: PlayerManagerProtocol {
   @Published var currentBook: Book?
+  @Published var currentSpeed: Float = 1.0
   @Published var hasChapters = false
   var didPlayPause = false
 
@@ -55,4 +56,14 @@ class PlayerManagerMock: PlayerManagerProtocol {
   func hasChaptersPublisher() -> Published<Bool>.Publisher {
     return self.$hasChapters
   }
+
+  func getSpeedOptions() -> [Float] { return [] }
+
+  func getCurrentSpeed() -> Float { return 1.0 }
+
+  func currentSpeedPublisher() -> AnyPublisher<Float, Never> {
+    return self.$currentSpeed.eraseToAnyPublisher()
+  }
+
+  func setSpeed(_ newValue: Float, relativePath: String?) {}
 }

@@ -17,10 +17,9 @@ class SettingsCoordinatorTests: XCTestCase {
 
   override func setUp() {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
-
+    let libraryService = LibraryService(dataManager: dataManager)
     self.settingsCoordinator = SettingsCoordinator(
-      dataManager: dataManager,
-      library: StubFactory.library(dataManager: dataManager),
+      libraryService: libraryService,
       navigationController: UINavigationController()
     )
     self.settingsCoordinator.start()
