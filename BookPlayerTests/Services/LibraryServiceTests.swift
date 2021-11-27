@@ -615,7 +615,7 @@ class LibraryServiceTests: XCTestCase {
     bookmark.type = .user
     book.addToBookmarks(bookmark)
 
-    self.sut.saveContext()
+    self.sut.dataManager.saveContext()
 
     XCTAssert(self.sut.getBookmark(of: .user, relativePath: book.relativePath) != nil)
   }
@@ -1114,5 +1114,20 @@ class ModifyLibraryTests: LibraryServiceTests {
 
     XCTAssert((folder.items?.array[0] as? Book)?.title == book3.title)
     XCTAssert((folder.items?.array[2] as? Book)?.title == book2.title)
+  }
+
+  func testUpdateBookSpeed() throws {
+    let book = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test-book1",
+      duration: 100
+    )
+    let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
+    try self.sut.moveItems([book], inside: folder.relativePath, moveFiles: true)
+
+    self.sut.updateBookSpeed(at: book.relativePath, speed: 2.0)
+
+    XCTAssert(book.speed == 2.0)
+    XCTAssert(folder.speed == 2.0)
   }
 }

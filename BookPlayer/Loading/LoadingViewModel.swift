@@ -125,8 +125,6 @@ class LoadingViewModel: BaseViewModel<LoadingCoordinator> {
 
       _ = libraryService.insertItems(from: files, into: nil, library: library, processedItems: [])
 
-      dataManager.saveContext()
-
       self?.coordinator.didFinishLoadingSequence(coreDataStack: stack)
     }
   }
@@ -180,10 +178,8 @@ class LoadingViewModel: BaseViewModel<LoadingCoordinator> {
     // Load default theme into library if needed
     let library = libraryService.getLibrary()
 
-    if library.currentTheme == nil,
-       let defaultTheme = libraryService.getTheme(with: "Default / Dark") {
-      library.currentTheme = defaultTheme
-      dataManager.saveContext()
+    if library.currentTheme == nil {
+      libraryService.setLibraryTheme(with: "Default / Dark")
     }
   }
 

@@ -33,6 +33,11 @@ protocol PlayerManagerProtocol {
   func jumpTo(_ time: Double, recordBookmark: Bool)
   func markAsCompleted(_ flag: Bool)
 
+  func getSpeedOptions() -> [Float]
+  func getCurrentSpeed() -> Float
+  func currentSpeedPublisher() -> AnyPublisher<Float, Never>
+  func setSpeed(_ newValue: Float, relativePath: String?)
+
   func isPlayingPublisher() -> AnyPublisher<Bool, Never>
   func currentBookPublisher() -> Published<Book?>.Publisher
   func hasChaptersPublisher() -> Published<Bool>.Publisher
@@ -40,6 +45,7 @@ protocol PlayerManagerProtocol {
 
 final class PlayerManager: NSObject, PlayerManagerProtocol {
   private let libraryService: LibraryServiceProtocol
+  private let speedManager: SpeedManager
   private let userActivityManager: UserActivityManager
   private let watchConnectivityService: WatchConnectivityService
 
@@ -95,8 +101,11 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
   private var rateObserver: NSKeyValueObservation?
 
-  init(libraryService: LibraryServiceProtocol, watchConnectivityService: WatchConnectivityService) {
+  init(libraryService: LibraryServiceProtocol,
+       speedManager: SpeedManager,
+       watchConnectivityService: WatchConnectivityService) {
     self.libraryService = libraryService
+    self.speedManager = speedManager
     self.watchConnectivityService = watchConnectivityService
     self.userActivityManager = UserActivityManager(libraryService: libraryService)
 
@@ -168,7 +177,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       DispatchQueue.main.async {
         // Set book metadata for lockscreen and control center
         self.nowPlayingInfo = [
-          MPNowPlayingInfoPropertyDefaultPlaybackRate: SpeedManager.shared.getSpeed()
+          MPNowPlayingInfoPropertyDefaultPlaybackRate: self.speedManager.getSpeed()
         ]
 
         self.setNowPlayingBookTitle()
@@ -253,7 +262,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
   private func bindSpeedObserver() {
     self.speedSubscription?.cancel()
-    self.speedSubscription = SpeedManager.shared.currentSpeed.sink { [weak self] speed in
+    self.speedSubscription = self.speedManager.currentSpeed.sink { [weak self] speed in
       guard let self = self,
             self.isPlaying else { return }
 
@@ -350,7 +359,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     let currentTimeInContext = currentBook.currentTimeInContext(prefersChapterContext)
     let maxTimeInContext = currentBook.maxTimeInContext(prefersChapterContext, false)
 
-    self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = SpeedManager.shared.getSpeed()
+    self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = self.speedManager.getSpeed()
     self.nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTimeInContext
     self.nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = maxTimeInContext
     self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackProgress] = currentTimeInContext / maxTimeInContext
@@ -457,7 +466,7 @@ extension PlayerManager {
     self.fadeTimer?.invalidate()
     self.boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
     // Set play state on player and control center
-    self.audioPlayer.playImmediately(atRate: SpeedManager.shared.getSpeed())
+    self.audioPlayer.playImmediately(atRate: self.speedManager.getSpeed())
     self.bindSpeedObserver()
 
     // Set last Play date
@@ -578,6 +587,22 @@ extension PlayerManager {
                                       "fileURL": fileURL,
                                       "bookIdentifier": bookIdentifier
                                     ])
+  }
+
+  func getSpeedOptions() -> [Float] {
+    return self.speedManager.speedOptions
+  }
+
+  func getCurrentSpeed() -> Float {
+    return self.speedManager.getSpeed()
+  }
+
+  func currentSpeedPublisher() -> AnyPublisher<Float, Never> {
+    return self.speedManager.currentSpeedPublisher()
+  }
+
+  func setSpeed(_ newValue: Float, relativePath: String?) {
+    self.speedManager.setSpeed(newValue, relativePath: relativePath)
   }
 
   func playPreviousItem() {

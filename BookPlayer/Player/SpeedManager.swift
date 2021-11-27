@@ -10,37 +10,29 @@ import BookPlayerKit
 import Combine
 import Foundation
 
-class SpeedManager: NSObject {
-  static let shared = SpeedManager()
-
-  var subscription: AnyCancellable?
+class SpeedManager {
+  private let libraryService: LibraryServiceProtocol
   let speedOptions: [Float] = [3, 2.5, 2, 1.75, 1.5, 1.25, 1.15, 1.1, 1, 0.9, 0.75, 0.5]
 
   public private(set) var currentSpeed = CurrentValueSubject<Float, Never>(1.0)
 
-  private override init() {
-    super.init()
-
-    self.bindCurrentBook()
+  public init(libraryService: LibraryServiceProtocol) {
+    self.libraryService = libraryService
   }
 
-  private func bindCurrentBook() {
-    guard let appDelegate = UIApplication.shared.delegate as? AppDelegate,
-          let mainCoordinator = appDelegate.coordinator.getMainCoordinator() else { return }
+  public func setBook(_ currentBook: Book?) {
+    let useGlobalSpeed = UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue)
+    let globalSpeed = UserDefaults.standard.float(forKey: "global_speed")
+    let localSpeed = currentBook?.folder?.speed ?? currentBook?.speed ?? 1.0
+    let speed = useGlobalSpeed ? globalSpeed : localSpeed
 
-    self.subscription = mainCoordinator.playerManager.currentBookPublisher().sink { [weak self] currentBook in
-      let useGlobalSpeed = UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue)
-      let globalSpeed = UserDefaults.standard.float(forKey: "global_speed")
-      let localSpeed = currentBook?.folder?.speed ?? currentBook?.speed ?? 1.0
-      let speed = useGlobalSpeed ? globalSpeed : localSpeed
+    self.currentSpeed.value = speed > 0 ? speed : 1.0
+  }
 
-      self?.currentSpeed.value = speed > 0 ? speed : 1.0
+  public func setSpeed(_ newValue: Float, relativePath: String?) {
+    if let relativePath = relativePath {
+      self.libraryService.updateBookSpeed(at: relativePath, speed: newValue)
     }
-  }
-
-  public func setSpeed(_ newValue: Float, currentBook: Book?) {
-    currentBook?.folder?.speed = newValue
-    currentBook?.speed = newValue
 
     // set global speed
     if UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue) {
@@ -52,5 +44,9 @@ class SpeedManager: NSObject {
 
   public func getSpeed() -> Float {
     return self.currentSpeed.value
+  }
+
+  public func currentSpeedPublisher() -> AnyPublisher<Float, Never> {
+    return self.currentSpeed.eraseToAnyPublisher()
   }
 }

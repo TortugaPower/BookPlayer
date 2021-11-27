@@ -32,6 +32,7 @@ public protocol LibraryServiceProtocol {
   func replaceOrderedItems(_ items: NSOrderedSet, at relativePath: String?)
   func reorderItem(at relativePath: String, inside folderRelativePath: String?, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath)
 
+  func updateBookSpeed(at relativePath: String, speed: Float)
   func markAsFinished(flag: Bool, relativePath: String)
   func jumpToStart(relativePath: String)
   func getCurrentPlaybackRecord() -> PlaybackRecord
@@ -290,7 +291,7 @@ public final class LibraryService: LibraryServiceProtocol {
       library.rebuildOrderRank()
     }
 
-    self.saveContext()
+    self.dataManager.saveContext()
   }
 
   public func reorderItem(
@@ -313,7 +314,16 @@ public final class LibraryService: LibraryServiceProtocol {
       library.rebuildOrderRank()
     }
 
-    self.saveContext()
+    self.dataManager.saveContext()
+  }
+
+  public func updateBookSpeed(at relativePath: String, speed: Float) {
+    guard let item = self.getItem(with: relativePath) else { return }
+
+    item.speed = speed
+    item.folder?.speed = speed
+
+    self.dataManager.saveContext()
   }
 
   public func markAsFinished(flag: Bool, relativePath: String) {
@@ -457,14 +467,14 @@ public final class LibraryService: LibraryServiceProtocol {
 
     item.title = newTitle
 
-    self.saveContext()
+    self.dataManager.saveContext()
   }
 
   // This handles the Core Data objects creation from the Import operation
   // This method doesn't handle moving files on disk, only creating the core data structure for a given file tree
   public func insertItems(from files: [URL], into folder: Folder?, library: Library, processedItems: [LibraryItem]?) -> [LibraryItem] {
     guard !files.isEmpty else {
-      self.saveContext()
+      self.dataManager.saveContext()
       return processedItems ?? []
     }
 
@@ -559,7 +569,7 @@ public final class LibraryService: LibraryServiceProtocol {
       folder.updateCompletionState()
     }
 
-    self.saveContext()
+    self.dataManager.saveContext()
   }
 
   public func delete(_ items: [LibraryItem], library: Library, mode: DeleteMode) throws {
@@ -622,7 +632,7 @@ public final class LibraryService: LibraryServiceProtocol {
     guard mode == .deep else {
       if item.folder != nil {
         library.insert(item: item)
-        self.saveContext()
+        self.dataManager.saveContext()
       }
 
       return

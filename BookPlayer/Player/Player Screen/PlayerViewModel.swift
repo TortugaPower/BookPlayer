@@ -28,6 +28,10 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     return self.playerManager.currentBookPublisher()
   }
 
+  func currentSpeedObserver() -> AnyPublisher<Float, Never> {
+    return self.playerManager.currentSpeedPublisher()
+  }
+
   func isPlayingObserver() -> AnyPublisher<Bool, Never> {
     return self.playerManager.isPlayingPublisher()
   }
@@ -281,13 +285,12 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   func getSpeedActionSheet() -> UIAlertController {
     let actionSheet = UIAlertController(title: nil, message: "player_speed_title".localized, preferredStyle: .actionSheet)
 
-    for speed in SpeedManager.shared.speedOptions {
-      if speed ==  SpeedManager.shared.getSpeed() {
+    for speed in self.playerManager.getSpeedOptions() {
+      if speed ==  self.playerManager.getCurrentSpeed() {
         actionSheet.addAction(UIAlertAction(title: "\u{00A0} \(speed) ✓", style: .default, handler: nil))
       } else {
         actionSheet.addAction(UIAlertAction(title: "\(speed)", style: .default, handler: { _ in
-          SpeedManager.shared.setSpeed(speed, currentBook: self.playerManager.currentBook)
-          self.libraryService.saveContext()
+          self.playerManager.setSpeed(speed, relativePath: self.playerManager.currentBook?.relativePath)
         }))
       }
     }
