@@ -141,6 +141,18 @@ class LibraryServiceTests: XCTestCase {
     XCTAssert(theme.darkPrimaryHex == "FAFBFC")
   }
 
+  func testCreateBook() {
+    let filename = "test-book.txt"
+    let bookContents = "bookcontents".data(using: .utf8)!
+    let processedFolder = DataManager.getProcessedFolderURL()
+
+    // Add test file to Processed folder
+    let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: processedFolder)
+    let newBook = self.sut.createBook(from: fileUrl)
+    XCTAssert(newBook.title == "test-book.txt")
+    XCTAssert(newBook.relativePath == "/test-book.txt")
+  }
+
   func testGetItemWithIdentifier() {
     let nilBook = self.sut.getItem(with: "test-book1")
     XCTAssert(nilBook == nil)

@@ -11,10 +11,6 @@ import CoreData
 import Foundation
 
 extension DataManager {
-  func createBook(from url: URL) -> Book {
-    return Book(from: url, context: self.getContext())
-  }
-
   // This handles the Core Data objects creation from the Import operation
   // This method doesn't handle moving files on disk, only creating the core data structure for a given file tree
   func insertItems(from files: [URL], into folder: Folder?, library: Library, processedItems: [LibraryItem]? = []) -> [LibraryItem] {

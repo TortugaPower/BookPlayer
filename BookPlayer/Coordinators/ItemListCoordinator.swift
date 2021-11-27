@@ -191,7 +191,7 @@ class ItemListCoordinator: Coordinator {
 
   func showSettings() {
     let settingsCoordinator = SettingsCoordinator(
-      dataManager: self.dataManager,
+      libraryService: self.libraryService,
       library: self.library,
       navigationController: AppNavigationController.instantiate(from: .Settings)
     )

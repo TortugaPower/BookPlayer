@@ -19,6 +19,7 @@ public protocol LibraryServiceProtocol {
   func setLibraryTheme(with title: String)
   func createTheme(params: [String: Any]) -> Theme
 
+  func createBook(from url: URL) -> Book
   func getItem(with relativePath: String) -> LibraryItem?
   func findBooks(containing fileURL: URL) -> [Book]?
   func getOrderedBooks(limit: Int?) -> [Book]?
@@ -118,6 +119,12 @@ public final class LibraryService: LibraryServiceProtocol {
     let newTheme = Theme(params: params, context: self.dataManager.getContext())
     self.dataManager.saveContext()
     return newTheme
+  }
+
+  public func createBook(from url: URL) -> Book {
+    let newBook = Book(from: url, context: self.dataManager.getContext())
+    self.dataManager.saveContext()
+    return newBook
   }
 
   public func getItem(with relativePath: String) -> LibraryItem? {
