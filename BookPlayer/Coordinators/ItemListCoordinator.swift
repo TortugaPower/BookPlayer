@@ -36,6 +36,7 @@ class ItemListCoordinator: Coordinator {
   let playerManager: PlayerManagerProtocol
   let importManager: ImportManager
   let libraryService: LibraryServiceProtocol
+  let playbackService: PlaybackServiceProtocol
 
   weak var documentPickerDelegate: UIDocumentPickerDelegate?
   var fileSubscription: AnyCancellable?
@@ -45,11 +46,13 @@ class ItemListCoordinator: Coordinator {
     navigationController: UINavigationController,
     playerManager: PlayerManagerProtocol,
     importManager: ImportManager,
-    libraryService: LibraryServiceProtocol
+    libraryService: LibraryServiceProtocol,
+    playbackService: PlaybackServiceProtocol
   ) {
     self.playerManager = playerManager
     self.importManager = importManager
     self.libraryService = libraryService
+    self.playbackService = playbackService
 
     super.init(navigationController: navigationController,
                flowType: .push)
@@ -122,7 +125,8 @@ class ItemListCoordinator: Coordinator {
                                       folderRelativePath: relativePath,
                                       playerManager: self.playerManager,
                                       importManager: self.importManager,
-                                      libraryService: self.libraryService)
+                                      libraryService: self.libraryService,
+                                      playbackService: self.playbackService)
     self.childCoordinators.append(child)
     child.parentCoordinator = self
     child.start()
@@ -147,14 +151,15 @@ class ItemListCoordinator: Coordinator {
     }
 
     // Only load if loaded book is a different one
-    guard relativePath != playerManager.currentBook?.relativePath else {
+    guard relativePath != playerManager.currentItem?.relativePath else {
       self.showPlayer()
       return
     }
 
-    guard let book = self.libraryService.getItem(with: relativePath) as? Book else { return }
+    guard let libraryItem = self.libraryService.getItem(with: relativePath),
+          let item = self.playbackService.getPlayableItem(from: libraryItem) else { return }
 
-    self.playerManager.load(book) { [weak self] loaded in
+    self.playerManager.load(item) { [weak self] loaded in
       guard loaded else { return }
 
       self?.getMainCoordinator()?.showMiniPlayer(true)
@@ -164,9 +169,10 @@ class ItemListCoordinator: Coordinator {
   }
 
   func loadLastBookIfAvailable() {
-    guard let book = try? self.libraryService.getLibraryLastBook() else { return }
+    guard let book = try? self.libraryService.getLibraryLastBook(),
+          let item = self.playbackService.getPlayableItem(from: book) else { return }
 
-    self.playerManager.load(book) { [weak self] loaded in
+    self.playerManager.load(item) { [weak self] loaded in
       guard loaded else { return }
 
       self?.getMainCoordinator()?.showMiniPlayer(true)
@@ -395,7 +401,7 @@ extension ItemListCoordinator {
     }
 
     alert.addAction(UIAlertAction(title: deleteActionTitle, style: .destructive, handler: { _ in
-      if selectedItems.contains(where: { $0.relativePath == self.playerManager.currentBook?.relativePath }) {
+      if selectedItems.contains(where: { $0.relativePath == self.playerManager.currentItem?.relativePath }) {
         self.playerManager.stop()
       }
 

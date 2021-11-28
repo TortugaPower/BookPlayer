@@ -15,6 +15,7 @@ class MainCoordinator: Coordinator {
   let rootViewController: RootViewController
   let playerManager: PlayerManager
   let libraryService: LibraryServiceProtocol
+  let playbackService: PlaybackServiceProtocol
   let watchConnectivityService: WatchConnectivityService
   var carPlayManager: CarPlayManager!
 
@@ -25,11 +26,13 @@ class MainCoordinator: Coordinator {
   ) {
     self.rootViewController = rootController
     self.libraryService = libraryService
+    self.playbackService = PlaybackService(libraryService: libraryService)
 
     let watchService = WatchConnectivityService(libraryService: libraryService)
     self.watchConnectivityService = watchService
     self.playerManager = PlayerManager(
       libraryService: libraryService,
+      playbackService: self.playbackService,
       speedManager: SpeedManager(libraryService: libraryService),
       watchConnectivityService: watchService
     )
@@ -60,7 +63,8 @@ class MainCoordinator: Coordinator {
       navigationController: self.navigationController,
       playerManager: self.playerManager,
       importManager: ImportManager(libraryService: self.libraryService),
-      libraryService: self.libraryService
+      libraryService: self.libraryService,
+      playbackService: self.playbackService
     )
     libraryCoordinator.parentCoordinator = self
     self.childCoordinators.append(libraryCoordinator)

@@ -199,7 +199,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
 
   override func accessibilityPerformMagicTap() -> Bool {
     guard let mainCoordinator = self.coordinator.getMainCoordinator(),
-          mainCoordinator.playerManager.currentBook != nil else {
+          mainCoordinator.playerManager.currentItem != nil else {
             UIAccessibility.post(notification: .announcement, argument: "voiceover_no_title".localized)
             return false
           }
@@ -218,7 +218,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
     MPRemoteCommandCenter.shared().bookmarkCommand.isEnabled = false
     MPRemoteCommandCenter.shared().bookmarkCommand.addTarget { _ in
       guard let mainCoordinator = self.coordinator.getMainCoordinator(),
-            let currentBook = mainCoordinator.playerManager.currentBook else { return .commandFailed }
+            let currentBook = mainCoordinator.playerManager.currentItem else { return .commandFailed }
 
       _ = mainCoordinator.libraryService.createBookmark(at: currentBook.currentTime,
                                                         relativePath: currentBook.relativePath,

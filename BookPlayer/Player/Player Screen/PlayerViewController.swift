@@ -100,12 +100,10 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
     self.chapterTitleButton.isAccessibilityElement = false
   }
 
-  func setupPlayerView(with currentBook: Book) {
-    guard !currentBook.isFault else { return }
+  func setupPlayerView(with currentItem: PlayableItem) {
+    self.artworkControl.setupInfo(with: currentItem)
 
-    self.artworkControl.setupInfo(with: currentBook)
-
-    self.updateView(with: self.viewModel.getCurrentProgressState(currentBook))
+    self.updateView(with: self.viewModel.getCurrentProgressState(currentItem))
 
     applyTheme(self.themeProvider.currentTheme)
 
@@ -307,15 +305,11 @@ extension PlayerViewController {
       }
       .store(in: &disposeBag)
 
-    self.viewModel.currentBookObserver().sink { [weak self] book in
+    self.viewModel.currentItemObserver().sink { [weak self] item in
       guard let self = self,
-            let book = book else { return }
+            let item = item else { return }
 
-      self.setupPlayerView(with: book)
-    }.store(in: &disposeBag)
-
-    self.viewModel.hasChaptersPublisher().sink { hasChapters in
-      self.chaptersButton.isEnabled = hasChapters
+      self.setupPlayerView(with: item)
     }.store(in: &disposeBag)
 
     self.viewModel.currentSpeedObserver().sink { [weak self] speed in

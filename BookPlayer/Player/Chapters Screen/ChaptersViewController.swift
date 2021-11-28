@@ -12,7 +12,7 @@ import Themeable
 import UIKit
 
 final class ChaptersViewController: BaseTableViewController<ChapterCoordinator, ChaptersViewModel>, Storyboarded {
-  var chapters = [Chapter]()
+  var chapters = [PlayableChapter]()
   var scrolledToCurrentChapter = false
 
   override func viewDidLoad() {
@@ -24,7 +24,7 @@ final class ChaptersViewController: BaseTableViewController<ChapterCoordinator, 
     self.tableView.rowHeight = UITableView.automaticDimension
     self.tableView.estimatedRowHeight = 55.66
 
-    self.chapters = viewModel.getBookChapters() ?? []
+    self.chapters = viewModel.getItemChapters() ?? []
 
     setUpTheming()
   }

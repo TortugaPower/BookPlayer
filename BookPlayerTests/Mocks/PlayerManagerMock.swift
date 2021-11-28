@@ -12,9 +12,8 @@ import Foundation
 @testable import BookPlayer
 
 class PlayerManagerMock: PlayerManagerProtocol {
-  @Published var currentBook: Book?
+  @Published var currentItem: PlayableItem?
   @Published var currentSpeed: Float = 1.0
-  @Published var hasChapters = false
   var didPlayPause = false
 
   func playPause() {
@@ -25,8 +24,8 @@ class PlayerManagerMock: PlayerManagerProtocol {
     return Just(true).eraseToAnyPublisher()
   }
 
-  func currentBookPublisher() -> Published<Book?>.Publisher {
-    return self.$currentBook
+  func currentItemPublisher() -> Published<PlayableItem?>.Publisher {
+    return self.$currentItem
   }
 
   func play() {}
@@ -35,7 +34,7 @@ class PlayerManagerMock: PlayerManagerProtocol {
 
   func stop() {}
 
-  func load(_ book: Book, completion: @escaping (Bool) -> Void) {}
+  func load(_ item: PlayableItem, completion: @escaping (Bool) -> Void) {}
 
   func hasLoadedBook() -> Bool { return true }
 
@@ -51,11 +50,7 @@ class PlayerManagerMock: PlayerManagerProtocol {
 
   func playNextItem(autoPlayed: Bool) {}
 
-  func playItem(_ book: Book) {}
-
-  func hasChaptersPublisher() -> Published<Bool>.Publisher {
-    return self.$hasChapters
-  }
+  func playItem(_ item: PlayableItem) {}
 
   func getSpeedOptions() -> [Float] { return [] }
 

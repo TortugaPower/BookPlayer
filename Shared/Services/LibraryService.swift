@@ -32,15 +32,16 @@ public protocol LibraryServiceProtocol {
   func replaceOrderedItems(_ items: NSOrderedSet, at relativePath: String?)
   func reorderItem(at relativePath: String, inside folderRelativePath: String?, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath)
 
-  func updateBookTime(_ book: Book, time: Double)
+  func updatePlaybackTime(relativePath: String, time: Double)
   func updateBookSpeed(at relativePath: String, speed: Float)
+  func updateBookLastPlayDate(at relativePath: String, date: Date)
   func markAsFinished(flag: Bool, relativePath: String)
   func jumpToStart(relativePath: String)
   func getCurrentPlaybackRecord() -> PlaybackRecord
   func getPlaybackRecords(from startDate: Date, to endDate: Date) -> [PlaybackRecord]?
   func recordTime(_ playbackRecord: PlaybackRecord)
 
-  func getBookmark(of type: BookmarkType, relativePath: String) -> Bookmark?
+  func getBookmarks(of type: BookmarkType, relativePath: String) -> [Bookmark]?
   func getBookmark(at time: Double, relativePath: String, type: BookmarkType) -> Bookmark?
   func createBookmark(at time: Double, relativePath: String, type: BookmarkType) -> Bookmark
   func addNote(_ note: String, bookmark: Bookmark)
@@ -326,9 +327,11 @@ public final class LibraryService: LibraryServiceProtocol {
     self.dataManager.saveContext()
   }
 
-  public func updateBookTime(_ book: Book, time: Double) {
-    book.setCurrentTime(time)
-    book.percentCompleted = book.percentage
+  public func updatePlaybackTime(relativePath: String, time: Double) {
+    guard let item = self.getItem(with: relativePath) else { return }
+
+    item.currentTime = time
+    item.percentCompleted = round((item.currentTime / item.duration) * 100)
 
     self.dataManager.saveContext()
   }
@@ -338,6 +341,15 @@ public final class LibraryService: LibraryServiceProtocol {
 
     item.speed = speed
     item.folder?.speed = speed
+
+    self.dataManager.saveContext()
+  }
+
+  public func updateBookLastPlayDate(at relativePath: String, date: Date) {
+    guard let item = self.getItem(with: relativePath) else { return }
+
+    item.lastPlayDate = date
+    item.folder?.lastPlayDate = date
 
     self.dataManager.saveContext()
   }
@@ -430,14 +442,14 @@ public final class LibraryService: LibraryServiceProtocol {
 
   // MARK: - Bookmarks
 
-  public func getBookmark(of type: BookmarkType, relativePath: String) -> Bookmark? {
+  public func getBookmarks(of type: BookmarkType, relativePath: String) -> [Bookmark]? {
     let fetchRequest: NSFetchRequest<Bookmark> = Bookmark.fetchRequest()
     fetchRequest.predicate = NSPredicate(format: "%K == %@ && type == %d",
                                          #keyPath(Bookmark.book.relativePath),
                                          relativePath,
                                          type.rawValue)
 
-    return try? self.dataManager.getContext().fetch(fetchRequest).first
+    return try? self.dataManager.getContext().fetch(fetchRequest)
   }
 
   public func getBookmark(at time: Double, relativePath: String, type: BookmarkType) -> Bookmark? {

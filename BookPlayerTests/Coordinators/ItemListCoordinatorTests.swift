@@ -24,7 +24,8 @@ class LibraryListCoordinatorTests: XCTestCase {
       navigationController: UINavigationController(),
       playerManager: PlayerManagerMock(),
       importManager: ImportManager(libraryService: libraryService),
-      libraryService: libraryService
+      libraryService: libraryService,
+      playbackService: PlaybackService(libraryService: libraryService)
     )
 
     self.libraryListCoordinator.start()
@@ -98,7 +99,8 @@ class FolderListCoordinatorTests: XCTestCase {
       folderRelativePath: folder.relativePath,
       playerManager: PlayerManagerMock(),
       importManager: ImportManager(libraryService: libraryService),
-      libraryService: libraryService
+      libraryService: libraryService,
+      playbackService: PlaybackService(libraryService: libraryService)
     )
 
     self.folderListCoordinator.start()

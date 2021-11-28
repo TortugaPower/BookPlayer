@@ -18,8 +18,8 @@ class MiniPlayerViewModel: BaseViewModel<MainCoordinator> {
     self.playerManager = playerManager
   }
 
-  func currentBookObserver() -> Published<Book?>.Publisher {
-    return self.playerManager.currentBookPublisher()
+  func currentItemObserver() -> Published<PlayableItem?>.Publisher {
+    return self.playerManager.currentItemPublisher()
   }
 
   func isPlayingObserver() -> AnyPublisher<Bool, Never> {

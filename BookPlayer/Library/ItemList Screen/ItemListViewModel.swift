@@ -64,35 +64,34 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func bindBookObserver() {
-    self.bookSubscription = self.playerManager.currentBookPublisher().sink { [weak self] book in
+    self.bookSubscription = self.playerManager.currentItemPublisher().sink { [weak self] currentItem in
       guard let self = self else { return }
 
       self.bookProgressSubscription?.cancel()
       self.containingFolder = nil
 
-      guard let book = book else {
+      guard let currentItem = currentItem else {
         self.clearPlaybackState()
         return
       }
 
       // Get folder reference for progress calculation
-      if let item = self.items.first(where: { book.relativePath.contains($0.relativePath) && $0.type == .folder }) {
-        self.containingFolder = book.getFolder(matching: item.relativePath)
+      if let item = self.items.first(where: { currentItem.relativePath.contains($0.relativePath) && $0.type == .folder }) {
+        self.containingFolder = self.libraryService.findFolder(with: item.relativePath)
       }
 
-      self.bindBookProgressObserver(book)
+      self.bindItemProgressObserver(currentItem)
     }
   }
 
-  func bindBookProgressObserver(_ book: Book) {
+  func bindItemProgressObserver(_ item: PlayableItem) {
     self.bookProgressSubscription?.cancel()
 
-    self.bookProgressSubscription = book.publisher(for: \.percentCompleted)
-      .combineLatest(book.publisher(for: \.relativePath))
+    self.bookProgressSubscription = item.publisher(for: \.percentCompleted)
+      .combineLatest(item.publisher(for: \.relativePath))
       .removeDuplicates(by: { $0.0 == $1.0 })
       .sink(receiveValue: { [weak self] (percentCompleted, relativePath) in
         guard let self = self,
-              let relativePath = relativePath,
               let index = self.items.firstIndex(where: { relativePath.contains($0.relativePath) }) else { return }
 
         let currentItem = self.items[index]
@@ -202,35 +201,34 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       return
     }
 
-    var bookToPlay: Book?
+    var pathToPlay: String?
 
     defer {
-      if let book = bookToPlay {
-        self.coordinator.loadPlayer(book.relativePath)
+      if let pathToPlay = pathToPlay {
+        self.coordinator.loadPlayer(pathToPlay)
       }
     }
 
     guard let folder = libraryItem as? Folder else {
-      bookToPlay = libraryItem.getBookToPlay()
+      pathToPlay = libraryItem.relativePath
       return
     }
 
     // Special treatment for folders
     guard
-      let bookPlaying = self.playerManager.currentBook,
-      let currentFolder = bookPlaying.folder,
-      currentFolder == folder else {
+      let currentItem = self.playerManager.currentItem,
+      currentItem.relativePath.contains(folder.relativePath) else {
         // restart the selected folder if current playing book has no relation to it
         if libraryItem.isFinished {
           self.libraryService.jumpToStart(relativePath: libraryItem.relativePath)
         }
 
-        bookToPlay = libraryItem.getBookToPlay()
+        pathToPlay = libraryItem.getBookToPlay()?.relativePath
         return
       }
 
     // override next book with the one already playing
-    bookToPlay = bookPlaying
+    pathToPlay = currentItem.relativePath
   }
 
   func reloadItems(pageSizePadding: Int = 0) {
@@ -244,12 +242,11 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func getPlaybackState(for item: LibraryItem) -> PlaybackState {
-    // TODO: refactor PlayerManager to stop using backed coredata objects
-    guard let book = self.playerManager.currentBook, !book.isFault else {
+    guard let currentItem = self.playerManager.currentItem else {
       return .stopped
     }
 
-    return book.relativePath.contains(item.relativePath) ? .playing : .stopped
+    return currentItem.relativePath.contains(item.relativePath) ? .playing : .stopped
   }
 
   func showItemContents(_ item: SimpleLibraryItem) {

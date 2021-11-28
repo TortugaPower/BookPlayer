@@ -17,7 +17,8 @@ class FolderListCoordinator: ItemListCoordinator {
     folderRelativePath: String,
     playerManager: PlayerManagerProtocol,
     importManager: ImportManager,
-    libraryService: LibraryServiceProtocol
+    libraryService: LibraryServiceProtocol,
+    playbackService: PlaybackServiceProtocol
   ) {
     self.folderRelativePath = folderRelativePath
 
@@ -25,7 +26,8 @@ class FolderListCoordinator: ItemListCoordinator {
       navigationController: navigationController,
       playerManager: playerManager,
       importManager: importManager,
-      libraryService: libraryService
+      libraryService: libraryService,
+      playbackService: playbackService
     )
   }
 
