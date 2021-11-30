@@ -115,7 +115,7 @@ class ItemListCoordinator: Coordinator {
     switch item.type {
     case .folder:
       self.showFolder(item.relativePath)
-    case .book:
+    case .book, .bound:
       self.loadPlayer(item.relativePath)
     }
   }

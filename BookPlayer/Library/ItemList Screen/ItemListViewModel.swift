@@ -99,7 +99,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         var progress: Double?
 
         switch currentItem.type {
-        case .book:
+        case .book, .bound:
           progress = percentCompleted / 100
         case .folder:
           progress = self.containingFolder?.progressPercentage

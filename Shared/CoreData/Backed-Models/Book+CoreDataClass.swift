@@ -162,20 +162,22 @@ public class Book: LibraryItem {
     return chapters.first { $0.start <= globalTime && $0.end >= globalTime }
   }
 
-  public func previousBook() -> Book? {
+  public func previousBook() -> LibraryItem? {
     if
       let folder = self.folder,
-      let previous = folder.getPreviousBook(before: self) {
+      folder.type == .regular,
+      let previous = folder.getPreviousBook(before: self.relativePath) {
       return previous
     }
 
-    return self.getLibrary()?.getPreviousBook(before: self)
+    return self.getLibrary()?.getPreviousBook(before: self.relativePath)
   }
 
-  public func nextBook(autoplayed: Bool) -> Book? {
+  public func nextBook(autoplayed: Bool) -> LibraryItem? {
     if
       let folder = self.folder,
-      let next = folder.getNextBook(after: self) {
+      folder.type == .regular,
+      let next = folder.getNextBook(after: self.relativePath) {
       return next
     }
 
@@ -185,7 +187,7 @@ public class Book: LibraryItem {
       }
     }
 
-    return self.getLibrary()?.getNextBook(after: self)
+    return self.getLibrary()?.getNextBook(after: self.relativePath)
   }
 
   public func getInterval(from proposedInterval: TimeInterval) -> TimeInterval {

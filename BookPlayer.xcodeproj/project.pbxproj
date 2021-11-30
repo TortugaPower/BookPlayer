@@ -213,6 +213,8 @@
 		41A8942B2652A7DF0032E972 /* Bundle+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A894292652A7DF0032E972 /* Bundle+BookPlayer.swift */; };
 		41A8BAFB227E2991003C9895 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 418B6D041D2707F800F974FB /* Assets.xcassets */; };
 		41A8BAFE227E6C88003C9895 /* Notification+BookPlayerWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A8BAFD227E6C88003C9895 /* Notification+BookPlayerWatchApp.swift */; };
+		41A90C4527563F5A00C30394 /* FolderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A90C4427563F5A00C30394 /* FolderType.swift */; };
+		41A90C4627563F5A00C30394 /* FolderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A90C4427563F5A00C30394 /* FolderType.swift */; };
 		41AD3D9A221C737F00DC41E1 /* retro-icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3D97221C737E00DC41E1 /* retro-icon@2x.png */; };
 		41AD3D9C221C737F00DC41E1 /* retro-icon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3D99221C737F00DC41E1 /* retro-icon@3x.png */; };
 		41AD3D9E221C750E00DC41E1 /* Icons.json in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3D9D221C750E00DC41E1 /* Icons.json */; };
@@ -707,6 +709,7 @@
 		41A8941F2652A5DE0032E972 /* Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configuration.swift; sourceTree = "<group>"; };
 		41A894292652A7DF0032E972 /* Bundle+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+BookPlayer.swift"; sourceTree = "<group>"; };
 		41A8BAFD227E6C88003C9895 /* Notification+BookPlayerWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Notification+BookPlayerWatchApp.swift"; sourceTree = "<group>"; };
+		41A90C4427563F5A00C30394 /* FolderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderType.swift; sourceTree = "<group>"; };
 		41AD3D97221C737E00DC41E1 /* retro-icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "retro-icon@2x.png"; sourceTree = "<group>"; };
 		41AD3D99221C737F00DC41E1 /* retro-icon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "retro-icon@3x.png"; sourceTree = "<group>"; };
 		41AD3D9D221C750E00DC41E1 /* Icons.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Icons.json; sourceTree = "<group>"; };
@@ -1452,6 +1455,7 @@
 				41A1B11A226F88C500EA0400 /* Library+CoreDataProperties.swift */,
 				41A1B11B226F88C500EA0400 /* Folder+CoreDataClass.swift */,
 				41A1B11C226F88C500EA0400 /* Folder+CoreDataProperties.swift */,
+				41A90C4427563F5A00C30394 /* FolderType.swift */,
 				4138CE0D26E5540E0014F11E /* Bookmark+CoreDataClass.swift */,
 				4138CE0E26E5540E0014F11E /* Bookmark+CoreDataProperties.swift */,
 				4138CE1526E584B60014F11E /* BookmarkType.swift */,
@@ -2235,6 +2239,7 @@
 				418CABB525EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
 				4124AB2225DFE1A60007C839 /* CoreDataStack.swift in Sources */,
 				4140EA75227289B20009F794 /* Theme+CoreDataProperties.swift in Sources */,
+				41A90C4627563F5A00C30394 /* FolderType.swift in Sources */,
 				4140EA7E227289CE0009F794 /* Library+CoreDataClass.swift in Sources */,
 				41C233FE272E1958006BC7B8 /* SimpleLibraryItem.swift in Sources */,
 				416AAC3523F515B0005AD04F /* String+BookPlayer.swift in Sources */,
@@ -2452,6 +2457,7 @@
 				41A1B104226E9DBA00EA0400 /* UIColor+BookPlayer.swift in Sources */,
 				41A1B11D226F88C500EA0400 /* Theme+CoreDataClass.swift in Sources */,
 				41A894202652A5DE0032E972 /* Configuration.swift in Sources */,
+				41A90C4527563F5A00C30394 /* FolderType.swift in Sources */,
 				41A1B129226F88C500EA0400 /* Folder+CoreDataClass.swift in Sources */,
 				41C233FD272E1957006BC7B8 /* SimpleLibraryItem.swift in Sources */,
 				410C4692227358CD0040114D /* WatchConnectivityService.swift in Sources */,

@@ -18,7 +18,7 @@ class VoiceOverService {
         switch type {
         case .book:
             return self.bookText()
-        case .folder:
+        case .folder, .bound:
             return self.folderText()
         }
     }

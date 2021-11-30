@@ -219,12 +219,12 @@ public class Folder: LibraryItem {
         return nil
     }
 
-  func getPreviousBook(before book: Book) -> Book? {
+  func getPreviousBook(before relativePath: String) -> Book? {
     guard let items = self.items?.array as? [LibraryItem] else {
       return nil
     }
 
-    guard let indexFound = self.itemIndex(with: book.relativePath) else {
+    guard let indexFound = self.itemIndex(with: relativePath) else {
       return nil
     }
 
@@ -240,7 +240,7 @@ public class Folder: LibraryItem {
       if let book = item as? Book {
         return book
       } else if let folder = item as? Folder {
-        return folder.getPreviousBook(before: book)
+        return folder.getPreviousBook(before: relativePath)
       }
     }
 
@@ -248,12 +248,12 @@ public class Folder: LibraryItem {
   }
 
     // Used for player autoplay
-    func getNextBook(after book: Book) -> Book? {
+    func getNextBook(after relativePath: String) -> Book? {
         guard let items = self.items?.array as? [LibraryItem] else {
             return nil
         }
 
-        let indexFound = self.itemIndex(with: book.relativePath)
+        let indexFound = self.itemIndex(with: relativePath)
 
         for (index, item) in items.enumerated() {
           if let indexFound = indexFound {
@@ -267,7 +267,7 @@ public class Folder: LibraryItem {
           if let book = item as? Book {
             return book
           } else if let folder = item as? Folder {
-            return folder.getNextBook(after: book)
+            return folder.getNextBook(after: relativePath)
           }
         }
 

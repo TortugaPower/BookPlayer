@@ -42,7 +42,9 @@ public final class PlaybackService: PlaybackServiceProtocol {
 
       return self.getPlayableItem(from: previousBook)
     case let folder as Folder:
-      return nil
+      guard let previousItem = folder.getLibrary()?.getPreviousBook(before: folder.relativePath) else { return nil }
+
+      return self.getPlayableItem(from: previousItem)
     default:
       return nil
     }
@@ -57,7 +59,9 @@ public final class PlaybackService: PlaybackServiceProtocol {
 
       return self.getPlayableItem(from: nextBook)
     case let folder as Folder:
-      return nil
+      guard let nextItem = folder.getLibrary()?.getNextBook(after: folder.relativePath) else { return nil }
+
+      return self.getPlayableItem(from: nextItem)
     default:
       return nil
     }

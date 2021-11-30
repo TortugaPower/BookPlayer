@@ -65,12 +65,12 @@ public class Library: NSManagedObject, Codable {
         return itemFound
     }
 
-  func getPreviousBook(before book: Book) -> Book? {
+  func getPreviousBook(before relativePath: String) -> LibraryItem? {
     guard let items = self.items?.array as? [LibraryItem] else {
       return nil
     }
 
-    guard let indexFound = self.itemIndex(with: book.relativePath) else {
+    guard let indexFound = self.itemIndex(with: relativePath) else {
       return nil
     }
 
@@ -86,17 +86,22 @@ public class Library: NSManagedObject, Codable {
       if let book = item as? Book {
         return book
       } else if let folder = item as? Folder {
-        return folder.getPreviousBook(before: book)
+        switch folder.type {
+        case .regular:
+          return folder.getPreviousBook(before: relativePath)
+        case .bound:
+          return folder
+        }
       }
     }
 
     return nil
   }
 
-  func getNextBook(after book: Book) -> Book? {
+  func getNextBook(after relativePath: String) -> LibraryItem? {
     guard let items = self.items?.array as? [LibraryItem] else { return nil }
 
-    let indexFound = self.itemIndex(with: book.relativePath)
+    let indexFound = self.itemIndex(with: relativePath)
 
     for (index, item) in items.enumerated() {
       if let indexFound = indexFound {
@@ -110,7 +115,12 @@ public class Library: NSManagedObject, Codable {
       if let book = item as? Book {
         return book
       } else if let folder = item as? Folder {
-        return folder.getNextBook(after: book)
+        switch folder.type {
+        case .regular:
+          return folder.getNextBook(after: relativePath)
+        case .bound:
+          return folder
+        }
       }
     }
 
