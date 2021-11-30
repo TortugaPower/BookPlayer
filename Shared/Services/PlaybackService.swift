@@ -84,7 +84,8 @@ public final class PlaybackService: PlaybackServiceProtocol {
       duration: book.duration,
       relativePath: book.relativePath,
       percentCompleted: book.percentCompleted,
-      isFinished: book.isFinished
+      isFinished: book.isFinished,
+      useChapterTimeContext: false
     )
   }
 
@@ -129,7 +130,8 @@ public final class PlaybackService: PlaybackServiceProtocol {
       duration: duration ?? folder.duration,
       relativePath: folder.relativePath,
       percentCompleted: folder.percentCompleted,
-      isFinished: folder.isFinished
+      isFinished: folder.isFinished,
+      useChapterTimeContext: true
     )
   }
 

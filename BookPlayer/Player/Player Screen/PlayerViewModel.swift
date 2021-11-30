@@ -222,8 +222,7 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     }
 
     var progress: String?
-    if !( (self.playerManager.currentItem?.chapters ?? []).count > 1)
-        || !self.prefersChapterContext {
+    if !self.prefersChapterContext {
       progress = "\(Int(round(value * 100)))%"
     }
 

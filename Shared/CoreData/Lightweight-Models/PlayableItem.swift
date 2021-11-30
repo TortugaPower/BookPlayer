@@ -18,6 +18,7 @@ public final class PlayableItem: NSObject {
   @objc dynamic public let relativePath: String
   @objc dynamic public var percentCompleted: Double
   public var isFinished: Bool
+  public let useChapterTimeContext: Bool
 
   @Published public var currentChapter: PlayableChapter!
 
@@ -35,7 +36,8 @@ public final class PlayableItem: NSObject {
     duration: TimeInterval,
     relativePath: String,
     percentCompleted: Double,
-    isFinished: Bool
+    isFinished: Bool,
+    useChapterTimeContext: Bool
   ) {
     self.title = title
     self.author = author
@@ -45,6 +47,7 @@ public final class PlayableItem: NSObject {
     self.relativePath = relativePath
     self.percentCompleted = percentCompleted
     self.isFinished = isFinished
+    self.useChapterTimeContext = useChapterTimeContext
 
     super.init()
 

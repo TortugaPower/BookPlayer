@@ -168,6 +168,7 @@ extension PlayerViewController {
       }.store(in: &disposeBag)
 
     self.progressSlider.publisher(for: .touchUpInside)
+      .merge(with: self.progressSlider.publisher(for: .touchUpOutside))
       .sink { [weak self] sender in
         guard let slider = sender as? UISlider else { return }
 
