@@ -169,8 +169,8 @@ class ItemListCoordinator: Coordinator {
   }
 
   func loadLastBookIfAvailable() {
-    guard let book = try? self.libraryService.getLibraryLastBook(),
-          let item = self.playbackService.getPlayableItem(from: book) else { return }
+    guard let libraryItem = try? self.libraryService.getLibraryLastItem(),
+          let item = self.playbackService.getPlayableItem(from: libraryItem) else { return }
 
     self.playerManager.load(item) { [weak self] loaded in
       guard loaded else { return }

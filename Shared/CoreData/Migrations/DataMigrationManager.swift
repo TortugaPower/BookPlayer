@@ -140,7 +140,7 @@ public final class DataMigrationManager {
     self.storeModel = destinationModel
 
     // Only continue if there's extra work to be done
-    guard currentVersion == .v3 || currentVersion == .v6 else {
+    guard currentVersion == .v6 else {
       completionHandler(nil)
       return
     }
@@ -153,14 +153,6 @@ public final class DataMigrationManager {
       }
 
       let dataManager = DataManager(coreDataStack: stack)
-
-      // Extra data migration
-      if currentVersion == .v3 {
-        // Migrate folder hierarchy
-        self.migrateFolderHierarchy(dataManager: dataManager)
-        // Migrate books names
-        self.migrateBooks(dataManager: dataManager)
-      }
 
       if currentVersion == .v6 {
         self.migrateLibraryOrder(dataManager: dataManager)

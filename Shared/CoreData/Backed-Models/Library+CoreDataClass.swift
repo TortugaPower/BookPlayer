@@ -129,9 +129,9 @@ public class Library: NSManagedObject, Codable {
         }
 
         if filteredItems.isEmpty,
-            let lastPlayedBook = self.lastPlayedBook {
-            lastPlayedBook.lastPlayDate = Date()
-            filteredItems.append(lastPlayedBook)
+            let lastPlayedItem = self.lastPlayedItem {
+            lastPlayedItem.lastPlayDate = Date()
+            filteredItems.append(lastPlayedItem)
         }
 
         return filteredItems.sorted { $0.lastPlayDate! > $1.lastPlayDate! }
@@ -175,14 +175,14 @@ public class Library: NSManagedObject, Codable {
   }
 
     enum CodingKeys: String, CodingKey {
-        case items, books, folders, lastPlayedBook, currentTheme
+        case items, books, folders, lastPlayedItem, currentTheme
     }
 
     public func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
 
-      if let book = self.lastPlayedBook {
-        try container.encode(book, forKey: .lastPlayedBook)
+      if let item = self.lastPlayedItem {
+        try container.encode(item, forKey: .lastPlayedItem)
       }
 
       try container.encode(currentTheme, forKey: .currentTheme)
@@ -199,8 +199,8 @@ public class Library: NSManagedObject, Codable {
 
         let values = try decoder.container(keyedBy: CodingKeys.self)
 
-        if let book = try? values.decode(Book.self, forKey: .lastPlayedBook) {
-            self.lastPlayedBook = book
+        if let book = try? values.decode(Book.self, forKey: .lastPlayedItem) {
+            self.lastPlayedItem = book
         }
 
         currentTheme = try? values.decode(Theme.self, forKey: .currentTheme)

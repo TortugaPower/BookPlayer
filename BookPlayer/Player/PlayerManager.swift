@@ -361,11 +361,9 @@ extension PlayerManager {
   func jumpTo(_ time: Double, recordBookmark: Bool = true) {
     guard let currentItem = self.currentItem else { return }
 
-    let currentTime = currentItem.currentTime
-
     if recordBookmark {
       self.createOrUpdateAutomaticBookmark(
-        at: currentTime,
+        at: currentItem.currentTime,
         relativePath: currentItem.relativePath,
         type: .skip
       )
@@ -433,7 +431,7 @@ extension PlayerManager {
     }
 
     self.createOrUpdateAutomaticBookmark(
-      at: self.audioPlayer.currentTime().seconds,
+      at: currentItem.currentTime,
       relativePath: currentItem.relativePath,
       type: .play
     )

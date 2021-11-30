@@ -23,5 +23,5 @@ extension Bookmark {
   @NSManaged public var time: Double
   @NSManaged public var note: String?
   @NSManaged public var type: BookmarkType
-  @NSManaged public var book: Book?
+  @NSManaged public var item: LibraryItem?
 }
