@@ -61,7 +61,12 @@ public final class PlayableItem: NSObject {
   }
 
   public func getChapter(at globalTime: Double) -> PlayableChapter? {
-    return self.chapters.first { $0.start <= globalTime && $0.end >= globalTime }
+    if let lastChapter = chapters.last,
+        lastChapter.end == globalTime {
+      return lastChapter
+    }
+
+    return self.chapters.first { $0.start <= globalTime && $0.end > globalTime }
   }
 
   public func updateCurrentChapter() {

@@ -624,6 +624,11 @@ extension PlayerManager {
       self.markAsCompleted(true)
 
       self.playNextItem(autoPlayed: true)
+      return
+    } else {
+      if currentItem.useChapterTimeContext {
+        self.playbackService.updatePlaybackTime(item: currentItem, time: currentItem.currentTime + 0.5)
+      }
     }
   }
 }
