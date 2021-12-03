@@ -23,6 +23,8 @@ public protocol LibraryServiceProtocol {
   func getItem(with relativePath: String) -> LibraryItem?
   func findBooks(containing fileURL: URL) -> [Book]?
   func getOrderedBooks(limit: Int?) -> [Book]?
+
+  func updateFolder(at relativePath: String, type: FolderType) throws
   func findFolder(with fileURL: URL) -> Folder?
   func findFolder(with relativePath: String) -> Folder?
   func hasLibraryLinked(item: LibraryItem) -> Bool
@@ -181,6 +183,29 @@ public final class LibraryService: LibraryServiceProtocol {
   }
 
   // MARK: - Folders
+  public func updateFolder(at relativePath: String, type: FolderType) throws {
+    guard let folder = self.getItem(with: relativePath) as? Folder else {
+      throw BookPlayerError.runtimeError("Can't find the folder")
+    }
+
+    switch type {
+    case .regular:
+      folder.type = type
+    case .bound:
+      guard let items = folder.items?.array as? [Book] else {
+        throw BookPlayerError.runtimeError("The folder needs to only contain book items")
+      }
+
+      guard !items.isEmpty else {
+        throw BookPlayerError.runtimeError("The folder can't be empty")
+      }
+
+      folder.type = type
+    }
+
+    self.dataManager.saveContext()
+  }
+
   public func findFolder(with fileURL: URL) -> Folder? {
     return self.findFolder(
       with: String(fileURL.relativePath(to: DataManager.getProcessedFolderURL()).dropFirst())

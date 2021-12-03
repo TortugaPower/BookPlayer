@@ -253,24 +253,12 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     self.coordinator.showItemContents(item)
   }
 
-  func importIntoNewFolder(with title: String, items: [LibraryItem]? = nil) {
-    do {
-      let folder = try self.libraryService.createFolder(with: title, inside: self.folderRelativePath)
-      if let items = items {
-        try self.libraryService.moveItems(items, inside: folder.relativePath, moveFiles: true)
-      }
-    } catch {
-      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
-    }
-
-    self.coordinator.reloadItemsWithPadding(padding: 1)
-  }
-
-  func importIntoFolder(_ folder: SimpleLibraryItem, items: [LibraryItem]) {
+  func importIntoFolder(_ folder: SimpleLibraryItem, items: [LibraryItem], type: FolderType) {
     let fetchedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
 
     do {
       try self.libraryService.moveItems(fetchedItems, inside: folder.relativePath, moveFiles: true)
+      try self.libraryService.updateFolder(at: folder.relativePath, type: type)
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
@@ -278,17 +266,28 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     self.coordinator.reloadItemsWithPadding()
   }
 
-  func createFolder(with title: String, items: [SimpleLibraryItem]? = nil) {
+  func createFolder(with title: String, items: [String]? = nil, type: FolderType) {
     do {
       let folder = try self.libraryService.createFolder(with: title, inside: self.folderRelativePath)
-      if let fetchedItems = items?.compactMap({ self.libraryService.getItem(with: $0.relativePath )}) {
+      if let fetchedItems = items?.compactMap({ self.libraryService.getItem(with: $0 )}) {
         try self.libraryService.moveItems(fetchedItems, inside: folder.relativePath, moveFiles: true)
       }
+      try self.libraryService.updateFolder(at: folder.relativePath, type: type)
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
 
     self.coordinator.reloadItemsWithPadding(padding: 1)
+  }
+
+  func updateFolder(_ folder: SimpleLibraryItem, type: FolderType) {
+    do {
+      try self.libraryService.updateFolder(at: folder.relativePath, type: type)
+    } catch {
+      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
+    }
+
+    self.coordinator.reloadItemsWithPadding()
   }
 
   func handleMoveIntoLibrary(items: [SimpleLibraryItem]) {

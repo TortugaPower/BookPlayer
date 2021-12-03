@@ -13,10 +13,6 @@ import MediaPlayer
 import Themeable
 import UIKit
 
-enum BookPlayerError: Error {
-  case UnableToLoadBooks(String)
-}
-
 enum IndexGuide {
   case tab
 
@@ -190,7 +186,7 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
     let itemIndex = mutableIndexPath.removeLast()
 
     guard let items = self.cachedDataStore[mutableIndexPath] else {
-      completionHandler(BookPlayerError.UnableToLoadBooks("carplay_library_error".localized))
+      completionHandler(BookPlayerError.runtimeError("carplay_library_error".localized))
       return
     }
 

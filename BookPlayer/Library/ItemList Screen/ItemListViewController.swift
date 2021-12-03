@@ -209,12 +209,12 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
       case .importOperationFinished(let files):
         self.showLoadView(false)
         self.viewModel.handleOperationCompletion(files)
-      case .importIntoNewFolder(let title, let items):
-        self.viewModel.importIntoNewFolder(with: title, items: items)
-      case .importIntoFolder(let selectedFolder, let items):
-        self.viewModel.importIntoFolder(selectedFolder, items: items)
-      case .createFolder(let title, let items):
-        self.viewModel.createFolder(with: title, items: items)
+      case .importIntoFolder(let selectedFolder, let items, let type):
+        self.viewModel.importIntoFolder(selectedFolder, items: items, type: type)
+      case .createFolder(let title, let items, let type):
+        self.viewModel.createFolder(with: title, items: items, type: type)
+      case .updateFolder(let folder, let type):
+        self.viewModel.updateFolder(folder, type: type)
       case .moveIntoLibrary(let items):
         self.viewModel.handleMoveIntoLibrary(items: items)
       case .moveIntoFolder(let selectedFolder, let items):

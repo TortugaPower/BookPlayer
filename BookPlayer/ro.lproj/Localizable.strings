@@ -238,3 +238,6 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "storage_fix_all_title" = "Fix All";
 "settings_backup_title" = "iCloud Backups";
 "settings_backup_files_title" = "Include book files";
+"bound_books_create_alert_title" = "Combine into volume";
+"bound_books_undo_alert_title" = "Split into original files";
+"bound_books_new_title" = "New Book Volume";

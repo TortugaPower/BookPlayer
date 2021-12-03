@@ -215,6 +215,8 @@
 		41A8BAFE227E6C88003C9895 /* Notification+BookPlayerWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A8BAFD227E6C88003C9895 /* Notification+BookPlayerWatchApp.swift */; };
 		41A90C4527563F5A00C30394 /* FolderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A90C4427563F5A00C30394 /* FolderType.swift */; };
 		41A90C4627563F5A00C30394 /* FolderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A90C4427563F5A00C30394 /* FolderType.swift */; };
+		41A90C4827564DAA00C30394 /* BookPlayerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A90C4727564DAA00C30394 /* BookPlayerError.swift */; };
+		41A90C4927564DAA00C30394 /* BookPlayerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A90C4727564DAA00C30394 /* BookPlayerError.swift */; };
 		41AD3D9A221C737F00DC41E1 /* retro-icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3D97221C737E00DC41E1 /* retro-icon@2x.png */; };
 		41AD3D9C221C737F00DC41E1 /* retro-icon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3D99221C737F00DC41E1 /* retro-icon@3x.png */; };
 		41AD3D9E221C750E00DC41E1 /* Icons.json in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3D9D221C750E00DC41E1 /* Icons.json */; };
@@ -710,6 +712,7 @@
 		41A894292652A7DF0032E972 /* Bundle+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+BookPlayer.swift"; sourceTree = "<group>"; };
 		41A8BAFD227E6C88003C9895 /* Notification+BookPlayerWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Notification+BookPlayerWatchApp.swift"; sourceTree = "<group>"; };
 		41A90C4427563F5A00C30394 /* FolderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderType.swift; sourceTree = "<group>"; };
+		41A90C4727564DAA00C30394 /* BookPlayerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookPlayerError.swift; sourceTree = "<group>"; };
 		41AD3D97221C737E00DC41E1 /* retro-icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "retro-icon@2x.png"; sourceTree = "<group>"; };
 		41AD3D99221C737F00DC41E1 /* retro-icon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "retro-icon@3x.png"; sourceTree = "<group>"; };
 		41AD3D9D221C750E00DC41E1 /* Icons.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Icons.json; sourceTree = "<group>"; };
@@ -1214,6 +1217,7 @@
 				D367F7671FA2A6F000FEDB37 /* Constants.swift */,
 				4140EA1E22723CFC0009F794 /* CommandParser.swift */,
 				41F516952272CC5300F36C3E /* WatchConnectivityService.swift */,
+				41A90C4727564DAA00C30394 /* BookPlayerError.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -2207,6 +2211,7 @@
 				4140EA80227289D50009F794 /* Folder+CoreDataClass.swift in Sources */,
 				4140EA78227289BC0009F794 /* PlaybackRecord+CoreDataClass.swift in Sources */,
 				4140EA79227289BF0009F794 /* PlaybackRecord+CoreDataProperties.swift in Sources */,
+				41A90C4927564DAA00C30394 /* BookPlayerError.swift in Sources */,
 				41C23402272E1960006BC7B8 /* SimpleTheme.swift in Sources */,
 				4140EA7D227289CB0009F794 /* LibraryItem+CoreDataProperties.swift in Sources */,
 				4140EA73227289A80009F794 /* Notification+BookPlayerKit.swift in Sources */,
@@ -2425,6 +2430,7 @@
 				62CADBAB2725C23A00A4A98F /* ArtworkService.swift in Sources */,
 				41A1B128226F88C500EA0400 /* Library+CoreDataProperties.swift in Sources */,
 				4138CE1126E5542C0014F11E /* Bookmark+CoreDataClass.swift in Sources */,
+				41A90C4827564DAA00C30394 /* BookPlayerError.swift in Sources */,
 				41C23401272E1960006BC7B8 /* SimpleTheme.swift in Sources */,
 				41A1B124226F88C500EA0400 /* Book+CoreDataProperties.swift in Sources */,
 				41A1B108226E9DF800EA0400 /* DataManager.swift in Sources */,
