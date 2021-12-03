@@ -22,7 +22,7 @@ public protocol LibraryServiceProtocol {
   func createBook(from url: URL) -> Book
   func getItem(with relativePath: String) -> LibraryItem?
   func findBooks(containing fileURL: URL) -> [Book]?
-  func getOrderedBooks(limit: Int?) -> [Book]?
+  func getOrderedBooks(limit: Int?) -> [LibraryItem]?
 
   func updateFolder(at relativePath: String, type: FolderType) throws
   func findFolder(with fileURL: URL) -> Folder?
@@ -166,15 +166,15 @@ public final class LibraryService: LibraryServiceProtocol {
     return try? context.fetch(fetch)
   }
 
-  public func getOrderedBooks(limit: Int?) -> [Book]? {
-    let fetch: NSFetchRequest<Book> = Book.fetchRequest()
+  public func getOrderedBooks(limit: Int?) -> [LibraryItem]? {
+    let fetch: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
     fetch.predicate = NSPredicate(format: "lastPlayDate != nil")
 
     if let limit = limit {
       fetch.fetchLimit = limit
     }
 
-    let sort = NSSortDescriptor(key: #keyPath(Book.lastPlayDate), ascending: false)
+    let sort = NSSortDescriptor(key: #keyPath(LibraryItem.lastPlayDate), ascending: false)
     fetch.sortDescriptors = [sort]
 
     let context = self.dataManager.getContext()

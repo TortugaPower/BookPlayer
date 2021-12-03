@@ -468,6 +468,12 @@ extension ItemListCoordinator {
       sheet.addAction(UIAlertAction(title: "bound_books_undo_alert_title".localized, style: .default, handler: { [weak self] _ in
         self?.onAction?(.delete(selectedItems, mode: .shallow))
       }))
+    } else if isSingle,
+              selectedItems.allSatisfy({ $0.type == .folder }),
+              let folder = selectedItems.first {
+      sheet.addAction(UIAlertAction(title: "bound_books_create_alert_title".localized, style: .default, handler: { [weak self] _ in
+        self?.onAction?(.updateFolder(folder, type: .bound))
+      }))
     }
 
     sheet.addAction(UIAlertAction(title: "\("delete_button".localized)", style: .destructive) { _ in
