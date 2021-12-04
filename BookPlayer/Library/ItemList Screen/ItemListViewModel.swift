@@ -282,7 +282,14 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
   func updateFolders(_ folders: [SimpleLibraryItem], type: FolderType) {
     do {
-      try folders.forEach { try self.libraryService.updateFolder(at: $0.relativePath, type: type) }
+      try folders.forEach { folder in
+        try self.libraryService.updateFolder(at: folder.relativePath, type: type)
+
+        if let currentItem = self.playerManager.currentItem,
+           currentItem.relativePath.contains(folder.relativePath) {
+          self.playerManager.stop()
+        }
+      }
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
