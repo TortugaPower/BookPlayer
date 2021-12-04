@@ -213,8 +213,8 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
         self.viewModel.importIntoFolder(selectedFolder, items: items, type: type)
       case .createFolder(let title, let items, let type):
         self.viewModel.createFolder(with: title, items: items, type: type)
-      case .updateFolder(let folder, let type):
-        self.viewModel.updateFolder(folder, type: type)
+      case .updateFolders(let folders, let type):
+        self.viewModel.updateFolders(folders, type: type)
       case .moveIntoLibrary(let items):
         self.viewModel.handleMoveIntoLibrary(items: items)
       case .moveIntoFolder(let selectedFolder, let items):

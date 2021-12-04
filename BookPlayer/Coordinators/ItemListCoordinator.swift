@@ -17,7 +17,7 @@ enum ItemListActionRoutes {
   case importIntoFolder(_ folder: SimpleLibraryItem, items: [LibraryItem], type: FolderType)
   case downloadBook(_ url: URL)
   case createFolder(_ title: String, items: [String]?, type: FolderType)
-  case updateFolder(_ folder: SimpleLibraryItem, type: FolderType)
+  case updateFolders(_ folders: [SimpleLibraryItem], type: FolderType)
   case moveIntoLibrary(items: [SimpleLibraryItem])
   case moveIntoFolder(_ folder: SimpleLibraryItem, items: [SimpleLibraryItem])
   case delete(_ items: [SimpleLibraryItem], mode: DeleteMode)
@@ -284,10 +284,7 @@ extension ItemListCoordinator {
 
     alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
     alert.addAction(UIAlertAction(title: "create_button".localized, style: .default, handler: { _ in
-      let textfield = alert.textFields!.first!
-      textfield.becomeFirstResponder()
-      textfield.selectAll(nil)
-      let title = textfield.text!
+      let title = alert.textFields!.first!.text!
       self.onAction?(.createFolder(title, items: items, type: type))
     }))
 
@@ -363,17 +360,6 @@ extension ItemListCoordinator {
     alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { _ in
       self.showCreateFolderAlert(placeholder: selectedItems.first?.title, with: selectedItems.map { $0.relativePath })
     })
-
-    let convertAction = UIAlertAction(title: "bound_books_create_alert_title".localized, style: .default) { _ in
-      self.showCreateFolderAlert(
-        placeholder: selectedItems.first?.title,
-        with: selectedItems.map { $0.relativePath },
-        type: .bound
-      )
-    }
-    convertAction.isEnabled = selectedItems.count > 1
-    && selectedItems.allSatisfy({ $0.type == .book })
-    alert.addAction(convertAction)
 
     let existingFolderAction = UIAlertAction(title: "existing_playlist_button".localized, style: .default) { _ in
       let vc = ItemSelectionViewController()
@@ -468,15 +454,19 @@ extension ItemListCoordinator {
 
     if selectedItems.allSatisfy({ $0.type == .bound }) {
       boundBookAction = UIAlertAction(title: "bound_books_undo_alert_title".localized, style: .default, handler: { [weak self] _ in
-        self?.onAction?(.updateFolder(item, type: .regular))
+        self?.onAction?(.updateFolders(selectedItems, type: .regular))
       })
       boundBookAction.isEnabled = true
     } else {
       boundBookAction = UIAlertAction(title: "bound_books_create_alert_title".localized, style: .default, handler: { [weak self] _ in
         if isSingle {
-          self?.onAction?(.updateFolder(item, type: .bound))
+          self?.onAction?(.updateFolders(selectedItems, type: .bound))
         } else {
-          self?.onAction?(.createFolder(item.title, items: selectedItems.map { $0.relativePath }, type: .bound))
+          self?.showCreateFolderAlert(
+            placeholder: item.title,
+            with: selectedItems.map { $0.relativePath },
+            type: .bound
+          )
         }
       })
       boundBookAction.isEnabled = selectedItems.allSatisfy({ $0.type == .book }) || (isSingle && item.type == .folder)

@@ -280,9 +280,9 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     self.coordinator.reloadItemsWithPadding(padding: 1)
   }
 
-  func updateFolder(_ folder: SimpleLibraryItem, type: FolderType) {
+  func updateFolders(_ folders: [SimpleLibraryItem], type: FolderType) {
     do {
-      try self.libraryService.updateFolder(at: folder.relativePath, type: type)
+      try folders.forEach { try self.libraryService.updateFolder(at: $0.relativePath, type: type) }
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
