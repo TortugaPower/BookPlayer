@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct PlayableChapter {
+public struct PlayableChapter: Codable {
   public let title: String
   public let author: String
   public let start: TimeInterval

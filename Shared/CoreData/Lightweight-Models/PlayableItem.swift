@@ -28,6 +28,10 @@ public final class PlayableItem: NSObject {
     return self.currentTime / self.duration
   }
 
+  enum CodingKeys: String, CodingKey {
+    case title, author, chapters, currentTime, duration, relativePath, percentCompleted, isFinished, useChapterTimeContext
+  }
+
   public init(
     title: String,
     author: String,
@@ -166,5 +170,34 @@ public final class PlayableItem: NSObject {
     if chapter == self.chapters.first { return nil }
 
     return self.chapters[Int(chapter.index) - 2]
+  }
+}
+
+extension PlayableItem: Codable {
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(self.title, forKey: .title)
+    try container.encode(self.author, forKey: .author)
+    try container.encode(self.chapters, forKey: .chapters)
+    try container.encode(self.currentTime, forKey: .currentTime)
+    try container.encode(self.relativePath, forKey: .relativePath)
+    try container.encode(self.percentCompleted, forKey: .percentCompleted)
+    try container.encode(self.isFinished, forKey: .isFinished)
+    try container.encode(self.useChapterTimeContext, forKey: .useChapterTimeContext)
+  }
+
+  public convenience init(from decoder: Decoder) throws {
+    let values = try decoder.container(keyedBy: CodingKeys.self)
+    self.init(
+      title: try values.decode(String.self, forKey: .title),
+      author: try values.decode(String.self, forKey: .author),
+      chapters: try values.decode([PlayableChapter].self, forKey: .chapters),
+      currentTime: try values.decode(TimeInterval.self, forKey: .currentTime),
+      duration: try values.decode(TimeInterval.self, forKey: .duration),
+      relativePath: try values.decode(String.self, forKey: .relativePath),
+      percentCompleted: try values.decode(Double.self, forKey: .percentCompleted),
+      isFinished: try values.decode(Bool.self, forKey: .isFinished),
+      useChapterTimeContext: try values.decode(Bool.self, forKey: .useChapterTimeContext)
+    )
   }
 }

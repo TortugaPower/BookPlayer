@@ -10,9 +10,11 @@ import WatchConnectivity
 
 public class WatchConnectivityService: NSObject, WCSessionDelegate {
   let libraryService: LibraryServiceProtocol
+  let playbackService: PlaybackServiceProtocol
 
-  public init(libraryService: LibraryServiceProtocol) {
+  public init(libraryService: LibraryServiceProtocol, playbackService: PlaybackServiceProtocol) {
     self.libraryService = libraryService
+    self.playbackService = playbackService
   }
 
   private let session: WCSession? = WCSession.isSupported() ? WCSession.default : nil
@@ -62,7 +64,8 @@ public class WatchConnectivityService: NSObject, WCSessionDelegate {
     var recentBooksData: Data?
 
     if let recentBooks = self.libraryService.getOrderedBooks(limit: 30) {
-      recentBooksData = try? JSONEncoder().encode(recentBooks)
+      let items = recentBooks.map({ self.playbackService.getPlayableItem(from: $0) })
+      recentBooksData = try? JSONEncoder().encode(items)
     }
 
     let rewind = UserDefaults.standard.double(forKey: Constants.UserDefaults.rewindInterval.rawValue)

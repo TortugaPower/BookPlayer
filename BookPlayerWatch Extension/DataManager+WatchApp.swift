@@ -39,7 +39,7 @@ extension DataManager {
 
     decoder.userInfo[context] = bgContext
 
-    guard let books = try? decoder.decode([Book].self, from: booksData) else {
+    guard let books = try? decoder.decode([PlayableItem].self, from: booksData) else {
       return nil
     }
 

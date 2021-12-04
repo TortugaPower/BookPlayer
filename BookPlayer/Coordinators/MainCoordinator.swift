@@ -26,9 +26,10 @@ class MainCoordinator: Coordinator {
   ) {
     self.rootViewController = rootController
     self.libraryService = libraryService
-    self.playbackService = PlaybackService(libraryService: libraryService)
+    let playbackService = PlaybackService(libraryService: libraryService)
+    self.playbackService = playbackService
 
-    let watchService = WatchConnectivityService(libraryService: libraryService)
+    let watchService = WatchConnectivityService(libraryService: libraryService, playbackService: playbackService)
     self.watchConnectivityService = watchService
     self.playerManager = PlayerManager(
       libraryService: libraryService,
