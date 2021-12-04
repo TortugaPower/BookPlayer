@@ -464,17 +464,25 @@ extension ItemListCoordinator {
       self?.onAction?(.markAsFinished(selectedItems, flag: !areFinished))
     }))
 
+    let boundBookAction: UIAlertAction
+
     if selectedItems.allSatisfy({ $0.type == .bound }) {
-      sheet.addAction(UIAlertAction(title: "bound_books_undo_alert_title".localized, style: .default, handler: { [weak self] _ in
-        self?.onAction?(.delete(selectedItems, mode: .shallow))
-      }))
-    } else if isSingle,
-              selectedItems.allSatisfy({ $0.type == .folder }),
-              let folder = selectedItems.first {
-      sheet.addAction(UIAlertAction(title: "bound_books_create_alert_title".localized, style: .default, handler: { [weak self] _ in
-        self?.onAction?(.updateFolder(folder, type: .bound))
-      }))
+      boundBookAction = UIAlertAction(title: "bound_books_undo_alert_title".localized, style: .default, handler: { [weak self] _ in
+        self?.onAction?(.updateFolder(item, type: .regular))
+      })
+      boundBookAction.isEnabled = true
+    } else {
+      boundBookAction = UIAlertAction(title: "bound_books_create_alert_title".localized, style: .default, handler: { [weak self] _ in
+        if isSingle {
+          self?.onAction?(.updateFolder(item, type: .bound))
+        } else {
+          self?.onAction?(.createFolder(item.title, items: selectedItems.map { $0.relativePath }, type: .bound))
+        }
+      })
+      boundBookAction.isEnabled = selectedItems.allSatisfy({ $0.type == .book }) || (isSingle && item.type == .folder)
     }
+
+    sheet.addAction(boundBookAction)
 
     sheet.addAction(UIAlertAction(title: "\("delete_button".localized)", style: .destructive) { _ in
       self.showDeleteAlert(selectedItems: selectedItems)

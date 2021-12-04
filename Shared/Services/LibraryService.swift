@@ -191,6 +191,7 @@ public final class LibraryService: LibraryServiceProtocol {
     switch type {
     case .regular:
       folder.type = type
+      folder.lastPlayDate = nil
     case .bound:
       guard let items = folder.items?.array as? [Book] else {
         throw BookPlayerError.runtimeError("The folder needs to only contain book items")
@@ -199,6 +200,8 @@ public final class LibraryService: LibraryServiceProtocol {
       guard !items.isEmpty else {
         throw BookPlayerError.runtimeError("The folder can't be empty")
       }
+
+      items.forEach({ $0.lastPlayDate = nil })
 
       folder.type = type
     }
