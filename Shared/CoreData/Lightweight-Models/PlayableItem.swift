@@ -180,6 +180,7 @@ extension PlayableItem: Codable {
     try container.encode(self.author, forKey: .author)
     try container.encode(self.chapters, forKey: .chapters)
     try container.encode(self.currentTime, forKey: .currentTime)
+    try container.encode(self.duration, forKey: .duration)
     try container.encode(self.relativePath, forKey: .relativePath)
     try container.encode(self.percentCompleted, forKey: .percentCompleted)
     try container.encode(self.isFinished, forKey: .isFinished)

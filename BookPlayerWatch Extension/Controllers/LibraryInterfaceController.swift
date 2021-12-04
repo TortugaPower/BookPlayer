@@ -16,7 +16,7 @@ enum ConnectionError: Error {
   case connectivityError
 }
 
-public typealias WatchDataObject = (books: [PlayableItem], currentTheme: Theme?)
+public typealias WatchDataObject = (books: [PlayableItem], currentTheme: SimpleTheme?)
 
 class LibraryInterfaceController: WKInterfaceController {
   @IBOutlet weak var separatorLastBookView: WKInterfaceSeparator!
@@ -39,7 +39,7 @@ class LibraryInterfaceController: WKInterfaceController {
 
   // TableView's datasource
   var items = [PlayableItem]()
-  var currentTheme: Theme?
+  var currentTheme: SimpleTheme?
   var selectedFolder: Folder?
 
   override func awake(withContext context: Any?) {
