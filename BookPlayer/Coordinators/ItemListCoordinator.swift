@@ -253,8 +253,8 @@ class ItemListCoordinator: Coordinator {
     existingFolderAction.isEnabled = !availableFolders.isEmpty
     alert.addAction(existingFolderAction)
 
-    let convertAction = UIAlertAction(title: "bound_books_create_alert_title".localized, style: .default) { _ in
-      var placeholder = "bound_books_new_title".localized
+    let convertAction = UIAlertAction(title: "bound_books_create_button".localized, style: .default) { _ in
+      var placeholder = "bound_books_new_title_placeholder".localized
 
       if let item = items.first {
         placeholder = item.title
@@ -274,12 +274,27 @@ extension ItemListCoordinator {
   func showCreateFolderAlert(placeholder: String? = nil,
                              with items: [String]? = nil,
                              type: FolderType = .regular) {
-    let alert = UIAlertController(title: "create_playlist_title".localized,
-                                  message: "create_playlist_description".localized,
+    let alertTitle: String
+    let alertMessage: String
+    let alertPlaceholderDefault: String
+
+    switch type {
+    case .regular:
+      alertTitle = "create_playlist_title".localized
+      alertMessage = "create_playlist_description".localized
+      alertPlaceholderDefault = "new_playlist_button".localized
+    case .bound:
+      alertTitle = "bound_books_create_alert_title".localized
+      alertMessage = "bound_books_create_alert_description".localized
+      alertPlaceholderDefault = "bound_books_new_title_placeholder".localized
+    }
+
+    let alert = UIAlertController(title: alertTitle,
+                                  message: alertMessage,
                                   preferredStyle: .alert)
 
     alert.addTextField(configurationHandler: { textfield in
-      textfield.text = placeholder ?? "new_playlist_button".localized
+      textfield.text = placeholder ?? alertPlaceholderDefault
     })
 
     alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
@@ -304,8 +319,8 @@ extension ItemListCoordinator {
       self.showCreateFolderAlert()
     })
 
-    alertController.addAction(UIAlertAction(title: "bound_books_create_alert_title".localized, style: .default) { _ in
-      self.showCreateFolderAlert(placeholder: "bound_books_new_title".localized, type: .bound)
+    alertController.addAction(UIAlertAction(title: "bound_books_create_button".localized, style: .default) { _ in
+      self.showCreateFolderAlert(placeholder: "bound_books_new_title_placeholder".localized, type: .bound)
     })
 
     alertController.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel))
@@ -458,7 +473,7 @@ extension ItemListCoordinator {
       })
       boundBookAction.isEnabled = true
     } else {
-      boundBookAction = UIAlertAction(title: "bound_books_create_alert_title".localized, style: .default, handler: { [weak self] _ in
+      boundBookAction = UIAlertAction(title: "bound_books_create_button".localized, style: .default, handler: { [weak self] _ in
         if isSingle {
           self?.onAction?(.updateFolders(selectedItems, type: .bound))
         } else {
