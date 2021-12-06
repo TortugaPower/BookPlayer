@@ -6,11 +6,8 @@
   Copyright © 2019 Tortuga Power. All rights reserved.
 */
 
-/* Title that is shown as the navigation bar title */
 "library_title" = "Bibliothèque";
-/* Title for the settings button */
 "settings_button" = "Réglages";
-/* Title that is shown as the navigation bar title */
 "settings_title" = "Réglages";
 "settings_autoplay_title" = "Lecture auto. de la Bibliothèque";
 "settings_autoplay_description" = "Continue la lecture avec tous les éléments de la Bibliothèque qui ne sont pas terminés, y compris les fichiers dans les listes de lecture.";
@@ -33,8 +30,6 @@
 "settings_support_project_title" = "Voir le projet sur Github";
 "settings_support_project_description" = "Ouvrez des tickets pour vos demandes de fonctionnalité et erreurs";
 "settings_support_email_title" = "Envoyez-nous un courrier électronique";
-/* Should this be understood as the user wants to 'give credit' or is this like regulatives?
-Carl&nbsp;regarding the key settings_credits_title it's basically a section that gives credits to the third-party libraries that we are using in the app */
 "settings_credits_title" = "Crédits et Licences";
 "settings_support_compose_title" = "Impossible de composer un courrier électronique";
 "settings_support_compose_description" = "Vous devez configurer un compte de messagerie dans les paramètres de votre appareil pour l'utiliser. \n\nVeuillez nous envoyer un courrier électronique à";
@@ -67,11 +62,8 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "cancel_button" = "Annuler";
 "seconds_title" = "sec";
 "ok_button" = "OK";
-/* Message shown when trying to create a Siri Shortcut on devices that don't have iOS 12+ installed */
 "siri_alert_description" = "Les raccourcis Siri sont disponibles sur iOS 12 et supérieur";
-/* Title used in the context of our tip jar to support development */
 "support_bookplayer_title" = "Soutenir BookPlayer";
-/* Description used in the context of our tip jar to support development */
 "support_bookplayer_description" = "Obtenez BookPlayer Plus pour soutenir le développement futur et obtenir des thèmes et des icônes d'application supplémentaires";
 "learn_more_title" = "EN SAVOIR PLUS";
 "settings_appearance_title" = "Apparence";
@@ -81,15 +73,10 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "settings_controls_title" = "Contrôles de lecture";
 "settings_power_connected_title" = "Uniquement sur alimentation";
 "settings_tip_jar_title" = "Pot à pourboires";
-/* What does 'System Mode' entail? Is it regarding iOS Dark Mode?
-<span class="reply-in-chat"><span data-uid="carlhoumoller&amp;&#x23;x40&#x3B;hotmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36833450">Carl</span></span>
-&nbsp;regarding the key theme_system_title, yes, it refers to using the preference set at the operating system level (from the control center/brightness) */
 "theme_system_title" = "Utiliser le réglage système";
 "theme_switch_title" = "Basculer automatiquement";
 "theme_dark_title" = "Toujours utiliser la variation sombre";
 "themes_title" = "Thèmes";
-/* This should be &ldquo;By your friends at BookPlayer&rdquo; in English.&nbsp; */
 "icons_bookplayer_credit_description" = "Par vos amis de BookPlayer";
 "kind_tip_title" = "Bon pourboire de";
 "excellent_tip_title" = "Excellent pourboire de";
@@ -117,20 +104,15 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "player_speed_title" = "Définir la vitesse de lecture";
 "player_sleep_title" = "Mettre la lecture en pause";
 "sleep_chapter_option_title" = "Fin du chapitre en cours";
-/* This is used for the label underneath the progress bar (e.g. Chapter 1 of 35) */
 "player_chapter_description" = "Chapitre %d sur %d";
 "chapters_title" = "Chapitres";
-/* This is used as a description for each chapter in the chapters list (e.g. Start: 10:11 - Duration: 16:56) */
 "chapters_item_description" = "Début : %@ - Durée : %@";
-/* Restore purchases */
 "restore_title" = "Restaurer";
 "themes_caps_title" = "THÈMES";
 "plus_app_icons_title" = "Icônes d'application";
-/* This is the counterpart to Mark as Finished */
 "mark_unfinished_title" = "Marquer comme non terminé";
 "move_playlist_button" = "Déplacer vers une liste de lecture";
 "move_single_item_title" = "Voulez-vous déplacer '%@' vers '%@' ?";
-/* This is shown if while being inside a playlist, a batch of imported files are finished processing, and it will be one of the options in the alert presented */
 "current_playlist_title" = "Liste de lecture actuelle";
 "select_item_title" = "Sélectionner l'élément";
 "sleep_alert_description" = "Mise en veille à la fin du chapitre";
@@ -138,12 +120,11 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "sleep_off_title" = "Désactivé";
 "sleep_interval_title" = "Dans %@";
 "chapter_number_title" = "Chapitre %d";
-"progress_complete_description" = "%d pour cent Terminé";
+"progress_complete_description" = "%d pour cent Terminés";
 "chapter_duration_title" = "Durée du chapitre : ";
 "chapter_time_remaining_title" = "Temps restant du chapitre : ";
 "book_time_remaining_title" = "Temps restant du livre : ";
 "book_duration_title" = "Durée du livre : ";
-/* Может правильнее будет: &quot;Не удалось сменить иконку&quot;? */
 "icon_error_description" = "Le changement de l'icône de l'application n'a pas réussi. Réessayez plus tard";
 "error_title" = "Erreur";
 "generic_retry_description" = "Veuillez réessayer plus tard";
@@ -155,28 +136,14 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "pause_title" = "Pause";
 "voiceover_no_title" = "Sans titre";
 "voiceover_no_author" = "Aucun auteur";
-/* &lt;Book title&gt; by &lt;Book author&gt; &lt;percentage in numbers&gt;% Completed */
-"voiceover_book_progress" = "%@ par %@, %d pour cent terminé";
+"voiceover_book_progress" = "%@ par %@, %d pour cent terminés";
 "voiceover_no_file_title" = "Fichier sans titre";
-/* Not sure where this title appears ? :)
-<span class="reply-in-chat"><span data-uid="christophe.vergne&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36841194">christophe</span></span>
-&nbsp;this key in particular is when you're inside a playlist, the subtitle (that usually is the author) has no info for our VoiceOver service
-<span class="reply-in-chat"><span data-uid="christophe.vergne&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36841194">christophe</span></span>
-&nbsp;let me know if that clears things up?
-<span class="reply-in-chat"><span data-uid="gcarlo89&amp;&#x23;x40&#x3B;hotmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36841194">Gianni Carlo</span></span>
- Alright, my translation was correct so, thanks :) */
 "voiceover_no_file_subtitle" = "Fichier sans sous-titre";
 "voiceover_no_playlist_title" = "Liste de lecture sans titre";
-/* &lt;Playlist title&gt; Playlist &lt;percentage in number&gt;% Completed */
 "voiceover_playlist_progress" = "%@, Liste de lecture, %d pour cent terminé";
 "voiceover_unknown_title" = "Titre inconnu";
 "voiceover_unknown_author" = "Auteur inconnu";
-/* &lt;book title&gt; by &lt;book author&gt; */
 "voiceover_book_info" = "%@ par %@";
-/* &lt;book title&gt; by &lt;book author&gt;, chapter &lt;chapter title&gt; */
 "voiceover_book_chapter" = "%@ par %@, chapitre %@";
 "voiceover_rewind_time" = "Rembobiner %@";
 "voiceover_forward_time" = "Avance rapide %@";
@@ -193,52 +160,47 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "speed_title" = "vitesse";
 "import_preparing_title" = "Préparation à l'importation de fichiers";
 "library_add_title" = "Ajoutez votre premier livre";
-"invalid_url_title" = "URL non valide: %@";
+"invalid_url_title" = "URL non valide : %@";
 "downloading_file_title" = "Téléchargement du fichier";
 "progress_title" = "Avancement";
 "settings_siri_sleeptimer_title" = "Mise en veille";
 "active_title" = "Actif";
-/* Currently Playing <Book title> by <Book author> */
 "voiceover_currently_playing_title" = "Lit actuellement %@ par %@";
-/* When you're on the library or playlist view, and the voice over cursor is focused on the floating mini-player at the bottom, it should read to the user the element, and the hint that if pressed, the player view will be shown */
 "voiceover_miniplayer_hint" = "Mini-lecteur. Appuyez pour afficher le lecteur";
 "voiceover_chapter_time_title" = "Temps de chapitre actuel : %@";
-/* When you're in the player view, and the voice over cursor is focused on the top bar (the one with the arrow-down), it will read to the user that the player view will be closed if he double taps that button */
 "voiceover_dismiss_player_title" = "Masquer le lecteur";
-/* Sort items by most recent playback */
-"sort_most_recent_button" = "Most Recent";
-/* One of the sort options, this one reverts the current order of selected items */
-"sort_reversed_button" = "Reverse Order";
-"coredata_error_diskfull_description" = "The library couldn't be loaded, the device is out of disk space.";
-"coredata_error_migration_description" = "A migration of the database failed, the library will have to be reinitialized.";
-"import_warning_description" = "Transfering files may take a while, please make sure the number of files is complete before proceeding.";
+"sort_most_recent_button" = "Les plus récemment écoutés";
+"sort_reversed_button" = "Ordre inverse";
+"voiceover_continue_playback_title" = "Continuer la lecture";
+"coredata_error_diskfull_description" = "La bibliothèque n'a pas pu être chargée, l'appareil manque d'espace disque.";
+"coredata_error_migration_description" = "Une migration de la base de données a échoué, la bibliothèque devra être réinitialisée.";
+"import_warning_description" = "Le transfert de fichiers peut prendre un certain temps, veuillez vous assurer que le nombre de fichiers est complet avant de continuer.";
 "files_caps_title" = "FICHIERS";
-"settings_storage_description" = "Manage your files";
-"storage_total_title" = "Total space used";
-"settings_storage_title" = "Storage Management";
-"storage_fix_file_button" = "Fix";
-"storage_fix_file_description" = "The book item is missing, if the corresponding item cannot be found, a new one will be created";
-"bookmarks_title" = "Bookmarks";
-"bookmark_created_title" = "Your bookmark has been saved at %@";
-"bookmark_exists_title" = "You have already created a bookmark at %@";
-"bookmark_note_action_title" = "Add note";
-"bookmarks_see_title" = "See bookmarks";
-"bookmark_type_automatic_title" = "Automatic";
-"bookmark_type_user_title" = "Manual";
-"bookmark_automatic_play_title" = "Last position before playback started";
-"bookmark_automatic_skip_title" = "Last position before time skip";
-"bookmark_note_edit_title" = "Edit note";
-"bookmark_create_title" = "Create Bookmark";
-"storage_duplicate_item_title" = "Duplicate";
-"storage_duplicate_item_description" = "The selected file was a duplicate, the existing file is located at: %@";
-"chapters_previous_title" = "Previous Chapter";
-"chapters_next_title" = "Next Chapter";
-"book_time_current_title" = "Current Book Time: %@";
-"voiceover_continue_playback_title" = "Continue Playback";
-"storage_fix_files_description" = "The link between the files and the digital book items are missing, if the corresponding item cannot be found for each file, a new one will be created";
-"storage_fix_all_title" = "Fix All";
-"settings_backup_title" = "iCloud Backups";
-"settings_backup_files_title" = "Include book files";
+"settings_storage_description" = "Gérer vos fichiers";
+"storage_total_title" = "Espace total utilisé";
+"settings_storage_title" = "Gestion du stockage";
+"storage_fix_file_button" = "Réparer";
+"storage_fix_file_description" = "L'élément du livre est manquant, si l'élément correspondant est introuvable, un nouveau sera créé";
+"bookmarks_title" = "Signets";
+"bookmark_created_title" = "Votre signet a été sauvegardé à %@";
+"bookmark_exists_title" = "Vous avez déjà créé un signet à %@";
+"bookmark_note_action_title" = "Ajouter une note";
+"bookmarks_see_title" = "Voir les signets";
+"bookmark_type_automatic_title" = "Automatique";
+"bookmark_type_user_title" = "Manuel";
+"bookmark_automatic_play_title" = "Dernière position avant le début de la lecture";
+"bookmark_automatic_skip_title" = "Dernière position avant le saut de temps";
+"bookmark_note_edit_title" = "Modifier la note";
+"bookmark_create_title" = "Créer un signet";
+"storage_duplicate_item_title" = "Doublon";
+"storage_duplicate_item_description" = "Le fichier sélectionné était un doublon, le fichier existant se trouve à : %@";
+"chapters_previous_title" = "Chapitre Précédent";
+"chapters_next_title" = "Chapitre Suivant";
+"book_time_current_title" = "Temps actuel du livre : %@";
+"storage_fix_files_description" = "Le lien entre les fichiers et les éléments du livre numérique est manquant, si l'élément correspondant est introuvable pour chaque fichier, un nouveau sera créé";
+"storage_fix_all_title" = "Tout réparer";
+"settings_backup_title" = "Sauvegardes iCloud";
+"settings_backup_files_title" = "Inclure les fichiers des livres";
 "bound_books_create_button" = "Combine into Volume";
 "bound_books_undo_alert_title" = "Convert to Folder";
 "bound_books_new_title_placeholder" = "New Book Volume";
