@@ -223,3 +223,8 @@
 "storage_fix_all_title" = "Fix All";
 "settings_backup_title" = "Respaldos en iCloud";
 "settings_backup_files_title" = "Incluir archivos de libros";
+"bound_books_create_button" = "Combinar en Volumen";
+"bound_books_undo_alert_title" = "Convertir en Carpeta";
+"bound_books_new_title_placeholder" = "Nuevo Volumen";
+"bound_books_create_alert_description" = "Asegúrate de que los libros estén en el orden correcto. Para reordenar los capítulos más adelante, deberás convertir el volumen nuevamente a una carpeta, reordenar los elementos y luego volver a crear el volumen.";
+"bound_books_create_alert_title" = "Crear un volumen";
