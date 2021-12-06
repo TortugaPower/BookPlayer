@@ -18,7 +18,7 @@ import WidgetKit
 protocol PlayerManagerProtocol {
   var currentItem: PlayableItem? { get set }
 
-  func load(_ item: PlayableItem, completion: @escaping (Bool) -> Void)
+  func load(_ item: PlayableItem)
   func hasLoadedBook() -> Bool
 
   func playItem(_ item: PlayableItem)
@@ -147,7 +147,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     self.playerItem?.audioTimePitchAlgorithm = .timeDomain
   }
 
-  func load(_ item: PlayableItem, completion: @escaping (Bool) -> Void) {
+  func load(_ item: PlayableItem) {
     // Recover in case of failure
     if self.audioPlayer.status == .failed {
       if let observer = self.periodicTimeObserver {
@@ -171,11 +171,11 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
       self.setNowPlayingBookTitle()
       NotificationCenter.default.post(name: .chapterChange, object: nil, userInfo: nil)
-      self.loadChapter(chapter, completion: completion)
+      self.loadChapter(chapter)
     }
   }
 
-  func loadChapter(_ chapter: PlayableChapter, completion: @escaping (Bool) -> Void) {
+  func loadChapter(_ chapter: PlayableChapter) {
     self.loadPlayerItem(for: chapter)
 
     self.queue.addOperation {
@@ -185,7 +185,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
               DispatchQueue.main.async {
                 self.currentItem = nil
 
-                completion(false)
+                NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["loaded": false])
               }
 
               return
@@ -232,7 +232,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
           self.jumpTo(time, recordBookmark: false)
         }
 
-        completion(true)
+        NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["loaded": true])
       }
     }
   }
@@ -601,16 +601,29 @@ extension PlayerManager {
   }
 
   func playItem(_ item: PlayableItem) {
-    self.load(item, completion: { success in
-      guard success else { return }
+    var subscription: AnyCancellable?
 
-      // Resume playback if it's paused
-      if !self.isPlaying {
-        self.play()
-      }
+    subscription = NotificationCenter.default.publisher(for: .bookReady, object: nil)
+      .sink(receiveValue: { [weak self] notification in
+        guard let self = self,
+              let userInfo = notification.userInfo,
+              let loaded = userInfo["loaded"] as? Bool,
+              loaded == true else {
+                subscription?.cancel()
+                return
+              }
 
-      NotificationCenter.default.post(name: .bookChange, object: nil, userInfo: nil)
-    })
+        // Resume playback if it's paused
+        if !self.isPlaying {
+          self.play()
+        }
+
+        NotificationCenter.default.post(name: .bookChange, object: nil, userInfo: nil)
+
+        subscription?.cancel()
+      })
+
+    self.load(item)
   }
 
   @objc

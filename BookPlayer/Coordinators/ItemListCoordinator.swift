@@ -159,38 +159,60 @@ class ItemListCoordinator: Coordinator {
     guard let libraryItem = self.libraryService.getItem(with: relativePath),
           let item = self.playbackService.getPlayableItem(from: libraryItem) else { return }
 
-    // Completion block may be called more than once
-    var wasCalled = false
+    var subscription: AnyCancellable?
 
-    self.playerManager.load(item) { [weak self] loaded in
-      guard loaded, !wasCalled else { return }
+    subscription = NotificationCenter.default.publisher(for: .bookReady, object: nil)
+      .sink(receiveValue: { [weak self] notification in
+        guard let self = self,
+              let userInfo = notification.userInfo,
+              let loaded = userInfo["loaded"] as? Bool,
+              loaded == true else {
+                subscription?.cancel()
+                return
+              }
 
-      self?.getMainCoordinator()?.showMiniPlayer(true)
-      self?.playerManager.play()
-      wasCalled = true
-    }
-    self.showPlayer()
+        self.getMainCoordinator()?.showMiniPlayer(true)
+        self.playerManager.play()
+        self.showPlayer()
+
+        subscription?.cancel()
+      })
+
+    self.playerManager.load(item)
   }
 
   func loadLastBookIfAvailable() {
     guard let libraryItem = try? self.libraryService.getLibraryLastItem(),
           let item = self.playbackService.getPlayableItem(from: libraryItem) else { return }
 
-    self.playerManager.load(item) { [weak self] loaded in
-      guard loaded else { return }
+    var subscription: AnyCancellable?
 
-      self?.getMainCoordinator()?.showMiniPlayer(true)
+    subscription = NotificationCenter.default.publisher(for: .bookReady, object: nil)
+      .sink(receiveValue: { [weak self] notification in
+        guard let self = self,
+              let userInfo = notification.userInfo,
+              let loaded = userInfo["loaded"] as? Bool,
+              loaded == true else {
+                subscription?.cancel()
+                return
+              }
 
-      if UserDefaults.standard.bool(forKey: Constants.UserActivityPlayback) {
-        UserDefaults.standard.removeObject(forKey: Constants.UserActivityPlayback)
-        self?.playerManager.play()
-      }
+        self.getMainCoordinator()?.showMiniPlayer(true)
 
-      if UserDefaults.standard.bool(forKey: Constants.UserDefaults.showPlayer.rawValue) {
-        UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.showPlayer.rawValue)
-        self?.showPlayer()
-      }
-    }
+        if UserDefaults.standard.bool(forKey: Constants.UserActivityPlayback) {
+          UserDefaults.standard.removeObject(forKey: Constants.UserActivityPlayback)
+          self.playerManager.play()
+        }
+
+        if UserDefaults.standard.bool(forKey: Constants.UserDefaults.showPlayer.rawValue) {
+          UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.showPlayer.rawValue)
+          self.showPlayer()
+        }
+
+        subscription?.cancel()
+      })
+
+    self.playerManager.load(item)
   }
 
   func showSettings() {
