@@ -253,6 +253,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
       mainCoordinator.playerManager.pause(fade: false)
       return .success
     }
+
+    MPRemoteCommandCenter.shared().changePlaybackPositionCommand.isEnabled = true
+    MPRemoteCommandCenter.shared().changePlaybackPositionCommand.addTarget { [weak self] remoteEvent in
+      guard let self = self,
+            let mainCoordinator = self.coordinator.getMainCoordinator(),
+            let currentItem = mainCoordinator.playerManager.currentItem,
+            let event = remoteEvent as? MPChangePlaybackPositionCommandEvent else { return .commandFailed }
+
+      var newTime = event.positionTime
+
+      if UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue),
+         let currentChapter = currentItem.currentChapter {
+        newTime += currentChapter.start
+      }
+
+      mainCoordinator.playerManager.jumpTo(newTime)
+
+      return .success
+    }
   }
 
   // For now, seek forward/backward and next/previous track perform the same function
