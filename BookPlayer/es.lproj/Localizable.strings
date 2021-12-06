@@ -228,3 +228,5 @@
 "bound_books_new_title_placeholder" = "Nuevo Volumen";
 "bound_books_create_alert_description" = "Asegúrate de que los libros estén en el orden correcto. Para reordenar los capítulos más adelante, deberás convertir el volumen nuevamente a una carpeta, reordenar los elementos y luego volver a crear el volumen.";
 "bound_books_create_alert_title" = "Crear un volumen";
+"voiceover_bound_books_progress" = "%@, Volume, %d percent Completed";
+"voiceover_no_bound_books_title" = "No Volume Title";
