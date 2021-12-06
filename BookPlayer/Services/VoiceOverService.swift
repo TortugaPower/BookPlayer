@@ -18,7 +18,7 @@ class VoiceOverService {
         switch type {
         case .book:
             return self.bookText()
-        case .folder:
+        case .folder, .bound:
             return self.folderText()
         }
     }
@@ -49,13 +49,9 @@ class VoiceOverService {
 
     // MARK: PlayerMetaView
 
-    public func playerMetaText(book: Book) -> String {
-      let title: String = book.title != nil
-      ? book.title
-      : "voiceover_unknown_title".localized
-      let author: String = book.author != nil
-      ? book.author
-      : "voiceover_unknown_author".localized
+    public func playerMetaText(item: PlayableItem) -> String {
+      let title: String = item.title
+      let author: String = item.author
 
       return String(describing: String.localizedStringWithFormat("voiceover_book_info".localized, title, author))
     }

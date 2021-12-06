@@ -17,7 +17,8 @@ class FolderListCoordinator: ItemListCoordinator {
     folderRelativePath: String,
     playerManager: PlayerManagerProtocol,
     importManager: ImportManager,
-    libraryService: LibraryServiceProtocol
+    libraryService: LibraryServiceProtocol,
+    playbackService: PlaybackServiceProtocol
   ) {
     self.folderRelativePath = folderRelativePath
 
@@ -25,7 +26,8 @@ class FolderListCoordinator: ItemListCoordinator {
       navigationController: navigationController,
       playerManager: playerManager,
       importManager: importManager,
-      libraryService: libraryService
+      libraryService: libraryService,
+      playbackService: playbackService
     )
   }
 
@@ -62,7 +64,7 @@ class FolderListCoordinator: ItemListCoordinator {
         placeholder = item.title
       }
 
-      self?.showImportIntoNewFolderAlert(placeholder: placeholder, with: items)
+      self?.showCreateFolderAlert(placeholder: placeholder, with: items.map { $0.relativePath }, type: .regular)
     })
 
     let existingFolderAction = UIAlertAction(title: "existing_playlist_button".localized, style: .default) { _ in
@@ -70,7 +72,7 @@ class FolderListCoordinator: ItemListCoordinator {
       vc.items = availableFolders
 
       vc.onItemSelected = { selectedFolder in
-        self.onAction?(.importIntoFolder(selectedFolder, items: items))
+        self.onAction?(.importIntoFolder(selectedFolder, items: items, type: .regular))
       }
 
       let nav = AppNavigationController(rootViewController: vc)

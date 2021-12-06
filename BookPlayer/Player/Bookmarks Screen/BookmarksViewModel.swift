@@ -21,19 +21,22 @@ class BookmarksViewModel: BaseViewModel<BookmarkCoordinator> {
   }
 
   func getAutomaticBookmarks() -> [Bookmark] {
-    guard let bookmarks = self.playerManager.currentBook?.bookmarks as? Set<Bookmark> else {
-      return []
-    }
+    guard let currentItem = self.playerManager.currentItem else { return [] }
 
-    return Array(bookmarks).filter({ $0.type != .user }).sorted(by: { $0.time < $1.time })
+    let playBookmarks = self.libraryService.getBookmarks(of: .play, relativePath: currentItem.relativePath) ?? []
+    let skipBookmarks = self.libraryService.getBookmarks(of: .skip, relativePath: currentItem.relativePath) ?? []
+
+    let bookmarks = playBookmarks + skipBookmarks
+
+    return bookmarks.sorted(by: { $0.time < $1.time })
   }
 
   func getUserBookmarks() -> [Bookmark] {
-    guard let bookmarks = self.playerManager.currentBook?.bookmarks as? Set<Bookmark> else {
-      return []
-    }
+    guard let currentItem = self.playerManager.currentItem else { return [] }
 
-    return Array(bookmarks).filter({ $0.type == .user }).sorted(by: { $0.time < $1.time })
+    let bookmarks = self.libraryService.getBookmarks(of: .user, relativePath: currentItem.relativePath) ?? []
+
+    return bookmarks.filter({ $0.type == .user }).sorted(by: { $0.time < $1.time })
   }
 
   func handleBookmarkSelected(_ bookmark: Bookmark) {

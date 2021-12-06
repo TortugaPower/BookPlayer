@@ -108,8 +108,8 @@ class FolderTests: XCTestCase {
         folder2.insert(item: folder)
         folder2.insert(item: book3)
 
-        let nextBook = folder.getNextBook(after: book1)
-        let nextBook2 = folder2.getNextBook(after: book2)
+        let nextBook = folder.getNextBook(after: book1.relativePath)
+        let nextBook2 = folder2.getNextBook(after: book2.relativePath)
 
         XCTAssert(nextBook == book2)
         XCTAssert(nextBook2 == book3)

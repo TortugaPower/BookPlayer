@@ -41,8 +41,8 @@ class LibraryServiceTests: XCTestCase {
     XCTAssert(!loadedLibrary.items!.array.isEmpty)
   }
 
-  func testGetEmptyLibraryLastBook() {
-    let lastBook = try! self.sut.getLibraryLastBook()
+  func testGetEmptyLibraryLastItem() {
+    let lastBook = try! self.sut.getLibraryLastItem()
     XCTAssert(lastBook == nil)
   }
 
@@ -54,13 +54,13 @@ class LibraryServiceTests: XCTestCase {
     )
 
     let newLibrary = self.sut.createLibrary()
-    XCTAssert(newLibrary.lastPlayedBook == nil)
-    newLibrary.lastPlayedBook = book
+    XCTAssert(newLibrary.lastPlayedItem == nil)
+    newLibrary.lastPlayedItem = book
     newLibrary.insert(item: book)
 
     self.sut.dataManager.saveContext()
 
-    let lastBook = try! self.sut.getLibraryLastBook()
+    let lastBook = try! self.sut.getLibraryLastItem()
     XCTAssert(lastBook?.relativePath == book.relativePath)
   }
 
@@ -593,23 +593,23 @@ class LibraryServiceTests: XCTestCase {
     let bookmark = self.sut.createBookmark(at: 5, relativePath: book.relativePath, type: .skip)
     XCTAssert(bookmark.time == 5)
     XCTAssert(bookmark.type == .skip)
-    XCTAssert(bookmark.book?.relativePath == book.relativePath)
+    XCTAssert(bookmark.item?.relativePath == book.relativePath)
 
     let sameBookmark = self.sut.createBookmark(at: 5, relativePath: book.relativePath, type: .skip)
 
     XCTAssert(bookmark.time == sameBookmark.time)
     XCTAssert(bookmark.type == sameBookmark.type)
-    XCTAssert(bookmark.book?.relativePath == sameBookmark.book?.relativePath)
+    XCTAssert(bookmark.item?.relativePath == sameBookmark.item?.relativePath)
   }
 
-  func testGetBookmark() {
+  func testGetBookmarks() {
     let book = StubFactory.book(
       dataManager: self.sut.dataManager,
       title: "test-book1",
       duration: 100
     )
 
-    XCTAssert(self.sut.getBookmark(of: .user, relativePath: book.relativePath) == nil)
+    XCTAssert(self.sut.getBookmarks(of: .user, relativePath: book.relativePath)!.isEmpty)
 
     let bookmark = Bookmark.create(in: self.sut.dataManager.getContext())
     bookmark.type = .user
@@ -617,7 +617,7 @@ class LibraryServiceTests: XCTestCase {
 
     self.sut.dataManager.saveContext()
 
-    XCTAssert(self.sut.getBookmark(of: .user, relativePath: book.relativePath) != nil)
+    XCTAssert(!self.sut.getBookmarks(of: .user, relativePath: book.relativePath)!.isEmpty)
   }
 
   func testGetBookmarkOfType() {
@@ -1087,7 +1087,6 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(library.itemsArray[0].title == book3.title)
     XCTAssert(library.itemsArray[2].title == book1.title)
 
-
     self.sut.reorderItem(
       at: book3.relativePath,
       inside: nil,
@@ -1131,9 +1130,9 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(folder.speed == 2.0)
   }
 
-  func testSetLibraryLastPlayedBook() {
+  func testSetLibraryLastPlayedItem() {
     let library = self.sut.getLibrary()
-    XCTAssert(library.lastPlayedBook == nil)
+    XCTAssert(library.lastPlayedItem == nil)
 
     let book = StubFactory.book(
       dataManager: self.sut.dataManager,
@@ -1143,10 +1142,26 @@ class ModifyLibraryTests: LibraryServiceTests {
 
     self.sut.setLibraryLastBook(with: book.relativePath)
 
-    XCTAssert(library.lastPlayedBook?.relativePath == book.relativePath)
+    XCTAssert(library.lastPlayedItem?.relativePath == book.relativePath)
 
     self.sut.setLibraryLastBook(with: nil)
 
-    XCTAssert(library.lastPlayedBook == nil)
+    XCTAssert(library.lastPlayedItem == nil)
+  }
+
+  func testUpdateBookLastPlayDate() throws {
+    let book = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test-book1",
+      duration: 100
+    )
+    let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
+    try self.sut.moveItems([book], inside: folder.relativePath, moveFiles: true)
+
+    let now = Date()
+    self.sut.updateBookLastPlayDate(at: book.relativePath, date: now)
+
+    XCTAssert(book.lastPlayDate == now)
+    XCTAssert(folder.lastPlayDate == now)
   }
 }

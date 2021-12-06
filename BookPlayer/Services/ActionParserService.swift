@@ -115,8 +115,8 @@ class ActionParserService {
       return
     }
 
-    if let loadedBook = mainCoordinator.playerManager.currentBook,
-       loadedBook.relativePath == bookIdentifier {
+    if let loadedItem = mainCoordinator.playerManager.currentItem,
+       loadedItem.relativePath == bookIdentifier {
       self.removeAction(action)
       mainCoordinator.playerManager.play()
       return

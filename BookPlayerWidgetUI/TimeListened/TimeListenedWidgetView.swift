@@ -39,9 +39,9 @@ struct TimeListenedProvider: IntentTimelineProvider {
       var title: String?
       var theme: SimpleTheme?
 
-      if let lastPlayedBook = try? libraryService.getLibraryLastBook(),
+      if let lastPlayedItem = try? libraryService.getLibraryLastItem(),
          let currentTheme = try? libraryService.getLibraryCurrentTheme() {
-        title = lastPlayedBook.title
+        title = lastPlayedItem.title
         theme = SimpleTheme(with: currentTheme)
       }
 
@@ -81,9 +81,9 @@ struct TimeListenedProvider: IntentTimelineProvider {
       var title: String?
       var theme: SimpleTheme?
 
-      if let lastPlayedBook = try? libraryService.getLibraryLastBook(),
+      if let lastPlayedItem = try? libraryService.getLibraryLastItem(),
          let currentTheme = try? libraryService.getLibraryCurrentTheme() {
-        title = lastPlayedBook.title
+        title = lastPlayedItem.title
         theme = SimpleTheme(with: currentTheme)
       }
 

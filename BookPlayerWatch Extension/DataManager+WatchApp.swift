@@ -32,20 +32,15 @@ extension DataManager {
     try? booksData.write(to: DataManager.booksDataUrl)
     try? themeData?.write(to: DataManager.themeDataUrl)
 
-    let bgContext = self.getBackgroundContext()
     let decoder = JSONDecoder()
 
-    guard let context = CodingUserInfoKey.context else { return nil }
-
-    decoder.userInfo[context] = bgContext
-
-    guard let books = try? decoder.decode([Book].self, from: booksData) else {
+    guard let books = try? decoder.decode([PlayableItem].self, from: booksData) else {
       return nil
     }
 
-    var currentTheme: Theme?
+    var currentTheme: SimpleTheme?
     if let themeData = themeData {
-      currentTheme = try? decoder.decode(Theme.self, from: themeData)
+      currentTheme = try? decoder.decode(SimpleTheme.self, from: themeData)
     }
 
     return (books: books, currentTheme: currentTheme)

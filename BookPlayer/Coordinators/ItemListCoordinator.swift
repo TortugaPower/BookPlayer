@@ -14,10 +14,10 @@ public typealias Transition<T> = ((T) -> Void)
 enum ItemListActionRoutes {
   case importOptions
   case importLocalFiles
-  case importIntoNewFolder(_ title: String, items: [LibraryItem]?)
-  case importIntoFolder(_ folder: SimpleLibraryItem, items: [LibraryItem])
+  case importIntoFolder(_ folder: SimpleLibraryItem, items: [LibraryItem], type: FolderType)
   case downloadBook(_ url: URL)
-  case createFolder(_ title: String, items: [SimpleLibraryItem]?)
+  case createFolder(_ title: String, items: [String]?, type: FolderType)
+  case updateFolders(_ folders: [SimpleLibraryItem], type: FolderType)
   case moveIntoLibrary(items: [SimpleLibraryItem])
   case moveIntoFolder(_ folder: SimpleLibraryItem, items: [SimpleLibraryItem])
   case delete(_ items: [SimpleLibraryItem], mode: DeleteMode)
@@ -36,6 +36,7 @@ class ItemListCoordinator: Coordinator {
   let playerManager: PlayerManagerProtocol
   let importManager: ImportManager
   let libraryService: LibraryServiceProtocol
+  let playbackService: PlaybackServiceProtocol
 
   weak var documentPickerDelegate: UIDocumentPickerDelegate?
   var fileSubscription: AnyCancellable?
@@ -45,11 +46,13 @@ class ItemListCoordinator: Coordinator {
     navigationController: UINavigationController,
     playerManager: PlayerManagerProtocol,
     importManager: ImportManager,
-    libraryService: LibraryServiceProtocol
+    libraryService: LibraryServiceProtocol,
+    playbackService: PlaybackServiceProtocol
   ) {
     self.playerManager = playerManager
     self.importManager = importManager
     self.libraryService = libraryService
+    self.playbackService = playbackService
 
     super.init(navigationController: navigationController,
                flowType: .push)
@@ -112,7 +115,7 @@ class ItemListCoordinator: Coordinator {
     switch item.type {
     case .folder:
       self.showFolder(item.relativePath)
-    case .book:
+    case .book, .bound:
       self.loadPlayer(item.relativePath)
     }
   }
@@ -122,7 +125,8 @@ class ItemListCoordinator: Coordinator {
                                       folderRelativePath: relativePath,
                                       playerManager: self.playerManager,
                                       importManager: self.importManager,
-                                      libraryService: self.libraryService)
+                                      libraryService: self.libraryService,
+                                      playbackService: self.playbackService)
     self.childCoordinators.append(child)
     child.parentCoordinator = self
     child.start()
@@ -147,14 +151,15 @@ class ItemListCoordinator: Coordinator {
     }
 
     // Only load if loaded book is a different one
-    guard relativePath != playerManager.currentBook?.relativePath else {
+    guard relativePath != playerManager.currentItem?.relativePath else {
       self.showPlayer()
       return
     }
 
-    guard let book = self.libraryService.getItem(with: relativePath) as? Book else { return }
+    guard let libraryItem = self.libraryService.getItem(with: relativePath),
+          let item = self.playbackService.getPlayableItem(from: libraryItem) else { return }
 
-    self.playerManager.load(book) { [weak self] loaded in
+    self.playerManager.load(item) { [weak self] loaded in
       guard loaded else { return }
 
       self?.getMainCoordinator()?.showMiniPlayer(true)
@@ -164,9 +169,10 @@ class ItemListCoordinator: Coordinator {
   }
 
   func loadLastBookIfAvailable() {
-    guard let book = try? self.libraryService.getLibraryLastBook() else { return }
+    guard let libraryItem = try? self.libraryService.getLibraryLastItem(),
+          let item = self.playbackService.getPlayableItem(from: libraryItem) else { return }
 
-    self.playerManager.load(book) { [weak self] loaded in
+    self.playerManager.load(item) { [weak self] loaded in
       guard loaded else { return }
 
       self?.getMainCoordinator()?.showMiniPlayer(true)
@@ -228,7 +234,8 @@ class ItemListCoordinator: Coordinator {
         placeholder = item.title
       }
 
-      self.showImportIntoNewFolderAlert(placeholder: placeholder, with: items)
+      let itemPaths = items.map { $0.relativePath! }
+      self.showCreateFolderAlert(placeholder: placeholder, with: itemPaths, type: .regular)
     })
 
     let existingFolderAction = UIAlertAction(title: "existing_playlist_button".localized, style: .default) { _ in
@@ -236,7 +243,7 @@ class ItemListCoordinator: Coordinator {
       vc.items = availableFolders
 
       vc.onItemSelected = { selectedFolder in
-        self.onAction?(.importIntoFolder(selectedFolder, items: items))
+        self.onAction?(.importIntoFolder(selectedFolder, items: items, type: .regular))
       }
 
       let nav = AppNavigationController(rootViewController: vc)
@@ -246,42 +253,54 @@ class ItemListCoordinator: Coordinator {
     existingFolderAction.isEnabled = !availableFolders.isEmpty
     alert.addAction(existingFolderAction)
 
+    let convertAction = UIAlertAction(title: "bound_books_create_button".localized, style: .default) { _ in
+      var placeholder = "bound_books_new_title_placeholder".localized
+
+      if let item = items.first {
+        placeholder = item.title
+      }
+
+      let itemPaths = items.map { $0.relativePath! }
+      self.showCreateFolderAlert(placeholder: placeholder, with: itemPaths, type: .bound)
+    }
+    convertAction.isEnabled = items is [Book]
+    alert.addAction(convertAction)
+
     self.navigationController.present(alert, animated: true, completion: nil)
   }
 }
 
 extension ItemListCoordinator {
-  func showImportIntoNewFolderAlert(placeholder: String? = nil, with items: [LibraryItem]? = nil) {
-    let alert = UIAlertController(title: "create_playlist_title".localized,
-                                  message: "create_playlist_description".localized,
+  func showCreateFolderAlert(placeholder: String? = nil,
+                             with items: [String]? = nil,
+                             type: FolderType = .regular) {
+    let alertTitle: String
+    let alertMessage: String
+    let alertPlaceholderDefault: String
+
+    switch type {
+    case .regular:
+      alertTitle = "create_playlist_title".localized
+      alertMessage = "create_playlist_description".localized
+      alertPlaceholderDefault = "new_playlist_button".localized
+    case .bound:
+      alertTitle = "bound_books_create_alert_title".localized
+      alertMessage = "bound_books_create_alert_description".localized
+      alertPlaceholderDefault = "bound_books_new_title_placeholder".localized
+    }
+
+    let alert = UIAlertController(title: alertTitle,
+                                  message: alertMessage,
                                   preferredStyle: .alert)
 
     alert.addTextField(configurationHandler: { textfield in
-      textfield.text = placeholder ?? "new_playlist_button".localized
+      textfield.text = placeholder ?? alertPlaceholderDefault
     })
 
     alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
     alert.addAction(UIAlertAction(title: "create_button".localized, style: .default, handler: { _ in
       let title = alert.textFields!.first!.text!
-      self.onAction?(.importIntoNewFolder(title, items: items))
-    }))
-
-    self.navigationController.present(alert, animated: true, completion: nil)
-  }
-
-  func showCreateFolderAlert(placeholder: String? = nil, with items: [SimpleLibraryItem]? = nil) {
-    let alert = UIAlertController(title: "create_playlist_title".localized,
-                                  message: "create_playlist_description".localized,
-                                  preferredStyle: .alert)
-
-    alert.addTextField(configurationHandler: { textfield in
-      textfield.text = placeholder ?? "new_playlist_button".localized
-    })
-
-    alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
-    alert.addAction(UIAlertAction(title: "create_button".localized, style: .default, handler: { _ in
-      let title = alert.textFields!.first!.text!
-      self.onAction?(.createFolder(title, items: items))
+      self.onAction?(.createFolder(title, items: items, type: type))
     }))
 
     self.navigationController.present(alert, animated: true, completion: nil)
@@ -298,6 +317,10 @@ extension ItemListCoordinator {
 
     alertController.addAction(UIAlertAction(title: "create_playlist_button".localized, style: .default) { _ in
       self.showCreateFolderAlert()
+    })
+
+    alertController.addAction(UIAlertAction(title: "bound_books_create_button".localized, style: .default) { _ in
+      self.showCreateFolderAlert(placeholder: "bound_books_new_title_placeholder".localized, type: .bound)
     })
 
     alertController.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel))
@@ -350,7 +373,7 @@ extension ItemListCoordinator {
     }
 
     alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { _ in
-      self.showCreateFolderAlert(placeholder: nil, with: selectedItems)
+      self.showCreateFolderAlert(placeholder: selectedItems.first?.title, with: selectedItems.map { $0.relativePath })
     })
 
     let existingFolderAction = UIAlertAction(title: "existing_playlist_button".localized, style: .default) { _ in
@@ -395,7 +418,7 @@ extension ItemListCoordinator {
     }
 
     alert.addAction(UIAlertAction(title: deleteActionTitle, style: .destructive, handler: { _ in
-      if selectedItems.contains(where: { $0.relativePath == self.playerManager.currentBook?.relativePath }) {
+      if selectedItems.contains(where: { $0.relativePath == self.playerManager.currentItem?.relativePath }) {
         self.playerManager.stop()
       }
 
@@ -441,6 +464,30 @@ extension ItemListCoordinator {
     sheet.addAction(UIAlertAction(title: markTitle, style: .default, handler: { [weak self] _ in
       self?.onAction?(.markAsFinished(selectedItems, flag: !areFinished))
     }))
+
+    let boundBookAction: UIAlertAction
+
+    if selectedItems.allSatisfy({ $0.type == .bound }) {
+      boundBookAction = UIAlertAction(title: "bound_books_undo_alert_title".localized, style: .default, handler: { [weak self] _ in
+        self?.onAction?(.updateFolders(selectedItems, type: .regular))
+      })
+      boundBookAction.isEnabled = true
+    } else {
+      boundBookAction = UIAlertAction(title: "bound_books_create_button".localized, style: .default, handler: { [weak self] _ in
+        if isSingle {
+          self?.onAction?(.updateFolders(selectedItems, type: .bound))
+        } else {
+          self?.showCreateFolderAlert(
+            placeholder: item.title,
+            with: selectedItems.map { $0.relativePath },
+            type: .bound
+          )
+        }
+      })
+      boundBookAction.isEnabled = selectedItems.allSatisfy({ $0.type == .book }) || (isSingle && item.type == .folder)
+    }
+
+    sheet.addAction(boundBookAction)
 
     sheet.addAction(UIAlertAction(title: "\("delete_button".localized)", style: .destructive) { _ in
       self.showDeleteAlert(selectedItems: selectedItems)

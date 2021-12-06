@@ -11,7 +11,7 @@ import Foundation
 
 public protocol LibraryServiceProtocol {
   func getLibrary() -> Library
-  func getLibraryLastBook() throws -> Book?
+  func getLibraryLastItem() throws -> LibraryItem?
 
   func getLibraryCurrentTheme() throws -> Theme?
   func getTheme(with title: String) -> Theme?
@@ -22,7 +22,9 @@ public protocol LibraryServiceProtocol {
   func createBook(from url: URL) -> Book
   func getItem(with relativePath: String) -> LibraryItem?
   func findBooks(containing fileURL: URL) -> [Book]?
-  func getOrderedBooks(limit: Int?) -> [Book]?
+  func getOrderedBooks(limit: Int?) -> [LibraryItem]?
+
+  func updateFolder(at relativePath: String, type: FolderType) throws
   func findFolder(with fileURL: URL) -> Folder?
   func findFolder(with relativePath: String) -> Folder?
   func hasLibraryLinked(item: LibraryItem) -> Bool
@@ -32,15 +34,16 @@ public protocol LibraryServiceProtocol {
   func replaceOrderedItems(_ items: NSOrderedSet, at relativePath: String?)
   func reorderItem(at relativePath: String, inside folderRelativePath: String?, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath)
 
-  func updateBookTime(_ book: Book, time: Double)
+  func updatePlaybackTime(relativePath: String, time: Double)
   func updateBookSpeed(at relativePath: String, speed: Float)
+  func updateBookLastPlayDate(at relativePath: String, date: Date)
   func markAsFinished(flag: Bool, relativePath: String)
   func jumpToStart(relativePath: String)
   func getCurrentPlaybackRecord() -> PlaybackRecord
   func getPlaybackRecords(from startDate: Date, to endDate: Date) -> [PlaybackRecord]?
   func recordTime(_ playbackRecord: PlaybackRecord)
 
-  func getBookmark(of type: BookmarkType, relativePath: String) -> Bookmark?
+  func getBookmarks(of type: BookmarkType, relativePath: String) -> [Bookmark]?
   func getBookmark(at time: Double, relativePath: String, type: BookmarkType) -> Bookmark?
   func createBookmark(at time: Double, relativePath: String, type: BookmarkType) -> Bookmark
   func addNote(_ note: String, bookmark: Bookmark)
@@ -80,18 +83,18 @@ public final class LibraryService: LibraryServiceProtocol {
     return library
   }
 
-  public func getLibraryLastBook() throws -> Book? {
+  public func getLibraryLastItem() throws -> LibraryItem? {
     let context = self.dataManager.getContext()
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "Library")
-    fetchRequest.propertiesToFetch = ["lastPlayedBook"]
+    fetchRequest.propertiesToFetch = ["lastPlayedItem"]
     fetchRequest.resultType = .dictionaryResultType
 
     guard let dict = try context.fetch(fetchRequest).first as? [String: NSManagedObjectID],
-          let lastPlayedBookId = dict["lastPlayedBook"] else {
+          let lastPlayedItemId = dict["lastPlayedItem"] else {
             return nil
           }
 
-    return try? context.existingObject(with: lastPlayedBookId) as? Book
+    return try? context.existingObject(with: lastPlayedItemId) as? LibraryItem
   }
 
   public func getLibraryCurrentTheme() throws -> Theme? {
@@ -127,9 +130,9 @@ public final class LibraryService: LibraryServiceProtocol {
     let library = self.getLibrary()
 
     if let relativePath = relativePath {
-      library.lastPlayedBook = self.getItem(with: relativePath) as? Book
+      library.lastPlayedItem = self.getItem(with: relativePath)
     } else {
-      library.lastPlayedBook = nil
+      library.lastPlayedItem = nil
     }
 
     self.dataManager.saveContext()
@@ -163,15 +166,15 @@ public final class LibraryService: LibraryServiceProtocol {
     return try? context.fetch(fetch)
   }
 
-  public func getOrderedBooks(limit: Int?) -> [Book]? {
-    let fetch: NSFetchRequest<Book> = Book.fetchRequest()
+  public func getOrderedBooks(limit: Int?) -> [LibraryItem]? {
+    let fetch: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
     fetch.predicate = NSPredicate(format: "lastPlayDate != nil")
 
     if let limit = limit {
       fetch.fetchLimit = limit
     }
 
-    let sort = NSSortDescriptor(key: #keyPath(Book.lastPlayDate), ascending: false)
+    let sort = NSSortDescriptor(key: #keyPath(LibraryItem.lastPlayDate), ascending: false)
     fetch.sortDescriptors = [sort]
 
     let context = self.dataManager.getContext()
@@ -180,6 +183,32 @@ public final class LibraryService: LibraryServiceProtocol {
   }
 
   // MARK: - Folders
+  public func updateFolder(at relativePath: String, type: FolderType) throws {
+    guard let folder = self.getItem(with: relativePath) as? Folder else {
+      throw BookPlayerError.runtimeError("Can't find the folder")
+    }
+
+    switch type {
+    case .regular:
+      folder.type = type
+      folder.lastPlayDate = nil
+    case .bound:
+      guard let items = folder.items?.array as? [Book] else {
+        throw BookPlayerError.runtimeError("The folder needs to only contain book items")
+      }
+
+      guard !items.isEmpty else {
+        throw BookPlayerError.runtimeError("The folder can't be empty")
+      }
+
+      items.forEach({ $0.lastPlayDate = nil })
+
+      folder.type = type
+    }
+
+    self.dataManager.saveContext()
+  }
+
   public func findFolder(with fileURL: URL) -> Folder? {
     return self.findFolder(
       with: String(fileURL.relativePath(to: DataManager.getProcessedFolderURL()).dropFirst())
@@ -326,9 +355,11 @@ public final class LibraryService: LibraryServiceProtocol {
     self.dataManager.saveContext()
   }
 
-  public func updateBookTime(_ book: Book, time: Double) {
-    book.setCurrentTime(time)
-    book.percentCompleted = book.percentage
+  public func updatePlaybackTime(relativePath: String, time: Double) {
+    guard let item = self.getItem(with: relativePath) else { return }
+
+    item.currentTime = time
+    item.percentCompleted = round((item.currentTime / item.duration) * 100)
 
     self.dataManager.saveContext()
   }
@@ -338,6 +369,15 @@ public final class LibraryService: LibraryServiceProtocol {
 
     item.speed = speed
     item.folder?.speed = speed
+
+    self.dataManager.saveContext()
+  }
+
+  public func updateBookLastPlayDate(at relativePath: String, date: Date) {
+    guard let item = self.getItem(with: relativePath) else { return }
+
+    item.lastPlayDate = date
+    item.folder?.lastPlayDate = date
 
     self.dataManager.saveContext()
   }
@@ -430,14 +470,14 @@ public final class LibraryService: LibraryServiceProtocol {
 
   // MARK: - Bookmarks
 
-  public func getBookmark(of type: BookmarkType, relativePath: String) -> Bookmark? {
+  public func getBookmarks(of type: BookmarkType, relativePath: String) -> [Bookmark]? {
     let fetchRequest: NSFetchRequest<Bookmark> = Bookmark.fetchRequest()
     fetchRequest.predicate = NSPredicate(format: "%K == %@ && type == %d",
-                                         #keyPath(Bookmark.book.relativePath),
+                                         #keyPath(Bookmark.item.relativePath),
                                          relativePath,
                                          type.rawValue)
 
-    return try? self.dataManager.getContext().fetch(fetchRequest).first
+    return try? self.dataManager.getContext().fetch(fetchRequest)
   }
 
   public func getBookmark(at time: Double, relativePath: String, type: BookmarkType) -> Bookmark? {
@@ -445,7 +485,7 @@ public final class LibraryService: LibraryServiceProtocol {
 
     let fetchRequest: NSFetchRequest<Bookmark> = Bookmark.fetchRequest()
     fetchRequest.predicate = NSPredicate(format: "%K == %@ && type == %d && time == %f",
-                                         #keyPath(Bookmark.book.relativePath),
+                                         #keyPath(Bookmark.item.relativePath),
                                          relativePath,
                                          type.rawValue,
                                          floor(time))
@@ -459,8 +499,8 @@ public final class LibraryService: LibraryServiceProtocol {
     }
 
     let bookmark = Bookmark(with: floor(time), type: type, context: self.dataManager.getContext())
-    let book = self.getItem(with: relativePath) as? Book
-    book?.addToBookmarks(bookmark)
+    let item = self.getItem(with: relativePath)
+    item?.addToBookmarks(bookmark)
 
     self.dataManager.saveContext()
 
@@ -473,8 +513,8 @@ public final class LibraryService: LibraryServiceProtocol {
   }
 
   public func deleteBookmark(_ bookmark: Bookmark) {
-    let book = bookmark.book
-    book?.removeFromBookmarks(bookmark)
+    let item = bookmark.item
+    item?.removeFromBookmarks(bookmark)
     self.dataManager.delete(bookmark)
   }
 

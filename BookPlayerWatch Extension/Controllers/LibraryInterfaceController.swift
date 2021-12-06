@@ -16,7 +16,7 @@ enum ConnectionError: Error {
   case connectivityError
 }
 
-public typealias WatchDataObject = (books: [LibraryItem], currentTheme: Theme?)
+public typealias WatchDataObject = (books: [PlayableItem], currentTheme: SimpleTheme?)
 
 class LibraryInterfaceController: WKInterfaceController {
   @IBOutlet weak var separatorLastBookView: WKInterfaceSeparator!
@@ -38,8 +38,8 @@ class LibraryInterfaceController: WKInterfaceController {
   var watchConnectivityService: WatchConnectivityService!
 
   // TableView's datasource
-  var items = [LibraryItem]()
-  var currentTheme: Theme?
+  var items = [PlayableItem]()
+  var currentTheme: SimpleTheme?
   var selectedFolder: Folder?
 
   override func awake(withContext context: Any?) {
@@ -56,9 +56,11 @@ class LibraryInterfaceController: WKInterfaceController {
 
       let dataManager = DataManager(coreDataStack: stack)
       let libraryService = LibraryService(dataManager: dataManager)
+      let playbackService = PlaybackService(libraryService: libraryService)
       self.dataManager = dataManager
 
-      self.watchConnectivityService = WatchConnectivityService(libraryService: libraryService)
+      self.watchConnectivityService = WatchConnectivityService(libraryService: libraryService,
+                                                               playbackService: playbackService)
 
       self.watchConnectivityService.startSession()
 
@@ -164,7 +166,7 @@ class LibraryInterfaceController: WKInterfaceController {
       }
 
       row.titleLabel.setText(item.title)
-      row.detailImage.setHidden(item is Book)
+      row.detailImage.setHidden(true)
     }
   }
 

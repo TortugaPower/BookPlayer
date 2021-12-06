@@ -9,7 +9,7 @@ public enum Constants {
         // Application information
         case completedFirstLaunch = "userSettingsCompletedFirstLaunch"
         case lastPauseTime = "userSettingsLastPauseTime"
-        case lastPlayedBook = "userSettingsLastPlayedBook"
+        case lastPlayedItem = "userSettingsLastPlayedItem"
         case appIcon = "userSettingsAppIcon"
         case donationMade = "userSettingsDonationMade"
         case showPlayer = "userSettingsShowPlayer"

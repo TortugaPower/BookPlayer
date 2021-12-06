@@ -14,7 +14,7 @@ import StoreKit
 class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   private let playerManager: PlayerManagerProtocol
   private let libraryService: LibraryServiceProtocol
-  private var chapterBeforeSliderValueChange: Chapter?
+  private var chapterBeforeSliderValueChange: PlayableChapter?
   private var prefersChapterContext = UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
   private var prefersRemainingTime = UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
 
@@ -24,8 +24,8 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     self.libraryService = libraryService
   }
 
-  func currentBookObserver() -> Published<Book?>.Publisher {
-    return self.playerManager.currentBookPublisher()
+  func currentItemObserver() -> Published<PlayableItem?>.Publisher {
+    return self.playerManager.currentItemPublisher()
   }
 
   func currentSpeedObserver() -> AnyPublisher<Float, Never> {
@@ -40,25 +40,21 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     return self.playerManager.hasLoadedBook()
   }
 
-  func hasChaptersPublisher() -> AnyPublisher<Bool, Never> {
-    return self.playerManager.hasChaptersPublisher().eraseToAnyPublisher()
+  func hasChapter(before chapter: PlayableChapter?) -> Bool {
+    guard let chapter = chapter else { return false }
+    return self.playerManager.currentItem?.hasChapter(before: chapter) ?? false
   }
 
-  func hasChapter(before chapter: Chapter?) -> Bool {
+  func hasChapter(after chapter: PlayableChapter?) -> Bool {
     guard let chapter = chapter else { return false }
-    return self.playerManager.currentBook?.hasChapter(before: chapter) ?? false
-  }
-
-  func hasChapter(after chapter: Chapter?) -> Bool {
-    guard let chapter = chapter else { return false }
-    return self.playerManager.currentBook?.hasChapter(after: chapter) ?? false
+    return self.playerManager.currentItem?.hasChapter(after: chapter) ?? false
   }
 
   func handlePreviousChapterAction() {
     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
 
-    if let currentChapter = self.playerManager.currentBook?.currentChapter,
-       let previousChapter = self.playerManager.currentBook?.previousChapter(before: currentChapter) {
+    if let currentChapter = self.playerManager.currentItem?.currentChapter,
+       let previousChapter = self.playerManager.currentItem?.previousChapter(before: currentChapter) {
       self.playerManager.jumpTo(previousChapter.start + 0.5, recordBookmark: false)
     } else {
       self.playerManager.playPreviousItem()
@@ -68,8 +64,8 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   func handleNextChapterAction() {
     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
 
-    if let currentChapter = self.playerManager.currentBook?.currentChapter,
-       let nextChapter = self.playerManager.currentBook?.nextChapter(after: currentChapter) {
+    if let currentChapter = self.playerManager.currentItem?.currentChapter,
+       let nextChapter = self.playerManager.currentItem?.nextChapter(after: currentChapter) {
       self.playerManager.jumpTo(nextChapter.start + 0.5, recordBookmark: false)
     } else {
       self.playerManager.playNextItem(autoPlayed: false)
@@ -77,11 +73,11 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   }
 
   func isBookFinished() -> Bool {
-    return self.playerManager.currentBook?.isFinished ?? false
+    return self.playerManager.currentItem?.isFinished ?? false
   }
 
   func getBookCurrentTime() -> TimeInterval {
-    return self.playerManager.currentBook?.currentTimeInContext(self.prefersChapterContext) ?? 0
+    return self.playerManager.currentItem?.currentTimeInContext(self.prefersChapterContext) ?? 0
   }
 
   func getCurrentTimeVoiceOverPrefix() -> String {
@@ -144,33 +140,31 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     return self.getCurrentProgressState()
   }
 
-  func getCurrentProgressState(_ book: Book? = nil) -> ProgressObject {
+  func getCurrentProgressState(_ item: PlayableItem? = nil) -> ProgressObject {
     let currentTime = self.getBookCurrentTime()
     let maxTimeInContext = self.getBookMaxTime()
     let progress: String
     let sliderValue: Float
 
-    let currentBook = book ?? self.playerManager.currentBook
+    let currentItem = item ?? self.playerManager.currentItem
 
     if self.prefersChapterContext,
-       let currentBook = currentBook,
-       currentBook.hasChapters,
-       let chapters = currentBook.chapters,
-       let currentChapter = currentBook.currentChapter {
-      progress = String.localizedStringWithFormat("player_chapter_description".localized, currentChapter.index, chapters.count)
-      sliderValue = Float((currentBook.currentTime - currentChapter.start) / currentChapter.duration)
+       let currentItem = currentItem,
+       let currentChapter = currentItem.currentChapter {
+      progress = String.localizedStringWithFormat("player_chapter_description".localized, currentChapter.index, currentItem.chapters.count)
+      sliderValue = Float((currentItem.currentTime - currentChapter.start) / currentChapter.duration)
     } else {
-      progress = "\(Int(round((currentBook?.progressPercentage ?? 0) * 100)))%"
-      sliderValue = Float(currentBook?.progressPercentage ?? 0)
+      progress = "\(Int(round((currentItem?.progressPercentage ?? 0) * 100)))%"
+      sliderValue = Float(currentItem?.progressPercentage ?? 0)
     }
 
     // Update local chapter
-    self.chapterBeforeSliderValueChange = currentBook?.currentChapter
+    self.chapterBeforeSliderValueChange = currentItem?.currentChapter
 
-    let prevChapterImageName = self.hasChapter(before: currentBook?.currentChapter)
+    let prevChapterImageName = self.hasChapter(before: currentItem?.currentChapter)
     ? "chevron.left"
     : "chevron.left.2"
-    let nextChapterImageName = self.hasChapter(after: currentBook?.currentChapter)
+    let nextChapterImageName = self.hasChapter(after: currentItem?.currentChapter)
     ? "chevron.right"
     : "chevron.right.2"
 
@@ -181,14 +175,14 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
       sliderValue: sliderValue,
       prevChapterImageName: prevChapterImageName,
       nextChapterImageName: nextChapterImageName,
-      chapterTitle: currentBook?.currentChapter?.title
-      ?? currentBook?.title
+      chapterTitle: currentItem?.currentChapter?.title
+      ?? currentItem?.title
       ?? ""
     )
   }
 
   func handleSliderDownEvent() {
-    self.chapterBeforeSliderValueChange = self.playerManager.currentBook?.currentChapter
+    self.chapterBeforeSliderValueChange = self.playerManager.currentItem?.currentChapter
   }
 
   func handleSliderUpEvent(with value: Float) {
@@ -215,7 +209,7 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
       }
     } else {
       newCurrentTime = self.getBookTimeFromSlider(value: value)
-      if let chapter = self.playerManager.currentBook?.getChapter(at: newCurrentTime) {
+      if let chapter = self.playerManager.currentItem?.getChapter(at: newCurrentTime) {
         chapterTitle = chapter.title
 
         if self.hasChapter(before: chapter) {
@@ -228,14 +222,13 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     }
 
     var progress: String?
-    if !(self.playerManager.currentBook?.hasChapters ?? false)
-        || !self.prefersChapterContext {
+    if !self.prefersChapterContext {
       progress = "\(Int(round(value * 100)))%"
     }
 
     var newMaxTime: TimeInterval?
     if self.prefersRemainingTime {
-      let durationTimeInContext = self.playerManager.currentBook?.durationTimeInContext(self.prefersChapterContext) ?? 0
+      let durationTimeInContext = self.playerManager.currentItem?.durationTimeInContext(self.prefersChapterContext) ?? 0
 
       newMaxTime = newCurrentTime - durationTimeInContext
     }
@@ -248,17 +241,17 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
       prevChapterImageName: prevChapterImageName,
       nextChapterImageName: nextChapterImageName,
       chapterTitle: chapterTitle ?? self.chapterBeforeSliderValueChange?.title
-      ?? self.playerManager.currentBook?.title
+      ?? self.playerManager.currentItem?.title
       ?? ""
     )
   }
 
   func getBookMaxTime() -> TimeInterval {
-    return self.playerManager.currentBook?.maxTimeInContext(self.prefersChapterContext, self.prefersRemainingTime) ?? 0
+    return self.playerManager.currentItem?.maxTimeInContext(self.prefersChapterContext, self.prefersRemainingTime) ?? 0
   }
 
   func getBookTimeFromSlider(value: Float) -> TimeInterval {
-    var newTimeToDisplay = TimeInterval(value) * (self.playerManager.currentBook?.duration ?? 0)
+    var newTimeToDisplay = TimeInterval(value) * (self.playerManager.currentItem?.duration ?? 0)
 
     if self.prefersChapterContext,
        let currentChapter = self.chapterBeforeSliderValueChange {
@@ -290,7 +283,7 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
         actionSheet.addAction(UIAlertAction(title: "\u{00A0} \(speed) ✓", style: .default, handler: nil))
       } else {
         actionSheet.addAction(UIAlertAction(title: "\(speed)", style: .default, handler: { _ in
-          self.playerManager.setSpeed(speed, relativePath: self.playerManager.currentBook?.relativePath)
+          self.playerManager.setSpeed(speed, relativePath: self.playerManager.currentItem?.relativePath)
         }))
       }
     }
@@ -311,13 +304,13 @@ extension PlayerViewModel {
   }
 
   func createBookmark(vc: UIViewController) {
-    guard let book = self.playerManager.currentBook else { return }
+    guard let currentItem = self.playerManager.currentItem else { return }
 
-    let currentTime = book.currentTime
+    let currentTime = currentItem.currentTime
 
     if let bookmark = self.libraryService.getBookmark(
       at: currentTime,
-      relativePath: book.relativePath,
+      relativePath: currentItem.relativePath,
       type: .user
     ) {
       self.showBookmarkSuccessAlert(vc: vc, bookmark: bookmark, existed: true)
@@ -326,7 +319,7 @@ extension PlayerViewModel {
 
     let bookmark = self.libraryService.createBookmark(
       at: currentTime,
-      relativePath: book.relativePath,
+      relativePath: currentItem.relativePath,
       type: .user
     )
 
