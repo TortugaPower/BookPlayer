@@ -34,7 +34,7 @@ class PlayerManagerMock: PlayerManagerProtocol {
 
   func stop() {}
 
-  func load(_ item: PlayableItem, completion: @escaping (Bool) -> Void) {}
+  func load(_ item: PlayableItem) {}
 
   func hasLoadedBook() -> Bool { return true }
 
