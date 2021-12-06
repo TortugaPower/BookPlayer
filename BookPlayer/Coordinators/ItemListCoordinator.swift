@@ -159,11 +159,15 @@ class ItemListCoordinator: Coordinator {
     guard let libraryItem = self.libraryService.getItem(with: relativePath),
           let item = self.playbackService.getPlayableItem(from: libraryItem) else { return }
 
+    // Completion block may be called more than once
+    var wasCalled = false
+
     self.playerManager.load(item) { [weak self] loaded in
-      guard loaded else { return }
+      guard loaded, !wasCalled else { return }
 
       self?.getMainCoordinator()?.showMiniPlayer(true)
-      self?.playerManager.playPause()
+      self?.playerManager.play()
+      wasCalled = true
     }
     self.showPlayer()
   }
