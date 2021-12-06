@@ -78,9 +78,16 @@ public class Folder: LibraryItem {
     }
 
     public override var progressPercentage: Double {
+      switch self.type {
+      case .regular:
         let itemTime = self.getProgressAndDuration()
 
         return itemTime.progress / itemTime.duration
+      case .bound:
+        guard self.duration > 0 else { return 0 }
+
+        return self.currentTime / self.duration
+      }
     }
 
   public override func getFolder(matching relativePath: String) -> Folder? {
