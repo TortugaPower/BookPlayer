@@ -6,11 +6,8 @@
   Copyright © 2019 Tortuga Power. All rights reserved.
 */
 
-/* Title that is shown as the navigation bar title */
 "library_title" = "Бібліотека";
-/* Title for the settings button */
 "settings_button" = "Налаштування";
-/* Title that is shown as the navigation bar title */
 "settings_title" = "Налаштування";
 "settings_autoplay_title" = "Автовідтворення бібліотеки";
 "settings_autoplay_description" = "Продовжити відтворення з усіма треками бібліотеки, які не завершені, включно з файлами в списках.";
@@ -33,8 +30,6 @@
 "settings_support_project_title" = "Переглянути проєкт на GitHub";
 "settings_support_project_description" = "Створити новий запит на новий функціонал або помилку";
 "settings_support_email_title" = "Напишіть нам";
-/* Should this be understood as the user wants to 'give credit' or is this like regulatives?
-Carl&nbsp;regarding the key settings_credits_title it's basically a section that gives credits to the third-party libraries that we are using in the app */
 "settings_credits_title" = "Подяки та ліцензії";
 "settings_support_compose_title" = "Не вдалось створити лист";
 "settings_support_compose_description" = "Щоб скористатись цим, вам потрібно налаштувати обліковий запис електронної пошти у налаштуваннях свого пристрою. \n \n Будь ласка, напишіть нам за адресою";
@@ -67,11 +62,8 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "cancel_button" = "Скасувати";
 "seconds_title" = "сек";
 "ok_button" = "Гаразд";
-/* Message shown when trying to create a Siri Shortcut on devices that don't have iOS 12+ installed */
 "siri_alert_description" = "Швидкий перехід Siri доступний для iOS 12 і вище";
-/* Title used in the context of our tip jar to support development */
 "support_bookplayer_title" = "Підтримайте Bookplayer";
-/* Description used in the context of our tip jar to support development */
 "support_bookplayer_description" = "Отримайте BookPlayer Plus, щоб підтримати майбутню розробку і отримати додаткові теми та піктограми";
 "learn_more_title" = "Дізнатись більше";
 "settings_appearance_title" = "Зовнішній вигляд";
@@ -81,15 +73,10 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "settings_controls_title" = "Керування програвачем";
 "settings_power_connected_title" = "Лише коли підключене живлення";
 "settings_tip_jar_title" = "Скарбничка";
-/* What does 'System Mode' entail? Is it regarding iOS Dark Mode?
-<span class="reply-in-chat"><span data-uid="carlhoumoller&amp;&#x23;x40&#x3B;hotmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36833450">Carl</span></span>
-&nbsp;regarding the key theme_system_title, yes, it refers to using the preference set at the operating system level (from the control center/brightness) */
 "theme_system_title" = "Використати системну";
 "theme_switch_title" = "Перемикати автоматично";
 "theme_dark_title" = "Завжди використовувати темну варіацію";
 "themes_title" = "Теми";
-/* This should be &ldquo;By your friends at BookPlayer&rdquo; in English.&nbsp; */
 "icons_bookplayer_credit_description" = "Від ваших друзів з Bookplayer";
 "kind_tip_title" = "Доброзичливий внесок";
 "excellent_tip_title" = "Чудовий внесок";
@@ -117,20 +104,15 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "player_speed_title" = "Встановити швидкість відтворення";
 "player_sleep_title" = "Призупинення відтворення";
 "sleep_chapter_option_title" = "Кінець розділу";
-/* This is used for the label underneath the progress bar (e.g. Chapter 1 of 35) */
 "player_chapter_description" = "Розділ %d з %d";
 "chapters_title" = "Розділи";
-/* This is used as a description for each chapter in the chapters list (e.g. Start: 10:11 - Duration: 16:56) */
 "chapters_item_description" = "Початок: %@ - Тривалість: %@";
-/* Restore purchases */
 "restore_title" = "Відновити";
 "themes_caps_title" = "Теми";
 "plus_app_icons_title" = "Піктограми";
-/* This is the counterpart to Mark as Finished */
 "mark_unfinished_title" = "Позначити як незавершене";
 "move_playlist_button" = "Перемістити до списку";
 "move_single_item_title" = "Перемістити %@ у %@";
-/* This is shown if while being inside a playlist, a batch of imported files are finished processing, and it will be one of the options in the alert presented */
 "current_playlist_title" = "Поточний список відтворення";
 "select_item_title" = "Обрати";
 "sleep_alert_description" = "Зупинитись в кінці розділу";
@@ -143,47 +125,25 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "chapter_time_remaining_title" = "Залишилось до кінця розділу";
 "book_time_remaining_title" = "Залишилось часу книги:";
 "book_duration_title" = "Тривалість книги:";
-/* Может правильнее будет: &quot;Не удалось сменить иконку&quot;? */
 "icon_error_description" = "Не вдалось змінити піктограму програми. Спробуйте ще раз пізніше";
 "error_title" = "Помилка";
 "generic_retry_description" = "Будь ласка, спробуйте пізніше";
 "network_error_title" = "Помилка мережі";
 "purchases_restored_title" = "Покупки відновлені!";
 "tip_missing_title" = "Ви ще нас не підтримали";
-/* will need 2 versions (for female and male)
-<span class="reply-in-chat"><span data-uid="sandu.hamuraru&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36841099">Alexandru</span></span>
-&nbsp;there's no way to put it without gender? using the second-person form involves specifying gender in Romanian?
-<span class="reply-in-chat"><span data-uid="sandu.hamuraru&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36841099">Alexandru</span></span>
-&nbsp;we have no current way of determining the gender of the user using the app right now 👀. Or maybe I didn't fully understand what you meant? */
 "thanks_amazing_title" = "Ви неймовірні!";
 "play_title" = "Відтворити";
 "pause_title" = "Пауза";
 "voiceover_no_title" = "Без назви";
 "voiceover_no_author" = "Немає автора";
-/* &lt;Book title&gt; by &lt;Book author&gt; &lt;percentage in numbers&gt;% Completed */
 "voiceover_book_progress" = "%@ з %@, %d завершено";
 "voiceover_no_file_title" = "Немає імені файлу";
-/* Not sure where this title appears ? :)
-<span class="reply-in-chat"><span data-uid="christophe.vergne&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36841194">christophe</span></span>
-&nbsp;this key in particular is when you're inside a playlist, the subtitle (that usually is the author) has no info for our VoiceOver service
-<span class="reply-in-chat"><span data-uid="christophe.vergne&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36841194">christophe</span></span>
-&nbsp;let me know if that clears things up?
-<span class="reply-in-chat"><span data-uid="gcarlo89&amp;&#x23;x40&#x3B;hotmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36841194">Gianni Carlo</span></span>
- Alright, my translation was correct so, thanks :) */
 "voiceover_no_file_subtitle" = "Відсутній підзаголовок файлу";
 "voiceover_no_playlist_title" = "Немає назви списку відтворення";
-/* &lt;Playlist title&gt; Playlist &lt;percentage in number&gt;% Completed */
 "voiceover_playlist_progress" = "%@, список відтворення завершений на %d%";
 "voiceover_unknown_title" = "Невідома назва";
 "voiceover_unknown_author" = "Невідомий автор";
-/* &lt;book title&gt; by &lt;book author&gt; */
 "voiceover_book_info" = "%@ з %@";
-/* &lt;book title&gt; by &lt;book author&gt;, chapter &lt;chapter title&gt; */
 "voiceover_book_chapter" = "%@ з %@, розділ %@";
 "voiceover_rewind_time" = "Назад %@";
 "voiceover_forward_time" = "Вперед %@";
@@ -204,53 +164,43 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "downloading_file_title" = "Завантаження файлу";
 "progress_title" = "Прогрес";
 "settings_siri_sleeptimer_title" = "Таймер сну";
-/* Can I have the context for this? Thanks
-Alessio Franceschi&nbsp;this is the label for the active sleep timer button when &quot;end of chapter&quot; was selected
-<span class="reply-in-chat"><span data-uid="fp&amp;&#x23;x40&#x3B;ylk.gd" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="42298563">Florian Pitcher</span></span>
-&nbsp;Thanks */
 "active_title" = "Активний";
-/* Currently Playing <Book title> by <Book author> */
 "voiceover_currently_playing_title" = "Зараз програється %@ від %@";
-/* When you're on the library or playlist view, and the voice over cursor is focused on the floating mini-player at the bottom, it should read to the user the element, and the hint that if pressed, the player view will be shown */
 "voiceover_miniplayer_hint" = "Міні-плеєр. Торкніться, щоб відкрити програвач";
 "voiceover_chapter_time_title" = "Поточний час розділу: %@";
-/* When you're in the player view, and the voice over cursor is focused on the top bar (the one with the arrow-down), it will read to the user that the player view will be closed if he double taps that button */
 "voiceover_dismiss_player_title" = "Закрити програвач";
-/* Sort items by most recent playback */
-"sort_most_recent_button" = "Most Recent";
-/* One of the sort options, this one reverts the current order of selected items */
-"sort_reversed_button" = "Reverse Order";
-"coredata_error_diskfull_description" = "The library couldn't be loaded, the device is out of disk space.";
-"coredata_error_migration_description" = "A migration of the database failed, the library will have to be reinitialized.";
-"import_warning_description" = "Transfering files may take a while, please make sure the number of files is complete before proceeding.";
+"sort_most_recent_button" = "Нещодавні";
+"sort_reversed_button" = "Зворотний порядок";
+"voiceover_continue_playback_title" = "Продовжити відтворення";
+"coredata_error_diskfull_description" = "Не вдалося завантажити бібліотеку, на пристрої бракує місця на диску.";
+"coredata_error_migration_description" = "Помилка міграції бази даних, бібліотеку доведеться повторно ініціалізувати.";
+"import_warning_description" = "Передача файлів може зайняти деякий час, будь ласка, переконайтесь, що кількість файлів вірна, перш ніж продовжити.";
 "files_caps_title" = "ФАЙЛИ";
-"settings_storage_description" = "Manage your files";
-"storage_total_title" = "Total space used";
-"settings_storage_title" = "Storage Management";
-"storage_fix_file_button" = "Fix";
-"storage_fix_file_description" = "The book item is missing, if the corresponding item cannot be found, a new one will be created";
-"bookmarks_title" = "Bookmarks";
-"bookmark_created_title" = "Your bookmark has been saved at %@";
-"bookmark_exists_title" = "You have already created a bookmark at %@";
-"bookmark_note_action_title" = "Add note";
-"bookmarks_see_title" = "See bookmarks";
-"bookmark_type_automatic_title" = "Automatic";
-"bookmark_type_user_title" = "Manual";
-"bookmark_automatic_play_title" = "Last position before playback started";
-"bookmark_automatic_skip_title" = "Last position before time skip";
-"bookmark_note_edit_title" = "Edit note";
-"bookmark_create_title" = "Create Bookmark";
-"storage_duplicate_item_title" = "Duplicate";
-"storage_duplicate_item_description" = "The selected file was a duplicate, the existing file is located at: %@";
-"chapters_previous_title" = "Previous Chapter";
-"chapters_next_title" = "Next Chapter";
-"book_time_current_title" = "Current Book Time: %@";
-"voiceover_continue_playback_title" = "Continue Playback";
-"storage_fix_files_description" = "The link between the files and the digital book items are missing, if the corresponding item cannot be found for each file, a new one will be created";
-"storage_fix_all_title" = "Fix All";
-"settings_backup_title" = "iCloud Backups";
-"settings_backup_files_title" = "Include book files";
+"settings_storage_description" = "Керування файлами";
+"storage_total_title" = "Загальний використаний простір";
+"settings_storage_title" = "Керування сховищем";
+"storage_fix_file_button" = "Виправити";
+"storage_fix_file_description" = "Елемент книги відсутній, якщо відповідний елемент не знайдено, буде створено новий";
+"bookmarks_title" = "Закладки";
+"bookmark_created_title" = "Вашу закладку збережено на %@";
+"bookmark_exists_title" = "Ви вже створили закладку на %@";
+"bookmark_note_action_title" = "Додати примітку";
+"bookmarks_see_title" = "Переглянути закладки";
+"bookmark_type_automatic_title" = "Автоматично";
+"bookmark_type_user_title" = "Вручну";
+"bookmark_automatic_play_title" = "Остання позиція перед початком відтворення";
+"bookmark_automatic_skip_title" = "Остання позиція перед пропуском часу";
+"bookmark_note_edit_title" = "Редагувати примітку";
+"bookmark_create_title" = "Створити закладку";
+"storage_duplicate_item_title" = "Дублювати";
+"storage_duplicate_item_description" = "Вибраний файл був дублікатом, наявний файл знаходиться в: %@";
+"chapters_previous_title" = "Попередній розділ";
+"chapters_next_title" = "Наступний розділ";
+"book_time_current_title" = "Поточний час книги: %@";
+"storage_fix_files_description" = "Зв’язок між файлами та елементами цифрової книги відсутній, якщо відповідний елемент не знайдено для кожного файлу, буде створено новий";
+"storage_fix_all_title" = "Виправити всі";
+"settings_backup_title" = "Резервні копії iCloud";
+"settings_backup_files_title" = "Включити файли книги";
 "bound_books_create_button" = "Combine into Volume";
 "bound_books_undo_alert_title" = "Convert to Folder";
 "bound_books_new_title_placeholder" = "New Book Volume";
