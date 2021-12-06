@@ -39,7 +39,9 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
   @IBOutlet weak var playIconView: PlayPauseIconView!
   @IBOutlet weak var forwardIconView: PlayerJumpIconForward!
   @IBOutlet weak var containerItemStackView: UIStackView!
-
+  @IBOutlet weak var containerPlayerControlsStackView: UIStackView!
+  @IBOutlet weak var containerChapterControlsStackView: UIStackView!
+  @IBOutlet weak var containerProgressControlsStackView: UIStackView!
   private var themedStatusBarStyle: UIStatusBarStyle?
   private var panGestureRecognizer: UIPanGestureRecognizer!
   private let dismissThreshold: CGFloat = 44.0 * UIScreen.main.nativeScale
@@ -98,6 +100,12 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
     self.chapterTitleButton.titleLabel?.textAlignment = .center
     self.chapterTitleButton.titleLabel?.lineBreakMode = .byWordWrapping
     self.chapterTitleButton.isAccessibilityElement = false
+
+    // Based on Apple books, the player controls are kept the same for right-to-left languages
+    self.progressSlider.semanticContentAttribute = .forceLeftToRight
+    self.containerPlayerControlsStackView.semanticContentAttribute = .forceLeftToRight
+    self.containerChapterControlsStackView.semanticContentAttribute = .forceLeftToRight
+    self.containerProgressControlsStackView.semanticContentAttribute = .forceLeftToRight
   }
 
   func setupPlayerView(with currentItem: PlayableItem) {

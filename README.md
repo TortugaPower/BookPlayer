@@ -74,6 +74,7 @@ See [our Roadmap on GitHub](https://github.com/GianniCarlo/Audiobook-Player/proj
 - Portuguese (Vitor Jacinto)
 - Polish (Konrad Kwapisz)
 - Hungarian (Gábor Sári)
+- Arabic (John Hamo & Monther Qandeel)
 
 Help us to [translate BookPlayer](#localisation).
 
