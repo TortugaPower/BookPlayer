@@ -639,6 +639,23 @@ extension PlayerManager {
       return
     } else {
       if currentItem.useChapterTimeContext {
+        var subscription: AnyCancellable?
+
+        subscription = NotificationCenter.default.publisher(for: .bookReady, object: nil)
+          .sink(receiveValue: { [weak self] notification in
+            guard let self = self,
+                  let userInfo = notification.userInfo,
+                  let loaded = userInfo["loaded"] as? Bool,
+                  loaded == true else {
+                    subscription?.cancel()
+                    return
+                  }
+
+            self.play()
+
+            subscription?.cancel()
+          })
+
         self.playbackService.updatePlaybackTime(item: currentItem, time: currentItem.currentTime + 0.5)
       }
     }
