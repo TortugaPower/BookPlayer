@@ -21,7 +21,7 @@ public class ImportOperation: Operation {
   public let libraryService: LibraryServiceProtocol
   public var processedFiles = [URL]()
 
-  private let lockQueue = DispatchQueue(label: "com.swiftlee.asyncoperation", attributes: .concurrent)
+  private let lockQueue = DispatchQueue(label: "com.bookplayer.asyncoperation", attributes: .concurrent)
 
   public override var isAsynchronous: Bool {
     return true
@@ -66,6 +66,11 @@ public class ImportOperation: Operation {
   }
 
   public override func start() {
+    guard !isCancelled else {
+      finish()
+      return
+    }
+
     isFinished = false
     isExecuting = true
     main()
