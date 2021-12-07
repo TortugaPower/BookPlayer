@@ -81,8 +81,16 @@ class LibraryListCoordinatorTests: XCTestCase {
     let library = self.libraryListCoordinator.libraryService.getLibrary()
     library.insert(item: book)
 
+    let expectation = expectation(forNotification: .bookReady, object: nil) { (notification: Notification) -> Bool in
+      if let loaded = notification.userInfo?["loaded"] as? Bool {
+        XCTAssert(loaded == true)
+      }
+
+      return true
+    }
+
     self.libraryListCoordinator.showItemContents(SimpleLibraryItem(from: book, themeAccent: .blue))
-    XCTAssert(self.libraryListCoordinator.childCoordinators.first is PlayerCoordinator)
+    wait(for: [expectation], timeout: 3.0)
   }
 }
 

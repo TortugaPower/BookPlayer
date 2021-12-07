@@ -34,7 +34,9 @@ class PlayerManagerMock: PlayerManagerProtocol {
 
   func stop() {}
 
-  func load(_ item: PlayableItem) {}
+  func load(_ item: PlayableItem) {
+    NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["loaded": true])
+  }
 
   func hasLoadedBook() -> Bool { return true }
 
