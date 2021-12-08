@@ -170,10 +170,12 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
     }
 
     item.subtitle = libraryItem.details
-    if libraryItem.type == .book {
+
+    switch libraryItem.type {
+    case .book, .bound:
       item.isContainer = false
       item.isPlayable = true
-    } else if libraryItem.type == .folder {
+    case .folder:
       item.isContainer = indexPath[0] != IndexGuide.tab.recentlyPlayed
       item.isPlayable = indexPath[0] == IndexGuide.tab.recentlyPlayed
     }
