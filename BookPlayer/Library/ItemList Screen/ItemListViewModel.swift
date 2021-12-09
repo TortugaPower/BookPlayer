@@ -412,6 +412,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
   func notifyPendingFiles() {
     let documentsFolder = DataManager.getDocumentsFolderURL()
+    let inboxFolder = DataManager.getInboxFolderURL()
 
     // Get reference of all the files located inside the Documents folder
     guard let urls = try? FileManager.default.contentsOfDirectory(at: documentsFolder, includingPropertiesForKeys: nil, options: .skipsSubdirectoryDescendants) else {
@@ -419,9 +420,14 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     }
 
     // Filter out Processed and Inbox folders from file URLs.
-    let filteredUrls = urls.filter {
+    var filteredUrls = urls.filter {
       $0.lastPathComponent != DataManager.processedFolderName
       && $0.lastPathComponent != DataManager.inboxFolderName
+    }
+
+    // Consider items in the Inbox folder
+    if let inboxUrls = try? FileManager.default.contentsOfDirectory(at: inboxFolder, includingPropertiesForKeys: nil, options: .skipsSubdirectoryDescendants) {
+      filteredUrls += inboxUrls
     }
 
     guard !filteredUrls.isEmpty else { return }
