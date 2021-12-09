@@ -22,7 +22,7 @@ final class SleepTimer {
 
   @Published private var timeLeft: TimeInterval = 0.0
 
-  private let defaultMessage: String = "player_sleep_title".localized
+  private let defaultMessage: String
   private let intervals: [TimeInterval] = [
     300.0,
     600.0,
@@ -59,6 +59,7 @@ final class SleepTimer {
   // MARK: Internals
 
   private init() {
+    self.defaultMessage = "player_sleep_title".localized
     self.durationFormatter.unitsStyle = .positional
     self.durationFormatter.allowedUnits = [.minute, .second]
     self.durationFormatter.collapsesLargestUnit = true
