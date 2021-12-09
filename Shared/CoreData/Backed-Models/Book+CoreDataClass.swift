@@ -17,8 +17,6 @@ public class Book: LibraryItem {
     return self.title + "." + self.ext
   }
 
-  public var currentChapter: Chapter?
-
   // needed to invalide cache of folder
   override public func setCurrentTime(_ time: Double) {
     self.currentTime = time
@@ -41,79 +39,8 @@ public class Book: LibraryItem {
     return round(self.progressPercentage * 100)
   }
 
-  public var hasChapters: Bool {
-    return !(self.chapters?.array.isEmpty ?? true)
-  }
-
   public override func getItem(with relativePath: String) -> LibraryItem? {
     return self.relativePath == relativePath ? self : nil
-  }
-
-  public func currentTimeInContext(_ prefersChapterContext: Bool) -> TimeInterval {
-    guard !self.isFault else {
-      return 0.0
-    }
-
-    guard
-      prefersChapterContext,
-      self.hasChapters,
-      let start = self.currentChapter?.start else {
-        return self.currentTime
-      }
-
-    return self.currentTime - start
-  }
-
-  public func maxTimeInContext(_ prefersChapterContext: Bool, _ prefersRemainingTime: Bool) -> TimeInterval {
-    guard !self.isFault else {
-      return 0.0
-    }
-
-    guard
-      prefersChapterContext,
-      self.hasChapters,
-      let duration = self.currentChapter?.duration else {
-        let time = prefersRemainingTime
-        ? self.currentTimeInContext(prefersChapterContext) - self.duration
-        : self.duration
-        return time
-      }
-
-    let time = prefersRemainingTime
-    ? self.currentTimeInContext(prefersChapterContext) - duration
-    : duration
-
-    return time
-  }
-
-  public func durationTimeInContext(_ prefersChapterContext: Bool) -> TimeInterval {
-    guard !self.isFault else {
-      return 0.0
-    }
-
-    guard
-      prefersChapterContext,
-      self.hasChapters,
-      let duration = self.currentChapter?.duration else {
-        return self.duration
-      }
-
-    return duration
-  }
-
-  public func updateCurrentChapter() {
-    guard let chapter = self.getChapter(at: self.currentTime) else { return }
-
-    self.currentChapter = chapter
-  }
-
-  public func updatePlayDate() {
-    let now = Date()
-    self.lastPlayDate = now
-
-    guard let folder = self.folder else { return }
-
-    folder.lastPlayDate = now
   }
 
   public override func getFolder(matching relativePath: String) -> Folder? {
@@ -122,44 +49,6 @@ public class Book: LibraryItem {
 
   public override func getBookToPlay() -> Book? {
     return self
-  }
-
-  public func hasChapter(after chapter: Chapter) -> Bool {
-    return self.nextChapter(after: chapter) != nil
-  }
-
-  public func hasChapter(before chapter: Chapter) -> Bool {
-    return self.previousChapter(before: chapter) != nil
-  }
-
-  public func nextChapter(after chapter: Chapter) -> Chapter? {
-    guard let chapters = self.chapters?.array as? [Chapter],
-          !chapters.isEmpty else {
-            return nil
-          }
-
-    if chapter == chapters.last { return nil }
-
-    return chapters[Int(chapter.index)]
-  }
-
-  public func previousChapter(before chapter: Chapter) -> Chapter? {
-    guard let chapters = self.chapters?.array as? [Chapter],
-          !chapters.isEmpty else {
-            return nil
-          }
-
-    if chapter == chapters.first { return nil }
-
-    return chapters[Int(chapter.index) - 2]
-  }
-
-  public func getChapter(at globalTime: Double) -> Chapter? {
-    guard let chapters = self.chapters?.array as? [Chapter], !chapters.isEmpty else {
-      return nil
-    }
-
-    return chapters.first { $0.start <= globalTime && $0.end >= globalTime }
   }
 
   public func previousBook() -> LibraryItem? {
@@ -188,44 +77,6 @@ public class Book: LibraryItem {
     }
 
     return self.getLibrary()?.getNextBook(after: self.relativePath)
-  }
-
-  public func getInterval(from proposedInterval: TimeInterval) -> TimeInterval {
-    let interval = proposedInterval > 0
-    ? self.getForwardInterval(from: proposedInterval)
-    : self.getRewindInterval(from: proposedInterval)
-
-    return interval
-  }
-
-  private func getRewindInterval(from proposedInterval: TimeInterval) -> TimeInterval {
-    guard let chapter = self.currentChapter else { return proposedInterval }
-
-    if self.currentTime + proposedInterval > chapter.start {
-      return proposedInterval
-    }
-
-    let chapterThreshold: TimeInterval = 3
-
-    if chapter.start + chapterThreshold > currentTime {
-      return proposedInterval
-    }
-
-    return -(self.currentTime - chapter.start)
-  }
-
-  private func getForwardInterval(from proposedInterval: TimeInterval) -> TimeInterval {
-    guard let chapter = self.currentChapter else { return proposedInterval }
-
-    if self.currentTime + proposedInterval < chapter.end {
-      return proposedInterval
-    }
-
-    if chapter.end < currentTime {
-      return proposedInterval
-    }
-
-    return chapter.end - self.currentTime + 0.01
   }
 
   enum CodingKeys: String, CodingKey {
@@ -292,14 +143,6 @@ extension Book {
         self.addToChapters(chapter)
       }
     }
-
-    self.currentChapter = self.chapters?.array.first as? Chapter
-  }
-
-  public override func awakeFromFetch() {
-    super.awakeFromFetch()
-
-    self.updateCurrentChapter()
   }
 
   private func loadMp3Data(from asset: AVAsset) {

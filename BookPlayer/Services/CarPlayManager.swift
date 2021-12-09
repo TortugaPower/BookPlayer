@@ -236,7 +236,7 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
   private func getSourceItems(for index: Int) -> [SimpleLibraryItem]? {
     // Recently played items or library items
     return (index == IndexGuide.tab.recentlyPlayed
-            ? self.libraryService.getOrderedBooks(limit: 20) ?? []
+            ? self.libraryService.getLastPlayedItems(limit: 20) ?? []
             : self.libraryService.fetchContents(at: nil, limit: nil, offset: nil) ?? [])
       .map({ SimpleLibraryItem(from: $0,
                                themeAccent: themeAccent)

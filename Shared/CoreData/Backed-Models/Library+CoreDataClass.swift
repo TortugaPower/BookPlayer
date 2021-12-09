@@ -48,23 +48,6 @@ public class Library: NSManagedObject, Codable {
     }
   }
 
-    public func getItem(with relativePath: String) -> LibraryItem? {
-        guard let items = self.items?.array as? [LibraryItem] else {
-            return nil
-        }
-
-        var itemFound: LibraryItem?
-
-        for item in items {
-            if let libraryItem = item.getItem(with: relativePath) {
-                itemFound = libraryItem
-                break
-            }
-        }
-
-        return itemFound
-    }
-
   func getPreviousBook(before relativePath: String) -> LibraryItem? {
     guard let items = self.items?.array as? [LibraryItem] else {
       return nil
@@ -126,26 +109,6 @@ public class Library: NSManagedObject, Codable {
 
     return nil
   }
-
-    public func getItemsOrderedByDate() -> [LibraryItem] {
-        guard let items = self.items?.array as? [LibraryItem] else {
-            return []
-        }
-
-        var filteredItems = items.compactMap { (item) -> LibraryItem? in
-            guard item.lastPlayDate != nil else { return nil }
-
-            return item
-        }
-
-        if filteredItems.isEmpty,
-            let lastPlayedItem = self.lastPlayedItem {
-            lastPlayedItem.lastPlayDate = Date()
-            filteredItems.append(lastPlayedItem)
-        }
-
-        return filteredItems.sorted { $0.lastPlayDate! > $1.lastPlayDate! }
-    }
 
   public func insert(item: LibraryItem, at index: Int? = nil) {
     if let parent = item.folder {

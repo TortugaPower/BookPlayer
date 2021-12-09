@@ -30,7 +30,7 @@ struct RecentBooksProvider: IntentTimelineProvider {
       let dataManager = DataManager(coreDataStack: stack)
       let libraryService = LibraryService(dataManager: dataManager)
 
-      guard let items = libraryService.getOrderedBooks(limit: self.numberOfBooks),
+      guard let items = libraryService.getLastPlayedItems(limit: self.numberOfBooks),
             let currentTheme = try? libraryService.getLibraryCurrentTheme() else {
               completion(self.placeholder(in: context))
               return
@@ -63,7 +63,7 @@ struct RecentBooksProvider: IntentTimelineProvider {
       let dataManager = DataManager(coreDataStack: stack)
       let libraryService = LibraryService(dataManager: dataManager)
 
-      guard let items = libraryService.getOrderedBooks(limit: self.numberOfBooks),
+      guard let items = libraryService.getLastPlayedItems(limit: self.numberOfBooks),
             let currentTheme = try? libraryService.getLibraryCurrentTheme() else {
               completion(Timeline(entries: [], policy: .atEnd))
               return

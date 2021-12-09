@@ -196,7 +196,7 @@ class LibraryServiceTests: XCTestCase {
   }
 
   func testFindEmptyOrderedBooks() {
-    let books = self.sut.getOrderedBooks(limit: 20)!
+    let books = self.sut.getLastPlayedItems(limit: 20)!
     XCTAssert(books.isEmpty)
   }
 
@@ -217,7 +217,7 @@ class LibraryServiceTests: XCTestCase {
 
     self.sut.dataManager.saveContext()
 
-    let books = self.sut.getOrderedBooks(limit: 20)!
+    let books = self.sut.getLastPlayedItems(limit: 20)!
     XCTAssert(books.count == 2)
     let fetchedBook1 = books.first!
     XCTAssert(fetchedBook1.relativePath == book2.relativePath)
@@ -1162,6 +1162,5 @@ class ModifyLibraryTests: LibraryServiceTests {
     self.sut.updateBookLastPlayDate(at: book.relativePath, date: now)
 
     XCTAssert(book.lastPlayDate == now)
-    XCTAssert(folder.lastPlayDate == now)
   }
 }
