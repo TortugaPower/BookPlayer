@@ -40,6 +40,22 @@ public class DataManager {
     return processedFolderURL
   }
 
+  public class func getInboxFolderURL() -> URL {
+    let documentsURL = self.getDocumentsFolderURL()
+
+    let inboxFolderURL = documentsURL.appendingPathComponent(self.inboxFolderName)
+
+    if !FileManager.default.fileExists(atPath: inboxFolderURL.path) {
+      do {
+        try FileManager.default.createDirectory(at: inboxFolderURL, withIntermediateDirectories: true, attributes: nil)
+      } catch {
+        fatalError("Couldn't create Inbox folder")
+      }
+    }
+
+    return inboxFolderURL
+  }
+
   public func getContext() -> NSManagedObjectContext {
     return self.coreDataStack.managedContext
   }
