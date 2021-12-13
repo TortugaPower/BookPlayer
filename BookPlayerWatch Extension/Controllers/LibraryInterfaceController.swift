@@ -90,9 +90,9 @@ class LibraryInterfaceController: WKInterfaceController {
     }
   }
 
-  func play(_ book: Book) {
+  func play(_ item: PlayableItem) {
     let message: [String: AnyObject] = ["command": "play" as AnyObject,
-                                        "identifier": book.identifier as AnyObject]
+                                        "identifier": item.relativePath as AnyObject]
 
     do {
       try self.sendMessage(message)
@@ -188,15 +188,9 @@ class LibraryInterfaceController: WKInterfaceController {
   }
 
   override func table(_ table: WKInterfaceTable, didSelectRowAt rowIndex: Int) {
-    let localItems = self.selectedFolder?.items?.array as? [LibraryItem] ?? self.items
+    let item = self.items[rowIndex]
 
-    let item = localItems[rowIndex]
-
-    if let book = item as? Book {
-      self.play(book)
-    } else if let folder = item as? Folder {
-      self.setFolderContents(folder)
-    }
+    self.play(item)
   }
 
   @IBAction func collapseFolder() {
