@@ -36,6 +36,7 @@ public protocol LibraryServiceProtocol {
 
   func updatePlaybackTime(relativePath: String, time: Double)
   func updateBookSpeed(at relativePath: String, speed: Float)
+  func getItemSpeed(at relativePath: String) -> Float
   func updateBookLastPlayDate(at relativePath: String, date: Date)
   func markAsFinished(flag: Bool, relativePath: String)
   func jumpToStart(relativePath: String)
@@ -371,6 +372,12 @@ public final class LibraryService: LibraryServiceProtocol {
     item.folder?.speed = speed
 
     self.dataManager.saveContext()
+  }
+  
+  public func getItemSpeed(at relativePath: String) -> Float {
+    guard let item = self.getItem(with: relativePath) else { return 1.0 }
+    
+    return item.folder?.speed ?? item.speed
   }
 
   public func updateBookLastPlayDate(at relativePath: String, date: Date) {

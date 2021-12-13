@@ -20,15 +20,6 @@ class SpeedManager {
     self.libraryService = libraryService
   }
 
-  public func setBook(_ currentBook: Book?) {
-    let useGlobalSpeed = UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue)
-    let globalSpeed = UserDefaults.standard.float(forKey: "global_speed")
-    let localSpeed = currentBook?.folder?.speed ?? currentBook?.speed ?? 1.0
-    let speed = useGlobalSpeed ? globalSpeed : localSpeed
-
-    self.currentSpeed.value = speed > 0 ? speed : 1.0
-  }
-
   public func setSpeed(_ newValue: Float, relativePath: String?) {
     if let relativePath = relativePath {
       self.libraryService.updateBookSpeed(at: relativePath, speed: newValue)
@@ -42,7 +33,19 @@ class SpeedManager {
     self.currentSpeed.value = newValue
   }
 
-  public func getSpeed() -> Float {
+  public func getSpeed(relativePath: String?) -> Float {
+    let speed: Float
+    
+    if UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue) {
+      speed = UserDefaults.standard.float(forKey: "global_speed")
+    } else if let relativePath = relativePath {
+      speed = self.libraryService.getItemSpeed(at: relativePath)
+    } else {
+      speed = self.currentSpeed.value
+    }
+    
+    self.currentSpeed.value = speed > 0 ? speed : 1.0
+    
     return self.currentSpeed.value
   }
 

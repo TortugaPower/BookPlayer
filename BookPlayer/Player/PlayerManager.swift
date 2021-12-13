@@ -198,7 +198,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       DispatchQueue.main.async {
         // Set book metadata for lockscreen and control center
         self.nowPlayingInfo = [
-          MPNowPlayingInfoPropertyDefaultPlaybackRate: self.speedManager.getSpeed()
+          MPNowPlayingInfoPropertyDefaultPlaybackRate: self.speedManager.getSpeed(relativePath: chapter.relativePath)
         ]
 
         self.setNowPlayingBookTitle()
@@ -271,7 +271,9 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
   private func bindSpeedObserver() {
     self.speedSubscription?.cancel()
-    self.speedSubscription = self.speedManager.currentSpeed.sink { [weak self] speed in
+    self.speedSubscription = self.speedManager.currentSpeed
+      .removeDuplicates()
+      .sink { [weak self] speed in
       guard let self = self,
             self.isPlaying else { return }
 
@@ -348,7 +350,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     let currentTimeInContext = currentItem.currentTimeInContext(prefersChapterContext)
     let maxTimeInContext = currentItem.maxTimeInContext(prefersChapterContext, false)
 
-    self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = self.speedManager.getSpeed()
+    self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = self.speedManager.getSpeed(relativePath: currentItem.relativePath)
     self.nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTimeInContext
     self.nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = maxTimeInContext
     self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackProgress] = currentTimeInContext / maxTimeInContext
@@ -445,7 +447,7 @@ extension PlayerManager {
     self.fadeTimer?.invalidate()
     self.boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
     // Set play state on player and control center
-    self.audioPlayer.playImmediately(atRate: self.speedManager.getSpeed())
+    self.audioPlayer.playImmediately(atRate: self.speedManager.getSpeed(relativePath: currentItem.relativePath))
     self.bindSpeedObserver()
 
     // Set last Play date
@@ -573,7 +575,7 @@ extension PlayerManager {
   }
 
   func getCurrentSpeed() -> Float {
-    return self.speedManager.getSpeed()
+    return self.speedManager.getSpeed(relativePath: nil)
   }
 
   func currentSpeedPublisher() -> AnyPublisher<Float, Never> {
