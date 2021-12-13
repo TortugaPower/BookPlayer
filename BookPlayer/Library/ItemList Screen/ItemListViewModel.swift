@@ -209,7 +209,8 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       }
     }
 
-    guard let folder = libraryItem as? Folder else {
+    guard let folder = libraryItem as? Folder,
+          folder.type == .regular else {
       pathToPlay = libraryItem.relativePath
       return
     }
