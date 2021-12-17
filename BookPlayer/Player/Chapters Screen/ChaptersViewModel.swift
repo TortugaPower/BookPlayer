@@ -11,23 +11,23 @@ import Combine
 import Foundation
 
 class ChaptersViewModel: BaseViewModel<ChapterCoordinator> {
-  let playerManager: PlayerManager
+  let playerManager: PlayerManagerProtocol
 
-  init(playerManager: PlayerManager) {
+  init(playerManager: PlayerManagerProtocol) {
     self.playerManager = playerManager
   }
 
-  func getBookChapters() -> [Chapter]? {
-    return self.playerManager.currentBook?.chapters?.array as? [Chapter]
+  func getItemChapters() -> [PlayableChapter]? {
+    return self.playerManager.currentItem?.chapters
   }
 
-  func getCurrentChapter() -> Chapter? {
-    return self.playerManager.currentBook?.currentChapter
+  func getCurrentChapter() -> PlayableChapter? {
+    return self.playerManager.currentItem?.currentChapter
   }
 
   // Don't set the chapter, set the new time which will set the chapter in didSet
   // Add a fraction of a second to make sure we start after the end of the previous chapter
-  func handleChapterSelected(_ chapter: Chapter) {
-    self.playerManager.jumpTo(chapter.start + 0.01)
+  func handleChapterSelected(_ chapter: PlayableChapter) {
+    self.playerManager.jumpTo(chapter.start + 0.01, recordBookmark: false)
   }
 }

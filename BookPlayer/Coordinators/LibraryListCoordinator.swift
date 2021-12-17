@@ -12,20 +12,18 @@ import UIKit
 class LibraryListCoordinator: ItemListCoordinator {
   override func start() {
     let vc = ItemListViewController.instantiate(from: .Main)
-    let viewModel = FolderListViewModel(folder: nil,
-                                        library: self.library,
-                                        player: self.playerManager,
-                                        dataManager: self.dataManager,
-                                        themeAccent: ThemeManager.shared.currentTheme.linkColor)
+    let viewModel = ItemListViewModel(folderRelativePath: nil,
+                                      playerManager: self.playerManager,
+                                      libraryService: self.libraryService,
+                                      themeAccent: ThemeManager.shared.currentTheme.linkColor)
     viewModel.coordinator = self
     vc.viewModel = viewModel
     vc.navigationItem.largeTitleDisplayMode = .automatic
     self.presentingViewController = self.navigationController
     self.navigationController.pushViewController(vc, animated: true)
     self.navigationController.delegate = self
-    if let book = self.library.lastPlayedBook {
-      self.loadLastBook(book)
-    }
+
+    self.loadLastBookIfAvailable()
 
     if let mainCoordinator = self.getMainCoordinator(),
        let loadingCoordinator = mainCoordinator.parentCoordinator as? LoadingCoordinator {

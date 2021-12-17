@@ -6,11 +6,8 @@
   Copyright © 2019 Tortuga Power. All rights reserved.
 */
 
-/* Title that is shown as the navigation bar title */
 "library_title" = "Knižnica";
-/* Title for the settings button */
 "settings_button" = "Nastavenia";
-/* Title that is shown as the navigation bar title */
 "settings_title" = "Nastavenia";
 "settings_autoplay_title" = "Knižnica automatického prehrávania";
 "settings_autoplay_description" = "Pokračuje v prehrávaní všetkých nedokončených položiek v Knižnici, vrátane súborov v zoznamoch stôp.";
@@ -33,8 +30,6 @@
 "settings_support_project_title" = "Zobraziť projekt na Githube";
 "settings_support_project_description" = "Vytvoriť nové hlásenie chyby alebo požiadavky na funkcie";
 "settings_support_email_title" = "Pošlite nám e-mail";
-/* Should this be understood as the user wants to 'give credit' or is this like regulatives?
-Carl&nbsp;regarding the key settings_credits_title it's basically a section that gives credits to the third-party libraries that we are using in the app */
 "settings_credits_title" = "Kredity a licencie";
 "settings_support_compose_title" = "Nemožno vytvoriť e-mail";
 "settings_support_compose_description" = "Pre použitie je nutné mať vo vašom zariadení nastavený e-mailový účet.\n\n Kontaktujte nás na";
@@ -67,11 +62,8 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "cancel_button" = "Zrušiť";
 "seconds_title" = "sek.";
 "ok_button" = "OK";
-/* Message shown when trying to create a Siri Shortcut on devices that don't have iOS 12+ installed */
 "siri_alert_description" = "Skratky pre Siri sú k dispozícii v iOS 12 a vyššom";
-/* Title used in the context of our tip jar to support development */
 "support_bookplayer_title" = "Podporte BookPlayer";
-/* Description used in the context of our tip jar to support development */
 "support_bookplayer_description" = "Získajte BookPlayer Plus. Podporíte tým budúci vývoj aplikácie a získate ďalšie témy a ikony aplikácie";
 "learn_more_title" = "ZISTIŤ VIAC";
 "settings_appearance_title" = "Vzhľad";
@@ -81,15 +73,10 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "settings_controls_title" = "Ovládacie prvky Prehrávača";
 "settings_power_connected_title" = "Iba pri pripojení k napájaniu";
 "settings_tip_jar_title" = "Príspevky";
-/* What does 'System Mode' entail? Is it regarding iOS Dark Mode?
-<span class="reply-in-chat"><span data-uid="carlhoumoller&amp;&#x23;x40&#x3B;hotmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36833450">Carl</span></span>
-&nbsp;regarding the key theme_system_title, yes, it refers to using the preference set at the operating system level (from the control center/brightness) */
 "theme_system_title" = "Použiť podľa nastavenia systému";
 "theme_switch_title" = "Automaticky prepínať";
 "theme_dark_title" = "Vždy používať tmavý režim";
 "themes_title" = "Témy";
-/* This should be &ldquo;By your friends at BookPlayer&rdquo; in English.&nbsp; */
 "icons_bookplayer_credit_description" = "Od vašich priateľov z BookPlayera";
 "kind_tip_title" = "Láskavý príspevok";
 "excellent_tip_title" = "Vynikajúci príspevok";
@@ -117,20 +104,15 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "player_speed_title" = "Nastavenie rýchlosti prehrávania";
 "player_sleep_title" = "Pozastavenie prehrávania";
 "sleep_chapter_option_title" = "Na konci aktuálnej kapitoly";
-/* This is used for the label underneath the progress bar (e.g. Chapter 1 of 35) */
 "player_chapter_description" = "Kapitola %d z %d";
 "chapters_title" = "Kapitoly";
-/* This is used as a description for each chapter in the chapters list (e.g. Start: 10:11 - Duration: 16:56) */
 "chapters_item_description" = "Začiatok: %@ - Trvanie: %@";
-/* Restore purchases */
 "restore_title" = "Obnoviť";
 "themes_caps_title" = "TÉMY";
 "plus_app_icons_title" = "Ikony aplikácie";
-/* This is the counterpart to Mark as Finished */
 "mark_unfinished_title" = "Označiť ako nedokončené";
 "move_playlist_button" = "Presunutie do zoznamu stôp";
 "move_single_item_title" = "Chcete presunúť '%@' do '%@'?";
-/* This is shown if while being inside a playlist, a batch of imported files are finished processing, and it will be one of the options in the alert presented */
 "current_playlist_title" = "Aktuálny zoznam stôp";
 "select_item_title" = "Vybrať položku";
 "sleep_alert_description" = "Uspať po dokončení kapitoly";
@@ -143,47 +125,25 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "chapter_time_remaining_title" = "Zostávajúci čas kapitoly: ";
 "book_time_remaining_title" = "Zostávajúci čas audioknihy: ";
 "book_duration_title" = "Dĺžka audioknihy: ";
-/* Может правильнее будет: &quot;Не удалось сменить иконку&quot;? */
 "icon_error_description" = "Zmena ikony aplikácie nebola úspešná. Vyskúšajte to neskôr";
 "error_title" = "Chyba";
 "generic_retry_description" = "Opakujte akciu neskôr, prosím";
 "network_error_title" = "Chyba siete";
 "purchases_restored_title" = "Nákupy boli obnovené!";
 "tip_missing_title" = "Zatiaľ ste nám neposlali žiadny príspevok";
-/* will need 2 versions (for female and male)
-<span class="reply-in-chat"><span data-uid="sandu.hamuraru&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36841099">Alexandru</span></span>
-&nbsp;there's no way to put it without gender? using the second-person form involves specifying gender in Romanian?
-<span class="reply-in-chat"><span data-uid="sandu.hamuraru&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36841099">Alexandru</span></span>
-&nbsp;we have no current way of determining the gender of the user using the app right now 👀. Or maybe I didn't fully understand what you meant? */
 "thanks_amazing_title" = "Ste úžasný!";
 "play_title" = "Prehrať";
 "pause_title" = "Pozastaviť";
 "voiceover_no_title" = "Žiadny názov";
 "voiceover_no_author" = "Žiadny autor";
-/* &lt;Book title&gt; by &lt;Book author&gt; &lt;percentage in numbers&gt;% Completed */
 "voiceover_book_progress" = "%@ z %@, %d percent dokončených";
 "voiceover_no_file_title" = "Žiadny názov súboru";
-/* Not sure where this title appears ? :)
-<span class="reply-in-chat"><span data-uid="christophe.vergne&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36841194">christophe</span></span>
-&nbsp;this key in particular is when you're inside a playlist, the subtitle (that usually is the author) has no info for our VoiceOver service
-<span class="reply-in-chat"><span data-uid="christophe.vergne&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36841194">christophe</span></span>
-&nbsp;let me know if that clears things up?
-<span class="reply-in-chat"><span data-uid="gcarlo89&amp;&#x23;x40&#x3B;hotmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36841194">Gianni Carlo</span></span>
- Alright, my translation was correct so, thanks :) */
 "voiceover_no_file_subtitle" = "Žiadny podtitul súboru";
 "voiceover_no_playlist_title" = "Žiadny názov zoznamu stôp";
-/* &lt;Playlist title&gt; Playlist &lt;percentage in number&gt;% Completed */
 "voiceover_playlist_progress" = "%@, Zoznam stôp, %d percent dokončených";
 "voiceover_unknown_title" = "Neznámy názov";
 "voiceover_unknown_author" = "Neznámy autor";
-/* &lt;book title&gt; by &lt;book author&gt; */
 "voiceover_book_info" = "%@ z %@";
-/* &lt;book title&gt; by &lt;book author&gt;, chapter &lt;chapter title&gt; */
 "voiceover_book_chapter" = "%@ z %@, kapitola %@";
 "voiceover_rewind_time" = "Pretáčanie dozadu %@";
 "voiceover_forward_time" = "Rýchle pretáčanie vpred %@";
@@ -204,20 +164,11 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "downloading_file_title" = "Sťahovanie súboru";
 "progress_title" = "Pokrok";
 "settings_siri_sleeptimer_title" = "Časovač uspania";
-/* Can I have the context for this? Thanks
-Alessio Franceschi&nbsp;this is the label for the active sleep timer button when &quot;end of chapter&quot; was selected
-<span class="reply-in-chat"><span data-uid="fp&amp;&#x23;x40&#x3B;ylk.gd" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="42298563">Florian Pitcher</span></span>
-&nbsp;Thanks */
 "active_title" = "Zap.";
-/* Currently Playing <Book title> by <Book author> */
 "voiceover_currently_playing_title" = "Práve sa prehráva %@ z %@";
-/* When you're on the library or playlist view, and the voice over cursor is focused on the floating mini-player at the bottom, it should read to the user the element, and the hint that if pressed, the player view will be shown */
 "voiceover_miniplayer_hint" = "Miniprehrávač. Ťuknite pre zobrazenie Prehrávača";
 "voiceover_chapter_time_title" = "Dĺžka aktuálnej kapitoly: %@";
-/* When you're in the player view, and the voice over cursor is focused on the top bar (the one with the arrow-down), it will read to the user that the player view will be closed if he double taps that button */
 "voiceover_dismiss_player_title" = "Zavrieť prehrávač";
-/* Sort items by most recent playback */
 "sort_most_recent_button" = "Najnovšie";
 "sort_reversed_button" = "Opačné poradie";
 "voiceover_continue_playback_title" = "Pokračovať v prehrávaní";
@@ -250,3 +201,10 @@ Alessio Franceschi&nbsp;this is the label for the active sleep timer button when
 "storage_fix_all_title" = "Opraviť všetko";
 "settings_backup_title" = "iCloud zálohy";
 "settings_backup_files_title" = "Zahrnúť súbory kníh";
+"bound_books_create_button" = "Combine into Volume";
+"bound_books_undo_alert_title" = "Convert to Folder";
+"bound_books_new_title_placeholder" = "New Book Volume";
+"bound_books_create_alert_description" = "Make sure items are in correct order. To reorder chapters later you need convert the volume back into a folder, reorder items and then re-create the volume.";
+"bound_books_create_alert_title" = "Create a volume";
+"voiceover_bound_books_progress" = "%@, Volume, %d percent Completed";
+"voiceover_no_bound_books_title" = "No Volume Title";

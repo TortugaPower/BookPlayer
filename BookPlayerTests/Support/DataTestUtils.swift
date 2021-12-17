@@ -21,7 +21,7 @@ class DataTestUtils: XCTest {
   class func generateTestFolder(name: String, destinationFolder: URL) throws -> URL {
     let destination = destinationFolder.appendingPathComponent(name)
 
-    try FileManager.default.createDirectory(at: destination, withIntermediateDirectories: false, attributes: nil)
+    try FileManager.default.createDirectory(at: destination, withIntermediateDirectories: true, attributes: nil)
 
     return destination
   }

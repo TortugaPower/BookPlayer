@@ -115,17 +115,17 @@ class ActionParserService {
       return
     }
 
-    if let loadedBook = mainCoordinator.playerManager.currentBook,
-       loadedBook.relativePath == bookIdentifier {
+    if let loadedItem = mainCoordinator.playerManager.currentItem,
+       loadedItem.relativePath == bookIdentifier {
       self.removeAction(action)
       mainCoordinator.playerManager.play()
       return
     }
 
-    guard let libraryCoordinator = mainCoordinator.getLibraryCoordinator(),
-          let book = libraryCoordinator.dataManager.getBook(with: bookIdentifier, from: libraryCoordinator.library) else { return }
+    guard let libraryCoordinator = mainCoordinator.getLibraryCoordinator() else { return }
+
     self.removeAction(action)
-    libraryCoordinator.loadPlayer(book)
+    libraryCoordinator.loadPlayer(bookIdentifier)
   }
 
   private class func handleDownloadAction(_ action: Action) {

@@ -26,21 +26,22 @@ struct TimeListenedProvider: IntentTimelineProvider {
       }
 
       let dataManager = DataManager(coreDataStack: stack)
+      let libraryService = LibraryService(dataManager: dataManager)
 
       var records: [PlaybackRecordViewer]
 
       if context.family == .systemMedium {
-        records = WidgetUtils.getPlaybackRecords(with: dataManager)
+        records = WidgetUtils.getPlaybackRecords(with: libraryService)
       } else {
-        records = [WidgetUtils.getPlaybackRecord(with: dataManager)]
+        records = [WidgetUtils.getPlaybackRecord(with: libraryService)]
       }
 
       var title: String?
       var theme: SimpleTheme?
 
-      if let lastPlayedBook = try? dataManager.getLibraryLastBook(),
-         let currentTheme = try? dataManager.getLibraryCurrentTheme() {
-        title = lastPlayedBook.title
+      if let lastPlayedItem = try? libraryService.getLibraryLastItem(),
+         let currentTheme = try? libraryService.getLibraryCurrentTheme() {
+        title = lastPlayedItem.title
         theme = SimpleTheme(with: currentTheme)
       }
 
@@ -67,21 +68,22 @@ struct TimeListenedProvider: IntentTimelineProvider {
       }
 
       let dataManager = DataManager(coreDataStack: stack)
+      let libraryService = LibraryService(dataManager: dataManager)
 
       var records: [PlaybackRecordViewer]
 
       if context.family == .systemMedium {
-        records = WidgetUtils.getPlaybackRecords(with: dataManager)
+        records = WidgetUtils.getPlaybackRecords(with: libraryService)
       } else {
-        records = [WidgetUtils.getPlaybackRecord(with: dataManager)]
+        records = [WidgetUtils.getPlaybackRecord(with: libraryService)]
       }
 
       var title: String?
       var theme: SimpleTheme?
 
-      if let lastPlayedBook = try? dataManager.getLibraryLastBook(),
-         let currentTheme = try? dataManager.getLibraryCurrentTheme() {
-        title = lastPlayedBook.title
+      if let lastPlayedItem = try? libraryService.getLibraryLastItem(),
+         let currentTheme = try? libraryService.getLibraryCurrentTheme() {
+        title = lastPlayedItem.title
         theme = SimpleTheme(with: currentTheme)
       }
 

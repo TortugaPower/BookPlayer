@@ -14,19 +14,18 @@ import XCTest
 
 class LibraryListCoordinatorTests: XCTestCase {
   var libraryListCoordinator: LibraryListCoordinator!
+  var dataManager: DataManager!
 
   override func setUp() {
-    let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
-
-    let playerManager = PlayerManager(dataManager: dataManager,
-                                      watchConnectivityService: WatchConnectivityService(dataManager: dataManager))
+    self.dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
+    let libraryService = LibraryService(dataManager: self.dataManager)
 
     self.libraryListCoordinator = LibraryListCoordinator(
       navigationController: UINavigationController(),
-      library: dataManager.createLibrary(),
-      playerManager: playerManager,
-      importManager: ImportManager(dataManager: dataManager),
-      dataManager: dataManager
+      playerManager: PlayerManagerMock(),
+      importManager: ImportManager(libraryService: libraryService),
+      libraryService: libraryService,
+      playbackService: PlaybackService(libraryService: libraryService)
     )
 
     self.libraryListCoordinator.start()
@@ -43,10 +42,11 @@ class LibraryListCoordinatorTests: XCTestCase {
   }
 
   func testShowFolder() {
-    let folder = self.libraryListCoordinator.dataManager.createFolder(title: "folder 1")
-    self.libraryListCoordinator.library.insert(item: folder)
+    let folder = try! StubFactory.folder(dataManager: self.dataManager, title: "folder 1")
+    let library = self.libraryListCoordinator.libraryService.getLibrary()
+    library.insert(item: folder)
 
-    self.libraryListCoordinator.showFolder(folder)
+    self.libraryListCoordinator.showFolder(folder.relativePath)
     XCTAssert(self.libraryListCoordinator.childCoordinators.first is ItemListCoordinator)
     XCTAssertFalse(self.libraryListCoordinator.shouldShowImportScreen())
     XCTAssertFalse(self.libraryListCoordinator.shouldHandleImport())
@@ -68,19 +68,29 @@ class LibraryListCoordinatorTests: XCTestCase {
   }
 
   func testShowItemContentsFolder() {
-    let folder = self.libraryListCoordinator.dataManager.createFolder(title: "folder 1")
-    self.libraryListCoordinator.library.insert(item: folder)
+    let folder = try! StubFactory.folder(dataManager: self.dataManager, title: "folder 1")
+    let library = self.libraryListCoordinator.libraryService.getLibrary()
+    library.insert(item: folder)
 
-    self.libraryListCoordinator.showItemContents(folder)
+    self.libraryListCoordinator.showItemContents(SimpleLibraryItem(from: folder, themeAccent: .blue))
     XCTAssert(self.libraryListCoordinator.childCoordinators.first is ItemListCoordinator)
   }
 
   func testShowItemContentsBook() {
-    let book = StubFactory.book(dataManager: self.libraryListCoordinator.dataManager, title: "book 1", duration: 10)
-    self.libraryListCoordinator.library.insert(item: book)
+    let book = StubFactory.book(dataManager: self.dataManager, title: "book 1", duration: 10)
+    let library = self.libraryListCoordinator.libraryService.getLibrary()
+    library.insert(item: book)
 
-    self.libraryListCoordinator.showItemContents(book)
-    XCTAssert(self.libraryListCoordinator.childCoordinators.first is PlayerCoordinator)
+    let notificationExpectation = expectation(forNotification: .bookReady, object: nil) { (notification: Notification) -> Bool in
+      if let loaded = notification.userInfo?["loaded"] as? Bool {
+        XCTAssert(loaded == true)
+      }
+
+      return true
+    }
+
+    self.libraryListCoordinator.showItemContents(SimpleLibraryItem(from: book, themeAccent: .blue))
+    wait(for: [notificationExpectation], timeout: 3.0)
   }
 }
 
@@ -89,17 +99,16 @@ class FolderListCoordinatorTests: XCTestCase {
 
   override func setUp() {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
-
-    let playerManager = PlayerManager(dataManager: dataManager,
-                                      watchConnectivityService: WatchConnectivityService(dataManager: dataManager))
+    let libraryService = LibraryService(dataManager: dataManager)
+    let folder = try! StubFactory.folder(dataManager: dataManager, title: "folder 1")
 
     self.folderListCoordinator = FolderListCoordinator(
       navigationController: UINavigationController(),
-      library: dataManager.createLibrary(),
-      folder: try! StubFactory.folder(dataManager: dataManager, title: "folder 1"),
-      playerManager: playerManager,
-      importManager: ImportManager(dataManager: dataManager),
-      dataManager: dataManager
+      folderRelativePath: folder.relativePath,
+      playerManager: PlayerManagerMock(),
+      importManager: ImportManager(libraryService: libraryService),
+      libraryService: libraryService,
+      playbackService: PlaybackService(libraryService: libraryService)
     )
 
     self.folderListCoordinator.start()

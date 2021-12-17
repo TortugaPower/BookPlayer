@@ -26,22 +26,23 @@ struct PlayAndSleepProvider: IntentTimelineProvider {
         }
 
         let dataManager = DataManager(coreDataStack: stack)
+        let libraryService = LibraryService(dataManager: dataManager)
 
-        guard let lastPlayedBook = try? dataManager.getLibraryLastBook(),
-              let currentTheme = try? dataManager.getLibraryCurrentTheme() else {
+        guard let lastPlayedItem = try? libraryService.getLibraryLastItem(),
+              let currentTheme = try? libraryService.getLibraryCurrentTheme() else {
                 completion(self.placeholder(in: context))
                 return
               }
 
         let theme = SimpleTheme(with: currentTheme)
 
-        let title = lastPlayedBook.currentChapter?.title ?? lastPlayedBook.title
+        let title = lastPlayedItem.title
         let autoplay = configuration.autoplay?.boolValue ?? true
         let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
 
         let entry = SimpleEntry(date: Date(),
                                 title: title,
-                                relativePath: lastPlayedBook.relativePath,
+                                relativePath: lastPlayedItem.relativePath,
                                 theme: theme,
                                 timerSeconds: seconds,
                                 autoplay: autoplay)
@@ -59,22 +60,23 @@ struct PlayAndSleepProvider: IntentTimelineProvider {
         }
 
         let dataManager = DataManager(coreDataStack: stack)
+        let libraryService = LibraryService(dataManager: dataManager)
 
-        guard let lastPlayedBook = try? dataManager.getLibraryLastBook(),
-              let currentTheme = try? dataManager.getLibraryCurrentTheme() else {
+        guard let lastPlayedItem = try? libraryService.getLibraryLastItem(),
+              let currentTheme = try? libraryService.getLibraryCurrentTheme() else {
                 completion(Timeline(entries: [], policy: .atEnd))
                 return
               }
 
         let theme = SimpleTheme(with: currentTheme)
 
-        let title = lastPlayedBook.currentChapter?.title ?? lastPlayedBook.title
+        let title = lastPlayedItem.title
         let autoplay = configuration.autoplay?.boolValue ?? true
         let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
 
         let entry = SimpleEntry(date: Date(),
                                 title: title,
-                                relativePath: lastPlayedBook.relativePath,
+                                relativePath: lastPlayedItem.relativePath,
                                 theme: theme,
                                 timerSeconds: seconds,
                                 autoplay: autoplay)

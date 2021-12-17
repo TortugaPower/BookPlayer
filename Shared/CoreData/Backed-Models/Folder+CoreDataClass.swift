@@ -16,35 +16,6 @@ public class Folder: LibraryItem {
     var cachedDuration: Double?
     var cachedProgress: Double?
 
-    // MARK: - Properties
-    public override func jumpToStart() {
-        self.resetCachedProgress()
-        guard let items = self.items?.array as? [LibraryItem] else { return }
-
-        for item in items {
-            if let book = item as? Book {
-                book.currentTime = 0
-            } else if let folder = item as? Folder {
-                folder.jumpToStart()
-            }
-        }
-    }
-
-    public override func markAsFinished(_ flag: Bool) {
-        self.resetCachedProgress()
-        guard let items = self.items?.array as? [LibraryItem] else { return }
-
-        for item in items {
-            if let book = item as? Book {
-                book.isFinished = flag
-            } else if let folder = item as? Folder {
-                folder.markAsFinished(flag)
-            }
-        }
-
-        self.isFinished = flag
-    }
-
     // MARK: - Init
 
   public convenience init(title: String, context: NSManagedObjectContext) {
@@ -107,9 +78,16 @@ public class Folder: LibraryItem {
     }
 
     public override var progressPercentage: Double {
+      switch self.type {
+      case .regular:
         let itemTime = self.getProgressAndDuration()
 
         return itemTime.progress / itemTime.duration
+      case .bound:
+        guard self.duration > 0 else { return 0 }
+
+        return self.currentTime / self.duration
+      }
     }
 
   public override func getFolder(matching relativePath: String) -> Folder? {
@@ -248,12 +226,12 @@ public class Folder: LibraryItem {
         return nil
     }
 
-  func getPreviousBook(before book: Book) -> Book? {
+  func getPreviousBook(before relativePath: String) -> Book? {
     guard let items = self.items?.array as? [LibraryItem] else {
       return nil
     }
 
-    guard let indexFound = self.itemIndex(with: book.relativePath) else {
+    guard let indexFound = self.itemIndex(with: relativePath) else {
       return nil
     }
 
@@ -269,7 +247,7 @@ public class Folder: LibraryItem {
       if let book = item as? Book {
         return book
       } else if let folder = item as? Folder {
-        return folder.getPreviousBook(before: book)
+        return folder.getPreviousBook(before: relativePath)
       }
     }
 
@@ -277,12 +255,12 @@ public class Folder: LibraryItem {
   }
 
     // Used for player autoplay
-    func getNextBook(after book: Book) -> Book? {
+    func getNextBook(after relativePath: String) -> Book? {
         guard let items = self.items?.array as? [LibraryItem] else {
             return nil
         }
 
-        let indexFound = self.itemIndex(with: book.relativePath)
+        let indexFound = self.itemIndex(with: relativePath)
 
         for (index, item) in items.enumerated() {
           if let indexFound = indexFound {
@@ -296,7 +274,7 @@ public class Folder: LibraryItem {
           if let book = item as? Book {
             return book
           } else if let folder = item as? Folder {
-            return folder.getNextBook(after: book)
+            return folder.getNextBook(after: relativePath)
           }
         }
 

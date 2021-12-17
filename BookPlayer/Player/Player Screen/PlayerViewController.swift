@@ -39,7 +39,9 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
   @IBOutlet weak var playIconView: PlayPauseIconView!
   @IBOutlet weak var forwardIconView: PlayerJumpIconForward!
   @IBOutlet weak var containerItemStackView: UIStackView!
-
+  @IBOutlet weak var containerPlayerControlsStackView: UIStackView!
+  @IBOutlet weak var containerChapterControlsStackView: UIStackView!
+  @IBOutlet weak var containerProgressControlsStackView: UIStackView!
   private var themedStatusBarStyle: UIStatusBarStyle?
   private var panGestureRecognizer: UIPanGestureRecognizer!
   private let dismissThreshold: CGFloat = 44.0 * UIScreen.main.nativeScale
@@ -79,6 +81,18 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
     self.containerItemStackView.setCustomSpacing(26, after: self.artworkControl)
   }
 
+  override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+
+    self.viewModel.handleAutolockStatus()
+  }
+
+  override func viewDidDisappear(_ animated: Bool) {
+    super.viewDidDisappear(animated)
+
+    self.viewModel.handleAutolockStatus(forceDisable: true)
+  }
+
   // Prevents dragging the view down from changing the safeAreaInsets.top and .bottom
   // Note: I'm pretty sure there is a better solution for this that I haven't found yet - @pichfl
   override func viewSafeAreaInsetsDidChange() {
@@ -98,14 +112,18 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
     self.chapterTitleButton.titleLabel?.textAlignment = .center
     self.chapterTitleButton.titleLabel?.lineBreakMode = .byWordWrapping
     self.chapterTitleButton.isAccessibilityElement = false
+
+    // Based on Apple books, the player controls are kept the same for right-to-left languages
+    self.progressSlider.semanticContentAttribute = .forceLeftToRight
+    self.containerPlayerControlsStackView.semanticContentAttribute = .forceLeftToRight
+    self.containerChapterControlsStackView.semanticContentAttribute = .forceLeftToRight
+    self.containerProgressControlsStackView.semanticContentAttribute = .forceLeftToRight
   }
 
-  func setupPlayerView(with currentBook: Book) {
-    guard !currentBook.isFault else { return }
+  func setupPlayerView(with currentItem: PlayableItem) {
+    self.artworkControl.setupInfo(with: currentItem)
 
-    self.artworkControl.setupInfo(with: currentBook)
-
-    self.updateView(with: self.viewModel.getCurrentProgressState(currentBook))
+    self.updateView(with: self.viewModel.getCurrentProgressState(currentItem))
 
     applyTheme(self.themeProvider.currentTheme)
 
@@ -170,6 +188,7 @@ extension PlayerViewController {
       }.store(in: &disposeBag)
 
     self.progressSlider.publisher(for: .touchUpInside)
+      .merge(with: self.progressSlider.publisher(for: .touchUpOutside))
       .sink { [weak self] sender in
         guard let slider = sender as? UISlider else { return }
 
@@ -300,6 +319,13 @@ extension PlayerViewController {
       }
       .store(in: &disposeBag)
 
+    NotificationCenter.default.publisher(for: UIDevice.batteryStateDidChangeNotification)
+      .debounce(for: 1.0, scheduler: DispatchQueue.main)
+      .sink { [weak self] _ in
+        self?.viewModel.handleAutolockStatus()
+      }
+      .store(in: &disposeBag)
+
     self.closeButton.publisher(for: .touchUpInside)
       .sink { [weak self] _ in
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
@@ -307,18 +333,14 @@ extension PlayerViewController {
       }
       .store(in: &disposeBag)
 
-    self.viewModel.currentBookObserver().sink { [weak self] book in
+    self.viewModel.currentItemObserver().sink { [weak self] item in
       guard let self = self,
-            let book = book else { return }
+            let item = item else { return }
 
-      self.setupPlayerView(with: book)
+      self.setupPlayerView(with: item)
     }.store(in: &disposeBag)
 
-    self.viewModel.hasChapters().sink { hasChapters in
-      self.chaptersButton.isEnabled = hasChapters
-    }.store(in: &disposeBag)
-
-    SpeedManager.shared.currentSpeed.sink { [weak self] speed in
+    self.viewModel.currentSpeedObserver().sink { [weak self] speed in
       guard let self = self else { return }
 
       self.speedButton.title = self.formatSpeed(speed)

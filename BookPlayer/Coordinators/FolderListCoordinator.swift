@@ -10,34 +10,33 @@ import BookPlayerKit
 import UIKit
 
 class FolderListCoordinator: ItemListCoordinator {
-  var folder: Folder
+  var folderRelativePath: String
 
   init(
     navigationController: UINavigationController,
-    library: Library,
-    folder: Folder,
-    playerManager: PlayerManager,
+    folderRelativePath: String,
+    playerManager: PlayerManagerProtocol,
     importManager: ImportManager,
-    dataManager: DataManager
+    libraryService: LibraryServiceProtocol,
+    playbackService: PlaybackServiceProtocol
   ) {
-    self.folder = folder
+    self.folderRelativePath = folderRelativePath
 
     super.init(
       navigationController: navigationController,
-      library: library,
       playerManager: playerManager,
       importManager: importManager,
-      dataManager: dataManager
+      libraryService: libraryService,
+      playbackService: playbackService
     )
   }
 
   override func start() {
     let vc = ItemListViewController.instantiate(from: .Main)
-    let viewModel = FolderListViewModel(folder: self.folder,
-                                        library: self.library,
-                                        player: self.playerManager,
-                                        dataManager: self.dataManager,
-                                        themeAccent: ThemeManager.shared.currentTheme.linkColor)
+    let viewModel = ItemListViewModel(folderRelativePath: self.folderRelativePath,
+                                      playerManager: self.playerManager,
+                                      libraryService: self.libraryService,
+                                      themeAccent: ThemeManager.shared.currentTheme.linkColor)
     viewModel.coordinator = self
     vc.viewModel = viewModel
     self.presentingViewController = self.navigationController
@@ -65,7 +64,7 @@ class FolderListCoordinator: ItemListCoordinator {
         placeholder = item.title
       }
 
-      self?.showImportIntoNewFolderAlert(placeholder: placeholder, with: items)
+      self?.showCreateFolderAlert(placeholder: placeholder, with: items.map { $0.relativePath }, type: .regular)
     })
 
     let existingFolderAction = UIAlertAction(title: "existing_playlist_button".localized, style: .default) { _ in
@@ -73,7 +72,7 @@ class FolderListCoordinator: ItemListCoordinator {
       vc.items = availableFolders
 
       vc.onItemSelected = { selectedFolder in
-        self.onAction?(.importIntoFolder(selectedFolder, items: items))
+        self.onAction?(.importIntoFolder(selectedFolder, items: items, type: .regular))
       }
 
       let nav = AppNavigationController(rootViewController: vc)

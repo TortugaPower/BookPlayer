@@ -12,7 +12,7 @@ import DeviceKit
 import Themeable
 import UIKit
 
-class ItemListViewController: BaseViewController<ItemListCoordinator, FolderListViewModel>,
+class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListViewModel>,
                               Storyboarded,
                               UIGestureRecognizerDelegate {
 
@@ -209,12 +209,12 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, FolderList
       case .importOperationFinished(let files):
         self.showLoadView(false)
         self.viewModel.handleOperationCompletion(files)
-      case .importIntoNewFolder(let title, let items):
-        self.viewModel.importIntoNewFolder(with: title, items: items)
-      case .importIntoFolder(let selectedFolder, let items):
-        self.viewModel.importIntoFolder(selectedFolder, items: items)
-      case .createFolder(let title, let items):
-        self.viewModel.createFolder(with: title, items: items)
+      case .importIntoFolder(let selectedFolder, let items, let type):
+        self.viewModel.importIntoFolder(selectedFolder, items: items, type: type)
+      case .createFolder(let title, let items, let type):
+        self.viewModel.createFolder(with: title, items: items, type: type)
+      case .updateFolders(let folders, let type):
+        self.viewModel.updateFolders(folders, type: type)
       case .moveIntoLibrary(let items):
         self.viewModel.handleMoveIntoLibrary(items: items)
       case .moveIntoFolder(let selectedFolder, let items):
@@ -353,8 +353,10 @@ extension ItemListViewController: UITableViewDataSource {
     cell.duration = item.duration
     cell.type = item.type
     cell.playbackState = item.playbackState
+
     cell.artworkView.kf.setImage(with: ArtworkService.getArtworkProvider(for: item.relativePath),
-                                 placeholder: self.defaultArtwork)
+                                 placeholder: self.defaultArtwork,
+                                 options: [.targetCache(ArtworkService.cache)])
     cell.setAccessibilityLabels()
     return cell
   }
@@ -490,7 +492,7 @@ extension ItemListViewController: UIDropInteractionDelegate {
       guard let item = object as? ImportableItem else { return }
       item.suggestedName = providerReference.suggestedName
 
-      DataManager.importData(from: item)
+      self.viewModel.importData(from: item)
     }
   }
 }

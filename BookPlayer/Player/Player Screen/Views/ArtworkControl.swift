@@ -131,11 +131,11 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     self.airplayView.accessibilityLabel = "audio_source_title".localized
   }
 
-  public func setupInfo(with book: Book) {
-    self.titleLabel.text = book.title
-    self.authorLabel.text = book.author
+  public func setupInfo(with item: PlayableItem) {
+    self.titleLabel.text = item.title
+    self.authorLabel.text = item.author
     self.artworkImage.kf.setImage(
-      with: ArtworkService.getArtworkProvider(for: book.relativePath),
+      with: ArtworkService.getArtworkProvider(for: item.relativePath),
       completionHandler: { result in
         switch result {
         case .success(let value):
@@ -148,7 +148,7 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
       }
     )
     self.artworkOverlay.isAccessibilityElement = true
-    self.artworkOverlay.accessibilityLabel = VoiceOverService().playerMetaText(book: book)
+    self.artworkOverlay.accessibilityLabel = VoiceOverService().playerMetaText(item: item)
   }
 }
 

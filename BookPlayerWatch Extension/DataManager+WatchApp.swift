@@ -13,38 +13,36 @@ extension DataManager {
     .urls(for: .documentDirectory, in: .userDomainMask).first!
     .appendingPathComponent("library.data")
 
+  public static let themeDataUrl = FileManager.default
+    .urls(for: .documentDirectory, in: .userDomainMask).first!
+    .appendingPathComponent("library.theme.data")
+
   public static let booksDataUrl = FileManager.default
     .urls(for: .documentDirectory, in: .userDomainMask).first!
     .appendingPathComponent("library.books.data")
 
-  public func loadLibrary() -> Library {
-    return self.decodeLibrary(FileManager.default.contents(atPath: DataManager.libraryDataUrl.path),
-                              booksData: FileManager.default.contents(atPath: DataManager.booksDataUrl.path))
-    ?? Library(context: self.getContext())
+  public func loadLibraryData() -> WatchDataObject? {
+    return self.decodeLibraryData(booksData: FileManager.default.contents(atPath: DataManager.booksDataUrl.path),
+                                  themeData: FileManager.default.contents(atPath: DataManager.themeDataUrl.path))
   }
 
-  public func decodeLibrary(_ data: Data?, booksData: Data?) -> Library? {
-    guard let data = data else { return nil }
+  public func decodeLibraryData(booksData: Data?, themeData: Data?) -> WatchDataObject? {
+    guard let booksData = booksData else { return nil }
 
-    try? data.write(to: DataManager.libraryDataUrl)
-    try? booksData?.write(to: DataManager.booksDataUrl)
+    try? booksData.write(to: DataManager.booksDataUrl)
+    try? themeData?.write(to: DataManager.themeDataUrl)
 
-    let bgContext = self.getBackgroundContext()
     let decoder = JSONDecoder()
 
-    guard let context = CodingUserInfoKey.context else { return nil }
-
-    decoder.userInfo[context] = bgContext
-
-    guard let library = try? decoder.decode(Library.self, from: data) else {
+    guard let books = try? decoder.decode([PlayableItem].self, from: booksData) else {
       return nil
     }
 
-    if let booksData = booksData,
-        let books = try? decoder.decode([Book].self, from: booksData) {
-      library.items = NSOrderedSet(array: books)
+    var currentTheme: SimpleTheme?
+    if let themeData = themeData {
+      currentTheme = try? decoder.decode(SimpleTheme.self, from: themeData)
     }
 
-    return library
+    return (books: books, currentTheme: currentTheme)
   }
 }

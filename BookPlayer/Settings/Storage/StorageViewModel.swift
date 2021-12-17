@@ -14,13 +14,11 @@ import Foundation
 final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObject {
   private var files = CurrentValueSubject<[StorageItem]?, Never>(nil)
   private var disposeBag = Set<AnyCancellable>()
-  private let library: Library
-  private let dataManager: DataManager
+  private let libraryService: LibraryServiceProtocol
   private let folderURL: URL
 
-  init(dataManager: DataManager, library: Library, folderURL: URL) {
-    self.dataManager = dataManager
-    self.library = library
+  init(libraryService: LibraryServiceProtocol, folderURL: URL) {
+    self.libraryService = libraryService
     self.folderURL = folderURL
 
     super.init()
@@ -45,10 +43,9 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
         guard !fileURL.isDirectoryFolder,
               let fileAttributes = try? FileManager.default.attributesOfItem(atPath: fileURL.path) else { continue }
 
-        let fetchedBook = self.dataManager.getBook(
-          with: String(fileURL.relativePath(to: processedFolder).dropFirst()),
-          from: self.library
-        )
+        let fetchedBook = self.libraryService.getItem(
+          with: String(fileURL.relativePath(to: processedFolder).dropFirst())
+        ) as? Book
 
         let bookTitle = fetchedBook?.title ?? Book.getBookTitle(from: fileURL)
 
@@ -68,11 +65,10 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
   }
 
   private func createBook(from item: StorageItem) throws {
-    let book = self.dataManager.createBook(from: item.fileURL)
+    let book = self.libraryService.createBook(from: item.fileURL)
     try moveBookFile(from: item, with: book)
-    self.library.insert(item: book)
-
-    self.dataManager.saveContext()
+    let library = self.libraryService.getLibrary()
+    library.insert(item: book)
   }
 
   private func moveBookFile(from item: StorageItem, with book: Book) throws {
@@ -96,7 +92,22 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
   }
 
   public func getLibrarySize() -> String {
-    return DataManager.sizeOfItem(at: self.folderURL)
+    var folderSize: Int64 = 0
+
+    let enumerator = FileManager.default.enumerator(
+      at: self.folderURL,
+      includingPropertiesForKeys: [],
+      options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
+        print("directoryEnumerator error at \(url): ", error)
+        return true
+      })!
+
+    for case let fileURL as URL in enumerator {
+      guard let fileAttributes = try? FileManager.default.attributesOfItem(atPath: fileURL.path) else { continue }
+      folderSize += fileAttributes[FileAttributeKey.size] as? Int64 ?? 0
+    }
+
+    return ByteCountFormatter.string(fromByteCount: folderSize, countStyle: ByteCountFormatter.CountStyle.file)
   }
 
   public func observeFiles() -> AnyPublisher<[StorageItem]?, Never> {
@@ -134,7 +145,7 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
   }
 
   public func handleFix(for item: StorageItem, shouldReloadItems: Bool = true) throws {
-    guard let fetchedBook = self.dataManager.findBooks(containing: item.fileURL)?.first else {
+    guard let fetchedBook = self.libraryService.findBooks(containing: item.fileURL)?.first else {
       // create a new book
       try self.createBook(from: item)
       if shouldReloadItems {
@@ -145,8 +156,8 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
 
     // Relink book object if it's orphaned
     if fetchedBook.getLibrary() == nil {
-      self.library.insert(item: fetchedBook)
-      self.dataManager.saveContext()
+      let library = self.libraryService.getLibrary()
+      library.insert(item: fetchedBook)
     }
 
     let fetchedBookURL = self.folderURL.appendingPathComponent(fetchedBook.relativePath)

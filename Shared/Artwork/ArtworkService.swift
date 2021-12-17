@@ -11,7 +11,7 @@ import Kingfisher
 import UIKit
 
 public class ArtworkService {
-  static private var cache: ImageCache {
+  static public var cache: ImageCache {
     let url = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!
 
     let cache = try! ImageCache(name: "BookPlayer", cacheDirectoryURL: url)
@@ -45,6 +45,10 @@ public class ArtworkService {
 
   public class func removeCache(for relativePath: String) {
     self.cache.removeImage(forKey: relativePath)
+  }
+
+  public class func storeInCache(_ data: Data, for relativePath: String) {
+    self.cache.storeToDisk(data, forKey: relativePath)
   }
 
   public class func getArtworkProvider(for relativePath: String) -> AVAudioAssetImageDataProvider {

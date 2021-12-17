@@ -244,7 +244,7 @@
                                                     </constraints>
                                                 </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jDQ-kp-Eg6" customClass="BPMarqueeLabel" customModule="BookPlayer" customModuleProvider="target">
-                                                    <rect key="frame" x="60" y="11" width="232" height="24"/>
+                                                    <rect key="frame" x="70" y="11" width="222" height="24"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="24" id="pg7-bG-J8J"/>
                                                     </constraints>
@@ -253,7 +253,7 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Author" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wl3-k5-zZi" customClass="BPMarqueeLabel" customModule="BookPlayer" customModuleProvider="target">
-                                                    <rect key="frame" x="60" y="37" width="232" height="24"/>
+                                                    <rect key="frame" x="70" y="37" width="222" height="24"/>
                                                     <accessibility key="accessibilityConfiguration">
                                                         <bool key="isElement" value="NO"/>
                                                     </accessibility>
@@ -277,7 +277,7 @@
                                             <constraints>
                                                 <constraint firstAttribute="bottom" secondItem="wl3-k5-zZi" secondAttribute="bottom" constant="11" id="Aob-Dm-ykb"/>
                                                 <constraint firstAttribute="height" constant="72" id="FwT-fW-vJb"/>
-                                                <constraint firstItem="jDQ-kp-Eg6" firstAttribute="leading" secondItem="Sfc-n7-Zho" secondAttribute="leading" constant="60" id="MpU-Bo-Zj3"/>
+                                                <constraint firstItem="jDQ-kp-Eg6" firstAttribute="leading" secondItem="Sfc-n7-Zho" secondAttribute="leading" constant="70" id="MpU-Bo-Zj3"/>
                                                 <constraint firstItem="FKC-vJ-TcU" firstAttribute="leading" secondItem="wl3-k5-zZi" secondAttribute="trailing" id="OLX-EV-5cI"/>
                                                 <constraint firstItem="FKC-vJ-TcU" firstAttribute="leading" secondItem="jDQ-kp-Eg6" secondAttribute="trailing" id="UMr-Q0-8S3"/>
                                                 <constraint firstItem="VVl-ON-iS7" firstAttribute="centerX" secondItem="Sfc-n7-Zho" secondAttribute="leading" constant="36" id="UaH-So-0Pq"/>
@@ -466,6 +466,14 @@
             <point key="canvasLocation" x="-390" y="152"/>
         </scene>
     </scenes>
+    <designables>
+        <designable name="jDQ-kp-Eg6">
+            <size key="intrinsicContentSize" width="31.5" height="18"/>
+        </designable>
+        <designable name="wl3-k5-zZi">
+            <size key="intrinsicContentSize" width="49" height="18"/>
+        </designable>
+    </designables>
     <color key="tintColor" red="0.20392156862745098" green="0.53333333333333333" blue="0.81960784313725488" alpha="1" colorSpace="calibratedRGB"/>
     <resources>
         <image name="emptyLibrary" width="249" height="249"/>

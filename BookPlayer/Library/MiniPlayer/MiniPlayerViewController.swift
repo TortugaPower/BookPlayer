@@ -48,13 +48,13 @@ class MiniPlayerViewController: BaseViewController<MainCoordinator, MiniPlayerVi
     bindObservers()
   }
 
-  func setupPlayerView(with currentBook: Book) {
+  func setupPlayerView(with currentItem: PlayableItem) {
     self.view.setNeedsLayout()
 
-    self.artwork.kf.setImage(with: ArtworkService.getArtworkProvider(for: currentBook.relativePath),
+    self.artwork.kf.setImage(with: ArtworkService.getArtworkProvider(for: currentItem.relativePath),
                              placeholder: ArtworkService.generateDefaultArtwork(from: themeProvider.currentTheme.linkColor))
-    self.authorLabel.text = currentBook.author
-    self.titleLabel.text = currentBook.title
+    self.authorLabel.text = currentItem.author
+    self.titleLabel.text = currentItem.title
 
     setVoiceOverLabels()
     applyTheme(self.themeProvider.currentTheme)
@@ -68,14 +68,14 @@ class MiniPlayerViewController: BaseViewController<MainCoordinator, MiniPlayerVi
       }
       .store(in: &disposeBag)
 
-    self.viewModel.currentBookObserver().sink { [weak self] book in
-      guard let book = book else {
+    self.viewModel.currentItemObserver().sink { [weak self] item in
+      guard let item = item else {
         self?.view.isHidden = true
         return
       }
 
       self?.view.isHidden = false
-      self?.setupPlayerView(with: book)
+      self?.setupPlayerView(with: item)
     }.store(in: &disposeBag)
 
     self.playIconView.observeActionEvents()

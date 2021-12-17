@@ -1,5 +1,5 @@
 //
-//  FolderListViewModel.swift
+//  ItemListViewModel.swift
 //  BookPlayer
 //
 //  Created by Gianni Carlo on 11/9/21.
@@ -12,11 +12,10 @@ import Foundation
 import MediaPlayer
 import Themeable
 
-class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
-  let folder: Folder?
-  let library: Library
-  let player: PlayerManager
-  let dataManager: DataManager
+class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
+  let folderRelativePath: String?
+  let playerManager: PlayerManagerProtocol
+  let libraryService: LibraryServiceProtocol
   var offset = 0
 
   public private(set) var defaultArtwork: Data?
@@ -29,18 +28,16 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
   private var containingFolder: Folder?
 
   public var maxItems: Int {
-    return self.folder?.items?.count ?? self.library.items?.count ?? 0
+    return self.libraryService.getMaxItemsCount(at: self.folderRelativePath)
   }
 
-  init(folder: Folder?,
-       library: Library,
-       player: PlayerManager,
-       dataManager: DataManager,
+  init(folderRelativePath: String?,
+       playerManager: PlayerManagerProtocol,
+       libraryService: LibraryServiceProtocol,
        themeAccent: UIColor) {
-    self.folder = folder
-    self.library = library
-    self.player = player
-    self.dataManager = dataManager
+    self.folderRelativePath = folderRelativePath
+    self.playerManager = playerManager
+    self.libraryService = libraryService
     self.themeAccent = themeAccent
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: themeAccent)?.pngData()
     super.init()
@@ -55,39 +52,46 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func getNavigationTitle() -> String {
-    return self.folder?.title ?? "library_title".localized
+    guard let folderRelativePath = folderRelativePath else {
+      return "library_title".localized
+    }
+
+    guard let item = self.libraryService.getItem(with: folderRelativePath) else {
+      return ""
+    }
+
+    return item.title
   }
 
   func bindBookObserver() {
-    self.bookSubscription = self.player.$currentBook.sink { [weak self] book in
+    self.bookSubscription = self.playerManager.currentItemPublisher().sink { [weak self] currentItem in
       guard let self = self else { return }
 
       self.bookProgressSubscription?.cancel()
       self.containingFolder = nil
 
-      guard let book = book else {
+      guard let currentItem = currentItem else {
         self.clearPlaybackState()
         return
       }
 
       // Get folder reference for progress calculation
-      if let item = self.items.first(where: { book.relativePath.contains($0.relativePath) && $0.type == .folder }) {
-        self.containingFolder = book.getFolder(matching: item.relativePath)
+      if let item = self.items.first(where: { currentItem.relativePath.contains($0.relativePath) && $0.type == .folder }) {
+        self.containingFolder = self.libraryService.findFolder(with: item.relativePath)
       }
 
-      self.bindBookProgressObserver(book)
+      self.bindItemProgressObserver(currentItem)
     }
   }
 
-  func bindBookProgressObserver(_ book: Book) {
+  func bindItemProgressObserver(_ item: PlayableItem) {
     self.bookProgressSubscription?.cancel()
 
-    self.bookProgressSubscription = book.publisher(for: \.percentCompleted)
-      .combineLatest(book.publisher(for: \.relativePath))
+    self.bookProgressSubscription = item.publisher(for: \.percentCompleted)
+      .combineLatest(item.publisher(for: \.relativePath))
       .removeDuplicates(by: { $0.0 == $1.0 })
       .sink(receiveValue: { [weak self] (percentCompleted, relativePath) in
         guard let self = self,
-              let relativePath = relativePath,
               let index = self.items.firstIndex(where: { relativePath.contains($0.relativePath) }) else { return }
 
         let currentItem = self.items[index]
@@ -95,7 +99,7 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
         var progress: Double?
 
         switch currentItem.type {
-        case .book:
+        case .book, .bound:
           progress = percentCompleted / 100
         case .folder:
           progress = self.containingFolder?.progressPercentage
@@ -116,7 +120,7 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func loadInitialItems(pageSize: Int = 13) -> [SimpleLibraryItem] {
-    guard let fetchedItems = self.dataManager.fetchContents(at: self.folder?.relativePath,
+    guard let fetchedItems = self.libraryService.fetchContents(at: self.folderRelativePath,
                                                             limit: pageSize,
                                                             offset: 0) else {
       return []
@@ -135,7 +139,7 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
   func loadNextItems(pageSize: Int = 13) {
     guard self.offset < self.maxItems else { return }
 
-    guard let fetchedItems = self.dataManager.fetchContents(at: self.folder?.relativePath,
+    guard let fetchedItems = self.libraryService.fetchContents(at: self.folderRelativePath,
                                                             limit: pageSize,
                                                             offset: self.offset),
           !fetchedItems.isEmpty else {
@@ -155,7 +159,7 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
   func loadAllItemsIfNeeded() {
     guard self.offset < self.maxItems else { return }
 
-    guard let fetchedItems = self.dataManager.fetchContents(at: self.folder?.relativePath,
+    guard let fetchedItems = self.libraryService.fetchContents(at: self.folderRelativePath,
                                                             limit: self.maxItems,
                                                             offset: 0),
           !fetchedItems.isEmpty else {
@@ -193,39 +197,39 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func playNextBook(after item: SimpleLibraryItem) {
-    guard let libraryItem = self.dataManager.getItem(with: item.relativePath) else {
+    guard let libraryItem = self.libraryService.getItem(with: item.relativePath) else {
       return
     }
 
-    var bookToPlay: Book?
+    var pathToPlay: String?
 
     defer {
-      if let book = bookToPlay {
-        self.coordinator.loadPlayer(book)
+      if let pathToPlay = pathToPlay {
+        self.coordinator.loadPlayer(pathToPlay)
       }
     }
 
-    guard let folder = libraryItem as? Folder else {
-      bookToPlay = libraryItem.getBookToPlay()
+    guard let folder = libraryItem as? Folder,
+          folder.type == .regular else {
+      pathToPlay = libraryItem.relativePath
       return
     }
 
     // Special treatment for folders
     guard
-      let bookPlaying = self.player.currentBook,
-      let currentFolder = bookPlaying.folder,
-      currentFolder == folder else {
+      let currentItem = self.playerManager.currentItem,
+      currentItem.relativePath.contains(folder.relativePath) else {
         // restart the selected folder if current playing book has no relation to it
         if libraryItem.isFinished {
-          self.dataManager.jumpToStart(libraryItem)
+          self.libraryService.jumpToStart(relativePath: libraryItem.relativePath)
         }
 
-        bookToPlay = libraryItem.getBookToPlay()
+        pathToPlay = libraryItem.getBookToPlay()?.relativePath
         return
       }
 
     // override next book with the one already playing
-    bookToPlay = bookPlaying
+    pathToPlay = currentItem.relativePath
   }
 
   func reloadItems(pageSizePadding: Int = 0) {
@@ -239,42 +243,23 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func getPlaybackState(for item: LibraryItem) -> PlaybackState {
-    // TODO: refactor PlayerManager to stop using backed coredata objects
-    guard let book = self.player.currentBook, !book.isFault else {
+    guard let currentItem = self.playerManager.currentItem else {
       return .stopped
     }
 
-    return book.relativePath.contains(item.relativePath) ? .playing : .stopped
+    return currentItem.relativePath.contains(item.relativePath) ? .playing : .stopped
   }
 
   func showItemContents(_ item: SimpleLibraryItem) {
-    guard let libraryItem = self.dataManager.getItem(with: item.relativePath) else {
-      return
-    }
-
-    self.coordinator.showItemContents(libraryItem)
+    self.coordinator.showItemContents(item)
   }
 
-  func importIntoNewFolder(with title: String, items: [LibraryItem]? = nil) {
-    do {
-      let folder = try self.dataManager.createFolder(with: title, in: self.folder, library: self.library)
-      if let items = items {
-        try self.dataManager.moveItems(items, into: folder)
-      }
-    } catch {
-      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
-    }
-
-    self.coordinator.reloadItemsWithPadding(padding: 1)
-  }
-
-  func importIntoFolder(_ folder: SimpleLibraryItem, items: [LibraryItem]) {
-    guard let storedFolder = self.dataManager.getItem(with: folder.relativePath) as? Folder else { return }
-
-    let fetchedItems = items.compactMap({ self.dataManager.getItem(with: $0.relativePath )})
+  func importIntoFolder(_ folder: SimpleLibraryItem, items: [LibraryItem], type: FolderType) {
+    let fetchedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
 
     do {
-      try self.dataManager.moveItems(fetchedItems, into: storedFolder)
+      try self.libraryService.moveItems(fetchedItems, inside: folder.relativePath, moveFiles: true)
+      try self.libraryService.updateFolder(at: folder.relativePath, type: type)
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
@@ -282,12 +267,13 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
     self.coordinator.reloadItemsWithPadding()
   }
 
-  func createFolder(with title: String, items: [SimpleLibraryItem]? = nil) {
+  func createFolder(with title: String, items: [String]? = nil, type: FolderType) {
     do {
-      let folder = try self.dataManager.createFolder(with: title, in: self.folder, library: self.library)
-      if let fetchedItems = items?.compactMap({ self.dataManager.getItem(with: $0.relativePath )}) {
-        try self.dataManager.moveItems(fetchedItems, into: folder)
+      let folder = try self.libraryService.createFolder(with: title, inside: self.folderRelativePath)
+      if let fetchedItems = items?.compactMap({ self.libraryService.getItem(with: $0 )}) {
+        try self.libraryService.moveItems(fetchedItems, inside: folder.relativePath, moveFiles: true)
       }
+      try self.libraryService.updateFolder(at: folder.relativePath, type: type)
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
@@ -295,11 +281,28 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
     self.coordinator.reloadItemsWithPadding(padding: 1)
   }
 
+  func updateFolders(_ folders: [SimpleLibraryItem], type: FolderType) {
+    do {
+      try folders.forEach { folder in
+        try self.libraryService.updateFolder(at: folder.relativePath, type: type)
+
+        if let currentItem = self.playerManager.currentItem,
+           currentItem.relativePath.contains(folder.relativePath) {
+          self.playerManager.stop()
+        }
+      }
+    } catch {
+      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
+    }
+
+    self.coordinator.reloadItemsWithPadding()
+  }
+
   func handleMoveIntoLibrary(items: [SimpleLibraryItem]) {
-    let selectedItems = items.compactMap({ self.dataManager.getItem(with: $0.relativePath )})
+    let selectedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
 
     do {
-      try self.dataManager.moveItems(selectedItems, into: self.library)
+      try self.libraryService.moveItems(selectedItems, inside: nil, moveFiles: true)
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
@@ -310,12 +313,10 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
   func handleMoveIntoFolder(_ folder: SimpleLibraryItem, items: [SimpleLibraryItem]) {
     ArtworkService.removeCache(for: folder.relativePath)
 
-    guard let storedFolder = self.dataManager.getItem(with: folder.relativePath) as? Folder else { return }
-
-    let fetchedItems = items.compactMap({ self.dataManager.getItem(with: $0.relativePath )})
+    let fetchedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
 
     do {
-      try self.dataManager.moveItems(fetchedItems, into: storedFolder)
+      try self.libraryService.moveItems(fetchedItems, inside: folder.relativePath, moveFiles: true)
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
@@ -324,10 +325,11 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func handleDelete(items: [SimpleLibraryItem], mode: DeleteMode) {
-    let selectedItems = items.compactMap({ self.dataManager.getItem(with: $0.relativePath )})
+    let selectedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
 
     do {
-      try self.dataManager.delete(selectedItems, library: self.library, mode: mode)
+      let library = self.libraryService.getLibrary()
+      try self.libraryService.delete(selectedItems, library: library, mode: mode)
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
@@ -336,15 +338,13 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func handleOperationCompletion(_ files: [URL]) {
-    let processedItems = self.dataManager.insertItems(from: files, into: nil, library: self.library)
+    let library = self.libraryService.getLibrary()
+    let processedItems = self.libraryService.insertItems(from: files, into: nil, library: library, processedItems: [])
 
     do {
-      if let folder = self.folder {
-        try self.dataManager.moveItems(processedItems, into: folder)
-      } else {
-        try self.dataManager.moveItems(processedItems, into: self.library, moveFiles: false)
-      }
+      let shouldMoveFiles = self.folderRelativePath != nil
 
+      try self.libraryService.moveItems(processedItems, inside: self.folderRelativePath, moveFiles: shouldMoveFiles)
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
       return
@@ -354,7 +354,8 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
 
     var availableFolders = [SimpleLibraryItem]()
 
-    if let existingFolders = self.dataManager.fetchFolders(in: self.folder, or: self.library) {
+    if let existingFolders = (self.libraryService.fetchContents(at: self.folderRelativePath, limit: nil, offset: nil)?
+                                .compactMap({ $0 as? Folder })) {
       for folder in existingFolders {
         if processedItems.contains(where: { $0.relativePath == folder.relativePath }) { continue }
 
@@ -369,7 +370,7 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
 
   func handleInsertionIntoLibrary(_ items: [LibraryItem]) {
     do {
-      try self.dataManager.moveItems(items, into: self.library)
+      try self.libraryService.moveItems(items, inside: nil, moveFiles: true)
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
@@ -378,20 +379,16 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func reorder(item: SimpleLibraryItem, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath) {
-    guard let storedItem = self.dataManager.getItem(with: item.relativePath) else { return }
-
-    if let folder = self.folder {
-      ArtworkService.removeCache(for: folder.relativePath)
-      folder.removeFromItems(at: sourceIndexPath.row)
-      folder.insertIntoItems(storedItem, at: destinationIndexPath.row)
-      folder.rebuildOrderRank()
-    } else {
-      self.library.removeFromItems(at: sourceIndexPath.row)
-      self.library.insertIntoItems(storedItem, at: destinationIndexPath.row)
-      self.library.rebuildOrderRank()
+    if let folderRelativePath = folderRelativePath {
+      ArtworkService.removeCache(for: folderRelativePath)
     }
 
-    self.dataManager.saveContext()
+    self.libraryService.reorderItem(
+      at: item.relativePath,
+      inside: self.folderRelativePath,
+      sourceIndexPath: sourceIndexPath,
+      destinationIndexPath: destinationIndexPath
+    )
 
     _ = self.loadInitialItems(pageSize: self.items.count)
   }
@@ -416,13 +413,27 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
 
   func notifyPendingFiles() {
     let documentsFolder = DataManager.getDocumentsFolderURL()
+    let inboxFolder = DataManager.getInboxFolderURL()
 
-    // Get reference of all the files located inside the folder
-    guard let urls = DataManager.getFiles(from: documentsFolder) else {
+    // Get reference of all the files located inside the Documents folder
+    guard let urls = try? FileManager.default.contentsOfDirectory(at: documentsFolder, includingPropertiesForKeys: nil, options: .skipsSubdirectoryDescendants) else {
       return
     }
 
-    self.handleNewFiles(urls)
+    // Filter out Processed and Inbox folders from file URLs.
+    var filteredUrls = urls.filter {
+      $0.lastPathComponent != DataManager.processedFolderName
+      && $0.lastPathComponent != DataManager.inboxFolderName
+    }
+
+    // Consider items in the Inbox folder
+    if let inboxUrls = try? FileManager.default.contentsOfDirectory(at: inboxFolder, includingPropertiesForKeys: nil, options: .skipsSubdirectoryDescendants) {
+      filteredUrls += inboxUrls
+    }
+
+    guard !filteredUrls.isEmpty else { return }
+
+    self.handleNewFiles(filteredUrls)
   }
 
   func handleNewFiles(_ urls: [URL]) {
@@ -436,7 +447,8 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
   func showMoveOptions(selectedItems: [SimpleLibraryItem]) {
     var availableFolders = [SimpleLibraryItem]()
 
-    if let existingFolders = self.dataManager.fetchFolders(in: self.folder, or: self.library) {
+    if let existingFolders = (self.libraryService.fetchContents(at: self.folderRelativePath, limit: nil, offset: nil)?
+                                .compactMap({ $0 as? Folder })) {
       for folder in existingFolders {
         if selectedItems.contains(where: { $0.relativePath == folder.relativePath }) { continue }
 
@@ -454,7 +466,8 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
   func showMoreOptions(selectedItems: [SimpleLibraryItem]) {
     var availableFolders = [SimpleLibraryItem]()
 
-    if let existingFolders = self.dataManager.fetchFolders(in: self.folder, or: self.library) {
+    if let existingFolders = (self.libraryService.fetchContents(at: self.folderRelativePath, limit: nil, offset: nil)?
+                                .compactMap({ $0 as? Folder })) {
       for folder in existingFolders {
         if selectedItems.contains(where: { $0.relativePath == folder.relativePath }) { continue }
 
@@ -466,58 +479,30 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func handleSort(by option: PlayListSortOrder) {
-    let itemsToSortOptional: NSOrderedSet?
-
-    if let folder = self.folder {
-      itemsToSortOptional = folder.items
-    } else {
-      itemsToSortOptional = self.library.items
-    }
-
-    guard let itemsToSort = itemsToSortOptional,
+    guard let itemsToSort = self.libraryService.fetchContents(at: self.folderRelativePath, limit: nil, offset: nil),
           itemsToSort.count > 0 else { return }
 
-    let sortedItems = BookSortService.sort(itemsToSort, by: option)
+    let sortedItems = BookSortService.sort(NSOrderedSet(array: itemsToSort), by: option)
 
-    if let folder = folder {
-      folder.items = sortedItems
-      folder.rebuildOrderRank()
-    } else {
-      self.library.items = sortedItems
-      self.library.rebuildOrderRank()
-    }
-
-    self.dataManager.saveContext()
+    self.libraryService.replaceOrderedItems(sortedItems, at: self.folderRelativePath)
 
     self.reloadItems()
   }
 
   func handleRename(item: SimpleLibraryItem, with newTitle: String) {
-    guard let libraryItem = self.dataManager.getItem(with: item.relativePath) else {
-      return
-    }
-
-    self.dataManager.renameItem(libraryItem, with: newTitle)
+    self.libraryService.renameItem(at: item.relativePath, with: newTitle)
 
     self.coordinator.reloadItemsWithPadding()
   }
 
   func handleResetPlaybackPosition(for items: [SimpleLibraryItem]) {
-    let selectedItems = items.compactMap({ self.dataManager.getItem(with: $0.relativePath )})
-
-    for item in selectedItems {
-      self.dataManager.jumpToStart(item)
-    }
+    items.forEach({ self.libraryService.jumpToStart(relativePath: $0.relativePath) })
 
     self.coordinator.reloadItemsWithPadding()
   }
 
   func handleMarkAsFinished(for items: [SimpleLibraryItem], flag: Bool) {
-    let selectedItems = items.compactMap({ self.dataManager.getItem(with: $0.relativePath )})
-
-    for item in selectedItems {
-      self.dataManager.mark(item, asFinished: flag)
-    }
+    items.forEach({ self.libraryService.markAsFinished(flag: flag, relativePath: $0.relativePath) })
 
     self.coordinator.reloadItemsWithPadding()
   }
@@ -534,6 +519,19 @@ class FolderListViewModel: BaseViewModel<ItemListCoordinator> {
       if let response = response.response, response.statusCode >= 300 {
         self.coordinator.showAlert("network_error_title".localized, message: "Code \(response.statusCode)")
       }
+    }
+  }
+
+  func importData(from item: ImportableItem) {
+    let filename = item.suggestedName ?? "\(Date().timeIntervalSince1970).\(item.fileExtension)"
+
+    let destinationURL = DataManager.getDocumentsFolderURL()
+      .appendingPathComponent(filename)
+
+    do {
+      try item.data.write(to: destinationURL)
+    } catch {
+      print("Fail to move dropped file to the Documents directory: \(error.localizedDescription)")
     }
   }
 }

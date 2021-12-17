@@ -48,29 +48,12 @@ public class Library: NSManagedObject, Codable {
     }
   }
 
-    public func getItem(with relativePath: String) -> LibraryItem? {
-        guard let items = self.items?.array as? [LibraryItem] else {
-            return nil
-        }
-
-        var itemFound: LibraryItem?
-
-        for item in items {
-            if let libraryItem = item.getItem(with: relativePath) {
-                itemFound = libraryItem
-                break
-            }
-        }
-
-        return itemFound
-    }
-
-  func getPreviousBook(before book: Book) -> Book? {
+  func getPreviousBook(before relativePath: String) -> LibraryItem? {
     guard let items = self.items?.array as? [LibraryItem] else {
       return nil
     }
 
-    guard let indexFound = self.itemIndex(with: book.relativePath) else {
+    guard let indexFound = self.itemIndex(with: relativePath) else {
       return nil
     }
 
@@ -86,17 +69,22 @@ public class Library: NSManagedObject, Codable {
       if let book = item as? Book {
         return book
       } else if let folder = item as? Folder {
-        return folder.getPreviousBook(before: book)
+        switch folder.type {
+        case .regular:
+          return folder.getPreviousBook(before: relativePath)
+        case .bound:
+          return folder
+        }
       }
     }
 
     return nil
   }
 
-  func getNextBook(after book: Book) -> Book? {
+  func getNextBook(after relativePath: String) -> LibraryItem? {
     guard let items = self.items?.array as? [LibraryItem] else { return nil }
 
-    let indexFound = self.itemIndex(with: book.relativePath)
+    let indexFound = self.itemIndex(with: relativePath)
 
     for (index, item) in items.enumerated() {
       if let indexFound = indexFound {
@@ -110,32 +98,17 @@ public class Library: NSManagedObject, Codable {
       if let book = item as? Book {
         return book
       } else if let folder = item as? Folder {
-        return folder.getNextBook(after: book)
+        switch folder.type {
+        case .regular:
+          return folder.getNextBook(after: relativePath)
+        case .bound:
+          return folder
+        }
       }
     }
 
     return nil
   }
-
-    public func getItemsOrderedByDate() -> [LibraryItem] {
-        guard let items = self.items?.array as? [LibraryItem] else {
-            return []
-        }
-
-        var filteredItems = items.compactMap { (item) -> LibraryItem? in
-            guard item.lastPlayDate != nil else { return nil }
-
-            return item
-        }
-
-        if filteredItems.isEmpty,
-            let lastPlayedBook = self.lastPlayedBook {
-            lastPlayedBook.lastPlayDate = Date()
-            filteredItems.append(lastPlayedBook)
-        }
-
-        return filteredItems.sorted { $0.lastPlayDate! > $1.lastPlayDate! }
-    }
 
   public func insert(item: LibraryItem, at index: Int? = nil) {
     if let parent = item.folder {
@@ -175,14 +148,14 @@ public class Library: NSManagedObject, Codable {
   }
 
     enum CodingKeys: String, CodingKey {
-        case items, books, folders, lastPlayedBook, currentTheme
+        case items, books, folders, lastPlayedItem, currentTheme
     }
 
     public func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
 
-      if let book = self.lastPlayedBook {
-        try container.encode(book, forKey: .lastPlayedBook)
+      if let item = self.lastPlayedItem {
+        try container.encode(item, forKey: .lastPlayedItem)
       }
 
       try container.encode(currentTheme, forKey: .currentTheme)
@@ -199,8 +172,8 @@ public class Library: NSManagedObject, Codable {
 
         let values = try decoder.container(keyedBy: CodingKeys.self)
 
-        if let book = try? values.decode(Book.self, forKey: .lastPlayedBook) {
-            self.lastPlayedBook = book
+        if let book = try? values.decode(Book.self, forKey: .lastPlayedItem) {
+            self.lastPlayedItem = book
         }
 
         currentTheme = try? values.decode(Theme.self, forKey: .currentTheme)

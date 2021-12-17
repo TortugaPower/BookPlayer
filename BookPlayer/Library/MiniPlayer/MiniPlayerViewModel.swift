@@ -12,18 +12,18 @@ import UIKit
 import StoreKit
 
 class MiniPlayerViewModel: BaseViewModel<MainCoordinator> {
-  private let playerManager: PlayerManager
+  private let playerManager: PlayerManagerProtocol
 
-  init(playerManager: PlayerManager) {
+  init(playerManager: PlayerManagerProtocol) {
     self.playerManager = playerManager
   }
 
-  func currentBookObserver() -> Published<Book?>.Publisher {
-    return self.playerManager.$currentBook
+  func currentItemObserver() -> Published<PlayableItem?>.Publisher {
+    return self.playerManager.currentItemPublisher()
   }
 
   func isPlayingObserver() -> AnyPublisher<Bool, Never> {
-    return self.playerManager.isPlayingPublisher
+    return self.playerManager.isPlayingPublisher()
   }
 
   func handlePlayPauseAction() {

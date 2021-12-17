@@ -11,13 +11,12 @@
 import XCTest
 
 class FolderTests: XCTestCase {
-  let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
+  var dataManager: DataManager!
 
     override func setUp() {
       super.setUp()
 
-      let library = StubFactory.library(dataManager: self.dataManager)
-      self.dataManager.delete(library)
+      self.dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
       let documentsFolder = DataManager.getDocumentsFolderURL()
       DataTestUtils.clearFolderContents(url: documentsFolder)
       let processedFolder = DataManager.getProcessedFolderURL()
@@ -109,8 +108,8 @@ class FolderTests: XCTestCase {
         folder2.insert(item: folder)
         folder2.insert(item: book3)
 
-        let nextBook = folder.getNextBook(after: book1)
-        let nextBook2 = folder2.getNextBook(after: book2)
+        let nextBook = folder.getNextBook(after: book1.relativePath)
+        let nextBook2 = folder2.getNextBook(after: book2.relativePath)
 
         XCTAssert(nextBook == book2)
         XCTAssert(nextBook2 == book3)

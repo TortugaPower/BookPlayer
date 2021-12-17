@@ -9,11 +9,12 @@
 import WatchConnectivity
 
 public class WatchConnectivityService: NSObject, WCSessionDelegate {
-  public var library: Library!
-  let dataManager: DataManager
+  let libraryService: LibraryServiceProtocol
+  let playbackService: PlaybackServiceProtocol
 
-  public init(dataManager: DataManager) {
-    self.dataManager = dataManager
+  public init(libraryService: LibraryServiceProtocol, playbackService: PlaybackServiceProtocol) {
+    self.libraryService = libraryService
+    self.playbackService = playbackService
   }
 
   private let session: WCSession? = WCSession.isSupported() ? WCSession.default : nil
@@ -57,22 +58,22 @@ public class WatchConnectivityService: NSObject, WCSessionDelegate {
 
   public func sendApplicationContext() {
     guard self.validReachableSession != nil,
-          library != nil else { return }
+          let currentTheme = try? self.libraryService.getLibraryCurrentTheme() else { return }
+    let theme = SimpleTheme(with: currentTheme)
 
-    guard let jsonData = try? JSONEncoder().encode(self.library) else {
-      return
-    }
+    guard let themeData = try? JSONEncoder().encode(theme) else { return }
 
     var recentBooksData: Data?
 
-    if let recentBooks = self.dataManager.getOrderedBooks(limit: 30) {
-      recentBooksData = try? JSONEncoder().encode(recentBooks)
+    if let recentBooks = self.libraryService.getLastPlayedItems(limit: 20) {
+      let items = recentBooks.map({ self.playbackService.getPlayableItem(from: $0) })
+      recentBooksData = try? JSONEncoder().encode(items)
     }
 
     let rewind = UserDefaults.standard.double(forKey: Constants.UserDefaults.rewindInterval.rawValue)
     let forward = UserDefaults.standard.double(forKey: Constants.UserDefaults.forwardInterval.rawValue)
 
-    try? self.updateApplicationContext(applicationContext: ["library": jsonData as AnyObject,
+    try? self.updateApplicationContext(applicationContext: ["currentTheme": themeData as AnyObject,
                                                             "recentBooks": recentBooksData as AnyObject,
                                                             "rewindInterval": rewind as AnyObject,
                                                             "forwardInterval": forward as AnyObject])
@@ -155,7 +156,7 @@ extension WatchConnectivityService {
 extension WatchConnectivityService {
   // Live messaging! App has to be reachable
   public var validReachableSession: WCSession? {
-    if let session = validSession, session.isReachable {
+    if let session = validSession {
       return session
     }
     return nil

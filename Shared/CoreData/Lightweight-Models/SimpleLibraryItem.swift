@@ -108,7 +108,13 @@ extension SimpleLibraryItem {
     self.progress = folder.isFinished ? 1.0 : folder.progressPercentage
     self.themeAccent = themeAccent
     self.relativePath = folder.relativePath
-    self.type = .folder
+
+    switch folder.type {
+    case .regular:
+      self.type = .folder
+    case .bound:
+      self.type = .bound
+    }
     self.playbackState = playbackState
   }
 }

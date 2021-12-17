@@ -223,3 +223,10 @@
 "storage_fix_all_title" = "Fix All";
 "settings_backup_title" = "iCloud Backups";
 "settings_backup_files_title" = "Include book files";
+"bound_books_create_button" = "Combine into Volume";
+"bound_books_undo_alert_title" = "Convert to Folder";
+"bound_books_new_title_placeholder" = "New Book Volume";
+"bound_books_create_alert_description" = "Make sure items are in correct order. To reorder chapters later you need convert the volume back into a folder, reorder items and then re-create the volume.";
+"bound_books_create_alert_title" = "Create a volume";
+"voiceover_bound_books_progress" = "%@, Volume, %d percent Completed";
+"voiceover_no_bound_books_title" = "No Volume Title";

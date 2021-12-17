@@ -116,10 +116,11 @@ public struct AVAudioAssetImageDataProvider: ImageDataProvider {
 
     self.extractDataFrom(url: newURL) { data in
       // If item doesn't have an artwork, try with the next one
-      if data == nil {
+      guard let newData = data else {
         return self.processNextFolderItem(from: enumerator, callback: callback)
       }
 
+      ArtworkService.storeInCache(newData, for: self.cacheKey)
       callback(newURL)
     }
   }

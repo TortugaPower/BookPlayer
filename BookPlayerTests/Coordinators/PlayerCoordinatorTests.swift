@@ -17,13 +17,11 @@ class PlayerCoordinatorTests: XCTestCase {
 
   override func setUp() {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
-
-    let playerManager = PlayerManager(dataManager: dataManager,
-                                      watchConnectivityService: WatchConnectivityService(dataManager: dataManager))
+    let libraryService = LibraryService(dataManager: dataManager)
 
     self.playerCoordinator = PlayerCoordinator(navigationController: UINavigationController(),
-                                               playerManager: playerManager,
-                                               dataManager: dataManager)
+                                               playerManager: PlayerManagerMock(),
+                                               libraryService: libraryService)
     self.playerCoordinator.start()
   }
 

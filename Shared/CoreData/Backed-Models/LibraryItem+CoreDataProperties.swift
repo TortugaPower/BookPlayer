@@ -28,4 +28,22 @@ extension LibraryItem {
     @NSManaged public var originalFileName: String!
     @NSManaged public var identifier: String!
     @NSManaged public var orderRank: Int16
+    @NSManaged public var bookmarks: NSSet?
+    @NSManaged public var lastPlayed: Library?
+}
+
+// MARK: Generated accessors for bookmarks
+
+extension LibraryItem {
+  @objc(addBookmarksObject:)
+  @NSManaged public func addToBookmarks(_ value: Bookmark)
+
+  @objc(removeBookmarksObject:)
+  @NSManaged public func removeFromBookmarks(_ value: Bookmark)
+
+  @objc(addBookmarks:)
+  @NSManaged public func addToBookmarks(_ values: NSSet)
+
+  @objc(removeBookmarks:)
+  @NSManaged public func removeFromBookmarks(_ values: NSSet)
 }

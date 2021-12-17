@@ -181,7 +181,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
         switch type {
         case .began:
           if mainCoordinator.playerManager.isPlaying {
-            mainCoordinator.playerManager.pause()
+            mainCoordinator.playerManager.pause(fade: false)
           }
         case .ended:
             guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else {
@@ -199,7 +199,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
 
   override func accessibilityPerformMagicTap() -> Bool {
     guard let mainCoordinator = self.coordinator.getMainCoordinator(),
-          mainCoordinator.playerManager.currentBook != nil else {
+          mainCoordinator.playerManager.currentItem != nil else {
             UIAccessibility.post(notification: .announcement, argument: "voiceover_no_title".localized)
             return false
           }
@@ -218,9 +218,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
     MPRemoteCommandCenter.shared().bookmarkCommand.isEnabled = false
     MPRemoteCommandCenter.shared().bookmarkCommand.addTarget { _ in
       guard let mainCoordinator = self.coordinator.getMainCoordinator(),
-            let currentBook = mainCoordinator.playerManager.currentBook else { return .commandFailed }
+            let currentBook = mainCoordinator.playerManager.currentItem else { return .commandFailed }
 
-      _ = mainCoordinator.dataManager.createBookmark(at: currentBook.currentTime, book: currentBook, type: .user)
+      _ = mainCoordinator.libraryService.createBookmark(at: currentBook.currentTime,
+                                                        relativePath: currentBook.relativePath,
+                                                        type: .user)
 
       return .success
     }
@@ -248,7 +250,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
     MPRemoteCommandCenter.shared().pauseCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
       guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return .commandFailed }
 
-      mainCoordinator.playerManager.pause()
+      mainCoordinator.playerManager.pause(fade: false)
+      return .success
+    }
+
+    MPRemoteCommandCenter.shared().changePlaybackPositionCommand.isEnabled = true
+    MPRemoteCommandCenter.shared().changePlaybackPositionCommand.addTarget { [weak self] remoteEvent in
+      guard let self = self,
+            let mainCoordinator = self.coordinator.getMainCoordinator(),
+            let currentItem = mainCoordinator.playerManager.currentItem,
+            let event = remoteEvent as? MPChangePlaybackPositionCommandEvent else { return .commandFailed }
+
+      var newTime = event.positionTime
+
+      if UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue),
+         let currentChapter = currentItem.currentChapter {
+        newTime += currentChapter.start
+      }
+
+      mainCoordinator.playerManager.jumpTo(newTime)
+
       return .success
     }
   }
@@ -355,7 +376,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
 extension AppDelegate {
   func playLastBook() {
     guard let mainCoordinator = self.coordinator.getMainCoordinator(),
-          mainCoordinator.playerManager.hasLoadedBook else {
+          mainCoordinator.playerManager.hasLoadedBook() else {
       UserDefaults.standard.set(true, forKey: Constants.UserActivityPlayback)
       return
     }
@@ -365,7 +386,7 @@ extension AppDelegate {
 
   func showPlayer() {
     guard let mainCoordinator = self.coordinator.getMainCoordinator(),
-          mainCoordinator.playerManager.hasLoadedBook else {
+          mainCoordinator.playerManager.hasLoadedBook() else {
       UserDefaults.standard.set(true, forKey: Constants.UserDefaults.showPlayer.rawValue)
       return
     }

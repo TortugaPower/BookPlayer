@@ -17,9 +17,11 @@ class VoiceOverService {
 
         switch type {
         case .book:
-            return self.bookText()
+          return self.bookText()
         case .folder:
-            return self.folderText()
+          return self.regularFolderText()
+        case .bound:
+          return self.boundFolderText()
         }
     }
 
@@ -35,10 +37,15 @@ class VoiceOverService {
         return "\(voiceOverTitle) \(voiceOverSubtitle)"
     }
 
-    fileprivate func folderText() -> String {
-        let voiceOverTitle = self.title ?? "voiceover_no_playlist_title".localized
-        return String.localizedStringWithFormat("voiceover_playlist_progress".localized, voiceOverTitle, self.progressPercent())
-    }
+  fileprivate func regularFolderText() -> String {
+    let voiceOverTitle = self.title ?? "voiceover_no_playlist_title".localized
+    return String.localizedStringWithFormat("voiceover_playlist_progress".localized, voiceOverTitle, self.progressPercent())
+  }
+
+  fileprivate func boundFolderText() -> String {
+      let voiceOverTitle = self.title ?? "voiceover_no_bound_books_title".localized
+      return String.localizedStringWithFormat("voiceover_bound_books_progress".localized, voiceOverTitle, self.progressPercent())
+  }
 
     fileprivate func progressPercent() -> Int {
         guard let progress = progress, !progress.isNaN else {
@@ -49,13 +56,9 @@ class VoiceOverService {
 
     // MARK: PlayerMetaView
 
-    public func playerMetaText(book: Book) -> String {
-      let title: String = book.title != nil
-      ? book.title
-      : "voiceover_unknown_title".localized
-      let author: String = book.author != nil
-      ? book.author
-      : "voiceover_unknown_author".localized
+    public func playerMetaText(item: PlayableItem) -> String {
+      let title: String = item.title
+      let author: String = item.author
 
       return String(describing: String.localizedStringWithFormat("voiceover_book_info".localized, title, author))
     }
