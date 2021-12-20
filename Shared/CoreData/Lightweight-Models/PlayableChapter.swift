@@ -19,6 +19,10 @@ public struct PlayableChapter: Codable {
   public var end: TimeInterval {
     return start + duration
   }
+
+  public var fileURL: URL {
+    return DataManager.getProcessedFolderURL().appendingPathComponent(self.relativePath)
+  }
 }
 
 extension PlayableChapter: Equatable {
