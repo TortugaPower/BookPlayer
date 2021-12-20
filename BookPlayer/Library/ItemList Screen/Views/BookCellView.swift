@@ -94,6 +94,17 @@ class BookCellView: UITableViewCell {
         self.selectionStyle = .none
         let resumeAction = UIAccessibilityCustomAction(name: "voiceover_continue_playback_title".localized, target: self, selector: #selector(self.artworkButtonTapped(_:)))
         accessibilityCustomActions = [resumeAction]
+
+      if let titleDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline).withSymbolicTraits(.traitBold) {
+        self.titleLabel.font = UIFont(descriptor: titleDescriptor, size: 0.0)
+        self.titleLabel.adjustsFontForContentSizeCategory = true
+      }
+
+      let subtitleDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .caption1)
+      self.subtitleLabel.font = UIFont(descriptor: subtitleDescriptor, size: 0.0)
+      self.subtitleLabel.adjustsFontForContentSizeCategory = true
+      self.durationLabel.font = UIFont(descriptor: subtitleDescriptor, size: 0.0)
+      self.durationLabel.adjustsFontForContentSizeCategory = true
     }
 
     override func addSubview(_ view: UIView) {

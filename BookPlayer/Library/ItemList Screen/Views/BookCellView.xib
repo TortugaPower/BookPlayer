@@ -50,7 +50,7 @@ second line</string>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Author" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7zZ-yo-0dC">
                                 <rect key="frame" x="0.0" y="36" width="228" height="18"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="18" id="tx0-oU-6Xs"/>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="18" id="tx0-oU-6Xs"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                 <color key="textColor" red="0.5607843137254902" green="0.55686274509803924" blue="0.58039215686274503" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -59,7 +59,7 @@ second line</string>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="1h 10min" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HoE-lC-x9e">
                                 <rect key="frame" x="0.0" y="54" width="228" height="18"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="18" id="iyY-dm-p0q"/>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="18" id="iyY-dm-p0q"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                 <color key="textColor" red="0.5607843137254902" green="0.55686274509803924" blue="0.58039215686274503" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -131,7 +131,7 @@ second line</string>
         </tableViewCell>
     </objects>
     <resources>
-        <image name="defaultArtwork" width="90" height="90"/>
+        <image name="defaultArtwork" width="325" height="325"/>
         <systemColor name="separatorColor">
             <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.28999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
