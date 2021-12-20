@@ -166,12 +166,21 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     self.currentItem = item
 
     self.playableChapterSubscription?.cancel()
-    self.playableChapterSubscription = item.$currentChapter.sink { chapter in
+    self.playableChapterSubscription = item.$currentChapter.sink { [weak self] chapter in
       guard let chapter = chapter else { return }
 
-      self.setNowPlayingBookTitle()
+      self?.setNowPlayingBookTitle()
       NotificationCenter.default.post(name: .chapterChange, object: nil, userInfo: nil)
-      self.loadChapter(chapter)
+
+      // avoid loading the same item if it's already loaded
+      if let currentItem = self?.currentItem,
+         !currentItem.useChapterTimeContext,
+         let playingURL = (self?.audioPlayer.currentItem?.asset as? AVURLAsset)?.url,
+         currentItem.fileURL == playingURL {
+        return
+      }
+
+      self?.loadChapter(chapter)
     }
   }
 
