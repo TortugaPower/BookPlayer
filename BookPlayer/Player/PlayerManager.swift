@@ -173,10 +173,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       NotificationCenter.default.post(name: .chapterChange, object: nil, userInfo: nil)
 
       // avoid loading the same item if it's already loaded
-      if let currentItem = self?.currentItem,
-         !currentItem.useChapterTimeContext,
-         let playingURL = (self?.audioPlayer.currentItem?.asset as? AVURLAsset)?.url,
-         currentItem.fileURL == playingURL {
+      if let playingURL = (self?.audioPlayer.currentItem?.asset as? AVURLAsset)?.url,
+         chapter.fileURL == playingURL {
         return
       }
 
