@@ -25,7 +25,11 @@ public class Library: NSManagedObject, Codable {
             if let book = item as? Book {
                 return book.relativePath == relativePath
             } else if let folder = item as? Folder {
+              if folder.type == .bound {
+                return folder.relativePath == relativePath
+              } else {
                 return folder.getItem(with: relativePath) != nil
+              }
             }
 
             return false

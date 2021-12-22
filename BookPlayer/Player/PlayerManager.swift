@@ -166,12 +166,19 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     self.currentItem = item
 
     self.playableChapterSubscription?.cancel()
-    self.playableChapterSubscription = item.$currentChapter.sink { chapter in
+    self.playableChapterSubscription = item.$currentChapter.sink { [weak self] chapter in
       guard let chapter = chapter else { return }
 
-      self.setNowPlayingBookTitle()
+      self?.setNowPlayingBookTitle()
       NotificationCenter.default.post(name: .chapterChange, object: nil, userInfo: nil)
-      self.loadChapter(chapter)
+
+      // avoid loading the same item if it's already loaded
+      if let playingURL = (self?.audioPlayer.currentItem?.asset as? AVURLAsset)?.url,
+         chapter.fileURL == playingURL {
+        return
+      }
+
+      self?.loadChapter(chapter)
     }
   }
 
@@ -263,7 +270,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     if Int(currentTime) == Int(currentItem.duration) {
       // Once book a book is finished, ask for a review
       UserDefaults.standard.set(true, forKey: "ask_review")
-      self.markAsCompleted(true)
     }
 
     NotificationCenter.default.post(name: .bookPlaying, object: nil, userInfo: nil)
@@ -620,8 +626,6 @@ extension PlayerManager {
           self.play()
         }
 
-        NotificationCenter.default.post(name: .bookChange, object: nil, userInfo: nil)
-
         subscription?.cancel()
       })
 
@@ -631,6 +635,12 @@ extension PlayerManager {
   @objc
   func playerDidFinishPlaying(_ notification: Notification) {
     guard let currentItem = self.currentItem else { return }
+
+    // Stop book/chapter change if the EOC sleep timer is active
+    if SleepTimer.shared.isEndChapterActive() {
+      NotificationCenter.default.post(name: .bookEnd, object: nil)
+      return
+    }
 
     if currentItem.chapters.last == currentItem.currentChapter {
       self.libraryService.setLibraryLastBook(with: nil)

@@ -72,7 +72,7 @@ final class SleepTimer {
     self.timeLeft = 0
 
     self.subscription?.cancel()
-    NotificationCenter.default.removeObserver(self, name: .bookChange, object: nil)
+    NotificationCenter.default.removeObserver(self, name: .bookEnd, object: nil)
     NotificationCenter.default.removeObserver(self, name: .chapterChange, object: nil)
   }
 
@@ -109,7 +109,7 @@ final class SleepTimer {
     self.alert?.message = "sleep_alert_description".localized
     self.timeLeft = -2.0
     NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .chapterChange, object: nil)
-    NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .bookChange, object: nil)
+    NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .bookEnd, object: nil)
     self.donateTimerIntent(with: .endChapter)
   }
 

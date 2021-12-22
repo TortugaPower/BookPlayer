@@ -28,6 +28,10 @@ public final class PlayableItem: NSObject {
     return self.currentTime / self.duration
   }
 
+  public var fileURL: URL {
+    return DataManager.getProcessedFolderURL().appendingPathComponent(self.relativePath)
+  }
+
   enum CodingKeys: String, CodingKey {
     case title, author, chapters, currentTime, duration, relativePath, percentCompleted, isFinished, useChapterTimeContext
   }
