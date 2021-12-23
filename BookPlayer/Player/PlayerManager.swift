@@ -636,6 +636,10 @@ extension PlayerManager {
   func playerDidFinishPlaying(_ notification: Notification) {
     guard let currentItem = self.currentItem else { return }
 
+    // Clear out smart rewind key from finished item
+    let lastPauseTimeKey = "\(Constants.UserDefaults.lastPauseTime)_\(currentItem.relativePath)"
+    UserDefaults.standard.set(nil, forKey: lastPauseTimeKey)
+
     // Stop book/chapter change if the EOC sleep timer is active
     if SleepTimer.shared.isEndChapterActive() {
       NotificationCenter.default.post(name: .bookEnd, object: nil)
