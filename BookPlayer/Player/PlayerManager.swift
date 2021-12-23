@@ -217,7 +217,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
           switch result {
           case .success(let value):
             image = value.image
-          case .failure(_):
+          case .failure:
             image = ArtworkService.generateDefaultArtwork(from: ThemeManager.shared.currentTheme.linkColor)!
           }
 

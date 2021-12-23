@@ -141,7 +141,7 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
         case .success(let value):
           self.artworkImage.image = value.image
           self.artworkImage.isHidden = false
-        case .failure(_):
+        case .failure:
           self.artworkImage.image = nil
           self.artworkImage.isHidden = true
         }

@@ -373,10 +373,10 @@ public final class LibraryService: LibraryServiceProtocol {
 
     self.dataManager.saveContext()
   }
-  
+
   public func getItemSpeed(at relativePath: String) -> Float {
     guard let item = self.getItem(with: relativePath) else { return 1.0 }
-    
+
     return item.folder?.speed ?? item.speed
   }
 
