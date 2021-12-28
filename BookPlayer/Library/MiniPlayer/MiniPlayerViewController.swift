@@ -51,8 +51,13 @@ class MiniPlayerViewController: BaseViewController<MainCoordinator, MiniPlayerVi
   func setupPlayerView(with currentItem: PlayableItem) {
     self.view.setNeedsLayout()
 
-    self.artwork.kf.setImage(with: ArtworkService.getArtworkProvider(for: currentItem.relativePath),
-                             placeholder: ArtworkService.generateDefaultArtwork(from: themeProvider.currentTheme.linkColor))
+    self.artwork.kf.setImage(
+      with: ArtworkService.getArtworkProvider(for: currentItem.relativePath),
+      placeholder: ArtworkService.generateDefaultArtwork(
+        from: themeProvider.currentTheme.linkColor
+      ),
+      options: [.targetCache(ArtworkService.cache)]
+    )
     self.authorLabel.text = currentItem.author
     self.titleLabel.text = currentItem.title
 

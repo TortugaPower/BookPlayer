@@ -136,6 +136,7 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     self.authorLabel.text = item.author
     self.artworkImage.kf.setImage(
       with: ArtworkService.getArtworkProvider(for: item.relativePath),
+      options: [.targetCache(ArtworkService.cache)],
       completionHandler: { result in
         switch result {
         case .success(let value):
