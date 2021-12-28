@@ -25,7 +25,7 @@ public struct AVAudioAssetImageDataProvider: ImageDataProvider {
   }
 
   public func data(handler: @escaping (Result<Data, Error>) -> Void) {
-    DispatchQueue.global().async {
+    DispatchQueue.global(qos: .background).async {
       var isDirectory: ObjCBool = false
 
       guard FileManager.default.fileExists(atPath: self.fileURL.path, isDirectory: &isDirectory) else {
@@ -92,7 +92,25 @@ public struct AVAudioAssetImageDataProvider: ImageDataProvider {
         return true
       })!
 
-    self.processNextFolderItem(from: enumerator) { url in
+    var files = [URL]()
+    for case let fileURL as URL in enumerator {
+      files.append(fileURL)
+    }
+
+    // sort items to same order as library
+    files.sort { a, b in
+      guard let first = a.getAppOrderRank() else {
+        return false
+      }
+
+      guard let second = b.getAppOrderRank() else {
+        return true
+      }
+
+      return first < second
+    }
+
+    self.processNextFolderItem(from: files) { url in
       guard let url = url else {
         return handler(.failure(AVAudioAssetImageDataProviderError.missingImage))
       }
@@ -101,23 +119,23 @@ public struct AVAudioAssetImageDataProvider: ImageDataProvider {
     }
   }
 
-  private func processNextFolderItem(from enumerator: FileManager.DirectoryEnumerator,
+  private func processNextFolderItem(from urls: [URL],
                                      callback: @escaping (URL?) -> Void) {
-    let url = enumerator.nextObject()
-
-    if url == nil {
+    if urls.isEmpty {
       return callback(nil)
     }
 
-    guard let newURL = url as? URL,
-            !newURL.isDirectoryFolder else {
-      return self.processNextFolderItem(from: enumerator, callback: callback)
+    var mutableUrls = urls
+    let newURL = mutableUrls.removeFirst()
+
+    guard !newURL.isDirectoryFolder else {
+      return self.processNextFolderItem(from: mutableUrls, callback: callback)
     }
 
     self.extractDataFrom(url: newURL) { data in
       // If item doesn't have an artwork, try with the next one
       guard let newData = data else {
-        return self.processNextFolderItem(from: enumerator, callback: callback)
+        return self.processNextFolderItem(from: mutableUrls, callback: callback)
       }
 
       ArtworkService.storeInCache(newData, for: self.cacheKey)

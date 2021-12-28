@@ -315,6 +315,7 @@ public class Folder: LibraryItem {
 
     for (index, item) in items.enumerated() {
       item.orderRank = Int16(index)
+      try? item.fileURL?.setAppOrderRank(index)
     }
   }
 
