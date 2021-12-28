@@ -582,7 +582,12 @@ public final class LibraryService: LibraryServiceProtocol {
       files.append(fileURL)
     }
 
-    _ = self.insertItems(from: files, into: folder, library: library, processedItems: [])
+    let sortDescriptor = NSSortDescriptor(key: "path", ascending: true, selector: #selector(NSString.localizedStandardCompare(_:)))
+    let orderedSet = NSOrderedSet(array: files)
+    // swiftlint:disable force_cast
+    let sortedFiles = orderedSet.sortedArray(using: [sortDescriptor]) as! [URL]
+
+    _ = self.insertItems(from: sortedFiles, into: folder, library: library, processedItems: [])
   }
 
   public func moveItems(_ items: [LibraryItem], inside relativePath: String?, moveFiles: Bool) throws {
