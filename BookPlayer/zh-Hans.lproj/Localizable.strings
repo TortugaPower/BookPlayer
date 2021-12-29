@@ -6,11 +6,8 @@
   Copyright © 2019 Tortuga Power. All rights reserved.
 */
 
-/* Title that is shown as the navigation bar title */
 "library_title" = "有声书库";
-/* Title for the settings button */
 "settings_button" = "设置";
-/* Title that is shown as the navigation bar title */
 "settings_title" = "设置";
 "settings_autoplay_title" = "自动播放有声书库";
 "settings_autoplay_description" = "继续播放有声书库中所有尚未完成的项目，包括播放列表中的文件。";
@@ -65,11 +62,8 @@
 "cancel_button" = "取消";
 "seconds_title" = "秒";
 "ok_button" = "确定";
-/* Message shown when trying to create a Siri Shortcut on devices that don't have iOS 12+ installed */
 "siri_alert_description" = "Siri快捷方式在iOS 12及更高版本上可用";
-/* Title used in the context of our tip jar to support development */
 "support_bookplayer_title" = "支持我们";
-/* Description used in the context of our tip jar to support development */
 "support_bookplayer_description" = "获取BookPlayer Plus，以支持未来的开发并获取其他主题和应用程序图标";
 "learn_more_title" = "了解更多";
 "settings_appearance_title" = "外观";
@@ -83,7 +77,6 @@
 "theme_switch_title" = "自动切换";
 "theme_dark_title" = "始终使用深色元素";
 "themes_title" = "主题";
-/* This should be &ldquo;By your friends at BookPlayer&rdquo; in English.&nbsp; */
 "icons_bookplayer_credit_description" = "Bookplayer团队创建";
 "kind_tip_title" = "小小赞助";
 "excellent_tip_title" = "一般赞助";
@@ -111,20 +104,15 @@
 "player_speed_title" = "设置播放速度";
 "player_sleep_title" = "暂停播放";
 "sleep_chapter_option_title" = "当前章节的结尾";
-/* This is used for the label underneath the progress bar (e.g. Chapter 1 of 35) */
 "player_chapter_description" = "第%d章之%d";
 "chapters_title" = "章节";
-/* This is used as a description for each chapter in the chapters list (e.g. Start: 10:11 - Duration: 16:56) */
 "chapters_item_description" = "开始： %@  - 时长： %@";
-/* Restore purchases */
 "restore_title" = "恢复";
 "themes_caps_title" = "主题";
 "plus_app_icons_title" = "应用图标";
-/* This is the counterpart to Mark as Finished */
 "mark_unfinished_title" = "标记为未完成";
 "move_playlist_button" = "移至播放列表";
 "move_single_item_title" = "是否要将\"%@\"移动到\"%@\"？";
-/* This is shown if while being inside a playlist, a batch of imported files are finished processing, and it will be one of the options in the alert presented */
 "current_playlist_title" = "当前播放列表";
 "select_item_title" = "选择项";
 "sleep_alert_description" = "本章结束时停止";
@@ -137,7 +125,6 @@
 "chapter_time_remaining_title" = "剩余章节时间：";
 "book_time_remaining_title" = "有声书剩余时间： ";
 "book_duration_title" = "有声书持续时间： ";
-/* Может правильнее будет: &quot;Не удалось сменить иконку&quot;? */
 "icon_error_description" = "更改应用图标未成功。请稍后重试";
 "error_title" = "错误";
 "generic_retry_description" = "请稍后再试";
@@ -149,18 +136,14 @@
 "pause_title" = "暂停";
 "voiceover_no_title" = "未知标题";
 "voiceover_no_author" = "未知作者";
-/* &lt;Book title&gt; by &lt;Book author&gt; &lt;percentage in numbers&gt;% Completed */
 "voiceover_book_progress" = "%@之%@ %d已完成";
 "voiceover_no_file_title" = "没有文件标题";
 "voiceover_no_file_subtitle" = "没有文件副标题";
 "voiceover_no_playlist_title" = "无播放列表标题";
-/* &lt;Playlist title&gt; Playlist &lt;percentage in number&gt;% Completed */
 "voiceover_playlist_progress" = "%@播放列表%d已完成";
 "voiceover_unknown_title" = "未知标题";
 "voiceover_unknown_author" = "未知作者";
-/* &lt;book title&gt; by &lt;book author&gt; */
 "voiceover_book_info" = "%@之%@";
-/* &lt;book title&gt; by &lt;book author&gt;, chapter &lt;chapter title&gt; */
 "voiceover_book_chapter" = "%@之%@，第%@章";
 "voiceover_rewind_time" = "倒带%@";
 "voiceover_forward_time" = "快进%@";
@@ -182,48 +165,46 @@
 "progress_title" = "进展";
 "settings_siri_sleeptimer_title" = "睡眠定时";
 "active_title" = "活性";
-"voiceover_currently_playing_title" = "Currently playing %@ by %@";
-"voiceover_miniplayer_hint" = "Miniplayer. Tap to show the Player";
-"voiceover_chapter_time_title" = "Current Chapter Time: %@";
-"voiceover_dismiss_player_title" = "Dismiss Player";
-/* Sort items by most recent playback */
-"sort_most_recent_button" = "Most Recent";
-/* One of the sort options, this one reverts the current order of selected items */
-"sort_reversed_button" = "Reverse Order";
-"coredata_error_diskfull_description" = "The library couldn't be loaded, the device is out of disk space.";
-"coredata_error_migration_description" = "A migration of the database failed, the library will have to be reinitialized.";
-"import_warning_description" = "Transfering files may take a while, please make sure the number of files is complete before proceeding.";
+"voiceover_currently_playing_title" = "目前正在播放 %@ 的作品";
+"voiceover_miniplayer_hint" = "迷你播放器。点击以显示播放器";
+"voiceover_chapter_time_title" = "当前章节时间： %@";
+"voiceover_dismiss_player_title" = "关闭播放器";
+"sort_most_recent_button" = "最近的";
+"sort_reversed_button" = "倒序";
+"voiceover_continue_playback_title" = "继续播放";
+"coredata_error_diskfull_description" = "无法加载库，设备磁盘空间不足。";
+"coredata_error_migration_description" = "数据库迁移失败，必须重新初始化库。";
+"import_warning_description" = "传输文件可能需要一段时间，请确保文件数量完整，然后再继续。";
 "files_caps_title" = "文件";
-"settings_storage_description" = "Manage your files";
-"storage_total_title" = "Total space used";
-"settings_storage_title" = "Storage Management";
-"storage_fix_file_button" = "Fix";
-"storage_fix_file_description" = "The book item is missing, if the corresponding item cannot be found, a new one will be created";
-"bookmarks_title" = "Bookmarks";
-"bookmark_created_title" = "Your bookmark has been saved at %@";
-"bookmark_exists_title" = "You have already created a bookmark at %@";
-"bookmark_note_action_title" = "Add note";
-"bookmarks_see_title" = "See bookmarks";
-"bookmark_type_automatic_title" = "Automatic";
-"bookmark_type_user_title" = "Manual";
-"bookmark_automatic_play_title" = "Last position before playback started";
-"bookmark_automatic_skip_title" = "Last position before time skip";
-"bookmark_note_edit_title" = "Edit note";
-"bookmark_create_title" = "Create Bookmark";
-"storage_duplicate_item_title" = "Duplicate";
-"storage_duplicate_item_description" = "The selected file was a duplicate, the existing file is located at: %@";
-"chapters_previous_title" = "Previous Chapter";
-"chapters_next_title" = "Next Chapter";
-"book_time_current_title" = "Current Book Time: %@";
-"voiceover_continue_playback_title" = "Continue Playback";
-"storage_fix_files_description" = "The link between the files and the digital book items are missing, if the corresponding item cannot be found for each file, a new one will be created";
-"storage_fix_all_title" = "Fix All";
-"settings_backup_title" = "iCloud Backups";
-"settings_backup_files_title" = "Include book files";
-"bound_books_create_button" = "Combine into Volume";
-"bound_books_undo_alert_title" = "Convert to Folder";
-"bound_books_new_title_placeholder" = "New Book Volume";
-"bound_books_create_alert_description" = "Make sure items are in correct order. To reorder chapters later you need convert the volume back into a folder, reorder items and then re-create the volume.";
-"bound_books_create_alert_title" = "Create a volume";
-"voiceover_bound_books_progress" = "%@, Volume, %d percent Completed";
-"voiceover_no_bound_books_title" = "No Volume Title";
+"settings_storage_description" = "管理有声书文件";
+"storage_total_title" = "总使用空间";
+"settings_storage_title" = "存储空间管理";
+"storage_fix_file_button" = "修复";
+"storage_fix_file_description" = "有声书项目丢失，如果找不到相应项目，将创建一个新项目";
+"bookmarks_title" = "书签";
+"bookmark_created_title" = "书签已保存在%@";
+"bookmark_exists_title" = "已经在%@创建了一个书签。";
+"bookmark_note_action_title" = "添加注释";
+"bookmarks_see_title" = "查看书签";
+"bookmark_type_automatic_title" = "自动";
+"bookmark_type_user_title" = "手动";
+"bookmark_automatic_play_title" = "播放开始前的最后位置";
+"bookmark_automatic_skip_title" = "时间跳过前的最后位置";
+"bookmark_note_edit_title" = "编辑注释";
+"bookmark_create_title" = "创建书签";
+"storage_duplicate_item_title" = "重复";
+"storage_duplicate_item_description" = "选择的有声书文件是重复的，现有的文件位于：%@";
+"chapters_previous_title" = "上一章";
+"chapters_next_title" = "下一章";
+"book_time_current_title" = "当前有声书时间：%@";
+"storage_fix_files_description" = "文件和有声书项目之间的链接丢失，如果每个文件都找不到对应的项目，将创建一个新的";
+"storage_fix_all_title" = "全部修复";
+"settings_backup_title" = "iCloud 备份";
+"settings_backup_files_title" = "包含有声书文件";
+"bound_books_create_button" = "合并成卷";
+"bound_books_undo_alert_title" = "转换为文件夹";
+"bound_books_new_title_placeholder" = "新的书卷";
+"bound_books_create_alert_description" = "确保有声书文件的顺序正确。如果以后要重新安排章节的顺序，你需要把书卷转换回文件夹，重新安排文件顺序，然后重新创建书卷。";
+"bound_books_create_alert_title" = "创建一个卷";
+"voiceover_bound_books_progress" = "%@卷%d已完成";
+"voiceover_no_bound_books_title" = "没有书卷名";

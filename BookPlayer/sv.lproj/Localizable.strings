@@ -201,10 +201,10 @@
 "storage_fix_all_title" = "Reparera alla";
 "settings_backup_title" = "iCloud-säkerhetskopior";
 "settings_backup_files_title" = "Inkludera bokfiler";
-"bound_books_create_button" = "Combine into Volume";
-"bound_books_undo_alert_title" = "Convert to Folder";
-"bound_books_new_title_placeholder" = "New Book Volume";
-"bound_books_create_alert_description" = "Make sure items are in correct order. To reorder chapters later you need convert the volume back into a folder, reorder items and then re-create the volume.";
-"bound_books_create_alert_title" = "Create a volume";
-"voiceover_bound_books_progress" = "%@, Volume, %d percent Completed";
-"voiceover_no_bound_books_title" = "No Volume Title";
+"bound_books_create_button" = "Kombinera till boksamling";
+"bound_books_undo_alert_title" = "Konvertera till mapp";
+"bound_books_new_title_placeholder" = "Ny boksamling";
+"bound_books_create_alert_description" = "Se till att delarna är i rätt ordning. För att ändra kapitelordning senare måste du konvertera samlingen tillbaka till en mapp, ändra ordning på delarna och sedan återskapa samlingen.";
+"bound_books_create_alert_title" = "Skapa en boksamling";
+"voiceover_bound_books_progress" = "%@, boksamling, %d procent läst";
+"voiceover_no_bound_books_title" = "Ingen volymtitel";
