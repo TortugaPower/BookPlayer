@@ -300,23 +300,16 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
 
     UserDefaults.standard.set(false, forKey: "ask_review")
   }
-
-  func getSpeedActionSheet() -> UIAlertController {
-    let actionSheet = UIAlertController(title: nil, message: "player_speed_title".localized, preferredStyle: .actionSheet)
-
-    for speed in self.playerManager.getSpeedOptions() {
-      if speed ==  self.playerManager.getCurrentSpeed() {
-        actionSheet.addAction(UIAlertAction(title: "\u{00A0} \(speed) ✓", style: .default, handler: nil))
-      } else {
-        actionSheet.addAction(UIAlertAction(title: "\(speed)", style: .default, handler: { _ in
-          self.playerManager.setSpeed(speed, relativePath: self.playerManager.currentItem?.relativePath)
-        }))
-      }
-    }
-
-    actionSheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
-
-    return actionSheet
+    
+func getSpeedActionSheet() -> SpeedPopUpController {
+    
+    let modalViewController = SpeedPopUpController(
+        title: "player_speed_title".localized,
+        playerManager: self.playerManager,
+        relativePath: self.playerManager.currentItem?.relativePath ?? "",
+        libraryService: self.libraryService
+    )
+    return modalViewController
   }
 
   func showChapters() {

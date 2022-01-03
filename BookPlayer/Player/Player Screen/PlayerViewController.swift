@@ -396,7 +396,7 @@ extension PlayerViewController {
   @IBAction func createBookmark(_ sender: UIBarButtonItem) {
     self.viewModel.createBookmark(vc: self)
   }
-
+    
   @IBAction func setSpeed() {
     let actionSheet = self.viewModel.getSpeedActionSheet()
     self.present(actionSheet, animated: true, completion: nil)
