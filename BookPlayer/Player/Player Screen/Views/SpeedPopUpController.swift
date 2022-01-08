@@ -12,13 +12,15 @@ import Combine
 import Foundation
 
 class SpeedPopUpController: UIViewController {
-    public private(set) var currentSpeed = CurrentValueSubject<Float, Never>(1.0)
-    @IBOutlet var bar: ProgressSlider!
+    @IBOutlet var stepper: UIStepper!
+    @IBOutlet var background: UIView!
+    @IBOutlet var dafaultButton: UIButton!
     @IBOutlet var label: UILabel!
     
     var minimumValue = 0.1
     var maximumvalue = 5.0
     var step = 0.05
+    var deff: Double = 1.0
     
     private var playerManager: PlayerManagerProtocol!
     private var relativePath: String!
@@ -37,62 +39,56 @@ class SpeedPopUpController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        let speed: Float
+        let speed: Double
         
         if UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue) {
-          speed = UserDefaults.standard.float(forKey: "global_speed")
+            speed = Double(UserDefaults.standard.float(forKey: "global_speed"))
         } else if let relativePath = relativePath {
-            speed = self.libraryService.getItemSpeed(at: relativePath)
+            speed = Double(self.libraryService.getItemSpeed(at: relativePath))
         } else {
-          speed = self.currentSpeed.value
+            speed = self.deff
         }
         
-        self.currentSpeed.value = speed > 0 ? speed : 1.0
-        self.bar.minimumValue = Float(self.minimumValue)
-        self.bar.maximumValue = Float(self.maximumvalue)
-        self.bar.value = speed
-        self.label.text = String(describing: speed)
+        self.stepper.minimumValue = self.minimumValue
+        self.stepper.maximumValue = self.maximumvalue
+        self.stepper.stepValue = step
+        self.stepper.value = Double(String(format: "%.2f", speed))!
+        
+        self.background.layer.shadowOffset = CGSize(width: 0.0, height: 3.0)
+        self.background.layer.shadowOpacity = 0.18
+        self.background.layer.shadowRadius = 9.0
+        self.background.clipsToBounds = false
+        
+        
+        self.updateUi(value: Double(String(format: "%.2f", speed))!);
     }
     
-    private func changeUi(value: Float) {
-        let val_str = String(format: "%.2f", Float(value))
-        var val = Float(val_str) ?? 1.0
-        if val > Float(self.maximumvalue) {
-            val = Float(self.maximumvalue)
+    private func updateUi(value: Double) {
+        var val = value;
+        if val > self.maximumvalue {
+            val = self.maximumvalue
         }
-        if val > Float(self.maximumvalue) {
-            val = Float(self.maximumvalue)
+        if val > self.maximumvalue {
+            val = self.maximumvalue
         }
         
-        self.bar.value = val
-        self.currentSpeed.value = val
-        self.label.text = String(describing: val)
+        self.label.text = self.formatSpeed(Float(val));
+        self.label.accessibilityLabel = String(describing: self.formatSpeed(Float(val)) + " \("speed_title".localized)")
+        self.label.textColor = val.isEqual(to: deff) ? UIColor(red: 0.0, green: 0.0, blue: 0, alpha: 1.0) : UIColor(red: 71/255, green: 122/255, blue: 196/255, alpha: 1.0)
+        self.dafaultButton.isHidden = val.isEqual(to: deff);
     }
     
-    @IBAction func incSpeed(_ sender: Any) {
-        self.changeUi(value: self.currentSpeed.value + Float(self.step))
-        self.playerManager.setSpeed(self.currentSpeed.value, relativePath: relativePath)
-    }
-    
-    @IBAction func decSpeed(_ sender: Any) {
-        self.changeUi(value: self.currentSpeed.value - Float(self.step))
-        self.playerManager.setSpeed(self.currentSpeed.value, relativePath: relativePath)
-    }
-    
-    @IBAction func changeSpeed(_ sender: Any) {
-        self.changeUi(value: Float(String(format: "%.1f", self.bar.value))!)
-        self.playerManager.setSpeed(self.currentSpeed.value, relativePath: relativePath)
-    }
-    
-    @IBAction func onSave(_ sender: Any) {
-        self.libraryService.updateBookSpeed(at: relativePath, speed: self.currentSpeed.value)
-        self.playerManager.setSpeed(self.currentSpeed.value, relativePath: relativePath)
+    @IBAction func stepperClick(_ sender: Any) {
+        let val = Double(String(format: "%.2f", self.stepper.value))!;
+        self.updateUi(value: val)
+        self.playerManager.setSpeed(Float(val), relativePath: relativePath)
+        self.libraryService.updateBookSpeed(at: relativePath, speed: Float(val))
+        self.playerManager.setSpeed(Float(val), relativePath: relativePath)
         
         // set global speed
         if UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue) {
-            UserDefaults.standard.set(self.currentSpeed.value, forKey: "global_speed")
+            UserDefaults.standard.set(val, forKey: "global_speed")
         }
-        dismiss(animated: true, completion: nil)
     }
     
     @IBAction func onClose(_ sender: Any) {
@@ -100,6 +96,7 @@ class SpeedPopUpController: UIViewController {
     }
     
     @IBAction func onDefault(_ sender: Any) {
+        self.updateUi(value: 1.0)
         self.libraryService.updateBookSpeed(at: relativePath, speed: 1.0)
         self.playerManager.setSpeed(1.0, relativePath: relativePath)
         
