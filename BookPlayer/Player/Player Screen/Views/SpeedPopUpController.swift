@@ -24,30 +24,20 @@ class SpeedPopUpController: UIViewController {
     
     private var playerManager: PlayerManagerProtocol!
     private var relativePath: String!
-    private var libraryService: LibraryServiceProtocol!
     
     required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
     
-    public init(title: String?, playerManager: PlayerManagerProtocol, relativePath: String, libraryService: LibraryServiceProtocol) {
+    public init(title: String?, playerManager: PlayerManagerProtocol, relativePath: String) {
         super.init(nibName: nil, bundle: nil)
         self.playerManager = playerManager
         self.relativePath = relativePath
-        self.libraryService = libraryService
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        let speed: Double
-        
-        if UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue) {
-            speed = Double(UserDefaults.standard.float(forKey: "global_speed"))
-        } else if let relativePath = relativePath {
-            speed = Double(self.libraryService.getItemSpeed(at: relativePath))
-        } else {
-            speed = self.deff
-        }
+        let speed: Double = Double(self.playerManager.getCurrentSpeed())
         
         self.stepper.minimumValue = self.minimumValue
         self.stepper.maximumValue = self.maximumvalue
@@ -58,7 +48,6 @@ class SpeedPopUpController: UIViewController {
         self.background.layer.shadowOpacity = 0.18
         self.background.layer.shadowRadius = 9.0
         self.background.clipsToBounds = false
-        
         
         self.updateUi(value: Double(String(format: "%.2f", speed))!);
     }
@@ -82,13 +71,6 @@ class SpeedPopUpController: UIViewController {
         let val = Double(String(format: "%.2f", self.stepper.value))!;
         self.updateUi(value: val)
         self.playerManager.setSpeed(Float(val), relativePath: relativePath)
-        self.libraryService.updateBookSpeed(at: relativePath, speed: Float(val))
-        self.playerManager.setSpeed(Float(val), relativePath: relativePath)
-        
-        // set global speed
-        if UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue) {
-            UserDefaults.standard.set(val, forKey: "global_speed")
-        }
     }
     
     @IBAction func onClose(_ sender: Any) {
@@ -97,13 +79,7 @@ class SpeedPopUpController: UIViewController {
     
     @IBAction func onDefault(_ sender: Any) {
         self.updateUi(value: 1.0)
-        self.libraryService.updateBookSpeed(at: relativePath, speed: 1.0)
         self.playerManager.setSpeed(1.0, relativePath: relativePath)
-        
-        // set global speed
-        if UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue) {
-            UserDefaults.standard.set(1.0, forKey: "global_speed")
-        }
         
         dismiss(animated: true, completion: nil)
     }

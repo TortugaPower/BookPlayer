@@ -306,8 +306,7 @@ func getSpeedActionSheet() -> SpeedPopUpController {
     let modalViewController = SpeedPopUpController(
         title: "player_speed_title".localized,
         playerManager: self.playerManager,
-        relativePath: self.playerManager.currentItem?.relativePath ?? "",
-        libraryService: self.libraryService
+        relativePath: self.playerManager.currentItem?.relativePath ?? ""
     )
     return modalViewController
   }
