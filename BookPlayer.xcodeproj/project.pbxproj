@@ -358,6 +358,9 @@
 		C3FA301E20E0024900393DDA /* BPArtworkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FA301D20E0024900393DDA /* BPArtworkView.swift */; };
 		C3FE3F8220A090880055B9C6 /* limitPanAngle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FE3F8120A090880055B9C6 /* limitPanAngle.swift */; };
 		C3FE94792080086800BCEA37 /* BookCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FE94782080086800BCEA37 /* BookCellView.swift */; };
+		E9F4CFF6278AADD1003DBC4C /* SpeedCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9F4CFF5278AADD1003DBC4C /* SpeedCoordinator.swift */; };
+		E9F4CFF9278AAE7D003DBC4C /* SpeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9F4CFF7278AAE7D003DBC4C /* SpeedViewController.swift */; };
+		E9F4CFFC278AF9FC003DBC4C /* SpeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9F4CFFB278AF9FC003DBC4C /* SpeedViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -843,6 +846,9 @@
 		C3FE3F8120A090880055B9C6 /* limitPanAngle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = limitPanAngle.swift; sourceTree = "<group>"; };
 		C3FE94782080086800BCEA37 /* BookCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookCellView.swift; sourceTree = "<group>"; };
 		D367F7671FA2A6F000FEDB37 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		E9F4CFF5278AADD1003DBC4C /* SpeedCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpeedCoordinator.swift; sourceTree = "<group>"; };
+		E9F4CFF7278AAE7D003DBC4C /* SpeedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpeedViewController.swift; sourceTree = "<group>"; };
+		E9F4CFFB278AF9FC003DBC4C /* SpeedViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -941,6 +947,8 @@
 		410D00FB26DDD24300D11A45 /* Player Screen */ = {
 			isa = PBXGroup;
 			children = (
+				E9F4CFFB278AF9FC003DBC4C /* SpeedViewModel.swift */,
+				E9F4CFF7278AAE7D003DBC4C /* SpeedViewController.swift */,
 				41E79BE826C60BF600EA9FFF /* PlayerViewController.swift */,
 				41E79BEA26C60DC600EA9FFF /* PlayerViewModel.swift */,
 				410D00FD26DDD2A900D11A45 /* ProgressObject.swift */,
@@ -1078,6 +1086,7 @@
 				4158386D26EAF76700F4A12B /* FolderListCoordinator.swift */,
 				4158388426EBEE9800F4A12B /* PlayerCoordinator.swift */,
 				4158388A26EC2CC500F4A12B /* ImportCoordinator.swift */,
+				E9F4CFF5278AADD1003DBC4C /* SpeedCoordinator.swift */,
 				41188D1F26ECDDD50017124E /* BookmarkCoordinator.swift */,
 				41188D2126ECFE450017124E /* ChapterCoordinator.swift */,
 				41A6AFA926FB666700A69E6B /* SettingsCoordinator.swift */,
@@ -2299,6 +2308,7 @@
 				4124122626D1640000B099DB /* StorageTableViewCell.swift in Sources */,
 				41B68FFF2705477D00F657C3 /* StorageCoordinator.swift in Sources */,
 				4138CE1926E5B3FB0014F11E /* BookmarksViewController.swift in Sources */,
+				E9F4CFFC278AF9FC003DBC4C /* SpeedViewModel.swift in Sources */,
 				41670131255B4A2C0054164F /* Sequence+BookPlayer.swift in Sources */,
 				C3FA301E20E0024900393DDA /* BPArtworkView.swift in Sources */,
 				41E79BE926C60BF600EA9FFF /* PlayerViewController.swift in Sources */,
@@ -2351,6 +2361,7 @@
 				4158386926EAF4A300F4A12B /* ItemListCoordinator.swift in Sources */,
 				415758EA2226E18800DDB9B6 /* PlusBannerView.swift in Sources */,
 				418CABB125EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
+				E9F4CFF6278AADD1003DBC4C /* SpeedCoordinator.swift in Sources */,
 				410D00FA26DDCE6C00D11A45 /* ChaptersViewModel.swift in Sources */,
 				41640A3724416EE8004FB97B /* Intents.intentdefinition in Sources */,
 				41AD3DA1221C7CAB00DC41E1 /* Icon.swift in Sources */,
@@ -2359,6 +2370,7 @@
 				41E79BED26C61D2B00EA9FFF /* PlayPauseIconView.swift in Sources */,
 				4193E2002439A1CD004D6A82 /* NetworkService.swift in Sources */,
 				4158386E26EAF76700F4A12B /* FolderListCoordinator.swift in Sources */,
+				E9F4CFF9278AAE7D003DBC4C /* SpeedViewController.swift in Sources */,
 				C3FE94792080086800BCEA37 /* BookCellView.swift in Sources */,
 				41AD3DA7221C850F00DC41E1 /* IconCellView.swift in Sources */,
 				4158388326EBD76A00F4A12B /* LibraryListCoordinator.swift in Sources */,

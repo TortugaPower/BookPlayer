@@ -51,4 +51,14 @@ class PlayerCoordinator: Coordinator {
     self.childCoordinators.append(chaptersCoordinator)
     chaptersCoordinator.start()
   }
+    
+  func showSpeed() {
+    let speedCoordinator = SpeedCoordinator(libraryService: self.libraryService,
+                                              playerManager: self.playerManager,
+                                              navigationController: self.navigationController)
+    speedCoordinator.parentCoordinator = self
+    speedCoordinator.presentingViewController = self.presentingViewController
+    self.childCoordinators.append(speedCoordinator)
+    speedCoordinator.start()
+  }
 }

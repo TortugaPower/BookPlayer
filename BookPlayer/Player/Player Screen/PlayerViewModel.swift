@@ -300,19 +300,13 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
 
     UserDefaults.standard.set(false, forKey: "ask_review")
   }
-    
-func getSpeedActionSheet() -> SpeedPopUpController {
-    
-    let modalViewController = SpeedPopUpController(
-        title: "player_speed_title".localized,
-        playerManager: self.playerManager,
-        relativePath: self.playerManager.currentItem?.relativePath ?? ""
-    )
-    return modalViewController
-  }
-
+  
   func showChapters() {
     self.coordinator.showChapters()
+  }
+    
+  func showSpeed() {
+    self.coordinator.showSpeed()
   }
 }
 
