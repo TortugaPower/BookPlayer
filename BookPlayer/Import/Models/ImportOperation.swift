@@ -210,10 +210,19 @@ public class ImportOperation: Operation {
       return
     }
 
+    // Add support for iCloud documents
+    let accessGranted = currentFile.startAccessingSecurityScopedResource()
+
     let destinationURL = self.getNextAvailableURL(for: currentFile)
 
     do {
-      try FileManager.default.moveItem(at: currentFile, to: destinationURL)
+      if accessGranted {
+        try FileManager.default.copyItem(at: currentFile, to: destinationURL)
+        currentFile.stopAccessingSecurityScopedResource()
+      } else {
+        try FileManager.default.moveItem(at: currentFile, to: destinationURL)
+      }
+
       destinationURL.disableFileProtection()
     } catch {
       fatalError("Fail to move file from \(currentFile) to \(destinationURL)")

@@ -155,7 +155,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
           index: Int16(index + 1)
         )
 
-        currentDuration += book.duration
+        currentDuration += book.duration + 0.01 // possible fix for chapter threshold
         return chapter
       })
   }
