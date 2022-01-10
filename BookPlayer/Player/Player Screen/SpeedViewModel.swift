@@ -11,12 +11,9 @@ import Combine
 
 class SpeedViewModel: BaseViewModel<SpeedCoordinator> {
   private let playerManager: PlayerManagerProtocol
-  private let libraryService: LibraryServiceProtocol
     
-  init(playerManager: PlayerManagerProtocol,
-       libraryService: LibraryServiceProtocol) {
+  init(playerManager: PlayerManagerProtocol) {
     self.playerManager = playerManager
-    self.libraryService = libraryService
   }
     
     

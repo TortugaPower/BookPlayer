@@ -24,7 +24,7 @@ class SpeedCoordinator: Coordinator {
 
   override func start() {
       let vc = SpeedViewController.instantiate(from: .Player)
-      let viewModel = SpeedViewModel(playerManager: self.playerManager, libraryService: self.libraryService)
+      let viewModel = SpeedViewModel(playerManager: self.playerManager)
       viewModel.coordinator = self
       vc.viewModel = viewModel
       
