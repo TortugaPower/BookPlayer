@@ -6,11 +6,8 @@
   Copyright © 2019 Tortuga Power. All rights reserved.
 */
 
-/* Title that is shown as the navigation bar title */
 "library_title" = "Bibliothek";
-/* Title for the settings button */
 "settings_button" = "Einstellungen";
-/* Title that is shown as the navigation bar title */
 "settings_title" = "Einstellungen";
 "settings_autoplay_title" = "Bibliothek automatisch abspielen";
 "settings_autoplay_description" = "Wiedergabe aller noch nicht gehörten Dateien in der Bibliothek, einschließlich Dateien in Wiedergabelisten.";
@@ -65,11 +62,8 @@
 "cancel_button" = "Abbrechen";
 "seconds_title" = "s";
 "ok_button" = "OK";
-/* Message shown when trying to create a Siri Shortcut on devices that don't have iOS 12+ installed */
 "siri_alert_description" = "Siri Kurzbefehle sind erst ab iOS 12 verfügbar.";
-/* Title used in the context of our tip jar to support development */
 "support_bookplayer_title" = "BookPlayer unterstützen";
-/* Description used in the context of our tip jar to support development */
 "support_bookplayer_description" = "Hol dir BookPlayer Plus, um die Entwicklung und Verbesserung dieser App zu unterstützen und Designs und App Icons freizuschalten.";
 "learn_more_title" = "Mehr erfahren";
 "settings_appearance_title" = "Erscheinungsbild";
@@ -83,7 +77,6 @@
 "theme_switch_title" = "Automatisch wechseln";
 "theme_dark_title" = "Immer dunkles Erscheinungsbild verwenden";
 "themes_title" = "Designs";
-/* This should be &ldquo;By your friends at BookPlayer&rdquo; in English.&nbsp; */
 "icons_bookplayer_credit_description" = "Von deinen Freunden bei BookPlayer";
 "kind_tip_title" = "Kleine Spende";
 "excellent_tip_title" = "Große Spende";
@@ -112,20 +105,15 @@
 "player_speed_title" = "Wiedergabegeschwindigkeit";
 "player_sleep_title" = "Wiedergabe anhalten";
 "sleep_chapter_option_title" = "Am Ende des aktuellen Kapitels";
-/* This is used for the label underneath the progress bar (e.g. Chapter 1 of 35) */
 "player_chapter_description" = "Kapitel %d von %d";
 "chapters_title" = "Kapitel";
-/* This is used as a description for each chapter in the chapters list (e.g. Start: 10:11 - Duration: 16:56) */
 "chapters_item_description" = "Beginn: %@ – Dauer: %@";
-/* Restore purchases */
 "restore_title" = "Wiederherstellen";
 "themes_caps_title" = "DESIGNS";
 "plus_app_icons_title" = "App Icons";
-/* This is the counterpart to Mark as Finished */
 "mark_unfinished_title" = "Als ungelesen markieren";
 "move_playlist_button" = "In Wiedergabeliste verschieben";
 "move_single_item_title" = "Soll „%@“ in die Wiedergabeliste „%@“ verschoben werden?";
-/* This is shown if while being inside a playlist, a batch of imported files are finished processing, and it will be one of the options in the alert presented */
 "current_playlist_title" = "Aktuelle Wiedergabeliste";
 "select_item_title" = "Auswählen";
 "sleep_alert_description" = "Wiedergabe-Stop am Ende des Kapitels";
@@ -138,7 +126,6 @@
 "chapter_time_remaining_title" = "Verbleibende Kapitelzeit: ";
 "book_time_remaining_title" = "Verbleibende Zeit im Buch: ";
 "book_duration_title" = "Gesamtdauer: ";
-/* Может правильнее будет: &quot;Не удалось сменить иконку&quot;? */
 "icon_error_description" = "Die Änderung des App Icons hat nicht funktioniert. Probiere es später bitte noch einmal.";
 "error_title" = "Fehler";
 "generic_retry_description" = "Bitte versuche es später noch einmal.";
@@ -150,18 +137,14 @@
 "pause_title" = "Pause";
 "voiceover_no_title" = "Kein Titel angegeben";
 "voiceover_no_author" = "Kein Autor angegeben";
-/* &lt;Book title&gt; by &lt;Book author&gt; &lt;percentage in numbers&gt;% Completed */
-"voiceover_book_progress" = "%@ von %@, %d Prozent abgeschlossen";
+"voiceover_book_progress" = "%@ von %@, %d% abgeschlossen";
 "voiceover_no_file_title" = "Datei ohne Titel";
 "voiceover_no_file_subtitle" = "Datei ohne Untertitel";
 "voiceover_no_playlist_title" = "Wiedergabeliste ohne Titel";
-/* &lt;Playlist title&gt; Playlist &lt;percentage in number&gt;% Completed */
-"voiceover_playlist_progress" = "%@, Wiedergabeliste, %d Prozent abgeschlossen";
+"voiceover_playlist_progress" = "%@, Wiedergabeliste, %d% abgeschlossen";
 "voiceover_unknown_title" = "Unbekannter Titel";
 "voiceover_unknown_author" = "Unbekannter Autor";
-/* &lt;book title&gt; by &lt;book author&gt; */
 "voiceover_book_info" = "%@ von %@";
-/* &lt;book title&gt; by &lt;book author&gt;, chapter &lt;chapter title&gt; */
 "voiceover_book_chapter" = "%@ von %@, Kapitel %@";
 "voiceover_rewind_time" = "Rückwärts %@";
 "voiceover_forward_time" = "Vorwärts %@";
@@ -183,51 +166,46 @@
 "progress_title" = "Fortschritt";
 "settings_siri_sleeptimer_title" = "Schlafmodus";
 "active_title" = "Aktiv";
-/* Currently Playing <Book title> by <Book author> */
 "voiceover_currently_playing_title" = "Es läuft %@ von %@";
-/* When you're on the library or playlist view, and the voice over cursor is focused on the floating mini-player at the bottom, it should read to the user the element, and the hint that if pressed, the player view will be shown */
 "voiceover_miniplayer_hint" = "Miniplayer. Tippen um den Wiedergabebildschirm anzuzeigen";
 "voiceover_chapter_time_title" = "Position im Kapitel: %@";
-/* When you're in the player view, and the voice over cursor is focused on the top bar (the one with the arrow-down), it will read to the user that the player view will be closed if he double taps that button */
 "voiceover_dismiss_player_title" = "Wiedergabebildschirm schließen";
-/* Sort items by most recent playback */
-"sort_most_recent_button" = "Most Recent";
-/* One of the sort options, this one reverts the current order of selected items */
-"sort_reversed_button" = "Reverse Order";
-"coredata_error_diskfull_description" = "The library couldn't be loaded, the device is out of disk space.";
-"coredata_error_migration_description" = "A migration of the database failed, the library will have to be reinitialized.";
-"import_warning_description" = "Transfering files may take a while, please make sure the number of files is complete before proceeding.";
+"sort_most_recent_button" = "Zuletzt hinzugefügt";
+"sort_reversed_button" = "Umkehren";
+"voiceover_continue_playback_title" = "Wiedergabe fortsetzen";
+"coredata_error_diskfull_description" = "Die Bibliothek konnte nicht geladen, das Gerät hat zu wenig verfügbaren Speicherplatz.";
+"coredata_error_migration_description" = "Die Migration der Datenbank war nicht erfolgreich. Die Bibliothek muss neu angelegt werden.";
+"import_warning_description" = "Die Übertragung von Dateien kann eine Weile dauern. Bitte stelle sicher, dass alle Dateien vollständig sind, bevor Du weitermachst.";
 "files_caps_title" = "DATEIEN";
-"settings_storage_description" = "Manage your files";
-"storage_total_title" = "Total space used";
-"settings_storage_title" = "Storage Management";
-"storage_fix_file_button" = "Fix";
-"storage_fix_file_description" = "The book item is missing, if the corresponding item cannot be found, a new one will be created";
-"bookmarks_title" = "Bookmarks";
-"bookmark_created_title" = "Your bookmark has been saved at %@";
-"bookmark_exists_title" = "You have already created a bookmark at %@";
-"bookmark_note_action_title" = "Add note";
-"bookmarks_see_title" = "See bookmarks";
-"bookmark_type_automatic_title" = "Automatic";
-"bookmark_type_user_title" = "Manual";
-"bookmark_automatic_play_title" = "Last position before playback started";
-"bookmark_automatic_skip_title" = "Last position before time skip";
-"bookmark_note_edit_title" = "Edit note";
-"bookmark_create_title" = "Create Bookmark";
-"storage_duplicate_item_title" = "Duplicate";
-"storage_duplicate_item_description" = "The selected file was a duplicate, the existing file is located at: %@";
-"chapters_previous_title" = "Previous Chapter";
-"chapters_next_title" = "Next Chapter";
-"book_time_current_title" = "Current Book Time: %@";
-"voiceover_continue_playback_title" = "Continue Playback";
-"storage_fix_files_description" = "The link between the files and the digital book items are missing, if the corresponding item cannot be found for each file, a new one will be created";
-"storage_fix_all_title" = "Fix All";
-"settings_backup_title" = "iCloud Backups";
-"settings_backup_files_title" = "Include book files";
-"bound_books_create_button" = "Combine into Volume";
-"bound_books_undo_alert_title" = "Convert to Folder";
-"bound_books_new_title_placeholder" = "New Book Volume";
-"bound_books_create_alert_description" = "Make sure items are in correct order. To reorder chapters later you need convert the volume back into a folder, reorder items and then re-create the volume.";
-"bound_books_create_alert_title" = "Create a volume";
-"voiceover_bound_books_progress" = "%@, Volume, %d percent Completed";
-"voiceover_no_bound_books_title" = "No Volume Title";
+"settings_storage_description" = "Verwalte deine Dateien";
+"storage_total_title" = "Insgesamt belegter Speicher";
+"settings_storage_title" = "Speicherverwaltung";
+"storage_fix_file_button" = "Reparieren";
+"storage_fix_file_description" = "Die Metadaten zum Buch fehlen. Falls diese nicht gefunden werden können, werden neue erstellt.";
+"bookmarks_title" = "Lesezeichen";
+"bookmark_created_title" = "Das Lesezeichen wurde bei %@ angelegt.";
+"bookmark_exists_title" = "Es wurde bereits ein Lesezeichen bei %@ angelegt.";
+"bookmark_note_action_title" = "Notiz hinzufügen";
+"bookmarks_see_title" = "Lesezeichen ansehen";
+"bookmark_type_automatic_title" = "Automatisch erstellt";
+"bookmark_type_user_title" = "Eigene";
+"bookmark_automatic_play_title" = "Letzte Position vor Beginn der Wiedergabe";
+"bookmark_automatic_skip_title" = "Letzte Position vor Sprung";
+"bookmark_note_edit_title" = "Notiz bearbeiten";
+"bookmark_create_title" = "Lesezeichen anlegen";
+"storage_duplicate_item_title" = "Duplikat";
+"storage_duplicate_item_description" = "Die ausgewählte Datei wurde als Duplikat erkannt, die existierende Datei wurde hier gefunden: %@";
+"chapters_previous_title" = "Vorheriges Kapitel";
+"chapters_next_title" = "Nächstes Kapitel";
+"book_time_current_title" = "Verbleibende Zeit im Buch: %@";
+"storage_fix_files_description" = "Die Verknüpfung zwischen Metadaten und Dateien ist unvollständig. Wenn die Informationen zu den Dateien nicht gefunden werden könnnen, werden neue Einträge angelegt.";
+"storage_fix_all_title" = "Alle reparieren";
+"settings_backup_title" = "iCloud-Backup";
+"settings_backup_files_title" = "Buch-Dateien einschließen";
+"bound_books_create_button" = "Zu Band zusammenfassen";
+"bound_books_undo_alert_title" = "In Ordner konvertieren";
+"bound_books_new_title_placeholder" = "Neuer Band";
+"bound_books_create_alert_description" = "Achte darauf, dass alle Kapitel in der richtigen Reihenfolge vorliegen. Um Kapitel neu zu sortieren, kannst du den Band wieder in einen Ordner konvertieren, dort die Kapitel neu anordnen und dann wieder einen Band erstellen.";
+"bound_books_create_alert_title" = "Band erstellen";
+"voiceover_bound_books_progress" = "%@, Band, %d Prozent gehört";
+"voiceover_no_bound_books_title" = "Band ohne Titel";

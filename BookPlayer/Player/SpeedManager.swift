@@ -34,7 +34,7 @@ class SpeedManager {
 
   public func getSpeed(relativePath: String?) -> Float {
     let speed: Float
-    
+
     if UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue) {
       speed = UserDefaults.standard.float(forKey: "global_speed")
     } else if let relativePath = relativePath {
@@ -42,7 +42,7 @@ class SpeedManager {
     } else {
       speed = self.currentSpeed.value
     }
-    
+
     self.currentSpeed.value = speed > 0 ? speed : 1.0
     
     return self.currentSpeed.value

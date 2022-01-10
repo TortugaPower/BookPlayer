@@ -1163,7 +1163,7 @@ class ModifyLibraryTests: LibraryServiceTests {
 
     XCTAssert(book.lastPlayDate == now)
   }
-  
+
   func testGetItemSpeec() throws {
     let book = StubFactory.book(
       dataManager: self.sut.dataManager,
@@ -1172,26 +1172,26 @@ class ModifyLibraryTests: LibraryServiceTests {
     )
     let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
     try self.sut.moveItems([book], inside: folder.relativePath, moveFiles: true)
-    
+
     XCTAssert(book.speed == 1.0)
     XCTAssert(folder.speed == 1.0)
-    
+
     let speed0 = self.sut.getItemSpeed(at: "")
-    
+
     XCTAssert(speed0 == 1.0)
-    
+
     let speed1 = self.sut.getItemSpeed(at: book.relativePath)
-    
+
     XCTAssert(speed1 == 1.0)
-    
+
     self.sut.updateBookSpeed(at: book.relativePath, speed: 3.0)
-    
+
     let speed2 = self.sut.getItemSpeed(at: book.relativePath)
-    
+
     XCTAssert(speed2 == 3.0)
-    
+
     let speed3 = self.sut.getItemSpeed(at: folder.relativePath)
-    
+
     XCTAssert(speed3 == 3.0)
   }
 }

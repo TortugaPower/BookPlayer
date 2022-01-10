@@ -148,6 +148,7 @@ public class Library: NSManagedObject, Codable {
 
     for (index, item) in items.enumerated() {
       item.orderRank = Int16(index)
+      try? item.fileURL?.setAppOrderRank(index)
     }
   }
 

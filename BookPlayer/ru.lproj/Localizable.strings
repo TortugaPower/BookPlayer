@@ -6,16 +6,13 @@
   Copyright © 2019 Tortuga Power. All rights reserved.
 */
 
-/* Title that is shown as the navigation bar title */
 "library_title" = "Библиотека";
-/* Title for the settings button */
 "settings_button" = "Настройки";
-/* Title that is shown as the navigation bar title */
 "settings_title" = "Настройки";
 "settings_autoplay_title" = "Автовоспроизведение библиотеки";
 "settings_autoplay_description" = "Продолжить воспроизведение всех незавершённых объектов в библиотеке, включая файлы в плейлистах.";
 "settings_smartrewind_title" = "Умная перемотка";
-"settings_smartrewind_description" = "Перемотка назад на 30 секунд после приостановки на 10 минут.";
+"settings_smartrewind_description" = "Перемотка назад на 30 секунд после 10-минутного перерыва.";
 "settings_boostvolume_title" = "Увеличить громкость";
 "settings_boostvolume_description" = "Удваивает громкость. \nИспользуйте с осторожностью и заботой о вашем слухе.";
 "settings_globalspeed_title" = "Общий контроль скорости";
@@ -27,7 +24,7 @@
 "settings_skip_title" = "ШАГ ПЕРЕМОТКИ";
 "settings_skip_rewind_title" = "Назад";
 "settings_skip_forward_title" = "Вперёд";
-"settings_skip_description" = "Отрегулируйте шаг перемотки, используемый на обложке альбома или в Центре Управления.";
+"settings_skip_description" = "Отрегулируйте шаг перемотки, используемый на обложке книги или в Центре Управления.";
 "settings_support_title" = "ПОДДЕРЖКА";
 "settings_siri_title" = "БЫСТРАЯ КОМАНДА SIRI";
 "settings_support_project_title" = "Посмотреть проект на Github";
@@ -65,11 +62,8 @@
 "cancel_button" = "Отменить";
 "seconds_title" = "сек";
 "ok_button" = "OK";
-/* Message shown when trying to create a Siri Shortcut on devices that don't have iOS 12+ installed */
 "siri_alert_description" = "Быстрые команды Siri доступны на iOS 12 и выше";
-/* Title used in the context of our tip jar to support development */
 "support_bookplayer_title" = "Поддержите BookPlayer";
-/* Description used in the context of our tip jar to support development */
 "support_bookplayer_description" = "Приобретите BookPlayer Plus для поддержки будущих разработок и получения дополнительных тем и иконок приложений.";
 "learn_more_title" = "ПОДРОБНЕЕ";
 "settings_appearance_title" = "Внешний вид";
@@ -83,7 +77,6 @@
 "theme_switch_title" = "Переключать автоматически";
 "theme_dark_title" = "Всегда использовать темное оформление";
 "themes_title" = "Темы";
-/* This should be &ldquo;By your friends at BookPlayer&rdquo; in English.&nbsp; */
 "icons_bookplayer_credit_description" = "От Ваших друзей из BookPlayer";
 "kind_tip_title" = "Хорошая поддержка";
 "excellent_tip_title" = "Отличная поддержка";
@@ -112,20 +105,15 @@
 "player_speed_title" = "Установить скорость воспроизведения";
 "player_sleep_title" = "Остановить воспроизведение";
 "sleep_chapter_option_title" = "До конца текущей главы";
-/* This is used for the label underneath the progress bar (e.g. Chapter 1 of 35) */
 "player_chapter_description" = "Глава %d из %d";
 "chapters_title" = "Главы";
-/* This is used as a description for each chapter in the chapters list (e.g. Start: 10:11 - Duration: 16:56) */
 "chapters_item_description" = "Начало: %@ - Длительность: %@";
-/* Restore purchases */
 "restore_title" = "Восстановить покупки";
 "themes_caps_title" = "ТЕМЫ";
 "plus_app_icons_title" = "Иконки приложения";
-/* This is the counterpart to Mark as Finished */
 "mark_unfinished_title" = "Отметить как недослушанное";
 "move_playlist_button" = "Переместить в плейлист";
 "move_single_item_title" = "Вы действительно хотите переместить '%@' в '%@'?";
-/* This is shown if while being inside a playlist, a batch of imported files are finished processing, and it will be one of the options in the alert presented */
 "current_playlist_title" = "Текущий плейлист";
 "select_item_title" = "Выбрать файл";
 "sleep_alert_description" = "Сон по завершению главы";
@@ -138,7 +126,6 @@
 "chapter_time_remaining_title" = "Оставшееся время главы: ";
 "book_time_remaining_title" = "Оставшееся время: ";
 "book_duration_title" = "Продолжительность книги: ";
-/* Может правильнее будет: &quot;Не удалось сменить иконку&quot;? */
 "icon_error_description" = "Не удалось сменить иконку. Попробуйте позже";
 "error_title" = "Ошибка";
 "generic_retry_description" = "Пожалуйста, попробуйте позже";
@@ -150,18 +137,14 @@
 "pause_title" = "Пауза";
 "voiceover_no_title" = "Без названия";
 "voiceover_no_author" = "Неизвестный автор";
-/* &lt;Book title&gt; by &lt;Book author&gt; &lt;percentage in numbers&gt;% Completed */
 "voiceover_book_progress" = "%@, %@ %d% прослушано";
 "voiceover_no_file_title" = "Нет названия файла";
 "voiceover_no_file_subtitle" = "Подзаголовок файла отсутствует";
 "voiceover_no_playlist_title" = "Плейлист не озаглавлен";
-/* &lt;Playlist title&gt; Playlist &lt;percentage in number&gt;% Completed */
 "voiceover_playlist_progress" = "Плейлист %@ завершен на %d%";
 "voiceover_unknown_title" = "Без названия";
 "voiceover_unknown_author" = "Неизвестный автор";
-/* &lt;book title&gt; by &lt;book author&gt; */
 "voiceover_book_info" = "%@, %@";
-/* &lt;book title&gt; by &lt;book author&gt;, chapter &lt;chapter title&gt; */
 "voiceover_book_chapter" = "%@, %@, глава %@";
 "voiceover_rewind_time" = "Перемотка назад %@";
 "voiceover_forward_time" = "Перемотка вперёд %@";
@@ -182,52 +165,47 @@
 "downloading_file_title" = "Скачивание файла";
 "progress_title" = "Прогресс";
 "settings_siri_sleeptimer_title" = "Таймер сна";
-"active_title" = "активный";
-/* Currently Playing <Book title> by <Book author> */
+"active_title" = "Включен";
 "voiceover_currently_playing_title" = "Идёт воспроизведение: %@, %@";
-/* When you're on the library or playlist view, and the voice over cursor is focused on the floating mini-player at the bottom, it should read to the user the element, and the hint that if pressed, the player view will be shown */
 "voiceover_miniplayer_hint" = "Мини плеер. Нажмите, чтобы развернуть полное окно";
 "voiceover_chapter_time_title" = "Продолжительность выбранной главы: %@";
-/* When you're in the player view, and the voice over cursor is focused on the top bar (the one with the arrow-down), it will read to the user that the player view will be closed if he double taps that button */
 "voiceover_dismiss_player_title" = "Свернуть окно воспроизведения";
-/* Sort items by most recent playback */
 "sort_most_recent_button" = "Самый недавний";
-/* One of the sort options, this one reverts the current order of selected items */
 "sort_reversed_button" = "Обратить порядок";
-"coredata_error_diskfull_description" = "The library couldn't be loaded, the device is out of disk space.";
-"coredata_error_migration_description" = "A migration of the database failed, the library will have to be reinitialized.";
-"import_warning_description" = "Transfering files may take a while, please make sure the number of files is complete before proceeding.";
+"voiceover_continue_playback_title" = "Продолжить воспроизведение";
+"coredata_error_diskfull_description" = "Не удалось загрузить библиотеку, на устройстве не хватает места на диске.";
+"coredata_error_migration_description" = "Не удалось перенести базу данных, библиотеку придется повторно инициализировать.";
+"import_warning_description" = "Перенос файлов может занять некоторое время, сначала проверьте, что все файлы в наличии.";
 "files_caps_title" = "ФАЙЛЫ";
-"settings_storage_description" = "Manage your files";
-"storage_total_title" = "Total space used";
-"settings_storage_title" = "Storage Management";
-"storage_fix_file_button" = "Fix";
-"storage_fix_file_description" = "The book item is missing, if the corresponding item cannot be found, a new one will be created";
-"bookmarks_title" = "Bookmarks";
-"bookmark_created_title" = "Your bookmark has been saved at %@";
-"bookmark_exists_title" = "You have already created a bookmark at %@";
-"bookmark_note_action_title" = "Add note";
-"bookmarks_see_title" = "See bookmarks";
-"bookmark_type_automatic_title" = "Automatic";
-"bookmark_type_user_title" = "Manual";
-"bookmark_automatic_play_title" = "Last position before playback started";
-"bookmark_automatic_skip_title" = "Last position before time skip";
-"bookmark_note_edit_title" = "Edit note";
-"bookmark_create_title" = "Create Bookmark";
-"storage_duplicate_item_title" = "Duplicate";
-"storage_duplicate_item_description" = "The selected file was a duplicate, the existing file is located at: %@";
-"chapters_previous_title" = "Previous Chapter";
-"chapters_next_title" = "Next Chapter";
-"book_time_current_title" = "Current Book Time: %@";
-"voiceover_continue_playback_title" = "Continue Playback";
-"storage_fix_files_description" = "The link between the files and the digital book items are missing, if the corresponding item cannot be found for each file, a new one will be created";
-"storage_fix_all_title" = "Fix All";
-"settings_backup_title" = "iCloud Backups";
-"settings_backup_files_title" = "Include book files";
-"bound_books_create_button" = "Combine into Volume";
-"bound_books_undo_alert_title" = "Convert to Folder";
-"bound_books_new_title_placeholder" = "New Book Volume";
-"bound_books_create_alert_description" = "Make sure items are in correct order. To reorder chapters later you need convert the volume back into a folder, reorder items and then re-create the volume.";
-"bound_books_create_alert_title" = "Create a volume";
-"voiceover_bound_books_progress" = "%@, Volume, %d percent Completed";
-"voiceover_no_bound_books_title" = "No Volume Title";
+"settings_storage_description" = "Проверить файлы";
+"storage_total_title" = "Использовано памяти";
+"settings_storage_title" = "Управление базой данных";
+"storage_fix_file_button" = "Исправить";
+"storage_fix_file_description" = "Элемент книги отсутствует, если соответствующий элемент не может быть найден, будет создан новый";
+"bookmarks_title" = "Закладки";
+"bookmark_created_title" = "Ваша закладка сохранена в %@";
+"bookmark_exists_title" = "Вы уже создали закладку в %@";
+"bookmark_note_action_title" = "Добавить текст";
+"bookmarks_see_title" = "Посмотреть закладки";
+"bookmark_type_automatic_title" = "Автоматически";
+"bookmark_type_user_title" = "Вручную";
+"bookmark_automatic_play_title" = "Последняя позиция перед началом воспроизведения";
+"bookmark_automatic_skip_title" = "Последняя позиция перед перемоткой";
+"bookmark_note_edit_title" = "Редактировать текст";
+"bookmark_create_title" = "Создать закладку";
+"storage_duplicate_item_title" = "Дубликат";
+"storage_duplicate_item_description" = "Выбранный файл является дубликатом, существующий файл находится в: %@";
+"chapters_previous_title" = "Предыдущая глава";
+"chapters_next_title" = "Следующая глава";
+"book_time_current_title" = "Продолжительность выбранной книги: %@";
+"storage_fix_files_description" = "Связь между файлами и элементами цифровой книги отсутствует, если соответствующий элемент не может быть найден для каждого файла, будет создан новый элемент";
+"storage_fix_all_title" = "Исправить все";
+"settings_backup_title" = "Резервные копии iCloud";
+"settings_backup_files_title" = "Включить файлы в книгу";
+"bound_books_create_button" = "Объединить в книгу";
+"bound_books_undo_alert_title" = "Преобразовать в папку";
+"bound_books_new_title_placeholder" = "Новая книга";
+"bound_books_create_alert_description" = "Убедитесь, что файлы расположены в правильном порядке. Чтобы позже изменить порядок глав, нужно преобразовать книгу обратно в папку, изменить порядок файлов, а затем снова создать книгу.";
+"bound_books_create_alert_title" = "Создать книгу";
+"voiceover_bound_books_progress" = "Книга %@, воспроизведено %d процентов";
+"voiceover_no_bound_books_title" = "Отсутствует название книги";

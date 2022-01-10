@@ -45,8 +45,11 @@ class ItemSelectionViewController: UITableViewController {
 
       let item = self.items[indexPath.row]
 
-      cell.artworkView.kf.setImage(with: ArtworkService.getArtworkProvider(for: item.relativePath),
-                                   placeholder: ArtworkService.generateDefaultArtwork(from: item.themeAccent))
+      cell.artworkView.kf.setImage(
+        with: ArtworkService.getArtworkProvider(for: item.relativePath),
+        placeholder: ArtworkService.generateDefaultArtwork(from: item.themeAccent),
+        options: [.targetCache(ArtworkService.cache)]
+      )
 
       cell.title = item.title
       cell.playbackState = .stopped

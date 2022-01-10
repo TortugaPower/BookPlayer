@@ -345,10 +345,6 @@ extension ItemListCoordinator {
       self.showCreateFolderAlert()
     })
 
-    alertController.addAction(UIAlertAction(title: "bound_books_create_button".localized, style: .default) { _ in
-      self.showCreateFolderAlert(placeholder: "bound_books_new_title_placeholder".localized, type: .bound)
-    })
-
     alertController.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel))
 
     self.navigationController.present(alertController, animated: true, completion: nil)

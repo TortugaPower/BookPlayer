@@ -274,6 +274,14 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         try self.libraryService.moveItems(fetchedItems, inside: folder.relativePath, moveFiles: true)
       }
       try self.libraryService.updateFolder(at: folder.relativePath, type: type)
+
+      // stop playback if folder items contain that current item
+      if let items = items,
+         let currentRelativePath = self.playerManager.currentItem?.relativePath,
+         items.contains(currentRelativePath) {
+        self.playerManager.stop()
+      }
+
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }

@@ -159,7 +159,7 @@ final class CarPlayManager: NSObject, MPPlayableContentDataSource, MPPlayableCon
       switch result {
       case .success(let value):
         image = value.image
-      case .failure(_):
+      case .failure:
         image = self.defaultArtwork
       }
 

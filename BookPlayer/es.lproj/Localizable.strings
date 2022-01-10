@@ -220,8 +220,8 @@
 "chapters_previous_title" = "Anterior Capítulo";
 "chapters_next_title" = "Siguiente Capítulo";
 "book_time_current_title" = "Tiempo actual del libro: %@";
-"storage_fix_files_description" = "The link between the files and the digital book items are missing, if the corresponding item cannot be found for each file, a new one will be created";
-"storage_fix_all_title" = "Fix All";
+"storage_fix_files_description" = "Falta el enlace entre los archivos y los elementos del libro digital, si no se puede encontrar el elemento correspondiente para cada archivo, se creará uno nuevo";
+"storage_fix_all_title" = "Reparar Todo";
 "settings_backup_title" = "Respaldos en iCloud";
 "settings_backup_files_title" = "Incluir archivos de libros";
 "bound_books_create_button" = "Combinar en Volumen";
@@ -229,5 +229,5 @@
 "bound_books_new_title_placeholder" = "Nuevo Volumen";
 "bound_books_create_alert_description" = "Asegúrate de que los libros estén en el orden correcto. Para reordenar los capítulos más adelante, deberás convertir el volumen nuevamente a una carpeta, reordenar los elementos y luego volver a crear el volumen.";
 "bound_books_create_alert_title" = "Crear un volumen";
-"voiceover_bound_books_progress" = "%@, Volume, %d percent Completed";
-"voiceover_no_bound_books_title" = "No Volume Title";
+"voiceover_bound_books_progress" = "%@, Volumen, %d porcentaje completado";
+"voiceover_no_bound_books_title" = "Sin título";

@@ -192,7 +192,7 @@
 "bookmark_automatic_play_title" = "Posledná pozícia pred spustením prehrávania";
 "bookmark_automatic_skip_title" = "Posledná pozícia pred preskočením času";
 "bookmark_note_edit_title" = "Upraviť poznámku";
-"bookmark_create_title" = "Vytvoriť záložku";
+"bookmark_create_title" = "Vytváranie záložky";
 "storage_duplicate_item_title" = "Duplikát";
 "storage_duplicate_item_description" = "Vybratý súbor bol duplikát. Existujúci súbor je umiestnený v: %@";
 "chapters_previous_title" = "Predchádzajúca kapitola";
@@ -202,10 +202,10 @@
 "storage_fix_all_title" = "Opraviť všetko";
 "settings_backup_title" = "iCloud zálohy";
 "settings_backup_files_title" = "Zahrnúť súbory kníh";
-"bound_books_create_button" = "Combine into Volume";
-"bound_books_undo_alert_title" = "Convert to Folder";
-"bound_books_new_title_placeholder" = "New Book Volume";
-"bound_books_create_alert_description" = "Make sure items are in correct order. To reorder chapters later you need convert the volume back into a folder, reorder items and then re-create the volume.";
-"bound_books_create_alert_title" = "Create a volume";
-"voiceover_bound_books_progress" = "%@, Volume, %d percent Completed";
-"voiceover_no_bound_books_title" = "No Volume Title";
+"bound_books_create_button" = "Skombinovať do zväzku";
+"bound_books_undo_alert_title" = "Konvertovať na priečinok";
+"bound_books_new_title_placeholder" = "Nový zväzok knihy";
+"bound_books_create_alert_description" = "Skontrolujte, či sú položky v správnom poradí. Ak chcete neskôr zmeniť poradie kapitol, musíte zväzok previesť späť na priečinok, zmeniť poradie položiek a potom zväzok znovu vytvoriť.";
+"bound_books_create_alert_title" = "Vytváranie zväzku";
+"voiceover_bound_books_progress" = "%@, Zväzok, %d percent dokončených";
+"voiceover_no_bound_books_title" = "Žiadny názov zväzku";

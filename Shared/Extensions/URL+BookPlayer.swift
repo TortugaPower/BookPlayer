@@ -41,26 +41,24 @@ public extension URL {
         }
     }
 
-    func getAppIdentifier() -> String? {
-        do {
-            let data = try self.extendedAttribute(forName: "\(Bundle.main.configurationString(for: .bundleIdentifier)).identifier")
-            return String(bytes: data, encoding: .utf8)
-        } catch {
-            return nil
-        }
+    func getAppOrderRank() -> Int? {
+      do {
+        let data = try self.extendedAttribute(forName: "\(Bundle.main.configurationString(for: .bundleIdentifier)).identifier")
+        return data.withUnsafeBytes { $0.load(as: Int.self) }
+      } catch {
+        return nil
+      }
     }
 
-    func setAppIdentifier(_ identifier: String) throws {
-        guard let data = identifier.data(using: .utf8) else {
-            throw "derp"
-        }
+    func setAppOrderRank(_ rank: Int) throws {
+      let data = withUnsafeBytes(of: rank) { Data($0) }
 
-        try self.withUnsafeFileSystemRepresentation { fileSystemPath in
-            let result = data.withUnsafeBytes {
-                setxattr(fileSystemPath, "\(Bundle.main.configurationString(for: .bundleIdentifier)).identifier", $0.baseAddress, data.count, 0, 0)
-            }
-            guard result >= 0 else { throw URL.posixError(errno) }
+      try self.withUnsafeFileSystemRepresentation { fileSystemPath in
+        let result = data.withUnsafeBytes {
+          setxattr(fileSystemPath, "\(Bundle.main.configurationString(for: .bundleIdentifier)).identifier", $0.baseAddress, data.count, 0, 0)
         }
+        guard result >= 0 else { throw URL.posixError(errno) }
+      }
     }
 
     /// Get extended attribute.
