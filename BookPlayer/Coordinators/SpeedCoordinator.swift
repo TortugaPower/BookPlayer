@@ -10,13 +10,10 @@ import Foundation
 import BookPlayerKit
 
 class SpeedCoordinator: Coordinator {
-  let libraryService: LibraryServiceProtocol
   let playerManager: PlayerManagerProtocol
 
-  init(libraryService: LibraryServiceProtocol,
-       playerManager: PlayerManagerProtocol,
+  init(playerManager: PlayerManagerProtocol,
        navigationController: UINavigationController) {
-    self.libraryService = libraryService
     self.playerManager = playerManager
 
     super.init(navigationController: navigationController, flowType: .modal)

@@ -53,8 +53,7 @@ class PlayerCoordinator: Coordinator {
   }
     
   func showSpeed() {
-    let speedCoordinator = SpeedCoordinator(libraryService: self.libraryService,
-                                              playerManager: self.playerManager,
+    let speedCoordinator = SpeedCoordinator(playerManager: self.playerManager,
                                               navigationController: self.navigationController)
     speedCoordinator.parentCoordinator = self
     speedCoordinator.presentingViewController = self.presentingViewController
