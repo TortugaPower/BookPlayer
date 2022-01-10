@@ -92,6 +92,9 @@ class SpeedViewController: BaseViewController<SpeedCoordinator, SpeedViewModel>,
 extension SpeedViewController: Themeable {
     func applyTheme(_ theme: SimpleTheme) {
         self.background.layer.backgroundColor = theme.secondarySystemBackgroundColor.cgColor
+        self.background.layer.shadowColor = UIColor(hex: theme.useDarkVariant
+                                                    ? theme.lightSecondarySystemBackgroundHex
+                                                    : theme.darkSecondarySystemBackgroundHex).cgColor
         self.playbackLabel.textColor = theme.primaryColor
         self.infoLabel.textColor = theme.primaryColor
         self.disabledTextColor = UIColor(hex: theme.useDarkVariant ? theme.darkPrimaryHex : theme.lightPrimaryHex)
