@@ -35,6 +35,13 @@ class SpeedViewController: BaseViewController<SpeedCoordinator, SpeedViewModel>,
         
         setUpTheming()
         
+        setup()
+    }
+    
+    func setup() {
+        self.playbackLabel.text = "player_speed_head".localized
+        self.infoLabel.text = "player_speed_title".localized
+
         let speed: Double = Double(self.viewModel.getCurrentSpeed())
 
         self.stepper.minimumValue = self.minimumValue

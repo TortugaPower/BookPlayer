@@ -101,6 +101,7 @@
 "file_missing_description" = "A könyvfájlt eltávolítottuk a készülékről. A könyv lejátszásához importálja újra a fájlt";
 "empty_playlist_description" = "Áthelyezhet fájlokat ide úgy is, ha megfogja őket és erre a lejátszási listára húzza azokat";
 "playlist_add_title" = "Fájlok hozzáadása";
+"player_speed_head" = "Opcje odtwarzania";
 "player_speed_title" = "Lejátszási sebesség beállítása";
 "player_sleep_title" = "Lejátszás megállítása";
 "sleep_chapter_option_title" = "Az aktuális fejezet végén";

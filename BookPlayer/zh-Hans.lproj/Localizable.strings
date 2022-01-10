@@ -108,6 +108,7 @@
 "file_missing_description" = "这本书的文件已从您的设备中删除。再次导入文件以播放书籍";
 "empty_playlist_description" = "您也可以将有声书库中的文件拖到此播放列表上，将文件移到此处。";
 "playlist_add_title" = "添加文件";
+"player_speed_head" = "播放选项";
 "player_speed_title" = "设置播放速度";
 "player_sleep_title" = "暂停播放";
 "sleep_chapter_option_title" = "当前章节的结尾";

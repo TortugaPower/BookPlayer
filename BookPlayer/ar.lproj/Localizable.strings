@@ -101,6 +101,7 @@
 "file_missing_description" = "تمت إزالة ملف هذا الكتاب من جهازك. قم باستيراد الملف مرة أخرى لتشغيل الكتاب";
 "empty_playlist_description" = "يمكنك أيضا نقل الملفات هنا عن طريق سحبها على قائمة التشغيل هذه في المكتبة";
 "playlist_add_title" = "إضافة ملفات";
+"player_speed_head" = "خيارات التشغيل";
 "player_speed_title" = "تعيين سرعة التشغيل";
 "player_sleep_title" = "إيقاف التشغيل مؤقتًا";
 "sleep_chapter_option_title" = "نهاية الفصل الحالي";

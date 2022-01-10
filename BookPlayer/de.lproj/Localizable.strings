@@ -108,6 +108,7 @@
 "file_missing_description" = "Die Datei für dieses Buch wurde vom Gerät entfernt. Importiere sie erneut, um das Buch weiter zu hören.";
 "empty_playlist_description" = "Dateien können auch in die Wiedergabeliste verschoben werden, in dem du sie in der Bibliothek auf die Wiedergabeliste ziehst.";
 "playlist_add_title" = "Dateien hinzufügen";
+"player_speed_head" = "Wiedergabeoptionen";
 "player_speed_title" = "Wiedergabegeschwindigkeit";
 "player_sleep_title" = "Wiedergabe anhalten";
 "sleep_chapter_option_title" = "Am Ende des aktuellen Kapitels";
