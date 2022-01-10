@@ -23,16 +23,17 @@ class SpeedCoordinator: Coordinator {
   }
 
   override func start() {
-      let vc = SpeedViewController.instantiate(from: .Player)
+      let speedVC = SpeedViewController.instantiate(from: .Player)
       let viewModel = SpeedViewModel(playerManager: self.playerManager)
       viewModel.coordinator = self
-      vc.viewModel = viewModel
-      
+      speedVC.viewModel = viewModel
+
       let nav = AppNavigationController.instantiate(from: .Main)
-      nav.viewControllers = [vc]
+      nav.viewControllers = [speedVC]
       nav.presentationController?.delegate = self
       nav.modalPresentationStyle = .overCurrentContext
       nav.view.backgroundColor = UIColor.clear
+      nav.interactivePopGestureRecognizer!.state = .began
       self.presentingViewController?.present(nav, animated: true, completion: nil)
   }
 
