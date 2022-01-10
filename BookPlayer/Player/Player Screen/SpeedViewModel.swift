@@ -10,8 +10,6 @@ import Foundation
 
 import BookPlayerKit
 import Combine
-import UIKit
-import StoreKit
 
 class SpeedViewModel: BaseViewModel<SpeedCoordinator> {
   private let playerManager: PlayerManagerProtocol
