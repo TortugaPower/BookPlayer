@@ -114,6 +114,7 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "file_missing_description" = "Bu kitabın dosyası cihazınızdan kaldırıldı. Kitabı oynatmak için dosyayı tekrar içe aktarın";
 "empty_playlist_description" = "Kitaplık içerisindeyken, dosyaları bu çalma listesi ismi üzerine sürükleyerek de buraya taşıyabilirsiniz";
 "playlist_add_title" = "Dosya Ekle";
+"player_speed_head" = "Oynatma seçenekleri";
 "player_speed_title" = "Oynatma hızını ayarla ";
 "player_sleep_title" = "Oynatmayı duraklat";
 "sleep_chapter_option_title" = "Geçerli bölüm sonunda";

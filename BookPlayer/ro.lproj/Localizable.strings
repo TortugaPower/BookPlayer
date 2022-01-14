@@ -106,6 +106,7 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "file_missing_description" = "Fișierul acestei cărți a fost eliminat de pe dispozitiv. Importați din nou fișierul pentru a reda cartea";
 "empty_playlist_description" = "De asemenea, puteți muta fișierele aici glisându-le în această listă de redare din Bibliotecă";
 "playlist_add_title" = "Adăugați fișiere";
+"player_speed_head" = "Opțiuni de redare";
 "player_speed_title" = "Setați viteza de redare";
 "player_sleep_title" = "Întrerupeți redarea";
 "sleep_chapter_option_title" = "Sfârșitul capitolului curent";

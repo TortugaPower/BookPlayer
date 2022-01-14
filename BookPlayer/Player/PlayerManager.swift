@@ -33,7 +33,6 @@ protocol PlayerManagerProtocol {
   func jumpTo(_ time: Double, recordBookmark: Bool)
   func markAsCompleted(_ flag: Bool)
 
-  func getSpeedOptions() -> [Float]
   func getCurrentSpeed() -> Float
   func currentSpeedPublisher() -> AnyPublisher<Float, Never>
   func setSpeed(_ newValue: Float, relativePath: String?)
@@ -574,10 +573,6 @@ extension PlayerManager {
     self.libraryService.markAsFinished(flag: true, relativePath: currentItem.relativePath)
 
     NotificationCenter.default.post(name: .bookEnd, object: nil, userInfo: nil)
-  }
-
-  func getSpeedOptions() -> [Float] {
-    return self.speedManager.speedOptions
   }
 
   func getCurrentSpeed() -> Float {

@@ -101,6 +101,7 @@
 "file_missing_description" = "Denne bogs fil blev fjernet fra din enhed. Importer filen igen for at afspille bogen";
 "empty_playlist_description" = "Du kan også flytte filer hertil ved at trække dem fra biblioteket hen på afspilningslisten";
 "playlist_add_title" = "Tilføj filer";
+"player_speed_head" = "Afspilningsmuligheder";
 "player_speed_title" = "Sæt afspilningshastighed";
 "player_sleep_title" = "Sæt afspilningen på pause";
 "sleep_chapter_option_title" = "Slutningen af nuværende kapitel";

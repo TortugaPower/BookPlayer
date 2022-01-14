@@ -101,6 +101,7 @@
 "file_missing_description" = "Le fichier de ce livre a été supprimé de votre appareil. Importez à nouveau le fichier pour lire le livre";
 "empty_playlist_description" = "Vous pouvez également déplacer des fichiers ici en les faisant glisser sur cette liste de lecture depuis la Bibliothèque";
 "playlist_add_title" = "Ajouter des fichiers";
+"player_speed_head" = "Options de lecture";
 "player_speed_title" = "Définir la vitesse de lecture";
 "player_sleep_title" = "Mettre la lecture en pause";
 "sleep_chapter_option_title" = "Fin du chapitre en cours";

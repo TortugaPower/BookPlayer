@@ -114,6 +114,7 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "file_missing_description" = "Questo libro è stato rimosso dal tuo dispositivo. Importa di nuovo il file per riprodurre il libro";
 "empty_playlist_description" = "Puoi anche spostare i file qui trascinandoli su questa playlist nella Libreria";
 "playlist_add_title" = "Aggiungi file";
+"player_speed_head" = "Opzioni di riproduzione";
 "player_speed_title" = "Imposta velocità di riproduzione";
 "player_sleep_title" = "Pausa la riproduzione";
 "sleep_chapter_option_title" = "Fine del capitolo corrente";

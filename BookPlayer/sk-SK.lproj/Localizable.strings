@@ -101,6 +101,7 @@
 "file_missing_description" = "Súbor audioknihy bol odobratý z vášho zariadenia. Ak chcete audioknihu prehrať, znovu vložte súbor";
 "empty_playlist_description" = "Súbory tu môžete presunúť pretiahnutím na tento zoznam stôp v Knižnici";
 "playlist_add_title" = "Pridať súbory";
+"player_speed_head" = "Možnosti prehrávania";
 "player_speed_title" = "Nastavenie rýchlosti prehrávania";
 "player_sleep_title" = "Pozastavenie prehrávania";
 "sleep_chapter_option_title" = "Na konci aktuálnej kapitoly";
