@@ -396,9 +396,9 @@ extension PlayerViewController {
   @IBAction func createBookmark(_ sender: UIBarButtonItem) {
     self.viewModel.createBookmark(vc: self)
   }
-    
+
   @IBAction func setSpeed() {
-      self.viewModel.showSpeed()
+    self.viewModel.showSpeed()
   }
 
   @IBAction func setSleepTimer() {
@@ -492,8 +492,8 @@ extension PlayerViewController: UIGestureRecognizerDelegate {
                      initialSpringVelocity: 1.5,
                      options: .preferredFramesPerSecond60,
                      animations: {
-                      self.view?.transform = .identity
-                     })
+        self.view?.transform = .identity
+      })
 
     default: break
     }
@@ -503,8 +503,8 @@ extension PlayerViewController: UIGestureRecognizerDelegate {
 extension PlayerViewController: Themeable {
   func applyTheme(_ theme: SimpleTheme) {
     self.themedStatusBarStyle = theme.useDarkVariant
-      ? .lightContent
-      : .default
+    ? .lightContent
+    : .default
     setNeedsStatusBarAppearanceUpdate()
 
     self.view.backgroundColor = theme.systemBackgroundColor

@@ -26,7 +26,7 @@ class SpeedManager {
 
     // set global speed
     if UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue) {
-        UserDefaults.standard.set(newValue, forKey: "global_speed")
+      UserDefaults.standard.set(newValue, forKey: "global_speed")
     }
 
     self.currentSpeed.value = newValue
@@ -44,7 +44,7 @@ class SpeedManager {
     }
 
     self.currentSpeed.value = speed > 0 ? speed : 1.0
-    
+
     return self.currentSpeed.value
   }
 

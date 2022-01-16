@@ -94,8 +94,8 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     }
 
     return self.prefersRemainingTime
-      ? "book_time_remaining_title".localized
-      : "book_duration_title".localized
+    ? "book_time_remaining_title".localized
+    : "book_duration_title".localized
   }
 
   func handlePlayPauseAction() {
@@ -294,17 +294,17 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     // request for review if app is active
     guard UIApplication.shared.applicationState == .active else { return }
 
-    #if RELEASE
+#if RELEASE
     SKStoreReviewController.requestReview()
-    #endif
+#endif
 
     UserDefaults.standard.set(false, forKey: "ask_review")
   }
-  
+
   func showChapters() {
     self.coordinator.showChapters()
   }
-    
+
   func showSpeed() {
     self.coordinator.showSpeed()
   }
@@ -342,8 +342,8 @@ extension PlayerViewModel {
     let formattedTime = TimeParser.formatTime(bookmark.time)
 
     let titleKey = existed
-      ? "bookmark_exists_title"
-      : "bookmark_created_title"
+    ? "bookmark_exists_title"
+    : "bookmark_created_title"
 
     let alert = UIAlertController(title: String.localizedStringWithFormat(titleKey.localized, formattedTime),
                                   message: nil,
