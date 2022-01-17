@@ -305,8 +305,8 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     self.coordinator.showChapters()
   }
 
-  func showSpeed() {
-    self.coordinator.showSpeed()
+  func showControls() {
+    self.coordinator.showControls()
   }
 }
 

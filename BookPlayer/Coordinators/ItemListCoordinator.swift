@@ -34,6 +34,7 @@ enum ItemListActionRoutes {
 class ItemListCoordinator: Coordinator {
   public var onAction: Transition<ItemListActionRoutes>?
   let playerManager: PlayerManagerProtocol
+  let speedManager: SpeedManagerProtocol
   let importManager: ImportManager
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
@@ -45,11 +46,13 @@ class ItemListCoordinator: Coordinator {
   init(
     navigationController: UINavigationController,
     playerManager: PlayerManagerProtocol,
+    speedManager: SpeedManagerProtocol,
     importManager: ImportManager,
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol
   ) {
     self.playerManager = playerManager
+    self.speedManager = speedManager
     self.importManager = importManager
     self.libraryService = libraryService
     self.playbackService = playbackService
@@ -124,6 +127,7 @@ class ItemListCoordinator: Coordinator {
     let child = FolderListCoordinator(navigationController: self.navigationController,
                                       folderRelativePath: relativePath,
                                       playerManager: self.playerManager,
+                                      speedManager: self.speedManager,
                                       importManager: self.importManager,
                                       libraryService: self.libraryService,
                                       playbackService: self.playbackService)
@@ -136,6 +140,7 @@ class ItemListCoordinator: Coordinator {
     let playerCoordinator = PlayerCoordinator(
       navigationController: self.navigationController,
       playerManager: self.playerManager,
+      speedManager: self.speedManager,
       libraryService: self.libraryService
     )
     playerCoordinator.parentCoordinator = self

@@ -398,7 +398,7 @@ extension PlayerViewController {
   }
 
   @IBAction func setSpeed() {
-    self.viewModel.showSpeed()
+    self.viewModel.showControls()
   }
 
   @IBAction func setSleepTimer() {

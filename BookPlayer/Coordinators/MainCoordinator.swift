@@ -16,6 +16,7 @@ class MainCoordinator: Coordinator {
   let playerManager: PlayerManager
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
+  let speedManager: SpeedManagerProtocol
   let watchConnectivityService: WatchConnectivityService
   var carPlayManager: CarPlayManager!
 
@@ -28,13 +29,15 @@ class MainCoordinator: Coordinator {
     self.libraryService = libraryService
     let playbackService = PlaybackService(libraryService: libraryService)
     self.playbackService = playbackService
+    let speedManager = SpeedManager(libraryService: libraryService)
+    self.speedManager = speedManager
 
     let watchService = WatchConnectivityService(libraryService: libraryService, playbackService: playbackService)
     self.watchConnectivityService = watchService
     self.playerManager = PlayerManager(
       libraryService: libraryService,
       playbackService: self.playbackService,
-      speedManager: SpeedManager(libraryService: libraryService),
+      speedManager: speedManager,
       watchConnectivityService: watchService
     )
     ThemeManager.shared.libraryService = libraryService
@@ -63,6 +66,7 @@ class MainCoordinator: Coordinator {
     let libraryCoordinator = LibraryListCoordinator(
       navigationController: self.navigationController,
       playerManager: self.playerManager,
+      speedManager: self.speedManager,
       importManager: ImportManager(libraryService: self.libraryService),
       libraryService: self.libraryService,
       playbackService: self.playbackService
@@ -85,6 +89,7 @@ class MainCoordinator: Coordinator {
     let playerCoordinator = PlayerCoordinator(
       navigationController: self.navigationController,
       playerManager: self.playerManager,
+      speedManager: self.speedManager,
       libraryService: self.libraryService
     )
     playerCoordinator.parentCoordinator = self

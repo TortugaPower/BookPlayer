@@ -15,8 +15,9 @@ import WidgetKit
 
 // swiftlint:disable file_length
 
-protocol PlayerManagerProtocol {
+protocol PlayerManagerProtocol: NSObjectProtocol {
   var currentItem: PlayableItem? { get set }
+  var boostVolume: Bool { get set }
 
   func load(_ item: PlayableItem)
   func hasLoadedBook() -> Bool
@@ -35,7 +36,6 @@ protocol PlayerManagerProtocol {
 
   func getCurrentSpeed() -> Float
   func currentSpeedPublisher() -> AnyPublisher<Float, Never>
-  func setSpeed(_ newValue: Float, relativePath: String?)
 
   func isPlayingPublisher() -> AnyPublisher<Bool, Never>
   func currentItemPublisher() -> Published<PlayableItem?>.Publisher
@@ -576,15 +576,11 @@ extension PlayerManager {
   }
 
   func getCurrentSpeed() -> Float {
-    return self.speedManager.getSpeed(relativePath: nil)
+    return self.speedManager.getSpeed(relativePath: self.currentItem?.relativePath)
   }
 
   func currentSpeedPublisher() -> AnyPublisher<Float, Never> {
     return self.speedManager.currentSpeedPublisher()
-  }
-
-  func setSpeed(_ newValue: Float, relativePath: String?) {
-    self.speedManager.setSpeed(newValue, relativePath: relativePath)
   }
 
   func playPreviousItem() {

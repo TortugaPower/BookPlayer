@@ -11,12 +11,15 @@ import BookPlayerKit
 
 class PlayerCoordinator: Coordinator {
   let playerManager: PlayerManagerProtocol
+  let speedManager: SpeedManagerProtocol
   let libraryService: LibraryServiceProtocol
 
   init(navigationController: UINavigationController,
        playerManager: PlayerManagerProtocol,
+       speedManager: SpeedManagerProtocol,
        libraryService: LibraryServiceProtocol) {
     self.playerManager = playerManager
+    self.speedManager = speedManager
     self.libraryService = libraryService
 
     super.init(navigationController: navigationController, flowType: .modal)
@@ -51,12 +54,15 @@ class PlayerCoordinator: Coordinator {
     chaptersCoordinator.start()
   }
 
-  func showSpeed() {
-    let speedCoordinator = SpeedCoordinator(playerManager: self.playerManager,
-                                            navigationController: self.navigationController)
-    speedCoordinator.parentCoordinator = self
-    speedCoordinator.presentingViewController = self.presentingViewController
-    self.childCoordinators.append(speedCoordinator)
-    speedCoordinator.start()
+  func showControls() {
+    let playerControlsCoordinator = PlayerControlsCoordinator(
+      navigationController: self.navigationController,
+      playerManager: self.playerManager,
+      speedManager: self.speedManager
+    )
+    playerControlsCoordinator.parentCoordinator = self
+    playerControlsCoordinator.presentingViewController = self.presentingViewController
+    self.childCoordinators.append(playerControlsCoordinator)
+    playerControlsCoordinator.start()
   }
 }

@@ -108,7 +108,6 @@
 "file_missing_description" = "This book's file was removed from your device. Import the file again to play the book";
 "empty_playlist_description" = "You can also move files here by dragging them on this playlist in the Library";
 "playlist_add_title" = "Add files";
-"player_speed_head" = "Playback options";
 "player_speed_title" = "Set playback speed";
 "player_sleep_title" = "Pause playback";
 "sleep_chapter_option_title" = "End of current chapter";

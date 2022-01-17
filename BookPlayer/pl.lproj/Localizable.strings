@@ -101,7 +101,6 @@
 "file_missing_description" = "Plik tej książki został usunięty z twojego urządzenia. Zaimportuj plik ponownie, aby odtworzyć książkę";
 "empty_playlist_description" = "Możesz również przenieść pliki tutaj, przeciągając je na tę playlistę w Bibliotece";
 "playlist_add_title" = "Dodaj pliki";
-"player_speed_head" = "Opcje odtwarzania";
 "player_speed_title" = "Ustaw prędkość odtwarzania";
 "player_sleep_title" = "Wstrzymaj odtwarzanie";
 "sleep_chapter_option_title" = "Koniec bieżącego rozdziału";

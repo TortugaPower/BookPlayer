@@ -101,7 +101,6 @@
 "file_missing_description" = "Denna boks fil har raderats bort från din enhet. Importera filen igen för att spela boken";
 "empty_playlist_description" = "Du kan också flytta filer här genom att dra dem på den här spellistan i biblioteket";
 "playlist_add_title" = "Lägg till bokfiler";
-"player_speed_head" = "Uppspelningsalternativ";
 "player_speed_title" = "Ställ in uppspelningshastighet";
 "player_sleep_title" = "Pausa uppspelningen";
 "sleep_chapter_option_title" = "Vid slutet av detta kapitel";
