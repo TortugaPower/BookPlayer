@@ -77,17 +77,7 @@ class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator
     self.boostSwitchControl.setOn(self.viewModel.getBoostVolumeFlag(), animated: false)
   }
 
-  override func accessibilityDecrement() {
-    print("=== decrement")
-  }
-
   func setupAccessibility() {
-//    if let playbackContainerStackView = self.playbackContainerStackView,
-//        let boostContainerStackView = self.boostContainerStackView {
-//      self.mainContainterStackView.accessibilityElements = [playbackContainerStackView,
-//                                                            boostContainerStackView]
-//    }
-
     self.boostLabel.accessibilityHint = "settings_boostvolume_description".localized
     self.boostWarningLabel.isAccessibilityElement = false
 
@@ -95,8 +85,6 @@ class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator
       self.playbackLabel!,
       self.defaultSpeedButton!,
       self.stepperStackView!,
-//      self.currentSpeedLabel!,
-//      self.stepperControl!,
       self.boostLabel!,
       self.boostSwitchControl!
     ]
@@ -159,7 +147,7 @@ extension PlayerControlsViewController: Themeable {
     if #available(iOS 15.0, *) {
       self.defaultSpeedButton.tintColor = theme.primaryColor
     } else {
-      self.defaultSpeedButton.tintColor = theme.linkColor
+      self.defaultSpeedButton.setTitleColor(theme.linkColor, for: .normal)
     }
 
     self.overrideUserInterfaceStyle = theme.useDarkVariant
