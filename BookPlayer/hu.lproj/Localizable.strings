@@ -208,3 +208,5 @@
 "bound_books_create_alert_title" = "Kötet létrehozása";
 "voiceover_bound_books_progress" = "%@, kötet, %d% kész";
 "voiceover_no_bound_books_title" = "Nincs kötet címke";
+"default_title" = "Alapértelmezett";
+"voiceover_default_speed_title" = "Állítsa be az alapértelmezett sebességet";

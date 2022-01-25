@@ -208,3 +208,5 @@
 "bound_books_create_alert_title" = "Vytváranie zväzku";
 "voiceover_bound_books_progress" = "%@, Zväzok, %d percent dokončených";
 "voiceover_no_bound_books_title" = "Žiadny názov zväzku";
+"default_title" = "Predvolené";
+"voiceover_default_speed_title" = "Nastavte predvolenú rýchlosť";

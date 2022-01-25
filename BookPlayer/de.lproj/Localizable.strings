@@ -208,3 +208,5 @@
 "bound_books_create_alert_title" = "Band erstellen";
 "voiceover_bound_books_progress" = "%@, Band, %d Prozent gehört";
 "voiceover_no_bound_books_title" = "Band ohne Titel";
+"default_title" = "Standard";
+"voiceover_default_speed_title" = "Standardgeschwindigkeit einstellen";

@@ -54,6 +54,7 @@ class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator
 
     self.defaultSpeedButton.layer.masksToBounds = true
     self.defaultSpeedButton.layer.cornerRadius = 5
+    self.defaultSpeedButton.setTitle("default_title".localized, for: .normal)
 
     if let titleDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline).withSymbolicTraits(.traitBold) {
       self.defaultSpeedButton.titleLabel?.font = UIFont(descriptor: titleDescriptor, size: 0.0)
@@ -69,7 +70,7 @@ class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator
         container.font = UIFont(descriptor: titleDescriptor, size: 0.0)
 
         container.font = UIFont.boldSystemFont(ofSize: 20)
-        configuration.attributedTitle = AttributedString("Default", attributes: container)
+        configuration.attributedTitle = AttributedString("default_title".localized, attributes: container)
         self.defaultSpeedButton.configuration = configuration
       }
     }
@@ -80,6 +81,8 @@ class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator
   func setupAccessibility() {
     self.boostLabel.accessibilityHint = "settings_boostvolume_description".localized
     self.boostWarningLabel.isAccessibilityElement = false
+    self.currentSpeedLabel.isAccessibilityElement = false
+    self.defaultSpeedButton.accessibilityLabel = "voiceover_default_speed_title".localized
 
     self.mainContainterStackView.accessibilityElements = [
       self.playbackLabel!,
@@ -125,7 +128,7 @@ class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator
 
       let formattedSpeed = self.formatSpeed(speed)
       self.currentSpeedLabel.text = formattedSpeed
-      self.currentSpeedLabel.accessibilityLabel = String(describing: formattedSpeed + " \("speed_title".localized)")
+      self.playbackLabel.accessibilityLabel = String(describing: formattedSpeed + " \("speed_title".localized)")
     }
     .store(in: &disposeBag)
   }

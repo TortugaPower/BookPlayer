@@ -208,3 +208,5 @@
 "bound_books_create_alert_title" = "Создать книгу";
 "voiceover_bound_books_progress" = "Книга %@, воспроизведено %d процентов";
 "voiceover_no_bound_books_title" = "Отсутствует название книги";
+"default_title" = "Дефолт";
+"voiceover_default_speed_title" = "Установить скорость по умолчанию";
