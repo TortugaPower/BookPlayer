@@ -253,6 +253,12 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
     var currentTime = CMTimeGetSeconds(self.audioPlayer.currentTime())
 
+    // When using devices with AirPlay 1,
+    // `currentTime` can be negative when switching chapters
+    if currentTime < 0 {
+      currentTime = 0.05
+    }
+
     if currentItem.useChapterTimeContext {
       currentTime += currentItem.currentChapter.start
     }
