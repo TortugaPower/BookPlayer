@@ -208,3 +208,5 @@
 "bound_books_create_alert_title" = "Create a volume";
 "voiceover_bound_books_progress" = "%@, Volume, %d percent Completed";
 "voiceover_no_bound_books_title" = "No Volume Title";
+"default_title" = "Défaut";
+"voiceover_default_speed_title" = "Définir la vitesse par défaut";

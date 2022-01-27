@@ -208,3 +208,5 @@
 "bound_books_create_alert_title" = "Skapa en boksamling";
 "voiceover_bound_books_progress" = "%@, boksamling, %d procent läst";
 "voiceover_no_bound_books_title" = "Ingen volymtitel";
+"default_title" = "Standard";
+"voiceover_default_speed_title" = "Ställ in standardhastighet";

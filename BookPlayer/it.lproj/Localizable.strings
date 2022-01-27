@@ -258,3 +258,5 @@ Alessio Franceschi&nbsp;this is the label for the active sleep timer button when
 "bound_books_create_alert_title" = "Create a volume";
 "voiceover_bound_books_progress" = "%@, Volume, %d percent Completed";
 "voiceover_no_bound_books_title" = "No Volume Title";
+"default_title" = "Default";
+"voiceover_default_speed_title" = "Imposta la velocità predefinita";

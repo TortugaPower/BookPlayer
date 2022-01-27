@@ -9,7 +9,7 @@ on:
 jobs:
   build:
 
-    runs-on: macos-latest
+    runs-on: macos-11
 
     steps:
     - uses: actions/checkout@v2
@@ -20,5 +20,5 @@ jobs:
     - name: Resolve dependencies
       run: xcodebuild -resolvePackageDependencies
     - name: Build and Run tests
-      run: xcodebuild test -project BookPlayer.xcodeproj -scheme BookPlayer -destination 'platform=iOS Simulator,name=iPhone 12,OS=14.4'
+      run: xcodebuild test -project BookPlayer.xcodeproj -scheme BookPlayer -destination 'platform=iOS Simulator,name=iPhone 13,OS=15.0'
 

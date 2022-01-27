@@ -208,3 +208,5 @@
 "bound_books_create_alert_title" = "创建一个卷";
 "voiceover_bound_books_progress" = "%@卷%d已完成";
 "voiceover_no_bound_books_title" = "没有书卷名";
+"default_title" = "默认";
+"voiceover_default_speed_title" = "设置默认速度";

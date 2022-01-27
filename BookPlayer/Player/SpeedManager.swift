@@ -10,14 +10,19 @@ import BookPlayerKit
 import Combine
 import Foundation
 
-class SpeedManager {
+public protocol SpeedManagerProtocol {
+  var minimumSpeed: Double { get }
+  var maximumSpeed: Double { get }
+
+  func setSpeed(_ newValue: Float, relativePath: String?)
+  func getSpeed(relativePath: String?) -> Float
+}
+
+class SpeedManager: SpeedManagerProtocol {
   private let libraryService: LibraryServiceProtocol
-  let speedOptions: [Float] = [
-    0.5, 0.6, 0.7, 0.75, 0.8, 0.9,
-    1, 1.1, 1.15, 1.2, 1.25, 1.3, 1.4, 1.5, 1.6, 1.7, 1.75, 1.8, 1.9,
-    2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9,
-    3, 3.1, 3.2, 3.3, 3.4, 3.5
-  ]
+
+  let minimumSpeed: Double = 0.5
+  let maximumSpeed: Double = 5.0
 
   public private(set) var currentSpeed = CurrentValueSubject<Float, Never>(1.0)
 
@@ -32,7 +37,7 @@ class SpeedManager {
 
     // set global speed
     if UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue) {
-        UserDefaults.standard.set(newValue, forKey: "global_speed")
+      UserDefaults.standard.set(newValue, forKey: "global_speed")
     }
 
     self.currentSpeed.value = newValue

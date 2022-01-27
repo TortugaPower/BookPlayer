@@ -94,8 +94,8 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     }
 
     return self.prefersRemainingTime
-      ? "book_time_remaining_title".localized
-      : "book_duration_title".localized
+    ? "book_time_remaining_title".localized
+    : "book_duration_title".localized
   }
 
   func handlePlayPauseAction() {
@@ -294,33 +294,19 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     // request for review if app is active
     guard UIApplication.shared.applicationState == .active else { return }
 
-    #if RELEASE
+#if RELEASE
     SKStoreReviewController.requestReview()
-    #endif
+#endif
 
     UserDefaults.standard.set(false, forKey: "ask_review")
   }
 
-  func getSpeedActionSheet() -> UIAlertController {
-    let actionSheet = UIAlertController(title: nil, message: "player_speed_title".localized, preferredStyle: .actionSheet)
-
-    for speed in self.playerManager.getSpeedOptions() {
-      if speed ==  self.playerManager.getCurrentSpeed() {
-        actionSheet.addAction(UIAlertAction(title: "\u{00A0} \(speed) ✓", style: .default, handler: nil))
-      } else {
-        actionSheet.addAction(UIAlertAction(title: "\(speed)", style: .default, handler: { _ in
-          self.playerManager.setSpeed(speed, relativePath: self.playerManager.currentItem?.relativePath)
-        }))
-      }
-    }
-
-    actionSheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
-
-    return actionSheet
-  }
-
   func showChapters() {
     self.coordinator.showChapters()
+  }
+
+  func showControls() {
+    self.coordinator.showControls()
   }
 }
 
@@ -356,8 +342,8 @@ extension PlayerViewModel {
     let formattedTime = TimeParser.formatTime(bookmark.time)
 
     let titleKey = existed
-      ? "bookmark_exists_title"
-      : "bookmark_created_title"
+    ? "bookmark_exists_title"
+    : "bookmark_created_title"
 
     let alert = UIAlertController(title: String.localizedStringWithFormat(titleKey.localized, formattedTime),
                                   message: nil,

@@ -398,8 +398,7 @@ extension PlayerViewController {
   }
 
   @IBAction func setSpeed() {
-    let actionSheet = self.viewModel.getSpeedActionSheet()
-    self.present(actionSheet, animated: true, completion: nil)
+    self.viewModel.showControls()
   }
 
   @IBAction func setSleepTimer() {
@@ -493,8 +492,8 @@ extension PlayerViewController: UIGestureRecognizerDelegate {
                      initialSpringVelocity: 1.5,
                      options: .preferredFramesPerSecond60,
                      animations: {
-                      self.view?.transform = .identity
-                     })
+        self.view?.transform = .identity
+      })
 
     default: break
     }
@@ -504,8 +503,8 @@ extension PlayerViewController: UIGestureRecognizerDelegate {
 extension PlayerViewController: Themeable {
   func applyTheme(_ theme: SimpleTheme) {
     self.themedStatusBarStyle = theme.useDarkVariant
-      ? .lightContent
-      : .default
+    ? .lightContent
+    : .default
     setNeedsStatusBarAppearanceUpdate()
 
     self.view.backgroundColor = theme.systemBackgroundColor

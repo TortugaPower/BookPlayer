@@ -338,6 +338,10 @@
 		6906A553217211C600A9E0B2 /* StubFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A552217211C600A9E0B2 /* StubFactory.swift */; };
 		69343D332133844D000C425E /* VoiceOverService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69343D322133844D000C425E /* VoiceOverService.swift */; };
 		69343D36213A07B4000C425E /* VoiceOverServiceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69343D35213A07B4000C425E /* VoiceOverServiceTest.swift */; };
+		9F64C6212793C31600B2493C /* PlayerControlsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F64C6202793C31600B2493C /* PlayerControlsCoordinator.swift */; };
+		9F64C6242793C3DA00B2493C /* PlayerControlsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F64C6232793C3DA00B2493C /* PlayerControlsViewModel.swift */; };
+		9F64C6262793D5B100B2493C /* PlayerControlsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F64C6252793D5B100B2493C /* PlayerControlsViewController.swift */; };
+		9FC7101A27961C940058504C /* SpeedManagerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC7101927961C940058504C /* SpeedManagerMock.swift */; };
 		C30B66AE20E2D8CF00FC0030 /* ArtworkControl.xib in Resources */ = {isa = PBXBuildFile; fileRef = C30B66AD20E2D8CF00FC0030 /* ArtworkControl.xib */; };
 		C318D3AD208CF624000666F8 /* PlayerJumpIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = C318D3AC208CF624000666F8 /* PlayerJumpIcon.swift */; };
 		C318DDBC20A48D4700C3A17B /* BPMarqueeLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C318DDBB20A48D4700C3A17B /* BPMarqueeLabel.swift */; };
@@ -815,6 +819,10 @@
 		69225C4E2159C2650004739E /* BookSortService+SortError+PlayListSortOrder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BookSortService+SortError+PlayListSortOrder.swift"; sourceTree = "<group>"; };
 		69343D322133844D000C425E /* VoiceOverService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceOverService.swift; sourceTree = "<group>"; };
 		69343D35213A07B4000C425E /* VoiceOverServiceTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceOverServiceTest.swift; sourceTree = "<group>"; };
+		9F64C6202793C31600B2493C /* PlayerControlsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsCoordinator.swift; sourceTree = "<group>"; };
+		9F64C6232793C3DA00B2493C /* PlayerControlsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsViewModel.swift; sourceTree = "<group>"; };
+		9F64C6252793D5B100B2493C /* PlayerControlsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsViewController.swift; sourceTree = "<group>"; };
+		9FC7101927961C940058504C /* SpeedManagerMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedManagerMock.swift; sourceTree = "<group>"; };
 		C30B085E209654E3003F325B /* UIColor+BookPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+BookPlayer.swift"; sourceTree = "<group>"; };
 		C30B66AD20E2D8CF00FC0030 /* ArtworkControl.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ArtworkControl.xib; sourceTree = "<group>"; };
 		C30CD2A0209791FA00258B09 /* UIColor+Sweetercolor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+Sweetercolor.swift"; sourceTree = "<group>"; };
@@ -1082,6 +1090,7 @@
 				41188D2126ECFE450017124E /* ChapterCoordinator.swift */,
 				41A6AFA926FB666700A69E6B /* SettingsCoordinator.swift */,
 				41B68FFE2705477D00F657C3 /* StorageCoordinator.swift */,
+				9F64C6202793C31600B2493C /* PlayerControlsCoordinator.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -1495,6 +1504,7 @@
 			isa = PBXGroup;
 			children = (
 				62AAE22627492896001EB9FF /* PlayerManagerMock.swift */,
+				9FC7101927961C940058504C /* SpeedManagerMock.swift */,
 			);
 			path = Mocks;
 			sourceTree = "<group>";
@@ -1539,6 +1549,15 @@
 				62AAE230274ABB5D001EB9FF /* LibraryServiceTests.swift */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		9F64C6222793C37C00B2493C /* Controls Screen */ = {
+			isa = PBXGroup;
+			children = (
+				9F64C6232793C3DA00B2493C /* PlayerControlsViewModel.swift */,
+				9F64C6252793D5B100B2493C /* PlayerControlsViewController.swift */,
+			);
+			path = "Controls Screen";
 			sourceTree = "<group>";
 		};
 		C35E04F1207E8D0F007D3370 /* Library */ = {
@@ -1656,6 +1675,7 @@
 				410D00FB26DDD24300D11A45 /* Player Screen */,
 				410D00FC26DDD26000D11A45 /* Chapters Screen */,
 				4138CE1A26E5B4020014F11E /* Bookmarks Screen */,
+				9F64C6222793C37C00B2493C /* Controls Screen */,
 				410D0FF01EDF659900A52EB9 /* PlayerManager.swift */,
 				C3EC372D206EE0650094B4E8 /* SleepTimer.swift */,
 				4151A6A526E3A40600E49DBE /* SpeedManager.swift */,
@@ -2321,6 +2341,7 @@
 				411373A025534B8800295022 /* TelemetrySignal.swift in Sources */,
 				C375AF1920DD99E000AC034D /* ArtworkControl.swift in Sources */,
 				41544A1421BAF41400740AD2 /* ItemSelectionViewController.swift in Sources */,
+				9F64C6242793C3DA00B2493C /* PlayerControlsViewModel.swift in Sources */,
 				410D00FE26DDD2A900D11A45 /* ProgressObject.swift in Sources */,
 				C3A479152094CA3800D92122 /* UIImage+BookPlayer.swift in Sources */,
 				418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */,
@@ -2359,6 +2380,7 @@
 				41E79BED26C61D2B00EA9FFF /* PlayPauseIconView.swift in Sources */,
 				4193E2002439A1CD004D6A82 /* NetworkService.swift in Sources */,
 				4158386E26EAF76700F4A12B /* FolderListCoordinator.swift in Sources */,
+				9F64C6262793D5B100B2493C /* PlayerControlsViewController.swift in Sources */,
 				C3FE94792080086800BCEA37 /* BookCellView.swift in Sources */,
 				41AD3DA7221C850F00DC41E1 /* IconCellView.swift in Sources */,
 				4158388326EBD76A00F4A12B /* LibraryListCoordinator.swift in Sources */,
@@ -2384,6 +2406,7 @@
 				416AAC3323F51031005AD04F /* LocalizableButton.swift in Sources */,
 				416A297D2568671F00605395 /* AVPlayer+BookPlayer.swift in Sources */,
 				41E79BEB26C60DC600EA9FFF /* PlayerViewModel.swift in Sources */,
+				9F64C6212793C31600B2493C /* PlayerControlsCoordinator.swift in Sources */,
 				41C3395225E040FB003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
 				C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */,
 				4124122A26D19B9100B099DB /* StorageItem.swift in Sources */,
@@ -2414,6 +2437,7 @@
 				6906A55021720FDF00A9E0B2 /* BookSortServiceTest.swift in Sources */,
 				6279361F272D0D110097837D /* MainCoordinatorTests.swift in Sources */,
 				4197FAFA267E38D900811CC8 /* LibraryTests.swift in Sources */,
+				9FC7101A27961C940058504C /* SpeedManagerMock.swift in Sources */,
 				4137BBD0272DEBEC009ED9FE /* LoadingCoordinatorTests.swift in Sources */,
 				41A1B13E226FEF8000EA0400 /* DataTestUtils.swift in Sources */,
 				4163E313214AC43000072AA2 /* ImportOperationTests.swift in Sources */,
@@ -2685,7 +2709,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerIntents/Info.plist;
@@ -2695,7 +2719,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 4.4.2;
+				MARKETING_VERSION = 4.4.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
@@ -2719,7 +2743,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerIntents/Info.plist;
@@ -2729,7 +2753,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 4.4.2;
+				MARKETING_VERSION = 4.4.3;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2751,7 +2775,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerIntents/Info.plist;
@@ -2761,7 +2785,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 4.4.2;
+				MARKETING_VERSION = 4.4.3;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2787,7 +2811,7 @@
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWatch/BookPlayerWatch.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				IBSC_MODULE = BookPlayerWatch_Extension;
@@ -2797,7 +2821,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MARKETING_VERSION = 4.4.2;
+				MARKETING_VERSION = 4.4.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
@@ -2828,7 +2852,7 @@
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWatch/BookPlayerWatch.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				IBSC_MODULE = BookPlayerWatch_Extension;
@@ -2838,7 +2862,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MARKETING_VERSION = 4.4.2;
+				MARKETING_VERSION = 4.4.3;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2866,7 +2890,7 @@
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWatch/BookPlayerWatch.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				IBSC_MODULE = BookPlayerWatch_Extension;
@@ -2876,7 +2900,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MARKETING_VERSION = 4.4.2;
+				MARKETING_VERSION = 4.4.3;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2902,7 +2926,7 @@
 				CODE_SIGN_ENTITLEMENTS = "BookPlayerWatch Extension/BookPlayerWatch Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "BookPlayerWatch Extension/Info.plist";
@@ -2911,7 +2935,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 4.4.2;
+				MARKETING_VERSION = 4.4.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.watchkitextension";
@@ -2939,7 +2963,7 @@
 				CODE_SIGN_ENTITLEMENTS = "BookPlayerWatch Extension/BookPlayerWatch Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "BookPlayerWatch Extension/Info.plist";
@@ -2948,7 +2972,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 4.4.2;
+				MARKETING_VERSION = 4.4.3;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.watchkitextension";
 				PRODUCT_NAME = "${TARGET_NAME}";
@@ -2974,7 +2998,7 @@
 				CODE_SIGN_ENTITLEMENTS = "BookPlayerWatch Extension/BookPlayerWatch Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "BookPlayerWatch Extension/Info.plist";
@@ -2983,7 +3007,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 4.4.2;
+				MARKETING_VERSION = 4.4.3;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.watchkitextension";
 				PRODUCT_NAME = "${TARGET_NAME}";
@@ -3133,7 +3157,7 @@
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWidgetUIExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWidgetUI/Info.plist;
@@ -3143,7 +3167,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 4.4.2;
+				MARKETING_VERSION = 4.4.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
@@ -3171,7 +3195,7 @@
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWidgetUIExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWidgetUI/Info.plist;
@@ -3181,7 +3205,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 4.4.2;
+				MARKETING_VERSION = 4.4.3;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -3207,7 +3231,7 @@
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWidgetUIExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWidgetUI/Info.plist;
@@ -3217,7 +3241,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 4.4.2;
+				MARKETING_VERSION = 4.4.3;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -3353,7 +3377,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "$(inherited)";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -3366,7 +3390,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.4.2;
+				MARKETING_VERSION = 4.4.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
@@ -3388,7 +3412,7 @@
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3400,7 +3424,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.4.2;
+				MARKETING_VERSION = 4.4.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
@@ -3653,7 +3677,7 @@
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3665,7 +3689,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.4.2;
+				MARKETING_VERSION = 4.4.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";

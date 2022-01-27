@@ -11,10 +11,11 @@ import Combine
 import Foundation
 @testable import BookPlayer
 
-class PlayerManagerMock: PlayerManagerProtocol {
+class PlayerManagerMock: NSObject, PlayerManagerProtocol {
   @Published var currentItem: PlayableItem?
   @Published var currentSpeed: Float = 1.0
   var didPlayPause = false
+  var boostVolume = false
 
   func playPause() {
     self.didPlayPause = true

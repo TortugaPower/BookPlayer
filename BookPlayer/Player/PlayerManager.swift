@@ -15,8 +15,9 @@ import WidgetKit
 
 // swiftlint:disable file_length
 
-protocol PlayerManagerProtocol {
+protocol PlayerManagerProtocol: NSObjectProtocol {
   var currentItem: PlayableItem? { get set }
+  var boostVolume: Bool { get set }
 
   func load(_ item: PlayableItem)
   func hasLoadedBook() -> Bool
@@ -33,10 +34,8 @@ protocol PlayerManagerProtocol {
   func jumpTo(_ time: Double, recordBookmark: Bool)
   func markAsCompleted(_ flag: Bool)
 
-  func getSpeedOptions() -> [Float]
   func getCurrentSpeed() -> Float
   func currentSpeedPublisher() -> AnyPublisher<Float, Never>
-  func setSpeed(_ newValue: Float, relativePath: String?)
 
   func isPlayingPublisher() -> AnyPublisher<Bool, Never>
   func currentItemPublisher() -> Published<PlayableItem?>.Publisher
@@ -253,6 +252,12 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
           }
 
     var currentTime = CMTimeGetSeconds(self.audioPlayer.currentTime())
+
+    // When using devices with AirPlay 1,
+    // `currentTime` can be negative when switching chapters
+    if currentTime < 0 {
+      currentTime = 0.05
+    }
 
     if currentItem.useChapterTimeContext {
       currentTime += currentItem.currentChapter.start
@@ -576,20 +581,12 @@ extension PlayerManager {
     NotificationCenter.default.post(name: .bookEnd, object: nil, userInfo: nil)
   }
 
-  func getSpeedOptions() -> [Float] {
-    return self.speedManager.speedOptions
-  }
-
   func getCurrentSpeed() -> Float {
-    return self.speedManager.getSpeed(relativePath: nil)
+    return self.speedManager.getSpeed(relativePath: self.currentItem?.relativePath)
   }
 
   func currentSpeedPublisher() -> AnyPublisher<Float, Never> {
     return self.speedManager.currentSpeedPublisher()
-  }
-
-  func setSpeed(_ newValue: Float, relativePath: String?) {
-    self.speedManager.setSpeed(newValue, relativePath: relativePath)
   }
 
   func playPreviousItem() {
