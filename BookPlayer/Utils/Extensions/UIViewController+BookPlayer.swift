@@ -68,4 +68,18 @@ extension UIViewController {
             view.alpha = 0.0
         })
     }
+
+  func getTopViewController() -> UIViewController? {
+    var top: UIViewController = self
+
+    while true {
+      if let presented = top.presentedViewController {
+        top = presented
+      } else {
+        break
+      }
+    }
+
+    return top
+  }
 }
