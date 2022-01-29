@@ -18,7 +18,7 @@ class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator
 
   @IBOutlet weak var separatorView: UIView!
   @IBOutlet weak var playbackLabel: UILabel!
-  @IBOutlet weak var currentSpeedSlider: UISlider!
+  @IBOutlet weak var currentSpeedSlider: AccessibleSliderView!
   @IBOutlet weak var currentSpeedLabel: UILabel!
   @IBOutlet weak var speedFirstQuickActionButton: UIButton!
   @IBOutlet weak var speedSecondQuickActionButton: UIButton!
@@ -87,11 +87,12 @@ class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator
 
   func setupAccessibility() {
     self.boostLabel.accessibilityHint = "settings_boostvolume_description".localized
+    self.currentSpeedSlider.accessibilityValue = "\(self.viewModel.getCurrentSpeed())"
     self.boostWarningLabel.isAccessibilityElement = false
     self.currentSpeedLabel.isAccessibilityElement = false
 
     self.mainContainterStackView.accessibilityElements = [
-      self.playbackLabel!,
+      self.currentSpeedSlider!,
       self.boostLabel!,
       self.boostSwitchControl!
     ]
@@ -118,6 +119,7 @@ class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator
               let slider = control as? UISlider else { return }
 
         let roundedSpeedValue = self.viewModel.roundSpeedValue(slider.value)
+        self.currentSpeedSlider.accessibilityValue = "\(roundedSpeedValue)"
         self.setSliderSpeed(roundedSpeedValue)
       }
       .store(in: &disposeBag)
@@ -127,7 +129,6 @@ class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator
 
       let formattedSpeed = self.formatSpeed(speed)
       self.currentSpeedLabel.text = formattedSpeed
-      self.playbackLabel.accessibilityLabel = String(describing: formattedSpeed + " \("speed_title".localized)")
     }
     .store(in: &disposeBag)
 
