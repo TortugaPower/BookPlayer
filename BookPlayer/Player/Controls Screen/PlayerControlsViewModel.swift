@@ -13,6 +13,7 @@ import Foundation
 class PlayerControlsViewModel: BaseViewModel<PlayerControlsCoordinator> {
   let playerManager: PlayerManagerProtocol
   let speedManager: SpeedManagerProtocol
+  let speedStep: Float = 0.1
 
   init(playerManager: PlayerManagerProtocol,
        speedManager: SpeedManagerProtocol) {
@@ -24,16 +25,16 @@ class PlayerControlsViewModel: BaseViewModel<PlayerControlsCoordinator> {
     return self.playerManager.currentSpeedPublisher()
   }
 
-  func getMinimumSpeedValue() -> Double {
-    return self.speedManager.minimumSpeed
+  func getMinimumSpeedValue() -> Float {
+    return Float(self.speedManager.minimumSpeed)
   }
 
-  func getMaximumSpeedValue() -> Double {
-    return self.speedManager.maximumSpeed
+  func getMaximumSpeedValue() -> Float {
+    return Float(self.speedManager.maximumSpeed)
   }
 
-  func getCurrentSpeed() -> Double {
-    return Double(self.playerManager.getCurrentSpeed())
+  func getCurrentSpeed() -> Float {
+    return self.playerManager.getCurrentSpeed()
   }
 
   func getBoostVolumeFlag() -> Bool {
@@ -46,11 +47,15 @@ class PlayerControlsViewModel: BaseViewModel<PlayerControlsCoordinator> {
     self.playerManager.boostVolume = flag
   }
 
-  func handleSpeedChange(newValue: Double) {
+  func roundSpeedValue(_ value: Float) -> Float {
+    return round(value / self.speedStep) * self.speedStep
+  }
+
+  func handleSpeedChange(newValue: Float) {
     let roundedValue = round(newValue * 100) / 100.0
 
     self.speedManager.setSpeed(
-      Float(roundedValue),
+      roundedValue,
       relativePath: self.playerManager.currentItem?.relativePath
     )
   }

@@ -15,13 +15,14 @@ class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator
   @IBOutlet weak var mainContainterStackView: UIStackView!
   @IBOutlet weak var playbackContainerStackView: UIStackView!
   @IBOutlet weak var boostContainerStackView: UIStackView!
-  @IBOutlet weak var stepperStackView: UIStackView!
 
   @IBOutlet weak var separatorView: UIView!
   @IBOutlet weak var playbackLabel: UILabel!
-  @IBOutlet weak var defaultSpeedButton: UIButton!
+  @IBOutlet weak var currentSpeedSlider: AccessibleSliderView!
   @IBOutlet weak var currentSpeedLabel: UILabel!
-  @IBOutlet weak var stepperControl: UIStepper!
+  @IBOutlet weak var speedFirstQuickActionButton: UIButton!
+  @IBOutlet weak var speedSecondQuickActionButton: UIButton!
+  @IBOutlet weak var speedThirdQuickActionButton: UIButton!
 
   @IBOutlet weak var boostLabel: UILabel!
   @IBOutlet weak var boostWarningLabel: UILabel!
@@ -45,33 +46,39 @@ class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator
     self.boostLabel.text = "settings_boostvolume_title".localized
     self.boostWarningLabel.text = "settings_boostvolume_description".localized
 
-    self.stepperControl.accessibilityTraits = .adjustable
+    self.speedFirstQuickActionButton.layer.masksToBounds = true
+    self.speedFirstQuickActionButton.layer.cornerRadius = 5
+    self.speedSecondQuickActionButton.layer.masksToBounds = true
+    self.speedSecondQuickActionButton.layer.cornerRadius = 5
+    self.speedThirdQuickActionButton.layer.masksToBounds = true
+    self.speedThirdQuickActionButton.layer.cornerRadius = 5
 
-    self.stepperControl.minimumValue = self.viewModel.getMinimumSpeedValue()
-    self.stepperControl.maximumValue = self.viewModel.getMaximumSpeedValue()
-    self.stepperControl.value = self.viewModel.getCurrentSpeed()
-    self.stepperControl.stepValue = 0.05
-
-    self.defaultSpeedButton.layer.masksToBounds = true
-    self.defaultSpeedButton.layer.cornerRadius = 5
-    self.defaultSpeedButton.setTitle("default_title".localized, for: .normal)
+    self.currentSpeedSlider.minimumValue = self.viewModel.getMinimumSpeedValue()
+    self.currentSpeedSlider.maximumValue = self.viewModel.getMaximumSpeedValue()
+    self.currentSpeedSlider.value = self.viewModel.getCurrentSpeed()
 
     if let titleDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline).withSymbolicTraits(.traitBold) {
-      self.defaultSpeedButton.titleLabel?.font = UIFont(descriptor: titleDescriptor, size: 0.0)
-      self.defaultSpeedButton.titleLabel?.adjustsFontForContentSizeCategory = true
+      self.speedFirstQuickActionButton.titleLabel?.font = UIFont(descriptor: titleDescriptor, size: 0.0)
+      self.speedFirstQuickActionButton.titleLabel?.adjustsFontForContentSizeCategory = true
+      self.speedSecondQuickActionButton.titleLabel?.font = UIFont(descriptor: titleDescriptor, size: 0.0)
+      self.speedSecondQuickActionButton.titleLabel?.adjustsFontForContentSizeCategory = true
+      self.speedThirdQuickActionButton.titleLabel?.font = UIFont(descriptor: titleDescriptor, size: 0.0)
+      self.speedThirdQuickActionButton.titleLabel?.adjustsFontForContentSizeCategory = true
+
       self.playbackLabel.font = UIFont(descriptor: titleDescriptor, size: 0.0)
       self.playbackLabel.adjustsFontForContentSizeCategory = true
       self.boostLabel.font = UIFont(descriptor: titleDescriptor, size: 0.0)
       self.boostLabel.adjustsFontForContentSizeCategory = true
 
       if #available(iOS 15.0, *) {
-        var configuration = UIButton.Configuration.gray()
+        let configuration = UIButton.Configuration.gray()
         var container = AttributeContainer()
         container.font = UIFont(descriptor: titleDescriptor, size: 0.0)
 
         container.font = UIFont.boldSystemFont(ofSize: 20)
-        configuration.attributedTitle = AttributedString("default_title".localized, attributes: container)
-        self.defaultSpeedButton.configuration = configuration
+        self.speedFirstQuickActionButton.configuration = configuration
+        self.speedSecondQuickActionButton.configuration = configuration
+        self.speedThirdQuickActionButton.configuration = configuration
       }
     }
 
@@ -80,14 +87,12 @@ class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator
 
   func setupAccessibility() {
     self.boostLabel.accessibilityHint = "settings_boostvolume_description".localized
+    self.currentSpeedSlider.accessibilityValue = "\(self.viewModel.getCurrentSpeed())"
     self.boostWarningLabel.isAccessibilityElement = false
     self.currentSpeedLabel.isAccessibilityElement = false
-    self.defaultSpeedButton.accessibilityLabel = "voiceover_default_speed_title".localized
 
     self.mainContainterStackView.accessibilityElements = [
-      self.playbackLabel!,
-      self.defaultSpeedButton!,
-      self.stepperStackView!,
+      self.currentSpeedSlider!,
       self.boostLabel!,
       self.boostSwitchControl!
     ]
@@ -100,13 +105,6 @@ class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator
   }
 
   func bindObservers() {
-    self.defaultSpeedButton.publisher(for: .touchUpInside)
-      .sink { [weak self] _ in
-        self?.stepperControl.value = 1.0
-        self?.viewModel.handleSpeedChange(newValue: 1.0)
-      }
-      .store(in: &disposeBag)
-
     self.boostSwitchControl.publisher(for: .valueChanged)
       .sink { [weak self] control in
         guard let switchControl = control as? UISwitch else { return }
@@ -115,11 +113,14 @@ class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator
       }
       .store(in: &disposeBag)
 
-    self.stepperControl.publisher(for: .valueChanged)
+    self.currentSpeedSlider.publisher(for: .valueChanged)
       .sink { [weak self] control in
-        guard let stepper = control as? UIStepper else { return }
+        guard let self = self,
+              let slider = control as? UISlider else { return }
 
-        self?.viewModel.handleSpeedChange(newValue: stepper.value)
+        let roundedSpeedValue = self.viewModel.roundSpeedValue(slider.value)
+        self.currentSpeedSlider.accessibilityValue = "\(roundedSpeedValue)"
+        self.setSliderSpeed(roundedSpeedValue)
       }
       .store(in: &disposeBag)
 
@@ -128,9 +129,28 @@ class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator
 
       let formattedSpeed = self.formatSpeed(speed)
       self.currentSpeedLabel.text = formattedSpeed
-      self.playbackLabel.accessibilityLabel = String(describing: formattedSpeed + " \("speed_title".localized)")
     }
     .store(in: &disposeBag)
+
+    self.speedFirstQuickActionButton.publisher(for: .touchUpInside)
+      .sink { [weak self] _ in
+        self?.setSliderSpeed(1)
+      }.store(in: &disposeBag)
+
+    self.speedSecondQuickActionButton.publisher(for: .touchUpInside)
+      .sink { [weak self] _ in
+        self?.setSliderSpeed(2)
+      }.store(in: &disposeBag)
+
+    self.speedThirdQuickActionButton.publisher(for: .touchUpInside)
+      .sink { [weak self] _ in
+        self?.setSliderSpeed(3)
+      }.store(in: &disposeBag)
+  }
+
+  private func setSliderSpeed(_ value: Float) {
+    self.currentSpeedSlider.value = value
+    self.viewModel.handleSpeedChange(newValue: value)
   }
 
   @IBAction func done(_ sender: UIBarButtonItem?) {
@@ -147,10 +167,17 @@ extension PlayerControlsViewController: Themeable {
     self.boostLabel.textColor = theme.primaryColor
     self.boostSwitchControl.tintColor = theme.linkColor
 
+    self.currentSpeedSlider.minimumTrackTintColor = theme.linkColor
+    self.currentSpeedSlider.maximumTrackTintColor = theme.separatorColor
+
     if #available(iOS 15.0, *) {
-      self.defaultSpeedButton.tintColor = theme.primaryColor
+      self.speedFirstQuickActionButton.tintColor = theme.primaryColor
+      self.speedSecondQuickActionButton.tintColor = theme.primaryColor
+      self.speedThirdQuickActionButton.tintColor = theme.primaryColor
     } else {
-      self.defaultSpeedButton.setTitleColor(theme.linkColor, for: .normal)
+      self.speedFirstQuickActionButton.setTitleColor(theme.linkColor, for: .normal)
+      self.speedSecondQuickActionButton.setTitleColor(theme.linkColor, for: .normal)
+      self.speedThirdQuickActionButton.setTitleColor(theme.linkColor, for: .normal)
     }
 
     self.overrideUserInterfaceStyle = theme.useDarkVariant
