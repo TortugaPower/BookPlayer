@@ -124,11 +124,14 @@ class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator
       }
       .store(in: &disposeBag)
 
-    self.viewModel.currentSpeedPublisher().sink { [weak self] speed in
+    self.viewModel.currentSpeedPublisher()
+      .removeDuplicates()
+      .sink { [weak self] speed in
       guard let self = self else { return }
 
       let formattedSpeed = self.formatSpeed(speed)
       self.currentSpeedLabel.text = formattedSpeed
+      UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
     .store(in: &disposeBag)
 
