@@ -11,15 +11,11 @@
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
+        <string>d</string>
         <key>one</key>
-        <string>súbor/y/ov</string>
-        <key>few</key>
-        <string>súbor/y/ov</string>
-        <key>many</key>
-        <string>súbor/y/ov</string>
+        <string>Tyhjä</string>
         <key>other</key>
-        <string>súbor/y/ov</string>
+        <string>Tiedostot</string>
       </dict>
     </dict>
     <key>delete_multiple_items_title</key>
@@ -33,13 +29,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Chcete odstrániť 1 položku?</string>
-        <key>few</key>
-        <string>Chcete odstrániť %d položky?</string>
-        <key>many</key>
-        <string>Chcete odstrániť %d položky?</string>
+        <string>Tyhjä</string>
         <key>other</key>
-        <string>Chcete odstrániť %d položiek?</string>
+        <string>Haluatko poistaa %d kohdetta?</string>
       </dict>
     </dict>
     <key>import_alert_title</key>
@@ -53,13 +45,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Importovanie 1 súboru do</string>
-        <key>few</key>
-        <string>Importovanie %d súborov do</string>
-        <key>many</key>
-        <string>Importovanie %d súboru do</string>
+        <string>Tuo %d tiedosto kohteeseen</string>
         <key>other</key>
-        <string>Importovanie %d súborov do</string>
+        <string>Tuo %d tiedostoa kohteeseen</string>
       </dict>
     </dict>
     <key>import_processing_description</key>
@@ -73,13 +61,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Spracovanie 1 súboru</string>
-        <key>few</key>
-        <string>Spracovanie %d súborov</string>
-        <key>many</key>
-        <string>Spracovanie %d súboru</string>
+        <string>Työstetään yhtä tiedostoa</string>
         <key>other</key>
-        <string>Spracovanie %d súborov</string>
+        <string>Työstetään %d tiedostoa</string>
       </dict>
     </dict>
   </dict>
