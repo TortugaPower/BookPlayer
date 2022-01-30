@@ -23,6 +23,8 @@ class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator
   @IBOutlet weak var speedFirstQuickActionButton: UIButton!
   @IBOutlet weak var speedSecondQuickActionButton: UIButton!
   @IBOutlet weak var speedThirdQuickActionButton: UIButton!
+  @IBOutlet weak var decrementSpeedButton: UIButton!
+  @IBOutlet weak var incrementSpeedButton: UIButton!
 
   @IBOutlet weak var boostLabel: UILabel!
   @IBOutlet weak var boostWarningLabel: UILabel!
@@ -149,6 +151,22 @@ class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator
       .sink { [weak self] _ in
         self?.setSliderSpeed(3)
       }.store(in: &disposeBag)
+
+    self.decrementSpeedButton.publisher(for: .touchUpInside)
+      .sink { [weak self] _ in
+        guard let self = self,
+              self.currentSpeedSlider.value > self.viewModel.getMinimumSpeedValue() else { return }
+
+        self.setSliderSpeed(self.currentSpeedSlider.value - 0.05)
+      }.store(in: &disposeBag)
+
+    self.incrementSpeedButton.publisher(for: .touchUpInside)
+      .sink { [weak self] _ in
+        guard let self = self,
+        self.currentSpeedSlider.value < self.viewModel.getMaximumSpeedValue() else { return }
+
+        self.setSliderSpeed(self.currentSpeedSlider.value + 0.05)
+      }.store(in: &disposeBag)
   }
 
   private func setSliderSpeed(_ value: Float) {
@@ -177,10 +195,14 @@ extension PlayerControlsViewController: Themeable {
       self.speedFirstQuickActionButton.tintColor = theme.primaryColor
       self.speedSecondQuickActionButton.tintColor = theme.primaryColor
       self.speedThirdQuickActionButton.tintColor = theme.primaryColor
+      self.decrementSpeedButton.tintColor = theme.primaryColor
+      self.incrementSpeedButton.tintColor = theme.primaryColor
     } else {
       self.speedFirstQuickActionButton.setTitleColor(theme.linkColor, for: .normal)
       self.speedSecondQuickActionButton.setTitleColor(theme.linkColor, for: .normal)
       self.speedThirdQuickActionButton.setTitleColor(theme.linkColor, for: .normal)
+      self.decrementSpeedButton.tintColor = theme.linkColor
+      self.incrementSpeedButton.tintColor = theme.linkColor
     }
 
     self.overrideUserInterfaceStyle = theme.useDarkVariant

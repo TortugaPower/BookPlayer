@@ -384,17 +384,17 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="BookmarkTableViewCell" id="Te8-vH-xXS" customClass="BookmarkTableViewCell" customModule="BookPlayer" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="44.5" width="414" height="123"/>
+                                <rect key="frame" x="0.0" y="44.5" width="414" height="126"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Te8-vH-xXS" id="A4Z-5c-eS3">
-                                    <rect key="frame" x="0.0" y="0.0" width="414" height="123"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="126"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="Nwf-Dq-SSB">
-                                            <rect key="frame" x="16" y="5" width="382" height="113"/>
+                                            <rect key="frame" x="16" y="5" width="382" height="116"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="254" horizontalCompressionResistancePriority="745" text="00:00:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jie-XM-DdZ">
-                                                    <rect key="frame" x="0.0" y="0.0" width="61" height="113"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="61" height="116"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="61" id="jXf-E9-2g1"/>
                                                     </constraints>
@@ -403,7 +403,7 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="246" horizontalCompressionResistancePriority="753" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1vu-0y-Gsj">
-                                                    <rect key="frame" x="69" y="0.0" width="285" height="113"/>
+                                                    <rect key="frame" x="69" y="0.0" width="285" height="116"/>
                                                     <string key="text">This is a test of a description
 with two lines</string>
                                                     <fontDescription key="fontDescription" type="system" pointSize="15"/>
@@ -411,10 +411,10 @@ with two lines</string>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="At3-bV-uru">
-                                                    <rect key="frame" x="362" y="0.0" width="20" height="113"/>
+                                                    <rect key="frame" x="362" y="0.0" width="20" height="116"/>
                                                     <subviews>
                                                         <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="252" translatesAutoresizingMaskIntoConstraints="NO" id="hl8-aB-hHI">
-                                                            <rect key="frame" x="0.0" y="46.5" width="20" height="20"/>
+                                                            <rect key="frame" x="0.0" y="48" width="20" height="20"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="width" constant="20" id="GgN-Bh-f4r"/>
                                                                 <constraint firstAttribute="height" constant="20" id="w74-rW-tSe"/>
@@ -525,6 +525,15 @@ with two lines</string>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="EJm-SF-lge">
                                                 <rect key="frame" x="0.0" y="0.0" width="366" height="32"/>
                                                 <subviews>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hCV-r7-j9u">
+                                                        <rect key="frame" x="32" y="0.5" width="31" height="31"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="31" id="KDL-Bo-cOI"/>
+                                                            <constraint firstAttribute="width" constant="31" id="uoz-dD-Juz"/>
+                                                        </constraints>
+                                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                        <state key="normal" image="minus.circle" catalog="system"/>
+                                                    </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fbR-0t-LKo">
                                                         <rect key="frame" x="68" y="0.0" width="70" height="32"/>
                                                         <constraints>
@@ -552,13 +561,26 @@ with two lines</string>
                                                         <state key="normal" title="Button"/>
                                                         <buttonConfiguration key="configuration" style="plain" title="3.0×"/>
                                                     </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="huR-Zt-fkc">
+                                                        <rect key="frame" x="303" y="0.5" width="31" height="31"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="width" constant="31" id="K4Y-qK-4bI"/>
+                                                            <constraint firstAttribute="height" constant="31" id="nLW-hp-pUm"/>
+                                                        </constraints>
+                                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                        <state key="normal" image="plus.circle" catalog="system"/>
+                                                    </button>
                                                 </subviews>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <constraints>
+                                                    <constraint firstItem="huR-Zt-fkc" firstAttribute="centerY" secondItem="EJm-SF-lge" secondAttribute="centerY" id="5Fb-7u-ojL"/>
                                                     <constraint firstItem="fbR-0t-LKo" firstAttribute="centerY" secondItem="EJm-SF-lge" secondAttribute="centerY" id="6bm-Qb-lod"/>
                                                     <constraint firstItem="CMV-vC-k87" firstAttribute="centerY" secondItem="EJm-SF-lge" secondAttribute="centerY" id="7EJ-iX-gVu"/>
+                                                    <constraint firstItem="huR-Zt-fkc" firstAttribute="leading" secondItem="CMV-vC-k87" secondAttribute="trailing" constant="5" id="Eyn-Kl-gu5"/>
                                                     <constraint firstItem="CMV-vC-k87" firstAttribute="leading" secondItem="1Kk-sW-hto" secondAttribute="trailing" constant="10" id="FiN-ea-lAe"/>
+                                                    <constraint firstItem="hCV-r7-j9u" firstAttribute="centerY" secondItem="EJm-SF-lge" secondAttribute="centerY" id="fpY-WQ-UrX"/>
                                                     <constraint firstItem="1Kk-sW-hto" firstAttribute="centerX" secondItem="EJm-SF-lge" secondAttribute="centerX" id="h5z-kf-0Rm"/>
+                                                    <constraint firstItem="fbR-0t-LKo" firstAttribute="leading" secondItem="hCV-r7-j9u" secondAttribute="trailing" constant="5" id="iNQ-s1-8u9"/>
                                                     <constraint firstItem="1Kk-sW-hto" firstAttribute="centerY" secondItem="EJm-SF-lge" secondAttribute="centerY" id="w2Y-Ix-ZJi"/>
                                                     <constraint firstItem="1Kk-sW-hto" firstAttribute="leading" secondItem="fbR-0t-LKo" secondAttribute="trailing" constant="10" id="yhj-uo-n0K"/>
                                                 </constraints>
@@ -637,6 +659,8 @@ Use with caution and care for your hearing.</string>
                         <outlet property="boostWarningLabel" destination="9d8-f2-tOD" id="URF-zI-bOu"/>
                         <outlet property="currentSpeedLabel" destination="bNA-0S-HSw" id="Q8u-p3-d9O"/>
                         <outlet property="currentSpeedSlider" destination="9G4-Hw-bkq" id="NZA-bu-HYZ"/>
+                        <outlet property="decrementSpeedButton" destination="hCV-r7-j9u" id="KK1-tD-Sle"/>
+                        <outlet property="incrementSpeedButton" destination="huR-Zt-fkc" id="3Y1-vN-CcO"/>
                         <outlet property="mainContainterStackView" destination="GG9-6P-sif" id="ppg-W8-AGk"/>
                         <outlet property="playbackContainerStackView" destination="820-mH-tvu" id="FWV-2I-4CH"/>
                         <outlet property="playbackLabel" destination="n9d-nZ-fG0" id="i8c-rw-EOe"/>
@@ -656,6 +680,8 @@ Use with caution and care for your hearing.</string>
         <image name="chevron.right" catalog="system" width="96" height="128"/>
         <image name="list.bullet" catalog="system" width="128" height="88"/>
         <image name="maskPlayerClose" width="40" height="14"/>
+        <image name="minus.circle" catalog="system" width="128" height="121"/>
+        <image name="plus.circle" catalog="system" width="128" height="121"/>
         <image name="toolbarIconBookmark" width="22" height="26"/>
         <image name="toolbarIconMore" width="24" height="24"/>
         <image name="toolbarIconTimer" width="24" height="24"/>
