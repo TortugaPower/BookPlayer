@@ -11,7 +11,7 @@ import Themeable
 import UIKit
 import WidgetKit
 
-class IconsViewController: UIViewController, TelemetryProtocol {
+class IconsViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var bannerView: PlusBannerView!
     @IBOutlet weak var bannerHeightConstraint: NSLayoutConstraint!
@@ -34,7 +34,6 @@ class IconsViewController: UIViewController, TelemetryProtocol {
         }
 
         setUpTheming()
-        self.sendSignal(.appIconsScreen, with: nil)
     }
 
     @objc func donationMade() {
@@ -115,8 +114,6 @@ extension IconsViewController: UITableViewDelegate {
         let item = self.icons[indexPath.row]
 
         self.changeIcon(to: item.id)
-
-        self.sendSignal(.appIconAction, with: ["icon": item.title])
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

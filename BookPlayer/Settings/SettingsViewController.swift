@@ -20,7 +20,6 @@ protocol IntentSelectionDelegate: AnyObject {
 
 class SettingsViewController: BaseTableViewController<SettingsCoordinator, SettingsViewModel>,
                               MFMailComposeViewControllerDelegate,
-                              TelemetryProtocol,
                               Storyboarded {
   @IBOutlet weak var autoplayLibrarySwitch: UISwitch!
   @IBOutlet weak var disableAutolockSwitch: UISwitch!
@@ -110,19 +109,16 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
 
     @objc func autoplayToggleDidChange() {
         UserDefaults.standard.set(self.autoplayLibrarySwitch.isOn, forKey: Constants.UserDefaults.autoplayEnabled.rawValue)
-        self.sendSignal(.autoplayLibraryAction, with: ["isOn": "\(self.autoplayLibrarySwitch.isOn)"])
     }
 
     @objc func disableAutolockDidChange() {
         UserDefaults.standard.set(self.disableAutolockSwitch.isOn, forKey: Constants.UserDefaults.autolockDisabled.rawValue)
         self.autolockDisabledOnlyWhenPoweredSwitch.isEnabled = self.disableAutolockSwitch.isOn
         self.autolockDisabledOnlyWhenPoweredLabel.isEnabled = self.disableAutolockSwitch.isOn
-        self.sendSignal(.disableAutolockAction, with: ["isOn": "\(self.disableAutolockSwitch.isOn)"])
     }
 
     @objc func autolockOnlyWhenPoweredDidChange() {
         UserDefaults.standard.set(self.autolockDisabledOnlyWhenPoweredSwitch.isOn, forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered.rawValue)
-        self.sendSignal(.disableAutolockOnPowerAction, with: ["isOn": "\(self.autolockDisabledOnlyWhenPoweredSwitch.isOn)"])
     }
 
   @objc func iCloudBackupsDidChange() {
@@ -240,12 +236,9 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
         vc.delegate = self
 
         self.present(vc, animated: true, completion: nil)
-        self.sendSignal(.lastPlayedSiriShortcutAction, with: nil)
     }
 
     func showSleepTimerShortcut() {
-      self.sendSignal(.sleepTimerSiriShortcutAction, with: nil)
-
       let intent = SleepTimerIntent()
       intent.option = .unknown
       let shortcut = INShortcut(intent: intent)!
@@ -257,7 +250,6 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
     }
 
     @IBAction func sendSupportEmail() {
-        self.sendSignal(.emailSupportAction, with: nil)
         let device = Device.current
 
         if MFMailComposeViewController.canSendMail() {
@@ -291,7 +283,6 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
         safari.dismissButtonStyle = .close
 
         self.present(safari, animated: true)
-        self.sendSignal(.githubScreen, with: nil)
     }
 }
 

@@ -10,7 +10,7 @@ import BookPlayerKit
 import Themeable
 import UIKit
 
-class PlayerSettingsViewController: UITableViewController, TelemetryProtocol {
+class PlayerSettingsViewController: UITableViewController {
     @IBOutlet weak var smartRewindSwitch: UISwitch!
     @IBOutlet weak var boostVolumeSwitch: UISwitch!
     @IBOutlet weak var globalSpeedSwitch: UISwitch!
@@ -39,7 +39,6 @@ class PlayerSettingsViewController: UITableViewController, TelemetryProtocol {
         // Retrieve initial skip values from PlayerManager
         self.rewindIntervalLabel.text = TimeParser.formatDuration(PlayerManager.rewindInterval)
         self.forwardIntervalLabel.text = TimeParser.formatDuration(PlayerManager.forwardInterval)
-        self.sendSignal(.playerControlsScreen, with: nil)
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -48,7 +47,6 @@ class PlayerSettingsViewController: UITableViewController, TelemetryProtocol {
         }
 
         if segue.identifier == "AdjustRewindIntervalSegue" {
-            self.sendSignal(.rewindIntervalsScreen, with: nil)
             viewController.title = "settings_skip_rewind_title".localized
             viewController.selectedInterval = PlayerManager.rewindInterval
             viewController.didSelectInterval = { selectedInterval in
@@ -59,7 +57,6 @@ class PlayerSettingsViewController: UITableViewController, TelemetryProtocol {
         }
 
         if segue.identifier == "AdjustForwardIntervalSegue" {
-            self.sendSignal(.forwardIntervalsScreen, with: nil)
             viewController.title = "settings_skip_forward_title".localized
             viewController.selectedInterval = PlayerManager.forwardInterval
             viewController.didSelectInterval = { selectedInterval in
