@@ -22,7 +22,7 @@ class SpeedManager: SpeedManagerProtocol {
   private let libraryService: LibraryServiceProtocol
 
   let minimumSpeed: Double = 0.5
-  let maximumSpeed: Double = 5.0
+  let maximumSpeed: Double = 4.0
 
   public private(set) var currentSpeed = CurrentValueSubject<Float, Never>(1.0)
 

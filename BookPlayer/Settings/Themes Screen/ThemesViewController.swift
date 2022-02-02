@@ -11,7 +11,7 @@ import Themeable
 import UIKit
 import WidgetKit
 
-class ThemesViewController: UIViewController, TelemetryProtocol {
+class ThemesViewController: UIViewController {
     @IBOutlet var brightnessViews: [UIView]!
     @IBOutlet weak var brightnessContainerHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var brightnessDescriptionLabel: UILabel!
@@ -89,8 +89,6 @@ class ThemesViewController: UIViewController, TelemetryProtocol {
         self.brightnessChanged()
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.brightnessChanged), name: UIScreen.brightnessDidChangeNotification, object: nil)
-
-        self.sendSignal(.themesScreen, with: nil)
     }
 
     override func viewDidLayoutSubviews() {
@@ -146,7 +144,6 @@ class ThemesViewController: UIViewController, TelemetryProtocol {
         }
 
         UserDefaults.standard.set(sender.isOn, forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue)
-        self.sendSignal(.themeSystemModeAction, with: ["isOn": "\(sender.isOn)"])
         self.brightnessSwitch.isEnabled = !sender.isOn
         self.darkModeSwitch.isEnabled = !sender.isOn
 
@@ -168,12 +165,10 @@ class ThemesViewController: UIViewController, TelemetryProtocol {
     @IBAction func toggleDarkMode(_ sender: UISwitch) {
         UserDefaults.standard.set(sender.isOn, forKey: Constants.UserDefaults.themeDarkVariantEnabled.rawValue)
         ThemeManager.shared.useDarkVariant = sender.isOn
-        self.sendSignal(.alwaysDarkThemeAction, with: ["isOn": "\(sender.isOn)"])
     }
 
     @IBAction func toggleAutomaticBrightness(_ sender: UISwitch) {
         UserDefaults.standard.set(sender.isOn, forKey: Constants.UserDefaults.themeBrightnessEnabled.rawValue)
-        self.sendSignal(.automaticThemeAction, with: ["isOn": "\(sender.isOn)"])
         self.toggleAutomaticBrightness(animated: true)
         self.sliderUp(self.brightnessSlider)
 
@@ -296,7 +291,6 @@ extension ThemesViewController: UITableViewDelegate {
         if #available(iOS 14.0, *) {
             WidgetCenter.shared.reloadAllTimelines()
         }
-        self.sendSignal(.themeAction, with: ["theme": item.title ?? ""])
     }
 }
 

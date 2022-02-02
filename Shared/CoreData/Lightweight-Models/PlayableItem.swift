@@ -59,6 +59,7 @@ public final class PlayableItem: NSObject {
 
     super.init()
 
+    self.currentChapter = chapters[0]
     self.updateCurrentChapter()
   }
 

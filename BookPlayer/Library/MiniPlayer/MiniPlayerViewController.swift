@@ -68,8 +68,8 @@ class MiniPlayerViewController: BaseViewController<MainCoordinator, MiniPlayerVi
   func bindObservers() {
     self.viewModel.isPlayingObserver()
       .receive(on: DispatchQueue.main)
-      .sink { isPlaying in
-        self.playIconView.isPlaying = isPlaying
+      .sink { [weak self] isPlaying in
+        self?.playIconView.isPlaying = isPlaying
       }
       .store(in: &disposeBag)
 

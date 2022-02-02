@@ -14,12 +14,11 @@ import Intents
 import MediaPlayer
 import Sentry
 import SwiftyStoreKit
-import TelemetryClient
 import UIKit
 import WatchConnectivity
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
+class AppDelegate: UIResponder, UIApplicationDelegate {
   var window: UIWindow?
   let coordinator = LoadingCoordinator(
     navigationController: UINavigationController(),
@@ -88,8 +87,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
         self.setupDocumentListener()
         // setup store required listeners
         self.setupStoreListener()
-        // initialize Telemetry
-        self.setupTelemetry()
 
         // Create a Sentry client
         SentrySDK.start { options in
@@ -110,11 +107,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
       }
 
       return true
-    }
-
-    func setupTelemetry() {
-        let configuration = TelemetryManagerConfiguration(appID: "BD342A23-826F-4490-BC0F-7CD24A5CE7F8")
-        TelemetryManager.initialize(with: configuration)
     }
 
     // Handles audio file urls, like when receiving files through AirDrop
@@ -205,7 +197,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TelemetryProtocol {
           }
 
     mainCoordinator.playerManager.playPause()
-    self.sendSignal(.magicTapAction, with: nil)
     return true
   }
 

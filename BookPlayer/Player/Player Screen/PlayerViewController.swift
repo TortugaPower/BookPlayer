@@ -15,7 +15,7 @@ import StoreKit
 import Themeable
 import UIKit
 
-class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewModel>, TelemetryProtocol, Storyboarded {
+class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewModel>, Storyboarded {
   @IBOutlet private weak var closeButton: UIButton!
   @IBOutlet private weak var closeButtonTop: NSLayoutConstraint!
   @IBOutlet private weak var bottomToolbar: UIToolbar!
@@ -223,8 +223,8 @@ extension PlayerViewController {
   func bindPlaybackControlsObservers() {
     self.viewModel.isPlayingObserver()
       .receive(on: DispatchQueue.main)
-      .sink { isPlaying in
-        self.playIconView.isPlaying = isPlaying
+      .sink { [weak self] isPlaying in
+        self?.playIconView.isPlaying = isPlaying
       }
       .store(in: &disposeBag)
 
@@ -281,7 +281,9 @@ extension PlayerViewController {
   }
 
   func bindTimerObserver() {
-    SleepTimer.shared.timeLeftFormatted.sink { timeFormatted in
+    SleepTimer.shared.timeLeftFormatted.sink { [weak self] timeFormatted in
+      guard let self = self else { return }
+
       self.sleepLabel.title = timeFormatted
 
       if let timeFormatted = timeFormatted {
