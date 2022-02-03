@@ -91,18 +91,26 @@ public final class PlayableItem: NSObject {
     : self.currentTime
   }
 
-  public func maxTimeInContext(_ prefersChapterContext: Bool, _ prefersRemainingTime: Bool) -> TimeInterval {
+  public func maxTimeInContext(
+    prefersChapterContext: Bool,
+    prefersRemainingTime: Bool,
+    at speedRate: Float
+  ) -> TimeInterval {
     guard prefersChapterContext else {
-      return prefersRemainingTime
-      ? self.currentTimeInContext(prefersChapterContext) - self.duration
-      : self.duration
+      if prefersRemainingTime {
+        let time = self.currentTimeInContext(prefersChapterContext) - self.duration
+        return time / Double(speedRate)
+      } else {
+        return self.duration
+      }
     }
 
-    let time = prefersRemainingTime
-    ? self.currentTimeInContext(prefersChapterContext) - self.currentChapter.duration
-    : self.currentChapter.duration
-
-    return time
+    if prefersRemainingTime {
+      let time = self.currentTimeInContext(prefersChapterContext) - self.currentChapter.duration
+      return time / Double(speedRate)
+    } else {
+      return self.currentChapter.duration
+    }
   }
 
   public func durationTimeInContext(_ prefersChapterContext: Bool) -> TimeInterval {

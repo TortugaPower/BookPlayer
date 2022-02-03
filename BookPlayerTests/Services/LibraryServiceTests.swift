@@ -1164,7 +1164,7 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(book.lastPlayDate == now)
   }
 
-  func testGetItemSpeec() throws {
+  func testGetItemSpeed() throws {
     let book = StubFactory.book(
       dataManager: self.sut.dataManager,
       title: "test-book1",
