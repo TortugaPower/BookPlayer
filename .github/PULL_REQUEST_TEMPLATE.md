@@ -9,9 +9,9 @@
 - If this is a bugfix branch, fill this out instead of the above "Purpose" section.
 - Describe what issue is being fixed
 
-## Linear tasks
+## Related tasks
 
-- Links to the Linear tasks being addressed in this PR
+- Links to related tasks being addressed in this PR
 
 ## Approach
 
