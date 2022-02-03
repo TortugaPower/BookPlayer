@@ -168,7 +168,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     self.playableChapterSubscription = item.$currentChapter.sink { [weak self] chapter in
       guard let chapter = chapter else { return }
 
-      self?.setNowPlayingBookTitle()
+      self?.setNowPlayingBookTitle(chapter: chapter)
       NotificationCenter.default.post(name: .chapterChange, object: nil, userInfo: nil)
 
       // avoid loading the same item if it's already loaded
@@ -207,7 +207,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
           MPNowPlayingInfoPropertyDefaultPlaybackRate: self.speedManager.getSpeed(relativePath: chapter.relativePath)
         ]
 
-        self.setNowPlayingBookTitle()
+        self.setNowPlayingBookTitle(chapter: chapter)
         self.setNowPlayingBookTime()
 
         ArtworkService.retrieveImageFromCache(for: chapter.relativePath) { result in
@@ -346,10 +346,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     }
   }
 
-  func setNowPlayingBookTitle() {
+  func setNowPlayingBookTitle(chapter: PlayableChapter) {
     guard let currentItem = self.currentItem else { return }
 
-    self.nowPlayingInfo[MPMediaItemPropertyTitle] = currentItem.currentChapter.title
+    self.nowPlayingInfo[MPMediaItemPropertyTitle] = chapter.title
     self.nowPlayingInfo[MPMediaItemPropertyArtist] = currentItem.title
     self.nowPlayingInfo[MPMediaItemPropertyAlbumTitle] = currentItem.author
   }
@@ -464,7 +464,7 @@ extension PlayerManager {
     // Set last Play date
     self.libraryService.updateBookLastPlayDate(at: currentItem.relativePath, date: Date())
 
-    self.setNowPlayingBookTitle()
+    self.setNowPlayingBookTitle(chapter: currentItem.currentChapter)
 
     DispatchQueue.main.async {
       NotificationCenter.default.post(name: .bookPlayed, object: nil, userInfo: ["book": currentItem])
