@@ -273,7 +273,11 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   }
 
   func getBookMaxTime() -> TimeInterval {
-    return self.playerManager.currentItem?.maxTimeInContext(self.prefersChapterContext, self.prefersRemainingTime) ?? 0
+    return self.playerManager.currentItem?.maxTimeInContext(
+      prefersChapterContext: self.prefersChapterContext,
+      prefersRemainingTime: self.prefersRemainingTime,
+      at: self.playerManager.getCurrentSpeed()
+    ) ?? 0
   }
 
   func getBookTimeFromSlider(value: Float) -> TimeInterval {

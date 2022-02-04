@@ -342,11 +342,20 @@ extension PlayerViewController {
       self.setupPlayerView(with: item)
     }.store(in: &disposeBag)
 
-    self.viewModel.currentSpeedObserver().sink { [weak self] speed in
+    self.viewModel.currentSpeedObserver()
+      .removeDuplicates()
+      .sink { [weak self] speed in
       guard let self = self else { return }
 
       self.speedButton.title = self.formatSpeed(speed)
       self.speedButton.accessibilityLabel = String(describing: self.formatSpeed(speed) + " \("speed_title".localized)")
+
+      // Only update progress if the player is in pause state
+      guard !self.playIconView.isPlaying else { return }
+
+      let progressObject = self.viewModel.getCurrentProgressState()
+
+      self.updateView(with: progressObject)
     }.store(in: &disposeBag)
   }
 }
