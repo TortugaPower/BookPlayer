@@ -75,6 +75,7 @@ See [our Roadmap on GitHub](https://github.com/GianniCarlo/Audiobook-Player/proj
 - Polish (Konrad Kwapisz)
 - Hungarian (Gábor Sári)
 - Arabic (John Hamo & Monther Qandeel)
+- Finnish (Akira)
 
 Help us to [translate BookPlayer](#localisation).
 
@@ -131,7 +132,6 @@ Managed with the [Swift Package Manager](https://swift.org/package-manager/)
 - [Sentry](https://github.com/getsentry/sentry-cocoa) for crash reporting
 - [Sweetercolor](https://github.com/jathu/sweetercolor) for handling artwork colors
 - [SwiftyStoreKit](https://github.com/bizz84/SwiftyStoreKit) for the tip jar
-- [Telemetry](https://github.com/AppTelemetry/SwiftClient) for the analytics
 - [ZipArchive](https://github.com/ZipArchive/ZipArchive) for zip files
 
 Managed with [Homebrew](https://brew.sh)
