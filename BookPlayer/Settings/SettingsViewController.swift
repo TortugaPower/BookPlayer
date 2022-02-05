@@ -66,8 +66,8 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
 
         self.appIconLabel.text = userDefaults?.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
 
-        self.iconObserver = UserDefaults.standard.observe(\.userSettingsAppIcon) { _, _ in
-            self.appIconLabel.text = userDefaults?.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
+        self.iconObserver = UserDefaults.standard.observe(\.userSettingsAppIcon) { [weak self] _, _ in
+            self?.appIconLabel.text = userDefaults?.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
         }
         if UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) {
             self.donationMade()
@@ -267,8 +267,9 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
 
             let alert = UIAlertController(title: "settings_support_compose_title".localized, message: "\(message) \(self.supportEmail)\n\n\(debugInfo)", preferredStyle: .alert)
 
-            alert.addAction(UIAlertAction(title: "settings_support_compose_copy".localized, style: .default, handler: { _ in
-                UIPasteboard.general.string = "\(self.supportEmail)\n\(debugInfo)"
+            alert.addAction(UIAlertAction(title: "settings_support_compose_copy".localized, style: .default, handler: { [weak self] _ in
+              guard let self = self else { return }
+              UIPasteboard.general.string = "\(self.supportEmail)\n\(debugInfo)"
             }))
 
             alert.addAction(UIAlertAction(title: "ok_button".localized, style: .cancel, handler: nil))

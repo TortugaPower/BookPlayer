@@ -358,16 +358,20 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     guard let currentItem = self.currentItem else { return }
 
     let prefersChapterContext = UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
+    let prefersRemainingTime = UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
     let currentTimeInContext = currentItem.currentTimeInContext(prefersChapterContext)
     let maxTimeInContext = currentItem.maxTimeInContext(
       prefersChapterContext: prefersChapterContext,
-      prefersRemainingTime: false,
+      prefersRemainingTime: prefersRemainingTime,
       at: self.getCurrentSpeed()
     )
 
-    self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = self.speedManager.getSpeed(relativePath: currentItem.relativePath)
+    // 1x is needed because of how the control center behaves when decrementing time
+    self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 1.0
     self.nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTimeInContext
-    self.nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = maxTimeInContext
+    self.nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = prefersRemainingTime
+    ? (abs(maxTimeInContext) + currentTimeInContext)
+    : maxTimeInContext
     self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackProgress] = currentTimeInContext / maxTimeInContext
   }
 }

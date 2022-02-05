@@ -256,7 +256,7 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     if self.prefersRemainingTime {
       let durationTimeInContext = self.playerManager.currentItem?.durationTimeInContext(self.prefersChapterContext) ?? 0
 
-      newMaxTime = newCurrentTime - durationTimeInContext
+      newMaxTime = (newCurrentTime - durationTimeInContext) / Double(self.playerManager.getCurrentSpeed())
     }
 
     return ProgressObject(
