@@ -66,7 +66,7 @@ public class WatchConnectivityService: NSObject, WCSessionDelegate {
     var recentBooksData: Data?
 
     if let recentBooks = self.libraryService.getLastPlayedItems(limit: 20) {
-      let items = recentBooks.map({ self.playbackService.getPlayableItem(from: $0) })
+      let items = recentBooks.compactMap({ try? self.playbackService.getPlayableItem(from: $0) })
       recentBooksData = try? JSONEncoder().encode(items)
     }
 

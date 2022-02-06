@@ -12,7 +12,7 @@ public protocol PlaybackServiceProtocol {
   func updatePlaybackTime(item: PlayableItem, time: Double)
   func getPlayableItem(before relativePath: String) -> PlayableItem?
   func getPlayableItem(after relativePath: String, autoplayed: Bool) -> PlayableItem?
-  func getPlayableItem(from item: LibraryItem) -> PlayableItem?
+  func getPlayableItem(from item: LibraryItem) throws -> PlayableItem?
 }
 
 public final class PlaybackService: PlaybackServiceProtocol {
@@ -40,11 +40,11 @@ public final class PlaybackService: PlaybackServiceProtocol {
     case let book as Book:
       guard let previousBook = book.previousBook() else { return nil }
 
-      return self.getPlayableItem(from: previousBook)
+      return try? self.getPlayableItem(from: previousBook)
     case let folder as Folder:
       guard let previousItem = folder.getLibrary()?.getPreviousBook(before: folder.relativePath) else { return nil }
 
-      return self.getPlayableItem(from: previousItem)
+      return try? self.getPlayableItem(from: previousItem)
     default:
       return nil
     }
@@ -57,29 +57,41 @@ public final class PlaybackService: PlaybackServiceProtocol {
     case let book as Book:
       guard let nextBook = book.nextBook(autoplayed: autoplayed) else { return nil }
 
-      return self.getPlayableItem(from: nextBook)
+      return try? self.getPlayableItem(from: nextBook)
     case let folder as Folder:
       guard let nextItem = folder.getLibrary()?.getNextBook(after: folder.relativePath) else { return nil }
 
-      return self.getPlayableItem(from: nextItem)
+      return try? self.getPlayableItem(from: nextItem)
     default:
       return nil
     }
   }
 
-  public func getPlayableItem(from item: LibraryItem) -> PlayableItem? {
+  public func getPlayableItem(from item: LibraryItem) throws -> PlayableItem? {
     switch item {
     case let folder as Folder:
-      return self.getPlayableItemFrom(folder: folder)
+      return try self.getPlayableItemFrom(folder: folder)
     case let book as Book:
-      return self.getPlayableItemFrom(book: book)
+      return try self.getPlayableItemFrom(book: book)
     default:
-      return nil
+      throw BookPlayerError.runtimeError("Can't get a playable item for: \n\(String(describing: item.relativePath))")
     }
   }
 
-  func getPlayableItemFrom(book: Book) -> PlayableItem {
+  func getPlayableItemFrom(book: Book) throws -> PlayableItem {
     let chapters = self.getPlayableChapters(from: book)
+
+    if chapters.isEmpty {
+      throw BookPlayerError.runtimeError(
+        """
+        Chapters couldn't be loaded.
+        Debug information:
+        \(String(describing: book.relativePath!))
+        Chapters in DB: \(String(describing: book.chapters?.array.count))
+        """
+      )
+    }
+
     return PlayableItem(
       title: book.title,
       author: book.author,
@@ -117,8 +129,20 @@ public final class PlaybackService: PlaybackServiceProtocol {
       })
   }
 
-  func getPlayableItemFrom(folder: Folder) -> PlayableItem {
+  func getPlayableItemFrom(folder: Folder) throws -> PlayableItem {
     let chapters = self.getPlayableChapters(from: folder)
+
+    if chapters.isEmpty {
+      throw BookPlayerError.runtimeError(
+        """
+        Chapters couldn't be loaded.
+        Debug information:
+        \(String(describing: folder.relativePath!))
+        Volume: \(folder.type == .bound)
+        Items in folder: \(String(describing: folder.items?.array.count))
+        """
+      )
+    }
 
     var duration: TimeInterval?
 

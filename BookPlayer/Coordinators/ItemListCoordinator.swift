@@ -161,8 +161,18 @@ class ItemListCoordinator: Coordinator {
       return
     }
 
-    guard let libraryItem = self.libraryService.getItem(with: relativePath),
-          let item = self.playbackService.getPlayableItem(from: libraryItem) else { return }
+    guard let libraryItem = self.libraryService.getItem(with: relativePath) else { return }
+
+    var item: PlayableItem?
+
+    do {
+      item = try self.playbackService.getPlayableItem(from: libraryItem)
+    } catch {
+      self.showAlert("error_title".localized, message: error.localizedDescription)
+      return
+    }
+
+    guard let item = item else { return }
 
     var subscription: AnyCancellable?
 
@@ -187,8 +197,18 @@ class ItemListCoordinator: Coordinator {
   }
 
   func loadLastBookIfAvailable() {
-    guard let libraryItem = try? self.libraryService.getLibraryLastItem(),
-          let item = self.playbackService.getPlayableItem(from: libraryItem) else { return }
+    guard let libraryItem = try? self.libraryService.getLibraryLastItem() else { return }
+
+    var item: PlayableItem?
+
+    do {
+      item = try self.playbackService.getPlayableItem(from: libraryItem)
+    } catch {
+      self.showAlert("error_title".localized, message: error.localizedDescription)
+      return
+    }
+
+    guard let item = item else { return }
 
     var subscription: AnyCancellable?
 
