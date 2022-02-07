@@ -20,6 +20,7 @@ public protocol LibraryServiceProtocol {
   func createTheme(params: [String: Any]) -> Theme
 
   func createBook(from url: URL) -> Book
+  func getChapters(from relativePath: String) -> [Chapter]?
   func getItem(with relativePath: String) -> LibraryItem?
   func findBooks(containing fileURL: URL) -> [Book]?
   func getLastPlayedItems(limit: Int?) -> [LibraryItem]?
@@ -149,6 +150,17 @@ public final class LibraryService: LibraryServiceProtocol {
     let newBook = Book(from: url, context: self.dataManager.getContext())
     self.dataManager.saveContext()
     return newBook
+  }
+
+  public func getChapters(from relativePath: String) -> [Chapter]? {
+    let fetchRequest: NSFetchRequest<Chapter> = Chapter.fetchRequest()
+    fetchRequest.predicate = NSPredicate(format: "%K == %@",
+                                         #keyPath(Chapter.book.relativePath),
+                                         relativePath)
+    let sort = NSSortDescriptor(key: #keyPath(Chapter.index), ascending: true)
+    fetchRequest.sortDescriptors = [sort]
+
+    return try? self.dataManager.getContext().fetch(fetchRequest)
   }
 
   public func getItem(with relativePath: String) -> LibraryItem? {

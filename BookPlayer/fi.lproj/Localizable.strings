@@ -210,3 +210,5 @@
 "voiceover_no_bound_books_title" = "Ei kirjan otsikkoa";
 "default_title" = "Oletus";
 "voiceover_default_speed_title" = "Aseta oletusnopeus";
+"error_loading_chapters" = "Chapters couldn't be loaded from: \n%@";
+"error_empty_chapters" = "Chapters are empty, please verify the contents of the folder: %@";

@@ -247,3 +247,5 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "voiceover_no_bound_books_title" = "No Volume Title";
 "default_title" = "Mod implicit";
 "voiceover_default_speed_title" = "Setați viteza implicită";
+"error_loading_chapters" = "Chapters couldn't be loaded from: \n%@";
+"error_empty_chapters" = "Chapters are empty, please verify the contents of the folder: %@";

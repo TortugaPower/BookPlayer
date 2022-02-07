@@ -1194,4 +1194,26 @@ class ModifyLibraryTests: LibraryServiceTests {
 
     XCTAssert(speed3 == 3.0)
   }
+
+  func testGetChapters() {
+    let book = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test-book1",
+      duration: 100
+    )
+
+    let chapters = [
+      StubFactory.chapter(dataManager: self.sut.dataManager, index: 0),
+      StubFactory.chapter(dataManager: self.sut.dataManager, index: 1),
+      StubFactory.chapter(dataManager: self.sut.dataManager, index: 2)
+    ]
+
+    book.chapters = NSOrderedSet(array: chapters)
+
+    let fetchedChapters = self.sut.getChapters(from: book.relativePath)
+
+    XCTAssert(fetchedChapters?.first?.index == 0)
+    XCTAssert(fetchedChapters?[1].index == 1)
+    XCTAssert(fetchedChapters?.last?.index == 2)
+  }
 }

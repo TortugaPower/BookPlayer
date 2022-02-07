@@ -79,18 +79,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
   }
 
   func getPlayableItemFrom(book: Book) throws -> PlayableItem {
-    let chapters = self.getPlayableChapters(from: book)
-
-    if chapters.isEmpty {
-      throw BookPlayerError.runtimeError(
-        """
-        Chapters couldn't be loaded.
-        Debug information:
-        \(String(describing: book.relativePath!))
-        Chapters in DB: \(String(describing: book.chapters?.array.count))
-        """
-      )
-    }
+    let chapters = try self.getPlayableChapters(from: book)
 
     return PlayableItem(
       title: book.title,
@@ -105,15 +94,29 @@ public final class PlaybackService: PlaybackServiceProtocol {
     )
   }
 
-  func getPlayableChapters(from book: Book) -> [PlayableChapter] {
-    guard let chapters = book.chapters?.array as? [Chapter],
-          !chapters.isEmpty else {
-      return [PlayableChapter(title: book.title,
-                              author: book.author,
-                              start: 0.0,
-                              duration: book.duration,
-                              relativePath: book.relativePath,
-                              index: 1)]
+  func getPlayableChapters(from book: Book) throws -> [PlayableChapter] {
+    guard
+      let chapters = self.libraryService.getChapters(from: book.relativePath)
+    else {
+      throw BookPlayerError.runtimeError(
+        String.localizedStringWithFormat(
+          "error_loading_chapters".localized,
+          String(describing: book.relativePath!)
+        )
+      )
+    }
+
+    guard !chapters.isEmpty else {
+      return [
+        PlayableChapter(
+          title: book.title,
+          author: book.author,
+          start: 0.0,
+          duration: book.duration,
+          relativePath: book.relativePath,
+          index: 1
+        )
+      ]
     }
 
     return chapters.enumerated()
@@ -130,19 +133,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
   }
 
   func getPlayableItemFrom(folder: Folder) throws -> PlayableItem {
-    let chapters = self.getPlayableChapters(from: folder)
-
-    if chapters.isEmpty {
-      throw BookPlayerError.runtimeError(
-        """
-        Chapters couldn't be loaded.
-        Debug information:
-        \(String(describing: folder.relativePath!))
-        Volume: \(folder.type == .bound)
-        Items in folder: \(String(describing: folder.items?.array.count))
-        """
-      )
-    }
+    let chapters = try self.getPlayableChapters(from: folder)
 
     var duration: TimeInterval?
 
@@ -163,8 +154,30 @@ public final class PlaybackService: PlaybackServiceProtocol {
     )
   }
 
-  func getPlayableChapters(from folder: Folder) -> [PlayableChapter] {
-    guard let items = folder.items?.array as? [Book] else { return [] }
+  func getPlayableChapters(from folder: Folder) throws -> [PlayableChapter] {
+    guard
+      let items = self.libraryService.fetchContents(
+        at: folder.relativePath,
+        limit: nil,
+        offset: nil
+      ) as? [Book]
+    else {
+      throw BookPlayerError.runtimeError(
+        String.localizedStringWithFormat(
+          "error_loading_chapters".localized,
+          String(describing: folder.relativePath!)
+        )
+      )
+    }
+
+    guard !items.isEmpty else {
+      throw BookPlayerError.runtimeError(
+        String.localizedStringWithFormat(
+          "error_empty_chapters".localized,
+          String(describing: folder.title!)
+        )
+      )
+    }
 
     var currentDuration = 0.0
 

@@ -210,3 +210,5 @@
 "voiceover_no_bound_books_title" = "Отсутствует название книги";
 "default_title" = "Дефолт";
 "voiceover_default_speed_title" = "Установить скорость по умолчанию";
+"error_loading_chapters" = "Chapters couldn't be loaded from: \n%@";
+"error_empty_chapters" = "Chapters are empty, please verify the contents of the folder: %@";
