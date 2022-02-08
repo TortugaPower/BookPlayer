@@ -210,3 +210,5 @@
 "voiceover_no_bound_books_title" = "Отсутствует название книги";
 "default_title" = "Дефолт";
 "voiceover_default_speed_title" = "Установить скорость по умолчанию";
+"sleeptimer_option_custom" = "Custom";
+"sleeptimer_custom_alert_title" = "Custom sleep timer";

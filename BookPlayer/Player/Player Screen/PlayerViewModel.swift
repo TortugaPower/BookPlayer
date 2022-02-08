@@ -312,6 +312,19 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   func showControls() {
     self.coordinator.showControls()
   }
+
+  func showSleepTimerActions() {
+    self.coordinator.showSleepTimerActions()
+  }
+
+  func handleSleepTimerOptions(seconds: Double) {
+    guard let option = TimeParser.getTimerOption(from: seconds) else {
+      SleepTimer.shared.sleep(in: seconds)
+      return
+    }
+
+    SleepTimer.shared.sleep(in: option)
+  }
 }
 
 extension PlayerViewModel {

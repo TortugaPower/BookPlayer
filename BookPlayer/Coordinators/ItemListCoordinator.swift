@@ -124,6 +124,8 @@ class ItemListCoordinator: Coordinator {
   }
 
   func showFolder(_ relativePath: String) {
+    showPlayer()
+    return
     let child = FolderListCoordinator(navigationController: self.navigationController,
                                       folderRelativePath: relativePath,
                                       playerManager: self.playerManager,

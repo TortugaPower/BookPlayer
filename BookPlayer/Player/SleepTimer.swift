@@ -18,17 +18,16 @@ final class SleepTimer {
   let durationFormatter: DateComponentsFormatter = DateComponentsFormatter()
 
   private var subscription: AnyCancellable?
-  private var alert: UIAlertController?
+  public weak var alert: UIAlertController?
 
   @Published private var timeLeft: TimeInterval = 0.0
 
   private let defaultMessage: String
-  private let intervals: [TimeInterval] = [
+  public let intervals: [TimeInterval] = [
     300.0,
     600.0,
     900.0,
     1800.0,
-    2700.0,
     3600.0
   ]
 
@@ -74,6 +73,23 @@ final class SleepTimer {
     self.subscription?.cancel()
     NotificationCenter.default.removeObserver(self, name: .bookEnd, object: nil)
     NotificationCenter.default.removeObserver(self, name: .chapterChange, object: nil)
+  }
+
+  public func getAlertMessage() -> String {
+    // End of chapter
+    if self.timeLeft == -2 {
+      return "sleep_alert_description".localized
+    }
+
+    // Timer finished
+    if self.timeLeft == 0 {
+      return "player_sleep_title".localized
+    }
+
+    return String.localizedStringWithFormat(
+      "sleep_time_description".localized,
+      self.durationFormatter.string(from: self.timeLeft)!
+    )
   }
 
   private func donateTimerIntent(with option: TimerOption) {
@@ -134,7 +150,7 @@ final class SleepTimer {
       let formattedDuration = formatter.string(from: interval as TimeInterval)!
 
       alert.addAction(UIAlertAction(title: String.localizedStringWithFormat("sleep_interval_title".localized, formattedDuration), style: .default, handler: { _ in
-        intent.option = TimeParser.getTimerOption(from: interval)
+        intent.option = TimeParser.getTimerOption(from: interval)!
         (vc as? IntentSelectionDelegate)?.didSelectIntent(intent)
       }))
     }
@@ -147,39 +163,6 @@ final class SleepTimer {
     alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
 
     return alert
-  }
-
-  func actionSheet() -> UIAlertController {
-    if let alert = self.alert {
-      return alert
-    }
-
-    let formatter = DateComponentsFormatter()
-
-    formatter.unitsStyle = .full
-    formatter.allowedUnits = [.hour, .minute]
-
-    self.alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-
-    self.alert?.addAction(UIAlertAction(title: "sleep_off_title".localized, style: .default, handler: { _ in
-      self.reset()
-      self.donateTimerIntent(with: .cancel)
-    }))
-
-    for interval in self.intervals {
-      let formattedDuration = formatter.string(from: interval as TimeInterval)!
-
-      self.alert?.addAction(UIAlertAction(title: String.localizedStringWithFormat("sleep_interval_title".localized, formattedDuration), style: .default, handler: { _ in
-        self.sleep(in: interval)
-      }))
-    }
-
-    self.alert?.addAction(UIAlertAction(title: "sleep_chapter_option_title".localized, style: .default) { _ in
-      self.startEndOfChapterOption()
-    })
-
-    self.alert?.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
-    return self.alert!
   }
 
   public func sleep(in option: TimerOption) {
@@ -196,8 +179,9 @@ final class SleepTimer {
   }
 
   public func sleep(in seconds: Double) {
-    let option = TimeParser.getTimerOption(from: seconds)
-    self.donateTimerIntent(with: option)
+    if let option = TimeParser.getTimerOption(from: seconds) {
+      self.donateTimerIntent(with: option)
+    }
 
     self.reset()
 

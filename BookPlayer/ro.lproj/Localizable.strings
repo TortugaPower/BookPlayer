@@ -247,3 +247,5 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "voiceover_no_bound_books_title" = "No Volume Title";
 "default_title" = "Mod implicit";
 "voiceover_default_speed_title" = "Setați viteza implicită";
+"sleeptimer_option_custom" = "Custom";
+"sleeptimer_custom_alert_title" = "Custom sleep timer";

@@ -210,3 +210,5 @@
 "voiceover_no_bound_books_title" = "没有书卷名";
 "default_title" = "默认";
 "voiceover_default_speed_title" = "设置默认速度";
+"sleeptimer_option_custom" = "Custom";
+"sleeptimer_custom_alert_title" = "Custom sleep timer";

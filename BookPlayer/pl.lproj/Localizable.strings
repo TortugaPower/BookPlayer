@@ -210,3 +210,5 @@
 "voiceover_no_bound_books_title" = "No Volume Title";
 "default_title" = "Domyślna";
 "voiceover_default_speed_title" = "Ustaw domyślną prędkość";
+"sleeptimer_option_custom" = "Custom";
+"sleeptimer_custom_alert_title" = "Custom sleep timer";
