@@ -78,6 +78,8 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
 
     bindTimerObserver()
 
+    bindTransitionActions()
+
     self.containerItemStackView.setCustomSpacing(26, after: self.artworkControl)
   }
 
@@ -178,6 +180,15 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
 
 // MARK: - Observers
 extension PlayerViewController {
+  func bindTransitionActions() {
+    self.viewModel.coordinator.onAction = { route in
+      switch route {
+      case .setSleepTimer(let seconds):
+        self.viewModel.handleSleepTimerOptions(seconds: seconds)
+      }
+    }
+  }
+
   func bindProgressObservers() {
     self.progressSlider.publisher(for: .touchDown)
       .sink { [weak self] _ in
@@ -413,8 +424,7 @@ extension PlayerViewController {
   }
 
   @IBAction func setSleepTimer() {
-    let actionSheet = SleepTimer.shared.actionSheet()
-    self.present(actionSheet, animated: true, completion: nil)
+    self.viewModel.showSleepTimerActions()
   }
 
   @IBAction func showMore() {

@@ -262,3 +262,5 @@ Alessio Franceschi&nbsp;this is the label for the active sleep timer button when
 "voiceover_default_speed_title" = "Imposta la velocità predefinita";
 "error_loading_chapters" = "Chapters couldn't be loaded from: \n%@";
 "error_empty_chapters" = "Chapters are empty, please verify the contents of the folder: %@";
+"sleeptimer_option_custom" = "Custom";
+"sleeptimer_custom_alert_title" = "Custom sleep timer";
