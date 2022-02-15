@@ -46,6 +46,14 @@ class StubFactory {
     return folder
   }
 
+  public class func chapter(dataManager: DataManager,
+                            index: Int16) -> Chapter {
+    let chapter = Chapter(context: dataManager.getContext())
+    chapter.index = index
+    chapter.duration = 0
+    return chapter
+  }
+
   public class func library(dataManager: DataManager) -> Library {
     let libraryService = LibraryService(dataManager: dataManager)
     return libraryService.getLibrary()

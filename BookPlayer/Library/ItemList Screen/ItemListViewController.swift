@@ -147,12 +147,15 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
     self.bulkControls.layer.shadowRadius = 5
     self.bulkControls.layer.shadowOffset = .zero
 
-    self.bulkControls.onSortTap = {
-      self.viewModel.showSortOptions()
+    self.bulkControls.onSortTap = { [weak self] in
+      self?.viewModel.showSortOptions()
     }
 
-    self.bulkControls.onMoveTap = {
-      guard let indexPaths = self.tableView.indexPathsForSelectedRows else {
+    self.bulkControls.onMoveTap = { [weak self] in
+      guard
+        let self = self,
+        let indexPaths = self.tableView.indexPathsForSelectedRows
+      else {
         return
       }
 
@@ -161,8 +164,11 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
       self.viewModel.showMoveOptions(selectedItems: selectedItems)
     }
 
-    self.bulkControls.onDeleteTap = {
-      guard let indexPaths = self.tableView.indexPathsForSelectedRows else {
+    self.bulkControls.onDeleteTap = { [weak self] in
+      guard
+        let self = self,
+        let indexPaths = self.tableView.indexPathsForSelectedRows
+      else {
         return
       }
 
@@ -171,8 +177,11 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
       self.viewModel.showDeleteOptions(selectedItems: selectedItems)
     }
 
-    self.bulkControls.onMoreTap = {
-      guard let indexPaths = self.tableView.indexPathsForSelectedRows else {
+    self.bulkControls.onMoreTap = { [weak self] in
+      guard
+        let self = self,
+        let indexPaths = self.tableView.indexPathsForSelectedRows
+      else {
         return
       }
 
@@ -195,47 +204,47 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
   }
 
   func bindTransitionActions() {
-    self.viewModel.coordinator.onAction = { route in
-      self.setEditing(false, animated: false)
+    self.viewModel.coordinator.onAction = { [weak self] route in
+      self?.setEditing(false, animated: false)
 
       switch route {
       case .importOptions:
-        self.viewModel.showAddActions()
+        self?.viewModel.showAddActions()
       case .importLocalFiles:
-        self.viewModel.coordinator.showDocumentPicker()
+        self?.viewModel.coordinator.showDocumentPicker()
       case .newImportOperation(let operation):
         let loadingTitle = String.localizedStringWithFormat("import_processing_description".localized, operation.files.count)
-        self.showLoadView(true, title: loadingTitle)
+        self?.showLoadView(true, title: loadingTitle)
       case .importOperationFinished(let files):
-        self.showLoadView(false)
-        self.viewModel.handleOperationCompletion(files)
+        self?.showLoadView(false)
+        self?.viewModel.handleOperationCompletion(files)
       case .importIntoFolder(let selectedFolder, let items, let type):
-        self.viewModel.importIntoFolder(selectedFolder, items: items, type: type)
+        self?.viewModel.importIntoFolder(selectedFolder, items: items, type: type)
       case .createFolder(let title, let items, let type):
-        self.viewModel.createFolder(with: title, items: items, type: type)
+        self?.viewModel.createFolder(with: title, items: items, type: type)
       case .updateFolders(let folders, let type):
-        self.viewModel.updateFolders(folders, type: type)
+        self?.viewModel.updateFolders(folders, type: type)
       case .moveIntoLibrary(let items):
-        self.viewModel.handleMoveIntoLibrary(items: items)
+        self?.viewModel.handleMoveIntoLibrary(items: items)
       case .moveIntoFolder(let selectedFolder, let items):
-        self.viewModel.handleMoveIntoFolder(selectedFolder, items: items)
+        self?.viewModel.handleMoveIntoFolder(selectedFolder, items: items)
       case .insertIntoLibrary(let items):
-        self.viewModel.handleInsertionIntoLibrary(items)
+        self?.viewModel.handleInsertionIntoLibrary(items)
       case .delete(let items, let mode):
-        self.viewModel.handleDelete(items: items, mode: mode)
+        self?.viewModel.handleDelete(items: items, mode: mode)
       case .sortItems(let option):
-        self.viewModel.handleSort(by: option)
+        self?.viewModel.handleSort(by: option)
       case .rename(let item, let newTitle):
-        self.viewModel.handleRename(item: item, with: newTitle)
+        self?.viewModel.handleRename(item: item, with: newTitle)
       case .resetPlaybackPosition(let items):
-        self.viewModel.handleResetPlaybackPosition(for: items)
+        self?.viewModel.handleResetPlaybackPosition(for: items)
       case .markAsFinished(let items, let flag):
-        self.viewModel.handleMarkAsFinished(for: items, flag: flag)
+        self?.viewModel.handleMarkAsFinished(for: items, flag: flag)
       case .downloadBook(let url):
-        self.showLoadView(true, title: "downloading_file_title".localized, subtitle: "\("progress_title".localized) 0%")
-        self.viewModel.handleDownload(url)
+        self?.showLoadView(true, title: "downloading_file_title".localized, subtitle: "\("progress_title".localized) 0%")
+        self?.viewModel.handleDownload(url)
       case .reloadItems(let pageSizePadding):
-        self.viewModel.reloadItems(pageSizePadding: pageSizePadding)
+        self?.viewModel.reloadItems(pageSizePadding: pageSizePadding)
       }
     }
   }
@@ -490,11 +499,11 @@ extension ItemListViewController: UIDropInteractionDelegate {
   func handleDroppedItem(_ item: UIDragItem) {
     let providerReference = item.itemProvider
 
-    item.itemProvider.loadObject(ofClass: ImportableItem.self) { (object, _) in
+    item.itemProvider.loadObject(ofClass: ImportableItem.self) { [weak self] (object, _) in
       guard let item = object as? ImportableItem else { return }
       item.suggestedName = providerReference.suggestedName
 
-      self.viewModel.importData(from: item)
+      self?.viewModel.importData(from: item)
     }
   }
 }
@@ -529,8 +538,8 @@ extension ItemListViewController {
 
   func showLoadView(_ show: Bool, title: String? = nil, subtitle: String? = nil) {
     guard self.isViewLoaded else {
-      DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [unowned self] in
-        self.showLoadView(show, title: title, subtitle: subtitle)
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+        self?.showLoadView(show, title: title, subtitle: subtitle)
       }
       return
     }
@@ -569,10 +578,13 @@ extension ItemListViewController {
   }
 
   private func rotorFactory(name: String, type: SimpleItemType) -> UIAccessibilityCustomRotor {
-    return UIAccessibilityCustomRotor(name: name) { (predicate) -> UIAccessibilityCustomRotorItemResult? in
+    return UIAccessibilityCustomRotor(name: name) { [weak self] (predicate) -> UIAccessibilityCustomRotorItemResult? in
 
-      guard let cell = predicate.currentItem.targetElement as? BookCellView,
-            let indexPath = self.tableView.indexPath(for: cell) else { return nil }
+      guard
+        let self = self,
+        let cell = predicate.currentItem.targetElement as? BookCellView,
+        let indexPath = self.tableView.indexPath(for: cell)
+      else { return nil }
 
       // Load all items just in case
       self.viewModel.loadAllItemsIfNeeded()

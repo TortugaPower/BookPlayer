@@ -130,7 +130,7 @@ extension Book {
 
       for (index, chapterMetadata) in chaptersMetadata.enumerated() {
         let chapterIndex = index + 1
-        let chapter = Chapter(from: asset, context: context)
+        let chapter = Chapter(context: context)
 
         chapter.title = AVMetadataItem.metadataItems(
           from: chapterMetadata.items,

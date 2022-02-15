@@ -204,8 +204,8 @@ class ThemesViewController: UIViewController {
                     : 0.0
             }
             self.view.layoutIfNeeded()
-        }, completion: { _ in
-            self.resizeScrollContent()
+        }, completion: { [weak self] _ in
+            self?.resizeScrollContent()
         })
     }
 

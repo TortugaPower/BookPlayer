@@ -181,12 +181,14 @@ public class TimeParser {
     }
   }
 
-  public class func getTimerOption(from seconds: TimeInterval) -> TimerOption {
-    var option: TimerOption
+  public class func getTimerOption(from seconds: TimeInterval) -> TimerOption? {
+    var option: TimerOption?
 
     switch seconds {
     case -1:
       option = .cancel
+    case -2:
+      option = .endChapter
     case 300:
       option = .fiveMinutes
     case 600:
@@ -200,7 +202,7 @@ public class TimeParser {
     case 3600:
       option = .oneHour
     default:
-      option = .endChapter
+      option = nil
     }
 
     return option

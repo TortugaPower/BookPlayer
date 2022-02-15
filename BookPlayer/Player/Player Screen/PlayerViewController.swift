@@ -78,6 +78,8 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
 
     bindTimerObserver()
 
+    bindTransitionActions()
+
     self.containerItemStackView.setCustomSpacing(26, after: self.artworkControl)
   }
 
@@ -178,6 +180,15 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
 
 // MARK: - Observers
 extension PlayerViewController {
+  func bindTransitionActions() {
+    self.viewModel.coordinator.onAction = { route in
+      switch route {
+      case .setSleepTimer(let seconds):
+        self.viewModel.handleSleepTimerOptions(seconds: seconds)
+      }
+    }
+  }
+
   func bindProgressObservers() {
     self.progressSlider.publisher(for: .touchDown)
       .sink { [weak self] _ in
@@ -342,11 +353,20 @@ extension PlayerViewController {
       self.setupPlayerView(with: item)
     }.store(in: &disposeBag)
 
-    self.viewModel.currentSpeedObserver().sink { [weak self] speed in
+    self.viewModel.currentSpeedObserver()
+      .removeDuplicates()
+      .sink { [weak self] speed in
       guard let self = self else { return }
 
       self.speedButton.title = self.formatSpeed(speed)
       self.speedButton.accessibilityLabel = String(describing: self.formatSpeed(speed) + " \("speed_title".localized)")
+
+      // Only update progress if the player is in pause state
+      guard !self.playIconView.isPlaying else { return }
+
+      let progressObject = self.viewModel.getCurrentProgressState()
+
+      self.updateView(with: progressObject)
     }.store(in: &disposeBag)
   }
 }
@@ -404,8 +424,7 @@ extension PlayerViewController {
   }
 
   @IBAction func setSleepTimer() {
-    let actionSheet = SleepTimer.shared.actionSheet()
-    self.present(actionSheet, animated: true, completion: nil)
+    self.viewModel.showSleepTimerActions()
   }
 
   @IBAction func showMore() {

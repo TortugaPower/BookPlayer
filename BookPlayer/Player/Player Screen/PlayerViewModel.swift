@@ -256,7 +256,7 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     if self.prefersRemainingTime {
       let durationTimeInContext = self.playerManager.currentItem?.durationTimeInContext(self.prefersChapterContext) ?? 0
 
-      newMaxTime = newCurrentTime - durationTimeInContext
+      newMaxTime = (newCurrentTime - durationTimeInContext) / Double(self.playerManager.getCurrentSpeed())
     }
 
     return ProgressObject(
@@ -273,7 +273,11 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   }
 
   func getBookMaxTime() -> TimeInterval {
-    return self.playerManager.currentItem?.maxTimeInContext(self.prefersChapterContext, self.prefersRemainingTime) ?? 0
+    return self.playerManager.currentItem?.maxTimeInContext(
+      prefersChapterContext: self.prefersChapterContext,
+      prefersRemainingTime: self.prefersRemainingTime,
+      at: self.playerManager.getCurrentSpeed()
+    ) ?? 0
   }
 
   func getBookTimeFromSlider(value: Float) -> TimeInterval {
@@ -307,6 +311,19 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
 
   func showControls() {
     self.coordinator.showControls()
+  }
+
+  func showSleepTimerActions() {
+    self.coordinator.showSleepTimerActions()
+  }
+
+  func handleSleepTimerOptions(seconds: Double) {
+    guard let option = TimeParser.getTimerOption(from: seconds) else {
+      SleepTimer.shared.sleep(in: seconds)
+      return
+    }
+
+    SleepTimer.shared.sleep(in: option)
   }
 }
 

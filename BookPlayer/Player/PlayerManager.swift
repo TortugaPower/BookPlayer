@@ -168,7 +168,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     self.playableChapterSubscription = item.$currentChapter.sink { [weak self] chapter in
       guard let chapter = chapter else { return }
 
-      self?.setNowPlayingBookTitle()
+      self?.setNowPlayingBookTitle(chapter: chapter)
       NotificationCenter.default.post(name: .chapterChange, object: nil, userInfo: nil)
 
       // avoid loading the same item if it's already loaded
@@ -207,7 +207,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
           MPNowPlayingInfoPropertyDefaultPlaybackRate: self.speedManager.getSpeed(relativePath: chapter.relativePath)
         ]
 
-        self.setNowPlayingBookTitle()
+        self.setNowPlayingBookTitle(chapter: chapter)
         self.setNowPlayingBookTime()
 
         ArtworkService.retrieveImageFromCache(for: chapter.relativePath) { result in
@@ -346,10 +346,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     }
   }
 
-  func setNowPlayingBookTitle() {
+  func setNowPlayingBookTitle(chapter: PlayableChapter) {
     guard let currentItem = self.currentItem else { return }
 
-    self.nowPlayingInfo[MPMediaItemPropertyTitle] = currentItem.currentChapter.title
+    self.nowPlayingInfo[MPMediaItemPropertyTitle] = chapter.title
     self.nowPlayingInfo[MPMediaItemPropertyArtist] = currentItem.title
     self.nowPlayingInfo[MPMediaItemPropertyAlbumTitle] = currentItem.author
   }
@@ -358,12 +358,20 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     guard let currentItem = self.currentItem else { return }
 
     let prefersChapterContext = UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
+    let prefersRemainingTime = UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
     let currentTimeInContext = currentItem.currentTimeInContext(prefersChapterContext)
-    let maxTimeInContext = currentItem.maxTimeInContext(prefersChapterContext, false)
+    let maxTimeInContext = currentItem.maxTimeInContext(
+      prefersChapterContext: prefersChapterContext,
+      prefersRemainingTime: prefersRemainingTime,
+      at: self.getCurrentSpeed()
+    )
 
-    self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = self.speedManager.getSpeed(relativePath: currentItem.relativePath)
+    // 1x is needed because of how the control center behaves when decrementing time
+    self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 1.0
     self.nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTimeInContext
-    self.nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = maxTimeInContext
+    self.nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = prefersRemainingTime
+    ? (abs(maxTimeInContext) + currentTimeInContext)
+    : maxTimeInContext
     self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackProgress] = currentTimeInContext / maxTimeInContext
   }
 }
@@ -464,7 +472,7 @@ extension PlayerManager {
     // Set last Play date
     self.libraryService.updateBookLastPlayDate(at: currentItem.relativePath, date: Date())
 
-    self.setNowPlayingBookTitle()
+    self.setNowPlayingBookTitle(chapter: currentItem.currentChapter)
 
     DispatchQueue.main.async {
       NotificationCenter.default.post(name: .bookPlayed, object: nil, userInfo: ["book": currentItem])
