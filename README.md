@@ -75,7 +75,7 @@ See [our Roadmap on GitHub](https://github.com/GianniCarlo/Audiobook-Player/proj
 - Polish (Konrad Kwapisz)
 - Hungarian (Gábor Sári)
 - Arabic (John Hamo & Monther Qandeel)
-- Finnish (Akira)
+- Finnish ([@akirataguchi115](https://github.com/akirataguchi115))
 
 Help us to [translate BookPlayer](#localisation).
 
