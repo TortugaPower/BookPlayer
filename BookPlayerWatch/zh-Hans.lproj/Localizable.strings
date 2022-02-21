@@ -13,3 +13,6 @@
 "watchapp_refresh_data_title" = "刷新数据";
 "watchapp_connect_error_title" = "连接错误";
 "watchapp_connect_error_description" = "连接手机时出现问题，请稍后重试";
+"chapters_title" = "章节";
+"settings_controls_title" = "播放器控制";
+"settings_boostvolume_title" = "提高音量";

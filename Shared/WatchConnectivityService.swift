@@ -156,7 +156,7 @@ extension WatchConnectivityService {
 extension WatchConnectivityService {
   // Live messaging! App has to be reachable
   public var validReachableSession: WCSession? {
-    if let session = validSession {
+    if let session = validSession, session.isReachable {
       return session
     }
     return nil
