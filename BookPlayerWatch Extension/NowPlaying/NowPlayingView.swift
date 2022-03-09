@@ -20,10 +20,21 @@ struct NowPlayingView: View {
         Button {
           print("rewind tapped")
         } label: {
-          ResizeableImageView(name: "gobackward")
-            .padding(12)
+          ZStack {
+            Text("**300**")
+              .minimumScaleFactor(0.1)
+              .lineLimit(1)
+              .padding(5)
+              .offset(y: 1)
+            ResizeableImageView(name: "gobackward")
+          }
+          .padding(14)
+
+//          ResizeableImageView(name: "gobackward")
+//            .padding(12)
         }
         .buttonStyle(PlainButtonStyle())
+
         Button {
           print("play tapped")
         } label: {
@@ -51,7 +62,7 @@ struct NowPlayingView: View {
 
         VolumeView()
 
-        NavigationLink(destination: ChapterListView(item: item)) {
+        NavigationLink(destination: ChapterListView(currentChapter: item.currentChapter, chapters: item.chapters)) {
           ResizeableImageView(name: "list.bullet")
             .padding(14)
         }

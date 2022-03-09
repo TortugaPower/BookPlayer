@@ -12,166 +12,58 @@ import SwiftUI
 import Combine
 
 class ItemListModel: ObservableObject {
-  var items = [
-    PlayableItem(
-      title: "542: Apologetic Beavers",
-      author: "Grumpy old geeks",
-      chapters: [
-        PlayableChapter(
-          title: "Chapter 1",
-          author: "Author",
-          start: 0,
-          duration: 0,
-          relativePath: "",
-          index: 0
-        ),
-        PlayableChapter(
-          title: "Chapter 2",
-          author: "Author",
-          start: 0,
-          duration: 0,
-          relativePath: "",
-          index: 1
-        ),
-        PlayableChapter(
-          title: "Chapter 3",
-          author: "Author",
-          start: 0,
-          duration: 0,
-          relativePath: "",
-          index: 2
-        ),
-        PlayableChapter(
-          title: "Chapter 4",
-          author: "Author",
-          start: 0,
-          duration: 0,
-          relativePath: "",
-          index: 3
-        ),
-        PlayableChapter(
-          title: "Chapter 5",
-          author: "Author",
-          start: 0,
-          duration: 0,
-          relativePath: "",
-          index: 4
-        )
-      ],
-      currentTime: 0,
-      duration: 0,
-      relativePath: "book 1",
-      percentCompleted: 0,
-      isFinished: false,
-      useChapterTimeContext: false
-    ),
-    PlayableItem(
-      title: "book 2 book 2 book 2 book 2 book 2",
-      author: "author 2 author 2 author 2 author 2 author 2",
-      chapters: [PlayableChapter(
-        title: "Chapter 1",
-        author: "Author",
-        start: 0,
-        duration: 0,
-        relativePath: "",
-        index: 0
-      )],
-      currentTime: 0,
-      duration: 0,
-      relativePath: "book 2",
-      percentCompleted: 0,
-      isFinished: false,
-      useChapterTimeContext: false
-    ),
-    PlayableItem(
-      title: "book 3",
-      author: "author 3",
-      chapters: [PlayableChapter(
-        title: "Chapter 1",
-        author: "Author",
-        start: 0,
-        duration: 0,
-        relativePath: "",
-        index: 0
-      )],
-      currentTime: 0,
-      duration: 0,
-      relativePath: "book 3",
-      percentCompleted: 0,
-      isFinished: false,
-      useChapterTimeContext: false
-    ),
-    PlayableItem(
-      title: "book 4",
-      author: "author 4",
-      chapters: [PlayableChapter(
-        title: "Chapter 1",
-        author: "Author",
-        start: 0,
-        duration: 0,
-        relativePath: "",
-        index: 0
-      )],
-      currentTime: 0,
-      duration: 0,
-      relativePath: "book 4",
-      percentCompleted: 0,
-      isFinished: false,
-      useChapterTimeContext: false
-    ),
-    PlayableItem(
-      title: "book 5",
-      author: "author 5",
-      chapters: [PlayableChapter(
-        title: "Chapter 1",
-        author: "Author",
-        start: 0,
-        duration: 0,
-        relativePath: "",
-        index: 0
-      )],
-      currentTime: 0,
-      duration: 0,
-      relativePath: "book 5",
-      percentCompleted: 0,
-      isFinished: false,
-      useChapterTimeContext: false
-    ),
-    PlayableItem(
-      title: "book 6",
-      author: "author 6",
-      chapters: [PlayableChapter(
-        title: "Chapter 1",
-        author: "Author",
-        start: 0,
-        duration: 0,
-        relativePath: "",
-        index: 0
-      )],
-      currentTime: 0,
-      duration: 0,
-      relativePath: "book 6",
-      percentCompleted: 0,
-      isFinished: false,
-      useChapterTimeContext: false
-    ),
-    PlayableItem(
-      title: "book 7",
-      author: "author 7",
-      chapters: [PlayableChapter(
-        title: "Chapter 1",
-        author: "Author",
-        start: 0,
-        duration: 0,
-        relativePath: "",
-        index: 0
-      )],
-      currentTime: 0,
-      duration: 0,
-      relativePath: "book 7",
-      percentCompleted: 0,
-      isFinished: false,
-      useChapterTimeContext: false
+  let watchConnectivityService: WatchConnectivityService
+
+  @Published var items = [PlayableItem]()
+  @Published var isLoading = true
+
+  init() {
+    self.watchConnectivityService = WatchConnectivityService()
+    self.watchConnectivityService.didReceiveData = { [weak self] data in
+      let decoder = JSONDecoder()
+
+      if let decodedItems = try? decoder.decode([PlayableItem].self, from: data) {
+        DispatchQueue.main.async {
+          self?.items = decodedItems
+        }
+      }
+    }
+    self.watchConnectivityService.startSession()
+    self.items = self.testData()
+  }
+
+  func testData() -> [PlayableItem] {
+    return [
+      PlayableItem(
+        title: "test book",
+        author: "test author",
+        chapters: [
+          PlayableChapter(
+            title: "chapter 1",
+            author: "test author",
+            start: 0,
+            duration: 100,
+            relativePath: "test/book.mp3",
+            index: 0
+          )
+        ],
+        currentTime: 0,
+        duration: 100,
+        relativePath: "test/book.mp3",
+        percentCompleted: 0,
+        isFinished: false,
+        useChapterTimeContext: true
+      )
+    ]
+  }
+
+  func requestData() {
+    let encoder = JSONEncoder()
+    let data = try! encoder.encode(["command": "refresh"])
+
+    self.watchConnectivityService.sendMessageData(
+      data: data,
+      replyHandler: self.watchConnectivityService.didReceiveData
     )
-  ]
+  }
 }

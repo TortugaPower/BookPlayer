@@ -10,17 +10,18 @@ import BookPlayerWatchKit
 import SwiftUI
 
 struct ChapterListView: View {
-  let item: PlayableItem
+  let currentChapter: PlayableChapter
+  let chapters: [PlayableChapter]
 
   var body: some View {
     List {
-      ForEach(item.chapters) { chapter in
+      ForEach(chapters) { chapter in
         Button {
           print("chapter selected")
         } label: {
           HStack {
             Text(chapter.title)
-            if item.currentChapter.index == chapter.index {
+            if currentChapter.index == chapter.index {
               Spacer()
               Image(systemName: "checkmark.circle.fill")
             }
@@ -34,23 +35,25 @@ struct ChapterListView: View {
 
 struct ChapterListView_Previews: PreviewProvider {
   static var previews: some View {
-    ChapterListView(item: PlayableItem(
-      title: "book 1",
-      author: "author 1",
-      chapters: [PlayableChapter(
+    ChapterListView(
+      currentChapter: PlayableChapter(
         title: "Chapter 1",
         author: "Author",
         start: 0,
         duration: 0,
         relativePath: "",
         index: 0
-      )],
-      currentTime: 0,
-      duration: 0,
-      relativePath: "book 1",
-      percentCompleted: 0,
-      isFinished: false,
-      useChapterTimeContext: false
-    ))
+      ),
+      chapters: [
+        PlayableChapter(
+          title: "Chapter 1",
+          author: "Author",
+          start: 0,
+          duration: 0,
+          relativePath: "",
+          index: 0
+        ),
+      ]
+    )
   }
 }

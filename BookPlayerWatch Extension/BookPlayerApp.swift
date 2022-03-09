@@ -10,13 +10,13 @@ import SwiftUI
 
 @main
 struct BookPlayerApp: App {
+  @WKExtensionDelegateAdaptor var extensionDelegate: ExtensionDelegate
+
   @SceneBuilder var body: some Scene {
     WindowGroup {
       NavigationView {
-        ItemListView(viewModel: ItemListModel())
+        ContainerItemListView()
       }
     }
-
-    WKNotificationScene(controller: NotificationController.self, category: "myCategory")
   }
 }

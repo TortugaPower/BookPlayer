@@ -9,32 +9,35 @@
 import SwiftUI
 
 struct ItemListView: View {
-  var viewModel: ItemListModel
+  @EnvironmentObject var viewModel: ItemListModel
 
   var body: some View {
-    if #available(watchOSApplicationExtension 8.0, *) {
+    if viewModel.items.isEmpty {
+      VStack {
+        Spacer()
+        Button {
+          viewModel.requestData()
+          print("reload tapped")
+        } label: {
+          Text("watchapp_refresh_data_title")
+        }
+        Spacer()
+      }
+    } else {
       List {
         ForEach(viewModel.items) { item in
-          NavigationLink(destination: NowPlayingView(item: item)) {
+          NavigationLink(destination: ContainerNowPlayingView(item: item)) {
             ItemCellView(item: item)
           }
         }
       }
-      .navigationTitle("recent_title")
-      .navigationBarTitleDisplayMode(.inline)
-    } else {
-      List {
-        ForEach(viewModel.items) { item in
-          ItemCellView(item: item)
-        }
-      }
-      .navigationTitle("recent_title")
     }
   }
 }
 
 struct ItemListView_Previews: PreviewProvider {
   static var previews: some View {
-    ItemListView(viewModel: ItemListModel())
+    ItemListView()
+      .environmentObject(ItemListModel())
   }
 }
