@@ -237,17 +237,6 @@ class ItemListCoordinator: Coordinator {
     self.playerManager.load(item)
   }
 
-  func showSettings() {
-    let settingsCoordinator = SettingsCoordinator(
-      libraryService: self.libraryService,
-      navigationController: AppNavigationController.instantiate(from: .Settings)
-    )
-    settingsCoordinator.parentCoordinator = self
-    settingsCoordinator.presentingViewController = self.presentingViewController
-    self.childCoordinators.append(settingsCoordinator)
-    settingsCoordinator.start()
-  }
-
   func showImport() {
     let child = ImportCoordinator(
       navigationController: self.navigationController,

@@ -50,12 +50,6 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
     self.navigationItem.rightBarButtonItem = self.editButtonItem
 
     if self.navigationController?.viewControllers.count == 1 {
-      self.navigationItem.leftBarButtonItem =  UIBarButtonItem(
-        title: "settings_title".localized,
-        style: .plain,
-        target: self,
-        action: #selector(showSettings)
-      )
       self.navigationController!.interactivePopGestureRecognizer!.delegate = self
 
       self.previousLeftButtons = navigationItem.leftBarButtonItems
@@ -300,10 +294,6 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
 
   @IBAction func addAction() {
     self.viewModel.showAddActions()
-  }
-
-  @objc func showSettings() {
-    self.viewModel.showSettings()
   }
 
   @objc func selectButtonPressed(_ sender: Any) {

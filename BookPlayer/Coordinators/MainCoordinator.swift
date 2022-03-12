@@ -73,6 +73,15 @@ class MainCoordinator: Coordinator {
     self.childCoordinators.append(libraryCoordinator)
     libraryCoordinator.start()
 
+    let profileCoordinator = ProfileCoordinator(
+      libraryService: self.libraryService,
+      navigationController: AppNavigationController.instantiate(from: .Main)
+    )
+    profileCoordinator.tabBarController = tabBarController
+    profileCoordinator.parentCoordinator = self
+    self.childCoordinators.append(profileCoordinator)
+    profileCoordinator.start()
+
     self.setupCarPlay()
     self.watchConnectivityService.startSession()
 

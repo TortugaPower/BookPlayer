@@ -32,7 +32,8 @@ class LibraryListCoordinator: ItemListCoordinator {
     self.navigationController.delegate = self
 
     if let tabBarController = tabBarController {
-      tabBarController.setViewControllers([self.navigationController], animated: true)
+      let newControllersArray = (tabBarController.viewControllers ?? []) + [self.navigationController]
+      tabBarController.setViewControllers(newControllersArray, animated: false)
     }
 
     self.loadLastBookIfAvailable()

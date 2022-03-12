@@ -58,11 +58,6 @@ class LibraryListCoordinatorTests: XCTestCase {
     XCTAssert(self.libraryListCoordinator.childCoordinators.first is PlayerCoordinator)
   }
 
-  func testShowSettings() {
-    self.libraryListCoordinator.showSettings()
-    XCTAssert(self.libraryListCoordinator.childCoordinators.first is SettingsCoordinator)
-  }
-
   func testShowImport() {
     self.libraryListCoordinator.showImport()
     XCTAssert(self.libraryListCoordinator.childCoordinators.first is ImportCoordinator)

@@ -411,10 +411,6 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     }
   }
 
-  func showSettings() {
-    self.coordinator.showSettings()
-  }
-
   func showAddActions() {
     self.coordinator.showAddActions()
   }
