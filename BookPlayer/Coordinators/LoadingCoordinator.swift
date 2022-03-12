@@ -43,13 +43,23 @@ class LoadingCoordinator: Coordinator {
     )
     rootVC.viewModel = BaseViewModel<MainCoordinator>()
     rootVC.viewModel.coordinator = coordinator
-    rootVC.modalPresentationStyle = .fullScreen
-    rootVC.modalTransitionStyle = .crossDissolve
+    rootVC.tabBarItem = UITabBarItem(
+      title: "library_title".localized,
+      image: UIImage(systemName: "books.vertical"),
+      selectedImage: UIImage(systemName: "books.vertical.fill")
+    )
     coordinator.parentCoordinator = self
     coordinator.presentingViewController = self.presentingViewController
     self.childCoordinators.append(coordinator)
 
-    self.navigationController.present(rootVC, animated: true, completion: nil)
+    let tabBarController = AppTabBarController()
+    tabBarController.modalPresentationStyle = .fullScreen
+    tabBarController.modalTransitionStyle = .crossDissolve
+    tabBarController.viewControllers = [rootVC]
+
+    self.navigationController.present(tabBarController, animated: false) {
+      coordinator.start()
+    }
   }
 
   override func getMainCoordinator() -> MainCoordinator? {

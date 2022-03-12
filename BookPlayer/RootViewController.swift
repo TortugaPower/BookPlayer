@@ -30,12 +30,6 @@ class RootViewController: BaseViewController<MainCoordinator, BaseViewModel<Main
     self.miniPlayerContainer.layer.shadowRadius = 9.0
     self.miniPlayerContainer.clipsToBounds = false
     self.miniPlayerContainer.isHidden = true
-  }
-
-  override func viewDidAppear(_ animated: Bool) {
-    super.viewDidAppear(animated)
-
-    self.viewModel.coordinator.start()
 
     setUpTheming()
   }
