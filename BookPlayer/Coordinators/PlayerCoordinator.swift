@@ -37,8 +37,7 @@ class PlayerCoordinator: Coordinator {
                                     libraryService: self.libraryService)
     viewModel.coordinator = self
     vc.viewModel = viewModel
-    self.navigationController.present(vc, animated: true, completion: nil)
-    self.presentingViewController = vc
+    self.presentingViewController?.present(vc, animated: true, completion: nil)
   }
 
   func showBookmarks() {

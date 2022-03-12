@@ -13,8 +13,6 @@ import UIKit
 
 class MainCoordinator: Coordinator {
   let tabBarController: AppTabBarController
-  let rootNavigationController: UINavigationController
-  let flowNaviagtionController: UINavigationController
 
   let playerManager: PlayerManager
   let libraryService: LibraryServiceProtocol
@@ -24,12 +22,9 @@ class MainCoordinator: Coordinator {
   var carPlayManager: CarPlayManager!
 
   init(
-    rootNavigationController: UINavigationController,
+    navigationController: UINavigationController,
     libraryService: LibraryServiceProtocol
   ) {
-    self.rootNavigationController = rootNavigationController
-    self.flowNaviagtionController = AppNavigationController.instantiate(from: .Main)
-
     self.libraryService = libraryService
     let playbackService = PlaybackService(libraryService: libraryService)
     self.playbackService = playbackService
@@ -51,17 +46,19 @@ class MainCoordinator: Coordinator {
     tabBarController.modalPresentationStyle = .fullScreen
     tabBarController.modalTransitionStyle = .crossDissolve
 
-    super.init(navigationController: flowNaviagtionController, flowType: .modal)
+    super.init(navigationController: navigationController, flowType: .modal)
     viewModel.coordinator = self
   }
 
   override func start() {
+    self.presentingViewController = tabBarController
+
     if let currentTheme = try? self.libraryService.getLibraryCurrentTheme() {
       ThemeManager.shared.currentTheme = SimpleTheme(with: currentTheme)
     }
 
     let libraryCoordinator = LibraryListCoordinator(
-      navigationController: self.flowNaviagtionController,
+      navigationController: AppNavigationController.instantiate(from: .Main),
       playerManager: self.playerManager,
       speedManager: self.speedManager,
       importManager: ImportManager(libraryService: self.libraryService),
@@ -85,7 +82,7 @@ class MainCoordinator: Coordinator {
     self.setupCarPlay()
     self.watchConnectivityService.startSession()
 
-    self.rootNavigationController.present(tabBarController, animated: false)
+    self.navigationController.present(tabBarController, animated: false)
   }
 
   private func setupCarPlay() {
@@ -96,12 +93,13 @@ class MainCoordinator: Coordinator {
 
   func showPlayer() {
     let playerCoordinator = PlayerCoordinator(
-      navigationController: self.navigationController,
+      navigationController: AppNavigationController.instantiate(from: .Player),
       playerManager: self.playerManager,
       speedManager: self.speedManager,
       libraryService: self.libraryService
     )
     playerCoordinator.parentCoordinator = self
+    playerCoordinator.presentingViewController = self.presentingViewController
     self.childCoordinators.append(playerCoordinator)
     playerCoordinator.start()
   }

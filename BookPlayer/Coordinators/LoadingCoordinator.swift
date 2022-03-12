@@ -36,7 +36,7 @@ class LoadingCoordinator: Coordinator {
   func didFinishLoadingSequence(coreDataStack: CoreDataStack) {
     let dataManager = DataManager(coreDataStack: coreDataStack)
     let coordinator = MainCoordinator(
-      rootNavigationController: self.navigationController,
+      navigationController: self.navigationController,
       libraryService: LibraryService(dataManager: dataManager)
     )
     coordinator.parentCoordinator = self
