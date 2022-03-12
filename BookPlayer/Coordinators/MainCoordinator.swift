@@ -12,7 +12,10 @@ import MediaPlayer
 import UIKit
 
 class MainCoordinator: Coordinator {
-  let rootViewController: RootViewController
+  let tabBarController: AppTabBarController
+  let rootNavigationController: UINavigationController
+  let flowNaviagtionController: UINavigationController
+
   let playerManager: PlayerManager
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
@@ -21,11 +24,12 @@ class MainCoordinator: Coordinator {
   var carPlayManager: CarPlayManager!
 
   init(
-    rootController: RootViewController,
-    libraryService: LibraryServiceProtocol,
-    navigationController: UINavigationController
+    rootNavigationController: UINavigationController,
+    libraryService: LibraryServiceProtocol
   ) {
-    self.rootViewController = rootController
+    self.rootNavigationController = rootNavigationController
+    self.flowNaviagtionController = AppNavigationController.instantiate(from: .Main)
+
     self.libraryService = libraryService
     let playbackService = PlaybackService(libraryService: libraryService)
     self.playbackService = playbackService
@@ -42,41 +46,37 @@ class MainCoordinator: Coordinator {
     )
     ThemeManager.shared.libraryService = libraryService
 
-    super.init(navigationController: navigationController, flowType: .modal)
+    let viewModel = MiniPlayerViewModel(playerManager: self.playerManager)
+    self.tabBarController = AppTabBarController(miniPlayerViewModel: viewModel)
+    tabBarController.modalPresentationStyle = .fullScreen
+    tabBarController.modalTransitionStyle = .crossDissolve
+
+    super.init(navigationController: flowNaviagtionController, flowType: .modal)
+    viewModel.coordinator = self
   }
 
   override func start() {
-    self.rootViewController.addChild(self.navigationController)
-    self.rootViewController.mainContainer.addSubview(self.navigationController.view)
-    self.navigationController.didMove(toParent: self.rootViewController)
-
-    let miniPlayerVC = MiniPlayerViewController.instantiate(from: .Main)
-    let viewModel = MiniPlayerViewModel(playerManager: self.playerManager)
-    viewModel.coordinator = self
-    miniPlayerVC.viewModel = viewModel
-
-    self.rootViewController.addChild(miniPlayerVC)
-    self.rootViewController.miniPlayerContainer.addSubview(miniPlayerVC.view)
-    miniPlayerVC.didMove(toParent: self.rootViewController)
-
     if let currentTheme = try? self.libraryService.getLibraryCurrentTheme() {
       ThemeManager.shared.currentTheme = SimpleTheme(with: currentTheme)
     }
 
     let libraryCoordinator = LibraryListCoordinator(
-      navigationController: self.navigationController,
+      navigationController: self.flowNaviagtionController,
       playerManager: self.playerManager,
       speedManager: self.speedManager,
       importManager: ImportManager(libraryService: self.libraryService),
       libraryService: self.libraryService,
       playbackService: self.playbackService
     )
+    libraryCoordinator.tabBarController = tabBarController
     libraryCoordinator.parentCoordinator = self
     self.childCoordinators.append(libraryCoordinator)
     libraryCoordinator.start()
 
     self.setupCarPlay()
     self.watchConnectivityService.startSession()
+
+    self.rootNavigationController.present(tabBarController, animated: false)
   }
 
   private func setupCarPlay() {
@@ -98,13 +98,13 @@ class MainCoordinator: Coordinator {
   }
 
   func showMiniPlayer(_ flag: Bool) {
-    guard flag == true else {
-      self.rootViewController.animateView(self.rootViewController.miniPlayerContainer, show: flag)
+    guard flag else {
+      self.tabBarController.animateView(self.tabBarController.miniPlayer, show: flag)
       return
     }
 
     if self.playerManager.hasLoadedBook() {
-      self.rootViewController.animateView(self.rootViewController.miniPlayerContainer, show: flag)
+      self.tabBarController.animateView(self.tabBarController.miniPlayer, show: flag)
     }
   }
 

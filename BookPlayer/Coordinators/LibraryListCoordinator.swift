@@ -10,6 +10,8 @@ import BookPlayerKit
 import UIKit
 
 class LibraryListCoordinator: ItemListCoordinator {
+  weak var tabBarController: UITabBarController?
+
   override func start() {
     let vc = ItemListViewController.instantiate(from: .Main)
     let viewModel = ItemListViewModel(folderRelativePath: nil,
@@ -19,9 +21,19 @@ class LibraryListCoordinator: ItemListCoordinator {
     viewModel.coordinator = self
     vc.viewModel = viewModel
     vc.navigationItem.largeTitleDisplayMode = .automatic
+    vc.tabBarItem = UITabBarItem(
+      title: "library_title".localized,
+      image: UIImage(systemName: "books.vertical"),
+      selectedImage: UIImage(systemName: "books.vertical.fill")
+    )
+
     self.presentingViewController = self.navigationController
     self.navigationController.pushViewController(vc, animated: true)
     self.navigationController.delegate = self
+
+    if let tabBarController = tabBarController {
+      tabBarController.setViewControllers([self.navigationController], animated: true)
+    }
 
     self.loadLastBookIfAvailable()
 

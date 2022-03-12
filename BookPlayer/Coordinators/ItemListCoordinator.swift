@@ -186,7 +186,6 @@ class ItemListCoordinator: Coordinator {
                 return
               }
 
-        self.getMainCoordinator()?.showMiniPlayer(true)
         self.playerManager.play()
         self.showPlayer()
 
@@ -221,8 +220,6 @@ class ItemListCoordinator: Coordinator {
                 subscription?.cancel()
                 return
               }
-
-        self.getMainCoordinator()?.showMiniPlayer(true)
 
         if UserDefaults.standard.bool(forKey: Constants.UserActivityPlayback) {
           UserDefaults.standard.removeObject(forKey: Constants.UserActivityPlayback)

@@ -128,7 +128,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   }
 
   func hasLoadedBook() -> Bool {
-    return self.audioPlayer.currentItem != nil
+    return self.currentItem != nil
   }
 
   func loadPlayerItem(for chapter: PlayableChapter) {

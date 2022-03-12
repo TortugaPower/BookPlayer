@@ -136,11 +136,10 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
   }
 
   func adjustBottomOffsetForMiniPlayer() {
-    self.tableView.contentInset.bottom = Device.current.hasSensorHousing ? 199: 88
+    self.tableView.contentInset.bottom = 88
   }
 
   func setupBulkControls() {
-    self.bulkControlsBottomConstraint.constant = Device.current.hasSensorHousing ? 136: 25
     self.bulkControls.isHidden = true
     self.bulkControls.layer.cornerRadius = 13
     self.bulkControls.layer.shadowOpacity = 0.3
