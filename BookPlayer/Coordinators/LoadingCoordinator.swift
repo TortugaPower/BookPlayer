@@ -34,22 +34,16 @@ class LoadingCoordinator: Coordinator {
   }
 
   func didFinishLoadingSequence(coreDataStack: CoreDataStack) {
-    let rootVC = RootViewController.instantiate(from: .Main)
     let dataManager = DataManager(coreDataStack: coreDataStack)
     let coordinator = MainCoordinator(
-      rootController: rootVC,
-      libraryService: LibraryService(dataManager: dataManager),
-      navigationController: AppNavigationController.instantiate(from: .Main)
+      navigationController: self.navigationController,
+      libraryService: LibraryService(dataManager: dataManager)
     )
-    rootVC.viewModel = BaseViewModel<MainCoordinator>()
-    rootVC.viewModel.coordinator = coordinator
-    rootVC.modalPresentationStyle = .fullScreen
-    rootVC.modalTransitionStyle = .crossDissolve
     coordinator.parentCoordinator = self
     coordinator.presentingViewController = self.presentingViewController
     self.childCoordinators.append(coordinator)
 
-    self.navigationController.present(rootVC, animated: true, completion: nil)
+    coordinator.start()
   }
 
   override func getMainCoordinator() -> MainCoordinator? {

@@ -50,12 +50,6 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
     self.navigationItem.rightBarButtonItem = self.editButtonItem
 
     if self.navigationController?.viewControllers.count == 1 {
-      self.navigationItem.leftBarButtonItem =  UIBarButtonItem(
-        title: "settings_title".localized,
-        style: .plain,
-        target: self,
-        action: #selector(showSettings)
-      )
       self.navigationController!.interactivePopGestureRecognizer!.delegate = self
 
       self.previousLeftButtons = navigationItem.leftBarButtonItems
@@ -136,11 +130,10 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
   }
 
   func adjustBottomOffsetForMiniPlayer() {
-    self.tableView.contentInset.bottom = Device.current.hasSensorHousing ? 199: 88
+    self.tableView.contentInset.bottom = 88
   }
 
   func setupBulkControls() {
-    self.bulkControlsBottomConstraint.constant = Device.current.hasSensorHousing ? 136: 25
     self.bulkControls.isHidden = true
     self.bulkControls.layer.cornerRadius = 13
     self.bulkControls.layer.shadowOpacity = 0.3
@@ -301,10 +294,6 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
 
   @IBAction func addAction() {
     self.viewModel.showAddActions()
-  }
-
-  @objc func showSettings() {
-    self.viewModel.showSettings()
   }
 
   @objc func selectButtonPressed(_ sender: Any) {

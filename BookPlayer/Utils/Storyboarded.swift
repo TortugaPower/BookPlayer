@@ -9,7 +9,7 @@
 import UIKit
 
 enum StoryboardName: String {
-  case Main, Settings, Player
+  case Main, Settings, Player, Profile
 }
 
 protocol Storyboarded {

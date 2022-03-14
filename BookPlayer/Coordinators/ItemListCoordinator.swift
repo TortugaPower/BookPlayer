@@ -138,12 +138,13 @@ class ItemListCoordinator: Coordinator {
 
   func showPlayer() {
     let playerCoordinator = PlayerCoordinator(
-      navigationController: self.navigationController,
+      navigationController: AppNavigationController.instantiate(from: .Player),
       playerManager: self.playerManager,
       speedManager: self.speedManager,
       libraryService: self.libraryService
     )
     playerCoordinator.parentCoordinator = self
+    playerCoordinator.presentingViewController = self.presentingViewController
     self.childCoordinators.append(playerCoordinator)
     playerCoordinator.start()
   }
@@ -186,7 +187,6 @@ class ItemListCoordinator: Coordinator {
                 return
               }
 
-        self.getMainCoordinator()?.showMiniPlayer(true)
         self.playerManager.play()
         self.showPlayer()
 
@@ -222,8 +222,6 @@ class ItemListCoordinator: Coordinator {
                 return
               }
 
-        self.getMainCoordinator()?.showMiniPlayer(true)
-
         if UserDefaults.standard.bool(forKey: Constants.UserActivityPlayback) {
           UserDefaults.standard.removeObject(forKey: Constants.UserActivityPlayback)
           self.playerManager.play()
@@ -238,17 +236,6 @@ class ItemListCoordinator: Coordinator {
       })
 
     self.playerManager.load(item)
-  }
-
-  func showSettings() {
-    let settingsCoordinator = SettingsCoordinator(
-      libraryService: self.libraryService,
-      navigationController: AppNavigationController.instantiate(from: .Settings)
-    )
-    settingsCoordinator.parentCoordinator = self
-    settingsCoordinator.presentingViewController = self.presentingViewController
-    self.childCoordinators.append(settingsCoordinator)
-    settingsCoordinator.start()
   }
 
   func showImport() {
