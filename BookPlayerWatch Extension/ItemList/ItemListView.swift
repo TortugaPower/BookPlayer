@@ -9,15 +9,15 @@
 import SwiftUI
 
 struct ItemListView: View {
-  @EnvironmentObject var viewModel: ItemListModel
+  @EnvironmentObject var contextManager: ContextManager
+  @State var showPlayer = false
 
   var body: some View {
-    if viewModel.items.isEmpty {
+    if contextManager.items.isEmpty {
       VStack {
         Spacer()
         Button {
-          viewModel.requestData()
-          print("reload tapped")
+          contextManager.requestData()
         } label: {
           Text("watchapp_refresh_data_title")
         }
@@ -25,19 +25,37 @@ struct ItemListView: View {
       }
     } else {
       List {
-        ForEach(viewModel.items) { item in
-          NavigationLink(destination: ContainerNowPlayingView(item: item)) {
+        ForEach(contextManager.items) { item in
+          Button {
+            contextManager.handleItemSelected(item)
+            showPlayer = true
+          } label: {
             ItemCellView(item: item)
           }
         }
       }
+      .background(
+        NavigationLink(
+          destination: NowPlayingView()
+            .environmentObject(contextManager),
+          isActive: $showPlayer
+        ) {
+          EmptyView()
+        }.opacity(0)
+      )
+      .onReceive(
+        NotificationCenter.default.publisher(
+          for: .bookPlaying
+        )
+      ) { _ in
+        showPlayer = true
+        contextManager.isPlaying = true
+      }
+      .onReceive(NotificationCenter.default.publisher(
+        for: .bookPaused
+      )) { _ in
+        contextManager.isPlaying = false
+      }
     }
-  }
-}
-
-struct ItemListView_Previews: PreviewProvider {
-  static var previews: some View {
-    ItemListView()
-      .environmentObject(ItemListModel())
   }
 }

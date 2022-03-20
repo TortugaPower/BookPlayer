@@ -10,81 +10,26 @@ import BookPlayerWatchKit
 import SwiftUI
 
 struct NowPlayingView: View {
-  let item: PlayableItem
+  @EnvironmentObject var contextManager: ContextManager
 
   var body: some View {
-    VStack {
-      NowPlayingTitleView(author: item.author, title: item.title)
-      Spacer()
-      HStack {
-        Button {
-          print("rewind tapped")
-        } label: {
-          ZStack {
-            Text("**300**")
-              .minimumScaleFactor(0.1)
-              .lineLimit(1)
-              .padding(5)
-              .offset(y: 1)
-            ResizeableImageView(name: "gobackward")
-          }
-          .padding(14)
+      VStack {
+        NowPlayingTitleView(
+          author: contextManager.applicationContext.currentItem?.author ?? "",
+          title: contextManager.applicationContext.currentItem?.title ?? ""
+        )
 
-//          ResizeableImageView(name: "gobackward")
-//            .padding(12)
-        }
-        .buttonStyle(PlainButtonStyle())
+        Spacer()
 
-        Button {
-          print("play tapped")
-        } label: {
-          ResizeableImageView(name: "play.fill")
-            .padding(8)
-        }
-        .buttonStyle(PlainButtonStyle())
+        NowPlayingMediaControlsView()
+          .environmentObject(contextManager)
 
-        Button {
-          print("forward tapped")
-        } label: {
-          ResizeableImageView(name: "goforward")
-            .padding(12)
-        }
-        .buttonStyle(PlainButtonStyle())
+        Spacer()
+
+        NowPlayingPlaybackControlsView()
+          .environmentObject(contextManager)
       }
-
-      Spacer()
-      HStack {
-        NavigationLink(destination: PlaybackControlsView()) {
-          ResizeableImageView(name: "dial.max")
-            .padding(11)
-        }
-        .buttonStyle(PlainButtonStyle())
-
-        VolumeView()
-
-        NavigationLink(destination: ChapterListView(currentChapter: item.currentChapter, chapters: item.chapters)) {
-          ResizeableImageView(name: "list.bullet")
-            .padding(14)
-        }
-        .buttonStyle(PlainButtonStyle())
-      }
-    }
-    .ignoresSafeArea(edges: .bottom)
-  }
-}
-
-struct NowPlayingView_Previews: PreviewProvider {
-  static var previews: some View {
-    NowPlayingView(item: PlayableItem(
-      title: "book 1 book 1 book 1 book 1 book 1",
-      author: "author 1",
-      chapters: [],
-      currentTime: 0,
-      duration: 0,
-      relativePath: "book 1",
-      percentCompleted: 0,
-      isFinished: false,
-      useChapterTimeContext: false
-    ))
+      .fixedSize(horizontal: false, vertical: false)
+      .ignoresSafeArea(edges: .bottom)
   }
 }

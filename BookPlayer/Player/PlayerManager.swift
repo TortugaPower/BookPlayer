@@ -15,7 +15,7 @@ import WidgetKit
 
 // swiftlint:disable file_length
 
-protocol PlayerManagerProtocol: NSObjectProtocol {
+public protocol PlayerManagerProtocol: NSObjectProtocol {
   var currentItem: PlayableItem? { get set }
   var boostVolume: Bool { get set }
 
@@ -46,7 +46,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   private let playbackService: PlaybackServiceProtocol
   private let speedManager: SpeedManager
   private let userActivityManager: UserActivityManager
-  private let watchConnectivityService: WatchConnectivityService
 
   private var audioPlayer = AVPlayer()
 
@@ -78,27 +77,15 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
   private let queue = OperationQueue()
 
-  private var rateObserver: NSKeyValueObservation?
-
   init(libraryService: LibraryServiceProtocol,
        playbackService: PlaybackServiceProtocol,
-       speedManager: SpeedManager,
-       watchConnectivityService: WatchConnectivityService) {
+       speedManager: SpeedManager) {
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.speedManager = speedManager
-    self.watchConnectivityService = watchConnectivityService
     self.userActivityManager = UserActivityManager(libraryService: libraryService)
 
     super.init()
-
-    self.rateObserver = self.audioPlayer.observe(\.rate, options: [.new]) { _, change in
-      guard let newValue = change.newValue, newValue == 0 else { return }
-
-      DispatchQueue.main.async {
-        self.watchConnectivityService.sendMessage(message: ["notification": "bookPaused" as AnyObject])
-      }
-    }
 
     self.setupPlayerInstance()
 
@@ -201,7 +188,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       self.audioPlayer.replaceCurrentItem(with: playerItem)
 
       // Update UI on main thread
-      DispatchQueue.main.async {
+      DispatchQueue.main.async { [weak self] in
+        guard let self = self else { return }
         // Set book metadata for lockscreen and control center
         self.nowPlayingInfo = [
           MPNowPlayingInfoPropertyDefaultPlaybackRate: self.speedManager.getSpeed(relativePath: chapter.relativePath)
@@ -230,12 +218,15 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
         MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
 
-        if let currentItem = self.currentItem,
-           currentItem.currentTime > 0.0 {
+        if let currentItem = self.currentItem {
           // if book is truly finished, start book again to avoid autoplaying next one
           // add 1 second as a finished threshold
-          let time = (currentItem.currentTime + 1) >= currentItem.duration ? 0 : currentItem.currentTime
-          self.jumpTo(time, recordBookmark: false)
+          if currentItem.currentTime > 0.0 {
+            let time = (currentItem.currentTime + 1) >= currentItem.duration ? 0 : currentItem.currentTime
+            self.jumpTo(time, recordBookmark: false)
+          }
+
+          self.libraryService.updateBookLastPlayDate(at: currentItem.relativePath, date: Date())
         }
 
         NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["loaded": true])
@@ -476,7 +467,6 @@ extension PlayerManager {
 
     DispatchQueue.main.async {
       NotificationCenter.default.post(name: .bookPlayed, object: nil, userInfo: ["book": currentItem])
-      self.watchConnectivityService.sendMessage(message: ["notification": "bookPlayed" as AnyObject])
       if #available(iOS 14.0, *) {
         WidgetCenter.shared.reloadAllTimelines()
       }
@@ -550,6 +540,8 @@ extension PlayerManager {
 
       try? AVAudioSession.sharedInstance().setActive(false)
     }
+
+    NotificationCenter.default.post(name: .bookPaused, object: nil)
 
     guard fade else {
       pauseActionBlock()

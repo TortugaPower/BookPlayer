@@ -32,14 +32,19 @@ class MainCoordinator: Coordinator {
     let speedManager = SpeedManager(libraryService: libraryService)
     self.speedManager = speedManager
 
-    let watchService = WatchConnectivityService(libraryService: libraryService, playbackService: playbackService)
-    self.watchConnectivityService = watchService
     self.playerManager = PlayerManager(
       libraryService: libraryService,
       playbackService: self.playbackService,
-      speedManager: speedManager,
-      watchConnectivityService: watchService
+      speedManager: speedManager
     )
+
+    let watchService = WatchConnectivityService(
+      libraryService: libraryService,
+      playbackService: playbackService,
+      playerManager: playerManager
+    )
+    self.watchConnectivityService = watchService
+
     ThemeManager.shared.libraryService = libraryService
 
     super.init(navigationController: navigationController, flowType: .modal)

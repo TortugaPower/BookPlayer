@@ -76,9 +76,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // register to audio-interruption notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioInterruptions(_:)), name: AVAudioSession.interruptionNotification, object: nil)
 
-        // update last played book on watch app
-        NotificationCenter.default.addObserver(self, selector: #selector(self.sendApplicationContext), name: .bookPlayed, object: nil)
-
         NotificationCenter.default.addObserver(self, selector: #selector(self.messageReceived), name: .messageReceived, object: nil)
 
         // register for remote events
@@ -154,11 +151,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         DispatchQueue.main.async {
             ActionParserService.handleAction(action)
         }
-    }
-
-    @objc func sendApplicationContext() {
-      guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return }
-      mainCoordinator.watchConnectivityService.sendApplicationContext()
     }
 
     // Playback may be interrupted by calls. Handle pause

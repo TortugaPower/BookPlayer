@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct PlaybackControlsView: View {
-  @State private var boostVolumeEnabled = false
+  @EnvironmentObject var contextManager: ContextManager
 
   var body: some View {
     GeometryReader { metrics in
@@ -17,7 +17,7 @@ struct PlaybackControlsView: View {
         HStack {
           Spacer()
           Button {
-            print("rewind tapped")
+            contextManager.handleNewSpeed(contextManager.applicationContext.rate - 0.1)
           } label: {
             ResizeableImageView(name: "minus.circle")
           }
@@ -26,9 +26,9 @@ struct PlaybackControlsView: View {
           Spacer()
             .padding([.leading], 5)
           Button {
-            print("play tapped")
+            contextManager.handleNewSpeed(contextManager.applicationContext.rate + 0.5)
           } label: {
-            Text("3.35x")
+            Text("\(contextManager.applicationContext.rate, specifier: "%.2f")x")
               .padding()
               .frame(maxWidth: .infinity)
               .background(Color.black.brightness(0.2))
@@ -40,7 +40,7 @@ struct PlaybackControlsView: View {
           Spacer()
             .padding([.leading], 5)
           Button {
-            print("forward tapped")
+            contextManager.handleNewSpeed(contextManager.applicationContext.rate + 0.1)
           } label: {
             ResizeableImageView(name: "plus.circle")
           }
@@ -50,7 +50,12 @@ struct PlaybackControlsView: View {
         }
         .padding([.top], 10)
         List {
-          Toggle("settings_boostvolume_title", isOn: $boostVolumeEnabled)
+          Toggle("settings_boostvolume_title", isOn: .init(
+            get: { contextManager.applicationContext.boostVolume },
+            set: { _ in
+              contextManager.handleBoostVolumeToggle()
+            }
+          ))
         }
         .padding([.top], 10)
         Spacer()

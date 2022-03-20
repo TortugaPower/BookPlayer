@@ -10,23 +10,24 @@ import SwiftUI
 import BookPlayerWatchKit
 
 struct ContainerItemListView: View {
-  @StateObject var viewModel = ItemListModel()
+  @StateObject var contextManager = ContextManager()
+  @State var showPlayer = false
 
   var body: some View {
     VStack {
-      if #available(watchOSApplicationExtension 8.0, *) {
+      if contextManager.items.isEmpty,
+         contextManager.isConnecting {
+        ProgressView()
+      } else if #available(watchOSApplicationExtension 8.0, *) {
         ItemListView()
           .navigationTitle("recent_title")
           .navigationBarTitleDisplayMode(.inline)
-          .environmentObject(viewModel)
+          .environmentObject(contextManager)
       } else {
         ItemListView()
           .navigationTitle("recent_title")
-          .environmentObject(viewModel)
+          .environmentObject(contextManager)
       }
-    }
-    .onReceive(NotificationCenter.default.publisher(for: .bookPlaying)) { _ in
-      print("==")
     }
   }
 }

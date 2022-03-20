@@ -39,6 +39,8 @@ class ActionParserService {
     switch action.command {
     case .play:
       self.handlePlayAction(action)
+    case .pause:
+      self.handlePauseAction(action)
     case .download:
       self.handleDownloadAction(action)
     case .sleep:
@@ -54,7 +56,68 @@ class ActionParserService {
       self.handleWidgetAction(action)
     case .fileImport:
       self.handleFileImportAction(action)
+    case .boostVolume:
+      self.handleBoostVolumeAction(action)
+    case .speed:
+      self.handleSpeedRateAction(action)
+    case .chapter:
+      self.handleChapterAction(action)
     }
+  }
+
+  private class func handleChapterAction(_ action: Action) {
+    guard
+      let valueString = action.getQueryValue(for: "start"),
+      let chapterStart = Double(valueString),
+      let appDelegate = UIApplication.shared.delegate as? AppDelegate,
+      let mainCoordinator = appDelegate.coordinator.getMainCoordinator()
+    else {
+      return
+    }
+
+    mainCoordinator.playerManager.jumpTo(chapterStart + 0.01, recordBookmark: false)
+  }
+
+  private class func handleSpeedRateAction(_ action: Action) {
+    guard
+      let valueString = action.getQueryValue(for: "rate"),
+      let speedRate = Float(valueString)
+    else {
+      return
+    }
+
+    let roundedValue = round(speedRate * 100) / 100.0
+
+    guard
+      let appDelegate = UIApplication.shared.delegate as? AppDelegate,
+      let mainCoordinator = appDelegate.coordinator.getMainCoordinator()
+    else {
+      return
+    }
+
+    mainCoordinator.speedManager.setSpeed(
+      roundedValue,
+      relativePath: mainCoordinator.playerManager.currentItem?.relativePath
+    )
+  }
+
+  private class func handleBoostVolumeAction(_ action: Action) {
+    guard let valueString = action.getQueryValue(for: "isOn") else { return }
+
+    let isOn = valueString == "true"
+
+    guard
+      let appDelegate = UIApplication.shared.delegate as? AppDelegate,
+      let mainCoordinator = appDelegate.coordinator.getMainCoordinator()
+    else {
+      return
+    }
+
+    UserDefaults.standard.set(
+      isOn,
+      forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue
+    )
+    mainCoordinator.playerManager.boostVolume = isOn
   }
 
   private class func handleFileImportAction(_ action: Action) {
@@ -83,6 +146,17 @@ class ActionParserService {
     default:
       SleepTimer.shared.sleep(in: seconds)
     }
+  }
+
+  private class func handlePauseAction(_ action: Action) {
+    guard
+      let appDelegate = UIApplication.shared.delegate as? AppDelegate,
+      let mainCoordinator = appDelegate.coordinator.getMainCoordinator()
+    else {
+      return
+    }
+
+    mainCoordinator.playerManager.pause(fade: false)
   }
 
   private class func handlePlayAction(_ action: Action) {
