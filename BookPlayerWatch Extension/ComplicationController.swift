@@ -7,6 +7,8 @@
 //
 
 import ClockKit
+import SwiftUI
+import BookPlayerWatchKit
 
 class ComplicationController: NSObject, CLKComplicationDataSource {
 
@@ -14,11 +16,23 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
 
   func getComplicationDescriptors(handler: @escaping ([CLKComplicationDescriptor]) -> Void) {
     let descriptors = [
-      CLKComplicationDescriptor(identifier: "complication", displayName: "BookFixer", supportedFamilies: CLKComplicationFamily.allCases)
-      // Multiple complication support can be added here with more descriptors
+      CLKComplicationDescriptor(
+        identifier: "complication",
+        displayName: "BookPlayer",
+        supportedFamilies: [
+          .circularSmall,
+          .modularSmall,
+          .modularLarge,
+          .utilitarianSmall,
+          .utilitarianSmallFlat,
+          .utilitarianLarge,
+          .graphicCorner,
+          .graphicCircular,
+          .graphicRectangular
+        ]
+      )
     ]
 
-    // Call the handler with the currently supported complication descriptors
     handler(descriptors)
   }
 
@@ -42,7 +56,23 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
 
   func getCurrentTimelineEntry(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTimelineEntry?) -> Void) {
     // Call the handler with the current timeline entry
-    handler(nil)
+    let testChapter = PlayableChapter(
+      title: "test chapter",
+      author: "test author",
+      start: 0,
+      duration: 50,
+      relativePath: "",
+      index: 1
+    )
+    let item = PlayableItem(title: "The Last Shadow: Other Tales from the Ender Universe", author: "Orson Scott Card", chapters: [testChapter], currentTime: 0, duration: 0, relativePath: "", percentCompleted: 0.7, isFinished: false, useChapterTimeContext: false)
+    if let ctemplate = makeTemplate(for: item, complication: complication) {
+      let entry = CLKComplicationTimelineEntry(
+        date: Date(),
+        complicationTemplate: ctemplate)
+      handler(entry)
+    } else {
+      handler(nil)
+    }
   }
 
   func getTimelineEntries(for complication: CLKComplication, after date: Date, limit: Int, withHandler handler: @escaping ([CLKComplicationTimelineEntry]?) -> Void) {
@@ -53,7 +83,70 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
   // MARK: - Sample Templates
 
   func getLocalizableSampleTemplate(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTemplate?) -> Void) {
-    // This method will be called once per supported complication, and the results will be cached
-    handler(nil)
+    if let template = makeTemplate(for: nil, complication: complication) {
+      handler(template)
+    } else {
+      handler(nil)
+    }
+  }
+}
+
+extension ComplicationController {
+  func makeTemplate(
+    for item: PlayableItem?,
+    complication: CLKComplication
+  ) -> CLKComplicationTemplate? {
+    switch complication.family {
+    case .graphicCorner:
+      let textProvider: CLKTextProvider
+      let gaugeProvider: CLKSimpleGaugeProvider
+
+      if let item = item {
+        textProvider = CLKTextProvider(format: "CHP \(item.currentChapter.index)")
+        gaugeProvider = CLKSimpleGaugeProvider(style: .fill, gaugeColor: .appTintColor, fillFraction: Float(item.percentCompleted))
+      } else {
+        textProvider = CLKTextProvider(format: "CHP #")
+        gaugeProvider = CLKSimpleGaugeProvider(style: .fill, gaugeColor: .appTintColor, fillFraction: 0.5)
+      }
+
+      return CLKComplicationTemplateGraphicCornerGaugeText(
+        gaugeProvider: gaugeProvider,
+        outerTextProvider: textProvider
+      )
+    case .graphicRectangular:
+      let headerTextProvider: CLKTextProvider
+      let body1TextProvider: CLKTextProvider
+
+      if let item = item {
+        headerTextProvider = CLKTextProvider(format: "\(item.currentChapter.title)")
+        body1TextProvider = CLKTextProvider(format: "\(item.title)")
+      } else {
+        headerTextProvider = CLKTextProvider(format: "Chapter")
+        body1TextProvider = CLKTextProvider(format: "Book title")
+      }
+
+      return CLKComplicationTemplateGraphicRectangularStandardBody(
+        headerTextProvider: headerTextProvider,
+        body1TextProvider: body1TextProvider
+      )
+    case .modularLarge:
+      let headerTextProvider: CLKTextProvider
+      let body1TextProvider: CLKTextProvider
+
+      if let item = item {
+        headerTextProvider = CLKTextProvider(format: "\(item.currentChapter.title)")
+        body1TextProvider = CLKTextProvider(format: "\(item.title)")
+      } else {
+        headerTextProvider = CLKTextProvider(format: "Chapter")
+        body1TextProvider = CLKTextProvider(format: "Book title")
+      }
+
+      return CLKComplicationTemplateModularLargeStandardBody(
+        headerTextProvider: headerTextProvider,
+        body1TextProvider: body1TextProvider
+      )
+    default:
+      return nil
+    }
   }
 }
