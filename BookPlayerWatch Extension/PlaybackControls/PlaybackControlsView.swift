@@ -26,7 +26,7 @@ struct PlaybackControlsView: View {
           Spacer()
             .padding([.leading], 5)
           Button {
-            contextManager.handleNewSpeed(contextManager.applicationContext.rate + 0.5)
+            contextManager.handleNewSpeedJump()
           } label: {
             Text("\(contextManager.applicationContext.rate, specifier: "%.2f")x")
               .padding()

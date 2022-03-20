@@ -94,6 +94,25 @@ class ContextManager: ObservableObject {
     self.applicationContext.rate = roundedValue
   }
 
+  func handleNewSpeedJump() {
+    let rate: Float
+
+    if self.applicationContext.rate == 4.0 {
+      rate = 0.5
+    } else {
+      rate = min(self.applicationContext.rate + 0.5, 4.0)
+    }
+
+    let roundedValue = round(rate * 100) / 100.0
+
+    self.watchConnectivityService.sendMessage(message: [
+      "command": Command.speed.rawValue as AnyObject,
+      "rate": "\(rate)" as AnyObject
+    ])
+
+    self.applicationContext.rate = roundedValue
+  }
+
   func handleBoostVolumeToggle() {
     self.applicationContext.boostVolume = !self.applicationContext.boostVolume
 
