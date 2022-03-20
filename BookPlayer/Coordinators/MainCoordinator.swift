@@ -17,7 +17,7 @@ class MainCoordinator: Coordinator {
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
   let speedManager: SpeedManagerProtocol
-  let watchConnectivityService: WatchConnectivityService
+  let watchConnectivityService: PhoneWatchConnectivityService
   var carPlayManager: CarPlayManager!
 
   init(
@@ -38,7 +38,7 @@ class MainCoordinator: Coordinator {
       speedManager: speedManager
     )
 
-    let watchService = WatchConnectivityService(
+    let watchService = PhoneWatchConnectivityService(
       libraryService: libraryService,
       playbackService: playbackService,
       playerManager: playerManager

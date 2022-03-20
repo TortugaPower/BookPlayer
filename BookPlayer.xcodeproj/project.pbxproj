@@ -338,7 +338,7 @@
 		9F82DF6D27DE985A001B0EA8 /* NowPlayingPlaybackControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F82DF6C27DE985A001B0EA8 /* NowPlayingPlaybackControlsView.swift */; };
 		9F82DF6F27DEE83E001B0EA8 /* SkipDirection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F82DF6E27DEE83E001B0EA8 /* SkipDirection.swift */; };
 		9F82DF7127DF8203001B0EA8 /* WatchConnectivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F82DF7027DF8203001B0EA8 /* WatchConnectivityService.swift */; };
-		9F82DF9C27DFE46B001B0EA8 /* WatchConnectivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F82DF9B27DFE46B001B0EA8 /* WatchConnectivityService.swift */; };
+		9F82DF9C27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F82DF9B27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift */; };
 		9F8A9A5E27AC3F8C0093AA1C /* PlayableItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F8A9A5D27AC3F8C0093AA1C /* PlayableItemTests.swift */; };
 		9FA334A927C0577E0064E8EA /* BookPlayerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FA334A827C0577E0064E8EA /* BookPlayerApp.swift */; };
 		9FA334AB27C058210064E8EA /* ItemListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FA334AA27C058210064E8EA /* ItemListView.swift */; };
@@ -833,7 +833,7 @@
 		9F82DF6C27DE985A001B0EA8 /* NowPlayingPlaybackControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingPlaybackControlsView.swift; sourceTree = "<group>"; };
 		9F82DF6E27DEE83E001B0EA8 /* SkipDirection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkipDirection.swift; sourceTree = "<group>"; };
 		9F82DF7027DF8203001B0EA8 /* WatchConnectivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchConnectivityService.swift; sourceTree = "<group>"; };
-		9F82DF9B27DFE46B001B0EA8 /* WatchConnectivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchConnectivityService.swift; sourceTree = "<group>"; };
+		9F82DF9B27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneWatchConnectivityService.swift; sourceTree = "<group>"; };
 		9F8A9A5D27AC3F8C0093AA1C /* PlayableItemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayableItemTests.swift; sourceTree = "<group>"; };
 		9FA334A827C0577E0064E8EA /* BookPlayerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookPlayerApp.swift; sourceTree = "<group>"; };
 		9FA334AA27C058210064E8EA /* ItemListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListView.swift; sourceTree = "<group>"; };
@@ -1544,7 +1544,7 @@
 				41D39D40215F177D00B65290 /* BookActivityItemProvider.swift */,
 				41B30A32230232D200025D69 /* CarPlayManager.swift */,
 				4193E201243A91AE004D6A82 /* ActionParserService.swift */,
-				9F82DF9B27DFE46B001B0EA8 /* WatchConnectivityService.swift */,
+				9F82DF9B27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -2380,7 +2380,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9F82DF9C27DFE46B001B0EA8 /* WatchConnectivityService.swift in Sources */,
+				9F82DF9C27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift in Sources */,
 				410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */,
 				41AD3DAF221E678600DC41E1 /* PlusViewController.swift in Sources */,
 				41B2A5F121CD857800917584 /* AddCellView.swift in Sources */,

@@ -1,5 +1,5 @@
 //
-//  WatchConnectivityService.swift
+//  PhoneWatchConnectivityService.swift
 //  BookPlayer
 //
 //  Created by gianni.carlo on 14/3/22.
@@ -10,13 +10,10 @@ import BookPlayerKit
 import Combine
 import WatchConnectivity
 
-public class WatchConnectivityService: NSObject, WCSessionDelegate {
+public class PhoneWatchConnectivityService: NSObject, WCSessionDelegate {
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
   let playerManager: PlayerManagerProtocol
-
-  public var didReceiveData: ((Data) -> Void)?
-  public var didActivateSession: (() -> Void)?
 
   private var disposeBag = Set<AnyCancellable>()
 
@@ -151,7 +148,7 @@ public class WatchConnectivityService: NSObject, WCSessionDelegate {
 
 // use when your app needs only the latest information
 // if the data was not sent, it will be replaced
-extension WatchConnectivityService {
+extension PhoneWatchConnectivityService {
   // Sender
   public func updateApplicationContext(applicationContext: [String: AnyObject]) throws {
     if let session = validSession {
@@ -166,7 +163,7 @@ extension WatchConnectivityService {
 
 // MARK: Interactive Messaging
 
-extension WatchConnectivityService {
+extension PhoneWatchConnectivityService {
   // Live messaging! App has to be reachable when sending messages from the phone
   public var validReachableSession: WCSession? {
     if let session = validSession, session.isReachable {
