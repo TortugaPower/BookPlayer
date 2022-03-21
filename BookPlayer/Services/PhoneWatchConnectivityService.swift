@@ -98,7 +98,9 @@ public class PhoneWatchConnectivityService: NSObject, WCSessionDelegate {
 
   public func sessionDidBecomeInactive(_ session: WCSession) {}
 
-  public func sessionDidDeactivate(_ session: WCSession) {}
+  public func sessionDidDeactivate(_ session: WCSession) {
+    session.activate()
+  }
 
   public func sendApplicationContext() {
     guard self.validSession != nil else { return }
