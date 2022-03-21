@@ -65,19 +65,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             NSAttributedString.Key.foregroundColor: UIColor(hex: "#37454E")
         ]
 
-        if #available(iOS 11, *) {
-            UINavigationBar.appearance().largeTitleTextAttributes = [
-                NSAttributedString.Key.foregroundColor: UIColor(hex: "#37454E")
-            ]
-        }
+        UINavigationBar.appearance().largeTitleTextAttributes = [
+          NSAttributedString.Key.foregroundColor: UIColor(hex: "#37454E")
+        ]
 
         try? AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, mode: AVAudioSession.Mode(rawValue: convertFromAVAudioSessionMode(AVAudioSession.Mode.spokenAudio)), options: [])
 
         // register to audio-interruption notifications
         NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioInterruptions(_:)), name: AVAudioSession.interruptionNotification, object: nil)
-
-        // update last played book on watch app
-        NotificationCenter.default.addObserver(self, selector: #selector(self.sendApplicationContext), name: .bookPlayed, object: nil)
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.messageReceived), name: .messageReceived, object: nil)
 
@@ -154,11 +149,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         DispatchQueue.main.async {
             ActionParserService.handleAction(action)
         }
-    }
-
-    @objc func sendApplicationContext() {
-      guard let mainCoordinator = self.coordinator.getMainCoordinator() else { return }
-      mainCoordinator.watchConnectivityService.sendApplicationContext()
     }
 
     // Playback may be interrupted by calls. Handle pause

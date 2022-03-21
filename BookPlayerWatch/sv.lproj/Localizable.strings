@@ -13,3 +13,6 @@
 "watchapp_refresh_data_title" = "Uppdatera data";
 "watchapp_connect_error_title" = "Anslutningsfel";
 "watchapp_connect_error_description" = "Där är problem med att ansluta till din telefon, vänligen försök igen senare";
+"chapters_title" = "Kapitel";
+"settings_controls_title" = "Spelarkontroller";
+"settings_boostvolume_title" = "Öka volymen";

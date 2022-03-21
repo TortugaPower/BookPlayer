@@ -13,3 +13,6 @@
 "watchapp_refresh_data_title" = "Adatok frissítése";
 "watchapp_connect_error_title" = "Kapcsolódási hiba";
 "watchapp_connect_error_description" = "Probléma a telefonhoz való csatlakozáskor, próbálkozzon később ismételten";
+"chapters_title" = "Fejezetek";
+"settings_controls_title" = "Lejátszóvezérlők";
+"settings_boostvolume_title" = "Hangerő növelése";
