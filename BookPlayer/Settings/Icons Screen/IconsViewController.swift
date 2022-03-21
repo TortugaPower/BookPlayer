@@ -62,12 +62,11 @@ class IconsViewController: UIViewController {
         let icon = iconName == "Default" ? nil : iconName
 
         UIApplication.shared.setAlternateIconName(icon, completionHandler: { error in
-            if #available(iOS 14.0, *) {
-                WidgetCenter.shared.reloadAllTimelines()
-            }
-            guard error != nil else { return }
+          WidgetCenter.shared.reloadAllTimelines()
 
-            self.showAlert("error_title".localized, message: "icon_error_description".localized)
+          guard error != nil else { return }
+
+          self.showAlert("error_title".localized, message: "icon_error_description".localized)
         })
     }
 }

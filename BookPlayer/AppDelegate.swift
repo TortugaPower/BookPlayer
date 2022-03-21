@@ -65,11 +65,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             NSAttributedString.Key.foregroundColor: UIColor(hex: "#37454E")
         ]
 
-        if #available(iOS 11, *) {
-            UINavigationBar.appearance().largeTitleTextAttributes = [
-                NSAttributedString.Key.foregroundColor: UIColor(hex: "#37454E")
-            ]
-        }
+        UINavigationBar.appearance().largeTitleTextAttributes = [
+          NSAttributedString.Key.foregroundColor: UIColor(hex: "#37454E")
+        ]
 
         try? AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, mode: AVAudioSession.Mode(rawValue: convertFromAVAudioSessionMode(AVAudioSession.Mode.spokenAudio)), options: [])
 

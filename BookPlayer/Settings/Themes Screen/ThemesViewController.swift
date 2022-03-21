@@ -138,11 +138,6 @@ class ThemesViewController: UIViewController {
     }
 
     @IBAction func toggleSystemMode(_ sender: UISwitch) {
-        guard #available(iOS 13.0, *) else {
-            self.showAlert("Alert", message: "This feature is available on devices running iOS 13 or later ")
-            return
-        }
-
         UserDefaults.standard.set(sender.isOn, forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue)
         self.brightnessSwitch.isEnabled = !sender.isOn
         self.darkModeSwitch.isEnabled = !sender.isOn
@@ -288,9 +283,8 @@ extension ThemesViewController: UITableViewDelegate {
             : self.extractedThemes[indexPath.row]
 
         ThemeManager.shared.currentTheme = item
-        if #available(iOS 14.0, *) {
-            WidgetCenter.shared.reloadAllTimelines()
-        }
+
+        WidgetCenter.shared.reloadAllTimelines()
     }
 }
 

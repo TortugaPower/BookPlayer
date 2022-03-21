@@ -467,9 +467,8 @@ extension PlayerManager {
 
     DispatchQueue.main.async {
       NotificationCenter.default.post(name: .bookPlayed, object: nil, userInfo: ["book": currentItem])
-      if #available(iOS 14.0, *) {
-        WidgetCenter.shared.reloadAllTimelines()
-      }
+
+      WidgetCenter.shared.reloadAllTimelines()
     }
   }
 
