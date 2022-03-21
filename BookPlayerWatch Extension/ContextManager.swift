@@ -7,6 +7,7 @@
 //
 
 import BookPlayerWatchKit
+import ClockKit
 import Foundation
 import SwiftUI
 import Combine
@@ -16,20 +17,34 @@ class ContextManager: ObservableObject {
 
   @Published var isConnecting = true
   @Published var isPlaying = false
-  @Published var applicationContext = WatchApplicationContext(
-    recentItems: [],
-    currentItem: nil,
-    rate: 1.0,
-    rewindInterval: nil,
-    forwardInterval: nil,
-    boostVolume: false
-  )
+  @Published var applicationContext: WatchApplicationContext {
+    didSet {
+      if let oldPath = oldValue.currentItem?.relativePath,
+         let currentPath = applicationContext.currentItem?.relativePath,
+         oldPath != currentPath {
+        reloadComplications()
+      } else if let oldChapterIndex = oldValue.currentItem?.currentChapter.index,
+                let currentChapterIndex = applicationContext.currentItem?.currentChapter.index,
+                oldChapterIndex != currentChapterIndex {
+        reloadComplications()
+      }
+    }
+  }
 
   var items: [PlayableItem] {
     return applicationContext.recentItems
   }
 
   init() {
+    self.applicationContext = WatchApplicationContext(
+      recentItems: [],
+      currentItem: nil,
+      rate: 1.0,
+      rewindInterval: nil,
+      forwardInterval: nil,
+      boostVolume: false
+    )
+
     self.watchConnectivityService.didActivateSession = { [weak self] in
       DispatchQueue.main.async {
         self?.isConnecting = false
@@ -59,6 +74,21 @@ class ContextManager: ObservableObject {
     }
 
     self.watchConnectivityService.startSession()
+  }
+
+  func reloadComplications() {
+    let server = CLKComplicationServer.sharedInstance()
+
+    guard
+      let complications = server.activeComplications,
+      !complications.isEmpty
+    else {
+      return
+    }
+
+    for complication in complications {
+      server.reloadTimeline(for: complication)
+    }
   }
 
   func handleItemSelected(_ item: PlayableItem) {

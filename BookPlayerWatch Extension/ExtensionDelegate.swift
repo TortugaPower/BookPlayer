@@ -6,9 +6,12 @@
 //  Copyright © 2019 Tortuga Power. All rights reserved.
 //
 
+import SwiftUI
 import WatchKit
 
 class ExtensionDelegate: NSObject, WKExtensionDelegate {
+  static var contextManager = ContextManager()
+
   /// For some reason this never gets called
   func handleRemoteNowPlayingActivity() {}
 

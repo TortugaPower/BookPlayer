@@ -36,16 +36,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     handler(descriptors)
   }
 
-  func handleSharedComplicationDescriptors(_ complicationDescriptors: [CLKComplicationDescriptor]) {
-    // Do any necessary work to support these newly shared complication descriptors
-  }
-
   // MARK: - Timeline Configuration
-
-  func getTimelineEndDate(for complication: CLKComplication, withHandler handler: @escaping (Date?) -> Void) {
-    // Call the handler with the last entry date you can currently provide or nil if you can't support future timelines
-    handler(nil)
-  }
 
   func getPrivacyBehavior(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationPrivacyBehavior) -> Void) {
     // Call the handler with your desired behavior when the device is locked
@@ -55,29 +46,19 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
   // MARK: - Timeline Population
 
   func getCurrentTimelineEntry(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTimelineEntry?) -> Void) {
-    // Call the handler with the current timeline entry
-    let testChapter = PlayableChapter(
-      title: "test chapter",
-      author: "test author",
-      start: 0,
-      duration: 50,
-      relativePath: "",
-      index: 1
-    )
-    let item = PlayableItem(title: "The Last Shadow: Other Tales from the Ender Universe", author: "Orson Scott Card", chapters: [testChapter], currentTime: 0, duration: 0, relativePath: "", percentCompleted: 0.7, isFinished: false, useChapterTimeContext: false)
-    if let ctemplate = makeTemplate(for: item, complication: complication) {
+    guard let item = ExtensionDelegate.contextManager.applicationContext.currentItem else {
+      handler(nil)
+      return
+    }
+
+    if let template = makeTemplate(for: item, complication: complication) {
       let entry = CLKComplicationTimelineEntry(
         date: Date(),
-        complicationTemplate: ctemplate)
+        complicationTemplate: template)
       handler(entry)
     } else {
       handler(nil)
     }
-  }
-
-  func getTimelineEntries(for complication: CLKComplication, after date: Date, limit: Int, withHandler handler: @escaping ([CLKComplicationTimelineEntry]?) -> Void) {
-    // Call the handler with the timeline entries after the given date
-    handler(nil)
   }
 
   // MARK: - Sample Templates

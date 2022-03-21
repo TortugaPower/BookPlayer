@@ -78,13 +78,15 @@ extension WatchConnectivityService {
       return
     }
 
-    switch action.command {
-    case .play:
-      NotificationCenter.default.post(name: .bookPlaying, object: nil)
-    case .pause:
-      NotificationCenter.default.post(name: .bookPaused, object: nil)
-    default:
-      break
+    DispatchQueue.main.async {
+      switch action.command {
+      case .play:
+        NotificationCenter.default.post(name: .bookPlaying, object: nil)
+      case .pause:
+        NotificationCenter.default.post(name: .bookPaused, object: nil)
+      default:
+        break
+      }
     }
   }
 

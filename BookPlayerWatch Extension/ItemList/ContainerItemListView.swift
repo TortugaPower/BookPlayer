@@ -10,7 +10,7 @@ import SwiftUI
 import BookPlayerWatchKit
 
 struct ContainerItemListView: View {
-  @StateObject var contextManager = ContextManager()
+  @ObservedObject var contextManager = ExtensionDelegate.contextManager
   @State var showPlayer = false
 
   var body: some View {
