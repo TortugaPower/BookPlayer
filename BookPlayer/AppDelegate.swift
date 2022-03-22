@@ -193,20 +193,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   func setupMPRemoteCommands() {
     self.setupMPPlaybackRemoteCommands()
     self.setupMPSkipRemoteCommands()
-
-    MPRemoteCommandCenter.shared().bookmarkCommand.localizedTitle = "bookmark_create_title".localized
-    // Enabling this makes the rewind button disappear in the lock screen
-    MPRemoteCommandCenter.shared().bookmarkCommand.isEnabled = false
-    MPRemoteCommandCenter.shared().bookmarkCommand.addTarget { _ in
-      guard let mainCoordinator = self.coordinator.getMainCoordinator(),
-            let currentBook = mainCoordinator.playerManager.currentItem else { return .commandFailed }
-
-      _ = mainCoordinator.libraryService.createBookmark(at: currentBook.currentTime,
-                                                        relativePath: currentBook.relativePath,
-                                                        type: .user)
-
-      return .success
-    }
   }
 
   func setupMPPlaybackRemoteCommands() {
