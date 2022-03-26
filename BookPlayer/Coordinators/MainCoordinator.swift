@@ -120,4 +120,17 @@ class MainCoordinator: Coordinator {
   func getLibraryCoordinator() -> LibraryListCoordinator? {
     return self.childCoordinators.first as? LibraryListCoordinator
   }
+
+  func getTopController() -> UIViewController? {
+    return getPresentingController(coordinator: self)
+  }
+
+  func getPresentingController(coordinator: Coordinator) -> UIViewController? {
+    guard let lastCoordinator = coordinator.childCoordinators.last else {
+      return coordinator.presentingViewController?.getTopViewController()
+      ?? coordinator.navigationController
+    }
+
+    return getPresentingController(coordinator: lastCoordinator)
+  }
 }

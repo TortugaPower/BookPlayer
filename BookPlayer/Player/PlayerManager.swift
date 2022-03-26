@@ -509,7 +509,9 @@ extension PlayerManager {
 
     guard item.status == .readyToPlay else {
       if item.status == .failed {
-        AppDelegate.delegateInstance.topController?.showAlert("error_title".localized, message: item.error?.localizedDescription)
+        SceneDelegate.shared?.coordinator.getMainCoordinator()?
+          .getTopController()?
+          .showAlert("error_title".localized, message: item.error?.localizedDescription)
       }
       return
     }

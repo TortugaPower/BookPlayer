@@ -339,6 +339,7 @@
 		9F82DF6F27DEE83E001B0EA8 /* SkipDirection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F82DF6E27DEE83E001B0EA8 /* SkipDirection.swift */; };
 		9F82DF7127DF8203001B0EA8 /* WatchConnectivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F82DF7027DF8203001B0EA8 /* WatchConnectivityService.swift */; };
 		9F82DF9C27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F82DF9B27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift */; };
+		9F89D89C27EDFCA400F73947 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F89D89B27EDFCA400F73947 /* SceneDelegate.swift */; };
 		9F8A9A5E27AC3F8C0093AA1C /* PlayableItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F8A9A5D27AC3F8C0093AA1C /* PlayableItemTests.swift */; };
 		9FA334A927C0577E0064E8EA /* BookPlayerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FA334A827C0577E0064E8EA /* BookPlayerApp.swift */; };
 		9FA334AB27C058210064E8EA /* ItemListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FA334AA27C058210064E8EA /* ItemListView.swift */; };
@@ -834,6 +835,7 @@
 		9F82DF6E27DEE83E001B0EA8 /* SkipDirection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkipDirection.swift; sourceTree = "<group>"; };
 		9F82DF7027DF8203001B0EA8 /* WatchConnectivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchConnectivityService.swift; sourceTree = "<group>"; };
 		9F82DF9B27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneWatchConnectivityService.swift; sourceTree = "<group>"; };
+		9F89D89B27EDFCA400F73947 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		9F8A9A5D27AC3F8C0093AA1C /* PlayableItemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayableItemTests.swift; sourceTree = "<group>"; };
 		9FA334A827C0577E0064E8EA /* BookPlayerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookPlayerApp.swift; sourceTree = "<group>"; };
 		9FA334AA27C058210064E8EA /* ItemListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListView.swift; sourceTree = "<group>"; };
@@ -1175,6 +1177,7 @@
 				41B2A5EC21CCC6D100917584 /* AppNavigationController.swift */,
 				4165EE1120A7D1E100616EDF /* RootViewController.swift */,
 				418B6CFB1D2707F800F974FB /* AppDelegate.swift */,
+				9F89D89B27EDFCA400F73947 /* SceneDelegate.swift */,
 				418B6D011D2707F800F974FB /* Main.storyboard */,
 				418B6D061D2707F800F974FB /* LaunchScreen.storyboard */,
 				418B6D041D2707F800F974FB /* Assets.xcassets */,
@@ -2478,6 +2481,7 @@
 				41D20DAF25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
 				41188D2A26ED4D8E0017124E /* ItemListViewModel.swift in Sources */,
 				C398559C20C492FF00BE9EC0 /* AddButton.swift in Sources */,
+				9F89D89C27EDFCA400F73947 /* SceneDelegate.swift in Sources */,
 				416AAC3323F51031005AD04F /* LocalizableButton.swift in Sources */,
 				416A297D2568671F00605395 /* AVPlayer+BookPlayer.swift in Sources */,
 				41E79BEB26C60DC600EA9FFF /* PlayerViewModel.swift in Sources */,

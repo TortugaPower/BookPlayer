@@ -30,11 +30,11 @@ class ActionParserService {
   }
 
   public class func handleAction(_ action: Action) {
-    guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+    guard let sceneDelegate = SceneDelegate.shared else { return }
 
-    appDelegate.coordinator.pendingURLActions.append(action)
+    sceneDelegate.coordinator.pendingURLActions.append(action)
 
-    guard let mainCoordinator = appDelegate.coordinator.getMainCoordinator() else { return }
+    guard let mainCoordinator = sceneDelegate.coordinator.getMainCoordinator() else { return }
 
     switch action.command {
     case .play:
@@ -69,8 +69,7 @@ class ActionParserService {
     guard
       let valueString = action.getQueryValue(for: "start"),
       let chapterStart = Double(valueString),
-      let appDelegate = UIApplication.shared.delegate as? AppDelegate,
-      let mainCoordinator = appDelegate.coordinator.getMainCoordinator()
+      let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator()
     else {
       return
     }
@@ -89,8 +88,7 @@ class ActionParserService {
     let roundedValue = round(speedRate * 100) / 100.0
 
     guard
-      let appDelegate = UIApplication.shared.delegate as? AppDelegate,
-      let mainCoordinator = appDelegate.coordinator.getMainCoordinator()
+      let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator()
     else {
       return
     }
@@ -107,8 +105,7 @@ class ActionParserService {
     let isOn = valueString == "true"
 
     guard
-      let appDelegate = UIApplication.shared.delegate as? AppDelegate,
-      let mainCoordinator = appDelegate.coordinator.getMainCoordinator()
+      let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator()
     else {
       return
     }
@@ -121,11 +118,12 @@ class ActionParserService {
   }
 
   private class func handleFileImportAction(_ action: Action) {
-    guard let appDelegate = UIApplication.shared.delegate as? AppDelegate,
-          let libraryCoordinator = appDelegate.coordinator.getMainCoordinator()?.getLibraryCoordinator(),
-          let urlString = action.getQueryValue(for: "url") else {
-            return
-          }
+    guard
+      let libraryCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator()?.getLibraryCoordinator(),
+      let urlString = action.getQueryValue(for: "url")
+    else {
+      return
+    }
 
     let url = URL(fileURLWithPath: urlString)
     self.removeAction(action)
@@ -150,8 +148,7 @@ class ActionParserService {
 
   private class func handlePauseAction(_ action: Action) {
     guard
-      let appDelegate = UIApplication.shared.delegate as? AppDelegate,
-      let mainCoordinator = appDelegate.coordinator.getMainCoordinator()
+      let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator()
     else {
       return
     }
@@ -160,15 +157,17 @@ class ActionParserService {
   }
 
   private class func handlePlayAction(_ action: Action) {
-    guard let appDelegate = UIApplication.shared.delegate as? AppDelegate,
-          let mainCoordinator = appDelegate.coordinator.getMainCoordinator() else {
-            return
-          }
+    guard
+      let sceneDelegate = SceneDelegate.shared,
+      let mainCoordinator = sceneDelegate.coordinator.getMainCoordinator()
+    else {
+      return
+    }
 
     if let value = action.getQueryValue(for: "showPlayer"),
        let showPlayer = Bool(value),
        showPlayer {
-      appDelegate.showPlayer()
+      sceneDelegate.showPlayer()
     }
 
     if let value = action.getQueryValue(for: "autoplay"),
@@ -179,7 +178,7 @@ class ActionParserService {
 
     guard let bookIdentifier = action.getQueryValue(for: "identifier") else {
       self.removeAction(action)
-      appDelegate.playLastBook()
+      sceneDelegate.playLastBook()
       return
     }
 
@@ -197,11 +196,12 @@ class ActionParserService {
   }
 
   private class func handleDownloadAction(_ action: Action) {
-    guard let appDelegate = UIApplication.shared.delegate as? AppDelegate,
-          let libraryCoordinator = appDelegate.coordinator.getMainCoordinator()?.getLibraryCoordinator(),
-          let urlString = action.getQueryValue(for: "url")?.replacingOccurrences(of: "\"", with: "") else {
-            return
-          }
+    guard
+      let libraryCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator()?.getLibraryCoordinator(),
+      let urlString = action.getQueryValue(for: "url")?.replacingOccurrences(of: "\"", with: "")
+    else {
+      return
+    }
 
     guard let url = URL(string: urlString) else {
       libraryCoordinator.showAlert("error_title".localized, message: String.localizedStringWithFormat("invalid_url_title".localized, urlString))
@@ -227,11 +227,13 @@ class ActionParserService {
   }
 
   public class func removeAction(_ action: Action) {
-    guard let appDelegate = UIApplication.shared.delegate as? AppDelegate,
-          let index = appDelegate.coordinator.pendingURLActions.firstIndex(of: action) else {
-            return
-          }
+    guard
+      let sceneDelegate = SceneDelegate.shared,
+      let index = sceneDelegate.coordinator.pendingURLActions.firstIndex(of: action)
+    else {
+      return
+    }
 
-    appDelegate.coordinator.pendingURLActions.remove(at: index)
+    sceneDelegate.coordinator.pendingURLActions.remove(at: index)
   }
 }
