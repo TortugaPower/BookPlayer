@@ -26,7 +26,9 @@ class PlusBannerView: NibLoadableView {
     @IBAction func showPlus(_ sender: UIButton) {
       let vc = PlusNavigationController.instantiate(from: .Settings)
 
-      AppDelegate.delegateInstance.topController?.present(vc, animated: true, completion: nil)
+      SceneDelegate.shared?.coordinator.getMainCoordinator()?
+        .getTopController()?
+        .present(vc, animated: true, completion: nil)
     }
 }
 

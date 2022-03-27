@@ -114,8 +114,7 @@ final class SleepTimer {
     self.reset()
     self.subscription?.cancel()
 
-    guard let appDelegate = UIApplication.shared.delegate as? AppDelegate,
-          let mainCoordinator = appDelegate.coordinator.getMainCoordinator() else { return }
+    guard let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator() else { return }
 
     mainCoordinator.playerManager.pause(fade: true)
   }
