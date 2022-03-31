@@ -6,13 +6,13 @@
   Copyright © 2019 Tortuga Power. All rights reserved.
 */
 
-"library_title" = "Library";
+"library_title" = "Bibliothèque";
 "ok_button" = "OK";
-"recent_title" = "Recent";
-"watchapp_last_played_title" = "Last Played";
-"watchapp_refresh_data_title" = "Refresh data";
-"watchapp_connect_error_title" = "Connectivity Error";
-"watchapp_connect_error_description" = "There's a problem connecting to your phone, please try again later";
+"recent_title" = "Récent";
+"watchapp_last_played_title" = "Dernier lu";
+"watchapp_refresh_data_title" = "Actualiser";
+"watchapp_connect_error_title" = "Erreur de connexion";
+"watchapp_connect_error_description" = "Il y a un problème de connexion à votre téléphone, veuillez réessayer plus tard";
 "chapters_title" = "Chapitres";
 "settings_controls_title" = "Contrôles de lecture";
 "settings_boostvolume_title" = "Augmenter le volume";
