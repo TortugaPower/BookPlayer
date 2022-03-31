@@ -286,7 +286,7 @@ extension CarPlayManager {
 
     let section1 = CPListSection(items: [boostVolumeItem])
 
-    let currentSpeed = mainCoordinator.playerManager.getCurrentSpeed()
+    let currentSpeed = mainCoordinator.playerManager.currentSpeed
     let formattedSpeed = formatSpeed(currentSpeed)
 
     let speedItems = self.getSpeedOptions()

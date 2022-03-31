@@ -63,5 +63,11 @@ class PlayerManagerMock: NSObject, PlayerManagerProtocol {
     return self.$currentSpeed.eraseToAnyPublisher()
   }
 
-  func setSpeed(_ newValue: Float, relativePath: String?) {}
+  func setSpeed(_ newValue: Float) {
+    self.currentSpeed = newValue
+  }
+
+  func currentSpeedPublisher() -> Published<Float>.Publisher {
+    return self.$currentSpeed
+  }
 }

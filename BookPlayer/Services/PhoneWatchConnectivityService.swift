@@ -125,7 +125,7 @@ public class PhoneWatchConnectivityService: NSObject, WCSessionDelegate {
     return WatchApplicationContext(
       recentItems: recentItems,
       currentItem: self.playerManager.currentItem,
-      rate: self.playerManager.getCurrentSpeed(),
+      rate: self.playerManager.currentSpeed,
       rewindInterval: Int(PlayerManager.rewindInterval),
       forwardInterval: Int(PlayerManager.forwardInterval),
       boostVolume: UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)

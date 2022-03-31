@@ -93,10 +93,7 @@ class ActionParserService {
       return
     }
 
-    mainCoordinator.speedManager.setSpeed(
-      roundedValue,
-      relativePath: mainCoordinator.playerManager.currentItem?.relativePath
-    )
+    mainCoordinator.playerManager.setSpeed(roundedValue)
   }
 
   private class func handleBoostVolumeAction(_ action: Action) {
