@@ -79,11 +79,7 @@ class MainCoordinator: Coordinator {
     self.childCoordinators.append(libraryCoordinator)
     libraryCoordinator.start()
 
-    self.setupCarPlay()
     self.watchConnectivityService.startSession()
-  }
-
-  private func setupCarPlay() {
   }
 
   func showPlayer() {

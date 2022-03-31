@@ -18,7 +18,7 @@ class CarPlayManager: NSObject {
   private var disposeBag = Set<AnyCancellable>()
   /// Reference for updating boost volume title
   let boostVolumeItem = CPListItem(text: "", detailText: nil)
-  ///
+  /// Refresh flag in case the root template is not visible
   var needsReload = false
 
   override init() {
