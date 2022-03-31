@@ -19,10 +19,11 @@ class PlayerCoordinatorTests: XCTestCase {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
     let libraryService = LibraryService(dataManager: dataManager)
 
-    self.playerCoordinator = PlayerCoordinator(navigationController: UINavigationController(),
-                                               playerManager: PlayerManagerMock(),
-                                               speedManager: SpeedManagerMock(),
-                                               libraryService: libraryService)
+    self.playerCoordinator = PlayerCoordinator(
+      navigationController: UINavigationController(),
+      playerManager: PlayerManagerMock(),
+      libraryService: libraryService
+    )
     self.playerCoordinator.start()
   }
 

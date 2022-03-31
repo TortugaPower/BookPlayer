@@ -11,13 +11,10 @@ import BookPlayerKit
 
 class PlayerControlsCoordinator: Coordinator {
   let playerManager: PlayerManagerProtocol
-  let speedManager: SpeedManagerProtocol
 
   init(navigationController: UINavigationController,
-       playerManager: PlayerManagerProtocol,
-       speedManager: SpeedManagerProtocol) {
+       playerManager: PlayerManagerProtocol) {
     self.playerManager = playerManager
-    self.speedManager = speedManager
 
     super.init(navigationController: navigationController,
                flowType: .modal)
@@ -25,8 +22,7 @@ class PlayerControlsCoordinator: Coordinator {
 
   override func start() {
     let vc = PlayerControlsViewController.instantiate(from: .Player)
-    let viewModel = PlayerControlsViewModel(playerManager: self.playerManager,
-                                            speedManager: self.speedManager)
+    let viewModel = PlayerControlsViewModel(playerManager: self.playerManager)
     viewModel.coordinator = self
     vc.viewModel = viewModel
 

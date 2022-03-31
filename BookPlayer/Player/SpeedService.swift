@@ -1,5 +1,5 @@
 //
-//  SpeedManager.swift
+//  SpeedService.swift
 //  BookPlayer
 //
 //  Created by Gianni Carlo on 4/9/21.
@@ -10,7 +10,7 @@ import BookPlayerKit
 import Combine
 import Foundation
 
-public protocol SpeedManagerProtocol {
+public protocol SpeedServiceProtocol {
   var minimumSpeed: Double { get }
   var maximumSpeed: Double { get }
 
@@ -18,7 +18,7 @@ public protocol SpeedManagerProtocol {
   func getSpeed(relativePath: String?) -> Float
 }
 
-class SpeedManager: SpeedManagerProtocol {
+class SpeedService: SpeedServiceProtocol {
   private let libraryService: LibraryServiceProtocol
 
   let minimumSpeed: Double = 0.5
@@ -57,9 +57,5 @@ class SpeedManager: SpeedManagerProtocol {
     self.currentSpeed.value = speed > 0 ? speed : 1.0
 
     return self.currentSpeed.value
-  }
-
-  public func currentSpeedPublisher() -> AnyPublisher<Float, Never> {
-    return self.currentSpeed.eraseToAnyPublisher()
   }
 }

@@ -16,7 +16,6 @@ class MainCoordinator: Coordinator {
   let playerManager: PlayerManager
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
-  let speedManager: SpeedManagerProtocol
   let watchConnectivityService: PhoneWatchConnectivityService
 
   init(
@@ -28,13 +27,11 @@ class MainCoordinator: Coordinator {
     self.libraryService = libraryService
     let playbackService = PlaybackService(libraryService: libraryService)
     self.playbackService = playbackService
-    let speedManager = SpeedManager(libraryService: libraryService)
-    self.speedManager = speedManager
 
     self.playerManager = PlayerManager(
       libraryService: libraryService,
       playbackService: self.playbackService,
-      speedManager: speedManager
+      speedService: SpeedService(libraryService: libraryService)
     )
 
     let watchService = PhoneWatchConnectivityService(
@@ -70,7 +67,6 @@ class MainCoordinator: Coordinator {
     let libraryCoordinator = LibraryListCoordinator(
       navigationController: self.navigationController,
       playerManager: self.playerManager,
-      speedManager: self.speedManager,
       importManager: ImportManager(libraryService: self.libraryService),
       libraryService: self.libraryService,
       playbackService: self.playbackService
@@ -86,7 +82,6 @@ class MainCoordinator: Coordinator {
     let playerCoordinator = PlayerCoordinator(
       navigationController: self.navigationController,
       playerManager: self.playerManager,
-      speedManager: self.speedManager,
       libraryService: self.libraryService
     )
     playerCoordinator.parentCoordinator = self
