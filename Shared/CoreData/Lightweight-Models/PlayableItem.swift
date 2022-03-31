@@ -9,7 +9,10 @@
 import Combine
 import Foundation
 
-public final class PlayableItem: NSObject {
+public final class PlayableItem: NSObject, Identifiable {
+  public var id: String {
+    return relativePath
+  }
   public let title: String
   public let author: String
   public let chapters: [PlayableChapter]

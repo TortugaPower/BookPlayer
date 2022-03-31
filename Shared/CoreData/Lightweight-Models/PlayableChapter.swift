@@ -8,7 +8,10 @@
 
 import Foundation
 
-public struct PlayableChapter: Codable {
+public struct PlayableChapter: Codable, Identifiable {
+  public var id: String {
+    return "\(index)"
+  }
   public let title: String
   public let author: String
   public let start: TimeInterval
@@ -22,6 +25,22 @@ public struct PlayableChapter: Codable {
 
   public var fileURL: URL {
     return DataManager.getProcessedFolderURL().appendingPathComponent(self.relativePath)
+  }
+
+  public init(
+    title: String,
+    author: String,
+    start: TimeInterval,
+    duration: TimeInterval,
+    relativePath: String,
+    index: Int16
+  ) {
+    self.title = title
+    self.author = author
+    self.start = start
+    self.duration = duration
+    self.relativePath = relativePath
+    self.index = index
   }
 }
 

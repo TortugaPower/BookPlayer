@@ -28,7 +28,7 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     return self.playerManager.currentItemPublisher()
   }
 
-  func currentSpeedObserver() -> AnyPublisher<Float, Never> {
+  func currentSpeedObserver() -> Published<Float>.Publisher {
     return self.playerManager.currentSpeedPublisher()
   }
 
@@ -256,7 +256,7 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     if self.prefersRemainingTime {
       let durationTimeInContext = self.playerManager.currentItem?.durationTimeInContext(self.prefersChapterContext) ?? 0
 
-      newMaxTime = (newCurrentTime - durationTimeInContext) / Double(self.playerManager.getCurrentSpeed())
+      newMaxTime = (newCurrentTime - durationTimeInContext) / Double(self.playerManager.currentSpeed)
     }
 
     return ProgressObject(
@@ -276,7 +276,7 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     return self.playerManager.currentItem?.maxTimeInContext(
       prefersChapterContext: self.prefersChapterContext,
       prefersRemainingTime: self.prefersRemainingTime,
-      at: self.playerManager.getCurrentSpeed()
+      at: self.playerManager.currentSpeed
     ) ?? 0
   }
 

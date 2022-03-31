@@ -23,7 +23,6 @@ class LibraryListCoordinatorTests: XCTestCase {
     self.libraryListCoordinator = LibraryListCoordinator(
       navigationController: UINavigationController(),
       playerManager: PlayerManagerMock(),
-      speedManager: SpeedManagerMock(),
       importManager: ImportManager(libraryService: libraryService),
       libraryService: libraryService,
       playbackService: PlaybackService(libraryService: libraryService)
@@ -102,7 +101,6 @@ class FolderListCoordinatorTests: XCTestCase {
       navigationController: UINavigationController(),
       folderRelativePath: folder.relativePath,
       playerManager: PlayerManagerMock(),
-      speedManager: SpeedManagerMock(),
       importManager: ImportManager(libraryService: libraryService),
       libraryService: libraryService,
       playbackService: PlaybackService(libraryService: libraryService)

@@ -120,13 +120,17 @@ public class CommandParser {
 
 public enum Command: String {
   case play
+  case pause
   case download
   case refresh
   case skipRewind
   case skipForward
   case sleep
+  case speed
   case widget
   case fileImport
+  case boostVolume
+  case chapter
 }
 
 public struct Action: Equatable {

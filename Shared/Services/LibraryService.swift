@@ -374,7 +374,7 @@ public final class LibraryService: LibraryServiceProtocol {
     item.currentTime = time
     item.percentCompleted = round((item.currentTime / item.duration) * 100)
 
-    self.dataManager.saveContext()
+    self.dataManager.scheduleSaveContext()
   }
 
   public func updateBookSpeed(at relativePath: String, speed: Float) {
@@ -483,7 +483,7 @@ public final class LibraryService: LibraryServiceProtocol {
 
   public func recordTime(_ playbackRecord: PlaybackRecord) {
     playbackRecord.time += 1
-    self.dataManager.saveContext()
+    self.dataManager.scheduleSaveContext()
   }
 
   // MARK: - Bookmarks

@@ -13,3 +13,6 @@
 "watchapp_refresh_data_title" = "Refresh data";
 "watchapp_connect_error_title" = "Connectivity Error";
 "watchapp_connect_error_description" = "There's a problem connecting to your phone, please try again later";
+"chapters_title" = "Chapitres";
+"settings_controls_title" = "Contrôles de lecture";
+"settings_boostvolume_title" = "Augmenter le volume";

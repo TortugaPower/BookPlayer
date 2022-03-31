@@ -16,16 +16,13 @@ enum PlayerActionRoutes {
 class PlayerCoordinator: Coordinator {
   public var onAction: Transition<PlayerActionRoutes>?
   let playerManager: PlayerManagerProtocol
-  let speedManager: SpeedManagerProtocol
   let libraryService: LibraryServiceProtocol
   weak var alert: UIAlertController?
 
   init(navigationController: UINavigationController,
        playerManager: PlayerManagerProtocol,
-       speedManager: SpeedManagerProtocol,
        libraryService: LibraryServiceProtocol) {
     self.playerManager = playerManager
-    self.speedManager = speedManager
     self.libraryService = libraryService
 
     super.init(navigationController: navigationController, flowType: .modal)
@@ -62,8 +59,7 @@ class PlayerCoordinator: Coordinator {
   func showControls() {
     let playerControlsCoordinator = PlayerControlsCoordinator(
       navigationController: self.navigationController,
-      playerManager: self.playerManager,
-      speedManager: self.speedManager
+      playerManager: self.playerManager
     )
     playerControlsCoordinator.parentCoordinator = self
     playerControlsCoordinator.presentingViewController = self.presentingViewController

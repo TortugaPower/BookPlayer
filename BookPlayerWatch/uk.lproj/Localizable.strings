@@ -13,3 +13,6 @@
 "watchapp_refresh_data_title" = "Оновити дані";
 "watchapp_connect_error_title" = "Помилка з'єднання";
 "watchapp_connect_error_description" = "Виникла проблема з підключенням до телефону, будь ласка, спробуйте пізніше";
+"chapters_title" = "Розділи";
+"settings_controls_title" = "Керування програвачем";
+"settings_boostvolume_title" = "Збільшення гучності";

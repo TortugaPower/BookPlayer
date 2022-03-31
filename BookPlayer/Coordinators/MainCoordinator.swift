@@ -17,9 +17,7 @@ class MainCoordinator: Coordinator {
   let playerManager: PlayerManager
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
-  let speedManager: SpeedManagerProtocol
-  let watchConnectivityService: WatchConnectivityService
-  var carPlayManager: CarPlayManager!
+  let watchConnectivityService: PhoneWatchConnectivityService
 
   init(
     navigationController: UINavigationController,
@@ -28,17 +26,20 @@ class MainCoordinator: Coordinator {
     self.libraryService = libraryService
     let playbackService = PlaybackService(libraryService: libraryService)
     self.playbackService = playbackService
-    let speedManager = SpeedManager(libraryService: libraryService)
-    self.speedManager = speedManager
 
-    let watchService = WatchConnectivityService(libraryService: libraryService, playbackService: playbackService)
-    self.watchConnectivityService = watchService
     self.playerManager = PlayerManager(
       libraryService: libraryService,
       playbackService: self.playbackService,
-      speedManager: speedManager,
-      watchConnectivityService: watchService
+      speedService: SpeedService(libraryService: libraryService)
     )
+
+    let watchService = PhoneWatchConnectivityService(
+      libraryService: libraryService,
+      playbackService: playbackService,
+      playerManager: playerManager
+    )
+    self.watchConnectivityService = watchService
+
     ThemeManager.shared.libraryService = libraryService
 
     let viewModel = MiniPlayerViewModel(playerManager: self.playerManager)
@@ -60,7 +61,6 @@ class MainCoordinator: Coordinator {
     let libraryCoordinator = LibraryListCoordinator(
       navigationController: AppNavigationController.instantiate(from: .Main),
       playerManager: self.playerManager,
-      speedManager: self.speedManager,
       importManager: ImportManager(libraryService: self.libraryService),
       libraryService: self.libraryService,
       playbackService: self.playbackService
@@ -79,23 +79,15 @@ class MainCoordinator: Coordinator {
     self.childCoordinators.append(profileCoordinator)
     profileCoordinator.start()
 
-    self.setupCarPlay()
     self.watchConnectivityService.startSession()
 
     self.navigationController.present(tabBarController, animated: false)
-  }
-
-  private func setupCarPlay() {
-    self.carPlayManager = CarPlayManager(libraryService: self.libraryService)
-    MPPlayableContentManager.shared().dataSource = self.carPlayManager
-    MPPlayableContentManager.shared().delegate = self.carPlayManager
   }
 
   func showPlayer() {
     let playerCoordinator = PlayerCoordinator(
       navigationController: AppNavigationController.instantiate(from: .Player),
       playerManager: self.playerManager,
-      speedManager: self.speedManager,
       libraryService: self.libraryService
     )
     playerCoordinator.parentCoordinator = self
@@ -121,5 +113,18 @@ class MainCoordinator: Coordinator {
 
   func getLibraryCoordinator() -> LibraryListCoordinator? {
     return self.childCoordinators.first as? LibraryListCoordinator
+  }
+
+  func getTopController() -> UIViewController? {
+    return getPresentingController(coordinator: self)
+  }
+
+  func getPresentingController(coordinator: Coordinator) -> UIViewController? {
+    guard let lastCoordinator = coordinator.childCoordinators.last else {
+      return coordinator.presentingViewController?.getTopViewController()
+      ?? coordinator.navigationController
+    }
+
+    return getPresentingController(coordinator: lastCoordinator)
   }
 }

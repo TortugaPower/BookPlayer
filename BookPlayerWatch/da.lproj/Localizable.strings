@@ -13,3 +13,6 @@
 "watchapp_refresh_data_title" = "Genindlæs";
 "watchapp_connect_error_title" = "Forbindelsesfejl";
 "watchapp_connect_error_description" = "Der er et problem med at oprette forbindelse til din telefon. Prøv igen senere";
+"chapters_title" = "Kapitler";
+"settings_controls_title" = "Afspiller kontrol";
+"settings_boostvolume_title" = "Boost lydstyrken";

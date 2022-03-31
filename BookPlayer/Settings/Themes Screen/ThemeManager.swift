@@ -86,8 +86,12 @@ final class ThemeManager: ThemeProvider {
   }
 
   private func setNewTheme(_ newTheme: SimpleTheme) {
+    guard
+      let sceneDelegate = SceneDelegate.shared,
+      let window = sceneDelegate.window
+    else { return }
+
     let newTheme = SimpleTheme(with: newTheme, useDarkVariant: self.useDarkVariant)
-    let window = UIApplication.shared.delegate!.window!!
     UIView.transition(with: window,
                       duration: 0.3,
                       options: [.transitionCrossDissolve],
