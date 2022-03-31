@@ -392,7 +392,6 @@ extension PlayerManager {
 
     let chapterBeforeSkip = currentItem.currentChapter
     self.playbackService.updatePlaybackTime(item: currentItem, time: boundedTime)
-    NotificationCenter.default.post(name: .bookPlaying, object: nil, userInfo: nil)
     let chapterAfterSkip = currentItem.currentChapter
 
     // If chapters are different, and time is considered by chapters, do nothing else
