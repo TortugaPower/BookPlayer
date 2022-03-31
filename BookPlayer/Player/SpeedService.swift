@@ -11,18 +11,12 @@ import Combine
 import Foundation
 
 public protocol SpeedServiceProtocol {
-  var minimumSpeed: Double { get }
-  var maximumSpeed: Double { get }
-
   func setSpeed(_ newValue: Float, relativePath: String?)
   func getSpeed(relativePath: String?) -> Float
 }
 
 class SpeedService: SpeedServiceProtocol {
   private let libraryService: LibraryServiceProtocol
-
-  let minimumSpeed: Double = 0.5
-  let maximumSpeed: Double = 4.0
 
   public private(set) var currentSpeed = CurrentValueSubject<Float, Never>(1.0)
 
