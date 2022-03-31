@@ -6,11 +6,8 @@
   Copyright © 2019 Tortuga Power. All rights reserved.
 */
 
-/* Title that is shown as the navigation bar title */
 "library_title" = "Knihovna";
-/* Title for the settings button */
 "settings_button" = "Nastavení";
-/* Title that is shown as the navigation bar title */
 "settings_title" = "Nastavení";
 "settings_autoplay_title" = "Knihovna automatického přehrávání";
 "settings_autoplay_description" = "Pokračování přehrávání všech nedokončených položek v knihovně, včetně souborů v seznamech stop.";
@@ -65,11 +62,8 @@
 "cancel_button" = "Zrušit";
 "seconds_title" = "sekund";
 "ok_button" = "OK";
-/* Message shown when trying to create a Siri Shortcut on devices that don't have iOS 12+ installed */
 "siri_alert_description" = "Zkratky pro Siri jsou k dispozici v iOS 12 a vyšším";
-/* Title used in the context of our tip jar to support development */
 "support_bookplayer_title" = "Podpořte BookPlayer";
-/* Description used in the context of our tip jar to support development */
 "support_bookplayer_description" = "Pořiďte si BookPlayer Plus, podpořte tak budoucí vývoj aplikace a získejte další témata a ikony aplikace";
 "learn_more_title" = "Více";
 "settings_appearance_title" = "Vzhled";
@@ -83,7 +77,6 @@
 "theme_switch_title" = "Automaticky přepínat";
 "theme_dark_title" = "Vždy používat tmavou variantu";
 "themes_title" = "Témata";
-/* This should be &ldquo;By your friends at BookPlayer&rdquo; in English.&nbsp; */
 "icons_bookplayer_credit_description" = "Od vašich přátel z BookPlayeru";
 "kind_tip_title" = "Skvělý příspěvek";
 "excellent_tip_title" = "Parádní příspěvek";
@@ -111,20 +104,15 @@
 "player_speed_title" = "Nastavit rychlost přehrávání";
 "player_sleep_title" = "Pozastavit přehrávání";
 "sleep_chapter_option_title" = "Konec aktuální kapitoly";
-/* This is used for the label underneath the progress bar (e.g. Chapter 1 of 35) */
 "player_chapter_description" = "Kapitola %d z %d";
 "chapters_title" = "Kapitoly";
-/* This is used as a description for each chapter in the chapters list (e.g. Start: 10:11 - Duration: 16:56) */
 "chapters_item_description" = "Začátek: %@ - Doba trvání: %@";
-/* Restore purchases */
 "restore_title" = "Obnovit";
 "themes_caps_title" = "TÉMATA";
 "plus_app_icons_title" = "Ikony aplikací";
-/* This is the counterpart to Mark as Finished */
 "mark_unfinished_title" = "Označit jako nedokončené";
 "move_playlist_button" = "Zařadit do seznamu stop";
 "move_single_item_title" = "Chcete přesunout ' %@ ' do ' %@ '?";
-/* This is shown if while being inside a playlist, a batch of imported files are finished processing, and it will be one of the options in the alert presented */
 "current_playlist_title" = "Vybraný seznam stop";
 "select_item_title" = "Vybrat položku";
 "sleep_alert_description" = "Uspat po dokončení kapitoly";
@@ -137,7 +125,6 @@
 "chapter_time_remaining_title" = "Zbývající čas kapitoly:";
 "book_time_remaining_title" = "Zbývající čas audioknihy:";
 "book_duration_title" = "Doba trvání audioknihy: ";
-/* Может правильнее будет: &quot;Не удалось сменить иконку&quot;? */
 "icon_error_description" = "Změna ikony aplikace nebyla úspěšná. Zkuste to později";
 "error_title" = "Chyba";
 "generic_retry_description" = "Opakujte akci později, prosím.";
@@ -149,18 +136,14 @@
 "pause_title" = "Pozastavit";
 "voiceover_no_title" = "Žádný název";
 "voiceover_no_author" = "Žádný autor";
-/* &lt;Book title&gt; by &lt;Book author&gt; &lt;percentage in numbers&gt;% Completed */
 "voiceover_book_progress" = "%@z%@, %d procent Dokončeno";
 "voiceover_no_file_title" = "Žádný název souboru";
 "voiceover_no_file_subtitle" = "Žádný podtitul souboru";
 "voiceover_no_playlist_title" = "Seznam stop bez názvu";
-/* &lt;Playlist title&gt; Playlist &lt;percentage in number&gt;% Completed */
 "voiceover_playlist_progress" = "%@, Seznam stop, %d procent Dokončeno";
 "voiceover_unknown_title" = "Neznámý název";
 "voiceover_unknown_author" = "Neznámý autor";
-/* &lt;book title&gt; by &lt;book author&gt; */
 "voiceover_book_info" = "%@podle%@";
-/* &lt;book title&gt; by &lt;book author&gt;, chapter &lt;chapter title&gt; */
 "voiceover_book_chapter" = "%@podle%@,kapitoly%@";
 "voiceover_rewind_time" = "Přetočit zpět%@";
 "voiceover_forward_time" = "Rychlé přetáčení vpřed%@";
@@ -182,17 +165,12 @@
 "progress_title" = "Pokrok";
 "settings_siri_sleeptimer_title" = "Časovač";
 "active_title" = "Aktivní";
-/* Currently Playing <Book title> by <Book author> */
 "voiceover_currently_playing_title" = "Právě se přehráva %@ z %@";
-/* When you're on the library or playlist view, and the voice over cursor is focused on the floating mini-player at the bottom, it should read to the user the element, and the hint that if pressed, the player view will be shown */
 "voiceover_miniplayer_hint" = "Minipřehrávač. Tapněte pro zobrazení přehrávače.";
 "voiceover_chapter_time_title" = "Délka aktuální kapitoly: %@";
-/* When you're in the player view, and the voice over cursor is focused on the top bar (the one with the arrow-down), it will read to the user that the player view will be closed if he double taps that button */
 "voiceover_dismiss_player_title" = "Zavřít přehrávač";
-/* Sort items by most recent playback */
-"sort_most_recent_button" = "Most Recent";
-/* One of the sort options, this one reverts the current order of selected items */
-"sort_reversed_button" = "Reverse Order";
+"sort_most_recent_button" = "Nejnovější";
+"sort_reversed_button" = "Obrácené pořadí";
 "coredata_error_diskfull_description" = "The library couldn't be loaded, the device is out of disk space.";
 "coredata_error_migration_description" = "A migration of the database failed, the library will have to be reinitialized.";
 "import_warning_description" = "Transfering files may take a while, please make sure the number of files is complete before proceeding.";

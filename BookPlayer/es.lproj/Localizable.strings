@@ -232,7 +232,7 @@
 "voiceover_no_bound_books_title" = "Sin título";
 "default_title" = "Predeterminado";
 "voiceover_default_speed_title" = "Establecer velocidad predeterminada";
-"error_loading_chapters" = "Chapters couldn't be loaded from: \n%@";
-"error_empty_chapters" = "Chapters are empty, please verify the contents of the folder: %@";
-"sleeptimer_option_custom" = "Custom";
-"sleeptimer_custom_alert_title" = "Custom sleep timer";
+"error_loading_chapters" = "No se pudieron cargar los capítulos de: \n%@";
+"error_empty_chapters" = "Los capítulos están vacíos, por favor verifica el contenido de la carpeta: %@";
+"sleeptimer_option_custom" = "Personalizado";
+"sleeptimer_custom_alert_title" = "Temporizador personalizado";
