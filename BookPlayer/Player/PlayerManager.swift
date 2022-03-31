@@ -52,7 +52,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   private var fadeTimer: Timer?
 
   private var playableChapterSubscription: AnyCancellable?
-  private var speedSubscription: AnyCancellable?
+  private var isPlayingSubscription: AnyCancellable?
   private var periodicTimeObserver: Any?
 
   private var hasObserverRegistered = false
@@ -280,6 +280,18 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     return self.audioPlayer.timeControlStatus == .playing
   }
 
+  func bindPauseObserver() {
+    self.isPlayingSubscription?.cancel()
+    self.isPlayingSubscription = self.audioPlayer.publisher(for: \.timeControlStatus)
+      .delay(for: .seconds(0.1), scheduler: RunLoop.main, options: .none)
+      .sink { timeControlStatus in
+        if timeControlStatus == .paused {
+          try? AVAudioSession.sharedInstance().setActive(false)
+          self.isPlayingSubscription?.cancel()
+        }
+      }
+  }
+
   func isPlayingPublisher() -> AnyPublisher<Bool, Never> {
     return self.audioPlayer.publisher(for: \.timeControlStatus)
       .map({ timeControlStatus in
@@ -487,6 +499,9 @@ extension PlayerManager {
   func setSpeed(_ newValue: Float) {
     self.speedService.setSpeed(newValue, relativePath: self.currentItem?.relativePath)
     self.currentSpeed = newValue
+    if self.isPlaying {
+      self.audioPlayer.rate = newValue
+    }
   }
 
   // swiftlint:disable block_based_kvo
@@ -525,16 +540,15 @@ extension PlayerManager {
 
     self.libraryService.setLibraryLastBook(with: currentItem.relativePath)
 
-    let pauseActionBlock: () -> Void = {
+    let pauseActionBlock: () -> Void = { [weak self] in
+      self?.bindPauseObserver()
       // Set pause state on player and control center
-      self.audioPlayer.pause()
-      self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0.0
-      self.setNowPlayingBookTime()
-      MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
+      self?.audioPlayer.pause()
+      self?.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0.0
+      self?.setNowPlayingBookTime()
+      MPNowPlayingInfoCenter.default().nowPlayingInfo = self?.nowPlayingInfo
 
       UserDefaults.standard.set(Date(), forKey: "\(Constants.UserDefaults.lastPauseTime)_\(currentItem.relativePath)")
-
-      try? AVAudioSession.sharedInstance().setActive(false)
     }
 
     NotificationCenter.default.post(name: .bookPaused, object: nil)
