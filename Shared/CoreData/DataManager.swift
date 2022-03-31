@@ -14,6 +14,7 @@ public class DataManager {
   public static let inboxFolderName = "Inbox"
   public static var loadingDataError: Error?
   private let coreDataStack: CoreDataStack
+  private var pendingSaveContext: DispatchWorkItem?
 
   public init(coreDataStack: CoreDataStack) {
     self.coreDataStack = coreDataStack
@@ -50,6 +51,19 @@ public class DataManager {
 
   public func getContext() -> NSManagedObjectContext {
     return self.coreDataStack.managedContext
+  }
+
+  public func scheduleSaveContext() {
+    guard self.pendingSaveContext == nil else { return }
+
+    let workItem = DispatchWorkItem { [weak self] in
+      self?.coreDataStack.saveContext()
+      self?.pendingSaveContext = nil
+    }
+
+    self.pendingSaveContext = workItem
+
+    DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(2), execute: workItem)
   }
 
   public func saveContext() {
