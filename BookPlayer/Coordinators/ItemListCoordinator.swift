@@ -9,6 +9,7 @@
 import BookPlayerKit
 import Combine
 import UIKit
+import UniformTypeIdentifiers
 
 public typealias Transition<T> = ((T) -> Void)
 enum ItemListActionRoutes {
@@ -358,7 +359,15 @@ extension ItemListCoordinator {
   }
 
   func showDocumentPicker() {
-    let providerList = UIDocumentPickerViewController(documentTypes: ["public.audio", "com.pkware.zip-archive", "public.movie"], in: .import)
+    let providerList = UIDocumentPickerViewController(
+      forOpeningContentTypes: [
+        UTType.audio,
+        UTType.movie,
+        UTType.zip,
+        UTType.folder
+      ],
+      asCopy: true
+    )
 
     providerList.delegate = self.documentPickerDelegate
     providerList.allowsMultipleSelection = true

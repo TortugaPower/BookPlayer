@@ -51,7 +51,7 @@
 "delete_multiple_items_description" = "Týmto sa tiež odstránia všetky súbory vo vnútri vybratých zoznamov stôp.";
 "new_playlist_button" = "Nový zoznam stôp";
 "existing_playlist_button" = "Existujúci zoznam stôp";
-"choose_destination_title" = "Vybratie cieľa";
+"choose_destination_title" = "Výber cieľa";
 "delete_completely_button" = "Úplne odstrániť";
 "move_library_button" = "Presunúť do Knižnice";
 "options_button" = "Možnosti";
@@ -88,7 +88,7 @@
 "thanks_title" = "Ďakujeme za vašu podporu!";
 "extra_tips_description" = "Ak sa vám BookPlayer naozaj páči, môžete poslať autorom extra čiastku určenú k ďalšej podpore vývoja aplikácie, aby mohla byť stále lepšia a lepšia.";
 "files_title" = "Súbory";
-"select_all_title" = "Vybrať všetko";
+"select_all_title" = "Označit všetko";
 "deselect_all_title" = "Odznačiť všetko";
 "move_title" = "Presunúť";
 "jump_start_title" = "Skočiť na začiatok";
@@ -98,8 +98,8 @@
 "file_error_title" = "Chyba súboru!";
 "file_error_description" = "Súbor tejto audioknihy nemožno načítať. Uistite sa, že nepoužívate súbory s ochranou DRM (napríklad súbory .aax)";
 "file_missing_title" = "Chýbajúci súbor!";
-"file_missing_description" = "Súbor audioknihy bol odobratý z vášho zariadenia. Ak chcete audioknihu prehrať, znovu vložte súbor";
-"empty_playlist_description" = "Súbory tu môžete presunúť pretiahnutím na tento zoznam stôp v Knižnici";
+"file_missing_description" = "Súbor audioknihy bol odobratý z vášho zariadenia. Ak chcete audioknihu prehrať, znovu naimportujte súbor";
+"empty_playlist_description" = "Taktiež tu môžete presunúť súbory pretiahnutím na tento zoznam stôp v Knižnici";
 "playlist_add_title" = "Pridať súbory";
 "player_speed_title" = "Nastavenie rýchlosti prehrávania";
 "player_sleep_title" = "Pozastavenie prehrávania";
@@ -111,7 +111,7 @@
 "themes_caps_title" = "TÉMY";
 "plus_app_icons_title" = "Ikony aplikácie";
 "mark_unfinished_title" = "Označiť ako nedokončené";
-"move_playlist_button" = "Presunutie do zoznamu stôp";
+"move_playlist_button" = "Presun do zoznamu stôp";
 "move_single_item_title" = "Chcete presunúť '%@' do '%@'?";
 "current_playlist_title" = "Aktuálny zoznam stôp";
 "select_item_title" = "Vybrať položku";
@@ -155,7 +155,7 @@
 "siri_activity_title" = "Pokračovať v naposledy prehrávanej audioknihe";
 "watchapp_connect_error_title" = "Chyba pripojenia";
 "watchapp_connect_error_description" = "Pri pripojení k telefónu došlo k problémom, vyskúšajte to prosím neskôr";
-"sleep_remaining_title" = "Do uspania ostáva %@";
+"sleep_remaining_title" = "Do spánku ostáva %@";
 "audio_source_title" = "Zdroj zvuku";
 "speed_title" = "rýchlosť";
 "import_preparing_title" = "Príprava importu súborov";
@@ -163,9 +163,9 @@
 "invalid_url_title" = "Neplatná adresa URL: %@";
 "downloading_file_title" = "Sťahovanie súboru";
 "progress_title" = "Pokrok";
-"settings_siri_sleeptimer_title" = "Časovač uspania";
+"settings_siri_sleeptimer_title" = "Časovač spánku";
 "active_title" = "Zap.";
-"voiceover_currently_playing_title" = "Práve sa prehráva %@ z %@";
+"voiceover_currently_playing_title" = "Práve sa prehráva %@ od %@";
 "voiceover_miniplayer_hint" = "Miniprehrávač. Ťuknite pre zobrazenie Prehrávača";
 "voiceover_chapter_time_title" = "Dĺžka aktuálnej kapitoly: %@";
 "voiceover_dismiss_player_title" = "Zavrieť prehrávač";
@@ -174,9 +174,9 @@
 "voiceover_continue_playback_title" = "Pokračovať v prehrávaní";
 "coredata_error_diskfull_description" = "Knižnicu sa nepodarilo načítať. V zariadení nie je dostatok miesta na disku.";
 "coredata_error_migration_description" = "Migrácia databázy zlyhala, knižnicu bude potrebné znova inicializovať.";
-"import_warning_description" = "Prenos súborov môže chvíľu trvať. Pred pokračovaním sa uistite, že je počet súborov je finálny.";
+"import_warning_description" = "Prenos súborov môže chvíľu trvať. Pred pokračovaním sa uistite, že je počet súborov je konečný.";
 "files_caps_title" = "SÚBORY";
-"settings_storage_description" = "Spravujte svoje súbory";
+"settings_storage_description" = "Správa súborov";
 "storage_total_title" = "Celkový využitý priestor";
 "settings_storage_title" = "Správa úložiska";
 "storage_fix_file_button" = "Opraviť";
@@ -186,8 +186,8 @@
 "bookmark_exists_title" = "Už ste si vytvorili záložku na %@";
 "bookmark_note_action_title" = "Pridať poznámku";
 "bookmarks_see_title" = "Viď záložky";
-"bookmark_type_automatic_title" = "Automaticky";
-"bookmark_type_user_title" = "Ručne";
+"bookmark_type_automatic_title" = "Automatické";
+"bookmark_type_user_title" = "Vlastné";
 "bookmark_automatic_play_title" = "Posledná pozícia pred spustením prehrávania";
 "bookmark_automatic_skip_title" = "Posledná pozícia pred preskočením času";
 "bookmark_note_edit_title" = "Upraviť poznámku";
@@ -210,7 +210,7 @@
 "voiceover_no_bound_books_title" = "Žiadny názov zväzku";
 "default_title" = "Predvolené";
 "voiceover_default_speed_title" = "Nastavte predvolenú rýchlosť";
-"error_loading_chapters" = "Chapters couldn't be loaded from: \n%@";
-"error_empty_chapters" = "Chapters are empty, please verify the contents of the folder: %@";
-"sleeptimer_option_custom" = "Custom";
-"sleeptimer_custom_alert_title" = "Custom sleep timer";
+"error_loading_chapters" = "Kapitoly nebolo možné načítať z: \n%@";
+"error_empty_chapters" = "Kapitoly sú prázdne, skontrolujte obsah priečinka: %@";
+"sleeptimer_option_custom" = "Vlastný";
+"sleeptimer_custom_alert_title" = "Vlastný časovač spánku";

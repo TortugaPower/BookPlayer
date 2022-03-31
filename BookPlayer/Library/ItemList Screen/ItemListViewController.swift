@@ -504,16 +504,9 @@ extension ItemListViewController: UIDocumentPickerDelegate {
     UIApplication.shared.isIdleTimerDisabled = false
   }
 
-  // iOS 11+
   func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
     UIApplication.shared.isIdleTimerDisabled = false
     self.viewModel.handleNewFiles(urls)
-  }
-
-  // support iOS 10
-  func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
-    UIApplication.shared.isIdleTimerDisabled = false
-    self.viewModel.handleNewFiles([url])
   }
 }
 
