@@ -36,7 +36,7 @@ class ImportCoordinator: Coordinator {
     let nav = AppNavigationController.instantiate(from: .Main)
     nav.viewControllers = [vc]
     nav.presentationController?.delegate = self
-    self.presentingViewController?.getTopViewController()?.present(nav, animated: true, completion: nil)
+    SceneDelegate.shared?.coordinator.getMainCoordinator()?.getTopController()?.present(nav, animated: true, completion: nil)
   }
 
   override func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
