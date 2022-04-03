@@ -15,7 +15,7 @@ class PlusBannerView: NibLoadableView {
     @IBOutlet weak var detailLabel: UILabel!
     @IBOutlet weak var moreButton: UIButton!
 
-    var showPlus: ((UIViewController) -> Void)?
+    var showPlus: (() -> Void)?
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -24,11 +24,7 @@ class PlusBannerView: NibLoadableView {
     }
 
     @IBAction func showPlus(_ sender: UIButton) {
-      let vc = PlusNavigationController.instantiate(from: .Settings)
-
-      SceneDelegate.shared?.coordinator.getMainCoordinator()?
-        .getTopController()?
-        .present(vc, animated: true, completion: nil)
+      self.showPlus?()
     }
 }
 

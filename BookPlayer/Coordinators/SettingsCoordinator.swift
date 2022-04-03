@@ -35,4 +35,10 @@ class SettingsCoordinator: Coordinator {
     child.parentCoordinator = self
     child.start()
   }
+
+  func showPlus() {
+    let vc = PlusNavigationController.instantiate(from: .Settings)
+
+    self.navigationController.present(vc, animated: true, completion: nil)
+  }
 }

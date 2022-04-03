@@ -28,65 +28,74 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
   @IBOutlet weak var autolockDisabledOnlyWhenPoweredLabel: UILabel!
   @IBOutlet weak var themeLabel: UILabel!
   @IBOutlet weak var appIconLabel: UILabel!
+  @IBOutlet weak var plusBannerView: PlusBannerView!
 
-    var iconObserver: NSKeyValueObservation!
+  var iconObserver: NSKeyValueObservation!
 
-    enum SettingsSection: Int {
-        case plus = 0, theme, playback, storage, autoplay, autolock, siri, backups, support, credits
+  enum SettingsSection: Int {
+    case plus = 0, theme, playback, storage, autoplay, autolock, siri, backups, support, credits
+  }
+
+  let storageIndexPath = IndexPath(row: 0, section: 3)
+  let lastPlayedShortcutPath = IndexPath(row: 0, section: 6)
+  let sleepTimerShortcutPath = IndexPath(row: 1, section: 6)
+
+  let supportSection: Int = 8
+  let githubLinkPath = IndexPath(row: 0, section: 8)
+  let supportEmailPath = IndexPath(row: 1, section: 8)
+
+  var version: String = "0.0.0"
+  var build: String = "0"
+  var supportEmail = "support@bookplayer.app"
+
+  var appVersion: String {
+    return "\(self.version)-\(self.build)"
+  }
+
+  var systemVersion: String {
+    return "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
+  }
+
+  override func viewDidLoad() {
+    super.viewDidLoad()
+
+    self.navigationItem.title = "settings_title".localized
+
+    setUpTheming()
+
+    self.bindObservers()
+
+    self.setupSwitchValues()
+
+    guard
+      let version = Bundle.main.infoDictionary!["CFBundleShortVersionString"] as? String,
+      let build = Bundle.main.infoDictionary!["CFBundleVersion"] as? String
+    else {
+      return
     }
 
-    let storageIndexPath = IndexPath(row: 0, section: 3)
-    let lastPlayedShortcutPath = IndexPath(row: 0, section: 6)
-    let sleepTimerShortcutPath = IndexPath(row: 1, section: 6)
+    self.version = version
+    self.build = build
+  }
 
-    let supportSection: Int = 8
-    let githubLinkPath = IndexPath(row: 0, section: 8)
-    let supportEmailPath = IndexPath(row: 1, section: 8)
+  func bindObservers() {
+    let userDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
 
-    var version: String = "0.0.0"
-    var build: String = "0"
-    var supportEmail = "support@bookplayer.app"
+    self.appIconLabel.text = userDefaults?.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
 
-    var appVersion: String {
-        return "\(self.version)-\(self.build)"
+    self.iconObserver = UserDefaults.standard.observe(\.userSettingsAppIcon) { [weak self] _, _ in
+        self?.appIconLabel.text = userDefaults?.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
+    }
+    if UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) {
+        self.donationMade()
+    } else {
+        NotificationCenter.default.addObserver(self, selector: #selector(self.donationMade), name: .donationMade, object: nil)
     }
 
-    var systemVersion: String {
-        return "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
+    self.plusBannerView.showPlus = { [weak self] in
+      self?.viewModel.showPlus()
     }
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        self.navigationItem.title = "settings_title".localized
-
-        setUpTheming()
-
-        let userDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
-
-        self.appIconLabel.text = userDefaults?.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
-
-        self.iconObserver = UserDefaults.standard.observe(\.userSettingsAppIcon) { [weak self] _, _ in
-            self?.appIconLabel.text = userDefaults?.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
-        }
-        if UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) {
-            self.donationMade()
-        } else {
-            NotificationCenter.default.addObserver(self, selector: #selector(self.donationMade), name: .donationMade, object: nil)
-        }
-
-      self.setupSwitchValues()
-
-        guard
-            let version = Bundle.main.infoDictionary!["CFBundleShortVersionString"] as? String,
-            let build = Bundle.main.infoDictionary!["CFBundleVersion"] as? String
-        else {
-            return
-        }
-
-        self.version = version
-        self.build = build
-    }
+  }
 
   func setupSwitchValues() {
     self.autoplayLibrarySwitch.addTarget(self, action: #selector(self.autoplayToggleDidChange), for: .valueChanged)

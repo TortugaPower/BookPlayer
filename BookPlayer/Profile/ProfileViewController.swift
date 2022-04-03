@@ -6,6 +6,8 @@
 //  Copyright © 2022 Tortuga Power. All rights reserved.
 //
 
+import BookPlayerKit
+import Themeable
 import UIKit
 
 class ProfileViewController: BaseViewController<ProfileCoordinator, ProfileViewModel>,
@@ -13,6 +15,7 @@ class ProfileViewController: BaseViewController<ProfileCoordinator, ProfileViewM
   override func viewDidLoad() {
     super.viewDidLoad()
 
+    setUpTheming()
     self.navigationItem.title = "Profile"
 
     self.navigationItem.rightBarButtonItem = UIBarButtonItem(
@@ -25,5 +28,13 @@ class ProfileViewController: BaseViewController<ProfileCoordinator, ProfileViewM
 
   @objc func didTapSettings() {
     self.viewModel.showSettings()
+  }
+}
+
+// MARK: - Themeable
+
+extension ProfileViewController: Themeable {
+  func applyTheme(_ theme: SimpleTheme) {
+    self.view.backgroundColor = theme.systemBackgroundColor
   }
 }
