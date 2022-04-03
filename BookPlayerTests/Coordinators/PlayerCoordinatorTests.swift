@@ -20,9 +20,9 @@ class PlayerCoordinatorTests: XCTestCase {
     let libraryService = LibraryService(dataManager: dataManager)
 
     self.playerCoordinator = PlayerCoordinator(
-      navigationController: UINavigationController(),
       playerManager: PlayerManagerMock(),
-      libraryService: libraryService
+      libraryService: libraryService,
+      presentingViewController: UINavigationController()
     )
     self.playerCoordinator.start()
   }

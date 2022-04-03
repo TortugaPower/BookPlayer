@@ -13,14 +13,20 @@ class BookmarkCoordinator: Coordinator {
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
 
-  init(navigationController: UINavigationController,
-       playerManager: PlayerManagerProtocol,
-       libraryService: LibraryServiceProtocol) {
+  init(
+    playerManager: PlayerManagerProtocol,
+    libraryService: LibraryServiceProtocol,
+    presentingViewController: UIViewController?
+  ) {
     self.playerManager = playerManager
     self.libraryService = libraryService
 
-    super.init(navigationController: navigationController,
-               flowType: .modal)
+    super.init(
+      navigationController: AppNavigationController.instantiate(from: .Player),
+      flowType: .modal
+    )
+
+    self.presentingViewController = presentingViewController
   }
 
   override func start() {

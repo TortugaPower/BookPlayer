@@ -12,12 +12,18 @@ import BookPlayerKit
 class PlayerControlsCoordinator: Coordinator {
   let playerManager: PlayerManagerProtocol
 
-  init(navigationController: UINavigationController,
-       playerManager: PlayerManagerProtocol) {
+  init(
+    playerManager: PlayerManagerProtocol,
+    presentingViewController: UIViewController?
+  ) {
     self.playerManager = playerManager
 
-    super.init(navigationController: navigationController,
-               flowType: .modal)
+    super.init(
+      navigationController: AppNavigationController.instantiate(from: .Player),
+      flowType: .modal
+    )
+
+    self.presentingViewController = presentingViewController
   }
 
   override func start() {

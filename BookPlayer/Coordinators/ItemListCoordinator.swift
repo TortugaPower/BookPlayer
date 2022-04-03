@@ -135,12 +135,11 @@ class ItemListCoordinator: Coordinator {
 
   func showPlayer() {
     let playerCoordinator = PlayerCoordinator(
-      navigationController: AppNavigationController.instantiate(from: .Player),
       playerManager: self.playerManager,
-      libraryService: self.libraryService
+      libraryService: self.libraryService,
+      presentingViewController: self.navigationController
     )
     playerCoordinator.parentCoordinator = self
-    playerCoordinator.presentingViewController = self.presentingViewController
     self.childCoordinators.append(playerCoordinator)
     playerCoordinator.start()
   }
@@ -236,12 +235,11 @@ class ItemListCoordinator: Coordinator {
 
   func showImport() {
     let child = ImportCoordinator(
-      navigationController: self.navigationController,
-      importManager: self.importManager
+      importManager: self.importManager,
+      presentingViewController: self.presentingViewController
     )
-    self.childCoordinators.append(child)
     child.parentCoordinator = self
-    child.presentingViewController = self.presentingViewController
+    self.childCoordinators.append(child)
     child.start()
   }
 

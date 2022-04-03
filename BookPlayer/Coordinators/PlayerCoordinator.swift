@@ -19,13 +19,20 @@ class PlayerCoordinator: Coordinator {
   let libraryService: LibraryServiceProtocol
   weak var alert: UIAlertController?
 
-  init(navigationController: UINavigationController,
-       playerManager: PlayerManagerProtocol,
-       libraryService: LibraryServiceProtocol) {
+  init(
+    playerManager: PlayerManagerProtocol,
+    libraryService: LibraryServiceProtocol,
+    presentingViewController: UIViewController?
+  ) {
     self.playerManager = playerManager
     self.libraryService = libraryService
 
-    super.init(navigationController: navigationController, flowType: .modal)
+    super.init(
+      navigationController: AppNavigationController.instantiate(from: .Player),
+      flowType: .modal
+    )
+
+    self.presentingViewController = presentingViewController
   }
 
   override func start() {
@@ -35,34 +42,36 @@ class PlayerCoordinator: Coordinator {
     viewModel.coordinator = self
     vc.viewModel = viewModel
     self.presentingViewController?.present(vc, animated: true, completion: nil)
+    self.presentingViewController = vc
   }
 
   func showBookmarks() {
-    let bookmarksCoordinator = BookmarkCoordinator(navigationController: self.navigationController,
-                                                   playerManager: self.playerManager,
-                                                   libraryService: self.libraryService)
+    let bookmarksCoordinator = BookmarkCoordinator(
+      playerManager: self.playerManager,
+      libraryService: self.libraryService,
+      presentingViewController: self.presentingViewController
+    )
     bookmarksCoordinator.parentCoordinator = self
-    bookmarksCoordinator.presentingViewController = self.presentingViewController
     self.childCoordinators.append(bookmarksCoordinator)
     bookmarksCoordinator.start()
   }
 
   func showChapters() {
-    let chaptersCoordinator = ChapterCoordinator(navigationController: self.navigationController,
-                                                 playerManager: self.playerManager)
+    let chaptersCoordinator = ChapterCoordinator(
+      playerManager: self.playerManager,
+      presentingViewController: self.presentingViewController
+    )
     chaptersCoordinator.parentCoordinator = self
-    chaptersCoordinator.presentingViewController = self.presentingViewController
     self.childCoordinators.append(chaptersCoordinator)
     chaptersCoordinator.start()
   }
 
   func showControls() {
     let playerControlsCoordinator = PlayerControlsCoordinator(
-      navigationController: self.navigationController,
-      playerManager: self.playerManager
+      playerManager: self.playerManager,
+      presentingViewController: self.presentingViewController
     )
     playerControlsCoordinator.parentCoordinator = self
-    playerControlsCoordinator.presentingViewController = self.presentingViewController
     self.childCoordinators.append(playerControlsCoordinator)
     playerControlsCoordinator.start()
   }

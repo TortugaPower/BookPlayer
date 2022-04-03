@@ -86,12 +86,11 @@ class MainCoordinator: Coordinator {
 
   func showPlayer() {
     let playerCoordinator = PlayerCoordinator(
-      navigationController: AppNavigationController.instantiate(from: .Player),
       playerManager: self.playerManager,
-      libraryService: self.libraryService
+      libraryService: self.libraryService,
+      presentingViewController: self.presentingViewController
     )
     playerCoordinator.parentCoordinator = self
-    playerCoordinator.presentingViewController = self.presentingViewController
     self.childCoordinators.append(playerCoordinator)
     playerCoordinator.start()
   }

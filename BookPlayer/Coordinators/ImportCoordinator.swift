@@ -13,13 +13,17 @@ class ImportCoordinator: Coordinator {
   weak var importViewController: ImportViewController?
 
   init(
-    navigationController: UINavigationController,
-    importManager: ImportManager
+    importManager: ImportManager,
+    presentingViewController: UIViewController?
   ) {
     self.importManager = importManager
 
-    super.init(navigationController: navigationController,
-               flowType: .modal)
+    super.init(
+      navigationController: AppNavigationController.instantiate(from: .Player),
+      flowType: .modal
+    )
+
+    self.presentingViewController = presentingViewController
   }
 
   override func start() {
