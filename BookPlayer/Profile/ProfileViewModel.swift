@@ -12,4 +12,8 @@ class ProfileViewModel: BaseViewModel<ProfileCoordinator> {
   func showSettings() {
     self.coordinator.showSettings()
   }
+
+  func showAccount() {
+    self.coordinator.showAccount()
+  }
 }
