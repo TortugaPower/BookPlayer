@@ -59,13 +59,12 @@ class ProfileCoordinator: Coordinator {
   }
 
   func showAccount() {
-    let accountCoordinator = AccountCoordinator(
-      navigationController: self.navigationController,
+    let loginCoordinator = LoginCoordinator(
       presentingViewController: self.presentingViewController
     )
 
-    self.childCoordinators.append(accountCoordinator)
-    accountCoordinator.parentCoordinator = self
-    accountCoordinator.start()
+    self.childCoordinators.append(loginCoordinator)
+    loginCoordinator.parentCoordinator = self
+    loginCoordinator.start()
   }
 }

@@ -11,7 +11,6 @@ import Combine
 import UIKit
 import UniformTypeIdentifiers
 
-public typealias Transition<T> = ((T) -> Void)
 enum ItemListActionRoutes {
   case importOptions
   case importLocalFiles

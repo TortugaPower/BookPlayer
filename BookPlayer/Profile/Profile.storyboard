@@ -4,6 +4,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
+        <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -198,10 +199,10 @@
             </objects>
             <point key="canvasLocation" x="748" y="52"/>
         </scene>
-        <!--Login View Controller-->
+        <!--Profile-->
         <scene sceneID="xJ0-Yd-FFY">
             <objects>
-                <viewController storyboardIdentifier="LoginViewController" id="clH-jB-p6R" customClass="LoginViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="LoginViewController" title="Profile" id="clH-jB-p6R" customClass="LoginViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="0wT-3e-v9F">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -221,6 +222,14 @@
                             <constraint firstItem="jBa-Xg-OVJ" firstAttribute="bottom" secondItem="J3W-7g-X0z" secondAttribute="bottom" constant="20" id="scA-Vb-F7e"/>
                         </constraints>
                     </view>
+                    <navigationItem key="navigationItem" title="Profile" id="XQs-ua-J6c">
+                        <barButtonItem key="leftBarButtonItem" id="T6d-PG-50b">
+                            <imageReference key="image" image="multiply" catalog="system" symbolScale="large"/>
+                            <connections>
+                                <action selector="didPressClose:" destination="clH-jB-p6R" id="rCl-5I-Dxw"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="loginProviderStackView" destination="J3W-7g-X0z" id="qb9-Kr-B9V"/>
                     </connections>
@@ -232,6 +241,7 @@
     </scenes>
     <resources>
         <image name="chevron.right" catalog="system" width="96" height="128"/>
+        <image name="multiply" catalog="system" width="128" height="111"/>
         <image name="person" catalog="system" width="128" height="117"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

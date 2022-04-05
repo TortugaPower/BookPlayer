@@ -8,6 +8,8 @@
 
 import UIKit
 
+public typealias Transition<T> = ((T) -> Void)
+
 public enum FlowType {
   case push, modal
 }
