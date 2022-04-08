@@ -24,13 +24,19 @@ class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel>,
     super.viewDidLoad()
 
     self.title = "BookPlayer Pro"
+
+    self.setupViews()
+
+    setUpTheming()
+  }
+
+  func setupViews() {
+    self.plusOverlayView.layer.masksToBounds = true
     self.plusOverlayView.layer.cornerRadius = 10
 
     NSLayoutConstraint.activate([
       self.scrollView.contentLayoutGuide.widthAnchor.constraint(equalTo: self.scrollView.frameLayoutGuide.widthAnchor)
     ])
-
-    setUpTheming()
   }
 
   func setupProviderLoginView(_ useDarkVariant: Bool) {

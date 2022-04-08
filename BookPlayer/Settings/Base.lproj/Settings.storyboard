@@ -789,7 +789,7 @@
                                                     </activityIndicatorView>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2jC-Rp-xFW">
                                                         <rect key="frame" x="12.5" y="50" width="75" height="28"/>
-                                                        <color key="backgroundColor" red="0.40704941749572754" green="0.47697103023529053" blue="0.71767419576644897" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                                        <color key="backgroundColor" red="0.40784313725490196" green="0.47843137254901957" blue="0.71764705882352942" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                                         <constraints>
                                                             <constraint firstAttribute="width" constant="75" id="SnM-Dl-6Uo"/>
                                                             <constraint firstAttribute="height" constant="28" id="lE5-Ss-mi3"/>

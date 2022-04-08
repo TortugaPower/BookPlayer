@@ -1,21 +1,15 @@
 //
-//  LoginCoordinator.swift
+//  CompleteAccountCoordinator.swift
 //  BookPlayer
 //
-//  Created by gianni.carlo on 3/4/22.
+//  Created by gianni.carlo on 8/4/22.
 //  Copyright © 2022 Tortuga Power. All rights reserved.
 //
 
 import BookPlayerKit
 import UIKit
 
-enum LoginActionRoutes {
-  case signedIn(identifier: String, email: String)
-}
-
-class LoginCoordinator: Coordinator {
-  public var onAction: Transition<ItemListActionRoutes>?
-
+class CompleteAccountCoordinator: Coordinator {
   init(
     presentingViewController: UIViewController?
   ) {
@@ -28,8 +22,8 @@ class LoginCoordinator: Coordinator {
   }
 
   override func start() {
-    let vc = LoginViewController.instantiate(from: .Profile)
-    let viewModel = LoginViewModel()
+    let vc = CompleteAccountViewController.instantiate(from: .Profile)
+    let viewModel = CompleteAccountViewModel()
     viewModel.coordinator = self
     vc.viewModel = viewModel
 
@@ -37,19 +31,5 @@ class LoginCoordinator: Coordinator {
     self.navigationController.viewControllers = [vc]
     self.navigationController.presentationController?.delegate = self
     self.presentingViewController?.present(self.navigationController, animated: true, completion: nil)
-  }
-
-  func showError(_ error: Error) {
-    self.navigationController.showAlert("error_title".localized, message: error.localizedDescription)
-  }
-
-  func showCompleteAccount() {
-    let child = CompleteAccountCoordinator(
-      presentingViewController: self.presentingViewController
-    )
-
-    self.childCoordinators.append(child)
-    child.parentCoordinator = self
-    child.start()
   }
 }
