@@ -14,12 +14,21 @@ import Themeable
 class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel>,
                            Storyboarded {
   @IBOutlet weak var loginProviderStackView: UIStackView!
+  @IBOutlet var primaryLabels: [UILabel]!
+  @IBOutlet var secondaryLabels: [UILabel]!
+  @IBOutlet var imageViews: [UIImageView]!
+  @IBOutlet weak var plusOverlayView: UIView!
+  @IBOutlet weak var scrollView: UIScrollView!
 
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    self.title = "Set Up Account"
-//    self.navigationController?.setNavigationBarHidden(true, animated: false)
+    self.title = "BookPlayer Pro"
+    self.plusOverlayView.layer.cornerRadius = 10
+
+    NSLayoutConstraint.activate([
+      self.scrollView.contentLayoutGuide.widthAnchor.constraint(equalTo: self.scrollView.frameLayoutGuide.widthAnchor)
+    ])
 
     setUpTheming()
   }
@@ -73,6 +82,11 @@ extension LoginViewController: ASAuthorizationControllerPresentationContextProvi
 extension LoginViewController: Themeable {
   func applyTheme(_ theme: SimpleTheme) {
     self.view.backgroundColor = theme.systemBackgroundColor
+
+    self.primaryLabels.forEach({ $0.textColor = theme.primaryColor })
+    self.secondaryLabels.forEach({ $0.textColor = theme.secondaryColor })
+    self.imageViews.forEach({ $0.tintColor = theme.linkColor })
+    self.plusOverlayView.backgroundColor = theme.linkColor
 
     self.overrideUserInterfaceStyle = theme.useDarkVariant
     ? UIUserInterfaceStyle.dark
