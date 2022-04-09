@@ -59,12 +59,20 @@ class ProfileCoordinator: Coordinator {
   }
 
   func showAccount() {
-    let loginCoordinator = LoginCoordinator(
-      presentingViewController: self.presentingViewController
-    )
+    // TODO: logic to determine if the user is logged in
+    if true {
+      let loginCoordinator = LoginCoordinator(
+        presentingViewController: self.presentingViewController
+      )
 
-    self.childCoordinators.append(loginCoordinator)
-    loginCoordinator.parentCoordinator = self
-    loginCoordinator.start()
+      self.childCoordinators.append(loginCoordinator)
+      loginCoordinator.parentCoordinator = self
+      loginCoordinator.start()
+    } else {
+      let child = AccountCoordinator(presentingViewController: self.presentingViewController)
+      self.childCoordinators.append(child)
+      child.parentCoordinator = self
+      child.start()
+    }
   }
 }

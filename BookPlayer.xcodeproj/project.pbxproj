@@ -331,6 +331,9 @@
 		9F4691EE2800C94B00A8F0E8 /* CompleteAccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4691ED2800C94B00A8F0E8 /* CompleteAccountViewController.swift */; };
 		9F4691F02800C97000A8F0E8 /* CompleteAccountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4691EF2800C97000A8F0E8 /* CompleteAccountViewModel.swift */; };
 		9F4691F22800D58A00A8F0E8 /* CompleteAccountCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4691F12800D58A00A8F0E8 /* CompleteAccountCoordinator.swift */; };
+		9F4691F52800F84800A8F0E8 /* AccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4691F42800F84800A8F0E8 /* AccountViewController.swift */; };
+		9F4691F72800F85600A8F0E8 /* AccountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4691F62800F85600A8F0E8 /* AccountViewModel.swift */; };
+		9F4691FA2800F8D600A8F0E8 /* AccountCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4691F92800F8D600A8F0E8 /* AccountCoordinator.swift */; };
 		9F64C6212793C31600B2493C /* PlayerControlsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F64C6202793C31600B2493C /* PlayerControlsCoordinator.swift */; };
 		9F64C6242793C3DA00B2493C /* PlayerControlsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F64C6232793C3DA00B2493C /* PlayerControlsViewModel.swift */; };
 		9F64C6262793D5B100B2493C /* PlayerControlsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F64C6252793D5B100B2493C /* PlayerControlsViewController.swift */; };
@@ -840,6 +843,9 @@
 		9F4691ED2800C94B00A8F0E8 /* CompleteAccountViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompleteAccountViewController.swift; sourceTree = "<group>"; };
 		9F4691EF2800C97000A8F0E8 /* CompleteAccountViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompleteAccountViewModel.swift; sourceTree = "<group>"; };
 		9F4691F12800D58A00A8F0E8 /* CompleteAccountCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompleteAccountCoordinator.swift; sourceTree = "<group>"; };
+		9F4691F42800F84800A8F0E8 /* AccountViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountViewController.swift; sourceTree = "<group>"; };
+		9F4691F62800F85600A8F0E8 /* AccountViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountViewModel.swift; sourceTree = "<group>"; };
+		9F4691F92800F8D600A8F0E8 /* AccountCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCoordinator.swift; sourceTree = "<group>"; };
 		9F64C6202793C31600B2493C /* PlayerControlsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsCoordinator.swift; sourceTree = "<group>"; };
 		9F64C6232793C3DA00B2493C /* PlayerControlsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsViewModel.swift; sourceTree = "<group>"; };
 		9F64C6252793D5B100B2493C /* PlayerControlsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsViewController.swift; sourceTree = "<group>"; };
@@ -1127,6 +1133,7 @@
 				9FBDDBA127DD13FA005FB447 /* ProfileCoordinator.swift */,
 				9FEC87AD27FA9E98006C71D5 /* LoginCoordinator.swift */,
 				9F4691F12800D58A00A8F0E8 /* CompleteAccountCoordinator.swift */,
+				9F4691F92800F8D600A8F0E8 /* AccountCoordinator.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -1643,6 +1650,15 @@
 			path = "CompleteAccount Screen";
 			sourceTree = "<group>";
 		};
+		9F4691F82800F85C00A8F0E8 /* Account Screen */ = {
+			isa = PBXGroup;
+			children = (
+				9F4691F42800F84800A8F0E8 /* AccountViewController.swift */,
+				9F4691F62800F85600A8F0E8 /* AccountViewModel.swift */,
+			);
+			path = "Account Screen";
+			sourceTree = "<group>";
+		};
 		9F64C6222793C37C00B2493C /* Controls Screen */ = {
 			isa = PBXGroup;
 			children = (
@@ -1688,6 +1704,7 @@
 			isa = PBXGroup;
 			children = (
 				9F4691EB2800C8EE00A8F0E8 /* Profile Screen */,
+				9F4691F82800F85C00A8F0E8 /* Account Screen */,
 				9F4691EC2800C90400A8F0E8 /* Login Screen */,
 				9F4691F32800F65400A8F0E8 /* CompleteAccount Screen */,
 				9FBDDB9D27DD137A005FB447 /* Profile.storyboard */,
@@ -2508,6 +2525,7 @@
 				418EA78B268D6EF100F6BAEB /* ImportTableViewCell.swift in Sources */,
 				41188D2026ECDDD50017124E /* BookmarkCoordinator.swift in Sources */,
 				4142964921F2E2BA004356DA /* ThemeCellView.swift in Sources */,
+				9F4691F72800F85600A8F0E8 /* AccountViewModel.swift in Sources */,
 				4160A0A123F304530039166B /* LocalizableLabel.swift in Sources */,
 				4137BBCC272DAF2E009ED9FE /* BaseViewController.swift in Sources */,
 				C318D3AD208CF624000666F8 /* PlayerJumpIcon.swift in Sources */,
@@ -2535,6 +2553,7 @@
 				C39401E920DEE83200F3DC71 /* UIView+BookPlayer.swift in Sources */,
 				415B274421FAE47200F9D9B7 /* LoadingView.swift in Sources */,
 				41E79BED26C61D2B00EA9FFF /* PlayPauseIconView.swift in Sources */,
+				9F4691F52800F84800A8F0E8 /* AccountViewController.swift in Sources */,
 				9FEC87B027FA9F0F006C71D5 /* LoginViewController.swift in Sources */,
 				4193E2002439A1CD004D6A82 /* NetworkService.swift in Sources */,
 				9F4691F22800D58A00A8F0E8 /* CompleteAccountCoordinator.swift in Sources */,
@@ -2571,6 +2590,7 @@
 				4124122A26D19B9100B099DB /* StorageItem.swift in Sources */,
 				41A1B12F226FE0F900EA0400 /* Notification+BookPlayer.swift in Sources */,
 				4124121A26CF287600B099DB /* StorageViewController.swift in Sources */,
+				9F4691FA2800F8D600A8F0E8 /* AccountCoordinator.swift in Sources */,
 				412AB70E2701463100969618 /* LoadingViewModel.swift in Sources */,
 				6279361C272D0C290097837D /* BookSortService+SortError+PlayListSortOrder.swift in Sources */,
 				9F4691EE2800C94B00A8F0E8 /* CompleteAccountViewController.swift in Sources */,

@@ -53,7 +53,6 @@ extension CompleteAccountViewController: Themeable {
     self.proLabel.textColor = theme.secondaryColor
     self.costLabel.textColor = theme.primaryColor
     self.monthlyLabel.textColor = theme.secondaryColor
-    self.subscribeButton.backgroundColor = theme.linkColor
 
     self.overrideUserInterfaceStyle = theme.useDarkVariant
       ? UIUserInterfaceStyle.dark
