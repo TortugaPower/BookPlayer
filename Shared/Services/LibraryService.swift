@@ -35,10 +35,9 @@ public protocol LibraryServiceProtocol {
   func replaceOrderedItems(_ items: NSOrderedSet, at relativePath: String?)
   func reorderItem(at relativePath: String, inside folderRelativePath: String?, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath)
 
-  func updatePlaybackTime(relativePath: String, time: Double)
+  func updatePlaybackTime(relativePath: String, time: Double, date: Date)
   func updateBookSpeed(at relativePath: String, speed: Float)
   func getItemSpeed(at relativePath: String) -> Float
-  func updateBookLastPlayDate(at relativePath: String, date: Date)
   func markAsFinished(flag: Bool, relativePath: String)
   func jumpToStart(relativePath: String)
   func getCurrentPlaybackRecord() -> PlaybackRecord
@@ -368,10 +367,11 @@ public final class LibraryService: LibraryServiceProtocol {
     self.dataManager.saveContext()
   }
 
-  public func updatePlaybackTime(relativePath: String, time: Double) {
+  public func updatePlaybackTime(relativePath: String, time: Double, date: Date) {
     guard let item = self.getItem(with: relativePath) else { return }
 
     item.currentTime = time
+    item.lastPlayDate = date
     item.percentCompleted = round((item.currentTime / item.duration) * 100)
 
     self.dataManager.scheduleSaveContext()
@@ -390,14 +390,6 @@ public final class LibraryService: LibraryServiceProtocol {
     guard let item = self.getItem(with: relativePath) else { return 1.0 }
 
     return item.folder?.speed ?? item.speed
-  }
-
-  public func updateBookLastPlayDate(at relativePath: String, date: Date) {
-    guard let item = self.getItem(with: relativePath) else { return }
-
-    item.lastPlayDate = date
-
-    self.dataManager.saveContext()
   }
 
   public func markAsFinished(flag: Bool, relativePath: String) {

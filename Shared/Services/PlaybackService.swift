@@ -23,9 +23,11 @@ public final class PlaybackService: PlaybackServiceProtocol {
   }
 
   public func updatePlaybackTime(item: PlayableItem, time: Double) {
+    let now = Date()
+    item.lastPlayDate = now
     item.currentTime = time
     item.percentCompleted = round((item.currentTime / item.duration) * 100)
-    self.libraryService.updatePlaybackTime(relativePath: item.relativePath, time: time)
+    self.libraryService.updatePlaybackTime(relativePath: item.relativePath, time: time, date: now)
 
     if let currentChapter = item.currentChapter,
        item.currentTime > currentChapter.end || item.currentTime < currentChapter.start {
@@ -89,6 +91,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
       duration: book.duration,
       relativePath: book.relativePath,
       percentCompleted: book.percentCompleted,
+      lastPlayDate: book.lastPlayDate,
       isFinished: book.isFinished,
       useChapterTimeContext: false
     )
@@ -149,6 +152,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
       duration: duration ?? folder.duration,
       relativePath: folder.relativePath,
       percentCompleted: folder.percentCompleted,
+      lastPlayDate: folder.lastPlayDate,
       isFinished: folder.isFinished,
       useChapterTimeContext: true
     )

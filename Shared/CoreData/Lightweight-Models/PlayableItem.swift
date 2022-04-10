@@ -20,6 +20,7 @@ public final class PlayableItem: NSObject, Identifiable {
   public let duration: TimeInterval
   @objc dynamic public let relativePath: String
   @objc dynamic public var percentCompleted: Double
+  @objc dynamic public var lastPlayDate: Date?
   public var isFinished: Bool
   public let useChapterTimeContext: Bool
 
@@ -36,7 +37,7 @@ public final class PlayableItem: NSObject, Identifiable {
   }
 
   enum CodingKeys: String, CodingKey {
-    case title, author, chapters, currentTime, duration, relativePath, percentCompleted, isFinished, useChapterTimeContext
+    case title, author, chapters, currentTime, duration, relativePath, percentCompleted, lastPlayDate, isFinished, useChapterTimeContext
   }
 
   public init(
@@ -47,6 +48,7 @@ public final class PlayableItem: NSObject, Identifiable {
     duration: TimeInterval,
     relativePath: String,
     percentCompleted: Double,
+    lastPlayDate: Date?,
     isFinished: Bool,
     useChapterTimeContext: Bool
   ) {
@@ -57,6 +59,7 @@ public final class PlayableItem: NSObject, Identifiable {
     self.duration = duration
     self.relativePath = relativePath
     self.percentCompleted = percentCompleted
+    self.lastPlayDate = lastPlayDate
     self.isFinished = isFinished
     self.useChapterTimeContext = useChapterTimeContext
 
@@ -199,6 +202,7 @@ extension PlayableItem: Codable {
     try container.encode(self.duration, forKey: .duration)
     try container.encode(self.relativePath, forKey: .relativePath)
     try container.encode(self.percentCompleted, forKey: .percentCompleted)
+    try? container.encode(self.lastPlayDate, forKey: .lastPlayDate)
     try container.encode(self.isFinished, forKey: .isFinished)
     try container.encode(self.useChapterTimeContext, forKey: .useChapterTimeContext)
   }
@@ -213,6 +217,7 @@ extension PlayableItem: Codable {
       duration: try values.decode(TimeInterval.self, forKey: .duration),
       relativePath: try values.decode(String.self, forKey: .relativePath),
       percentCompleted: try values.decode(Double.self, forKey: .percentCompleted),
+      lastPlayDate: try? values.decode(Date.self, forKey: .lastPlayDate),
       isFinished: try values.decode(Bool.self, forKey: .isFinished),
       useChapterTimeContext: try values.decode(Bool.self, forKey: .useChapterTimeContext)
     )

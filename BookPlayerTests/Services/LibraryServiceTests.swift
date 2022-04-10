@@ -1159,9 +1159,14 @@ class ModifyLibraryTests: LibraryServiceTests {
     try self.sut.moveItems([book], inside: folder.relativePath, moveFiles: true)
 
     let now = Date()
-    self.sut.updateBookLastPlayDate(at: book.relativePath, date: now)
+    self.sut.updatePlaybackTime(
+      relativePath: book.relativePath,
+      time: 50,
+      date: now
+    )
 
     XCTAssert(book.lastPlayDate == now)
+    XCTAssert(book.currentTime == 50)
   }
 
   func testGetItemSpeed() throws {

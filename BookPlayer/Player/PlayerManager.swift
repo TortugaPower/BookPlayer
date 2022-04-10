@@ -228,8 +228,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
             let time = (currentItem.currentTime + 1) >= currentItem.duration ? 0 : currentItem.currentTime
             self.jumpTo(time, recordBookmark: false)
           }
-
-          self.libraryService.updateBookLastPlayDate(at: currentItem.relativePath, date: Date())
         }
 
         NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["loaded": true])
@@ -384,10 +382,6 @@ extension PlayerManager {
       )
     }
 
-    if !self.isPlaying {
-      UserDefaults.standard.set(Date(), forKey: "\(Constants.UserDefaults.lastPauseTime)_\(currentItem.relativePath)")
-    }
-
     let boundedTime = min(max(time, 0), currentItem.duration)
 
     let chapterBeforeSkip = currentItem.currentChapter
@@ -461,9 +455,6 @@ extension PlayerManager {
     // Set play state on player and control center
     self.audioPlayer.playImmediately(atRate: self.currentSpeed)
 
-    // Set last Play date
-    self.libraryService.updateBookLastPlayDate(at: currentItem.relativePath, date: Date())
-
     self.setNowPlayingBookTitle(chapter: currentItem.currentChapter)
 
     DispatchQueue.main.async {
@@ -474,11 +465,10 @@ extension PlayerManager {
   }
 
   func handleSmartRewind(_ item: PlayableItem) {
-    // Handle smart rewind.
-    let lastPauseTimeKey = "\(Constants.UserDefaults.lastPauseTime)_\(item.relativePath)"
     let smartRewindEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.smartRewindEnabled.rawValue)
 
-    if smartRewindEnabled, let lastPlayTime: Date = UserDefaults.standard.object(forKey: lastPauseTimeKey) as? Date {
+    if smartRewindEnabled,
+       let lastPlayTime = item.lastPlayDate {
       let timePassed = Date().timeIntervalSince(lastPlayTime)
       let timePassedLimited = min(max(timePassed, 0), Constants.SmartRewind.threshold.rawValue)
 
@@ -488,8 +478,6 @@ extension PlayerManager {
       let rewindTime = pow(delta, 3) * Constants.SmartRewind.maxTime.rawValue
 
       let newPlayerTime = max(CMTimeGetSeconds(self.audioPlayer.currentTime()) - rewindTime, 0)
-
-      UserDefaults.standard.set(nil, forKey: lastPauseTimeKey)
 
       self.audioPlayer.seek(to: CMTime(seconds: newPlayerTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
     }
@@ -546,8 +534,6 @@ extension PlayerManager {
       self?.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0.0
       self?.setNowPlayingBookTime()
       MPNowPlayingInfoCenter.default().nowPlayingInfo = self?.nowPlayingInfo
-
-      UserDefaults.standard.set(Date(), forKey: "\(Constants.UserDefaults.lastPauseTime)_\(currentItem.relativePath)")
     }
 
     NotificationCenter.default.post(name: .bookPaused, object: nil)
@@ -637,10 +623,6 @@ extension PlayerManager {
   @objc
   func playerDidFinishPlaying(_ notification: Notification) {
     guard let currentItem = self.currentItem else { return }
-
-    // Clear out smart rewind key from finished item
-    let lastPauseTimeKey = "\(Constants.UserDefaults.lastPauseTime)_\(currentItem.relativePath)"
-    UserDefaults.standard.set(nil, forKey: lastPauseTimeKey)
 
     // Stop book/chapter change if the EOC sleep timer is active
     if SleepTimer.shared.isEndChapterActive() {
