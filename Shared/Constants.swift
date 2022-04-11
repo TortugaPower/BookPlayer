@@ -11,6 +11,7 @@ public enum Constants {
         case appIcon = "userSettingsAppIcon"
         case donationMade = "userSettingsDonationMade"
         case showPlayer = "userSettingsShowPlayer"
+        case purchaseMade = "userSettingsPurchaseMade"
 
         // User preferences
         case themeBrightnessEnabled = "userSettingsBrightnessEnabled"

@@ -170,6 +170,12 @@ class LoadingViewModel: BaseViewModel<LoadingCoordinator> {
       UserDefaults.standard.set(true, forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue)
     }
 
+    self.setupThemes(dataManager: dataManager)
+
+    self.setupBlankAccount(dataManager: dataManager)
+  }
+
+  func setupThemes(dataManager: DataManager) {
     let libraryService = LibraryService(dataManager: dataManager)
 
     // Load themes into DB if necessary
@@ -181,6 +187,19 @@ class LoadingViewModel: BaseViewModel<LoadingCoordinator> {
     if library.currentTheme == nil {
       libraryService.setLibraryTheme(with: "Default / Dark")
     }
+  }
+
+  /// Setup blank account for donationMade key migration
+  func setupBlankAccount(dataManager: DataManager) {
+    let accountService = AccountService(dataManager: dataManager)
+
+    guard !accountService.hasAccount() else { return }
+
+    accountService.createAccount(
+      donationMade: UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue)
+    )
+
+    UserDefaults.standard.set(nil, forKey: Constants.UserDefaults.donationMade.rawValue)
   }
 
   public func loadLocalThemesIfNeeded(_ libraryService: LibraryService) {

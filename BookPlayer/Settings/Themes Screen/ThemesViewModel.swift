@@ -1,16 +1,16 @@
 //
-//  ProfileViewModel.swift
+//  ThemesViewModel.swift
 //  BookPlayer
 //
-//  Created by gianni.carlo on 12/3/22.
+//  Created by gianni.carlo on 11/4/22.
 //  Copyright © 2022 Tortuga Power. All rights reserved.
 //
 
-import Foundation
 import BookPlayerKit
 import Combine
 
-class ProfileViewModel: BaseViewModel<ProfileCoordinator> {
+final class ThemesViewModel {
+  weak var coordinator: SettingsCoordinator!
   let accountService: AccountServiceProtocol
 
   @Published var account: Account?
@@ -20,26 +20,27 @@ class ProfileViewModel: BaseViewModel<ProfileCoordinator> {
   init(accountService: AccountServiceProtocol) {
     self.accountService = accountService
 
-    super.init()
-
+    self.reloadAccount()
     self.bindObservers()
   }
 
   func bindObservers() {
     NotificationCenter.default.publisher(for: .accountUpdate, object: nil)
       .sink(receiveValue: { [weak self] _ in
-        guard let self = self else { return }
-
-        self.account = self.accountService.getAccount()
+        self?.reloadAccount()
       })
       .store(in: &disposeBag)
   }
 
-  func showSettings() {
-    self.coordinator.showSettings()
+  func reloadAccount() {
+    self.account = self.accountService.getAccount()
   }
 
-  func showAccount() {
-    self.coordinator.showAccount()
+  func hasMadeDonation() -> Bool {
+    return self.account?.donationMade ?? false
+  }
+
+  func showPlus() {
+    self.coordinator.showPlus()
   }
 }

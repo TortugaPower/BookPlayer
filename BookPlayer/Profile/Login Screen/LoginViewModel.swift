@@ -7,24 +7,33 @@
 //
 
 import AuthenticationServices
+import BookPlayerKit
 import Foundation
 
 class LoginViewModel: BaseViewModel<LoginCoordinator> {
+  let accountService: AccountServiceProtocol
+
+  init(accountService: AccountServiceProtocol) {
+    self.accountService = accountService
+  }
+
   func handleSignIn(authorization: ASAuthorization) {
     switch authorization.credential {
     case let appleIDCredential as ASAuthorizationAppleIDCredential:
-
-      // Create an account in your system.
-      let userIdentifier = appleIDCredential.user
       // email won't be there on subsequent approvals
       // (save locally in case account creation fails for some reason)
-      let email = appleIDCredential.email
+      self.accountService.updateAccount(
+        id: appleIDCredential.user,
+        email: appleIDCredential.email,
+        donationMade: nil,
+        hasSubscription: nil,
+        accessToken: nil
+      )
 
-      print(userIdentifier)
-      print(email)
+      // TODO: network call to create the user in backend
+      NotificationCenter.default.post(name: .accountUpdate, object: self)
 
-      // TODO: network call to create the user
-      
+      self.coordinator.showCompleteAccount()
     default:
       break
     }

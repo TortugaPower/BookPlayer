@@ -7,6 +7,7 @@
 //
 
 import BookPlayerKit
+import Combine
 import Themeable
 import UIKit
 
@@ -20,6 +21,8 @@ class CompleteAccountViewController: BaseViewController<CompleteAccountCoordinat
   @IBOutlet weak var monthlyLabel: UILabel!
   @IBOutlet weak var subscribeButton: UIButton!
 
+  private var disposeBag = Set<AnyCancellable>()
+
   override func viewDidLoad() {
     super.viewDidLoad()
 
@@ -28,6 +31,7 @@ class CompleteAccountViewController: BaseViewController<CompleteAccountCoordinat
     setUpTheming()
 
     self.setupViews()
+    self.bindObservers()
   }
 
   func setupViews() {
@@ -35,6 +39,16 @@ class CompleteAccountViewController: BaseViewController<CompleteAccountCoordinat
     self.containerImageView.layer.cornerRadius = self.containerImageView.frame.width / 2
     self.subscribeButton.layer.masksToBounds = true
     self.subscribeButton.layer.cornerRadius = 5
+
+    self.emailLabel.text = self.viewModel.account.email
+  }
+
+  func bindObservers() {
+    self.subscribeButton.publisher(for: .touchUpInside)
+      .sink { [weak self] _ in
+        self?.viewModel.handleSubscription()
+      }
+      .store(in: &disposeBag)
   }
 
   @IBAction func didPressClose(_ sender: UIBarButtonItem) {

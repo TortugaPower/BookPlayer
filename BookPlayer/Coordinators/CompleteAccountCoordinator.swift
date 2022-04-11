@@ -10,9 +10,14 @@ import BookPlayerKit
 import UIKit
 
 class CompleteAccountCoordinator: Coordinator {
+  let accountService: AccountServiceProtocol
+
   init(
+    accountService: AccountServiceProtocol,
     presentingViewController: UIViewController?
   ) {
+    self.accountService = accountService
+
     super.init(
       navigationController: AppNavigationController.instantiate(from: .Main),
       flowType: .modal
@@ -23,7 +28,10 @@ class CompleteAccountCoordinator: Coordinator {
 
   override func start() {
     let vc = CompleteAccountViewController.instantiate(from: .Profile)
-    let viewModel = CompleteAccountViewModel()
+    let viewModel = CompleteAccountViewModel(
+      accountService: self.accountService,
+      account: self.accountService.getAccount()!
+    )
     viewModel.coordinator = self
     vc.viewModel = viewModel
 

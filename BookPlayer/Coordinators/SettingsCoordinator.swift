@@ -11,17 +11,22 @@ import BookPlayerKit
 
 class SettingsCoordinator: Coordinator {
   let libraryService: LibraryServiceProtocol
+  let accountService: AccountServiceProtocol
 
-  init(libraryService: LibraryServiceProtocol,
-       navigationController: UINavigationController) {
+  init(
+    libraryService: LibraryServiceProtocol,
+    accountService: AccountServiceProtocol,
+    navigationController: UINavigationController
+  ) {
     self.libraryService = libraryService
+    self.accountService = accountService
 
     super.init(navigationController: navigationController, flowType: .modal)
   }
 
   override func start() {
     let vc = SettingsViewController.instantiate(from: .Settings)
-    vc.viewModel = SettingsViewModel()
+    vc.viewModel = SettingsViewModel(accountService: self.accountService)
     vc.viewModel.coordinator = self
     self.navigationController.viewControllers = [vc]
     self.navigationController.presentationController?.delegate = self
@@ -37,8 +42,30 @@ class SettingsCoordinator: Coordinator {
   }
 
   func showPlus() {
-    let vc = PlusNavigationController.instantiate(from: .Settings)
+    let viewModel = PlusViewModel(accountService: self.accountService)
+    viewModel.coordinator = self
+    let vc = PlusViewController.instantiate(from: .Settings)
+    vc.viewModel = viewModel
+    vc.navigationItem.largeTitleDisplayMode = .never
+    let nav = AppNavigationController.instantiate(from: .Main)
+    nav.viewControllers = [vc]
 
-    self.navigationController.present(vc, animated: true, completion: nil)
+    self.navigationController.present(nav, animated: true, completion: nil)
+  }
+
+  func showThemes() {
+    let viewModel = ThemesViewModel(accountService: self.accountService)
+    viewModel.coordinator = self
+    let vc = ThemesViewController.instantiate(from: .Settings)
+    vc.viewModel = viewModel
+    self.navigationController.pushViewController(vc, animated: true)
+  }
+
+  func showIcons() {
+    let viewModel = IconsViewModel(accountService: self.accountService)
+    viewModel.coordinator = self
+    let vc = IconsViewController.instantiate(from: .Settings)
+    vc.viewModel = viewModel
+    self.navigationController.pushViewController(vc, animated: true)
   }
 }

@@ -249,13 +249,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   func setupStoreListener() {
     SwiftyStoreKit.completeTransactions(atomically: true) { purchases in
+      let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator()
+
       for purchase in purchases {
         guard purchase.transaction.transactionState == .purchased
                 || purchase.transaction.transactionState == .restored
         else { continue }
 
-        UserDefaults.standard.set(true, forKey: Constants.UserDefaults.donationMade.rawValue)
-        NotificationCenter.default.post(name: .donationMade, object: nil)
+        if let mainCoordinator = mainCoordinator {
+          mainCoordinator.handlePurchase(purchase)
+        } else {
+          // To be processed after main coordinator is live
+          UserDefaults.standard.set(true, forKey: Constants.UserDefaults.purchaseMade.rawValue)
+        }
 
         if purchase.needsFinishTransaction {
           SwiftyStoreKit.finishTransaction(purchase.transaction)

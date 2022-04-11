@@ -35,9 +35,11 @@ class LoadingCoordinator: Coordinator {
 
   func didFinishLoadingSequence(coreDataStack: CoreDataStack) {
     let dataManager = DataManager(coreDataStack: coreDataStack)
+    let accountService = AccountService(dataManager: dataManager)
     let coordinator = MainCoordinator(
       navigationController: self.navigationController,
-      libraryService: LibraryService(dataManager: dataManager)
+      libraryService: LibraryService(dataManager: dataManager),
+      accountService: accountService
     )
     coordinator.parentCoordinator = self
     coordinator.presentingViewController = self.presentingViewController

@@ -16,9 +16,14 @@ enum LoginActionRoutes {
 class LoginCoordinator: Coordinator {
   public var onAction: Transition<ItemListActionRoutes>?
 
+  let accountService: AccountServiceProtocol
+
   init(
+    accountService: AccountServiceProtocol,
     presentingViewController: UIViewController?
   ) {
+    self.accountService = accountService
+
     super.init(
       navigationController: AppNavigationController.instantiate(from: .Main),
       flowType: .modal
@@ -29,7 +34,7 @@ class LoginCoordinator: Coordinator {
 
   override func start() {
     let vc = LoginViewController.instantiate(from: .Profile)
-    let viewModel = LoginViewModel()
+    let viewModel = LoginViewModel(accountService: self.accountService)
     viewModel.coordinator = self
     vc.viewModel = viewModel
 
@@ -45,11 +50,15 @@ class LoginCoordinator: Coordinator {
 
   func showCompleteAccount() {
     let child = CompleteAccountCoordinator(
+      accountService: self.accountService,
       presentingViewController: self.presentingViewController
     )
 
     self.childCoordinators.append(child)
     child.parentCoordinator = self
-    child.start()
+
+    self.presentingViewController?.dismiss(animated: true, completion: { [child] in
+      child.start()
+    })
   }
 }

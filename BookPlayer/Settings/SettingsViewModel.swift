@@ -7,9 +7,41 @@
 //
 
 import BookPlayerKit
+import Combine
 import Foundation
 
 class SettingsViewModel: BaseViewModel<SettingsCoordinator> {
+  let accountService: AccountServiceProtocol
+
+  @Published var account: Account?
+
+  private var disposeBag = Set<AnyCancellable>()
+
+  init(accountService: AccountServiceProtocol) {
+    self.accountService = accountService
+
+    super.init()
+
+    self.reloadAccount()
+    self.bindObservers()
+  }
+
+  func bindObservers() {
+    NotificationCenter.default.publisher(for: .accountUpdate, object: nil)
+      .sink(receiveValue: { [weak self] _ in
+        self?.reloadAccount()
+      })
+      .store(in: &disposeBag)
+  }
+
+  func reloadAccount() {
+    self.account = self.accountService.getAccount()
+  }
+
+  func hasMadeDonation() -> Bool {
+    return self.account?.donationMade ?? false
+  }
+
   func toggleFileBackupsPreference(_ flag: Bool) {
     UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.iCloudBackupsEnabled.rawValue)
 
@@ -23,5 +55,17 @@ class SettingsViewModel: BaseViewModel<SettingsCoordinator> {
 
   func showPlus() {
     self.coordinator.showPlus()
+  }
+
+  func showStorageManagement() {
+    self.coordinator.showStorageManagement()
+  }
+
+  func showThemes() {
+    self.coordinator.showThemes()
+  }
+
+  func showIcons() {
+    self.coordinator.showIcons()
   }
 }

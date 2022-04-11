@@ -7,6 +7,7 @@
 //
 
 import BookPlayerKit
+import Combine
 import Themeable
 import UIKit
 
@@ -24,6 +25,8 @@ class ProfileViewController: BaseTableViewController<ProfileCoordinator, Profile
   @IBOutlet weak var hoursSavedValueLabel: UILabel!
   @IBOutlet weak var hoursSavedTitleLabel: UILabel!
 
+  private var disposeBag = Set<AnyCancellable>()
+
   override func viewDidLoad() {
     super.viewDidLoad()
 
@@ -38,16 +41,35 @@ class ProfileViewController: BaseTableViewController<ProfileCoordinator, Profile
       action: #selector(didTapSettings)
     )
 
-    self.tableView.tableFooterView = UIView()
-
-    setup()
+    self.bindObservers()
+    self.setupViews()
   }
 
-  func setup() {
+  func bindObservers() {
+    self.viewModel.$account.sink { [weak self] account in
+      self?.setupProfileCardView(account)
+    }
+    .store(in: &disposeBag)
+  }
+
+  func setupViews() {
+    self.tableView.tableFooterView = UIView()
     self.containerProfileImageView.layer.masksToBounds = true
     self.containerProfileImageView.layer.cornerRadius = self.containerProfileImageView.frame.width / 2
     self.containerProfileCardView.layer.masksToBounds = true
     self.containerProfileCardView.layer.cornerRadius = 10
+  }
+
+  func setupProfileCardView(_ account: Account?) {
+    if let account = account,
+       !account.id.isEmpty {
+      self.signedInStatusLabel.isHidden = true
+      self.accountLabel.text = account.email
+    } else {
+      self.signedInStatusLabel.isHidden = false
+      // TODO: localize
+      self.accountLabel.text = "Set Up Account"
+    }
   }
 
   @IBAction func didTapAccount(_ sender: UIButton) {

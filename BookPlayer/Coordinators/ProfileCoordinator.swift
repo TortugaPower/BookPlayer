@@ -13,12 +13,15 @@ class ProfileCoordinator: Coordinator {
   weak var tabBarController: UITabBarController?
 
   let libraryService: LibraryServiceProtocol
+  let accountService: AccountServiceProtocol
 
   init(
     libraryService: LibraryServiceProtocol,
+    accountService: AccountServiceProtocol,
     navigationController: UINavigationController
   ) {
     self.libraryService = libraryService
+    self.accountService = accountService
 
     super.init(navigationController: navigationController,
                flowType: .push)
@@ -26,7 +29,7 @@ class ProfileCoordinator: Coordinator {
 
   override func start() {
     let vc = ProfileViewController.instantiate(from: .Profile)
-    let viewModel = ProfileViewModel()
+    let viewModel = ProfileViewModel(accountService: self.accountService)
     viewModel.coordinator = self
     vc.viewModel = viewModel
     vc.navigationItem.largeTitleDisplayMode = .never
@@ -50,6 +53,7 @@ class ProfileCoordinator: Coordinator {
   func showSettings() {
     let settingsCoordinator = SettingsCoordinator(
       libraryService: self.libraryService,
+      accountService: self.accountService,
       navigationController: AppNavigationController.instantiate(from: .Settings)
     )
     settingsCoordinator.parentCoordinator = self
@@ -59,20 +63,24 @@ class ProfileCoordinator: Coordinator {
   }
 
   func showAccount() {
-    // TODO: logic to determine if the user is logged in
-    if true {
+    if let account = self.accountService.getAccount(),
+       !account.id.isEmpty {
+      let child = AccountCoordinator(
+        accountService: self.accountService,
+        presentingViewController: self.presentingViewController
+      )
+      self.childCoordinators.append(child)
+      child.parentCoordinator = self
+      child.start()
+    } else {
       let loginCoordinator = LoginCoordinator(
+        accountService: self.accountService,
         presentingViewController: self.presentingViewController
       )
 
       self.childCoordinators.append(loginCoordinator)
       loginCoordinator.parentCoordinator = self
       loginCoordinator.start()
-    } else {
-      let child = AccountCoordinator(presentingViewController: self.presentingViewController)
-      self.childCoordinators.append(child)
-      child.parentCoordinator = self
-      child.start()
     }
   }
 }

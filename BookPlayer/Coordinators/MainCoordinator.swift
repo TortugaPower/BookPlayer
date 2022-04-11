@@ -9,6 +9,7 @@
 import BookPlayerKit
 import DeviceKit
 import MediaPlayer
+import SwiftyStoreKit
 import UIKit
 
 class MainCoordinator: Coordinator {
@@ -17,13 +18,16 @@ class MainCoordinator: Coordinator {
   let playerManager: PlayerManager
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
+  let accountService: AccountServiceProtocol
   let watchConnectivityService: PhoneWatchConnectivityService
 
   init(
     navigationController: UINavigationController,
-    libraryService: LibraryServiceProtocol
+    libraryService: LibraryServiceProtocol,
+    accountService: AccountServiceProtocol
   ) {
     self.libraryService = libraryService
+    self.accountService = accountService
     let playbackService = PlaybackService(libraryService: libraryService)
     self.playbackService = playbackService
 
@@ -72,6 +76,7 @@ class MainCoordinator: Coordinator {
 
     let profileCoordinator = ProfileCoordinator(
       libraryService: self.libraryService,
+      accountService: self.accountService,
       navigationController: AppNavigationController.instantiate(from: .Main)
     )
     profileCoordinator.tabBarController = tabBarController
@@ -82,6 +87,10 @@ class MainCoordinator: Coordinator {
     self.watchConnectivityService.startSession()
 
     self.navigationController.present(tabBarController, animated: false)
+
+    if UserDefaults.standard.bool(forKey: Constants.UserDefaults.purchaseMade.rawValue) {
+      self.handlePurchase(nil)
+    }
   }
 
   func showPlayer() {
@@ -125,5 +134,19 @@ class MainCoordinator: Coordinator {
     }
 
     return getPresentingController(coordinator: lastCoordinator)
+  }
+
+  func handlePurchase(_ purchase: Purchase?) {
+    // TODO: verify purchase product id, if purchase nil, verify with Apple
+    self.accountService.updateAccount(
+      id: nil,
+      email: nil,
+      donationMade: true,
+      hasSubscription: nil,
+      accessToken: nil
+    )
+
+    UserDefaults.standard.set(nil, forKey: Constants.UserDefaults.purchaseMade.rawValue)
+    NotificationCenter.default.post(name: .accountUpdate, object: self)
   }
 }
