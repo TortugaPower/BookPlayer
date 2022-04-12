@@ -28,7 +28,7 @@ class AccountCoordinator: Coordinator {
 
   override func start() {
     let vc = AccountViewController.instantiate(from: .Profile)
-    let viewModel = AccountViewModel()
+    let viewModel = AccountViewModel(accountService: self.accountService)
     viewModel.coordinator = self
     vc.viewModel = viewModel
     vc.navigationItem.largeTitleDisplayMode = .never

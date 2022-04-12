@@ -94,6 +94,8 @@ public final class AccountService: AccountServiceProtocol {
     }
 
     self.dataManager.saveContext()
+
+    NotificationCenter.default.post(name: .accountUpdate, object: self)
   }
 
   public func logout() {
@@ -105,6 +107,8 @@ public final class AccountService: AccountServiceProtocol {
     account.accessToken = ""
 
     self.dataManager.saveContext()
+
+    NotificationCenter.default.post(name: .accountUpdate, object: self)
   }
 
   public func deleteAccount() {

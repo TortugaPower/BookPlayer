@@ -23,6 +23,10 @@ class AccountViewController: BaseTableViewController<AccountCoordinator, Account
   @IBOutlet weak var completeAccountButton: UIButton!
   @IBOutlet var secondaryLabels: [UILabel]!
 
+  enum AccountSection: Int {
+    case info = 0, pro, logout, delete
+  }
+
   override func viewDidLoad() {
     super.viewDidLoad()
 
@@ -49,6 +53,19 @@ class AccountViewController: BaseTableViewController<AccountCoordinator, Account
 
   override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
     return CGFloat.leastNormalMagnitude
+  }
+
+  override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    tableView.deselectRow(at: indexPath as IndexPath, animated: true)
+
+    switch indexPath.section {
+    case AccountSection.logout.rawValue:
+      self.viewModel.handleLogout()
+    case AccountSection.delete.rawValue:
+      self.viewModel.handleDelete()
+    default:
+      break
+    }
   }
 
   @IBAction func didPressClose(_ sender: UIBarButtonItem) {

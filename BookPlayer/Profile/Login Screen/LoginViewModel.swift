@@ -34,7 +34,6 @@ class LoginViewModel: BaseViewModel<LoginCoordinator> {
       Purchases.shared.logIn(appleIDCredential.user) { _, _, _ in }
 
       // TODO: network call to create the user in backend
-      NotificationCenter.default.post(name: .accountUpdate, object: self)
 
       self.coordinator.showCompleteAccount()
     default:

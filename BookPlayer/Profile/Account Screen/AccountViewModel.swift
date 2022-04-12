@@ -7,9 +7,25 @@
 //
 
 import Foundation
+import BookPlayerKit
 
 class AccountViewModel: BaseViewModel<AccountCoordinator> {
+  let accountService: AccountServiceProtocol
+
+  init(accountService: AccountServiceProtocol) {
+    self.accountService = accountService
+  }
+
   func showCompleteAccount() {
     self.coordinator.showCompleteAccount()
+  }
+
+  func handleLogout() {
+    self.accountService.logout()
+    self.dismiss()
+  }
+
+  func handleDelete() {
+    // TODO: handle delete account
   }
 }

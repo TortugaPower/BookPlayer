@@ -48,7 +48,5 @@ final class PlusViewModel {
       hasSubscription: nil,
       accessToken: nil
     )
-
-    NotificationCenter.default.post(name: .accountUpdate, object: self)
   }
 }
