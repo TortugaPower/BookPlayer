@@ -34,13 +34,6 @@ class ProfileViewController: BaseTableViewController<ProfileCoordinator, Profile
 
     self.navigationItem.title = "Profile"
 
-    self.navigationItem.rightBarButtonItem = UIBarButtonItem(
-      image: UIImage(systemName: "gear"),
-      style: .plain,
-      target: self,
-      action: #selector(didTapSettings)
-    )
-
     self.bindObservers()
     self.setupViews()
   }
@@ -74,10 +67,6 @@ class ProfileViewController: BaseTableViewController<ProfileCoordinator, Profile
 
   @IBAction func didTapAccount(_ sender: UIButton) {
     self.viewModel.showAccount()
-  }
-
-  @objc func didTapSettings() {
-    self.viewModel.showSettings()
   }
 
   override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {

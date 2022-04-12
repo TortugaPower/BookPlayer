@@ -128,6 +128,10 @@ class ThemesViewController: UIViewController, Storyboarded {
 
     func extractTheme() {}
 
+  @IBAction func didPressClose(_ sender: UIBarButtonItem) {
+    self.dismiss(animated: true, completion: nil)
+  }
+
     @IBAction func sliderUpdated(_ sender: UISlider) {
         let lowerBounds: Float = 0.22
         let upperBounds: Float = 0.27

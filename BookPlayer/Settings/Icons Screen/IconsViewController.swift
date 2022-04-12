@@ -53,6 +53,10 @@ class IconsViewController: UIViewController, Storyboarded {
     }
   }
 
+  @IBAction func didPressClose(_ sender: UIBarButtonItem) {
+    self.dismiss(animated: true, completion: nil)
+  }
+
     @objc func donationMade() {
         self.bannerView.isHidden = true
         self.bannerHeightConstraint.constant = 0

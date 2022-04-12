@@ -38,6 +38,8 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
     case plus = 0, appearance, playback, storage, autoplay, autolock, siri, backups, support, credits
   }
 
+  let creditsIndexPath = IndexPath(row: 0, section: SettingsSection.credits.rawValue)
+  let playbackIndexPath = IndexPath(row: 0, section: SettingsSection.playback.rawValue)
   let themesIndexPath = IndexPath(row: 0, section: SettingsSection.appearance.rawValue)
   let iconsIndexPath = IndexPath(row: 1, section: SettingsSection.appearance.rawValue)
   let storageIndexPath = IndexPath(row: 0, section: SettingsSection.storage.rawValue)
@@ -79,6 +81,8 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
 
     self.version = version
     self.build = build
+
+    self.tableView.contentInset.bottom = 88
   }
 
   func bindObservers() {
@@ -141,10 +145,6 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
     self.viewModel.toggleFileBackupsPreference(self.iCloudBackupsSwitch.isOn)
   }
 
-  @IBAction func done(_ sender: UIBarButtonItem) {
-    self.viewModel.coordinator.didFinish()
-  }
-
   override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
     guard indexPath.section == 0 else {
       return super.tableView(tableView, heightForRowAt: indexPath)
@@ -181,6 +181,10 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
         tableView.deselectRow(at: indexPath as IndexPath, animated: true)
 
         switch indexPath {
+        case self.creditsIndexPath:
+          self.viewModel.showCredits()
+        case self.playbackIndexPath:
+          self.viewModel.showPlayerControls()
         case self.themesIndexPath:
           self.viewModel.showThemes()
         case self.iconsIndexPath:

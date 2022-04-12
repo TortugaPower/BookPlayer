@@ -86,6 +86,10 @@ final class StorageViewController: BaseViewController<StorageCoordinator, Storag
         self.present(alert, animated: true, completion: nil)
       }.store(in: &disposeBag)
   }
+
+  @IBAction func didPressClose(_ sender: UIBarButtonItem) {
+    self.viewModel.dismiss()
+  }
 }
 
 extension StorageViewController: UITableViewDataSource {

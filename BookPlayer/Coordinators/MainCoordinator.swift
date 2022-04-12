@@ -84,6 +84,16 @@ class MainCoordinator: Coordinator {
     self.childCoordinators.append(profileCoordinator)
     profileCoordinator.start()
 
+    let settingsCoordinator = SettingsCoordinator(
+      libraryService: self.libraryService,
+      accountService: self.accountService,
+      navigationController: AppNavigationController.instantiate(from: .Settings)
+    )
+    settingsCoordinator.tabBarController = tabBarController
+    settingsCoordinator.parentCoordinator = self
+    self.childCoordinators.append(settingsCoordinator)
+    settingsCoordinator.start()
+
     self.watchConnectivityService.startSession()
 
     self.navigationController.present(tabBarController, animated: false)

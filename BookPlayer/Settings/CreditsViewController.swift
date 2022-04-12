@@ -9,7 +9,7 @@
 import UIKit
 import WebKit
 
-class CreditsViewController: UIViewController {
+class CreditsViewController: UIViewController, Storyboarded {
     @IBOutlet private weak var textView: UITextView!
 
     var content: String!
@@ -52,6 +52,10 @@ class CreditsViewController: UIViewController {
         self.navigationItem.title = "settings_credits_title".localized
         self.textView.textContainerInset = UIEdgeInsets(top: 10.0, left: 13.0, bottom: 0, right: 13.0)
     }
+
+  @IBAction func didPressClose(_ sender: UIBarButtonItem) {
+    self.dismiss(animated: true, completion: nil)
+  }
 }
 
 // Helper function inserted by Swift 4.2 migrator.

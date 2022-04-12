@@ -10,7 +10,7 @@ import BookPlayerKit
 import Themeable
 import UIKit
 
-class PlayerSettingsViewController: UITableViewController {
+class PlayerSettingsViewController: UITableViewController, Storyboarded {
     @IBOutlet weak var smartRewindSwitch: UISwitch!
     @IBOutlet weak var boostVolumeSwitch: UISwitch!
     @IBOutlet weak var globalSpeedSwitch: UISwitch!
@@ -40,6 +40,10 @@ class PlayerSettingsViewController: UITableViewController {
         self.rewindIntervalLabel.text = TimeParser.formatDuration(PlayerManager.rewindInterval)
         self.forwardIntervalLabel.text = TimeParser.formatDuration(PlayerManager.forwardInterval)
     }
+
+  @IBAction func didPressClose(_ sender: UIBarButtonItem) {
+    self.dismiss(animated: true, completion: nil)
+  }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         guard let viewController = segue.destination as? SkipDurationViewController else {

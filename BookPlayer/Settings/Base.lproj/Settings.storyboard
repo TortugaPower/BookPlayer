@@ -4,6 +4,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
+        <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -121,9 +122,6 @@
                                                 </label>
                                             </subviews>
                                         </tableViewCellContentView>
-                                        <connections>
-                                            <segue destination="Te4-I9-OuL" kind="show" id="KN4-28-NkV"/>
-                                        </connections>
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
@@ -460,9 +458,6 @@
                                                 </label>
                                             </subviews>
                                         </tableViewCellContentView>
-                                        <connections>
-                                            <segue destination="ZB7-qt-cNi" kind="show" identifier="CreditSegue" id="kP9-oe-kZ9"/>
-                                        </connections>
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
@@ -472,13 +467,7 @@
                             <outlet property="delegate" destination="4H6-OJ-4Mr" id="XQU-In-1vD"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Settings" leftItemsSupplementBackButton="YES" largeTitleDisplayMode="never" id="OYp-Bd-tHB">
-                        <barButtonItem key="rightBarButtonItem" style="done" systemItem="done" id="BUQ-FJ-Ywj">
-                            <connections>
-                                <action selector="done:" destination="4H6-OJ-4Mr" id="CNZ-He-eLd"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" title="Settings" leftItemsSupplementBackButton="YES" largeTitleDisplayMode="never" id="OYp-Bd-tHB"/>
                     <size key="freeformSize" width="375" height="775"/>
                     <connections>
                         <outlet property="appIconLabel" destination="MdO-Yx-eBK" id="dXu-fc-mwk"/>
@@ -587,6 +576,14 @@
                             <constraint firstItem="6rH-0d-17o" firstAttribute="top" secondItem="evd-2l-0Sl" secondAttribute="bottom" id="wVo-bS-Anu"/>
                         </constraints>
                     </view>
+                    <navigationItem key="navigationItem" title="Icons" id="Ohf-lQ-zR4">
+                        <barButtonItem key="leftBarButtonItem" id="DKL-eG-FNO">
+                            <imageReference key="image" image="multiply" catalog="system" symbolScale="large"/>
+                            <connections>
+                                <action selector="didPressClose:" destination="9BF-g4-gyu" id="1hF-wA-adY"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="bannerHeightConstraint" destination="1ea-uB-KdW" id="heY-pg-wia"/>
                         <outlet property="bannerView" destination="evd-2l-0Sl" id="4vJ-0g-JbF"/>
@@ -600,13 +597,13 @@
         <!--Credits-->
         <scene sceneID="dar-3c-enm">
             <objects>
-                <viewController title="Credits" id="ZB7-qt-cNi" customClass="CreditsViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="CreditsViewController" title="Credits" id="ZB7-qt-cNi" customClass="CreditsViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="fgW-Kg-WQ8">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="647"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" showsHorizontalScrollIndicator="NO" bouncesZoom="NO" editable="NO" usesAttributedText="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1sI-UV-abw">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="647"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <attributedString key="attributedText">
@@ -624,6 +621,14 @@
                         <viewLayoutGuide key="safeArea" id="0QN-vQ-nhK"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </view>
+                    <navigationItem key="navigationItem" title="Credits" id="tQC-Hc-cer">
+                        <barButtonItem key="leftBarButtonItem" id="bXt-x4-lde">
+                            <imageReference key="image" image="multiply" catalog="system" symbolScale="large"/>
+                            <connections>
+                                <action selector="didPressClose:" destination="ZB7-qt-cNi" id="xTM-kf-9YT"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="textView" destination="1sI-UV-abw" id="ZPK-Fq-fFB"/>
                     </connections>
@@ -1770,6 +1775,14 @@
                             <constraint firstAttribute="trailing" secondItem="u4n-Rr-8Xe" secondAttribute="trailing" id="VIK-5D-VMM"/>
                         </constraints>
                     </view>
+                    <navigationItem key="navigationItem" title="Themes" id="Wc6-ef-jxy">
+                        <barButtonItem key="leftBarButtonItem" id="16e-hv-eK8">
+                            <imageReference key="image" image="multiply" catalog="system" symbolScale="large"/>
+                            <connections>
+                                <action selector="didPressClose:" destination="NEQ-oF-OIb" id="7XE-ZI-wVP"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <size key="freeformSize" width="375" height="736"/>
                     <connections>
                         <outlet property="bannerHeightConstraint" destination="jAc-oq-2Ga" id="c1P-Yg-ycK"/>
@@ -2025,7 +2038,14 @@ second line</string>
                             <constraint firstItem="k0M-TZ-Hac" firstAttribute="leading" secondItem="fzw-Ck-HgH" secondAttribute="leading" id="yZU-fA-qpH"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="2rp-sg-SA9"/>
+                    <navigationItem key="navigationItem" id="2rp-sg-SA9">
+                        <barButtonItem key="leftBarButtonItem" id="BxG-Pi-xGZ">
+                            <imageReference key="image" image="multiply" catalog="system" symbolScale="large"/>
+                            <connections>
+                                <action selector="didPressClose:" destination="75f-pe-hfH" id="Dee-eC-nSm"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <size key="freeformSize" width="375" height="736"/>
                     <connections>
                         <outlet property="filesTitleLabel" destination="Jt5-NR-llg" id="fcY-5w-ZK0"/>
@@ -2098,9 +2118,9 @@ second line</string>
         <!--Player Controls-->
         <scene sceneID="2Le-fm-VpK">
             <objects>
-                <tableViewController id="Te4-I9-OuL" customClass="PlayerSettingsViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController storyboardIdentifier="PlayerSettingsViewController" id="Te4-I9-OuL" customClass="PlayerSettingsViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="grouped" separatorStyle="default" rowHeight="44" sectionHeaderHeight="18" sectionFooterHeight="18" id="8gG-tG-v63">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="647"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" systemColor="groupTableViewBackgroundColor"/>
                         <sections>
@@ -2293,7 +2313,14 @@ Use with caution and care for your hearing.</string>
                             <outlet property="delegate" destination="Te4-I9-OuL" id="9YH-1O-Fnl"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Player Controls" leftItemsSupplementBackButton="YES" largeTitleDisplayMode="never" id="gST-Cn-uPB"/>
+                    <navigationItem key="navigationItem" title="Player Controls" leftItemsSupplementBackButton="YES" largeTitleDisplayMode="never" id="gST-Cn-uPB">
+                        <barButtonItem key="leftBarButtonItem" id="ear-qy-5VZ">
+                            <imageReference key="image" image="multiply" catalog="system" symbolScale="large"/>
+                            <connections>
+                                <action selector="didPressClose:" destination="Te4-I9-OuL" id="J4g-GY-s6f"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="boostVolumeSwitch" destination="REu-u1-fwP" id="ORF-rl-zos"/>
                         <outlet property="forwardIntervalLabel" destination="hD8-4g-KSV" id="kFR-tA-8kv"/>
@@ -2317,6 +2344,7 @@ Use with caution and care for your hearing.</string>
         <image name="exclamationmark.triangle.fill" catalog="system" width="128" height="112"/>
         <image name="listAdd" width="29" height="29"/>
         <image name="minus.circle.fill" catalog="system" width="128" height="121"/>
+        <image name="multiply" catalog="system" width="128" height="111"/>
         <image name="plusImageAppIcons" width="64" height="64"/>
         <image name="plusImageSupport" width="64" height="64"/>
         <image name="plusImageThemes" width="64" height="64"/>

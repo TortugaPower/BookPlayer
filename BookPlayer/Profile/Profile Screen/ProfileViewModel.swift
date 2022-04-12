@@ -35,10 +35,6 @@ class ProfileViewModel: BaseViewModel<ProfileCoordinator> {
       .store(in: &disposeBag)
   }
 
-  func showSettings() {
-    self.coordinator.showSettings()
-  }
-
   func showAccount() {
     self.coordinator.showAccount()
   }

@@ -10,6 +10,8 @@ import UIKit
 import BookPlayerKit
 
 class SettingsCoordinator: Coordinator {
+  weak var tabBarController: UITabBarController?
+
   let libraryService: LibraryServiceProtocol
   let accountService: AccountServiceProtocol
 
@@ -28,14 +30,30 @@ class SettingsCoordinator: Coordinator {
     let vc = SettingsViewController.instantiate(from: .Settings)
     vc.viewModel = SettingsViewModel(accountService: self.accountService)
     vc.viewModel.coordinator = self
-    self.navigationController.viewControllers = [vc]
     self.navigationController.presentationController?.delegate = self
-    self.presentingViewController?.present(self.navigationController, animated: true, completion: nil)
+
+    vc.navigationItem.largeTitleDisplayMode = .never
+    // TODO: localize
+    self.navigationController.tabBarItem = UITabBarItem(
+      title: "Settings",
+      image: UIImage(systemName: "gearshape"),
+      selectedImage: UIImage(systemName: "gearshape.fill")
+    )
+    self.presentingViewController = self.navigationController
+
+    if let tabBarController = tabBarController {
+      let newControllersArray = (tabBarController.viewControllers ?? []) + [self.navigationController]
+      tabBarController.setViewControllers(newControllersArray, animated: false)
+    }
+
+    self.navigationController.pushViewController(vc, animated: true)
   }
 
   func showStorageManagement() {
-    let child = StorageCoordinator(libraryService: self.libraryService,
-                                   navigationController: self.navigationController)
+    let child = StorageCoordinator(
+      libraryService: self.libraryService,
+      presentingViewController: self.presentingViewController
+    )
     self.childCoordinators.append(child)
     child.parentCoordinator = self
     child.start()
@@ -50,7 +68,7 @@ class SettingsCoordinator: Coordinator {
     let nav = AppNavigationController.instantiate(from: .Main)
     nav.viewControllers = [vc]
 
-    self.navigationController.present(nav, animated: true, completion: nil)
+    self.navigationController.getTopViewController()?.present(nav, animated: true, completion: nil)
   }
 
   func showThemes() {
@@ -58,7 +76,11 @@ class SettingsCoordinator: Coordinator {
     viewModel.coordinator = self
     let vc = ThemesViewController.instantiate(from: .Settings)
     vc.viewModel = viewModel
-    self.navigationController.pushViewController(vc, animated: true)
+    vc.navigationItem.largeTitleDisplayMode = .never
+    let nav = AppNavigationController.instantiate(from: .Main)
+    nav.viewControllers = [vc]
+
+    self.navigationController.present(nav, animated: true)
   }
 
   func showIcons() {
@@ -66,6 +88,28 @@ class SettingsCoordinator: Coordinator {
     viewModel.coordinator = self
     let vc = IconsViewController.instantiate(from: .Settings)
     vc.viewModel = viewModel
-    self.navigationController.pushViewController(vc, animated: true)
+    vc.navigationItem.largeTitleDisplayMode = .never
+    let nav = AppNavigationController.instantiate(from: .Main)
+    nav.viewControllers = [vc]
+
+    self.navigationController.present(nav, animated: true)
+  }
+
+  func showPlayerControls() {
+    let vc = PlayerSettingsViewController.instantiate(from: .Settings)
+    vc.navigationItem.largeTitleDisplayMode = .never
+    let nav = AppNavigationController.instantiate(from: .Main)
+    nav.viewControllers = [vc]
+
+    self.navigationController.present(nav, animated: true)
+  }
+
+  func showCredits() {
+    let vc = CreditsViewController.instantiate(from: .Settings)
+    vc.navigationItem.largeTitleDisplayMode = .never
+    let nav = AppNavigationController.instantiate(from: .Main)
+    nav.viewControllers = [vc]
+
+    self.navigationController.present(nav, animated: true)
   }
 }

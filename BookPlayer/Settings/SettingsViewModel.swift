@@ -68,4 +68,12 @@ class SettingsViewModel: BaseViewModel<SettingsCoordinator> {
   func showIcons() {
     self.coordinator.showIcons()
   }
+
+  func showPlayerControls() {
+    self.coordinator.showPlayerControls()
+  }
+
+  func showCredits() {
+    self.coordinator.showCredits()
+  }
 }
