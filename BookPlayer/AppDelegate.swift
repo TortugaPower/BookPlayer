@@ -13,7 +13,7 @@ import DirectoryWatcher
 import Intents
 import MediaPlayer
 import Sentry
-import SwiftyStoreKit
+import RevenueCat
 import UIKit
 import WatchConnectivity
 
@@ -46,8 +46,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     self.setupMPRemoteCommands()
     // register document's folder listener
     self.setupDocumentListener()
-    // setup store required listeners
-    self.setupStoreListener()
+    // Setup RevenueCat
+    Purchases.configure(withAPIKey: "appl_sxbMAczGRvyaoCHNjCWpoXWfRHt")
 
     // Create a Sentry client
     SentrySDK.start { options in
@@ -244,33 +244,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       }
 
       libraryCoordinator.processFiles(urls: newFiles)
-    }
-  }
-
-  func setupStoreListener() {
-    SwiftyStoreKit.completeTransactions(atomically: true) { purchases in
-      let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator()
-
-      for purchase in purchases {
-        guard purchase.transaction.transactionState == .purchased
-                || purchase.transaction.transactionState == .restored
-        else { continue }
-
-        if let mainCoordinator = mainCoordinator {
-          mainCoordinator.handlePurchase(purchase)
-        } else {
-          // To be processed after main coordinator is live
-          UserDefaults.standard.set(true, forKey: Constants.UserDefaults.purchaseMade.rawValue)
-        }
-
-        if purchase.needsFinishTransaction {
-          SwiftyStoreKit.finishTransaction(purchase.transaction)
-        }
-      }
-    }
-
-    SwiftyStoreKit.shouldAddStorePaymentHandler = { _, _ in
-      true
     }
   }
 }

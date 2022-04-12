@@ -8,6 +8,7 @@
 
 import AuthenticationServices
 import BookPlayerKit
+import RevenueCat
 import Foundation
 
 class LoginViewModel: BaseViewModel<LoginCoordinator> {
@@ -29,6 +30,8 @@ class LoginViewModel: BaseViewModel<LoginCoordinator> {
         hasSubscription: nil,
         accessToken: nil
       )
+
+      Purchases.shared.logIn(appleIDCredential.user) { _, _, _ in }
 
       // TODO: network call to create the user in backend
       NotificationCenter.default.post(name: .accountUpdate, object: self)

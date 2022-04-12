@@ -10,7 +10,7 @@ import BookPlayerKit
 import Combine
 import Kingfisher
 import SafariServices
-import SwiftyStoreKit
+import RevenueCat
 import Themeable
 import UIKit
 
@@ -140,23 +140,30 @@ class PlusViewController: UIViewController, Storyboarded {
         self.incredibleTipId += self.tipJarSuffix
     }
 
-    func setupLocalizedTipPrices() {
-        self.showSpinner(true, senders: [self.kindTipButton, self.excellentTipButton, self.incredibleTipButton])
+  func setupLocalizedTipPrices() {
+    self.showSpinner(true, senders: [self.kindTipButton, self.excellentTipButton, self.incredibleTipButton])
 
-        SwiftyStoreKit.retrieveProductsInfo([self.kindTipId, self.excellentTipId, self.incredibleTipId]) { (results) in
-            for product in results.retrievedProducts {
-                if product.productIdentifier.contains(self.kindTipId) {
-                    self.kindTipButton.setTitle(product.localizedPrice, for: .normal)
-                } else if product.productIdentifier.contains(self.excellentTipId) {
-                    self.excellentTipButton.setTitle(product.localizedPrice, for: .normal)
-                } else if product.productIdentifier.contains(self.incredibleTipId) {
-                    self.incredibleTipButton.setTitle(product.localizedPrice, for: .normal)
-                }
-            }
+    Purchases.shared.getProducts([self.kindTipId, self.excellentTipId, self.incredibleTipId]) { [weak self] products in
+      guard let self = self else { return }
 
-            self.showSpinner(false, senders: [self.kindTipButton, self.excellentTipButton, self.incredibleTipButton])
+      guard !products.isEmpty else {
+        self.showAlert("error_title".localized, message: "network_error_title".localized)
+        return
+      }
+
+      for product in products {
+        if product.productIdentifier.contains(self.kindTipId) {
+          self.kindTipButton.setTitle(product.localizedPriceString, for: .normal)
+        } else if product.productIdentifier.contains(self.excellentTipId) {
+          self.excellentTipButton.setTitle(product.localizedPriceString, for: .normal)
+        } else if product.productIdentifier.contains(self.incredibleTipId) {
+          self.incredibleTipButton.setTitle(product.localizedPriceString, for: .normal)
         }
+      }
+
+      self.showSpinner(false, senders: [self.kindTipButton, self.excellentTipButton, self.incredibleTipButton])
     }
+  }
 
     func setupSpinners() {
         self.kindTipSpinner.stopAnimating()
@@ -192,22 +199,30 @@ class PlusViewController: UIViewController, Storyboarded {
     self.restoreBarButton = self.navigationItem.rightBarButtonItem
     self.navigationItem.rightBarButtonItem = self.loadingBarButton
 
-    SwiftyStoreKit.restorePurchases(atomically: true) { [weak self] results in
+    Purchases.shared.restorePurchases { [weak self] customerInfo, error in
       guard let self = self else { return }
 
       self.navigationItem.rightBarButtonItem = self.restoreBarButton
 
-      if results.restoreFailedPurchases.count > 0 {
-        self.showAlert("network_error_title".localized, message: "generic_retry_description".localized)
-      } else if results.restoredPurchases.count > 0 {
+      if let error = error {
+        self.showAlert("error_title".localized, message: error.localizedDescription)
+        return
+      }
+
+      guard let customerInfo = customerInfo else {
+        self.showAlert("error_title".localized, message: "network_error_title".localized)
+        return
+      }
+
+      if customerInfo.nonSubscriptionTransactions.isEmpty {
+        self.showAlert("tip_missing_title".localized, message: nil)
+      } else {
         self.showAlert("purchases_restored_title".localized, message: nil, style: .alert, completion: {
           self.dismiss(animated: true, completion: nil)
         })
 
         self.view.startConfetti()
         self.viewModel.handleNewDonation()
-      } else {
-        self.showAlert("tip_missing_title".localized, message: nil)
       }
     }
   }
@@ -279,13 +294,24 @@ class PlusViewController: UIViewController, Storyboarded {
   func requestProduct(_ id: String, sender: UIButton) {
     self.showSpinner(true, senders: [sender])
 
-    SwiftyStoreKit.purchaseProduct(id, quantity: 1, atomically: true) { [weak self] result in
-      guard let self = self else { return }
+    Purchases.shared.getProducts([id]) { [weak self] products in
+      guard let product = products.first else {
+        self?.showAlert("error_title".localized, message: "network_error_title".localized)
+        return
+      }
 
-      self.showSpinner(false, senders: [sender])
+      Purchases.shared.purchase(product: product) { _, _, error, userCancelled in
+        guard let self = self else { return }
 
-      switch result {
-      case .success:
+        self.showSpinner(false, senders: [sender])
+
+        guard !userCancelled else { return }
+
+        if let error = error {
+          self.showAlert("error_title".localized, message: error.localizedDescription)
+          return
+        }
+
         self.view.startConfetti()
 
         var completion: (() -> Void)?
@@ -302,11 +328,6 @@ class PlusViewController: UIViewController, Storyboarded {
         self.showAlert(title, message: nil, style: .alert, completion: completion)
 
         self.viewModel.handleNewDonation()
-
-      case .error(let error):
-        guard error.code != .paymentCancelled else { return }
-
-        self.showAlert("error_title".localized, message: (error as NSError).localizedDescription)
       }
     }
   }

@@ -9,7 +9,7 @@
 import BookPlayerKit
 import DeviceKit
 import MediaPlayer
-import SwiftyStoreKit
+import RevenueCat
 import UIKit
 
 class MainCoordinator: Coordinator {
@@ -53,6 +53,8 @@ class MainCoordinator: Coordinator {
 
     super.init(navigationController: navigationController, flowType: .modal)
     viewModel.coordinator = self
+
+    self.configureUser()
   }
 
   override func start() {
@@ -97,9 +99,12 @@ class MainCoordinator: Coordinator {
     self.watchConnectivityService.startSession()
 
     self.navigationController.present(tabBarController, animated: false)
+  }
 
-    if UserDefaults.standard.bool(forKey: Constants.UserDefaults.purchaseMade.rawValue) {
-      self.handlePurchase(nil)
+  func configureUser() {
+    if let account = self.accountService.getAccount(),
+       !account.id.isEmpty {
+      Purchases.shared.logIn(account.id) { _, _, _ in }
     }
   }
 
@@ -144,19 +149,5 @@ class MainCoordinator: Coordinator {
     }
 
     return getPresentingController(coordinator: lastCoordinator)
-  }
-
-  func handlePurchase(_ purchase: Purchase?) {
-    // TODO: verify purchase product id, if purchase nil, verify with Apple
-    self.accountService.updateAccount(
-      id: nil,
-      email: nil,
-      donationMade: true,
-      hasSubscription: nil,
-      accessToken: nil
-    )
-
-    UserDefaults.standard.set(nil, forKey: Constants.UserDefaults.purchaseMade.rawValue)
-    NotificationCenter.default.post(name: .accountUpdate, object: self)
   }
 }

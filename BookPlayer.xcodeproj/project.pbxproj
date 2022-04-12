@@ -301,7 +301,6 @@
 		41F1A1FB254B09360043FCF3 /* DirectoryWatcher in Frameworks */ = {isa = PBXBuildFile; productRef = 41F1A1FA254B09360043FCF3 /* DirectoryWatcher */; };
 		41F1A204254B09C00043FCF3 /* Themeable in Frameworks */ = {isa = PBXBuildFile; productRef = 41F1A203254B09C00043FCF3 /* Themeable */; };
 		41F1A20D254B0A0C0043FCF3 /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = 41F1A20C254B0A0C0043FCF3 /* Sentry */; };
-		41F1A21F254B0B0B0043FCF3 /* SwiftyStoreKit in Frameworks */ = {isa = PBXBuildFile; productRef = 41F1A21E254B0B0B0043FCF3 /* SwiftyStoreKit */; };
 		41F1A228254B0C6C0043FCF3 /* ZipArchive in Frameworks */ = {isa = PBXBuildFile; productRef = 41F1A227254B0C6C0043FCF3 /* ZipArchive */; };
 		5126F121258E9F18009965DC /* URL+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5126F120258E9F18009965DC /* URL+BookPlayer.swift */; };
 		5126F122258E9F18009965DC /* URL+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5126F120258E9F18009965DC /* URL+BookPlayer.swift */; };
@@ -374,6 +373,7 @@
 		9FBDDBA227DD13FA005FB447 /* ProfileCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDDBA127DD13FA005FB447 /* ProfileCoordinator.swift */; };
 		9FBDDBA427DD1A00005FB447 /* ProfileCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDDBA327DD1A00005FB447 /* ProfileCoordinatorTests.swift */; };
 		9FE07E1B27C522DE007591F7 /* ContainerItemListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FE07E1A27C522DE007591F7 /* ContainerItemListView.swift */; };
+		9FE8188F2805BCE40089A41E /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = 9FE8188E2805BCE40089A41E /* RevenueCat */; };
 		9FEC87AE27FA9E98006C71D5 /* LoginCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEC87AD27FA9E98006C71D5 /* LoginCoordinator.swift */; };
 		9FEC87B027FA9F0F006C71D5 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEC87AF27FA9F0F006C71D5 /* LoginViewController.swift */; };
 		9FEC87B227FA9F1C006C71D5 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEC87B127FA9F1C006C71D5 /* LoginViewModel.swift */; };
@@ -963,8 +963,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				41F1A204254B09C00043FCF3 /* Themeable in Frameworks */,
-				41F1A21F254B0B0B0043FCF3 /* SwiftyStoreKit in Frameworks */,
 				41F1A20D254B0A0C0043FCF3 /* Sentry in Frameworks */,
+				9FE8188F2805BCE40089A41E /* RevenueCat in Frameworks */,
 				41A1B0E7226E9BC500EA0400 /* BookPlayerKit.framework in Frameworks */,
 				41F1A1F2254B09020043FCF3 /* IDZSwiftCommonCrypto in Frameworks */,
 				41F1A1E0254B08A10043FCF3 /* DeviceKit in Frameworks */,
@@ -2031,8 +2031,8 @@
 				41F1A1FA254B09360043FCF3 /* DirectoryWatcher */,
 				41F1A203254B09C00043FCF3 /* Themeable */,
 				41F1A20C254B0A0C0043FCF3 /* Sentry */,
-				41F1A21E254B0B0B0043FCF3 /* SwiftyStoreKit */,
 				41F1A227254B0C6C0043FCF3 /* ZipArchive */,
+				9FE8188E2805BCE40089A41E /* RevenueCat */,
 			);
 			productName = "Audiobook Player";
 			productReference = 418B6CF81D2707F800F974FB /* BookPlayer.app */;
@@ -2183,8 +2183,8 @@
 				41F1A202254B09C00043FCF3 /* XCRemoteSwiftPackageReference "Themeable" */,
 				41F1A20B254B0A0C0043FCF3 /* XCRemoteSwiftPackageReference "sentry-cocoa" */,
 				41F1A214254B0AA40043FCF3 /* XCRemoteSwiftPackageReference "Kingfisher" */,
-				41F1A21D254B0B0B0043FCF3 /* XCRemoteSwiftPackageReference "SwiftyStoreKit" */,
 				41F1A226254B0C6C0043FCF3 /* XCRemoteSwiftPackageReference "ZipArchive" */,
+				9FE8188D2805BCE40089A41E /* XCRemoteSwiftPackageReference "purchases-ios" */,
 			);
 			productRefGroup = 418B6CF91D2707F800F974FB /* Products */;
 			projectDirPath = "";
@@ -4094,20 +4094,20 @@
 				minimumVersion = 5.15.7;
 			};
 		};
-		41F1A21D254B0B0B0043FCF3 /* XCRemoteSwiftPackageReference "SwiftyStoreKit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/bizz84/SwiftyStoreKit.git";
-			requirement = {
-				kind = exactVersion;
-				version = 0.16.2;
-			};
-		};
 		41F1A226254B0C6C0043FCF3 /* XCRemoteSwiftPackageReference "ZipArchive" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/GianniCarlo/ZipArchive.git";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 2.3.0;
+			};
+		};
+		9FE8188D2805BCE40089A41E /* XCRemoteSwiftPackageReference "purchases-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RevenueCat/purchases-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -4148,11 +4148,6 @@
 			package = 41F1A20B254B0A0C0043FCF3 /* XCRemoteSwiftPackageReference "sentry-cocoa" */;
 			productName = Sentry;
 		};
-		41F1A21E254B0B0B0043FCF3 /* SwiftyStoreKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 41F1A21D254B0B0B0043FCF3 /* XCRemoteSwiftPackageReference "SwiftyStoreKit" */;
-			productName = SwiftyStoreKit;
-		};
 		41F1A227254B0C6C0043FCF3 /* ZipArchive */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 41F1A226254B0C6C0043FCF3 /* XCRemoteSwiftPackageReference "ZipArchive" */;
@@ -4167,6 +4162,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 41F1A214254B0AA40043FCF3 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		9FE8188E2805BCE40089A41E /* RevenueCat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9FE8188D2805BCE40089A41E /* XCRemoteSwiftPackageReference "purchases-ios" */;
+			productName = RevenueCat;
 		};
 /* End XCSwiftPackageProductDependency section */
 
