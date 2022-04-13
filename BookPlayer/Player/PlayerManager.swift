@@ -15,8 +15,9 @@ import WidgetKit
 
 // swiftlint:disable file_length
 
-protocol PlayerManagerProtocol: NSObjectProtocol {
+public protocol PlayerManagerProtocol: NSObjectProtocol {
   var currentItem: PlayableItem? { get set }
+  var currentSpeed: Float { get set }
   var boostVolume: Bool { get set }
 
   func load(_ item: PlayableItem)
@@ -33,10 +34,9 @@ protocol PlayerManagerProtocol: NSObjectProtocol {
   func forward()
   func jumpTo(_ time: Double, recordBookmark: Bool)
   func markAsCompleted(_ flag: Bool)
+  func setSpeed(_ newValue: Float)
 
-  func getCurrentSpeed() -> Float
-  func currentSpeedPublisher() -> AnyPublisher<Float, Never>
-
+  func currentSpeedPublisher() -> Published<Float>.Publisher
   func isPlayingPublisher() -> AnyPublisher<Bool, Never>
   func currentItemPublisher() -> Published<PlayableItem?>.Publisher
 }
@@ -44,16 +44,15 @@ protocol PlayerManagerProtocol: NSObjectProtocol {
 final class PlayerManager: NSObject, PlayerManagerProtocol {
   private let libraryService: LibraryServiceProtocol
   private let playbackService: PlaybackServiceProtocol
-  private let speedManager: SpeedManager
+  private let speedService: SpeedServiceProtocol
   private let userActivityManager: UserActivityManager
-  private let watchConnectivityService: WatchConnectivityService
 
   private var audioPlayer = AVPlayer()
 
   private var fadeTimer: Timer?
 
   private var playableChapterSubscription: AnyCancellable?
-  private var speedSubscription: AnyCancellable?
+  private var isPlayingSubscription: AnyCancellable?
   private var periodicTimeObserver: Any?
 
   private var hasObserverRegistered = false
@@ -73,32 +72,21 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
   private var playerItem: AVPlayerItem?
   @Published var currentItem: PlayableItem?
+  @Published var currentSpeed: Float = 1.0
 
   private var nowPlayingInfo = [String: Any]()
 
   private let queue = OperationQueue()
 
-  private var rateObserver: NSKeyValueObservation?
-
   init(libraryService: LibraryServiceProtocol,
        playbackService: PlaybackServiceProtocol,
-       speedManager: SpeedManager,
-       watchConnectivityService: WatchConnectivityService) {
+       speedService: SpeedServiceProtocol) {
     self.libraryService = libraryService
     self.playbackService = playbackService
-    self.speedManager = speedManager
-    self.watchConnectivityService = watchConnectivityService
+    self.speedService = speedService
     self.userActivityManager = UserActivityManager(libraryService: libraryService)
 
     super.init()
-
-    self.rateObserver = self.audioPlayer.observe(\.rate, options: [.new]) { _, change in
-      guard let newValue = change.newValue, newValue == 0 else { return }
-
-      DispatchQueue.main.async {
-        self.watchConnectivityService.sendMessage(message: ["notification": "bookPaused" as AnyObject])
-      }
-    }
 
     self.setupPlayerInstance()
 
@@ -201,10 +189,13 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       self.audioPlayer.replaceCurrentItem(with: playerItem)
 
       // Update UI on main thread
-      DispatchQueue.main.async {
+      DispatchQueue.main.async { [weak self] in
+        guard let self = self else { return }
+
+        self.currentSpeed = self.speedService.getSpeed(relativePath: chapter.relativePath)
         // Set book metadata for lockscreen and control center
         self.nowPlayingInfo = [
-          MPNowPlayingInfoPropertyDefaultPlaybackRate: self.speedManager.getSpeed(relativePath: chapter.relativePath)
+          MPNowPlayingInfoPropertyDefaultPlaybackRate: self.currentSpeed
         ]
 
         self.setNowPlayingBookTitle(chapter: chapter)
@@ -230,12 +221,15 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
         MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
 
-        if let currentItem = self.currentItem,
-           currentItem.currentTime > 0.0 {
+        if let currentItem = self.currentItem {
           // if book is truly finished, start book again to avoid autoplaying next one
           // add 1 second as a finished threshold
-          let time = (currentItem.currentTime + 1) >= currentItem.duration ? 0 : currentItem.currentTime
-          self.jumpTo(time, recordBookmark: false)
+          if currentItem.currentTime > 0.0 {
+            let time = (currentItem.currentTime + 1) >= currentItem.duration ? 0 : currentItem.currentTime
+            self.jumpTo(time, recordBookmark: false)
+          }
+
+          self.libraryService.updateBookLastPlayDate(at: currentItem.relativePath, date: Date())
         }
 
         NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["loaded": true])
@@ -280,22 +274,22 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     NotificationCenter.default.post(name: .bookPlaying, object: nil, userInfo: nil)
   }
 
-  private func bindSpeedObserver() {
-    self.speedSubscription?.cancel()
-    self.speedSubscription = self.speedManager.currentSpeed
-      .removeDuplicates()
-      .sink { [weak self] speed in
-      guard let self = self,
-            self.isPlaying else { return }
-
-      self.audioPlayer.rate = speed
-    }
-  }
-
   // MARK: - Player states
 
   var isPlaying: Bool {
     return self.audioPlayer.timeControlStatus == .playing
+  }
+
+  func bindPauseObserver() {
+    self.isPlayingSubscription?.cancel()
+    self.isPlayingSubscription = self.audioPlayer.publisher(for: \.timeControlStatus)
+      .delay(for: .seconds(0.1), scheduler: RunLoop.main, options: .none)
+      .sink { timeControlStatus in
+        if timeControlStatus == .paused {
+          try? AVAudioSession.sharedInstance().setActive(false)
+          self.isPlayingSubscription?.cancel()
+        }
+      }
   }
 
   func isPlayingPublisher() -> AnyPublisher<Bool, Never> {
@@ -363,7 +357,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     let maxTimeInContext = currentItem.maxTimeInContext(
       prefersChapterContext: prefersChapterContext,
       prefersRemainingTime: prefersRemainingTime,
-      at: self.getCurrentSpeed()
+      at: self.currentSpeed
     )
 
     // 1x is needed because of how the control center behaves when decrementing time
@@ -398,7 +392,6 @@ extension PlayerManager {
 
     let chapterBeforeSkip = currentItem.currentChapter
     self.playbackService.updatePlaybackTime(item: currentItem, time: boundedTime)
-    NotificationCenter.default.post(name: .bookPlaying, object: nil, userInfo: nil)
     let chapterAfterSkip = currentItem.currentChapter
 
     // If chapters are different, and time is considered by chapters, do nothing else
@@ -466,8 +459,7 @@ extension PlayerManager {
     self.fadeTimer?.invalidate()
     self.boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
     // Set play state on player and control center
-    self.audioPlayer.playImmediately(atRate: self.speedManager.getSpeed(relativePath: currentItem.relativePath))
-    self.bindSpeedObserver()
+    self.audioPlayer.playImmediately(atRate: self.currentSpeed)
 
     // Set last Play date
     self.libraryService.updateBookLastPlayDate(at: currentItem.relativePath, date: Date())
@@ -476,10 +468,8 @@ extension PlayerManager {
 
     DispatchQueue.main.async {
       NotificationCenter.default.post(name: .bookPlayed, object: nil, userInfo: ["book": currentItem])
-      self.watchConnectivityService.sendMessage(message: ["notification": "bookPlayed" as AnyObject])
-      if #available(iOS 14.0, *) {
-        WidgetCenter.shared.reloadAllTimelines()
-      }
+
+      WidgetCenter.shared.reloadAllTimelines()
     }
   }
 
@@ -505,6 +495,14 @@ extension PlayerManager {
     }
   }
 
+  func setSpeed(_ newValue: Float) {
+    self.speedService.setSpeed(newValue, relativePath: self.currentItem?.relativePath)
+    self.currentSpeed = newValue
+    if self.isPlaying {
+      self.audioPlayer.rate = newValue
+    }
+  }
+
   // swiftlint:disable block_based_kvo
   // Using this instead of new form, because the new one wouldn't work properly on AVPlayerItem
   override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
@@ -520,7 +518,9 @@ extension PlayerManager {
 
     guard item.status == .readyToPlay else {
       if item.status == .failed {
-        AppDelegate.delegateInstance.topController?.showAlert("error_title".localized, message: item.error?.localizedDescription)
+        SceneDelegate.shared?.coordinator.getMainCoordinator()?
+          .getTopController()?
+          .showAlert("error_title".localized, message: item.error?.localizedDescription)
       }
       return
     }
@@ -539,17 +539,18 @@ extension PlayerManager {
 
     self.libraryService.setLibraryLastBook(with: currentItem.relativePath)
 
-    let pauseActionBlock: () -> Void = {
+    let pauseActionBlock: () -> Void = { [weak self] in
+      self?.bindPauseObserver()
       // Set pause state on player and control center
-      self.audioPlayer.pause()
-      self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0.0
-      self.setNowPlayingBookTime()
-      MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
+      self?.audioPlayer.pause()
+      self?.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0.0
+      self?.setNowPlayingBookTime()
+      MPNowPlayingInfoCenter.default().nowPlayingInfo = self?.nowPlayingInfo
 
       UserDefaults.standard.set(Date(), forKey: "\(Constants.UserDefaults.lastPauseTime)_\(currentItem.relativePath)")
-
-      try? AVAudioSession.sharedInstance().setActive(false)
     }
+
+    NotificationCenter.default.post(name: .bookPaused, object: nil)
 
     guard fade else {
       pauseActionBlock()
@@ -589,12 +590,8 @@ extension PlayerManager {
     NotificationCenter.default.post(name: .bookEnd, object: nil, userInfo: nil)
   }
 
-  func getCurrentSpeed() -> Float {
-    return self.speedManager.getSpeed(relativePath: self.currentItem?.relativePath)
-  }
-
-  func currentSpeedPublisher() -> AnyPublisher<Float, Never> {
-    return self.speedManager.currentSpeedPublisher()
+  func currentSpeedPublisher() -> Published<Float>.Publisher {
+    return self.$currentSpeed
   }
 
   func playPreviousItem() {

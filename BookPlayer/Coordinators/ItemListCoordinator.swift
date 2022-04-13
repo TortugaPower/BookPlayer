@@ -9,6 +9,7 @@
 import BookPlayerKit
 import Combine
 import UIKit
+import UniformTypeIdentifiers
 
 public typealias Transition<T> = ((T) -> Void)
 enum ItemListActionRoutes {
@@ -34,7 +35,6 @@ enum ItemListActionRoutes {
 class ItemListCoordinator: Coordinator {
   public var onAction: Transition<ItemListActionRoutes>?
   let playerManager: PlayerManagerProtocol
-  let speedManager: SpeedManagerProtocol
   let importManager: ImportManager
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
@@ -46,13 +46,11 @@ class ItemListCoordinator: Coordinator {
   init(
     navigationController: UINavigationController,
     playerManager: PlayerManagerProtocol,
-    speedManager: SpeedManagerProtocol,
     importManager: ImportManager,
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol
   ) {
     self.playerManager = playerManager
-    self.speedManager = speedManager
     self.importManager = importManager
     self.libraryService = libraryService
     self.playbackService = playbackService
@@ -127,7 +125,6 @@ class ItemListCoordinator: Coordinator {
     let child = FolderListCoordinator(navigationController: self.navigationController,
                                       folderRelativePath: relativePath,
                                       playerManager: self.playerManager,
-                                      speedManager: self.speedManager,
                                       importManager: self.importManager,
                                       libraryService: self.libraryService,
                                       playbackService: self.playbackService)
@@ -140,7 +137,6 @@ class ItemListCoordinator: Coordinator {
     let playerCoordinator = PlayerCoordinator(
       navigationController: self.navigationController,
       playerManager: self.playerManager,
-      speedManager: self.speedManager,
       libraryService: self.libraryService
     )
     playerCoordinator.parentCoordinator = self
@@ -376,7 +372,15 @@ extension ItemListCoordinator {
   }
 
   func showDocumentPicker() {
-    let providerList = UIDocumentPickerViewController(documentTypes: ["public.audio", "com.pkware.zip-archive", "public.movie"], in: .import)
+    let providerList = UIDocumentPickerViewController(
+      forOpeningContentTypes: [
+        UTType.audio,
+        UTType.movie,
+        UTType.zip,
+        UTType.folder
+      ],
+      asCopy: true
+    )
 
     providerList.delegate = self.documentPickerDelegate
     providerList.allowsMultipleSelection = true

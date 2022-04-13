@@ -37,7 +37,8 @@ class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator
 
     self.setupUI()
     self.setupAccessibility()
-    self.bindObservers()
+    self.bindBoostVolumeObservers()
+    self.bindSpeedObservers()
 
     self.setUpTheming()
   }
@@ -106,7 +107,7 @@ class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator
     UIAccessibility.post(notification: .screenChanged, argument: self.mainContainterStackView)
   }
 
-  func bindObservers() {
+  func bindBoostVolumeObservers() {
     self.boostSwitchControl.publisher(for: .valueChanged)
       .sink { [weak self] control in
         guard let switchControl = control as? UISwitch else { return }
@@ -114,7 +115,9 @@ class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator
         self?.viewModel.handleBoostVolumeToggle(flag: switchControl.isOn)
       }
       .store(in: &disposeBag)
+  }
 
+  func bindSpeedObservers() {
     self.currentSpeedSlider.publisher(for: .valueChanged)
       .sink { [weak self] control in
         guard let self = self,

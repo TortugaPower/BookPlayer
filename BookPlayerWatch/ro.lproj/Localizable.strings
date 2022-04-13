@@ -13,3 +13,6 @@
 "watchapp_refresh_data_title" = "Actualizați datele";
 "watchapp_connect_error_title" = "Eroare de conectivitate";
 "watchapp_connect_error_description" = "Există o problemă de conectare la telefonul dvs., încercați din nou mai târziu";
+"chapters_title" = "Capitole";
+"settings_controls_title" = "Controlul Playerului";
+"settings_boostvolume_title" = "Creșterea volumului";

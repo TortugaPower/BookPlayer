@@ -13,3 +13,6 @@
 "watchapp_refresh_data_title" = "Obnoviť dáta";
 "watchapp_connect_error_title" = "Chyba pripojenia";
 "watchapp_connect_error_description" = "Pri pripojení k telefónu došlo k problémom, vyskúšajte to prosím neskôr";
+"chapters_title" = "Kapitoly";
+"settings_controls_title" = "Ovládacie prvky Prehrávača";
+"settings_boostvolume_title" = "Zvýšenie hlasitosti";
