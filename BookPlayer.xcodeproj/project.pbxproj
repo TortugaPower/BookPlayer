@@ -842,6 +842,8 @@
 		69225C4E2159C2650004739E /* BookSortService+SortError+PlayListSortOrder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BookSortService+SortError+PlayListSortOrder.swift"; sourceTree = "<group>"; };
 		69343D322133844D000C425E /* VoiceOverService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceOverService.swift; sourceTree = "<group>"; };
 		69343D35213A07B4000C425E /* VoiceOverServiceTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceOverServiceTest.swift; sourceTree = "<group>"; };
+		9F00F6EF28084C8800996BBB /* IAP-Configuration.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = "IAP-Configuration.storekit"; sourceTree = "<group>"; };
+		9F00F6F128085CCC00996BBB /* StoreKitTestCertificate.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = StoreKitTestCertificate.cer; sourceTree = "<group>"; };
 		9F1804B727A4AEC500FEDFE5 /* AccessibleSliderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibleSliderView.swift; sourceTree = "<group>"; };
 		9F1804BF27A739D400FEDFE5 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = fi; path = fi.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		9F1804C027A739D400FEDFE5 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fi; path = fi.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -1179,6 +1181,8 @@
 		418B6CEF1D2707F700F974FB = {
 			isa = PBXGroup;
 			children = (
+				9F00F6EF28084C8800996BBB /* IAP-Configuration.storekit */,
+				9F00F6F128085CCC00996BBB /* StoreKitTestCertificate.cer */,
 				416A29CE256A442200605395 /* BookPlayerWidgetUIExtension.entitlements */,
 				415A9974264CCD2E002BFD35 /* BuildConfiguration */,
 				C3EF536020800DCC00B9629D /* Meta */,
