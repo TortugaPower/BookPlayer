@@ -42,13 +42,19 @@ class LoginViewModel: BaseViewModel<LoginCoordinator> {
 
       Task { [weak self, accountService, token, appleIDCredential] in
         do {
-          try await accountService.login(
+          let account = try await accountService.login(
             with: token,
             userId: appleIDCredential.user
           )
 
-          await MainActor.run { [weak self] in
-            self?.coordinator.showCompleteAccount()
+          await MainActor.run { [weak self, account] in
+            if let account = account,
+               !account.hasSubscription {
+              self?.coordinator.showCompleteAccount()
+            } else {
+              self?.dismiss()
+            }
+
           }
         } catch {
           await MainActor.run { [weak self, error] in

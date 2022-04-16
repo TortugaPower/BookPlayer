@@ -57,14 +57,13 @@ public protocol AccountServiceProtocol {
   )
 
   func subscribe() async throws -> Bool
-  func showManageSubscriptions()
   func restorePurchases() async throws -> CustomerInfo
 
   func loginIfUserExists()
   func login(
     with token: String,
     userId: String
-  ) async throws
+  ) async throws -> Account?
 
   func logout()
   func deleteAccount()
@@ -123,10 +122,7 @@ public final class AccountService: AccountServiceProtocol {
   }
 
   public func updateAccount(from customerInfo: CustomerInfo) {
-    let donationMade = !customerInfo.nonSubscriptionTransactions.isEmpty
-    || !customerInfo.activeSubscriptions.isEmpty
     self.updateAccount(
-      donationMade: donationMade,
       hasSubscription: !customerInfo.activeSubscriptions.isEmpty
     )
   }
@@ -181,10 +177,6 @@ public final class AccountService: AccountServiceProtocol {
     return result.userCancelled
   }
 
-  public func showManageSubscriptions() {
-    Purchases.shared.showManageSubscriptions() { _ in }
-  }
-
   public func restorePurchases() async throws -> CustomerInfo {
     return try await Purchases.shared.restorePurchases()
   }
@@ -192,7 +184,7 @@ public final class AccountService: AccountServiceProtocol {
   func login(
     with token: String,
     userId: String,
-    completion: @escaping ((Error?) -> Void)
+    completion: @escaping ((Swift.Result<Account?, Error>) -> Void)
   ) {
     Alamofire.request(
       "https://api.tortugapower.com/v1/user/login",
@@ -203,25 +195,27 @@ public final class AccountService: AccountServiceProtocol {
       switch response.result {
       case .success:
         guard let json = response.value as? [String: Any] else {
-          completion(nil)
+          completion(.failure(BookPlayerError.emptyResponse))
           return
         }
 
-        self?.updateAccount(
-          id: userId,
-          email: json["email"] as? String,
-          donationMade: nil,
-          hasSubscription: nil,
-          accessToken: json["token"] as? String
-        )
+        Purchases.shared.logIn(userId) { customerInfo, _, error in
+          if let error = error {
+            completion(.failure(error))
+            return
+          }
 
-        Purchases.shared.logIn(userId) { _, _, _ in }
+          self?.updateAccount(
+            id: userId,
+            email: json["email"] as? String,
+            hasSubscription: !(customerInfo?.activeSubscriptions.isEmpty ?? true),
+            accessToken: json["token"] as? String
+          )
 
-        NotificationCenter.default.post(name: .accountUpdate, object: self)
-
-        completion(nil)
+          completion(.success(self?.getAccount()))
+        }
       case .failure(let error):
-        completion(error)
+        completion(.failure(error))
       }
     }
   }
@@ -229,13 +223,14 @@ public final class AccountService: AccountServiceProtocol {
   public func login(
     with token: String,
     userId: String
-  ) async throws {
+  ) async throws -> Account? {
     return try await withUnsafeThrowingContinuation { continuation in
-      login(with: token, userId: userId) { error in
-        if let error = error {
+      login(with: token, userId: userId) { result in
+        switch result {
+        case .success(let account):
+          continuation.resume(returning: account)
+        case .failure(let error):
           continuation.resume(throwing: error)
-        } else {
-          continuation.resume()
         }
       }
     }
@@ -244,22 +239,22 @@ public final class AccountService: AccountServiceProtocol {
   public func loginIfUserExists() {
     guard let account = self.getAccount(), !account.id.isEmpty else { return }
 
-    Purchases.shared.logIn(account.id) { _, _, _ in }
+    Purchases.shared.logIn(account.id) { [weak self] customerInfo, _, _ in
+      guard let customerInfo = customerInfo else { return }
+
+      self?.updateAccount(from: customerInfo)
+    }
   }
 
   public func logout() {
-    guard let account = self.getAccount() else { return }
-
-    account.id = ""
-    account.email = ""
-    account.hasSubscription = false
-    account.accessToken = ""
-
-    self.dataManager.saveContext()
+    self.updateAccount(
+      id: "",
+      email: "",
+      hasSubscription: false,
+      accessToken: ""
+    )
 
     Purchases.shared.logOut { _, _ in }
-
-    NotificationCenter.default.post(name: .accountUpdate, object: self)
   }
 
   public func deleteAccount() {

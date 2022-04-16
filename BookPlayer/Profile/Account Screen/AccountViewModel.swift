@@ -9,6 +9,7 @@
 import Foundation
 import BookPlayerKit
 import Combine
+import RevenueCat
 
 class AccountViewModel: BaseViewModel<AccountCoordinator> {
   let accountService: AccountServiceProtocol
@@ -52,7 +53,7 @@ class AccountViewModel: BaseViewModel<AccountCoordinator> {
       return
     }
 
-    self.accountService.showManageSubscriptions()
+    Purchases.shared.showManageSubscriptions() { _ in }
   }
 
   func handleLogout() {
