@@ -23,17 +23,23 @@ class CompleteAccountViewModel: BaseViewModel<CompleteAccountCoordinator> {
 
   func handleSubscription() {
     Task { [weak self, accountService] in
+      await MainActor.run { [weak self] in
+        self?.coordinator.showLoader()
+      }
+
       do {
         let userCancelled = try await accountService.subscribe()
 
-        guard !userCancelled else { return }
-
-        await MainActor.run { [weak self] in
-          self?.coordinator.showCongrats()
+        await MainActor.run { [weak self, userCancelled] in
+          self?.coordinator.stopLoader()
+          if !userCancelled {
+            self?.coordinator.showCongrats()
+          }
         }
 
       } catch {
         await MainActor.run { [weak self, error] in
+          self?.coordinator.stopLoader()
           self?.coordinator.showError(error)
         }
       }
@@ -42,6 +48,10 @@ class CompleteAccountViewModel: BaseViewModel<CompleteAccountCoordinator> {
 
   func handleRestorePurchases() {
     Task { [weak self, accountService] in
+      await MainActor.run { [weak self] in
+        self?.coordinator.showLoader()
+      }
+
       do {
         let customerInfo = try await accountService.restorePurchases()
 
@@ -50,10 +60,12 @@ class CompleteAccountViewModel: BaseViewModel<CompleteAccountCoordinator> {
         }
 
         await MainActor.run { [weak self] in
+          self?.coordinator.stopLoader()
           self?.coordinator.showCongrats()
         }
       } catch {
         await MainActor.run { [weak self, error] in
+          self?.coordinator.stopLoader()
           self?.coordinator.showError(error)
         }
       }
