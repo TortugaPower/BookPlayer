@@ -205,12 +205,19 @@ public final class AccountService: AccountServiceProtocol {
             return
           }
 
-          self?.updateAccount(
-            id: userId,
-            email: json["email"] as? String,
-            hasSubscription: !(customerInfo?.activeSubscriptions.isEmpty ?? true),
-            accessToken: json["token"] as? String
-          )
+          if let customerInfo = customerInfo,
+             let existingAccount = self?.getAccount() {
+            // Preserve donation made flag from stored account
+            let donationMade = existingAccount.donationMade || !customerInfo.nonSubscriptionTransactions.isEmpty
+
+            self?.updateAccount(
+              id: userId,
+              email: json["email"] as? String,
+              donationMade: donationMade,
+              hasSubscription: !customerInfo.activeSubscriptions.isEmpty,
+              accessToken: json["token"] as? String
+            )
+          }
 
           completion(.success(self?.getAccount()))
         }
