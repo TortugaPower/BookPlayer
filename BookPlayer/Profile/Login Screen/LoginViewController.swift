@@ -53,6 +53,9 @@ class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel>,
 
   @objc
   func handleAuthorizationAppleIDButtonPress() {
+#if targetEnvironment(simulator)
+    self.viewModel.setupTestAccount()
+#else
     let appleIDProvider = ASAuthorizationAppleIDProvider()
     let request = appleIDProvider.createRequest()
     request.requestedScopes = [.email]
@@ -61,6 +64,7 @@ class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel>,
     authorizationController.delegate = self
     authorizationController.presentationContextProvider = self
     authorizationController.performRequests()
+#endif
   }
 
   @IBAction func didPressClose(_ sender: UIBarButtonItem) {

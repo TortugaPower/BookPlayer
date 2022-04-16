@@ -63,8 +63,7 @@ class ProfileCoordinator: Coordinator {
   }
 
   func showAccount() {
-    if let account = self.accountService.getAccount(),
-       !account.id.isEmpty {
+    if self.accountService.getAccountId() != nil {
       let child = AccountCoordinator(
         accountService: self.accountService,
         presentingViewController: self.presentingViewController

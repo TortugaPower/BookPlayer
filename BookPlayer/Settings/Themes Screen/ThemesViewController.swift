@@ -99,7 +99,9 @@ class ThemesViewController: UIViewController, Storyboarded {
     if self.viewModel.hasMadeDonation() {
       self.donationMade()
     } else {
-      self.viewModel.$account.sink { [weak self] account in
+      self.viewModel.$account
+        .receive(on: RunLoop.main)
+        .sink { [weak self] account in
         if account?.donationMade ?? false {
           self?.donationMade()
         }

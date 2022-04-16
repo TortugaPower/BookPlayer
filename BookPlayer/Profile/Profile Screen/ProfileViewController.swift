@@ -39,9 +39,12 @@ class ProfileViewController: BaseTableViewController<ProfileCoordinator, Profile
   }
 
   func bindObservers() {
-    self.viewModel.$account.sink { [weak self] account in
+    self.viewModel.$account
+      .receive(on: RunLoop.main)
+      .sink { [weak self] account in
       self?.setupProfileCardView(account)
     }
+
     .store(in: &disposeBag)
   }
 

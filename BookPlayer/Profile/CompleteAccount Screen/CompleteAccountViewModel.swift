@@ -22,7 +22,41 @@ class CompleteAccountViewModel: BaseViewModel<CompleteAccountCoordinator> {
   }
 
   func handleSubscription() {
-    // TODO: Handle in-app purchase
-    self.dismiss()
+    Task { [weak self, accountService] in
+      do {
+        let userCancelled = try await accountService.subscribe()
+
+        guard !userCancelled else { return }
+
+        await MainActor.run { [weak self] in
+          self?.coordinator.showCongrats()
+        }
+
+      } catch {
+        await MainActor.run { [weak self, error] in
+          self?.coordinator.showError(error)
+        }
+      }
+    }
+  }
+
+  func handleRestorePurchases() {
+    Task { [weak self, accountService] in
+      do {
+        let customerInfo = try await accountService.restorePurchases()
+
+        if customerInfo.activeSubscriptions.isEmpty {
+          throw AccountError.inactiveSubscription
+        }
+
+        await MainActor.run { [weak self] in
+          self?.coordinator.showCongrats()
+        }
+      } catch {
+        await MainActor.run { [weak self, error] in
+          self?.coordinator.showError(error)
+        }
+      }
+    }
   }
 }

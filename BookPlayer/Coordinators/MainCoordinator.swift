@@ -54,7 +54,8 @@ class MainCoordinator: Coordinator {
     super.init(navigationController: navigationController, flowType: .modal)
     viewModel.coordinator = self
 
-    self.configureUser()
+    accountService.loginIfUserExists()
+    accountService.setDelegate(self)
   }
 
   override func start() {
@@ -101,13 +102,6 @@ class MainCoordinator: Coordinator {
     self.navigationController.present(tabBarController, animated: false)
   }
 
-  func configureUser() {
-    if let account = self.accountService.getAccount(),
-       !account.id.isEmpty {
-      Purchases.shared.logIn(account.id) { _, _, _ in }
-    }
-  }
-
   func showPlayer() {
     let playerCoordinator = PlayerCoordinator(
       playerManager: self.playerManager,
@@ -149,5 +143,11 @@ class MainCoordinator: Coordinator {
     }
 
     return getPresentingController(coordinator: lastCoordinator)
+  }
+}
+
+extension MainCoordinator: PurchasesDelegate {
+  public func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
+    self.accountService.updateAccount(from: customerInfo)
   }
 }

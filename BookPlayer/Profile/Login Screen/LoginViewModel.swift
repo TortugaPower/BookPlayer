@@ -8,7 +8,6 @@
 
 import AuthenticationServices
 import BookPlayerKit
-import RevenueCat
 import Foundation
 
 class LoginViewModel: BaseViewModel<LoginCoordinator> {
@@ -18,24 +17,46 @@ class LoginViewModel: BaseViewModel<LoginCoordinator> {
     self.accountService = accountService
   }
 
+  func setupTestAccount() {
+    self.accountService.updateAccount(
+      id: "testId1234",
+      email: "test@test.com",
+      donationMade: nil,
+      hasSubscription: nil,
+      accessToken: nil
+    )
+
+    self.coordinator.showCompleteAccount()
+  }
+
   func handleSignIn(authorization: ASAuthorization) {
     switch authorization.credential {
     case let appleIDCredential as ASAuthorizationAppleIDCredential:
-      // email won't be there on subsequent approvals
-      // (save locally in case account creation fails for some reason)
-      self.accountService.updateAccount(
-        id: appleIDCredential.user,
-        email: appleIDCredential.email,
-        donationMade: nil,
-        hasSubscription: nil,
-        accessToken: nil
-      )
+      guard
+        let tokenData = appleIDCredential.identityToken,
+        let token = String(data: tokenData, encoding: .utf8)
+      else {
+        self.coordinator.showError(AccountError.missingToken)
+        return
+      }
 
-      Purchases.shared.logIn(appleIDCredential.user) { _, _, _ in }
+      Task { [weak self, accountService, token, appleIDCredential] in
+        do {
+          try await accountService.login(
+            with: token,
+            userId: appleIDCredential.user
+          )
 
-      // TODO: network call to create the user in backend
+          await MainActor.run { [weak self] in
+            self?.coordinator.showCompleteAccount()
+          }
+        } catch {
+          await MainActor.run { [weak self, error] in
+            self?.coordinator.showError(error)
+          }
+        }
+      }
 
-      self.coordinator.showCompleteAccount()
     default:
       break
     }

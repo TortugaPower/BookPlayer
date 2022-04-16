@@ -8,16 +8,51 @@
 
 import Foundation
 import BookPlayerKit
+import Combine
 
 class AccountViewModel: BaseViewModel<AccountCoordinator> {
   let accountService: AccountServiceProtocol
 
+  @Published var account: Account?
+
+  private var disposeBag = Set<AnyCancellable>()
+
   init(accountService: AccountServiceProtocol) {
     self.accountService = accountService
+
+    super.init()
+
+    self.reloadAccount()
+    self.bindObservers()
+  }
+
+  func bindObservers() {
+    NotificationCenter.default.publisher(for: .accountUpdate, object: nil)
+      .sink(receiveValue: { [weak self] _ in
+        self?.reloadAccount()
+      })
+      .store(in: &disposeBag)
+  }
+
+  func reloadAccount() {
+    self.account = self.accountService.getAccount()
   }
 
   func showCompleteAccount() {
     self.coordinator.showCompleteAccount()
+  }
+
+  func hasSubscription() -> Bool {
+    return self.account?.hasSubscription ?? false
+  }
+
+  func showManageSubscription() {
+    guard !ProcessInfo.processInfo.isiOSAppOnMac else {
+      self.coordinator.showError(AccountError.managementUnavailable)
+      return
+    }
+
+    self.accountService.showManageSubscriptions()
   }
 
   func handleLogout() {

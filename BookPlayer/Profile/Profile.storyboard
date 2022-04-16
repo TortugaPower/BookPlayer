@@ -306,10 +306,42 @@
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
+                            <tableViewSection id="5vS-63-50U">
+                                <cells>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="UNr-ED-kw3" detailTextLabel="hge-e5-Mff" imageView="dDN-FT-zfo" style="IBUITableViewCellStyleValue1" id="Iny-yP-i9Q" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="164" width="414" height="43.5"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Iny-yP-i9Q" id="Gwq-cE-Ldl">
+                                            <rect key="frame" x="0.0" y="0.0" width="385.5" height="43.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="BookPlayer Pro" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="UNr-ED-kw3" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
+                                                    <rect key="frame" x="57.25" y="12" width="121.5" height="20.5"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Manage" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="hge-e5-Mff">
+                                                    <rect key="frame" x="316" y="12" width="61.5" height="20.5"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <color key="textColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" alpha="0.80000000000000004" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" image="icloud.and.arrow.up.fill" catalog="system" id="dDN-FT-zfo">
+                                                    <rect key="frame" x="18.25" y="12" width="24" height="20"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                </imageView>
+                                            </subviews>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                </cells>
+                            </tableViewSection>
                             <tableViewSection id="nPR-fi-bPS">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" rowHeight="284" id="8ir-xH-JF1" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="164" width="414" height="284"/>
+                                        <rect key="frame" x="0.0" y="243.5" width="414" height="284"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="8ir-xH-JF1" id="mga-3N-uYS">
                                             <rect key="frame" x="0.0" y="0.0" width="414" height="284"/>
@@ -494,7 +526,7 @@
                             <tableViewSection id="bhA-ml-CMr">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" textLabel="wa8-9L-Gkm" imageView="Dym-wO-wbQ" rowHeight="43" style="IBUITableViewCellStyleDefault" id="slS-GL-KNE" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="484" width="414" height="43"/>
+                                        <rect key="frame" x="0.0" y="563.5" width="414" height="43"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="slS-GL-KNE" id="9xb-M2-tlF">
                                             <rect key="frame" x="0.0" y="0.0" width="414" height="43"/>
@@ -520,7 +552,7 @@
                             <tableViewSection id="qHa-ES-lrg">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" textLabel="AJe-XK-dSf" imageView="k4P-fA-guF" style="IBUITableViewCellStyleDefault" id="pfD-Wj-PEt" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="563" width="414" height="43.5"/>
+                                        <rect key="frame" x="0.0" y="642.5" width="414" height="43.5"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="pfD-Wj-PEt" id="yY3-jt-yk9">
                                             <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
@@ -571,6 +603,7 @@
                         <outletCollection property="secondaryLabels" destination="y79-H1-GS8" collectionClass="NSMutableArray" id="cfx-gX-6TS"/>
                         <outletCollection property="secondaryLabels" destination="wNV-jZ-2vE" collectionClass="NSMutableArray" id="ICU-IU-zzB"/>
                         <outletCollection property="secondaryLabels" destination="UGa-BZ-NGg" collectionClass="NSMutableArray" id="qvs-5z-c7u"/>
+                        <outletCollection property="imageViews" destination="dDN-FT-zfo" collectionClass="NSMutableArray" id="QFU-hD-E90"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="iDt-nu-P2j" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -902,6 +935,11 @@
                             <imageReference key="image" image="multiply" catalog="system" symbolScale="large"/>
                             <connections>
                                 <action selector="didPressClose:" destination="F62-dR-97h" id="xaG-Tt-i5t"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" title="Restore" id="bsu-aK-Brp">
+                            <connections>
+                                <action selector="didPressRestore:" destination="F62-dR-97h" id="i7v-wT-veP"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>

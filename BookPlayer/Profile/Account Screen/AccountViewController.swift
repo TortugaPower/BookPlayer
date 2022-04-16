@@ -7,6 +7,7 @@
 //
 
 import BookPlayerKit
+import Combine
 import Themeable
 import UIKit
 
@@ -23,8 +24,10 @@ class AccountViewController: BaseTableViewController<AccountCoordinator, Account
   @IBOutlet weak var completeAccountButton: UIButton!
   @IBOutlet var secondaryLabels: [UILabel]!
 
+  private var disposeBag = Set<AnyCancellable>()
+
   enum AccountSection: Int {
-    case info = 0, pro, logout, delete
+    case info = 0, proEnabled, pro, logout, delete
   }
 
   override func viewDidLoad() {
@@ -36,29 +39,78 @@ class AccountViewController: BaseTableViewController<AccountCoordinator, Account
 
     self.tableView.tableFooterView = UIView()
 
+    setupViews()
+    bindObservers()
+  }
+
+  func setupViews() {
     self.completeAccountButton.layer.masksToBounds = true
     self.completeAccountButton.layer.cornerRadius = 5
     self.imageOverlayView.layer.masksToBounds = true
     self.imageOverlayView.layer.cornerRadius = 10
-
-    setup()
-  }
-
-  func setup() {
     self.containerProfileImageView.layer.masksToBounds = true
     self.containerProfileImageView.layer.cornerRadius = self.containerProfileImageView.frame.width / 2
     self.containerProfileCardView.layer.masksToBounds = true
     self.containerProfileCardView.layer.cornerRadius = 10
   }
 
+  func bindObservers() {
+    self.viewModel.$account
+      .receive(on: RunLoop.main)
+      .sink { [weak self] _ in
+        self?.tableView.reloadData()
+    }
+    .store(in: &disposeBag)
+  }
+
   override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
     return CGFloat.leastNormalMagnitude
+  }
+
+  override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+    switch section {
+    case AccountSection.pro.rawValue:
+      if self.viewModel.hasSubscription() {
+        return CGFloat.leastNormalMagnitude
+      } else {
+        return super.tableView(tableView, heightForHeaderInSection: section)
+      }
+    case AccountSection.proEnabled.rawValue:
+      if self.viewModel.hasSubscription() {
+        return super.tableView(tableView, heightForHeaderInSection: section)
+      } else {
+        return CGFloat.leastNormalMagnitude
+      }
+    default:
+      return super.tableView(tableView, heightForHeaderInSection: section)
+    }
+  }
+
+  override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    switch indexPath.section {
+    case AccountSection.pro.rawValue:
+      if self.viewModel.hasSubscription() {
+        return CGFloat.leastNormalMagnitude
+      } else {
+        return super.tableView(tableView, heightForRowAt: indexPath)
+      }
+    case AccountSection.proEnabled.rawValue:
+      if self.viewModel.hasSubscription() {
+        return super.tableView(tableView, heightForRowAt: indexPath)
+      } else {
+        return CGFloat.leastNormalMagnitude
+      }
+    default:
+      return super.tableView(tableView, heightForRowAt: indexPath)
+    }
   }
 
   override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     tableView.deselectRow(at: indexPath as IndexPath, animated: true)
 
     switch indexPath.section {
+    case AccountSection.proEnabled.rawValue:
+      self.viewModel.showManageSubscription()
     case AccountSection.logout.rawValue:
       self.viewModel.handleLogout()
     case AccountSection.delete.rawValue:

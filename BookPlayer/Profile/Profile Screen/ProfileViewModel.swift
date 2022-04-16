@@ -22,17 +22,20 @@ class ProfileViewModel: BaseViewModel<ProfileCoordinator> {
 
     super.init()
 
+    self.reloadAccount()
     self.bindObservers()
   }
 
   func bindObservers() {
     NotificationCenter.default.publisher(for: .accountUpdate, object: nil)
       .sink(receiveValue: { [weak self] _ in
-        guard let self = self else { return }
-
-        self.account = self.accountService.getAccount()
+        self?.reloadAccount()
       })
       .store(in: &disposeBag)
+  }
+
+  func reloadAccount() {
+    self.account = self.accountService.getAccount()
   }
 
   func showAccount() {

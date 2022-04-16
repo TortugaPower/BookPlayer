@@ -26,6 +26,7 @@ class CompleteAccountViewController: BaseViewController<CompleteAccountCoordinat
   override func viewDidLoad() {
     super.viewDidLoad()
 
+    self.navigationItem.rightBarButtonItem?.title = "restore_title".localized
     self.title = "Complete Account"
 
     setUpTheming()
@@ -53,6 +54,10 @@ class CompleteAccountViewController: BaseViewController<CompleteAccountCoordinat
 
   @IBAction func didPressClose(_ sender: UIBarButtonItem) {
     self.viewModel.dismiss()
+  }
+
+  @IBAction func didPressRestore(_ sender: UIBarButtonItem) {
+    self.viewModel.handleRestorePurchases()
   }
 }
 

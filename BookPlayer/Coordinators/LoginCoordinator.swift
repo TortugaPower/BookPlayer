@@ -9,13 +9,7 @@
 import BookPlayerKit
 import UIKit
 
-enum LoginActionRoutes {
-  case signedIn(identifier: String, email: String)
-}
-
 class LoginCoordinator: Coordinator {
-  public var onAction: Transition<ItemListActionRoutes>?
-
   let accountService: AccountServiceProtocol
 
   init(

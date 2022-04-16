@@ -97,7 +97,9 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
     if self.viewModel.hasMadeDonation() {
       self.donationMade()
     } else {
-      self.viewModel.$account.sink { [weak self] _ in
+      self.viewModel.$account
+        .receive(on: RunLoop.main)
+        .sink { [weak self] _ in
         self?.donationMade()
       }
       .store(in: &disposeBag)

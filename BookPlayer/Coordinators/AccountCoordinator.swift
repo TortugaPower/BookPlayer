@@ -50,4 +50,8 @@ class AccountCoordinator: Coordinator {
     child.parentCoordinator = self
     child.start()
   }
+
+  func showError(_ error: Error) {
+    self.navigationController.showAlert("error_title".localized, message: error.localizedDescription)
+  }
 }
