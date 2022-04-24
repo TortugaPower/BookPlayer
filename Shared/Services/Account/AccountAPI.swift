@@ -33,7 +33,6 @@ extension AccountAPI: Endpoint {
       return ["token_id": token]
     }
   }
-
 }
 
 struct LoginResponse: Decodable {

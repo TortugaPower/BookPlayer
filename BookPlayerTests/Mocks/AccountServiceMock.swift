@@ -45,8 +45,7 @@ class AccountServiceMock: AccountServiceProtocol {
     id: String? = nil,
     email: String? = nil,
     donationMade: Bool? = nil,
-    hasSubscription: Bool? = nil,
-    accessToken: String? = nil
+    hasSubscription: Bool? = nil
   ) {
     if let id = id {
       account?.id = id
@@ -62,10 +61,6 @@ class AccountServiceMock: AccountServiceProtocol {
 
     if let hasSubscription = hasSubscription {
       account?.hasSubscription = hasSubscription
-    }
-
-    if let accessToken = accessToken {
-      account?.accessToken = accessToken
     }
   }
 
@@ -86,7 +81,7 @@ class AccountServiceMock: AccountServiceProtocol {
     return self.account
   }
 
-  func logout() {}
+  func logout() throws {}
 
-  func deleteAccount() {}
+  func deleteAccount() throws {}
 }

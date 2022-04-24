@@ -22,8 +22,7 @@ class LoginViewModel: BaseViewModel<LoginCoordinator> {
       id: "testId1234",
       email: "test@test.com",
       donationMade: nil,
-      hasSubscription: nil,
-      accessToken: nil
+      hasSubscription: nil
     )
 
     self.coordinator.showCompleteAccount()

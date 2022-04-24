@@ -15,12 +15,13 @@ import XCTest
 
 class AccountServiceTests: XCTestCase {
   var sut: AccountService!
-  var mockClient: NetworkClientMock!
+  var mockKeychain: KeychainServiceMock!
 
   override func setUp() {
     DataTestUtils.clearFolderContents(url: DataManager.getProcessedFolderURL())
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
-    self.sut = AccountService(dataManager: dataManager)
+    self.mockKeychain = KeychainServiceMock()
+    self.sut = AccountService(dataManager: dataManager, keychain: self.mockKeychain)
   }
 
   private func setupBlankAccount() {
@@ -29,7 +30,6 @@ class AccountServiceTests: XCTestCase {
     account.id = ""
     account.email = ""
     account.hasSubscription = false
-    account.accessToken = ""
     account.donationMade = false
     self.sut.dataManager.saveContext()
   }
@@ -46,8 +46,7 @@ class AccountServiceTests: XCTestCase {
       id: "1",
       email: "test@email.com",
       donationMade: true,
-      hasSubscription: true,
-      accessToken: "access token"
+      hasSubscription: true
     )
 
     let storedAccount = sut.getAccount()
@@ -55,7 +54,6 @@ class AccountServiceTests: XCTestCase {
     XCTAssert(storedAccount?.email == "test@email.com")
     XCTAssert(storedAccount?.donationMade == true)
     XCTAssert(storedAccount?.hasSubscription == true)
-    XCTAssert(storedAccount?.accessToken == "access token")
   }
 
   func testGetId() {
@@ -76,51 +74,53 @@ class AccountServiceTests: XCTestCase {
     XCTAssert(account?.donationMade == true)
   }
 
-  func testLogout() {
+  func testLogout() throws {
     self.setupBlankAccount()
     self.sut.updateAccount(
       id: "1",
       email: "test@email.com",
       donationMade: true,
-      hasSubscription: true,
-      accessToken: "access token"
+      hasSubscription: true
     )
 
-    self.sut.logout()
+    try self.sut.logout()
 
+    XCTAssert(try mockKeychain.getAccessToken() == nil)
     let account = self.sut.getAccount()
     XCTAssert(account?.donationMade == true)
     XCTAssert(account?.hasSubscription == false)
     XCTAssert(account?.id.isEmpty == true)
     XCTAssert(account?.email.isEmpty == true)
-    XCTAssert(account?.accessToken.isEmpty == true)
   }
 
-  func testDeleteAccoount() {
+  func testDeleteAccoount() throws {
     XCTAssert(self.sut.hasAccount() == false)
     self.setupBlankAccount()
     XCTAssert(self.sut.hasAccount() == true)
-    self.sut.deleteAccount()
+    try self.sut.deleteAccount()
     XCTAssert(self.sut.hasAccount() == false)
+    XCTAssert(try mockKeychain.getAccessToken() == nil)
   }
 
   func testLogin() async {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
     let mockResponse = LoginResponse(email: "success@test.com", token: "accessToken")
+    let keychainMock = KeychainServiceMock()
 
     self.sut = AccountService(
       dataManager: dataManager,
-      client: NetworkClientMock(mockedResponse: mockResponse)
+      client: NetworkClientMock(mockedResponse: mockResponse),
+      keychain: keychainMock
     )
 
     self.setupBlankAccount()
 
     let account = try! await self.sut.login(with: "identity token", userId: "3")
 
+    XCTAssert(keychainMock.accessToken == "accessToken")
     XCTAssert(account?.id == "3")
     XCTAssert(account?.email == "success@test.com")
     XCTAssert(account?.donationMade == false)
     XCTAssert(account?.hasSubscription == false)
-    XCTAssert(account?.accessToken == "accessToken")
   }
 }

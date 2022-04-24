@@ -57,8 +57,12 @@ class AccountViewModel: BaseViewModel<AccountCoordinator> {
   }
 
   func handleLogout() {
-    self.accountService.logout()
-    self.dismiss()
+    do {
+      try self.accountService.logout()
+      self.dismiss()
+    } catch {
+      self.coordinator.showError(error)
+    }
   }
 
   func handleDelete() {

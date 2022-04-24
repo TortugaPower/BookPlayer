@@ -45,8 +45,7 @@ final class PlusViewModel {
       id: nil,
       email: nil,
       donationMade: true,
-      hasSubscription: nil,
-      accessToken: nil
+      hasSubscription: nil
     )
   }
 }

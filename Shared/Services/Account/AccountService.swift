@@ -51,8 +51,7 @@ public protocol AccountServiceProtocol {
     id: String?,
     email: String?,
     donationMade: Bool?,
-    hasSubscription: Bool?,
-    accessToken: String?
+    hasSubscription: Bool?
   )
 
   func subscribe() async throws -> Bool
@@ -64,8 +63,8 @@ public protocol AccountServiceProtocol {
     userId: String
   ) async throws -> Account?
 
-  func logout()
-  func deleteAccount()
+  func logout() throws
+  func deleteAccount() throws
 }
 
 public final class AccountService: AccountServiceProtocol {
@@ -73,14 +72,17 @@ public final class AccountService: AccountServiceProtocol {
   let apiURL = "https://api.tortugapower.com"
   let dataManager: DataManager
   let client: NetworkClientProtocol
+  let keychain: KeychainServiceProtocol
   private let provider: NetworkProvider<AccountAPI>
 
   public init(
     dataManager: DataManager,
-    client: NetworkClientProtocol = NetworkClient()
+    client: NetworkClientProtocol = NetworkClient(),
+    keychain: KeychainServiceProtocol = KeychainService()
   ) {
     self.dataManager = dataManager
     self.client = client
+    self.keychain = keychain
     self.provider = NetworkProvider(client: client)
   }
 
@@ -122,7 +124,6 @@ public final class AccountService: AccountServiceProtocol {
     account.id = ""
     account.email = ""
     account.hasSubscription = false
-    account.accessToken = ""
     account.donationMade = donationMade
     self.dataManager.saveContext()
   }
@@ -137,8 +138,7 @@ public final class AccountService: AccountServiceProtocol {
     id: String? = nil,
     email: String? = nil,
     donationMade: Bool? = nil,
-    hasSubscription: Bool? = nil,
-    accessToken: String? = nil
+    hasSubscription: Bool? = nil
   ) {
     guard let account = self.getAccount() else { return }
 
@@ -156,10 +156,6 @@ public final class AccountService: AccountServiceProtocol {
 
     if let hasSubscription = hasSubscription {
       account.hasSubscription = hasSubscription
-    }
-
-    if let accessToken = accessToken {
-      account.accessToken = accessToken
     }
 
     self.dataManager.saveContext()
@@ -193,6 +189,8 @@ public final class AccountService: AccountServiceProtocol {
   ) async throws -> Account? {
     let response: LoginResponse = try await provider.request(.login(token: token))
 
+    try self.keychain.setAccessToken(response.token)
+
     let (customerInfo, _) = try await Purchases.shared.logIn(userId)
 
     if let existingAccount = self.getAccount() {
@@ -203,8 +201,7 @@ public final class AccountService: AccountServiceProtocol {
         id: userId,
         email: response.email,
         donationMade: donationMade,
-        hasSubscription: !customerInfo.activeSubscriptions.isEmpty,
-        accessToken: response.token
+        hasSubscription: !customerInfo.activeSubscriptions.isEmpty
       )
     }
 
@@ -221,18 +218,21 @@ public final class AccountService: AccountServiceProtocol {
     }
   }
 
-  public func logout() {
+  public func logout() throws {
+    try self.keychain.removeAccessToken()
+
     self.updateAccount(
       id: "",
       email: "",
-      hasSubscription: false,
-      accessToken: ""
+      hasSubscription: false
     )
 
     Purchases.shared.logOut { _, _ in }
   }
 
-  public func deleteAccount() {
+  public func deleteAccount() throws {
+    try self.keychain.removeAccessToken()
+
     guard let account = self.getAccount() else { return }
 
     // TODO: make network call to delete from backend

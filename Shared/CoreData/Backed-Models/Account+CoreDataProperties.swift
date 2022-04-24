@@ -21,7 +21,6 @@ extension Account {
 
   @NSManaged public var id: String
   @NSManaged public var email: String
-  @NSManaged public var accessToken: String
   @NSManaged public var hasSubscription: Bool
   @NSManaged public var donationMade: Bool
 }
