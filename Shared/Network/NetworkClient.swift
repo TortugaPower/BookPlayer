@@ -18,9 +18,12 @@ public protocol NetworkClientProtocol {
 
 public class NetworkClient: NetworkClientProtocol {
   let baseUrl = "https://api.tortugapower.com/v1"
+  let keychain: KeychainServiceProtocol
   private let decoder: JSONDecoder = JSONDecoder()
 
-  public init() {}
+  public init(keychain: KeychainServiceProtocol = KeychainService()) {
+    self.keychain = keychain
+  }
 
   public func request<T: Decodable>(
     path: String,
@@ -32,6 +35,10 @@ public class NetworkClient: NetworkClientProtocol {
     var request = URLRequest(url: url)
     request.httpMethod = method.rawValue
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+    if let accessToken = try? keychain.getAccessToken() {
+      request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+    }
 
     if let parameters = parameters {
       request.httpBody = try JSONSerialization.data(withJSONObject: parameters)
