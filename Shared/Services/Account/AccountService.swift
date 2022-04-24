@@ -6,7 +6,6 @@
 //  Copyright © 2022 Tortuga Power. All rights reserved.
 //
 
-import Alamofire
 import CoreData
 import Foundation
 import RevenueCat
@@ -73,9 +72,16 @@ public final class AccountService: AccountServiceProtocol {
   let subscriptionId = "com.tortugapower.audiobookplayer.subscription.pro"
   let apiURL = "https://api.tortugapower.com"
   let dataManager: DataManager
+  let client: NetworkClientProtocol
+  private let provider: NetworkProvider<AccountAPI>
 
-  public init(dataManager: DataManager) {
+  public init(
+    dataManager: DataManager,
+    client: NetworkClientProtocol = NetworkClient()
+  ) {
     self.dataManager = dataManager
+    self.client = client
+    self.provider = NetworkProvider(client: client)
   }
 
   public func setDelegate(_ delegate: PurchasesDelegate) {
@@ -181,66 +187,28 @@ public final class AccountService: AccountServiceProtocol {
     return try await Purchases.shared.restorePurchases()
   }
 
-  func login(
-    with token: String,
-    userId: String,
-    completion: @escaping ((Swift.Result<Account?, Error>) -> Void)
-  ) {
-    Alamofire.request(
-      "https://api.tortugapower.com/v1/user/login",
-      method: .post,
-      parameters: ["token_id": token],
-      encoding: JSONEncoding.default
-    ).responseJSON { [weak self] response in
-      switch response.result {
-      case .success:
-        guard let json = response.value as? [String: Any] else {
-          completion(.failure(BookPlayerError.emptyResponse))
-          return
-        }
-
-        Purchases.shared.logIn(userId) { customerInfo, _, error in
-          if let error = error {
-            completion(.failure(error))
-            return
-          }
-
-          if let customerInfo = customerInfo,
-             let existingAccount = self?.getAccount() {
-            // Preserve donation made flag from stored account
-            let donationMade = existingAccount.donationMade || !customerInfo.nonSubscriptionTransactions.isEmpty
-
-            self?.updateAccount(
-              id: userId,
-              email: json["email"] as? String,
-              donationMade: donationMade,
-              hasSubscription: !customerInfo.activeSubscriptions.isEmpty,
-              accessToken: json["token"] as? String
-            )
-          }
-
-          completion(.success(self?.getAccount()))
-        }
-      case .failure(let error):
-        completion(.failure(error))
-      }
-    }
-  }
-
   public func login(
     with token: String,
     userId: String
   ) async throws -> Account? {
-    return try await withUnsafeThrowingContinuation { continuation in
-      login(with: token, userId: userId) { result in
-        switch result {
-        case .success(let account):
-          continuation.resume(returning: account)
-        case .failure(let error):
-          continuation.resume(throwing: error)
-        }
-      }
+    let response: LoginResponse = try await provider.request(.login(token: token))
+
+    let (customerInfo, _) = try await Purchases.shared.logIn(userId)
+
+    if let existingAccount = self.getAccount() {
+      // Preserve donation made flag from stored account
+      let donationMade = existingAccount.donationMade || !customerInfo.nonSubscriptionTransactions.isEmpty
+
+      self.updateAccount(
+        id: userId,
+        email: response.email,
+        donationMade: donationMade,
+        hasSubscription: !customerInfo.activeSubscriptions.isEmpty,
+        accessToken: response.token
+      )
     }
+
+    return self.getAccount()
   }
 
   public func loginIfUserExists() {

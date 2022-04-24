@@ -80,8 +80,8 @@ class ItemListCoordinator: Coordinator {
 
       self.onAction?(.newImportOperation(operation))
 
-      operation.completionBlock = {
-        DispatchQueue.main.async {
+      operation.completionBlock = { [unowned operation] in
+        DispatchQueue.main.async { [unowned operation] in
           self.onAction?(.importOperationFinished(operation.processedFiles))
         }
       }

@@ -6,9 +6,8 @@
 //  Copyright © 2021 Tortuga Power. All rights reserved.
 //
 
+import Alamofire
 import BookPlayerKit
-import DeviceKit
-import MediaPlayer
 import RevenueCat
 import UIKit
 
@@ -19,15 +18,20 @@ class MainCoordinator: Coordinator {
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
   let accountService: AccountServiceProtocol
+  let syncService: SyncServiceProtocol
   let watchConnectivityService: PhoneWatchConnectivityService
+
+  var reachabilityManager: NetworkReachabilityManager?
 
   init(
     navigationController: UINavigationController,
     libraryService: LibraryServiceProtocol,
-    accountService: AccountServiceProtocol
+    accountService: AccountServiceProtocol,
+    syncService: SyncServiceProtocol
   ) {
     self.libraryService = libraryService
     self.accountService = accountService
+    self.syncService = syncService
     let playbackService = PlaybackService(libraryService: libraryService)
     self.playbackService = playbackService
 
@@ -98,6 +102,7 @@ class MainCoordinator: Coordinator {
     settingsCoordinator.start()
 
     self.watchConnectivityService.startSession()
+    self.setupReachability()
 
     self.navigationController.present(tabBarController, animated: false)
   }
@@ -144,10 +149,25 @@ class MainCoordinator: Coordinator {
 
     return getPresentingController(coordinator: lastCoordinator)
   }
+
+  func setupReachability() {
+    self.reachabilityManager = Alamofire.NetworkReachabilityManager()
+
+    self.reachabilityManager?.listener = { [weak self] status in
+      if case .reachable = status {
+        self?.syncService.isReachable(true)
+      } else {
+        self?.syncService.isReachable(false)
+      }
+    }
+
+    self.reachabilityManager?.startListening()
+  }
 }
 
 extension MainCoordinator: PurchasesDelegate {
   public func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
     self.accountService.updateAccount(from: customerInfo)
+    self.syncService.accountUpdated(customerInfo)
   }
 }

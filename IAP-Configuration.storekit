@@ -96,7 +96,8 @@
     }
   ],
   "settings" : {
-
+    "_compatibilityTimeRate" : 6,
+    "_timeRate" : 15
   },
   "subscriptionGroups" : [
     {

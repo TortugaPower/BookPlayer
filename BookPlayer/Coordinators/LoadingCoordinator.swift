@@ -39,7 +39,8 @@ class LoadingCoordinator: Coordinator {
     let coordinator = MainCoordinator(
       navigationController: self.navigationController,
       libraryService: LibraryService(dataManager: dataManager),
-      accountService: accountService
+      accountService: accountService,
+      syncService: SyncService()
     )
     coordinator.parentCoordinator = self
     coordinator.presentingViewController = self.presentingViewController

@@ -26,7 +26,9 @@ class MiniPlayerViewModelTests: XCTestCase {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
     let mainCoordinator = MainCoordinator(
       navigationController: UINavigationController(),
-      libraryService: LibraryService(dataManager: dataManager)
+      libraryService: LibraryService(dataManager: dataManager),
+      accountService: AccountServiceMock(account: nil),
+      syncService: SyncServiceMock()
     )
     self.sut.coordinator = mainCoordinator
 

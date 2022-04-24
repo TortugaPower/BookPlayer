@@ -19,20 +19,22 @@ class MainCoordinatorTests: XCTestCase {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
     self.mainCoordinator = MainCoordinator(
       navigationController: UINavigationController(),
-      libraryService: LibraryService(dataManager: dataManager)
+      libraryService: LibraryService(dataManager: dataManager),
+      accountService: AccountServiceMock(account: nil),
+      syncService: SyncServiceMock()
     )
     self.mainCoordinator.start()
   }
 
   func testInitialState() {
-    XCTAssert(self.mainCoordinator.childCoordinators.count == 2)
+    XCTAssert(self.mainCoordinator.childCoordinators.count == 3)
     XCTAssertNotNil(self.mainCoordinator.getLibraryCoordinator())
   }
 
   func testShowPlayer() {
     self.mainCoordinator.showPlayer()
 
-    XCTAssert(self.mainCoordinator.childCoordinators.count == 3)
+    XCTAssert(self.mainCoordinator.childCoordinators.count == 4)
     XCTAssert(self.mainCoordinator.hasPlayerShown())
   }
 }
