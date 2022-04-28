@@ -60,6 +60,14 @@ class Coordinator: NSObject {
   }
 
   public func getMainCoordinator() -> MainCoordinator? { return nil }
+
+  func showLoader() {
+    LoadingUtils.loadAndBlock(in: self.navigationController)
+  }
+
+  func stopLoader() {
+    LoadingUtils.stopLoading(in: self.navigationController)
+  }
 }
 
 extension Coordinator: UINavigationControllerDelegate {

@@ -54,4 +54,18 @@ class AccountCoordinator: Coordinator {
   func showError(_ error: Error) {
     self.navigationController.showAlert("error_title".localized, message: error.localizedDescription)
   }
+
+  func showDeleteAccountAlert(onAction: @escaping () -> Void) {
+    let alert = UIAlertController(title: "Delete Account",
+                                  message: "Warning: this action is not reversible, if your account is deleted, all your synced library details will be deleted from our servers",
+                                  preferredStyle: .alert)
+
+    alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
+
+    alert.addAction(UIAlertAction(title: "delete_button".localized, style: .destructive, handler: { _ in
+      onAction()
+    }))
+
+    self.navigationController.present(alert, animated: true, completion: nil)
+  }
 }

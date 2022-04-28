@@ -54,6 +54,7 @@ class ProfileViewController: BaseTableViewController<ProfileCoordinator, Profile
     self.containerProfileImageView.layer.cornerRadius = self.containerProfileImageView.frame.width / 2
     self.containerProfileCardView.layer.masksToBounds = true
     self.containerProfileCardView.layer.cornerRadius = 10
+    self.chevronImageView.image = self.chevronImageView.image?.imageFlippedForRightToLeftLayoutDirection()
   }
 
   func setupProfileCardView(_ account: Account?) {

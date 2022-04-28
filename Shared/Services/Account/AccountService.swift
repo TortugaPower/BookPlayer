@@ -64,7 +64,7 @@ public protocol AccountServiceProtocol {
   ) async throws -> Account?
 
   func logout() throws
-  func deleteAccount() throws
+  func deleteAccount() async throws -> String
 }
 
 public final class AccountService: AccountServiceProtocol {
@@ -230,13 +230,11 @@ public final class AccountService: AccountServiceProtocol {
     Purchases.shared.logOut { _, _ in }
   }
 
-  public func deleteAccount() throws {
-    try self.keychain.removeAccessToken()
+  public func deleteAccount() async throws -> String {
+    let response: DeleteResponse = try await provider.request(.delete)
 
-    guard let account = self.getAccount() else { return }
+    try logout()
 
-    // TODO: make network call to delete from backend
-
-    self.dataManager.delete(account)
+    return response.message
   }
 }

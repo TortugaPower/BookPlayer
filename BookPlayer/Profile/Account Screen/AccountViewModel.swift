@@ -65,7 +65,34 @@ class AccountViewModel: BaseViewModel<AccountCoordinator> {
     }
   }
 
+  func showDeleteAlert() {
+    self.coordinator.showDeleteAccountAlert { [weak self] in
+      self?.handleDelete()
+    }
+  }
+
   func handleDelete() {
-    // TODO: handle delete account
+    Task { [weak self, accountService] in
+      await MainActor.run { [weak self] in
+        self?.coordinator.showLoader()
+      }
+
+      do {
+        let result = try await accountService.deleteAccount()
+
+        await MainActor.run { [weak self, result] in
+          self?.coordinator.stopLoader()
+
+          self?.coordinator.showAlert(result, message: nil, completion: {
+            self?.dismiss()
+          })
+        }
+      } catch {
+        await MainActor.run { [weak self, error] in
+          self?.coordinator.stopLoader()
+          self?.coordinator.showError(error)
+        }
+      }
+    }
   }
 }

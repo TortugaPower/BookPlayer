@@ -23,6 +23,7 @@ class AccountViewController: BaseTableViewController<AccountCoordinator, Account
   @IBOutlet weak var imageOverlayView: UIView!
   @IBOutlet weak var completeAccountButton: UIButton!
   @IBOutlet var secondaryLabels: [UILabel]!
+  @IBOutlet weak var signoutImageView: UIImageView!
 
   private var disposeBag = Set<AnyCancellable>()
 
@@ -52,6 +53,13 @@ class AccountViewController: BaseTableViewController<AccountCoordinator, Account
     self.containerProfileImageView.layer.cornerRadius = self.containerProfileImageView.frame.width / 2
     self.containerProfileCardView.layer.masksToBounds = true
     self.containerProfileCardView.layer.cornerRadius = 10
+
+    if #available(iOS 15, *) {
+      self.signoutImageView.image = UIImage(systemName: "rectangle.portrait.and.arrow.right")
+    } else {
+      self.signoutImageView.image = UIImage(systemName: "square.and.arrow.up")
+      self.signoutImageView.transform = self.signoutImageView.transform.rotated(by: .pi / 2)
+    }
   }
 
   func bindObservers() {
@@ -114,7 +122,7 @@ class AccountViewController: BaseTableViewController<AccountCoordinator, Account
     case AccountSection.logout.rawValue:
       self.viewModel.handleLogout()
     case AccountSection.delete.rawValue:
-      self.viewModel.handleDelete()
+      self.viewModel.showDeleteAlert()
     default:
       break
     }

@@ -49,14 +49,6 @@ class CompleteAccountCoordinator: Coordinator {
     }
   }
 
-  func showLoader() {
-    LoadingUtils.loadAndBlock(in: self.navigationController)
-  }
-
-  func stopLoader() {
-    LoadingUtils.stopLoading(in: self.navigationController)
-  }
-
   func showError(_ error: Error) {
     self.navigationController.showAlert("error_title".localized, message: error.localizedDescription)
   }

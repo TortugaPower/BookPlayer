@@ -9,28 +9,28 @@
 import Foundation
 
 public enum LibraryAPI {
-  case library
+  case contents(path: String)
 }
 
 extension LibraryAPI: Endpoint {
   public var path: String {
     switch self {
-    case .library:
-      return "user/library"
+    case .contents:
+      return "library/contents"
     }
   }
 
   public var method: HTTPMethod {
     switch self {
-    case .library:
+    case .contents:
       return .get
     }
   }
 
   public var parameters: [String: Any]? {
     switch self {
-    case .library:
-      return nil
+    case .contents(let path):
+      return ["path": path]
     }
   }
 }

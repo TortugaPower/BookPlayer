@@ -10,6 +10,7 @@ import Foundation
 
 public enum AccountAPI {
   case login(token: String)
+  case delete
 }
 
 extension AccountAPI: Endpoint {
@@ -17,6 +18,8 @@ extension AccountAPI: Endpoint {
     switch self {
     case .login:
       return "user/login"
+    case .delete:
+      return "user/delete"
     }
   }
 
@@ -24,6 +27,8 @@ extension AccountAPI: Endpoint {
     switch self {
     case .login:
       return .post
+    case .delete:
+      return .delete
     }
   }
 
@@ -31,6 +36,8 @@ extension AccountAPI: Endpoint {
     switch self {
     case .login(let token):
       return ["token_id": token]
+    case .delete:
+      return nil
     }
   }
 }
@@ -38,4 +45,8 @@ extension AccountAPI: Endpoint {
 struct LoginResponse: Decodable {
   let email: String
   let token: String
+}
+
+struct DeleteResponse: Decodable {
+  let message: String
 }

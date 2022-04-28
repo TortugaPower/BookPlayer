@@ -93,11 +93,22 @@ class AccountServiceTests: XCTestCase {
     XCTAssert(account?.email.isEmpty == true)
   }
 
-  func testDeleteAccoount() throws {
+  func testDeleteAccoount() async throws {
+    let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
+    let mockResponse = DeleteResponse(message: "success")
+    let keychainMock = KeychainServiceMock()
+
+    self.sut = AccountService(
+      dataManager: dataManager,
+      client: NetworkClientMock(mockedResponse: mockResponse),
+      keychain: keychainMock
+    )
+
     XCTAssert(self.sut.hasAccount() == false)
     self.setupBlankAccount()
     XCTAssert(self.sut.hasAccount() == true)
-    try self.sut.deleteAccount()
+    let result = try await self.sut.deleteAccount()
+    XCTAssert(result == "success")
     XCTAssert(self.sut.hasAccount() == false)
     XCTAssert(try mockKeychain.getAccessToken() == nil)
   }

@@ -83,5 +83,5 @@ class AccountServiceMock: AccountServiceProtocol {
 
   func logout() throws {}
 
-  func deleteAccount() throws {}
+  func deleteAccount() async throws -> String { return "Success" }
 }

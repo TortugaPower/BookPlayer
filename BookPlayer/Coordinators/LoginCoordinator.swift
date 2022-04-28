@@ -11,12 +11,15 @@ import UIKit
 
 class LoginCoordinator: Coordinator {
   let accountService: AccountServiceProtocol
+  let syncService: SyncServiceProtocol
 
   init(
     accountService: AccountServiceProtocol,
+    syncService: SyncServiceProtocol,
     presentingViewController: UIViewController?
   ) {
     self.accountService = accountService
+    self.syncService = syncService
 
     super.init(
       navigationController: AppNavigationController.instantiate(from: .Main),
@@ -28,7 +31,10 @@ class LoginCoordinator: Coordinator {
 
   override func start() {
     let vc = LoginViewController.instantiate(from: .Profile)
-    let viewModel = LoginViewModel(accountService: self.accountService)
+    let viewModel = LoginViewModel(
+      accountService: self.accountService,
+      syncService: self.syncService
+    )
     viewModel.coordinator = self
     vc.viewModel = viewModel
 
@@ -36,14 +42,6 @@ class LoginCoordinator: Coordinator {
     self.navigationController.viewControllers = [vc]
     self.navigationController.presentationController?.delegate = self
     self.presentingViewController?.present(self.navigationController, animated: true, completion: nil)
-  }
-
-  func showLoader() {
-    LoadingUtils.loadAndBlock(in: self.navigationController)
-  }
-
-  func stopLoader() {
-    LoadingUtils.stopLoading(in: self.navigationController)
   }
 
   func showError(_ error: Error) {

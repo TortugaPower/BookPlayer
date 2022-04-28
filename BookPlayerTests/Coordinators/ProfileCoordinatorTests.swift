@@ -21,6 +21,7 @@ class ProfileCoordinatorTests: XCTestCase {
     self.sut = ProfileCoordinator(
       libraryService: libraryService,
       accountService: AccountServiceMock(account: nil),
+      syncService: SyncServiceMock(),
       navigationController: UINavigationController()
     )
     self.sut.start()
