@@ -30,6 +30,7 @@ public protocol LibraryServiceProtocol {
   func findFolder(with relativePath: String) -> Folder?
   func hasLibraryLinked(item: LibraryItem) -> Bool
   func createFolder(with title: String, inside relativePath: String?) throws -> Folder
+  func getItemIdentifiers(notIn relativePaths: [String], parentFolder: String?) throws -> [String]
   func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [LibraryItem]?
   func getMaxItemsCount(at relativePath: String?) -> Int
   func replaceOrderedItems(_ items: NSOrderedSet, at relativePath: String?)
@@ -295,6 +296,38 @@ public final class LibraryService: LibraryServiceProtocol {
     self.dataManager.saveContext()
 
     return newFolder
+  }
+
+  public func getItemIdentifiers(notIn relativePaths: [String], parentFolder: String?) throws -> [String] {
+    let context = self.dataManager.getContext()
+    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+    fetchRequest.propertiesToFetch = ["relativePath"]
+    fetchRequest.resultType = .dictionaryResultType
+
+    if let parentFolder = parentFolder {
+      fetchRequest.predicate = NSPredicate(
+        format: "%K == %@ AND NOT (%K IN %@)",
+        #keyPath(LibraryItem.folder.relativePath),
+        parentFolder,
+        #keyPath(LibraryItem.relativePath),
+        relativePaths
+      )
+    } else {
+      fetchRequest.predicate = NSPredicate(
+        format: "%K != nil AND NOT (%K IN %@)",
+        #keyPath(LibraryItem.library),
+        #keyPath(LibraryItem.relativePath),
+        relativePaths
+      )
+    }
+
+    guard
+      let results = try context.fetch(fetchRequest) as? [[String: String]]
+    else {
+      return []
+    }
+
+    return results.flatMap({ Array($0.values) })
   }
 
   public func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [LibraryItem]? {

@@ -1221,4 +1221,35 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(fetchedChapters?[1].index == 1)
     XCTAssert(fetchedChapters?.last?.index == 2)
   }
+
+  func testGetItemIdentifiersNotIncluded() throws {
+    let emptyResult = try self.sut.getItemIdentifiers(notIn: [], parentFolder: nil)
+    XCTAssert(emptyResult.isEmpty == true)
+
+    let folder = try! self.sut.createFolder(with: "test-folder", inside: nil)
+    let folder2 = try! self.sut.createFolder(with: "test-folder2", inside: nil)
+
+    let secondResult = try self.sut.getItemIdentifiers(notIn: [], parentFolder: nil)
+    XCTAssert(secondResult.count == 2)
+
+    let folder3 = try! self.sut.createFolder(with: "test-folder3", inside: folder.relativePath)
+    let folder4 = try! self.sut.createFolder(with: "test-folder4", inside: folder.relativePath)
+    let folder5 = try! self.sut.createFolder(with: "test-folder5", inside: folder.relativePath)
+
+    let thirdResult = try self.sut.getItemIdentifiers(notIn: [], parentFolder: folder.relativePath)
+    XCTAssert(thirdResult.count == 3)
+
+    let fourthResult = try self.sut.getItemIdentifiers(notIn: [folder.relativePath], parentFolder: nil)
+
+    XCTAssert(fourthResult.count == 1)
+    XCTAssert(fourthResult.first == folder2.relativePath)
+
+    let fifthResult = try self.sut.getItemIdentifiers(
+      notIn: [folder.relativePath, folder3.relativePath, folder4.relativePath],
+      parentFolder: folder.relativePath
+    )
+
+    XCTAssert(fifthResult.count == 1)
+    XCTAssert(fifthResult.first == folder5.relativePath)
+  }
 }
