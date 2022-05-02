@@ -76,14 +76,13 @@ public class Book: LibraryItem {
   }
 
   enum CodingKeys: String, CodingKey {
-    case currentTime, duration, identifier, relativePath, percentCompleted, title, author, folder, orderRank
+    case currentTime, duration, relativePath, percentCompleted, title, author, folder, orderRank
   }
 
   public override func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(currentTime, forKey: .currentTime)
     try container.encode(duration, forKey: .duration)
-    try container.encode(identifier, forKey: .identifier)
     try container.encode(relativePath, forKey: .relativePath)
     try container.encode(percentCompleted, forKey: .percentCompleted)
     try container.encode(title, forKey: .title)
@@ -103,7 +102,6 @@ public class Book: LibraryItem {
     let values = try decoder.container(keyedBy: CodingKeys.self)
     currentTime = try values.decode(Double.self, forKey: .currentTime)
     duration = try values.decode(Double.self, forKey: .duration)
-    identifier = try values.decode(String.self, forKey: .identifier)
     relativePath = try values.decode(String.self, forKey: .relativePath)
     percentCompleted = try values.decode(Double.self, forKey: .percentCompleted)
     title = try values.decode(String.self, forKey: .title)
@@ -161,7 +159,6 @@ extension Book {
     let entity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
     self.init(entity: entity, insertInto: context)
     let fileURL = bookUrl
-    self.identifier = fileURL.lastPathComponent
     self.relativePath = fileURL.relativePath(to: DataManager.getProcessedFolderURL())
     let asset = AVAsset(url: fileURL)
 
@@ -179,15 +176,6 @@ extension Book {
     }
 
     self.setChapters(from: asset, context: context)
-
-    let legacyIdentifier = bookUrl.lastPathComponent
-    let storedTime = UserDefaults.standard.double(forKey: legacyIdentifier)
-
-    // migration of time
-    if storedTime > 0 {
-      self.currentTime = storedTime
-      UserDefaults.standard.removeObject(forKey: legacyIdentifier)
-    }
   }
 
   public class func getBookTitle(from fileURL: URL) -> String {

@@ -26,7 +26,6 @@ extension LibraryItem {
     @NSManaged public var lastPlayDate: Date?
     @NSManaged public var relativePath: String!
     @NSManaged public var originalFileName: String!
-    @NSManaged public var identifier: String!
     @NSManaged public var orderRank: Int16
     @NSManaged public var bookmarks: NSSet?
     @NSManaged public var lastPlayed: Library?

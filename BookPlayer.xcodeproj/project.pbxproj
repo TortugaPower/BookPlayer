@@ -12,8 +12,6 @@
 		4106414925872699008EB8D0 /* TimeListenedSmallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4106414825872699008EB8D0 /* TimeListenedSmallView.swift */; };
 		41064152258726D2008EB8D0 /* TimeListenedMediumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41064151258726D2008EB8D0 /* TimeListenedMediumView.swift */; };
 		4109246C21A2019400D5DF11 /* CheckboxSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4109246B21A2019400D5DF11 /* CheckboxSelectionView.swift */; };
-		4109F498266915E7007A6FFF /* FolderMigrationUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4109F494266915E7007A6FFF /* FolderMigrationUtils.swift */; };
-		4109F499266915E7007A6FFF /* FolderMigrationUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4109F494266915E7007A6FFF /* FolderMigrationUtils.swift */; };
 		410D00E426DAB97700D11A45 /* Combine+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D00E326DAB97700D11A45 /* Combine+BookPlayer.swift */; };
 		410D00FA26DDCE6C00D11A45 /* ChaptersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D00F926DDCE6C00D11A45 /* ChaptersViewModel.swift */; };
 		410D00FE26DDD2A900D11A45 /* ProgressObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D00FD26DDD2A900D11A45 /* ProgressObject.swift */; };
@@ -553,7 +551,6 @@
 		4106414825872699008EB8D0 /* TimeListenedSmallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeListenedSmallView.swift; sourceTree = "<group>"; };
 		41064151258726D2008EB8D0 /* TimeListenedMediumView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeListenedMediumView.swift; sourceTree = "<group>"; };
 		4109246B21A2019400D5DF11 /* CheckboxSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckboxSelectionView.swift; sourceTree = "<group>"; };
-		4109F494266915E7007A6FFF /* FolderMigrationUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderMigrationUtils.swift; sourceTree = "<group>"; };
 		410D00E326DAB97700D11A45 /* Combine+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Combine+BookPlayer.swift"; sourceTree = "<group>"; };
 		410D00F926DDCE6C00D11A45 /* ChaptersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChaptersViewModel.swift; sourceTree = "<group>"; };
 		410D00FD26DDD2A900D11A45 /* ProgressObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressObject.swift; sourceTree = "<group>"; };
@@ -1429,7 +1426,6 @@
 			children = (
 				4124AB1625DFE07E0007C839 /* DataMigrationManager.swift */,
 				412AB71427017ABD00969618 /* DBVersion.swift */,
-				4109F494266915E7007A6FFF /* FolderMigrationUtils.swift */,
 				412AB7052701421600969618 /* ManualOrderMigrationUtils.swift */,
 				41D20DAE25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel */,
 				41C3394825E04091003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel */,
@@ -2503,7 +2499,6 @@
 				4140EA73227289A80009F794 /* Notification+BookPlayerKit.swift in Sources */,
 				41A894212652A5DE0032E972 /* Configuration.swift in Sources */,
 				4140EA702272899D0009F794 /* CommandParser.swift in Sources */,
-				4109F499266915E7007A6FFF /* FolderMigrationUtils.swift in Sources */,
 				4140EA76227289B50009F794 /* Chapter+CoreDataClass.swift in Sources */,
 				41A359C6276232E00020D5F5 /* MappingModel_v7_to_v8.xcmappingmodel in Sources */,
 				62CADBAE2725FE2900A4A98F /* AVAudioAssetImageDataProvider.swift in Sources */,
@@ -2801,7 +2796,6 @@
 				41A90C4527563F5A00C30394 /* FolderType.swift in Sources */,
 				41A1B129226F88C500EA0400 /* Folder+CoreDataClass.swift in Sources */,
 				41C233FD272E1957006BC7B8 /* SimpleLibraryItem.swift in Sources */,
-				4109F498266915E7007A6FFF /* FolderMigrationUtils.swift in Sources */,
 				41A1B12A226F88C500EA0400 /* Folder+CoreDataProperties.swift in Sources */,
 				41EB07152752F17B00EFEE13 /* PlayableItem.swift in Sources */,
 				41A1B11E226F88C500EA0400 /* Theme+CoreDataProperties.swift in Sources */,

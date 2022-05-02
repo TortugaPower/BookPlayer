@@ -22,7 +22,6 @@ public class Folder: LibraryItem {
     let entity = NSEntityDescription.entity(forEntityName: "Folder", in: context)!
     self.init(entity: entity, insertInto: context)
 
-    self.identifier = "\(title)\(Date().timeIntervalSince1970)"
     self.relativePath = title
     self.title = title
     self.originalFileName = title
@@ -33,7 +32,6 @@ public class Folder: LibraryItem {
     self.init(entity: entity, insertInto: context)
 
     let fileTitle = fileURL.lastPathComponent
-    self.identifier = "\(fileTitle)\(Date().timeIntervalSince1970)"
     self.relativePath = fileURL.relativePath(to: DataManager.getProcessedFolderURL())
     self.title = fileTitle
     self.originalFileName = fileTitle

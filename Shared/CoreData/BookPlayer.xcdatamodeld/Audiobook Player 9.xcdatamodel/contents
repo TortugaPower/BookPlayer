@@ -37,7 +37,6 @@
     <entity name="LibraryItem" representedClassName="LibraryItem" isAbstract="YES" syncable="YES">
         <attribute name="currentTime" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="duration" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="identifier" attributeType="String"/>
         <attribute name="isFinished" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="lastPlayDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="orderRank" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
@@ -91,7 +90,7 @@
         <element name="Chapter" positionX="162" positionY="99" width="128" height="120"/>
         <element name="Folder" positionX="16" positionY="207" width="128" height="74"/>
         <element name="Library" positionX="160" positionY="9" width="128" height="89"/>
-        <element name="LibraryItem" positionX="-63" positionY="-18" width="128" height="254"/>
+        <element name="LibraryItem" positionX="-63" positionY="-18" width="128" height="239"/>
         <element name="PlaybackRecord" positionX="-54" positionY="135" width="128" height="75"/>
         <element name="Theme" positionX="-261" positionY="330" width="128" height="434"/>
     </elements>
