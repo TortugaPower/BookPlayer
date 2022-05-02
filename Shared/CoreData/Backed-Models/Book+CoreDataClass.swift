@@ -13,10 +13,6 @@ import Foundation
 
 @objc(Book)
 public class Book: LibraryItem {
-  var filename: String {
-    return self.title + "." + self.ext
-  }
-
   // needed to invalide cache of folder
   override public func setCurrentTime(_ time: Double) {
     self.currentTime = time
@@ -80,7 +76,7 @@ public class Book: LibraryItem {
   }
 
   enum CodingKeys: String, CodingKey {
-    case currentTime, duration, identifier, relativePath, percentCompleted, title, author, ext, folder, orderRank
+    case currentTime, duration, identifier, relativePath, percentCompleted, title, author, folder, orderRank
   }
 
   public override func encode(to encoder: Encoder) throws {
@@ -92,7 +88,6 @@ public class Book: LibraryItem {
     try container.encode(percentCompleted, forKey: .percentCompleted)
     try container.encode(title, forKey: .title)
     try container.encode(author, forKey: .author)
-    try container.encode(ext, forKey: .ext)
     try container.encode(orderRank, forKey: .orderRank)
   }
 
@@ -113,7 +108,6 @@ public class Book: LibraryItem {
     percentCompleted = try values.decode(Double.self, forKey: .percentCompleted)
     title = try values.decode(String.self, forKey: .title)
     author = try values.decode(String.self, forKey: .author)
-    ext = try values.decode(String.self, forKey: .ext)
   }
 }
 
@@ -167,7 +161,6 @@ extension Book {
     let entity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
     self.init(entity: entity, insertInto: context)
     let fileURL = bookUrl
-    self.ext = fileURL.pathExtension
     self.identifier = fileURL.lastPathComponent
     self.relativePath = fileURL.relativePath(to: DataManager.getProcessedFolderURL())
     let asset = AVAsset(url: fileURL)

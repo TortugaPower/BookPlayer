@@ -8,7 +8,6 @@
     </entity>
     <entity name="Book" representedClassName="Book" parentEntity="LibraryItem" syncable="YES">
         <attribute name="author" attributeType="String"/>
-        <attribute name="ext" attributeType="String"/>
         <relationship name="chapters" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="Chapter" inverseName="book" inverseEntity="Chapter"/>
     </entity>
     <entity name="Bookmark" representedClassName="Bookmark" syncable="YES">
@@ -87,7 +86,7 @@
     </entity>
     <elements>
         <element name="Account" positionX="-54" positionY="144" width="128" height="89"/>
-        <element name="Book" positionX="-65" positionY="329" width="128" height="74"/>
+        <element name="Book" positionX="-65" positionY="329" width="128" height="59"/>
         <element name="Bookmark" positionX="-54" positionY="144" width="128" height="89"/>
         <element name="Chapter" positionX="162" positionY="99" width="128" height="120"/>
         <element name="Folder" positionX="16" positionY="207" width="128" height="74"/>
