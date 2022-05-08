@@ -140,7 +140,7 @@ public final class DataMigrationManager {
     self.storeModel = destinationModel
 
     // Only continue if there's extra work to be done
-    guard currentVersion == .v6 else {
+    guard currentVersion == .v8 else {
       completionHandler(nil)
       return
     }
@@ -154,8 +154,8 @@ public final class DataMigrationManager {
 
       let dataManager = DataManager(coreDataStack: stack)
 
-      if currentVersion == .v6 {
-        self.migrateLibraryOrder(dataManager: dataManager)
+      if currentVersion == .v8 {
+        self.populateFolderDetails(dataManager: dataManager)
       }
 
       completionHandler(nil)

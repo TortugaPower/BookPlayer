@@ -57,4 +57,17 @@ extension DataMigrationManager {
 
     self.migrateFolderOrder(mutatingFolders + newFolders, dataManager: dataManager)
   }
+
+  func populateFolderDetails(dataManager: DataManager) {
+    let fetch: NSFetchRequest<Folder> = Folder.fetchRequest()
+    fetch.returnsObjectsAsFaults = false
+    guard let folders = try? dataManager.getContext().fetch(fetch) as [Folder] else { return }
+
+    folders.forEach { folder in
+      let count = folder.items?.count ?? 0
+      folder.details = "\(count) \("files_title".localized)"
+    }
+
+    dataManager.saveContext()
+  }
 }

@@ -13,10 +13,42 @@ import UIKit
 
 @objc(Folder)
 public class Folder: LibraryItem {
-    var cachedDuration: Double?
-    var cachedProgress: Double?
+  var cachedDuration: Double?
+  var cachedProgress: Double?
 
-    // MARK: - Init
+  // MARK: - Init
+
+  public convenience init(
+    context: NSManagedObjectContext,
+    title: String,
+    details: String,
+    relativePath: String,
+    originalFileName: String,
+    speed: Float?,
+    currentTime: Double,
+    duration: Double,
+    percentCompleted: Double,
+    isFinished: Bool,
+    orderRank: Int16,
+    lastPlayDate: Date?
+  ) {
+    let entity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
+    self.init(entity: entity, insertInto: context)
+
+    self.title = title
+    self.details = details
+    self.relativePath = relativePath
+    self.originalFileName = originalFileName
+    if let speed = speed {
+      self.speed = speed
+    }
+    self.currentTime = currentTime
+    self.duration = duration
+    self.percentCompleted = percentCompleted
+    self.isFinished = isFinished
+    self.orderRank = orderRank
+    self.lastPlayDate = lastPlayDate
+  }
 
   public convenience init(title: String, context: NSManagedObjectContext) {
     let entity = NSEntityDescription.entity(forEntityName: "Folder", in: context)!
@@ -25,6 +57,7 @@ public class Folder: LibraryItem {
     self.relativePath = title
     self.title = title
     self.originalFileName = title
+    self.details = "0 \("files_title".localized)"
   }
 
   public convenience init(from fileURL: URL, context: NSManagedObjectContext) {
@@ -35,6 +68,7 @@ public class Folder: LibraryItem {
     self.relativePath = fileURL.relativePath(to: DataManager.getProcessedFolderURL())
     self.title = fileTitle
     self.originalFileName = fileTitle
+    self.details = "0 \("files_title".localized)"
   }
 
     // MARK: - Methods
@@ -77,11 +111,11 @@ public class Folder: LibraryItem {
 
     public override var progressPercentage: Double {
       switch self.type {
-      case .regular:
+      case .folder:
         let itemTime = self.getProgressAndDuration()
 
         return itemTime.progress / itemTime.duration
-      case .bound:
+      case .book:
         guard self.duration > 0 else { return 0 }
 
         return self.currentTime / self.duration
@@ -126,12 +160,18 @@ public class Folder: LibraryItem {
         return (totalProgress, totalDuration)
     }
 
-    public func updateCompletionState() {
-        self.resetCachedProgress()
-        guard let items = self.items?.array as? [LibraryItem] else { return }
+  public func updateDetails() {
+    let count = self.items?.count ?? 0
 
-        self.isFinished = !items.contains(where: { !$0.isFinished })
-    }
+    self.details = "\(count) \("files_title".localized)"
+  }
+
+  public func updateCompletionState() {
+    self.resetCachedProgress()
+    guard let items = self.items?.array as? [LibraryItem] else { return }
+
+    self.isFinished = !items.contains(where: { !$0.isFinished })
+  }
 
     public func hasBooks() -> Bool {
         guard let books = self.items else {
@@ -283,6 +323,7 @@ public class Folder: LibraryItem {
     if let parent = item.folder {
       parent.removeFromItems(item)
       parent.updateCompletionState()
+      parent.updateDetails()
     }
 
     if let library = item.library {
@@ -297,6 +338,7 @@ public class Folder: LibraryItem {
 
     self.rebuildRelativePaths(for: item)
     self.rebuildOrderRank()
+    self.updateDetails()
   }
 
   public func rebuildRelativePaths(for item: LibraryItem) {
@@ -330,13 +372,13 @@ public class Folder: LibraryItem {
     }
 
     enum CodingKeys: String, CodingKey {
-        case title, desc, books, folders, library, orderRank, items
+        case title, details, books, folders, library, orderRank, items
     }
 
     public override func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encode(title, forKey: .title)
-      try container.encode(desc, forKey: .desc)
+      try container.encode(details, forKey: .details)
       try container.encode(orderRank, forKey: .orderRank)
 
       guard let itemsArray = self.items?.array as? [LibraryItem] else { return }
@@ -355,7 +397,7 @@ public class Folder: LibraryItem {
 
       let values = try decoder.container(keyedBy: CodingKeys.self)
       title = try values.decode(String.self, forKey: .title)
-      desc = try values.decode(String.self, forKey: .desc)
+      details = try values.decode(String.self, forKey: .details)
 
       if let encodedItems = try? values.decode([LibraryItem].self, forKey: .items) {
         items = NSOrderedSet(array: encodedItems)

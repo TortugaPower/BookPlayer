@@ -85,7 +85,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
 
     return PlayableItem(
       title: book.title,
-      author: book.author,
+      author: book.details,
       chapters: chapters,
       currentTime: book.currentTime,
       duration: book.duration,
@@ -113,7 +113,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
       return [
         PlayableChapter(
           title: book.title,
-          author: book.author,
+          author: book.details,
           start: 0.0,
           duration: book.duration,
           relativePath: book.relativePath,
@@ -126,7 +126,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
       .map({ (index, chapter) in
         return PlayableChapter(
           title: chapter.title,
-          author: book.author,
+          author: book.details,
           start: chapter.start,
           duration: chapter.duration,
           relativePath: book.relativePath,
@@ -189,7 +189,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
       .map({ (index, book) in
         let chapter = PlayableChapter(
           title: book.title,
-          author: book.author,
+          author: book.details,
           start: currentDuration,
           duration: book.duration,
           relativePath: book.relativePath,

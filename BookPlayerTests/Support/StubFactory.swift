@@ -11,9 +11,7 @@ class StubFactory {
     let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: processedFolder)
 
     let book = Book(context: dataManager.getContext())
-    book.author = "test-author"
-    book.ext = fileUrl.pathExtension
-    book.identifier = fileUrl.lastPathComponent
+    book.details = "test-author"
     book.relativePath = fileUrl.relativePath(to: DataManager.getProcessedFolderURL())
 
     book.title = fileUrl.lastPathComponent.replacingOccurrences(of: "_", with: " ")

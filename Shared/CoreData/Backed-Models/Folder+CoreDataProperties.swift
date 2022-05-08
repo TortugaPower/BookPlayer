@@ -15,9 +15,7 @@ extension Folder {
     return NSFetchRequest<Folder>(entityName: "Folder")
   }
 
-  @NSManaged public var desc: String!
   @NSManaged public var items: NSOrderedSet?
-  @NSManaged public var type: FolderType
 }
 
 // MARK: Generated accessors for books

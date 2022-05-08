@@ -19,13 +19,15 @@ public protocol LibraryServiceProtocol {
   func setLibraryLastBook(with relativePath: String?)
   func createTheme(params: [String: Any]) -> Theme
 
+  func addBook(from item: SyncedItem, parentFolder: String?)
   func createBook(from url: URL) -> Book
   func getChapters(from relativePath: String) -> [Chapter]?
   func getItem(with relativePath: String) -> LibraryItem?
   func findBooks(containing fileURL: URL) -> [Book]?
   func getLastPlayedItems(limit: Int?) -> [LibraryItem]?
 
-  func updateFolder(at relativePath: String, type: FolderType) throws
+  func addFolder(from item: SyncedItem, type: ItemType, parentFolder: String?)
+  func updateFolder(at relativePath: String, type: ItemType) throws
   func findFolder(with fileURL: URL) -> Folder?
   func findFolder(with relativePath: String) -> Folder?
   func hasLibraryLinked(item: LibraryItem) -> Bool
@@ -146,6 +148,49 @@ public final class LibraryService: LibraryServiceProtocol {
     return newTheme
   }
 
+  public func addBook(from item: SyncedItem, parentFolder: String?) {
+    var speed: Float?
+    if let itemSpeed = item.speed {
+      speed = Float(itemSpeed)
+    }
+
+    var lastPlayDate: Date?
+    if let timestamp = item.lastPlayDateTimestamp {
+      lastPlayDate = Date(timeIntervalSince1970: timestamp)
+    }
+
+    let newBook = Book(
+      context: self.dataManager.getContext(),
+      title: item.title,
+      author: item.author,
+      relativePath: item.relativePath,
+      originalFileName: item.originalFileName,
+      speed: speed,
+      currentTime: item.currentTime,
+      duration: item.duration,
+      percentCompleted: item.percentCompleted,
+      isFinished: item.isFinished,
+      orderRank: Int16(item.orderRank),
+      lastPlayDate: lastPlayDate
+    )
+
+    if let relativePath = parentFolder,
+       let folder = self.getItem(with: relativePath) as? Folder {
+      let count = folder.items?.count ?? 0
+      let index = count == 0 ? 0 : count - 1
+      folder.insert(item: newBook, at: min(index, item.orderRank))
+      folder.rebuildOrderRank()
+    } else {
+      let library = self.getLibrary()
+      let count = library.items?.count ?? 0
+      let index = count == 0 ? 0 : count - 1
+      library.insert(item: newBook, at: min(index, item.orderRank))
+      library.rebuildOrderRank()
+    }
+
+    self.dataManager.saveContext()
+  }
+
   public func createBook(from url: URL) -> Book {
     let newBook = Book(from: url, context: self.dataManager.getContext())
     self.dataManager.saveContext()
@@ -196,16 +241,16 @@ public final class LibraryService: LibraryServiceProtocol {
   }
 
   // MARK: - Folders
-  public func updateFolder(at relativePath: String, type: FolderType) throws {
+  public func updateFolder(at relativePath: String, type: ItemType) throws {
     guard let folder = self.getItem(with: relativePath) as? Folder else {
       throw BookPlayerError.runtimeError("Can't find the folder")
     }
 
     switch type {
-    case .regular:
+    case .folder:
       folder.type = type
       folder.lastPlayDate = nil
-    case .bound:
+    case .book:
       guard let items = folder.items?.array as? [Book] else {
         throw BookPlayerError.runtimeError("The folder needs to only contain book items")
       }
@@ -268,7 +313,25 @@ public final class LibraryService: LibraryServiceProtocol {
     }
   }
 
-  public func createFolder(with title: String, inside relativePath: String?) throws -> Folder {
+  public func addFolder(from item: SyncedItem, type: ItemType, parentFolder: String?) {
+    // This shouldn't fail
+    try? createFolderOnDisk(title: item.title, inside: parentFolder)
+    let newFolder = Folder(title: item.title, context: self.dataManager.getContext())
+
+    // insert into existing folder or library at index
+    if let relativePath = parentFolder {
+      // The folder object must exist
+      let folder = self.findFolder(with: relativePath)!
+      folder.insert(item: newFolder, at: item.orderRank)
+    } else {
+      let library = self.getLibrary()
+      library.insert(item: newFolder, at: item.orderRank)
+    }
+
+    self.dataManager.saveContext()
+  }
+
+  func createFolderOnDisk(title: String, inside relativePath: String?) throws {
     let processedFolder = DataManager.getProcessedFolderURL()
     let destinationURL: URL
 
@@ -280,14 +343,23 @@ public final class LibraryService: LibraryServiceProtocol {
 
     try? removeFolderIfNeeded(destinationURL)
     try FileManager.default.createDirectory(at: destinationURL, withIntermediateDirectories: false, attributes: nil)
+  }
+
+  public func createFolder(with title: String, inside relativePath: String?) throws -> Folder {
+    try createFolderOnDisk(title: title, inside: relativePath)
+
+    var parentFolder: Folder?
+
+    if let relativePath = relativePath {
+      // The folder object must exist
+      parentFolder = self.findFolder(with: relativePath)!
+    }
 
     let newFolder = Folder(title: title, context: self.dataManager.getContext())
 
     // insert into existing folder or library at index
-    if let relativePath = relativePath {
-      // The folder object must exist
-      let folder = self.findFolder(with: relativePath)!
-      folder.insert(item: newFolder)
+    if let parentFolder = parentFolder {
+      parentFolder.insert(item: newFolder)
     } else {
       let library = self.getLibrary()
       library.insert(item: newFolder)
@@ -671,6 +743,7 @@ public final class LibraryService: LibraryServiceProtocol {
 
     if let folder = folder {
       folder.updateCompletionState()
+      folder.updateDetails()
     }
 
     self.dataManager.saveContext()

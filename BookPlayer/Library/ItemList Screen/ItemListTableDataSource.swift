@@ -11,10 +11,10 @@ import Combine
 import UIKit
 
 typealias SectionType = Section
-typealias ItemType = SimpleLibraryItem
+typealias ItemClassType = SimpleLibraryItem
 
-class ItemListTableDataSource: UITableViewDiffableDataSource<SectionType, ItemType> {
-  var reorderUpdates = PassthroughSubject<(item: ItemType, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath), Never>()
+class ItemListTableDataSource: UITableViewDiffableDataSource<SectionType, ItemClassType> {
+  var reorderUpdates = PassthroughSubject<(item: ItemClassType, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath), Never>()
 
   // MARK: reordering support
 

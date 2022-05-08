@@ -14,10 +14,10 @@ import UniformTypeIdentifiers
 enum ItemListActionRoutes {
   case importOptions
   case importLocalFiles
-  case importIntoFolder(_ folder: SimpleLibraryItem, items: [LibraryItem], type: FolderType)
+  case importIntoFolder(_ folder: SimpleLibraryItem, items: [LibraryItem], type: ItemType)
   case downloadBook(_ url: URL)
-  case createFolder(_ title: String, items: [String]?, type: FolderType)
-  case updateFolders(_ folders: [SimpleLibraryItem], type: FolderType)
+  case createFolder(_ title: String, items: [String]?, type: ItemType)
+  case updateFolders(_ folders: [SimpleLibraryItem], type: ItemType)
   case moveIntoLibrary(items: [SimpleLibraryItem])
   case moveIntoFolder(_ folder: SimpleLibraryItem, items: [SimpleLibraryItem])
   case delete(_ items: [SimpleLibraryItem], mode: DeleteMode)
@@ -268,7 +268,7 @@ class ItemListCoordinator: Coordinator {
       }
 
       let itemPaths = items.map { $0.relativePath! }
-      self.showCreateFolderAlert(placeholder: placeholder, with: itemPaths, type: .regular)
+      self.showCreateFolderAlert(placeholder: placeholder, with: itemPaths, type: .folder)
     })
 
     let existingFolderAction = UIAlertAction(title: "existing_playlist_button".localized, style: .default) { _ in
@@ -276,7 +276,7 @@ class ItemListCoordinator: Coordinator {
       vc.items = availableFolders
 
       vc.onItemSelected = { selectedFolder in
-        self.onAction?(.importIntoFolder(selectedFolder, items: items, type: .regular))
+        self.onAction?(.importIntoFolder(selectedFolder, items: items, type: .folder))
       }
 
       let nav = AppNavigationController(rootViewController: vc)
@@ -294,7 +294,7 @@ class ItemListCoordinator: Coordinator {
       }
 
       let itemPaths = items.map { $0.relativePath! }
-      self.showCreateFolderAlert(placeholder: placeholder, with: itemPaths, type: .bound)
+      self.showCreateFolderAlert(placeholder: placeholder, with: itemPaths, type: .book)
     }
     convertAction.isEnabled = items is [Book]
     alert.addAction(convertAction)
@@ -306,17 +306,17 @@ class ItemListCoordinator: Coordinator {
 extension ItemListCoordinator {
   func showCreateFolderAlert(placeholder: String? = nil,
                              with items: [String]? = nil,
-                             type: FolderType = .regular) {
+                             type: ItemType = .folder) {
     let alertTitle: String
     let alertMessage: String
     let alertPlaceholderDefault: String
 
     switch type {
-    case .regular:
+    case .folder:
       alertTitle = "create_playlist_title".localized
       alertMessage = "create_playlist_description".localized
       alertPlaceholderDefault = "new_playlist_button".localized
-    case .bound:
+    case .book:
       alertTitle = "bound_books_create_alert_title".localized
       alertMessage = "bound_books_create_alert_description".localized
       alertPlaceholderDefault = "bound_books_new_title_placeholder".localized
@@ -506,18 +506,18 @@ extension ItemListCoordinator {
 
     if selectedItems.allSatisfy({ $0.type == .bound }) {
       boundBookAction = UIAlertAction(title: "bound_books_undo_alert_title".localized, style: .default, handler: { [weak self] _ in
-        self?.onAction?(.updateFolders(selectedItems, type: .regular))
+        self?.onAction?(.updateFolders(selectedItems, type: .folder))
       })
       boundBookAction.isEnabled = true
     } else {
       boundBookAction = UIAlertAction(title: "bound_books_create_button".localized, style: .default, handler: { [weak self] _ in
         if isSingle {
-          self?.onAction?(.updateFolders(selectedItems, type: .bound))
+          self?.onAction?(.updateFolders(selectedItems, type: .book))
         } else {
           self?.showCreateFolderAlert(
             placeholder: item.title,
             with: selectedItems.map { $0.relativePath },
-            type: .bound
+            type: .book
           )
         }
       })

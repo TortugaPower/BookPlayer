@@ -50,7 +50,7 @@ public class Book: LibraryItem {
   public func previousBook() -> LibraryItem? {
     if
       let folder = self.folder,
-      folder.type == .regular,
+      folder.type == .folder,
       let previous = folder.getPreviousBook(before: self.relativePath) {
       return previous
     }
@@ -61,7 +61,7 @@ public class Book: LibraryItem {
   public func nextBook(autoplayed: Bool) -> LibraryItem? {
     if
       let folder = self.folder,
-      folder.type == .regular,
+      folder.type == .folder,
       let next = folder.getNextBook(after: self.relativePath) {
       return next
     }
@@ -76,7 +76,7 @@ public class Book: LibraryItem {
   }
 
   enum CodingKeys: String, CodingKey {
-    case currentTime, duration, relativePath, percentCompleted, title, author, folder, orderRank
+    case currentTime, duration, relativePath, percentCompleted, title, details, folder, orderRank
   }
 
   public override func encode(to encoder: Encoder) throws {
@@ -86,7 +86,7 @@ public class Book: LibraryItem {
     try container.encode(relativePath, forKey: .relativePath)
     try container.encode(percentCompleted, forKey: .percentCompleted)
     try container.encode(title, forKey: .title)
-    try container.encode(author, forKey: .author)
+    try container.encode(details, forKey: .details)
     try container.encode(orderRank, forKey: .orderRank)
   }
 
@@ -105,7 +105,7 @@ public class Book: LibraryItem {
     relativePath = try values.decode(String.self, forKey: .relativePath)
     percentCompleted = try values.decode(Double.self, forKey: .percentCompleted)
     title = try values.decode(String.self, forKey: .title)
-    author = try values.decode(String.self, forKey: .author)
+    details = try values.decode(String.self, forKey: .details)
   }
 }
 
@@ -146,13 +146,46 @@ extension Book {
       case "title":
         self.title = value as? String
       case "artist":
-        if self.author == "voiceover_unknown_author".localized {
-          self.author = value as? String
+        if self.details == "voiceover_unknown_author".localized {
+          self.details = value as? String
         }
       default:
         continue
       }
     }
+  }
+
+  public convenience init(
+    context: NSManagedObjectContext,
+    title: String,
+    author: String,
+    relativePath: String,
+    originalFileName: String,
+    speed: Float?,
+    currentTime: Double,
+    duration: Double,
+    percentCompleted: Double,
+    isFinished: Bool,
+    orderRank: Int16,
+    lastPlayDate: Date?
+  ) {
+    let entity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
+    self.init(entity: entity, insertInto: context)
+
+    self.title = title
+    self.details = author
+    self.relativePath = relativePath
+    self.originalFileName = originalFileName
+    if let speed = speed {
+      self.speed = speed
+    }
+    self.currentTime = currentTime
+    self.duration = duration
+    self.percentCompleted = percentCompleted
+    self.isFinished = isFinished
+    self.orderRank = orderRank
+    self.lastPlayDate = lastPlayDate
+    // chapters will be loaded after the book is downloaded
   }
 
   public convenience init(from bookUrl: URL, context: NSManagedObjectContext) {
@@ -166,7 +199,7 @@ extension Book {
     let authorFromMeta = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtist, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String
 
     self.title = titleFromMeta ?? bookUrl.lastPathComponent.replacingOccurrences(of: "_", with: " ")
-    self.author = authorFromMeta ?? "voiceover_unknown_author".localized
+    self.details = authorFromMeta ?? "voiceover_unknown_author".localized
     self.duration = CMTimeGetSeconds(asset.duration)
     self.originalFileName = bookUrl.lastPathComponent
     self.isFinished = false

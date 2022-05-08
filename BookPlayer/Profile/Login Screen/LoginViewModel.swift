@@ -55,7 +55,7 @@ class LoginViewModel: BaseViewModel<LoginCoordinator> {
             userId: appleIDCredential.user
           )
 
-          syncService.syncLibrary()
+          try await syncService.syncLibrary()
 
           await MainActor.run { [weak self, account] in
             self?.coordinator.stopLoader()

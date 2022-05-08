@@ -81,40 +81,23 @@ extension SimpleLibraryItem {
   }
 
   public init(from item: LibraryItem, themeAccent: UIColor, playbackState: PlaybackState = .stopped) {
-    if let book = item as? Book {
-      self.init(from: book, themeAccent: themeAccent, playbackState: playbackState)
+    self.title = item.title
+    self.details = item.details
+    self.duration = TimeParser.formatTotalDuration(item.duration)
+    self.progress = item.isFinished ? 1.0 : item.progressPercentage
+    self.themeAccent = themeAccent
+    self.relativePath = item.relativePath
+    self.playbackState = playbackState
+
+    if let folder = item as? Folder {
+      switch folder.type {
+      case .folder:
+        self.type = .folder
+      case .book:
+        self.type = .bound
+      }
     } else {
-      // swiftlint:disable force_cast
-      let folder = item as! Folder
-      self.init(from: folder, themeAccent: themeAccent, playbackState: playbackState)
+      self.type = .book
     }
-  }
-
-  public init(from book: Book, themeAccent: UIColor, playbackState: PlaybackState = .stopped) {
-    self.title = book.title
-    self.details = book.author
-    self.duration = TimeParser.formatTotalDuration(book.duration)
-    self.progress = book.isFinished ? 1.0 : book.progressPercentage
-    self.themeAccent = themeAccent
-    self.relativePath = book.relativePath
-    self.type = .book
-    self.playbackState = playbackState
-  }
-
-  public init(from folder: Folder, themeAccent: UIColor, playbackState: PlaybackState = .stopped) {
-    self.title = folder.title
-    self.details = folder.info()
-    self.duration = TimeParser.formatTotalDuration(folder.duration)
-    self.progress = folder.isFinished ? 1.0 : folder.progressPercentage
-    self.themeAccent = themeAccent
-    self.relativePath = folder.relativePath
-
-    switch folder.type {
-    case .regular:
-      self.type = .folder
-    case .bound:
-      self.type = .bound
-    }
-    self.playbackState = playbackState
   }
 }

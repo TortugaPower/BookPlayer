@@ -55,6 +55,8 @@ enum DBVersion: CaseIterable {
       return "MappingModel_v3_to_v4"
     case .v8:
       return "MappingModel_v7_to_v8"
+    case .v9:
+      return "MappingModel_v8_to_v9"
     default:
       return nil
     }

@@ -7,7 +7,6 @@
         <attribute name="id" attributeType="String"/>
     </entity>
     <entity name="Book" representedClassName="Book" parentEntity="LibraryItem" syncable="YES">
-        <attribute name="author" attributeType="String"/>
         <relationship name="chapters" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="Chapter" inverseName="book" inverseEntity="Chapter"/>
     </entity>
     <entity name="Bookmark" representedClassName="Bookmark" syncable="YES">
@@ -24,8 +23,6 @@
         <relationship name="book" maxCount="1" deletionRule="Nullify" destinationEntity="Book" inverseName="chapters" inverseEntity="Book"/>
     </entity>
     <entity name="Folder" representedClassName="Folder" parentEntity="LibraryItem" elementID="PlaylistV3" syncable="YES">
-        <attribute name="desc" optional="YES" attributeType="String"/>
-        <attribute name="type" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="items" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="LibraryItem" inverseName="folder" inverseEntity="LibraryItem" elementID="relationBookV3"/>
     </entity>
     <entity name="Library" representedClassName="Library" syncable="YES">
@@ -36,6 +33,7 @@
     </entity>
     <entity name="LibraryItem" representedClassName="LibraryItem" isAbstract="YES" syncable="YES">
         <attribute name="currentTime" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="details" optional="YES" attributeType="String"/>
         <attribute name="duration" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="isFinished" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="lastPlayDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
@@ -45,6 +43,7 @@
         <attribute name="relativePath" attributeType="String"/>
         <attribute name="speed" attributeType="Float" defaultValueString="1" usesScalarValueType="YES"/>
         <attribute name="title" attributeType="String"/>
+        <attribute name="type" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="bookmarks" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Bookmark" inverseName="item" inverseEntity="Bookmark"/>
         <relationship name="folder" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Folder" inverseName="items" inverseEntity="Folder"/>
         <relationship name="lastPlayed" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Library" inverseName="lastPlayedItem" inverseEntity="Library"/>
@@ -85,12 +84,12 @@
     </entity>
     <elements>
         <element name="Account" positionX="-54" positionY="144" width="128" height="89"/>
-        <element name="Book" positionX="-65" positionY="329" width="128" height="59"/>
+        <element name="Book" positionX="-65" positionY="329" width="128" height="44"/>
         <element name="Bookmark" positionX="-54" positionY="144" width="128" height="89"/>
         <element name="Chapter" positionX="162" positionY="99" width="128" height="120"/>
-        <element name="Folder" positionX="16" positionY="207" width="128" height="74"/>
+        <element name="Folder" positionX="16" positionY="207" width="128" height="44"/>
         <element name="Library" positionX="160" positionY="9" width="128" height="89"/>
-        <element name="LibraryItem" positionX="-63" positionY="-18" width="128" height="239"/>
+        <element name="LibraryItem" positionX="-63" positionY="-18" width="128" height="269"/>
         <element name="PlaybackRecord" positionX="-54" positionY="135" width="128" height="75"/>
         <element name="Theme" positionX="-261" positionY="330" width="128" height="434"/>
     </elements>
