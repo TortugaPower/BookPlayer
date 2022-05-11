@@ -9,6 +9,7 @@
 import BookPlayerKit
 import DeviceKit
 import MediaPlayer
+import Themeable
 import UIKit
 
 class MainCoordinator: Coordinator {
@@ -44,6 +45,8 @@ class MainCoordinator: Coordinator {
     ThemeManager.shared.libraryService = libraryService
 
     super.init(navigationController: navigationController, flowType: .modal)
+
+    setUpTheming()
   }
 
   override func start() {
@@ -119,5 +122,14 @@ class MainCoordinator: Coordinator {
     }
 
     return getPresentingController(coordinator: lastCoordinator)
+  }
+}
+
+extension MainCoordinator: Themeable {
+  func applyTheme(_ theme: SimpleTheme) {
+    // This fixes native components like alerts having the proper color theme
+    SceneDelegate.shared?.window?.overrideUserInterfaceStyle = theme.useDarkVariant
+    ? .dark
+    : .light
   }
 }
