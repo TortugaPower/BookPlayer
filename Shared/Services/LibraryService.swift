@@ -162,7 +162,7 @@ public final class LibraryService: LibraryServiceProtocol {
     let newBook = Book(
       context: self.dataManager.getContext(),
       title: item.title,
-      author: item.author,
+      details: item.details,
       relativePath: item.relativePath,
       originalFileName: item.originalFileName,
       speed: speed,
@@ -316,7 +316,31 @@ public final class LibraryService: LibraryServiceProtocol {
   public func addFolder(from item: SyncedItem, type: ItemType, parentFolder: String?) {
     // This shouldn't fail
     try? createFolderOnDisk(title: item.title, inside: parentFolder)
-    let newFolder = Folder(title: item.title, context: self.dataManager.getContext())
+
+    var speed: Float?
+    if let itemSpeed = item.speed {
+      speed = Float(itemSpeed)
+    }
+
+    var lastPlayDate: Date?
+    if let timestamp = item.lastPlayDateTimestamp {
+      lastPlayDate = Date(timeIntervalSince1970: timestamp)
+    }
+
+    let newFolder = Folder(
+      context: self.dataManager.getContext(),
+      title: item.title,
+      details: item.details,
+      relativePath: item.relativePath,
+      originalFileName: item.originalFileName,
+      speed: speed,
+      currentTime: item.currentTime,
+      duration: item.duration,
+      percentCompleted: item.percentCompleted,
+      isFinished: item.isFinished,
+      orderRank: Int16(item.orderRank),
+      lastPlayDate: lastPlayDate
+    )
 
     // insert into existing folder or library at index
     if let relativePath = parentFolder {

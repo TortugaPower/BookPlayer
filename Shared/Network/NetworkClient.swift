@@ -17,7 +17,8 @@ public protocol NetworkClientProtocol {
 }
 
 public class NetworkClient: NetworkClientProtocol {
-  let baseUrl = "https://api.tortugapower.com/v1"
+  let scheme = "https"
+  let host = "api.tortugapower.com"
   let keychain: KeychainServiceProtocol
   private let decoder: JSONDecoder = JSONDecoder()
 
@@ -30,7 +31,38 @@ public class NetworkClient: NetworkClientProtocol {
     method: HTTPMethod,
     parameters: [String: Any]?
   ) async throws -> T {
-    let url = URL(string: baseUrl)!.appendingPathComponent(path)
+    let request = try buildURLRequest(path: path, method: method, parameters: parameters)
+
+    let data = try await URLSession.shared.data(for: request)
+
+    return try self.decoder.decode(T.self, from: data)
+  }
+
+  func buildURLRequest(
+    path: String,
+    method: HTTPMethod,
+    parameters: [String: Any]?
+  ) throws -> URLRequest {
+    var components = URLComponents()
+    components.scheme = scheme
+    components.host = host
+    components.path = path
+
+    if case .get = method {
+      if let parameters = parameters {
+        let queryItems = parameters.map({
+          URLQueryItem(
+            name: $0.0,
+            value: "\($0.1)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+          )
+        })
+        components.queryItems = queryItems
+      }
+    }
+
+    guard let url = components.url else {
+      throw URLError(.badURL)
+    }
 
     var request = URLRequest(url: url)
     request.httpMethod = method.rawValue
@@ -40,12 +72,11 @@ public class NetworkClient: NetworkClientProtocol {
       request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
     }
 
-    if let parameters = parameters {
+    if case .post = method,
+       let parameters = parameters {
       request.httpBody = try JSONSerialization.data(withJSONObject: parameters)
     }
 
-    let data = try await URLSession.shared.data(for: request)
-
-    return try self.decoder.decode(T.self, from: data)
+    return request
   }
 }

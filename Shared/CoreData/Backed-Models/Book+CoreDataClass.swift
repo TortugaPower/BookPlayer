@@ -158,7 +158,7 @@ extension Book {
   public convenience init(
     context: NSManagedObjectContext,
     title: String,
-    author: String,
+    details: String,
     relativePath: String,
     originalFileName: String,
     speed: Float?,
@@ -173,7 +173,7 @@ extension Book {
     self.init(entity: entity, insertInto: context)
 
     self.title = title
-    self.details = author
+    self.details = details
     self.relativePath = relativePath
     self.originalFileName = originalFileName
     if let speed = speed {

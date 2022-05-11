@@ -17,9 +17,9 @@ extension AccountAPI: Endpoint {
   public var path: String {
     switch self {
     case .login:
-      return "user/login"
+      return "/v1/user/login"
     case .delete:
-      return "user/delete"
+      return "/v1/user/delete"
     }
   }
 
