@@ -7,9 +7,34 @@
 //
 
 import BookPlayerKit
+import Combine
 import UIKit
 
 class LibraryListCoordinator: ItemListCoordinator {
+  let importManager: ImportManager
+
+  var fileSubscription: AnyCancellable?
+  var importOperationSubscription: AnyCancellable?
+
+  init(
+    navigationController: UINavigationController,
+    playerManager: PlayerManagerProtocol,
+    importManager: ImportManager,
+    libraryService: LibraryServiceProtocol,
+    playbackService: PlaybackServiceProtocol
+  ) {
+    self.importManager = importManager
+
+    super.init(
+      navigationController: navigationController,
+      playerManager: playerManager,
+      libraryService: libraryService,
+      playbackService: playbackService
+    )
+
+    self.bindImportObserver()
+  }
+
   override func start() {
     let vc = ItemListViewController.instantiate(from: .Main)
     let viewModel = ItemListViewModel(folderRelativePath: nil,
@@ -33,6 +58,66 @@ class LibraryListCoordinator: ItemListCoordinator {
     }
 
     self.documentPickerDelegate = vc
+  }
+
+  func bindImportObserver() {
+    self.fileSubscription?.cancel()
+    self.importOperationSubscription?.cancel()
+
+    self.fileSubscription = self.importManager.observeFiles().sink { [weak self] files in
+      guard let self = self,
+            !files.isEmpty,
+            self.shouldShowImportScreen() else { return }
+
+      self.showImport()
+    }
+
+    self.importOperationSubscription = self.importManager.operationPublisher.sink(receiveValue: { [weak self] operation in
+      guard let self = self else {
+        return
+      }
+
+      let coordinator = self.getLastItemListCoordinator(from: self)
+
+      coordinator.onAction?(.newImportOperation(operation))
+
+      operation.completionBlock = {
+        DispatchQueue.main.async {
+          coordinator.onAction?(.importOperationFinished(operation.processedFiles))
+        }
+      }
+
+      self.importManager.start(operation)
+    })
+  }
+
+  func processFiles(urls: [URL]) {
+    for url in urls {
+      self.importManager.process(url)
+    }
+  }
+
+  func showImport() {
+    let child = ImportCoordinator(
+      navigationController: self.navigationController,
+      importManager: self.importManager
+    )
+    self.childCoordinators.append(child)
+    child.parentCoordinator = self
+    child.presentingViewController = self.presentingViewController
+    child.start()
+  }
+
+  func shouldShowImportScreen() -> Bool {
+    return !self.childCoordinators.contains(where: { $0 is ImportCoordinator })
+  }
+
+  func getLastItemListCoordinator(from coordinator: ItemListCoordinator) -> ItemListCoordinator {
+    if let child = coordinator.childCoordinators.last(where: { $0 is ItemListCoordinator}) as? ItemListCoordinator {
+      return getLastItemListCoordinator(from: child)
+    } else {
+      return coordinator
+    }
   }
 
   override func interactiveDidFinish(vc: UIViewController) {

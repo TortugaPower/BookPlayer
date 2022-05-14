@@ -56,8 +56,7 @@ public protocol LibraryServiceProtocol {
   func insertItems(from files: [URL], into folder: Folder?, library: Library, processedItems: [LibraryItem]?) -> [LibraryItem]
   func handleDirectory(item: URL, folder: Folder, library: Library)
   func moveItems(_ items: [LibraryItem], inside relativePath: String?, moveFiles: Bool) throws
-  func delete(_ items: [LibraryItem], library: Library, mode: DeleteMode) throws
-  func delete(_ item: LibraryItem, library: Library, mode: DeleteMode) throws
+  func delete(_ items: [LibraryItem], mode: DeleteMode) throws
 }
 
 public final class LibraryService: LibraryServiceProtocol {
@@ -651,23 +650,63 @@ public final class LibraryService: LibraryServiceProtocol {
     self.dataManager.saveContext()
   }
 
-  public func delete(_ items: [LibraryItem], library: Library, mode: DeleteMode) throws {
+  public func delete(_ items: [LibraryItem], mode: DeleteMode) throws {
     for item in items {
-      guard let folder = item as? Folder else {
-        // swiftlint:disable force_cast
-        try self.delete(item as! Book, library: library, mode: mode)
-        // swiftlint:enable force_cast
+      switch item {
+      case let book as Book:
+        try self.delete(book: book)
+      case let folder as Folder:
+        if mode == .deep {
+          try self.deepDelete(folder: folder)
+        } else {
+          try self.shallowDelete(folder: folder)
+        }
+      default:
         continue
       }
-
-      try self.delete(folder, library: library, mode: mode)
     }
   }
 
-  public func delete(_ folder: Folder, library: Library, mode: DeleteMode) throws {
+  func delete(book: Book) throws {
+    // Delete file item if it exists
+    if let fileURL = book.fileURL,
+       FileManager.default.fileExists(atPath: fileURL.path) {
+      try FileManager.default.removeItem(at: fileURL)
+    }
 
-    if mode == .shallow,
-       let items = folder.items?.array as? [LibraryItem] {
+    self.dataManager.delete(book)
+  }
+
+  func deepDelete(folder: Folder) throws {
+    // Delete folder if it exists
+    if let fileURL = folder.fileURL,
+       FileManager.default.fileExists(atPath: fileURL.path) {
+      try FileManager.default.removeItem(at: fileURL)
+    }
+
+    defer {
+      self.dataManager.delete(folder)
+    }
+
+    // Fetch folder items
+    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+
+    fetchRequest.predicate = NSPredicate(
+      format: "%K == %@",
+      #keyPath(LibraryItem.folder.relativePath),
+      folder.relativePath
+    )
+
+    fetchRequest.includesPropertyValues = false
+
+    let items = try self.dataManager.getContext().fetch(fetchRequest)
+    // Delete items
+    try self.delete(items, mode: .deep)
+  }
+
+  func shallowDelete(folder: Folder) throws {
+    // Move children to parent folder or library
+    if let items = folder.items?.array as? [LibraryItem] {
       for item in items {
         guard let fileURL = item.fileURL else { continue }
 
@@ -679,7 +718,7 @@ public final class LibraryService: LibraryServiceProtocol {
             )
           }
           parent.insert(item: item)
-        } else {
+        } else if let library = folder.library {
           try FileManager.default.moveItem(
             at: fileURL,
             to: DataManager.getProcessedFolderURL().appendingPathComponent(fileURL.lastPathComponent)
@@ -689,15 +728,7 @@ public final class LibraryService: LibraryServiceProtocol {
       }
     }
 
-    // swiftlint:disable force_cast
-    for item in folder.items?.array as! [LibraryItem] {
-      // swiftlint:enable force_cast
-      guard mode == .deep else { continue }
-      try self.delete(item, library: library, mode: .deep)
-    }
-
-    library.removeFromItems(folder)
-
+    // Delete empty folder
     if let folderURL = folder.fileURL {
       if FileManager.default.fileExists(atPath: folderURL.path) {
         try FileManager.default.removeItem(at: folderURL)
@@ -705,26 +736,5 @@ public final class LibraryService: LibraryServiceProtocol {
     }
 
     self.dataManager.delete(folder)
-  }
-
-  public func delete(_ item: LibraryItem, library: Library, mode: DeleteMode) throws {
-    guard mode == .deep else {
-      if item.folder != nil {
-        library.insert(item: item)
-        self.dataManager.saveContext()
-      }
-
-      return
-    }
-
-    if let book = item as? Book {
-      if let fileURL = book.fileURL {
-        if FileManager.default.fileExists(atPath: fileURL.path) {
-          try FileManager.default.removeItem(at: fileURL)
-        }
-      }
-    }
-
-    self.dataManager.delete(item)
   }
 }

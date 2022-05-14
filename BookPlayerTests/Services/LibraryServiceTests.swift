@@ -933,11 +933,11 @@ class ModifyLibraryTests: LibraryServiceTests {
     try self.sut.moveItems([folder], inside: folder2.relativePath, moveFiles: true)
     try self.sut.moveItems([folder2], inside: nil, moveFiles: true)
 
-    try self.sut.delete([folder2], library: library, mode: .shallow)
+    try self.sut.delete([folder2], mode: .shallow)
 
     XCTAssert((library.items?.array as? [LibraryItem])?.first == folder)
 
-    try self.sut.delete([folder], library: library, mode: .shallow)
+    try self.sut.delete([folder], mode: .shallow)
 
     XCTAssert((library.items?.array as? [LibraryItem])?.first == book1)
   }
@@ -957,12 +957,12 @@ class ModifyLibraryTests: LibraryServiceTests {
     try self.sut.moveItems([book4], inside: folder2.relativePath, moveFiles: true)
     try self.sut.moveItems([folder2], inside: nil, moveFiles: true)
 
-    try self.sut.delete([folder2], library: library, mode: .shallow)
+    try self.sut.delete([folder2], mode: .shallow)
 
     XCTAssert((library.items?.array as? [LibraryItem])?.first == book1)
     XCTAssert((library.items?.array as? [LibraryItem])?.last == book4)
 
-    try self.sut.delete([folder], library: library, mode: .shallow)
+    try self.sut.delete([folder], mode: .shallow)
 
     XCTAssert(library.items?.array is [Book])
     XCTAssert(library.items?.count == 4)
@@ -980,12 +980,12 @@ class ModifyLibraryTests: LibraryServiceTests {
 
     XCTAssert(folder2.items?.count == 1)
 
-    try self.sut.delete([folder], library: library, mode: .deep)
+    try self.sut.delete([folder], mode: .deep)
 
     XCTAssert(folder2.items?.count == 0)
     XCTAssert(library.items?.count == 1)
 
-    try self.sut.delete([folder2], library: library, mode: .deep)
+    try self.sut.delete([folder2], mode: .deep)
 
     XCTAssert(library.items?.count == 0)
   }
@@ -1010,12 +1010,12 @@ class ModifyLibraryTests: LibraryServiceTests {
 
     XCTAssert(folder2.items?.count == 2)
 
-    try self.sut.delete([folder], library: library, mode: .deep)
+    try self.sut.delete([folder], mode: .deep)
 
     XCTAssert(folder2.items?.count == 1)
     XCTAssert(library.items?.count == 2)
 
-    try self.sut.delete([folder2], library: library, mode: .deep)
+    try self.sut.delete([folder2], mode: .deep)
 
     XCTAssert(library.items?.count == 1)
     XCTAssert((library.items?.array as? [LibraryItem])?.first == book1)
