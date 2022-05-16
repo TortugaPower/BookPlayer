@@ -9,6 +9,7 @@
 import Alamofire
 import BookPlayerKit
 import RevenueCat
+import Themeable
 import UIKit
 
 class MainCoordinator: Coordinator {
@@ -60,6 +61,8 @@ class MainCoordinator: Coordinator {
 
     accountService.loginIfUserExists()
     accountService.setDelegate(self)
+
+    setUpTheming()
   }
 
   override func start() {
@@ -170,5 +173,14 @@ extension MainCoordinator: PurchasesDelegate {
   public func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
     self.accountService.updateAccount(from: customerInfo)
     self.syncService.accountUpdated(customerInfo)
+  }
+}
+
+extension MainCoordinator: Themeable {
+  func applyTheme(_ theme: SimpleTheme) {
+    // This fixes native components like alerts having the proper color theme
+    SceneDelegate.shared?.window?.overrideUserInterfaceStyle = theme.useDarkVariant
+    ? .dark
+    : .light
   }
 }

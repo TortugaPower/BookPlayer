@@ -34,68 +34,23 @@ enum ItemListActionRoutes {
 class ItemListCoordinator: Coordinator {
   public var onAction: Transition<ItemListActionRoutes>?
   let playerManager: PlayerManagerProtocol
-  let importManager: ImportManager
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
 
   weak var documentPickerDelegate: UIDocumentPickerDelegate?
-  var fileSubscription: AnyCancellable?
-  var importOperationSubscription: AnyCancellable?
 
   init(
     navigationController: UINavigationController,
     playerManager: PlayerManagerProtocol,
-    importManager: ImportManager,
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol
   ) {
     self.playerManager = playerManager
-    self.importManager = importManager
     self.libraryService = libraryService
     self.playbackService = playbackService
 
     super.init(navigationController: navigationController,
                flowType: .push)
-
-    self.bindImportObserver()
-  }
-
-  func bindImportObserver() {
-    self.fileSubscription?.cancel()
-    self.importOperationSubscription?.cancel()
-
-    self.fileSubscription = self.importManager.observeFiles().sink { [weak self] files in
-      guard let self = self,
-            !files.isEmpty,
-            self.shouldShowImportScreen() else { return }
-
-      self.showImport()
-    }
-
-    self.importOperationSubscription = self.importManager.operationPublisher.sink(receiveValue: { [weak self] operation in
-      guard let self = self,
-            self.shouldHandleImport() else {
-        return
-      }
-
-      self.onAction?(.newImportOperation(operation))
-
-      operation.completionBlock = {
-        if operation.isCancelled { return }
-
-        DispatchQueue.main.async {
-          self.onAction?(.importOperationFinished(operation.processedFiles))
-        }
-      }
-
-      self.importManager.start(operation)
-    })
-  }
-
-  func processFiles(urls: [URL]) {
-    for url in urls {
-      self.importManager.process(url)
-    }
   }
 
   override func start() {
@@ -126,7 +81,6 @@ class ItemListCoordinator: Coordinator {
     let child = FolderListCoordinator(navigationController: self.navigationController,
                                       folderRelativePath: relativePath,
                                       playerManager: self.playerManager,
-                                      importManager: self.importManager,
                                       libraryService: self.libraryService,
                                       playbackService: self.playbackService)
     self.childCoordinators.append(child)
@@ -232,24 +186,6 @@ class ItemListCoordinator: Coordinator {
       })
 
     self.playerManager.load(item)
-  }
-
-  func showImport() {
-    let child = ImportCoordinator(
-      importManager: self.importManager,
-      presentingViewController: self.presentingViewController
-    )
-    child.parentCoordinator = self
-    self.childCoordinators.append(child)
-    child.start()
-  }
-
-  func shouldShowImportScreen() -> Bool {
-    return !self.childCoordinators.contains(where: { $0 is ItemListCoordinator || $0 is ImportCoordinator })
-  }
-
-  func shouldHandleImport() -> Bool {
-    return !self.childCoordinators.contains(where: { $0 is ItemListCoordinator })
   }
 
   func showOperationCompletedAlert(with items: [LibraryItem], availableFolders: [SimpleLibraryItem]) {

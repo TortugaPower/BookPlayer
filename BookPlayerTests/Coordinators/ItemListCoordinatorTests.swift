@@ -34,7 +34,6 @@ class LibraryListCoordinatorTests: XCTestCase {
   func testInitialState() {
     XCTAssert(self.libraryListCoordinator.childCoordinators.isEmpty)
     XCTAssert(self.libraryListCoordinator.shouldShowImportScreen())
-    XCTAssert(self.libraryListCoordinator.shouldHandleImport())
   }
 
   func testDocumentPickerDelegate() {
@@ -48,8 +47,7 @@ class LibraryListCoordinatorTests: XCTestCase {
 
     self.libraryListCoordinator.showFolder(folder.relativePath)
     XCTAssert(self.libraryListCoordinator.childCoordinators.first is ItemListCoordinator)
-    XCTAssertFalse(self.libraryListCoordinator.shouldShowImportScreen())
-    XCTAssertFalse(self.libraryListCoordinator.shouldHandleImport())
+    XCTAssertTrue(self.libraryListCoordinator.shouldShowImportScreen())
   }
 
   func testShowPlayer() {
@@ -101,7 +99,6 @@ class FolderListCoordinatorTests: XCTestCase {
       navigationController: UINavigationController(),
       folderRelativePath: folder.relativePath,
       playerManager: PlayerManagerMock(),
-      importManager: ImportManager(libraryService: libraryService),
       libraryService: libraryService,
       playbackService: PlaybackService(libraryService: libraryService)
     )
