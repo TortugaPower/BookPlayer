@@ -22,6 +22,7 @@ public final class PlayableItem: NSObject, Identifiable {
   @objc dynamic public var percentCompleted: Double
   @objc dynamic public var lastPlayDate: Date?
   public var isFinished: Bool
+  // This property is explicitly set for bound books, for seeking purposes
   public let useChapterTimeContext: Bool
 
   @Published public var currentChapter: PlayableChapter!

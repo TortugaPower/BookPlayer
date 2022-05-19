@@ -400,6 +400,10 @@
 		9FC1E4782816001400522FA8 /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC1E4742815C6A300522FA8 /* KeychainService.swift */; };
 		9FC1E4792816001400522FA8 /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC1E4742815C6A300522FA8 /* KeychainService.swift */; };
 		9FC1E47B281600D500522FA8 /* KeychainServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC1E47A281600D500522FA8 /* KeychainServiceMock.swift */; };
+		9FB7C48D2835A2C1003B917E /* PlayerManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB7C48C2835A2C1003B917E /* PlayerManagerTests.swift */; };
+		9FB7C48F2835A4C9003B917E /* EmptyLibraryServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB7C48E2835A4C9003B917E /* EmptyLibraryServiceMock.swift */; };
+		9FB7C4912835A5A3003B917E /* EmptyPlaybackServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB7C4902835A5A3003B917E /* EmptyPlaybackServiceMock.swift */; };
+		9FB7C4932835A617003B917E /* EmptySpeedServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB7C4922835A617003B917E /* EmptySpeedServiceMock.swift */; };
 		9FE07E1B27C522DE007591F7 /* ContainerItemListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FE07E1A27C522DE007591F7 /* ContainerItemListView.swift */; };
 		9FEC87AE27FA9E98006C71D5 /* LoginCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEC87AD27FA9E98006C71D5 /* LoginCoordinator.swift */; };
 		9FEC87B027FA9F0F006C71D5 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEC87AF27FA9F0F006C71D5 /* LoginViewController.swift */; };
@@ -934,6 +938,10 @@
 		9FC1E4742815C6A300522FA8 /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
 		9FC1E4762815F97E00522FA8 /* KeychainServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainServiceTests.swift; sourceTree = "<group>"; };
 		9FC1E47A281600D500522FA8 /* KeychainServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainServiceMock.swift; sourceTree = "<group>"; };
+		9FB7C48C2835A2C1003B917E /* PlayerManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerManagerTests.swift; sourceTree = "<group>"; };
+		9FB7C48E2835A4C9003B917E /* EmptyLibraryServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyLibraryServiceMock.swift; sourceTree = "<group>"; };
+		9FB7C4902835A5A3003B917E /* EmptyPlaybackServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyPlaybackServiceMock.swift; sourceTree = "<group>"; };
+		9FB7C4922835A617003B917E /* EmptySpeedServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptySpeedServiceMock.swift; sourceTree = "<group>"; };
 		9FE07E1A27C522DE007591F7 /* ContainerItemListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerItemListView.swift; sourceTree = "<group>"; };
 		9FEC87AD27FA9E98006C71D5 /* LoginCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginCoordinator.swift; sourceTree = "<group>"; };
 		9FEC87AF27FA9F0F006C71D5 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
@@ -1303,6 +1311,7 @@
 				416A9D4A2743D51E00463621 /* StorageViewModelTests.swift */,
 				62AAE2242749283F001EB9FF /* MiniPlayerViewModelTests.swift */,
 				9F8A9A5D27AC3F8C0093AA1C /* PlayableItemTests.swift */,
+				9FB7C48C2835A2C1003B917E /* PlayerManagerTests.swift */,
 				6279361D272D0CF50097837D /* Coordinators */,
 				418B6D141D2707F800F974FB /* Info.plist */,
 			);
@@ -1623,6 +1632,9 @@
 				9FC1E464281507BD00522FA8 /* SyncServiceMock.swift */,
 				9FC1E46828150ECC00522FA8 /* NetworkClientMock.swift */,
 				9FC1E47A281600D500522FA8 /* KeychainServiceMock.swift */,
+				9FB7C48E2835A4C9003B917E /* EmptyLibraryServiceMock.swift */,
+				9FB7C4902835A5A3003B917E /* EmptyPlaybackServiceMock.swift */,
+				9FB7C4922835A617003B917E /* EmptySpeedServiceMock.swift */,
 			);
 			path = Mocks;
 			sourceTree = "<group>";
@@ -2719,9 +2731,11 @@
 				4137BBD6272DF693009ED9FE /* SettingsCoordinatorTests.swift in Sources */,
 				69343D36213A07B4000C425E /* VoiceOverServiceTest.swift in Sources */,
 				62AAE2252749283F001EB9FF /* MiniPlayerViewModelTests.swift in Sources */,
+				9FB7C48F2835A4C9003B917E /* EmptyLibraryServiceMock.swift in Sources */,
 				41C2340C27324AB7006BC7B8 /* ItemListViewModelTests.swift in Sources */,
 				41A1B140226FEF9600EA0400 /* FolderTests.swift in Sources */,
 				41A1B13F226FEF9300EA0400 /* DataManagerTests.swift in Sources */,
+				9FB7C48D2835A2C1003B917E /* PlayerManagerTests.swift in Sources */,
 				4137BBD4272DF540009ED9FE /* PlayerCoordinatorTests.swift in Sources */,
 				416A9D4B2743D51E00463621 /* StorageViewModelTests.swift in Sources */,
 				4137BBD2272DED79009ED9FE /* ItemListCoordinatorTests.swift in Sources */,
@@ -2738,6 +2752,8 @@
 				9FC1E4772815F97E00522FA8 /* KeychainServiceTests.swift in Sources */,
 				4137BBD0272DEBEC009ED9FE /* LoadingCoordinatorTests.swift in Sources */,
 				9FC1E465281507BD00522FA8 /* SyncServiceMock.swift in Sources */,
+				9FB7C4912835A5A3003B917E /* EmptyPlaybackServiceMock.swift in Sources */,
+				9FB7C4932835A617003B917E /* EmptySpeedServiceMock.swift in Sources */,
 				41A1B13E226FEF8000EA0400 /* DataTestUtils.swift in Sources */,
 				9FC1E46928150ECC00522FA8 /* NetworkClientMock.swift in Sources */,
 				9F8A9A5E27AC3F8C0093AA1C /* PlayableItemTests.swift in Sources */,
