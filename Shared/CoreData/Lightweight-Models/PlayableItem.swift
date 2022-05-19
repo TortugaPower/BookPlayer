@@ -21,6 +21,7 @@ public final class PlayableItem: NSObject, Identifiable {
   @objc dynamic public let relativePath: String
   @objc dynamic public var percentCompleted: Double
   public var isFinished: Bool
+  // This property is explicitly set for bound books, for seeking purposes
   public let useChapterTimeContext: Bool
 
   @Published public var currentChapter: PlayableChapter!
