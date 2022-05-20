@@ -16,6 +16,22 @@ public class Library: NSManagedObject, Codable {
         return self.items?.array as? [LibraryItem] ?? []
     }
 
+  public func bookExists(with relativePath: String) -> Bool {
+    guard let items = self.items?.array as? [LibraryItem] else {
+      return false
+    }
+
+    return items.contains { item in
+      if let book = item as? Book {
+        return book.relativePath == relativePath
+      } else if let folder = item as? Folder {
+        return folder.getItem(with: relativePath) != nil
+      }
+
+      return false
+    }
+  }
+
     public func itemIndex(with relativePath: String) -> Int? {
         guard let items = self.items?.array as? [LibraryItem] else {
             return nil
