@@ -95,6 +95,8 @@ class StorageViewModelMissingFileTests: XCTestCase {
                            path: self.directoryURL.path,
                            size: 10,
                            showWarning: true)
+    // Trigger library creation for this test
+    XCTAssertTrue(self.viewModel.library.items?.array.isEmpty ?? false)
     try self.viewModel.handleFix(for: item)
 
     let expectation = XCTestExpectation(description: "Items load expectation")
