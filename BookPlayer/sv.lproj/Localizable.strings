@@ -214,3 +214,5 @@
 "error_empty_chapters" = "Kapitlen saknar innehåll, kontrollera innehållet i mappen: %@";
 "sleeptimer_option_custom" = "Anpassad";
 "sleeptimer_custom_alert_title" = "Anpassad sovtimer";
+"settings_playerinterface_title" = "Player Interface";
+"settings_playerinterface_list_title" = "Opens";

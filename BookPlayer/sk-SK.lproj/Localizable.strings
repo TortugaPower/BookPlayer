@@ -214,3 +214,5 @@
 "error_empty_chapters" = "Kapitoly sú prázdne, skontrolujte obsah priečinka: %@";
 "sleeptimer_option_custom" = "Vlastný";
 "sleeptimer_custom_alert_title" = "Vlastný časovač spánku";
+"settings_playerinterface_title" = "Player Interface";
+"settings_playerinterface_list_title" = "Opens";

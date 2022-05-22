@@ -214,3 +214,5 @@
 "error_empty_chapters" = "Rozdziały są puste, proszę sprawdzić zawartość folderu: %@";
 "sleeptimer_option_custom" = "Własny";
 "sleeptimer_custom_alert_title" = "Niestandardowy wyłącznik czasowy";
+"settings_playerinterface_title" = "Player Interface";
+"settings_playerinterface_list_title" = "Opens";

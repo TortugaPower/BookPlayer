@@ -305,8 +305,12 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     UserDefaults.standard.set(false, forKey: "ask_review")
   }
 
-  func showChapters() {
-    self.coordinator.showChapters()
+  func showList() {
+    if UserDefaults.standard.bool(forKey: Constants.UserDefaults.playerListPrefersBookmarks.rawValue) {
+      self.coordinator.showBookmarks()
+    } else {
+      self.coordinator.showChapters()
+    }
   }
 
   func showControls() {

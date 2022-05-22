@@ -214,3 +214,5 @@
 "error_empty_chapters" = "Es gibt keine Kapitel. Bitte überprüfe den Inhalt des Ordners: %@";
 "sleeptimer_option_custom" = "Benutzerdefiniert";
 "sleeptimer_custom_alert_title" = "Benutzerdefinierter Schlafmodus";
+"settings_playerinterface_title" = "Player Interface";
+"settings_playerinterface_list_title" = "Opens";

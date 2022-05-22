@@ -214,3 +214,5 @@
 "error_empty_chapters" = "Chapters are empty, please verify the contents of the folder: %@";
 "sleeptimer_option_custom" = "Mukautettu";
 "sleeptimer_custom_alert_title" = "Mukautettu uniajastin";
+"settings_playerinterface_title" = "Player Interface";
+"settings_playerinterface_list_title" = "Opens";

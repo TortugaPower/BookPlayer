@@ -214,3 +214,5 @@
 "error_empty_chapters" = "Les chapitres sont vides, veuillez vérifier le contenu du dossier : %@";
 "sleeptimer_option_custom" = "Personnalisée";
 "sleeptimer_custom_alert_title" = "Minuterie de sommeil personnalisée";
+"settings_playerinterface_title" = "Player Interface";
+"settings_playerinterface_list_title" = "Opens";

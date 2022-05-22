@@ -214,3 +214,5 @@
 "error_empty_chapters" = "A fejezetek üresek, ellenőrizze a mappa tartalmát: %@";
 "sleeptimer_option_custom" = "Egyéni";
 "sleeptimer_custom_alert_title" = "Egyéni alvásidőzítő";
+"settings_playerinterface_title" = "Player Interface";
+"settings_playerinterface_list_title" = "Opens";

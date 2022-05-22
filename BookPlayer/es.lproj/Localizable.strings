@@ -236,3 +236,5 @@
 "error_empty_chapters" = "Los capítulos están vacíos, por favor verifica el contenido de la carpeta: %@";
 "sleeptimer_option_custom" = "Personalizado";
 "sleeptimer_custom_alert_title" = "Temporizador personalizado";
+"settings_playerinterface_title" = "Player Interface";
+"settings_playerinterface_list_title" = "Opens";

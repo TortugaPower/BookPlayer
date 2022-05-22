@@ -214,3 +214,5 @@
 "error_empty_chapters" = "Розділи порожні, будь ласка, перевірте вміст теки: %@";
 "sleeptimer_option_custom" = "Спеціальний";
 "sleeptimer_custom_alert_title" = "Спеціальний таймер сну";
+"settings_playerinterface_title" = "Player Interface";
+"settings_playerinterface_list_title" = "Opens";
