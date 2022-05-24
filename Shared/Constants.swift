@@ -26,6 +26,7 @@ public enum Constants {
         case iCloudBackupsEnabled = "userSettingsiCloudBackupsEnabled"
         case autolockDisabled = "userSettingsDisableAutolock"
         case autolockDisabledOnlyWhenPowered = "userSettingsAutolockOnlyWhenPowered"
+        case playerListPrefersBookmarks = "userSettingsPlayerListPrefersBookmarks"
 
         case rewindInterval = "userSettingsRewindInterval"
         case forwardInterval = "userSettingsForwardInterval"

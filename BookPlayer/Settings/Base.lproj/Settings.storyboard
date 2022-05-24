@@ -315,13 +315,13 @@
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="ssf-Q5-vn2">
+                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="ssf-Q5-vn2">
                                                     <rect key="frame" x="310" y="6.5" width="51" height="31"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="49" id="9Gr-mL-Nfy"/>
                                                     </constraints>
                                                 </switch>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Include book files" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="rRx-5f-ZeW" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Include book files" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="rRx-5f-ZeW" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
                                                     <rect key="frame" x="16" y="11.5" width="286" height="21"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
@@ -354,8 +354,8 @@
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="50"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" ambiguous="YES" insetsLayoutMarginsFromSafeArea="NO" text="View project on GitHub" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="ClD-F6-XBV" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
-                                                    <rect key="frame" x="8" y="9" width="176" height="20.5"/>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="View project on GitHub" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="ClD-F6-XBV" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
+                                                    <rect key="frame" x="16" y="9" width="176" height="20.5"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
@@ -364,8 +364,8 @@
                                                         <userDefinedRuntimeAttribute type="string" keyPath="localizedKey" value="settings_support_project_title"/>
                                                     </userDefinedRuntimeAttributes>
                                                 </label>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" ambiguous="YES" insetsLayoutMarginsFromSafeArea="NO" text="Open new issues for your feature requests and errors" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="p5a-8D-TIK" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
-                                                    <rect key="frame" x="8" y="29.5" width="257" height="12"/>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Open new issues for your feature requests and errors" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="p5a-8D-TIK" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
+                                                    <rect key="frame" x="16" y="29.5" width="257" height="12"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="10"/>
                                                     <nil key="textColor"/>
@@ -388,8 +388,8 @@
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="50"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" ambiguous="YES" insetsLayoutMarginsFromSafeArea="NO" text="Send us an email" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="nCM-M8-bSw" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
-                                                    <rect key="frame" x="8" y="9" width="129" height="20.5"/>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Send us an email" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="nCM-M8-bSw" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
+                                                    <rect key="frame" x="16" y="9" width="129" height="20.5"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
@@ -398,8 +398,8 @@
                                                         <userDefinedRuntimeAttribute type="string" keyPath="localizedKey" value="settings_support_email_title"/>
                                                     </userDefinedRuntimeAttributes>
                                                 </label>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" ambiguous="YES" insetsLayoutMarginsFromSafeArea="NO" text="support@bookplayer.app" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="6ow-P5-iYK">
-                                                    <rect key="frame" x="8" y="29.5" width="121" height="12"/>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="support@bookplayer.app" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="6ow-P5-iYK">
+                                                    <rect key="frame" x="16" y="29.5" width="121" height="12"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="10"/>
                                                     <nil key="textColor"/>
@@ -419,8 +419,8 @@
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="50"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" ambiguous="YES" insetsLayoutMarginsFromSafeArea="NO" text="Tip Jar" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="MVf-CT-ocr" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
-                                                    <rect key="frame" x="8" y="0.0" width="359" height="50"/>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Tip Jar" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="MVf-CT-ocr" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
+                                                    <rect key="frame" x="16" y="0.0" width="343" height="50"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
@@ -443,11 +443,11 @@
                                         <rect key="frame" x="0.0" y="1167" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="03X-zP-RZe" id="IIp-cC-U1k">
-                                            <rect key="frame" x="0.0" y="0.0" width="358.5" height="44"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="350.5" height="44"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" ambiguous="YES" insetsLayoutMarginsFromSafeArea="NO" text="Credits and Licenses" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="f5k-Kh-fBQ" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
-                                                    <rect key="frame" x="8" y="0.0" width="342.5" height="44"/>
+                                                    <rect key="frame" x="16" y="0.0" width="326.5" height="44"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
@@ -2307,6 +2307,116 @@ Use with caution and care for your hearing.</string>
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
+                            <tableViewSection footerTitle="Adjust what the list button in the player screen opens" id="04N-lB-8ix">
+                                <cells>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="none" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" textLabel="Ydn-hQ-kXZ" detailTextLabel="Jbk-jB-Hyp" imageView="wIP-hW-J0B" style="IBUITableViewCellStyleValue1" id="oMW-vV-SO2" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="475.5" width="375" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="oMW-vV-SO2" id="8zv-VN-kiu">
+                                            <rect key="frame" x="0.0" y="0.0" width="350.5" height="44"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Opens" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Ydn-hQ-kXZ" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
+                                                    <rect key="frame" x="51.75" y="12" width="50" height="20.5"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                    <userDefinedRuntimeAttributes>
+                                                        <userDefinedRuntimeAttribute type="string" keyPath="localizedKey" value="settings_playerinterface_list_title"/>
+                                                    </userDefinedRuntimeAttributes>
+                                                </label>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Chapters" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Jbk-jB-Hyp">
+                                                    <rect key="frame" x="273" y="12" width="69.5" height="20.5"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <color key="textColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" image="list.bullet" catalog="system" id="wIP-hW-J0B">
+                                                    <rect key="frame" x="15.75" y="14.5" width="21" height="14.5"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                </imageView>
+                                            </subviews>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                </cells>
+                            </tableViewSection>
+                            <tableViewSection headerTitle="Progress Labels" id="mJk-vW-mwH">
+                                <string key="footerTitle">Toggle between displaying the remaining time, total duration and progress of either the chapter or the book in the player screen</string>
+                                <cells>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" id="BJG-C7-5Vg" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="585.5" width="375" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="BJG-C7-5Vg" id="dpV-7M-H3x">
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="81u-k2-GAa">
+                                                    <rect key="frame" x="310" y="6.5" width="51" height="31"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="49" id="0kO-Pg-fxc"/>
+                                                    </constraints>
+                                                </switch>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Use Remaining Time" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="6fc-s8-NuH" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
+                                                    <rect key="frame" x="16" y="11.5" width="286" height="21"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                    <userDefinedRuntimeAttributes>
+                                                        <userDefinedRuntimeAttribute type="string" keyPath="localizedKey" value="settings_remainingtime_title"/>
+                                                    </userDefinedRuntimeAttributes>
+                                                </label>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="6fc-s8-NuH" firstAttribute="centerY" secondItem="dpV-7M-H3x" secondAttribute="centerY" id="J1V-29-eDb"/>
+                                                <constraint firstItem="81u-k2-GAa" firstAttribute="leading" secondItem="6fc-s8-NuH" secondAttribute="trailing" constant="8" id="N5w-bx-UEf"/>
+                                                <constraint firstItem="6fc-s8-NuH" firstAttribute="leading" secondItem="dpV-7M-H3x" secondAttribute="leading" constant="16" id="lqI-R5-0S6"/>
+                                                <constraint firstItem="81u-k2-GAa" firstAttribute="centerY" secondItem="dpV-7M-H3x" secondAttribute="centerY" id="rUw-Lg-vpX"/>
+                                                <constraint firstAttribute="trailing" secondItem="81u-k2-GAa" secondAttribute="trailing" constant="16" id="uin-5N-NxC"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="customLabel" destination="6fc-s8-NuH" id="WEc-Jy-2l5"/>
+                                        </connections>
+                                    </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" id="vru-07-FFi" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="629.5" width="375" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="vru-07-FFi" id="V6Q-pu-WgH">
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="jzV-Oj-QRt">
+                                                    <rect key="frame" x="310" y="6.5" width="51" height="31"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="49" id="dX3-2o-B6Y"/>
+                                                    </constraints>
+                                                </switch>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Use Chapter Context" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="jWe-Ru-KOW" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
+                                                    <rect key="frame" x="16" y="11.5" width="286" height="21"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                    <userDefinedRuntimeAttributes>
+                                                        <userDefinedRuntimeAttribute type="string" keyPath="localizedKey" value="settings_chaptercontext_title"/>
+                                                    </userDefinedRuntimeAttributes>
+                                                </label>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="trailing" secondItem="jzV-Oj-QRt" secondAttribute="trailing" constant="16" id="7bT-Y6-unP"/>
+                                                <constraint firstItem="jWe-Ru-KOW" firstAttribute="leading" secondItem="V6Q-pu-WgH" secondAttribute="leading" constant="16" id="7qR-sw-kBb"/>
+                                                <constraint firstItem="jzV-Oj-QRt" firstAttribute="leading" secondItem="jWe-Ru-KOW" secondAttribute="trailing" constant="8" id="VDQ-XR-7iM"/>
+                                                <constraint firstItem="jWe-Ru-KOW" firstAttribute="centerY" secondItem="V6Q-pu-WgH" secondAttribute="centerY" id="gsN-NK-UkG"/>
+                                                <constraint firstItem="jzV-Oj-QRt" firstAttribute="centerY" secondItem="V6Q-pu-WgH" secondAttribute="centerY" id="nW4-ih-1Vm"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="customLabel" destination="jWe-Ru-KOW" id="Weq-Fn-kSb"/>
+                                        </connections>
+                                    </tableViewCell>
+                                </cells>
+                            </tableViewSection>
                         </sections>
                         <connections>
                             <outlet property="dataSource" destination="Te4-I9-OuL" id="aPT-93-Nq2"/>
@@ -2323,8 +2433,12 @@ Use with caution and care for your hearing.</string>
                     </navigationItem>
                     <connections>
                         <outlet property="boostVolumeSwitch" destination="REu-u1-fwP" id="ORF-rl-zos"/>
+                        <outlet property="chapterTimeSwitch" destination="jzV-Oj-QRt" id="lY1-Fl-C2d"/>
                         <outlet property="forwardIntervalLabel" destination="hD8-4g-KSV" id="kFR-tA-8kv"/>
                         <outlet property="globalSpeedSwitch" destination="TGl-mI-vfb" id="yOj-Il-FSK"/>
+                        <outlet property="listImageView" destination="wIP-hW-J0B" id="nL2-4x-xaa"/>
+                        <outlet property="playerListPreferenceLabel" destination="Jbk-jB-Hyp" id="v79-dv-pvm"/>
+                        <outlet property="remainingTimeSwitch" destination="81u-k2-GAa" id="t2S-gl-IgH"/>
                         <outlet property="rewindIntervalLabel" destination="1x1-g6-7Vg" id="AQa-qN-8HA"/>
                         <outlet property="smartRewindSwitch" destination="k1y-6J-4zm" id="zkj-QL-uhv"/>
                     </connections>
@@ -2342,6 +2456,7 @@ Use with caution and care for your hearing.</string>
         <image name="currentScreenBrightnessIndicator" width="30" height="40"/>
         <image name="defaultDarkThemeThreshold" width="30" height="40"/>
         <image name="exclamationmark.triangle.fill" catalog="system" width="128" height="112"/>
+        <image name="list.bullet" catalog="system" width="128" height="88"/>
         <image name="listAdd" width="29" height="29"/>
         <image name="minus.circle.fill" catalog="system" width="128" height="121"/>
         <image name="multiply" catalog="system" width="128" height="111"/>

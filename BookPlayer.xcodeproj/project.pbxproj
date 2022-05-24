@@ -336,6 +336,8 @@
 		9F4691F52800F84800A8F0E8 /* AccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4691F42800F84800A8F0E8 /* AccountViewController.swift */; };
 		9F4691F72800F85600A8F0E8 /* AccountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4691F62800F85600A8F0E8 /* AccountViewModel.swift */; };
 		9F4691FA2800F8D600A8F0E8 /* AccountCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4691F92800F8D600A8F0E8 /* AccountCoordinator.swift */; };
+		9F4A0F782839574B00F9C959 /* PlayerSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4A0F772839574A00F9C959 /* PlayerSettingsViewModel.swift */; };
+		9F646006283AD6B700710D3C /* PlayerSettingsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F646005283AD6B700710D3C /* PlayerSettingsViewModelTests.swift */; };
 		9F64C6212793C31600B2493C /* PlayerControlsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F64C6202793C31600B2493C /* PlayerControlsCoordinator.swift */; };
 		9F64C6242793C3DA00B2493C /* PlayerControlsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F64C6232793C3DA00B2493C /* PlayerControlsViewModel.swift */; };
 		9F64C6262793D5B100B2493C /* PlayerControlsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F64C6252793D5B100B2493C /* PlayerControlsViewController.swift */; };
@@ -886,6 +888,8 @@
 		9F4691F42800F84800A8F0E8 /* AccountViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountViewController.swift; sourceTree = "<group>"; };
 		9F4691F62800F85600A8F0E8 /* AccountViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountViewModel.swift; sourceTree = "<group>"; };
 		9F4691F92800F8D600A8F0E8 /* AccountCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCoordinator.swift; sourceTree = "<group>"; };
+		9F4A0F772839574A00F9C959 /* PlayerSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerSettingsViewModel.swift; sourceTree = "<group>"; };
+		9F646005283AD6B700710D3C /* PlayerSettingsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerSettingsViewModelTests.swift; sourceTree = "<group>"; };
 		9F64C6202793C31600B2493C /* PlayerControlsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsCoordinator.swift; sourceTree = "<group>"; };
 		9F64C6232793C3DA00B2493C /* PlayerControlsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsViewModel.swift; sourceTree = "<group>"; };
 		9F64C6252793D5B100B2493C /* PlayerControlsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsViewController.swift; sourceTree = "<group>"; };
@@ -1310,6 +1314,7 @@
 				41C2340B27324AB7006BC7B8 /* ItemListViewModelTests.swift */,
 				416A9D4A2743D51E00463621 /* StorageViewModelTests.swift */,
 				62AAE2242749283F001EB9FF /* MiniPlayerViewModelTests.swift */,
+				9F646005283AD6B700710D3C /* PlayerSettingsViewModelTests.swift */,
 				9F8A9A5D27AC3F8C0093AA1C /* PlayableItemTests.swift */,
 				9FB7C48C2835A2C1003B917E /* PlayerManagerTests.swift */,
 				6279361D272D0CF50097837D /* Coordinators */,
@@ -1748,6 +1753,15 @@
 			path = "Account Screen";
 			sourceTree = "<group>";
 		};
+		9F4A0F792839575700F9C959 /* Player Settings Screen */ = {
+			isa = PBXGroup;
+			children = (
+				41B2A5DB21CAEE0E00917584 /* PlayerSettingsViewController.swift */,
+				9F4A0F772839574A00F9C959 /* PlayerSettingsViewModel.swift */,
+			);
+			path = "Player Settings Screen";
+			sourceTree = "<group>";
+		};
 		9F64C6222793C37C00B2493C /* Controls Screen */ = {
 			isa = PBXGroup;
 			children = (
@@ -1833,6 +1847,7 @@
 		C35E04F2207E8D4C007D3370 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				9F4A0F792839575700F9C959 /* Player Settings Screen */,
 				41B2A5DF21CCC1F400917584 /* Themes Screen */,
 				41AD3D96221C700100DC41E1 /* Icons Screen */,
 				4151A6AF26E490C900E49DBE /* Plus Screen */,
@@ -1842,7 +1857,6 @@
 				4137BBCD272DBB16009ED9FE /* SettingsViewModel.swift */,
 				C37A6874209F13120063AEAC /* CreditsViewController.swift */,
 				C359C30620A9F35B00A626E3 /* SkipDurationViewController.swift */,
-				41B2A5DB21CAEE0E00917584 /* PlayerSettingsViewController.swift */,
 				41B2A5D821CAE42600917584 /* Settings.storyboard */,
 			);
 			path = Settings;
@@ -2622,6 +2636,7 @@
 				41B2A5ED21CCC6D100917584 /* AppNavigationController.swift in Sources */,
 				41B2AC8E1D43CCE8005382A9 /* ChaptersViewController.swift in Sources */,
 				9FBDDB8927DC454B005FB447 /* AppTabBarController.swift in Sources */,
+				9F4A0F782839574B00F9C959 /* PlayerSettingsViewModel.swift in Sources */,
 				4109246C21A2019400D5DF11 /* CheckboxSelectionView.swift in Sources */,
 				41B2A5EF21CD5AAE00917584 /* StaticCellView.swift in Sources */,
 				C3A479132094C8C300D92122 /* rubberBandDistance.swift in Sources */,
@@ -2730,6 +2745,7 @@
 			files = (
 				4137BBD6272DF693009ED9FE /* SettingsCoordinatorTests.swift in Sources */,
 				69343D36213A07B4000C425E /* VoiceOverServiceTest.swift in Sources */,
+				9F646006283AD6B700710D3C /* PlayerSettingsViewModelTests.swift in Sources */,
 				62AAE2252749283F001EB9FF /* MiniPlayerViewModelTests.swift in Sources */,
 				9FB7C48F2835A4C9003B917E /* EmptyLibraryServiceMock.swift in Sources */,
 				41C2340C27324AB7006BC7B8 /* ItemListViewModelTests.swift in Sources */,
