@@ -17,6 +17,13 @@ final class PlayerSettingsViewModel {
 
   @Published var playerListPrefersBookmarks: Bool
 
+  var prefersChapterContext: Bool {
+    UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
+  }
+  var prefersRemainingTime: Bool {
+    UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
+  }
+
   init() {
     self.playerListPrefersBookmarks = UserDefaults.standard.bool(forKey: Constants.UserDefaults.playerListPrefersBookmarks.rawValue)
   }
@@ -32,5 +39,13 @@ final class PlayerSettingsViewModel {
     UserDefaults.standard.set(prefersBookmarks, forKey: Constants.UserDefaults.playerListPrefersBookmarks.rawValue)
 
     self.playerListPrefersBookmarks = prefersBookmarks
+  }
+
+  func handlePrefersChapterContext(_ flag: Bool) {
+    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
+  }
+
+  func handlePrefersRemainingTime(_ flag: Bool) {
+    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
   }
 }

@@ -214,5 +214,9 @@
 "error_empty_chapters" = "Розділи порожні, будь ласка, перевірте вміст теки: %@";
 "sleeptimer_option_custom" = "Спеціальний";
 "sleeptimer_custom_alert_title" = "Спеціальний таймер сну";
-"settings_playerinterface_title" = "Player Interface";
+"settings_progresslabels_title" = "Progress Labels";
 "settings_playerinterface_list_title" = "Opens";
+"settings_remainingtime_title" = "Use Remaining Time";
+"settings_chaptercontext_title" = "Use Chapter Context";
+"settings_progresslabels_description" = "Toggle between displaying the remaining time, total duration and progress of either the chapter or the book in the player screen";
+"settings_playerinterface_list_description" = "Adjust what the list button in the player screen opens";

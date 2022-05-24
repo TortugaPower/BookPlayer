@@ -18,16 +18,25 @@ class PlayerSettingsViewModelTests: XCTestCase {
 
   override func setUp() {
     UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.playerListPrefersBookmarks.rawValue)
+    UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
+    UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
+
     self.sut = PlayerSettingsViewModel()
   }
 
   func testInitialization() {
     XCTAssertFalse(self.sut.playerListPrefersBookmarks)
+    XCTAssertFalse(self.sut.prefersChapterContext)
+    XCTAssertFalse(self.sut.prefersRemainingTime)
 
     UserDefaults.standard.set(true, forKey: Constants.UserDefaults.playerListPrefersBookmarks.rawValue)
+    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
+    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
 
     let secondViewModel = PlayerSettingsViewModel()
     XCTAssertTrue(secondViewModel.playerListPrefersBookmarks)
+    XCTAssertTrue(secondViewModel.prefersChapterContext)
+    XCTAssertTrue(secondViewModel.prefersRemainingTime)
   }
 
   func testGettingTitleForPlayerListPreference() {
@@ -40,5 +49,19 @@ class PlayerSettingsViewModelTests: XCTestCase {
     XCTAssertTrue(self.sut.playerListPrefersBookmarks)
     self.sut.handleOptionSelected(.chapters)
     XCTAssertFalse(self.sut.playerListPrefersBookmarks)
+  }
+
+  func testPrefersChapterContext() {
+    self.sut.handlePrefersChapterContext(true)
+    XCTAssertTrue(self.sut.prefersChapterContext)
+    self.sut.handlePrefersChapterContext(false)
+    XCTAssertFalse(self.sut.prefersChapterContext)
+  }
+
+  func testPrefersRemainingTime() {
+    self.sut.handlePrefersRemainingTime(true)
+    XCTAssertTrue(self.sut.prefersRemainingTime)
+    self.sut.handlePrefersRemainingTime(false)
+    XCTAssertFalse(self.sut.prefersRemainingTime)
   }
 }

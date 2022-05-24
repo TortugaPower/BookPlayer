@@ -434,8 +434,11 @@ extension PlayerViewController {
 
     let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
-    actionSheet.addAction(UIAlertAction(title: "bookmarks_title".localized, style: .default, handler: { [weak self] _ in
-      self?.viewModel.showBookmarks()
+    actionSheet.addAction(UIAlertAction(
+      title: self.viewModel.getListTitleForMoreAction(),
+      style: .default,
+      handler: { [weak self] _ in
+        self?.viewModel.showListFromMoreAction()
     }))
 
     actionSheet.addAction(UIAlertAction(title: "jump_start_title".localized, style: .default, handler: { [weak self] _ in

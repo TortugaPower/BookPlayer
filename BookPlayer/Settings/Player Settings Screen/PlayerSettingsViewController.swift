@@ -19,15 +19,17 @@ class PlayerSettingsViewController: UITableViewController {
   @IBOutlet weak var forwardIntervalLabel: UILabel!
   @IBOutlet weak var playerListPreferenceLabel: UILabel!
   @IBOutlet weak var listImageView: UIImageView!
+  @IBOutlet weak var remainingTimeSwitch: UISwitch!
+  @IBOutlet weak var chapterTimeSwitch: UISwitch!
 
   let viewModel = PlayerSettingsViewModel()
   private var disposeBag = Set<AnyCancellable>()
 
   enum SettingsSection: Int {
-    case intervals = 0, rewind, volume, speed, interface
+    case intervals = 0, rewind, volume, speed, playerList, progressLabels
   }
 
-  let playerListPreferencePath = IndexPath(row: 0, section: SettingsSection.interface.rawValue)
+  let playerListPreferencePath = IndexPath(row: 0, section: SettingsSection.playerList.rawValue)
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -43,6 +45,8 @@ class PlayerSettingsViewController: UITableViewController {
     self.smartRewindSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.smartRewindEnabled.rawValue), animated: false)
     self.boostVolumeSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue), animated: false)
     self.globalSpeedSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue), animated: false)
+    self.chapterTimeSwitch.setOn(self.viewModel.prefersChapterContext, animated: false)
+    self.remainingTimeSwitch.setOn(self.viewModel.prefersRemainingTime, animated: false)
 
     // Retrieve initial skip values from PlayerManager
     self.rewindIntervalLabel.text = TimeParser.formatDuration(PlayerManager.rewindInterval)
@@ -56,6 +60,22 @@ class PlayerSettingsViewController: UITableViewController {
       self?.playerListPreferenceLabel.text = self?.viewModel.getTitleForPlayerListPreference(prefersBookmarks)
     }
     .store(in: &disposeBag)
+
+    self.remainingTimeSwitch.publisher(for: .valueChanged)
+      .sink { [weak self] control in
+        guard let switchControl = control as? UISwitch else { return }
+
+        self?.viewModel.handlePrefersRemainingTime(switchControl.isOn)
+      }
+      .store(in: &disposeBag)
+
+    self.chapterTimeSwitch.publisher(for: .valueChanged)
+      .sink { [weak self] control in
+        guard let switchControl = control as? UISwitch else { return }
+
+        self?.viewModel.handlePrefersChapterContext(switchControl.isOn)
+      }
+      .store(in: &disposeBag)
   }
 
   func showPlayerListOptionAlert() {
@@ -121,8 +141,8 @@ class PlayerSettingsViewController: UITableViewController {
   override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
     if section == SettingsSection.intervals.rawValue {
       return "settings_skip_title".localized
-    } else if section == SettingsSection.interface.rawValue {
-      return "settings_playerinterface_title".localized
+    } else if section == SettingsSection.progressLabels.rawValue {
+      return "settings_progresslabels_title".localized
     }
 
     return super.tableView(tableView, titleForHeaderInSection: section)
@@ -142,8 +162,10 @@ class PlayerSettingsViewController: UITableViewController {
       return "settings_boostvolume_description".localized
     case .speed:
       return "settings_globalspeed_description".localized
-    case .interface:
-      return nil
+    case .progressLabels:
+      return "settings_progresslabels_description".localized
+    case .playerList:
+      return "settings_playerinterface_list_description".localized
     }
   }
 

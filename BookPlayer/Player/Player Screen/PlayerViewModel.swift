@@ -313,6 +313,22 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     }
   }
 
+  func showListFromMoreAction() {
+    if UserDefaults.standard.bool(forKey: Constants.UserDefaults.playerListPrefersBookmarks.rawValue) {
+      self.coordinator.showChapters()
+    } else {
+      self.coordinator.showBookmarks()
+    }
+  }
+
+  func getListTitleForMoreAction() -> String {
+    if UserDefaults.standard.bool(forKey: Constants.UserDefaults.playerListPrefersBookmarks.rawValue) {
+      return "chapters_title".localized
+    } else {
+      return "bookmarks_title".localized
+    }
+  }
+
   func showControls() {
     self.coordinator.showControls()
   }
