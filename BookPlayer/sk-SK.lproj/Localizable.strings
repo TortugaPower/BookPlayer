@@ -87,7 +87,6 @@
 "bookplayer_opensource_description" = "BookPlayer vždy bol a bude zadarmo, ako open source. S vašou pomocou sme schopní implementovať nové funkcie a urobiť BookPlayer ešte lepším";
 "thanks_title" = "Ďakujeme za vašu podporu!";
 "extra_tips_description" = "Ak sa vám BookPlayer naozaj páči, môžete poslať autorom extra čiastku určenú k ďalšej podpore vývoja aplikácie, aby mohla byť stále lepšia a lepšia.";
-"files_title" = "Súbory";
 "select_all_title" = "Označit všetko";
 "deselect_all_title" = "Odznačiť všetko";
 "move_title" = "Presunúť";
@@ -162,7 +161,7 @@
 "library_add_title" = "Pridajte vašu prvú audioknihu";
 "invalid_url_title" = "Neplatná adresa URL: %@";
 "downloading_file_title" = "Sťahovanie súboru";
-"progress_title" = "Pokrok";
+"progress_title" = "Priebeh";
 "settings_siri_sleeptimer_title" = "Časovač spánku";
 "active_title" = "Zap.";
 "voiceover_currently_playing_title" = "Práve sa prehráva %@ od %@";
@@ -214,9 +213,9 @@
 "error_empty_chapters" = "Kapitoly sú prázdne, skontrolujte obsah priečinka: %@";
 "sleeptimer_option_custom" = "Vlastný";
 "sleeptimer_custom_alert_title" = "Vlastný časovač spánku";
-"settings_progresslabels_title" = "Progress Labels";
-"settings_playerinterface_list_title" = "Opens";
-"settings_remainingtime_title" = "Use Remaining Time";
-"settings_chaptercontext_title" = "Use Chapter Context";
-"settings_progresslabels_description" = "Toggle between displaying the remaining time, total duration and progress of either the chapter or the book in the player screen";
-"settings_playerinterface_list_description" = "Adjust what the list button in the player screen opens";
+"settings_progresslabels_title" = "Menovky priebehu";
+"settings_playerinterface_list_title" = "Otvorí";
+"settings_remainingtime_title" = "Použiť zostávajúci čas";
+"settings_chaptercontext_title" = "Použiť kontext kapitoly";
+"settings_progresslabels_description" = "Prepínanie medzi zobrazením zostávajúceho času, celkového trvania a priebehu kapitoly alebo knihy na obrazovke prehrávača";
+"settings_playerinterface_list_description" = "Nastavenie toho, čo otvorí tlačidlo zoznamu na obrazovke prehrávača";

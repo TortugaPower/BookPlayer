@@ -2,7 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
   <dict>
-    <key>library_playlist_description</key>
+    <key>files_title</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>%#@format@</string>
@@ -11,19 +11,19 @@
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
+        <string>d</string>
         <key>zero</key>
-        <string>صفر</string>
+        <string>%d صفر</string>
         <key>one</key>
-        <string>واحد</string>
+        <string>%d واحد</string>
         <key>two</key>
-        <string>اثنان</string>
+        <string>%d اثنان</string>
         <key>few</key>
-        <string>عدة</string>
+        <string>%d عدة</string>
         <key>many</key>
-        <string>كثير</string>
+        <string>%d كثير</string>
         <key>other</key>
-        <string>اخرى</string>
+        <string>%d اخرى</string>
       </dict>
     </dict>
     <key>delete_multiple_items_title</key>

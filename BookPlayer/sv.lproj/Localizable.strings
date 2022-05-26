@@ -87,7 +87,6 @@
 "bookplayer_opensource_description" = "BookPlayer är gratis och öppen källkod och det kommer alltid att förbli så. Med din hjälp kan vi implementera fler funktioner och göra BookPlayer ännu bättre";
 "thanks_title" = "Tack för ditt stöd!";
 "extra_tips_description" = "Om du verkligen tycker om BookPlayer kan du lämna dricks för att stödja appens vidareutveckling. Detta hjälper till att hålla kaffet kokande och att nya funktioner utvecklas.";
-"files_title" = "Filer";
 "select_all_title" = "Markera alla";
 "deselect_all_title" = "Avmarkera alla";
 "move_title" = "Flytta";
@@ -214,9 +213,9 @@
 "error_empty_chapters" = "Kapitlen saknar innehåll, kontrollera innehållet i mappen: %@";
 "sleeptimer_option_custom" = "Anpassad";
 "sleeptimer_custom_alert_title" = "Anpassad sovtimer";
-"settings_progresslabels_title" = "Progress Labels";
-"settings_playerinterface_list_title" = "Opens";
-"settings_remainingtime_title" = "Use Remaining Time";
-"settings_chaptercontext_title" = "Use Chapter Context";
-"settings_progresslabels_description" = "Toggle between displaying the remaining time, total duration and progress of either the chapter or the book in the player screen";
-"settings_playerinterface_list_description" = "Adjust what the list button in the player screen opens";
+"settings_progresslabels_title" = "Spellägesindikering";
+"settings_playerinterface_list_title" = "Öppnar";
+"settings_remainingtime_title" = "Använd Återstående Tid";
+"settings_chaptercontext_title" = "Använd Kapitelkontext";
+"settings_progresslabels_description" = "Välj mellan att visa återstående tid, total längd och spelläge relaterat till antingen kapitlet eller boken i spelaren";
+"settings_playerinterface_list_description" = "Välj vad listknappen på spelarkontrollen öppnar";

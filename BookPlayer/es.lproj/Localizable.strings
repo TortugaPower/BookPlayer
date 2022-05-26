@@ -6,11 +6,8 @@
   Copyright © 2019 Tortuga Power. All rights reserved.
 */
 
-/* Title that is shown as the navigation bar title */
 "library_title" = "Biblioteca";
-/* Title for the settings button */
 "settings_button" = "Ajustes";
-/* Title that is shown as the navigation bar title */
 "settings_title" = "Ajustes";
 "settings_autoplay_title" = "Reproducción Automática de la Biblioteca";
 "settings_autoplay_description" = "Continúa la reproducción de todos los elementos de la biblioteca que no se hayan completado.";
@@ -65,11 +62,8 @@
 "cancel_button" = "Cancelar";
 "seconds_title" = "seg";
 "ok_button" = "OK";
-/* Message shown when trying to create a Siri Shortcut on devices that don't have iOS 12+ installed */
 "siri_alert_description" = "Los atajos de Siri están disponibles desde iOS 12 en adelante";
-/* Title used in the context of our tip jar to support development */
 "support_bookplayer_title" = "Patrocina a BookPlayer";
-/* Description used in the context of our tip jar to support development */
 "support_bookplayer_description" = "Obtén BookPlayer Plus para patrocinar el desarrollo futuro y obtener temas de colores adicionales e iconos extras para la aplicación";
 "learn_more_title" = "VER MÁS";
 "settings_appearance_title" = "Apariencia";
@@ -83,7 +77,6 @@
 "theme_switch_title" = "Cambiar automáticamente";
 "theme_dark_title" = "Utilizar siempre la variación oscura";
 "themes_title" = "Temas";
-/* This should be &ldquo;By your friends at BookPlayer&rdquo; in English.&nbsp; */
 "icons_bookplayer_credit_description" = "Por tus amigos de BookPlayer";
 "kind_tip_title" = "Amable donación de";
 "excellent_tip_title" = "Excelente donación de";
@@ -94,7 +87,6 @@
 "bookplayer_opensource_description" = "BookPlayer es gratuito y de código abierto y siempre seguirá siendo así. Con tu ayuda, podemos implementar más funciones y hacer que BookPlayer sea aún mejor";
 "thanks_title" = "¡Gracias por tu apoyo!";
 "extra_tips_description" = "Si realmente estás disfrutando Bookplayer, puedes dar donaciones adicionales para ayudar aún más en el desarrollo de la aplicación. Esto nos ayudará a mantener el desarrollando nuevas funcionalidades para el app.";
-"files_title" = "Archivos";
 "select_all_title" = "Seleccionar todo";
 "deselect_all_title" = "Deseleccionar todo";
 "move_title" = "Mover";
@@ -111,20 +103,15 @@
 "player_speed_title" = "Establecer velocidad de reproducción";
 "player_sleep_title" = "Pausar audio";
 "sleep_chapter_option_title" = "Fin del capítulo actual";
-/* This is used for the label underneath the progress bar (e.g. Chapter 1 of 35) */
 "player_chapter_description" = "Capítulo %d de %d";
 "chapters_title" = "Capítulos";
-/* This is used as a description for each chapter in the chapters list (e.g. Start: 10:11 - Duration: 16:56) */
 "chapters_item_description" = "Inicio: %@ - Duración: %@";
-/* Restore purchases */
 "restore_title" = "Restaurar";
 "themes_caps_title" = "TEMAS";
 "plus_app_icons_title" = "Iconos de la Aplicación";
-/* This is the counterpart to Mark as Finished */
 "mark_unfinished_title" = "Marcar como no terminado";
 "move_playlist_button" = "Mover a una lista";
 "move_single_item_title" = "¿Deseas mover ' %@ ' a ' %@ '?";
-/* This is shown if while being inside a playlist, a batch of imported files are finished processing, and it will be one of the options in the alert presented */
 "current_playlist_title" = "Actual lista";
 "select_item_title" = "Seleccionar Elemento";
 "sleep_alert_description" = "Para cuando termine el capítulo";
@@ -137,7 +124,6 @@
 "chapter_time_remaining_title" = "Tiempo restante del capítulo:";
 "book_time_remaining_title" = "Tiempo restante del libro: ";
 "book_duration_title" = "Duración del libro: ";
-/* Может правильнее будет: &quot;Не удалось сменить иконку&quot;? */
 "icon_error_description" = "El cambio del icono de la aplicación no tuvo éxito. Inténtalo de nuevo más tarde.";
 "error_title" = "Error";
 "generic_retry_description" = "Por favor, inténtelo de nuevo más tarde";
@@ -149,18 +135,14 @@
 "pause_title" = "Pausar";
 "voiceover_no_title" = "Sin título";
 "voiceover_no_author" = "Sin autor";
-/* &lt;Book title&gt; by &lt;Book author&gt; &lt;percentage in numbers&gt;% Completed */
 "voiceover_book_progress" = "%@ por %@, %d porcentaje completado";
 "voiceover_no_file_title" = "Sin título de archivo";
 "voiceover_no_file_subtitle" = "Sin subtítulo de archivo";
 "voiceover_no_playlist_title" = "Sin título de lista de reproducción";
-/* &lt;Playlist title&gt; Playlist &lt;percentage in number&gt;% Completed */
 "voiceover_playlist_progress" = "%@, Playlist %d porcentaje Completado";
 "voiceover_unknown_title" = "Título desconocido";
 "voiceover_unknown_author" = "Autor desconocido";
-/* &lt;book title&gt; by &lt;book author&gt; */
 "voiceover_book_info" = "%@ por %@";
-/* &lt;book title&gt; by &lt;book author&gt;, chapter &lt;chapter title&gt; */
 "voiceover_book_chapter" = "%@ por %@ , capítulo %@";
 "voiceover_rewind_time" = "Retroceder %@";
 "voiceover_forward_time" = "Avanzar %@";
@@ -182,16 +164,11 @@
 "progress_title" = "Progreso";
 "settings_siri_sleeptimer_title" = "Temporizador de suspensión";
 "active_title" = "Activo";
-/* Currently Playing <Book title> by <Book author> */
 "voiceover_currently_playing_title" = "Reproducción en curso %@ por %@";
-/* When you're on the library or playlist view, and the voice over cursor is focused on the floating mini-player at the bottom, it should read to the user the element, and the hint that if pressed, the player view will be shown */
 "voiceover_miniplayer_hint" = "Mini reproductor. Presione para mostrar el Reproductor";
 "voiceover_chapter_time_title" = "Tiempo actual del capítulo: %@";
-/* When you're in the player view, and the voice over cursor is focused on the top bar (the one with the arrow-down), it will read to the user that the player view will be closed if he double taps that button */
 "voiceover_dismiss_player_title" = "Cerrar vista de reproductor";
-/* Sort items by most recent playback */
 "sort_most_recent_button" = "Más Reciente";
-/* One of the sort options, this one reverts the current order of selected items */
 "sort_reversed_button" = "Invertir Orden";
 "voiceover_continue_playback_title" = "Continuar Reproducción";
 "coredata_error_diskfull_description" = "No se pudo cargar la biblioteca, el dispositivo no tiene espacio en disco.";
@@ -236,9 +213,9 @@
 "error_empty_chapters" = "Los capítulos están vacíos, por favor verifica el contenido de la carpeta: %@";
 "sleeptimer_option_custom" = "Personalizado";
 "sleeptimer_custom_alert_title" = "Temporizador personalizado";
-"settings_progresslabels_title" = "Progress Labels";
-"settings_playerinterface_list_title" = "Opens";
-"settings_remainingtime_title" = "Use Remaining Time";
-"settings_chaptercontext_title" = "Use Chapter Context";
-"settings_progresslabels_description" = "Toggle between displaying the remaining time, total duration and progress of either the chapter or the book in the player screen";
-"settings_playerinterface_list_description" = "Adjust what the list button in the player screen opens";
+"settings_progresslabels_title" = "Etiquetas de progreso";
+"settings_playerinterface_list_title" = "Abre";
+"settings_remainingtime_title" = "Usar el tiempo restante";
+"settings_chaptercontext_title" = "Usar el contexto del capítulo";
+"settings_progresslabels_description" = "Alterna entre mostrar el tiempo restante, la duración total y el progreso del capítulo o del libro en la pantalla del reproductor";
+"settings_playerinterface_list_description" = "Ajusta lo que el botón de lista abre en la pantalla del reproductor";

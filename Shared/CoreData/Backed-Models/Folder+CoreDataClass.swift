@@ -325,11 +325,11 @@ public class Folder: LibraryItem {
         return "\(self.relativePath!)/\(itemRelativePath!)"
     }
 
-    public override func info() -> String {
-        let count = self.items?.array.count ?? 0
+  public override func info() -> String {
+    let count = self.items?.array.count ?? 0
 
-        return "\(count) \("files_title".localized)"
-    }
+    return String.localizedStringWithFormat("files_title".localized, count)
+  }
 
     enum CodingKeys: String, CodingKey {
         case title, desc, books, folders, library, orderRank, items

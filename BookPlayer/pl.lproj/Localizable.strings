@@ -87,7 +87,6 @@
 "bookplayer_opensource_description" = "BookPlayer jest wolny i oparty na otwartym źródle i zawsze taki pozostanie. Z Waszą pomocą jesteśmy w stanie implementować więcej funkcji i uczynić BookPlayera jeszcze lepszym.";
 "thanks_title" = "Dzięki za wsparcie!";
 "extra_tips_description" = "Jeśli naprawdę podoba ci się BookPlayer, możesz przekazać nam dodatkowe środki, aby dalej wspierać rozwój aplikacji. Pomoże to nam opłacić prąd i wprowadzać nowe funkcje.";
-"files_title" = "Pliki";
 "select_all_title" = "Wybierz Wszystkie";
 "deselect_all_title" = "Odznacz wszystkie";
 "move_title" = "Przenieś";
@@ -214,9 +213,9 @@
 "error_empty_chapters" = "Rozdziały są puste, proszę sprawdzić zawartość folderu: %@";
 "sleeptimer_option_custom" = "Własny";
 "sleeptimer_custom_alert_title" = "Niestandardowy wyłącznik czasowy";
-"settings_progresslabels_title" = "Progress Labels";
-"settings_playerinterface_list_title" = "Opens";
-"settings_remainingtime_title" = "Use Remaining Time";
-"settings_chaptercontext_title" = "Use Chapter Context";
-"settings_progresslabels_description" = "Toggle between displaying the remaining time, total duration and progress of either the chapter or the book in the player screen";
-"settings_playerinterface_list_description" = "Adjust what the list button in the player screen opens";
+"settings_progresslabels_title" = "Etykiety postępu";
+"settings_playerinterface_list_title" = "Otwiera";
+"settings_remainingtime_title" = "Użyj pozostałego czasu";
+"settings_chaptercontext_title" = "Użyj kontekstu rozdziału";
+"settings_progresslabels_description" = "Przełącz między wyświetlaniem pozostałego czasu, całkowitego czasu trwania i postępu rozdziału lub książki na ekranie odtwarzacza";
+"settings_playerinterface_list_description" = "Dostosuj, co otwiera przycisk listy na ekranie odtwarzacza";
