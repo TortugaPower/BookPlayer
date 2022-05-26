@@ -11,7 +11,7 @@
 		<key>NSStringFormatSpecTypeKey</key>
 		<string>NSStringPluralRuleType</string>
 		<key>NSStringFormatValueTypeKey</key>
-		<string>li</string>
+		<string>d</string>
 		<key>one</key>
     <string>%d Arquivo</string>
 		<key>other</key>
