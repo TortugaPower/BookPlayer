@@ -87,7 +87,6 @@
 "bookplayer_opensource_description" = "A BookPlayer ingyenes és nyílt forráskódú, és ez mindig is így marad. Az Ön segítségével több funkciót tudunk megvalósítani, és még jobbá tehetjük a BookPlayer programot";
 "thanks_title" = "Köszönet a támogatásért!";
 "extra_tips_description" = "Ha kedveli a BookPlayer alkalmazást, további támogatást is nyújthat, hogy tovább támogassa annak fejlődését. Ez segít megőrizni a lelkesedésünket, miáltal további funkciók is érkezhetnek.";
-"files_title" = "Fájlok";
 "select_all_title" = "Összes kijelölése";
 "deselect_all_title" = "Kijelölések megszüntetése";
 "move_title" = "Áthelyezés";
@@ -214,9 +213,9 @@
 "error_empty_chapters" = "A fejezetek üresek, ellenőrizze a mappa tartalmát: %@";
 "sleeptimer_option_custom" = "Egyéni";
 "sleeptimer_custom_alert_title" = "Egyéni alvásidőzítő";
-"settings_progresslabels_title" = "Progress Labels";
-"settings_playerinterface_list_title" = "Opens";
-"settings_remainingtime_title" = "Use Remaining Time";
-"settings_chaptercontext_title" = "Use Chapter Context";
-"settings_progresslabels_description" = "Toggle between displaying the remaining time, total duration and progress of either the chapter or the book in the player screen";
-"settings_playerinterface_list_description" = "Adjust what the list button in the player screen opens";
+"settings_progresslabels_title" = "Előrehaladási címkék";
+"settings_playerinterface_list_title" = "Megnyílik";
+"settings_remainingtime_title" = "Hátralévő idő használata";
+"settings_chaptercontext_title" = "Fejezet kontextus használata";
+"settings_progresslabels_description" = "Váltás a hátralévő idő, a teljes időtartam és a fejezet vagy a teljes könyv előrehaladásának megjelenítése között a lejátszó képernyőn";
+"settings_playerinterface_list_description" = "A lejátszó képernyőn mi nyíljon meg a lista gomb megnyomására";

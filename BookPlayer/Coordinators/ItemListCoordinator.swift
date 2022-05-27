@@ -370,8 +370,20 @@ extension ItemListCoordinator {
   }
 
   func showDeleteAlert(selectedItems: [SimpleLibraryItem]) {
-    let alert = UIAlertController(title: String.localizedStringWithFormat("delete_multiple_items_title".localized, selectedItems.count),
-                                  message: "delete_multiple_items_description".localized,
+    let alertTitle: String
+    let alertMessage: String?
+
+    if selectedItems.count == 1,
+       let item = selectedItems.first {
+      alertTitle = String(format: "delete_single_item_title".localized, item.title)
+      alertMessage = nil
+    } else {
+      alertTitle = String.localizedStringWithFormat("delete_multiple_items_title".localized, selectedItems.count)
+      alertMessage = "delete_multiple_items_description".localized
+    }
+
+    let alert = UIAlertController(title: alertTitle,
+                                  message: alertMessage,
                                   preferredStyle: .alert)
 
     alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
