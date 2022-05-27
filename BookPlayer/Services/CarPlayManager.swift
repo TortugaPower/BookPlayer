@@ -12,7 +12,7 @@ import CarPlay
 
 class CarPlayManager: NSObject {
   var interfaceController: CPInterfaceController?
-  let mainCoordinator: MainCoordinator
+  var mainCoordinator: MainCoordinator?
   var recentItems = [PlayableItem]()
 
   private var disposeBag = Set<AnyCancellable>()
@@ -22,11 +22,21 @@ class CarPlayManager: NSObject {
   var needsReload = false
 
   override init() {
-    self.mainCoordinator = SceneDelegate.shared!.coordinator.getMainCoordinator()!
-
     super.init()
 
     self.bindObservers()
+  }
+
+  func getMainCoordinator() -> MainCoordinator? {
+    if let coordinator = self.mainCoordinator {
+      return coordinator
+    }
+
+    if let coordinator = SceneDelegate.shared?.coordinator.getMainCoordinator() {
+      self.mainCoordinator = coordinator
+    }
+
+    return self.mainCoordinator
   }
 
   // MARK: - Lifecycle
@@ -37,11 +47,23 @@ class CarPlayManager: NSObject {
     self.loadRecentItems()
     self.setupNowPlayingTemplate()
     self.setRootTemplateRecentItems()
+    self.showOpenAppAlertIfNecessary()
   }
 
   func disconnect() {
     self.interfaceController = nil
     self.needsReload = false
+  }
+
+  func showOpenAppAlertIfNecessary() {
+    guard getMainCoordinator() == nil else { return }
+
+    let okAction = CPAlertAction(title: "ok_button".localized, style: .default) { _ in
+      self.interfaceController?.dismissTemplate(animated: true, completion: nil)
+    }
+    let alertTemplate = CPAlertTemplate(titleVariants: ["The app is not in memory, please open BookPlayer on your phone to continue using CarPlay"], actions: [okAction])
+
+    self.interfaceController?.presentTemplate(alertTemplate, animated: true, completion: nil)
   }
 
   func bindObservers() {
@@ -58,7 +80,6 @@ class CarPlayManager: NSObject {
         if self.interfaceController?.topTemplate == self.interfaceController?.rootTemplate {
           self.loadRecentItems()
           self.setRootTemplateRecentItems()
-          self.interfaceController?.pushTemplate(CPNowPlayingTemplate.shared, animated: true, completion: nil)
         } else {
           self.needsReload = true
         }
@@ -96,31 +117,39 @@ class CarPlayManager: NSObject {
   }
 
   func loadRecentItems() {
+    guard let mainCoordinator = getMainCoordinator() else { return }
+
     if let recentBooks = mainCoordinator.libraryService.getLastPlayedItems(limit: 20) {
       recentItems = recentBooks.compactMap({ try? mainCoordinator.playbackService.getPlayableItem(from: $0) })
     }
   }
 
   func setupNowPlayingTemplate() {
+    guard let mainCoordinator = getMainCoordinator() else { return }
+
     let prevButton = self.getPreviousChapterButton()
 
     let nextButton = self.getNextChapterButton()
 
-    let controlsButton = CPNowPlayingPlaybackRateButton { [weak self] _ in
+    let controlsButton = CPNowPlayingImageButton(image: UIImage(systemName: "dial.max")!) { [weak self] _ in
       self?.showPlaybackControlsTemplate()
     }
 
-    let chaptersButton = CPNowPlayingImageButton(image: UIImage(systemName: "list.bullet")!) { [weak self] _ in
-      self?.showChapterListTemplate()
+    let listButton = CPNowPlayingImageButton(image: UIImage(systemName: "list.bullet")!) { [weak self] _ in
+      if UserDefaults.standard.bool(forKey: Constants.UserDefaults.playerListPrefersBookmarks.rawValue) {
+        self?.showBookmarkListTemplate()
+      } else {
+        self?.showChapterListTemplate()
+      }
     }
 
-    let bookmarksButton = CPNowPlayingImageButton(image: UIImage(named: "toolbarIconBookmark")!) { [weak self] _ in
+    let bookmarksButton = CPNowPlayingImageButton(image: UIImage(named: "toolbarIconBookmark")!) { [weak self, mainCoordinator] _ in
       guard
         let self = self,
-        let currentItem = self.mainCoordinator.playerManager.currentItem
+        let currentItem = mainCoordinator.playerManager.currentItem
       else { return }
 
-      let bookmark = self.mainCoordinator.libraryService.createBookmark(
+      let bookmark = mainCoordinator.libraryService.createBookmark(
         at: currentItem.currentTime,
         relativePath: currentItem.relativePath,
         type: .user
@@ -137,7 +166,7 @@ class CarPlayManager: NSObject {
       self.interfaceController?.presentTemplate(alertTemplate, animated: true, completion: nil)
     }
 
-    CPNowPlayingTemplate.shared.updateNowPlayingButtons([prevButton, controlsButton, bookmarksButton, chaptersButton, nextButton])
+    CPNowPlayingTemplate.shared.updateNowPlayingButtons([prevButton, controlsButton, bookmarksButton, listButton, nextButton])
   }
 
   func handleItemSelection(_ item: CPSelectableListItem) {
@@ -189,41 +218,53 @@ class CarPlayManager: NSObject {
 
 extension CarPlayManager {
   func hasChapter(before chapter: PlayableChapter?) -> Bool {
-    guard let chapter = chapter else { return false }
-    return self.mainCoordinator.playerManager.currentItem?.hasChapter(before: chapter) ?? false
+    guard
+      let mainCoordinator = getMainCoordinator(),
+      let chapter = chapter
+    else { return false }
+
+    return mainCoordinator.playerManager.currentItem?.hasChapter(before: chapter) ?? false
   }
 
   func hasChapter(after chapter: PlayableChapter?) -> Bool {
-    guard let chapter = chapter else { return false }
-    return self.mainCoordinator.playerManager.currentItem?.hasChapter(after: chapter) ?? false
+    guard
+      let mainCoordinator = getMainCoordinator(),
+      let chapter = chapter
+    else { return false }
+
+    return mainCoordinator.playerManager.currentItem?.hasChapter(after: chapter) ?? false
   }
 
   func getPreviousChapterButton() -> CPNowPlayingImageButton {
-    let prevChapterImageName = self.hasChapter(before: self.mainCoordinator.playerManager.currentItem?.currentChapter)
+    let prevChapterImageName = self.hasChapter(before: getMainCoordinator()?.playerManager.currentItem?.currentChapter)
     ? "chevron.left"
     : "chevron.left.2"
 
     return CPNowPlayingImageButton(image: UIImage(systemName: prevChapterImageName)!) { [weak self] _ in
-      if let currentChapter = self?.mainCoordinator.playerManager.currentItem?.currentChapter,
-         let previousChapter = self?.mainCoordinator.playerManager.currentItem?.previousChapter(before: currentChapter) {
-        self?.mainCoordinator.playerManager.jumpTo(previousChapter.start + 0.5, recordBookmark: false)
+      guard let mainCoordinator = self?.getMainCoordinator() else { return }
+
+      if let currentChapter = mainCoordinator.playerManager.currentItem?.currentChapter,
+         let previousChapter = mainCoordinator.playerManager.currentItem?.previousChapter(before: currentChapter) {
+        mainCoordinator.playerManager.jumpTo(previousChapter.start + 0.5, recordBookmark: false)
       } else {
-        self?.mainCoordinator.playerManager.playPreviousItem()
+        mainCoordinator.playerManager.playPreviousItem()
       }
     }
   }
 
   func getNextChapterButton() -> CPNowPlayingImageButton {
-    let nextChapterImageName = self.hasChapter(after: self.mainCoordinator.playerManager.currentItem?.currentChapter)
+    let nextChapterImageName = self.hasChapter(after: getMainCoordinator()?.playerManager.currentItem?.currentChapter)
     ? "chevron.right"
     : "chevron.right.2"
 
     return CPNowPlayingImageButton(image: UIImage(systemName: nextChapterImageName)!) { [weak self] _ in
-      if let currentChapter = self?.mainCoordinator.playerManager.currentItem?.currentChapter,
-         let nextChapter = self?.mainCoordinator.playerManager.currentItem?.nextChapter(after: currentChapter) {
-        self?.mainCoordinator.playerManager.jumpTo(nextChapter.start + 0.5, recordBookmark: false)
+      guard let mainCoordinator = self?.getMainCoordinator() else { return }
+
+      if let currentChapter = mainCoordinator.playerManager.currentItem?.currentChapter,
+         let nextChapter = mainCoordinator.playerManager.currentItem?.nextChapter(after: currentChapter) {
+        mainCoordinator.playerManager.jumpTo(nextChapter.start + 0.5, recordBookmark: false)
       } else {
-        self?.mainCoordinator.playerManager.playNextItem(autoPlayed: false)
+        mainCoordinator.playerManager.playNextItem(autoPlayed: false)
       }
     }
   }
@@ -234,10 +275,11 @@ extension CarPlayManager {
 extension CarPlayManager {
   func showChapterListTemplate() {
     guard
-      let chapters = self.mainCoordinator.playerManager.currentItem?.chapters
+      let mainCoordinator = getMainCoordinator(),
+      let chapters = mainCoordinator.playerManager.currentItem?.chapters
     else { return }
 
-    let chapterItems = chapters.enumerated().map({ [weak self] (index, chapter) -> CPListItem in
+    let chapterItems = chapters.enumerated().map({ [weak self, mainCoordinator] (index, chapter) -> CPListItem in
       let chapterTitle = chapter.title == ""
       ? String.localizedStringWithFormat("chapter_number_title".localized, index + 1)
       : chapter.title
@@ -246,7 +288,7 @@ extension CarPlayManager {
 
       let item = CPListItem(text: chapterTitle, detailText: chapterDetail)
 
-      if let currentChapter = self?.mainCoordinator.playerManager.currentItem?.currentChapter,
+      if let currentChapter = mainCoordinator.playerManager.currentItem?.currentChapter,
          currentChapter.index == chapter.index {
         item.isPlaying = true
       }
@@ -274,6 +316,68 @@ extension CarPlayManager {
   }
 }
 
+// MARK: - Bookmark List Template
+
+extension CarPlayManager {
+  func createBookmarkCPItem(from bookmark: Bookmark, includeImage: Bool) -> CPListItem {
+    let item = CPListItem(
+      text: bookmark.note,
+      detailText: TimeParser.formatTime(bookmark.time)
+    )
+
+    if includeImage {
+      item.setAccessoryImage(UIImage(systemName: bookmark.getImageNameForType()!))
+    }
+
+    item.handler = { [weak self, bookmark] (_, completion) in
+      NotificationCenter.default.post(
+        name: .messageReceived,
+        object: self,
+        userInfo: [
+          "command": Command.chapter.rawValue,
+          "start": "\(bookmark.time)"
+        ]
+      )
+      completion()
+      self?.interfaceController?.popTemplate(animated: true, completion: nil)
+    }
+
+    return item
+  }
+
+  func showBookmarkListTemplate() {
+    guard
+      let mainCoordinator = getMainCoordinator(),
+      let currentItem = mainCoordinator.playerManager.currentItem
+    else { return }
+
+    let playBookmarks = mainCoordinator.libraryService.getBookmarks(of: .play, relativePath: currentItem.relativePath) ?? []
+    let skipBookmarks = mainCoordinator.libraryService.getBookmarks(of: .skip, relativePath: currentItem.relativePath) ?? []
+
+    let automaticBookmarks = (playBookmarks + skipBookmarks)
+      .sorted(by: { $0.time < $1.time })
+
+    let automaticItems = automaticBookmarks.compactMap { [weak self] bookmark -> CPListItem? in
+      return self?.createBookmarkCPItem(from: bookmark, includeImage: true)
+    }
+
+    let userBookmarks = (mainCoordinator.libraryService.getBookmarks(of: .user, relativePath: currentItem.relativePath) ?? [])
+      .sorted(by: { $0.time < $1.time })
+
+    let userItems = userBookmarks.compactMap { [weak self] bookmark -> CPListItem? in
+      return self?.createBookmarkCPItem(from: bookmark, includeImage: false)
+    }
+
+    let section1 = CPListSection(items: automaticItems, header: "bookmark_type_automatic_title".localized, sectionIndexTitle: nil)
+
+    let section2 = CPListSection(items: userItems, header: "bookmark_type_user_title".localized, sectionIndexTitle: nil)
+
+    let listTemplate = CPListTemplate(title: "bookmarks_title".localized, sections: [section1, section2])
+
+    self.interfaceController?.pushTemplate(listTemplate, animated: true, completion: nil)
+  }
+}
+
 // MARK: - Playback Controls
 
 extension CarPlayManager {
@@ -286,7 +390,7 @@ extension CarPlayManager {
 
     let section1 = CPListSection(items: [boostVolumeItem])
 
-    let currentSpeed = mainCoordinator.playerManager.currentSpeed
+    let currentSpeed = getMainCoordinator()?.playerManager.currentSpeed ?? 1
     let formattedSpeed = formatSpeed(currentSpeed)
 
     let speedItems = self.getSpeedOptions()
