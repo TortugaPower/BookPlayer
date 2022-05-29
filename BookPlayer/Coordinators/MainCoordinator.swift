@@ -21,30 +21,14 @@ class MainCoordinator: Coordinator {
 
   init(
     rootController: RootViewController,
-    libraryService: LibraryServiceProtocol,
+    coreServices: CoreServices,
     navigationController: UINavigationController
   ) {
     self.rootViewController = rootController
-    self.libraryService = libraryService
-    let playbackService = AppDelegate.shared?.playbackService ?? PlaybackService(libraryService: libraryService)
-    AppDelegate.shared?.playbackService = playbackService
-    self.playbackService = playbackService
-
-    let playerManager = AppDelegate.shared?.playerManager ?? PlayerManager(
-      libraryService: libraryService,
-      playbackService: self.playbackService,
-      speedService: SpeedService(libraryService: libraryService)
-    )
-    AppDelegate.shared?.playerManager = playerManager
-    self.playerManager = playerManager
-
-    let watchService = AppDelegate.shared?.watchConnectivityService ?? PhoneWatchConnectivityService(
-      libraryService: libraryService,
-      playbackService: playbackService,
-      playerManager: playerManager
-    )
-    AppDelegate.shared?.watchConnectivityService = watchService
-    self.watchConnectivityService = watchService
+    self.libraryService = coreServices.libraryService
+    self.playbackService = coreServices.playbackService
+    self.playerManager = coreServices.playerManager
+    self.watchConnectivityService = coreServices.watchService
 
     ThemeManager.shared.libraryService = libraryService
 

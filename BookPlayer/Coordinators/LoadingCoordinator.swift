@@ -34,13 +34,11 @@ class LoadingCoordinator: Coordinator {
 
   func didFinishLoadingSequence(coreDataStack: CoreDataStack) {
     let rootVC = RootViewController.instantiate(from: .Main)
-    let dataManager = AppDelegate.shared?.dataManager ?? DataManager(coreDataStack: coreDataStack)
-    AppDelegate.shared?.dataManager = dataManager
-    let libraryService = AppDelegate.shared?.libraryService ?? LibraryService(dataManager: dataManager)
-    AppDelegate.shared?.libraryService = libraryService
+    let coreServices = AppDelegate.shared!.createCoreServicesIfNeeded(from: coreDataStack)
+
     let coordinator = MainCoordinator(
       rootController: rootVC,
-      libraryService: libraryService,
+      coreServices: coreServices,
       navigationController: AppNavigationController.instantiate(from: .Main)
     )
     rootVC.viewModel = BaseViewModel<MainCoordinator>()

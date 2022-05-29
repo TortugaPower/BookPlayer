@@ -25,10 +25,10 @@ class MiniPlayerViewModelTests: XCTestCase {
   func testShowPlayer() {
     let rootVC = RootViewController.instantiate(from: .Main)
     rootVC.loadView()
-    let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
+    let coreServices = AppDelegate.shared!.createCoreServicesIfNeeded(from: CoreDataStack(testPath: "/dev/null"))
     let mainCoordinator = MainCoordinator(
       rootController: rootVC,
-      libraryService: LibraryService(dataManager: dataManager),
+      coreServices: coreServices,
       navigationController: UINavigationController()
     )
     self.sut.coordinator = mainCoordinator

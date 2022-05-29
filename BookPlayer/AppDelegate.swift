@@ -18,6 +18,14 @@ import SwiftyStoreKit
 import UIKit
 import WatchConnectivity
 
+typealias CoreServices = (
+  dataManager: DataManager,
+  libraryService: LibraryServiceProtocol,
+  playbackService: PlaybackServiceProtocol,
+  playerManager: PlayerManagerProtocol,
+  watchService: PhoneWatchConnectivityService
+)
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
   static weak var shared: AppDelegate?
@@ -82,6 +90,70 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     completionHandler(response)
   }
 
+  // swiftlint:disable:next function_body_length
+  func createCoreServicesIfNeeded(from stack: CoreDataStack) -> CoreServices {
+    let dataManager: DataManager
+
+    if let sharedDataManager = AppDelegate.shared?.dataManager {
+      dataManager = sharedDataManager
+    } else {
+      dataManager = DataManager(coreDataStack: stack)
+      AppDelegate.shared?.dataManager = dataManager
+    }
+
+    let libraryService: LibraryServiceProtocol
+
+    if let sharedLibraryService = AppDelegate.shared?.libraryService {
+      libraryService = sharedLibraryService
+    } else {
+      libraryService = LibraryService(dataManager: dataManager)
+      AppDelegate.shared?.libraryService = libraryService
+    }
+
+    let playbackService: PlaybackServiceProtocol
+
+    if let sharedPlaybackService = AppDelegate.shared?.playbackService {
+      playbackService = sharedPlaybackService
+    } else {
+      playbackService = PlaybackService(libraryService: libraryService)
+      AppDelegate.shared?.playbackService = playbackService
+    }
+
+    let playerManager: PlayerManagerProtocol
+
+    if let sharedPlayerManager = AppDelegate.shared?.playerManager {
+      playerManager = sharedPlayerManager
+    } else {
+      playerManager = PlayerManager(
+        libraryService: libraryService,
+        playbackService: playbackService,
+        speedService: SpeedService(libraryService: libraryService)
+      )
+      AppDelegate.shared?.playerManager = playerManager
+    }
+
+    let watchService: PhoneWatchConnectivityService
+
+    if let sharedWatchService = AppDelegate.shared?.watchConnectivityService {
+      watchService = sharedWatchService
+    } else {
+      watchService = PhoneWatchConnectivityService(
+        libraryService: libraryService,
+        playbackService: playbackService,
+        playerManager: playerManager
+      )
+      AppDelegate.shared?.watchConnectivityService = watchService
+    }
+
+    return (
+      dataManager,
+      libraryService,
+      playbackService,
+      playerManager,
+      watchService
+    )
+  }
+
   func loadPlayer(
     _ relativePath: String,
     autoplay: Bool,
@@ -100,7 +172,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       return
     }
 
-    // Only load if loaded book is a different one
     guard let libraryItem = self.libraryService?.getItem(with: relativePath) else { return }
 
     var item: PlayableItem?

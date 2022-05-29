@@ -51,24 +51,7 @@ class CarPlayManager: NSObject {
     let dataInitializerCoordinator = DataInitializerCoordinator(alertPresenter: self)
 
     dataInitializerCoordinator.onFinish = { stack in
-      let dataManager = DataManager(coreDataStack: stack)
-      AppDelegate.shared?.dataManager = dataManager
-      let libraryService = LibraryService(dataManager: dataManager)
-      AppDelegate.shared?.libraryService = libraryService
-      let playbackService = PlaybackService(libraryService: libraryService)
-      AppDelegate.shared?.playbackService = playbackService
-      let playerManager = PlayerManager(
-        libraryService: libraryService,
-        playbackService: playbackService,
-        speedService: SpeedService(libraryService: libraryService)
-      )
-      AppDelegate.shared?.playerManager = playerManager
-      let watchConnectivityService = PhoneWatchConnectivityService(
-        libraryService: libraryService,
-        playbackService: playbackService,
-        playerManager: playerManager
-      )
-      AppDelegate.shared?.watchConnectivityService = watchConnectivityService
+      _ = AppDelegate.shared?.createCoreServicesIfNeeded(from: stack)
 
       self.loadRecentItems()
       self.setRootTemplateRecentItems()
