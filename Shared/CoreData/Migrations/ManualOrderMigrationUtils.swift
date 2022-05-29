@@ -65,7 +65,7 @@ extension DataMigrationManager {
 
     folders.forEach { folder in
       let count = folder.items?.count ?? 0
-      folder.details = "\(count) \("files_title".localized)"
+      folder.details = String.localizedStringWithFormat("files_title".localized, count)
     }
 
     dataManager.saveContext()
