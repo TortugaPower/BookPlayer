@@ -14,7 +14,7 @@ import UIKit
 
 class MainCoordinator: Coordinator {
   let rootViewController: RootViewController
-  let playerManager: PlayerManager
+  let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
   let watchConnectivityService: PhoneWatchConnectivityService
@@ -26,20 +26,24 @@ class MainCoordinator: Coordinator {
   ) {
     self.rootViewController = rootController
     self.libraryService = libraryService
-    let playbackService = PlaybackService(libraryService: libraryService)
+    let playbackService = AppDelegate.shared?.playbackService ?? PlaybackService(libraryService: libraryService)
+    AppDelegate.shared?.playbackService = playbackService
     self.playbackService = playbackService
 
-    self.playerManager = PlayerManager(
+    let playerManager = AppDelegate.shared?.playerManager ?? PlayerManager(
       libraryService: libraryService,
       playbackService: self.playbackService,
       speedService: SpeedService(libraryService: libraryService)
     )
+    AppDelegate.shared?.playerManager = playerManager
+    self.playerManager = playerManager
 
-    let watchService = PhoneWatchConnectivityService(
+    let watchService = AppDelegate.shared?.watchConnectivityService ?? PhoneWatchConnectivityService(
       libraryService: libraryService,
       playbackService: playbackService,
       playerManager: playerManager
     )
+    AppDelegate.shared?.watchConnectivityService = watchService
     self.watchConnectivityService = watchService
 
     ThemeManager.shared.libraryService = libraryService
@@ -77,8 +81,6 @@ class MainCoordinator: Coordinator {
     libraryCoordinator.parentCoordinator = self
     self.childCoordinators.append(libraryCoordinator)
     libraryCoordinator.start()
-
-    self.watchConnectivityService.startSession()
   }
 
   func showPlayer() {
@@ -93,6 +95,9 @@ class MainCoordinator: Coordinator {
   }
 
   func showMiniPlayer(_ flag: Bool) {
+    // Only animate if it toggles the state
+    guard flag != self.rootViewController.isMiniPlayerVisible else { return }
+
     guard flag == true else {
       self.rootViewController.animateView(self.rootViewController.miniPlayerContainer, show: flag)
       return

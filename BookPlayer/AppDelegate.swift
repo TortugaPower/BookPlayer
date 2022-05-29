@@ -8,6 +8,7 @@
 
 import AVFoundation
 import BookPlayerKit
+import Combine
 import CoreData
 import DirectoryWatcher
 import Intents
@@ -19,11 +20,27 @@ import WatchConnectivity
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
+  static weak var shared: AppDelegate?
+  var pendingURLActions = [Action]()
+
   var window: UIWindow?
   var wasPlayingBeforeInterruption: Bool = false
   var watcher: DirectoryWatcher?
 
+  var dataManager: DataManager?
+  var libraryService: LibraryServiceProtocol?
+  var playbackService: PlaybackServiceProtocol?
+  var playerManager: PlayerManagerProtocol?
+  var watchConnectivityService: PhoneWatchConnectivityService? {
+    didSet {
+      if oldValue == nil {
+        watchConnectivityService?.startSession()
+      }
+    }
+  }
+
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    Self.shared = self
     // Override point for customization after application launch.
     let defaults: UserDefaults = UserDefaults.standard
 
@@ -65,6 +82,63 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     completionHandler(response)
   }
 
+  func loadPlayer(
+    _ relativePath: String,
+    autoplay: Bool,
+    showPlayer: (() -> Void)?,
+    alertPresenter: AlertPresenter
+  ) {
+    let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
+    guard FileManager.default.fileExists(atPath: fileURL.path) else {
+      alertPresenter.showAlert("file_missing_title".localized, message: "\("file_missing_description".localized)\n\(fileURL.lastPathComponent)", completion: nil)
+      return
+    }
+
+    // Only load if loaded book is a different one
+    guard relativePath != self.playerManager?.currentItem?.relativePath else {
+      showPlayer?()
+      return
+    }
+
+    // Only load if loaded book is a different one
+    guard let libraryItem = self.libraryService?.getItem(with: relativePath) else { return }
+
+    var item: PlayableItem?
+
+    do {
+      item = try self.playbackService?.getPlayableItem(from: libraryItem)
+    } catch {
+      alertPresenter.showAlert("error_title".localized, message: error.localizedDescription, completion: nil)
+      return
+    }
+
+    guard let item = item else { return }
+
+    var subscription: AnyCancellable?
+
+    subscription = NotificationCenter.default.publisher(for: .bookReady, object: nil)
+      .sink(receiveValue: { [weak self, showPlayer, autoplay] notification in
+        guard
+          let userInfo = notification.userInfo,
+          let loaded = userInfo["loaded"] as? Bool,
+          loaded == true
+        else {
+          subscription?.cancel()
+          return
+        }
+
+        showPlayer?()
+
+        if autoplay {
+          self?.playerManager?.play()
+        }
+
+        subscription?.cancel()
+      })
+
+    self.playerManager?.load(item)
+  }
+
   @objc func messageReceived(_ notification: Notification) {
     guard
       let message = notification.userInfo as? [String: Any],
@@ -79,17 +153,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   // Playback may be interrupted by calls. Handle pause
   @objc func handleAudioInterruptions(_ notification: Notification) {
-    guard let userInfo = notification.userInfo,
-          let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
-          let type = AVAudioSession.InterruptionType(rawValue: typeValue),
-          let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator() else {
+    guard
+      let userInfo = notification.userInfo,
+      let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
+      let type = AVAudioSession.InterruptionType(rawValue: typeValue),
+      let playerManager = self.playerManager
+    else {
       return
     }
 
     switch type {
     case .began:
-      if mainCoordinator.playerManager.isPlaying {
-        mainCoordinator.playerManager.pause(fade: false)
+      if playerManager.isPlaying {
+        playerManager.pause(fade: false)
       }
     case .ended:
       guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else {
@@ -98,7 +174,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
       let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
       if options.contains(.shouldResume) {
-        mainCoordinator.playerManager.play()
+        playerManager.play()
       }
     @unknown default:
       break
@@ -107,14 +183,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   override func accessibilityPerformMagicTap() -> Bool {
     guard
-      let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator(),
-      mainCoordinator.playerManager.currentItem != nil
+      let playerManager = self.playerManager,
+      playerManager.currentItem != nil
     else {
       UIAccessibility.post(notification: .announcement, argument: "voiceover_no_title".localized)
       return false
     }
 
-    mainCoordinator.playerManager.playPause()
+    playerManager.playPause()
     return true
   }
 
@@ -126,34 +202,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   func setupMPPlaybackRemoteCommands() {
     // Play / Pause
     MPRemoteCommandCenter.shared().togglePlayPauseCommand.isEnabled = true
-    MPRemoteCommandCenter.shared().togglePlayPauseCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
-      guard let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator() else { return .commandFailed }
+    MPRemoteCommandCenter.shared().togglePlayPauseCommand.addTarget { [weak self] (_) -> MPRemoteCommandHandlerStatus in
+      guard let playerManager = self?.playerManager else { return .commandFailed }
 
-      mainCoordinator.playerManager.playPause()
+      playerManager.playPause()
       return .success
     }
 
     MPRemoteCommandCenter.shared().playCommand.isEnabled = true
-    MPRemoteCommandCenter.shared().playCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
-      guard let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator() else { return .commandFailed }
+    MPRemoteCommandCenter.shared().playCommand.addTarget { [weak self] (_) -> MPRemoteCommandHandlerStatus in
+      guard let playerManager = self?.playerManager else { return .commandFailed }
 
-      mainCoordinator.playerManager.play()
+      playerManager.play()
       return .success
     }
 
     MPRemoteCommandCenter.shared().pauseCommand.isEnabled = true
-    MPRemoteCommandCenter.shared().pauseCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
-      guard let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator() else { return .commandFailed }
+    MPRemoteCommandCenter.shared().pauseCommand.addTarget { [weak self] (_) -> MPRemoteCommandHandlerStatus in
+      guard let playerManager = self?.playerManager else { return .commandFailed }
 
-      mainCoordinator.playerManager.pause(fade: false)
+      playerManager.pause(fade: false)
       return .success
     }
 
     MPRemoteCommandCenter.shared().changePlaybackPositionCommand.isEnabled = true
-    MPRemoteCommandCenter.shared().changePlaybackPositionCommand.addTarget { remoteEvent in
+    MPRemoteCommandCenter.shared().changePlaybackPositionCommand.addTarget { [weak self] remoteEvent in
       guard
-        let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator(),
-        let currentItem = mainCoordinator.playerManager.currentItem,
+        let playerManager = self?.playerManager,
+        let currentItem = playerManager.currentItem,
         let event = remoteEvent as? MPChangePlaybackPositionCommandEvent
       else { return .commandFailed }
 
@@ -164,7 +240,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         newTime += currentChapter.start
       }
 
-      mainCoordinator.playerManager.jumpTo(newTime)
+      playerManager.jumpTo(newTime, recordBookmark: true)
 
       return .success
     }
@@ -174,57 +250,57 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   func setupMPSkipRemoteCommands() {
     // Forward
     MPRemoteCommandCenter.shared().skipForwardCommand.preferredIntervals = [NSNumber(value: PlayerManager.forwardInterval)]
-    MPRemoteCommandCenter.shared().skipForwardCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
-      guard let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator() else { return .commandFailed }
+    MPRemoteCommandCenter.shared().skipForwardCommand.addTarget { [weak self] (_) -> MPRemoteCommandHandlerStatus in
+      guard let playerManager = self?.playerManager else { return .commandFailed }
 
-      mainCoordinator.playerManager.forward()
+      playerManager.forward()
       return .success
     }
 
-    MPRemoteCommandCenter.shared().nextTrackCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
-      guard let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator() else { return .commandFailed }
+    MPRemoteCommandCenter.shared().nextTrackCommand.addTarget { [weak self] (_) -> MPRemoteCommandHandlerStatus in
+      guard let playerManager = self?.playerManager else { return .commandFailed }
 
-      mainCoordinator.playerManager.forward()
+      playerManager.forward()
       return .success
     }
 
-    MPRemoteCommandCenter.shared().seekForwardCommand.addTarget { (commandEvent) -> MPRemoteCommandHandlerStatus in
+    MPRemoteCommandCenter.shared().seekForwardCommand.addTarget { [weak self] (commandEvent) -> MPRemoteCommandHandlerStatus in
       guard let cmd = commandEvent as? MPSeekCommandEvent, cmd.type == .endSeeking else {
         return .success
       }
 
-      guard let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator() else { return .success }
+      guard let playerManager = self?.playerManager else { return .success }
 
       // End seeking
-      mainCoordinator.playerManager.forward()
+      playerManager.forward()
       return .success
     }
 
     // Rewind
     MPRemoteCommandCenter.shared().skipBackwardCommand.preferredIntervals = [NSNumber(value: PlayerManager.rewindInterval)]
-    MPRemoteCommandCenter.shared().skipBackwardCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
-      guard let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator() else { return .commandFailed }
+    MPRemoteCommandCenter.shared().skipBackwardCommand.addTarget { [weak self] (_) -> MPRemoteCommandHandlerStatus in
+      guard let playerManager = self?.playerManager else { return .commandFailed }
 
-      mainCoordinator.playerManager.rewind()
+      playerManager.rewind()
       return .success
     }
 
-    MPRemoteCommandCenter.shared().previousTrackCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
-      guard let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator() else { return .commandFailed }
+    MPRemoteCommandCenter.shared().previousTrackCommand.addTarget { [weak self] (_) -> MPRemoteCommandHandlerStatus in
+      guard let playerManager = self?.playerManager else { return .commandFailed }
 
-      mainCoordinator.playerManager.rewind()
+      playerManager.rewind()
       return .success
     }
 
-    MPRemoteCommandCenter.shared().seekBackwardCommand.addTarget { (commandEvent) -> MPRemoteCommandHandlerStatus in
+    MPRemoteCommandCenter.shared().seekBackwardCommand.addTarget { [weak self] (commandEvent) -> MPRemoteCommandHandlerStatus in
       guard let cmd = commandEvent as? MPSeekCommandEvent, cmd.type == .endSeeking else {
         return .success
       }
 
-      guard let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator() else { return .success }
+      guard let playerManager = self?.playerManager else { return .success }
 
       // End seeking
-      mainCoordinator.playerManager.rewind()
+      playerManager.rewind()
       return .success
     }
   }

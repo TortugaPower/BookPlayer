@@ -50,9 +50,8 @@ class LibraryListCoordinator: ItemListCoordinator {
 
     self.loadLastBookIfAvailable()
 
-    if let mainCoordinator = self.getMainCoordinator(),
-       let loadingCoordinator = mainCoordinator.parentCoordinator as? LoadingCoordinator {
-      for action in loadingCoordinator.pendingURLActions {
+    if let appDelegate = AppDelegate.shared {
+      for action in appDelegate.pendingURLActions {
         ActionParserService.handleAction(action)
       }
     }

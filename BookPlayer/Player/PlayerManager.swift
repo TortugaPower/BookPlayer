@@ -19,6 +19,7 @@ public protocol PlayerManagerProtocol: NSObjectProtocol {
   var currentItem: PlayableItem? { get set }
   var currentSpeed: Float { get set }
   var boostVolume: Bool { get set }
+  var isPlaying: Bool { get }
 
   func load(_ item: PlayableItem)
   func hasLoadedBook() -> Bool
