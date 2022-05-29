@@ -15,7 +15,7 @@ import UIKit
 class MainCoordinator: Coordinator {
   let tabBarController: AppTabBarController
 
-  let playerManager: PlayerManager
+  let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
   let accountService: AccountServiceProtocol
@@ -26,28 +26,14 @@ class MainCoordinator: Coordinator {
 
   init(
     navigationController: UINavigationController,
-    libraryService: LibraryServiceProtocol,
-    accountService: AccountServiceProtocol,
-    syncService: SyncServiceProtocol
+    coreServices: CoreServices
   ) {
-    self.libraryService = libraryService
-    self.accountService = accountService
-    self.syncService = syncService
-    let playbackService = PlaybackService(libraryService: libraryService)
-    self.playbackService = playbackService
-
-    self.playerManager = PlayerManager(
-      libraryService: libraryService,
-      playbackService: self.playbackService,
-      speedService: SpeedService(libraryService: libraryService)
-    )
-
-    let watchService = PhoneWatchConnectivityService(
-      libraryService: libraryService,
-      playbackService: playbackService,
-      playerManager: playerManager
-    )
-    self.watchConnectivityService = watchService
+    self.libraryService = coreServices.libraryService
+    self.accountService = coreServices.accountService
+    self.syncService = coreServices.syncService
+    self.playbackService = coreServices.playbackService
+    self.playerManager = coreServices.playerManager
+    self.watchConnectivityService = coreServices.watchService
 
     ThemeManager.shared.libraryService = libraryService
 
@@ -105,7 +91,6 @@ class MainCoordinator: Coordinator {
     self.childCoordinators.append(settingsCoordinator)
     settingsCoordinator.start()
 
-    self.watchConnectivityService.startSession()
     self.setupReachability()
 
     self.navigationController.present(tabBarController, animated: false)
@@ -123,6 +108,9 @@ class MainCoordinator: Coordinator {
   }
 
   func showMiniPlayer(_ flag: Bool) {
+    // Only animate if it toggles the state
+    guard flag != self.tabBarController.isMiniPlayerVisible else { return }
+
     guard flag else {
       self.tabBarController.animateView(self.tabBarController.miniPlayer, show: flag)
       return

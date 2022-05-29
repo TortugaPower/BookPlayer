@@ -16,12 +16,10 @@ class MainCoordinatorTests: XCTestCase {
   var mainCoordinator: MainCoordinator!
 
   override func setUp() {
-    let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
+    let coreServices = AppDelegate.shared!.createCoreServicesIfNeeded(from: CoreDataStack(testPath: "/dev/null"))
     self.mainCoordinator = MainCoordinator(
-      navigationController: UINavigationController(),
-      libraryService: LibraryService(dataManager: dataManager),
-      accountService: AccountServiceMock(account: nil),
-      syncService: SyncServiceMock()
+      navigationController: UINavigationController()
+      coreServices: coreServices
     )
     self.mainCoordinator.start()
   }

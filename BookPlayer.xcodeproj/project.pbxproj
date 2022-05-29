@@ -336,6 +336,8 @@
 		9F4691F52800F84800A8F0E8 /* AccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4691F42800F84800A8F0E8 /* AccountViewController.swift */; };
 		9F4691F72800F85600A8F0E8 /* AccountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4691F62800F85600A8F0E8 /* AccountViewModel.swift */; };
 		9F4691FA2800F8D600A8F0E8 /* AccountCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4691F92800F8D600A8F0E8 /* AccountCoordinator.swift */; };
+		9F3C436A284181690066D99A /* DataInitializerCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3C435B28413C070066D99A /* DataInitializerCoordinator.swift */; };
+		9F3C436B284181C70066D99A /* AlertPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3C4357284132640066D99A /* AlertPresenter.swift */; };
 		9F4A0F782839574B00F9C959 /* PlayerSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4A0F772839574A00F9C959 /* PlayerSettingsViewModel.swift */; };
 		9F646006283AD6B700710D3C /* PlayerSettingsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F646005283AD6B700710D3C /* PlayerSettingsViewModelTests.swift */; };
 		9F64C6212793C31600B2493C /* PlayerControlsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F64C6202793C31600B2493C /* PlayerControlsCoordinator.swift */; };
@@ -888,6 +890,8 @@
 		9F4691F42800F84800A8F0E8 /* AccountViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountViewController.swift; sourceTree = "<group>"; };
 		9F4691F62800F85600A8F0E8 /* AccountViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountViewModel.swift; sourceTree = "<group>"; };
 		9F4691F92800F8D600A8F0E8 /* AccountCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCoordinator.swift; sourceTree = "<group>"; };
+		9F3C4357284132640066D99A /* AlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresenter.swift; sourceTree = "<group>"; };
+		9F3C435B28413C070066D99A /* DataInitializerCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataInitializerCoordinator.swift; sourceTree = "<group>"; };
 		9F4A0F772839574A00F9C959 /* PlayerSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerSettingsViewModel.swift; sourceTree = "<group>"; };
 		9F646005283AD6B700710D3C /* PlayerSettingsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerSettingsViewModelTests.swift; sourceTree = "<group>"; };
 		9F64C6202793C31600B2493C /* PlayerControlsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsCoordinator.swift; sourceTree = "<group>"; };
@@ -1188,6 +1192,7 @@
 		4151A6DE26E4A13E00E49DBE /* Coordinators */ = {
 			isa = PBXGroup;
 			children = (
+				9F3C435B28413C070066D99A /* DataInitializerCoordinator.swift */,
 				4151A6DF26E4A17900E49DBE /* Coordinator.swift */,
 				4151A6DC26E4A13900E49DBE /* MainCoordinator.swift */,
 				41188D2326ED2BA30017124E /* LoadingCoordinator.swift */,
@@ -1880,6 +1885,7 @@
 				C3A479122094C8C300D92122 /* rubberBandDistance.swift */,
 				C3FE3F8120A090880055B9C6 /* limitPanAngle.swift */,
 				4151A6A726E48C3400E49DBE /* Storyboarded.swift */,
+				9F3C4357284132640066D99A /* AlertPresenter.swift */,
 				69225C4E2159C2650004739E /* BookSortService+SortError+PlayListSortOrder.swift */,
 				4137BBCB272DAF2E009ED9FE /* BaseViewController.swift */,
 				9FA7C61C280B0E1200A0C136 /* LoadingUtils.swift */,
@@ -2671,6 +2677,8 @@
 				C318D3AD208CF624000666F8 /* PlayerJumpIcon.swift in Sources */,
 				4138CE2326E66E420014F11E /* BookmarkTableViewCell.swift in Sources */,
 				C37A6875209F13120063AEAC /* CreditsViewController.swift in Sources */,
+				9F3C436A284181690066D99A /* DataInitializerCoordinator.swift in Sources */,
+				9F3C436B284181C70066D99A /* AlertPresenter.swift in Sources */,
 				41DA44BD26FAEC4F00F3A05D /* BookActivityItemProvider.swift in Sources */,
 				62793611272CBE910097837D /* ImportFileItem.swift in Sources */,
 				4138CE1C26E5B42F0014F11E /* BookmarksViewModel.swift in Sources */,

@@ -11,7 +11,6 @@ import UIKit
 
 class LoadingCoordinator: Coordinator {
   let loadingViewController: LoadingViewController
-  var pendingURLActions = [Action]()
 
   init(
     navigationController: UINavigationController,
@@ -23,7 +22,7 @@ class LoadingCoordinator: Coordinator {
 
     self.loadingViewController.modalPresentationStyle = .fullScreen
 
-    let viewModel = LoadingViewModel(dataMigrationManager: DataMigrationManager())
+    let viewModel = LoadingViewModel()
     viewModel.coordinator = self
     self.loadingViewController.viewModel = viewModel
     self.loadingViewController.presentationController?.delegate = self
@@ -34,14 +33,11 @@ class LoadingCoordinator: Coordinator {
   }
 
   func didFinishLoadingSequence(coreDataStack: CoreDataStack) {
-    let dataManager = DataManager(coreDataStack: coreDataStack)
-    let accountService = AccountService(dataManager: dataManager)
-    let libraryService = LibraryService(dataManager: dataManager)
+    let coreServices = AppDelegate.shared!.createCoreServicesIfNeeded(from: coreDataStack)
+
     let coordinator = MainCoordinator(
       navigationController: self.navigationController,
-      libraryService: libraryService,
-      accountService: accountService,
-      syncService: SyncService(libraryService: libraryService)
+      coreServices: coreServices
     )
     coordinator.parentCoordinator = self
     coordinator.presentingViewController = self.presentingViewController

@@ -55,10 +55,6 @@ class Coordinator: NSObject {
     self.parentCoordinator?.childDidFinish(self)
   }
 
-  public func showAlert(_ title: String? = nil, message: String? = nil, completion: (() -> Void)? = nil) {
-    self.navigationController.showAlert(title, message: message, completion: completion)
-  }
-
   public func getMainCoordinator() -> MainCoordinator? { return nil }
 
   func showLoader() {
@@ -67,6 +63,12 @@ class Coordinator: NSObject {
 
   func stopLoader() {
     LoadingUtils.stopLoading(in: self.navigationController)
+  }
+}
+
+extension Coordinator: AlertPresenter {
+  public func showAlert(_ title: String? = nil, message: String? = nil, completion: (() -> Void)? = nil) {
+    self.navigationController.showAlert(title, message: message, completion: completion)
   }
 }
 

@@ -18,6 +18,8 @@ class AppTabBarController: UITabBarController {
   private var disposeBag = Set<AnyCancellable>()
   private var themedStatusBarStyle: UIStatusBarStyle?
 
+  public var isMiniPlayerVisible: Bool { !self.miniPlayer.isHidden }
+
   override var preferredStatusBarStyle: UIStatusBarStyle {
     return themedStatusBarStyle ?? super.preferredStatusBarStyle
   }

@@ -180,9 +180,9 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
     @objc func boostVolumeToggleDidChange() {
       UserDefaults.standard.set(self.boostVolumeSwitch.isOn, forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
 
-      guard let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator() else { return }
+      guard let playerManager = AppDelegate.shared?.playerManager else { return }
 
-      mainCoordinator.playerManager.boostVolume = self.boostVolumeSwitch.isOn
+      playerManager.boostVolume = self.boostVolumeSwitch.isOn
     }
 
     @objc func globalSpeedToggleDidChange() {

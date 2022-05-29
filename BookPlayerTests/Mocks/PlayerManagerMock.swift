@@ -16,8 +16,10 @@ class PlayerManagerMock: NSObject, PlayerManagerProtocol {
   @Published var currentSpeed: Float = 1.0
   var didPlayPause = false
   var boostVolume = false
+  var isPlaying = false
 
   func playPause() {
+    self.isPlaying = !self.isPlaying
     self.didPlayPause = true
   }
 

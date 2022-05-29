@@ -17,15 +17,16 @@ class LibraryListCoordinatorTests: XCTestCase {
   var dataManager: DataManager!
 
   override func setUp() {
-    self.dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
-    let libraryService = LibraryService(dataManager: self.dataManager)
+    let coreServices = AppDelegate.shared!.createCoreServicesIfNeeded(from: CoreDataStack(testPath: "/dev/null"))
+    self.dataManager = coreServices.dataManager
+    let libraryService = coreServices.libraryService
 
     self.libraryListCoordinator = LibraryListCoordinator(
       navigationController: UINavigationController(),
       playerManager: PlayerManagerMock(),
       importManager: ImportManager(libraryService: libraryService),
       libraryService: libraryService,
-      playbackService: PlaybackService(libraryService: libraryService)
+      playbackService: coreServices.playbackService
     )
 
     self.libraryListCoordinator.start()
