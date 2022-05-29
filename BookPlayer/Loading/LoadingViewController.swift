@@ -25,7 +25,7 @@ class LoadingViewController: BaseViewController<LoadingCoordinator, LoadingViewM
   override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
 
-    self.viewModel.performMigrations()
+    self.viewModel.initializeDataIfNeeded()
   }
 
   func applyTheme(_ theme: SimpleTheme) {

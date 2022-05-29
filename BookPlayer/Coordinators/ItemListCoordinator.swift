@@ -101,95 +101,38 @@ class ItemListCoordinator: Coordinator {
   }
 
   func loadPlayer(_ relativePath: String) {
-    let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
-    guard FileManager.default.fileExists(atPath: fileURL.path) else {
-      self.navigationController.showAlert("file_missing_title".localized, message: "\("file_missing_description".localized)\n\(fileURL.lastPathComponent)")
-      return
-    }
-
-    // Only load if loaded book is a different one
-    guard relativePath != playerManager.currentItem?.relativePath else {
-      self.showPlayer()
-      return
-    }
-
-    guard let libraryItem = self.libraryService.getItem(with: relativePath) else { return }
-
-    var item: PlayableItem?
-
-    do {
-      item = try self.playbackService.getPlayableItem(from: libraryItem)
-    } catch {
-      self.showAlert("error_title".localized, message: error.localizedDescription)
-      return
-    }
-
-    guard let item = item else { return }
-
-    var subscription: AnyCancellable?
-
-    subscription = NotificationCenter.default.publisher(for: .bookReady, object: nil)
-      .sink(receiveValue: { [weak self] notification in
-        guard let self = self,
-              let userInfo = notification.userInfo,
-              let loaded = userInfo["loaded"] as? Bool,
-              loaded == true else {
-                subscription?.cancel()
-                return
-              }
-
-        self.getMainCoordinator()?.showMiniPlayer(true)
-        self.playerManager.play()
-        self.showPlayer()
-
-        subscription?.cancel()
-      })
-
-    self.playerManager.load(item)
+    AppDelegate.shared?.loadPlayer(
+      relativePath,
+      autoplay: true,
+      showPlayer: { [weak self] in
+        self?.getMainCoordinator()?.showMiniPlayer(true)
+        self?.showPlayer()
+      },
+      alertPresenter: self
+    )
   }
 
   func loadLastBookIfAvailable() {
     guard let libraryItem = try? self.libraryService.getLibraryLastItem() else { return }
 
-    var item: PlayableItem?
-
-    do {
-      item = try self.playbackService.getPlayableItem(from: libraryItem)
-    } catch {
-      self.showAlert("error_title".localized, message: error.localizedDescription)
-      return
-    }
-
-    guard let item = item else { return }
-
-    var subscription: AnyCancellable?
-
-    subscription = NotificationCenter.default.publisher(for: .bookReady, object: nil)
-      .sink(receiveValue: { [weak self] notification in
-        guard let self = self,
-              let userInfo = notification.userInfo,
-              let loaded = userInfo["loaded"] as? Bool,
-              loaded == true else {
-                subscription?.cancel()
-                return
-              }
-
-        self.getMainCoordinator()?.showMiniPlayer(true)
+    AppDelegate.shared?.loadPlayer(
+      libraryItem.relativePath,
+      autoplay: false,
+      showPlayer: { [weak self] in
+        self?.getMainCoordinator()?.showMiniPlayer(true)
 
         if UserDefaults.standard.bool(forKey: Constants.UserActivityPlayback) {
           UserDefaults.standard.removeObject(forKey: Constants.UserActivityPlayback)
-          self.playerManager.play()
+          self?.playerManager.play()
         }
 
         if UserDefaults.standard.bool(forKey: Constants.UserDefaults.showPlayer.rawValue) {
           UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.showPlayer.rawValue)
-          self.showPlayer()
+          self?.showPlayer()
         }
-
-        subscription?.cancel()
-      })
-
-    self.playerManager.load(item)
+      },
+      alertPresenter: self
+    )
   }
 
   func showSettings() {

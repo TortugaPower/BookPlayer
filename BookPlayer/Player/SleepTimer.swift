@@ -114,9 +114,9 @@ final class SleepTimer {
     self.reset()
     self.subscription?.cancel()
 
-    guard let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator() else { return }
+    guard let playerManager = AppDelegate.shared?.playerManager else { return }
 
-    mainCoordinator.playerManager.pause(fade: true)
+    playerManager.pause(fade: true)
   }
 
   private func startEndOfChapterOption() {
