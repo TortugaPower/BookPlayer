@@ -450,7 +450,17 @@ extension CarPlayManager: AlertPresenter {
       completion?()
     }
 
-    let alertTemplate = CPAlertTemplate(titleVariants: [title ?? ""], actions: [okAction])
+    var completeMessage = ""
+
+    if let title = title {
+      completeMessage += title
+    }
+
+    if let message = message {
+      completeMessage += ": \(message)"
+    }
+
+    let alertTemplate = CPAlertTemplate(titleVariants: [completeMessage], actions: [okAction])
 
     self.interfaceController?.presentTemplate(alertTemplate, animated: true, completion: nil)
   }
