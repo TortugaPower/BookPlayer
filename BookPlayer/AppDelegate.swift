@@ -14,6 +14,7 @@ import DirectoryWatcher
 import Intents
 import MediaPlayer
 import Sentry
+import StoreKit
 import SwiftyStoreKit
 import UIKit
 import WatchConnectivity
@@ -412,6 +413,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     SwiftyStoreKit.shouldAddStorePaymentHandler = { _, _ in
       true
+    }
+  }
+
+  func requestReview() {
+    if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
+      SKStoreReviewController.requestReview(in: scene)
     }
   }
 }
