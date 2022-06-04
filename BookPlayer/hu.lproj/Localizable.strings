@@ -169,7 +169,7 @@
 "voiceover_chapter_time_title" = "Fejezet időtartama:";
 "voiceover_dismiss_player_title" = "Lejátszó eltüntetése";
 "sort_most_recent_button" = "Legfrissebb";
-"sort_reversed_button" = "Fordított sorrendben";
+"sort_reversed_button" = "Fordított sorrend";
 "voiceover_continue_playback_title" = "Lejátszás folytatása";
 "coredata_error_diskfull_description" = "A könyvtárat nem sikerült betölteni, az eszközön nincs elég lemezterület.";
 "coredata_error_migration_description" = "Az adatbázis migrációja sikertelen, a könyvtárat újra kell inicializálni.";
