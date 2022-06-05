@@ -24,15 +24,16 @@ class MainCoordinatorTests: XCTestCase {
       coreServices: coreServices,
       navigationController: UINavigationController()
     )
-    self.mainCoordinator.start()
   }
 
   func testInitialState() {
+    self.mainCoordinator.start()
     XCTAssert(self.mainCoordinator.childCoordinators.count == 1)
     XCTAssertNotNil(self.mainCoordinator.getLibraryCoordinator())
   }
 
   func testShowPlayer() {
+    self.mainCoordinator.start()
     self.mainCoordinator.showPlayer()
 
     XCTAssert(self.mainCoordinator.childCoordinators.count == 2)
