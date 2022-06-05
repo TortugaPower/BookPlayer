@@ -23,7 +23,7 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
   @IBOutlet private weak var speedButton: UIBarButtonItem!
   @IBOutlet private weak var sleepButton: UIBarButtonItem!
   @IBOutlet private var sleepLabel: UIBarButtonItem!
-  @IBOutlet private var chaptersButton: UIBarButtonItem!
+  @IBOutlet private var listButton: UIBarButtonItem!
   @IBOutlet private var bookmarkButton: UIBarButtonItem!
   @IBOutlet private weak var moreButton: UIBarButtonItem!
 
@@ -399,7 +399,7 @@ extension PlayerViewController {
     items.append(self.bookmarkButton)
 
     items.append(spacer)
-    items.append(self.chaptersButton)
+    items.append(self.listButton)
 
     items.append(spacer)
     items.append(self.moreButton)
@@ -411,8 +411,8 @@ extension PlayerViewController {
 // MARK: - Toolbar Actions
 
 extension PlayerViewController {
-  @IBAction func showChapters(_ sender: UIBarButtonItem) {
-    self.viewModel.showChapters()
+  @IBAction func showList(_ sender: UIBarButtonItem) {
+    self.viewModel.showList()
   }
 
   @IBAction func createBookmark(_ sender: UIBarButtonItem) {
@@ -434,8 +434,11 @@ extension PlayerViewController {
 
     let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
-    actionSheet.addAction(UIAlertAction(title: "bookmarks_title".localized, style: .default, handler: { [weak self] _ in
-      self?.viewModel.showBookmarks()
+    actionSheet.addAction(UIAlertAction(
+      title: self.viewModel.getListTitleForMoreAction(),
+      style: .default,
+      handler: { [weak self] _ in
+        self?.viewModel.showListFromMoreAction()
     }))
 
     actionSheet.addAction(UIAlertAction(title: "jump_start_title".localized, style: .default, handler: { [weak self] _ in

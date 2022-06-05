@@ -336,8 +336,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     let selectedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
 
     do {
-      let library = self.libraryService.getLibrary()
-      try self.libraryService.delete(selectedItems, library: library, mode: mode)
+      try self.libraryService.delete(selectedItems, mode: mode)
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
@@ -445,7 +444,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func handleNewFiles(_ urls: [URL]) {
-    self.coordinator.processFiles(urls: urls)
+    self.coordinator.getMainCoordinator()?.getLibraryCoordinator()?.processFiles(urls: urls)
   }
 
   func showSortOptions() {

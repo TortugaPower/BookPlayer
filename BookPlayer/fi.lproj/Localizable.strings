@@ -87,7 +87,6 @@
 "bookplayer_opensource_description" = "BookPlayer on ilmainen ja avointa lähdekoodia, ja sellaisena se tulee pysymään aina. Avullasi voimme implementoida lisää ominaisuuksia ja tehdä BookPlayeristä vieläkin paremman";
 "thanks_title" = "Kiitos tuestasi!";
 "extra_tips_description" = "Jos todella nautit BookPlayeristä, voit jättää extratippejä sovelluksen kehittämiseen. Tämä auttaa pitämään valot päällä sekä tukee ominaisuuksien tuomista sovellukseen.";
-"files_title" = "Tiedostot";
 "select_all_title" = "Valitse kaikki";
 "deselect_all_title" = "Poista valinnat kaikista";
 "move_title" = "Siirrä";
@@ -214,3 +213,9 @@
 "error_empty_chapters" = "Chapters are empty, please verify the contents of the folder: %@";
 "sleeptimer_option_custom" = "Mukautettu";
 "sleeptimer_custom_alert_title" = "Mukautettu uniajastin";
+"settings_progresslabels_title" = "Progress Labels";
+"settings_playerinterface_list_title" = "Opens";
+"settings_remainingtime_title" = "Use Remaining Time";
+"settings_chaptercontext_title" = "Use Chapter Context";
+"settings_progresslabels_description" = "Toggle between displaying the remaining time, total duration and progress of either the chapter or the book in the player screen";
+"settings_playerinterface_list_description" = "Adjust what the list button in the player screen opens";

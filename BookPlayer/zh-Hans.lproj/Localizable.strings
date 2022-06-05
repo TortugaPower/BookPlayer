@@ -87,7 +87,6 @@
 "bookplayer_opensource_description" = "BookPlayer是免费的并且是开源的，它将始终保持这种状态。在您的帮助下，我们能够实现更多功能，并使BookPlayer变得更好";
 "thanks_title" = "感谢您的支持！";
 "extra_tips_description" = "如果您真的很喜欢BookPlayer，请打赏我们，以进一步支持该应用程序的开发。这将有助于保持更新状态和新功能开发。";
-"files_title" = "文件";
 "select_all_title" = "选择全部";
 "deselect_all_title" = "取消选择全部";
 "move_title" = "移动";
@@ -214,3 +213,9 @@
 "error_empty_chapters" = "Chapters are empty, please verify the contents of the folder: %@";
 "sleeptimer_option_custom" = "Custom";
 "sleeptimer_custom_alert_title" = "Custom sleep timer";
+"settings_progresslabels_title" = "Progress Labels";
+"settings_playerinterface_list_title" = "Opens";
+"settings_remainingtime_title" = "Use Remaining Time";
+"settings_chaptercontext_title" = "Use Chapter Context";
+"settings_progresslabels_description" = "Toggle between displaying the remaining time, total duration and progress of either the chapter or the book in the player screen";
+"settings_playerinterface_list_description" = "Adjust what the list button in the player screen opens";

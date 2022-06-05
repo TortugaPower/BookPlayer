@@ -87,7 +87,6 @@
 "bookplayer_opensource_description" = "BookPlayer vždy byl a bude zdarma a jako open source. S vaší pomocí jsme schopni implementovat nové funkce a udělat BookPlayer ještě lepší.";
 "thanks_title" = "Děkujeme za vaši podporu!";
 "extra_tips_description" = "Pokud se vám BookPlayer líbí, můžete autorům poslat vybranou částku určenou další podporu vývoje aplikace, aby mohla být stále lepší a lepší.";
-"files_title" = "Soubory";
 "select_all_title" = "Vybrat vše";
 "deselect_all_title" = "Odznačit vše";
 "move_title" = "Přesunout";
@@ -214,3 +213,9 @@
 "error_empty_chapters" = "Chapters are empty, please verify the contents of the folder: %@";
 "sleeptimer_option_custom" = "Custom";
 "sleeptimer_custom_alert_title" = "Custom sleep timer";
+"settings_progresslabels_title" = "Progress Labels";
+"settings_playerinterface_list_title" = "Opens";
+"settings_remainingtime_title" = "Use Remaining Time";
+"settings_chaptercontext_title" = "Use Chapter Context";
+"settings_progresslabels_description" = "Toggle between displaying the remaining time, total duration and progress of either the chapter or the book in the player screen";
+"settings_playerinterface_list_description" = "Adjust what the list button in the player screen opens";

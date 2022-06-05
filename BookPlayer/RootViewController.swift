@@ -16,6 +16,8 @@ class RootViewController: BaseViewController<MainCoordinator, BaseViewModel<Main
   @IBOutlet public weak var mainContainer: UIView!
   @IBOutlet public weak var miniPlayerContainer: UIView!
 
+  public var isMiniPlayerVisible: Bool { !self.miniPlayerContainer.isHidden }
+
   private var themedStatusBarStyle: UIStatusBarStyle?
 
   override var preferredStatusBarStyle: UIStatusBarStyle {

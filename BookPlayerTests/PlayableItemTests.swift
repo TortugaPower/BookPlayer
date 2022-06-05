@@ -16,10 +16,6 @@ import XCTest
 class PlayableItemTests: XCTestCase {
   var sut: PlayableItem!
 
-  private func generatePlayableItem() {
-
-  }
-
   override func setUp() {
     let testChapter = PlayableChapter(
       title: "test chapter",

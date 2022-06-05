@@ -16,7 +16,6 @@ class FolderListCoordinator: ItemListCoordinator {
     navigationController: UINavigationController,
     folderRelativePath: String,
     playerManager: PlayerManagerProtocol,
-    importManager: ImportManager,
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol
   ) {
@@ -25,7 +24,6 @@ class FolderListCoordinator: ItemListCoordinator {
     super.init(
       navigationController: navigationController,
       playerManager: playerManager,
-      importManager: importManager,
       libraryService: libraryService,
       playbackService: playbackService
     )

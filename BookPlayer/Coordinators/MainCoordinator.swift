@@ -9,41 +9,32 @@
 import BookPlayerKit
 import DeviceKit
 import MediaPlayer
+import Themeable
 import UIKit
 
 class MainCoordinator: Coordinator {
   let rootViewController: RootViewController
-  let playerManager: PlayerManager
+  let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
   let watchConnectivityService: PhoneWatchConnectivityService
 
   init(
     rootController: RootViewController,
-    libraryService: LibraryServiceProtocol,
+    coreServices: CoreServices,
     navigationController: UINavigationController
   ) {
     self.rootViewController = rootController
-    self.libraryService = libraryService
-    let playbackService = PlaybackService(libraryService: libraryService)
-    self.playbackService = playbackService
-
-    self.playerManager = PlayerManager(
-      libraryService: libraryService,
-      playbackService: self.playbackService,
-      speedService: SpeedService(libraryService: libraryService)
-    )
-
-    let watchService = PhoneWatchConnectivityService(
-      libraryService: libraryService,
-      playbackService: playbackService,
-      playerManager: playerManager
-    )
-    self.watchConnectivityService = watchService
+    self.libraryService = coreServices.libraryService
+    self.playbackService = coreServices.playbackService
+    self.playerManager = coreServices.playerManager
+    self.watchConnectivityService = coreServices.watchService
 
     ThemeManager.shared.libraryService = libraryService
 
     super.init(navigationController: navigationController, flowType: .modal)
+
+    setUpTheming()
   }
 
   override func start() {
@@ -74,8 +65,6 @@ class MainCoordinator: Coordinator {
     libraryCoordinator.parentCoordinator = self
     self.childCoordinators.append(libraryCoordinator)
     libraryCoordinator.start()
-
-    self.watchConnectivityService.startSession()
   }
 
   func showPlayer() {
@@ -90,6 +79,9 @@ class MainCoordinator: Coordinator {
   }
 
   func showMiniPlayer(_ flag: Bool) {
+    // Only animate if it toggles the state
+    guard flag != self.rootViewController.isMiniPlayerVisible else { return }
+
     guard flag == true else {
       self.rootViewController.animateView(self.rootViewController.miniPlayerContainer, show: flag)
       return
@@ -119,5 +111,14 @@ class MainCoordinator: Coordinator {
     }
 
     return getPresentingController(coordinator: lastCoordinator)
+  }
+}
+
+extension MainCoordinator: Themeable {
+  func applyTheme(_ theme: SimpleTheme) {
+    // This fixes native components like alerts having the proper color theme
+    SceneDelegate.shared?.window?.overrideUserInterfaceStyle = theme.useDarkVariant
+    ? .dark
+    : .light
   }
 }

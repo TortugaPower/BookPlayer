@@ -53,11 +53,13 @@ class Coordinator: NSObject {
     self.parentCoordinator?.childDidFinish(self)
   }
 
+  public func getMainCoordinator() -> MainCoordinator? { return nil }
+}
+
+extension Coordinator: AlertPresenter {
   public func showAlert(_ title: String? = nil, message: String? = nil, completion: (() -> Void)? = nil) {
     self.navigationController.showAlert(title, message: message, completion: completion)
   }
-
-  public func getMainCoordinator() -> MainCoordinator? { return nil }
 }
 
 extension Coordinator: UINavigationControllerDelegate {

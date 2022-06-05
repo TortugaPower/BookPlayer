@@ -87,7 +87,6 @@
 "bookplayer_opensource_description" = "A BookPlayer ingyenes és nyílt forráskódú, és ez mindig is így marad. Az Ön segítségével több funkciót tudunk megvalósítani, és még jobbá tehetjük a BookPlayer programot";
 "thanks_title" = "Köszönet a támogatásért!";
 "extra_tips_description" = "Ha kedveli a BookPlayer alkalmazást, további támogatást is nyújthat, hogy tovább támogassa annak fejlődését. Ez segít megőrizni a lelkesedésünket, miáltal további funkciók is érkezhetnek.";
-"files_title" = "Fájlok";
 "select_all_title" = "Összes kijelölése";
 "deselect_all_title" = "Kijelölések megszüntetése";
 "move_title" = "Áthelyezés";
@@ -170,7 +169,7 @@
 "voiceover_chapter_time_title" = "Fejezet időtartama:";
 "voiceover_dismiss_player_title" = "Lejátszó eltüntetése";
 "sort_most_recent_button" = "Legfrissebb";
-"sort_reversed_button" = "Fordított sorrendben";
+"sort_reversed_button" = "Fordított sorrend";
 "voiceover_continue_playback_title" = "Lejátszás folytatása";
 "coredata_error_diskfull_description" = "A könyvtárat nem sikerült betölteni, az eszközön nincs elég lemezterület.";
 "coredata_error_migration_description" = "Az adatbázis migrációja sikertelen, a könyvtárat újra kell inicializálni.";
@@ -214,3 +213,9 @@
 "error_empty_chapters" = "A fejezetek üresek, ellenőrizze a mappa tartalmát: %@";
 "sleeptimer_option_custom" = "Egyéni";
 "sleeptimer_custom_alert_title" = "Egyéni alvásidőzítő";
+"settings_progresslabels_title" = "Előrehaladási címkék";
+"settings_playerinterface_list_title" = "Megnyílik";
+"settings_remainingtime_title" = "Hátralévő idő használata";
+"settings_chaptercontext_title" = "Fejezet kontextus használata";
+"settings_progresslabels_description" = "Váltás a hátralévő idő, a teljes időtartam és a fejezet vagy a teljes könyv előrehaladásának megjelenítése között a lejátszó képernyőn";
+"settings_playerinterface_list_description" = "A lejátszó képernyőn mi nyíljon meg a lista gomb megnyomására";

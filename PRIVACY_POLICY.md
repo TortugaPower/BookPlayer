@@ -8,7 +8,7 @@ BookPlayer is an audio book player app, and we believe that an audio book player
 BookPlayer collects two types of information:
 
 - App crash data (using [Sentry](https://sentry.io))
-- App usage (using [Telemetry](https://apptelemetry.io))
+- App usage (using [TelemetryDeck](https://telemetrydeck.com))
 
 We do not use or have access to your personal data, that includes all data related to your books and Library on your device.
 

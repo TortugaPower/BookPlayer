@@ -19,6 +19,7 @@ public protocol PlayerManagerProtocol: NSObjectProtocol {
   var currentItem: PlayableItem? { get set }
   var currentSpeed: Float { get set }
   var boostVolume: Bool { get set }
+  var isPlaying: Bool { get }
 
   func load(_ item: PlayableItem)
   func hasLoadedBook() -> Bool
@@ -74,7 +75,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   @Published var currentItem: PlayableItem?
   @Published var currentSpeed: Float = 1.0
 
-  private var nowPlayingInfo = [String: Any]()
+  var nowPlayingInfo = [String: Any]()
 
   private let queue = OperationQueue()
 
@@ -238,7 +239,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   }
 
   // Called every second by the timer
-  func updateTime(includeItem: Bool = false) {
+  func updateTime() {
     guard let currentItem = self.currentItem,
           let playerItem = self.playerItem,
           playerItem.status == .readyToPlay else {
@@ -363,10 +364,27 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     // 1x is needed because of how the control center behaves when decrementing time
     self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 1.0
     self.nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTimeInContext
-    self.nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = prefersRemainingTime
-    ? (abs(maxTimeInContext) + currentTimeInContext)
-    : maxTimeInContext
-    self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackProgress] = currentTimeInContext / maxTimeInContext
+
+    let playbackDuration: TimeInterval
+    let itemProgress: TimeInterval
+
+    if prefersRemainingTime {
+      playbackDuration = (abs(maxTimeInContext) + currentTimeInContext)
+
+      let realMaxTime = currentItem.maxTimeInContext(
+        prefersChapterContext: prefersChapterContext,
+        prefersRemainingTime: false,
+        at: self.currentSpeed
+      )
+
+      itemProgress = currentTimeInContext / realMaxTime
+    } else {
+      playbackDuration = maxTimeInContext
+      itemProgress = currentTimeInContext / maxTimeInContext
+    }
+
+    self.nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = playbackDuration
+    self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackProgress] = itemProgress
   }
 }
 

@@ -30,11 +30,14 @@ class ActionParserService {
   }
 
   public class func handleAction(_ action: Action) {
-    guard let sceneDelegate = SceneDelegate.shared else { return }
+    guard let appDelegate = AppDelegate.shared else { return }
 
-    sceneDelegate.coordinator.pendingURLActions.append(action)
+    appDelegate.pendingURLActions.append(action)
 
-    guard let mainCoordinator = sceneDelegate.coordinator.getMainCoordinator() else { return }
+    guard
+      let watchConnectivityService = appDelegate.watchConnectivityService,
+      let playerManager = appDelegate.playerManager
+    else { return }
 
     switch action.command {
     case .play:
@@ -46,12 +49,12 @@ class ActionParserService {
     case .sleep:
       self.handleSleepAction(action)
     case .refresh:
-      mainCoordinator.watchConnectivityService.sendApplicationContext()
+      watchConnectivityService.sendApplicationContext()
       self.removeAction(action)
     case .skipRewind:
-      mainCoordinator.playerManager.rewind()
+      playerManager.rewind()
     case .skipForward:
-      mainCoordinator.playerManager.forward()
+      playerManager.forward()
     case .widget:
       self.handleWidgetAction(action)
     case .fileImport:
@@ -69,12 +72,12 @@ class ActionParserService {
     guard
       let valueString = action.getQueryValue(for: "start"),
       let chapterStart = Double(valueString),
-      let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator()
+      let playerManager = AppDelegate.shared?.playerManager
     else {
       return
     }
 
-    mainCoordinator.playerManager.jumpTo(chapterStart + 0.01, recordBookmark: false)
+    playerManager.jumpTo(chapterStart + 0.01, recordBookmark: false)
   }
 
   private class func handleSpeedRateAction(_ action: Action) {
@@ -88,12 +91,12 @@ class ActionParserService {
     let roundedValue = round(speedRate * 100) / 100.0
 
     guard
-      let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator()
+      let playerManager = AppDelegate.shared?.playerManager
     else {
       return
     }
 
-    mainCoordinator.playerManager.setSpeed(roundedValue)
+    playerManager.setSpeed(roundedValue)
   }
 
   private class func handleBoostVolumeAction(_ action: Action) {
@@ -102,7 +105,7 @@ class ActionParserService {
     let isOn = valueString == "true"
 
     guard
-      let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator()
+      let playerManager = AppDelegate.shared?.playerManager
     else {
       return
     }
@@ -111,7 +114,7 @@ class ActionParserService {
       isOn,
       forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue
     )
-    mainCoordinator.playerManager.boostVolume = isOn
+    playerManager.boostVolume = isOn
   }
 
   private class func handleFileImportAction(_ action: Action) {
@@ -145,18 +148,17 @@ class ActionParserService {
 
   private class func handlePauseAction(_ action: Action) {
     guard
-      let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator()
+      let playerManager = AppDelegate.shared?.playerManager
     else {
       return
     }
 
-    mainCoordinator.playerManager.pause(fade: false)
+    playerManager.pause(fade: false)
   }
 
   private class func handlePlayAction(_ action: Action) {
     guard
-      let sceneDelegate = SceneDelegate.shared,
-      let mainCoordinator = sceneDelegate.coordinator.getMainCoordinator()
+      let playerManager = AppDelegate.shared?.playerManager
     else {
       return
     }
@@ -164,7 +166,7 @@ class ActionParserService {
     if let value = action.getQueryValue(for: "showPlayer"),
        let showPlayer = Bool(value),
        showPlayer {
-      sceneDelegate.showPlayer()
+      SceneDelegate.shared?.showPlayer()
     }
 
     if let value = action.getQueryValue(for: "autoplay"),
@@ -175,18 +177,18 @@ class ActionParserService {
 
     guard let bookIdentifier = action.getQueryValue(for: "identifier") else {
       self.removeAction(action)
-      sceneDelegate.playLastBook()
+      SceneDelegate.shared?.playLastBook()
       return
     }
 
-    if let loadedItem = mainCoordinator.playerManager.currentItem,
+    if let loadedItem = playerManager.currentItem,
        loadedItem.relativePath == bookIdentifier {
       self.removeAction(action)
-      mainCoordinator.playerManager.play()
+      playerManager.play()
       return
     }
 
-    guard let libraryCoordinator = mainCoordinator.getLibraryCoordinator() else { return }
+    guard let libraryCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator()?.getLibraryCoordinator() else { return }
 
     self.removeAction(action)
     libraryCoordinator.loadPlayer(bookIdentifier)
@@ -225,12 +227,12 @@ class ActionParserService {
 
   public class func removeAction(_ action: Action) {
     guard
-      let sceneDelegate = SceneDelegate.shared,
-      let index = sceneDelegate.coordinator.pendingURLActions.firstIndex(of: action)
+      let appDelegate = AppDelegate.shared,
+      let index = appDelegate.pendingURLActions.firstIndex(of: action)
     else {
       return
     }
 
-    sceneDelegate.coordinator.pendingURLActions.remove(at: index)
+    appDelegate.pendingURLActions.remove(at: index)
   }
 }

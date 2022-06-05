@@ -88,26 +88,27 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 extension SceneDelegate {
   func playLastBook() {
     guard
-      let mainCoordinator = coordinator.getMainCoordinator(),
-      mainCoordinator.playerManager.hasLoadedBook()
+      let playerManager = AppDelegate.shared?.playerManager,
+      playerManager.hasLoadedBook()
     else {
       UserDefaults.standard.set(true, forKey: Constants.UserActivityPlayback)
       return
     }
 
-    mainCoordinator.playerManager.play()
+    playerManager.play()
   }
 
   func showPlayer() {
     guard
-      let mainCoordinator = coordinator.getMainCoordinator(),
-      mainCoordinator.playerManager.hasLoadedBook()
+      let playerManager = AppDelegate.shared?.playerManager,
+      playerManager.hasLoadedBook()
     else {
       UserDefaults.standard.set(true, forKey: Constants.UserDefaults.showPlayer.rawValue)
       return
     }
 
-    if !mainCoordinator.hasPlayerShown() {
+    if let mainCoordinator = coordinator.getMainCoordinator(),
+       !mainCoordinator.hasPlayerShown() {
       mainCoordinator.showPlayer()
     }
   }

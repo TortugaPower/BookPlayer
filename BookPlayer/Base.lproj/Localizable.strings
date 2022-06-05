@@ -94,7 +94,6 @@
 "bookplayer_opensource_description" = "BookPlayer is free and Open Source and it will always remain that way. With your help we are able to implement more features and make BookPlayer even better";
 "thanks_title" = "Thanks for your support!";
 "extra_tips_description" = "If you're really enjoying BookPlayer, you can leave extra tips to support the app's development further. This will help to keep the lights on and features coming.";
-"files_title" = "Files";
 "select_all_title" = "Select All";
 "deselect_all_title" = "Deselect All";
 "move_title" = "Move";
@@ -196,7 +195,7 @@
 "sort_reversed_button" = "Reverse Order";
 "coredata_error_diskfull_description" = "The library couldn't be loaded, the device is out of disk space.";
 "coredata_error_migration_description" = "A migration of the database failed, the library will have to be reinitialized.";
-"import_warning_description" = "Transfering files may take a while, please make sure the number of files is complete before proceeding.";
+"import_warning_description" = "Transferring files may take a while, please make sure the number of files is complete before proceeding.";
 "files_caps_title" = "FILES";
 "settings_storage_description" = "Manage your files";
 "storage_total_title" = "Total space used";
@@ -236,3 +235,9 @@
 "error_empty_chapters" = "Chapters are empty, please verify the contents of the folder: %@";
 "sleeptimer_option_custom" = "Custom";
 "sleeptimer_custom_alert_title" = "Custom sleep timer";
+"settings_progresslabels_title" = "Progress Labels";
+"settings_playerinterface_list_title" = "Opens";
+"settings_remainingtime_title" = "Use Remaining Time";
+"settings_chaptercontext_title" = "Use Chapter Context";
+"settings_progresslabels_description" = "Toggle between displaying the remaining time, total duration and progress of either the chapter or the book in the player screen";
+"settings_playerinterface_list_description" = "Adjust what the list button in the player screen opens";

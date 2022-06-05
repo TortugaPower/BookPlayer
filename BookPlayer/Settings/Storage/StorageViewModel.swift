@@ -14,8 +14,11 @@ import Foundation
 final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObject {
   private var files = CurrentValueSubject<[StorageItem]?, Never>(nil)
   private var disposeBag = Set<AnyCancellable>()
-  private let libraryService: LibraryServiceProtocol
+  let libraryService: LibraryServiceProtocol
   private let folderURL: URL
+  lazy var library: Library = {
+    return libraryService.getLibrary()
+  }()
 
   init(libraryService: LibraryServiceProtocol, folderURL: URL) {
     self.libraryService = libraryService
@@ -43,8 +46,9 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
         guard !fileURL.isDirectoryFolder,
               let fileAttributes = try? FileManager.default.attributesOfItem(atPath: fileURL.path) else { continue }
 
+        let currentRelativePath = self.getRelativePath(of: fileURL, baseURL: processedFolder)
         let fetchedBook = self.libraryService.getItem(
-          with: String(fileURL.relativePath(to: processedFolder).dropFirst())
+          with: currentRelativePath
         ) as? Book
 
         let bookTitle = fetchedBook?.title ?? Book.getBookTitle(from: fileURL)
@@ -54,7 +58,7 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
           fileURL: fileURL,
           path: fileURL.relativePath(to: processedFolder),
           size: fileAttributes[FileAttributeKey.size] as? Int64 ?? 0,
-          showWarning: fetchedBook == nil
+          showWarning: self.shouldShowWarning(for: currentRelativePath, book: fetchedBook)
         )
 
         items.append(storageItem)
@@ -64,11 +68,27 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
     }
   }
 
-  private func createBook(from item: StorageItem) throws {
+  func getRelativePath(of fileURL: URL, baseURL: URL) -> String {
+    return String(fileURL.relativePath(to: baseURL).dropFirst())
+  }
+
+  func shouldShowWarning(for relativePath: String, book: Book?) -> Bool {
+    guard book == nil else { return false }
+
+    // Fetch may fail with unicode characters, this is a last resort to double check it's not really linked
+    return !self.library.bookExists(with: relativePath)
+  }
+
+  func reloadLibraryItems() {
+    SceneDelegate.shared?.coordinator.getMainCoordinator()?
+      .getLibraryCoordinator()?.reloadItemsWithPadding()
+  }
+
+  func createBook(from item: StorageItem) throws {
     let book = self.libraryService.createBook(from: item.fileURL)
     try moveBookFile(from: item, with: book)
-    let library = self.libraryService.getLibrary()
-    library.insert(item: book)
+    try self.libraryService.moveItems([book], inside: nil, moveFiles: false)
+    reloadLibraryItems()
   }
 
   private func moveBookFile(from item: StorageItem, with book: Book) throws {
@@ -156,8 +176,8 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
 
     // Relink book object if it's orphaned
     if fetchedBook.getLibrary() == nil {
-      let library = self.libraryService.getLibrary()
-      library.insert(item: fetchedBook)
+      try self.libraryService.moveItems([fetchedBook], inside: nil, moveFiles: false)
+      reloadLibraryItems()
     }
 
     let fetchedBookURL = self.folderURL.appendingPathComponent(fetchedBook.relativePath)

@@ -35,66 +35,23 @@ enum ItemListActionRoutes {
 class ItemListCoordinator: Coordinator {
   public var onAction: Transition<ItemListActionRoutes>?
   let playerManager: PlayerManagerProtocol
-  let importManager: ImportManager
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
 
   weak var documentPickerDelegate: UIDocumentPickerDelegate?
-  var fileSubscription: AnyCancellable?
-  var importOperationSubscription: AnyCancellable?
 
   init(
     navigationController: UINavigationController,
     playerManager: PlayerManagerProtocol,
-    importManager: ImportManager,
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol
   ) {
     self.playerManager = playerManager
-    self.importManager = importManager
     self.libraryService = libraryService
     self.playbackService = playbackService
 
     super.init(navigationController: navigationController,
                flowType: .push)
-
-    self.bindImportObserver()
-  }
-
-  func bindImportObserver() {
-    self.fileSubscription?.cancel()
-    self.importOperationSubscription?.cancel()
-
-    self.fileSubscription = self.importManager.observeFiles().sink { [weak self] files in
-      guard let self = self,
-            !files.isEmpty,
-            self.shouldShowImportScreen() else { return }
-
-      self.showImport()
-    }
-
-    self.importOperationSubscription = self.importManager.operationPublisher.sink(receiveValue: { [weak self] operation in
-      guard let self = self,
-            self.shouldHandleImport() else {
-        return
-      }
-
-      self.onAction?(.newImportOperation(operation))
-
-      operation.completionBlock = {
-        DispatchQueue.main.async {
-          self.onAction?(.importOperationFinished(operation.processedFiles))
-        }
-      }
-
-      self.importManager.start(operation)
-    })
-  }
-
-  func processFiles(urls: [URL]) {
-    for url in urls {
-      self.importManager.process(url)
-    }
   }
 
   override func start() {
@@ -125,7 +82,6 @@ class ItemListCoordinator: Coordinator {
     let child = FolderListCoordinator(navigationController: self.navigationController,
                                       folderRelativePath: relativePath,
                                       playerManager: self.playerManager,
-                                      importManager: self.importManager,
                                       libraryService: self.libraryService,
                                       playbackService: self.playbackService)
     self.childCoordinators.append(child)
@@ -145,95 +101,38 @@ class ItemListCoordinator: Coordinator {
   }
 
   func loadPlayer(_ relativePath: String) {
-    let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
-    guard FileManager.default.fileExists(atPath: fileURL.path) else {
-      self.navigationController.showAlert("file_missing_title".localized, message: "\("file_missing_description".localized)\n\(fileURL.lastPathComponent)")
-      return
-    }
-
-    // Only load if loaded book is a different one
-    guard relativePath != playerManager.currentItem?.relativePath else {
-      self.showPlayer()
-      return
-    }
-
-    guard let libraryItem = self.libraryService.getItem(with: relativePath) else { return }
-
-    var item: PlayableItem?
-
-    do {
-      item = try self.playbackService.getPlayableItem(from: libraryItem)
-    } catch {
-      self.showAlert("error_title".localized, message: error.localizedDescription)
-      return
-    }
-
-    guard let item = item else { return }
-
-    var subscription: AnyCancellable?
-
-    subscription = NotificationCenter.default.publisher(for: .bookReady, object: nil)
-      .sink(receiveValue: { [weak self] notification in
-        guard let self = self,
-              let userInfo = notification.userInfo,
-              let loaded = userInfo["loaded"] as? Bool,
-              loaded == true else {
-                subscription?.cancel()
-                return
-              }
-
-        self.getMainCoordinator()?.showMiniPlayer(true)
-        self.playerManager.play()
-        self.showPlayer()
-
-        subscription?.cancel()
-      })
-
-    self.playerManager.load(item)
+    AppDelegate.shared?.loadPlayer(
+      relativePath,
+      autoplay: true,
+      showPlayer: { [weak self] in
+        self?.getMainCoordinator()?.showMiniPlayer(true)
+        self?.showPlayer()
+      },
+      alertPresenter: self
+    )
   }
 
   func loadLastBookIfAvailable() {
     guard let libraryItem = try? self.libraryService.getLibraryLastItem() else { return }
 
-    var item: PlayableItem?
-
-    do {
-      item = try self.playbackService.getPlayableItem(from: libraryItem)
-    } catch {
-      self.showAlert("error_title".localized, message: error.localizedDescription)
-      return
-    }
-
-    guard let item = item else { return }
-
-    var subscription: AnyCancellable?
-
-    subscription = NotificationCenter.default.publisher(for: .bookReady, object: nil)
-      .sink(receiveValue: { [weak self] notification in
-        guard let self = self,
-              let userInfo = notification.userInfo,
-              let loaded = userInfo["loaded"] as? Bool,
-              loaded == true else {
-                subscription?.cancel()
-                return
-              }
-
-        self.getMainCoordinator()?.showMiniPlayer(true)
+    AppDelegate.shared?.loadPlayer(
+      libraryItem.relativePath,
+      autoplay: false,
+      showPlayer: { [weak self] in
+        self?.getMainCoordinator()?.showMiniPlayer(true)
 
         if UserDefaults.standard.bool(forKey: Constants.UserActivityPlayback) {
           UserDefaults.standard.removeObject(forKey: Constants.UserActivityPlayback)
-          self.playerManager.play()
+          self?.playerManager.play()
         }
 
         if UserDefaults.standard.bool(forKey: Constants.UserDefaults.showPlayer.rawValue) {
           UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.showPlayer.rawValue)
-          self.showPlayer()
+          self?.showPlayer()
         }
-
-        subscription?.cancel()
-      })
-
-    self.playerManager.load(item)
+      },
+      alertPresenter: self
+    )
   }
 
   func showSettings() {
@@ -245,25 +144,6 @@ class ItemListCoordinator: Coordinator {
     settingsCoordinator.presentingViewController = self.presentingViewController
     self.childCoordinators.append(settingsCoordinator)
     settingsCoordinator.start()
-  }
-
-  func showImport() {
-    let child = ImportCoordinator(
-      navigationController: self.navigationController,
-      importManager: self.importManager
-    )
-    self.childCoordinators.append(child)
-    child.parentCoordinator = self
-    child.presentingViewController = self.presentingViewController
-    child.start()
-  }
-
-  func shouldShowImportScreen() -> Bool {
-    return !self.childCoordinators.contains(where: { $0 is ItemListCoordinator || $0 is ImportCoordinator })
-  }
-
-  func shouldHandleImport() -> Bool {
-    return !self.childCoordinators.contains(where: { $0 is ItemListCoordinator })
   }
 
   func showOperationCompletedAlert(with items: [LibraryItem], availableFolders: [SimpleLibraryItem]) {
@@ -448,8 +328,20 @@ extension ItemListCoordinator {
   }
 
   func showDeleteAlert(selectedItems: [SimpleLibraryItem]) {
-    let alert = UIAlertController(title: String.localizedStringWithFormat("delete_multiple_items_title".localized, selectedItems.count),
-                                  message: "delete_multiple_items_description".localized,
+    let alertTitle: String
+    let alertMessage: String?
+
+    if selectedItems.count == 1,
+       let item = selectedItems.first {
+      alertTitle = String(format: "delete_single_item_title".localized, item.title)
+      alertMessage = nil
+    } else {
+      alertTitle = String.localizedStringWithFormat("delete_multiple_items_title".localized, selectedItems.count)
+      alertMessage = "delete_multiple_items_description".localized
+    }
+
+    let alert = UIAlertController(title: alertTitle,
+                                  message: alertMessage,
                                   preferredStyle: .alert)
 
     alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))

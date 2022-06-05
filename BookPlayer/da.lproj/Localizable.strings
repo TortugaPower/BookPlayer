@@ -87,7 +87,6 @@
 "bookplayer_opensource_description" = "BookPlayer er gratis og Open Source, og sådan vil det altid være. Med din hjælp er vi i stand til at implementere flere funktioner og gøre BookPlayer endnu bedre";
 "thanks_title" = "Tak for din støtte!";
 "extra_tips_description" = "Hvis du virkelig sætter pris på BookPlayer, kan du donere for at støtte appens udvikling. Dette vil hjælpe til at få tingene til at køre rundt og samtidigt understøtte flere funktionerne ud i fremtiden.";
-"files_title" = "Filer";
 "select_all_title" = "Vælg alle";
 "deselect_all_title" = "Fravælg alle";
 "move_title" = "Flyt";
@@ -214,3 +213,9 @@
 "error_empty_chapters" = "Chapters are empty, please verify the contents of the folder: %@";
 "sleeptimer_option_custom" = "Custom";
 "sleeptimer_custom_alert_title" = "Custom sleep timer";
+"settings_progresslabels_title" = "Progress Labels";
+"settings_playerinterface_list_title" = "Opens";
+"settings_remainingtime_title" = "Use Remaining Time";
+"settings_chaptercontext_title" = "Use Chapter Context";
+"settings_progresslabels_description" = "Toggle between displaying the remaining time, total duration and progress of either the chapter or the book in the player screen";
+"settings_playerinterface_list_description" = "Adjust what the list button in the player screen opens";
