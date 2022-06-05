@@ -15,6 +15,7 @@ import Intents
 import MediaPlayer
 import Sentry
 import RevenueCat
+import StoreKit
 import UIKit
 import WatchConnectivity
 
@@ -415,6 +416,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       }
 
       libraryCoordinator.processFiles(urls: newFiles)
+    }
+  }
+
+  func requestReview() {
+    if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
+      SKStoreReviewController.requestReview(in: scene)
     }
   }
 }

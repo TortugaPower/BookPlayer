@@ -53,6 +53,7 @@ class PlayerManagerTests: XCTestCase {
       duration: 100,
       relativePath: "",
       percentCompleted: 10,
+      lastPlayDate: nil,
       isFinished: false,
       useChapterTimeContext: false
     )

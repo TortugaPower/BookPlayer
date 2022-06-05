@@ -1,4 +1,5 @@
 @testable import BookPlayerKit
+import CoreData
 import Foundation
 
 class StubFactory {
@@ -10,7 +11,8 @@ class StubFactory {
     // Add test file to Processed folder
     let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: processedFolder)
 
-    let book = Book(context: dataManager.getContext())
+    // swiftlint:disable:next force_cast
+    let book = NSEntityDescription.insertNewObject(forEntityName: "Book", into: dataManager.getContext()) as! Book
     book.details = "test-author"
     book.relativePath = fileUrl.relativePath(to: DataManager.getProcessedFolderURL())
 
@@ -46,7 +48,8 @@ class StubFactory {
 
   public class func chapter(dataManager: DataManager,
                             index: Int16) -> Chapter {
-    let chapter = Chapter(context: dataManager.getContext())
+    // swiftlint:disable:next force_cast
+    let chapter = NSEntityDescription.insertNewObject(forEntityName: "Chapter", into: dataManager.getContext()) as! Chapter
     chapter.index = index
     chapter.duration = 0
     return chapter

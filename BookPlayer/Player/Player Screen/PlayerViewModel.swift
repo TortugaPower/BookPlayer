@@ -9,7 +9,6 @@
 import BookPlayerKit
 import Combine
 import UIKit
-import StoreKit
 
 class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   private let playerManager: PlayerManagerProtocol
@@ -299,7 +298,7 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     guard UIApplication.shared.applicationState == .active else { return }
 
 #if RELEASE
-    SKStoreReviewController.requestReview()
+    AppDelegate.shared?.requestReview()
 #endif
 
     UserDefaults.standard.set(false, forKey: "ask_review")

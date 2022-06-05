@@ -109,7 +109,8 @@ class AccountServiceTests: XCTestCase {
     XCTAssert(self.sut.hasAccount() == true)
     let result = try await self.sut.deleteAccount()
     XCTAssert(result == "success")
-    XCTAssert(self.sut.hasAccount() == false)
+    XCTAssert(self.sut.hasAccount() == true)
+    XCTAssert(self.sut.getAccount()?.hasSubscription == false)
     XCTAssert(try mockKeychain.getAccessToken() == nil)
   }
 

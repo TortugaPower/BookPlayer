@@ -61,19 +61,16 @@ class LibraryListCoordinatorTests: XCTestCase {
     XCTAssert(self.libraryListCoordinator.childCoordinators.first is ImportCoordinator)
   }
 
-  func testShowItemContentsFolder() {
+  func testShowItemContents() {
     let folder = try! StubFactory.folder(dataManager: self.dataManager, title: "folder 1")
-    let library = self.libraryListCoordinator.libraryService.getLibrary()
-    library.insert(item: folder)
-
-    self.libraryListCoordinator.showItemContents(SimpleLibraryItem(from: folder, themeAccent: .blue))
-    XCTAssert(self.libraryListCoordinator.childCoordinators.first is ItemListCoordinator)
-  }
-
-  func testShowItemContentsBook() {
     let book = StubFactory.book(dataManager: self.dataManager, title: "book 1", duration: 10)
     let library = self.libraryListCoordinator.libraryService.getLibrary()
+    library.insert(item: folder)
     library.insert(item: book)
+
+    self.libraryListCoordinator.showItemContents(SimpleLibraryItem(from: folder, themeAccent: .blue))
+
+    XCTAssert(self.libraryListCoordinator.childCoordinators.first is ItemListCoordinator)
 
     let notificationExpectation = expectation(forNotification: .bookReady, object: nil) { (notification: Notification) -> Bool in
       if let loaded = notification.userInfo?["loaded"] as? Bool {

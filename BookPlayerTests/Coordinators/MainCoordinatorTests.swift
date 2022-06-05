@@ -18,18 +18,19 @@ class MainCoordinatorTests: XCTestCase {
   override func setUp() {
     let coreServices = AppDelegate.shared!.createCoreServicesIfNeeded(from: CoreDataStack(testPath: "/dev/null"))
     self.mainCoordinator = MainCoordinator(
-      navigationController: UINavigationController()
+      navigationController: UINavigationController(),
       coreServices: coreServices
     )
-    self.mainCoordinator.start()
   }
 
   func testInitialState() {
+    self.mainCoordinator.start()
     XCTAssert(self.mainCoordinator.childCoordinators.count == 3)
     XCTAssertNotNil(self.mainCoordinator.getLibraryCoordinator())
   }
 
   func testShowPlayer() {
+    self.mainCoordinator.start()
     self.mainCoordinator.showPlayer()
 
     XCTAssert(self.mainCoordinator.childCoordinators.count == 4)
