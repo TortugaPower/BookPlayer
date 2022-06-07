@@ -11,15 +11,12 @@ import UIKit
 
 class LoginCoordinator: Coordinator {
   let accountService: AccountServiceProtocol
-  let syncService: SyncServiceProtocol
 
   init(
     accountService: AccountServiceProtocol,
-    syncService: SyncServiceProtocol,
     presentingViewController: UIViewController?
   ) {
     self.accountService = accountService
-    self.syncService = syncService
 
     super.init(
       navigationController: AppNavigationController.instantiate(from: .Main),
@@ -31,10 +28,7 @@ class LoginCoordinator: Coordinator {
 
   override func start() {
     let vc = LoginViewController.instantiate(from: .Profile)
-    let viewModel = LoginViewModel(
-      accountService: self.accountService,
-      syncService: self.syncService
-    )
+    let viewModel = LoginViewModel(accountService: self.accountService)
     viewModel.coordinator = self
     vc.viewModel = viewModel
 

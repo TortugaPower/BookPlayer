@@ -12,14 +12,9 @@ import Foundation
 
 class LoginViewModel: BaseViewModel<LoginCoordinator> {
   let accountService: AccountServiceProtocol
-  let syncService: SyncServiceProtocol
 
-  init(
-    accountService: AccountServiceProtocol,
-    syncService: SyncServiceProtocol
-  ) {
+  init(accountService: AccountServiceProtocol) {
     self.accountService = accountService
-    self.syncService = syncService
   }
 
   func setupTestAccount() {
@@ -44,7 +39,7 @@ class LoginViewModel: BaseViewModel<LoginCoordinator> {
         return
       }
 
-      Task { [weak self, accountService, syncService, token, appleIDCredential] in
+      Task { [weak self, accountService, token, appleIDCredential] in
         await MainActor.run { [weak self] in
           self?.coordinator.showLoader()
         }
@@ -54,8 +49,6 @@ class LoginViewModel: BaseViewModel<LoginCoordinator> {
             with: token,
             userId: appleIDCredential.user
           )
-
-          try await syncService.syncLibrary()
 
           await MainActor.run { [weak self, account] in
             self?.coordinator.stopLoader()

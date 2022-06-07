@@ -8,6 +8,7 @@
 
 import Alamofire
 import BookPlayerKit
+import Combine
 import RevenueCat
 import Themeable
 import UIKit
@@ -23,6 +24,7 @@ class MainCoordinator: Coordinator {
   let watchConnectivityService: PhoneWatchConnectivityService
 
   var reachabilityManager: NetworkReachabilityManager?
+  private var disposeBag = Set<AnyCancellable>()
 
   init(
     navigationController: UINavigationController,
@@ -73,7 +75,6 @@ class MainCoordinator: Coordinator {
     let profileCoordinator = ProfileCoordinator(
       libraryService: self.libraryService,
       accountService: self.accountService,
-      syncService: self.syncService,
       navigationController: AppNavigationController.instantiate(from: .Main)
     )
     profileCoordinator.tabBarController = tabBarController
@@ -92,6 +93,12 @@ class MainCoordinator: Coordinator {
     settingsCoordinator.start()
 
     self.setupReachability()
+
+    NotificationCenter.default.publisher(for: .login, object: nil)
+      .sink(receiveValue: { [weak self] _ in
+        self?.syncLibrary()
+      })
+      .store(in: &disposeBag)
 
     self.navigationController.present(tabBarController, animated: false)
   }
@@ -154,6 +161,12 @@ class MainCoordinator: Coordinator {
     }
 
     self.reachabilityManager?.startListening()
+  }
+
+  func syncLibrary() {
+    Task { [weak self] in
+      try? await self?.syncService.syncLibrary()
+    }
   }
 }
 

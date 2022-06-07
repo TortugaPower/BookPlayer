@@ -205,6 +205,8 @@ public final class AccountService: AccountServiceProtocol {
       )
     }
 
+    NotificationCenter.default.post(name: .login, object: self)
+
     return self.getAccount()
   }
 

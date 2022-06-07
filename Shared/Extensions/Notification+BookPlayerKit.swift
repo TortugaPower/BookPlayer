@@ -17,4 +17,5 @@ extension Notification.Name {
   public static let bookReady = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).book.ready")
   public static let messageReceived = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).watch.message")
   public static let accountUpdate = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).account.update")
+  public static let login = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).account.login")
 }
