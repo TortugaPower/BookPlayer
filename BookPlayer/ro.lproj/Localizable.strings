@@ -1,8 +1,5 @@
-/* Title that is shown as the navigation bar title */
 "library_title" = "Bibliotecă";
-/* Title for the settings button */
 "settings_button" = "Setări";
-/* Title that is shown as the navigation bar title */
 "settings_title" = "Setări";
 "settings_autoplay_title" = "Bibliotecă redare automată";
 "settings_autoplay_description" = "Continuați redarea tuturor elementelor din Bibliotecă care nu sunt finalizate, inclusiv fișierele din listele de redare.";
@@ -25,8 +22,6 @@
 "settings_support_project_title" = "Vizualizați proiectul pe Github";
 "settings_support_project_description" = "Deschideți noi probleme pentru solicitările și erorile dvs. de funcții";
 "settings_support_email_title" = "Trimite-ne un e-mail";
-/* Should this be understood as the user wants to 'give credit' or is this like regulatives?
-Carl&nbsp;regarding the key settings_credits_title it's basically a section that gives credits to the third-party libraries that we are using in the app */
 "settings_credits_title" = "Credite și licențe";
 "settings_support_compose_title" = "Imposibil de compus e-mail";
 "settings_support_compose_description" = "Trebuie să configurați un cont de e-mail în setările dispozitivului pentru a utiliza acest lucru.\n\nVă rugăm să ne scrieți prin e-mail la";
@@ -59,11 +54,8 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "cancel_button" = "Anulare";
 "seconds_title" = "sec";
 "ok_button" = "OK";
-/* Message shown when trying to create a Siri Shortcut on devices that don't have iOS 12+ installed */
 "siri_alert_description" = "Comenzile rapide de la Siri sunt disponibile pe iOS 12 și versiuni ulterioare";
-/* Title used in the context of our tip jar to support development */
 "support_bookplayer_title" = "Sprijiniți BookPlayer";
-/* Description used in the context of our tip jar to support development */
 "support_bookplayer_description" = "Obțineți BookPlayer Plus pentru a sprijini dezvoltarea viitoare și pentru a obține teme suplimentare și pictograme pentru aplicații";
 "learn_more_title" = "AFLAȚI MAI MULTE";
 "settings_appearance_title" = "Aspect";
@@ -73,15 +65,10 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "settings_controls_title" = "Controlul Playerului";
 "settings_power_connected_title" = "Numai când este conectat la alimentare";
 "settings_tip_jar_title" = "Loc pentru bacșiș";
-/* What does 'System Mode' entail? Is it regarding iOS Dark Mode?
-<span class="reply-in-chat"><span data-uid="carlhoumoller&amp;&#x23;x40&#x3B;hotmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36833450">Carl</span></span>
-&nbsp;regarding the key theme_system_title, yes, it refers to using the preference set at the operating system level (from the control center/brightness) */
 "theme_system_title" = "Utilizați modul sistem";
 "theme_switch_title" = "Comutare automată";
 "theme_dark_title" = "Utilizați întotdeauna variație întunecată";
 "themes_title" = "Teme";
-/* This should be &ldquo;By your friends at BookPlayer&rdquo; in English.&nbsp; */
 "icons_bookplayer_credit_description" = "De prietenii tăi de la BookPlayer";
 "kind_tip_title" = "Bacșiș bun in valoare de";
 "excellent_tip_title" = "Bacșiș excelent in valoare de";
@@ -108,20 +95,15 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "player_speed_title" = "Setați viteza de redare";
 "player_sleep_title" = "Întrerupeți redarea";
 "sleep_chapter_option_title" = "Sfârșitul capitolului curent";
-/* This is used for the label underneath the progress bar (e.g. Chapter 1 of 35) */
 "player_chapter_description" = "Capitolul %d din %d";
 "chapters_title" = "Capitole";
-/* This is used as a description for each chapter in the chapters list (e.g. Start: 10:11 - Duration: 16:56) */
 "chapters_item_description" = "Start: %@ - Durata: %@";
-/* Restore purchases */
 "restore_title" = "Restabilire";
 "themes_caps_title" = "Teme";
 "plus_app_icons_title" = "Pictogramele aplicației";
-/* This is the counterpart to Mark as Finished */
 "mark_unfinished_title" = "Marcați ca neterminat";
 "move_playlist_button" = "Mutare în lista de redare";
 "move_single_item_title" = "Doriți să mutați „ %@ ” în „ %@ ”?";
-/* This is shown if while being inside a playlist, a batch of imported files are finished processing, and it will be one of the options in the alert presented */
 "current_playlist_title" = "Listă de redare curentă";
 "select_item_title" = "Selectați elementul";
 "sleep_alert_description" = "Dormire când se termină capitolul";
@@ -132,49 +114,27 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "progress_complete_description" = "%d la sută completat";
 "chapter_duration_title" = "Durata capitolului:";
 "chapter_time_remaining_title" = "Timpul rămas din capitol:";
-"book_time_remaining_title" = "Timp rămas din carte :";
+"book_time_remaining_title" = "Timp rămas din carte:";
 "book_duration_title" = "Durata cărții:";
-/* Может правильнее будет: &quot;Не удалось сменить иконку&quot;? */
 "icon_error_description" = "Modificarea pictogramei aplicației nu a avut succes. Încercați din nou mai târziu";
 "error_title" = "Eroare";
 "generic_retry_description" = "Vă rugăm să încercați din nou mai târziu";
 "network_error_title" = "Eroare de conectivitate";
 "purchases_restored_title" = "Achizițiile au fost restaurate!";
 "tip_missing_title" = "Încă nu ne-ai dat bacșiș.";
-/* will need 2 versions (for female and male)
-<span class="reply-in-chat"><span data-uid="sandu.hamuraru&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36841099">Alexandru</span></span>
-&nbsp;there's no way to put it without gender? using the second-person form involves specifying gender in Romanian?
-<span class="reply-in-chat"><span data-uid="sandu.hamuraru&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36841099">Alexandru</span></span>
-&nbsp;we have no current way of determining the gender of the user using the app right now 👀. Or maybe I didn't fully understand what you meant? */
 "thanks_amazing_title" = "Ești super!";
 "play_title" = "Redare";
 "pause_title" = "Pauză";
 "voiceover_no_title" = "Fără titlu";
 "voiceover_no_author" = "Fără autor";
-/* &lt;Book title&gt; by &lt;Book author&gt; &lt;percentage in numbers&gt;% Completed */
 "voiceover_book_progress" = "%@cate%@,%dprocent finalizat";
 "voiceover_no_file_title" = "Fără titlu de fișier";
-/* Not sure where this title appears ? :)
-<span class="reply-in-chat"><span data-uid="christophe.vergne&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36841194">christophe</span></span>
-&nbsp;this key in particular is when you're inside a playlist, the subtitle (that usually is the author) has no info for our VoiceOver service
-<span class="reply-in-chat"><span data-uid="christophe.vergne&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36841194">christophe</span></span>
-&nbsp;let me know if that clears things up?
-<span class="reply-in-chat"><span data-uid="gcarlo89&amp;&#x23;x40&#x3B;hotmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36841194">Gianni Carlo</span></span>
- Alright, my translation was correct so, thanks :) */
 "voiceover_no_file_subtitle" = "Fără fișier de subtitrare";
 "voiceover_no_playlist_title" = "Fără titlu de playlist";
-/* &lt;Playlist title&gt; Playlist &lt;percentage in number&gt;% Completed */
 "voiceover_playlist_progress" = "%@, Listă de redare, %d procent finalizat";
 "voiceover_unknown_title" = "Titlu necunoscut";
 "voiceover_unknown_author" = "Autor necunoscut";
-/* &lt;book title&gt; by &lt;book author&gt; */
 "voiceover_book_info" = "%@ cate %@";
-/* &lt;book title&gt; by &lt;book author&gt;, chapter &lt;chapter title&gt; */
 "voiceover_book_chapter" = "%@cate %@, capitolul %@";
 "voiceover_rewind_time" = "Derulare înapoi%@";
 "voiceover_forward_time" = "Derulare rapidă înainte%@";
@@ -191,68 +151,62 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "speed_title" = "Viteza";
 "import_preparing_title" = "Pregătire pentru importarea fișierelor";
 "library_add_title" = "Adaugați prima carte";
-"invalid_url_title" = "URL invalid%@";
+"invalid_url_title" = "URL invalid: %@";
 "downloading_file_title" = "Descărcarea fișierului.";
 "progress_title" = "Derulare";
 "settings_siri_sleeptimer_title" = "Temporizator somn";
 "active_title" = "Pornit";
-/* Currently Playing <Book title> by <Book author> */
 "voiceover_currently_playing_title" = "Curent rulează %@ cate %@";
-/* When you're on the library or playlist view, and the voice over cursor is focused on the floating mini-player at the bottom, it should read to the user the element, and the hint that if pressed, the player view will be shown */
 "voiceover_miniplayer_hint" = "Miniplayer. Atingeți pentru a afișa Playerul";
 "voiceover_chapter_time_title" = "Timpul curent al capitolului: %@";
-/* When you're in the player view, and the voice over cursor is focused on the top bar (the one with the arrow-down), it will read to the user that the player view will be closed if he double taps that button */
 "voiceover_dismiss_player_title" = "Renunțați la Player";
-/* Sort items by most recent playback */
-"sort_most_recent_button" = "Most Recent";
-/* One of the sort options, this one reverts the current order of selected items */
-"sort_reversed_button" = "Reverse Order";
-"coredata_error_diskfull_description" = "The library couldn't be loaded, the device is out of disk space.";
-"coredata_error_migration_description" = "A migration of the database failed, the library will have to be reinitialized.";
-"import_warning_description" = "Transfering files may take a while, please make sure the number of files is complete before proceeding.";
-"files_caps_title" = "FIŞIERELE";
-"settings_storage_description" = "Manage your files";
-"storage_total_title" = "Total space used";
-"settings_storage_title" = "Storage Management";
+"sort_most_recent_button" = "Cel mai recent";
+"sort_reversed_button" = "Ordine inversă";
+"voiceover_continue_playback_title" = "Continuați redarea";
+"coredata_error_diskfull_description" = "Biblioteca nu a putut fi încărcată, dispozitivul nu mai are spațiu pe disc.";
+"coredata_error_migration_description" = "O migrare a bazei de date a eșuat, biblioteca va trebui reinițializată.";
+"import_warning_description" = "Transferul fișierelor poate dura ceva timp, vă rugăm să vă asigurați că numărul de fișiere este complet înainte de a continua.";
+"settings_storage_description" = "Gestionați-vă fișierele";
+"storage_total_title" = "Spațiul total folosit";
+"settings_storage_title" = "Managementul stocării";
 "storage_fix_file_button" = "Fix";
-"storage_fix_file_description" = "The book item is missing, if the corresponding item cannot be found, a new one will be created";
-"bookmarks_title" = "Bookmarks";
-"bookmark_created_title" = "Your bookmark has been saved at %@";
-"bookmark_exists_title" = "You have already created a bookmark at %@";
-"bookmark_note_action_title" = "Add note";
-"bookmarks_see_title" = "See bookmarks";
-"bookmark_type_automatic_title" = "Automatic";
+"storage_fix_file_description" = "Elementul din carte lipsește, dacă articolul corespunzător nu poate fi găsit, va fi creat unul nou";
+"bookmarks_title" = "Marcaje";
+"bookmark_created_title" = "Marcajul dvs. a fost salvat la %@";
+"bookmark_exists_title" = "Ați creat deja un marcaj la %@";
+"bookmark_note_action_title" = "Adauga notita";
+"bookmarks_see_title" = "Vezi marcaje";
+"bookmark_type_automatic_title" = "Automat";
 "bookmark_type_user_title" = "Manual";
-"bookmark_automatic_play_title" = "Last position before playback started";
-"bookmark_automatic_skip_title" = "Last position before time skip";
-"bookmark_note_edit_title" = "Edit note";
-"bookmark_create_title" = "Create Bookmark";
-"storage_duplicate_item_title" = "Duplicate";
-"storage_duplicate_item_description" = "The selected file was a duplicate, the existing file is located at: %@";
-"chapters_previous_title" = "Previous Chapter";
-"chapters_next_title" = "Next Chapter";
-"book_time_current_title" = "Current Book Time: %@";
-"voiceover_continue_playback_title" = "Continue Playback";
-"storage_fix_files_description" = "The link between the files and the digital book items are missing, if the corresponding item cannot be found for each file, a new one will be created";
-"storage_fix_all_title" = "Fix All";
-"settings_backup_title" = "iCloud Backups";
-"settings_backup_files_title" = "Include book files";
-"bound_books_create_button" = "Combine into Volume";
-"bound_books_undo_alert_title" = "Convert to Folder";
-"bound_books_new_title_placeholder" = "New Book Volume";
-"bound_books_create_alert_description" = "Make sure items are in correct order. To reorder chapters later you need convert the volume back into a folder, reorder items and then re-create the volume.";
-"bound_books_create_alert_title" = "Create a volume";
-"voiceover_bound_books_progress" = "%@, Volume, %d percent Completed";
-"voiceover_no_bound_books_title" = "No Volume Title";
+"bookmark_automatic_play_title" = "Ultima poziție înainte de începerea redării";
+"bookmark_automatic_skip_title" = "Ultima poziție înainte de săritul orei";
+"bookmark_note_edit_title" = "Editați nota";
+"bookmark_create_title" = "Creați marcaj";
+"storage_duplicate_item_title" = "Duplicat";
+"storage_duplicate_item_description" = "Fișierul selectat a fost un duplicat, fișierul existent se află la: %@";
+"chapters_previous_title" = "Capitolul precedent";
+"chapters_next_title" = "Capitolul următor";
+"book_time_current_title" = "Ora curentă a rezervării: %@";
+"storage_fix_files_description" = "Legătura dintre fișiere și articolele cărții digitale lipsește, dacă articolul corespunzător nu poate fi găsit pentru fiecare fișier, se va crea unul nou";
+"storage_fix_all_title" = "Repara tot";
+"settings_backup_title" = "Backup-uri iCloud";
+"settings_backup_files_title" = "Includeți fișiere de carte";
+"bound_books_create_button" = "Combinați în volum";
+"bound_books_undo_alert_title" = "Convertiți în dosar";
+"bound_books_new_title_placeholder" = "Volum nou de carte";
+"bound_books_create_alert_description" = "Asigurați-vă că articolele sunt în ordinea corectă. Pentru a reordona capitolele mai târziu, trebuie să convertiți volumul înapoi într-un folder, să reordonați articolele și apoi să recreați volumul.";
+"bound_books_create_alert_title" = "Creați un volum";
+"voiceover_bound_books_progress" = "%@, Volum, %d la sută Finalizat";
+"voiceover_no_bound_books_title" = "Fără titlu de volum";
 "default_title" = "Mod implicit";
 "voiceover_default_speed_title" = "Setați viteza implicită";
-"error_loading_chapters" = "Chapters couldn't be loaded from: \n%@";
-"error_empty_chapters" = "Chapters are empty, please verify the contents of the folder: %@";
-"sleeptimer_option_custom" = "Custom";
-"sleeptimer_custom_alert_title" = "Custom sleep timer";
-"settings_progresslabels_title" = "Progress Labels";
-"settings_playerinterface_list_title" = "Opens";
-"settings_remainingtime_title" = "Use Remaining Time";
-"settings_chaptercontext_title" = "Use Chapter Context";
-"settings_progresslabels_description" = "Toggle between displaying the remaining time, total duration and progress of either the chapter or the book in the player screen";
-"settings_playerinterface_list_description" = "Adjust what the list button in the player screen opens";
+"error_loading_chapters" = "Capitolele nu au putut fi încărcate de la: \n %@";
+"error_empty_chapters" = "Capitolele sunt goale, vă rugăm să verificați conținutul folderului: %@";
+"sleeptimer_option_custom" = "Personalizat";
+"sleeptimer_custom_alert_title" = "Temporizator de oprire personalizat";
+"settings_progresslabels_title" = "Etichete de progres";
+"settings_playerinterface_list_title" = "Se deschide";
+"settings_remainingtime_title" = "Utilizați timpul rămas";
+"settings_chaptercontext_title" = "Utilizați contextul capitolului";
+"settings_progresslabels_description" = "Comutați între afișarea timpului rămas, a duratei totale și a progresului fie al capitolului, fie al cărții în ecranul playerului";
+"settings_playerinterface_list_description" = "Ajustați ce se deschide butonul de listă din ecranul playerului";

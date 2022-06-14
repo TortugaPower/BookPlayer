@@ -26,8 +26,6 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
-        <key>one</key>
-        <string></string>
         <key>other</key>
         <string>是否删除%d项？</string>
       </dict>
@@ -42,8 +40,6 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
-        <key>one</key>
-        <string>导入 %d 文件到</string>
         <key>other</key>
         <string>导入 %d 文件到</string>
       </dict>
@@ -58,12 +54,9 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
-        <key>one</key>
-        <string>正在处理%d文件</string>
         <key>other</key>
         <string>正在处理%d文件</string>
       </dict>
     </dict>
   </dict>
 </plist>
-

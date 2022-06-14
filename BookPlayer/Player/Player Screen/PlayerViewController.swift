@@ -152,7 +152,7 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
        let formattedMaxTime = progressObject.formattedMaxTime {
       self.maxTimeButton.setTitle(formattedMaxTime, for: .normal)
       self.maxTimeButton.accessibilityLabel = String(
-        describing: self.viewModel.getMaxTimeVoiceOverPrefix() + VoiceOverService.secondsToMinutes(maxTime)
+        describing: "\(self.viewModel.getMaxTimeVoiceOverPrefix()) \(VoiceOverService.secondsToMinutes(maxTime))"
       )
     }
 
