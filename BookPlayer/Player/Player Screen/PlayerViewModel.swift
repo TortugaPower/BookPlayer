@@ -213,7 +213,7 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   func handleSliderUpEvent(with value: Float) {
     let newTime = getBookTimeFromSlider(value: value)
 
-    self.playerManager.jumpTo(newTime, recordBookmark: false)
+    self.playerManager.jumpTo(newTime, recordBookmark: true)
   }
 
   func processSliderValueChangedEvent(with value: Float) -> ProgressObject {
@@ -365,13 +365,15 @@ extension PlayerViewModel {
       return
     }
 
-    let bookmark = self.libraryService.createBookmark(
+    if let bookmark = self.libraryService.createBookmark(
       at: currentTime,
       relativePath: currentItem.relativePath,
       type: .user
-    )
-
-    self.showBookmarkSuccessAlert(vc: vc, bookmark: bookmark, existed: false)
+    ) {
+      self.showBookmarkSuccessAlert(vc: vc, bookmark: bookmark, existed: false)
+    } else {
+      vc.showAlert("error_title".localized, message: "file_missing_title".localized)
+    }
   }
 
   func showBookmarkSuccessAlert(vc: UIViewController, bookmark: Bookmark, existed: Bool) {

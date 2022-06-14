@@ -149,15 +149,19 @@ class CarPlayManager: NSObject {
         let currentItem = playerManager.currentItem
       else { return }
 
-      let bookmark = libraryService.createBookmark(
+      let alertTitle: String
+
+      if let bookmark = libraryService.createBookmark(
         at: currentItem.currentTime,
         relativePath: currentItem.relativePath,
         type: .user
-      )
+      ) {
+        let formattedTime = TimeParser.formatTime(bookmark.time)
+        alertTitle = String.localizedStringWithFormat("bookmark_created_title".localized, formattedTime)
+      } else {
+        alertTitle = "file_missing_title".localized
+      }
 
-      let formattedTime = TimeParser.formatTime(bookmark.time)
-
-      let alertTitle = String.localizedStringWithFormat("bookmark_created_title".localized, formattedTime)
       let okAction = CPAlertAction(title: "ok_button".localized, style: .default) { _ in
         self.interfaceController?.dismissTemplate(animated: true, completion: nil)
       }
