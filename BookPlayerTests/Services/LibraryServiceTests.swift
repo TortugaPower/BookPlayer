@@ -590,12 +590,12 @@ class LibraryServiceTests: XCTestCase {
       duration: 100
     )
 
-    let bookmark = self.sut.createBookmark(at: 5, relativePath: book.relativePath, type: .skip)
+    let bookmark = self.sut.createBookmark(at: 5, relativePath: book.relativePath, type: .skip)!
     XCTAssert(bookmark.time == 5)
     XCTAssert(bookmark.type == .skip)
     XCTAssert(bookmark.item?.relativePath == book.relativePath)
 
-    let sameBookmark = self.sut.createBookmark(at: 5, relativePath: book.relativePath, type: .skip)
+    let sameBookmark = self.sut.createBookmark(at: 5, relativePath: book.relativePath, type: .skip)!
 
     XCTAssert(bookmark.time == sameBookmark.time)
     XCTAssert(bookmark.type == sameBookmark.type)
@@ -644,7 +644,7 @@ class LibraryServiceTests: XCTestCase {
       duration: 100
     )
 
-    let bookmark = self.sut.createBookmark(at: 5, relativePath: book.relativePath, type: .skip)
+    let bookmark = self.sut.createBookmark(at: 5, relativePath: book.relativePath, type: .skip)!
     XCTAssert(bookmark.note == nil)
     self.sut.addNote("Test bookmark", bookmark: bookmark)
     XCTAssert(bookmark.note == "Test bookmark")
@@ -657,7 +657,7 @@ class LibraryServiceTests: XCTestCase {
       duration: 100
     )
 
-    let bookmark = self.sut.createBookmark(at: 5, relativePath: book.relativePath, type: .skip)
+    let bookmark = self.sut.createBookmark(at: 5, relativePath: book.relativePath, type: .skip)!
     self.sut.deleteBookmark(bookmark)
     XCTAssert(bookmark.isFault)
   }

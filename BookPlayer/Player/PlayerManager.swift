@@ -703,6 +703,9 @@ extension PlayerManager {
   public func createOrUpdateAutomaticBookmark(at time: Double, relativePath: String, type: BookmarkType) {
     let bookmark = self.libraryService.getBookmarks(of: type, relativePath: relativePath)?.first
     ?? self.libraryService.createBookmark(at: time, relativePath: relativePath, type: type)
+
+    guard let bookmark = bookmark else { return }
+
     bookmark.time = floor(time)
 
     self.libraryService.addNote(type.getNote() ?? "", bookmark: bookmark)

@@ -169,6 +169,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // Only load if loaded book is a different one
     guard relativePath != self.playerManager?.currentItem?.relativePath else {
+      if autoplay {
+        self.playerManager?.play()
+      }
       showPlayer?()
       return
     }
