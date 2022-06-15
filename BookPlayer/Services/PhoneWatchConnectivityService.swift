@@ -119,7 +119,9 @@ public class PhoneWatchConnectivityService: NSObject, WCSessionDelegate {
   public func generateApplicationContext() -> WatchApplicationContext {
     var recentItems = [PlayableItem]()
     if let recentBooks = self.libraryService.getLastPlayedItems(limit: 20) {
-      recentItems = recentBooks.compactMap({ try? self.playbackService.getPlayableItem(from: $0) })
+      recentItems = recentBooks.compactMap({ [weak self] in
+        try? self?.playbackService.getPlayableItem(from: $0)
+      })
     }
 
     return WatchApplicationContext(
