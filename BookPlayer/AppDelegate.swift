@@ -40,13 +40,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   var libraryService: LibraryServiceProtocol?
   var playbackService: PlaybackServiceProtocol?
   var playerManager: PlayerManagerProtocol?
-  var watchConnectivityService: PhoneWatchConnectivityService? {
-    didSet {
-      if oldValue == nil {
-        watchConnectivityService?.startSession()
-      }
-    }
-  }
+  var watchConnectivityService: PhoneWatchConnectivityService?
 
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     Self.shared = self

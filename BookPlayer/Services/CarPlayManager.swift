@@ -51,10 +51,12 @@ class CarPlayManager: NSObject {
     let dataInitializerCoordinator = DataInitializerCoordinator(alertPresenter: self)
 
     dataInitializerCoordinator.onFinish = { stack in
-      _ = AppDelegate.shared?.createCoreServicesIfNeeded(from: stack)
+      let services = AppDelegate.shared?.createCoreServicesIfNeeded(from: stack)
 
       self.loadRecentItems()
       self.setRootTemplateRecentItems()
+
+      services?.watchService.startSession()
     }
 
     dataInitializerCoordinator.start()
