@@ -460,7 +460,7 @@ extension PlayerManager {
     do {
       try AVAudioSession.sharedInstance().setActive(true)
     } catch {
-      fatalError("Failed to activate the audio session")
+      fatalError("Failed to activate the audio session, \(error), description: \(error.localizedDescription)")
     }
 
     self.createOrUpdateAutomaticBookmark(
