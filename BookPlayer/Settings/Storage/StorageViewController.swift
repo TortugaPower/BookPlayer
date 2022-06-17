@@ -52,7 +52,9 @@ final class StorageViewController: BaseViewController<StorageCoordinator, Storag
         guard let loadedItems = storageItems else { return }
 
         self?.items = loadedItems
-        self?.filesTitleLabel.text = "\("files_caps_title".localized) - \(loadedItems.count)"
+        self?.filesTitleLabel.text = String.localizedStringWithFormat(
+          "files_title".localized, loadedItems.count
+        ).localizedUppercase
         self?.tableView.reloadData()
         self?.loadingViewIndicator.stopAnimating()
     }.store(in: &disposeBag)

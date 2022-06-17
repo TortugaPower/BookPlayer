@@ -6,11 +6,8 @@
   Copyright © 2019 Tortuga Power. All rights reserved.
 */
 
-/* Title that is shown as the navigation bar title */
 "library_title" = "Kitaplık";
-/* Title for the settings button */
 "settings_button" = "Ayarlar";
-/* Title that is shown as the navigation bar title */
 "settings_title" = "Ayarlar";
 "settings_autoplay_title" = "Kitaplığı Otomatik Oynat";
 "settings_autoplay_description" = "Oynatma listelerindeki dosyalar da dahil olmak üzere, Kitaplıktaki tamamlanmamış tüm öğelerle oynatmaya devam edin.";
@@ -33,8 +30,6 @@
 "settings_support_project_title" = "Projeyi Github'da görüntüle";
 "settings_support_project_description" = "Özellik istekleriniz ve hatalar için yeni sorun açın";
 "settings_support_email_title" = "Bize bir e-posta gönder";
-/* Should this be understood as the user wants to 'give credit' or is this like regulatives?
-Carl&nbsp;regarding the key settings_credits_title it's basically a section that gives credits to the third-party libraries that we are using in the app */
 "settings_credits_title" = "Katkıda Bulunanlar ve Lisanslar";
 "settings_support_compose_title" = "E-posta oluşturulamıyor";
 "settings_support_compose_description" = "Bunu kullanmak için cihaz ayarlarınızda bir e-posta hesabı oluşturmanız gerekir. \n \nBize alttaki e-posta adresinden ulaşabilirsiniz";
@@ -67,11 +62,8 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "cancel_button" = "İptal";
 "seconds_title" = "sn";
 "ok_button" = "Tamam";
-/* Message shown when trying to create a Siri Shortcut on devices that don't have iOS 12+ installed */
 "siri_alert_description" = "Siri Kısayolları iOS 12 ve sonraki İOS sürümlerinde kullanılabilir";
-/* Title used in the context of our tip jar to support development */
 "support_bookplayer_title" = "BookPlayer'ı Destekle";
-/* Description used in the context of our tip jar to support development */
 "support_bookplayer_description" = "Uygulama gelişimini desteklemek, ekstra temalar ve uygulama simgelerine erişim için BookPlayer Plus'ı alın";
 "learn_more_title" = "DAHA FAZLA BİLGİ EDİN";
 "settings_appearance_title" = "Görünüm";
@@ -81,15 +73,10 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "settings_controls_title" = "Oynatıcı Kontrolleri";
 "settings_power_connected_title" = "Sadece şarja bağlıyken";
 "settings_tip_jar_title" = "Bağış Kutusu";
-/* What does 'System Mode' entail? Is it regarding iOS Dark Mode?
-<span class="reply-in-chat"><span data-uid="carlhoumoller&amp;&#x23;x40&#x3B;hotmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36833450">Carl</span></span>
-&nbsp;regarding the key theme_system_title, yes, it refers to using the preference set at the operating system level (from the control center/brightness) */
 "theme_system_title" = "Sistem Modunu Kullan";
 "theme_switch_title" = "Otomatik olarak değiştir";
 "theme_dark_title" = "Her zaman koyu renkli temalardan birisini kullan";
 "themes_title" = "Temalar";
-/* This should be &ldquo;By your friends at BookPlayer&rdquo; in English.&nbsp; */
 "icons_bookplayer_credit_description" = "BookPlayer'daki arkadaşlarınız tarafından";
 "kind_tip_title" = "Yardımsever bağış";
 "excellent_tip_title" = "Mükemmel bağış";
@@ -113,23 +100,18 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "file_missing_description" = "Bu kitabın dosyası cihazınızdan kaldırıldı. Kitabı oynatmak için dosyayı tekrar içe aktarın";
 "empty_playlist_description" = "Kitaplık içerisindeyken, dosyaları bu çalma listesi ismi üzerine sürükleyerek de buraya taşıyabilirsiniz";
 "playlist_add_title" = "Dosya Ekle";
-"player_speed_title" = "Oynatma hızını ayarla ";
+"player_speed_title" = "Oynatma hızını ayarla";
 "player_sleep_title" = "Oynatmayı duraklat";
 "sleep_chapter_option_title" = "Geçerli bölüm sonunda";
-/* This is used for the label underneath the progress bar (e.g. Chapter 1 of 35) */
 "player_chapter_description" = "Bölüm %d / %d";
 "chapters_title" = "Bölümler";
-/* This is used as a description for each chapter in the chapters list (e.g. Start: 10:11 - Duration: 16:56) */
 "chapters_item_description" = "Başlangıç: %@ - Süre: %@";
-/* Restore purchases */
 "restore_title" = "Geri Yükle";
 "themes_caps_title" = "TEMALAR";
 "plus_app_icons_title" = "Uygulama Simgeleri";
-/* This is the counterpart to Mark as Finished */
 "mark_unfinished_title" = "Tamamlanmamış olarak işaretle";
 "move_playlist_button" = "Oynatma listesine taşı";
 "move_single_item_title" = "%@'i %@'e taşımak istiyor musun?";
-/* This is shown if while being inside a playlist, a batch of imported files are finished processing, and it will be one of the options in the alert presented */
 "current_playlist_title" = "Mevcut Oynatma Listesi";
 "select_item_title" = "Öğeyi seç";
 "sleep_alert_description" = "Bölüm sona erdiğinde uyunacak";
@@ -142,47 +124,25 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "chapter_time_remaining_title" = "Kalan Bölüm Süresi:";
 "book_time_remaining_title" = "Kalan Kitap Süresi:";
 "book_duration_title" = "Kitap süresi:";
-/* Может правильнее будет: &quot;Не удалось сменить иконку&quot;? */
 "icon_error_description" = "Uygulama simgesini değiştirme başarılı olmadı. Daha sonra tekrar deneyin";
 "error_title" = "Hata";
 "generic_retry_description" = "Lütfen daha sonra tekrar deneyin";
 "network_error_title" = "Ağ hatası";
 "purchases_restored_title" = "Satın almalar geri yüklendi!";
 "tip_missing_title" = "Henüz bize bağış yapmadın.";
-/* will need 2 versions (for female and male)
-<span class="reply-in-chat"><span data-uid="sandu.hamuraru&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36841099">Alexandru</span></span>
-&nbsp;there's no way to put it without gender? using the second-person form involves specifying gender in Romanian?
-<span class="reply-in-chat"><span data-uid="sandu.hamuraru&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36841099">Alexandru</span></span>
-&nbsp;we have no current way of determining the gender of the user using the app right now 👀. Or maybe I didn't fully understand what you meant? */
 "thanks_amazing_title" = "Harikasın!";
 "play_title" = "Oynat";
 "pause_title" = "Duraklat";
 "voiceover_no_title" = "Başlık Yok";
 "voiceover_no_author" = "Yazar Yok";
-/* &lt;Book title&gt; by &lt;Book author&gt; &lt;percentage in numbers&gt;% Completed */
 "voiceover_book_progress" = "%@ ( Yazar: %@ ), yüzde %d tamamlandı";
 "voiceover_no_file_title" = "Dosya Başlığı Yok";
-/* Not sure where this title appears ? :)
-<span class="reply-in-chat"><span data-uid="christophe.vergne&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36841194">christophe</span></span>
-&nbsp;this key in particular is when you're inside a playlist, the subtitle (that usually is the author) has no info for our VoiceOver service
-<span class="reply-in-chat"><span data-uid="christophe.vergne&amp;&#x23;x40&#x3B;gmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36841194">christophe</span></span>
-&nbsp;let me know if that clears things up?
-<span class="reply-in-chat"><span data-uid="gcarlo89&amp;&#x23;x40&#x3B;hotmail.com" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="36841194">Gianni Carlo</span></span>
- Alright, my translation was correct so, thanks :) */
 "voiceover_no_file_subtitle" = "Dosya Altyazısı Yok";
 "voiceover_no_playlist_title" = "Oynatma Listesi Başlığı Yok";
-/* &lt;Playlist title&gt; Playlist &lt;percentage in number&gt;% Completed */
 "voiceover_playlist_progress" = "%@, Oynatma Listesi, yüzde %d tamamlandı";
 "voiceover_unknown_title" = "Bilinmeyen başlık";
 "voiceover_unknown_author" = "Bilinmeyen yazar";
-/* &lt;book title&gt; by &lt;book author&gt; */
 "voiceover_book_info" = "%@ ( Yazar: %@ )";
-/* &lt;book title&gt; by &lt;book author&gt;, chapter &lt;chapter title&gt; */
 "voiceover_book_chapter" = "%@ ( Yazar: %@ ), bölüm %@";
 "voiceover_rewind_time" = "%@ Geri sarma";
 "voiceover_forward_time" = "%@ Hızlı İleri Sarma";
@@ -203,69 +163,58 @@ Carl&nbsp;regarding the key settings_credits_title it's basically a section that
 "downloading_file_title" = "Dosya indiriliyor";
 "progress_title" = "İlerleme";
 "settings_siri_sleeptimer_title" = "Uyku Zamanlayıcısı";
-/* Can I have the context for this? Thanks
-Alessio Franceschi&nbsp;this is the label for the active sleep timer button when &quot;end of chapter&quot; was selected
-<span class="reply-in-chat"><span data-uid="fp&amp;&#x23;x40&#x3B;ylk.gd" contenteditable="false" class="chat-reply-to"
-                                  data-replykey="42298563">Florian Pitcher</span></span>
-&nbsp;Thanks */
 "active_title" = "Aktif Kitap";
-/* Currently Playing <Book title> by <Book author> */
 "voiceover_currently_playing_title" = "Şu anda %@ ( Yazar: %@ ) oynuyor";
-/* When you're on the library or playlist view, and the voice over cursor is focused on the floating mini-player at the bottom, it should read to the user the element, and the hint that if pressed, the player view will be shown */
 "voiceover_miniplayer_hint" = "Mini oynatıcı. Player'ı göstermek için dokunun";
 "voiceover_chapter_time_title" = "Geçerli Bölüm Saati: %@";
-/* When you're in the player view, and the voice over cursor is focused on the top bar (the one with the arrow-down), it will read to the user that the player view will be closed if he double taps that button */
 "voiceover_dismiss_player_title" = "Oynatıcıyı Kapat";
-/* Sort items by most recent playback */
-"sort_most_recent_button" = "Most Recent";
-/* One of the sort options, this one reverts the current order of selected items */
-"sort_reversed_button" = "Reverse Order";
-"coredata_error_diskfull_description" = "The library couldn't be loaded, the device is out of disk space.";
-"coredata_error_migration_description" = "A migration of the database failed, the library will have to be reinitialized.";
-"import_warning_description" = "Transfering files may take a while, please make sure the number of files is complete before proceeding.";
-"files_caps_title" = "DOSYALAR";
-"settings_storage_description" = "Manage your files";
-"storage_total_title" = "Total space used";
-"settings_storage_title" = "Storage Management";
-"storage_fix_file_button" = "Fix";
-"storage_fix_file_description" = "The book item is missing, if the corresponding item cannot be found, a new one will be created";
-"bookmarks_title" = "Bookmarks";
-"bookmark_created_title" = "Your bookmark has been saved at %@";
-"bookmark_exists_title" = "You have already created a bookmark at %@";
-"bookmark_note_action_title" = "Add note";
-"bookmarks_see_title" = "See bookmarks";
-"bookmark_type_automatic_title" = "Automatic";
-"bookmark_type_user_title" = "Manual";
-"bookmark_automatic_play_title" = "Last position before playback started";
-"bookmark_automatic_skip_title" = "Last position before time skip";
-"bookmark_note_edit_title" = "Edit note";
-"bookmark_create_title" = "Create Bookmark";
-"storage_duplicate_item_title" = "Duplicate";
-"storage_duplicate_item_description" = "The selected file was a duplicate, the existing file is located at: %@";
-"chapters_previous_title" = "Previous Chapter";
-"chapters_next_title" = "Next Chapter";
-"book_time_current_title" = "Current Book Time: %@";
-"voiceover_continue_playback_title" = "Continue Playback";
-"storage_fix_files_description" = "The link between the files and the digital book items are missing, if the corresponding item cannot be found for each file, a new one will be created";
-"storage_fix_all_title" = "Fix All";
-"settings_backup_title" = "iCloud Backups";
-"settings_backup_files_title" = "Include book files";
-"bound_books_create_button" = "Combine into Volume";
-"bound_books_undo_alert_title" = "Convert to Folder";
-"bound_books_new_title_placeholder" = "New Book Volume";
-"bound_books_create_alert_description" = "Make sure items are in correct order. To reorder chapters later you need convert the volume back into a folder, reorder items and then re-create the volume.";
-"bound_books_create_alert_title" = "Create a volume";
-"voiceover_bound_books_progress" = "%@, Volume, %d percent Completed";
-"voiceover_no_bound_books_title" = "No Volume Title";
+"sort_most_recent_button" = "En Yeni";
+"sort_reversed_button" = "Ters sipariş";
+"voiceover_continue_playback_title" = "Oynatmaya Devam Et";
+"coredata_error_diskfull_description" = "Kitaplık yüklenemedi, aygıtta disk alanı kalmadı.";
+"coredata_error_migration_description" = "Veritabanının taşınması başarısız oldu, kitaplığın yeniden başlatılması gerekecek.";
+"import_warning_description" = "Dosyaların aktarılması biraz zaman alabilir, lütfen devam etmeden önce dosya sayısının tam olduğundan emin olun.";
+"settings_storage_description" = "Dosyalarınızı yönetin";
+"storage_total_title" = "Kullanılan toplam alan";
+"settings_storage_title" = "Depolama Yönetimi";
+"storage_fix_file_button" = "Düzeltmek";
+"storage_fix_file_description" = "Kitap öğesi eksik, ilgili öğe bulunamazsa yenisi oluşturulur";
+"bookmarks_title" = "Yer imleri";
+"bookmark_created_title" = "Favoriniz %@ konumunda kaydedildi";
+"bookmark_exists_title" = "%@ adresinde zaten bir yer imi oluşturdunuz";
+"bookmark_note_action_title" = "Not ekle";
+"bookmarks_see_title" = "Yer imlerine bakın";
+"bookmark_type_automatic_title" = "Otomatik";
+"bookmark_type_user_title" = "Manuel";
+"bookmark_automatic_play_title" = "Oynatma başlamadan önceki son konum";
+"bookmark_automatic_skip_title" = "Zaman atlamadan önceki son konum";
+"bookmark_note_edit_title" = "Notu düzenle";
+"bookmark_create_title" = "Yer İşareti Oluştur";
+"storage_duplicate_item_title" = "Kopyalamak";
+"storage_duplicate_item_description" = "Seçilen dosya bir kopyaydı, mevcut dosya şurada bulunuyor: %@";
+"chapters_previous_title" = "Önceki Bölüm";
+"chapters_next_title" = "Sonraki bölüm";
+"book_time_current_title" = "Mevcut Kitap Saati: %@";
+"storage_fix_files_description" = "Dosyalar ve dijital kitap öğeleri arasındaki bağlantı eksik, her dosya için ilgili öğe bulunamazsa, yeni bir tane oluşturulur.";
+"storage_fix_all_title" = "Hepsini düzelt";
+"settings_backup_title" = "iCloud Yedeklemeleri";
+"settings_backup_files_title" = "Kitap dosyalarını dahil et";
+"bound_books_create_button" = "Hacimde Birleştir";
+"bound_books_undo_alert_title" = "Klasöre Dönüştür";
+"bound_books_new_title_placeholder" = "Yeni Kitap Hacmi";
+"bound_books_create_alert_description" = "Öğelerin doğru sırada olduğundan emin olun. Bölümleri daha sonra yeniden sıralamak için birimi tekrar bir klasöre dönüştürmeniz, öğeleri yeniden sıralamanız ve ardından birimi yeniden oluşturmanız gerekir.";
+"bound_books_create_alert_title" = "Birim oluştur";
+"voiceover_bound_books_progress" = "%@, Cilt, %d yüzde Tamamlandı";
+"voiceover_no_bound_books_title" = "Cilt Başlığı Yok";
 "default_title" = "Varsayılan";
 "voiceover_default_speed_title" = "Varsayılan hızı ayarla";
-"error_loading_chapters" = "Chapters couldn't be loaded from: \n%@";
-"error_empty_chapters" = "Chapters are empty, please verify the contents of the folder: %@";
-"sleeptimer_option_custom" = "Custom";
-"sleeptimer_custom_alert_title" = "Custom sleep timer";
-"settings_progresslabels_title" = "Progress Labels";
-"settings_playerinterface_list_title" = "Opens";
-"settings_remainingtime_title" = "Use Remaining Time";
-"settings_chaptercontext_title" = "Use Chapter Context";
-"settings_progresslabels_description" = "Toggle between displaying the remaining time, total duration and progress of either the chapter or the book in the player screen";
-"settings_playerinterface_list_description" = "Adjust what the list button in the player screen opens";
+"error_loading_chapters" = "Bölümler şuradan yüklenemedi: \n %@";
+"error_empty_chapters" = "Bölümler boş, lütfen klasörün içeriğini doğrulayın: %@";
+"sleeptimer_option_custom" = "Gelenek";
+"sleeptimer_custom_alert_title" = "Özel uyku zamanlayıcısı";
+"settings_progresslabels_title" = "İlerleme Etiketleri";
+"settings_playerinterface_list_title" = "açılır";
+"settings_remainingtime_title" = "Kalan Süreyi Kullan";
+"settings_chaptercontext_title" = "Bölüm İçeriğini Kullan";
+"settings_progresslabels_description" = "Oynatıcı ekranında bölümün veya kitabın kalan süresini, toplam süresini ve ilerlemesini görüntüleme arasında geçiş yapın";
+"settings_playerinterface_list_description" = "Oynatıcı ekranındaki liste düğmesinin ne açacağını ayarlayın";

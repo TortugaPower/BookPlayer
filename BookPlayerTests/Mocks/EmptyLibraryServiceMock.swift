@@ -125,7 +125,7 @@ class EmptyLibraryServiceMock: LibraryServiceProtocol {
     return nil
   }
 
-  func createBookmark(at time: Double, relativePath: String, type: BookmarkType) -> Bookmark {
+  func createBookmark(at time: Double, relativePath: String, type: BookmarkType) -> Bookmark? {
     return Bookmark()
   }
 

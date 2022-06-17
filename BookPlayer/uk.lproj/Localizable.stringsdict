@@ -79,9 +79,8 @@
         <key>many</key>
         <string>Обробка файлів</string>
         <key>other</key>
-        <string>Обробка файлів</string>
+        <string>Обробка %d файлів</string>
       </dict>
     </dict>
   </dict>
 </plist>
-
