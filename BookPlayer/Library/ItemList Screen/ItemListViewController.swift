@@ -121,14 +121,6 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
       return (navigationController?.viewControllers.count ?? 0) > 1
   }
 
-  override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-    super.traitCollectionDidChange(previousTraitCollection)
-
-    guard self.traitCollection.userInterfaceStyle != .unspecified else { return }
-
-    self.viewModel.checkSystemModeTheme()
-  }
-
   func adjustBottomOffsetForMiniPlayer() {
     self.tableView.contentInset.bottom = 88
   }

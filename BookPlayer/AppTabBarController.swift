@@ -36,6 +36,14 @@ class AppTabBarController: UITabBarController {
     fatalError("init(coder:) has not been implemented")
   }
 
+  override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+    super.traitCollectionDidChange(previousTraitCollection)
+
+    guard self.traitCollection.userInterfaceStyle != .unspecified else { return }
+
+    ThemeManager.shared.checkSystemMode()
+  }
+
   override func viewDidLoad() {
     setupMiniPlayer()
     bindObservers()

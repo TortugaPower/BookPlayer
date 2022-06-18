@@ -238,10 +238,6 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     self.itemsUpdates.send(loadedItems)
   }
 
-  func checkSystemModeTheme() {
-    ThemeManager.shared.checkSystemMode()
-  }
-
   func getPlaybackState(for item: LibraryItem) -> PlaybackState {
     guard let currentItem = self.playerManager.currentItem else {
       return .stopped
