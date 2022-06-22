@@ -120,10 +120,10 @@
 "sleep_interval_title" = "W %@";
 "chapter_number_title" = "Rozdział %d";
 "progress_complete_description" = "Ukończono %d procent";
-"chapter_duration_title" = "Czas trwania rozdziału: ";
-"chapter_time_remaining_title" = "Pozostały czas rozdziału: ";
-"book_time_remaining_title" = "Pozostały czas książki: ";
-"book_duration_title" = "Czas trwania książki: ";
+"chapter_duration_title" = "Czas trwania rozdziału:";
+"chapter_time_remaining_title" = "Pozostały czas rozdziału:";
+"book_time_remaining_title" = "Pozostały czas książki:";
+"book_duration_title" = "Czas trwania książki:";
 "icon_error_description" = "Zmiana ikony aplikacji nie powiodła się. Spróbuj ponownie później";
 "error_title" = "Błąd";
 "generic_retry_description" = "Proszę spróbować ponownie później";
@@ -135,7 +135,7 @@
 "pause_title" = "Pauza";
 "voiceover_no_title" = "Brak tytułu";
 "voiceover_no_author" = "Brak autora";
-"voiceover_book_progress" = "%@ - %@ , ukończono %d procent";
+"voiceover_book_progress" = "%@ - %@, ukończono %d procent";
 "voiceover_no_file_title" = "Brak tytułu pliku";
 "voiceover_no_file_subtitle" = "Brak tytułu pliku";
 "voiceover_no_playlist_title" = "Brak tytułu playlisty";
@@ -143,7 +143,7 @@
 "voiceover_unknown_title" = "Nieznany tytuł";
 "voiceover_unknown_author" = "Nieznany autor";
 "voiceover_book_info" = "%@ - %@";
-"voiceover_book_chapter" = "%@ - %@ , rozdział %@";
+"voiceover_book_chapter" = "%@ - %@, rozdział %@";
 "voiceover_rewind_time" = "Przewiń wstecz %@";
 "voiceover_forward_time" = "Przewiń do przodu %@";
 "watchapp_last_played_title" = "Ostatnio odtwarzane";
@@ -174,7 +174,6 @@
 "coredata_error_diskfull_description" = "Biblioteka nie mogła zostać załadowana, na urządzeniu zabrakło miejsca.";
 "coredata_error_migration_description" = "Migracja bazy danych nie powiodła się, biblioteka będzie musiała zostać ponownie zainicjowana.";
 "import_warning_description" = "Przesyłanie plików może chwilę potrwać, proszę upewnić się, że liczba plików jest kompletna przed kontynuowaniem.";
-"files_caps_title" = "PLIKI";
 "settings_storage_description" = "Zarządzaj swoimi plikami";
 "storage_total_title" = "Całkowita wykorzystana przestrzeń";
 "settings_storage_title" = "Zarządzanie Przechowywaniem";

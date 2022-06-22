@@ -120,10 +120,10 @@
 "sleep_interval_title" = "En %@";
 "chapter_number_title" = "Capítulo %d";
 "progress_complete_description" = "%d porcentaje Completado";
-"chapter_duration_title" = "Duración del capitulo: ";
+"chapter_duration_title" = "Duración del capítulo:";
 "chapter_time_remaining_title" = "Tiempo restante del capítulo:";
-"book_time_remaining_title" = "Tiempo restante del libro: ";
-"book_duration_title" = "Duración del libro: ";
+"book_time_remaining_title" = "Tiempo restante del libro:";
+"book_duration_title" = "Duración del libro:";
 "icon_error_description" = "El cambio del icono de la aplicación no tuvo éxito. Inténtalo de nuevo más tarde.";
 "error_title" = "Error";
 "generic_retry_description" = "Por favor, inténtelo de nuevo más tarde";
@@ -143,7 +143,7 @@
 "voiceover_unknown_title" = "Título desconocido";
 "voiceover_unknown_author" = "Autor desconocido";
 "voiceover_book_info" = "%@ por %@";
-"voiceover_book_chapter" = "%@ por %@ , capítulo %@";
+"voiceover_book_chapter" = "%@ por %@, capítulo %@";
 "voiceover_rewind_time" = "Retroceder %@";
 "voiceover_forward_time" = "Avanzar %@";
 "watchapp_last_played_title" = "Última Reproducción";
@@ -174,7 +174,6 @@
 "coredata_error_diskfull_description" = "No se pudo cargar la biblioteca, el dispositivo no tiene espacio en disco.";
 "coredata_error_migration_description" = "Una migración de la base de datos falló, la biblioteca tendrá que ser reinicializada.";
 "import_warning_description" = "La transferencia de archivos puede tardar un poco, por favor asegúrese de que el número de archivos está completo antes de proceder.";
-"files_caps_title" = "ARCHIVOS";
 "settings_storage_description" = "Gestiona tus archivos";
 "storage_total_title" = "Espacio total utilizado";
 "settings_storage_title" = "Administración de almacenamiento";

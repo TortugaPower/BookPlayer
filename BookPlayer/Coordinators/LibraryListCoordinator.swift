@@ -57,6 +57,8 @@ class LibraryListCoordinator: ItemListCoordinator {
     }
 
     self.documentPickerDelegate = vc
+
+    AppDelegate.shared?.watchConnectivityService?.startSession()
   }
 
   func bindImportObserver() {

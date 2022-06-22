@@ -6,11 +6,8 @@
   Copyright © 2019 Tortuga Power. All rights reserved.
 */
 
-/* Title that is shown as the navigation bar title */
 "library_title" = "Library";
-/* Title for the settings button */
 "settings_button" = "Settings";
-/* Title that is shown as the navigation bar title */
 "settings_title" = "Settings";
 "settings_autoplay_title" = "AutoPlay Library";
 "settings_autoplay_description" = "Continue playback with all items in the Library that are not completed, including files in playlists.";
@@ -65,11 +62,8 @@
 "cancel_button" = "Cancel";
 "seconds_title" = "sec";
 "ok_button" = "OK";
-/* Message shown when trying to create a Siri Shortcut on devices that don't have iOS 12+ installed */
 "siri_alert_description" = "Siri Shortcuts are available on iOS 12 and above";
-/* Title used in the context of our tip jar to support development */
 "support_bookplayer_title" = "Support BookPlayer";
-/* Description used in the context of our tip jar to support development */
 "support_bookplayer_description" = "Get BookPlayer Plus to support future development and get extra themes and app icons";
 "learn_more_title" = "LEARN MORE";
 "settings_appearance_title" = "Appearance";
@@ -83,7 +77,6 @@
 "theme_switch_title" = "Switch automatically";
 "theme_dark_title" = "Always use dark variation";
 "themes_title" = "Themes";
-/* This should be &ldquo;By your friends at BookPlayer&rdquo; in English.&nbsp; */
 "icons_bookplayer_credit_description" = "By your friends at BookPlayer";
 "kind_tip_title" = "Kind tip of";
 "excellent_tip_title" = "Excellent tip of";
@@ -110,20 +103,15 @@
 "player_speed_title" = "Set playback speed";
 "player_sleep_title" = "Pause playback";
 "sleep_chapter_option_title" = "End of current chapter";
-/* This is used for the label underneath the progress bar (e.g. Chapter 1 of 35) */
 "player_chapter_description" = "Chapter %d of %d";
 "chapters_title" = "Chapters";
-/* This is used as a description for each chapter in the chapters list (e.g. Start: 10:11 - Duration: 16:56) */
 "chapters_item_description" = "Start: %@ - Duration: %@";
-/* Restore purchases */
 "restore_title" = "Restore";
 "themes_caps_title" = "THEMES";
 "plus_app_icons_title" = "App Icons";
-/* This is the counterpart to Mark as Finished */
 "mark_unfinished_title" = "Mark as Unfinished";
 "move_playlist_button" = "Move to playlist";
 "move_single_item_title" = "Do you want to move '%@' to '%@'?";
-/* This is shown if while being inside a playlist, a batch of imported files are finished processing, and it will be one of the options in the alert presented */
 "current_playlist_title" = "Current Playlist";
 "select_item_title" = "Select Item";
 "sleep_alert_description" = "Sleeping when the chapter ends";
@@ -132,11 +120,10 @@
 "sleep_interval_title" = "In %@";
 "chapter_number_title" = "Chapter %d";
 "progress_complete_description" = "%d percent Complete";
-"chapter_duration_title" = "Chapter duration: ";
-"chapter_time_remaining_title" = "Remaining Chapter Time: ";
-"book_time_remaining_title" = "Remaining Book Time: ";
-"book_duration_title" = "Book duration: ";
-/* Может правильнее будет: &quot;Не удалось сменить иконку&quot;? */
+"chapter_duration_title" = "Chapter duration:";
+"chapter_time_remaining_title" = "Remaining Chapter Time:";
+"book_time_remaining_title" = "Remaining Book Time:";
+"book_duration_title" = "Book duration:";
 "icon_error_description" = "Changing the app icon wasn't successful. Try again later";
 "error_title" = "Error";
 "generic_retry_description" = "Please try again later";
@@ -148,22 +135,17 @@
 "pause_title" = "Pause";
 "voiceover_no_title" = "No Title";
 "voiceover_no_author" = "No Author";
-/* &lt;Book title&gt; by &lt;Book author&gt; &lt;percentage in numbers&gt;% Completed */
-"voiceover_book_progress" = "%@ by %@, %d percent Completed";
+"voiceover_book_progress" = "%@ by %@, %d percent completed";
 "voiceover_no_file_title" = "No File Title";
 "voiceover_no_file_subtitle" = "No File Subtitle";
 "voiceover_no_playlist_title" = "No Playlist Title";
-/* &lt;Playlist title&gt; Playlist &lt;percentage in number&gt;% Completed */
-"voiceover_playlist_progress" = "%@, Folder, %d percent Completed";
+"voiceover_playlist_progress" = "%@, Folder, %d percent completed";
 "voiceover_unknown_title" = "Unknown title";
 "voiceover_unknown_author" = "Unknown author";
-/* &lt;book title&gt; by &lt;book author&gt; */
 "voiceover_book_info" = "%@ by %@";
-/* &lt;book title&gt; by &lt;book author&gt;, chapter &lt;chapter title&gt; */
 "voiceover_book_chapter" = "%@ by %@, chapter %@";
 "voiceover_rewind_time" = "Rewind %@";
 "voiceover_forward_time" = "Fast Forward %@";
-"voiceover_continue_playback_title" = "Continue Playback";
 "watchapp_last_played_title" = "Last Played";
 "watchapp_refresh_data_title" = "Refresh data";
 "recent_title" = "Recent";
@@ -180,23 +162,18 @@
 "invalid_url_title" = "Invalid URL: %@";
 "downloading_file_title" = "Downloading file";
 "progress_title" = "Progress";
-"settings_siri_sleeptimer_title" = "Sleep timer";
+"settings_siri_sleeptimer_title" = "Sleep Timer";
 "active_title" = "On";
-/* Currently Playing <Book title> by <Book author> */
 "voiceover_currently_playing_title" = "Currently playing %@ by %@";
-/* When you're on the library or playlist view, and the voice over cursor is focused on the floating mini-player at the bottom, it should read to the user the element, and the hint that if pressed, the player view will be shown */
 "voiceover_miniplayer_hint" = "Miniplayer. Tap to show the Player";
 "voiceover_chapter_time_title" = "Current Chapter Time: %@";
-/* When you're in the player view, and the voice over cursor is focused on the top bar (the one with the arrow-down), it will read to the user that the player view will be closed if he double taps that button */
 "voiceover_dismiss_player_title" = "Dismiss Player";
-/* Sort items by most recent playback */
 "sort_most_recent_button" = "Most Recent";
-/* One of the sort options, this one reverts the current order of selected items */
 "sort_reversed_button" = "Reverse Order";
+"voiceover_continue_playback_title" = "Continue Playback";
 "coredata_error_diskfull_description" = "The library couldn't be loaded, the device is out of disk space.";
 "coredata_error_migration_description" = "A migration of the database failed, the library will have to be reinitialized.";
 "import_warning_description" = "Transferring files may take a while, please make sure the number of files is complete before proceeding.";
-"files_caps_title" = "FILES";
 "settings_storage_description" = "Manage your files";
 "storage_total_title" = "Total space used";
 "settings_storage_title" = "Storage Management";

@@ -47,7 +47,7 @@ public protocol LibraryServiceProtocol {
 
   func getBookmarks(of type: BookmarkType, relativePath: String) -> [Bookmark]?
   func getBookmark(at time: Double, relativePath: String, type: BookmarkType) -> Bookmark?
-  func createBookmark(at time: Double, relativePath: String, type: BookmarkType) -> Bookmark
+  func createBookmark(at time: Double, relativePath: String, type: BookmarkType) -> Bookmark?
   func addNote(_ note: String, bookmark: Bookmark)
   func deleteBookmark(_ bookmark: Bookmark)
 
@@ -510,14 +510,15 @@ public final class LibraryService: LibraryServiceProtocol {
     return try? self.dataManager.getContext().fetch(fetchRequest).first
   }
 
-  public func createBookmark(at time: Double, relativePath: String, type: BookmarkType) -> Bookmark {
+  public func createBookmark(at time: Double, relativePath: String, type: BookmarkType) -> Bookmark? {
     if let bookmark = self.getBookmark(at: time, relativePath: relativePath, type: type) {
       return bookmark
     }
 
+    guard let item = self.getItem(with: relativePath) else { return nil }
+
     let bookmark = Bookmark(with: floor(time), type: type, context: self.dataManager.getContext())
-    let item = self.getItem(with: relativePath)
-    item?.addToBookmarks(bookmark)
+    item.addToBookmarks(bookmark)
 
     self.dataManager.saveContext()
 

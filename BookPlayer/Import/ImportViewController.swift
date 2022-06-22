@@ -70,7 +70,9 @@ extension ImportViewController: UITableViewDataSource {
     let imageName = fileItem.fileUrl.isDirectoryFolder ? "folder" : "waveform"
     cell.iconImageView.image = UIImage(systemName: imageName)
     cell.filenameLabel.text = fileItem.getFileName()
-    cell.countLabel.text = fileItem.subItems > 0 ? "\(fileItem.subItems) " + "files_title".localized : ""
+    cell.countLabel.text = fileItem.subItems > 0
+    ? String.localizedStringWithFormat("files_title".localized, fileItem.subItems)
+    : ""
 
     cell.onDeleteTap = { [weak self] in
       do {
@@ -86,7 +88,9 @@ extension ImportViewController: UITableViewDataSource {
 
 extension ImportViewController: UITableViewDelegate {
   func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-    return "Total files: \(self.viewModel.getTotalItems())"
+    return String.localizedStringWithFormat(
+      "files_title".localized, self.viewModel.getTotalItems()
+    ).localizedCapitalized
   }
 }
 

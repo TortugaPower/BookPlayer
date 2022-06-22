@@ -111,7 +111,7 @@
 "plus_app_icons_title" = "App ikonok";
 "mark_unfinished_title" = "Megjelölés befejezetlennek";
 "move_playlist_button" = "Áthelyezés lejátszólistába";
-"move_single_item_title" = "Át akarja helyezni?\nEzt %@ ide %@?";
+"move_single_item_title" = "Áthelyezi a(z) „ %@ ” mappát ide: „ %@ ”?";
 "current_playlist_title" = "Aktuális lejátszólista";
 "select_item_title" = "Elem kiválasztása";
 "sleep_alert_description" = "Alvás a fejezet végén";
@@ -121,8 +121,8 @@
 "chapter_number_title" = "%d. fejezet";
 "progress_complete_description" = "%d százalék meghallgatva";
 "chapter_duration_title" = "Fejezet időtartama:";
-"chapter_time_remaining_title" = "Hátralévő fejezetidő: ";
-"book_time_remaining_title" = "Hátralévő könyvidő: ";
+"chapter_time_remaining_title" = "Hátralévő fejezetidő:";
+"book_time_remaining_title" = "Hátralévő könyvidő:";
 "book_duration_title" = "A könyv időtartama:";
 "icon_error_description" = "Az alkalmazásikon módosítása nem sikerült. Próbálkozzon később";
 "error_title" = "Hiba";
@@ -144,8 +144,8 @@
 "voiceover_unknown_author" = "Ismeretlen szerző";
 "voiceover_book_info" = "%@ - %@";
 "voiceover_book_chapter" = "%@ - %@, %@ fejezet";
-"voiceover_rewind_time" = "Visszatekerés";
-"voiceover_forward_time" = "Előretekerés";
+"voiceover_rewind_time" = "Visszatekerés %@";
+"voiceover_forward_time" = "Előretekerés %@";
 "watchapp_last_played_title" = "Utoljára lejátszott";
 "watchapp_refresh_data_title" = "Adatok frissítése";
 "recent_title" = "Friss";
@@ -166,7 +166,7 @@
 "active_title" = "Be";
 "voiceover_currently_playing_title" = "Jelenleg lejátszott könyv %@ - %@";
 "voiceover_miniplayer_hint" = "Minilejátszó. Koppintással megjelenik a Lejátszó";
-"voiceover_chapter_time_title" = "Fejezet időtartama:";
+"voiceover_chapter_time_title" = "Fejezet időtartama: %@";
 "voiceover_dismiss_player_title" = "Lejátszó eltüntetése";
 "sort_most_recent_button" = "Legfrissebb";
 "sort_reversed_button" = "Fordított sorrend";
@@ -174,7 +174,6 @@
 "coredata_error_diskfull_description" = "A könyvtárat nem sikerült betölteni, az eszközön nincs elég lemezterület.";
 "coredata_error_migration_description" = "Az adatbázis migrációja sikertelen, a könyvtárat újra kell inicializálni.";
 "import_warning_description" = "A fájlok átvitele eltarthat egy ideig, győződjön meg róla, hogy a fájlok száma teljes, mielőtt folytatná.";
-"files_caps_title" = "FÁJLOK";
 "settings_storage_description" = "Fájlok kezelése";
 "storage_total_title" = "Teljes felhasznált terület";
 "settings_storage_title" = "Tárhelykezelés";

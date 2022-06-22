@@ -124,7 +124,7 @@
 "chapter_time_remaining_title" = "Tempo restante no Capítulo:";
 "book_time_remaining_title" = "Tempo restante no Livro:";
 "book_duration_title" = "Duração do livro:";
-"icon_error_description" = "A alteração do ícone do aplicativo não foi bem-sucedida. Tente mais tarde";
+"icon_error_description" = "A alteração do ícone não foi bem sucedida. Tente novamente mais tarde";
 "error_title" = "Erro";
 "generic_retry_description" = "Por favor, tente novamente mais tarde";
 "network_error_title" = "Problema de conexão";
@@ -135,7 +135,7 @@
 "pause_title" = "Pausa";
 "voiceover_no_title" = "Sem Título";
 "voiceover_no_author" = "Autor desconhecido";
-"voiceover_book_progress" = "%@ de %@ , %d por cento concluído";
+"voiceover_book_progress" = "%@ de %@, %d por cento concluído";
 "voiceover_no_file_title" = "Arquivo Sem Título";
 "voiceover_no_file_subtitle" = "Sem legenda no Arquivo";
 "voiceover_no_playlist_title" = "Playlist Sem Título";
@@ -143,7 +143,7 @@
 "voiceover_unknown_title" = "Título desconhecido";
 "voiceover_unknown_author" = "Autor desconhecido";
 "voiceover_book_info" = "%@ de %@";
-"voiceover_book_chapter" = "%@ de %@ , capítulo %@";
+"voiceover_book_chapter" = "%@ de %@, capítulo %@";
 "voiceover_rewind_time" = "Retroceder %@";
 "voiceover_forward_time" = "Avanço rápido %@";
 "watchapp_last_played_title" = "Último Reproduzido";
@@ -174,7 +174,6 @@
 "coredata_error_diskfull_description" = "Não foi possível carregar a biblioteca, armazenamento de dispositivo insuficiente.";
 "coredata_error_migration_description" = "A migração do banco de dados falhou, a biblioteca terá que ser reinicializada.";
 "import_warning_description" = "A transferência de arquivos pode demorar um pouco, verifique se o número de arquivos está completo antes de continuar.";
-"files_caps_title" = "ARQUIVOS";
 "settings_storage_description" = "Gerencie seus arquivos";
 "storage_total_title" = "Espaço total utilizado";
 "settings_storage_title" = "Gerenciamento de armazenamento";
@@ -205,7 +204,7 @@
 "bound_books_new_title_placeholder" = "Novo Volume do Livro";
 "bound_books_create_alert_description" = "Certifique-se de que os itens estão na ordem correta. Para reordenar capítulos mais tarde, você precisa converter o volume de volta em uma pasta, reordenar itens e, em seguida, recriar novamente o volume.";
 "bound_books_create_alert_title" = "Criar um volume";
-"voiceover_bound_books_progress" = "%@ , Volume, %d por cento Concluído";
+"voiceover_bound_books_progress" = "%@, Volume, %d por cento Concluído";
 "voiceover_no_bound_books_title" = "Sem título de Volume";
 "default_title" = "Padrão";
 "voiceover_default_speed_title" = "Definir velocidade padrão";
@@ -213,9 +212,9 @@
 "error_empty_chapters" = "Os capítulos estão vazios, por favor verifique o conteúdo da pasta: %@";
 "sleeptimer_option_custom" = "Personalizado";
 "sleeptimer_custom_alert_title" = "Temporizador de sono personalizado";
-"settings_progresslabels_title" = "Progress Labels";
-"settings_playerinterface_list_title" = "Opens";
-"settings_remainingtime_title" = "Use Remaining Time";
-"settings_chaptercontext_title" = "Use Chapter Context";
-"settings_progresslabels_description" = "Toggle between displaying the remaining time, total duration and progress of either the chapter or the book in the player screen";
-"settings_playerinterface_list_description" = "Adjust what the list button in the player screen opens";
+"settings_progresslabels_title" = "Etiquetas de progresso";
+"settings_playerinterface_list_title" = "Abre";
+"settings_remainingtime_title" = "Usar Tempo Restante";
+"settings_chaptercontext_title" = "Usar Contexto do Capítulo";
+"settings_progresslabels_description" = "Alterne entre a exibição do tempo restante, duração total e progresso do capítulo ou do livro na tela de reprodução";
+"settings_playerinterface_list_description" = "Ajuste o que o botão de lista na tela de reprodução abre";

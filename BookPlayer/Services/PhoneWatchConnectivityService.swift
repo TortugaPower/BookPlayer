@@ -14,6 +14,10 @@ public class PhoneWatchConnectivityService: NSObject, WCSessionDelegate {
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
   let playerManager: PlayerManagerProtocol
+  /// Flag to avoid calling activate more than once from outside the service
+  var didStartSession = false
+  /// Flag used to register observers only once
+  var didRegisterObservers = false
 
   private var disposeBag = Set<AnyCancellable>()
 
@@ -27,8 +31,6 @@ public class PhoneWatchConnectivityService: NSObject, WCSessionDelegate {
     self.playerManager = playerManager
 
     super.init()
-
-    self.bindObservers()
   }
 
   func bindObservers() {
@@ -56,6 +58,7 @@ public class PhoneWatchConnectivityService: NSObject, WCSessionDelegate {
       .sink(receiveValue: { [weak self] notification in
         guard
           let self = self,
+          self.session?.activationState == .activated,
           let currentItem = notification.userInfo?["book"] as? PlayableItem
         else {
           return
@@ -70,6 +73,12 @@ public class PhoneWatchConnectivityService: NSObject, WCSessionDelegate {
 
     NotificationCenter.default.publisher(for: .bookPaused, object: nil)
       .sink(receiveValue: { [weak self] _ in
+        guard
+          self?.session?.activationState == .activated
+        else {
+          return
+        }
+
         self?.sendMessage(message: [
           "command": "pause" as AnyObject,
         ])
@@ -88,12 +97,21 @@ public class PhoneWatchConnectivityService: NSObject, WCSessionDelegate {
   }
 
   public func startSession(_ delegate: WCSessionDelegate? = nil) {
+    guard !self.didStartSession else { return }
+
+    self.didStartSession = true
     self.session?.delegate = delegate ?? self
     self.session?.activate()
   }
 
   public func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
     self.sendApplicationContext()
+
+    // Register observers only once
+    if !didRegisterObservers {
+      didRegisterObservers = true
+      bindObservers()
+    }
   }
 
   public func sessionDidBecomeInactive(_ session: WCSession) {}
@@ -111,7 +129,10 @@ public class PhoneWatchConnectivityService: NSObject, WCSessionDelegate {
       applicationContext: self.getDictionaryFromContext(applicationContext)
     )
 
-    guard let applicationContextData = try? JSONEncoder().encode(applicationContext) else { return }
+    guard
+      self.session?.activationState == .activated,
+      let applicationContextData = try? JSONEncoder().encode(applicationContext)
+    else { return }
 
     self.sendMessageData(data: applicationContextData)
   }
@@ -119,7 +140,9 @@ public class PhoneWatchConnectivityService: NSObject, WCSessionDelegate {
   public func generateApplicationContext() -> WatchApplicationContext {
     var recentItems = [PlayableItem]()
     if let recentBooks = self.libraryService.getLastPlayedItems(limit: 20) {
-      recentItems = recentBooks.compactMap({ try? self.playbackService.getPlayableItem(from: $0) })
+      recentItems = recentBooks.compactMap({ [weak self] in
+        try? self?.playbackService.getPlayableItem(from: $0)
+      })
     }
 
     return WatchApplicationContext(
