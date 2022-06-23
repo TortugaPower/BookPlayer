@@ -58,7 +58,7 @@ See [our Roadmap on GitHub](https://github.com/GianniCarlo/Audiobook-Player/proj
 
 - English
 - Czech (Petr Kabrna)
-- German ([@pichfl](https://github.com/pichfl))
+- German ([@pichfl](https://github.com/pichfl), Fabian Schalle [@fabifabulousity](https://github.com/fabifabulousity))
 - Russian ([@Nibelungc](https://github.com/Nibelungc), Andrey Kozlov, [@carcade](https://github.com/carcade) & Eugene
   Newfield)
 - Spanish ([@GianniCarlo](https://github.com/GianniCarlo))
