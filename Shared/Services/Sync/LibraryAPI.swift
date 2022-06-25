@@ -16,7 +16,7 @@ extension LibraryAPI: Endpoint {
   public var path: String {
     switch self {
     case .contents:
-      return "/v1/library/contents"
+      return "/v1/library"
     }
   }
 
@@ -36,7 +36,7 @@ extension LibraryAPI: Endpoint {
 }
 
 struct ContentsResponse: Decodable {
-  let items: [SyncedItem]
+  let content: [SyncedItem]
 }
 
 public struct SyncedItem: Decodable {

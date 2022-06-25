@@ -6,7 +6,6 @@
 //  Copyright © 2021 Tortuga Power. All rights reserved.
 //
 
-import Alamofire
 import BookPlayerKit
 import Combine
 import RevenueCat
@@ -23,7 +22,6 @@ class MainCoordinator: Coordinator {
   let syncService: SyncServiceProtocol
   let watchConnectivityService: PhoneWatchConnectivityService
 
-  var reachabilityManager: NetworkReachabilityManager?
   private var disposeBag = Set<AnyCancellable>()
 
   init(
@@ -92,8 +90,6 @@ class MainCoordinator: Coordinator {
     self.childCoordinators.append(settingsCoordinator)
     settingsCoordinator.start()
 
-    self.setupReachability()
-
     NotificationCenter.default.publisher(for: .login, object: nil)
       .sink(receiveValue: { [weak self] _ in
         self?.syncLibrary()
@@ -147,20 +143,6 @@ class MainCoordinator: Coordinator {
     }
 
     return getPresentingController(coordinator: lastCoordinator)
-  }
-
-  func setupReachability() {
-    self.reachabilityManager = Alamofire.NetworkReachabilityManager()
-
-    self.reachabilityManager?.listener = { [weak self] status in
-      if case .reachable = status {
-        self?.syncService.isReachable(true)
-      } else {
-        self?.syncService.isReachable(false)
-      }
-    }
-
-    self.reachabilityManager?.startListening()
   }
 
   func syncLibrary() {

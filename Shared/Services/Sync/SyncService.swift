@@ -9,10 +9,10 @@
 import Combine
 import Foundation
 import RevenueCat
+import SwiftQueue
 
 public protocol SyncServiceProtocol {
   func accountUpdated(_ customerInfo: CustomerInfo)
-  func isReachable(_ flag: Bool)
   func syncLibrary() async throws
 }
 
@@ -20,9 +20,9 @@ public final class SyncService: SyncServiceProtocol {
   let libraryService: LibraryServiceProtocol
   let client: NetworkClientProtocol
   private let provider: NetworkProvider<LibraryAPI>
+  let manager: SwiftQueueManager
 
   @Published var isActive: Bool = false
-  @Published var isReachable: Bool = false
 
   private var disposeBag = Set<AnyCancellable>()
 
@@ -33,18 +33,11 @@ public final class SyncService: SyncServiceProtocol {
     self.libraryService = libraryService
     self.client = client
     self.provider = NetworkProvider(client: client)
+    self.manager = SwiftQueueManagerBuilder(creator: BookUploadJobCreator()).build()
   }
 
   public func accountUpdated(_ customerInfo: CustomerInfo) {
     self.isActive = !customerInfo.activeSubscriptions.isEmpty
-  }
-
-  public func isReachable(_ flag: Bool) {
-    self.isReachable = flag
-
-    if flag {
-      self.retryQueuedJobs()
-    }
   }
 
   public func syncLibrary() async throws {
@@ -62,10 +55,12 @@ public final class SyncService: SyncServiceProtocol {
   }
 
   func scheduleUploadJob(for relativePath: String) {
-    print("=== scheduling upload for: \(relativePath)")
-    // persist job
-    // queue job
-    // on complete delete job
+    JobBuilder(type: LibraryItemUploadJob.type)
+      .persist()
+      .retry(limit: .limited(3))
+      .internet(atLeast: .cellular)
+      .with(params: ["relativePath": relativePath])
+      .schedule(manager: manager)
   }
 
   func storeLibraryItems(from syncedItems: [SyncedItem]) {
@@ -84,14 +79,6 @@ public final class SyncService: SyncServiceProtocol {
   public func fetchContents(at relativePath: String) async throws -> [SyncedItem] {
     let response: ContentsResponse = try await self.provider.request(.contents(path: relativePath))
 
-    return response.items
-  }
-
-  public func retryQueuedJobs() {
-
-  }
-
-  public func createJob() {
-
+    return response.content
   }
 }
