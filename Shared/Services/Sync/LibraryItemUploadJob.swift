@@ -58,9 +58,9 @@ class LibraryItemUploadJob: Job {
     switch result {
     case .success:
       print("=== upload success for: \(parameters["relativePath"]!)")
-      if let response = self.response {
-        // Notify for file upload with response
-        print(response)
+      if let response = self.response,
+         let content = response.content {
+        NotificationCenter.default.post(name: .itemUpload, object: nil, userInfo: ["content": content])
       }
     case .fail(let error):
       print("=== upload error for: \(parameters["relativePath"]!), error: \(error.localizedDescription)")

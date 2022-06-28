@@ -34,6 +34,23 @@ public final class SyncService: SyncServiceProtocol {
     self.client = client
     self.provider = NetworkProvider(client: client)
     self.manager = SwiftQueueManagerBuilder(creator: LibraryItemUploadJobCreator()).build()
+
+    bindObservers()
+  }
+
+  func bindObservers() {
+    NotificationCenter.default.publisher(for: .itemUpload, object: nil)
+      .sink(receiveValue: { [weak self] notification in
+        guard
+          let userInfo = notification.userInfo
+        else {
+          return
+        }
+
+        print(userInfo)
+        // Create upload file task with url info
+      })
+      .store(in: &disposeBag)
   }
 
   public func accountUpdated(_ customerInfo: CustomerInfo) {
