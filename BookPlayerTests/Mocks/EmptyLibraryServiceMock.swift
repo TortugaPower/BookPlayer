@@ -15,7 +15,7 @@ class EmptyLibraryServiceMock: LibraryServiceProtocol {
 
   func addFolder(from item: SyncedItem, type: ItemType, parentFolder: String?) {}
 
-  func getItemIdentifiers(notIn relativePaths: [String], parentFolder: String?) throws -> [String] { return [] }
+  func getItems(notIn relativePaths: [String], parentFolder: String?) throws -> [String] { return [] }
 
   func updatePlaybackTime(relativePath: String, time: Double, date: Date) {}
 
