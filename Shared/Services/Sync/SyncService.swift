@@ -33,7 +33,7 @@ public final class SyncService: SyncServiceProtocol {
     self.libraryService = libraryService
     self.client = client
     self.provider = NetworkProvider(client: client)
-    self.manager = SwiftQueueManagerBuilder(creator: BookUploadJobCreator()).build()
+    self.manager = SwiftQueueManagerBuilder(creator: LibraryItemUploadJobCreator()).build()
   }
 
   public func accountUpdated(_ customerInfo: CustomerInfo) {
@@ -45,21 +45,41 @@ public final class SyncService: SyncServiceProtocol {
 
     let fetchedIdentifiers = fetchedItems.map({ $0.relativePath })
 
-    let identifiersToSync = try self.libraryService.getItemIdentifiers(notIn: fetchedIdentifiers, parentFolder: nil)
+    let itemsToSync = try self.libraryService.getItems(notIn: fetchedIdentifiers, parentFolder: nil)
 
-    identifiersToSync.forEach({ scheduleUploadJob(for: $0) })
+    itemsToSync.forEach({ scheduleUploadJob(for: $0) })
+
+    let identifiersToSync = itemsToSync.map({ $0.relativePath })
 
     let newItems = fetchedItems.filter({ !identifiersToSync.contains($0.relativePath) })
 
     self.storeLibraryItems(from: newItems)
   }
 
-  func scheduleUploadJob(for relativePath: String) {
+  func scheduleUploadJob(for item: LibraryItem) {
+    var parameters: [String: Any] = [
+      "relativePath": item.relativePath!,
+      "originalFileName": item.originalFileName!,
+      "title": item.title!,
+      "details": item.details!,
+      "speed": item.speed,
+      "currentTime": item.currentTime,
+      "duration": item.duration,
+      "percentCompleted": item.percentCompleted,
+      "isFinished": item.isFinished,
+      "orderRank": item.orderRank,
+      "type": "\(item.type)"
+    ]
+
+    if let lastPlayTimestamp = item.lastPlayDate?.timeIntervalSince1970 {
+      parameters["lastPlayDateTimestamp"] = lastPlayTimestamp
+    }
+
     JobBuilder(type: LibraryItemUploadJob.type)
       .persist()
       .retry(limit: .limited(3))
-      .internet(atLeast: .cellular)
-      .with(params: ["relativePath": relativePath])
+      .internet(atLeast: .wifi)
+      .with(params: parameters)
       .schedule(manager: manager)
   }
 
