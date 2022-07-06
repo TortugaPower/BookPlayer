@@ -57,7 +57,7 @@ public class Folder: LibraryItem {
     self.relativePath = title
     self.title = title
     self.originalFileName = title
-    self.details = "0 \("files_title".localized)"
+    self.details = String.localizedStringWithFormat("files_title".localized, 0)
   }
 
   public convenience init(from fileURL: URL, context: NSManagedObjectContext) {
@@ -68,7 +68,7 @@ public class Folder: LibraryItem {
     self.relativePath = fileURL.relativePath(to: DataManager.getProcessedFolderURL())
     self.title = fileTitle
     self.originalFileName = fileTitle
-    self.details = "0 \("files_title".localized)"
+    self.details = String.localizedStringWithFormat("files_title".localized, 0)
   }
 
     // MARK: - Methods
@@ -111,11 +111,11 @@ public class Folder: LibraryItem {
 
     public override var progressPercentage: Double {
       switch self.type {
-      case .folder:
+      case .regular:
         let itemTime = self.getProgressAndDuration()
 
         return itemTime.progress / itemTime.duration
-      case .book:
+      case .bound:
         guard self.duration > 0 else { return 0 }
 
         return self.currentTime / self.duration
@@ -163,7 +163,7 @@ public class Folder: LibraryItem {
   public func updateDetails() {
     let count = self.items?.count ?? 0
 
-    self.details = "\(count) \("files_title".localized)"
+    self.details = String.localizedStringWithFormat("files_title".localized, count)
   }
 
   public func updateCompletionState() {

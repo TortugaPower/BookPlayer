@@ -26,6 +26,18 @@ public class LibraryItem: NSManagedObject, Codable {
     return String(lastComponent)
   }
 
+  public func getItemType() -> String {
+    switch self {
+    case let folder as Folder:
+      return "\(folder.type.rawValue)"
+    case _ as Book:
+      return "2"
+    default:
+      // type not supported
+      return ""
+    }
+  }
+
   public func getLibrary() -> Library? {
     if let parentFolder = self.folder {
       return parentFolder.getLibrary()

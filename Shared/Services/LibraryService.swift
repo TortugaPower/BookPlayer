@@ -26,8 +26,8 @@ public protocol LibraryServiceProtocol {
   func findBooks(containing fileURL: URL) -> [Book]?
   func getLastPlayedItems(limit: Int?) -> [LibraryItem]?
 
-  func addFolder(from item: SyncedItem, type: ItemType, parentFolder: String?)
-  func updateFolder(at relativePath: String, type: ItemType) throws
+  func addFolder(from item: SyncedItem, type: FolderType, parentFolder: String?)
+  func updateFolder(at relativePath: String, type: FolderType) throws
   func findFolder(with fileURL: URL) -> Folder?
   func findFolder(with relativePath: String) -> Folder?
   func hasLibraryLinked(item: LibraryItem) -> Bool
@@ -264,16 +264,16 @@ public final class LibraryService: LibraryServiceProtocol {
   }
 
   // MARK: - Folders
-  public func updateFolder(at relativePath: String, type: ItemType) throws {
+  public func updateFolder(at relativePath: String, type: FolderType) throws {
     guard let folder = self.getItem(with: relativePath) as? Folder else {
       throw BookPlayerError.runtimeError("Can't find the folder")
     }
 
     switch type {
-    case .folder:
+    case .regular:
       folder.type = type
       folder.lastPlayDate = nil
-    case .book:
+    case .bound:
       guard let items = folder.items?.array as? [Book] else {
         throw BookPlayerError.runtimeError("The folder needs to only contain book items")
       }
@@ -336,7 +336,7 @@ public final class LibraryService: LibraryServiceProtocol {
     }
   }
 
-  public func addFolder(from item: SyncedItem, type: ItemType, parentFolder: String?) {
+  public func addFolder(from item: SyncedItem, type: FolderType, parentFolder: String?) {
     // This shouldn't fail
     try? createFolderOnDisk(title: item.title, inside: parentFolder)
 

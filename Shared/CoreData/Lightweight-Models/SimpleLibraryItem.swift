@@ -89,14 +89,15 @@ extension SimpleLibraryItem {
     self.relativePath = item.relativePath
     self.playbackState = playbackState
 
-    if let folder = item as? Folder {
+    switch item {
+    case let folder as Folder:
       switch folder.type {
-      case .folder:
+      case .regular:
         self.type = .folder
-      case .book:
+      case .bound:
         self.type = .bound
       }
-    } else {
+    default:
       self.type = .book
     }
   }

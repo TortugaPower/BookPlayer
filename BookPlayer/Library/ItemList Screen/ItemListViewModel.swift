@@ -210,7 +210,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     }
 
     guard let folder = libraryItem as? Folder,
-          folder.type == .folder else {
+          folder.type == .regular else {
       pathToPlay = libraryItem.relativePath
       return
     }
@@ -250,7 +250,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     self.coordinator.showItemContents(item)
   }
 
-  func importIntoFolder(_ folder: SimpleLibraryItem, items: [LibraryItem], type: ItemType) {
+  func importIntoFolder(_ folder: SimpleLibraryItem, items: [LibraryItem], type: FolderType) {
     let fetchedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
 
     do {
@@ -263,7 +263,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     self.coordinator.reloadItemsWithPadding()
   }
 
-  func createFolder(with title: String, items: [String]? = nil, type: ItemType) {
+  func createFolder(with title: String, items: [String]? = nil, type: FolderType) {
     do {
       let folder = try self.libraryService.createFolder(with: title, inside: self.folderRelativePath)
       if let fetchedItems = items?.compactMap({ self.libraryService.getItem(with: $0 )}) {
@@ -285,7 +285,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     self.coordinator.reloadItemsWithPadding(padding: 1)
   }
 
-  func updateFolders(_ folders: [SimpleLibraryItem], type: ItemType) {
+  func updateFolders(_ folders: [SimpleLibraryItem], type: FolderType) {
     do {
       try folders.forEach { folder in
         try self.libraryService.updateFolder(at: folder.relativePath, type: type)

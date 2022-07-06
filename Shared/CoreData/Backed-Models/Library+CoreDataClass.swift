@@ -41,7 +41,7 @@ public class Library: NSManagedObject, Codable {
             if let book = item as? Book {
                 return book.relativePath == relativePath
             } else if let folder = item as? Folder {
-              if folder.type == .book {
+              if folder.type == .bound {
                 return folder.relativePath == relativePath
               } else {
                 return folder.getItem(with: relativePath) != nil
@@ -90,9 +90,9 @@ public class Library: NSManagedObject, Codable {
         return book
       } else if let folder = item as? Folder {
         switch folder.type {
-        case .folder:
+        case .regular:
           return folder.getPreviousBook(before: relativePath)
-        case .book:
+        case .bound:
           return folder
         }
       }
@@ -119,9 +119,9 @@ public class Library: NSManagedObject, Codable {
         return book
       } else if let folder = item as? Folder {
         switch folder.type {
-        case .folder:
+        case .regular:
           return folder.getNextBook(after: relativePath)
-        case .book:
+        case .bound:
           return folder
         }
       }

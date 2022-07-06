@@ -28,7 +28,7 @@ extension LibraryAPI: Endpoint {
     case .contents:
       return .get
     case .upload:
-      return .post
+      return .put
     }
   }
 

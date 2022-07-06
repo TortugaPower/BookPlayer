@@ -85,7 +85,7 @@ public final class SyncService: SyncServiceProtocol {
       "percentCompleted": item.percentCompleted,
       "isFinished": item.isFinished,
       "orderRank": item.orderRank,
-      "type": "\(item.type)"
+      "type": item.getItemType()
     ]
 
     if let lastPlayTimestamp = item.lastPlayDate?.timeIntervalSince1970 {
@@ -106,9 +106,9 @@ public final class SyncService: SyncServiceProtocol {
       case .book:
         self.libraryService.addBook(from: item, parentFolder: nil)
       case .bound:
-        self.libraryService.addFolder(from: item, type: .book, parentFolder: nil)
+        self.libraryService.addFolder(from: item, type: .bound, parentFolder: nil)
       case .folder:
-        self.libraryService.addFolder(from: item, type: .folder, parentFolder: nil)
+        self.libraryService.addFolder(from: item, type: .regular, parentFolder: nil)
       }
     }
   }

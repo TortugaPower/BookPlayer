@@ -9,5 +9,5 @@
 import Foundation
 
 public enum SimpleItemType {
-  case book, folder, bound
+  case folder, bound, book
 }

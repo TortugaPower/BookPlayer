@@ -50,7 +50,7 @@ public class Book: LibraryItem {
   public func previousBook() -> LibraryItem? {
     if
       let folder = self.folder,
-      folder.type == .folder,
+      folder.type == .regular,
       let previous = folder.getPreviousBook(before: self.relativePath) {
       return previous
     }
@@ -61,7 +61,7 @@ public class Book: LibraryItem {
   public func nextBook(autoplayed: Bool) -> LibraryItem? {
     if
       let folder = self.folder,
-      folder.type == .folder,
+      folder.type == .regular,
       let next = folder.getNextBook(after: self.relativePath) {
       return next
     }
