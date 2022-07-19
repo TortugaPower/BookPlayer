@@ -14,9 +14,16 @@ public protocol NetworkClientProtocol {
     method: HTTPMethod,
     parameters: [String: Any]?
   ) async throws -> T
+
+  func upload(
+    _ fileURL: URL,
+    remoteURL: URL,
+    identifier: String,
+    method: HTTPMethod
+  ) async throws -> (Data, URLResponse)
 }
 
-public class NetworkClient: NetworkClientProtocol {
+public class NetworkClient: NetworkClientProtocol, BPLogger {
   let scheme = "https"
   let host = "api.tortugapower.com"
   let keychain: KeychainServiceProtocol
@@ -33,9 +40,39 @@ public class NetworkClient: NetworkClientProtocol {
   ) async throws -> T {
     let request = try buildURLRequest(path: path, method: method, parameters: parameters)
 
-    let data = try await URLSession.shared.data(for: request)
+    Self.logger.trace("[Request] \(method.rawValue) \(request.url?.path)\nParameters: \(parameters?.description)")
+
+    let (data, response) = try await URLSession.shared.data(for: request)
+
+    if let httpURLResponse = response as? HTTPURLResponse {
+      Self.logger.trace("[Response] Status \(httpURLResponse.statusCode)\n\(String(data: data, encoding: .utf8))")
+    }
 
     return try self.decoder.decode(T.self, from: data)
+  }
+
+  public func upload(
+    _ fileURL: URL,
+    remoteURL: URL,
+    identifier: String,
+    method: HTTPMethod
+  ) async throws -> (Data, URLResponse) {
+    var request = URLRequest(url: remoteURL)
+    request.cachePolicy = .reloadIgnoringLocalCacheData
+    request.httpMethod = method.rawValue
+
+    Self.logger.trace("[Request] \(method.rawValue) \(remoteURL.path)")
+
+    let (responseData, response) = try await URLSession.shared.upload(
+      for: request,
+      fromFile: fileURL
+    )
+
+    if let httpResponse = response as? HTTPURLResponse {
+      Self.logger.trace("[Response] Status \(httpResponse.statusCode) URL: \(response.url?.path)")
+    }
+
+    return (responseData, response)
   }
 
   func buildURLRequest(
@@ -48,16 +85,15 @@ public class NetworkClient: NetworkClientProtocol {
     components.host = host
     components.path = path
 
-    if case .get = method {
-      if let parameters = parameters {
-        let queryItems = parameters.map({
-          URLQueryItem(
-            name: $0.0,
-            value: "\($0.1)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
-          )
-        })
-        components.queryItems = queryItems
-      }
+    if case .get = method,
+       let parameters = parameters {
+      let queryItems = parameters.map({
+        URLQueryItem(
+          name: $0.0,
+          value: "\($0.1)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+        )
+      })
+      components.queryItems = queryItems
     }
 
     guard let url = components.url else {
@@ -72,9 +108,13 @@ public class NetworkClient: NetworkClientProtocol {
       request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
     }
 
-    if case .post = method,
-       let parameters = parameters {
-      request.httpBody = try JSONSerialization.data(withJSONObject: parameters)
+    if let parameters = parameters {
+      switch method {
+      case .post, .put, .delete:
+        request.httpBody = try JSONSerialization.data(withJSONObject: parameters)
+      case .get:
+        break
+      }
     }
 
     return request

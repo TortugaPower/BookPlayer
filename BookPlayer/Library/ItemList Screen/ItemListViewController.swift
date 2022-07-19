@@ -14,7 +14,7 @@ import UIKit
 
 class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListViewModel>,
                               Storyboarded,
-                              UIGestureRecognizerDelegate {
+                              UIGestureRecognizerDelegate, BPLogger {
 
   @IBOutlet weak var emptyStatePlaceholder: UIView!
   @IBOutlet weak var emptyStateImageView: UIImageView!

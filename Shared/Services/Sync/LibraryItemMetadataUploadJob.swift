@@ -1,5 +1,5 @@
 //
-//  LibraryItemUploadJob.swift
+//  LibraryItemMetadataUploadJob.swift
 //  BookPlayer
 //
 //  Created by gianni.carlo on 23/6/22.
@@ -9,13 +9,17 @@
 import Foundation
 import SwiftQueue
 
-class LibraryItemUploadJob: Job {
-  static let type = "LibraryItemUploadJob"
+class LibraryItemMetadataUploadJob: Job, BPLogger {
+  static let type = "LibraryItemMetadataUploadJob"
 
   let client: NetworkClientProtocol
   let provider: NetworkProvider<LibraryAPI>
   let parameters: [String: Any]
   var response: UploadItemResponse?
+
+  lazy var taskIdentifier: String? = {
+    return self.parameters["relativePath"] as? String
+  }()
 
   /// Initializer
   /// - Parameters:
@@ -57,25 +61,33 @@ class LibraryItemUploadJob: Job {
   func onRemove(result: SwiftQueue.JobCompletion) {
     switch result {
     case .success:
-      print("=== upload success for: \(parameters["relativePath"]!)")
-      if let response = self.response,
-         let content = response.content {
-        NotificationCenter.default.post(name: .itemUpload, object: nil, userInfo: ["content": content])
+      guard let response = self.response else {
+        Self.logger.fault("Upload response is empty for \(self.taskIdentifier)")
+        return
       }
+
+      NotificationCenter.default.post(
+        name: .itemMetadatUploaded,
+        object: nil,
+        userInfo: [
+          "relativePath": taskIdentifier as Any,
+          "url": response.content.url as Any
+        ]
+      )
     case .fail(let error):
-      print("=== upload error for: \(parameters["relativePath"]!), error: \(error.localizedDescription)")
+      Self.logger.error("Upload error for \(self.taskIdentifier): \(error.localizedDescription)")
     }
   }
 }
 
-struct LibraryItemUploadJobCreator: JobCreator {
+struct LibraryItemMetadataUploadJobCreator: JobCreator {
   func create(type: String, params: [String: Any]?) -> SwiftQueue.Job {
     guard
-      type == LibraryItemUploadJob.type,
+      type == LibraryItemMetadataUploadJob.type,
       let parameters = params
     else { fatalError("Wrong job type") }
 
-    return LibraryItemUploadJob(
+    return LibraryItemMetadataUploadJob(
       client: NetworkClient(),
       parameters: parameters
     )

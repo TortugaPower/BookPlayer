@@ -71,6 +71,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // register document's folder listener
     self.setupDocumentListener()
     // Setup RevenueCat
+    Purchases.logLevel = .error
     Purchases.configure(withAPIKey: "appl_sxbMAczGRvyaoCHNjCWpoXWfRHt")
 
     // Create a Sentry client

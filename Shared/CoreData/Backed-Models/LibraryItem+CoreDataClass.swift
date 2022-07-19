@@ -26,15 +26,15 @@ public class LibraryItem: NSManagedObject, Codable {
     return String(lastComponent)
   }
 
-  public func getItemType() -> String {
+  public func getItemType() -> Int16 {
     switch self {
     case let folder as Folder:
-      return "\(folder.type.rawValue)"
-    case _ as Book:
-      return "2"
+      return folder.type.rawValue
+    case is Book:
+      return 2
     default:
       // type not supported
-      return ""
+      return 0
     }
   }
 

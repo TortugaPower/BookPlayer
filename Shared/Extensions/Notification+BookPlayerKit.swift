@@ -18,5 +18,5 @@ extension Notification.Name {
   public static let messageReceived = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).watch.message")
   public static let accountUpdate = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).account.update")
   public static let login = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).account.login")
-  public static let itemUpload = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).item.upload")
+  public static let itemMetadatUploaded = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).item.metadata.upload")
 }

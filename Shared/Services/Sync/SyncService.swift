@@ -16,11 +16,12 @@ public protocol SyncServiceProtocol {
   func syncLibrary() async throws
 }
 
-public final class SyncService: SyncServiceProtocol {
+public final class SyncService: SyncServiceProtocol, BPLogger {
   let libraryService: LibraryServiceProtocol
   let client: NetworkClientProtocol
   private let provider: NetworkProvider<LibraryAPI>
   let manager: SwiftQueueManager
+  let fileUploadManager: SwiftQueueManager
 
   @Published var isActive: Bool = false
 
@@ -33,24 +34,49 @@ public final class SyncService: SyncServiceProtocol {
     self.libraryService = libraryService
     self.client = client
     self.provider = NetworkProvider(client: client)
-    self.manager = SwiftQueueManagerBuilder(creator: LibraryItemUploadJobCreator()).build()
+    self.manager = SwiftQueueManagerBuilder(creator: LibraryItemMetadataUploadJobCreator())
+      .set(persister: UserDefaultsPersister(key: LibraryItemMetadataUploadJob.type))
+      .build()
+    self.fileUploadManager = SwiftQueueManagerBuilder(creator: LibraryItemFileUploadJobCreator())
+      .set(persister: UserDefaultsPersister(key: LibraryItemFileUploadJob.type))
+      .build()
 
     bindObservers()
   }
 
   func bindObservers() {
-    NotificationCenter.default.publisher(for: .itemUpload, object: nil)
+    NotificationCenter.default.publisher(for: .itemMetadatUploaded, object: nil)
       .sink(receiveValue: { [weak self] notification in
         guard
-          let userInfo = notification.userInfo
+          let relativePath = notification.userInfo?["relativePath"] as? String,
+          let urlPath = notification.userInfo?["url"] as? String
         else {
           return
         }
 
-        print(userInfo)
-        // Create upload file task with url info
+        self?.handleMetadataUploaded(for: relativePath, remoteUrlPath: urlPath)
       })
       .store(in: &disposeBag)
+  }
+
+  func handleMetadataUploaded(for relativePath: String, remoteUrlPath: String) {
+    guard let item = self.libraryService.getItem(with: relativePath) else {
+      Self.logger.warning(
+        "Library item not found after uploading metadata for \(relativePath), user may have deleted it"
+      )
+      return
+    }
+
+    switch item {
+    case is Book:
+      scheduleFileUploadJob(for: relativePath, remoteUrlPath: remoteUrlPath)
+    case is Folder:
+      let contents = self.libraryService.fetchContents(at: item.relativePath, limit: nil, offset: nil)
+
+      contents?.forEach({ [weak self] in self?.scheduleMetadataUploadJob(for: $0) })
+    default:
+      break
+    }
   }
 
   public func accountUpdated(_ customerInfo: CustomerInfo) {
@@ -58,24 +84,38 @@ public final class SyncService: SyncServiceProtocol {
   }
 
   public func syncLibrary() async throws {
-    let fetchedItems = try await fetchContents(at: "")
+    let fetchedItems = try await fetchContents()
 
     let fetchedIdentifiers = fetchedItems.map({ $0.relativePath })
 
     let itemsToSync = try self.libraryService.getItems(notIn: fetchedIdentifiers, parentFolder: nil)
 
-    itemsToSync.forEach({ scheduleUploadJob(for: $0) })
+    itemsToSync.forEach({ [weak self] in self?.scheduleMetadataUploadJob(for: $0) })
 
     let identifiersToSync = itemsToSync.map({ $0.relativePath })
 
     let newItems = fetchedItems.filter({ !identifiersToSync.contains($0.relativePath) })
 
-    self.storeLibraryItems(from: newItems)
+    self.storeLibraryItems(from: newItems, parentFolder: nil)
   }
 
-  func scheduleUploadJob(for item: LibraryItem) {
+  func scheduleFileUploadJob(for relativePath: String, remoteUrlPath: String) {
+    JobBuilder(type: LibraryItemFileUploadJob.type)
+      .singleInstance(forId: relativePath)
+      .persist()
+      .retry(limit: .limited(3))
+      .internet(atLeast: .wifi)
+      .with(params: [
+        "relativePath": relativePath,
+        "remoteUrlPath": remoteUrlPath
+      ])
+      .schedule(manager: fileUploadManager)
+  }
+
+  func scheduleMetadataUploadJob(for item: LibraryItem) {
+    let relativePath = item.relativePath!
     var parameters: [String: Any] = [
-      "relativePath": item.relativePath!,
+      "relativePath": relativePath,
       "originalFileName": item.originalFileName!,
       "title": item.title!,
       "details": item.details!,
@@ -92,7 +132,8 @@ public final class SyncService: SyncServiceProtocol {
       parameters["lastPlayDateTimestamp"] = lastPlayTimestamp
     }
 
-    JobBuilder(type: LibraryItemUploadJob.type)
+    JobBuilder(type: LibraryItemMetadataUploadJob.type)
+      .singleInstance(forId: relativePath)
       .persist()
       .retry(limit: .limited(3))
       .internet(atLeast: .wifi)
@@ -100,20 +141,20 @@ public final class SyncService: SyncServiceProtocol {
       .schedule(manager: manager)
   }
 
-  func storeLibraryItems(from syncedItems: [SyncedItem]) {
+  func storeLibraryItems(from syncedItems: [SyncedItem], parentFolder: String?) {
     syncedItems.forEach { item in
       switch item.type {
       case .book:
-        self.libraryService.addBook(from: item, parentFolder: nil)
+        self.libraryService.addBook(from: item, parentFolder: parentFolder)
       case .bound:
-        self.libraryService.addFolder(from: item, type: .bound, parentFolder: nil)
+        self.libraryService.addFolder(from: item, type: .bound, parentFolder: parentFolder)
       case .folder:
-        self.libraryService.addFolder(from: item, type: .regular, parentFolder: nil)
+        self.libraryService.addFolder(from: item, type: .regular, parentFolder: parentFolder)
       }
     }
   }
 
-  public func fetchContents(at relativePath: String) async throws -> [SyncedItem] {
+  public func fetchContents(at relativePath: String = "") async throws -> [SyncedItem] {
     let response: ContentsResponse = try await self.provider.request(.contents(path: relativePath))
 
     return response.content

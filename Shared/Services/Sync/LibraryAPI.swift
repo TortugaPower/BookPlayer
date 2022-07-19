@@ -41,30 +41,3 @@ extension LibraryAPI: Endpoint {
     }
   }
 }
-
-struct ContentsResponse: Decodable {
-  let content: [SyncedItem]
-}
-
-struct UploadItemResponse: Decodable {
-  let content: String?
-}
-
-public struct SyncedItem: Decodable {
-  let relativePath: String
-  let originalFileName: String
-  let title: String
-  let details: String
-  let speed: Double?
-  let currentTime: Double
-  let duration: Double
-  let percentCompleted: Double
-  let isFinished: Bool
-  let orderRank: Int
-  let lastPlayDateTimestamp: Double?
-  let type: SyncedItemType
-}
-
-public enum SyncedItemType: String, Decodable {
-  case book, bound, folder
-}
