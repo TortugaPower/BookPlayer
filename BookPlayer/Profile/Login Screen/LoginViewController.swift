@@ -11,31 +11,139 @@ import BookPlayerKit
 import Foundation
 import Themeable
 
-class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel>,
-                           Storyboarded {
-  @IBOutlet weak var loginProviderStackView: UIStackView!
-  @IBOutlet var primaryLabels: [UILabel]!
-  @IBOutlet var secondaryLabels: [UILabel]!
-  @IBOutlet var imageViews: [UIImageView]!
-  @IBOutlet weak var plusOverlayView: UIView!
-  @IBOutlet weak var scrollView: UIScrollView!
+class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel> {
+  private lazy var scrollView: UIScrollView = {
+    let scrollView = UIScrollView()
+    scrollView.translatesAutoresizingMaskIntoConstraints = false
+    return scrollView
+  }()
+
+  private lazy var contentView: UIView = {
+    let view = UIView()
+    view.translatesAutoresizingMaskIntoConstraints = false
+    return view
+  }()
+
+  private lazy var cloudBenefitStackView: UIStackView = {
+    let stackView = LoginBenefitView(
+      title: "Cloud sync",
+      description: "Download and sync your library and book progress to all your supported devices.",
+      systemName: "icloud.and.arrow.up.fill",
+      imageAlpha: 0.5
+    )
+    stackView.translatesAutoresizingMaskIntoConstraints = false
+    return stackView
+  }()
+
+  private lazy var cosmeticBenefitStackView: UIStackView = {
+    let stackView = LoginBenefitView(
+      title: "Themes & Icons",
+      description: "You'll have access to the additional themes and app icons that are unlocked by donating and joining BookPlayer Plus.",
+      shouldAddOverlay: true,
+      imageName: "BookPlayerPlus",
+      imageAlpha: 0.5
+    )
+    stackView.translatesAutoresizingMaskIntoConstraints = false
+    return stackView
+  }()
+
+  private lazy var supportBenefitStackView: UIStackView = {
+    let stackView = LoginBenefitView(
+      title: "Support us",
+      description: "With your help we are able to implement more features and make BookPlayer even better.",
+      imageName: "plusImageSupport"
+    )
+    stackView.translatesAutoresizingMaskIntoConstraints = false
+    return stackView
+  }()
+
+  private lazy var disclaimerStackView: UIStackView = {
+    let stackView = LoginDisclaimerView(
+      title: "Please keep in mind the following",
+      disclaimers: [
+        "- You only need an account with us if you plan to listen to your library across different devices",
+        "- Due to ongoing server costs for cloud storage and progress syncing, we require a subscription to offset the cost of this feature",
+        "- The cost of the monthly subscription is $4.99 USD, and after the account creation, you will be prompted to subscribe to fully activate your account"
+      ]
+    )
+    stackView.translatesAutoresizingMaskIntoConstraints = false
+    return stackView
+  }()
+
+  private lazy var loginProviderStackView: UIStackView = {
+    let stackView = UIStackView()
+    stackView.translatesAutoresizingMaskIntoConstraints = false
+    return stackView
+  }()
+
+  init() {
+    super.init(nibName: nil, bundle: nil)
+  }
+
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
 
   override func viewDidLoad() {
     super.viewDidLoad()
 
     self.title = "BookPlayer Pro"
 
-    self.setupViews()
+    addSubviews()
+    addConstraints()
 
     setUpTheming()
   }
 
-  func setupViews() {
-    self.plusOverlayView.layer.masksToBounds = true
-    self.plusOverlayView.layer.cornerRadius = 10
+  func addSubviews() {
+    view.addSubview(loginProviderStackView)
+    view.addSubview(scrollView)
+    scrollView.addSubview(contentView)
+    contentView.addSubview(cloudBenefitStackView)
+    contentView.addSubview(cosmeticBenefitStackView)
+    contentView.addSubview(supportBenefitStackView)
+    contentView.addSubview(disclaimerStackView)
+  }
+
+  func addConstraints() {
+    let safeLayoutGuide = view.safeAreaLayoutGuide
+    // constrain subviews to the scroll view's Content Layout Guide
+    let contentLayoutGuide = scrollView.contentLayoutGuide
 
     NSLayoutConstraint.activate([
-      self.scrollView.contentLayoutGuide.widthAnchor.constraint(equalTo: self.scrollView.frameLayoutGuide.widthAnchor)
+      // setup scrollview
+      scrollView.topAnchor.constraint(equalTo: safeLayoutGuide.topAnchor),
+      scrollView.leadingAnchor.constraint(equalTo: safeLayoutGuide.leadingAnchor),
+      scrollView.trailingAnchor.constraint(equalTo: safeLayoutGuide.trailingAnchor),
+      scrollView.bottomAnchor.constraint(equalTo: loginProviderStackView.topAnchor, constant: -16),
+      contentView.topAnchor.constraint(equalTo: contentLayoutGuide.topAnchor),
+      contentView.leadingAnchor.constraint(equalTo: contentLayoutGuide.leadingAnchor),
+      contentView.trailingAnchor.constraint(equalTo: contentLayoutGuide.trailingAnchor),
+      contentView.bottomAnchor.constraint(equalTo: contentLayoutGuide.bottomAnchor),
+      contentView.widthAnchor.constraint(equalTo: view.widthAnchor),
+      // setup button container
+      loginProviderStackView.heightAnchor.constraint(equalToConstant: 45),
+      loginProviderStackView.leadingAnchor.constraint(equalTo: safeLayoutGuide.leadingAnchor, constant: 24),
+      loginProviderStackView.trailingAnchor.constraint(equalTo: safeLayoutGuide.trailingAnchor, constant: -24),
+      loginProviderStackView.bottomAnchor.constraint(equalTo: safeLayoutGuide.bottomAnchor, constant: -16),
+      // setup benefits
+      cloudBenefitStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
+      cloudBenefitStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+      cloudBenefitStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
+      cosmeticBenefitStackView.topAnchor.constraint(equalTo: cloudBenefitStackView.bottomAnchor, constant: 30),
+      cosmeticBenefitStackView.leadingAnchor.constraint(equalTo: cloudBenefitStackView.leadingAnchor),
+      cosmeticBenefitStackView.trailingAnchor.constraint(equalTo: cloudBenefitStackView.trailingAnchor),
+      supportBenefitStackView.topAnchor.constraint(equalTo: cosmeticBenefitStackView.bottomAnchor, constant: 30),
+      supportBenefitStackView.leadingAnchor.constraint(equalTo: cosmeticBenefitStackView.leadingAnchor),
+      supportBenefitStackView.trailingAnchor.constraint(equalTo: cosmeticBenefitStackView.trailingAnchor),
+      // setup disclaimer
+      disclaimerStackView.topAnchor.constraint(
+        greaterThanOrEqualTo: supportBenefitStackView.bottomAnchor,
+        constant: 45
+      ),
+      disclaimerStackView.leadingAnchor.constraint(equalTo: supportBenefitStackView.leadingAnchor, constant: 24),
+      disclaimerStackView.trailingAnchor.constraint(equalTo: supportBenefitStackView.trailingAnchor),
+      disclaimerStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -30),
     ])
   }
 
@@ -92,11 +200,6 @@ extension LoginViewController: ASAuthorizationControllerPresentationContextProvi
 extension LoginViewController: Themeable {
   func applyTheme(_ theme: SimpleTheme) {
     self.view.backgroundColor = theme.systemBackgroundColor
-
-    self.primaryLabels.forEach({ $0.textColor = theme.primaryColor })
-    self.secondaryLabels.forEach({ $0.textColor = theme.secondaryColor })
-    self.imageViews.forEach({ $0.tintColor = theme.linkColor })
-    self.plusOverlayView.backgroundColor = theme.linkColor
 
     self.overrideUserInterfaceStyle = theme.useDarkVariant
     ? UIUserInterfaceStyle.dark

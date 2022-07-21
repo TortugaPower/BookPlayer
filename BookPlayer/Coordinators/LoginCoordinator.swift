@@ -27,7 +27,7 @@ class LoginCoordinator: Coordinator {
   }
 
   override func start() {
-    let vc = LoginViewController.instantiate(from: .Profile)
+    let vc = LoginViewController()
     let viewModel = LoginViewModel(accountService: self.accountService)
     viewModel.coordinator = self
     vc.viewModel = viewModel
