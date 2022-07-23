@@ -14,6 +14,7 @@ class LoginDisclaimerView: UIStackView, Themeable {
   private lazy var titleLabel: UILabel = {
     let label = UILabel()
     label.numberOfLines = 0
+    label.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
     return label
   }()
 
@@ -33,6 +34,8 @@ class LoginDisclaimerView: UIStackView, Themeable {
       let label = UILabel()
       label.numberOfLines = 0
       label.text = disclaimer
+      label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+      label.textAlignment = .justified
       disclaimerLabels.append(label)
     }
 

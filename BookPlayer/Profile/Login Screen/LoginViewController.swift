@@ -89,6 +89,13 @@ class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel> 
 
     self.title = "BookPlayer Pro"
 
+    self.navigationItem.leftBarButtonItem = UIBarButtonItem(
+      image: ImageIcons.navigationBackImage,
+      style: .plain,
+      target: self,
+      action: #selector(self.didPressClose)
+    )
+
     addSubviews()
     addConstraints()
 
@@ -127,7 +134,7 @@ class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel> 
       loginProviderStackView.trailingAnchor.constraint(equalTo: safeLayoutGuide.trailingAnchor, constant: -24),
       loginProviderStackView.bottomAnchor.constraint(equalTo: safeLayoutGuide.bottomAnchor, constant: -16),
       // setup benefits
-      cloudBenefitStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
+      cloudBenefitStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
       cloudBenefitStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
       cloudBenefitStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
       cosmeticBenefitStackView.topAnchor.constraint(equalTo: cloudBenefitStackView.bottomAnchor, constant: 30),
@@ -175,7 +182,7 @@ class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel> 
 #endif
   }
 
-  @IBAction func didPressClose(_ sender: UIBarButtonItem) {
+  @objc private func didPressClose() {
     self.viewModel.dismiss()
   }
 }

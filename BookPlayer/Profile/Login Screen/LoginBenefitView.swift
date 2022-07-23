@@ -14,12 +14,14 @@ class LoginBenefitView: UIStackView, Themeable {
   private lazy var titleLabel: UILabel = {
     let label = UILabel()
     label.numberOfLines = 0
+    label.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
     return label
   }()
 
   private lazy var descriptionLabel: UILabel = {
     let label = UILabel()
     label.numberOfLines = 0
+    label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
     return label
   }()
 
