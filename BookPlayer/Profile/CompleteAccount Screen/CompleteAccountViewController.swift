@@ -28,32 +28,28 @@ class CompleteAccountViewController: BaseViewController<CompleteAccountCoordinat
   }()
 
   private lazy var emailLabel: UILabel = {
-    let label = UILabel()
-    label.translatesAutoresizingMaskIntoConstraints = false
+    let label = BaseLabel()
     label.text = self.viewModel.account.email
     label.font = Fonts.titleRegular
     return label
   }()
 
   private lazy var proLabel: UILabel = {
-    let label = UILabel()
-    label.translatesAutoresizingMaskIntoConstraints = false
+    let label = BaseLabel()
     label.text = "BookPlayer Pro"
     label.font = Fonts.body
     return label
   }()
 
   private lazy var costLabel: UILabel = {
-    let label = UILabel()
-    label.translatesAutoresizingMaskIntoConstraints = false
+    let label = BaseLabel()
     label.text = "$4.99 / month"
     label.font = Fonts.title
     return label
   }()
 
   private lazy var monthlyLabel: UILabel = {
-    let label = UILabel()
-    label.translatesAutoresizingMaskIntoConstraints = false
+    let label = BaseLabel()
     label.font = Fonts.body
     label.text = "Renews automatically monthly"
     return label

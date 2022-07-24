@@ -23,6 +23,7 @@ class FormButton: UIButton {
     clipsToBounds = true
     layer.cornerRadius = cornerRadius
     titleLabel?.font = Fonts.headline
+    titleLabel?.adjustsFontForContentSizeCategory = true
     setTitle(title, for: .normal)
     backgroundColor = UIColor(hex: "687AB7")
   }

@@ -15,6 +15,7 @@ class LoginBenefitView: UIStackView, Themeable {
     let label = UILabel()
     label.numberOfLines = 0
     label.font = Fonts.title
+    label.adjustsFontForContentSizeCategory = true
     return label
   }()
 
@@ -22,6 +23,7 @@ class LoginBenefitView: UIStackView, Themeable {
     let label = UILabel()
     label.numberOfLines = 0
     label.font = Fonts.body
+    label.adjustsFontForContentSizeCategory = true
     return label
   }()
 

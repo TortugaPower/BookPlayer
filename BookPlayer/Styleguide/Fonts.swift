@@ -9,12 +9,8 @@
 import UIKit
 
 struct Fonts {
-  static let title = UIFont.systemFont(ofSize: 16, weight: .semibold)
-  static let titleRegular = UIFont.systemFont(ofSize: 16, weight: .regular)
-  static let body = UIFont.systemFont(ofSize: 14, weight: .regular)
-  /// Accessible fonts
-  static let headline = UIFont(
-    descriptor: UIFontDescriptor.preferredFontDescriptor(withTextStyle: .headline),
-    size: 0.0
-  )
+  static let title = UIFont.preferredFont(with: 16, style: .headline, weight: .semibold)
+  static let titleRegular = UIFont.preferredFont(with: 16, style: .headline, weight: .regular)
+  static let body = UIFont.preferredFont(with: 14, style: .body, weight: .regular)
+  static let headline = UIFont.preferredFont(forTextStyle: .headline)
 }

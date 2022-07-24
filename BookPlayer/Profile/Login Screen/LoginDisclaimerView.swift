@@ -12,7 +12,7 @@ import UIKit
 
 class LoginDisclaimerView: UIStackView, Themeable {
   private lazy var titleLabel: UILabel = {
-    let label = UILabel()
+    let label = BaseLabel()
     label.numberOfLines = 0
     label.font = Fonts.title
     return label
@@ -31,11 +31,10 @@ class LoginDisclaimerView: UIStackView, Themeable {
 
     titleLabel.text = title
     disclaimers.forEach { disclaimer in
-      let label = UILabel()
+      let label = BaseLabel()
       label.numberOfLines = 0
       label.text = disclaimer
-      label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
-      label.textAlignment = .justified
+      label.font = Fonts.body
       disclaimerLabels.append(label)
     }
 
