@@ -11,6 +11,8 @@ import Themeable
 import UIKit
 
 class CompleteAccountViewController: BaseViewController<CompleteAccountCoordinator, CompleteAccountViewModel> {
+  // MARK: - UI components
+
   private lazy var containerImageView: UIView = {
     let view = UIView()
     view.translatesAutoresizingMaskIntoConstraints = false
@@ -67,6 +69,8 @@ class CompleteAccountViewController: BaseViewController<CompleteAccountCoordinat
     return button
   }()
 
+  // MARK: - Initializer
+
   init() {
     super.init(nibName: nil, bundle: nil)
   }
@@ -74,6 +78,8 @@ class CompleteAccountViewController: BaseViewController<CompleteAccountCoordinat
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
+
+  // MARK: - Lifecycle
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -135,6 +141,8 @@ class CompleteAccountViewController: BaseViewController<CompleteAccountCoordinat
       subscribeButton.trailingAnchor.constraint(equalTo: safeLayoutGuide.trailingAnchor, constant: -Spacing.M),
     ])
   }
+
+  // MARK: - Actions
 
   @objc func didPressSubscribe() {
     self.viewModel.handleSubscription()

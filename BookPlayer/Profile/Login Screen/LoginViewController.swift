@@ -12,6 +12,8 @@ import Foundation
 import Themeable
 
 class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel> {
+  // MARK: - UI components
+
   private lazy var scrollView: UIScrollView = {
     let scrollView = UIScrollView()
     scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -76,6 +78,8 @@ class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel> 
     return stackView
   }()
 
+  // MARK: - Initializer
+
   init() {
     super.init(nibName: nil, bundle: nil)
   }
@@ -83,6 +87,8 @@ class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel> 
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
+
+  // MARK: - Lifecycle
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -166,8 +172,9 @@ class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel> 
     self.loginProviderStackView.addArrangedSubview(authorizationButton)
   }
 
-  @objc
-  func handleAuthorizationAppleIDButtonPress() {
+  // MARK: - Actions
+
+  @objc func handleAuthorizationAppleIDButtonPress() {
 #if targetEnvironment(simulator)
     self.viewModel.setupTestAccount()
 #else
@@ -187,6 +194,8 @@ class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel> 
   }
 }
 
+// MARK: - Sign in with Apple Delegate
+
 extension LoginViewController: ASAuthorizationControllerDelegate {
   /// - Tag: did_complete_authorization
   func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
@@ -203,6 +212,8 @@ extension LoginViewController: ASAuthorizationControllerPresentationContextProvi
     return self.view.window!
   }
 }
+
+// MARK: - Themeable
 
 extension LoginViewController: Themeable {
   func applyTheme(_ theme: SimpleTheme) {
