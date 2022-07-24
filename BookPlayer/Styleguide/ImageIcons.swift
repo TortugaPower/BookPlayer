@@ -9,7 +9,7 @@
 import UIKit
 
 struct ImageIcons {
-  static var navigationBackImage = UIImage(
+  static let navigationBackImage = UIImage(
     systemName: "multiply",
     withConfiguration: UIImage.SymbolConfiguration(scale: .large)
   )

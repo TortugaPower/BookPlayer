@@ -5,7 +5,6 @@
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21169.4"/>
         <capability name="Image references" minToolsVersion="12.0"/>
-        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -610,116 +609,6 @@
             </objects>
             <point key="canvasLocation" x="1487" y="733"/>
         </scene>
-        <!--CompleteAccount-->
-        <scene sceneID="x4C-Pq-QaV">
-            <objects>
-                <viewController storyboardIdentifier="CompleteAccountViewController" title="CompleteAccount" id="F62-dR-97h" customClass="CompleteAccountViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="B5L-fz-NHz">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="l2e-Ay-QwW">
-                                <rect key="frame" x="177" y="74" width="60" height="60"/>
-                                <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="person.badge.plus" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="T7t-Uy-gA3">
-                                        <rect key="frame" x="10.5" y="13.5" width="37" height="35.5"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="35" id="0y3-is-ERg"/>
-                                            <constraint firstAttribute="width" constant="35" id="hMq-oo-GnI"/>
-                                        </constraints>
-                                    </imageView>
-                                </subviews>
-                                <constraints>
-                                    <constraint firstItem="T7t-Uy-gA3" firstAttribute="centerY" secondItem="l2e-Ay-QwW" secondAttribute="centerY" id="4mi-IY-8U0"/>
-                                    <constraint firstAttribute="height" constant="60" id="6bb-2q-xd9"/>
-                                    <constraint firstItem="T7t-Uy-gA3" firstAttribute="centerX" secondItem="l2e-Ay-QwW" secondAttribute="centerX" id="BWK-3p-68C"/>
-                                    <constraint firstAttribute="width" constant="60" id="Gvg-Az-NeZ"/>
-                                </constraints>
-                            </view>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="BookPlayer Pro" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7We-Pd-yjc">
-                                <rect key="frame" x="157.5" y="176.5" width="99" height="17"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$4.99 / month" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gu2-8v-sAN">
-                                <rect key="frame" x="153.5" y="223.5" width="107" height="19.5"/>
-                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="16"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Renews automatically monthly" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0CP-Sa-FtA">
-                                <rect key="frame" x="109" y="273" width="196" height="17"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1pn-na-JiA">
-                                <rect key="frame" x="15" y="797" width="384" height="45"/>
-                                <color key="backgroundColor" red="0.40784313725490196" green="0.47843137254901957" blue="0.71764705882352942" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="45" id="6E4-T7-A0E"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
-                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                <state key="normal" title="Subscribe Now">
-                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                </state>
-                            </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="gacarlo89@gmail.com" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mgo-bt-r4Z">
-                                <rect key="frame" x="125.5" y="149" width="163" height="19.5"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                        </subviews>
-                        <viewLayoutGuide key="safeArea" id="Lef-HO-EFO"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                        <constraints>
-                            <constraint firstItem="7We-Pd-yjc" firstAttribute="top" secondItem="mgo-bt-r4Z" secondAttribute="bottom" constant="8" id="0He-sA-3UW"/>
-                            <constraint firstItem="l2e-Ay-QwW" firstAttribute="centerX" secondItem="Lef-HO-EFO" secondAttribute="centerX" id="Ceu-jV-gzl"/>
-                            <constraint firstItem="gu2-8v-sAN" firstAttribute="top" secondItem="7We-Pd-yjc" secondAttribute="bottom" constant="30" id="Hfn-Fm-2MA"/>
-                            <constraint firstItem="gu2-8v-sAN" firstAttribute="centerX" secondItem="Lef-HO-EFO" secondAttribute="centerX" id="PKa-MM-8FU"/>
-                            <constraint firstItem="1pn-na-JiA" firstAttribute="centerX" secondItem="Lef-HO-EFO" secondAttribute="centerX" id="Qke-Xt-ieG"/>
-                            <constraint firstItem="Lef-HO-EFO" firstAttribute="bottom" secondItem="1pn-na-JiA" secondAttribute="bottom" constant="20" id="UVr-fB-oJK"/>
-                            <constraint firstItem="Lef-HO-EFO" firstAttribute="trailing" secondItem="1pn-na-JiA" secondAttribute="trailing" constant="15" id="Ugw-HY-nnV"/>
-                            <constraint firstItem="mgo-bt-r4Z" firstAttribute="top" secondItem="l2e-Ay-QwW" secondAttribute="bottom" constant="15" id="bZc-Zh-Mb9"/>
-                            <constraint firstItem="mgo-bt-r4Z" firstAttribute="centerX" secondItem="Lef-HO-EFO" secondAttribute="centerX" id="eiW-28-Wpa"/>
-                            <constraint firstItem="7We-Pd-yjc" firstAttribute="centerX" secondItem="Lef-HO-EFO" secondAttribute="centerX" id="itN-aI-62U"/>
-                            <constraint firstItem="0CP-Sa-FtA" firstAttribute="top" secondItem="gu2-8v-sAN" secondAttribute="bottom" constant="30" id="n81-OP-slo"/>
-                            <constraint firstItem="1pn-na-JiA" firstAttribute="leading" secondItem="Lef-HO-EFO" secondAttribute="leading" constant="15" id="p9l-gq-Dnf"/>
-                            <constraint firstItem="l2e-Ay-QwW" firstAttribute="top" secondItem="Lef-HO-EFO" secondAttribute="top" constant="30" id="uhD-rW-Jed"/>
-                            <constraint firstItem="0CP-Sa-FtA" firstAttribute="centerX" secondItem="Lef-HO-EFO" secondAttribute="centerX" id="wrC-tY-08S"/>
-                        </constraints>
-                    </view>
-                    <navigationItem key="navigationItem" title="Complete Account" id="dQu-zE-tWB">
-                        <barButtonItem key="leftBarButtonItem" id="oqi-PJ-Hdv">
-                            <imageReference key="image" image="multiply" catalog="system" symbolScale="large"/>
-                            <connections>
-                                <action selector="didPressClose:" destination="F62-dR-97h" id="xaG-Tt-i5t"/>
-                            </connections>
-                        </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" title="Restore" id="bsu-aK-Brp">
-                            <connections>
-                                <action selector="didPressRestore:" destination="F62-dR-97h" id="i7v-wT-veP"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
-                    <connections>
-                        <outlet property="containerImageView" destination="l2e-Ay-QwW" id="eg3-eH-kUD"/>
-                        <outlet property="costLabel" destination="gu2-8v-sAN" id="OV9-vg-A9H"/>
-                        <outlet property="emailLabel" destination="mgo-bt-r4Z" id="Mn2-nz-5GM"/>
-                        <outlet property="imageView" destination="T7t-Uy-gA3" id="IJM-yr-1dJ"/>
-                        <outlet property="monthlyLabel" destination="0CP-Sa-FtA" id="e6m-sG-3kC"/>
-                        <outlet property="proLabel" destination="7We-Pd-yjc" id="z6q-UC-z8S"/>
-                        <outlet property="subscribeButton" destination="1pn-na-JiA" id="M93-Zz-oBF"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="8WP-Ld-YD7" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="2228" y="52"/>
-        </scene>
     </scenes>
     <resources>
         <image name="BookPlayerPlus" width="102" height="102"/>
@@ -727,7 +616,6 @@
         <image name="icloud.and.arrow.up.fill" catalog="system" width="128" height="108"/>
         <image name="multiply" catalog="system" width="128" height="111"/>
         <image name="person" catalog="system" width="128" height="121"/>
-        <image name="person.badge.plus" catalog="system" width="128" height="125"/>
         <image name="support-no-padding" width="46" height="46"/>
         <image name="trash" catalog="system" width="117" height="128"/>
         <systemColor name="systemBackgroundColor">

@@ -27,7 +27,7 @@ class CompleteAccountCoordinator: Coordinator {
   }
 
   override func start() {
-    let vc = CompleteAccountViewController.instantiate(from: .Profile)
+    let vc = CompleteAccountViewController()
     let viewModel = CompleteAccountViewModel(
       accountService: self.accountService,
       account: self.accountService.getAccount()!

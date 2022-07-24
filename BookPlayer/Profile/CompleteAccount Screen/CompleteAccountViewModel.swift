@@ -12,6 +12,8 @@ import Foundation
 class CompleteAccountViewModel: BaseViewModel<CompleteAccountCoordinator> {
   let accountService: AccountServiceProtocol
   let account: Account
+  let containerImageWidth: CGFloat = 60
+  let imageWidth: CGFloat = 35
 
   init(
     accountService: AccountServiceProtocol,
