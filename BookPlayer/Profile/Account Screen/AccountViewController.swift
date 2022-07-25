@@ -11,129 +11,240 @@ import Combine
 import Themeable
 import UIKit
 
-class AccountViewController: BaseTableViewController<AccountCoordinator, AccountViewModel>,
-                             Storyboarded {
-  @IBOutlet weak var containerProfileCardView: UIView!
-  @IBOutlet weak var containerProfileImageView: UIView!
-  @IBOutlet weak var profileImageView: UIImageView!
-  @IBOutlet weak var accountLabel: UILabel!
-  @IBOutlet weak var proLabel: UILabel!
-  @IBOutlet weak var costLabel: UILabel!
-  @IBOutlet var imageViews: [UIView]!
-  @IBOutlet weak var imageOverlayView: UIView!
-  @IBOutlet weak var completeAccountButton: UIButton!
-  @IBOutlet var secondaryLabels: [UILabel]!
-  @IBOutlet weak var signoutImageView: UIImageView!
+class AccountViewController: BaseViewController<AccountCoordinator, AccountViewModel> {
+  // MARK: - UI components
+
+  private lazy var scrollView: UIScrollView = {
+    let scrollView = UIScrollView()
+    scrollView.translatesAutoresizingMaskIntoConstraints = false
+    return scrollView
+  }()
+
+  private lazy var contentView: UIView = {
+    let view = UIView()
+    view.translatesAutoresizingMaskIntoConstraints = false
+    return view
+  }()
+
+  private lazy var containerStackview: UIStackView = {
+    let stackview = UIStackView()
+    stackview.translatesAutoresizingMaskIntoConstraints = false
+    stackview.axis = .vertical
+    stackview.spacing = Spacing.S
+    return stackview
+  }()
+
+  private lazy var accountSectionView: UIView = {
+    return AccountSectionContainerView(
+      contents: AccountCardView(title: viewModel.account?.email),
+      insets: UIEdgeInsets(
+        top: Spacing.S,
+        left: Spacing.S,
+        bottom: Spacing.S,
+        right: Spacing.S
+      )
+    )
+  }()
+
+  private lazy var manageProSectionView: UIView = {
+    let row = AccountRowContainerView(
+      title: "BookPlayer Pro",
+      systemImageName: "icloud.and.arrow.up.fill",
+      detail: "Manage",
+      showChevron: true,
+      titleFont: Fonts.title
+    )
+
+    row.tapAction = { [weak self] in
+      self?.didPressManageSubscription()
+    }
+
+    return AccountSectionContainerView(
+      contents: row,
+      insets: UIEdgeInsets(
+        top: 0,
+        left: Spacing.S,
+        bottom: 0,
+        right: Spacing.S
+      )
+    )
+  }()
+
+  private lazy var benefitsSectionView: UIView = {
+    let row = AccountProBenefitsView(price: "$4.99 / monthly")
+
+    row.tapAction = { [weak self] in
+      self?.didPressCompleteAccount()
+    }
+
+    return AccountSectionContainerView(
+      contents: row,
+      insets: UIEdgeInsets(
+        top: Spacing.S,
+        left: Spacing.S,
+        bottom: Spacing.S,
+        right: Spacing.S
+      )
+    )
+  }()
+
+  private lazy var logoutSectionView: UIView = {
+    let imageName: String
+    var flipImage = false
+
+    if #available(iOS 15, *) {
+      imageName = "rectangle.portrait.and.arrow.right"
+    } else {
+      imageName = "square.and.arrow.up"
+      flipImage = true
+    }
+
+    let row = AccountRowContainerView(
+      title: "Sign Out",
+      systemImageName: imageName,
+      flipImage: flipImage,
+      imageTintColor: .red
+    )
+
+    row.tapAction = { [weak self] in
+      self?.didPressLogout()
+    }
+
+    return AccountSectionContainerView(
+      contents: row,
+      insets: UIEdgeInsets(
+        top: 0,
+        left: Spacing.S,
+        bottom: 0,
+        right: Spacing.S
+      )
+    )
+  }()
+
+  private lazy var deleteSectionView: UIView = {
+    let row = AccountRowContainerView(
+      title: "Delete Account",
+      systemImageName: "trash",
+      imageTintColor: .red
+    )
+
+    row.tapAction = { [weak self] in
+      self?.didPressDelete()
+    }
+
+    return AccountSectionContainerView(
+      contents: row,
+      insets: UIEdgeInsets(
+        top: 0,
+        left: Spacing.S,
+        bottom: 0,
+        right: Spacing.S
+      )
+    )
+  }()
 
   private var disposeBag = Set<AnyCancellable>()
 
-  enum AccountSection: Int {
-    case info = 0, proEnabled, pro, logout, delete
+  // MARK: - Initializer
+
+  init() {
+    super.init(nibName: nil, bundle: nil)
   }
+
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+
+  // MARK: - Lifecycle
 
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    setUpTheming()
-
-    self.navigationItem.title = "Account"
-
-    self.tableView.tableFooterView = UIView()
-
-    setupViews()
+    setupNavigationItem()
+    addSubviews()
+    addConstraints()
     bindObservers()
+    setUpTheming()
   }
 
-  func setupViews() {
-    self.completeAccountButton.layer.masksToBounds = true
-    self.completeAccountButton.layer.cornerRadius = 5
-    self.imageOverlayView.layer.masksToBounds = true
-    self.imageOverlayView.layer.cornerRadius = 10
-    self.containerProfileImageView.layer.masksToBounds = true
-    self.containerProfileImageView.layer.cornerRadius = self.containerProfileImageView.frame.width / 2
-    self.containerProfileCardView.layer.masksToBounds = true
-    self.containerProfileCardView.layer.cornerRadius = 10
+  func setupNavigationItem() {
+    self.navigationItem.title = "Account"
+    self.navigationItem.leftBarButtonItem = UIBarButtonItem(
+      image: ImageIcons.navigationBackImage,
+      style: .plain,
+      target: self,
+      action: #selector(self.didPressClose)
+    )
+  }
 
-    if #available(iOS 15, *) {
-      self.signoutImageView.image = UIImage(systemName: "rectangle.portrait.and.arrow.right")
-    } else {
-      self.signoutImageView.image = UIImage(systemName: "square.and.arrow.up")
-      self.signoutImageView.transform = self.signoutImageView.transform.rotated(by: .pi / 2)
-    }
+  func addSubviews() {
+    view.addSubview(scrollView)
+    scrollView.addSubview(contentView)
+    contentView.addSubview(containerStackview)
+    containerStackview.addArrangedSubview(accountSectionView)
+    containerStackview.addArrangedSubview(manageProSectionView)
+    containerStackview.addArrangedSubview(benefitsSectionView)
+    containerStackview.addArrangedSubview(logoutSectionView)
+    containerStackview.addArrangedSubview(deleteSectionView)
+  }
+
+  func addConstraints() {
+    let safeLayoutGuide = view.safeAreaLayoutGuide
+    // constrain subviews to the scroll view's Content Layout Guide
+    let contentLayoutGuide = scrollView.contentLayoutGuide
+
+    NSLayoutConstraint.activate([
+      // setup scrollview
+      scrollView.topAnchor.constraint(equalTo: safeLayoutGuide.topAnchor),
+      scrollView.leadingAnchor.constraint(equalTo: safeLayoutGuide.leadingAnchor),
+      scrollView.trailingAnchor.constraint(equalTo: safeLayoutGuide.trailingAnchor),
+      scrollView.bottomAnchor.constraint(equalTo: safeLayoutGuide.bottomAnchor),
+      contentView.topAnchor.constraint(equalTo: contentLayoutGuide.topAnchor),
+      contentView.leadingAnchor.constraint(equalTo: contentLayoutGuide.leadingAnchor),
+      contentView.trailingAnchor.constraint(equalTo: contentLayoutGuide.trailingAnchor),
+      contentView.bottomAnchor.constraint(equalTo: contentLayoutGuide.bottomAnchor),
+      contentView.widthAnchor.constraint(equalTo: view.widthAnchor),
+      // setup contents
+      containerStackview.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Spacing.S),
+      containerStackview.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+      containerStackview.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+      containerStackview.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Spacing.M),
+    ])
   }
 
   func bindObservers() {
     self.viewModel.$account
       .receive(on: RunLoop.main)
-      .sink { [weak self] _ in
-        self?.tableView.reloadData()
+      .sink { [weak self] account in
+        if account?.hasSubscription == true {
+          self?.benefitsSectionView.isHidden = true
+          self?.manageProSectionView.isHidden = false
+        } else {
+          self?.benefitsSectionView.isHidden = false
+          self?.manageProSectionView.isHidden = true
+        }
     }
     .store(in: &disposeBag)
   }
 
-  override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-    return CGFloat.leastNormalMagnitude
+  func didPressManageSubscription() {
+    self.viewModel.showManageSubscription()
   }
 
-  override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-    switch section {
-    case AccountSection.pro.rawValue:
-      if self.viewModel.hasSubscription() {
-        return CGFloat.leastNormalMagnitude
-      } else {
-        return super.tableView(tableView, heightForHeaderInSection: section)
-      }
-    case AccountSection.proEnabled.rawValue:
-      if self.viewModel.hasSubscription() {
-        return super.tableView(tableView, heightForHeaderInSection: section)
-      } else {
-        return CGFloat.leastNormalMagnitude
-      }
-    default:
-      return super.tableView(tableView, heightForHeaderInSection: section)
-    }
-  }
-
-  override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-    switch indexPath.section {
-    case AccountSection.pro.rawValue:
-      if self.viewModel.hasSubscription() {
-        return CGFloat.leastNormalMagnitude
-      } else {
-        return super.tableView(tableView, heightForRowAt: indexPath)
-      }
-    case AccountSection.proEnabled.rawValue:
-      if self.viewModel.hasSubscription() {
-        return super.tableView(tableView, heightForRowAt: indexPath)
-      } else {
-        return CGFloat.leastNormalMagnitude
-      }
-    default:
-      return super.tableView(tableView, heightForRowAt: indexPath)
-    }
-  }
-
-  override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-    tableView.deselectRow(at: indexPath as IndexPath, animated: true)
-
-    switch indexPath.section {
-    case AccountSection.proEnabled.rawValue:
-      self.viewModel.showManageSubscription()
-    case AccountSection.logout.rawValue:
-      self.viewModel.handleLogout()
-    case AccountSection.delete.rawValue:
-      self.viewModel.showDeleteAlert()
-    default:
-      break
-    }
-  }
-
-  @IBAction func didPressClose(_ sender: UIBarButtonItem) {
-    self.viewModel.dismiss()
-  }
-
-  @IBAction func didPressCompleteAccount(_ sender: UIButton) {
+  @objc func didPressCompleteAccount() {
     self.viewModel.showCompleteAccount()
+  }
+
+  func didPressLogout() {
+    self.viewModel.handleLogout()
+  }
+
+  func didPressDelete() {
+    self.viewModel.showDeleteAlert()
+  }
+
+  @objc func didPressClose() {
+    self.viewModel.dismiss()
   }
 }
 
@@ -141,21 +252,7 @@ class AccountViewController: BaseTableViewController<AccountCoordinator, Account
 
 extension AccountViewController: Themeable {
   func applyTheme(_ theme: SimpleTheme) {
-    self.tableView.backgroundColor = theme.secondarySystemBackgroundColor
-    self.tableView.separatorColor = theme.separatorColor
-    self.tableView.reloadData()
-
-    self.containerProfileCardView.backgroundColor = theme.secondarySystemBackgroundColor
-    self.accountLabel.textColor = theme.primaryColor
-    self.containerProfileImageView.backgroundColor = theme.tertiarySystemBackgroundColor
-    self.profileImageView.tintColor = theme.secondaryColor
-
-    self.proLabel.textColor = theme.primaryColor
-    self.costLabel.textColor = theme.secondaryColor
-    self.imageViews.forEach({ $0.tintColor = theme.linkColor })
-    self.imageOverlayView.backgroundColor = theme.linkColor
-    self.secondaryLabels.forEach({ $0.textColor = theme.primaryColor })
-    self.completeAccountButton.tintColor = theme.linkColor
+    view.backgroundColor = theme.secondarySystemBackgroundColor
 
     self.overrideUserInterfaceStyle = theme.useDarkVariant
       ? UIUserInterfaceStyle.dark

@@ -328,9 +328,12 @@
 		9F22DE2E288CB1A900056FCD /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE2D288CB1A900056FCD /* Fonts.swift */; };
 		9F22DE37288CBCA400056FCD /* Spacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE36288CBCA400056FCD /* Spacing.swift */; };
 		9F22DE39288CBE6A00056FCD /* FormButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE38288CBE6A00056FCD /* FormButton.swift */; };
-		9F22DE3C288D7D4300056FCD /* SectionContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE3B288D7D4300056FCD /* SectionContainerView.swift */; };
+		9F22DE3C288D7D4300056FCD /* AccountSectionContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE3B288D7D4300056FCD /* AccountSectionContainerView.swift */; };
 		9F22DE3E288D812900056FCD /* UIFont+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE3D288D812900056FCD /* UIFont+BookPlayer.swift */; };
 		9F22DE40288D8BC800056FCD /* BaseLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE3F288D8BC800056FCD /* BaseLabel.swift */; };
+		9F22DE42288DD20100056FCD /* AccountCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE41288DD20100056FCD /* AccountCardView.swift */; };
+		9F22DE44288E22FC00056FCD /* AccountRowContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE43288E22FC00056FCD /* AccountRowContainerView.swift */; };
+		9F22DE46288E517600056FCD /* AccountProBenefitsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE45288E517600056FCD /* AccountProBenefitsView.swift */; };
 		9F2681AD2888B26100359BD3 /* LoginBenefitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2681AC2888B26100359BD3 /* LoginBenefitView.swift */; };
 		9F2681B628898A7300359BD3 /* LoginDisclaimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2681B528898A7300359BD3 /* LoginDisclaimerView.swift */; };
 		9F2C228E2875B17400523F74 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9F2C228D2875B17400523F74 /* MappingModel_v8_to_v9.xcmappingmodel */; };
@@ -907,9 +910,12 @@
 		9F22DE2D288CB1A900056FCD /* Fonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
 		9F22DE36288CBCA400056FCD /* Spacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Spacing.swift; sourceTree = "<group>"; };
 		9F22DE38288CBE6A00056FCD /* FormButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormButton.swift; sourceTree = "<group>"; };
-		9F22DE3B288D7D4300056FCD /* SectionContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionContainerView.swift; sourceTree = "<group>"; };
+		9F22DE3B288D7D4300056FCD /* AccountSectionContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSectionContainerView.swift; sourceTree = "<group>"; };
 		9F22DE3D288D812900056FCD /* UIFont+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+BookPlayer.swift"; sourceTree = "<group>"; };
 		9F22DE3F288D8BC800056FCD /* BaseLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseLabel.swift; sourceTree = "<group>"; };
+		9F22DE41288DD20100056FCD /* AccountCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCardView.swift; sourceTree = "<group>"; };
+		9F22DE43288E22FC00056FCD /* AccountRowContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountRowContainerView.swift; sourceTree = "<group>"; };
+		9F22DE45288E517600056FCD /* AccountProBenefitsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountProBenefitsView.swift; sourceTree = "<group>"; };
 		9F2681AC2888B26100359BD3 /* LoginBenefitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginBenefitView.swift; sourceTree = "<group>"; };
 		9F2681B528898A7300359BD3 /* LoginDisclaimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginDisclaimerView.swift; sourceTree = "<group>"; };
 		9F2C228D2875B17400523F74 /* MappingModel_v8_to_v9.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MappingModel_v8_to_v9.xcmappingmodel; sourceTree = "<group>"; };
@@ -1802,7 +1808,10 @@
 			isa = PBXGroup;
 			children = (
 				9F4691F42800F84800A8F0E8 /* AccountViewController.swift */,
-				9F22DE3B288D7D4300056FCD /* SectionContainerView.swift */,
+				9F22DE41288DD20100056FCD /* AccountCardView.swift */,
+				9F22DE3B288D7D4300056FCD /* AccountSectionContainerView.swift */,
+				9F22DE43288E22FC00056FCD /* AccountRowContainerView.swift */,
+				9F22DE45288E517600056FCD /* AccountProBenefitsView.swift */,
 				9F4691F62800F85600A8F0E8 /* AccountViewModel.swift */,
 			);
 			path = "Account Screen";
@@ -2783,10 +2792,11 @@
 				410D00FA26DDCE6C00D11A45 /* ChaptersViewModel.swift in Sources */,
 				41640A3724416EE8004FB97B /* Intents.intentdefinition in Sources */,
 				41AD3DA1221C7CAB00DC41E1 /* Icon.swift in Sources */,
-				9F22DE3C288D7D4300056FCD /* SectionContainerView.swift in Sources */,
+				9F22DE3C288D7D4300056FCD /* AccountSectionContainerView.swift in Sources */,
 				9F22DE3E288D812900056FCD /* UIFont+BookPlayer.swift in Sources */,
 				9FBDDB9C27DD135E005FB447 /* ProfileViewController.swift in Sources */,
 				9FEC87AE27FA9E98006C71D5 /* LoginCoordinator.swift in Sources */,
+				9F22DE44288E22FC00056FCD /* AccountRowContainerView.swift in Sources */,
 				C39401E920DEE83200F3DC71 /* UIView+BookPlayer.swift in Sources */,
 				415B274421FAE47200F9D9B7 /* LoadingView.swift in Sources */,
 				41E79BED26C61D2B00EA9FFF /* PlayPauseIconView.swift in Sources */,
@@ -2804,6 +2814,7 @@
 				9F7B647E2804916900895ECC /* PlusViewModel.swift in Sources */,
 				9F22DE2E288CB1A900056FCD /* Fonts.swift in Sources */,
 				41A1B12D226FC7E500EA0400 /* ImportManager.swift in Sources */,
+				9F22DE46288E517600056FCD /* AccountProBenefitsView.swift in Sources */,
 				4151A6A626E3A40600E49DBE /* SpeedService.swift in Sources */,
 				C33E843C20C6E179004A0489 /* ItemProgress.swift in Sources */,
 				62F2F25F25E18C7500E1D6A0 /* ImportableItem.swift in Sources */,
@@ -2835,6 +2846,7 @@
 				9F4691FA2800F8D600A8F0E8 /* AccountCoordinator.swift in Sources */,
 				412AB70E2701463100969618 /* LoadingViewModel.swift in Sources */,
 				6279361C272D0C290097837D /* BookSortService+SortError+PlayListSortOrder.swift in Sources */,
+				9F22DE42288DD20100056FCD /* AccountCardView.swift in Sources */,
 				9F4691EE2800C94B00A8F0E8 /* CompleteAccountViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
