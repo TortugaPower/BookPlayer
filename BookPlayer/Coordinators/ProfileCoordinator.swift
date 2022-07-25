@@ -28,7 +28,7 @@ class ProfileCoordinator: Coordinator {
   }
 
   override func start() {
-    let vc = ProfileViewController.instantiate(from: .Profile)
+    let vc = ProfileViewController()
     let viewModel = ProfileViewModel(accountService: self.accountService)
     viewModel.coordinator = self
     vc.viewModel = viewModel

@@ -334,6 +334,7 @@
 		9F22DE42288DD20100056FCD /* AccountCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE41288DD20100056FCD /* AccountCardView.swift */; };
 		9F22DE44288E22FC00056FCD /* AccountRowContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE43288E22FC00056FCD /* AccountRowContainerView.swift */; };
 		9F22DE46288E517600056FCD /* AccountProBenefitsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE45288E517600056FCD /* AccountProBenefitsView.swift */; };
+		9F22DE48288EF71F00056FCD /* ProfileCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE47288EF71F00056FCD /* ProfileCardView.swift */; };
 		9F2681AD2888B26100359BD3 /* LoginBenefitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2681AC2888B26100359BD3 /* LoginBenefitView.swift */; };
 		9F2681B628898A7300359BD3 /* LoginDisclaimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2681B528898A7300359BD3 /* LoginDisclaimerView.swift */; };
 		9F2C228E2875B17400523F74 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9F2C228D2875B17400523F74 /* MappingModel_v8_to_v9.xcmappingmodel */; };
@@ -916,6 +917,7 @@
 		9F22DE41288DD20100056FCD /* AccountCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCardView.swift; sourceTree = "<group>"; };
 		9F22DE43288E22FC00056FCD /* AccountRowContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountRowContainerView.swift; sourceTree = "<group>"; };
 		9F22DE45288E517600056FCD /* AccountProBenefitsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountProBenefitsView.swift; sourceTree = "<group>"; };
+		9F22DE47288EF71F00056FCD /* ProfileCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCardView.swift; sourceTree = "<group>"; };
 		9F2681AC2888B26100359BD3 /* LoginBenefitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginBenefitView.swift; sourceTree = "<group>"; };
 		9F2681B528898A7300359BD3 /* LoginDisclaimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginDisclaimerView.swift; sourceTree = "<group>"; };
 		9F2C228D2875B17400523F74 /* MappingModel_v8_to_v9.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MappingModel_v8_to_v9.xcmappingmodel; sourceTree = "<group>"; };
@@ -1779,6 +1781,7 @@
 			isa = PBXGroup;
 			children = (
 				9FBDDB9B27DD135E005FB447 /* ProfileViewController.swift */,
+				9F22DE47288EF71F00056FCD /* ProfileCardView.swift */,
 				9FBDDB9F27DD13E9005FB447 /* ProfileViewModel.swift */,
 			);
 			path = "Profile Screen";
@@ -2727,6 +2730,7 @@
 				41B68FFF2705477D00F657C3 /* StorageCoordinator.swift in Sources */,
 				4138CE1926E5B3FB0014F11E /* BookmarksViewController.swift in Sources */,
 				41670131255B4A2C0054164F /* Sequence+BookPlayer.swift in Sources */,
+				9F22DE48288EF71F00056FCD /* ProfileCardView.swift in Sources */,
 				9F22DE37288CBCA400056FCD /* Spacing.swift in Sources */,
 				C3FA301E20E0024900393DDA /* BPArtworkView.swift in Sources */,
 				41E79BE926C60BF600EA9FFF /* PlayerViewController.swift in Sources */,

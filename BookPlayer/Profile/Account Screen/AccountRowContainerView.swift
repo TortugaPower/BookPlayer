@@ -41,14 +41,13 @@ class AccountRowContainerView: UIView {
 
   private lazy var titleLabel: UILabel = {
     let label = BaseLabel()
-    label.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+    label.setContentCompressionResistancePriority(.required, for: .horizontal)
     return label
   }()
 
   private lazy var detailLabel: UILabel = {
     let label = BaseLabel()
-    label.textAlignment = .right
-    label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+    label.setContentHuggingPriority(.required, for: .horizontal)
     return label
   }()
 
@@ -63,6 +62,7 @@ class AccountRowContainerView: UIView {
     let imageView = UIImageView(image: UIImage(systemName: "chevron.right"))
     imageView.translatesAutoresizingMaskIntoConstraints = false
     imageView.contentMode = .scaleAspectFit
+    imageView.image = imageView.image?.imageFlippedForRightToLeftLayoutDirection()
     return imageView
   }()
 

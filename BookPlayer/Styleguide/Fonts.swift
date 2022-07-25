@@ -13,4 +13,5 @@ struct Fonts {
   static let titleRegular = UIFont.preferredFont(with: 16, style: .headline, weight: .regular)
   static let body = UIFont.preferredFont(with: 14, style: .body, weight: .regular)
   static let headline = UIFont.preferredFont(forTextStyle: .headline)
+  static let subheadline = UIFont.preferredFont(forTextStyle: .subheadline)
 }
