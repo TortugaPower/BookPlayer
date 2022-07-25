@@ -9,7 +9,7 @@
 import UIKit
 
 enum StoryboardName: String {
-  case Main, Settings, Player, Profile
+  case Main, Settings, Player
 }
 
 /// Deprecated, storyboards will no longer be used for future screens
