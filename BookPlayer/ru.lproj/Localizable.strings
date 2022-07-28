@@ -91,7 +91,7 @@
 "deselect_all_title" = "Отменить выделение";
 "move_title" = "Переместить";
 "jump_start_title" = "Перейти к началу";
-"mark_finished_title" = "Отметить как прочитанное";
+"mark_finished_title" = "Отметить как прослушанное";
 "sort_files_title" = "Сортировать по";
 "rename_title" = "Переименовать";
 "file_error_title" = "Ошибка файла!";
@@ -210,7 +210,7 @@
 "voiceover_default_speed_title" = "Установить скорость по умолчанию";
 "error_loading_chapters" = "Не удалось загрузить главы из: \n %@";
 "error_empty_chapters" = "Главы пусты, проверьте содержимое папки: %@";
-"sleeptimer_option_custom" = "Обычай";
+"sleeptimer_option_custom" = "Задать таймер вручную";
 "sleeptimer_custom_alert_title" = "Пользовательский таймер сна";
 "settings_progresslabels_title" = "Ярлыки прогресса";
 "settings_playerinterface_list_title" = "Открывает";
