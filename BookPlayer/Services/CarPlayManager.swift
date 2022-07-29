@@ -254,7 +254,10 @@ class CarPlayManager: NSObject {
       relativePath,
       autoplay: true,
       showPlayer: { [weak self] in
-        self?.interfaceController?.pushTemplate(CPNowPlayingTemplate.shared, animated: true, completion: nil)
+        /// Avoid trying to show the now playing screen if it's already shown
+        if self?.interfaceController?.topTemplate != CPNowPlayingTemplate.shared {
+          self?.interfaceController?.pushTemplate(CPNowPlayingTemplate.shared, animated: true, completion: nil)
+        }
       },
       alertPresenter: self
     )
