@@ -39,7 +39,7 @@ class EmptyLibraryServiceMock: LibraryServiceProtocol {
     return Book()
   }
 
-  func getChapters(from relativePath: String) -> [Chapter]? {
+  func getChapters(from relativePath: String) -> [SimpleChapter]? {
     return nil
   }
 

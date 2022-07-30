@@ -1209,6 +1209,7 @@ class ModifyLibraryTests: LibraryServiceTests {
     ]
 
     book.chapters = NSOrderedSet(array: chapters)
+    self.sut.dataManager.saveContext()
 
     let fetchedChapters = self.sut.getChapters(from: book.relativePath)
 
