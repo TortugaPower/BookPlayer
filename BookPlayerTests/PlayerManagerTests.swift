@@ -54,7 +54,7 @@ class PlayerManagerTests: XCTestCase {
       relativePath: "",
       percentCompleted: 10,
       isFinished: false,
-      useChapterTimeContext: false
+      isBoundBook: false
     )
   }
 

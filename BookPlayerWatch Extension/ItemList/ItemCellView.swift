@@ -37,7 +37,7 @@ struct ItemCellView_Previews: PreviewProvider {
         relativePath: "book 1",
         percentCompleted: 0,
         isFinished: false,
-        useChapterTimeContext: false
+        isBoundBook: false
       ))
     }
   }
