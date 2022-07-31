@@ -90,7 +90,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
       relativePath: book.relativePath,
       percentCompleted: book.percentCompleted,
       isFinished: book.isFinished,
-      useChapterTimeContext: false
+      isBoundBook: false
     )
   }
 
@@ -150,7 +150,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
       relativePath: folder.relativePath,
       percentCompleted: folder.percentCompleted,
       isFinished: folder.isFinished,
-      useChapterTimeContext: true
+      isBoundBook: true
     )
   }
 

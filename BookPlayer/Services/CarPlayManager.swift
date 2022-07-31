@@ -299,7 +299,7 @@ extension CarPlayManager {
 
       if let currentChapter = playerManager.currentItem?.currentChapter,
          let previousChapter = playerManager.currentItem?.previousChapter(before: currentChapter) {
-        playerManager.jumpTo(previousChapter.start + 0.5, recordBookmark: false)
+        playerManager.jumpTo(previousChapter.start, recordBookmark: false)
       } else {
         playerManager.playPreviousItem()
       }
@@ -316,7 +316,7 @@ extension CarPlayManager {
 
       if let currentChapter = playerManager.currentItem?.currentChapter,
          let nextChapter = playerManager.currentItem?.nextChapter(after: currentChapter) {
-        playerManager.jumpTo(nextChapter.start + 0.5, recordBookmark: false)
+        playerManager.jumpTo(nextChapter.start, recordBookmark: false)
       } else {
         playerManager.playNextItem(autoPlayed: false)
       }

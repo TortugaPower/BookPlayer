@@ -54,7 +54,7 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
 
     if let currentChapter = self.playerManager.currentItem?.currentChapter,
        let previousChapter = self.playerManager.currentItem?.previousChapter(before: currentChapter) {
-      self.playerManager.jumpTo(previousChapter.start + 0.5, recordBookmark: false)
+      self.playerManager.jumpTo(previousChapter.start, recordBookmark: false)
     } else {
       self.playerManager.playPreviousItem()
     }
@@ -65,7 +65,7 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
 
     if let currentChapter = self.playerManager.currentItem?.currentChapter,
        let nextChapter = self.playerManager.currentItem?.nextChapter(after: currentChapter) {
-      self.playerManager.jumpTo(nextChapter.start + 0.5, recordBookmark: false)
+      self.playerManager.jumpTo(nextChapter.start, recordBookmark: false)
     } else {
       self.playerManager.playNextItem(autoPlayed: false)
     }

@@ -20,7 +20,7 @@ public protocol LibraryServiceProtocol {
   func createTheme(params: [String: Any]) -> Theme
 
   func createBook(from url: URL) -> Book
-  func getChapters(from relativePath: String) -> [Chapter]?
+  func getChapters(from relativePath: String) -> [SimpleChapter]?
   func getItem(with relativePath: String) -> LibraryItem?
   func findBooks(containing fileURL: URL) -> [Book]?
   func getLastPlayedItems(limit: Int?) -> [LibraryItem]?
@@ -151,15 +151,33 @@ public final class LibraryService: LibraryServiceProtocol {
     return newBook
   }
 
-  public func getChapters(from relativePath: String) -> [Chapter]? {
-    let fetchRequest: NSFetchRequest<Chapter> = Chapter.fetchRequest()
+  public func getChapters(from relativePath: String) -> [SimpleChapter]? {
+    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "Chapter")
+    fetchRequest.propertiesToFetch = ["title", "start", "duration", "index"]
+    fetchRequest.resultType = .dictionaryResultType
     fetchRequest.predicate = NSPredicate(format: "%K == %@",
                                          #keyPath(Chapter.book.relativePath),
                                          relativePath)
     let sort = NSSortDescriptor(key: #keyPath(Chapter.index), ascending: true)
     fetchRequest.sortDescriptors = [sort]
 
-    return try? self.dataManager.getContext().fetch(fetchRequest)
+    let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
+
+    return results?.compactMap({ dictionary -> SimpleChapter? in
+      guard
+        let title = dictionary["title"] as? String,
+        let start = dictionary["start"] as? Double,
+        let duration = dictionary["duration"] as? Double,
+        let index = dictionary["index"] as? Int16
+      else { return nil }
+
+      return SimpleChapter(
+        title: title,
+        start: start,
+        duration: duration,
+        index: index
+      )
+    })
   }
 
   public func getItem(with relativePath: String) -> LibraryItem? {

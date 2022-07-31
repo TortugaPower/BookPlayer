@@ -53,7 +53,9 @@ class StubFactory {
     // swiftlint:disable:next force_cast
     let chapter = NSEntityDescription.insertNewObject(forEntityName: "Chapter", into: dataManager.getContext()) as! Chapter
     chapter.index = index
+    chapter.start = 0
     chapter.duration = 0
+    chapter.title = "test"
     return chapter
   }
 
