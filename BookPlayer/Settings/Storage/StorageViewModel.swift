@@ -76,7 +76,51 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
     guard book == nil else { return false }
 
     // Fetch may fail with unicode characters, this is a last resort to double check it's not really linked
-    return !self.library.bookExists(with: relativePath)
+    return !bookExists(relativePath, library: self.library)
+  }
+
+  func bookExists(_ relativePath: String, library: Library) -> Bool {
+    guard let items = library.items?.array as? [LibraryItem] else {
+      return false
+    }
+
+    return items.contains { item in
+      if let book = item as? Book {
+        return book.relativePath == relativePath
+      } else if let folder = item as? Folder {
+        return getItem(with: relativePath, from: folder) != nil
+      }
+
+      return false
+    }
+  }
+
+  func getItem(with relativePath: String, from item: LibraryItem) -> LibraryItem? {
+    switch item {
+    case let folder as Folder:
+      return getItem(with: relativePath, from: folder)
+    case let book as Book:
+      return book.relativePath == relativePath ? book : nil
+    default:
+      return nil
+    }
+  }
+
+  func getItem(with relativePath: String, from folder: Folder) -> LibraryItem? {
+    guard let items = folder.items?.array as? [LibraryItem] else {
+      return nil
+    }
+
+    var itemFound: LibraryItem?
+
+    for item in items {
+      if let libraryItem = getItem(with: relativePath, from: item) {
+        itemFound = libraryItem
+        break
+      }
+    }
+
+    return itemFound
   }
 
   func reloadLibraryItems() {

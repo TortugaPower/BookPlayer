@@ -16,8 +16,10 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
   public let details: String
   public let duration: String
   public let progress: Double
+  public let isFinished: Bool
   public let themeAccent: UIColor
   public let relativePath: String
+  public let parentFolder: String?
   public let type: SimpleItemType
   public let playbackState: PlaybackState
 
@@ -41,8 +43,10 @@ extension SimpleLibraryItem {
     self.details = ""
     self.duration = ""
     self.progress = 0
+    self.isFinished = false
     self.themeAccent = UIColor(hex: "3488D1")
     self.relativePath = "bookplayer/add-button"
+    self.parentFolder = nil
     self.type = .book
     self.playbackState = .stopped
   }
@@ -52,8 +56,10 @@ extension SimpleLibraryItem {
     self.details = item.details
     self.duration = item.duration
     self.progress = item.progress
+    self.isFinished = item.isFinished
     self.themeAccent = item.themeAccent
     self.relativePath = item.relativePath
+    self.parentFolder = item.parentFolder
     self.type = item.type
     self.playbackState = item.playbackState
   }
@@ -63,8 +69,10 @@ extension SimpleLibraryItem {
     self.details = item.details
     self.duration = item.duration
     self.progress = progress ?? item.progress
+    self.isFinished = item.isFinished
     self.themeAccent = item.themeAccent
     self.relativePath = item.relativePath
+    self.parentFolder = item.parentFolder
     self.type = item.type
     self.playbackState = playbackState
   }
@@ -74,8 +82,10 @@ extension SimpleLibraryItem {
     self.details = item.details
     self.duration = item.duration
     self.progress = item.progress
+    self.isFinished = item.isFinished
     self.themeAccent = item.themeAccent
     self.relativePath = item.relativePath
+    self.parentFolder = item.parentFolder
     self.type = item.type
     self.playbackState = playbackState
   }
@@ -95,8 +105,10 @@ extension SimpleLibraryItem {
     self.details = book.author
     self.duration = TimeParser.formatTotalDuration(book.duration)
     self.progress = book.isFinished ? 1.0 : book.progressPercentage
+    self.isFinished = book.isFinished
     self.themeAccent = themeAccent
     self.relativePath = book.relativePath
+    self.parentFolder = book.folder?.relativePath
     self.type = .book
     self.playbackState = playbackState
   }
@@ -106,8 +118,10 @@ extension SimpleLibraryItem {
     self.details = folder.info()
     self.duration = TimeParser.formatTotalDuration(folder.duration)
     self.progress = folder.isFinished ? 1.0 : folder.progressPercentage
+    self.isFinished = folder.isFinished
     self.themeAccent = themeAccent
     self.relativePath = folder.relativePath
+    self.parentFolder = folder.folder?.relativePath
 
     switch folder.type {
     case .regular:

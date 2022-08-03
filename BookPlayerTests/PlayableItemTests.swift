@@ -40,6 +40,7 @@ class PlayableItemTests: XCTestCase {
       currentTime: 0,
       duration: 100,
       relativePath: "",
+      parentFolder: nil,
       percentCompleted: 10,
       isFinished: false,
       isBoundBook: false
