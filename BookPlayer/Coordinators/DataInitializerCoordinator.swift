@@ -181,6 +181,10 @@ class DataInitializerCoordinator {
     if UserDefaults.standard.object(forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue) == nil {
       UserDefaults.standard.set(true, forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue)
     }
+    // Set autoplay enabled as default
+    if UserDefaults.standard.object(forKey: Constants.UserDefaults.autoplayEnabled.rawValue) == nil {
+      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.autoplayEnabled.rawValue)
+    }
 
     self.setupThemes(dataManager: dataManager)
 

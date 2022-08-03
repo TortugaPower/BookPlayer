@@ -8,7 +8,7 @@
 
 "library_title" = "有声书库";
 "ok_button" = "确定";
-"recent_title" = "Recent";
+"recent_title" = "最近";
 "watchapp_last_played_title" = "上次播放";
 "watchapp_refresh_data_title" = "刷新数据";
 "watchapp_connect_error_title" = "连接错误";

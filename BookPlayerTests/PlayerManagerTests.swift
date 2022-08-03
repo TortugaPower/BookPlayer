@@ -52,10 +52,11 @@ class PlayerManagerTests: XCTestCase {
       currentTime: 0,
       duration: 100,
       relativePath: "",
+      parentFolder: nil,
       percentCompleted: 10,
       lastPlayDate: nil,
       isFinished: false,
-      useChapterTimeContext: false
+      isBoundBook: false
     )
   }
 
