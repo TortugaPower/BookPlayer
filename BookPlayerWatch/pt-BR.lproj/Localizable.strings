@@ -8,7 +8,7 @@
 
 "library_title" = "Biblioteca";
 "ok_button" = "OK";
-"recent_title" = "Recent";
+"recent_title" = "Mais recente";
 "watchapp_last_played_title" = "Último Reproduzido";
 "watchapp_refresh_data_title" = "Atualizar dados";
 "watchapp_connect_error_title" = "Erro de conexão";
