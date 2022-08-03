@@ -219,7 +219,7 @@ extension ItemListCoordinator {
     switch type {
     case .regular:
       alertTitle = "create_playlist_title".localized
-      alertMessage = "create_playlist_description".localized
+      alertMessage = ""
       alertPlaceholderDefault = "new_playlist_button".localized
     case .bound:
       alertTitle = "bound_books_create_alert_title".localized
