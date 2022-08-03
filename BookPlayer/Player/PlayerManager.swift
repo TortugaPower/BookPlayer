@@ -632,16 +632,31 @@ extension PlayerManager {
   }
 
   func playPreviousItem() {
-    guard let currentItem = self.currentItem,
-          let previousBook = self.playbackService.getPlayableItem(before: currentItem.relativePath) else { return }
+    guard
+      let currentItem = self.currentItem,
+      let previousBook = self.playbackService.getPlayableItem(
+        before: currentItem.relativePath,
+        parentFolder: currentItem.parentFolder
+      )
+    else { return }
 
     self.playItem(previousBook)
   }
 
   func playNextItem(autoPlayed: Bool = false) {
+    /// If it's autoplayed, check if setting is enabled
+    if autoPlayed,
+       !UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue) {
+      return
+    }
+
     guard
       let currentItem = self.currentItem,
-      let nextBook = self.playbackService.getPlayableItem(after: currentItem.relativePath, autoplayed: autoPlayed)
+      let nextBook = self.playbackService.getPlayableItem(
+        after: currentItem.relativePath,
+        parentFolder: currentItem.parentFolder,
+        autoplayed: autoPlayed
+      )
     else { return }
 
     self.playItem(nextBook)

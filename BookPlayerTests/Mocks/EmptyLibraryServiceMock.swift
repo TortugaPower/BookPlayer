@@ -136,4 +136,20 @@ class EmptyLibraryServiceMock: LibraryServiceProtocol {
   func moveItems(_ items: [LibraryItem], inside relativePath: String?, moveFiles: Bool) throws {}
 
   func delete(_ items: [LibraryItem], mode: DeleteMode) throws {}
+
+  func findFirstItem(in parentFolder: String?, isUnfinished: Bool?) -> LibraryItem? {
+    return nil
+  }
+
+  func findFirstItem(in parentFolder: String?, beforeRank: Int16?) -> LibraryItem? {
+    return nil
+  }
+
+  func findFirstItem(in parentFolder: String?, afterRank: Int16?, isUnfinished: Bool?) -> LibraryItem? {
+    return nil
+  }
+
+  func getItemProperty(_ property: String, relativePath: String) -> Any? {
+    return nil
+  }
 }

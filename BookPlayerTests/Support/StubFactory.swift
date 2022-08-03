@@ -18,7 +18,7 @@ class StubFactory {
     book.identifier = fileUrl.lastPathComponent
     book.relativePath = fileUrl.relativePath(to: DataManager.getProcessedFolderURL())
 
-    book.title = fileUrl.lastPathComponent.replacingOccurrences(of: "_", with: " ")
+    book.title = title
     book.originalFileName = fileUrl.lastPathComponent
     book.isFinished = false
     book.duration = duration

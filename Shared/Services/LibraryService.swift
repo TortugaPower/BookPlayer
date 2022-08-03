@@ -24,6 +24,10 @@ public protocol LibraryServiceProtocol {
   func getItem(with relativePath: String) -> LibraryItem?
   func findBooks(containing fileURL: URL) -> [Book]?
   func getLastPlayedItems(limit: Int?) -> [LibraryItem]?
+  func getItemProperty(_ property: String, relativePath: String) -> Any?
+  func findFirstItem(in parentFolder: String?, isUnfinished: Bool?) -> LibraryItem?
+  func findFirstItem(in parentFolder: String?, beforeRank: Int16?) -> LibraryItem?
+  func findFirstItem(in parentFolder: String?, afterRank: Int16?, isUnfinished: Bool?) -> LibraryItem?
 
   func updateFolder(at relativePath: String, type: FolderType) throws
   func findFolder(with fileURL: URL) -> Folder?
@@ -210,6 +214,92 @@ public final class LibraryService: LibraryServiceProtocol {
     let context = self.dataManager.getContext()
 
     return try? context.fetch(fetch)
+  }
+
+  public func getItemProperty(_ property: String, relativePath: String) -> Any? {
+    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+    fetchRequest.propertiesToFetch = [property]
+    fetchRequest.predicate = NSPredicate(
+      format: "%K == %@",
+      #keyPath(LibraryItem.relativePath),
+      relativePath
+    )
+    fetchRequest.resultType = .dictionaryResultType
+    fetchRequest.fetchLimit = 1
+
+    let results = try? self.dataManager.getContext().fetch(fetchRequest).first as? [String: Any]
+
+    return results?[property]
+  }
+
+  func findFirstItem(in parentFolder: String?, rankPredicate: NSPredicate?, isUnfinished: Bool?) -> LibraryItem? {
+    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+
+    let pathPredicate: NSPredicate
+
+    if let parentFolder = parentFolder {
+      pathPredicate = NSPredicate(
+        format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), parentFolder
+      )
+    } else {
+      pathPredicate = NSPredicate(format: "%K != nil", #keyPath(LibraryItem.library))
+    }
+
+    var predicates = [
+      pathPredicate
+    ]
+
+    if let rankPredicate = rankPredicate {
+      predicates.append(rankPredicate)
+    }
+
+    if isUnfinished != nil {
+      // TODO: Add default value for `isFinished`
+      predicates.append(NSPredicate(
+        format: "%K == 0 || %K == nil",
+        #keyPath(LibraryItem.isFinished),
+        #keyPath(LibraryItem.isFinished)
+      ))
+    }
+
+    fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+    let sort = NSSortDescriptor(key: #keyPath(LibraryItem.orderRank), ascending: true)
+    fetchRequest.sortDescriptors = [sort]
+    fetchRequest.fetchLimit = 1
+
+    return try? self.dataManager.getContext().fetch(fetchRequest).first
+  }
+
+  public func findFirstItem(in parentFolder: String?, isUnfinished: Bool?) -> LibraryItem? {
+    return findFirstItem(in: parentFolder, rankPredicate: nil, isUnfinished: isUnfinished)
+  }
+
+  public func findFirstItem(in parentFolder: String?, beforeRank: Int16?) -> LibraryItem? {
+    var rankPredicate: NSPredicate?
+    if let beforeRank = beforeRank {
+      rankPredicate = NSPredicate(format: "%K < %d", #keyPath(LibraryItem.orderRank), beforeRank)
+    }
+    return findFirstItem(
+      in: parentFolder,
+      rankPredicate: rankPredicate,
+      isUnfinished: nil
+    )
+  }
+
+  public func findFirstItem(
+    in parentFolder: String?,
+    afterRank: Int16?,
+    isUnfinished: Bool?
+  ) -> LibraryItem? {
+    var rankPredicate: NSPredicate?
+    if let afterRank = afterRank {
+      rankPredicate = NSPredicate(format: "%K > %d", #keyPath(LibraryItem.orderRank), afterRank)
+    }
+    return findFirstItem(
+      in: parentFolder,
+      rankPredicate: rankPredicate,
+      isUnfinished: isUnfinished
+    )
   }
 
   // MARK: - Folders

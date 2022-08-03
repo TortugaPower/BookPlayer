@@ -39,46 +39,6 @@ public class Book: LibraryItem {
     return round(self.progressPercentage * 100)
   }
 
-  public override func getItem(with relativePath: String) -> LibraryItem? {
-    return self.relativePath == relativePath ? self : nil
-  }
-
-  public override func getFolder(matching relativePath: String) -> Folder? {
-    return self.folder?.getFolder(matching: relativePath)
-  }
-
-  public override func getBookToPlay() -> Book? {
-    return self
-  }
-
-  public func previousBook() -> LibraryItem? {
-    if
-      let folder = self.folder,
-      folder.type == .regular,
-      let previous = folder.getPreviousBook(before: self.relativePath) {
-      return previous
-    }
-
-    return self.getLibrary()?.getPreviousBook(before: self.relativePath)
-  }
-
-  public func nextBook(autoplayed: Bool) -> LibraryItem? {
-    if
-      let folder = self.folder,
-      folder.type == .regular,
-      let next = folder.getNextBook(after: self.relativePath) {
-      return next
-    }
-
-    if autoplayed {
-      guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue) else {
-        return nil
-      }
-    }
-
-    return self.getLibrary()?.getNextBook(after: self.relativePath)
-  }
-
   enum CodingKeys: String, CodingKey {
     case currentTime, duration, identifier, relativePath, percentCompleted, title, author, ext, folder, orderRank
   }

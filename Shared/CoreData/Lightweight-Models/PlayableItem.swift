@@ -19,6 +19,7 @@ public final class PlayableItem: NSObject, Identifiable {
   public var currentTime: TimeInterval
   public let duration: TimeInterval
   @objc dynamic public let relativePath: String
+  public let parentFolder: String?
   @objc dynamic public var percentCompleted: Double
   public var isFinished: Bool
   // This property is explicitly set for bound books, for seeking purposes
@@ -37,7 +38,8 @@ public final class PlayableItem: NSObject, Identifiable {
   }
 
   enum CodingKeys: String, CodingKey {
-    case title, author, chapters, currentTime, duration, relativePath, percentCompleted, isFinished, isBoundBook
+    case title, author, chapters, currentTime, duration,
+         relativePath, parentFolder, percentCompleted, isFinished, isBoundBook
   }
 
   public init(
@@ -47,6 +49,7 @@ public final class PlayableItem: NSObject, Identifiable {
     currentTime: TimeInterval,
     duration: TimeInterval,
     relativePath: String,
+    parentFolder: String?,
     percentCompleted: Double,
     isFinished: Bool,
     isBoundBook: Bool
@@ -57,6 +60,7 @@ public final class PlayableItem: NSObject, Identifiable {
     self.currentTime = currentTime
     self.duration = duration
     self.relativePath = relativePath
+    self.parentFolder = parentFolder
     self.percentCompleted = percentCompleted
     self.isFinished = isFinished
     self.isBoundBook = isBoundBook
@@ -199,6 +203,7 @@ extension PlayableItem: Codable {
     try container.encode(self.currentTime, forKey: .currentTime)
     try container.encode(self.duration, forKey: .duration)
     try container.encode(self.relativePath, forKey: .relativePath)
+    try? container.encode(self.parentFolder, forKey: .parentFolder)
     try container.encode(self.percentCompleted, forKey: .percentCompleted)
     try container.encode(self.isFinished, forKey: .isFinished)
     try container.encode(self.isBoundBook, forKey: .isBoundBook)
@@ -213,6 +218,7 @@ extension PlayableItem: Codable {
       currentTime: try values.decode(TimeInterval.self, forKey: .currentTime),
       duration: try values.decode(TimeInterval.self, forKey: .duration),
       relativePath: try values.decode(String.self, forKey: .relativePath),
+      parentFolder: try? values.decode(String?.self, forKey: .parentFolder),
       percentCompleted: try values.decode(Double.self, forKey: .percentCompleted),
       isFinished: try values.decode(Bool.self, forKey: .isFinished),
       isBoundBook: try values.decode(Bool.self, forKey: .isBoundBook)

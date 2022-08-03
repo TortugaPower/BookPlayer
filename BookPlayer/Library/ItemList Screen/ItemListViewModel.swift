@@ -196,40 +196,23 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     return index
   }
 
-  func playNextBook(after item: SimpleLibraryItem) {
-    guard let libraryItem = self.libraryService.getItem(with: item.relativePath) else {
-      return
-    }
-
-    var pathToPlay: String?
-
-    defer {
-      if let pathToPlay = pathToPlay {
-        self.coordinator.loadPlayer(pathToPlay)
-      }
-    }
-
-    guard let folder = libraryItem as? Folder,
-          folder.type == .regular else {
-      pathToPlay = libraryItem.relativePath
-      return
-    }
-
-    // Special treatment for folders
-    guard
-      let currentItem = self.playerManager.currentItem,
-      currentItem.relativePath.contains(folder.relativePath) else {
-        // restart the selected folder if current playing book has no relation to it
-        if libraryItem.isFinished {
-          self.libraryService.jumpToStart(relativePath: libraryItem.relativePath)
+  func playNextBook(in item: SimpleLibraryItem) {
+    switch item.type {
+    case .book, .bound:
+      self.coordinator.loadPlayer(item.relativePath)
+    case .folder:
+      guard
+        let currentItem = self.playerManager.currentItem,
+        currentItem.relativePath.contains(item.relativePath)
+      else {
+        if let folder = self.libraryService.getItem(with: item.relativePath) as? Folder {
+          self.coordinator.loadNextBook(in: folder)
         }
-
-        pathToPlay = libraryItem.getBookToPlay()?.relativePath
         return
       }
 
-    // override next book with the one already playing
-    pathToPlay = currentItem.relativePath
+      self.coordinator.loadPlayer(currentItem.relativePath)
+    }
   }
 
   func reloadItems(pageSizePadding: Int = 0) {

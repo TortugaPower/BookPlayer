@@ -34,10 +34,6 @@ public class LibraryItem: NSManagedObject, Codable {
     return self.library
   }
 
-    public func getBookToPlay() -> Book? {
-        return nil
-    }
-
     // Represents sum of current time
     public var progress: Double {
         return 0
@@ -51,12 +47,6 @@ public class LibraryItem: NSManagedObject, Codable {
     public func info() -> String { return "" }
 
     public func setCurrentTime(_ time: Double) {}
-
-  public func index(for item: LibraryItem) -> Int? { return nil }
-
-  public func getFolder(matching relativePath: String) -> Folder? { return nil }
-
-    public func getItem(with relativePath: String) -> LibraryItem? { return nil }
 
     public func encode(to encoder: Encoder) throws {
         fatalError("LibraryItem is an abstract class, override this function in the subclass")
