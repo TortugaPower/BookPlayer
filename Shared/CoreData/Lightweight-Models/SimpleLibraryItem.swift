@@ -15,7 +15,7 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
   public let title: String
   public let details: String
   public let duration: String
-  public let progress: Double
+  public var progress: Double
   public let isFinished: Bool
   public let relativePath: String
   public let parentFolder: String?
@@ -35,31 +35,6 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
 }
 
 extension SimpleLibraryItem {
-  // Reserved for Add item
-  public init() {
-    self.title = "Add Button"
-    self.details = ""
-    self.duration = ""
-    self.progress = 0
-    self.isFinished = false
-    self.relativePath = "bookplayer/add-button"
-    self.parentFolder = nil
-    self.type = .book
-    self.syncStatus = .synced
-  }
-
-  public init(from item: SimpleLibraryItem, progress: Double?) {
-    self.title = item.title
-    self.details = item.details
-    self.duration = item.duration
-    self.progress = progress ?? item.progress
-    self.isFinished = item.isFinished
-    self.relativePath = item.relativePath
-    self.parentFolder = item.parentFolder
-    self.type = item.type
-    self.syncStatus = item.syncStatus
-  }
-
   public init(from item: LibraryItem) {
     self.title = item.title
     self.details = item.details

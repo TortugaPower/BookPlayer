@@ -94,7 +94,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         guard let self = self,
               let index = self.items.firstIndex(where: { relativePath.contains($0.relativePath) }) else { return }
 
-        let currentItem = self.items[index]
+        var currentItem = self.items[index]
 
         var progress: Double?
 
@@ -105,9 +105,9 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
           progress = self.containingFolder?.progressPercentage
         }
 
-        let updatedItem = SimpleLibraryItem(from: currentItem, progress: progress)
+        currentItem.progress = progress ?? currentItem.progress
 
-        self.items[index] = updatedItem
+        self.items[index] = currentItem
 
         let indexModified = IndexPath(row: index, section: Section.data.rawValue)
         self.itemProgressUpdates.send(indexModified)
