@@ -19,7 +19,6 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   var offset = 0
 
   public private(set) var defaultArtwork: Data?
-  private var themeAccent: UIColor
   public private(set) var itemsUpdates = PassthroughSubject<[SimpleLibraryItem], Never>()
   public private(set) var itemProgressUpdates = PassthroughSubject<IndexPath, Never>()
   public private(set) var items = [SimpleLibraryItem]()
@@ -31,14 +30,15 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     return self.libraryService.getMaxItemsCount(at: self.folderRelativePath)
   }
 
-  init(folderRelativePath: String?,
-       playerManager: PlayerManagerProtocol,
-       libraryService: LibraryServiceProtocol,
-       themeAccent: UIColor) {
+  init(
+    folderRelativePath: String?,
+    playerManager: PlayerManagerProtocol,
+    libraryService: LibraryServiceProtocol,
+    themeAccent: UIColor
+  ) {
     self.folderRelativePath = folderRelativePath
     self.playerManager = playerManager
     self.libraryService = libraryService
-    self.themeAccent = themeAccent
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: themeAccent)?.pngData()
     super.init()
 
@@ -105,7 +105,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
           progress = self.containingFolder?.progressPercentage
         }
 
-        let updatedItem = SimpleLibraryItem(from: currentItem, progress: progress, playbackState: .playing)
+        let updatedItem = SimpleLibraryItem(from: currentItem, progress: progress)
 
         self.items[index] = updatedItem
 
@@ -115,7 +115,6 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func clearPlaybackState() {
-    self.items = self.items.map({ SimpleLibraryItem(from: $0, playbackState: .stopped) })
     self.itemsUpdates.send(self.items)
   }
 
@@ -126,10 +125,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       return []
     }
 
-    let displayItems = fetchedItems.map({ SimpleLibraryItem(
-                                          from: $0,
-                                          themeAccent: self.themeAccent,
-                                          playbackState: self.getPlaybackState(for: $0)) })
+    let displayItems = fetchedItems.map({ SimpleLibraryItem(from: $0) })
     self.offset = displayItems.count
     self.items = displayItems
 
@@ -146,10 +142,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       return
     }
 
-    let displayItems = fetchedItems.map({ SimpleLibraryItem(
-                                          from: $0,
-                                          themeAccent: self.themeAccent,
-                                          playbackState: self.getPlaybackState(for: $0)) })
+    let displayItems = fetchedItems.map({ SimpleLibraryItem(from: $0) })
     self.offset += displayItems.count
 
     self.items += displayItems
@@ -166,10 +159,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       return
     }
 
-    let displayItems = fetchedItems.map({ SimpleLibraryItem(
-                                          from: $0,
-                                          themeAccent: self.themeAccent,
-                                          playbackState: self.getPlaybackState(for: $0)) })
+    let displayItems = fetchedItems.map({ SimpleLibraryItem(from: $0) })
     self.offset = displayItems.count
 
     self.items = displayItems
@@ -221,7 +211,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     self.itemsUpdates.send(loadedItems)
   }
 
-  func getPlaybackState(for item: LibraryItem) -> PlaybackState {
+  func getPlaybackState(for item: SimpleLibraryItem) -> PlaybackState {
     guard let currentItem = self.playerManager.currentItem else {
       return .stopped
     }
@@ -345,7 +335,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       for folder in existingFolders {
         if processedItems.contains(where: { $0.relativePath == folder.relativePath }) { continue }
 
-        availableFolders.append(SimpleLibraryItem(from: folder, themeAccent: self.themeAccent))
+        availableFolders.append(SimpleLibraryItem(from: folder))
       }
     }
 
@@ -434,7 +424,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       for folder in existingFolders {
         if selectedItems.contains(where: { $0.relativePath == folder.relativePath }) { continue }
 
-        availableFolders.append(SimpleLibraryItem(from: folder, themeAccent: self.themeAccent))
+        availableFolders.append(SimpleLibraryItem(from: folder))
       }
     }
 
@@ -453,7 +443,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       for folder in existingFolders {
         if selectedItems.contains(where: { $0.relativePath == folder.relativePath }) { continue }
 
-        availableFolders.append(SimpleLibraryItem(from: folder, themeAccent: self.themeAccent))
+        availableFolders.append(SimpleLibraryItem(from: folder))
       }
     }
 

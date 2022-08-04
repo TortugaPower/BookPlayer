@@ -111,7 +111,7 @@ class CarPlayManager: NSObject {
     else { return [] }
 
     let items = libraryService.fetchContents(at: relativePath, limit: nil, offset: nil) ?? []
-    return items.map({ SimpleLibraryItem(from: $0, themeAccent: .blue) })
+    return items.map({ SimpleLibraryItem(from: $0) })
   }
 
   func setupNowPlayingTemplate() {
@@ -203,7 +203,7 @@ class CarPlayManager: NSObject {
     else { return [] }
 
     let items = libraryService.fetchContents(at: relativePath, limit: nil, offset: nil) ?? []
-    let simpleItems = items.map({ SimpleLibraryItem(from: $0, themeAccent: .blue) })
+    let simpleItems = items.map({ SimpleLibraryItem(from: $0) })
 
     return transformItems(simpleItems)
   }
@@ -238,7 +238,7 @@ class CarPlayManager: NSObject {
     else { return }
 
     let items = libraryService.getLastPlayedItems(limit: 20) ?? []
-    let simpleItems = items.map({ SimpleLibraryItem(from: $0, themeAccent: .blue) })
+    let simpleItems = items.map({ SimpleLibraryItem(from: $0) })
 
     let cpitems = transformItems(simpleItems)
 

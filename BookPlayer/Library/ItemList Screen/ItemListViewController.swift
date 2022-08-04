@@ -29,7 +29,11 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
   lazy var selectButton: UIBarButtonItem = UIBarButtonItem(title: "select_all_title".localized, style: .plain, target: self, action: #selector(selectButtonPressed))
 
   var defaultArtwork: UIImage? {
-    return UIImage(data: self.viewModel.defaultArtwork!)
+    if let data = viewModel.defaultArtwork {
+      return UIImage(data: data)
+    }
+
+    return nil
   }
 
   private var disposeBag = Set<AnyCancellable>()
@@ -342,7 +346,7 @@ extension ItemListViewController: UITableViewDataSource {
     cell.progress = item.isFinished ? 1.0 : item.progress
     cell.duration = item.duration
     cell.type = item.type
-    cell.playbackState = item.playbackState
+    cell.playbackState = viewModel.getPlaybackState(for: item)
 
     cell.artworkView.kf.setImage(
       with: ArtworkService.getArtworkProvider(for: item.relativePath),

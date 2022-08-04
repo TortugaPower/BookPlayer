@@ -17,11 +17,9 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
   public let duration: String
   public let progress: Double
   public let isFinished: Bool
-  public let themeAccent: UIColor
   public let relativePath: String
   public let parentFolder: String?
   public let type: SimpleItemType
-  public let playbackState: PlaybackState
   public let syncStatus: SyncStatus
 
   public static func == (lhs: SimpleLibraryItem, rhs: SimpleLibraryItem) -> Bool {
@@ -33,7 +31,6 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
     hasher.combine(title)
     hasher.combine(details)
     hasher.combine(progress)
-    hasher.combine(playbackState)
   }
 }
 
@@ -45,66 +42,32 @@ extension SimpleLibraryItem {
     self.duration = ""
     self.progress = 0
     self.isFinished = false
-    self.themeAccent = UIColor(hex: "3488D1")
     self.relativePath = "bookplayer/add-button"
     self.parentFolder = nil
     self.type = .book
-    self.playbackState = .stopped
     self.syncStatus = .synced
   }
 
-  public init(from item: SimpleLibraryItem, themeAccent: UIColor) {
-    self.title = item.title
-    self.details = item.details
-    self.duration = item.duration
-    self.progress = item.progress
-    self.isFinished = item.isFinished
-    self.themeAccent = item.themeAccent
-    self.relativePath = item.relativePath
-    self.parentFolder = item.parentFolder
-    self.type = item.type
-    self.playbackState = item.playbackState
-    self.syncStatus = item.syncStatus
-  }
-
-  public init(from item: SimpleLibraryItem, progress: Double?, playbackState: PlaybackState = .stopped) {
+  public init(from item: SimpleLibraryItem, progress: Double?) {
     self.title = item.title
     self.details = item.details
     self.duration = item.duration
     self.progress = progress ?? item.progress
     self.isFinished = item.isFinished
-    self.themeAccent = item.themeAccent
     self.relativePath = item.relativePath
     self.parentFolder = item.parentFolder
     self.type = item.type
-    self.playbackState = playbackState
     self.syncStatus = item.syncStatus
   }
 
-  public init(from item: SimpleLibraryItem, playbackState: PlaybackState) {
-    self.title = item.title
-    self.details = item.details
-    self.duration = item.duration
-    self.progress = item.progress
-    self.isFinished = item.isFinished
-    self.themeAccent = item.themeAccent
-    self.relativePath = item.relativePath
-    self.parentFolder = item.parentFolder
-    self.type = item.type
-    self.playbackState = playbackState
-    self.syncStatus = item.syncStatus
-  }
-
-  public init(from item: LibraryItem, themeAccent: UIColor, playbackState: PlaybackState = .stopped) {
+  public init(from item: LibraryItem) {
     self.title = item.title
     self.details = item.details
     self.duration = TimeParser.formatTotalDuration(item.duration)
     self.progress = item.isFinished ? 1.0 : item.progressPercentage
     self.isFinished = item.isFinished
-    self.themeAccent = themeAccent
     self.relativePath = item.relativePath
     self.parentFolder = item.folder?.relativePath
-    self.playbackState = playbackState
     self.syncStatus = item.syncStatus
 
     switch item {
