@@ -31,6 +31,7 @@ extension LibraryItem {
   @NSManaged public var lastPlayed: Library?
   @NSManaged public var details: String!
   @NSManaged public var syncStatus: SyncStatus
+  @NSManaged public var type: ItemType
 }
 
 // MARK: Generated accessors for bookmarks

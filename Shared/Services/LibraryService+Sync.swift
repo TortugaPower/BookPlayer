@@ -12,10 +12,10 @@ import Foundation
 public protocol LibrarySyncProtocol {
   func getItem(with relativePath: String) -> LibraryItem?
   func getItems(notIn relativePaths: [String], parentFolder: String?) throws -> [LibraryItem]
-  func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [LibraryItem]?
+  func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SimpleLibraryItem]?
 
   func addBook(from item: SyncedItem, parentFolder: String?)
-  func addFolder(from item: SyncedItem, type: FolderType, parentFolder: String?)
+  func addFolder(from item: SyncedItem, type: SimpleItemType, parentFolder: String?)
 }
 
 extension LibraryService: LibrarySyncProtocol {
@@ -63,7 +63,7 @@ extension LibraryService: LibrarySyncProtocol {
     self.dataManager.saveContext()
   }
 
-  public func addFolder(from item: SyncedItem, type: FolderType, parentFolder: String?) {
+  public func addFolder(from item: SyncedItem, type: SimpleItemType, parentFolder: String?) {
     // This shouldn't fail
     try? createFolderOnDisk(title: item.title, inside: parentFolder)
 

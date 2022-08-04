@@ -110,8 +110,7 @@ class CarPlayManager: NSObject {
       let libraryService = AppDelegate.shared?.libraryService
     else { return [] }
 
-    let items = libraryService.fetchContents(at: relativePath, limit: nil, offset: nil) ?? []
-    return items.map({ SimpleLibraryItem(from: $0) })
+    return libraryService.fetchContents(at: relativePath, limit: nil, offset: nil) ?? []
   }
 
   func setupNowPlayingTemplate() {
@@ -203,9 +202,8 @@ class CarPlayManager: NSObject {
     else { return [] }
 
     let items = libraryService.fetchContents(at: relativePath, limit: nil, offset: nil) ?? []
-    let simpleItems = items.map({ SimpleLibraryItem(from: $0) })
 
-    return transformItems(simpleItems)
+    return transformItems(items)
   }
 
   /// Transforms the interface `SimpleLibraryItem` into CarPlay items

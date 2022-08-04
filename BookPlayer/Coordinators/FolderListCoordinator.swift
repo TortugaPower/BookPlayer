@@ -62,7 +62,7 @@ class FolderListCoordinator: ItemListCoordinator {
         placeholder = item.title
       }
 
-      self?.showCreateFolderAlert(placeholder: placeholder, with: items.map { $0.relativePath }, type: .regular)
+      self?.showCreateFolderAlert(placeholder: placeholder, with: items.map { $0.relativePath }, type: .folder)
     })
 
     let existingFolderAction = UIAlertAction(title: "existing_playlist_button".localized, style: .default) { _ in
@@ -70,7 +70,7 @@ class FolderListCoordinator: ItemListCoordinator {
       vc.items = availableFolders
 
       vc.onItemSelected = { selectedFolder in
-        self.onAction?(.importIntoFolder(selectedFolder, items: items, type: .regular))
+        self.onAction?(.importIntoFolder(selectedFolder, items: items, type: .folder))
       }
 
       let nav = AppNavigationController(rootViewController: vc)

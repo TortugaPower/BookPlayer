@@ -29,12 +29,12 @@ public protocol LibraryServiceProtocol {
   func findFirstItem(in parentFolder: String?, beforeRank: Int16?) -> LibraryItem?
   func findFirstItem(in parentFolder: String?, afterRank: Int16?, isUnfinished: Bool?) -> LibraryItem?
 
-  func updateFolder(at relativePath: String, type: FolderType) throws
+  func updateFolder(at relativePath: String, type: SimpleItemType) throws
   func findFolder(with fileURL: URL) -> Folder?
   func findFolder(with relativePath: String) -> Folder?
   func hasLibraryLinked(item: LibraryItem) -> Bool
   func createFolder(with title: String, inside relativePath: String?) throws -> Folder
-  func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [LibraryItem]?
+  func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SimpleLibraryItem]?
   func getMaxItemsCount(at relativePath: String?) -> Int
   func replaceOrderedItems(_ items: NSOrderedSet, at relativePath: String?)
   func reorderItem(at relativePath: String, inside folderRelativePath: String?, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath)
@@ -302,14 +302,14 @@ public final class LibraryService: LibraryServiceProtocol {
   }
 
   // MARK: - Folders
-  public func updateFolder(at relativePath: String, type: FolderType) throws {
+  public func updateFolder(at relativePath: String, type: SimpleItemType) throws {
     guard let folder = self.getItem(with: relativePath) as? Folder else {
       throw BookPlayerError.runtimeError("Can't find the folder")
     }
 
     switch type {
-    case .regular:
-      folder.type = type
+    case .folder:
+      folder.type = .folder
       folder.lastPlayDate = nil
     case .bound:
       guard let items = folder.items?.array as? [Book] else {
@@ -322,7 +322,9 @@ public final class LibraryService: LibraryServiceProtocol {
 
       items.forEach({ $0.lastPlayDate = nil })
 
-      folder.type = type
+      folder.type = .bound
+    case .book:
+      return
     }
 
     self.dataManager.saveContext()
@@ -413,14 +415,25 @@ public final class LibraryService: LibraryServiceProtocol {
     return newFolder
   }
 
-  public func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [LibraryItem]? {
-    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+  public func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SimpleLibraryItem]? {
+    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+    fetchRequest.propertiesToFetch = [
+      "title",
+      "details",
+      "duration",
+      "percentCompleted",
+      "isFinished",
+      "relativePath",
+      "folder.relativePath",
+      "type",
+      "syncStatus"
+    ]
+    fetchRequest.resultType = .dictionaryResultType
     if let relativePath = relativePath {
       fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), relativePath)
     } else {
       fetchRequest.predicate = NSPredicate(format: "%K != nil", #keyPath(LibraryItem.library))
     }
-
     let sort = NSSortDescriptor(key: #keyPath(LibraryItem.orderRank), ascending: true)
     fetchRequest.sortDescriptors = [sort]
 
@@ -432,7 +445,34 @@ public final class LibraryService: LibraryServiceProtocol {
       fetchRequest.fetchOffset = offset
     }
 
-    return try? self.dataManager.getContext().fetch(fetchRequest)
+    let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
+
+    return results?.compactMap({ dictionary -> SimpleLibraryItem? in
+      guard
+        let title = dictionary["title"] as? String,
+        let details = dictionary["details"] as? String,
+        let duration = dictionary["duration"] as? Double,
+        let percentCompleted = dictionary["percentCompleted"] as? Double,
+        let isFinished = dictionary["isFinished"] as? Bool,
+        let relativePath = dictionary["relativePath"] as? String,
+        let rawType = dictionary["type"] as? Int16,
+        let type = SimpleItemType(rawValue: rawType),
+        let rawSyncStatus = dictionary["syncStatus"] as? Int16,
+        let syncStatus = SyncStatus(rawValue: rawSyncStatus)
+      else { return nil }
+
+      return SimpleLibraryItem(
+        title: title,
+        details: details,
+        duration: TimeParser.formatTotalDuration(duration),
+        progress: isFinished ? 1.0 : (percentCompleted / 100),
+        isFinished: isFinished,
+        relativePath: relativePath,
+        parentFolder: dictionary["folder.relativePath"] as? String,
+        type: type,
+        syncStatus: syncStatus
+      )
+    })
   }
 
   public func getMaxItemsCount(at relativePath: String?) -> Int {
@@ -534,7 +574,7 @@ public final class LibraryService: LibraryServiceProtocol {
   func markAsFinished(flag: Bool, folder: Folder) {
     folder.isFinished = flag
 
-    guard let items =  self.fetchContents(at: folder.relativePath, limit: nil, offset: nil) else { return }
+    guard let items = self.fetchContents(at: folder.relativePath, limit: nil, offset: nil) else { return }
 
     items.forEach({ self.markAsFinished(flag: flag, relativePath: $0.relativePath) })
   }
@@ -559,7 +599,7 @@ public final class LibraryService: LibraryServiceProtocol {
   }
 
   func jumpToStart(folder: Folder) {
-    guard let items =  self.fetchContents(at: folder.relativePath, limit: nil, offset: nil) else { return }
+    guard let items = self.fetchContents(at: folder.relativePath, limit: nil, offset: nil) else { return }
 
     items.forEach({ self.jumpToStart(relativePath: $0.relativePath) })
   }

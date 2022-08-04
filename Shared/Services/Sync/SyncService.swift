@@ -67,7 +67,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     case is Folder:
       let contents = self.libraryService.fetchContents(at: item.relativePath, limit: nil, offset: nil)
 
-      contents?.forEach({ [weak self] in self?.jobManager.scheduleMetadataUploadJob(for: $0) })
+//      contents?.forEach({ [weak self] in self?.jobManager.scheduleMetadataUploadJob(for: $0) })
     default:
       break
     }
@@ -101,7 +101,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       case .bound:
         self.libraryService.addFolder(from: item, type: .bound, parentFolder: parentFolder)
       case .folder:
-        self.libraryService.addFolder(from: item, type: .regular, parentFolder: parentFolder)
+        self.libraryService.addFolder(from: item, type: .folder, parentFolder: parentFolder)
       }
     }
   }

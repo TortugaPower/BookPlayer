@@ -1,5 +1,5 @@
 //
-//  FolderType.swift
+//  ItemType.swift
 //  BookPlayer
 //
 //  Created by Gianni Carlo on 30/11/21.
@@ -8,6 +8,6 @@
 
 import Foundation
 
-@objc public enum FolderType: Int16 {
-  case regular, bound
+@objc public enum ItemType: Int16 {
+  case folder, bound, book
 }

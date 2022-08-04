@@ -155,6 +155,7 @@ public final class DataMigrationManager {
       let dataManager = DataManager(coreDataStack: stack)
 
       if currentVersion == .v8 {
+        self.populateIsFinished(dataManager: dataManager)
         self.populateFolderDetails(dataManager: dataManager)
       }
 

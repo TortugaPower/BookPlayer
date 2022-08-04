@@ -113,7 +113,7 @@ public class Folder: LibraryItem {
 
     public override var progressPercentage: Double {
       switch self.type {
-      case .regular:
+      case .folder:
         let itemTime = self.getProgressAndDuration()
 
         return itemTime.progress / itemTime.duration
@@ -121,6 +121,8 @@ public class Folder: LibraryItem {
         guard self.duration > 0 else { return 0 }
 
         return self.currentTime / self.duration
+      case .book:
+        return 0
       }
     }
 

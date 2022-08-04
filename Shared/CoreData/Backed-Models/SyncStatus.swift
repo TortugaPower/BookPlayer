@@ -1,5 +1,5 @@
 //
-//  PendingSyncState.swift
+//  SyncStatus.swift
 //  BookPlayer
 //
 //  Created by gianni.carlo on 3/8/22.

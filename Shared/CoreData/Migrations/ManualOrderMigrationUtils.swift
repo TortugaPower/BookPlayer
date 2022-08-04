@@ -70,4 +70,23 @@ extension DataMigrationManager {
 
     dataManager.saveContext()
   }
+
+  func populateIsFinished(dataManager: DataManager) {
+    let fetch: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+    fetch.propertiesToFetch = ["isFinished"]
+
+    guard
+      let items = try? dataManager.getContext().fetch(fetch) as [LibraryItem]
+    else { return }
+
+    items.forEach { item in
+      if item.isFinished {
+        item.isFinished = true
+      } else {
+        item.isFinished = false
+      }
+    }
+
+    dataManager.saveContext()
+  }
 }

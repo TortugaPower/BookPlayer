@@ -65,7 +65,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
     }
 
     if let folder = previousItem as? Folder,
-       folder.type == .regular {
+       folder.type == .folder {
       return try? getFirstPlayableItem(
         in: folder,
         isUnfinished: nil
@@ -106,7 +106,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
     }
 
     if let folder = nextItem as? Folder,
-       folder.type == .regular {
+       folder.type == .folder {
       return try? getFirstPlayableItem(
         in: folder,
         isUnfinished: autoplayed == true
@@ -124,7 +124,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
 
     switch child {
     case let childFolder as Folder:
-      if childFolder.type == .regular {
+      if childFolder.type == .folder {
         return try getFirstPlayableItem(in: childFolder, isUnfinished: isUnfinished)
       } else {
         return try self.getPlayableItemFrom(folder: childFolder)

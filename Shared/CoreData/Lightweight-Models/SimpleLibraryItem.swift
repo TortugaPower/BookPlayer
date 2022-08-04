@@ -45,15 +45,12 @@ extension SimpleLibraryItem {
     self.parentFolder = item.folder?.relativePath
     self.syncStatus = item.syncStatus
 
-    switch item {
-    case let folder as Folder:
-      switch folder.type {
-      case .regular:
-        self.type = .folder
-      case .bound:
-        self.type = .bound
-      }
-    default:
+    switch item.type {
+    case .folder:
+      self.type = .folder
+    case .bound:
+      self.type = .bound
+    case .book:
       self.type = .book
     }
   }

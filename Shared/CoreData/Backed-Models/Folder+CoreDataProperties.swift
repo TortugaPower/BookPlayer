@@ -16,7 +16,6 @@ extension Folder {
   }
 
   @NSManaged public var items: NSOrderedSet?
-  @NSManaged public var type: FolderType
 }
 
 // MARK: Generated accessors for books
