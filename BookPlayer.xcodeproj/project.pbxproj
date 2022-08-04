@@ -337,11 +337,6 @@
 		9F22DE48288EF71F00056FCD /* ProfileCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE47288EF71F00056FCD /* ProfileCardView.swift */; };
 		9F2681AD2888B26100359BD3 /* LoginBenefitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2681AC2888B26100359BD3 /* LoginBenefitView.swift */; };
 		9F2681B628898A7300359BD3 /* LoginDisclaimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2681B528898A7300359BD3 /* LoginDisclaimerView.swift */; };
-		9F2C228E2875B17400523F74 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9F2C228D2875B17400523F74 /* MappingModel_v8_to_v9.xcmappingmodel */; };
-		9F2C228F2875B17400523F74 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9F2C228D2875B17400523F74 /* MappingModel_v8_to_v9.xcmappingmodel */; };
-		9F2C22902875B17400523F74 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9F2C228D2875B17400523F74 /* MappingModel_v8_to_v9.xcmappingmodel */; };
-		9F2C22912875B17400523F74 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9F2C228D2875B17400523F74 /* MappingModel_v8_to_v9.xcmappingmodel */; };
-		9F2C22922875B17400523F74 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9F2C228D2875B17400523F74 /* MappingModel_v8_to_v9.xcmappingmodel */; };
 		9F2DA27F27F0C68D00C8EF2B /* CarPlaySceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2DA27E27F0C68D00C8EF2B /* CarPlaySceneDelegate.swift */; };
 		9F3C436A284181690066D99A /* DataInitializerCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3C435B28413C070066D99A /* DataInitializerCoordinator.swift */; };
 		9F3C436B284181C70066D99A /* AlertPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3C4357284132640066D99A /* AlertPresenter.swift */; };
@@ -432,6 +427,17 @@
 		9FC1E47B281600D500522FA8 /* KeychainServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC1E47A281600D500522FA8 /* KeychainServiceMock.swift */; };
 		9FD8FE4E2865687800EB2C3D /* LibraryItemMetadataUploadJob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FD8FE4D2865687800EB2C3D /* LibraryItemMetadataUploadJob.swift */; };
 		9FD8FE4F2865687800EB2C3D /* LibraryItemMetadataUploadJob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FD8FE4D2865687800EB2C3D /* LibraryItemMetadataUploadJob.swift */; };
+		9FDDD2D8289B64440020C428 /* PendingSyncState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FDDD2D7289B64440020C428 /* PendingSyncState.swift */; };
+		9FDDD2D9289B64440020C428 /* PendingSyncState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FDDD2D7289B64440020C428 /* PendingSyncState.swift */; };
+		9FDDD2DE289BEE590020C428 /* SyncJobScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FDDD2DD289BEE590020C428 /* SyncJobScheduler.swift */; };
+		9FDDD2DF289BEE590020C428 /* SyncJobScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FDDD2DD289BEE590020C428 /* SyncJobScheduler.swift */; };
+		9FDDD2E1289BFCE20020C428 /* LibraryService+Sync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FDDD2E0289BFCE20020C428 /* LibraryService+Sync.swift */; };
+		9FDDD2E2289BFCE20020C428 /* LibraryService+Sync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FDDD2E0289BFCE20020C428 /* LibraryService+Sync.swift */; };
+		9FDDD2E4289C08FD0020C428 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9FDDD2E3289C08FD0020C428 /* MappingModel_v8_to_v9.xcmappingmodel */; };
+		9FDDD2E5289C08FD0020C428 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9FDDD2E3289C08FD0020C428 /* MappingModel_v8_to_v9.xcmappingmodel */; };
+		9FDDD2E6289C09010020C428 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9FDDD2E3289C08FD0020C428 /* MappingModel_v8_to_v9.xcmappingmodel */; };
+		9FDDD2E7289C09020020C428 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9FDDD2E3289C08FD0020C428 /* MappingModel_v8_to_v9.xcmappingmodel */; };
+		9FDDD2E8289C09060020C428 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9FDDD2E3289C08FD0020C428 /* MappingModel_v8_to_v9.xcmappingmodel */; };
 		9FE07E1B27C522DE007591F7 /* ContainerItemListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FE07E1A27C522DE007591F7 /* ContainerItemListView.swift */; };
 		9FEC87AE27FA9E98006C71D5 /* LoginCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEC87AD27FA9E98006C71D5 /* LoginCoordinator.swift */; };
 		9FEC87B027FA9F0F006C71D5 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEC87AF27FA9F0F006C71D5 /* LoginViewController.swift */; };
@@ -921,7 +927,6 @@
 		9F22DE47288EF71F00056FCD /* ProfileCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCardView.swift; sourceTree = "<group>"; };
 		9F2681AC2888B26100359BD3 /* LoginBenefitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginBenefitView.swift; sourceTree = "<group>"; };
 		9F2681B528898A7300359BD3 /* LoginDisclaimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginDisclaimerView.swift; sourceTree = "<group>"; };
-		9F2C228D2875B17400523F74 /* MappingModel_v8_to_v9.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MappingModel_v8_to_v9.xcmappingmodel; sourceTree = "<group>"; };
 		9F2DA27E27F0C68D00C8EF2B /* CarPlaySceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarPlaySceneDelegate.swift; sourceTree = "<group>"; };
 		9F3C4357284132640066D99A /* AlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresenter.swift; sourceTree = "<group>"; };
 		9F3C435B28413C070066D99A /* DataInitializerCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataInitializerCoordinator.swift; sourceTree = "<group>"; };
@@ -993,6 +998,10 @@
 		9FC1E4762815F97E00522FA8 /* KeychainServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainServiceTests.swift; sourceTree = "<group>"; };
 		9FC1E47A281600D500522FA8 /* KeychainServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainServiceMock.swift; sourceTree = "<group>"; };
 		9FD8FE4D2865687800EB2C3D /* LibraryItemMetadataUploadJob.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryItemMetadataUploadJob.swift; sourceTree = "<group>"; };
+		9FDDD2D7289B64440020C428 /* PendingSyncState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingSyncState.swift; sourceTree = "<group>"; };
+		9FDDD2DD289BEE590020C428 /* SyncJobScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncJobScheduler.swift; sourceTree = "<group>"; };
+		9FDDD2E0289BFCE20020C428 /* LibraryService+Sync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LibraryService+Sync.swift"; sourceTree = "<group>"; };
+		9FDDD2E3289C08FD0020C428 /* MappingModel_v8_to_v9.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MappingModel_v8_to_v9.xcmappingmodel; sourceTree = "<group>"; };
 		9FE07E1A27C522DE007591F7 /* ContainerItemListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerItemListView.swift; sourceTree = "<group>"; };
 		9FEC87AD27FA9E98006C71D5 /* LoginCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginCoordinator.swift; sourceTree = "<group>"; };
 		9FEC87AF27FA9F0F006C71D5 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
@@ -1503,7 +1512,7 @@
 				41C3394825E04091003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel */,
 				418CABB025EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel */,
 				41A359C2276232E00020D5F5 /* MappingModel_v7_to_v8.xcmappingmodel */,
-				9F2C228D2875B17400523F74 /* MappingModel_v8_to_v9.xcmappingmodel */,
+				9FDDD2E3289C08FD0020C428 /* MappingModel_v8_to_v9.xcmappingmodel */,
 			);
 			path = Migrations;
 			sourceTree = "<group>";
@@ -1651,6 +1660,7 @@
 				41A1B11B226F88C500EA0400 /* Folder+CoreDataClass.swift */,
 				41A1B11C226F88C500EA0400 /* Folder+CoreDataProperties.swift */,
 				41A90C4427563F5A00C30394 /* FolderType.swift */,
+				9FDDD2D7289B64440020C428 /* PendingSyncState.swift */,
 				4138CE0D26E5540E0014F11E /* Bookmark+CoreDataClass.swift */,
 				4138CE0E26E5540E0014F11E /* Bookmark+CoreDataProperties.swift */,
 				9F7B64732803217400895ECC /* Account+CoreDataClass.swift */,
@@ -1702,6 +1712,7 @@
 			children = (
 				9FC1E4742815C6A300522FA8 /* KeychainService.swift */,
 				62AAE22B274AA3EB001EB9FF /* LibraryService.swift */,
+				9FDDD2E0289BFCE20020C428 /* LibraryService+Sync.swift */,
 				41EB071A2752FA6B00EFEE13 /* PlaybackService.swift */,
 				9FC1E4612814F68F00522FA8 /* Account */,
 				9FD8FE4C286566FF00EB2C3D /* Sync */,
@@ -1919,6 +1930,7 @@
 				9FBDBC7B287940AD00D315A2 /* Model */,
 				9FC1E46A2815A8A800522FA8 /* LibraryAPI.swift */,
 				9F9F3B6F280E4E4B004359DA /* SyncService.swift */,
+				9FDDD2DD289BEE590020C428 /* SyncJobScheduler.swift */,
 				9FD8FE4D2865687800EB2C3D /* LibraryItemMetadataUploadJob.swift */,
 				9FBDBC88287B023300D315A2 /* LibraryItemFileUploadJob.swift */,
 			);
@@ -2593,7 +2605,7 @@
 				41A8BAFE227E6C88003C9895 /* Notification+BookPlayerWatchApp.swift in Sources */,
 				41D20DB125D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
 				9F82DF6D27DE985A001B0EA8 /* NowPlayingPlaybackControlsView.swift in Sources */,
-				9F2C228F2875B17400523F74 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
+				9FDDD2E6289C09010020C428 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
 				9FA334C327C2833B0064E8EA /* ResizeableImageView.swift in Sources */,
 				9F82DF6F27DEE83E001B0EA8 /* SkipDirection.swift in Sources */,
 				9FA334AB27C058210064E8EA /* ItemListView.swift in Sources */,
@@ -2615,7 +2627,6 @@
 				4140EA6C2272898F0009F794 /* DataManager.swift in Sources */,
 				4140EA71227289A20009F794 /* UIColor+BookPlayer.swift in Sources */,
 				4138CE1726E584B60014F11E /* BookmarkType.swift in Sources */,
-				9F2C22912875B17400523F74 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
 				5126F123258E9F18009965DC /* URL+BookPlayer.swift in Sources */,
 				9FFCC090289418CA00F4952E /* SimpleChapter.swift in Sources */,
 				419BD5992443FD04001E50A0 /* Intents.intentdefinition in Sources */,
@@ -2633,6 +2644,7 @@
 				41A894212652A5DE0032E972 /* Configuration.swift in Sources */,
 				9FBDBC8A287B023300D315A2 /* LibraryItemFileUploadJob.swift in Sources */,
 				4140EA702272899D0009F794 /* CommandParser.swift in Sources */,
+				9FDDD2DF289BEE590020C428 /* SyncJobScheduler.swift in Sources */,
 				4140EA76227289B50009F794 /* Chapter+CoreDataClass.swift in Sources */,
 				41A359C6276232E00020D5F5 /* MappingModel_v7_to_v8.xcmappingmodel in Sources */,
 				62CADBAE2725FE2900A4A98F /* AVAudioAssetImageDataProvider.swift in Sources */,
@@ -2643,6 +2655,8 @@
 				41C23400272E195B006BC7B8 /* SimpleItemType.swift in Sources */,
 				4140EA6D227289930009F794 /* Constants.swift in Sources */,
 				41EB071C2752FA6B00EFEE13 /* PlaybackService.swift in Sources */,
+				9FDDD2D9289B64440020C428 /* PendingSyncState.swift in Sources */,
+				9FDDD2E2289BFCE20020C428 /* LibraryService+Sync.swift in Sources */,
 				4140EA72227289A50009F794 /* UIColor+Sweetercolor.swift in Sources */,
 				9FC1E45D2814E6A500522FA8 /* NetworkProvider.swift in Sources */,
 				9FC1E4602814F66F00522FA8 /* AccountAPI.swift in Sources */,
@@ -2653,6 +2667,7 @@
 				4140EA7C227289C70009F794 /* LibraryItem+CoreDataClass.swift in Sources */,
 				4140EA74227289AE0009F794 /* Theme+CoreDataClass.swift in Sources */,
 				4140EA6E227289960009F794 /* DeleteMode.swift in Sources */,
+				9FDDD2E5289C08FD0020C428 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
 				9F6BC86727E6D03E002CF2A6 /* WatchApplicationContext.swift in Sources */,
 				4140EA77227289B90009F794 /* Chapter+CoreDataProperties.swift in Sources */,
 				4140EA7B227289C40009F794 /* Book+CoreDataProperties.swift in Sources */,
@@ -2701,7 +2716,7 @@
 				416A29DA256AB6A900605395 /* BookPlayer.xcdatamodeld in Sources */,
 				418CABB625EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
 				41ADD6DA2570AC6300660C64 /* RecentBooksWidgetView.swift in Sources */,
-				9F2C22922875B17400523F74 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
+				9FDDD2E8289C09060020C428 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2773,7 +2788,6 @@
 				4142964921F2E2BA004356DA /* ThemeCellView.swift in Sources */,
 				9F4691F72800F85600A8F0E8 /* AccountViewModel.swift in Sources */,
 				4160A0A123F304530039166B /* LocalizableLabel.swift in Sources */,
-				9F2C228E2875B17400523F74 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
 				4137BBCC272DAF2E009ED9FE /* BaseViewController.swift in Sources */,
 				C318D3AD208CF624000666F8 /* PlayerJumpIcon.swift in Sources */,
 				4138CE2326E66E420014F11E /* BookmarkTableViewCell.swift in Sources */,
@@ -2826,6 +2840,7 @@
 				4158388B26EC2CC500F4A12B /* ImportCoordinator.swift in Sources */,
 				41A1B12E226FC7E500EA0400 /* ImportOperation.swift in Sources */,
 				5126F121258E9F18009965DC /* URL+BookPlayer.swift in Sources */,
+				9FDDD2E7289C09020020C428 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
 				410D0FED1EDCF4B000A52EB9 /* SettingsViewController.swift in Sources */,
 				9F2DA27F27F0C68D00C8EF2B /* CarPlaySceneDelegate.swift in Sources */,
 				4193E202243A91AE004D6A82 /* ActionParserService.swift in Sources */,
@@ -2902,7 +2917,6 @@
 				4124AB2125DFE1A60007C839 /* CoreDataStack.swift in Sources */,
 				41A1B11F226F88C500EA0400 /* Chapter+CoreDataClass.swift in Sources */,
 				4138CE1626E584B60014F11E /* BookmarkType.swift in Sources */,
-				9F2C22902875B17400523F74 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
 				412AB7092701421600969618 /* ManualOrderMigrationUtils.swift in Sources */,
 				9FFCC08F289418CA00F4952E /* SimpleChapter.swift in Sources */,
 				416AAC3423F515AF005AD04F /* String+BookPlayer.swift in Sources */,
@@ -2920,6 +2934,7 @@
 				41A1B131226FE33500EA0400 /* Constants.swift in Sources */,
 				9FBDBC89287B023300D315A2 /* LibraryItemFileUploadJob.swift in Sources */,
 				4124AB1725DFE07E0007C839 /* DataMigrationManager.swift in Sources */,
+				9FDDD2DE289BEE590020C428 /* SyncJobScheduler.swift in Sources */,
 				41A8942A2652A7DF0032E972 /* Bundle+BookPlayer.swift in Sources */,
 				41A1B0F2226E9D1200EA0400 /* BookPlayer.xcdatamodeld in Sources */,
 				41A359C5276232E00020D5F5 /* MappingModel_v7_to_v8.xcmappingmodel in Sources */,
@@ -2930,6 +2945,8 @@
 				41A1B120226F88C500EA0400 /* Chapter+CoreDataProperties.swift in Sources */,
 				41CE44A9227215B500C900AF /* Notification+BookPlayerKit.swift in Sources */,
 				41C233FF272E195B006BC7B8 /* SimpleItemType.swift in Sources */,
+				9FDDD2D8289B64440020C428 /* PendingSyncState.swift in Sources */,
+				9FDDD2E1289BFCE20020C428 /* LibraryService+Sync.swift in Sources */,
 				4140EA1F22723CFC0009F794 /* CommandParser.swift in Sources */,
 				41EB071B2752FA6B00EFEE13 /* PlaybackService.swift in Sources */,
 				9FC1E45C2814E6A500522FA8 /* NetworkProvider.swift in Sources */,
@@ -2940,6 +2957,7 @@
 				41C3394925E04091003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
 				41640A452441ACE2004FB97B /* Intents.intentdefinition in Sources */,
 				41D20DB225D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
+				9FDDD2E4289C08FD0020C428 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
 				412AB71527017ABE00969618 /* DBVersion.swift in Sources */,
 				9F6BC86627E6D03D002CF2A6 /* WatchApplicationContext.swift in Sources */,
 				4138CE1326E554320014F11E /* Bookmark+CoreDataProperties.swift in Sources */,

@@ -22,6 +22,7 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
   public let parentFolder: String?
   public let type: SimpleItemType
   public let playbackState: PlaybackState
+  public let syncStatus: SyncStatus
 
   public static func == (lhs: SimpleLibraryItem, rhs: SimpleLibraryItem) -> Bool {
     return lhs.id == rhs.id
@@ -49,6 +50,7 @@ extension SimpleLibraryItem {
     self.parentFolder = nil
     self.type = .book
     self.playbackState = .stopped
+    self.syncStatus = .synced
   }
 
   public init(from item: SimpleLibraryItem, themeAccent: UIColor) {
@@ -62,6 +64,7 @@ extension SimpleLibraryItem {
     self.parentFolder = item.parentFolder
     self.type = item.type
     self.playbackState = item.playbackState
+    self.syncStatus = item.syncStatus
   }
 
   public init(from item: SimpleLibraryItem, progress: Double?, playbackState: PlaybackState = .stopped) {
@@ -75,6 +78,7 @@ extension SimpleLibraryItem {
     self.parentFolder = item.parentFolder
     self.type = item.type
     self.playbackState = playbackState
+    self.syncStatus = item.syncStatus
   }
 
   public init(from item: SimpleLibraryItem, playbackState: PlaybackState) {
@@ -88,6 +92,7 @@ extension SimpleLibraryItem {
     self.parentFolder = item.parentFolder
     self.type = item.type
     self.playbackState = playbackState
+    self.syncStatus = item.syncStatus
   }
 
   public init(from item: LibraryItem, themeAccent: UIColor, playbackState: PlaybackState = .stopped) {
@@ -100,6 +105,7 @@ extension SimpleLibraryItem {
     self.relativePath = item.relativePath
     self.parentFolder = item.folder?.relativePath
     self.playbackState = playbackState
+    self.syncStatus = item.syncStatus
 
     switch item {
     case let folder as Folder:

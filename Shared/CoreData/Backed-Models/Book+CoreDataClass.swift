@@ -127,7 +127,8 @@ extension Book {
     percentCompleted: Double,
     isFinished: Bool,
     orderRank: Int16,
-    lastPlayDate: Date?
+    lastPlayDate: Date?,
+    syncStatus: SyncStatus
   ) {
     let entity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
     self.init(entity: entity, insertInto: context)
@@ -145,6 +146,7 @@ extension Book {
     self.isFinished = isFinished
     self.orderRank = orderRank
     self.lastPlayDate = lastPlayDate
+    self.syncStatus = syncStatus
     // chapters will be loaded after the book is downloaded
   }
 

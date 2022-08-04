@@ -217,7 +217,7 @@ class CarPlayManager: NSObject {
         image: UIImage(contentsOfFile: ArtworkService.getCachedImageURL(for: simpleItem.relativePath).path)
       )
       item.playbackProgress = CGFloat(simpleItem.progress)
-      item.handler = { [weak self, simpleItem] (selectableItem, completion) in
+      item.handler = { [weak self, simpleItem] (_, completion) in
         switch simpleItem.type {
         case .book, .bound:
           self?.playItem(with: simpleItem.relativePath)

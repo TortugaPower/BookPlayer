@@ -30,9 +30,10 @@ public class Folder: LibraryItem {
     percentCompleted: Double,
     isFinished: Bool,
     orderRank: Int16,
-    lastPlayDate: Date?
+    lastPlayDate: Date?,
+    syncStatus: SyncStatus
   ) {
-    let entity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
+    let entity = NSEntityDescription.entity(forEntityName: "Folder", in: context)!
     self.init(entity: entity, insertInto: context)
 
     self.title = title
@@ -48,6 +49,7 @@ public class Folder: LibraryItem {
     self.isFinished = isFinished
     self.orderRank = orderRank
     self.lastPlayDate = lastPlayDate
+    self.syncStatus = syncStatus
   }
 
   public convenience init(title: String, context: NSManagedObjectContext) {

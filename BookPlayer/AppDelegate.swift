@@ -41,7 +41,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   var dataManager: DataManager?
   var accountService: AccountServiceProtocol?
   var syncService: SyncServiceProtocol?
-  var libraryService: LibraryServiceProtocol?
+  var libraryService: LibraryService?
   var playbackService: PlaybackServiceProtocol?
   var playerManager: PlayerManagerProtocol?
   var watchConnectivityService: PhoneWatchConnectivityService?
@@ -110,7 +110,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       AppDelegate.shared?.accountService = accountService
     }
 
-    let libraryService: LibraryServiceProtocol
+    let libraryService: LibraryService
 
     if let sharedLibraryService = AppDelegate.shared?.libraryService {
       libraryService = sharedLibraryService

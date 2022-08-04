@@ -87,7 +87,7 @@ class AccountRowContainerView: UIView {
   let shouldAddOverlay: Bool
   let imageAlpha: CGFloat
   let flipImage: Bool
-  var image: UIImage? = nil
+  var image: UIImage?
 
   var tapAction: (() -> Void)?
 
