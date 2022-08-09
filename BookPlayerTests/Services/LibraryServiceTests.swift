@@ -1305,17 +1305,13 @@ class ModifyLibraryTests: LibraryServiceTests {
     let book4 = StubFactory.book(dataManager: self.sut.dataManager, title: "book4", duration: 100)
     try self.sut.moveItems([book3, book4], inside: folder.relativePath, moveFiles: true)
 
-    let fetchedBook1 = self.sut.findFirstItem(in: nil, beforeRank: nil)
-    let fetchedBook2 = self.sut.findFirstItem(in: nil, beforeRank: 1)
+    let fetchedBook1 = self.sut.findFirstItem(in: nil, beforeRank: 1)
 
     XCTAssert(fetchedBook1?.relativePath == book1.relativePath)
-    XCTAssert(fetchedBook2?.relativePath == book1.relativePath)
 
-    let fetchedBook3 = self.sut.findFirstItem(in: folder.relativePath, beforeRank: nil)
-    let fetchedBook4 = self.sut.findFirstItem(in: folder.relativePath, beforeRank: 1)
+    let fetchedBook2 = self.sut.findFirstItem(in: folder.relativePath, beforeRank: 1)
 
-    XCTAssert(fetchedBook3?.relativePath == book3.relativePath)
-    XCTAssert(fetchedBook4?.relativePath == book3.relativePath)
+    XCTAssert(fetchedBook2?.relativePath == book3.relativePath)
   }
 
   func testFindItemAfterRank() throws {
