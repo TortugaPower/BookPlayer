@@ -31,7 +31,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
     self.libraryService.updatePlaybackTime(relativePath: item.relativePath, time: time, date: now)
 
     if let currentChapter = item.currentChapter,
-       item.currentTime > currentChapter.end || item.currentTime < currentChapter.start {
+       item.currentTime >= currentChapter.end || item.currentTime < currentChapter.start {
       item.updateCurrentChapter()
     }
   }
@@ -83,11 +83,17 @@ public final class PlaybackService: PlaybackServiceProtocol {
       ) as? Int16
     else { return nil }
 
+    var isUnfinished: Bool?
+
+    if autoplayed == true {
+      isUnfinished = true
+    }
+
     guard
       let nextItem = self.libraryService.findFirstItem(
         in: parentFolder,
         afterRank: orderRank,
-        isUnfinished: autoplayed == true
+        isUnfinished: isUnfinished
       )
     else {
       if let parentFolderPath = parentFolder {
@@ -109,7 +115,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
        folder.type == .folder {
       return try? getFirstPlayableItem(
         in: folder,
-        isUnfinished: autoplayed == true
+        isUnfinished: isUnfinished
       )
     }
 
@@ -266,7 +272,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
           index: Int16(index + 1)
         )
 
-        currentDuration += book.duration + 0.01 // possible fix for chapter threshold
+        currentDuration += book.duration
         return chapter
       })
   }
