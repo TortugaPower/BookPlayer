@@ -232,7 +232,12 @@ public final class LibraryService: LibraryServiceProtocol {
     return results?[property]
   }
 
-  func findFirstItem(in parentFolder: String?, rankPredicate: NSPredicate?, isUnfinished: Bool?) -> LibraryItem? {
+  func findFirstItem(
+    in parentFolder: String?,
+    rankPredicate: NSPredicate?,
+    sortAscending: Bool,
+    isUnfinished: Bool?
+  ) -> LibraryItem? {
     let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
 
     let pathPredicate: NSPredicate
@@ -263,7 +268,7 @@ public final class LibraryService: LibraryServiceProtocol {
     }
 
     fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
-    let sort = NSSortDescriptor(key: #keyPath(LibraryItem.orderRank), ascending: true)
+    let sort = NSSortDescriptor(key: #keyPath(LibraryItem.orderRank), ascending: sortAscending)
     fetchRequest.sortDescriptors = [sort]
     fetchRequest.fetchLimit = 1
 
@@ -271,7 +276,12 @@ public final class LibraryService: LibraryServiceProtocol {
   }
 
   public func findFirstItem(in parentFolder: String?, isUnfinished: Bool?) -> LibraryItem? {
-    return findFirstItem(in: parentFolder, rankPredicate: nil, isUnfinished: isUnfinished)
+    return findFirstItem(
+      in: parentFolder,
+      rankPredicate: nil,
+      sortAscending: true,
+      isUnfinished: isUnfinished
+    )
   }
 
   public func findFirstItem(in parentFolder: String?, beforeRank: Int16?) -> LibraryItem? {
@@ -282,6 +292,7 @@ public final class LibraryService: LibraryServiceProtocol {
     return findFirstItem(
       in: parentFolder,
       rankPredicate: rankPredicate,
+      sortAscending: false,
       isUnfinished: nil
     )
   }
@@ -298,6 +309,7 @@ public final class LibraryService: LibraryServiceProtocol {
     return findFirstItem(
       in: parentFolder,
       rankPredicate: rankPredicate,
+      sortAscending: true,
       isUnfinished: isUnfinished
     )
   }
