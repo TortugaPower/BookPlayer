@@ -24,7 +24,8 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   public private(set) var items = [SimpleLibraryItem]()
   private var bookSubscription: AnyCancellable?
   private var bookProgressSubscription: AnyCancellable?
-  private var containingFolder: Folder?
+  /// Cached path for containing folder of playing item in relation to this list path
+  private var playingItemParentPath: String?
 
   public var maxItems: Int {
     return self.libraryService.getMaxItemsCount(at: self.folderRelativePath)
@@ -68,20 +69,46 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       guard let self = self else { return }
 
       self.bookProgressSubscription?.cancel()
-      self.containingFolder = nil
+
+      defer {
+        self.clearPlaybackState()
+      }
 
       guard let currentItem = currentItem else {
-        self.clearPlaybackState()
+        self.playingItemParentPath = nil
         return
       }
 
-      // Get folder reference for progress calculation
-      if let item = self.items.first(where: { currentItem.relativePath.contains($0.relativePath) && $0.type == .folder }) {
-        self.containingFolder = self.libraryService.findFolder(with: item.relativePath)
-      }
+      self.playingItemParentPath = self.getPathForParentOfItem(
+        with: currentItem.relativePath,
+        parentFolder: currentItem.parentFolder
+      )
 
       self.bindItemProgressObserver(currentItem)
     }
+  }
+
+  func getPathForParentOfItem(with relativePath: String, parentFolder: String?) -> String? {
+    guard let parentFolder = parentFolder else { return nil }
+
+    guard let folderRelativePath = folderRelativePath else {
+      /// Return only the first part for the library level
+      return parentFolder.components(separatedBy: "/").first
+    }
+
+    let results = parentFolder.components(separatedBy: "\(folderRelativePath)/")
+      .filter({!$0.isEmpty})
+
+    guard
+      results.count == 1,
+      let result = results.first,
+      result != parentFolder,
+      let folderName = result.components(separatedBy: "/").first
+    else {
+      return nil
+    }
+
+    return "\(folderRelativePath)/\(folderName)"
   }
 
   func bindItemProgressObserver(_ item: PlayableItem) {
@@ -91,8 +118,25 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       .combineLatest(item.publisher(for: \.relativePath))
       .removeDuplicates(by: { $0.0 == $1.0 })
       .sink(receiveValue: { [weak self] (percentCompleted, relativePath) in
-        guard let self = self,
-              let index = self.items.firstIndex(where: { relativePath.contains($0.relativePath) }) else { return }
+        guard let self = self else { return }
+
+        var indexFound: Int?
+
+        /// Check if item is in this list, otherwise if parent path is in this screen
+        if item.parentFolder == self.folderRelativePath {
+          indexFound = self.items.firstIndex(where: { relativePath == $0.relativePath })
+        } else if let itemPath = self.playingItemParentPath,
+                  let rankFound = self.libraryService.getItemProperty(
+                    #keyPath(LibraryItem.orderRank),
+                    relativePath: itemPath
+                  ) as? Int16 {
+          indexFound = Int(rankFound) - 1
+        }
+
+        guard
+          let index = indexFound,
+          self.items.count > index
+        else { return }
 
         var currentItem = self.items[index]
 
@@ -102,7 +146,8 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         case .book, .bound:
           progress = percentCompleted / 100
         case .folder:
-          progress = self.containingFolder?.progressPercentage
+          // TODO: Calculate progress for folder, maybe just search finished items from folder as indicator
+          break
         }
 
         currentItem.progress = progress ?? currentItem.progress
@@ -224,7 +269,11 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       return .stopped
     }
 
-    return currentItem.relativePath.contains(item.relativePath) ? .playing : .stopped
+    if item.relativePath == currentItem.relativePath {
+      return .playing
+    }
+
+    return item.relativePath == playingItemParentPath ? .playing : .stopped
   }
 
   func showItemContents(_ item: SimpleLibraryItem) {

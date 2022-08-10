@@ -195,7 +195,7 @@ public final class AccountService: AccountServiceProtocol {
 
     if let existingAccount = self.getAccount() {
       // Preserve donation made flag from stored account
-      let donationMade = existingAccount.donationMade || !customerInfo.nonSubscriptionTransactions.isEmpty
+      let donationMade = existingAccount.donationMade || !customerInfo.nonSubscriptions.isEmpty
 
       self.updateAccount(
         id: userId,

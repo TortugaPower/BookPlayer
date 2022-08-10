@@ -214,7 +214,7 @@ class PlusViewController: UIViewController, Storyboarded {
         return
       }
 
-      if customerInfo.nonSubscriptionTransactions.isEmpty {
+      if customerInfo.nonSubscriptions.isEmpty {
         self.showAlert("tip_missing_title".localized, message: nil)
       } else {
         self.showAlert("purchases_restored_title".localized, message: nil, style: .alert, completion: {

@@ -59,6 +59,7 @@ public class Folder: LibraryItem {
     self.relativePath = title
     self.title = title
     self.originalFileName = title
+    self.type = .folder
     self.details = String.localizedStringWithFormat("files_title".localized, 0)
   }
 
@@ -70,6 +71,7 @@ public class Folder: LibraryItem {
     self.relativePath = fileURL.relativePath(to: DataManager.getProcessedFolderURL())
     self.title = fileTitle
     self.originalFileName = fileTitle
+    self.type = .folder
     self.details = String.localizedStringWithFormat("files_title".localized, 0)
   }
 

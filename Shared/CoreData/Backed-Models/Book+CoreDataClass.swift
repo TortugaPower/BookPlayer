@@ -165,6 +165,7 @@ extension Book {
     self.duration = CMTimeGetSeconds(asset.duration)
     self.originalFileName = bookUrl.lastPathComponent
     self.isFinished = false
+    self.type = .book
 
     if fileURL.pathExtension == "mp3" {
       self.loadMp3Data(from: asset)
