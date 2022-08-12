@@ -68,7 +68,7 @@ class LibraryListCoordinatorTests: XCTestCase {
     library.insert(item: folder)
     library.insert(item: book)
 
-    self.libraryListCoordinator.showItemContents(SimpleLibraryItem(from: folder, themeAccent: .blue))
+    self.libraryListCoordinator.showItemContents(SimpleLibraryItem(from: folder))
 
     XCTAssert(self.libraryListCoordinator.childCoordinators.first is ItemListCoordinator)
 
@@ -80,7 +80,7 @@ class LibraryListCoordinatorTests: XCTestCase {
       return true
     }
 
-    self.libraryListCoordinator.showItemContents(SimpleLibraryItem(from: book, themeAccent: .blue))
+    self.libraryListCoordinator.showItemContents(SimpleLibraryItem(from: book))
     wait(for: [notificationExpectation], timeout: 3.0)
   }
 }

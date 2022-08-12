@@ -57,11 +57,12 @@ public protocol AccountServiceProtocol {
   func subscribe() async throws -> Bool
   func restorePurchases() async throws -> CustomerInfo
 
-  func loginIfUserExists()
+  func loginTestAccount(token: String) throws
   func login(
     with token: String,
     userId: String
   ) async throws -> Account?
+  func loginIfUserExists()
 
   func logout() throws
   func deleteAccount() async throws -> String
@@ -181,6 +182,19 @@ public final class AccountService: AccountServiceProtocol {
 
   public func restorePurchases() async throws -> CustomerInfo {
     return try await Purchases.shared.restorePurchases()
+  }
+
+  public func loginTestAccount(token: String) throws {
+    self.updateAccount(
+      id: "testId1234",
+      email: "test@test.com",
+      donationMade: nil,
+      hasSubscription: nil
+    )
+
+    try self.keychain.setAccessToken(token)
+
+    NotificationCenter.default.post(name: .login, object: self)
   }
 
   public func login(

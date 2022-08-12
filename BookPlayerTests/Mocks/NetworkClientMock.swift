@@ -21,4 +21,13 @@ class NetworkClientMock: NetworkClientProtocol {
     // swiftlint:disable:next force_cast
     return self.mockedResponse as! T
   }
+
+  func upload(
+    _ fileURL: URL,
+    remoteURL: URL,
+    identifier: String,
+    method: HTTPMethod
+  ) async throws -> (Data, URLResponse) {
+    return (Data(), URLResponse())
+  }
 }

@@ -71,14 +71,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // register document's folder listener
     self.setupDocumentListener()
     // Setup RevenueCat
-    Purchases.logLevel = .error
-    Purchases.configure(withAPIKey: "appl_sxbMAczGRvyaoCHNjCWpoXWfRHt")
-
-    // Create a Sentry client
-    SentrySDK.start { options in
-      options.dsn = "https://23b4d02f7b044c10adb55a0cc8de3881@sentry.io/1414296"
-      options.debug = false
-    }
+    self.setupRevenueCat()
+    // Setup Sentry
+    self.setupSentry()
 
     return true
   }
@@ -396,6 +391,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       // End seeking
       playerManager.rewind()
       return .success
+    }
+  }
+
+  func setupRevenueCat() {
+    let revenueCatApiKey: String = Bundle.main.configurationValue(for: .revenueCat)
+    Purchases.logLevel = .error
+    Purchases.configure(withAPIKey: revenueCatApiKey)
+  }
+
+  func setupSentry() {
+    let sentryDSN: String = Bundle.main.configurationValue(for: .sentryDSN)
+    // Create a Sentry client
+    SentrySDK.start { options in
+      options.dsn = "https://\(sentryDSN)"
+      options.debug = false
     }
   }
 

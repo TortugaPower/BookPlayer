@@ -63,7 +63,7 @@ class EmptyLibraryServiceMock: LibraryServiceProtocol {
     return nil
   }
 
-  func updateFolder(at relativePath: String, type: ItemType) throws {}
+  func updateFolder(at relativePath: String, type: SimpleItemType) throws {}
 
   func findFolder(with fileURL: URL) -> Folder? {
     return nil
@@ -81,7 +81,7 @@ class EmptyLibraryServiceMock: LibraryServiceProtocol {
     return Folder()
   }
 
-  func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [LibraryItem]? {
+  func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SimpleLibraryItem]? {
     return nil
   }
 

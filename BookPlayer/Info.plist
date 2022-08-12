@@ -8,6 +8,12 @@
 	</array>
 	<key>BP_BUNDLE_IDENTIFIER</key>
 	<string>$(BP_BUNDLE_IDENTIFIER)</string>
+	<key>BP_SENTRY_DSN</key>
+	<string>$(BP_SENTRY_DSN)</string>
+	<key>BP_REVENUECAT_KEY</key>
+	<string>$(BP_REVENUECAT_KEY)</string>
+	<key>BP_MOCKED_BEARER_TOKEN</key>
+	<string>$(BP_MOCKED_BEARER_TOKEN)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>

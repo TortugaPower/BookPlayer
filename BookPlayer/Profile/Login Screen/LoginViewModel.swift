@@ -17,13 +17,14 @@ class LoginViewModel: BaseViewModel<LoginCoordinator> {
     self.accountService = accountService
   }
 
+  /// This should only be used when running the app in the simulator
   func setupTestAccount() {
-    self.accountService.updateAccount(
-      id: "testId1234",
-      email: "test@test.com",
-      donationMade: nil,
-      hasSubscription: nil
-    )
+    do {
+      let token: String = Bundle.main.configurationValue(for: .mockedBearerToken)
+      try self.accountService.loginTestAccount(token: token)
+    } catch {
+      self.coordinator.showError(error)
+    }
 
     self.coordinator.showCompleteAccount()
   }
