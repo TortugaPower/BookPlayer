@@ -18,7 +18,7 @@ class StubFactory {
     book.identifier = fileUrl.lastPathComponent
     book.relativePath = fileUrl.relativePath(to: DataManager.getProcessedFolderURL())
 
-    book.title = fileUrl.lastPathComponent.replacingOccurrences(of: "_", with: " ")
+    book.title = title
     book.originalFileName = fileUrl.lastPathComponent
     book.isFinished = false
     book.duration = duration
@@ -53,7 +53,9 @@ class StubFactory {
     // swiftlint:disable:next force_cast
     let chapter = NSEntityDescription.insertNewObject(forEntityName: "Chapter", into: dataManager.getContext()) as! Chapter
     chapter.index = index
+    chapter.start = 0
     chapter.duration = 0
+    chapter.title = "test"
     return chapter
   }
 

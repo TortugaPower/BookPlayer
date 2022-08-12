@@ -13,15 +13,19 @@ import Foundation
 class EmptyPlaybackServiceMock: PlaybackServiceProtocol {
   func updatePlaybackTime(item: PlayableItem, time: Double) {}
 
-  func getPlayableItem(before relativePath: String) -> PlayableItem? {
+  func getPlayableItem(before relativePath: String, parentFolder: String?) -> PlayableItem? {
     return nil
   }
 
-  func getPlayableItem(after relativePath: String, autoplayed: Bool) -> PlayableItem? {
+  func getPlayableItem(after relativePath: String, parentFolder: String?, autoplayed: Bool) -> PlayableItem? {
     return nil
   }
 
   func getPlayableItem(from item: LibraryItem) throws -> PlayableItem? {
+    return nil
+  }
+
+  func getFirstPlayableItem(in folder: Folder, isUnfinished: Bool?) throws -> PlayableItem? {
     return nil
   }
 }

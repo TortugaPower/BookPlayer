@@ -353,12 +353,12 @@ extension ItemListViewController: UITableViewDataSource {
         return
       }
 
-      self?.viewModel.playNextBook(after: item)
+      self?.viewModel.playNextBook(in: item)
     }
 
     cell.title = item.title
     cell.subtitle = item.details
-    cell.progress = item.progress
+    cell.progress = item.isFinished ? 1.0 : item.progress
     cell.duration = item.duration
     cell.type = item.type
     cell.playbackState = item.playbackState

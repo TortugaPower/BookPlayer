@@ -19,10 +19,11 @@ public final class PlayableItem: NSObject, Identifiable {
   public var currentTime: TimeInterval
   public let duration: TimeInterval
   @objc dynamic public let relativePath: String
+  public let parentFolder: String?
   @objc dynamic public var percentCompleted: Double
   public var isFinished: Bool
   // This property is explicitly set for bound books, for seeking purposes
-  public let useChapterTimeContext: Bool
+  public let isBoundBook: Bool
 
   @Published public var currentChapter: PlayableChapter!
 
@@ -37,7 +38,8 @@ public final class PlayableItem: NSObject, Identifiable {
   }
 
   enum CodingKeys: String, CodingKey {
-    case title, author, chapters, currentTime, duration, relativePath, percentCompleted, isFinished, useChapterTimeContext
+    case title, author, chapters, currentTime, duration,
+         relativePath, parentFolder, percentCompleted, isFinished, isBoundBook
   }
 
   public init(
@@ -47,9 +49,10 @@ public final class PlayableItem: NSObject, Identifiable {
     currentTime: TimeInterval,
     duration: TimeInterval,
     relativePath: String,
+    parentFolder: String?,
     percentCompleted: Double,
     isFinished: Bool,
-    useChapterTimeContext: Bool
+    isBoundBook: Bool
   ) {
     self.title = title
     self.author = author
@@ -57,9 +60,10 @@ public final class PlayableItem: NSObject, Identifiable {
     self.currentTime = currentTime
     self.duration = duration
     self.relativePath = relativePath
+    self.parentFolder = parentFolder
     self.percentCompleted = percentCompleted
     self.isFinished = isFinished
-    self.useChapterTimeContext = useChapterTimeContext
+    self.isBoundBook = isBoundBook
 
     super.init()
 
@@ -79,7 +83,7 @@ public final class PlayableItem: NSObject, Identifiable {
       return lastChapter
     }
 
-    return self.chapters.first { $0.start <= globalTime && $0.end > globalTime }
+    return self.chapters.first { globalTime < $0.end && $0.start <= globalTime }
   }
 
   public func updateCurrentChapter() {
@@ -199,9 +203,10 @@ extension PlayableItem: Codable {
     try container.encode(self.currentTime, forKey: .currentTime)
     try container.encode(self.duration, forKey: .duration)
     try container.encode(self.relativePath, forKey: .relativePath)
+    try? container.encode(self.parentFolder, forKey: .parentFolder)
     try container.encode(self.percentCompleted, forKey: .percentCompleted)
     try container.encode(self.isFinished, forKey: .isFinished)
-    try container.encode(self.useChapterTimeContext, forKey: .useChapterTimeContext)
+    try container.encode(self.isBoundBook, forKey: .isBoundBook)
   }
 
   public convenience init(from decoder: Decoder) throws {
@@ -213,9 +218,10 @@ extension PlayableItem: Codable {
       currentTime: try values.decode(TimeInterval.self, forKey: .currentTime),
       duration: try values.decode(TimeInterval.self, forKey: .duration),
       relativePath: try values.decode(String.self, forKey: .relativePath),
+      parentFolder: try? values.decode(String?.self, forKey: .parentFolder),
       percentCompleted: try values.decode(Double.self, forKey: .percentCompleted),
       isFinished: try values.decode(Bool.self, forKey: .isFinished),
-      useChapterTimeContext: try values.decode(Bool.self, forKey: .useChapterTimeContext)
+      isBoundBook: try values.decode(Bool.self, forKey: .isBoundBook)
     )
   }
 }

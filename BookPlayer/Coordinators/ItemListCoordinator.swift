@@ -100,6 +100,17 @@ class ItemListCoordinator: Coordinator {
     playerCoordinator.start()
   }
 
+  func loadNextBook(in folder: Folder) {
+    guard
+      let nextItem = try? self.playbackService.getFirstPlayableItem(
+        in: folder,
+        isUnfinished: true
+      )
+    else { return }
+
+    loadPlayer(nextItem.relativePath)
+  }
+
   func loadPlayer(_ relativePath: String) {
     AppDelegate.shared?.loadPlayer(
       relativePath,
@@ -208,7 +219,7 @@ extension ItemListCoordinator {
     switch type {
     case .regular:
       alertTitle = "create_playlist_title".localized
-      alertMessage = "create_playlist_description".localized
+      alertMessage = ""
       alertPlaceholderDefault = "new_playlist_button".localized
     case .bound:
       alertTitle = "bound_books_create_alert_title".localized
@@ -401,7 +412,7 @@ extension ItemListCoordinator {
       self?.onAction?(.resetPlaybackPosition(selectedItems))
     }))
 
-    let areFinished = selectedItems.filter({ $0.progress != 1.0 }).isEmpty
+    let areFinished = selectedItems.filter({ !$0.isFinished }).isEmpty
     let markTitle = areFinished ? "mark_unfinished_title".localized : "mark_finished_title".localized
 
     sheet.addAction(UIAlertAction(title: markTitle, style: .default, handler: { [weak self] _ in

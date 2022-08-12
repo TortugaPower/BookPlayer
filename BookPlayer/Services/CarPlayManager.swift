@@ -12,13 +12,12 @@ import CarPlay
 
 class CarPlayManager: NSObject {
   var interfaceController: CPInterfaceController?
-  var recentItems = [PlayableItem]()
+  weak var recentTemplate: CPListTemplate?
+  weak var libraryTemplate: CPListTemplate?
 
   private var disposeBag = Set<AnyCancellable>()
   /// Reference for updating boost volume title
   let boostVolumeItem = CPListItem(text: "", detailText: nil)
-  /// Refresh flag in case the root template is not visible
-  var needsReload = false
 
   override init() {
     super.init()
@@ -31,15 +30,15 @@ class CarPlayManager: NSObject {
   func connect(_ interfaceController: CPInterfaceController) {
     self.interfaceController = interfaceController
     self.interfaceController?.delegate = self
-    self.loadRecentItems()
     self.setupNowPlayingTemplate()
-    self.setRootTemplateRecentItems()
+    self.setRootTemplate()
     self.initializeDataIfNeeded()
   }
 
   func disconnect() {
     self.interfaceController = nil
-    self.needsReload = false
+    self.recentTemplate = nil
+    self.libraryTemplate = nil
   }
 
   func initializeDataIfNeeded() {
@@ -53,8 +52,7 @@ class CarPlayManager: NSObject {
     dataInitializerCoordinator.onFinish = { stack in
       let services = AppDelegate.shared?.createCoreServicesIfNeeded(from: stack)
 
-      self.loadRecentItems()
-      self.setRootTemplateRecentItems()
+      self.setRootTemplate()
 
       services?.watchService.startSession()
     }
@@ -73,12 +71,7 @@ class CarPlayManager: NSObject {
           return
         }
 
-        if self.interfaceController?.topTemplate == self.interfaceController?.rootTemplate {
-          self.loadRecentItems()
-          self.setRootTemplateRecentItems()
-        } else {
-          self.needsReload = true
-        }
+        self.reloadRecentItems()
 
         self.setupNowPlayingTemplate()
       })
@@ -112,15 +105,13 @@ class CarPlayManager: NSObject {
     }
   }
 
-  func loadRecentItems() {
+  func loadLibraryItems(at relativePath: String?) -> [SimpleLibraryItem] {
     guard
-      let libraryService = AppDelegate.shared?.libraryService,
-      let playbackService = AppDelegate.shared?.playbackService
-    else { return }
+      let libraryService = AppDelegate.shared?.libraryService
+    else { return [] }
 
-    if let recentBooks = libraryService.getLastPlayedItems(limit: 20) {
-      recentItems = recentBooks.compactMap({ try? playbackService.getPlayableItem(from: $0) })
-    }
+    let items = libraryService.fetchContents(at: relativePath, limit: nil, offset: nil) ?? []
+    return items.map({ SimpleLibraryItem(from: $0, themeAccent: .blue) })
   }
 
   func setupNowPlayingTemplate() {
@@ -175,43 +166,101 @@ class CarPlayManager: NSObject {
     CPNowPlayingTemplate.shared.updateNowPlayingButtons([prevButton, controlsButton, bookmarksButton, listButton, nextButton])
   }
 
-  func handleItemSelection(_ item: CPSelectableListItem) {
-    if let listTemplate = self.interfaceController?.rootTemplate as? CPListTemplate,
-       let indexPath = listTemplate.indexPath(for: item) {
-      let selectedItem = recentItems[indexPath.row]
-      AppDelegate.shared?.loadPlayer(
-        selectedItem.relativePath,
-        autoplay: true,
-        showPlayer: { [weak self] in
-          self?.interfaceController?.pushTemplate(CPNowPlayingTemplate.shared, animated: true, completion: nil)
-        },
-        alertPresenter: self
-      )
-    }
+  /// Setup root Tab bar template with the Recent and Library tabs
+  func setRootTemplate() {
+    let recentTemplate = CPListTemplate(title: "recent_title".localized, sections: [])
+    self.recentTemplate = recentTemplate
+    recentTemplate.tabTitle = "recent_title".localized
+    recentTemplate.tabImage = UIImage(systemName: "clock")
+    let libraryTemplate = CPListTemplate(title: "library_title".localized, sections: [])
+    self.libraryTemplate = libraryTemplate
+    libraryTemplate.tabTitle = "library_title".localized
+    libraryTemplate.tabImage = UIImage(systemName: "books.vertical")
+    let tabTemplate = CPTabBarTemplate(templates: [recentTemplate, libraryTemplate])
+    tabTemplate.delegate = self
+    self.interfaceController?.setRootTemplate(tabTemplate, animated: false, completion: nil)
   }
 
-  func setRootTemplateRecentItems() {
-    let items = self.recentItems.map({ playableItem -> CPListItem in
+  /// Reload content for the root library template
+  func reloadLibraryList() {
+    let items = getLibraryContents()
+    let section = CPListSection(items: items)
+    self.libraryTemplate?.updateSections([section])
+  }
+
+  /// Push new list template with the selected folder contents
+  func pushLibraryList(at relativePath: String?, templateTitle: String) {
+    let items = getLibraryContents(at: relativePath)
+    let section = CPListSection(items: items)
+    let listTemplate = CPListTemplate(title: templateTitle, sections: [section])
+    self.interfaceController?.pushTemplate(listTemplate, animated: true, completion: nil)
+  }
+
+  /// Returns the library contents at a specified level
+  func getLibraryContents(at relativePath: String? = nil) -> [CPListItem] {
+    guard
+      let libraryService = AppDelegate.shared?.libraryService
+    else { return [] }
+
+    let items = libraryService.fetchContents(at: relativePath, limit: nil, offset: nil) ?? []
+    let simpleItems = items.map({ SimpleLibraryItem(from: $0, themeAccent: .blue) })
+
+    return transformItems(simpleItems)
+  }
+
+  /// Transforms the interface `SimpleLibraryItem` into CarPlay items
+  func transformItems(_ items: [SimpleLibraryItem]) -> [CPListItem] {
+    return items.map { simpleItem -> CPListItem in
       let item = CPListItem(
-        text: playableItem.title,
-        detailText: playableItem.author,
-        image: UIImage(contentsOfFile: ArtworkService.getCachedImageURL(for: playableItem.relativePath).path)
+        text: simpleItem.title,
+        detailText: simpleItem.details,
+        image: UIImage(contentsOfFile: ArtworkService.getCachedImageURL(for: simpleItem.relativePath).path)
       )
-      item.playbackProgress = CGFloat(playableItem.progressPercentage)
-      item.handler = { [weak self] (item, completion) in
-        self?.handleItemSelection(item)
+      item.playbackProgress = CGFloat(simpleItem.progress)
+      item.handler = { [weak self, simpleItem] (selectableItem, completion) in
+        switch simpleItem.type {
+        case .book, .bound:
+          self?.playItem(with: simpleItem.relativePath)
+        case .folder:
+          self?.pushLibraryList(at: simpleItem.relativePath, templateTitle: simpleItem.title)
+        }
         completion()
       }
 
       return item
-    })
+    }
+  }
 
-    items.first?.isPlaying = true
+  /// Reloads the recent items tab
+  func reloadRecentItems() {
+    guard
+      let libraryService = AppDelegate.shared?.libraryService
+    else { return }
 
-    let section = CPListSection(items: items)
-    let listTemplate = CPListTemplate(title: "recent_title".localized, sections: [section])
+    let items = libraryService.getLastPlayedItems(limit: 20) ?? []
+    let simpleItems = items.map({ SimpleLibraryItem(from: $0, themeAccent: .blue) })
 
-    self.interfaceController?.setRootTemplate(listTemplate, animated: false, completion: nil)
+    let cpitems = transformItems(simpleItems)
+
+    cpitems.first?.isPlaying = true
+
+    let section = CPListSection(items: cpitems)
+    self.recentTemplate?.updateSections([section])
+  }
+
+  /// Handle playing the selected item
+  func playItem(with relativePath: String) {
+    AppDelegate.shared?.loadPlayer(
+      relativePath,
+      autoplay: true,
+      showPlayer: { [weak self] in
+        /// Avoid trying to show the now playing screen if it's already shown
+        if self?.interfaceController?.topTemplate != CPNowPlayingTemplate.shared {
+          self?.interfaceController?.pushTemplate(CPNowPlayingTemplate.shared, animated: true, completion: nil)
+        }
+      },
+      alertPresenter: self
+    )
   }
 
   func formatSpeed(_ speed: Float) -> String {
@@ -250,7 +299,7 @@ extension CarPlayManager {
 
       if let currentChapter = playerManager.currentItem?.currentChapter,
          let previousChapter = playerManager.currentItem?.previousChapter(before: currentChapter) {
-        playerManager.jumpTo(previousChapter.start + 0.5, recordBookmark: false)
+        playerManager.jumpTo(previousChapter.start, recordBookmark: false)
       } else {
         playerManager.playPreviousItem()
       }
@@ -267,7 +316,7 @@ extension CarPlayManager {
 
       if let currentChapter = playerManager.currentItem?.currentChapter,
          let nextChapter = playerManager.currentItem?.nextChapter(after: currentChapter) {
-        playerManager.jumpTo(nextChapter.start + 0.5, recordBookmark: false)
+        playerManager.jumpTo(nextChapter.start, recordBookmark: false)
       } else {
         playerManager.playNextItem(autoPlayed: false)
       }
@@ -438,16 +487,7 @@ extension CarPlayManager {
   }
 }
 
-extension CarPlayManager: CPInterfaceControllerDelegate {
-  func templateDidAppear(_ aTemplate: CPTemplate, animated: Bool) {
-    if aTemplate == self.interfaceController?.rootTemplate,
-       self.needsReload {
-      self.needsReload = false
-      self.loadRecentItems()
-      self.setRootTemplateRecentItems()
-    }
-  }
-}
+extension CarPlayManager: CPInterfaceControllerDelegate {}
 
 extension CarPlayManager: AlertPresenter {
   public func showAlert(_ title: String? = nil, message: String? = nil, completion: (() -> Void)? = nil) {
@@ -469,5 +509,18 @@ extension CarPlayManager: AlertPresenter {
     let alertTemplate = CPAlertTemplate(titleVariants: [completeMessage], actions: [okAction])
 
     self.interfaceController?.presentTemplate(alertTemplate, animated: true, completion: nil)
+  }
+}
+
+extension CarPlayManager: CPTabBarTemplateDelegate {
+  func tabBarTemplate(_ tabBarTemplate: CPTabBarTemplate, didSelect selectedTemplate: CPTemplate) {
+    switch selectedTemplate {
+    case selectedTemplate where selectedTemplate == self.recentTemplate:
+      reloadRecentItems()
+    case selectedTemplate where selectedTemplate == self.libraryTemplate:
+      reloadLibraryList()
+    default:
+      break
+    }
   }
 }

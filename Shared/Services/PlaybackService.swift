@@ -10,8 +10,9 @@ import Foundation
 
 public protocol PlaybackServiceProtocol {
   func updatePlaybackTime(item: PlayableItem, time: Double)
-  func getPlayableItem(before relativePath: String) -> PlayableItem?
-  func getPlayableItem(after relativePath: String, autoplayed: Bool) -> PlayableItem?
+  func getPlayableItem(before relativePath: String, parentFolder: String?) -> PlayableItem?
+  func getPlayableItem(after relativePath: String, parentFolder: String?, autoplayed: Bool) -> PlayableItem?
+  func getFirstPlayableItem(in folder: Folder, isUnfinished: Bool?) throws -> PlayableItem?
   func getPlayableItem(from item: LibraryItem) throws -> PlayableItem?
 }
 
@@ -28,43 +29,116 @@ public final class PlaybackService: PlaybackServiceProtocol {
     self.libraryService.updatePlaybackTime(relativePath: item.relativePath, time: time)
 
     if let currentChapter = item.currentChapter,
-       item.currentTime > currentChapter.end || item.currentTime < currentChapter.start {
+       item.currentTime >= currentChapter.end || item.currentTime < currentChapter.start {
       item.updateCurrentChapter()
     }
   }
 
-  public func getPlayableItem(before relativePath: String) -> PlayableItem? {
-    let item = self.libraryService.getItem(with: relativePath)
+  public func getPlayableItem(before relativePath: String, parentFolder: String?) -> PlayableItem? {
+    guard
+      let orderRank = self.libraryService.getItemProperty(
+        #keyPath(LibraryItem.orderRank),
+        relativePath: relativePath
+      ) as? Int16
+    else { return nil }
 
-    switch item {
-    case let book as Book:
-      guard let previousBook = book.previousBook() else { return nil }
+    guard
+      let previousItem = self.libraryService.findFirstItem(
+        in: parentFolder,
+        beforeRank: orderRank
+      )
+    else {
+      if let parentFolderPath = parentFolder {
+        let containerPathForParentFolder = self.libraryService.getItemProperty(
+          #keyPath(LibraryItem.folder.relativePath),
+          relativePath: parentFolderPath
+        ) as? String
+        return getPlayableItem(
+          before: parentFolderPath,
+          parentFolder: containerPathForParentFolder
+        )
+      }
 
-      return try? self.getPlayableItem(from: previousBook)
-    case let folder as Folder:
-      guard let previousItem = folder.getLibrary()?.getPreviousBook(before: folder.relativePath) else { return nil }
-
-      return try? self.getPlayableItem(from: previousItem)
-    default:
       return nil
     }
+
+    if let folder = previousItem as? Folder,
+       folder.type == .regular {
+      return try? getFirstPlayableItem(
+        in: folder,
+        isUnfinished: nil
+      )
+    }
+
+    return try? getPlayableItem(from: previousItem)
   }
 
-  public func getPlayableItem(after relativePath: String, autoplayed: Bool) -> PlayableItem? {
-    let item = self.libraryService.getItem(with: relativePath)
+  public func getPlayableItem(after relativePath: String, parentFolder: String?, autoplayed: Bool) -> PlayableItem? {
+    guard
+      let orderRank = self.libraryService.getItemProperty(
+        #keyPath(LibraryItem.orderRank),
+        relativePath: relativePath
+      ) as? Int16
+    else { return nil }
 
-    switch item {
+    var isUnfinished: Bool?
+
+    if autoplayed == true {
+      isUnfinished = true
+    }
+
+    guard
+      let nextItem = self.libraryService.findFirstItem(
+        in: parentFolder,
+        afterRank: orderRank,
+        isUnfinished: isUnfinished
+      )
+    else {
+      if let parentFolderPath = parentFolder {
+        let containerPathForParentFolder = self.libraryService.getItemProperty(
+          #keyPath(LibraryItem.folder.relativePath),
+          relativePath: parentFolderPath
+        ) as? String
+        return getPlayableItem(
+          after: parentFolderPath,
+          parentFolder: containerPathForParentFolder,
+          autoplayed: autoplayed
+        )
+      }
+
+      return nil
+    }
+
+    if let folder = nextItem as? Folder,
+       folder.type == .regular {
+      return try? getFirstPlayableItem(
+        in: folder,
+        isUnfinished: isUnfinished
+      )
+    }
+
+    return try? getPlayableItem(from: nextItem)
+  }
+
+  public func getFirstPlayableItem(in folder: Folder, isUnfinished: Bool?) throws -> PlayableItem? {
+    let child = self.libraryService.findFirstItem(
+      in: folder.relativePath,
+      isUnfinished: isUnfinished
+    )
+
+    switch child {
+    case let childFolder as Folder:
+      if childFolder.type == .regular {
+        return try getFirstPlayableItem(in: childFolder, isUnfinished: isUnfinished)
+      } else {
+        return try self.getPlayableItemFrom(folder: childFolder)
+      }
     case let book as Book:
-      guard let nextBook = book.nextBook(autoplayed: autoplayed) else { return nil }
-
-      return try? self.getPlayableItem(from: nextBook)
-    case let folder as Folder:
-      guard let nextItem = folder.getLibrary()?.getNextBook(after: folder.relativePath) else { return nil }
-
-      return try? self.getPlayableItem(from: nextItem)
+      return try self.getPlayableItemFrom(book: book)
     default:
       return nil
     }
+
   }
 
   public func getPlayableItem(from item: LibraryItem) throws -> PlayableItem? {
@@ -88,9 +162,10 @@ public final class PlaybackService: PlaybackServiceProtocol {
       currentTime: book.currentTime,
       duration: book.duration,
       relativePath: book.relativePath,
+      parentFolder: book.folder?.relativePath,
       percentCompleted: book.percentCompleted,
       isFinished: book.isFinished,
-      useChapterTimeContext: false
+      isBoundBook: false
     )
   }
 
@@ -148,9 +223,10 @@ public final class PlaybackService: PlaybackServiceProtocol {
       currentTime: folder.currentTime,
       duration: duration ?? folder.duration,
       relativePath: folder.relativePath,
+      parentFolder: folder.folder?.relativePath,
       percentCompleted: folder.percentCompleted,
       isFinished: folder.isFinished,
-      useChapterTimeContext: true
+      isBoundBook: true
     )
   }
 
@@ -192,7 +268,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
           index: Int16(index + 1)
         )
 
-        currentDuration += book.duration + 0.01 // possible fix for chapter threshold
+        currentDuration += book.duration
         return chapter
       })
   }

@@ -1209,11 +1209,98 @@ class ModifyLibraryTests: LibraryServiceTests {
     ]
 
     book.chapters = NSOrderedSet(array: chapters)
+    self.sut.dataManager.saveContext()
 
     let fetchedChapters = self.sut.getChapters(from: book.relativePath)
 
     XCTAssert(fetchedChapters?.first?.index == 0)
     XCTAssert(fetchedChapters?[1].index == 1)
     XCTAssert(fetchedChapters?.last?.index == 2)
+  }
+
+  func testGetItemProperty() {
+    let book = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test-book1",
+      duration: 100
+    )
+
+    self.sut.dataManager.saveContext()
+    let fetchedTitle = self.sut.getItemProperty("title", relativePath: book.relativePath) as? String
+    XCTAssert(fetchedTitle == "test-book1")
+    let fetchedDuration = self.sut.getItemProperty("duration", relativePath: book.relativePath) as? Double
+    XCTAssert(fetchedDuration == 100)
+    let fetchedIsFinished = self.sut.getItemProperty("isFinished", relativePath: book.relativePath) as? Bool
+    XCTAssert(fetchedIsFinished == false)
+  }
+
+  func testFindItem() throws {
+    let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
+    let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
+    let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
+    try self.sut.moveItems([book1, book2, folder], inside: nil, moveFiles: true)
+    let book3 = StubFactory.book(dataManager: self.sut.dataManager, title: "book3", duration: 100)
+    let book4 = StubFactory.book(dataManager: self.sut.dataManager, title: "book4", duration: 100)
+    try self.sut.moveItems([book3, book4], inside: folder.relativePath, moveFiles: true)
+
+    book1.isFinished = true
+    book3.isFinished = true
+    self.sut.dataManager.saveContext()
+
+    let fetchedBook1 = self.sut.findFirstItem(in: nil, isUnfinished: nil)
+    let fetchedBook2 = self.sut.findFirstItem(in: nil, isUnfinished: true)
+
+    XCTAssert(fetchedBook1?.relativePath == book1.relativePath)
+    XCTAssert(fetchedBook2?.relativePath == book2.relativePath)
+
+    let fetchedBook3 = self.sut.findFirstItem(in: folder.relativePath, isUnfinished: nil)
+    let fetchedBook4 = self.sut.findFirstItem(in: folder.relativePath, isUnfinished: true)
+
+    XCTAssert(fetchedBook3?.relativePath == book3.relativePath)
+    XCTAssert(fetchedBook4?.relativePath == book4.relativePath)
+  }
+
+  func testFindItemBeforeRank() throws {
+    let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
+    let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
+    let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
+    try self.sut.moveItems([book1, book2, folder], inside: nil, moveFiles: true)
+    let book3 = StubFactory.book(dataManager: self.sut.dataManager, title: "book3", duration: 100)
+    let book4 = StubFactory.book(dataManager: self.sut.dataManager, title: "book4", duration: 100)
+    try self.sut.moveItems([book3, book4], inside: folder.relativePath, moveFiles: true)
+
+    let fetchedBook1 = self.sut.findFirstItem(in: nil, beforeRank: 1)
+
+    XCTAssert(fetchedBook1?.relativePath == book1.relativePath)
+
+    let fetchedBook2 = self.sut.findFirstItem(in: folder.relativePath, beforeRank: 1)
+
+    XCTAssert(fetchedBook2?.relativePath == book3.relativePath)
+  }
+
+  func testFindItemAfterRank() throws {
+    let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
+    let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
+    let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
+    try self.sut.moveItems([book1, book2, folder], inside: nil, moveFiles: true)
+    let book3 = StubFactory.book(dataManager: self.sut.dataManager, title: "book3", duration: 100)
+    let book4 = StubFactory.book(dataManager: self.sut.dataManager, title: "book4", duration: 100)
+    try self.sut.moveItems([book3, book4], inside: folder.relativePath, moveFiles: true)
+
+    book1.isFinished = true
+    book3.isFinished = true
+    self.sut.dataManager.saveContext()
+
+    let fetchedBook1 = self.sut.findFirstItem(in: nil, afterRank: nil, isUnfinished: nil)
+    let fetchedBook2 = self.sut.findFirstItem(in: nil, afterRank: 0, isUnfinished: true)
+
+    XCTAssert(fetchedBook1?.relativePath == book1.relativePath)
+    XCTAssert(fetchedBook2?.relativePath == book2.relativePath)
+
+    let fetchedBook3 = self.sut.findFirstItem(in: folder.relativePath, afterRank: nil, isUnfinished: nil)
+    let fetchedBook4 = self.sut.findFirstItem(in: folder.relativePath, afterRank: 0, isUnfinished: true)
+
+    XCTAssert(fetchedBook3?.relativePath == book3.relativePath)
+    XCTAssert(fetchedBook4?.relativePath == book4.relativePath)
   }
 }

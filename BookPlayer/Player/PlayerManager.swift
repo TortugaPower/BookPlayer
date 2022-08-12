@@ -55,7 +55,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   private var playableChapterSubscription: AnyCancellable?
   private var isPlayingSubscription: AnyCancellable?
   private var periodicTimeObserver: Any?
-
+  /// Flag determining if it should resume playback after finishing up loading an item
+  private var playbackQueued: Bool?
   private var hasObserverRegistered = false
   private var observeStatus: Bool = false {
     didSet {
@@ -187,6 +188,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
             }
 
       self.audioPlayer.replaceCurrentItem(with: nil)
+      /// Load up info after the item is ready for playback
+      if !self.isPlaying {
+        self.observeStatus = true
+      }
       self.audioPlayer.replaceCurrentItem(with: playerItem)
 
       // Update UI on main thread
@@ -254,7 +259,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       currentTime = 0.05
     }
 
-    if currentItem.useChapterTimeContext {
+    if currentItem.isBoundBook {
       currentTime += currentItem.currentChapter.start
     }
 
@@ -394,6 +399,12 @@ extension PlayerManager {
   func jumpTo(_ time: Double, recordBookmark: Bool = true) {
     guard let currentItem = self.currentItem else { return }
 
+    var time = time
+    // Fix for chapters in m4b books
+    if !currentItem.isBoundBook {
+      time += 0.5
+    }
+
     if recordBookmark {
       self.createOrUpdateAutomaticBookmark(
         at: currentItem.currentTime,
@@ -412,13 +423,14 @@ extension PlayerManager {
     self.playbackService.updatePlaybackTime(item: currentItem, time: boundedTime)
     let chapterAfterSkip = currentItem.currentChapter
 
-    // If chapters are different, and time is considered by chapters, do nothing else
+    // If chapters are different, and it's a bound book, do nothing else,
+    // the player is loading the new chapter
     if chapterBeforeSkip != chapterAfterSkip,
-       currentItem.useChapterTimeContext {
+       currentItem.isBoundBook {
       return
     }
 
-    let newTime = currentItem.useChapterTimeContext
+    let newTime = currentItem.isBoundBook
     ? currentItem.getChapterTime(from: boundedTime)
     : boundedTime
 
@@ -449,6 +461,7 @@ extension PlayerManager {
 
     guard playerItem.status == .readyToPlay else {
       // queue playback
+      self.playbackQueued = true
       self.observeStatus = true
       return
     }
@@ -545,7 +558,13 @@ extension PlayerManager {
 
     self.observeStatus = false
 
-    self.play()
+    if self.playbackQueued == true {
+      self.play()
+    } else {
+      self.updateTime()
+    }
+    // Clean up flag
+    self.playbackQueued = nil
   }
 
   func pause(fade: Bool) {
@@ -613,16 +632,31 @@ extension PlayerManager {
   }
 
   func playPreviousItem() {
-    guard let currentItem = self.currentItem,
-          let previousBook = self.playbackService.getPlayableItem(before: currentItem.relativePath) else { return }
+    guard
+      let currentItem = self.currentItem,
+      let previousBook = self.playbackService.getPlayableItem(
+        before: currentItem.relativePath,
+        parentFolder: currentItem.parentFolder
+      )
+    else { return }
 
     self.playItem(previousBook)
   }
 
   func playNextItem(autoPlayed: Bool = false) {
+    /// If it's autoplayed, check if setting is enabled
+    if autoPlayed,
+       !UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue) {
+      return
+    }
+
     guard
       let currentItem = self.currentItem,
-      let nextBook = self.playbackService.getPlayableItem(after: currentItem.relativePath, autoplayed: autoPlayed)
+      let nextBook = self.playbackService.getPlayableItem(
+        after: currentItem.relativePath,
+        parentFolder: currentItem.parentFolder,
+        autoplayed: autoPlayed
+      )
     else { return }
 
     self.playItem(nextBook)
@@ -674,7 +708,7 @@ extension PlayerManager {
       self.playNextItem(autoPlayed: true)
       return
     } else {
-      if currentItem.useChapterTimeContext {
+      if currentItem.isBoundBook {
         var subscription: AnyCancellable?
 
         subscription = NotificationCenter.default.publisher(for: .bookReady, object: nil)
@@ -692,7 +726,7 @@ extension PlayerManager {
             subscription?.cancel()
           })
 
-        self.playbackService.updatePlaybackTime(item: currentItem, time: currentItem.currentTime + 0.5)
+        self.playbackService.updatePlaybackTime(item: currentItem, time: currentItem.currentTime + 0.1)
       }
     }
   }
