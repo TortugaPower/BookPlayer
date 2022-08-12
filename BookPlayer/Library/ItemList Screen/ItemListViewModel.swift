@@ -118,39 +118,16 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       .combineLatest(item.publisher(for: \.relativePath))
       .removeDuplicates(by: { $0.0 == $1.0 })
       .sink(receiveValue: { [weak self] (percentCompleted, relativePath) in
-        guard let self = self else { return }
-
-        var indexFound: Int?
-
-        /// Check if item is in this list, otherwise if parent path is in this screen
-        if item.parentFolder == self.folderRelativePath {
-          indexFound = self.items.firstIndex(where: { relativePath == $0.relativePath })
-        } else if let itemPath = self.playingItemParentPath,
-                  let rankFound = self.libraryService.getItemProperty(
-                    #keyPath(LibraryItem.orderRank),
-                    relativePath: itemPath
-                  ) as? Int16 {
-          indexFound = Int(rankFound) - 1
-        }
-
+        /// Check if item is in this list, otherwise do not process progress update
         guard
-          let index = indexFound,
-          self.items.count > index
+          let self = self,
+          item.parentFolder == self.folderRelativePath,
+          let index = self.items.firstIndex(where: { relativePath == $0.relativePath })
         else { return }
 
         var currentItem = self.items[index]
 
-        var progress: Double?
-
-        switch currentItem.type {
-        case .book, .bound:
-          progress = percentCompleted / 100
-        case .folder:
-          // TODO: Calculate progress for folder, maybe just search finished items from folder as indicator
-          break
-        }
-
-        currentItem.progress = progress ?? currentItem.progress
+        currentItem.progress = percentCompleted / 100
 
         self.items[index] = currentItem
 
@@ -387,11 +364,13 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
     var availableFolders = [SimpleLibraryItem]()
 
-    if let existingFolders = self.libraryService.fetchContents(
+    if let existingItems = self.libraryService.fetchContents(
       at: self.folderRelativePath,
       limit: nil,
       offset: nil
     ) {
+      let existingFolders = existingItems.filter({ $0.type == .folder })
+
       for folder in existingFolders {
         if processedItems.contains(where: { $0.relativePath == folder.relativePath }) { continue }
 
@@ -472,24 +451,34 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     self.coordinator.getMainCoordinator()?.getLibraryCoordinator()?.processFiles(urls: urls)
   }
 
+  private func getAvailableFolders(notIn items: [SimpleLibraryItem]) -> [SimpleLibraryItem] {
+    var availableFolders = [SimpleLibraryItem]()
+
+    guard
+      let existingItems = libraryService.fetchContents(
+        at: self.folderRelativePath,
+        limit: nil,
+        offset: nil
+      )
+    else { return [] }
+
+    let existingFolders = existingItems.filter({ $0.type == .folder })
+
+    for folder in existingFolders {
+      if items.contains(where: { $0.relativePath == folder.relativePath }) { continue }
+
+      availableFolders.append(folder)
+    }
+
+    return availableFolders
+  }
+
   func showSortOptions() {
     self.coordinator.showSortOptions()
   }
 
   func showMoveOptions(selectedItems: [SimpleLibraryItem]) {
-    var availableFolders = [SimpleLibraryItem]()
-
-    if let existingFolders = self.libraryService.fetchContents(
-      at: self.folderRelativePath,
-      limit: nil,
-      offset: nil
-    ) {
-      for folder in existingFolders {
-        if selectedItems.contains(where: { $0.relativePath == folder.relativePath }) { continue }
-
-        availableFolders.append(folder)
-      }
-    }
+    let availableFolders = getAvailableFolders(notIn: selectedItems)
 
     self.coordinator.showMoveOptions(selectedItems: selectedItems, availableFolders: availableFolders)
   }
@@ -499,19 +488,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func showMoreOptions(selectedItems: [SimpleLibraryItem]) {
-    var availableFolders = [SimpleLibraryItem]()
-
-    if let existingFolders = self.libraryService.fetchContents(
-      at: self.folderRelativePath,
-      limit: nil,
-      offset: nil
-    ) {
-      for folder in existingFolders {
-        if selectedItems.contains(where: { $0.relativePath == folder.relativePath }) { continue }
-
-        availableFolders.append(folder)
-      }
-    }
+    let availableFolders = getAvailableFolders(notIn: selectedItems)
 
     self.coordinator.showMoreOptionsAlert(selectedItems: selectedItems, availableFolders: availableFolders)
   }

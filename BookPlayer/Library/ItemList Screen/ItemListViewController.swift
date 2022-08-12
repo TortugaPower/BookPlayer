@@ -344,7 +344,7 @@ extension ItemListViewController: UITableViewDataSource {
     cell.title = item.title
     cell.subtitle = item.details
     cell.progress = item.isFinished ? 1.0 : item.progress
-    cell.duration = item.duration
+    cell.duration = item.durationFormatted
     cell.type = item.type
     cell.playbackState = viewModel.getPlaybackState(for: item)
 

@@ -476,7 +476,7 @@ public final class LibraryService: LibraryServiceProtocol {
       return SimpleLibraryItem(
         title: title,
         details: details,
-        duration: TimeParser.formatTotalDuration(duration),
+        duration: duration,
         progress: isFinished ? 1.0 : (percentCompleted / 100),
         isFinished: isFinished,
         relativePath: relativePath,

@@ -240,7 +240,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
         at: folder.relativePath,
         limit: nil,
         offset: nil
-      ) as? [Book]
+      )
     else {
       throw BookPlayerError.runtimeError(
         String.localizedStringWithFormat(
