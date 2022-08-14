@@ -35,4 +35,5 @@ public enum ConfigurationKeys: String, RawRepresentable {
   case sentryDSN = "BP_SENTRY_DSN"
   case revenueCat = "BP_REVENUECAT_KEY"
   case mockedBearerToken = "BP_MOCKED_BEARER_TOKEN"
+	case socketServerURL = "BP_SOCKET_SERVER"
 }

@@ -21,6 +21,7 @@ class MainCoordinator: Coordinator {
   let accountService: AccountServiceProtocol
   let syncService: SyncServiceProtocol
   let watchConnectivityService: PhoneWatchConnectivityService
+	let socketClient: SocketClientProtocol
 
   private var disposeBag = Set<AnyCancellable>()
 
@@ -34,6 +35,7 @@ class MainCoordinator: Coordinator {
     self.playbackService = coreServices.playbackService
     self.playerManager = coreServices.playerManager
     self.watchConnectivityService = coreServices.watchService
+		self.socketClient = coreServices.socketClient
 
     ThemeManager.shared.libraryService = libraryService
 
@@ -45,9 +47,15 @@ class MainCoordinator: Coordinator {
     super.init(navigationController: navigationController, flowType: .modal)
     viewModel.coordinator = self
 
-    accountService.loginIfUserExists()
+		if accountService.loginIfUserExists() {
+			do {
+				try self.socketClient.connectSocket()
+			} catch {
+				print("socket connect error ")
+			}
+		}
     accountService.setDelegate(self)
-
+		
     setUpTheming()
   }
 
@@ -93,8 +101,22 @@ class MainCoordinator: Coordinator {
     NotificationCenter.default.publisher(for: .login, object: nil)
       .sink(receiveValue: { [weak self] _ in
         self?.syncLibrary()
+				do {
+					try self?.socketClient.connectSocket()
+				} catch {
+					print("socket connect error ")
+				}
       })
       .store(in: &disposeBag)
+		NotificationCenter.default.publisher(for: .logout, object: nil)
+			.sink(receiveValue: { [weak self] _ in
+				do {
+					try self?.socketClient.disconnectSocket()
+				} catch {
+					print("socket disconnect error ")
+				}
+			})
+			.store(in: &disposeBag)
 
     self.navigationController.present(tabBarController, animated: false)
   }
@@ -156,6 +178,7 @@ extension MainCoordinator: PurchasesDelegate {
   public func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
     self.accountService.updateAccount(from: customerInfo)
     self.syncService.accountUpdated(customerInfo)
+		print("socket main purchases \(customerInfo)")
   }
 }
 

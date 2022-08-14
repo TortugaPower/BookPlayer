@@ -62,7 +62,7 @@ public protocol AccountServiceProtocol {
     with token: String,
     userId: String
   ) async throws -> Account?
-  func loginIfUserExists()
+  func loginIfUserExists() -> Bool
 
   func logout() throws
   func deleteAccount() async throws -> String
@@ -224,14 +224,17 @@ public final class AccountService: AccountServiceProtocol {
     return self.getAccount()
   }
 
-  public func loginIfUserExists() {
-    guard let account = self.getAccount(), !account.id.isEmpty else { return }
+	public func loginIfUserExists() -> Bool {
+    guard let account = self.getAccount(), !account.id.isEmpty else {
+			return false
+		}
 
     Purchases.shared.logIn(account.id) { [weak self] customerInfo, _, _ in
       guard let customerInfo = customerInfo else { return }
 
       self?.updateAccount(from: customerInfo)
     }
+		return true
   }
 
   public func logout() throws {

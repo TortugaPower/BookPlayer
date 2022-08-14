@@ -26,7 +26,8 @@ typealias CoreServices = (
   libraryService: LibraryServiceProtocol,
   playbackService: PlaybackServiceProtocol,
   playerManager: PlayerManagerProtocol,
-  watchService: PhoneWatchConnectivityService
+  watchService: PhoneWatchConnectivityService,
+	socketClient: SocketClientProtocol
 )
 
 @UIApplicationMain
@@ -46,6 +47,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   var playbackService: PlaybackServiceProtocol?
   var playerManager: PlayerManagerProtocol?
   var watchConnectivityService: PhoneWatchConnectivityService?
+	var socketClient: SocketClientProtocol?
 
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     Self.shared = self
@@ -158,6 +160,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       )
       AppDelegate.shared?.watchConnectivityService = watchService
     }
+		
+		let socketClient: SocketClientProtocol
+
+		if let sharedSocketClien = AppDelegate.shared?.socketClient {
+			socketClient = sharedSocketClien
+		} else {
+			socketClient = SocketClient()
+			AppDelegate.shared?.socketClient = socketClient
+		}
 
     return (
       dataManager,
@@ -166,7 +177,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       libraryService,
       playbackService,
       playerManager,
-      watchService
+      watchService,
+			socketClient
     )
   }
 
