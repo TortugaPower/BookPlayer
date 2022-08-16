@@ -468,6 +468,8 @@ class LibraryServiceTests: XCTestCase {
     folder.insert(item: book2)
     folder.insert(item: book3)
 
+    self.sut.dataManager.saveContext()
+
     XCTAssert(book2.isFinished == false)
     XCTAssert(book3.isFinished == false)
     self.sut.markAsFinished(flag: true, relativePath: folder.relativePath)
@@ -507,6 +509,8 @@ class LibraryServiceTests: XCTestCase {
 
     folder.insert(item: book2)
     folder.insert(item: book3)
+
+    self.sut.dataManager.saveContext()
 
     self.sut.jumpToStart(relativePath: folder.relativePath)
 
@@ -662,15 +666,39 @@ class LibraryServiceTests: XCTestCase {
     XCTAssert(bookmark.isFault)
   }
 
-  func testRenameItem() {
+  func testRenameBookItem() throws {
     let book = StubFactory.book(
       dataManager: self.sut.dataManager,
       title: "test-book1",
       duration: 100
     )
 
-    self.sut.renameItem(at: book.relativePath, with: "rename-test")
+    try self.sut.renameItem(at: book.relativePath, with: "rename-test")
     XCTAssert(book.title == "rename-test")
+  }
+
+  func testRenameFolderItem() throws {
+    let folder = try StubFactory.folder(
+      dataManager: self.sut.dataManager,
+      title: "test-folder1"
+    )
+    let folder2 = try StubFactory.folder(
+      dataManager: self.sut.dataManager,
+      title: "test-folder2"
+    )
+    try self.sut.moveItems([folder2], inside: folder.relativePath, moveFiles: true)
+
+    try self.sut.renameItem(at: folder.relativePath, with: "rename-test")
+    XCTAssert(folder.title == "rename-test")
+    XCTAssert(folder.relativePath == "rename-test")
+    XCTAssert(folder.originalFileName == "rename-test")
+    XCTAssert(FileManager.default.fileExists(atPath: folder.fileURL!.path))
+
+    try self.sut.renameItem(at: folder2.relativePath, with: "rename-test2")
+    XCTAssert(folder2.title == "rename-test2")
+    XCTAssert(folder2.relativePath == "rename-test/rename-test2")
+    XCTAssert(folder2.originalFileName == "rename-test2")
+    XCTAssert(FileManager.default.fileExists(atPath: folder2.fileURL!.path))
   }
 }
 

@@ -54,7 +54,7 @@ public protocol LibraryServiceProtocol {
   func addNote(_ note: String, bookmark: Bookmark)
   func deleteBookmark(_ bookmark: Bookmark)
 
-  func renameItem(at relativePath: String, with newTitle: String)
+  func renameItem(at relativePath: String, with newTitle: String) throws
 
   func insertItems(from files: [URL], into folder: Folder?, library: Library, processedItems: [LibraryItem]?) -> [LibraryItem]
   func handleDirectory(item: URL, folder: Folder, library: Library)
@@ -707,8 +707,41 @@ public final class LibraryService: LibraryServiceProtocol {
     self.dataManager.delete(bookmark)
   }
 
-  public func renameItem(at relativePath: String, with newTitle: String) {
+  public func renameItem(at relativePath: String, with newTitle: String) throws {
     guard let item = self.getItem(with: relativePath) else { return }
+
+    // Rename folder on disk too
+    if let folder = item as? Folder {
+      let processedFolderURL = DataManager.getProcessedFolderURL()
+
+      let sourceUrl = processedFolderURL
+        .appendingPathComponent(item.relativePath)
+
+      let destinationUrl: URL
+      let newRelativePath: String
+
+      if let parentFolder = item.folder {
+        destinationUrl = processedFolderURL
+          .appendingPathComponent(parentFolder.relativePath)
+          .appendingPathComponent(newTitle)
+        newRelativePath = String(destinationUrl.relativePath(to: processedFolderURL).dropFirst())
+      } else {
+        destinationUrl = processedFolderURL
+          .appendingPathComponent(newTitle)
+        newRelativePath = newTitle
+      }
+
+      try FileManager.default.moveItem(
+        at: sourceUrl,
+        to: destinationUrl
+      )
+
+      item.originalFileName = newTitle
+      item.relativePath = newRelativePath
+      if let items = folder.items?.array as? [LibraryItem] {
+        items.forEach({ folder.rebuildRelativePaths(for: $0) })
+      }
+    }
 
     item.title = newTitle
 
