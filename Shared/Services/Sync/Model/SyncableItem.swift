@@ -1,5 +1,5 @@
 //
-//  SyncedItem.swift
+//  SyncableItem.swift
 //  BookPlayer
 //
 //  Created by gianni.carlo on 8/7/22.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct SyncedItem: Decodable {
+public struct SyncableItem: Decodable {
   let relativePath: String
   let originalFileName: String
   let title: String
@@ -20,9 +20,21 @@ public struct SyncedItem: Decodable {
   let isFinished: Bool
   let orderRank: Int
   let lastPlayDateTimestamp: Double?
-  let type: SyncedItemType
-}
+  let type: SimpleItemType
 
-public enum SyncedItemType: Int, Decodable {
-  case folder, bound, book
+  static var fetchRequestProperties = [
+    "relativePath",
+    "originalFileName",
+    "title",
+    "details",
+    "speed",
+    "currentTime",
+    "duration",
+    "percentCompleted",
+    "isFinished",
+    "orderRank",
+    "lastPlayDate",
+    "type",
+    "syncStatus"
+  ]
 }

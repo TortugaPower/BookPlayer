@@ -11,9 +11,9 @@ import Foundation
 
 /// Empty class meant to be subclassed to adjust service for test conditions
 class EmptyLibraryServiceMock: LibraryServiceProtocol {
-  func addBook(from item: SyncedItem, parentFolder: String?) {}
+  func addBook(from item: SyncableItem, parentFolder: String?) {}
 
-  func addFolder(from item: SyncedItem, type: ItemType, parentFolder: String?) {}
+  func addFolder(from item: SyncableItem, type: ItemType, parentFolder: String?) {}
 
   func getItems(notIn relativePaths: [String], parentFolder: String?) throws -> [String] { return [] }
 

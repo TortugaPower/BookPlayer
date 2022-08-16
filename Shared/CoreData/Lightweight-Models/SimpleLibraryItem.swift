@@ -27,6 +27,18 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
     return lhs.id == rhs.id
   }
 
+  static var fetchRequestProperties = [
+    "title",
+    "details",
+    "duration",
+    "percentCompleted",
+    "isFinished",
+    "relativePath",
+    "folder.relativePath",
+    "type",
+    "syncStatus"
+  ]
+
   public func hash(into hasher: inout Hasher) {
     hasher.combine(id)
     hasher.combine(title)

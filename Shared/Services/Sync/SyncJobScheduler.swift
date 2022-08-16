@@ -11,7 +11,7 @@ import SwiftQueue
 
 public protocol JobSchedulerProtocol {
   func scheduleFileUploadJob(for relativePath: String, remoteUrlPath: String)
-  func scheduleMetadataUploadJob(for item: LibraryItem)
+  func scheduleMetadataUploadJob(for item: SyncableItem)
 }
 
 public class SyncJobScheduler: JobSchedulerProtocol {
@@ -42,28 +42,30 @@ public class SyncJobScheduler: JobSchedulerProtocol {
       .schedule(manager: fileUploadQueueManager)
   }
 
-  public func scheduleMetadataUploadJob(for item: LibraryItem) {
-    let relativePath = item.relativePath!
+  public func scheduleMetadataUploadJob(for item: SyncableItem) {
     var parameters: [String: Any] = [
-      "relativePath": relativePath,
-      "originalFileName": item.originalFileName!,
-      "title": item.title!,
-      "details": item.details!,
-      "speed": item.speed,
+      "relativePath": item.relativePath,
+      "originalFileName": item.originalFileName,
+      "title": item.title,
+      "details": item.details,
       "currentTime": item.currentTime,
       "duration": item.duration,
       "percentCompleted": item.percentCompleted,
       "isFinished": item.isFinished,
       "orderRank": item.orderRank,
-      "type": item.getItemType()
+      "type": item.type.rawValue
     ]
 
-    if let lastPlayTimestamp = item.lastPlayDate?.timeIntervalSince1970 {
+    if let lastPlayTimestamp = item.lastPlayDateTimestamp {
       parameters["lastPlayDateTimestamp"] = lastPlayTimestamp
     }
 
+    if let speed = item.speed {
+      parameters["speed"] = speed
+    }
+
     JobBuilder(type: LibraryItemMetadataUploadJob.type)
-      .singleInstance(forId: relativePath)
+      .singleInstance(forId: item.relativePath)
       .persist()
       .retry(limit: .limited(3))
       .internet(atLeast: .wifi)

@@ -427,19 +427,14 @@ public final class LibraryService: LibraryServiceProtocol {
     return newFolder
   }
 
-  public func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SimpleLibraryItem]? {
+  func buildListContentsFetchRequest(
+    properties: [String],
+    relativePath: String?,
+    limit: Int?,
+    offset: Int?
+  ) -> NSFetchRequest<NSDictionary> {
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
-    fetchRequest.propertiesToFetch = [
-      "title",
-      "details",
-      "duration",
-      "percentCompleted",
-      "isFinished",
-      "relativePath",
-      "folder.relativePath",
-      "type",
-      "syncStatus"
-    ]
+    fetchRequest.propertiesToFetch = properties
     fetchRequest.resultType = .dictionaryResultType
     if let relativePath = relativePath {
       fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), relativePath)
@@ -457,8 +452,23 @@ public final class LibraryService: LibraryServiceProtocol {
       fetchRequest.fetchOffset = offset
     }
 
+    return fetchRequest
+  }
+
+  public func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SimpleLibraryItem]? {
+    let fetchRequest = buildListContentsFetchRequest(
+      properties: SimpleLibraryItem.fetchRequestProperties,
+      relativePath: relativePath,
+      limit: limit,
+      offset: offset
+    )
+
     let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
 
+    return parseFetchedItems(from: results)
+  }
+
+  func parseFetchedItems(from results: [[String: Any]]?) -> [SimpleLibraryItem]? {
     return results?.compactMap({ dictionary -> SimpleLibraryItem? in
       guard
         let title = dictionary["title"] as? String,

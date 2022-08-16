@@ -65,9 +65,9 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     case is Book:
       jobManager.scheduleFileUploadJob(for: relativePath, remoteUrlPath: remoteUrlPath)
     case is Folder:
-      let contents = self.libraryService.fetchContents(at: item.relativePath, limit: nil, offset: nil)
+      let contents = self.libraryService.fetchSyncableContents(at: item.relativePath, limit: nil, offset: nil)
 
-//      contents?.forEach({ [weak self] in self?.jobManager.scheduleMetadataUploadJob(for: $0) })
+      contents?.forEach({ [weak self] in self?.jobManager.scheduleMetadataUploadJob(for: $0) })
     default:
       break
     }
@@ -82,7 +82,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     let fetchedIdentifiers = fetchedItems.map({ $0.relativePath })
 
-    let itemsToSync = try self.libraryService.getItems(notIn: fetchedIdentifiers, parentFolder: nil)
+    let itemsToSync = self.libraryService.getItems(notIn: fetchedIdentifiers, parentFolder: nil) ?? []
 
     itemsToSync.forEach({ [weak self] in self?.jobManager.scheduleMetadataUploadJob(for: $0) })
 
@@ -93,7 +93,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     self.storeLibraryItems(from: newItems, parentFolder: nil)
   }
 
-  func storeLibraryItems(from syncedItems: [SyncedItem], parentFolder: String?) {
+  func storeLibraryItems(from syncedItems: [SyncableItem], parentFolder: String?) {
     syncedItems.forEach { item in
       switch item.type {
       case .book:
@@ -106,7 +106,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     }
   }
 
-  public func fetchContents(at relativePath: String = "") async throws -> [SyncedItem] {
+  public func fetchContents(at relativePath: String = "") async throws -> [SyncableItem] {
     let response: ContentsResponse = try await self.provider.request(.contents(path: relativePath))
 
     return response.content

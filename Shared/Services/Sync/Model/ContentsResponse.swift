@@ -9,5 +9,5 @@
 import Foundation
 
 struct ContentsResponse: Decodable {
-  let content: [SyncedItem]
+  let content: [SyncableItem]
 }

@@ -11,15 +11,15 @@ import Foundation
 
 public protocol LibrarySyncProtocol {
   func getItem(with relativePath: String) -> LibraryItem?
-  func getItems(notIn relativePaths: [String], parentFolder: String?) throws -> [LibraryItem]
-  func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SimpleLibraryItem]?
+  func getItems(notIn relativePaths: [String], parentFolder: String?) -> [SyncableItem]?
+  func fetchSyncableContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SyncableItem]?
 
-  func addBook(from item: SyncedItem, parentFolder: String?)
-  func addFolder(from item: SyncedItem, type: SimpleItemType, parentFolder: String?)
+  func addBook(from item: SyncableItem, parentFolder: String?)
+  func addFolder(from item: SyncableItem, type: SimpleItemType, parentFolder: String?)
 }
 
 extension LibraryService: LibrarySyncProtocol {
-  public func addBook(from item: SyncedItem, parentFolder: String?) {
+  public func addBook(from item: SyncableItem, parentFolder: String?) {
     var speed: Float?
     if let itemSpeed = item.speed {
       speed = Float(itemSpeed)
@@ -63,7 +63,7 @@ extension LibraryService: LibrarySyncProtocol {
     self.dataManager.saveContext()
   }
 
-  public func addFolder(from item: SyncedItem, type: SimpleItemType, parentFolder: String?) {
+  public func addFolder(from item: SyncableItem, type: SimpleItemType, parentFolder: String?) {
     // This shouldn't fail
     try? createFolderOnDisk(title: item.title, inside: parentFolder)
 
@@ -106,9 +106,10 @@ extension LibraryService: LibrarySyncProtocol {
     self.dataManager.saveContext()
   }
 
-  public func getItems(notIn relativePaths: [String], parentFolder: String?) throws -> [LibraryItem] {
-    let context = self.dataManager.getContext()
-    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+  public func getItems(notIn relativePaths: [String], parentFolder: String?) -> [SyncableItem]? {
+    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+    fetchRequest.propertiesToFetch = SyncableItem.fetchRequestProperties
+    fetchRequest.resultType = .dictionaryResultType
 
     if let parentFolder = parentFolder {
       fetchRequest.predicate = NSPredicate(
@@ -127,6 +128,61 @@ extension LibraryService: LibrarySyncProtocol {
       )
     }
 
-    return try context.fetch(fetchRequest)
+    let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
+
+    return parseSyncableItems(from: results)
+  }
+
+  public func fetchSyncableContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SyncableItem]? {
+    let fetchRequest = buildListContentsFetchRequest(
+      properties: SyncableItem.fetchRequestProperties,
+      relativePath: relativePath,
+      limit: limit,
+      offset: offset
+    )
+
+    let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
+
+    return parseSyncableItems(from: results)
+  }
+
+  func parseSyncableItems(from results: [[String: Any]]?) -> [SyncableItem]? {
+    return results?.compactMap({ dictionary -> SyncableItem? in
+      guard
+        let relativePath = dictionary["relativePath"] as? String,
+        let originalFileName = dictionary["originalFileName"] as? String,
+        let title = dictionary["title"] as? String,
+        let details = dictionary["details"] as? String,
+        let speed = dictionary["speed"] as? Double,
+        let currentTime = dictionary["currentTime"] as? Double,
+        let duration = dictionary["duration"] as? Double,
+        let percentCompleted = dictionary["percentCompleted"] as? Double,
+        let isFinished = dictionary["isFinished"] as? Bool,
+        let orderRank = dictionary["orderRank"] as? Int,
+        let rawType = dictionary["type"] as? Int16,
+        let type = SimpleItemType(rawValue: rawType)
+      else { return nil }
+
+      var lastPlayDateTimestamp: Double?
+
+      if let lastPlayDate = dictionary["lastPlayDate"] as? Date {
+        lastPlayDateTimestamp = lastPlayDate.timeIntervalSince1970
+      }
+
+      return SyncableItem(
+        relativePath: relativePath,
+        originalFileName: originalFileName,
+        title: title,
+        details: details,
+        speed: speed,
+        currentTime: currentTime,
+        duration: duration,
+        percentCompleted: percentCompleted,
+        isFinished: isFinished,
+        orderRank: orderRank,
+        lastPlayDateTimestamp: lastPlayDateTimestamp,
+        type: type
+      )
+    })
   }
 }

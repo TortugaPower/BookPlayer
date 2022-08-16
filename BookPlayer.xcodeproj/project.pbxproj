@@ -391,8 +391,8 @@
 		9FB7C48F2835A4C9003B917E /* EmptyLibraryServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB7C48E2835A4C9003B917E /* EmptyLibraryServiceMock.swift */; };
 		9FB7C4912835A5A3003B917E /* EmptyPlaybackServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB7C4902835A5A3003B917E /* EmptyPlaybackServiceMock.swift */; };
 		9FB7C4932835A617003B917E /* EmptySpeedServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB7C4922835A617003B917E /* EmptySpeedServiceMock.swift */; };
-		9FBDBC792879409600D315A2 /* SyncedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC782879409600D315A2 /* SyncedItem.swift */; };
-		9FBDBC7A2879409600D315A2 /* SyncedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC782879409600D315A2 /* SyncedItem.swift */; };
+		9FBDBC792879409600D315A2 /* SyncableItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC782879409600D315A2 /* SyncableItem.swift */; };
+		9FBDBC7A2879409600D315A2 /* SyncableItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC782879409600D315A2 /* SyncableItem.swift */; };
 		9FBDBC7D287940D900D315A2 /* ContentsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC7C287940D900D315A2 /* ContentsResponse.swift */; };
 		9FBDBC7E287940D900D315A2 /* ContentsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC7C287940D900D315A2 /* ContentsResponse.swift */; };
 		9FBDBC802879C6C900D315A2 /* UploadItemResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC7F2879C6C900D315A2 /* UploadItemResponse.swift */; };
@@ -974,7 +974,7 @@
 		9FB7C48E2835A4C9003B917E /* EmptyLibraryServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyLibraryServiceMock.swift; sourceTree = "<group>"; };
 		9FB7C4902835A5A3003B917E /* EmptyPlaybackServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyPlaybackServiceMock.swift; sourceTree = "<group>"; };
 		9FB7C4922835A617003B917E /* EmptySpeedServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptySpeedServiceMock.swift; sourceTree = "<group>"; };
-		9FBDBC782879409600D315A2 /* SyncedItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncedItem.swift; sourceTree = "<group>"; };
+		9FBDBC782879409600D315A2 /* SyncableItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncableItem.swift; sourceTree = "<group>"; };
 		9FBDBC7C287940D900D315A2 /* ContentsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentsResponse.swift; sourceTree = "<group>"; };
 		9FBDBC7F2879C6C900D315A2 /* UploadItemResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadItemResponse.swift; sourceTree = "<group>"; };
 		9FBDBC88287B023300D315A2 /* LibraryItemFileUploadJob.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryItemFileUploadJob.swift; sourceTree = "<group>"; };
@@ -1886,7 +1886,7 @@
 		9FBDBC7B287940AD00D315A2 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				9FBDBC782879409600D315A2 /* SyncedItem.swift */,
+				9FBDBC782879409600D315A2 /* SyncableItem.swift */,
 				9FBDBC7F2879C6C900D315A2 /* UploadItemResponse.swift */,
 				9FBDBC7C287940D900D315A2 /* ContentsResponse.swift */,
 			);
@@ -2630,7 +2630,7 @@
 				5126F123258E9F18009965DC /* URL+BookPlayer.swift in Sources */,
 				9FFCC090289418CA00F4952E /* SimpleChapter.swift in Sources */,
 				419BD5992443FD04001E50A0 /* Intents.intentdefinition in Sources */,
-				9FBDBC7A2879409600D315A2 /* SyncedItem.swift in Sources */,
+				9FBDBC7A2879409600D315A2 /* SyncableItem.swift in Sources */,
 				62AAE22D274AA6DE001EB9FF /* LibraryService.swift in Sources */,
 				62CADBAF2725FE2C00A4A98F /* ArtworkService.swift in Sources */,
 				4140EA80227289D50009F794 /* Folder+CoreDataClass.swift in Sources */,
@@ -2920,7 +2920,7 @@
 				412AB7092701421600969618 /* ManualOrderMigrationUtils.swift in Sources */,
 				9FFCC08F289418CA00F4952E /* SimpleChapter.swift in Sources */,
 				416AAC3423F515AF005AD04F /* String+BookPlayer.swift in Sources */,
-				9FBDBC792879409600D315A2 /* SyncedItem.swift in Sources */,
+				9FBDBC792879409600D315A2 /* SyncableItem.swift in Sources */,
 				62AAE22E274AA6DE001EB9FF /* LibraryService.swift in Sources */,
 				41A1B126226F88C500EA0400 /* LibraryItem+CoreDataProperties.swift in Sources */,
 				62CADBAB2725C23A00A4A98F /* ArtworkService.swift in Sources */,

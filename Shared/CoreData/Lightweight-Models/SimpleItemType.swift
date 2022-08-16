@@ -8,6 +8,6 @@
 
 import Foundation
 
-public enum SimpleItemType: Int16 {
+public enum SimpleItemType: Int16, Decodable {
   case folder, bound, book
 }
