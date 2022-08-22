@@ -17,7 +17,12 @@ class EmptyPlaybackServiceMock: PlaybackServiceProtocol {
     return nil
   }
 
-  func getPlayableItem(after relativePath: String, parentFolder: String?, autoplayed: Bool) -> PlayableItem? {
+  func getPlayableItem(
+    after relativePath: String,
+    parentFolder: String?,
+    autoplayed: Bool,
+    restartFinished: Bool
+  ) -> PlayableItem? {
     return nil
   }
 
