@@ -10,7 +10,7 @@
 "settings_button" = "Ustawienia";
 "settings_title" = "Ustawienia";
 "settings_autoplay_title" = "Automatyczne odtwarzanie Biblioteki";
-"settings_autoplay_description" = "Po ukończeniu książki audio odtwarzanie zostanie wznowione ze wszystkimi niezakończonymi elementami w bibliotece, w tym z elementami w folderach.";
+"settings_autoplay_description" = "Po ukończeniu książki audio odtwarzanie zostanie wznowione ze wszystkimi elementami w bibliotece, w tym elementami w folderach.";
 "settings_smartrewind_title" = "Inteligentne Cofanie";
 "settings_smartrewind_description" = "Cofnij o 30 sekund po 10 minutowej pauzie.";
 "settings_boostvolume_title" = "Zwiększ głośność";
@@ -217,3 +217,5 @@
 "settings_chaptercontext_title" = "Użyj kontekstu rozdziału";
 "settings_progresslabels_description" = "Przełącz między wyświetlaniem pozostałego czasu, całkowitego czasu trwania i postępu rozdziału lub książki na ekranie odtwarzacza";
 "settings_playerinterface_list_description" = "Dostosuj, co otwiera przycisk listy na ekranie odtwarzacza";
+"settings_autoplay_section_title" = "AUTOMATYCZNE ODTWARZANIE";
+"settings_autoplay_restart_title" = "Uruchom ponownie ukończone książki";

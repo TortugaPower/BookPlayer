@@ -10,7 +10,7 @@
 "settings_button" = "Einstellungen";
 "settings_title" = "Einstellungen";
 "settings_autoplay_title" = "Kontinuierliche Wiedergabe";
-"settings_autoplay_description" = "Nach Beenden eines Hörbuchs wird die Wiedergabe mit allen Elementen in der Bibliothek fortgesetzt, die noch nicht abgeschlossen sind, einschließlich Dateien in Wiedergabelisten.";
+"settings_autoplay_description" = "Nach Beendigung eines Hörbuchs wird die Wiedergabe mit allen Elementen in der Bibliothek fortgesetzt, einschließlich Elementen in Ordnern.";
 "settings_smartrewind_title" = "Intelligentes Zurückspulen";
 "settings_smartrewind_description" = "30 Sekunden zurückspulen, nachdem die Wiedergabe für 10 Minuten oder länger angehalten wurde.";
 "settings_boostvolume_title" = "Lautstärke erhöhen";
@@ -217,3 +217,5 @@
 "settings_chaptercontext_title" = "Kapitelkontext verwenden";
 "settings_progresslabels_description" = "Zwischen der Anzeige der verbleibenden Zeit, der Gesamtdauer und des Kapitel- oder Buchfortschritts auf dem Wiedergabebildschirm umschalten.";
 "settings_playerinterface_list_description" = "Anpassen, was die Taste „Liste“ auf dem Wiedergabebildschirm öffnet";
+"settings_autoplay_section_title" = "AUTOMATISCHES ABSPIELEN";
+"settings_autoplay_restart_title" = "Fertige Bücher neu starten";

@@ -10,7 +10,7 @@
 "settings_button" = "Nastavenia";
 "settings_title" = "Nastavenia";
 "settings_autoplay_title" = "Knižnica automatického prehrávania";
-"settings_autoplay_description" = "Po dokončení audioknihy sa prehrávanie obnoví so všetkými položkami v knižnici, ktoré nie sú dokončené, vrátane položiek v priečinkoch.";
+"settings_autoplay_description" = "Po dokončení audioknihy sa prehrávanie obnoví so všetkými položkami v knižnici vrátane položiek v priečinkoch.";
 "settings_smartrewind_title" = "Inteligentné pretáčanie";
 "settings_smartrewind_description" = "Po prerušení počúvania na 10 minút dôjde k pretočeniu späť o 30 sekúnd.";
 "settings_boostvolume_title" = "Zvýšenie hlasitosti";
@@ -217,3 +217,5 @@
 "settings_chaptercontext_title" = "Kontext kapitoly";
 "settings_progresslabels_description" = "Prepínanie medzi zobrazením zostávajúceho času, celkového trvania a priebehu spracovania kapitoly alebo knihy na obrazovke prehrávača";
 "settings_playerinterface_list_description" = "Úprava správania sa tlačidla zoznamu na obrazovke prehrávača";
+"settings_autoplay_section_title" = "AUTOHRA";
+"settings_autoplay_restart_title" = "Reštartujte hotové knihy";
