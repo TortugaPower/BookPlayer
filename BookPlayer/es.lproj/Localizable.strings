@@ -10,7 +10,7 @@
 "settings_button" = "Ajustes";
 "settings_title" = "Ajustes";
 "settings_autoplay_title" = "Reproducción Automática de la Biblioteca";
-"settings_autoplay_description" = "Después de terminar un audiolibro, la reproducción se reanudará con todos los elementos de la biblioteca que no estén completos, incluidos los elementos de las carpetas.";
+"settings_autoplay_description" = "Después de terminar un audiolibro, la reproducción se reanudará con todos los elementos de la biblioteca, incluidos los elementos de las carpetas.";
 "settings_smartrewind_title" = "Rebobinado Inteligente";
 "settings_smartrewind_description" = "Retrocede 30 segundos después de estar en pausa durante 10 minutos.";
 "settings_boostvolume_title" = "Aumentar el volumen";
@@ -217,3 +217,5 @@
 "settings_chaptercontext_title" = "Usar el contexto del capítulo";
 "settings_progresslabels_description" = "Alterna entre mostrar el tiempo restante, la duración total y el progreso del capítulo o del libro en la pantalla del reproductor";
 "settings_playerinterface_list_description" = "Ajusta lo que el botón de lista abre en la pantalla del reproductor";
+"settings_autoplay_section_title" = "AUTO-REPRODUCCIÓN";
+"settings_autoplay_restart_title" = "Reiniciar libros terminados";

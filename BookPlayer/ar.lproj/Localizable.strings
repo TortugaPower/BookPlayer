@@ -10,7 +10,7 @@
 "settings_button" = "الاعدادات";
 "settings_title" = "الاعدادات";
 "settings_autoplay_title" = "مكتبة التشغيل التلقائي";
-"settings_autoplay_description" = "بعد الانتهاء من كتاب صوتي ، سيستأنف التشغيل مع جميع العناصر الموجودة في المكتبة التي لم تكتمل ، بما في ذلك العناصر الموجودة في المجلدات.";
+"settings_autoplay_description" = "بعد الانتهاء من كتاب صوتي ، سيستأنف التشغيل مع جميع العناصر الموجودة في المكتبة ، بما في ذلك العناصر الموجودة في المجلدات.";
 "settings_smartrewind_title" = "إعادة الإرجاع الذكية";
 "settings_smartrewind_description" = "الترجيع 30 ثانية بعد توقف لمدة 10 دقائق.";
 "settings_boostvolume_title" = "زيادة مستوى الصوت";
@@ -217,3 +217,5 @@
 "settings_chaptercontext_title" = "استخدم سياق الفصل";
 "settings_progresslabels_description" = "قم بالتبديل بين عرض الوقت المتبقي والمدة الإجمالية والتقدم في الفصل أو الكتاب في شاشة المشغل";
 "settings_playerinterface_list_description" = "اضبط ما يفتحه زر القائمة في شاشة المشغل";
+"settings_autoplay_section_title" = "تشغيل تلقائي";
+"settings_autoplay_restart_title" = "أعد تشغيل الكتب المنتهية";

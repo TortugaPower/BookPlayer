@@ -10,7 +10,7 @@
 "settings_button" = "Inställningar";
 "settings_title" = "Inställningar";
 "settings_autoplay_title" = "Automatisk Uppspelning";
-"settings_autoplay_description" = "När du har avslutat en ljudbok kommer uppspelningen att återupptas med alla objekt i biblioteket som inte är färdiga, inklusive objekt i mappar.";
+"settings_autoplay_description" = "När du har avslutat en ljudbok kommer uppspelningen att återupptas med alla objekt i biblioteket, inklusive objekt i mappar.";
 "settings_smartrewind_title" = "Automatisk Tillbakaspolning";
 "settings_smartrewind_description" = "Spola tillbaka 30 sekunder efter appen varit pausad i 10 minuter.";
 "settings_boostvolume_title" = "Öka volymen";
@@ -217,3 +217,5 @@
 "settings_chaptercontext_title" = "Använd Kapitelkontext";
 "settings_progresslabels_description" = "Välj mellan att visa återstående tid, total längd och spelläge relaterat till antingen kapitlet eller boken i spelaren";
 "settings_playerinterface_list_description" = "Välj vad listknappen på spelarkontrollen öppnar";
+"settings_autoplay_section_title" = "AUTOSPELA";
+"settings_autoplay_restart_title" = "Starta om färdiga böcker";

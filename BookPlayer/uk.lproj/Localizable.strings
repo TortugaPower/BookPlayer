@@ -10,7 +10,7 @@
 "settings_button" = "Налаштування";
 "settings_title" = "Налаштування";
 "settings_autoplay_title" = "Автовідтворення бібліотеки";
-"settings_autoplay_description" = "Після завершення аудіокниги відтворення відновиться з усіма елементами в бібліотеці, які не були завершені, включно з елементами в папках.";
+"settings_autoplay_description" = "Після завершення аудіокниги відтворення відновиться з усіма елементами в бібліотеці, включно з елементами в папках.";
 "settings_smartrewind_title" = "Розумне відмотування";
 "settings_smartrewind_description" = "Повернутись на 30 секунд назад після паузи на 10 хвилин.";
 "settings_boostvolume_title" = "Збільшення гучності";
@@ -217,3 +217,5 @@
 "settings_chaptercontext_title" = "Використовуйте контекст розділу";
 "settings_progresslabels_description" = "Перемикання між відображенням часу, що залишився, загальної тривалості та прогресу розділу або книги на екрані програвача";
 "settings_playerinterface_list_description" = "Налаштувати що відкриватиме кнопка списку на екрані програвача";
+"settings_autoplay_section_title" = "АВТОМАТИЧНЕ ВІДТВОРЕННЯ";
+"settings_autoplay_restart_title" = "Перезапустіть готові книги";
