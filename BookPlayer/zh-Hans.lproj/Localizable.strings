@@ -10,7 +10,7 @@
 "settings_button" = "设置";
 "settings_title" = "设置";
 "settings_autoplay_title" = "自动播放有声书库";
-"settings_autoplay_description" = "完成有声读物后，将继续播放库中所有未完成的项目，包括文件夹中的项目。";
+"settings_autoplay_description" = "完成有声读物后，将继续播放库中的所有项目，包括文件夹中的项目。";
 "settings_smartrewind_title" = "智能倒带";
 "settings_smartrewind_description" = "暂停 10 分钟后倒带 30 秒。";
 "settings_boostvolume_title" = "提高音量";
@@ -217,3 +217,5 @@
 "settings_chaptercontext_title" = "使用章节上下文";
 "settings_progresslabels_description" = "在播放器屏幕中显示章节或书籍的剩余时间、总持续时间和进度之间切换";
 "settings_playerinterface_list_description" = "调整播放器屏幕中的列表按钮打开的内容";
+"settings_autoplay_section_title" = "自动播放";
+"settings_autoplay_restart_title" = "重新启动完成的书籍";

@@ -11,7 +11,12 @@ import Foundation
 public protocol PlaybackServiceProtocol {
   func updatePlaybackTime(item: PlayableItem, time: Double)
   func getPlayableItem(before relativePath: String, parentFolder: String?) -> PlayableItem?
-  func getPlayableItem(after relativePath: String, parentFolder: String?, autoplayed: Bool) -> PlayableItem?
+  func getPlayableItem(
+    after relativePath: String,
+    parentFolder: String?,
+    autoplayed: Bool,
+    restartFinished: Bool
+  ) -> PlayableItem?
   func getFirstPlayableItem(in folder: Folder, isUnfinished: Bool?) throws -> PlayableItem?
   func getPlayableItem(from item: LibraryItem) throws -> PlayableItem?
 }
@@ -75,7 +80,12 @@ public final class PlaybackService: PlaybackServiceProtocol {
     return try? getPlayableItem(from: previousItem)
   }
 
-  public func getPlayableItem(after relativePath: String, parentFolder: String?, autoplayed: Bool) -> PlayableItem? {
+  public func getPlayableItem(
+    after relativePath: String,
+    parentFolder: String?,
+    autoplayed: Bool,
+    restartFinished: Bool
+  ) -> PlayableItem? {
     guard
       let orderRank = self.libraryService.getItemProperty(
         #keyPath(LibraryItem.orderRank),
@@ -85,7 +95,8 @@ public final class PlaybackService: PlaybackServiceProtocol {
 
     var isUnfinished: Bool?
 
-    if autoplayed == true {
+    if autoplayed == true,
+       !restartFinished {
       isUnfinished = true
     }
 
@@ -104,7 +115,8 @@ public final class PlaybackService: PlaybackServiceProtocol {
         return getPlayableItem(
           after: parentFolderPath,
           parentFolder: containerPathForParentFolder,
-          autoplayed: autoplayed
+          autoplayed: autoplayed,
+          restartFinished: restartFinished
         )
       }
 

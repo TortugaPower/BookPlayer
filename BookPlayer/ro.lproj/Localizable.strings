@@ -2,7 +2,7 @@
 "settings_button" = "Setări";
 "settings_title" = "Setări";
 "settings_autoplay_title" = "Bibliotecă redare automată";
-"settings_autoplay_description" = "După terminarea unei cărți audio, redarea se va relua cu toate elementele din bibliotecă care nu sunt finalizate, inclusiv articolele din foldere.";
+"settings_autoplay_description" = "După terminarea unei cărți audio, redarea se va relua cu toate elementele din bibliotecă, inclusiv cele din foldere.";
 "settings_smartrewind_title" = "Derulare inteligentă înapoi";
 "settings_smartrewind_description" = "Derulați 30 de secunde înapoi după ce a fost o pauza de 10 minute.";
 "settings_boostvolume_title" = "Creșterea volumului";
@@ -209,3 +209,5 @@
 "settings_chaptercontext_title" = "Utilizați contextul capitolului";
 "settings_progresslabels_description" = "Comutați între afișarea timpului rămas, a duratei totale și a progresului fie al capitolului, fie al cărții în ecranul playerului";
 "settings_playerinterface_list_description" = "Ajustați ce se deschide butonul de listă din ecranul playerului";
+"settings_autoplay_section_title" = "REDARE AUTOMATA";
+"settings_autoplay_restart_title" = "Reporniți cărțile terminate";

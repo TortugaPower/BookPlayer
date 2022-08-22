@@ -10,7 +10,7 @@
 "settings_button" = "Ayarlar";
 "settings_title" = "Ayarlar";
 "settings_autoplay_title" = "Kitaplığı Otomatik Oynat";
-"settings_autoplay_description" = "Bir sesli kitabı bitirdikten sonra, klasörlerdeki öğeler de dahil olmak üzere kitaplıktaki tamamlanmamış tüm öğelerle oynatma devam edecektir.";
+"settings_autoplay_description" = "Bir sesli kitabı bitirdikten sonra, klasörlerdeki öğeler de dahil olmak üzere kitaplıktaki tüm öğelerle oynatma devam edecektir.";
 "settings_smartrewind_title" = "Akıllı Geri Sarma";
 "settings_smartrewind_description" = "10 dakika duraklatıldıktan sonra 30 saniye geri sarın.";
 "settings_boostvolume_title" = "Sesi Güçlendir";
@@ -217,3 +217,5 @@
 "settings_chaptercontext_title" = "Bölüm İçeriğini Kullan";
 "settings_progresslabels_description" = "Oynatıcı ekranında bölümün veya kitabın kalan süresini, toplam süresini ve ilerlemesini görüntüleme arasında geçiş yapın";
 "settings_playerinterface_list_description" = "Oynatıcı ekranındaki liste düğmesinin ne açacağını ayarlayın";
+"settings_autoplay_section_title" = "OTOMATİK OYNATMA";
+"settings_autoplay_restart_title" = "Biten kitapları yeniden başlat";

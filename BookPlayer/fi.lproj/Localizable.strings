@@ -10,7 +10,7 @@
 "settings_button" = "Asetukset";
 "settings_title" = "Asetukset";
 "settings_autoplay_title" = "Kirjaston automaattitoisto";
-"settings_autoplay_description" = "Kun äänikirja on valmis, toisto jatkuu kaikilla kirjaston kohteilla, joita ei ole vielä valmisteltu, mukaan lukien kansioiden kohteet.";
+"settings_autoplay_description" = "Kun äänikirja on valmis, toisto jatkuu kaikilla kirjaston kohteilla, mukaan lukien kansioissa olevat kohteet.";
 "settings_smartrewind_title" = "Älykäs taaksepäinkelaus";
 "settings_smartrewind_description" = "Kelaa taaksepäin 30 sekuntia 10 minuutin tauon jälkeen.";
 "settings_boostvolume_title" = "Lisää äänenvoimakkuutta";
@@ -217,3 +217,5 @@
 "settings_chaptercontext_title" = "Käytä luvun kontekstia";
 "settings_progresslabels_description" = "Vaihda jäljellä olevan ajan, kokonaiskeston ja joko luvun tai kirjan edistymisen näyttämisen välillä soittimen näytössä";
 "settings_playerinterface_list_description" = "Säädä, mitä luettelopainike avautuu soittimen näytössä";
+"settings_autoplay_section_title" = "AUTOMAATTINEN TOISTO";
+"settings_autoplay_restart_title" = "Käynnistä valmiit kirjat uudelleen";
