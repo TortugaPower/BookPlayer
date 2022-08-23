@@ -6,6 +6,7 @@
 //  Copyright © 2022 Tortuga Power. All rights reserved.
 //
 
+import Combine
 import Foundation
 import SwiftQueue
 
@@ -20,6 +21,8 @@ public class SyncJobScheduler: JobSchedulerProtocol {
 //  let folderQueueManager: SwiftQueueManager
 //  let progressQueueManager: SwiftQueueManager
 
+  private var disposeBag = Set<AnyCancellable>()
+
   public init() {
     self.metadataQueueManager = SwiftQueueManagerBuilder(creator: LibraryItemMetadataUploadJobCreator())
       .set(persister: UserDefaultsPersister(key: LibraryItemMetadataUploadJob.type))
@@ -27,6 +30,16 @@ public class SyncJobScheduler: JobSchedulerProtocol {
     self.fileUploadQueueManager = SwiftQueueManagerBuilder(creator: LibraryItemFileUploadJobCreator())
       .set(persister: UserDefaultsPersister(key: LibraryItemFileUploadJob.type))
       .build()
+    bindObservers()
+  }
+
+  private func bindObservers() {
+    NotificationCenter.default.publisher(for: .logout, object: nil)
+      .sink(receiveValue: { [weak self] _ in
+        self?.metadataQueueManager.cancelAllOperations()
+        self?.fileUploadQueueManager.cancelAllOperations()
+      })
+      .store(in: &disposeBag)
   }
 
   public func scheduleFileUploadJob(for relativePath: String, remoteUrlPath: String) {

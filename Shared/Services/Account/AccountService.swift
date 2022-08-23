@@ -244,6 +244,8 @@ public final class AccountService: AccountServiceProtocol {
     )
 
     Purchases.shared.logOut { _, _ in }
+
+    NotificationCenter.default.post(name: .logout, object: self)
   }
 
   public func deleteAccount() async throws -> String {
