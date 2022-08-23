@@ -10,7 +10,7 @@
 "settings_button" = "Indstillinger";
 "settings_title" = "Indstillinger";
 "settings_autoplay_title" = "AutoPlay Bibliotek";
-"settings_autoplay_description" = "Når du har afsluttet en lydbog, genoptages afspilningen med alle elementer i biblioteket, der ikke er afsluttet, inklusive elementer i mapper.";
+"settings_autoplay_description" = "Når du har afsluttet en lydbog, genoptages afspilningen med alle elementer i biblioteket, inklusive elementer i mapper.";
 "settings_smartrewind_title" = "Smart Tilbagespolning";
 "settings_smartrewind_description" = "Spol 30 sekunder tilbage, efter at du har sat bogen på pause i 10 minutter.";
 "settings_boostvolume_title" = "Boost lydstyrken";
@@ -217,3 +217,5 @@
 "settings_chaptercontext_title" = "Brug kapitelkontekst";
 "settings_progresslabels_description" = "Skift mellem at vise den resterende tid, den samlede varighed og fremskridt for enten kapitlet eller bogen på afspillerskærmen";
 "settings_playerinterface_list_description" = "Juster, hvad listeknappen på afspillerskærmen åbner";
+"settings_autoplay_section_title" = "AUTOMATISK AFSPILNING";
+"settings_autoplay_restart_title" = "Genstart færdige bøger";

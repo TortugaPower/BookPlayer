@@ -650,14 +650,24 @@ extension PlayerManager {
       return
     }
 
+    let restartFinished = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayRestartEnabled.rawValue)
+
     guard
       let currentItem = self.currentItem,
       let nextBook = self.playbackService.getPlayableItem(
         after: currentItem.relativePath,
         parentFolder: currentItem.parentFolder,
-        autoplayed: autoPlayed
+        autoplayed: autoPlayed,
+        restartFinished: restartFinished
       )
     else { return }
+
+    /// If autoplaying a finished book and restart is enabled, set currentTime to 0
+    if autoPlayed,
+       nextBook.isFinished,
+       restartFinished {
+      self.playbackService.updatePlaybackTime(item: nextBook, time: 0)
+    }
 
     self.playItem(nextBook)
   }

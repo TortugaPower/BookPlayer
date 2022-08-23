@@ -10,7 +10,7 @@
 "settings_button" = "Settings";
 "settings_title" = "Settings";
 "settings_autoplay_title" = "AutoPlay Library";
-"settings_autoplay_description" = "After finishing an audiobook, playback will resume with all items in the library that are not completed, including items in folders.";
+"settings_autoplay_description" = "After finishing an audiobook, playback will resume with all items in the library, including items in folders.";
 "settings_smartrewind_title" = "Smart Rewind";
 "settings_smartrewind_description" = "Rewind 30 seconds after being paused for 10 minutes.";
 "settings_boostvolume_title" = "Boost Volume";
@@ -217,3 +217,5 @@
 "settings_chaptercontext_title" = "Use Chapter Context";
 "settings_progresslabels_description" = "Toggle between displaying the remaining time, total duration and progress of either the chapter or the book in the player screen";
 "settings_playerinterface_list_description" = "Adjust what the list button in the player screen opens";
+"settings_autoplay_section_title" = "AUTOPLAY";
+"settings_autoplay_restart_title" = "Restart finished books";

@@ -10,7 +10,7 @@
 "settings_button" = "Beállítások";
 "settings_title" = "Beállítások";
 "settings_autoplay_title" = "Könyvtárak automatikus lejátszása";
-"settings_autoplay_description" = "A hangoskönyv befejezése után a lejátszás folytatódik a könyvtárban lévő összes, még nem befejezett elemmel, beleértve a mappákban lévő elemeket is.";
+"settings_autoplay_description" = "A hangoskönyv befejezése után a lejátszás folytatódik a könyvtár összes elemével, beleértve a mappákban lévő elemeket is.";
 "settings_smartrewind_title" = "Okos visszatekerés";
 "settings_smartrewind_description" = "Tekerjen vissza 30 másodpercet, ha 10 percig szüneteltette.";
 "settings_boostvolume_title" = "Hangerő növelése";
@@ -217,3 +217,5 @@
 "settings_chaptercontext_title" = "Fejezet kontextus használata";
 "settings_progresslabels_description" = "Váltás a hátralévő idő, a teljes időtartam és a fejezet vagy a teljes könyv előrehaladásának megjelenítése között a lejátszó képernyőn";
 "settings_playerinterface_list_description" = "A lejátszó képernyőn mi nyíljon meg a lista gomb megnyomására";
+"settings_autoplay_section_title" = "AUTOMATIKUS LEJÁTSZÁS";
+"settings_autoplay_restart_title" = "Indítsa újra a kész könyveket";
