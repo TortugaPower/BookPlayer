@@ -18,18 +18,25 @@ public protocol JobSchedulerProtocol {
 public class SyncJobScheduler: JobSchedulerProtocol {
   let metadataQueueManager: SwiftQueueManager
   let fileUploadQueueManager: SwiftQueueManager
+  let metadataJobsPersister: UserDefaultsPersister
+  let fileUploadJobsPersister: UserDefaultsPersister
 //  let folderQueueManager: SwiftQueueManager
 //  let progressQueueManager: SwiftQueueManager
 
   private var disposeBag = Set<AnyCancellable>()
 
   public init() {
+    let metadataJobsPersister = UserDefaultsPersister(key: LibraryItemMetadataUploadJob.type)
     self.metadataQueueManager = SwiftQueueManagerBuilder(creator: LibraryItemMetadataUploadJobCreator())
-      .set(persister: UserDefaultsPersister(key: LibraryItemMetadataUploadJob.type))
+      .set(persister: metadataJobsPersister)
       .build()
+    self.metadataJobsPersister = metadataJobsPersister
+
+    let fileUploadJobsPersister = UserDefaultsPersister(key: LibraryItemFileUploadJob.type)
     self.fileUploadQueueManager = SwiftQueueManagerBuilder(creator: LibraryItemFileUploadJobCreator())
-      .set(persister: UserDefaultsPersister(key: LibraryItemFileUploadJob.type))
+      .set(persister: fileUploadJobsPersister)
       .build()
+    self.fileUploadJobsPersister = fileUploadJobsPersister
     bindObservers()
   }
 
@@ -37,7 +44,9 @@ public class SyncJobScheduler: JobSchedulerProtocol {
     NotificationCenter.default.publisher(for: .logout, object: nil)
       .sink(receiveValue: { [weak self] _ in
         self?.metadataQueueManager.cancelAllOperations()
+        self?.metadataJobsPersister.clearAll()
         self?.fileUploadQueueManager.cancelAllOperations()
+        self?.fileUploadJobsPersister.clearAll()
       })
       .store(in: &disposeBag)
   }
@@ -70,7 +79,7 @@ public class SyncJobScheduler: JobSchedulerProtocol {
     ]
 
     if let lastPlayTimestamp = item.lastPlayDateTimestamp {
-      parameters["lastPlayDateTimestamp"] = lastPlayTimestamp
+      parameters["lastPlayDateTimestamp"] = Int(lastPlayTimestamp)
     }
 
     if let speed = item.speed {
