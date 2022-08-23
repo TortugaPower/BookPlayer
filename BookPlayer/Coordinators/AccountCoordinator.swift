@@ -51,6 +51,10 @@ class AccountCoordinator: Coordinator {
     child.start()
   }
 
+  func showUploadedFiles() {
+    
+  }
+
   func showError(_ error: Error) {
     self.navigationController.showAlert("error_title".localized, message: error.localizedDescription)
   }

@@ -56,6 +56,10 @@ class AccountViewModel: BaseViewModel<AccountCoordinator> {
     Purchases.shared.showManageSubscriptions() { _ in }
   }
 
+  func showManageFiles() {
+    self.coordinator.showUploadedFiles()
+  }
+
   func handleLogout() {
     do {
       try self.accountService.logout()

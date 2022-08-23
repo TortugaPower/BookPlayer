@@ -70,6 +70,29 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
     )
   }()
 
+  private lazy var manageFilesSectionView: UIView = {
+    let row = AccountRowContainerView(
+      title: "Uploaded Files",
+      systemImageName: "folder",
+      showChevron: true,
+      titleFont: Fonts.title
+    )
+
+    row.tapAction = { [weak self] in
+      self?.didPressManageFiles()
+    }
+
+    return AccountSectionContainerView(
+      contents: row,
+      insets: UIEdgeInsets(
+        top: 0,
+        left: Spacing.S,
+        bottom: 0,
+        right: Spacing.S
+      )
+    )
+  }()
+
   private lazy var benefitsSectionView: UIView = {
     let row = AccountProBenefitsView(price: "$4.99 / monthly")
 
@@ -183,6 +206,7 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
     contentView.addSubview(containerStackview)
     containerStackview.addArrangedSubview(accountSectionView)
     containerStackview.addArrangedSubview(manageProSectionView)
+    containerStackview.addArrangedSubview(manageFilesSectionView)
     containerStackview.addArrangedSubview(benefitsSectionView)
     containerStackview.addArrangedSubview(logoutSectionView)
     containerStackview.addArrangedSubview(deleteSectionView)
@@ -219,9 +243,11 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
         if account?.hasSubscription == true {
           self?.benefitsSectionView.isHidden = true
           self?.manageProSectionView.isHidden = false
+          self?.manageFilesSectionView.isHidden = false
         } else {
           self?.benefitsSectionView.isHidden = false
           self?.manageProSectionView.isHidden = true
+          self?.manageFilesSectionView.isHidden = true
         }
     }
     .store(in: &disposeBag)
@@ -229,6 +255,10 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
 
   func didPressManageSubscription() {
     self.viewModel.showManageSubscription()
+  }
+
+  func didPressManageFiles() {
+    self.viewModel.showManageFiles()
   }
 
   @objc func didPressCompleteAccount() {

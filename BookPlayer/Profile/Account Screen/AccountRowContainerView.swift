@@ -154,6 +154,7 @@ class AccountRowContainerView: UIView {
       imageView.widthAnchor.constraint(equalTo: imageContainerView.widthAnchor),
       imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor),
       imageView.centerYAnchor.constraint(equalTo: imageContainerView.centerYAnchor),
+      imageView.centerXAnchor.constraint(equalTo: imageContainerView.centerXAnchor),
       containerChevronView.widthAnchor.constraint(equalToConstant: 15),
       chevronImageView.widthAnchor.constraint(equalTo: containerChevronView.widthAnchor),
       chevronImageView.heightAnchor.constraint(equalToConstant: 20),
