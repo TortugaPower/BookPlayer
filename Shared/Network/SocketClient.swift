@@ -18,8 +18,10 @@ public class SocketClient: SocketClientProtocol, BPLogger {
 
 	var socket: SocketIOClient? = nil
 	let manager: SocketManager?
+	let keychain: KeychainServiceProtocol
 
-	public init() {
+	public init(keychain: KeychainServiceProtocol = KeychainService()) {
+		self.keychain = keychain
 		let serverURL: String = Bundle.main.configurationValue(for: .socketServerURL)
 		print("server url \(serverURL)")
 		self.manager = SocketManager(socketURL: URL(string: serverURL)!, config: [.log(false), .compress])
@@ -28,8 +30,10 @@ public class SocketClient: SocketClientProtocol, BPLogger {
 	}
 	
 	public func connectSocket() throws {
-		self.socket?.connect()
-		print("connectSocket")
+		if let accessToken = try? keychain.getAccessToken() {
+			self.socket?.connect(withPayload: ["authorization": accessToken])
+			print("connectSocket \(accessToken)")
+		}
 	}
 	
 	public func disconnectSocket() throws {
@@ -42,13 +46,10 @@ public class SocketClient: SocketClientProtocol, BPLogger {
 		self.socket?.on(clientEvent: .connect) {data, ack in
 			Self.logger.trace("[Socketclient] connected")
 		}
-//
-//		socket?.on("drawing") { (data, ack) in
-//				guard let dataInfo = data.first else { return }
-//				if let response: SocketPosition = try? SocketParser.convert(data: dataInfo) {
-//						let position = CGPoint.init(x: response.x, y: response.y)
-//						self.delegate?.didReceive(point: position)
-//				}
-//		}
+		self.socket?.on("lastPlayedItem") {data, ack in
+			guard let lastPlayedItem = data[0] as? SyncedItem else { return }
+			print("lastPlayedItem \(lastPlayedItem)")
+			ack.with("Got your currentAmount", "dude")
+		}
 	}
 }
