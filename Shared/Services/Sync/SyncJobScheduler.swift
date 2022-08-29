@@ -6,13 +6,13 @@
 //  Copyright © 2022 Tortuga Power. All rights reserved.
 //
 
-import Combine
 import Foundation
 import SwiftQueue
 
 public protocol JobSchedulerProtocol {
   func scheduleFileUploadJob(for relativePath: String, remoteUrlPath: String)
   func scheduleMetadataUploadJob(for item: SyncableItem)
+  func cancelAllJobs()
 }
 
 public class SyncJobScheduler: JobSchedulerProtocol {
@@ -22,8 +22,6 @@ public class SyncJobScheduler: JobSchedulerProtocol {
   let fileUploadJobsPersister: UserDefaultsPersister
 //  let folderQueueManager: SwiftQueueManager
 //  let progressQueueManager: SwiftQueueManager
-
-  private var disposeBag = Set<AnyCancellable>()
 
   public init() {
     let metadataJobsPersister = UserDefaultsPersister(key: LibraryItemMetadataUploadJob.type)
@@ -37,18 +35,6 @@ public class SyncJobScheduler: JobSchedulerProtocol {
       .set(persister: fileUploadJobsPersister)
       .build()
     self.fileUploadJobsPersister = fileUploadJobsPersister
-    bindObservers()
-  }
-
-  private func bindObservers() {
-    NotificationCenter.default.publisher(for: .logout, object: nil)
-      .sink(receiveValue: { [weak self] _ in
-        self?.metadataQueueManager.cancelAllOperations()
-        self?.metadataJobsPersister.clearAll()
-        self?.fileUploadQueueManager.cancelAllOperations()
-        self?.fileUploadJobsPersister.clearAll()
-      })
-      .store(in: &disposeBag)
   }
 
   public func scheduleFileUploadJob(for relativePath: String, remoteUrlPath: String) {
@@ -80,6 +66,8 @@ public class SyncJobScheduler: JobSchedulerProtocol {
 
     if let lastPlayTimestamp = item.lastPlayDateTimestamp {
       parameters["lastPlayDateTimestamp"] = Int(lastPlayTimestamp)
+    } else {
+      parameters["lastPlayDateTimestamp"] = nil
     }
 
     if let speed = item.speed {
@@ -93,5 +81,12 @@ public class SyncJobScheduler: JobSchedulerProtocol {
       .internet(atLeast: .wifi)
       .with(params: parameters)
       .schedule(manager: metadataQueueManager)
+  }
+
+  public func cancelAllJobs() {
+    metadataQueueManager.cancelAllOperations()
+    metadataJobsPersister.clearAll()
+    fileUploadQueueManager.cancelAllOperations()
+    fileUploadJobsPersister.clearAll()
   }
 }

@@ -13,6 +13,7 @@ import RevenueCat
 public protocol SyncServiceProtocol {
   func accountUpdated(_ customerInfo: CustomerInfo)
   func syncLibrary() async throws
+  func cancelAllJobs()
 }
 
 public final class SyncService: SyncServiceProtocol, BPLogger {
@@ -49,6 +50,12 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
         }
 
         self?.handleMetadataUploaded(for: relativePath, remoteUrlPath: urlPath)
+      })
+      .store(in: &disposeBag)
+
+    NotificationCenter.default.publisher(for: .logout, object: nil)
+      .sink(receiveValue: { [weak self] _ in
+        self?.cancelAllJobs()
       })
       .store(in: &disposeBag)
   }
@@ -110,5 +117,9 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     let response: ContentsResponse = try await self.provider.request(.contents(path: relativePath))
 
     return response.content
+  }
+
+  public func cancelAllJobs() {
+    jobManager.cancelAllJobs()
   }
 }
