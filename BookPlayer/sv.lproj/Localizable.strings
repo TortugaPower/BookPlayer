@@ -219,3 +219,4 @@
 "settings_playerinterface_list_description" = "Välj vad listknappen på spelarkontrollen öppnar";
 "settings_autoplay_section_title" = "AUTOSPELA";
 "settings_autoplay_restart_title" = "Starta om färdiga böcker";
+"settings_theme_autobrightness" = "Välj den mörka varianten av ett tema om skärmens ljusstyrka faller under den inställda tröskeln.";

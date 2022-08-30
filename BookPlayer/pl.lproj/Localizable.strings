@@ -219,3 +219,4 @@
 "settings_playerinterface_list_description" = "Dostosuj, co otwiera przycisk listy na ekranie odtwarzacza";
 "settings_autoplay_section_title" = "AUTOMATYCZNE ODTWARZANIE";
 "settings_autoplay_restart_title" = "Uruchom ponownie ukończone książki";
+"settings_theme_autobrightness" = "Wybierz ciemną odmianę motywu, jeśli jasność ekranu spadnie poniżej ustawionego progu.";

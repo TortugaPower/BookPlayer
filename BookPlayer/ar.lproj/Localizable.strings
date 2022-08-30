@@ -219,3 +219,4 @@
 "settings_playerinterface_list_description" = "اضبط ما يفتحه زر القائمة في شاشة المشغل";
 "settings_autoplay_section_title" = "تشغيل تلقائي";
 "settings_autoplay_restart_title" = "أعد تشغيل الكتب المنتهية";
+"settings_theme_autobrightness" = "حدد التباين الداكن للسمة إذا انخفض سطوع الشاشة عن الحد المعين.";

@@ -219,3 +219,4 @@
 "settings_playerinterface_list_description" = "Отрегулируйте, что открывает кнопка списка на экране плеера";
 "settings_autoplay_section_title" = "АВТОВОСПРОИЗВЕДЕНИЕ";
 "settings_autoplay_restart_title" = "Перезапустить готовые книги";
+"settings_theme_autobrightness" = "Выбирайте темную вариацию темы, если яркость экрана падает ниже установленного порога.";

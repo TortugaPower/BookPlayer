@@ -219,3 +219,4 @@
 "settings_playerinterface_list_description" = "Juster, hvad listeknappen på afspillerskærmen åbner";
 "settings_autoplay_section_title" = "AUTOMATISK AFSPILNING";
 "settings_autoplay_restart_title" = "Genstart færdige bøger";
+"settings_theme_autobrightness" = "Vælg den mørke variant af et tema, hvis skærmens lysstyrke falder under den indstillede tærskel.";

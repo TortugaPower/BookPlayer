@@ -219,3 +219,4 @@
 "settings_playerinterface_list_description" = "Regola ciò che si apre il pulsante elenco nella schermata del lettore";
 "settings_autoplay_section_title" = "RIPRODUZIONE AUTOMATICA";
 "settings_autoplay_restart_title" = "Riavvia i libri finiti";
+"settings_theme_autobrightness" = "Seleziona la variazione scura di un tema se la luminosità dello schermo scende al di sotto della soglia impostata.";
