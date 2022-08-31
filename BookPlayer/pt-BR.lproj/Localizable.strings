@@ -219,3 +219,4 @@
 "settings_playerinterface_list_description" = "Ajuste o que o botão de lista na tela de reprodução abre";
 "settings_autoplay_section_title" = "REPRODUÇÃO AUTOMÁTICA";
 "settings_autoplay_restart_title" = "Reiniciar livros concluídos";
+"settings_theme_autobrightness" = "Selecione a variação escura de um tema se o brilho da tela ficar abaixo do limite definido.";

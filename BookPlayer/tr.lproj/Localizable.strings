@@ -219,3 +219,4 @@
 "settings_playerinterface_list_description" = "Oynatıcı ekranındaki liste düğmesinin ne açacağını ayarlayın";
 "settings_autoplay_section_title" = "OTOMATİK OYNATMA";
 "settings_autoplay_restart_title" = "Biten kitapları yeniden başlat";
+"settings_theme_autobrightness" = "Ekran parlaklığı ayarlanan eşiğin altına düşerse bir temanın koyu varyasyonunu seçin.";

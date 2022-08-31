@@ -219,3 +219,4 @@
 "settings_playerinterface_list_description" = "Anpassen, was die Taste „Liste“ auf dem Wiedergabebildschirm öffnet";
 "settings_autoplay_section_title" = "AUTOMATISCHES ABSPIELEN";
 "settings_autoplay_restart_title" = "Fertige Bücher neu starten";
+"settings_theme_autobrightness" = "Wählen Sie die dunkle Variante eines Themas, wenn die Bildschirmhelligkeit unter den eingestellten Schwellenwert fällt.";

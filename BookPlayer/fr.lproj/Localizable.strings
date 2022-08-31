@@ -219,3 +219,4 @@
 "settings_playerinterface_list_description" = "Ajustez ce que le bouton de liste dans l'écran du lecteur ouvre";
 "settings_autoplay_section_title" = "LECTURE AUTOMATIQUE";
 "settings_autoplay_restart_title" = "Redémarrez les livres terminés";
+"settings_theme_autobrightness" = "Sélectionnez la variation sombre d'un thème si la luminosité de l'écran tombe en dessous du seuil défini.";

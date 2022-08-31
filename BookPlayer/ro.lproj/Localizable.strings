@@ -211,3 +211,4 @@
 "settings_playerinterface_list_description" = "Ajustați ce se deschide butonul de listă din ecranul playerului";
 "settings_autoplay_section_title" = "REDARE AUTOMATA";
 "settings_autoplay_restart_title" = "Reporniți cărțile terminate";
+"settings_theme_autobrightness" = "Selectați variația întunecată a unei teme dacă luminozitatea ecranului scade sub pragul setat.";

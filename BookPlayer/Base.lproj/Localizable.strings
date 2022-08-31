@@ -219,3 +219,4 @@
 "settings_playerinterface_list_description" = "Adjust what the list button in the player screen opens";
 "settings_autoplay_section_title" = "AUTOPLAY";
 "settings_autoplay_restart_title" = "Restart finished books";
+"settings_theme_autobrightness" = "Select the dark variation of a theme if the screen brightness falls below the set threshold.";

@@ -219,3 +219,4 @@
 "settings_playerinterface_list_description" = "Upravte, co otevře tlačítko seznamu na obrazovce přehrávače";
 "settings_autoplay_section_title" = "AUTOMATICKÉ PŘEHRÁVÁNÍ";
 "settings_autoplay_restart_title" = "Restartujte hotové knihy";
+"settings_theme_autobrightness" = "Vyberte tmavou variantu motivu, pokud jas obrazovky klesne pod nastavenou prahovou hodnotu.";

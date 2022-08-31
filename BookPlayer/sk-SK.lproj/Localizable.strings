@@ -219,3 +219,4 @@
 "settings_playerinterface_list_description" = "Úprava správania sa tlačidla zoznamu na obrazovke prehrávača";
 "settings_autoplay_section_title" = "AUTOHRA";
 "settings_autoplay_restart_title" = "Reštartujte hotové knihy";
+"settings_theme_autobrightness" = "Vyberte tmavú variáciu témy, ak jas obrazovky klesne pod nastavenú hranicu.";

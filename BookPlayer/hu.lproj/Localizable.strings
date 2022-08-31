@@ -219,3 +219,4 @@
 "settings_playerinterface_list_description" = "A lejátszó képernyőn mi nyíljon meg a lista gomb megnyomására";
 "settings_autoplay_section_title" = "AUTOMATIKUS LEJÁTSZÁS";
 "settings_autoplay_restart_title" = "Indítsa újra a kész könyveket";
+"settings_theme_autobrightness" = "Válassza ki a téma sötét változatát, ha a képernyő fényereje a beállított küszöb alá esik.";

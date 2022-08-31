@@ -219,3 +219,4 @@
 "settings_playerinterface_list_description" = "Налаштувати що відкриватиме кнопка списку на екрані програвача";
 "settings_autoplay_section_title" = "АВТОМАТИЧНЕ ВІДТВОРЕННЯ";
 "settings_autoplay_restart_title" = "Перезапустіть готові книги";
+"settings_theme_autobrightness" = "Виберіть темний варіант теми, якщо яскравість екрана падає нижче встановленого порогу.";
