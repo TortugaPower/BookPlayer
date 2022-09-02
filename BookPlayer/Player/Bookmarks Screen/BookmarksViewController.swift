@@ -20,19 +20,13 @@ class BookmarksViewController: BaseTableViewController<BookmarkCoordinator, Book
     self.navigationItem.title = "bookmarks_title".localized
 
     self.navigationItem.leftBarButtonItem = UIBarButtonItem(
-      image: UIImage(
-        systemName: "xmark",
-        withConfiguration: UIImage.SymbolConfiguration(scale: .medium)
-      ),
+      image: UIImage(systemName: "xmark"),
       style: .plain,
       target: self,
       action: #selector(self.didPressClose)
     )
     self.navigationItem.rightBarButtonItem = UIBarButtonItem(
-      image: UIImage(
-        systemName: "square.and.arrow.up",
-        withConfiguration: UIImage.SymbolConfiguration(scale: .medium)
-      ),
+      image: UIImage(systemName: "square.and.arrow.up"),
       style: .plain,
       target: self,
       action: #selector(self.didPressExport)
