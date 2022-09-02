@@ -55,7 +55,7 @@
 "move_library_button" = "In die Bibliothek verschieben";
 "options_button" = "Optionen";
 "select_playlist_title" = "Ordner auswählen";
-"sort_title_button" = "Titel";
+"title_button" = "Titel";
 "sort_filename_button" = "Ursprüngliche Dateinamen";
 "sort_title" = "Liste sortieren";
 "cancel_button" = "Abbrechen";
@@ -220,3 +220,4 @@
 "settings_autoplay_section_title" = "AUTOMATISCHES ABSPIELEN";
 "settings_autoplay_restart_title" = "Fertige Bücher neu starten";
 "settings_theme_autobrightness" = "Wählen Sie die dunkle Variante eines Themas, wenn die Bildschirmhelligkeit unter den eingestellten Schwellenwert fällt.";
+"note_title" = "Notiz";

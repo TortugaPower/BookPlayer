@@ -55,7 +55,7 @@
 "move_library_button" = "Переместить в библиотеку";
 "options_button" = "Опции";
 "select_playlist_title" = "Выберите папку";
-"sort_title_button" = "Название";
+"title_button" = "Название";
 "sort_filename_button" = "Исходное имя файла";
 "sort_title" = "Сортировать по";
 "cancel_button" = "Отменить";
@@ -220,3 +220,4 @@
 "settings_autoplay_section_title" = "АВТОВОСПРОИЗВЕДЕНИЕ";
 "settings_autoplay_restart_title" = "Перезапустить готовые книги";
 "settings_theme_autobrightness" = "Выбирайте темную вариацию темы, если яркость экрана падает ниже установленного порога.";
+"note_title" = "Примечание";

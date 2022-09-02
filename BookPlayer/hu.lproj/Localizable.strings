@@ -55,7 +55,7 @@
 "move_library_button" = "Áthelyezés a Könyvtárba";
 "options_button" = "Lehetőségek";
 "select_playlist_title" = "Mappa kiválasztása";
-"sort_title_button" = "Cím";
+"title_button" = "Cím";
 "sort_filename_button" = "Eredeti fájlnév";
 "sort_title" = "Elemek rendezése";
 "cancel_button" = "Mégsem";
@@ -220,3 +220,4 @@
 "settings_autoplay_section_title" = "AUTOMATIKUS LEJÁTSZÁS";
 "settings_autoplay_restart_title" = "Indítsa újra a kész könyveket";
 "settings_theme_autobrightness" = "Válassza ki a téma sötét változatát, ha a képernyő fényereje a beállított küszöb alá esik.";
+"note_title" = "jegyzet";

@@ -55,7 +55,7 @@
 "move_library_button" = "Siirrä kirjastoon";
 "options_button" = "Valinnat";
 "select_playlist_title" = "Valitse kansio";
-"sort_title_button" = "Otsikko";
+"title_button" = "Otsikko";
 "sort_filename_button" = "Alkuperäinen tiedostonimi";
 "sort_title" = "Lajittele kohteet seuraavan mukaan";
 "cancel_button" = "Peruuta";
@@ -220,3 +220,4 @@
 "settings_autoplay_section_title" = "AUTOMAATTINEN TOISTO";
 "settings_autoplay_restart_title" = "Käynnistä valmiit kirjat uudelleen";
 "settings_theme_autobrightness" = "Valitse teeman tumma muunnelma, jos näytön kirkkaus alittaa asetetun kynnyksen.";
+"note_title" = "Merkintä";

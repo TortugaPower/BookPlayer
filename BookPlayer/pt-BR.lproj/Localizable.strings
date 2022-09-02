@@ -55,7 +55,7 @@
 "move_library_button" = "Mover para Biblioteca";
 "options_button" = "Opções";
 "select_playlist_title" = "Selecione a pasta";
-"sort_title_button" = "Título";
+"title_button" = "Título";
 "sort_filename_button" = "Nome Original do Arquivo";
 "sort_title" = "Classificar itens por";
 "cancel_button" = "Cancelar";
@@ -220,3 +220,4 @@
 "settings_autoplay_section_title" = "REPRODUÇÃO AUTOMÁTICA";
 "settings_autoplay_restart_title" = "Reiniciar livros concluídos";
 "settings_theme_autobrightness" = "Selecione a variação escura de um tema se o brilho da tela ficar abaixo do limite definido.";
+"note_title" = "Observação";

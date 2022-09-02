@@ -55,7 +55,7 @@
 "move_library_button" = "Presunúť do Knižnice";
 "options_button" = "Možnosti";
 "select_playlist_title" = "Vyberte položku Priečinok";
-"sort_title_button" = "Názvu";
+"title_button" = "Názvu";
 "sort_filename_button" = "Pôvodného názvu súboru";
 "sort_title" = "Zoradiť položky podľa";
 "cancel_button" = "Zrušiť";
@@ -220,3 +220,4 @@
 "settings_autoplay_section_title" = "AUTOHRA";
 "settings_autoplay_restart_title" = "Reštartujte hotové knihy";
 "settings_theme_autobrightness" = "Vyberte tmavú variáciu témy, ak jas obrazovky klesne pod nastavenú hranicu.";
+"note_title" = "Poznámka";

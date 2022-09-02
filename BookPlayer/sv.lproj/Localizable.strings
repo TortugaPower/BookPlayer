@@ -55,7 +55,7 @@
 "move_library_button" = "Flytta till bibliotek";
 "options_button" = "Alternativ";
 "select_playlist_title" = "Välj mapp";
-"sort_title_button" = "Titel";
+"title_button" = "Titel";
 "sort_filename_button" = "Ursprungligt filnamn";
 "sort_title" = "Sortera filer efter";
 "cancel_button" = "Avbryt";
@@ -220,3 +220,4 @@
 "settings_autoplay_section_title" = "AUTOSPELA";
 "settings_autoplay_restart_title" = "Starta om färdiga böcker";
 "settings_theme_autobrightness" = "Välj den mörka varianten av ett tema om skärmens ljusstyrka faller under den inställda tröskeln.";
+"note_title" = "Notera";

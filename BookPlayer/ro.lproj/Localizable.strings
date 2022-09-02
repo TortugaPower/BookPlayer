@@ -47,7 +47,7 @@
 "move_library_button" = "Mutare în bibliotecă";
 "options_button" = "Opțiuni";
 "select_playlist_title" = "Selectați Folder";
-"sort_title_button" = "Titlu";
+"title_button" = "Titlu";
 "sort_filename_button" = "Nume fișier original";
 "sort_title" = "Sortează articolele după";
 "cancel_button" = "Anulare";
@@ -212,3 +212,4 @@
 "settings_autoplay_section_title" = "REDARE AUTOMATA";
 "settings_autoplay_restart_title" = "Reporniți cărțile terminate";
 "settings_theme_autobrightness" = "Selectați variația întunecată a unei teme dacă luminozitatea ecranului scade sub pragul setat.";
+"note_title" = "Notă";
