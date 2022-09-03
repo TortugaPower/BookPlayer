@@ -225,3 +225,9 @@
 "paused_title" = "Pause";
 "skipped_forward_title" = "Sprang fremad";
 "skipped_back_title" = "Sprang tilbage";
+"button_free_title" = "Knapløs";
+"screen_gestures_title" = "Skærmbevægelser";
+"gesture_tap_title" = "Tryk for at afspille eller sætte på pause";
+"gesture_swipe_left_title" = "Stryg til venstre for at spole tilbage";
+"gesture_swipe_right_title" = "Stryg til højre for at springe fremad";
+"gesture_swipe_vertically_title" = "Stryg lodret for at oprette et bogmærke";

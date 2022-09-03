@@ -225,3 +225,9 @@
 "paused_title" = "Pozastavené";
 "skipped_forward_title" = "Preskočené dopredu";
 "skipped_back_title" = "Preskočené späť";
+"button_free_title" = "Bez gombíka";
+"screen_gestures_title" = "Gestá na obrazovke";
+"gesture_tap_title" = "Klepnutím spustíte prehrávanie alebo pozastavenie";
+"gesture_swipe_left_title" = "Potiahnutím doľava sa vrátite";
+"gesture_swipe_right_title" = "Potiahnutím doprava preskočíte dopredu";
+"gesture_swipe_vertically_title" = "Záložku vytvoríte potiahnutím zvisle";

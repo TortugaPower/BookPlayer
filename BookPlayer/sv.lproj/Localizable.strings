@@ -225,3 +225,9 @@
 "paused_title" = "Pausad";
 "skipped_forward_title" = "Hoppade fram";
 "skipped_back_title" = "Hoppade tillbaka";
+"button_free_title" = "Knapplös";
+"screen_gestures_title" = "Skärmgester";
+"gesture_tap_title" = "Tryck för att spela eller pausa";
+"gesture_swipe_left_title" = "Svep åt vänster för att spola tillbaka";
+"gesture_swipe_right_title" = "Svep åt höger för att hoppa framåt";
+"gesture_swipe_vertically_title" = "Svep vertikalt för att skapa ett bokmärke";

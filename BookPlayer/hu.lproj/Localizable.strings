@@ -225,3 +225,9 @@
 "paused_title" = "Szüneteltetve";
 "skipped_forward_title" = "Előre ugrott";
 "skipped_back_title" = "Visszaugrott";
+"button_free_title" = "Gomb nélkül";
+"screen_gestures_title" = "Képernyőmozdulatok";
+"gesture_tap_title" = "Koppintson a lejátszáshoz vagy szüneteltetéshez";
+"gesture_swipe_left_title" = "Csúsztassa balra a visszatekeréshez";
+"gesture_swipe_right_title" = "Csúsztassa jobbra az előreugráshoz";
+"gesture_swipe_vertically_title" = "Függőleges csúsztatással hozzon létre könyvjelzőt";

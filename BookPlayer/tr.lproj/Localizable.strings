@@ -225,3 +225,9 @@
 "paused_title" = "duraklatıldı";
 "skipped_forward_title" = "İleri atlandı";
 "skipped_back_title" = "Geri atlandı";
+"button_free_title" = "Düğmesiz";
+"screen_gestures_title" = "Ekran Hareketleri";
+"gesture_tap_title" = "Oynatmak veya duraklatmak için dokunun";
+"gesture_swipe_left_title" = "Geri sarmak için sola kaydırın";
+"gesture_swipe_right_title" = "İleri atlamak için sağa kaydırın";
+"gesture_swipe_vertically_title" = "Yer imi oluşturmak için dikey olarak kaydırın";

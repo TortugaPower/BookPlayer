@@ -225,3 +225,9 @@
 "paused_title" = "暂停";
 "skipped_forward_title" = "向前跳过";
 "skipped_back_title" = "跳回";
+"button_free_title" = "无按钮";
+"screen_gestures_title" = "屏幕手势";
+"gesture_tap_title" = "点按即可播放或暂停";
+"gesture_swipe_left_title" = "向左滑动可倒带";
+"gesture_swipe_right_title" = "向右滑动可向前跳";
+"gesture_swipe_vertically_title" = "垂直滑动以创建书签";

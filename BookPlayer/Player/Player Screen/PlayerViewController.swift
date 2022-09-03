@@ -452,7 +452,7 @@ extension PlayerViewController {
     }))
 
     actionSheet.addAction(UIAlertAction(
-      title: "Button Free",
+      title: "button_free_title".localized,
       style: .default,
       handler: { [weak self] _ in
         self?.viewModel.showButtonFree()

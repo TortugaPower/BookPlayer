@@ -13,6 +13,7 @@ import Themeable
 class GestureItemRow: UIStackView {
   private lazy var imageView: UIImageView = {
     let imageView = UIImageView()
+    imageView.contentMode = .scaleAspectFit
     imageView.setContentHuggingPriority(.defaultHigh, for: .horizontal)
     return imageView
   }()
@@ -36,6 +37,7 @@ class GestureItemRow: UIStackView {
     axis = .horizontal
     spacing = 8
     addSubviews()
+    addConstraints()
     setUpTheming()
   }
 
@@ -46,6 +48,12 @@ class GestureItemRow: UIStackView {
   func addSubviews() {
     addArrangedSubview(imageView)
     addArrangedSubview(titleLabel)
+  }
+
+  func addConstraints() {
+    NSLayoutConstraint.activate([
+      imageView.widthAnchor.constraint(equalToConstant: 25),
+    ])
   }
 }
 

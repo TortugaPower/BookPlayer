@@ -25,7 +25,7 @@ class ButtonFreeViewController: BaseViewController<ButtonFreeCoordinator, Button
   private lazy var titleItem: UILabel = {
     let label = UILabel()
     label.font = UIFont.preferredFont(with: 16, style: .headline, weight: .semibold)
-    label.text = "Screen Gestures"
+    label.text = "screen_gestures_title".localized.capitalized
     label.numberOfLines = 0
     label.translatesAutoresizingMaskIntoConstraints = false
     return label
@@ -33,28 +33,28 @@ class ButtonFreeViewController: BaseViewController<ButtonFreeCoordinator, Button
 
   private lazy var tapItem: UIStackView = {
     return GestureItemRow(
-      title: "Tap to play or pause",
+      title: "gesture_tap_title".localized,
       systemImageName: "hand.tap"
     )
   }()
 
   private lazy var swipeLeftItem: UIStackView = {
     return GestureItemRow(
-      title: "Swipe left to rewind",
+      title: "gesture_swipe_left_title".localized,
       systemImageName: "arrow.left"
     )
   }()
 
   private lazy var swipeRightItem: UIStackView = {
     return GestureItemRow(
-      title: "Swipe right to skip forward",
+      title: "gesture_swipe_right_title".localized,
       systemImageName: "arrow.right"
     )
   }()
 
   private lazy var swipeVerticalItem: UIStackView = {
     return GestureItemRow(
-      title: "Swipe vertically to create bookmark",
+      title: "gesture_swipe_vertically_title".localized,
       systemImageName: "arrow.up.arrow.down"
     )
   }()
@@ -94,7 +94,7 @@ class ButtonFreeViewController: BaseViewController<ButtonFreeCoordinator, Button
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    self.navigationItem.title = "Button Free"
+    self.navigationItem.title = "button_free_title".localized.capitalized
 
     self.navigationItem.leftBarButtonItem = UIBarButtonItem(
       image: UIImage(systemName: "xmark"),

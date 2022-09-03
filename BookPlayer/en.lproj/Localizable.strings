@@ -225,3 +225,9 @@
 "paused_title" = "Paused";
 "skipped_forward_title" = "Skipped forward";
 "skipped_back_title" = "Skipped back";
+"button_free_title" = "Button free";
+"screen_gestures_title" = "Screen Gestures";
+"gesture_tap_title" = "Tap to play or pause";
+"gesture_swipe_left_title" = "Swipe left to rewind";
+"gesture_swipe_right_title" = "Swipe right to skip forward";
+"gesture_swipe_vertically_title" = "Swipe vertically to create bookmark";

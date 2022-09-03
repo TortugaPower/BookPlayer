@@ -225,3 +225,9 @@
 "paused_title" = "Pozastaveno";
 "skipped_forward_title" = "Přeskočeno vpřed";
 "skipped_back_title" = "Přeskočeno zpět";
+"button_free_title" = "Bez knoflíku";
+"screen_gestures_title" = "Gesta na obrazovce";
+"gesture_tap_title" = "Klepnutím přehrajete nebo pozastavíte";
+"gesture_swipe_left_title" = "Přejetím doleva převinete zpět";
+"gesture_swipe_right_title" = "Přejetím doprava přeskočíte vpřed";
+"gesture_swipe_vertically_title" = "Záložku vytvoříte přejetím prstem svisle";
