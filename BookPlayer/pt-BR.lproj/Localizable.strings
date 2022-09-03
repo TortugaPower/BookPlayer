@@ -221,3 +221,13 @@
 "settings_autoplay_restart_title" = "Reiniciar livros concluídos";
 "settings_theme_autobrightness" = "Selecione a variação escura de um tema se o brilho da tela ficar abaixo do limite definido.";
 "note_title" = "Observação";
+"playing_title" = "Tocando áudio";
+"paused_title" = "Pausado";
+"skipped_forward_title" = "Pulou para frente";
+"skipped_back_title" = "Pulado para trás";
+"button_free_title" = "Sem botões";
+"screen_gestures_title" = "Gestos de tela";
+"gesture_tap_title" = "Toque para reproduzir ou pausar";
+"gesture_swipe_left_title" = "Deslize para a esquerda para retroceder";
+"gesture_swipe_right_title" = "Deslize para a direita para avançar";
+"gesture_swipe_vertically_title" = "Deslize verticalmente para criar um marcador";

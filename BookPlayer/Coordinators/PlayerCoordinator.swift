@@ -48,6 +48,18 @@ class PlayerCoordinator: Coordinator {
     bookmarksCoordinator.start()
   }
 
+  func showButtonFree() {
+    let coordinator = ButtonFreeCoordinator(
+      navigationController: self.navigationController,
+      playerManager: self.playerManager,
+      libraryService: self.libraryService
+    )
+    coordinator.parentCoordinator = self
+    coordinator.presentingViewController = self.presentingViewController
+    self.childCoordinators.append(coordinator)
+    coordinator.start()
+  }
+
   func showChapters() {
     let chaptersCoordinator = ChapterCoordinator(navigationController: self.navigationController,
                                                  playerManager: self.playerManager)

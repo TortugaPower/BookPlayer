@@ -221,3 +221,13 @@
 "settings_autoplay_restart_title" = "Redémarrez les livres terminés";
 "settings_theme_autobrightness" = "Sélectionnez la variation sombre d'un thème si la luminosité de l'écran tombe en dessous du seuil défini.";
 "note_title" = "Noter";
+"playing_title" = "lecture audio";
+"paused_title" = "En pause";
+"skipped_forward_title" = "Sauté vers l'avant";
+"skipped_back_title" = "Revenir en arrière";
+"button_free_title" = "Sans bouton";
+"screen_gestures_title" = "Gestes à l'écran";
+"gesture_tap_title" = "Appuyez pour lire ou mettre en pause";
+"gesture_swipe_left_title" = "Balayez vers la gauche pour revenir en arrière";
+"gesture_swipe_right_title" = "Balayez vers la droite pour avancer";
+"gesture_swipe_vertically_title" = "Faites glisser verticalement pour créer un signet";

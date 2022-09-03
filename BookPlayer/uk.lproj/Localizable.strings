@@ -221,3 +221,13 @@
 "settings_autoplay_restart_title" = "Перезапустіть готові книги";
 "settings_theme_autobrightness" = "Виберіть темний варіант теми, якщо яскравість екрана падає нижче встановленого порогу.";
 "note_title" = "Примітка";
+"playing_title" = "відтворення аудіо";
+"paused_title" = "Призупинено";
+"skipped_forward_title" = "Проскочив вперед";
+"skipped_back_title" = "Проскочив назад";
+"button_free_title" = "Без кнопок";
+"screen_gestures_title" = "Жести на екрані";
+"gesture_tap_title" = "Торкніться, щоб відтворити або призупинити";
+"gesture_swipe_left_title" = "Проведіть пальцем ліворуч, щоб перемотати назад";
+"gesture_swipe_right_title" = "Проведіть пальцем праворуч, щоб перейти вперед";
+"gesture_swipe_vertically_title" = "Проведіть вертикально, щоб створити закладку";

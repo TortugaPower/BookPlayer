@@ -423,3 +423,9 @@ extension PlayerViewModel {
     vc.present(alert, animated: true, completion: nil)
   }
 }
+
+extension PlayerViewModel {
+  func showButtonFree() {
+    self.coordinator.showButtonFree()
+  }
+}
