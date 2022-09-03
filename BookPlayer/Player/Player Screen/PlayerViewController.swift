@@ -451,6 +451,13 @@ extension PlayerViewController {
       self?.viewModel.handleMarkCompletion()
     }))
 
+    actionSheet.addAction(UIAlertAction(
+      title: "Button Free",
+      style: .default,
+      handler: { [weak self] _ in
+        self?.viewModel.showButtonFree()
+    }))
+
     actionSheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
 
     self.present(actionSheet, animated: true, completion: nil)
