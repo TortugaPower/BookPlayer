@@ -360,6 +360,7 @@
 		9FB7C48F2835A4C9003B917E /* EmptyLibraryServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB7C48E2835A4C9003B917E /* EmptyLibraryServiceMock.swift */; };
 		9FB7C4912835A5A3003B917E /* EmptyPlaybackServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB7C4902835A5A3003B917E /* EmptyPlaybackServiceMock.swift */; };
 		9FB7C4932835A617003B917E /* EmptySpeedServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB7C4922835A617003B917E /* EmptySpeedServiceMock.swift */; };
+		9FC1A29F28C0D8CC00F25906 /* BookmarksActivityItemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC1A29E28C0D8CC00F25906 /* BookmarksActivityItemProvider.swift */; };
 		9FE07E1B27C522DE007591F7 /* ContainerItemListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FE07E1A27C522DE007591F7 /* ContainerItemListView.swift */; };
 		9FFCC08F289418CA00F4952E /* SimpleChapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FFCC08E289418CA00F4952E /* SimpleChapter.swift */; };
 		9FFCC090289418CA00F4952E /* SimpleChapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FFCC08E289418CA00F4952E /* SimpleChapter.swift */; };
@@ -866,6 +867,7 @@
 		9FB7C48E2835A4C9003B917E /* EmptyLibraryServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyLibraryServiceMock.swift; sourceTree = "<group>"; };
 		9FB7C4902835A5A3003B917E /* EmptyPlaybackServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyPlaybackServiceMock.swift; sourceTree = "<group>"; };
 		9FB7C4922835A617003B917E /* EmptySpeedServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptySpeedServiceMock.swift; sourceTree = "<group>"; };
+		9FC1A29E28C0D8CC00F25906 /* BookmarksActivityItemProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksActivityItemProvider.swift; sourceTree = "<group>"; };
 		9FE07E1A27C522DE007591F7 /* ContainerItemListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerItemListView.swift; sourceTree = "<group>"; };
 		9FFCC08E289418CA00F4952E /* SimpleChapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleChapter.swift; sourceTree = "<group>"; };
 		C30B085E209654E3003F325B /* UIColor+BookPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+BookPlayer.swift"; sourceTree = "<group>"; };
@@ -1571,6 +1573,7 @@
 				4193E1FE2439A0A1004D6A82 /* NetworkService.swift */,
 				419723FF21874D5F00AB1190 /* UserActivityManager.swift */,
 				41D39D40215F177D00B65290 /* BookActivityItemProvider.swift */,
+				9FC1A29E28C0D8CC00F25906 /* BookmarksActivityItemProvider.swift */,
 				41B30A32230232D200025D69 /* CarPlayManager.swift */,
 				4193E201243A91AE004D6A82 /* ActionParserService.swift */,
 				9F82DF9B27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift */,
@@ -2526,6 +2529,7 @@
 				416AAC3323F51031005AD04F /* LocalizableButton.swift in Sources */,
 				416A297D2568671F00605395 /* AVPlayer+BookPlayer.swift in Sources */,
 				41E79BEB26C60DC600EA9FFF /* PlayerViewModel.swift in Sources */,
+				9FC1A29F28C0D8CC00F25906 /* BookmarksActivityItemProvider.swift in Sources */,
 				9F64C6212793C31600B2493C /* PlayerControlsCoordinator.swift in Sources */,
 				41C3395225E040FB003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
 				C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */,

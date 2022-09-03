@@ -55,7 +55,7 @@
 "move_library_button" = "Kitaplığa Taşı";
 "options_button" = "Seçenekler";
 "select_playlist_title" = "Dosya Seç";
-"sort_title_button" = "Başlık";
+"title_button" = "Başlık";
 "sort_filename_button" = "Orijinal Dosya Adı";
 "sort_title" = "Öğeleri Sıralama Ölçütü";
 "cancel_button" = "İptal";
@@ -220,3 +220,4 @@
 "settings_autoplay_section_title" = "OTOMATİK OYNATMA";
 "settings_autoplay_restart_title" = "Biten kitapları yeniden başlat";
 "settings_theme_autobrightness" = "Ekran parlaklığı ayarlanan eşiğin altına düşerse bir temanın koyu varyasyonunu seçin.";
+"note_title" = "Not";

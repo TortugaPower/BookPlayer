@@ -55,7 +55,7 @@
 "move_library_button" = "Перемістити до бібліотеки";
 "options_button" = "Параметри";
 "select_playlist_title" = "Виберіть папку";
-"sort_title_button" = "Назва";
+"title_button" = "Назва";
 "sort_filename_button" = "Оригінальне ім'я файлу";
 "sort_title" = "Відсортувати за";
 "cancel_button" = "Скасувати";
@@ -220,3 +220,4 @@
 "settings_autoplay_section_title" = "АВТОМАТИЧНЕ ВІДТВОРЕННЯ";
 "settings_autoplay_restart_title" = "Перезапустіть готові книги";
 "settings_theme_autobrightness" = "Виберіть темний варіант теми, якщо яскравість екрана падає нижче встановленого порогу.";
+"note_title" = "Примітка";

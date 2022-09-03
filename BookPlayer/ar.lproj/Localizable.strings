@@ -55,7 +55,7 @@
 "move_library_button" = "النقل إلى المكتبة";
 "options_button" = "خيارات";
 "select_playlist_title" = "اختر مجلد";
-"sort_title_button" = "عنوان الكتاب";
+"title_button" = "عنوان الكتاب";
 "sort_filename_button" = "اسم الملف الأصلي";
 "sort_title" = "ترتيب الملفات حسب";
 "cancel_button" = "إلغاء الأمر";
@@ -220,3 +220,4 @@
 "settings_autoplay_section_title" = "تشغيل تلقائي";
 "settings_autoplay_restart_title" = "أعد تشغيل الكتب المنتهية";
 "settings_theme_autobrightness" = "حدد التباين الداكن للسمة إذا انخفض سطوع الشاشة عن الحد المعين.";
+"note_title" = "ملحوظة";

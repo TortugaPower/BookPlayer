@@ -55,7 +55,7 @@
 "move_library_button" = "移至有声书库";
 "options_button" = "选项";
 "select_playlist_title" = "选择文件夹";
-"sort_title_button" = "标题";
+"title_button" = "标题";
 "sort_filename_button" = "原始文件名";
 "sort_title" = "排序依据";
 "cancel_button" = "取消";
@@ -220,3 +220,4 @@
 "settings_autoplay_section_title" = "自动播放";
 "settings_autoplay_restart_title" = "重新启动完成的书籍";
 "settings_theme_autobrightness" = "如果屏幕亮度低于设置的阈值，请选择主题的暗色变化。";
+"note_title" = "笔记";

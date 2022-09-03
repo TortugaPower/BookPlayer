@@ -55,7 +55,7 @@
 "move_library_button" = "Přesunout do Knihovny";
 "options_button" = "Možnosti";
 "select_playlist_title" = "Vybrat složku";
-"sort_title_button" = "Titul";
+"title_button" = "Titul";
 "sort_filename_button" = "Název souboru";
 "sort_title" = "Seřadit položky podle";
 "cancel_button" = "Zrušit";
@@ -220,3 +220,4 @@
 "settings_autoplay_section_title" = "AUTOMATICKÉ PŘEHRÁVÁNÍ";
 "settings_autoplay_restart_title" = "Restartujte hotové knihy";
 "settings_theme_autobrightness" = "Vyberte tmavou variantu motivu, pokud jas obrazovky klesne pod nastavenou prahovou hodnotu.";
+"note_title" = "Poznámka";

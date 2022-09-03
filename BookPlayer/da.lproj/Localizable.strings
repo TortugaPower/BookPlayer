@@ -55,7 +55,7 @@
 "move_library_button" = "Flyt til bibliotek";
 "options_button" = "Valgmuligheder";
 "select_playlist_title" = "Vælg Mappe";
-"sort_title_button" = "Titel";
+"title_button" = "Titel";
 "sort_filename_button" = "Oprindelige filnavn";
 "sort_title" = "Sortér efter";
 "cancel_button" = "Annuller";
@@ -220,3 +220,4 @@
 "settings_autoplay_section_title" = "AUTOMATISK AFSPILNING";
 "settings_autoplay_restart_title" = "Genstart færdige bøger";
 "settings_theme_autobrightness" = "Vælg den mørke variant af et tema, hvis skærmens lysstyrke falder under den indstillede tærskel.";
+"note_title" = "Bemærk";

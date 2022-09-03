@@ -34,5 +34,14 @@ class BookmarkCoordinator: Coordinator {
     nav.viewControllers = [vc]
     nav.presentationController?.delegate = self
     self.presentingViewController?.present(nav, animated: true, completion: nil)
+    self.presentingViewController = nav
+  }
+
+  func showExportController(currentItem: PlayableItem, bookmarks: [Bookmark]) {
+    let provider = BookmarksActivityItemProvider(currentItem: currentItem, bookmarks: bookmarks)
+
+    let shareController = UIActivityViewController(activityItems: [provider], applicationActivities: nil)
+
+    self.presentingViewController?.present(shareController, animated: true, completion: nil)
   }
 }

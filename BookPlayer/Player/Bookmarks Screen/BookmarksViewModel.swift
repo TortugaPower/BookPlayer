@@ -82,4 +82,12 @@ class BookmarksViewModel: BaseViewModel<BookmarkCoordinator> {
   func deleteBookmark(_ bookmark: Bookmark) {
     self.libraryService.deleteBookmark(bookmark)
   }
+
+  func showExportController() {
+    guard let currentItem = playerManager.currentItem else { return }
+
+    let bookmarks = getUserBookmarks()
+
+    self.coordinator.showExportController(currentItem: currentItem, bookmarks: bookmarks)
+  }
 }
