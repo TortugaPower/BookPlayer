@@ -26,24 +26,28 @@ class ButtonFreeViewModel: BaseViewModel<ButtonFreeCoordinator> {
 
   func playPause() {
     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+    guard let currentItem = playerManager.currentItem else { return }
+
     let isPlaying = playerManager.isPlaying
     playerManager.playPause()
+    let formattedTime = TimeParser.formatTime(currentItem.currentTime)
+
     let message = isPlaying
-    ? "Paused"
-    : "Playing"
+    ? "\("paused_title".localized) (\(formattedTime))"
+    : "\("playing_title".localized.capitalized) (\(formattedTime))"
     eventPublisher.send(message)
   }
 
   func rewind() {
     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
     playerManager.rewind()
-    eventPublisher.send("Skipped back")
+    eventPublisher.send("skipped_back_title".localized)
   }
 
   func forward() {
     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
     playerManager.forward()
-    eventPublisher.send("Skipped forward")
+    eventPublisher.send("skipped_forward_title".localized)
   }
 
   func createBookmark() {

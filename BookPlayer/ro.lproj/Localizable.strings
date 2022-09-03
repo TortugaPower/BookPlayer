@@ -213,3 +213,7 @@
 "settings_autoplay_restart_title" = "Reporniți cărțile terminate";
 "settings_theme_autobrightness" = "Selectați variația întunecată a unei teme dacă luminozitatea ecranului scade sub pragul setat.";
 "note_title" = "Notă";
+"playing_title" = "redarea audio";
+"paused_title" = "Întrerupt";
+"skipped_forward_title" = "A sărit înainte";
+"skipped_back_title" = "Sărit înapoi";

@@ -221,3 +221,7 @@
 "settings_autoplay_restart_title" = "Biten kitapları yeniden başlat";
 "settings_theme_autobrightness" = "Ekran parlaklığı ayarlanan eşiğin altına düşerse bir temanın koyu varyasyonunu seçin.";
 "note_title" = "Not";
+"playing_title" = "ses çalma";
+"paused_title" = "duraklatıldı";
+"skipped_forward_title" = "İleri atlandı";
+"skipped_back_title" = "Geri atlandı";

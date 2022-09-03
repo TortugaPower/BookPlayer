@@ -221,3 +221,7 @@
 "settings_autoplay_restart_title" = "Reštartujte hotové knihy";
 "settings_theme_autobrightness" = "Vyberte tmavú variáciu témy, ak jas obrazovky klesne pod nastavenú hranicu.";
 "note_title" = "Poznámka";
+"playing_title" = "prehrávanie zvuku";
+"paused_title" = "Pozastavené";
+"skipped_forward_title" = "Preskočené dopredu";
+"skipped_back_title" = "Preskočené späť";

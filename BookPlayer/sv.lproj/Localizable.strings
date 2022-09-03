@@ -221,3 +221,7 @@
 "settings_autoplay_restart_title" = "Starta om färdiga böcker";
 "settings_theme_autobrightness" = "Välj den mörka varianten av ett tema om skärmens ljusstyrka faller under den inställda tröskeln.";
 "note_title" = "Notera";
+"playing_title" = "spelar upp ljud";
+"paused_title" = "Pausad";
+"skipped_forward_title" = "Hoppade fram";
+"skipped_back_title" = "Hoppade tillbaka";

@@ -221,3 +221,7 @@
 "settings_autoplay_restart_title" = "Uruchom ponownie ukończone książki";
 "settings_theme_autobrightness" = "Wybierz ciemną odmianę motywu, jeśli jasność ekranu spadnie poniżej ustawionego progu.";
 "note_title" = "Notatka";
+"playing_title" = "odtwarzam dźwięk";
+"paused_title" = "Wstrzymane";
+"skipped_forward_title" = "Przeskoczono do przodu";
+"skipped_back_title" = "Pominięto z powrotem";

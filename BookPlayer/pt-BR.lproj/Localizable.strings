@@ -221,3 +221,7 @@
 "settings_autoplay_restart_title" = "Reiniciar livros concluídos";
 "settings_theme_autobrightness" = "Selecione a variação escura de um tema se o brilho da tela ficar abaixo do limite definido.";
 "note_title" = "Observação";
+"playing_title" = "Tocando áudio";
+"paused_title" = "Pausado";
+"skipped_forward_title" = "Pulou para frente";
+"skipped_back_title" = "Pulado para trás";

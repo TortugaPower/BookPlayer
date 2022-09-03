@@ -221,3 +221,7 @@
 "settings_autoplay_restart_title" = "Redémarrez les livres terminés";
 "settings_theme_autobrightness" = "Sélectionnez la variation sombre d'un thème si la luminosité de l'écran tombe en dessous du seuil défini.";
 "note_title" = "Noter";
+"playing_title" = "lecture audio";
+"paused_title" = "En pause";
+"skipped_forward_title" = "Sauté vers l'avant";
+"skipped_back_title" = "Revenir en arrière";

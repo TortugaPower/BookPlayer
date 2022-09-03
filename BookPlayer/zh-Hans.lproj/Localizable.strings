@@ -209,7 +209,7 @@
 "voiceover_default_speed_title" = "设置默认速度";
 "error_loading_chapters" = "无法从以下位置加载章节：\n %@";
 "error_empty_chapters" = "章节为空，请验证文件夹内容：%@";
-"sleeptimer_option_custom" = "风俗";
+"sleeptimer_option_custom" = "自定义";
 "sleeptimer_custom_alert_title" = "自定义睡眠定时器";
 "settings_progresslabels_title" = "进度标签";
 "settings_playerinterface_list_title" = "打开";
@@ -221,3 +221,7 @@
 "settings_autoplay_restart_title" = "重新启动完成的书籍";
 "settings_theme_autobrightness" = "如果屏幕亮度低于设置的阈值，请选择主题的暗色变化。";
 "note_title" = "笔记";
+"playing_title" = "播放音频";
+"paused_title" = "暂停";
+"skipped_forward_title" = "向前跳过";
+"skipped_back_title" = "跳回";

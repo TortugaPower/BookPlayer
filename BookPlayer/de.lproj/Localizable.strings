@@ -221,3 +221,7 @@
 "settings_autoplay_restart_title" = "Fertige Bücher neu starten";
 "settings_theme_autobrightness" = "Wählen Sie die dunkle Variante eines Themas, wenn die Bildschirmhelligkeit unter den eingestellten Schwellenwert fällt.";
 "note_title" = "Notiz";
+"playing_title" = "Audio abspielen";
+"paused_title" = "Angehalten";
+"skipped_forward_title" = "Vorwärts gesprungen";
+"skipped_back_title" = "Zurückgesprungen";

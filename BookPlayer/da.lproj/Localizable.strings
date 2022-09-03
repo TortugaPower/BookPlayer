@@ -221,3 +221,7 @@
 "settings_autoplay_restart_title" = "Genstart færdige bøger";
 "settings_theme_autobrightness" = "Vælg den mørke variant af et tema, hvis skærmens lysstyrke falder under den indstillede tærskel.";
 "note_title" = "Bemærk";
+"playing_title" = "afspille lyd";
+"paused_title" = "Pause";
+"skipped_forward_title" = "Sprang fremad";
+"skipped_back_title" = "Sprang tilbage";

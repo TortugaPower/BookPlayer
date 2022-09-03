@@ -221,3 +221,7 @@
 "settings_autoplay_restart_title" = "Käynnistä valmiit kirjat uudelleen";
 "settings_theme_autobrightness" = "Valitse teeman tumma muunnelma, jos näytön kirkkaus alittaa asetetun kynnyksen.";
 "note_title" = "Merkintä";
+"playing_title" = "toistaa ääntä";
+"paused_title" = "";
+"skipped_forward_title" = "";
+"skipped_back_title" = "";

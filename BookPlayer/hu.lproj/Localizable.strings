@@ -221,3 +221,7 @@
 "settings_autoplay_restart_title" = "Indítsa újra a kész könyveket";
 "settings_theme_autobrightness" = "Válassza ki a téma sötét változatát, ha a képernyő fényereje a beállított küszöb alá esik.";
 "note_title" = "jegyzet";
+"playing_title" = "hang lejátszása";
+"paused_title" = "Szüneteltetve";
+"skipped_forward_title" = "Előre ugrott";
+"skipped_back_title" = "Visszaugrott";

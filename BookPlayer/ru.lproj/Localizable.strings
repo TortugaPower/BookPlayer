@@ -221,3 +221,7 @@
 "settings_autoplay_restart_title" = "Перезапустить готовые книги";
 "settings_theme_autobrightness" = "Выбирайте темную вариацию темы, если яркость экрана падает ниже установленного порога.";
 "note_title" = "Примечание";
+"playing_title" = "воспроизведение аудио";
+"paused_title" = "Приостановлено";
+"skipped_forward_title" = "Пропущено вперед";
+"skipped_back_title" = "Пропущено назад";
