@@ -55,7 +55,7 @@
 "move_library_button" = "Flytta till bibliotek";
 "options_button" = "Alternativ";
 "select_playlist_title" = "Välj mapp";
-"sort_title_button" = "Titel";
+"title_button" = "Titel";
 "sort_filename_button" = "Ursprungligt filnamn";
 "sort_title" = "Sortera filer efter";
 "cancel_button" = "Avbryt";
@@ -219,3 +219,15 @@
 "settings_playerinterface_list_description" = "Välj vad listknappen på spelarkontrollen öppnar";
 "settings_autoplay_section_title" = "AUTOSPELA";
 "settings_autoplay_restart_title" = "Starta om färdiga böcker";
+"settings_theme_autobrightness" = "Välj den mörka varianten av ett tema om skärmens ljusstyrka faller under den inställda tröskeln.";
+"note_title" = "Notera";
+"playing_title" = "spelar upp ljud";
+"paused_title" = "Pausad";
+"skipped_forward_title" = "Hoppade fram";
+"skipped_back_title" = "Hoppade tillbaka";
+"button_free_title" = "Knapplös";
+"screen_gestures_title" = "Skärmgester";
+"gesture_tap_title" = "Tryck för att spela eller pausa";
+"gesture_swipe_left_title" = "Svep åt vänster för att spola tillbaka";
+"gesture_swipe_right_title" = "Svep åt höger för att hoppa framåt";
+"gesture_swipe_vertically_title" = "Svep vertikalt för att skapa ett bokmärke";

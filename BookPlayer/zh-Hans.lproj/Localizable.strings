@@ -55,7 +55,7 @@
 "move_library_button" = "移至有声书库";
 "options_button" = "选项";
 "select_playlist_title" = "选择文件夹";
-"sort_title_button" = "标题";
+"title_button" = "标题";
 "sort_filename_button" = "原始文件名";
 "sort_title" = "排序依据";
 "cancel_button" = "取消";
@@ -209,7 +209,7 @@
 "voiceover_default_speed_title" = "设置默认速度";
 "error_loading_chapters" = "无法从以下位置加载章节：\n %@";
 "error_empty_chapters" = "章节为空，请验证文件夹内容：%@";
-"sleeptimer_option_custom" = "风俗";
+"sleeptimer_option_custom" = "自定义";
 "sleeptimer_custom_alert_title" = "自定义睡眠定时器";
 "settings_progresslabels_title" = "进度标签";
 "settings_playerinterface_list_title" = "打开";
@@ -219,3 +219,15 @@
 "settings_playerinterface_list_description" = "调整播放器屏幕中的列表按钮打开的内容";
 "settings_autoplay_section_title" = "自动播放";
 "settings_autoplay_restart_title" = "重新启动完成的书籍";
+"settings_theme_autobrightness" = "如果屏幕亮度低于设置的阈值，请选择主题的暗色变化。";
+"note_title" = "笔记";
+"playing_title" = "播放音频";
+"paused_title" = "暂停";
+"skipped_forward_title" = "向前跳过";
+"skipped_back_title" = "跳回";
+"button_free_title" = "无按钮";
+"screen_gestures_title" = "屏幕手势";
+"gesture_tap_title" = "点按即可播放或暂停";
+"gesture_swipe_left_title" = "向左滑动可倒带";
+"gesture_swipe_right_title" = "向右滑动可向前跳";
+"gesture_swipe_vertically_title" = "垂直滑动以创建书签";

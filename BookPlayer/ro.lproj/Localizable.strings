@@ -47,7 +47,7 @@
 "move_library_button" = "Mutare în bibliotecă";
 "options_button" = "Opțiuni";
 "select_playlist_title" = "Selectați Folder";
-"sort_title_button" = "Titlu";
+"title_button" = "Titlu";
 "sort_filename_button" = "Nume fișier original";
 "sort_title" = "Sortează articolele după";
 "cancel_button" = "Anulare";
@@ -211,3 +211,15 @@
 "settings_playerinterface_list_description" = "Ajustați ce se deschide butonul de listă din ecranul playerului";
 "settings_autoplay_section_title" = "REDARE AUTOMATA";
 "settings_autoplay_restart_title" = "Reporniți cărțile terminate";
+"settings_theme_autobrightness" = "Selectați variația întunecată a unei teme dacă luminozitatea ecranului scade sub pragul setat.";
+"note_title" = "Notă";
+"playing_title" = "redarea audio";
+"paused_title" = "Întrerupt";
+"skipped_forward_title" = "A sărit înainte";
+"skipped_back_title" = "Sărit înapoi";
+"button_free_title" = "Fără butoane";
+"screen_gestures_title" = "Gesturi pe ecran";
+"gesture_tap_title" = "Atingeți pentru a reda sau pentru a întrerupe";
+"gesture_swipe_left_title" = "Glisați spre stânga pentru a derula înapoi";
+"gesture_swipe_right_title" = "Glisați spre dreapta pentru a trece înainte";
+"gesture_swipe_vertically_title" = "Glisați vertical pentru a crea un marcaj";

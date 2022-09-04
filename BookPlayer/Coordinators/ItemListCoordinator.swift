@@ -271,7 +271,7 @@ extension ItemListCoordinator {
   func showSortOptions() {
     let alert = UIAlertController(title: "sort_files_title".localized, message: nil, preferredStyle: .actionSheet)
 
-    alert.addAction(UIAlertAction(title: "sort_title_button".localized, style: .default, handler: { _ in
+    alert.addAction(UIAlertAction(title: "title_button".localized, style: .default, handler: { _ in
       self.onAction?(.sortItems(.metadataTitle))
     }))
 

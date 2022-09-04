@@ -55,7 +55,7 @@
 "move_library_button" = "Kitaplığa Taşı";
 "options_button" = "Seçenekler";
 "select_playlist_title" = "Dosya Seç";
-"sort_title_button" = "Başlık";
+"title_button" = "Başlık";
 "sort_filename_button" = "Orijinal Dosya Adı";
 "sort_title" = "Öğeleri Sıralama Ölçütü";
 "cancel_button" = "İptal";
@@ -219,3 +219,15 @@
 "settings_playerinterface_list_description" = "Oynatıcı ekranındaki liste düğmesinin ne açacağını ayarlayın";
 "settings_autoplay_section_title" = "OTOMATİK OYNATMA";
 "settings_autoplay_restart_title" = "Biten kitapları yeniden başlat";
+"settings_theme_autobrightness" = "Ekran parlaklığı ayarlanan eşiğin altına düşerse bir temanın koyu varyasyonunu seçin.";
+"note_title" = "Not";
+"playing_title" = "ses çalma";
+"paused_title" = "duraklatıldı";
+"skipped_forward_title" = "İleri atlandı";
+"skipped_back_title" = "Geri atlandı";
+"button_free_title" = "Düğmesiz";
+"screen_gestures_title" = "Ekran Hareketleri";
+"gesture_tap_title" = "Oynatmak veya duraklatmak için dokunun";
+"gesture_swipe_left_title" = "Geri sarmak için sola kaydırın";
+"gesture_swipe_right_title" = "İleri atlamak için sağa kaydırın";
+"gesture_swipe_vertically_title" = "Yer imi oluşturmak için dikey olarak kaydırın";

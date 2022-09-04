@@ -55,7 +55,7 @@
 "move_library_button" = "Siirrä kirjastoon";
 "options_button" = "Valinnat";
 "select_playlist_title" = "Valitse kansio";
-"sort_title_button" = "Otsikko";
+"title_button" = "Otsikko";
 "sort_filename_button" = "Alkuperäinen tiedostonimi";
 "sort_title" = "Lajittele kohteet seuraavan mukaan";
 "cancel_button" = "Peruuta";
@@ -219,3 +219,15 @@
 "settings_playerinterface_list_description" = "Säädä, mitä luettelopainike avautuu soittimen näytössä";
 "settings_autoplay_section_title" = "AUTOMAATTINEN TOISTO";
 "settings_autoplay_restart_title" = "Käynnistä valmiit kirjat uudelleen";
+"settings_theme_autobrightness" = "Valitse teeman tumma muunnelma, jos näytön kirkkaus alittaa asetetun kynnyksen.";
+"note_title" = "Merkintä";
+"playing_title" = "toistaa ääntä";
+"paused_title" = "Keskeytetty";
+"skipped_forward_title" = "Ohitettu eteenpäin";
+"skipped_back_title" = "Ohitettu takaisin";
+"button_free_title" = "Ilman painiketta";
+"screen_gestures_title" = "Näytön eleet";
+"gesture_tap_title" = "Toista tai keskeytä napauttamalla";
+"gesture_swipe_left_title" = "Pyyhkäise vasemmalle kelataksesi taaksepäin";
+"gesture_swipe_right_title" = "Siirry eteenpäin pyyhkäisemällä oikealle";
+"gesture_swipe_vertically_title" = "Luo kirjanmerkki pyyhkäisemällä pystysuunnassa";

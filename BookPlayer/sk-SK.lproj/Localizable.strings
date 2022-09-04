@@ -55,7 +55,7 @@
 "move_library_button" = "Presunúť do Knižnice";
 "options_button" = "Možnosti";
 "select_playlist_title" = "Vyberte položku Priečinok";
-"sort_title_button" = "Názvu";
+"title_button" = "Názvu";
 "sort_filename_button" = "Pôvodného názvu súboru";
 "sort_title" = "Zoradiť položky podľa";
 "cancel_button" = "Zrušiť";
@@ -219,3 +219,15 @@
 "settings_playerinterface_list_description" = "Úprava správania sa tlačidla zoznamu na obrazovke prehrávača";
 "settings_autoplay_section_title" = "AUTOHRA";
 "settings_autoplay_restart_title" = "Reštartujte hotové knihy";
+"settings_theme_autobrightness" = "Vyberte tmavú variáciu témy, ak jas obrazovky klesne pod nastavenú hranicu.";
+"note_title" = "Poznámka";
+"playing_title" = "prehrávanie zvuku";
+"paused_title" = "Pozastavené";
+"skipped_forward_title" = "Preskočené dopredu";
+"skipped_back_title" = "Preskočené späť";
+"button_free_title" = "Bez gombíka";
+"screen_gestures_title" = "Gestá na obrazovke";
+"gesture_tap_title" = "Klepnutím spustíte prehrávanie alebo pozastavenie";
+"gesture_swipe_left_title" = "Potiahnutím doľava sa vrátite";
+"gesture_swipe_right_title" = "Potiahnutím doprava preskočíte dopredu";
+"gesture_swipe_vertically_title" = "Záložku vytvoríte potiahnutím zvisle";

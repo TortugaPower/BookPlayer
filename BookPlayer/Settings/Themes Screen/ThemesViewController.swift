@@ -39,10 +39,9 @@ class ThemesViewController: UIViewController, Storyboarded {
     @IBOutlet weak var bannerView: PlusBannerView!
     @IBOutlet weak var bannerHeightConstraint: NSLayoutConstraint!
 
-  var viewModel: ThemesViewModel!
-  private var disposeBag = Set<AnyCancellable>()
-
-    var scrolledToCurrentTheme = false
+    var viewModel: ThemesViewModel!
+    private var disposeBag = Set<AnyCancellable>()
+    var shouldRefreshTableHeight = true
     let cellHeight = 45
     let expandedHeight = 110
 
@@ -52,11 +51,7 @@ class ThemesViewController: UIViewController, Storyboarded {
         }
     }
 
-    var extractedThemes: [SimpleTheme]! {
-        didSet {
-            self.resizeScrollContent()
-        }
-    }
+    var extractedThemes: [SimpleTheme]!
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -110,16 +105,25 @@ class ThemesViewController: UIViewController, Storyboarded {
     }
   }
 
-    override func viewDidLayoutSubviews() {
-      super.viewDidLayoutSubviews()
+  override func viewDidLayoutSubviews() {
+    super.viewDidLayoutSubviews()
 
-      guard !self.scrolledToCurrentTheme,
-            let index = self.extractedThemes.firstIndex(of: ThemeManager.shared.currentTheme) else { return }
+    guard
+      shouldRefreshTableHeight,
+      let firstCell = localThemesTableView.visibleCells.first
+    else { return }
 
-      self.scrolledToCurrentTheme = true
-      let indexPath = IndexPath(row: index, section: 0)
-      self.extractedThemesTableView.scrollToRow(at: indexPath, at: .top, animated: false)
+    shouldRefreshTableHeight = false
+
+    var tableHeight = CGFloat(self.localThemes.count) * firstCell.bounds.height
+
+    if self.brightnessSwitch.isOn {
+      tableHeight += CGFloat(self.cellHeight)
     }
+
+    self.localThemesTableHeightConstraint.constant = tableHeight
+    self.scrollContentHeightConstraint.constant = tableHeight + self.localThemesTableView.frame.origin.y
+  }
 
     @objc func donationMade() {
         self.bannerView.isHidden = true
@@ -204,14 +208,16 @@ class ThemesViewController: UIViewController, Storyboarded {
             ? CGFloat(self.expandedHeight)
             : CGFloat(self.cellHeight)
 
+        shouldRefreshTableHeight = true
+
         guard animated else {
             self.brightnessViews.forEach { view in
                 view.alpha = self.brightnessSwitch.isOn
                     ? 1.0
                     : 0.0
             }
+          self.view.setNeedsLayout()
             self.view.layoutIfNeeded()
-            self.resizeScrollContent()
             return
         }
 
@@ -221,17 +227,9 @@ class ThemesViewController: UIViewController, Storyboarded {
                     ? 1.0
                     : 0.0
             }
+          self.view.setNeedsLayout()
             self.view.layoutIfNeeded()
-        }, completion: { [weak self] _ in
-            self?.resizeScrollContent()
-        })
-    }
-
-    func resizeScrollContent() {
-        let tableHeight = CGFloat(self.localThemes.count * self.cellHeight)
-
-        self.localThemesTableHeightConstraint.constant = tableHeight
-        self.scrollContentHeightConstraint.constant = tableHeight + self.localThemesTableView.frame.origin.y
+        }, completion: nil)
     }
 }
 
