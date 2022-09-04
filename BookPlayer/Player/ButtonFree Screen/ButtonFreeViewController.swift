@@ -97,7 +97,7 @@ class ButtonFreeViewController: BaseViewController<ButtonFreeCoordinator, Button
     self.navigationItem.title = "button_free_title".localized.capitalized
 
     self.navigationItem.leftBarButtonItem = UIBarButtonItem(
-      image: UIImage(systemName: "xmark"),
+      image: ImageIcons.navigationBackImage,
       style: .plain,
       target: self,
       action: #selector(self.didPressClose)

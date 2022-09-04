@@ -27,6 +27,13 @@ class IconsViewController: UIViewController, Storyboarded {
     super.viewDidLoad()
 
     self.navigationItem.title = "settings_app_icon_title".localized
+    self.navigationItem.leftBarButtonItem = UIBarButtonItem(
+      image: ImageIcons.navigationBackImage,
+      style: .plain,
+      target: self,
+      action: #selector(self.didPressClose)
+    )
+
     self.icons = self.getIcons()
 
     self.tableView.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: self.tableView.frame.size.width, height: 1))
@@ -55,7 +62,7 @@ class IconsViewController: UIViewController, Storyboarded {
     }
   }
 
-  @IBAction func didPressClose(_ sender: UIBarButtonItem) {
+  @objc func didPressClose() {
     self.dismiss(animated: true, completion: nil)
   }
 

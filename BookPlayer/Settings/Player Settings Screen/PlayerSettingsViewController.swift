@@ -37,6 +37,12 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
     setUpTheming()
 
     self.navigationItem.title = "settings_controls_title".localized
+    self.navigationItem.leftBarButtonItem = UIBarButtonItem(
+      image: ImageIcons.navigationBackImage,
+      style: .plain,
+      target: self,
+      action: #selector(self.didPressClose)
+    )
     self.smartRewindSwitch.addTarget(self, action: #selector(self.rewindToggleDidChange), for: .valueChanged)
     self.boostVolumeSwitch.addTarget(self, action: #selector(self.boostVolumeToggleDidChange), for: .valueChanged)
     self.globalSpeedSwitch.addTarget(self, action: #selector(self.globalSpeedToggleDidChange), for: .valueChanged)
@@ -55,7 +61,7 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
     bindObservers()
   }
 
-  @IBAction func didPressClose(_ sender: UIBarButtonItem) {
+  @objc func didPressClose() {
     self.dismiss(animated: true, completion: nil)
   }
 

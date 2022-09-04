@@ -3,8 +3,7 @@
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
-        <capability name="Image references" minToolsVersion="12.0"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21204"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -547,7 +546,7 @@
                                                     </constraints>
                                                 </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hfJ-8d-1E2">
-                                                    <rect key="frame" x="88" y="22" width="256" height="20.5"/>
+                                                    <rect key="frame" x="88" y="21.5" width="256" height="21"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
@@ -612,14 +611,7 @@
                             <constraint firstItem="6rH-0d-17o" firstAttribute="top" secondItem="evd-2l-0Sl" secondAttribute="bottom" id="wVo-bS-Anu"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Icons" id="Ohf-lQ-zR4">
-                        <barButtonItem key="leftBarButtonItem" id="DKL-eG-FNO">
-                            <imageReference key="image" image="multiply" catalog="system" symbolScale="large"/>
-                            <connections>
-                                <action selector="didPressClose:" destination="9BF-g4-gyu" id="1hF-wA-adY"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" title="Icons" id="Ohf-lQ-zR4"/>
                     <connections>
                         <outlet property="bannerHeightConstraint" destination="1ea-uB-KdW" id="heY-pg-wia"/>
                         <outlet property="bannerView" destination="evd-2l-0Sl" id="4vJ-0g-JbF"/>
@@ -657,14 +649,7 @@
                         <viewLayoutGuide key="safeArea" id="0QN-vQ-nhK"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </view>
-                    <navigationItem key="navigationItem" title="Credits" id="tQC-Hc-cer">
-                        <barButtonItem key="leftBarButtonItem" id="bXt-x4-lde">
-                            <imageReference key="image" image="multiply" catalog="system" symbolScale="large"/>
-                            <connections>
-                                <action selector="didPressClose:" destination="ZB7-qt-cNi" id="xTM-kf-9YT"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" title="Credits" id="tQC-Hc-cer"/>
                     <connections>
                         <outlet property="textView" destination="1sI-UV-abw" id="ZPK-Fq-fFB"/>
                     </connections>
@@ -708,7 +693,7 @@
                                                 </constraints>
                                             </imageView>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Support BookPlayer" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DTB-KZ-XGh" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
-                                                <rect key="frame" x="112" y="143" width="151.5" height="21"/>
+                                                <rect key="frame" x="111.5" y="143" width="152" height="21"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="21" id="c3a-oc-yUs"/>
                                                 </constraints>
@@ -1811,14 +1796,7 @@
                             <constraint firstAttribute="trailing" secondItem="u4n-Rr-8Xe" secondAttribute="trailing" id="VIK-5D-VMM"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Themes" id="Wc6-ef-jxy">
-                        <barButtonItem key="leftBarButtonItem" id="16e-hv-eK8">
-                            <imageReference key="image" image="multiply" catalog="system" symbolScale="large"/>
-                            <connections>
-                                <action selector="didPressClose:" destination="NEQ-oF-OIb" id="7XE-ZI-wVP"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" title="Themes" id="Wc6-ef-jxy"/>
                     <size key="freeformSize" width="375" height="736"/>
                     <connections>
                         <outlet property="bannerHeightConstraint" destination="jAc-oq-2Ga" id="c1P-Yg-ycK"/>
@@ -2074,14 +2052,7 @@ second line</string>
                             <constraint firstItem="k0M-TZ-Hac" firstAttribute="leading" secondItem="fzw-Ck-HgH" secondAttribute="leading" id="yZU-fA-qpH"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="2rp-sg-SA9">
-                        <barButtonItem key="leftBarButtonItem" id="BxG-Pi-xGZ">
-                            <imageReference key="image" image="multiply" catalog="system" symbolScale="large"/>
-                            <connections>
-                                <action selector="didPressClose:" destination="75f-pe-hfH" id="Dee-eC-nSm"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" id="2rp-sg-SA9"/>
                     <size key="freeformSize" width="375" height="736"/>
                     <connections>
                         <outlet property="filesTitleLabel" destination="Jt5-NR-llg" id="fcY-5w-ZK0"/>
@@ -2459,14 +2430,7 @@ Use with caution and care for your hearing.</string>
                             <outlet property="delegate" destination="Te4-I9-OuL" id="9YH-1O-Fnl"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Player Controls" leftItemsSupplementBackButton="YES" largeTitleDisplayMode="never" id="gST-Cn-uPB">
-                        <barButtonItem key="leftBarButtonItem" id="ear-qy-5VZ">
-                            <imageReference key="image" image="multiply" catalog="system" symbolScale="large"/>
-                            <connections>
-                                <action selector="didPressClose:" destination="Te4-I9-OuL" id="J4g-GY-s6f"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" title="Player Controls" leftItemsSupplementBackButton="YES" largeTitleDisplayMode="never" id="gST-Cn-uPB"/>
                     <connections>
                         <outlet property="boostVolumeSwitch" destination="REu-u1-fwP" id="ORF-rl-zos"/>
                         <outlet property="chapterTimeSwitch" destination="jzV-Oj-QRt" id="lY1-Fl-C2d"/>
@@ -2495,7 +2459,6 @@ Use with caution and care for your hearing.</string>
         <image name="list.bullet" catalog="system" width="128" height="87"/>
         <image name="listAdd" width="29" height="29"/>
         <image name="minus.circle.fill" catalog="system" width="128" height="123"/>
-        <image name="multiply" catalog="system" width="128" height="111"/>
         <image name="plusImageAppIcons" width="64" height="64"/>
         <image name="plusImageSupport" width="64" height="64"/>
         <image name="plusImageThemes" width="64" height="64"/>

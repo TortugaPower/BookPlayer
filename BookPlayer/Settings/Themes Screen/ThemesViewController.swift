@@ -57,6 +57,12 @@ class ThemesViewController: UIViewController, Storyboarded {
     super.viewDidLoad()
 
     self.navigationItem.title = "themes_title".localized
+    self.navigationItem.leftBarButtonItem = UIBarButtonItem(
+      image: ImageIcons.navigationBackImage,
+      style: .plain,
+      target: self,
+      action: #selector(self.didPressClose)
+    )
 
     self.localThemes = ThemeManager.getLocalThemes()
     self.extractedThemes = [] // disabled
@@ -134,7 +140,7 @@ class ThemesViewController: UIViewController, Storyboarded {
 
     func extractTheme() {}
 
-  @IBAction func didPressClose(_ sender: UIBarButtonItem) {
+  @objc func didPressClose() {
     self.dismiss(animated: true, completion: nil)
   }
 

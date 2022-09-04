@@ -46,14 +46,20 @@ class CreditsViewController: UIViewController, Storyboarded {
         }
     }
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
+  override func viewDidLoad() {
+    super.viewDidLoad()
 
-        self.navigationItem.title = "settings_credits_title".localized
-        self.textView.textContainerInset = UIEdgeInsets(top: 10.0, left: 13.0, bottom: 0, right: 13.0)
-    }
+    self.navigationItem.title = "settings_credits_title".localized
+    self.navigationItem.leftBarButtonItem = UIBarButtonItem(
+      image: ImageIcons.navigationBackImage,
+      style: .plain,
+      target: self,
+      action: #selector(self.didPressClose)
+    )
+    self.textView.textContainerInset = UIEdgeInsets(top: 10.0, left: 13.0, bottom: 0, right: 13.0)
+  }
 
-  @IBAction func didPressClose(_ sender: UIBarButtonItem) {
+  @objc func didPressClose() {
     self.dismiss(animated: true, completion: nil)
   }
 }

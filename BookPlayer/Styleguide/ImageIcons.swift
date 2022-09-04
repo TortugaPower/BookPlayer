@@ -9,8 +9,6 @@
 import UIKit
 
 struct ImageIcons {
-  static let navigationBackImage = UIImage(
-    systemName: "multiply",
-    withConfiguration: UIImage.SymbolConfiguration(scale: .large)
-  )
+  static let navigationBackImage = UIImage(systemName: "xmark")
+  static let share = UIImage(systemName: "square.and.arrow.up")
 }
