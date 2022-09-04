@@ -24,6 +24,15 @@ class ButtonFreeViewModel: BaseViewModel<ButtonFreeCoordinator> {
     self.libraryService = libraryService
   }
 
+  func disableTimer(_ flag: Bool) {
+    // Disregard if it's already handled by setting
+    guard !UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue) else {
+      return
+    }
+
+    UIApplication.shared.isIdleTimerDisabled = flag
+  }
+
   func playPause() {
     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
     guard let currentItem = playerManager.currentItem else { return }

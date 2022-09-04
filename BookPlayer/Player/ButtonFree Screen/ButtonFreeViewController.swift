@@ -111,6 +111,18 @@ class ButtonFreeViewController: BaseViewController<ButtonFreeCoordinator, Button
     bindObservers()
   }
 
+  override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+
+    viewModel.disableTimer(true)
+  }
+
+  override func viewDidDisappear(_ animated: Bool) {
+    super.viewDidDisappear(animated)
+
+    viewModel.disableTimer(false)
+  }
+
   func addSubviews() {
     view.addSubview(contentStackview)
     view.addSubview(containerMessageView)
