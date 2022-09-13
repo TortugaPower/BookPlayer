@@ -1,18 +1,19 @@
-/* 
-  Localizable.strings
-  BookPlayer
-
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
+"chapters_title" = "Bölümler";
 
 "library_title" = "Kitaplık";
+
 "ok_button" = "Tamam";
+
 "recent_title" = "Son";
-"watchapp_last_played_title" = "Son Oynatılan";
-"watchapp_refresh_data_title" = "Verileri yenile";
-"watchapp_connect_error_title" = "Bağlantı Hatası";
-"watchapp_connect_error_description" = "Telefonunuza bağlanmada bir sorun var, lütfen daha sonra tekrar deneyin";
-"chapters_title" = "Bölümler";
-"settings_controls_title" = "Oynatıcı Kontrolleri";
+
 "settings_boostvolume_title" = "Sesi Güçlendir";
+
+"settings_controls_title" = "Oynatıcı Kontrolleri";
+
+"watchapp_connect_error_description" = "Telefonunuza bağlanmada bir sorun var, lütfen daha sonra tekrar deneyin";
+
+"watchapp_connect_error_title" = "Bağlantı Hatası";
+
+"watchapp_last_played_title" = "Son Oynatılan";
+
+"watchapp_refresh_data_title" = "Verileri yenile";

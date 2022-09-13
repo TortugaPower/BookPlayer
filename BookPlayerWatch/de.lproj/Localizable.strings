@@ -1,18 +1,19 @@
-/* 
-  Localizable.strings
-  BookPlayer
-
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
+"chapters_title" = "Kapitel";
 
 "library_title" = "Bibliothek";
+
 "ok_button" = "OK";
+
 "recent_title" = "Kürzlich";
-"watchapp_last_played_title" = "Zuletzt gespielt";
-"watchapp_refresh_data_title" = "Daten aktualisieren";
-"watchapp_connect_error_title" = "Verbindungsfehler";
-"watchapp_connect_error_description" = "Es gibt ein Problem mit der Verbindung zu Ihrem Telefon, bitte versuche es später noch einmal.";
-"chapters_title" = "Kapitel";
-"settings_controls_title" = "Steuerung";
+
 "settings_boostvolume_title" = "Lautstärke erhöhen";
+
+"settings_controls_title" = "Steuerung";
+
+"watchapp_connect_error_description" = "Es gibt ein Problem mit der Verbindung zu Ihrem Telefon, bitte versuche es später noch einmal.";
+
+"watchapp_connect_error_title" = "Verbindungsfehler";
+
+"watchapp_last_played_title" = "Zuletzt gespielt";
+
+"watchapp_refresh_data_title" = "Daten aktualisieren";

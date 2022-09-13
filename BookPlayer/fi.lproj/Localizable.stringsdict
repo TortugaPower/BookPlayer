@@ -1,70 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-  <dict>
-    <key>files_title</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>d</string>
-        <key>one</key>
-        <string>%d Tiedosto</string>
-        <key>other</key>
-        <string>%d Tiedostot</string>
-      </dict>
-    </dict>
+<dict>
     <key>delete_multiple_items_title</key>
     <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>d</string>
-        <key>one</key>
-        <string>Tyhjä</string>
-        <key>other</key>
-        <string>Haluatko poistaa %d kohdetta?</string>
-      </dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@format@</string>
+        <key>format</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Tyhjä</string>
+            <key>other</key>
+            <string>Haluatko poistaa %d kohdetta?</string>
+        </dict>
+    </dict>
+    <key>files_title</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@format@</string>
+        <key>format</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d Tiedosto</string>
+            <key>other</key>
+            <string>%d Tiedostot</string>
+        </dict>
     </dict>
     <key>import_alert_title</key>
     <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>d</string>
-        <key>one</key>
-        <string>Tuo %d tiedosto kohteeseen</string>
-        <key>other</key>
-        <string>Tuo %d tiedostoa kohteeseen</string>
-      </dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@format@</string>
+        <key>format</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Tuo %d tiedosto kohteeseen</string>
+            <key>other</key>
+            <string>Tuo %d tiedostoa kohteeseen</string>
+        </dict>
     </dict>
     <key>import_processing_description</key>
     <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>d</string>
-        <key>one</key>
-        <string>Työstetään yhtä tiedostoa</string>
-        <key>other</key>
-        <string>Työstetään %d tiedostoa</string>
-      </dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@format@</string>
+        <key>format</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Työstetään yhtä tiedostoa</string>
+            <key>other</key>
+            <string>Työstetään %d tiedostoa</string>
+        </dict>
     </dict>
-  </dict>
+</dict>
 </plist>

@@ -1,233 +1,449 @@
-/* 
-  Localizable.strings
-  BookPlayer
+"active_title" = "Päällä";
 
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
+"audio_source_title" = "Äänilähde";
+
+"book_duration_title" = "Kirjan kesto:";
+
+"book_time_current_title" = "Nykyisen kirjan edistyminen: %@";
+
+"book_time_remaining_title" = "Kirjaa jäljellä:";
+
+"bookmark_automatic_play_title" = "Viimeisin kohta ennen toiston alkamista";
+
+"bookmark_automatic_skip_title" = "Viimeisin kohta ennen hyppyä";
+
+"bookmark_create_title" = "Luo kirjanmerkki";
+
+"bookmark_created_title" = "Kirjanmerkkisi on jätetty kohtaan %@";
+
+"bookmark_exists_title" = "Olet jo luonut kirjanmerkin kohtaan %@";
+
+"bookmark_note_action_title" = "Lisää muistiinpano";
+
+"bookmark_note_edit_title" = "Muokkaa muistiinpanoa";
+
+"bookmark_type_automatic_title" = "Automaattiset";
+
+"bookmark_type_user_title" = "Manuaalinen";
+
+"bookmarks_see_title" = "Avaa kirjanmerkit";
+
+"bookmarks_title" = "Kirjanmerkit";
+
+"bookplayer_opensource_description" = "BookPlayer on ilmainen ja avointa lähdekoodia, ja sellaisena se tulee pysymään aina. Avullasi voimme implementoida lisää ominaisuuksia ja tehdä BookPlayeristä vieläkin paremman";
+
+"bound_books_create_alert_description" = "Varmista, että kohteet ovat oikeassa järjestyksessä. Jos haluat uudelleenjärjestää kappaleet myöhemmin, sinun on muutettava kirja takaisin kansioksi, uudelleenjärjestettävä kohteet ja luotava kirja uudelleen.";
+
+"bound_books_create_alert_title" = "Luo kirja";
+
+"bound_books_create_button" = "Yhdistä kirjaksi";
+
+"bound_books_new_title_placeholder" = "Uusi kirja";
+
+"bound_books_undo_alert_title" = "Muunna kansioksi";
+
+"button_free_title" = "Ilman painiketta";
+
+"cancel_button" = "Peruuta";
+
+"carplay_library_error" = "Kirjoja ei voi ladata";
+
+"chapter_duration_title" = "Kappaleen kesto:";
+
+"chapter_number_title" = "Luku %d";
+
+"chapter_time_remaining_title" = "Kappaletta jäljellä:";
+
+"chapters_item_description" = "Aloitus: %@ - Kesto: %@";
+
+"chapters_next_title" = "Seuraava luku";
+
+"chapters_previous_title" = "Edellinen luku";
+
+"chapters_title" = "Kappaleet";
+
+"choose_destination_title" = "Valitse kohde";
+
+"coredata_error_diskfull_description" = "Kirjastoa ei voitu ladata. Laitteen tallennustila on lopussa.";
+
+"coredata_error_migration_description" = "Tietokannan siirto epäonnistui. Kirjasto on alustettava uudelleen.";
+
+"create_button" = "Luo";
+
+"create_playlist_button" = "Luo kansio";
+
+"create_playlist_title" = "Luo uusi kansio";
+
+"current_playlist_title" = "Nykyinen kansio";
+
+"default_title" = "Oletus";
+
+"delete_button" = "Poista";
+
+"delete_completely_button" = "Poista kokonaan";
+
+"delete_deep_button" = "Poista kansio ja tiedostot";
+
+"delete_multiple_items_description" = "Tämä poistaa myös kaikki tiedostot valituista kansioista.";
+
+"delete_shallow_button" = "Poista vain kansio";
+
+"delete_single_item_title" = "Haluatko poistaa \" %@ \"?";
+
+"delete_single_playlist_description" = "Vain kansion poistaminen siirtää kaikki sen tiedostot takaisin kirjastoon.";
+
+"deselect_all_title" = "Poista valinnat kaikista";
+
+"downloading_file_title" = "Ladataan tiedostoa";
+
+"empty_playlist_description" = "Voit myös siirtää tiedostoja tänne vetämällä ne tähän kirjaston kansioon";
+
+"error_empty_chapters" = "Luvut ovat tyhjiä, tarkista kansion sisältö: %@";
+
+"error_loading_chapters" = "Lukuja ei voitu ladata kohteesta: \n %@";
+
+"error_title" = "Virhe";
+
+"excellent_tip_title" = "Erinomainen tippi";
+
+"existing_playlist_button" = "Olemassa oleva kansio";
+
+"export_button" = "Jaa";
+
+"extra_tips_description" = "Jos todella nautit BookPlayeristä, voit jättää extratippejä sovelluksen kehittämiseen. Tämä auttaa pitämään valot päällä sekä tukee ominaisuuksien tuomista sovellukseen.";
+
+"file_error_description" = "Tämän kirjan tiedostoa ei voitu ladata. Varmista, ettet käytä DRM-suojattuja tiedostoja (kuten .aax-tiedostoja).";
+
+"file_error_title" = "Tiedostovirhe!";
+
+"file_missing_description" = "Tämän kirjan tiedosto poistettiin laitteeltasi. Tuo tiedosto uudelleen kuunnellaaksesi kyseistä kirjaa";
+
+"file_missing_title" = "Tiedosto puuttuu!";
+
+"generic_retry_description" = "Ole hyvä ja yritä myöhemmin uudelleen";
+
+"gesture_swipe_left_title" = "Pyyhkäise vasemmalle kelataksesi taaksepäin";
+
+"gesture_swipe_right_title" = "Siirry eteenpäin pyyhkäisemällä oikealle";
+
+"gesture_swipe_vertically_title" = "Luo kirjanmerkki pyyhkäisemällä pystysuunnassa";
+
+"gesture_tap_title" = "Toista tai keskeytä napauttamalla";
+
+"icon_error_description" = "Appikuvakkeen vaihtaminen ei onnistunut. Yritä myöhemmin uudelleen";
+
+"icons_bookplayer_credit_description" = "BookPlayerin ystäviltäsi";
+
+"import_button" = "Tuo tiedostot";
+
+"import_description" = "Voit myös lisätä tiedostoja AirDropin kautta. Lähetä äänikirjatiedosto laitteellesi ja valitse BookPlayer näkyviin tulevasta luettelosta.";
+
+"import_preparing_title" = "Valmistellaan tiedostojen tuontia";
+
+"import_warning_description" = "Tiedostojen siirto voi kestää hetken. Varmista, että kaikki tiedostojen määrä on oikea ennen kuin jatkat.";
+
+"incredible_tip_title" = "Uskomaton tippi";
+
+"invalid_url_title" = "Virheellinen URL-osoite: %@";
+
+"jump_start_title" = "Hyppää alkuun";
+
+"kind_tip_title" = "Hyväsydäminen tippi";
+
+"learn_more_title" = "LUE LISÄÄ";
+
+"library_add_button" = "Lisää";
+
+"library_add_title" = "Lisää ensimmäinen kirjasi";
 
 "library_title" = "Kirjasto";
-"settings_button" = "Asetukset";
-"settings_title" = "Asetukset";
-"settings_autoplay_title" = "Kirjaston automaattitoisto";
-"settings_autoplay_description" = "Kun äänikirja on valmis, toisto jatkuu kaikilla kirjaston kohteilla, mukaan lukien kansioissa olevat kohteet.";
-"settings_smartrewind_title" = "Älykäs taaksepäinkelaus";
-"settings_smartrewind_description" = "Kelaa taaksepäin 30 sekuntia 10 minuutin tauon jälkeen.";
-"settings_boostvolume_title" = "Lisää äänenvoimakkuutta";
-"settings_boostvolume_description" = "Kaksinkertaistaa äänenvoimakkuuden.\nKäytä varoen ja huolehdi kuulostasi.";
-"settings_globalspeed_title" = "Yleinen nopeudenhallinta";
-"settings_globalspeed_description" = "Aseta nopeus kaikille kirjoille.";
-"settings_autolock_title" = "Poista automaattinen lukitus käytöstä";
-"settings_autolock_description" = "Estä laitteen lukittuminen Soitin-näyssä";
-"settings_siri_lastplayed_title" = "Viimeksi kuunneltu kirja";
-"settings_siri_lastplayed_description" = "Käytä Siriä jatkaaksesi viimeksi toistettua kirjaa.";
-"settings_skip_title" = "Skippaus intervallit";
-"settings_skip_rewind_title" = "Kelaa taaksepäin";
-"settings_skip_forward_title" = "Eteenpäin";
-"settings_skip_description" = "Säädä skippauksen kokoa nappeja paineltaessa joko soittimessa tai Ohjauskeskuksessa.";
-"settings_support_title" = "TUKI";
-"settings_siri_title" = "SIRI-PIKAKOMENTO";
-"settings_support_project_title" = "Katso projekti Githubissa";
-"settings_support_project_description" = "Avaa uusia issueita ominaisuuspyynnöillesi ja virheille";
-"settings_support_email_title" = "Lähetä meille sähköpostia";
-"settings_credits_title" = "Krediitit ja lisenssit";
-"settings_support_compose_title" = "Sähköpostia ei voi kirjoittaa";
-"settings_support_compose_description" = "Sinun on määritettävä sähköpostitili laitteen asetuksista käyttääksesi tätä. \n\n Lähetä meille sähköpostia osoitteeseen";
-"settings_support_compose_copy" = "Kopioi tiedot leikepöydälle";
-"library_add_button" = "Lisää";
-"export_button" = "Jaa";
-"delete_button" = "Poista";
-"rename_button" = "Nimeä uudelleen";
-"delete_single_item_title" = "Haluatko poistaa \" %@ \"?";
-"delete_single_playlist_description" = "Vain kansion poistaminen siirtää kaikki sen tiedostot takaisin kirjastoon.";
-"delete_shallow_button" = "Poista vain kansio";
-"delete_deep_button" = "Poista kansio ja tiedostot";
-"create_playlist_button" = "Luo kansio";
-"create_button" = "Luo";
-"import_button" = "Tuo tiedostot";
-"import_description" = "Voit myös lisätä tiedostoja AirDropin kautta. Lähetä äänikirjatiedosto laitteellesi ja valitse BookPlayer näkyviin tulevasta luettelosta.";
-"create_playlist_title" = "Luo uusi kansio";
-"delete_multiple_items_description" = "Tämä poistaa myös kaikki tiedostot valituista kansioista.";
-"new_playlist_button" = "Uusi kansio";
-"existing_playlist_button" = "Olemassa oleva kansio";
-"choose_destination_title" = "Valitse kohde";
-"delete_completely_button" = "Poista kokonaan";
-"move_library_button" = "Siirrä kirjastoon";
-"options_button" = "Valinnat";
-"select_playlist_title" = "Valitse kansio";
-"title_button" = "Otsikko";
-"sort_filename_button" = "Alkuperäinen tiedostonimi";
-"sort_title" = "Lajittele kohteet seuraavan mukaan";
-"cancel_button" = "Peruuta";
-"seconds_title" = "sekunteja";
-"ok_button" = "OK";
-"siri_alert_description" = "Siri-pikakuvakkeet ovat saatavilla iOS 12:ssa ja uudemmissa";
-"support_bookplayer_title" = "Tue BookPlayeriä";
-"support_bookplayer_description" = "Hanki BookPlayer Plus tukeaksesi jatkokehitystä ja hanki ylimääräisiä teemoja ja sovelluskuvakkeita";
-"learn_more_title" = "LUE LISÄÄ";
-"settings_appearance_title" = "Ulkonäkö";
-"settings_theme_title" = "Teema";
-"settings_app_icon_title" = "Appikuvake";
-"settings_playback_title" = "Toistoasetukset";
-"settings_controls_title" = "Soitinsäätimet";
-"settings_power_connected_title" = "Vain kytkettynä virtalähteeseen";
-"settings_tip_jar_title" = "Tippipurkki";
-"theme_system_title" = "Käytä järjestelmän mukaan";
-"theme_switch_title" = "Vaihda automaattisesti";
-"theme_dark_title" = "Käytä aina tummaa variaatiota";
-"themes_title" = "Teemat";
-"icons_bookplayer_credit_description" = "BookPlayerin ystäviltäsi";
-"kind_tip_title" = "Hyväsydäminen tippi";
-"excellent_tip_title" = "Erinomainen tippi";
-"incredible_tip_title" = "Uskomaton tippi";
-"plus_themes_description" = "Huolellisesti valitut väriteemat, jotka sopivat suosikkikirjoihisi";
-"plus_icons_description" = "BookPlayer Plus sisältää useita sovelluskuvakkeita, jotka sopivat värimaailmaan ja taustakuvaasi";
-"support_us_title" = "Tue meitä";
-"bookplayer_opensource_description" = "BookPlayer on ilmainen ja avointa lähdekoodia, ja sellaisena se tulee pysymään aina. Avullasi voimme implementoida lisää ominaisuuksia ja tehdä BookPlayeristä vieläkin paremman";
-"thanks_title" = "Kiitos tuestasi!";
-"extra_tips_description" = "Jos todella nautit BookPlayeristä, voit jättää extratippejä sovelluksen kehittämiseen. Tämä auttaa pitämään valot päällä sekä tukee ominaisuuksien tuomista sovellukseen.";
-"select_all_title" = "Valitse kaikki";
-"deselect_all_title" = "Poista valinnat kaikista";
-"move_title" = "Siirrä";
-"jump_start_title" = "Hyppää alkuun";
+
 "mark_finished_title" = "Merkitse valmiiksi";
-"sort_files_title" = "Lajittele tiedostot seuraavan mukaan";
-"rename_title" = "Nimeä kohde uudelleen";
-"file_error_title" = "Tiedostovirhe!";
-"file_error_description" = "Tämän kirjan tiedostoa ei voitu ladata. Varmista, ettet käytä DRM-suojattuja tiedostoja (kuten .aax-tiedostoja).";
-"file_missing_title" = "Tiedosto puuttuu!";
-"file_missing_description" = "Tämän kirjan tiedosto poistettiin laitteeltasi. Tuo tiedosto uudelleen kuunnellaaksesi kyseistä kirjaa";
-"empty_playlist_description" = "Voit myös siirtää tiedostoja tänne vetämällä ne tähän kirjaston kansioon";
-"playlist_add_title" = "Lisää tiedostoja";
-"player_speed_title" = "Aseta toistonopeus";
-"player_sleep_title" = "Keskeytä toisto";
-"sleep_chapter_option_title" = "Nykyisen luvun loppu";
-"player_chapter_description" = "Luku %d (Lukuja %d)";
-"chapters_title" = "Kappaleet";
-"chapters_item_description" = "Aloitus: %@ - Kesto: %@";
-"restore_title" = "Palauta";
-"themes_caps_title" = "TEEMAT";
-"plus_app_icons_title" = "Appikuvakkeet";
+
 "mark_unfinished_title" = "Merkitse keskeneräiseksi";
+
+"move_library_button" = "Siirrä kirjastoon";
+
 "move_playlist_button" = "Siirrä kansioon";
+
 "move_single_item_title" = "Haluatko siirtää kohteen '%@' soittolistaan '%@'?";
-"current_playlist_title" = "Nykyinen kansio";
-"select_item_title" = "Valitse kohde";
-"sleep_alert_description" = "Uniajastin kappaleen loppuun asti";
-"sleep_time_description" = "Uniajastus alkaa %@";
-"sleep_off_title" = "Pois";
-"sleep_interval_title" = "Uniajastin %@";
-"chapter_number_title" = "Luku %d";
-"progress_complete_description" = "%d prosenttia valmis";
-"chapter_duration_title" = "Kappaleen kesto:";
-"chapter_time_remaining_title" = "Kappaletta jäljellä:";
-"book_time_remaining_title" = "Kirjaa jäljellä:";
-"book_duration_title" = "Kirjan kesto:";
-"icon_error_description" = "Appikuvakkeen vaihtaminen ei onnistunut. Yritä myöhemmin uudelleen";
-"error_title" = "Virhe";
-"generic_retry_description" = "Ole hyvä ja yritä myöhemmin uudelleen";
+
+"move_title" = "Siirrä";
+
 "network_error_title" = "Verkkovirhe";
-"purchases_restored_title" = "Ostokset palautettu!";
-"tip_missing_title" = "Et ole vielä tipannut meitä";
-"thanks_amazing_title" = "Olet mahtava!";
-"play_title" = "Soita";
-"pause_title" = "Keskeytä";
-"voiceover_no_title" = "Ei otsikkoa";
-"voiceover_no_author" = "Ei kirjailijaa";
-"voiceover_book_progress" = "%@ kirjoittaja %@ , %d prosenttia valmis";
-"voiceover_no_file_title" = "Ei tiedoston otsikkoa";
-"voiceover_no_file_subtitle" = "Ei tiedoston alaotsikkoa";
-"voiceover_no_playlist_title" = "Ei kansion otsikkoa";
-"voiceover_playlist_progress" = "%@ , soittolista, %d prosenttia valmis";
-"voiceover_unknown_title" = "Tuntematon nimike";
-"voiceover_unknown_author" = "Tuntematon kirjailija";
-"voiceover_book_info" = "%@ kirjoittaja %@";
-"voiceover_book_chapter" = "%@ kirjoittaja %@ , luku %@";
-"voiceover_rewind_time" = "Kelaa taaksepäin %@";
-"voiceover_forward_time" = "Kelaa eteenpäin %@";
-"watchapp_last_played_title" = "Viimeksi soitettu";
-"watchapp_refresh_data_title" = "Päivitä tiedot";
-"recent_title" = "Viimeisin";
-"carplay_library_error" = "Kirjoja ei voi ladata";
-"siri_invocation_phrase" = "Jatka kirjaani";
-"siri_activity_title" = "Jatka viimeksi toistettua kirjaa";
-"watchapp_connect_error_title" = "Yhteysvirhe";
-"watchapp_connect_error_description" = "Ongelma yhteyden muodostamisessa puhelimeesi. Yritä myöhemmin uudelleen";
-"sleep_remaining_title" = "uniajastinta jäljellä %@";
-"audio_source_title" = "Äänilähde";
-"speed_title" = "nopeus";
-"import_preparing_title" = "Valmistellaan tiedostojen tuontia";
-"library_add_title" = "Lisää ensimmäinen kirjasi";
-"invalid_url_title" = "Virheellinen URL-osoite: %@";
-"downloading_file_title" = "Ladataan tiedostoa";
-"progress_title" = "Edistyminen";
-"settings_siri_sleeptimer_title" = "Uniajastin";
-"active_title" = "Päällä";
-"voiceover_currently_playing_title" = "Tällä hetkellä toistetaan %@ tekijä %@";
-"voiceover_miniplayer_hint" = "Pienoissoitin. Näytä soitin napauttamalla";
-"voiceover_chapter_time_title" = "Nykyisen kappaleen aika: %@";
-"voiceover_dismiss_player_title" = "Sulje soitin";
-"sort_most_recent_button" = "Viimeisin";
-"sort_reversed_button" = "Käänteinen järjestys";
-"voiceover_continue_playback_title" = "Jatka toistoa";
-"coredata_error_diskfull_description" = "Kirjastoa ei voitu ladata. Laitteen tallennustila on lopussa.";
-"coredata_error_migration_description" = "Tietokannan siirto epäonnistui. Kirjasto on alustettava uudelleen.";
-"import_warning_description" = "Tiedostojen siirto voi kestää hetken. Varmista, että kaikki tiedostojen määrä on oikea ennen kuin jatkat.";
-"settings_storage_description" = "Hallinnoi tiedostojasi";
-"storage_total_title" = "Käytetty tila yhteensä";
-"settings_storage_title" = "Tallennustilanhallinta";
-"storage_fix_file_button" = "Korjaa";
-"storage_fix_file_description" = "Kirjan alitiedosto puuttuu. Jos vastaavaa kohdetta ei löydy, luodaan uusi";
-"bookmarks_title" = "Kirjanmerkit";
-"bookmark_created_title" = "Kirjanmerkkisi on jätetty kohtaan %@";
-"bookmark_exists_title" = "Olet jo luonut kirjanmerkin kohtaan %@";
-"bookmark_note_action_title" = "Lisää muistiinpano";
-"bookmarks_see_title" = "Avaa kirjanmerkit";
-"bookmark_type_automatic_title" = "Automaattiset";
-"bookmark_type_user_title" = "Manuaalinen";
-"bookmark_automatic_play_title" = "Viimeisin kohta ennen toiston alkamista";
-"bookmark_automatic_skip_title" = "Viimeisin kohta ennen hyppyä";
-"bookmark_note_edit_title" = "Muokkaa muistiinpanoa";
-"bookmark_create_title" = "Luo kirjanmerkki";
-"storage_duplicate_item_title" = "Monista";
-"storage_duplicate_item_description" = "Valittu tiedosto oli kopio. Olemassa oleva tiedosto sijaitsee osoitteessa: %@";
-"chapters_previous_title" = "Edellinen luku";
-"chapters_next_title" = "Seuraava luku";
-"book_time_current_title" = "Nykyisen kirjan edistyminen: %@";
-"storage_fix_files_description" = "Linkki tiedostojen ja digitaalisten teosten välillä puuttuu. Jos vastaavaa kohdetta ei löydy jokaiselle tiedostolle, luodaan uusi";
-"storage_fix_all_title" = "Korjaa kaikki";
-"settings_backup_title" = "iCloud-varmuuskopiot";
-"settings_backup_files_title" = "Sisällytä kirjatiedostot";
-"bound_books_create_button" = "Yhdistä kirjaksi";
-"bound_books_undo_alert_title" = "Muunna kansioksi";
-"bound_books_new_title_placeholder" = "Uusi kirja";
-"bound_books_create_alert_description" = "Varmista, että kohteet ovat oikeassa järjestyksessä. Jos haluat uudelleenjärjestää kappaleet myöhemmin, sinun on muutettava kirja takaisin kansioksi, uudelleenjärjestettävä kohteet ja luotava kirja uudelleen.";
-"bound_books_create_alert_title" = "Luo kirja";
-"voiceover_bound_books_progress" = "Kirja %@, %d prosenttia valmis";
-"voiceover_no_bound_books_title" = "Ei kirjan otsikkoa";
-"default_title" = "Oletus";
-"voiceover_default_speed_title" = "Aseta oletusnopeus";
-"error_loading_chapters" = "Lukuja ei voitu ladata kohteesta: \n %@";
-"error_empty_chapters" = "Luvut ovat tyhjiä, tarkista kansion sisältö: %@";
-"sleeptimer_option_custom" = "Mukautettu";
-"sleeptimer_custom_alert_title" = "Mukautettu uniajastin";
-"settings_progresslabels_title" = "Edistymismerkit";
-"settings_playerinterface_list_title" = "Avautuu";
-"settings_remainingtime_title" = "Käytä jäljellä oleva aika";
-"settings_chaptercontext_title" = "Käytä luvun kontekstia";
-"settings_progresslabels_description" = "Vaihda jäljellä olevan ajan, kokonaiskeston ja joko luvun tai kirjan edistymisen näyttämisen välillä soittimen näytössä";
-"settings_playerinterface_list_description" = "Säädä, mitä luettelopainike avautuu soittimen näytössä";
-"settings_autoplay_section_title" = "AUTOMAATTINEN TOISTO";
-"settings_autoplay_restart_title" = "Käynnistä valmiit kirjat uudelleen";
-"settings_theme_autobrightness" = "Valitse teeman tumma muunnelma, jos näytön kirkkaus alittaa asetetun kynnyksen.";
+
+"new_playlist_button" = "Uusi kansio";
+
 "note_title" = "Merkintä";
-"playing_title" = "toistaa ääntä";
+
+"ok_button" = "OK";
+
+"options_button" = "Valinnat";
+
+"pause_title" = "Keskeytä";
+
 "paused_title" = "Keskeytetty";
-"skipped_forward_title" = "Ohitettu eteenpäin";
-"skipped_back_title" = "Ohitettu takaisin";
-"button_free_title" = "Ilman painiketta";
+
+"play_title" = "Soita";
+
+"player_chapter_description" = "Luku %d (Lukuja %d)";
+
+"player_sleep_title" = "Keskeytä toisto";
+
+"player_speed_title" = "Aseta toistonopeus";
+
+"playing_title" = "toistaa ääntä";
+
+"playlist_add_title" = "Lisää tiedostoja";
+
+"plus_app_icons_title" = "Appikuvakkeet";
+
+"plus_icons_description" = "BookPlayer Plus sisältää useita sovelluskuvakkeita, jotka sopivat värimaailmaan ja taustakuvaasi";
+
+"plus_themes_description" = "Huolellisesti valitut väriteemat, jotka sopivat suosikkikirjoihisi";
+
+"progress_complete_description" = "%d prosenttia valmis";
+
+"progress_title" = "Edistyminen";
+
+"purchases_restored_title" = "Ostokset palautettu!";
+
+"recent_title" = "Viimeisin";
+
+"rename_button" = "Nimeä uudelleen";
+
+"rename_title" = "Nimeä kohde uudelleen";
+
+"restore_title" = "Palauta";
+
 "screen_gestures_title" = "Näytön eleet";
-"gesture_tap_title" = "Toista tai keskeytä napauttamalla";
-"gesture_swipe_left_title" = "Pyyhkäise vasemmalle kelataksesi taaksepäin";
-"gesture_swipe_right_title" = "Siirry eteenpäin pyyhkäisemällä oikealle";
-"gesture_swipe_vertically_title" = "Luo kirjanmerkki pyyhkäisemällä pystysuunnassa";
+
+"seconds_title" = "sekunteja";
+
+"select_all_title" = "Valitse kaikki";
+
+"select_item_title" = "Valitse kohde";
+
+"select_playlist_title" = "Valitse kansio";
+
+"settings_app_icon_title" = "Appikuvake";
+
+"settings_appearance_title" = "Ulkonäkö";
+
+"settings_autolock_description" = "Estä laitteen lukittuminen Soitin-näyssä";
+
+"settings_autolock_title" = "Poista automaattinen lukitus käytöstä";
+
+"settings_autoplay_description" = "Kun äänikirja on valmis, toisto jatkuu kaikilla kirjaston kohteilla, mukaan lukien kansioissa olevat kohteet.";
+
+"settings_autoplay_restart_title" = "Käynnistä valmiit kirjat uudelleen";
+
+"settings_autoplay_section_title" = "AUTOMAATTINEN TOISTO";
+
+"settings_autoplay_title" = "Kirjaston automaattitoisto";
+
+"settings_backup_files_title" = "Sisällytä kirjatiedostot";
+
+"settings_backup_title" = "iCloud-varmuuskopiot";
+
+"settings_boostvolume_description" = "Kaksinkertaistaa äänenvoimakkuuden.\nKäytä varoen ja huolehdi kuulostasi.";
+
+"settings_boostvolume_title" = "Lisää äänenvoimakkuutta";
+
+"settings_button" = "Asetukset";
+
+"settings_chaptercontext_title" = "Käytä luvun kontekstia";
+
+"settings_controls_title" = "Soitinsäätimet";
+
+"settings_credits_title" = "Krediitit ja lisenssit";
+
+"settings_globalspeed_description" = "Aseta nopeus kaikille kirjoille.";
+
+"settings_globalspeed_title" = "Yleinen nopeudenhallinta";
+
+"settings_playback_title" = "Toistoasetukset";
+
+"settings_playerinterface_list_description" = "Säädä, mitä luettelopainike avautuu soittimen näytössä";
+
+"settings_playerinterface_list_title" = "Avautuu";
+
+"settings_power_connected_title" = "Vain kytkettynä virtalähteeseen";
+
+"settings_progresslabels_description" = "Vaihda jäljellä olevan ajan, kokonaiskeston ja joko luvun tai kirjan edistymisen näyttämisen välillä soittimen näytössä";
+
+"settings_progresslabels_title" = "Edistymismerkit";
+
+"settings_remainingtime_title" = "Käytä jäljellä oleva aika";
+
+"settings_siri_lastplayed_description" = "Käytä Siriä jatkaaksesi viimeksi toistettua kirjaa.";
+
+"settings_siri_lastplayed_title" = "Viimeksi kuunneltu kirja";
+
+"settings_siri_sleeptimer_title" = "Uniajastin";
+
+"settings_siri_title" = "SIRI-PIKAKOMENTO";
+
+"settings_skip_description" = "Säädä skippauksen kokoa nappeja paineltaessa joko soittimessa tai Ohjauskeskuksessa.";
+
+"settings_skip_forward_title" = "Eteenpäin";
+
+"settings_skip_rewind_title" = "Kelaa taaksepäin";
+
+"settings_skip_title" = "Skippaus intervallit";
+
+"settings_smartrewind_description" = "Kelaa taaksepäin 30 sekuntia 10 minuutin tauon jälkeen.";
+
+"settings_smartrewind_title" = "Älykäs taaksepäinkelaus";
+
+"settings_storage_description" = "Hallinnoi tiedostojasi";
+
+"settings_storage_title" = "Tallennustilanhallinta";
+
+"settings_support_compose_copy" = "Kopioi tiedot leikepöydälle";
+
+"settings_support_compose_description" = "Sinun on määritettävä sähköpostitili laitteen asetuksista käyttääksesi tätä. \n\n Lähetä meille sähköpostia osoitteeseen";
+
+"settings_support_compose_title" = "Sähköpostia ei voi kirjoittaa";
+
+"settings_support_email_title" = "Lähetä meille sähköpostia";
+
+"settings_support_project_description" = "Avaa uusia issueita ominaisuuspyynnöillesi ja virheille";
+
+"settings_support_project_title" = "Katso projekti Githubissa";
+
+"settings_support_title" = "TUKI";
+
+"settings_theme_autobrightness" = "Valitse teeman tumma muunnelma, jos näytön kirkkaus alittaa asetetun kynnyksen.";
+
+"settings_theme_title" = "Teema";
+
+"settings_tip_jar_title" = "Tippipurkki";
+
+"settings_title" = "Asetukset";
+
+"siri_activity_title" = "Jatka viimeksi toistettua kirjaa";
+
+"siri_alert_description" = "Siri-pikakuvakkeet ovat saatavilla iOS 12:ssa ja uudemmissa";
+
+"siri_invocation_phrase" = "Jatka kirjaani";
+
+"skipped_back_title" = "Ohitettu takaisin";
+
+"skipped_forward_title" = "Ohitettu eteenpäin";
+
+"sleep_alert_description" = "Uniajastin kappaleen loppuun asti";
+
+"sleep_chapter_option_title" = "Nykyisen luvun loppu";
+
+"sleep_interval_title" = "Uniajastin %@";
+
+"sleep_off_title" = "Pois";
+
+"sleep_remaining_title" = "uniajastinta jäljellä %@";
+
+"sleep_time_description" = "Uniajastus alkaa %@";
+
+"sleeptimer_custom_alert_title" = "Mukautettu uniajastin";
+
+"sleeptimer_option_custom" = "Mukautettu";
+
+"sort_filename_button" = "Alkuperäinen tiedostonimi";
+
+"sort_files_title" = "Lajittele tiedostot seuraavan mukaan";
+
+"sort_most_recent_button" = "Viimeisin";
+
+"sort_reversed_button" = "Käänteinen järjestys";
+
+"sort_title" = "Lajittele kohteet seuraavan mukaan";
+
+"speed_title" = "nopeus";
+
+"storage_duplicate_item_description" = "Valittu tiedosto oli kopio. Olemassa oleva tiedosto sijaitsee osoitteessa: %@";
+
+"storage_duplicate_item_title" = "Monista";
+
+"storage_fix_all_title" = "Korjaa kaikki";
+
+"storage_fix_file_button" = "Korjaa";
+
+"storage_fix_file_description" = "Kirjan alitiedosto puuttuu. Jos vastaavaa kohdetta ei löydy, luodaan uusi";
+
+"storage_fix_files_description" = "Linkki tiedostojen ja digitaalisten teosten välillä puuttuu. Jos vastaavaa kohdetta ei löydy jokaiselle tiedostolle, luodaan uusi";
+
+"storage_total_title" = "Käytetty tila yhteensä";
+
+"support_bookplayer_description" = "Hanki BookPlayer Plus tukeaksesi jatkokehitystä ja hanki ylimääräisiä teemoja ja sovelluskuvakkeita";
+
+"support_bookplayer_title" = "Tue BookPlayeriä";
+
+"support_us_title" = "Tue meitä";
+
+"thanks_amazing_title" = "Olet mahtava!";
+
+"thanks_title" = "Kiitos tuestasi!";
+
+"theme_dark_title" = "Käytä aina tummaa variaatiota";
+
+"theme_switch_title" = "Vaihda automaattisesti";
+
+"theme_system_title" = "Käytä järjestelmän mukaan";
+
+"themes_caps_title" = "TEEMAT";
+
+"themes_title" = "Teemat";
+
+"tip_missing_title" = "Et ole vielä tipannut meitä";
+
+"title_button" = "Otsikko";
+
+"voiceover_book_chapter" = "%@ kirjoittaja %@ , luku %@";
+
+"voiceover_book_info" = "%@ kirjoittaja %@";
+
+"voiceover_book_progress" = "%@ kirjoittaja %@ , %d prosenttia valmis";
+
+"voiceover_bound_books_progress" = "Kirja %@, %d prosenttia valmis";
+
+"voiceover_chapter_time_title" = "Nykyisen kappaleen aika: %@";
+
+"voiceover_continue_playback_title" = "Jatka toistoa";
+
+"voiceover_currently_playing_title" = "Tällä hetkellä toistetaan %@ tekijä %@";
+
+"voiceover_default_speed_title" = "Aseta oletusnopeus";
+
+"voiceover_dismiss_player_title" = "Sulje soitin";
+
+"voiceover_forward_time" = "Kelaa eteenpäin %@";
+
+"voiceover_miniplayer_hint" = "Pienoissoitin. Näytä soitin napauttamalla";
+
+"voiceover_no_author" = "Ei kirjailijaa";
+
+"voiceover_no_bound_books_title" = "Ei kirjan otsikkoa";
+
+"voiceover_no_file_subtitle" = "Ei tiedoston alaotsikkoa";
+
+"voiceover_no_file_title" = "Ei tiedoston otsikkoa";
+
+"voiceover_no_playlist_title" = "Ei kansion otsikkoa";
+
+"voiceover_no_title" = "Ei otsikkoa";
+
+"voiceover_playlist_progress" = "%@ , soittolista, %d prosenttia valmis";
+
+"voiceover_rewind_time" = "Kelaa taaksepäin %@";
+
+"voiceover_unknown_author" = "Tuntematon kirjailija";
+
+"voiceover_unknown_title" = "Tuntematon nimike";
+
+"watchapp_connect_error_description" = "Ongelma yhteyden muodostamisessa puhelimeesi. Yritä myöhemmin uudelleen";
+
+"watchapp_connect_error_title" = "Yhteysvirhe";
+
+"watchapp_last_played_title" = "Viimeksi soitettu";
+
+"watchapp_refresh_data_title" = "Päivitä tiedot";

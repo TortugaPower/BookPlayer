@@ -1,86 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-  <dict>
-    <key>files_title</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>d</string>
-        <key>one</key>
-        <string>%d súbor</string>
-        <key>few</key>
-        <string>%d súbory</string>
-        <key>many</key>
-        <string>%d súborov</string>
-        <key>other</key>
-        <string>%d súborov</string>
-      </dict>
-    </dict>
+<dict>
     <key>delete_multiple_items_title</key>
     <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>d</string>
-        <key>one</key>
-        <string>Chcete odstrániť 1 položku?</string>
-        <key>few</key>
-        <string>Chcete odstrániť %d položky?</string>
-        <key>many</key>
-        <string>Chcete odstrániť %d položiek?</string>
-        <key>other</key>
-        <string>Chcete odstrániť %d položiek?</string>
-      </dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@format@</string>
+        <key>format</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Chcete odstrániť 1 položku?</string>
+            <key>few</key>
+            <string>Chcete odstrániť %d položky?</string>
+            <key>many</key>
+            <string>Chcete odstrániť %d položiek?</string>
+            <key>other</key>
+            <string>Chcete odstrániť %d položiek?</string>
+        </dict>
+    </dict>
+    <key>files_title</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@format@</string>
+        <key>format</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d súbor</string>
+            <key>few</key>
+            <string>%d súbory</string>
+            <key>many</key>
+            <string>%d súborov</string>
+            <key>other</key>
+            <string>%d súborov</string>
+        </dict>
     </dict>
     <key>import_alert_title</key>
     <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>d</string>
-        <key>one</key>
-        <string>Import 1 súboru do</string>
-        <key>few</key>
-        <string>Import %d súborov do</string>
-        <key>many</key>
-        <string>Import %d súborov do</string>
-        <key>other</key>
-        <string>Import %d súborov do</string>
-      </dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@format@</string>
+        <key>format</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Import 1 súboru do</string>
+            <key>few</key>
+            <string>Import %d súborov do</string>
+            <key>many</key>
+            <string>Import %d súborov do</string>
+            <key>other</key>
+            <string>Import %d súborov do</string>
+        </dict>
     </dict>
     <key>import_processing_description</key>
     <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>d</string>
-        <key>one</key>
-        <string>Spracovávanie 1 súboru</string>
-        <key>few</key>
-        <string>Spracovávanie %d súborov</string>
-        <key>many</key>
-        <string>Spracovávanie %d súborov</string>
-        <key>other</key>
-        <string>Spracovávanie %d súborov</string>
-      </dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@format@</string>
+        <key>format</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Spracovávanie 1 súboru</string>
+            <key>few</key>
+            <string>Spracovávanie %d súborov</string>
+            <key>many</key>
+            <string>Spracovávanie %d súborov</string>
+            <key>other</key>
+            <string>Spracovávanie %d súborov</string>
+        </dict>
     </dict>
-  </dict>
+</dict>
 </plist>

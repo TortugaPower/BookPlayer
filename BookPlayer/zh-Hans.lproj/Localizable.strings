@@ -1,233 +1,449 @@
-/* 
-  Localizable.strings
-  BookPlayer
+"active_title" = "活性";
 
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
+"audio_source_title" = "音源";
+
+"book_duration_title" = "有声书持续时间：";
+
+"book_time_current_title" = "当前有声书时间：%@";
+
+"book_time_remaining_title" = "有声书剩余时间：";
+
+"bookmark_automatic_play_title" = "播放开始前的最后位置";
+
+"bookmark_automatic_skip_title" = "时间跳过前的最后位置";
+
+"bookmark_create_title" = "创建书签";
+
+"bookmark_created_title" = "书签已保存在%@";
+
+"bookmark_exists_title" = "已经在%@创建了一个书签。";
+
+"bookmark_note_action_title" = "添加注释";
+
+"bookmark_note_edit_title" = "编辑注释";
+
+"bookmark_type_automatic_title" = "自动";
+
+"bookmark_type_user_title" = "手动";
+
+"bookmarks_see_title" = "查看书签";
+
+"bookmarks_title" = "书签";
+
+"bookplayer_opensource_description" = "BookPlayer是免费的并且是开源的，它将始终保持这种状态。在您的帮助下，我们能够实现更多功能，并使BookPlayer变得更好";
+
+"bound_books_create_alert_description" = "确保有声书文件的顺序正确。如果以后要重新安排章节的顺序，你需要把书卷转换回文件夹，重新安排文件顺序，然后重新创建书卷。";
+
+"bound_books_create_alert_title" = "创建一个卷";
+
+"bound_books_create_button" = "合并成卷";
+
+"bound_books_new_title_placeholder" = "新的书卷";
+
+"bound_books_undo_alert_title" = "转换为文件夹";
+
+"button_free_title" = "无按钮";
+
+"cancel_button" = "取消";
+
+"carplay_library_error" = "无法加载有声书籍";
+
+"chapter_duration_title" = "章节持续时间：";
+
+"chapter_number_title" = "第%d章";
+
+"chapter_time_remaining_title" = "剩余章节时间：";
+
+"chapters_item_description" = "开始： %@  - 时长： %@";
+
+"chapters_next_title" = "下一章";
+
+"chapters_previous_title" = "上一章";
+
+"chapters_title" = "章节";
+
+"choose_destination_title" = "选择目的地";
+
+"coredata_error_diskfull_description" = "无法加载库，设备磁盘空间不足。";
+
+"coredata_error_migration_description" = "数据库迁移失败，必须重新初始化库。";
+
+"create_button" = "创建";
+
+"create_playlist_button" = "创建文件夹";
+
+"create_playlist_title" = "新建一个文件夹";
+
+"current_playlist_title" = "当前文件夹";
+
+"default_title" = "默认";
+
+"delete_button" = "删除";
+
+"delete_completely_button" = "完全删除";
+
+"delete_deep_button" = "删除文件夹和文件";
+
+"delete_multiple_items_description" = "这也将删除选定文件夹中的所有文件。";
+
+"delete_shallow_button" = "仅删除文件夹";
+
+"delete_single_item_title" = "是否要删除\"%@\"？";
+
+"delete_single_playlist_description" = "仅删除文件夹会将其所有文件移回库。";
+
+"deselect_all_title" = "取消选择全部";
+
+"downloading_file_title" = "下载文件";
+
+"empty_playlist_description" = "您也可以通过将文件拖到库中的此文件夹上来将文件移动到此处";
+
+"error_empty_chapters" = "章节为空，请验证文件夹内容：%@";
+
+"error_loading_chapters" = "无法从以下位置加载章节：\n %@";
+
+"error_title" = "错误";
+
+"excellent_tip_title" = "一般赞助";
+
+"existing_playlist_button" = "现有文件夹";
+
+"export_button" = "共享";
+
+"extra_tips_description" = "如果您真的很喜欢BookPlayer，请打赏我们，以进一步支持该应用程序的开发。这将有助于保持更新状态和新功能开发。";
+
+"file_error_description" = "无法加载这本有声书的文件。确保您没有使用具有DRM保护的文件（例如.aax文件）";
+
+"file_error_title" = "文件错误！";
+
+"file_missing_description" = "这本书的文件已从您的设备中删除。再次导入文件以播放书籍";
+
+"file_missing_title" = "文件丢失！";
+
+"generic_retry_description" = "请稍后再试";
+
+"gesture_swipe_left_title" = "向左滑动可倒带";
+
+"gesture_swipe_right_title" = "向右滑动可向前跳";
+
+"gesture_swipe_vertically_title" = "垂直滑动以创建书签";
+
+"gesture_tap_title" = "点按即可播放或暂停";
+
+"icon_error_description" = "更改应用图标未成功。请稍后重试";
+
+"icons_bookplayer_credit_description" = "Bookplayer团队创建";
+
+"import_button" = "导入文件";
+
+"import_description" = "您也可以通过 AirDrop 添加文件。将有声读物文件发送到您的设备，然后从显示的列表中选择 BookPlayer。";
+
+"import_preparing_title" = "准备导入文件";
+
+"import_warning_description" = "传输文件可能需要一段时间，请确保文件数量完整，然后再继续。";
+
+"incredible_tip_title" = "慷慨赞助";
+
+"invalid_url_title" = "无效的网址： %@";
+
+"jump_start_title" = "跳转到开始";
+
+"kind_tip_title" = "小小赞助";
+
+"learn_more_title" = "了解更多";
+
+"library_add_button" = "添加";
+
+"library_add_title" = "添加第一本书";
 
 "library_title" = "有声书库";
-"settings_button" = "设置";
-"settings_title" = "设置";
-"settings_autoplay_title" = "自动播放有声书库";
-"settings_autoplay_description" = "完成有声读物后，将继续播放库中的所有项目，包括文件夹中的项目。";
-"settings_smartrewind_title" = "智能倒带";
-"settings_smartrewind_description" = "暂停 10 分钟后倒带 30 秒。";
-"settings_boostvolume_title" = "提高音量";
-"settings_boostvolume_description" = "将音量加倍。 \n请谨慎使用并避免影响听力。";
-"settings_globalspeed_title" = "全局播放速度";
-"settings_globalspeed_description" = "在所有有声书中使用同一播放速度。";
-"settings_autolock_title" = "禁用自动锁定";
-"settings_autolock_description" = "播放时防止锁定。";
-"settings_siri_lastplayed_title" = "最后播放的书";
-"settings_siri_lastplayed_description" = "使用 Siri 继续最后一本书。";
-"settings_skip_title" = "跳过间隔";
-"settings_skip_rewind_title" = "倒带";
-"settings_skip_forward_title" = "快进";
-"settings_skip_description" = "在播放器或控制中间调整略过的时长。";
-"settings_support_title" = "支持";
-"settings_siri_title" = "SIRI 快捷方式";
-"settings_support_project_title" = "在 Github 上查看项目";
-"settings_support_project_description" = "针对您的功能请求和错误与我们联系";
-"settings_support_email_title" = "向我们发送电子邮件";
-"settings_credits_title" = "信用和许可证";
-"settings_support_compose_title" = "无法撰写电子邮件";
-"settings_support_compose_description" = "您需要在设备设置中设置一个电子邮件帐户才能使用它。 \n \n请发送邮件至";
-"settings_support_compose_copy" = "将信息复制到剪贴板";
-"library_add_button" = "添加";
-"export_button" = "共享";
-"delete_button" = "删除";
-"rename_button" = "重命名";
-"delete_single_item_title" = "是否要删除\"%@\"？";
-"delete_single_playlist_description" = "仅删除文件夹会将其所有文件移回库。";
-"delete_shallow_button" = "仅删除文件夹";
-"delete_deep_button" = "删除文件夹和文件";
-"create_playlist_button" = "创建文件夹";
-"create_button" = "创建";
-"import_button" = "导入文件";
-"import_description" = "您也可以通过 AirDrop 添加文件。将有声读物文件发送到您的设备，然后从显示的列表中选择 BookPlayer。";
-"create_playlist_title" = "新建一个文件夹";
-"delete_multiple_items_description" = "这也将删除选定文件夹中的所有文件。";
-"new_playlist_button" = "新建文件夹";
-"existing_playlist_button" = "现有文件夹";
-"choose_destination_title" = "选择目的地";
-"delete_completely_button" = "完全删除";
-"move_library_button" = "移至有声书库";
-"options_button" = "选项";
-"select_playlist_title" = "选择文件夹";
-"title_button" = "标题";
-"sort_filename_button" = "原始文件名";
-"sort_title" = "排序依据";
-"cancel_button" = "取消";
-"seconds_title" = "秒";
-"ok_button" = "确定";
-"siri_alert_description" = "Siri快捷方式在iOS 12及更高版本上可用";
-"support_bookplayer_title" = "支持我们";
-"support_bookplayer_description" = "获取BookPlayer Plus，以支持未来的开发并获取其他主题和应用程序图标";
-"learn_more_title" = "了解更多";
-"settings_appearance_title" = "外观";
-"settings_theme_title" = "主题";
-"settings_app_icon_title" = "应用图标";
-"settings_playback_title" = "播放设定";
-"settings_controls_title" = "播放器控制";
-"settings_power_connected_title" = "仅当连接到电源时";
-"settings_tip_jar_title" = "打赏";
-"theme_system_title" = "使用系统模式";
-"theme_switch_title" = "自动切换";
-"theme_dark_title" = "始终使用深色元素";
-"themes_title" = "主题";
-"icons_bookplayer_credit_description" = "Bookplayer团队创建";
-"kind_tip_title" = "小小赞助";
-"excellent_tip_title" = "一般赞助";
-"incredible_tip_title" = "慷慨赞助";
-"plus_themes_description" = "精心挑选的颜色主题与您喜欢的书籍相匹配";
-"plus_icons_description" = "BookPlayer Plus 附带多个应用程序图标，可匹配配色方案和壁纸";
-"support_us_title" = "支持我们";
-"bookplayer_opensource_description" = "BookPlayer是免费的并且是开源的，它将始终保持这种状态。在您的帮助下，我们能够实现更多功能，并使BookPlayer变得更好";
-"thanks_title" = "感谢您的支持！";
-"extra_tips_description" = "如果您真的很喜欢BookPlayer，请打赏我们，以进一步支持该应用程序的开发。这将有助于保持更新状态和新功能开发。";
-"select_all_title" = "选择全部";
-"deselect_all_title" = "取消选择全部";
-"move_title" = "移动";
-"jump_start_title" = "跳转到开始";
+
 "mark_finished_title" = "标记为已完成";
-"sort_files_title" = "文件排序";
-"rename_title" = "重命名";
-"file_error_title" = "文件错误！";
-"file_error_description" = "无法加载这本有声书的文件。确保您没有使用具有DRM保护的文件（例如.aax文件）";
-"file_missing_title" = "文件丢失！";
-"file_missing_description" = "这本书的文件已从您的设备中删除。再次导入文件以播放书籍";
-"empty_playlist_description" = "您也可以通过将文件拖到库中的此文件夹上来将文件移动到此处";
-"playlist_add_title" = "添加文件";
-"player_speed_title" = "设置播放速度";
-"player_sleep_title" = "暂停播放";
-"sleep_chapter_option_title" = "当前章节的结尾";
-"player_chapter_description" = "第%d章，共%d章";
-"chapters_title" = "章节";
-"chapters_item_description" = "开始： %@  - 时长： %@";
-"restore_title" = "恢复";
-"themes_caps_title" = "主题";
-"plus_app_icons_title" = "应用图标";
+
 "mark_unfinished_title" = "标记为未完成";
+
+"move_library_button" = "移至有声书库";
+
 "move_playlist_button" = "移到文件夹";
+
 "move_single_item_title" = "是否要将\"%@\"移动到\"%@\"？";
-"current_playlist_title" = "当前文件夹";
-"select_item_title" = "选择项";
-"sleep_alert_description" = "本章结束时停止";
-"sleep_time_description" = "在%@停止";
-"sleep_off_title" = "关闭";
-"sleep_interval_title" = "在%@";
-"chapter_number_title" = "第%d章";
-"progress_complete_description" = "%d% 完成";
-"chapter_duration_title" = "章节持续时间：";
-"chapter_time_remaining_title" = "剩余章节时间：";
-"book_time_remaining_title" = "有声书剩余时间：";
-"book_duration_title" = "有声书持续时间：";
-"icon_error_description" = "更改应用图标未成功。请稍后重试";
-"error_title" = "错误";
-"generic_retry_description" = "请稍后再试";
+
+"move_title" = "移动";
+
 "network_error_title" = "网络错误";
-"purchases_restored_title" = "已恢复购买！";
-"tip_missing_title" = "你还没打赏我们";
-"thanks_amazing_title" = "你太棒了！";
-"play_title" = "播放";
-"pause_title" = "暂停";
-"voiceover_no_title" = "未知标题";
-"voiceover_no_author" = "未知作者";
-"voiceover_book_progress" = "%@之%@ %d已完成";
-"voiceover_no_file_title" = "没有文件标题";
-"voiceover_no_file_subtitle" = "没有文件副标题";
-"voiceover_no_playlist_title" = "没有文件夹标题";
-"voiceover_playlist_progress" = "%@播放列表%d已完成";
-"voiceover_unknown_title" = "未知标题";
-"voiceover_unknown_author" = "未知作者";
-"voiceover_book_info" = "%@之%@";
-"voiceover_book_chapter" = "%@之%@，第%@章";
-"voiceover_rewind_time" = "倒带%@";
-"voiceover_forward_time" = "快进%@";
-"watchapp_last_played_title" = "上次播放";
-"watchapp_refresh_data_title" = "刷新数据";
-"recent_title" = "最近";
-"carplay_library_error" = "无法加载有声书籍";
-"siri_invocation_phrase" = "继续我的有声书";
-"siri_activity_title" = "继续上次播放的有声书";
-"watchapp_connect_error_title" = "连接错误";
-"watchapp_connect_error_description" = "连接手机时出现问题，请稍后重试";
-"sleep_remaining_title" = "剩余%@直到停止";
-"audio_source_title" = "音源";
-"speed_title" = "速度";
-"import_preparing_title" = "准备导入文件";
-"library_add_title" = "添加第一本书";
-"invalid_url_title" = "无效的网址： %@";
-"downloading_file_title" = "下载文件";
-"progress_title" = "进展";
-"settings_siri_sleeptimer_title" = "睡眠定时";
-"active_title" = "活性";
-"voiceover_currently_playing_title" = "目前正在播放 %@ 的作品";
-"voiceover_miniplayer_hint" = "迷你播放器。点击以显示播放器";
-"voiceover_chapter_time_title" = "当前章节时间：%@";
-"voiceover_dismiss_player_title" = "关闭播放器";
-"sort_most_recent_button" = "最近的";
-"sort_reversed_button" = "倒序";
-"voiceover_continue_playback_title" = "继续播放";
-"coredata_error_diskfull_description" = "无法加载库，设备磁盘空间不足。";
-"coredata_error_migration_description" = "数据库迁移失败，必须重新初始化库。";
-"import_warning_description" = "传输文件可能需要一段时间，请确保文件数量完整，然后再继续。";
-"settings_storage_description" = "管理有声书文件";
-"storage_total_title" = "总使用空间";
-"settings_storage_title" = "存储空间管理";
-"storage_fix_file_button" = "修复";
-"storage_fix_file_description" = "有声书项目丢失，如果找不到相应项目，将创建一个新项目";
-"bookmarks_title" = "书签";
-"bookmark_created_title" = "书签已保存在%@";
-"bookmark_exists_title" = "已经在%@创建了一个书签。";
-"bookmark_note_action_title" = "添加注释";
-"bookmarks_see_title" = "查看书签";
-"bookmark_type_automatic_title" = "自动";
-"bookmark_type_user_title" = "手动";
-"bookmark_automatic_play_title" = "播放开始前的最后位置";
-"bookmark_automatic_skip_title" = "时间跳过前的最后位置";
-"bookmark_note_edit_title" = "编辑注释";
-"bookmark_create_title" = "创建书签";
-"storage_duplicate_item_title" = "重复";
-"storage_duplicate_item_description" = "选择的有声书文件是重复的，现有的文件位于：%@";
-"chapters_previous_title" = "上一章";
-"chapters_next_title" = "下一章";
-"book_time_current_title" = "当前有声书时间：%@";
-"storage_fix_files_description" = "文件和有声书项目之间的链接丢失，如果每个文件都找不到对应的项目，将创建一个新的";
-"storage_fix_all_title" = "全部修复";
-"settings_backup_title" = "iCloud 备份";
-"settings_backup_files_title" = "包含有声书文件";
-"bound_books_create_button" = "合并成卷";
-"bound_books_undo_alert_title" = "转换为文件夹";
-"bound_books_new_title_placeholder" = "新的书卷";
-"bound_books_create_alert_description" = "确保有声书文件的顺序正确。如果以后要重新安排章节的顺序，你需要把书卷转换回文件夹，重新安排文件顺序，然后重新创建书卷。";
-"bound_books_create_alert_title" = "创建一个卷";
-"voiceover_bound_books_progress" = "%@卷%d已完成";
-"voiceover_no_bound_books_title" = "没有书卷名";
-"default_title" = "默认";
-"voiceover_default_speed_title" = "设置默认速度";
-"error_loading_chapters" = "无法从以下位置加载章节：\n %@";
-"error_empty_chapters" = "章节为空，请验证文件夹内容：%@";
-"sleeptimer_option_custom" = "自定义";
-"sleeptimer_custom_alert_title" = "自定义睡眠定时器";
-"settings_progresslabels_title" = "进度标签";
-"settings_playerinterface_list_title" = "打开";
-"settings_remainingtime_title" = "使用剩余时间";
-"settings_chaptercontext_title" = "使用章节上下文";
-"settings_progresslabels_description" = "在播放器屏幕中显示章节或书籍的剩余时间、总持续时间和进度之间切换";
-"settings_playerinterface_list_description" = "调整播放器屏幕中的列表按钮打开的内容";
-"settings_autoplay_section_title" = "自动播放";
-"settings_autoplay_restart_title" = "重新启动完成的书籍";
-"settings_theme_autobrightness" = "如果屏幕亮度低于设置的阈值，请选择主题的暗色变化。";
+
+"new_playlist_button" = "新建文件夹";
+
 "note_title" = "笔记";
-"playing_title" = "播放音频";
+
+"ok_button" = "确定";
+
+"options_button" = "选项";
+
+"pause_title" = "暂停";
+
 "paused_title" = "暂停";
-"skipped_forward_title" = "向前跳过";
-"skipped_back_title" = "跳回";
-"button_free_title" = "无按钮";
+
+"play_title" = "播放";
+
+"player_chapter_description" = "第%d章，共%d章";
+
+"player_sleep_title" = "暂停播放";
+
+"player_speed_title" = "设置播放速度";
+
+"playing_title" = "播放音频";
+
+"playlist_add_title" = "添加文件";
+
+"plus_app_icons_title" = "应用图标";
+
+"plus_icons_description" = "BookPlayer Plus 附带多个应用程序图标，可匹配配色方案和壁纸";
+
+"plus_themes_description" = "精心挑选的颜色主题与您喜欢的书籍相匹配";
+
+"progress_complete_description" = "%d% 完成";
+
+"progress_title" = "进展";
+
+"purchases_restored_title" = "已恢复购买！";
+
+"recent_title" = "最近";
+
+"rename_button" = "重命名";
+
+"rename_title" = "重命名";
+
+"restore_title" = "恢复";
+
 "screen_gestures_title" = "屏幕手势";
-"gesture_tap_title" = "点按即可播放或暂停";
-"gesture_swipe_left_title" = "向左滑动可倒带";
-"gesture_swipe_right_title" = "向右滑动可向前跳";
-"gesture_swipe_vertically_title" = "垂直滑动以创建书签";
+
+"seconds_title" = "秒";
+
+"select_all_title" = "选择全部";
+
+"select_item_title" = "选择项";
+
+"select_playlist_title" = "选择文件夹";
+
+"settings_app_icon_title" = "应用图标";
+
+"settings_appearance_title" = "外观";
+
+"settings_autolock_description" = "播放时防止锁定。";
+
+"settings_autolock_title" = "禁用自动锁定";
+
+"settings_autoplay_description" = "完成有声读物后，将继续播放库中的所有项目，包括文件夹中的项目。";
+
+"settings_autoplay_restart_title" = "重新启动完成的书籍";
+
+"settings_autoplay_section_title" = "自动播放";
+
+"settings_autoplay_title" = "自动播放有声书库";
+
+"settings_backup_files_title" = "包含有声书文件";
+
+"settings_backup_title" = "iCloud 备份";
+
+"settings_boostvolume_description" = "将音量加倍。 \n请谨慎使用并避免影响听力。";
+
+"settings_boostvolume_title" = "提高音量";
+
+"settings_button" = "设置";
+
+"settings_chaptercontext_title" = "使用章节上下文";
+
+"settings_controls_title" = "播放器控制";
+
+"settings_credits_title" = "信用和许可证";
+
+"settings_globalspeed_description" = "在所有有声书中使用同一播放速度。";
+
+"settings_globalspeed_title" = "全局播放速度";
+
+"settings_playback_title" = "播放设定";
+
+"settings_playerinterface_list_description" = "调整播放器屏幕中的列表按钮打开的内容";
+
+"settings_playerinterface_list_title" = "打开";
+
+"settings_power_connected_title" = "仅当连接到电源时";
+
+"settings_progresslabels_description" = "在播放器屏幕中显示章节或书籍的剩余时间、总持续时间和进度之间切换";
+
+"settings_progresslabels_title" = "进度标签";
+
+"settings_remainingtime_title" = "使用剩余时间";
+
+"settings_siri_lastplayed_description" = "使用 Siri 继续最后一本书。";
+
+"settings_siri_lastplayed_title" = "最后播放的书";
+
+"settings_siri_sleeptimer_title" = "睡眠定时";
+
+"settings_siri_title" = "SIRI 快捷方式";
+
+"settings_skip_description" = "在播放器或控制中间调整略过的时长。";
+
+"settings_skip_forward_title" = "快进";
+
+"settings_skip_rewind_title" = "倒带";
+
+"settings_skip_title" = "跳过间隔";
+
+"settings_smartrewind_description" = "暂停 10 分钟后倒带 30 秒。";
+
+"settings_smartrewind_title" = "智能倒带";
+
+"settings_storage_description" = "管理有声书文件";
+
+"settings_storage_title" = "存储空间管理";
+
+"settings_support_compose_copy" = "将信息复制到剪贴板";
+
+"settings_support_compose_description" = "您需要在设备设置中设置一个电子邮件帐户才能使用它。 \n \n请发送邮件至";
+
+"settings_support_compose_title" = "无法撰写电子邮件";
+
+"settings_support_email_title" = "向我们发送电子邮件";
+
+"settings_support_project_description" = "针对您的功能请求和错误与我们联系";
+
+"settings_support_project_title" = "在 Github 上查看项目";
+
+"settings_support_title" = "支持";
+
+"settings_theme_autobrightness" = "如果屏幕亮度低于设置的阈值，请选择主题的暗色变化。";
+
+"settings_theme_title" = "主题";
+
+"settings_tip_jar_title" = "打赏";
+
+"settings_title" = "设置";
+
+"siri_activity_title" = "继续上次播放的有声书";
+
+"siri_alert_description" = "Siri快捷方式在iOS 12及更高版本上可用";
+
+"siri_invocation_phrase" = "继续我的有声书";
+
+"skipped_back_title" = "跳回";
+
+"skipped_forward_title" = "向前跳过";
+
+"sleep_alert_description" = "本章结束时停止";
+
+"sleep_chapter_option_title" = "当前章节的结尾";
+
+"sleep_interval_title" = "在%@";
+
+"sleep_off_title" = "关闭";
+
+"sleep_remaining_title" = "剩余%@直到停止";
+
+"sleep_time_description" = "在%@停止";
+
+"sleeptimer_custom_alert_title" = "自定义睡眠定时器";
+
+"sleeptimer_option_custom" = "自定义";
+
+"sort_filename_button" = "原始文件名";
+
+"sort_files_title" = "文件排序";
+
+"sort_most_recent_button" = "最近的";
+
+"sort_reversed_button" = "倒序";
+
+"sort_title" = "排序依据";
+
+"speed_title" = "速度";
+
+"storage_duplicate_item_description" = "选择的有声书文件是重复的，现有的文件位于：%@";
+
+"storage_duplicate_item_title" = "重复";
+
+"storage_fix_all_title" = "全部修复";
+
+"storage_fix_file_button" = "修复";
+
+"storage_fix_file_description" = "有声书项目丢失，如果找不到相应项目，将创建一个新项目";
+
+"storage_fix_files_description" = "文件和有声书项目之间的链接丢失，如果每个文件都找不到对应的项目，将创建一个新的";
+
+"storage_total_title" = "总使用空间";
+
+"support_bookplayer_description" = "获取BookPlayer Plus，以支持未来的开发并获取其他主题和应用程序图标";
+
+"support_bookplayer_title" = "支持我们";
+
+"support_us_title" = "支持我们";
+
+"thanks_amazing_title" = "你太棒了！";
+
+"thanks_title" = "感谢您的支持！";
+
+"theme_dark_title" = "始终使用深色元素";
+
+"theme_switch_title" = "自动切换";
+
+"theme_system_title" = "使用系统模式";
+
+"themes_caps_title" = "主题";
+
+"themes_title" = "主题";
+
+"tip_missing_title" = "你还没打赏我们";
+
+"title_button" = "标题";
+
+"voiceover_book_chapter" = "%@之%@，第%@章";
+
+"voiceover_book_info" = "%@之%@";
+
+"voiceover_book_progress" = "%@之%@ %d已完成";
+
+"voiceover_bound_books_progress" = "%@卷%d已完成";
+
+"voiceover_chapter_time_title" = "当前章节时间：%@";
+
+"voiceover_continue_playback_title" = "继续播放";
+
+"voiceover_currently_playing_title" = "目前正在播放 %@ 的作品";
+
+"voiceover_default_speed_title" = "设置默认速度";
+
+"voiceover_dismiss_player_title" = "关闭播放器";
+
+"voiceover_forward_time" = "快进%@";
+
+"voiceover_miniplayer_hint" = "迷你播放器。点击以显示播放器";
+
+"voiceover_no_author" = "未知作者";
+
+"voiceover_no_bound_books_title" = "没有书卷名";
+
+"voiceover_no_file_subtitle" = "没有文件副标题";
+
+"voiceover_no_file_title" = "没有文件标题";
+
+"voiceover_no_playlist_title" = "没有文件夹标题";
+
+"voiceover_no_title" = "未知标题";
+
+"voiceover_playlist_progress" = "%@播放列表%d已完成";
+
+"voiceover_rewind_time" = "倒带%@";
+
+"voiceover_unknown_author" = "未知作者";
+
+"voiceover_unknown_title" = "未知标题";
+
+"watchapp_connect_error_description" = "连接手机时出现问题，请稍后重试";
+
+"watchapp_connect_error_title" = "连接错误";
+
+"watchapp_last_played_title" = "上次播放";
+
+"watchapp_refresh_data_title" = "刷新数据";

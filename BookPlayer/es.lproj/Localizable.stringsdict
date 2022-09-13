@@ -1,70 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-  <dict>
-    <key>files_title</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>d</string>
-        <key>one</key>
-        <string>%d Elemento</string>
-        <key>other</key>
-        <string>%d Elementos</string>
-      </dict>
-    </dict>
+<dict>
     <key>delete_multiple_items_title</key>
     <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>d</string>
-        <key>one</key>
-        <string></string>
-        <key>other</key>
-        <string>¿Quieres eliminar %d elementos?</string>
-      </dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@format@</string>
+        <key>format</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string></string>
+            <key>other</key>
+            <string>¿Quieres eliminar %d elementos?</string>
+        </dict>
+    </dict>
+    <key>files_title</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@format@</string>
+        <key>format</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d Elemento</string>
+            <key>other</key>
+            <string>%d Elementos</string>
+        </dict>
     </dict>
     <key>import_alert_title</key>
     <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>d</string>
-        <key>one</key>
-        <string>Importar %d archivo a</string>
-        <key>other</key>
-        <string>Importar %d archivos a</string>
-      </dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@format@</string>
+        <key>format</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Importar %d archivo a</string>
+            <key>other</key>
+            <string>Importar %d archivos a</string>
+        </dict>
     </dict>
     <key>import_processing_description</key>
     <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>d</string>
-        <key>one</key>
-        <string>Procesando 1 archivo</string>
-        <key>other</key>
-        <string>Procesando %d archivos</string>
-      </dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@format@</string>
+        <key>format</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Procesando 1 archivo</string>
+            <key>other</key>
+            <string>Procesando %d archivos</string>
+        </dict>
     </dict>
-  </dict>
+</dict>
 </plist>

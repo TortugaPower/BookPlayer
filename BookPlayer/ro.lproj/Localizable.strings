@@ -1,225 +1,449 @@
-"library_title" = "Bibliotecă";
-"settings_button" = "Setări";
-"settings_title" = "Setări";
-"settings_autoplay_title" = "Bibliotecă redare automată";
-"settings_autoplay_description" = "După terminarea unei cărți audio, redarea se va relua cu toate elementele din bibliotecă, inclusiv cele din foldere.";
-"settings_smartrewind_title" = "Derulare inteligentă înapoi";
-"settings_smartrewind_description" = "Derulați 30 de secunde înapoi după ce a fost o pauza de 10 minute.";
-"settings_boostvolume_title" = "Creșterea volumului";
-"settings_boostvolume_description" = "Dublează volumul.\nUtilizați cu prudență și grijă pentru auzul dvs.";
-"settings_globalspeed_title" = "Controlul global al vitezei";
-"settings_globalspeed_description" = "Setați viteza în toate cărțile.";
-"settings_autolock_title" = "Dezactivează Autolock";
-"settings_autolock_description" = "Împiedicați blocarea dispozitivului pe ecranul Playerului.";
-"settings_siri_lastplayed_title" = "Ultima carte redată";
-"settings_siri_lastplayed_description" = "Folosiți Siri pentru a continua ultima carte redată.";
-"settings_skip_title" = "SĂRIȚI INTERVALURILE";
-"settings_skip_rewind_title" = "Derulare înapoi";
-"settings_skip_forward_title" = "Înainte";
-"settings_skip_description" = "Ajustați valoarea ignorată atunci când utilizați butoanele din Player sau Centrul de Control.";
-"settings_support_title" = "SUPORT";
-"settings_siri_title" = "COMANDA RAPIDĂ SIRI";
-"settings_support_project_title" = "Vizualizați proiectul pe Github";
-"settings_support_project_description" = "Deschideți noi probleme pentru solicitările și erorile dvs. de funcții";
-"settings_support_email_title" = "Trimite-ne un e-mail";
-"settings_credits_title" = "Credite și licențe";
-"settings_support_compose_title" = "Imposibil de compus e-mail";
-"settings_support_compose_description" = "Trebuie să configurați un cont de e-mail în setările dispozitivului pentru a utiliza acest lucru.\n\nVă rugăm să ne scrieți prin e-mail la";
-"settings_support_compose_copy" = "Copiați informațiile în clipboard";
-"library_add_button" = "Adăugare";
-"export_button" = "Partajare";
-"delete_button" = "Ștergere";
-"rename_button" = "Redenumiți";
-"delete_single_item_title" = "Doriți să ștergeți „ %@ ”?";
-"delete_single_playlist_description" = "Ștergerea numai a folderului va muta toate fișierele acestuia înapoi în Bibliotecă.";
-"delete_shallow_button" = "Ștergeți doar folderul";
-"delete_deep_button" = "Ștergeți folderul și fișierele";
-"create_playlist_button" = "Creeaza dosar";
-"create_button" = "Creare";
-"import_button" = "Importați fișiere";
-"import_description" = "De asemenea, puteți adăuga fișiere prin AirDrop. Trimiteți un fișier audiobook pe dispozitiv și selectați BookPlayer din lista care apare.";
-"create_playlist_title" = "Creați un folder nou";
-"delete_multiple_items_description" = "Acest lucru va elimina și toate fișierele din folderele selectate.";
-"new_playlist_button" = "Dosar nou";
-"existing_playlist_button" = "Folder existent";
-"choose_destination_title" = "Alegeți destinația";
-"delete_completely_button" = "Ștergeți complet";
-"move_library_button" = "Mutare în bibliotecă";
-"options_button" = "Opțiuni";
-"select_playlist_title" = "Selectați Folder";
-"title_button" = "Titlu";
-"sort_filename_button" = "Nume fișier original";
-"sort_title" = "Sortează articolele după";
-"cancel_button" = "Anulare";
-"seconds_title" = "sec";
-"ok_button" = "OK";
-"siri_alert_description" = "Comenzile rapide de la Siri sunt disponibile pe iOS 12 și versiuni ulterioare";
-"support_bookplayer_title" = "Sprijiniți BookPlayer";
-"support_bookplayer_description" = "Obțineți BookPlayer Plus pentru a sprijini dezvoltarea viitoare și pentru a obține teme suplimentare și pictograme pentru aplicații";
-"learn_more_title" = "AFLAȚI MAI MULTE";
-"settings_appearance_title" = "Aspect";
-"settings_theme_title" = "Tema";
-"settings_app_icon_title" = "Pictograma aplicației";
-"settings_playback_title" = "Setări de redare";
-"settings_controls_title" = "Controlul Playerului";
-"settings_power_connected_title" = "Numai când este conectat la alimentare";
-"settings_tip_jar_title" = "Loc pentru bacșiș";
-"theme_system_title" = "Utilizați modul sistem";
-"theme_switch_title" = "Comutare automată";
-"theme_dark_title" = "Utilizați întotdeauna variație întunecată";
-"themes_title" = "Teme";
-"icons_bookplayer_credit_description" = "De prietenii tăi de la BookPlayer";
-"kind_tip_title" = "Bacșiș bun in valoare de";
-"excellent_tip_title" = "Bacșiș excelent in valoare de";
-"incredible_tip_title" = "Bacșiș incredibil in valoare de";
-"plus_themes_description" = "Teme de culoare alese cu grijă pentru a se potrivi cu cărțile dumneavoastră preferate";
-"plus_icons_description" = "BookPlayer Plus este livrat cu mai multe pictograme pentru aplicații, potrivite schemelor de culori și tapetului dvs.";
-"support_us_title" = "Sprijiniți-ne";
-"bookplayer_opensource_description" = "BookPlayer este gratuit și Open Source și va rămâne mereu așa. Cu ajutorul tău, suntem capabili să punem în aplicație mai multe funcții și să îmbunătățim BookPlayer.";
-"thanks_title" = "Vă mulțumim pentru sprijinul dvs.!";
-"extra_tips_description" = "Dacă vă bucurați cu adevărat de BookPlayer, puteți lăsa sfaturi suplimentare pentru a sprijini dezvoltarea aplicației în continuare. Acest lucru vă va ajuta să contribuiți la dezvoltarea aplicației.";
-"select_all_title" = "Selectați toate";
-"deselect_all_title" = "Deselectați toate";
-"move_title" = "Mutare";
-"jump_start_title" = "Salt la început";
-"mark_finished_title" = "Marcați ca terminat";
-"sort_files_title" = "Sortează fișierele după";
-"rename_title" = "Redenumiți elementul";
-"file_error_title" = "Eroare de fișier!";
-"file_error_description" = "Fișierul acestei cărți nu a putut fi încărcat. Asigurați-vă că nu utilizați fișiere cu protecție DRM (cum ar fi fișiere .aax)";
-"file_missing_title" = "Fișier lipsă!";
-"file_missing_description" = "Fișierul acestei cărți a fost eliminat de pe dispozitiv. Importați din nou fișierul pentru a reda cartea";
-"empty_playlist_description" = "De asemenea, puteți muta fișiere aici trăgându-le în acest dosar din Bibliotecă";
-"playlist_add_title" = "Adăugați fișiere";
-"player_speed_title" = "Setați viteza de redare";
-"player_sleep_title" = "Întrerupeți redarea";
-"sleep_chapter_option_title" = "Sfârșitul capitolului curent";
-"player_chapter_description" = "Capitolul %d din %d";
-"chapters_title" = "Capitole";
-"chapters_item_description" = "Start: %@ - Durata: %@";
-"restore_title" = "Restabilire";
-"themes_caps_title" = "Teme";
-"plus_app_icons_title" = "Pictogramele aplicației";
-"mark_unfinished_title" = "Marcați ca neterminat";
-"move_playlist_button" = "Mută in director";
-"move_single_item_title" = "Doriți să mutați „ %@ ” în „ %@ ”?";
-"current_playlist_title" = "Dosarul curent";
-"select_item_title" = "Selectați elementul";
-"sleep_alert_description" = "Dormire când se termină capitolul";
-"sleep_time_description" = "Dormire în %@";
-"sleep_off_title" = "Dezactivat";
-"sleep_interval_title" = "În %@";
-"chapter_number_title" = "Capitolul %d";
-"progress_complete_description" = "%d la sută completat";
-"chapter_duration_title" = "Durata capitolului:";
-"chapter_time_remaining_title" = "Timpul rămas din capitol:";
-"book_time_remaining_title" = "Timp rămas din carte:";
-"book_duration_title" = "Durata cărții:";
-"icon_error_description" = "Modificarea pictogramei aplicației nu a avut succes. Încercați din nou mai târziu";
-"error_title" = "Eroare";
-"generic_retry_description" = "Vă rugăm să încercați din nou mai târziu";
-"network_error_title" = "Eroare de conectivitate";
-"purchases_restored_title" = "Achizițiile au fost restaurate!";
-"tip_missing_title" = "Încă nu ne-ai dat bacșiș.";
-"thanks_amazing_title" = "Ești super!";
-"play_title" = "Redare";
-"pause_title" = "Pauză";
-"voiceover_no_title" = "Fără titlu";
-"voiceover_no_author" = "Fără autor";
-"voiceover_book_progress" = "%@cate%@,%dprocent finalizat";
-"voiceover_no_file_title" = "Fără titlu de fișier";
-"voiceover_no_file_subtitle" = "Fără fișier de subtitrare";
-"voiceover_no_playlist_title" = "Fără titlu de folder";
-"voiceover_playlist_progress" = "%@, Listă de redare, %d procent finalizat";
-"voiceover_unknown_title" = "Titlu necunoscut";
-"voiceover_unknown_author" = "Autor necunoscut";
-"voiceover_book_info" = "%@ cate %@";
-"voiceover_book_chapter" = "%@cate %@, capitolul %@";
-"voiceover_rewind_time" = "Derulare înapoi%@";
-"voiceover_forward_time" = "Derulare rapidă înainte%@";
-"watchapp_last_played_title" = "Ultimul redat";
-"watchapp_refresh_data_title" = "Actualizați datele";
-"recent_title" = "Recent";
-"carplay_library_error" = "Imposibil de încărcat cărți";
-"siri_invocation_phrase" = "Continuați-mi cartea";
-"siri_activity_title" = "Continuați ultima carte derulata";
-"watchapp_connect_error_title" = "Eroare de conectivitate";
-"watchapp_connect_error_description" = "Există o problemă de conectare la telefonul dvs., încercați din nou mai târziu";
-"sleep_remaining_title" = "%@Timp rămas pana la somn";
-"audio_source_title" = "Sursă audio";
-"speed_title" = "Viteza";
-"import_preparing_title" = "Pregătire pentru importarea fișierelor";
-"library_add_title" = "Adaugați prima carte";
-"invalid_url_title" = "URL invalid: %@";
-"downloading_file_title" = "Descărcarea fișierului.";
-"progress_title" = "Derulare";
-"settings_siri_sleeptimer_title" = "Temporizator somn";
 "active_title" = "Pornit";
-"voiceover_currently_playing_title" = "Curent rulează %@ cate %@";
-"voiceover_miniplayer_hint" = "Miniplayer. Atingeți pentru a afișa Playerul";
-"voiceover_chapter_time_title" = "Timpul curent al capitolului: %@";
-"voiceover_dismiss_player_title" = "Renunțați la Player";
-"sort_most_recent_button" = "Cel mai recent";
-"sort_reversed_button" = "Ordine inversă";
-"voiceover_continue_playback_title" = "Continuați redarea";
-"coredata_error_diskfull_description" = "Biblioteca nu a putut fi încărcată, dispozitivul nu mai are spațiu pe disc.";
-"coredata_error_migration_description" = "O migrare a bazei de date a eșuat, biblioteca va trebui reinițializată.";
-"import_warning_description" = "Transferul fișierelor poate dura ceva timp, vă rugăm să vă asigurați că numărul de fișiere este complet înainte de a continua.";
-"settings_storage_description" = "Gestionați-vă fișierele";
-"storage_total_title" = "Spațiul total folosit";
-"settings_storage_title" = "Managementul stocării";
-"storage_fix_file_button" = "Fix";
-"storage_fix_file_description" = "Elementul din carte lipsește, dacă articolul corespunzător nu poate fi găsit, va fi creat unul nou";
-"bookmarks_title" = "Marcaje";
-"bookmark_created_title" = "Marcajul dvs. a fost salvat la %@";
-"bookmark_exists_title" = "Ați creat deja un marcaj la %@";
-"bookmark_note_action_title" = "Adauga notita";
-"bookmarks_see_title" = "Vezi marcaje";
-"bookmark_type_automatic_title" = "Automat";
-"bookmark_type_user_title" = "Manual";
-"bookmark_automatic_play_title" = "Ultima poziție înainte de începerea redării";
-"bookmark_automatic_skip_title" = "Ultima poziție înainte de săritul orei";
-"bookmark_note_edit_title" = "Editați nota";
-"bookmark_create_title" = "Creați marcaj";
-"storage_duplicate_item_title" = "Duplicat";
-"storage_duplicate_item_description" = "Fișierul selectat a fost un duplicat, fișierul existent se află la: %@";
-"chapters_previous_title" = "Capitolul precedent";
-"chapters_next_title" = "Capitolul următor";
+
+"audio_source_title" = "Sursă audio";
+
+"book_duration_title" = "Durata cărții:";
+
 "book_time_current_title" = "Ora curentă a rezervării: %@";
-"storage_fix_files_description" = "Legătura dintre fișiere și articolele cărții digitale lipsește, dacă articolul corespunzător nu poate fi găsit pentru fiecare fișier, se va crea unul nou";
-"storage_fix_all_title" = "Repara tot";
-"settings_backup_title" = "Backup-uri iCloud";
-"settings_backup_files_title" = "Includeți fișiere de carte";
-"bound_books_create_button" = "Combinați în volum";
-"bound_books_undo_alert_title" = "Convertiți în dosar";
-"bound_books_new_title_placeholder" = "Volum nou de carte";
+
+"book_time_remaining_title" = "Timp rămas din carte:";
+
+"bookmark_automatic_play_title" = "Ultima poziție înainte de începerea redării";
+
+"bookmark_automatic_skip_title" = "Ultima poziție înainte de săritul orei";
+
+"bookmark_create_title" = "Creați marcaj";
+
+"bookmark_created_title" = "Marcajul dvs. a fost salvat la %@";
+
+"bookmark_exists_title" = "Ați creat deja un marcaj la %@";
+
+"bookmark_note_action_title" = "Adauga notita";
+
+"bookmark_note_edit_title" = "Editați nota";
+
+"bookmark_type_automatic_title" = "Automat";
+
+"bookmark_type_user_title" = "Manual";
+
+"bookmarks_see_title" = "Vezi marcaje";
+
+"bookmarks_title" = "Marcaje";
+
+"bookplayer_opensource_description" = "BookPlayer este gratuit și Open Source și va rămâne mereu așa. Cu ajutorul tău, suntem capabili să punem în aplicație mai multe funcții și să îmbunătățim BookPlayer.";
+
 "bound_books_create_alert_description" = "Asigurați-vă că articolele sunt în ordinea corectă. Pentru a reordona capitolele mai târziu, trebuie să convertiți volumul înapoi într-un folder, să reordonați articolele și apoi să recreați volumul.";
+
 "bound_books_create_alert_title" = "Creați un volum";
-"voiceover_bound_books_progress" = "%@, Volum, %d la sută Finalizat";
-"voiceover_no_bound_books_title" = "Fără titlu de volum";
-"default_title" = "Mod implicit";
-"voiceover_default_speed_title" = "Setați viteza implicită";
-"error_loading_chapters" = "Capitolele nu au putut fi încărcate de la: \n %@";
-"error_empty_chapters" = "Capitolele sunt goale, vă rugăm să verificați conținutul folderului: %@";
-"sleeptimer_option_custom" = "Personalizat";
-"sleeptimer_custom_alert_title" = "Temporizator de oprire personalizat";
-"settings_progresslabels_title" = "Etichete de progres";
-"settings_playerinterface_list_title" = "Se deschide";
-"settings_remainingtime_title" = "Utilizați timpul rămas";
-"settings_chaptercontext_title" = "Utilizați contextul capitolului";
-"settings_progresslabels_description" = "Comutați între afișarea timpului rămas, a duratei totale și a progresului fie al capitolului, fie al cărții în ecranul playerului";
-"settings_playerinterface_list_description" = "Ajustați ce se deschide butonul de listă din ecranul playerului";
-"settings_autoplay_section_title" = "REDARE AUTOMATA";
-"settings_autoplay_restart_title" = "Reporniți cărțile terminate";
-"settings_theme_autobrightness" = "Selectați variația întunecată a unei teme dacă luminozitatea ecranului scade sub pragul setat.";
-"note_title" = "Notă";
-"playing_title" = "redarea audio";
-"paused_title" = "Întrerupt";
-"skipped_forward_title" = "A sărit înainte";
-"skipped_back_title" = "Sărit înapoi";
+
+"bound_books_create_button" = "Combinați în volum";
+
+"bound_books_new_title_placeholder" = "Volum nou de carte";
+
+"bound_books_undo_alert_title" = "Convertiți în dosar";
+
 "button_free_title" = "Fără butoane";
-"screen_gestures_title" = "Gesturi pe ecran";
-"gesture_tap_title" = "Atingeți pentru a reda sau pentru a întrerupe";
+
+"cancel_button" = "Anulare";
+
+"carplay_library_error" = "Imposibil de încărcat cărți";
+
+"chapter_duration_title" = "Durata capitolului:";
+
+"chapter_number_title" = "Capitolul %d";
+
+"chapter_time_remaining_title" = "Timpul rămas din capitol:";
+
+"chapters_item_description" = "Start: %@ - Durata: %@";
+
+"chapters_next_title" = "Capitolul următor";
+
+"chapters_previous_title" = "Capitolul precedent";
+
+"chapters_title" = "Capitole";
+
+"choose_destination_title" = "Alegeți destinația";
+
+"coredata_error_diskfull_description" = "Biblioteca nu a putut fi încărcată, dispozitivul nu mai are spațiu pe disc.";
+
+"coredata_error_migration_description" = "O migrare a bazei de date a eșuat, biblioteca va trebui reinițializată.";
+
+"create_button" = "Creare";
+
+"create_playlist_button" = "Creeaza dosar";
+
+"create_playlist_title" = "Creați un folder nou";
+
+"current_playlist_title" = "Dosarul curent";
+
+"default_title" = "Mod implicit";
+
+"delete_button" = "Ștergere";
+
+"delete_completely_button" = "Ștergeți complet";
+
+"delete_deep_button" = "Ștergeți folderul și fișierele";
+
+"delete_multiple_items_description" = "Acest lucru va elimina și toate fișierele din folderele selectate.";
+
+"delete_shallow_button" = "Ștergeți doar folderul";
+
+"delete_single_item_title" = "Doriți să ștergeți „ %@ ”?";
+
+"delete_single_playlist_description" = "Ștergerea numai a folderului va muta toate fișierele acestuia înapoi în Bibliotecă.";
+
+"deselect_all_title" = "Deselectați toate";
+
+"downloading_file_title" = "Descărcarea fișierului.";
+
+"empty_playlist_description" = "De asemenea, puteți muta fișiere aici trăgându-le în acest dosar din Bibliotecă";
+
+"error_empty_chapters" = "Capitolele sunt goale, vă rugăm să verificați conținutul folderului: %@";
+
+"error_loading_chapters" = "Capitolele nu au putut fi încărcate de la: \n %@";
+
+"error_title" = "Eroare";
+
+"excellent_tip_title" = "Bacșiș excelent in valoare de";
+
+"existing_playlist_button" = "Folder existent";
+
+"export_button" = "Partajare";
+
+"extra_tips_description" = "Dacă vă bucurați cu adevărat de BookPlayer, puteți lăsa sfaturi suplimentare pentru a sprijini dezvoltarea aplicației în continuare. Acest lucru vă va ajuta să contribuiți la dezvoltarea aplicației.";
+
+"file_error_description" = "Fișierul acestei cărți nu a putut fi încărcat. Asigurați-vă că nu utilizați fișiere cu protecție DRM (cum ar fi fișiere .aax)";
+
+"file_error_title" = "Eroare de fișier!";
+
+"file_missing_description" = "Fișierul acestei cărți a fost eliminat de pe dispozitiv. Importați din nou fișierul pentru a reda cartea";
+
+"file_missing_title" = "Fișier lipsă!";
+
+"generic_retry_description" = "Vă rugăm să încercați din nou mai târziu";
+
 "gesture_swipe_left_title" = "Glisați spre stânga pentru a derula înapoi";
+
 "gesture_swipe_right_title" = "Glisați spre dreapta pentru a trece înainte";
+
 "gesture_swipe_vertically_title" = "Glisați vertical pentru a crea un marcaj";
+
+"gesture_tap_title" = "Atingeți pentru a reda sau pentru a întrerupe";
+
+"icon_error_description" = "Modificarea pictogramei aplicației nu a avut succes. Încercați din nou mai târziu";
+
+"icons_bookplayer_credit_description" = "De prietenii tăi de la BookPlayer";
+
+"import_button" = "Importați fișiere";
+
+"import_description" = "De asemenea, puteți adăuga fișiere prin AirDrop. Trimiteți un fișier audiobook pe dispozitiv și selectați BookPlayer din lista care apare.";
+
+"import_preparing_title" = "Pregătire pentru importarea fișierelor";
+
+"import_warning_description" = "Transferul fișierelor poate dura ceva timp, vă rugăm să vă asigurați că numărul de fișiere este complet înainte de a continua.";
+
+"incredible_tip_title" = "Bacșiș incredibil in valoare de";
+
+"invalid_url_title" = "URL invalid: %@";
+
+"jump_start_title" = "Salt la început";
+
+"kind_tip_title" = "Bacșiș bun in valoare de";
+
+"learn_more_title" = "AFLAȚI MAI MULTE";
+
+"library_add_button" = "Adăugare";
+
+"library_add_title" = "Adaugați prima carte";
+
+"library_title" = "Bibliotecă";
+
+"mark_finished_title" = "Marcați ca terminat";
+
+"mark_unfinished_title" = "Marcați ca neterminat";
+
+"move_library_button" = "Mutare în bibliotecă";
+
+"move_playlist_button" = "Mută in director";
+
+"move_single_item_title" = "Doriți să mutați „ %@ ” în „ %@ ”?";
+
+"move_title" = "Mutare";
+
+"network_error_title" = "Eroare de conectivitate";
+
+"new_playlist_button" = "Dosar nou";
+
+"note_title" = "Notă";
+
+"ok_button" = "OK";
+
+"options_button" = "Opțiuni";
+
+"pause_title" = "Pauză";
+
+"paused_title" = "Întrerupt";
+
+"play_title" = "Redare";
+
+"player_chapter_description" = "Capitolul %d din %d";
+
+"player_sleep_title" = "Întrerupeți redarea";
+
+"player_speed_title" = "Setați viteza de redare";
+
+"playing_title" = "redarea audio";
+
+"playlist_add_title" = "Adăugați fișiere";
+
+"plus_app_icons_title" = "Pictogramele aplicației";
+
+"plus_icons_description" = "BookPlayer Plus este livrat cu mai multe pictograme pentru aplicații, potrivite schemelor de culori și tapetului dvs.";
+
+"plus_themes_description" = "Teme de culoare alese cu grijă pentru a se potrivi cu cărțile dumneavoastră preferate";
+
+"progress_complete_description" = "%d la sută completat";
+
+"progress_title" = "Derulare";
+
+"purchases_restored_title" = "Achizițiile au fost restaurate!";
+
+"recent_title" = "Recent";
+
+"rename_button" = "Redenumiți";
+
+"rename_title" = "Redenumiți elementul";
+
+"restore_title" = "Restabilire";
+
+"screen_gestures_title" = "Gesturi pe ecran";
+
+"seconds_title" = "sec";
+
+"select_all_title" = "Selectați toate";
+
+"select_item_title" = "Selectați elementul";
+
+"select_playlist_title" = "Selectați Folder";
+
+"settings_app_icon_title" = "Pictograma aplicației";
+
+"settings_appearance_title" = "Aspect";
+
+"settings_autolock_description" = "Împiedicați blocarea dispozitivului pe ecranul Playerului.";
+
+"settings_autolock_title" = "Dezactivează Autolock";
+
+"settings_autoplay_description" = "După terminarea unei cărți audio, redarea se va relua cu toate elementele din bibliotecă, inclusiv cele din foldere.";
+
+"settings_autoplay_restart_title" = "Reporniți cărțile terminate";
+
+"settings_autoplay_section_title" = "REDARE AUTOMATA";
+
+"settings_autoplay_title" = "Bibliotecă redare automată";
+
+"settings_backup_files_title" = "Includeți fișiere de carte";
+
+"settings_backup_title" = "Backup-uri iCloud";
+
+"settings_boostvolume_description" = "Dublează volumul.\nUtilizați cu prudență și grijă pentru auzul dvs.";
+
+"settings_boostvolume_title" = "Creșterea volumului";
+
+"settings_button" = "Setări";
+
+"settings_chaptercontext_title" = "Utilizați contextul capitolului";
+
+"settings_controls_title" = "Controlul Playerului";
+
+"settings_credits_title" = "Credite și licențe";
+
+"settings_globalspeed_description" = "Setați viteza în toate cărțile.";
+
+"settings_globalspeed_title" = "Controlul global al vitezei";
+
+"settings_playback_title" = "Setări de redare";
+
+"settings_playerinterface_list_description" = "Ajustați ce se deschide butonul de listă din ecranul playerului";
+
+"settings_playerinterface_list_title" = "Se deschide";
+
+"settings_power_connected_title" = "Numai când este conectat la alimentare";
+
+"settings_progresslabels_description" = "Comutați între afișarea timpului rămas, a duratei totale și a progresului fie al capitolului, fie al cărții în ecranul playerului";
+
+"settings_progresslabels_title" = "Etichete de progres";
+
+"settings_remainingtime_title" = "Utilizați timpul rămas";
+
+"settings_siri_lastplayed_description" = "Folosiți Siri pentru a continua ultima carte redată.";
+
+"settings_siri_lastplayed_title" = "Ultima carte redată";
+
+"settings_siri_sleeptimer_title" = "Temporizator somn";
+
+"settings_siri_title" = "COMANDA RAPIDĂ SIRI";
+
+"settings_skip_description" = "Ajustați valoarea ignorată atunci când utilizați butoanele din Player sau Centrul de Control.";
+
+"settings_skip_forward_title" = "Înainte";
+
+"settings_skip_rewind_title" = "Derulare înapoi";
+
+"settings_skip_title" = "SĂRIȚI INTERVALURILE";
+
+"settings_smartrewind_description" = "Derulați 30 de secunde înapoi după ce a fost o pauza de 10 minute.";
+
+"settings_smartrewind_title" = "Derulare inteligentă înapoi";
+
+"settings_storage_description" = "Gestionați-vă fișierele";
+
+"settings_storage_title" = "Managementul stocării";
+
+"settings_support_compose_copy" = "Copiați informațiile în clipboard";
+
+"settings_support_compose_description" = "Trebuie să configurați un cont de e-mail în setările dispozitivului pentru a utiliza acest lucru.\n\nVă rugăm să ne scrieți prin e-mail la";
+
+"settings_support_compose_title" = "Imposibil de compus e-mail";
+
+"settings_support_email_title" = "Trimite-ne un e-mail";
+
+"settings_support_project_description" = "Deschideți noi probleme pentru solicitările și erorile dvs. de funcții";
+
+"settings_support_project_title" = "Vizualizați proiectul pe Github";
+
+"settings_support_title" = "SUPORT";
+
+"settings_theme_autobrightness" = "Selectați variația întunecată a unei teme dacă luminozitatea ecranului scade sub pragul setat.";
+
+"settings_theme_title" = "Tema";
+
+"settings_tip_jar_title" = "Loc pentru bacșiș";
+
+"settings_title" = "Setări";
+
+"siri_activity_title" = "Continuați ultima carte derulata";
+
+"siri_alert_description" = "Comenzile rapide de la Siri sunt disponibile pe iOS 12 și versiuni ulterioare";
+
+"siri_invocation_phrase" = "Continuați-mi cartea";
+
+"skipped_back_title" = "Sărit înapoi";
+
+"skipped_forward_title" = "A sărit înainte";
+
+"sleep_alert_description" = "Dormire când se termină capitolul";
+
+"sleep_chapter_option_title" = "Sfârșitul capitolului curent";
+
+"sleep_interval_title" = "În %@";
+
+"sleep_off_title" = "Dezactivat";
+
+"sleep_remaining_title" = "%@Timp rămas pana la somn";
+
+"sleep_time_description" = "Dormire în %@";
+
+"sleeptimer_custom_alert_title" = "Temporizator de oprire personalizat";
+
+"sleeptimer_option_custom" = "Personalizat";
+
+"sort_filename_button" = "Nume fișier original";
+
+"sort_files_title" = "Sortează fișierele după";
+
+"sort_most_recent_button" = "Cel mai recent";
+
+"sort_reversed_button" = "Ordine inversă";
+
+"sort_title" = "Sortează articolele după";
+
+"speed_title" = "Viteza";
+
+"storage_duplicate_item_description" = "Fișierul selectat a fost un duplicat, fișierul existent se află la: %@";
+
+"storage_duplicate_item_title" = "Duplicat";
+
+"storage_fix_all_title" = "Repara tot";
+
+"storage_fix_file_button" = "Fix";
+
+"storage_fix_file_description" = "Elementul din carte lipsește, dacă articolul corespunzător nu poate fi găsit, va fi creat unul nou";
+
+"storage_fix_files_description" = "Legătura dintre fișiere și articolele cărții digitale lipsește, dacă articolul corespunzător nu poate fi găsit pentru fiecare fișier, se va crea unul nou";
+
+"storage_total_title" = "Spațiul total folosit";
+
+"support_bookplayer_description" = "Obțineți BookPlayer Plus pentru a sprijini dezvoltarea viitoare și pentru a obține teme suplimentare și pictograme pentru aplicații";
+
+"support_bookplayer_title" = "Sprijiniți BookPlayer";
+
+"support_us_title" = "Sprijiniți-ne";
+
+"thanks_amazing_title" = "Ești super!";
+
+"thanks_title" = "Vă mulțumim pentru sprijinul dvs.!";
+
+"theme_dark_title" = "Utilizați întotdeauna variație întunecată";
+
+"theme_switch_title" = "Comutare automată";
+
+"theme_system_title" = "Utilizați modul sistem";
+
+"themes_caps_title" = "Teme";
+
+"themes_title" = "Teme";
+
+"tip_missing_title" = "Încă nu ne-ai dat bacșiș.";
+
+"title_button" = "Titlu";
+
+"voiceover_book_chapter" = "%@cate %@, capitolul %@";
+
+"voiceover_book_info" = "%@ cate %@";
+
+"voiceover_book_progress" = "%@cate%@,%dprocent finalizat";
+
+"voiceover_bound_books_progress" = "%@, Volum, %d la sută Finalizat";
+
+"voiceover_chapter_time_title" = "Timpul curent al capitolului: %@";
+
+"voiceover_continue_playback_title" = "Continuați redarea";
+
+"voiceover_currently_playing_title" = "Curent rulează %@ cate %@";
+
+"voiceover_default_speed_title" = "Setați viteza implicită";
+
+"voiceover_dismiss_player_title" = "Renunțați la Player";
+
+"voiceover_forward_time" = "Derulare rapidă înainte%@";
+
+"voiceover_miniplayer_hint" = "Miniplayer. Atingeți pentru a afișa Playerul";
+
+"voiceover_no_author" = "Fără autor";
+
+"voiceover_no_bound_books_title" = "Fără titlu de volum";
+
+"voiceover_no_file_subtitle" = "Fără fișier de subtitrare";
+
+"voiceover_no_file_title" = "Fără titlu de fișier";
+
+"voiceover_no_playlist_title" = "Fără titlu de folder";
+
+"voiceover_no_title" = "Fără titlu";
+
+"voiceover_playlist_progress" = "%@, Listă de redare, %d procent finalizat";
+
+"voiceover_rewind_time" = "Derulare înapoi%@";
+
+"voiceover_unknown_author" = "Autor necunoscut";
+
+"voiceover_unknown_title" = "Titlu necunoscut";
+
+"watchapp_connect_error_description" = "Există o problemă de conectare la telefonul dvs., încercați din nou mai târziu";
+
+"watchapp_connect_error_title" = "Eroare de conectivitate";
+
+"watchapp_last_played_title" = "Ultimul redat";
+
+"watchapp_refresh_data_title" = "Actualizați datele";

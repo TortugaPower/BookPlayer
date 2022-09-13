@@ -1,78 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-  <dict>
-    <key>files_title</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>d</string>
-        <key>one</key>
-        <string>%d Fișier</string>
-        <key>few</key>
-        <string>%d Fișiere</string>
-        <key>other</key>
-        <string>%d Fișiere</string>
-      </dict>
-    </dict>
+<dict>
     <key>delete_multiple_items_title</key>
     <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>d</string>
-        <key>one</key>
-        <string></string>
-        <key>few</key>
-        <string>Doriti sa stergeti %d fisiere?</string>
-        <key>other</key>
-        <string>Doriti sa stergeti %d fisiere?</string>
-      </dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@format@</string>
+        <key>format</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string></string>
+            <key>few</key>
+            <string>Doriti sa stergeti %d fisiere?</string>
+            <key>other</key>
+            <string>Doriti sa stergeti %d fisiere?</string>
+        </dict>
+    </dict>
+    <key>files_title</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@format@</string>
+        <key>format</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d Fișier</string>
+            <key>few</key>
+            <string>%d Fișiere</string>
+            <key>other</key>
+            <string>%d Fișiere</string>
+        </dict>
     </dict>
     <key>import_alert_title</key>
     <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>d</string>
-        <key>one</key>
-        <string>Importati %d fisierul in</string>
-        <key>few</key>
-        <string>Importati %d fisierele in</string>
-        <key>other</key>
-        <string></string>
-      </dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@format@</string>
+        <key>format</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Importati %d fisierul in</string>
+            <key>few</key>
+            <string>Importati %d fisierele in</string>
+            <key>other</key>
+            <string></string>
+        </dict>
     </dict>
     <key>import_processing_description</key>
     <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>d</string>
-        <key>one</key>
-        <string>Procesare 1 fisier</string>
-        <key>few</key>
-        <string>Proceseaza %d fisierele</string>
-        <key>other</key>
-        <string></string>
-      </dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@format@</string>
+        <key>format</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Procesare 1 fisier</string>
+            <key>few</key>
+            <string>Proceseaza %d fisierele</string>
+            <key>other</key>
+            <string></string>
+        </dict>
     </dict>
-  </dict>
+</dict>
 </plist>

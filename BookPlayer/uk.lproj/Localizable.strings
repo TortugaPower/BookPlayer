@@ -1,233 +1,449 @@
-/* 
-  Localizable.strings
-  BookPlayer
+"active_title" = "Активний";
 
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
+"audio_source_title" = "Джерело аудіо";
+
+"book_duration_title" = "Тривалість книги:";
+
+"book_time_current_title" = "Поточний час книги: %@";
+
+"book_time_remaining_title" = "Залишилось часу книги:";
+
+"bookmark_automatic_play_title" = "Остання позиція перед початком відтворення";
+
+"bookmark_automatic_skip_title" = "Остання позиція перед пропуском часу";
+
+"bookmark_create_title" = "Створити закладку";
+
+"bookmark_created_title" = "Вашу закладку збережено на %@";
+
+"bookmark_exists_title" = "Ви вже створили закладку на %@";
+
+"bookmark_note_action_title" = "Додати примітку";
+
+"bookmark_note_edit_title" = "Редагувати примітку";
+
+"bookmark_type_automatic_title" = "Автоматично";
+
+"bookmark_type_user_title" = "Вручну";
+
+"bookmarks_see_title" = "Переглянути закладки";
+
+"bookmarks_title" = "Закладки";
+
+"bookplayer_opensource_description" = "BookPlayer безкоштовний і з відкритим кодом, і він завжди залишатиметься таким. З вашою допомогою ми можемо реалізувати більше функцій та зробити BookPlayer ще кращим";
+
+"bound_books_create_alert_description" = "Переконайтеся, що елементи розташовані в правильному порядку. Щоб пізніше змінити порядок розділів, вам потрібно перетворити том назад у папку, змінити порядок елементів, а потім знову створити том.";
+
+"bound_books_create_alert_title" = "Створіть том";
+
+"bound_books_create_button" = "Об’єднати в Об’єм";
+
+"bound_books_new_title_placeholder" = "Новий том книги";
+
+"bound_books_undo_alert_title" = "Перетворити на теку";
+
+"button_free_title" = "Без кнопок";
+
+"cancel_button" = "Скасувати";
+
+"carplay_library_error" = "Не вдається завантажити книги";
+
+"chapter_duration_title" = "Тривалість розділу:";
+
+"chapter_number_title" = "Розділ %d";
+
+"chapter_time_remaining_title" = "Залишилось до кінця розділу:";
+
+"chapters_item_description" = "Початок: %@ - Тривалість: %@";
+
+"chapters_next_title" = "Наступний розділ";
+
+"chapters_previous_title" = "Попередній розділ";
+
+"chapters_title" = "Розділи";
+
+"choose_destination_title" = "Виберіть призначення";
+
+"coredata_error_diskfull_description" = "Не вдалося завантажити бібліотеку, на пристрої бракує місця на диску.";
+
+"coredata_error_migration_description" = "Помилка міграції бази даних, бібліотеку доведеться повторно ініціалізувати.";
+
+"create_button" = "Створити";
+
+"create_playlist_button" = "Створити папку";
+
+"create_playlist_title" = "Створіть нову папку";
+
+"current_playlist_title" = "Поточна папка";
+
+"default_title" = "За замовчуванням";
+
+"delete_button" = "Видалити";
+
+"delete_completely_button" = "Видалити остаточно";
+
+"delete_deep_button" = "Видалити папку та файли";
+
+"delete_multiple_items_description" = "Це також видалить усі файли у вибраних папках.";
+
+"delete_shallow_button" = "Видалити лише папку";
+
+"delete_single_item_title" = "Видалити \"%@\"?";
+
+"delete_single_playlist_description" = "Видалення лише папки призведе до повернення всіх її файлів до бібліотеки.";
+
+"deselect_all_title" = "Зняти виділення";
+
+"downloading_file_title" = "Завантаження файлу";
+
+"empty_playlist_description" = "Ви також можете перемістити файли сюди, перетягнувши їх у цю папку в бібліотеці";
+
+"error_empty_chapters" = "Розділи порожні, будь ласка, перевірте вміст теки: %@";
+
+"error_loading_chapters" = "Не вдалося завантажити розділи з: \n%@";
+
+"error_title" = "Помилка";
+
+"excellent_tip_title" = "Чудовий внесок";
+
+"existing_playlist_button" = "Існуюча папка";
+
+"export_button" = "Поділитися";
+
+"extra_tips_description" = "Якщо вам дійсно подобається Bookplayer, ви можете зробити додатковий внесок для подальшої розробки. Це допоможе підтримати та розвивати додаток.";
+
+"file_error_description" = "Не вдалося завантажити файл цієї книги. Переконайтеся, що ви не використовуєте файли з захистом DRM (наприклад, файли .aax)";
+
+"file_error_title" = "Помилка файлу!";
+
+"file_missing_description" = "Файл цієї книги було видалено з пристрою. Імпортуйте файл ще раз, щоб відтворити книгу";
+
+"file_missing_title" = "Файл відсутній!";
+
+"generic_retry_description" = "Будь ласка, спробуйте пізніше";
+
+"gesture_swipe_left_title" = "Проведіть пальцем ліворуч, щоб перемотати назад";
+
+"gesture_swipe_right_title" = "Проведіть пальцем праворуч, щоб перейти вперед";
+
+"gesture_swipe_vertically_title" = "Проведіть вертикально, щоб створити закладку";
+
+"gesture_tap_title" = "Торкніться, щоб відтворити або призупинити";
+
+"icon_error_description" = "Не вдалось змінити піктограму програми. Спробуйте ще раз пізніше";
+
+"icons_bookplayer_credit_description" = "Від ваших друзів з Bookplayer";
+
+"import_button" = "Імпортувати файли";
+
+"import_description" = "Ви також можете додати файли через AirDrop. Надішліть файл аудіокниги на свій пристрій та виберіть BookPlayer зі списку, який з’явиться.";
+
+"import_preparing_title" = "Підготовка до імпорту файлів";
+
+"import_warning_description" = "Передача файлів може зайняти деякий час, будь ласка, переконайтесь, що кількість файлів вірна, перш ніж продовжити.";
+
+"incredible_tip_title" = "Неймовірний внесок";
+
+"invalid_url_title" = "Невірне посилання: %@";
+
+"jump_start_title" = "Перейти на початок";
+
+"kind_tip_title" = "Доброзичливий внесок";
+
+"learn_more_title" = "Дізнатись більше";
+
+"library_add_button" = "Додати";
+
+"library_add_title" = "Додайте свою першу книгу";
 
 "library_title" = "Бібліотека";
-"settings_button" = "Налаштування";
-"settings_title" = "Налаштування";
-"settings_autoplay_title" = "Автовідтворення бібліотеки";
-"settings_autoplay_description" = "Після завершення аудіокниги відтворення відновиться з усіма елементами в бібліотеці, включно з елементами в папках.";
-"settings_smartrewind_title" = "Розумне відмотування";
-"settings_smartrewind_description" = "Повернутись на 30 секунд назад після паузи на 10 хвилин.";
-"settings_boostvolume_title" = "Збільшення гучності";
-"settings_boostvolume_description" = "Подвоює гучність. \n Використовуйте обережно та дбайте про свій слух.";
-"settings_globalspeed_title" = "Глобальний контроль швидкості";
-"settings_globalspeed_description" = "Встановити швидкість для всіх книг.";
-"settings_autolock_title" = "Вимкнути автоблокування";
-"settings_autolock_description" = "Запобігати блокуванню пристрою при відкритому програвачі.";
-"settings_siri_lastplayed_title" = "Остання відтворена книга";
-"settings_siri_lastplayed_description" = "Використовувати Siri для продовження програвання останньої книги.";
-"settings_skip_title" = "Інтервали перемотування";
-"settings_skip_rewind_title" = "Назад";
-"settings_skip_forward_title" = "Вперед";
-"settings_skip_description" = "Налаштування перемотування для кнопок плеєра або центру керування.";
-"settings_support_title" = "Підтримка";
-"settings_siri_title" = "Швидкий перехід SIRI";
-"settings_support_project_title" = "Переглянути проєкт на GitHub";
-"settings_support_project_description" = "Створити новий запит на новий функціонал або помилку";
-"settings_support_email_title" = "Напишіть нам";
-"settings_credits_title" = "Подяки та ліцензії";
-"settings_support_compose_title" = "Не вдалось створити лист";
-"settings_support_compose_description" = "Щоб скористатись цим, вам потрібно налаштувати обліковий запис електронної пошти у налаштуваннях свого пристрою. \n \n Будь ласка, напишіть нам за адресою";
-"settings_support_compose_copy" = "Скопіювати інформацію в буфер обміну";
-"library_add_button" = "Додати";
-"export_button" = "Поділитися";
-"delete_button" = "Видалити";
-"rename_button" = "Перейменувати";
-"delete_single_item_title" = "Видалити \"%@\"?";
-"delete_single_playlist_description" = "Видалення лише папки призведе до повернення всіх її файлів до бібліотеки.";
-"delete_shallow_button" = "Видалити лише папку";
-"delete_deep_button" = "Видалити папку та файли";
-"create_playlist_button" = "Створити папку";
-"create_button" = "Створити";
-"import_button" = "Імпортувати файли";
-"import_description" = "Ви також можете додати файли через AirDrop. Надішліть файл аудіокниги на свій пристрій та виберіть BookPlayer зі списку, який з’явиться.";
-"create_playlist_title" = "Створіть нову папку";
-"delete_multiple_items_description" = "Це також видалить усі файли у вибраних папках.";
-"new_playlist_button" = "Нова папка";
-"existing_playlist_button" = "Існуюча папка";
-"choose_destination_title" = "Виберіть призначення";
-"delete_completely_button" = "Видалити остаточно";
-"move_library_button" = "Перемістити до бібліотеки";
-"options_button" = "Параметри";
-"select_playlist_title" = "Виберіть папку";
-"title_button" = "Назва";
-"sort_filename_button" = "Оригінальне ім'я файлу";
-"sort_title" = "Відсортувати за";
-"cancel_button" = "Скасувати";
-"seconds_title" = "сек";
-"ok_button" = "Гаразд";
-"siri_alert_description" = "Швидкий перехід Siri доступний для iOS 12 і вище";
-"support_bookplayer_title" = "Підтримайте Bookplayer";
-"support_bookplayer_description" = "Отримайте BookPlayer Plus, щоб підтримати майбутню розробку і отримати додаткові теми та піктограми";
-"learn_more_title" = "Дізнатись більше";
-"settings_appearance_title" = "Зовнішній вигляд";
-"settings_theme_title" = "Тема";
-"settings_app_icon_title" = "Піктограма";
-"settings_playback_title" = "Параметри відтворення";
-"settings_controls_title" = "Керування програвачем";
-"settings_power_connected_title" = "Лише коли підключене живлення";
-"settings_tip_jar_title" = "Скарбничка";
-"theme_system_title" = "Використати системну";
-"theme_switch_title" = "Перемикати автоматично";
-"theme_dark_title" = "Завжди використовувати темну варіацію";
-"themes_title" = "Теми";
-"icons_bookplayer_credit_description" = "Від ваших друзів з Bookplayer";
-"kind_tip_title" = "Доброзичливий внесок";
-"excellent_tip_title" = "Чудовий внесок";
-"incredible_tip_title" = "Неймовірний внесок";
-"plus_themes_description" = "Дбайливо підібрані кольорові теми, щоб відповідати вашим улюбленим книгам";
-"plus_icons_description" = "До BookPlayer Plus включено кілька піктограм, які пасуватимуть вашій кольоровій темі та шпалерам";
-"support_us_title" = "Підтримайте нас";
-"bookplayer_opensource_description" = "BookPlayer безкоштовний і з відкритим кодом, і він завжди залишатиметься таким. З вашою допомогою ми можемо реалізувати більше функцій та зробити BookPlayer ще кращим";
-"thanks_title" = "Дякуємо за підтримку!";
-"extra_tips_description" = "Якщо вам дійсно подобається Bookplayer, ви можете зробити додатковий внесок для подальшої розробки. Це допоможе підтримати та розвивати додаток.";
-"select_all_title" = "Виділити всі";
-"deselect_all_title" = "Зняти виділення";
-"move_title" = "Перемістити";
-"jump_start_title" = "Перейти на початок";
+
 "mark_finished_title" = "Позначити як завершене";
-"sort_files_title" = "Відстортувати файли за";
-"rename_title" = "Перейменувати";
-"file_error_title" = "Помилка файлу!";
-"file_error_description" = "Не вдалося завантажити файл цієї книги. Переконайтеся, що ви не використовуєте файли з захистом DRM (наприклад, файли .aax)";
-"file_missing_title" = "Файл відсутній!";
-"file_missing_description" = "Файл цієї книги було видалено з пристрою. Імпортуйте файл ще раз, щоб відтворити книгу";
-"empty_playlist_description" = "Ви також можете перемістити файли сюди, перетягнувши їх у цю папку в бібліотеці";
-"playlist_add_title" = "Додати файли";
-"player_speed_title" = "Встановити швидкість відтворення";
-"player_sleep_title" = "Призупинення відтворення";
-"sleep_chapter_option_title" = "Кінець розділу";
-"player_chapter_description" = "Розділ %d з %d";
-"chapters_title" = "Розділи";
-"chapters_item_description" = "Початок: %@ - Тривалість: %@";
-"restore_title" = "Відновити";
-"themes_caps_title" = "Теми";
-"plus_app_icons_title" = "Піктограми";
+
 "mark_unfinished_title" = "Позначити як незавершене";
+
+"move_library_button" = "Перемістити до бібліотеки";
+
 "move_playlist_button" = "Перемістити в папку";
+
 "move_single_item_title" = "Перемістити %@ у %@";
-"current_playlist_title" = "Поточна папка";
-"select_item_title" = "Обрати";
-"sleep_alert_description" = "Зупинитись в кінці розділу";
-"sleep_time_description" = "Зупинитись через %@";
-"sleep_off_title" = "Вимкнути";
-"sleep_interval_title" = "Через %@";
-"chapter_number_title" = "Розділ %d";
-"progress_complete_description" = "%d завершено";
-"chapter_duration_title" = "Тривалість розділу:";
-"chapter_time_remaining_title" = "Залишилось до кінця розділу:";
-"book_time_remaining_title" = "Залишилось часу книги:";
-"book_duration_title" = "Тривалість книги:";
-"icon_error_description" = "Не вдалось змінити піктограму програми. Спробуйте ще раз пізніше";
-"error_title" = "Помилка";
-"generic_retry_description" = "Будь ласка, спробуйте пізніше";
+
+"move_title" = "Перемістити";
+
 "network_error_title" = "Помилка мережі";
-"purchases_restored_title" = "Покупки відновлені!";
-"tip_missing_title" = "Ви ще нас не підтримали";
-"thanks_amazing_title" = "Ви неймовірні!";
-"play_title" = "Відтворити";
-"pause_title" = "Пауза";
-"voiceover_no_title" = "Без назви";
-"voiceover_no_author" = "Немає автора";
-"voiceover_book_progress" = "%@ з %@, %d завершено";
-"voiceover_no_file_title" = "Немає імені файлу";
-"voiceover_no_file_subtitle" = "Відсутній підзаголовок файлу";
-"voiceover_no_playlist_title" = "Немає назви папки";
-"voiceover_playlist_progress" = "%@, список відтворення завершений на %d%";
-"voiceover_unknown_title" = "Невідома назва";
-"voiceover_unknown_author" = "Невідомий автор";
-"voiceover_book_info" = "%@ з %@";
-"voiceover_book_chapter" = "%@ з %@, розділ %@";
-"voiceover_rewind_time" = "Назад %@";
-"voiceover_forward_time" = "Вперед %@";
-"watchapp_last_played_title" = "Остання відтворена";
-"watchapp_refresh_data_title" = "Оновити дані";
-"recent_title" = "Останні";
-"carplay_library_error" = "Не вдається завантажити книги";
-"siri_invocation_phrase" = "Продовжити книгу";
-"siri_activity_title" = "Продовжити відтворення попередньої книги";
-"watchapp_connect_error_title" = "Помилка з'єднання";
-"watchapp_connect_error_description" = "Виникла проблема з підключенням до телефону, будь ласка, спробуйте пізніше";
-"sleep_remaining_title" = "%@ залишилось до сну";
-"audio_source_title" = "Джерело аудіо";
-"speed_title" = "швидкість";
-"import_preparing_title" = "Підготовка до імпорту файлів";
-"library_add_title" = "Додайте свою першу книгу";
-"invalid_url_title" = "Невірне посилання: %@";
-"downloading_file_title" = "Завантаження файлу";
-"progress_title" = "Прогрес";
-"settings_siri_sleeptimer_title" = "Таймер сну";
-"active_title" = "Активний";
-"voiceover_currently_playing_title" = "Зараз відтворюється %@ з %@";
-"voiceover_miniplayer_hint" = "Міні-плеєр. Торкніться, щоб відкрити програвач";
-"voiceover_chapter_time_title" = "Поточний час розділу: %@";
-"voiceover_dismiss_player_title" = "Закрити програвач";
-"sort_most_recent_button" = "Нещодавні";
-"sort_reversed_button" = "Зворотний порядок";
-"voiceover_continue_playback_title" = "Продовжити відтворення";
-"coredata_error_diskfull_description" = "Не вдалося завантажити бібліотеку, на пристрої бракує місця на диску.";
-"coredata_error_migration_description" = "Помилка міграції бази даних, бібліотеку доведеться повторно ініціалізувати.";
-"import_warning_description" = "Передача файлів може зайняти деякий час, будь ласка, переконайтесь, що кількість файлів вірна, перш ніж продовжити.";
-"settings_storage_description" = "Керування файлами";
-"storage_total_title" = "Загальний використаний простір";
-"settings_storage_title" = "Керування сховищем";
-"storage_fix_file_button" = "Виправити";
-"storage_fix_file_description" = "Елемент книги відсутній, якщо відповідний елемент не знайдено, буде створено новий";
-"bookmarks_title" = "Закладки";
-"bookmark_created_title" = "Вашу закладку збережено на %@";
-"bookmark_exists_title" = "Ви вже створили закладку на %@";
-"bookmark_note_action_title" = "Додати примітку";
-"bookmarks_see_title" = "Переглянути закладки";
-"bookmark_type_automatic_title" = "Автоматично";
-"bookmark_type_user_title" = "Вручну";
-"bookmark_automatic_play_title" = "Остання позиція перед початком відтворення";
-"bookmark_automatic_skip_title" = "Остання позиція перед пропуском часу";
-"bookmark_note_edit_title" = "Редагувати примітку";
-"bookmark_create_title" = "Створити закладку";
-"storage_duplicate_item_title" = "Дублювати";
-"storage_duplicate_item_description" = "Вибраний файл був дублікатом, наявний файл знаходиться в: %@";
-"chapters_previous_title" = "Попередній розділ";
-"chapters_next_title" = "Наступний розділ";
-"book_time_current_title" = "Поточний час книги: %@";
-"storage_fix_files_description" = "Зв’язок між файлами та елементами цифрової книги відсутній, якщо відповідний елемент не знайдено, для кожного файлу буде створено новий";
-"storage_fix_all_title" = "Виправити всі";
-"settings_backup_title" = "Резервні копії iCloud";
-"settings_backup_files_title" = "Додати файли книги";
-"bound_books_create_button" = "Об’єднати в Об’єм";
-"bound_books_undo_alert_title" = "Перетворити на теку";
-"bound_books_new_title_placeholder" = "Новий том книги";
-"bound_books_create_alert_description" = "Переконайтеся, що елементи розташовані в правильному порядку. Щоб пізніше змінити порядок розділів, вам потрібно перетворити том назад у папку, змінити порядок елементів, а потім знову створити том.";
-"bound_books_create_alert_title" = "Створіть том";
-"voiceover_bound_books_progress" = "%@, Обсяг, %d відсотків Завершено";
-"voiceover_no_bound_books_title" = "Без назви тому";
-"default_title" = "За замовчуванням";
-"voiceover_default_speed_title" = "Встановити швидкість за замовчуванням";
-"error_loading_chapters" = "Не вдалося завантажити розділи з: \n%@";
-"error_empty_chapters" = "Розділи порожні, будь ласка, перевірте вміст теки: %@";
-"sleeptimer_option_custom" = "Спеціальний";
-"sleeptimer_custom_alert_title" = "Спеціальний таймер сну";
-"settings_progresslabels_title" = "Етикетки прогресу";
-"settings_playerinterface_list_title" = "Відкривається";
-"settings_remainingtime_title" = "Використовуйте час, що залишився";
-"settings_chaptercontext_title" = "Використовуйте контекст розділу";
-"settings_progresslabels_description" = "Перемикання між відображенням часу, що залишився, загальної тривалості та прогресу розділу або книги на екрані програвача";
-"settings_playerinterface_list_description" = "Налаштувати що відкриватиме кнопка списку на екрані програвача";
-"settings_autoplay_section_title" = "АВТОМАТИЧНЕ ВІДТВОРЕННЯ";
-"settings_autoplay_restart_title" = "Перезапустіть готові книги";
-"settings_theme_autobrightness" = "Виберіть темний варіант теми, якщо яскравість екрана падає нижче встановленого порогу.";
+
+"new_playlist_button" = "Нова папка";
+
 "note_title" = "Примітка";
-"playing_title" = "відтворення аудіо";
+
+"ok_button" = "Гаразд";
+
+"options_button" = "Параметри";
+
+"pause_title" = "Пауза";
+
 "paused_title" = "Призупинено";
-"skipped_forward_title" = "Проскочив вперед";
-"skipped_back_title" = "Проскочив назад";
-"button_free_title" = "Без кнопок";
+
+"play_title" = "Відтворити";
+
+"player_chapter_description" = "Розділ %d з %d";
+
+"player_sleep_title" = "Призупинення відтворення";
+
+"player_speed_title" = "Встановити швидкість відтворення";
+
+"playing_title" = "відтворення аудіо";
+
+"playlist_add_title" = "Додати файли";
+
+"plus_app_icons_title" = "Піктограми";
+
+"plus_icons_description" = "До BookPlayer Plus включено кілька піктограм, які пасуватимуть вашій кольоровій темі та шпалерам";
+
+"plus_themes_description" = "Дбайливо підібрані кольорові теми, щоб відповідати вашим улюбленим книгам";
+
+"progress_complete_description" = "%d завершено";
+
+"progress_title" = "Прогрес";
+
+"purchases_restored_title" = "Покупки відновлені!";
+
+"recent_title" = "Останні";
+
+"rename_button" = "Перейменувати";
+
+"rename_title" = "Перейменувати";
+
+"restore_title" = "Відновити";
+
 "screen_gestures_title" = "Жести на екрані";
-"gesture_tap_title" = "Торкніться, щоб відтворити або призупинити";
-"gesture_swipe_left_title" = "Проведіть пальцем ліворуч, щоб перемотати назад";
-"gesture_swipe_right_title" = "Проведіть пальцем праворуч, щоб перейти вперед";
-"gesture_swipe_vertically_title" = "Проведіть вертикально, щоб створити закладку";
+
+"seconds_title" = "сек";
+
+"select_all_title" = "Виділити всі";
+
+"select_item_title" = "Обрати";
+
+"select_playlist_title" = "Виберіть папку";
+
+"settings_app_icon_title" = "Піктограма";
+
+"settings_appearance_title" = "Зовнішній вигляд";
+
+"settings_autolock_description" = "Запобігати блокуванню пристрою при відкритому програвачі.";
+
+"settings_autolock_title" = "Вимкнути автоблокування";
+
+"settings_autoplay_description" = "Після завершення аудіокниги відтворення відновиться з усіма елементами в бібліотеці, включно з елементами в папках.";
+
+"settings_autoplay_restart_title" = "Перезапустіть готові книги";
+
+"settings_autoplay_section_title" = "АВТОМАТИЧНЕ ВІДТВОРЕННЯ";
+
+"settings_autoplay_title" = "Автовідтворення бібліотеки";
+
+"settings_backup_files_title" = "Додати файли книги";
+
+"settings_backup_title" = "Резервні копії iCloud";
+
+"settings_boostvolume_description" = "Подвоює гучність. \n Використовуйте обережно та дбайте про свій слух.";
+
+"settings_boostvolume_title" = "Збільшення гучності";
+
+"settings_button" = "Налаштування";
+
+"settings_chaptercontext_title" = "Використовуйте контекст розділу";
+
+"settings_controls_title" = "Керування програвачем";
+
+"settings_credits_title" = "Подяки та ліцензії";
+
+"settings_globalspeed_description" = "Встановити швидкість для всіх книг.";
+
+"settings_globalspeed_title" = "Глобальний контроль швидкості";
+
+"settings_playback_title" = "Параметри відтворення";
+
+"settings_playerinterface_list_description" = "Налаштувати що відкриватиме кнопка списку на екрані програвача";
+
+"settings_playerinterface_list_title" = "Відкривається";
+
+"settings_power_connected_title" = "Лише коли підключене живлення";
+
+"settings_progresslabels_description" = "Перемикання між відображенням часу, що залишився, загальної тривалості та прогресу розділу або книги на екрані програвача";
+
+"settings_progresslabels_title" = "Етикетки прогресу";
+
+"settings_remainingtime_title" = "Використовуйте час, що залишився";
+
+"settings_siri_lastplayed_description" = "Використовувати Siri для продовження програвання останньої книги.";
+
+"settings_siri_lastplayed_title" = "Остання відтворена книга";
+
+"settings_siri_sleeptimer_title" = "Таймер сну";
+
+"settings_siri_title" = "Швидкий перехід SIRI";
+
+"settings_skip_description" = "Налаштування перемотування для кнопок плеєра або центру керування.";
+
+"settings_skip_forward_title" = "Вперед";
+
+"settings_skip_rewind_title" = "Назад";
+
+"settings_skip_title" = "Інтервали перемотування";
+
+"settings_smartrewind_description" = "Повернутись на 30 секунд назад після паузи на 10 хвилин.";
+
+"settings_smartrewind_title" = "Розумне відмотування";
+
+"settings_storage_description" = "Керування файлами";
+
+"settings_storage_title" = "Керування сховищем";
+
+"settings_support_compose_copy" = "Скопіювати інформацію в буфер обміну";
+
+"settings_support_compose_description" = "Щоб скористатись цим, вам потрібно налаштувати обліковий запис електронної пошти у налаштуваннях свого пристрою. \n \n Будь ласка, напишіть нам за адресою";
+
+"settings_support_compose_title" = "Не вдалось створити лист";
+
+"settings_support_email_title" = "Напишіть нам";
+
+"settings_support_project_description" = "Створити новий запит на новий функціонал або помилку";
+
+"settings_support_project_title" = "Переглянути проєкт на GitHub";
+
+"settings_support_title" = "Підтримка";
+
+"settings_theme_autobrightness" = "Виберіть темний варіант теми, якщо яскравість екрана падає нижче встановленого порогу.";
+
+"settings_theme_title" = "Тема";
+
+"settings_tip_jar_title" = "Скарбничка";
+
+"settings_title" = "Налаштування";
+
+"siri_activity_title" = "Продовжити відтворення попередньої книги";
+
+"siri_alert_description" = "Швидкий перехід Siri доступний для iOS 12 і вище";
+
+"siri_invocation_phrase" = "Продовжити книгу";
+
+"skipped_back_title" = "Проскочив назад";
+
+"skipped_forward_title" = "Проскочив вперед";
+
+"sleep_alert_description" = "Зупинитись в кінці розділу";
+
+"sleep_chapter_option_title" = "Кінець розділу";
+
+"sleep_interval_title" = "Через %@";
+
+"sleep_off_title" = "Вимкнути";
+
+"sleep_remaining_title" = "%@ залишилось до сну";
+
+"sleep_time_description" = "Зупинитись через %@";
+
+"sleeptimer_custom_alert_title" = "Спеціальний таймер сну";
+
+"sleeptimer_option_custom" = "Спеціальний";
+
+"sort_filename_button" = "Оригінальне ім'я файлу";
+
+"sort_files_title" = "Відстортувати файли за";
+
+"sort_most_recent_button" = "Нещодавні";
+
+"sort_reversed_button" = "Зворотний порядок";
+
+"sort_title" = "Відсортувати за";
+
+"speed_title" = "швидкість";
+
+"storage_duplicate_item_description" = "Вибраний файл був дублікатом, наявний файл знаходиться в: %@";
+
+"storage_duplicate_item_title" = "Дублювати";
+
+"storage_fix_all_title" = "Виправити всі";
+
+"storage_fix_file_button" = "Виправити";
+
+"storage_fix_file_description" = "Елемент книги відсутній, якщо відповідний елемент не знайдено, буде створено новий";
+
+"storage_fix_files_description" = "Зв’язок між файлами та елементами цифрової книги відсутній, якщо відповідний елемент не знайдено, для кожного файлу буде створено новий";
+
+"storage_total_title" = "Загальний використаний простір";
+
+"support_bookplayer_description" = "Отримайте BookPlayer Plus, щоб підтримати майбутню розробку і отримати додаткові теми та піктограми";
+
+"support_bookplayer_title" = "Підтримайте Bookplayer";
+
+"support_us_title" = "Підтримайте нас";
+
+"thanks_amazing_title" = "Ви неймовірні!";
+
+"thanks_title" = "Дякуємо за підтримку!";
+
+"theme_dark_title" = "Завжди використовувати темну варіацію";
+
+"theme_switch_title" = "Перемикати автоматично";
+
+"theme_system_title" = "Використати системну";
+
+"themes_caps_title" = "Теми";
+
+"themes_title" = "Теми";
+
+"tip_missing_title" = "Ви ще нас не підтримали";
+
+"title_button" = "Назва";
+
+"voiceover_book_chapter" = "%@ з %@, розділ %@";
+
+"voiceover_book_info" = "%@ з %@";
+
+"voiceover_book_progress" = "%@ з %@, %d завершено";
+
+"voiceover_bound_books_progress" = "%@, Обсяг, %d відсотків Завершено";
+
+"voiceover_chapter_time_title" = "Поточний час розділу: %@";
+
+"voiceover_continue_playback_title" = "Продовжити відтворення";
+
+"voiceover_currently_playing_title" = "Зараз відтворюється %@ з %@";
+
+"voiceover_default_speed_title" = "Встановити швидкість за замовчуванням";
+
+"voiceover_dismiss_player_title" = "Закрити програвач";
+
+"voiceover_forward_time" = "Вперед %@";
+
+"voiceover_miniplayer_hint" = "Міні-плеєр. Торкніться, щоб відкрити програвач";
+
+"voiceover_no_author" = "Немає автора";
+
+"voiceover_no_bound_books_title" = "Без назви тому";
+
+"voiceover_no_file_subtitle" = "Відсутній підзаголовок файлу";
+
+"voiceover_no_file_title" = "Немає імені файлу";
+
+"voiceover_no_playlist_title" = "Немає назви папки";
+
+"voiceover_no_title" = "Без назви";
+
+"voiceover_playlist_progress" = "%@, список відтворення завершений на %d%";
+
+"voiceover_rewind_time" = "Назад %@";
+
+"voiceover_unknown_author" = "Невідомий автор";
+
+"voiceover_unknown_title" = "Невідома назва";
+
+"watchapp_connect_error_description" = "Виникла проблема з підключенням до телефону, будь ласка, спробуйте пізніше";
+
+"watchapp_connect_error_title" = "Помилка з'єднання";
+
+"watchapp_last_played_title" = "Остання відтворена";
+
+"watchapp_refresh_data_title" = "Оновити дані";

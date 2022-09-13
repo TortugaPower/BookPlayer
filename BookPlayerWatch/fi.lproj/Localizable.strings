@@ -1,18 +1,19 @@
-/* 
-  Localizable.strings
-  BookPlayer
-
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
+"chapters_title" = "Kappaleet";
 
 "library_title" = "Kirjasto";
+
 "ok_button" = "OK";
+
 "recent_title" = "Viimeisin";
-"watchapp_last_played_title" = "Viimeksi soitettu";
-"watchapp_refresh_data_title" = "Päivitä tiedot";
-"watchapp_connect_error_title" = "Yhteysvirhe";
-"watchapp_connect_error_description" = "Ongelma yhteyden muodostamisessa puhelimeesi. Yritä myöhemmin uudelleen";
-"chapters_title" = "Kappaleet";
-"settings_controls_title" = "Soitinsäätimet";
+
 "settings_boostvolume_title" = "Lisää äänenvoimakkuutta";
+
+"settings_controls_title" = "Soitinsäätimet";
+
+"watchapp_connect_error_description" = "Ongelma yhteyden muodostamisessa puhelimeesi. Yritä myöhemmin uudelleen";
+
+"watchapp_connect_error_title" = "Yhteysvirhe";
+
+"watchapp_last_played_title" = "Viimeksi soitettu";
+
+"watchapp_refresh_data_title" = "Päivitä tiedot";

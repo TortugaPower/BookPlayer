@@ -1,233 +1,449 @@
-/* 
-  Localizable.strings
-  BookPlayer
+"active_title" = "On";
 
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
+"audio_source_title" = "Fonte de Áudio";
+
+"book_duration_title" = "Duração do livro:";
+
+"book_time_current_title" = "Tempo Atual do Livro: %@";
+
+"book_time_remaining_title" = "Tempo restante no Livro:";
+
+"bookmark_automatic_play_title" = "Última posição antes do início da reprodução";
+
+"bookmark_automatic_skip_title" = "Última posição antes do salto de reprodução";
+
+"bookmark_create_title" = "Criar Marcador";
+
+"bookmark_created_title" = "O seu marcador foi salvo em %@";
+
+"bookmark_exists_title" = "Você já criou um marcador em %@";
+
+"bookmark_note_action_title" = "Adicionar nota";
+
+"bookmark_note_edit_title" = "Editar nota";
+
+"bookmark_type_automatic_title" = "Automático";
+
+"bookmark_type_user_title" = "Manual";
+
+"bookmarks_see_title" = "Veja os marcadores";
+
+"bookmarks_title" = "Marcadores";
+
+"bookplayer_opensource_description" = "O BookPlayer é gratuito e de código aberto e sempre permanecerá assim. Com a sua ajuda, podemos implementar mais funcionalidades e tornar o BookPlayer ainda melhor";
+
+"bound_books_create_alert_description" = "Certifique-se de que os itens estão na ordem correta. Para reordenar capítulos mais tarde, você precisa converter o volume de volta em uma pasta, reordenar itens e, em seguida, recriar novamente o volume.";
+
+"bound_books_create_alert_title" = "Criar um volume";
+
+"bound_books_create_button" = "Combinar em um Volume";
+
+"bound_books_new_title_placeholder" = "Novo Volume do Livro";
+
+"bound_books_undo_alert_title" = "Converter para Pasta";
+
+"button_free_title" = "Sem botões";
+
+"cancel_button" = "Cancelar";
+
+"carplay_library_error" = "Incapaz de carregar livros";
+
+"chapter_duration_title" = "Duração do Capítulo:";
+
+"chapter_number_title" = "Capítulo %d";
+
+"chapter_time_remaining_title" = "Tempo restante no Capítulo:";
+
+"chapters_item_description" = "Início: %@ - Duração: %@";
+
+"chapters_next_title" = "Próximo Capítulo";
+
+"chapters_previous_title" = "Capítulo Anterior";
+
+"chapters_title" = "Capítulos";
+
+"choose_destination_title" = "Escolha a destinação";
+
+"coredata_error_diskfull_description" = "Não foi possível carregar a biblioteca, armazenamento de dispositivo insuficiente.";
+
+"coredata_error_migration_description" = "A migração do banco de dados falhou, a biblioteca terá que ser reinicializada.";
+
+"create_button" = "Criar";
+
+"create_playlist_button" = "Criar pasta";
+
+"create_playlist_title" = "Criar uma nova pasta";
+
+"current_playlist_title" = "Pasta atual";
+
+"default_title" = "Padrão";
+
+"delete_button" = "Excluir";
+
+"delete_completely_button" = "Eliminar completamente";
+
+"delete_deep_button" = "Excluir pasta e arquivos";
+
+"delete_multiple_items_description" = "Isso também removerá todos os arquivos dentro das pastas selecionadas.";
+
+"delete_shallow_button" = "Excluir apenas pasta";
+
+"delete_single_item_title" = "Você deseja excluir “ %@ ”?";
+
+"delete_single_playlist_description" = "Excluir apenas a pasta moverá todos os seus arquivos de volta para a Biblioteca.";
+
+"deselect_all_title" = "Desmarcar Todos";
+
+"downloading_file_title" = "Baixando arquivo";
+
+"empty_playlist_description" = "Você também pode mover arquivos aqui arrastando-os para esta pasta na Biblioteca";
+
+"error_empty_chapters" = "Os capítulos estão vazios, por favor verifique o conteúdo da pasta: %@";
+
+"error_loading_chapters" = "Os capítulos não puderam ser carregados de: \n %@";
+
+"error_title" = "Erro";
+
+"excellent_tip_title" = "Excelente gorjeta de";
+
+"existing_playlist_button" = "Pasta existente";
+
+"export_button" = "Compartilhar";
+
+"extra_tips_description" = "Se você está realmente gostando do BookPlayer, pode deixar gorjetas extras para dar suporte ao desenvolvimento do aplicativo. Isso ajudará a manter as luzes acesas e garantir funcionalidades futuras..";
+
+"file_error_description" = "Não foi possível carregar o arquivo deste livro. Certifique-se de não usar arquivos com proteção DRM (como arquivos .aax)";
+
+"file_error_title" = "Erro de arquivo!";
+
+"file_missing_description" = "O arquivo deste livro foi removido do seu dispositivo. Importe o arquivo novamente para reproduzi-lo";
+
+"file_missing_title" = "Arquivo faltando!";
+
+"generic_retry_description" = "Por favor, tente novamente mais tarde";
+
+"gesture_swipe_left_title" = "Deslize para a esquerda para retroceder";
+
+"gesture_swipe_right_title" = "Deslize para a direita para avançar";
+
+"gesture_swipe_vertically_title" = "Deslize verticalmente para criar um marcador";
+
+"gesture_tap_title" = "Toque para reproduzir ou pausar";
+
+"icon_error_description" = "A alteração do ícone não foi bem sucedida. Tente novamente mais tarde";
+
+"icons_bookplayer_credit_description" = "Dos seus amigos do BookPlayer";
+
+"import_button" = "Importar arquivos";
+
+"import_description" = "Você também pode adicionar arquivos via AirDrop. Envie um audiobook para o seu dispositivo e selecione BookPlayer na lista que aparecer.";
+
+"import_preparing_title" = "Preparando para importar arquivos";
+
+"import_warning_description" = "A transferência de arquivos pode demorar um pouco, verifique se o número de arquivos está completo antes de continuar.";
+
+"incredible_tip_title" = "Incrível gorjeta de";
+
+"invalid_url_title" = "URL inválida: %@";
+
+"jump_start_title" = "Pule para o início";
+
+"kind_tip_title" = "Gentil gorjeta de";
+
+"learn_more_title" = "SAIBA MAIS";
+
+"library_add_button" = "Adicionar";
+
+"library_add_title" = "Adicione o seu primeiro livro";
 
 "library_title" = "Biblioteca";
-"settings_button" = "Configurações";
-"settings_title" = "Configurações";
-"settings_autoplay_title" = "Reprodução automática da Biblioteca";
-"settings_autoplay_description" = "Depois de terminar um audiolivro, a reprodução será retomada com todos os itens da biblioteca, incluindo itens nas pastas.";
-"settings_smartrewind_title" = "Retrocesso Inteligente";
-"settings_smartrewind_description" = "Retroceda 30 segundos após ser pausado por 10 minutos.";
-"settings_boostvolume_title" = "Aumentar volume";
-"settings_boostvolume_description" = "Dobra o volume.\nUse com cautela e cuidado com sua audição.";
-"settings_globalspeed_title" = "Controle de Velocidade Global";
-"settings_globalspeed_description" = "Defina a velocidade em todos os livros.";
-"settings_autolock_title" = "Desativar Bloqueio Automático";
-"settings_autolock_description" = "Evita o bloqueio do dispositivo quando estiver na tela de reprodução.";
-"settings_siri_lastplayed_title" = "Último livro reproduzido";
-"settings_siri_lastplayed_description" = "Use a Siri para continuar o último livro reproduzido.";
-"settings_skip_title" = "PULAR INTERVALOS";
-"settings_skip_rewind_title" = "Retroceder";
-"settings_skip_forward_title" = "Avançar";
-"settings_skip_description" = "Ajuste a quantidade saltada ao usar os botões no Player ou no Centro de Controle.";
-"settings_support_title" = "SUPORTE";
-"settings_siri_title" = "ATALHO SIRI";
-"settings_support_project_title" = "Veja o projeto no Github";
-"settings_support_project_description" = "Abra novos problemas para os seus pedidos de funcionalidades e erros";
-"settings_support_email_title" = "Envie-nos um e-mail";
-"settings_credits_title" = "Créditos e Licenças";
-"settings_support_compose_title" = "Não foi possível redigir o e-mail";
-"settings_support_compose_description" = "Você precisa configurar uma conta de e-mail nas configurações do dispositivo para usar isso. \n \n Envie-nos um e-mail em";
-"settings_support_compose_copy" = "Copiar informações para a área de transferência";
-"library_add_button" = "Adicionar";
-"export_button" = "Compartilhar";
-"delete_button" = "Excluir";
-"rename_button" = "Renomear";
-"delete_single_item_title" = "Você deseja excluir “ %@ ”?";
-"delete_single_playlist_description" = "Excluir apenas a pasta moverá todos os seus arquivos de volta para a Biblioteca.";
-"delete_shallow_button" = "Excluir apenas pasta";
-"delete_deep_button" = "Excluir pasta e arquivos";
-"create_playlist_button" = "Criar pasta";
-"create_button" = "Criar";
-"import_button" = "Importar arquivos";
-"import_description" = "Você também pode adicionar arquivos via AirDrop. Envie um audiobook para o seu dispositivo e selecione BookPlayer na lista que aparecer.";
-"create_playlist_title" = "Criar uma nova pasta";
-"delete_multiple_items_description" = "Isso também removerá todos os arquivos dentro das pastas selecionadas.";
-"new_playlist_button" = "Nova pasta";
-"existing_playlist_button" = "Pasta existente";
-"choose_destination_title" = "Escolha a destinação";
-"delete_completely_button" = "Eliminar completamente";
-"move_library_button" = "Mover para Biblioteca";
-"options_button" = "Opções";
-"select_playlist_title" = "Selecione a pasta";
-"title_button" = "Título";
-"sort_filename_button" = "Nome Original do Arquivo";
-"sort_title" = "Classificar itens por";
-"cancel_button" = "Cancelar";
-"seconds_title" = "seg";
-"ok_button" = "OK";
-"siri_alert_description" = "Os atalhos da Siri estão disponíveis no iOS 12 e superior";
-"support_bookplayer_title" = "Suporte BookPlayer";
-"support_bookplayer_description" = "Obtenha o BookPlayer Plus para oferecer suporte ao desenvolvimento futuro e obter temas extras e ícones de aplicativo";
-"learn_more_title" = "SAIBA MAIS";
-"settings_appearance_title" = "Aparência";
-"settings_theme_title" = "Tema";
-"settings_app_icon_title" = "Ícone do aplicativo";
-"settings_playback_title" = "Configurações de Reprodução";
-"settings_controls_title" = "Controles do Reprodutor";
-"settings_power_connected_title" = "Somente quando conectado à energia";
-"settings_tip_jar_title" = "Jarra de Gorjetas";
-"theme_system_title" = "Use o Modo de Sistema";
-"theme_switch_title" = "Mudar automaticamente";
-"theme_dark_title" = "Sempre use variação escura";
-"themes_title" = "Temas";
-"icons_bookplayer_credit_description" = "Dos seus amigos do BookPlayer";
-"kind_tip_title" = "Gentil gorjeta de";
-"excellent_tip_title" = "Excelente gorjeta de";
-"incredible_tip_title" = "Incrível gorjeta de";
-"plus_themes_description" = "Temas de cores cuidadosamente escolhidos para combinar com os seus livros favoritos.";
-"plus_icons_description" = "BookPlayer Plus vem com vários ícones, combinando com os esquemas de cores e o seu papel de parede";
-"support_us_title" = "Apoie-nos";
-"bookplayer_opensource_description" = "O BookPlayer é gratuito e de código aberto e sempre permanecerá assim. Com a sua ajuda, podemos implementar mais funcionalidades e tornar o BookPlayer ainda melhor";
-"thanks_title" = "Obrigado pelo seu apoio!";
-"extra_tips_description" = "Se você está realmente gostando do BookPlayer, pode deixar gorjetas extras para dar suporte ao desenvolvimento do aplicativo. Isso ajudará a manter as luzes acesas e garantir funcionalidades futuras..";
-"select_all_title" = "Selecione Todos";
-"deselect_all_title" = "Desmarcar Todos";
-"move_title" = "Mover";
-"jump_start_title" = "Pule para o início";
+
 "mark_finished_title" = "Marcar como Concluído";
-"sort_files_title" = "Classificar arquivos por";
-"rename_title" = "Renomear item";
-"file_error_title" = "Erro de arquivo!";
-"file_error_description" = "Não foi possível carregar o arquivo deste livro. Certifique-se de não usar arquivos com proteção DRM (como arquivos .aax)";
-"file_missing_title" = "Arquivo faltando!";
-"file_missing_description" = "O arquivo deste livro foi removido do seu dispositivo. Importe o arquivo novamente para reproduzi-lo";
-"empty_playlist_description" = "Você também pode mover arquivos aqui arrastando-os para esta pasta na Biblioteca";
-"playlist_add_title" = "Adicionar arquivos";
-"player_speed_title" = "Definir velocidade de reprodução";
-"player_sleep_title" = "Pausar reprodução";
-"sleep_chapter_option_title" = "Fim do capítulo atual";
-"player_chapter_description" = "Capítulo %d de %d";
-"chapters_title" = "Capítulos";
-"chapters_item_description" = "Início: %@ - Duração: %@";
-"restore_title" = "Restaurar";
-"themes_caps_title" = "TEMAS";
-"plus_app_icons_title" = "Ícones do aplicativo";
+
 "mark_unfinished_title" = "Marcar como Inacabado";
+
+"move_library_button" = "Mover para Biblioteca";
+
 "move_playlist_button" = "Mover para a pasta";
+
 "move_single_item_title" = "Você deseja mover ' %@ ' para ' %@ '?";
-"current_playlist_title" = "Pasta atual";
-"select_item_title" = "Selecione o item";
-"sleep_alert_description" = "Dormindo quando o capítulo terminar";
-"sleep_time_description" = "Dormindo em %@";
-"sleep_off_title" = "Desligar";
-"sleep_interval_title" = "Em %@";
-"chapter_number_title" = "Capítulo %d";
-"progress_complete_description" = "%d por cento Completo";
-"chapter_duration_title" = "Duração do Capítulo:";
-"chapter_time_remaining_title" = "Tempo restante no Capítulo:";
-"book_time_remaining_title" = "Tempo restante no Livro:";
-"book_duration_title" = "Duração do livro:";
-"icon_error_description" = "A alteração do ícone não foi bem sucedida. Tente novamente mais tarde";
-"error_title" = "Erro";
-"generic_retry_description" = "Por favor, tente novamente mais tarde";
+
+"move_title" = "Mover";
+
 "network_error_title" = "Problema de conexão";
-"purchases_restored_title" = "Compras restauradas!";
-"tip_missing_title" = "Você ainda não nos deu uma gorjeta";
-"thanks_amazing_title" = "Você é incrível!";
-"play_title" = "Reproduzir";
-"pause_title" = "Pausa";
-"voiceover_no_title" = "Sem Título";
-"voiceover_no_author" = "Autor desconhecido";
-"voiceover_book_progress" = "%@ de %@, %d por cento concluído";
-"voiceover_no_file_title" = "Arquivo Sem Título";
-"voiceover_no_file_subtitle" = "Sem legenda no Arquivo";
-"voiceover_no_playlist_title" = "Sem título de pasta";
-"voiceover_playlist_progress" = "%@, Playlist, %d por cento concluída";
-"voiceover_unknown_title" = "Título desconhecido";
-"voiceover_unknown_author" = "Autor desconhecido";
-"voiceover_book_info" = "%@ de %@";
-"voiceover_book_chapter" = "%@ de %@, capítulo %@";
-"voiceover_rewind_time" = "Retroceder %@";
-"voiceover_forward_time" = "Avanço rápido %@";
-"watchapp_last_played_title" = "Último Reproduzido";
-"watchapp_refresh_data_title" = "Atualizar dados";
-"recent_title" = "Mais recente";
-"carplay_library_error" = "Incapaz de carregar livros";
-"siri_invocation_phrase" = "Continue meu livro";
-"siri_activity_title" = "Continuar o último livro reproduzido";
-"watchapp_connect_error_title" = "Erro de conexão";
-"watchapp_connect_error_description" = "Há um problema de conexão com o seu telefone, tente novamente mais tarde";
-"sleep_remaining_title" = "%@ restante até dormir";
-"audio_source_title" = "Fonte de Áudio";
-"speed_title" = "velocidade";
-"import_preparing_title" = "Preparando para importar arquivos";
-"library_add_title" = "Adicione o seu primeiro livro";
-"invalid_url_title" = "URL inválida: %@";
-"downloading_file_title" = "Baixando arquivo";
-"progress_title" = "Progresso";
-"settings_siri_sleeptimer_title" = "Temporizador de Sono";
-"active_title" = "On";
-"voiceover_currently_playing_title" = "Atualmente reproduzindo %@ de %@";
-"voiceover_miniplayer_hint" = "Miniplayer. Toque para mostrar o Player";
-"voiceover_chapter_time_title" = "Tempo atual do capítulo: %@";
-"voiceover_dismiss_player_title" = "Dispensar Player";
-"sort_most_recent_button" = "Mais recente";
-"sort_reversed_button" = "Ordem Reversa";
-"voiceover_continue_playback_title" = "Continuar Reprodução";
-"coredata_error_diskfull_description" = "Não foi possível carregar a biblioteca, armazenamento de dispositivo insuficiente.";
-"coredata_error_migration_description" = "A migração do banco de dados falhou, a biblioteca terá que ser reinicializada.";
-"import_warning_description" = "A transferência de arquivos pode demorar um pouco, verifique se o número de arquivos está completo antes de continuar.";
-"settings_storage_description" = "Gerencie seus arquivos";
-"storage_total_title" = "Espaço total utilizado";
-"settings_storage_title" = "Gerenciamento de armazenamento";
-"storage_fix_file_button" = "Consertar";
-"storage_fix_file_description" = "O item do livro está faltando, se o item correspondente não puder ser encontrado, um novo será criado";
-"bookmarks_title" = "Marcadores";
-"bookmark_created_title" = "O seu marcador foi salvo em %@";
-"bookmark_exists_title" = "Você já criou um marcador em %@";
-"bookmark_note_action_title" = "Adicionar nota";
-"bookmarks_see_title" = "Veja os marcadores";
-"bookmark_type_automatic_title" = "Automático";
-"bookmark_type_user_title" = "Manual";
-"bookmark_automatic_play_title" = "Última posição antes do início da reprodução";
-"bookmark_automatic_skip_title" = "Última posição antes do salto de reprodução";
-"bookmark_note_edit_title" = "Editar nota";
-"bookmark_create_title" = "Criar Marcador";
-"storage_duplicate_item_title" = "Duplicar";
-"storage_duplicate_item_description" = "O arquivo selecionado era uma duplicata, o arquivo existente está localizado em: %@";
-"chapters_previous_title" = "Capítulo Anterior";
-"chapters_next_title" = "Próximo Capítulo";
-"book_time_current_title" = "Tempo Atual do Livro: %@";
-"storage_fix_files_description" = "O link entre os arquivos e os itens do livro digital estão faltando, se o item correspondente não puder ser encontrado para cada arquivo, um novo será criado";
-"storage_fix_all_title" = "Corrigir Tudo";
-"settings_backup_title" = "Backups do iCloud";
-"settings_backup_files_title" = "Inclua arquivos do livro";
-"bound_books_create_button" = "Combinar em um Volume";
-"bound_books_undo_alert_title" = "Converter para Pasta";
-"bound_books_new_title_placeholder" = "Novo Volume do Livro";
-"bound_books_create_alert_description" = "Certifique-se de que os itens estão na ordem correta. Para reordenar capítulos mais tarde, você precisa converter o volume de volta em uma pasta, reordenar itens e, em seguida, recriar novamente o volume.";
-"bound_books_create_alert_title" = "Criar um volume";
-"voiceover_bound_books_progress" = "%@, Volume, %d por cento Concluído";
-"voiceover_no_bound_books_title" = "Sem título de Volume";
-"default_title" = "Padrão";
-"voiceover_default_speed_title" = "Definir velocidade padrão";
-"error_loading_chapters" = "Os capítulos não puderam ser carregados de: \n %@";
-"error_empty_chapters" = "Os capítulos estão vazios, por favor verifique o conteúdo da pasta: %@";
-"sleeptimer_option_custom" = "Personalizado";
-"sleeptimer_custom_alert_title" = "Temporizador de sono personalizado";
-"settings_progresslabels_title" = "Etiquetas de progresso";
-"settings_playerinterface_list_title" = "Abre";
-"settings_remainingtime_title" = "Usar Tempo Restante";
-"settings_chaptercontext_title" = "Usar Contexto do Capítulo";
-"settings_progresslabels_description" = "Alterne entre a exibição do tempo restante, duração total e progresso do capítulo ou do livro na tela de reprodução";
-"settings_playerinterface_list_description" = "Ajuste o que o botão de lista na tela de reprodução abre";
-"settings_autoplay_section_title" = "REPRODUÇÃO AUTOMÁTICA";
-"settings_autoplay_restart_title" = "Reiniciar livros concluídos";
-"settings_theme_autobrightness" = "Selecione a variação escura de um tema se o brilho da tela ficar abaixo do limite definido.";
+
+"new_playlist_button" = "Nova pasta";
+
 "note_title" = "Observação";
-"playing_title" = "Tocando áudio";
+
+"ok_button" = "OK";
+
+"options_button" = "Opções";
+
+"pause_title" = "Pausa";
+
 "paused_title" = "Pausado";
-"skipped_forward_title" = "Pulou para frente";
-"skipped_back_title" = "Pulado para trás";
-"button_free_title" = "Sem botões";
+
+"play_title" = "Reproduzir";
+
+"player_chapter_description" = "Capítulo %d de %d";
+
+"player_sleep_title" = "Pausar reprodução";
+
+"player_speed_title" = "Definir velocidade de reprodução";
+
+"playing_title" = "Tocando áudio";
+
+"playlist_add_title" = "Adicionar arquivos";
+
+"plus_app_icons_title" = "Ícones do aplicativo";
+
+"plus_icons_description" = "BookPlayer Plus vem com vários ícones, combinando com os esquemas de cores e o seu papel de parede";
+
+"plus_themes_description" = "Temas de cores cuidadosamente escolhidos para combinar com os seus livros favoritos.";
+
+"progress_complete_description" = "%d por cento Completo";
+
+"progress_title" = "Progresso";
+
+"purchases_restored_title" = "Compras restauradas!";
+
+"recent_title" = "Mais recente";
+
+"rename_button" = "Renomear";
+
+"rename_title" = "Renomear item";
+
+"restore_title" = "Restaurar";
+
 "screen_gestures_title" = "Gestos de tela";
-"gesture_tap_title" = "Toque para reproduzir ou pausar";
-"gesture_swipe_left_title" = "Deslize para a esquerda para retroceder";
-"gesture_swipe_right_title" = "Deslize para a direita para avançar";
-"gesture_swipe_vertically_title" = "Deslize verticalmente para criar um marcador";
+
+"seconds_title" = "seg";
+
+"select_all_title" = "Selecione Todos";
+
+"select_item_title" = "Selecione o item";
+
+"select_playlist_title" = "Selecione a pasta";
+
+"settings_app_icon_title" = "Ícone do aplicativo";
+
+"settings_appearance_title" = "Aparência";
+
+"settings_autolock_description" = "Evita o bloqueio do dispositivo quando estiver na tela de reprodução.";
+
+"settings_autolock_title" = "Desativar Bloqueio Automático";
+
+"settings_autoplay_description" = "Depois de terminar um audiolivro, a reprodução será retomada com todos os itens da biblioteca, incluindo itens nas pastas.";
+
+"settings_autoplay_restart_title" = "Reiniciar livros concluídos";
+
+"settings_autoplay_section_title" = "REPRODUÇÃO AUTOMÁTICA";
+
+"settings_autoplay_title" = "Reprodução automática da Biblioteca";
+
+"settings_backup_files_title" = "Inclua arquivos do livro";
+
+"settings_backup_title" = "Backups do iCloud";
+
+"settings_boostvolume_description" = "Dobra o volume.\nUse com cautela e cuidado com sua audição.";
+
+"settings_boostvolume_title" = "Aumentar volume";
+
+"settings_button" = "Configurações";
+
+"settings_chaptercontext_title" = "Usar Contexto do Capítulo";
+
+"settings_controls_title" = "Controles do Reprodutor";
+
+"settings_credits_title" = "Créditos e Licenças";
+
+"settings_globalspeed_description" = "Defina a velocidade em todos os livros.";
+
+"settings_globalspeed_title" = "Controle de Velocidade Global";
+
+"settings_playback_title" = "Configurações de Reprodução";
+
+"settings_playerinterface_list_description" = "Ajuste o que o botão de lista na tela de reprodução abre";
+
+"settings_playerinterface_list_title" = "Abre";
+
+"settings_power_connected_title" = "Somente quando conectado à energia";
+
+"settings_progresslabels_description" = "Alterne entre a exibição do tempo restante, duração total e progresso do capítulo ou do livro na tela de reprodução";
+
+"settings_progresslabels_title" = "Etiquetas de progresso";
+
+"settings_remainingtime_title" = "Usar Tempo Restante";
+
+"settings_siri_lastplayed_description" = "Use a Siri para continuar o último livro reproduzido.";
+
+"settings_siri_lastplayed_title" = "Último livro reproduzido";
+
+"settings_siri_sleeptimer_title" = "Temporizador de Sono";
+
+"settings_siri_title" = "ATALHO SIRI";
+
+"settings_skip_description" = "Ajuste a quantidade saltada ao usar os botões no Player ou no Centro de Controle.";
+
+"settings_skip_forward_title" = "Avançar";
+
+"settings_skip_rewind_title" = "Retroceder";
+
+"settings_skip_title" = "PULAR INTERVALOS";
+
+"settings_smartrewind_description" = "Retroceda 30 segundos após ser pausado por 10 minutos.";
+
+"settings_smartrewind_title" = "Retrocesso Inteligente";
+
+"settings_storage_description" = "Gerencie seus arquivos";
+
+"settings_storage_title" = "Gerenciamento de armazenamento";
+
+"settings_support_compose_copy" = "Copiar informações para a área de transferência";
+
+"settings_support_compose_description" = "Você precisa configurar uma conta de e-mail nas configurações do dispositivo para usar isso. \n \n Envie-nos um e-mail em";
+
+"settings_support_compose_title" = "Não foi possível redigir o e-mail";
+
+"settings_support_email_title" = "Envie-nos um e-mail";
+
+"settings_support_project_description" = "Abra novos problemas para os seus pedidos de funcionalidades e erros";
+
+"settings_support_project_title" = "Veja o projeto no Github";
+
+"settings_support_title" = "SUPORTE";
+
+"settings_theme_autobrightness" = "Selecione a variação escura de um tema se o brilho da tela ficar abaixo do limite definido.";
+
+"settings_theme_title" = "Tema";
+
+"settings_tip_jar_title" = "Jarra de Gorjetas";
+
+"settings_title" = "Configurações";
+
+"siri_activity_title" = "Continuar o último livro reproduzido";
+
+"siri_alert_description" = "Os atalhos da Siri estão disponíveis no iOS 12 e superior";
+
+"siri_invocation_phrase" = "Continue meu livro";
+
+"skipped_back_title" = "Pulado para trás";
+
+"skipped_forward_title" = "Pulou para frente";
+
+"sleep_alert_description" = "Dormindo quando o capítulo terminar";
+
+"sleep_chapter_option_title" = "Fim do capítulo atual";
+
+"sleep_interval_title" = "Em %@";
+
+"sleep_off_title" = "Desligar";
+
+"sleep_remaining_title" = "%@ restante até dormir";
+
+"sleep_time_description" = "Dormindo em %@";
+
+"sleeptimer_custom_alert_title" = "Temporizador de sono personalizado";
+
+"sleeptimer_option_custom" = "Personalizado";
+
+"sort_filename_button" = "Nome Original do Arquivo";
+
+"sort_files_title" = "Classificar arquivos por";
+
+"sort_most_recent_button" = "Mais recente";
+
+"sort_reversed_button" = "Ordem Reversa";
+
+"sort_title" = "Classificar itens por";
+
+"speed_title" = "velocidade";
+
+"storage_duplicate_item_description" = "O arquivo selecionado era uma duplicata, o arquivo existente está localizado em: %@";
+
+"storage_duplicate_item_title" = "Duplicar";
+
+"storage_fix_all_title" = "Corrigir Tudo";
+
+"storage_fix_file_button" = "Consertar";
+
+"storage_fix_file_description" = "O item do livro está faltando, se o item correspondente não puder ser encontrado, um novo será criado";
+
+"storage_fix_files_description" = "O link entre os arquivos e os itens do livro digital estão faltando, se o item correspondente não puder ser encontrado para cada arquivo, um novo será criado";
+
+"storage_total_title" = "Espaço total utilizado";
+
+"support_bookplayer_description" = "Obtenha o BookPlayer Plus para oferecer suporte ao desenvolvimento futuro e obter temas extras e ícones de aplicativo";
+
+"support_bookplayer_title" = "Suporte BookPlayer";
+
+"support_us_title" = "Apoie-nos";
+
+"thanks_amazing_title" = "Você é incrível!";
+
+"thanks_title" = "Obrigado pelo seu apoio!";
+
+"theme_dark_title" = "Sempre use variação escura";
+
+"theme_switch_title" = "Mudar automaticamente";
+
+"theme_system_title" = "Use o Modo de Sistema";
+
+"themes_caps_title" = "TEMAS";
+
+"themes_title" = "Temas";
+
+"tip_missing_title" = "Você ainda não nos deu uma gorjeta";
+
+"title_button" = "Título";
+
+"voiceover_book_chapter" = "%@ de %@, capítulo %@";
+
+"voiceover_book_info" = "%@ de %@";
+
+"voiceover_book_progress" = "%@ de %@, %d por cento concluído";
+
+"voiceover_bound_books_progress" = "%@, Volume, %d por cento Concluído";
+
+"voiceover_chapter_time_title" = "Tempo atual do capítulo: %@";
+
+"voiceover_continue_playback_title" = "Continuar Reprodução";
+
+"voiceover_currently_playing_title" = "Atualmente reproduzindo %@ de %@";
+
+"voiceover_default_speed_title" = "Definir velocidade padrão";
+
+"voiceover_dismiss_player_title" = "Dispensar Player";
+
+"voiceover_forward_time" = "Avanço rápido %@";
+
+"voiceover_miniplayer_hint" = "Miniplayer. Toque para mostrar o Player";
+
+"voiceover_no_author" = "Autor desconhecido";
+
+"voiceover_no_bound_books_title" = "Sem título de Volume";
+
+"voiceover_no_file_subtitle" = "Sem legenda no Arquivo";
+
+"voiceover_no_file_title" = "Arquivo Sem Título";
+
+"voiceover_no_playlist_title" = "Sem título de pasta";
+
+"voiceover_no_title" = "Sem Título";
+
+"voiceover_playlist_progress" = "%@, Playlist, %d por cento concluída";
+
+"voiceover_rewind_time" = "Retroceder %@";
+
+"voiceover_unknown_author" = "Autor desconhecido";
+
+"voiceover_unknown_title" = "Título desconhecido";
+
+"watchapp_connect_error_description" = "Há um problema de conexão com o seu telefone, tente novamente mais tarde";
+
+"watchapp_connect_error_title" = "Erro de conexão";
+
+"watchapp_last_played_title" = "Último Reproduzido";
+
+"watchapp_refresh_data_title" = "Atualizar dados";

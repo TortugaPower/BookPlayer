@@ -1,18 +1,19 @@
-/* 
-  Localizable.strings
-  BookPlayer
-
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
+"chapters_title" = "章节";
 
 "library_title" = "有声书库";
+
 "ok_button" = "确定";
+
 "recent_title" = "最近";
-"watchapp_last_played_title" = "上次播放";
-"watchapp_refresh_data_title" = "刷新数据";
-"watchapp_connect_error_title" = "连接错误";
-"watchapp_connect_error_description" = "连接手机时出现问题，请稍后重试";
-"chapters_title" = "章节";
-"settings_controls_title" = "播放器控制";
+
 "settings_boostvolume_title" = "提高音量";
+
+"settings_controls_title" = "播放器控制";
+
+"watchapp_connect_error_description" = "连接手机时出现问题，请稍后重试";
+
+"watchapp_connect_error_title" = "连接错误";
+
+"watchapp_last_played_title" = "上次播放";
+
+"watchapp_refresh_data_title" = "刷新数据";

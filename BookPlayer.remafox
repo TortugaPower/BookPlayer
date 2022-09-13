@@ -1,0 +1,70 @@
+{
+  "androidStringsFilesSearch" : {
+    "excludeSubPathsContaining" : [
+      ".build",
+      ".git",
+      ".idea",
+      "build",
+      "docs",
+      "gradle"
+    ],
+    "pathsToSearch" : [
+
+    ]
+  },
+  "appleStringsFilesSearch" : {
+    "excludeSubPathsContaining" : [
+      ".build",
+      ".git",
+      "build",
+      "Carthage",
+      "docs",
+      "Pods"
+    ],
+    "pathsToSearch" : [
+      "BookPlayer"
+    ]
+  },
+  "configFilePath" : "BookPlayer.remafox",
+  "id" : "C9470455-49E5-4D61-8EAB-49F550C9ED48",
+  "interfaceBuilderFilesSearch" : {
+    "excludeSubPathsContaining" : [
+      ".build",
+      ".git",
+      "build",
+      "Carthage",
+      "docs",
+      "Pods"
+    ],
+    "pathsToSearch" : [
+      "BookPlayer"
+    ]
+  },
+  "interfaceBuilderIgnoreTags" : [
+    "#remafox-ignore",
+    "#non-translatable"
+  ],
+  "lintTasks" : [
+    "duplicateKeys",
+    "emptyValues"
+  ],
+  "normalizeTasks" : [
+    "harmonizeWithSourceLanguage",
+    "sortByKeys"
+  ],
+  "projectName" : "BookPlayer",
+  "resourcesEnum" : {
+    "accessLevel" : "internal",
+    "bundleInstance" : "Bundle.main",
+    "enumName" : "Res",
+    "filePath" : "BookPlayer/ReMafoX.swift",
+    "indent" : "    ",
+    "stringsEnumName" : "Str",
+    "stringsTopLevelAlias" : "Loc",
+    "useSwiftPackagePreviewsWorkaround" : false,
+    "useTopLevelAliases" : true
+  },
+  "sourceLanguage" : "en",
+  "version" : 1,
+  "xcodeProjectPath" : "BookPlayer.xcodeproj"
+}

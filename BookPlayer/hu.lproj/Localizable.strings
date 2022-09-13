@@ -1,233 +1,449 @@
-/* 
-  Localizable.strings
-  BookPlayer
+"active_title" = "Be";
 
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
+"audio_source_title" = "Hangforrás";
+
+"book_duration_title" = "A könyv időtartama:";
+
+"book_time_current_title" = "Aktuális könyv ideje: %@";
+
+"book_time_remaining_title" = "Hátralévő könyvidő:";
+
+"bookmark_automatic_play_title" = "Utolsó pozíció a lejátszás megkezdése előtt";
+
+"bookmark_automatic_skip_title" = "Utolsó pozíció az idő kihagyása előtt";
+
+"bookmark_create_title" = "Könyvjelző létrehozása";
+
+"bookmark_created_title" = "Könyvjelző elmentve: %@";
+
+"bookmark_exists_title" = "Már létrehozott egy könyvjelzőt itt: %@";
+
+"bookmark_note_action_title" = "Megjegyzés hozzáadása";
+
+"bookmark_note_edit_title" = "Megjegyzés szerkesztése";
+
+"bookmark_type_automatic_title" = "Automatikus";
+
+"bookmark_type_user_title" = "Kézi";
+
+"bookmarks_see_title" = "Könyvjelzők megtekintése";
+
+"bookmarks_title" = "Könyvjelzők";
+
+"bookplayer_opensource_description" = "A BookPlayer ingyenes és nyílt forráskódú, és ez mindig is így marad. Az Ön segítségével több funkciót tudunk megvalósítani, és még jobbá tehetjük a BookPlayer programot";
+
+"bound_books_create_alert_description" = "Győződjön meg arról, hogy az elemek megfelelő sorrendben vannak. A fejezetek későbbi átrendezéséhez vissza kell alakítania a kötetet mappává, át kell rendeznie az elemeket, majd újra létre kell hoznia a kötetet.";
+
+"bound_books_create_alert_title" = "Kötet létrehozása";
+
+"bound_books_create_button" = "Kombinálja kötetbe";
+
+"bound_books_new_title_placeholder" = "Új könyvkötet";
+
+"bound_books_undo_alert_title" = "Mappába konvertálás";
+
+"button_free_title" = "Gomb nélkül";
+
+"cancel_button" = "Mégsem";
+
+"carplay_library_error" = "Nem lehet betölteni a könyveket";
+
+"chapter_duration_title" = "Fejezet időtartama:";
+
+"chapter_number_title" = "%d. fejezet";
+
+"chapter_time_remaining_title" = "Hátralévő fejezetidő:";
+
+"chapters_item_description" = "Kezdés: %@ - Hossz: %@";
+
+"chapters_next_title" = "Következő fejezet";
+
+"chapters_previous_title" = "Előző fejezet";
+
+"chapters_title" = "Fejezetek";
+
+"choose_destination_title" = "Cél kiválasztása";
+
+"coredata_error_diskfull_description" = "A könyvtárat nem sikerült betölteni, az eszközön nincs elég lemezterület.";
+
+"coredata_error_migration_description" = "Az adatbázis migrációja sikertelen, a könyvtárat újra kell inicializálni.";
+
+"create_button" = "Létrehozás";
+
+"create_playlist_button" = "Mappa létrehozás";
+
+"create_playlist_title" = "Hozzon létre egy új mappát";
+
+"current_playlist_title" = "Jelenlegi mappa";
+
+"default_title" = "Alapértelmezett";
+
+"delete_button" = "Törlés";
+
+"delete_completely_button" = "Törlés teljesen";
+
+"delete_deep_button" = "Törölje a mappákat és a fájlokat";
+
+"delete_multiple_items_description" = "Ezzel a kiválasztott mappákban lévő összes fájlt is eltávolítja.";
+
+"delete_shallow_button" = "Csak mappa törlése";
+
+"delete_single_item_title" = "Törli a következőt: \"%@\"?";
+
+"delete_single_playlist_description" = "Ha csak a mappát törli, az összes fájl visszakerül a könyvtárba.";
+
+"deselect_all_title" = "Kijelölések megszüntetése";
+
+"downloading_file_title" = "Fájl letöltése";
+
+"empty_playlist_description" = "A fájlokat úgy is áthelyezheti ide, hogy a Könyvtár ebbe a mappájába húzza őket";
+
+"error_empty_chapters" = "A fejezetek üresek, ellenőrizze a mappa tartalmát: %@";
+
+"error_loading_chapters" = "A fejezeteket nem lehetett betölteni: \n%@";
+
+"error_title" = "Hiba";
+
+"excellent_tip_title" = "Kiváló ajándék";
+
+"existing_playlist_button" = "Meglévő mappa";
+
+"export_button" = "Megosztás";
+
+"extra_tips_description" = "Ha kedveli a BookPlayer alkalmazást, további támogatást is nyújthat, hogy tovább támogassa annak fejlődését. Ez segít megőrizni a lelkesedésünket, miáltal további funkciók is érkezhetnek.";
+
+"file_error_description" = "A könyvfájlt nem sikerült betölteni. Győződjön meg arról, hogy nem DRM védelemmel ellátott fájlokat használ (például .aax fájlokat)";
+
+"file_error_title" = "Fájl hiba!";
+
+"file_missing_description" = "A könyvfájlt eltávolítottuk a készülékről. A könyv lejátszásához importálja újra a fájlt";
+
+"file_missing_title" = "Hiányzó fájl!";
+
+"generic_retry_description" = "Próbálkozzon később";
+
+"gesture_swipe_left_title" = "Csúsztassa balra a visszatekeréshez";
+
+"gesture_swipe_right_title" = "Csúsztassa jobbra az előreugráshoz";
+
+"gesture_swipe_vertically_title" = "Függőleges csúsztatással hozzon létre könyvjelzőt";
+
+"gesture_tap_title" = "Koppintson a lejátszáshoz vagy szüneteltetéshez";
+
+"icon_error_description" = "Az alkalmazásikon módosítása nem sikerült. Próbálkozzon később";
+
+"icons_bookplayer_credit_description" = "Ismerőseinek a BookPlayer-en";
+
+"import_button" = "Fájlok importálása";
+
+"import_description" = "Az AirDrop-on keresztül is hozzáadhat fájlokat. Küldjön egy hangoskönyvfájlt a készülékre, és válassza a BookPlayer lehetőséget a megjelenő listából.";
+
+"import_preparing_title" = "Fájlok importálásának előkészítése";
+
+"import_warning_description" = "A fájlok átvitele eltarthat egy ideig, győződjön meg róla, hogy a fájlok száma teljes, mielőtt folytatná.";
+
+"incredible_tip_title" = "Hihetetlen ajándék";
+
+"invalid_url_title" = "Érvénytelen URL: %@";
+
+"jump_start_title" = "Ugrás az elejére";
+
+"kind_tip_title" = "Kedves ajándék";
+
+"learn_more_title" = "RÉSZLETEK";
+
+"library_add_button" = "Hozzáadás";
+
+"library_add_title" = "Az első könyv hozzáadása";
 
 "library_title" = "Könyvtár";
-"settings_button" = "Beállítások";
-"settings_title" = "Beállítások";
-"settings_autoplay_title" = "Könyvtárak automatikus lejátszása";
-"settings_autoplay_description" = "A hangoskönyv befejezése után a lejátszás folytatódik a könyvtár összes elemével, beleértve a mappákban lévő elemeket is.";
-"settings_smartrewind_title" = "Okos visszatekerés";
-"settings_smartrewind_description" = "Tekerjen vissza 30 másodpercet, ha 10 percig szüneteltette.";
-"settings_boostvolume_title" = "Hangerő növelése";
-"settings_boostvolume_description" = "Megduplázza a hangerőt.\nÓvatosan és körültekintően használja hallásának védelme érdekében.";
-"settings_globalspeed_title" = "Globális sebességszabályozás";
-"settings_globalspeed_description" = "Sebesség beállítása az összes könyvben.";
-"settings_autolock_title" = "Automatikus zárolás letiltása";
-"settings_autolock_description" = "A készülék a lejátszó képernyőn nem záródik le.";
-"settings_siri_lastplayed_title" = "A legutóbb lejátszott könyv";
-"settings_siri_lastplayed_description" = "A Sirivel folytassa a legutóbb lejátszott könyvet";
-"settings_skip_title" = "UGRÁSOK IDŐTARTAMA";
-"settings_skip_rewind_title" = "Visszatekerés";
-"settings_skip_forward_title" = "Előretekerés";
-"settings_skip_description" = "A Lejátszó vagy a Vezérlőközpont gombok használatával előidézhető ugrások időtartamának beállítása.";
-"settings_support_title" = "TÁMOGATÁS";
-"settings_siri_title" = "SIRI PARANCSOK";
-"settings_support_project_title" = "Projekt megtekintése a Githubon";
-"settings_support_project_description" = "Új kéréseket nyithat funkcióigényekkel és felfedezett hibákkal kapcsolatban";
-"settings_support_email_title" = "Küldjön nekünk egy e-mailt";
-"settings_credits_title" = "Stáblista és licencek";
-"settings_support_compose_title" = "Nem lehet e-mailt összeállítani";
-"settings_support_compose_description" = "Állítson be egy e-mail fiókot a készülék beállításai között.\n\nA következő címre írjon nekünk:";
-"settings_support_compose_copy" = "Információk másolása a vágólapra";
-"library_add_button" = "Hozzáadás";
-"export_button" = "Megosztás";
-"delete_button" = "Törlés";
-"rename_button" = "Átnevezés";
-"delete_single_item_title" = "Törli a következőt: \"%@\"?";
-"delete_single_playlist_description" = "Ha csak a mappát törli, az összes fájl visszakerül a könyvtárba.";
-"delete_shallow_button" = "Csak mappa törlése";
-"delete_deep_button" = "Törölje a mappákat és a fájlokat";
-"create_playlist_button" = "Mappa létrehozás";
-"create_button" = "Létrehozás";
-"import_button" = "Fájlok importálása";
-"import_description" = "Az AirDrop-on keresztül is hozzáadhat fájlokat. Küldjön egy hangoskönyvfájlt a készülékre, és válassza a BookPlayer lehetőséget a megjelenő listából.";
-"create_playlist_title" = "Hozzon létre egy új mappát";
-"delete_multiple_items_description" = "Ezzel a kiválasztott mappákban lévő összes fájlt is eltávolítja.";
-"new_playlist_button" = "Új mappa";
-"existing_playlist_button" = "Meglévő mappa";
-"choose_destination_title" = "Cél kiválasztása";
-"delete_completely_button" = "Törlés teljesen";
-"move_library_button" = "Áthelyezés a Könyvtárba";
-"options_button" = "Lehetőségek";
-"select_playlist_title" = "Mappa kiválasztása";
-"title_button" = "Cím";
-"sort_filename_button" = "Eredeti fájlnév";
-"sort_title" = "Elemek rendezése";
-"cancel_button" = "Mégsem";
-"seconds_title" = "mp";
-"ok_button" = "OK";
-"siri_alert_description" = "A Siri-parancsok iOS 12-es vagy újabb verziókon érhetőek el";
-"support_bookplayer_title" = "A BookPlayer támogatása";
-"support_bookplayer_description" = "Szerezze be a BookPlayer Plus alkalmazást a jövőbeli fejlesztések támogatásához, ez által további témákat és alkalmazásikonokat kaphat";
-"learn_more_title" = "RÉSZLETEK";
-"settings_appearance_title" = "Megjelenés";
-"settings_theme_title" = "Téma";
-"settings_app_icon_title" = "App ikon";
-"settings_playback_title" = "Lejátszó beállításai";
-"settings_controls_title" = "Lejátszóvezérlők";
-"settings_power_connected_title" = "Csak ha a készülék töltőhöz csatlakozik";
-"settings_tip_jar_title" = "Támogatási lehetőségek";
-"theme_system_title" = "Rendszermód használata";
-"theme_switch_title" = "Automatikus váltás";
-"theme_dark_title" = "Mindig használja a sötét variációt";
-"themes_title" = "Témák";
-"icons_bookplayer_credit_description" = "Ismerőseinek a BookPlayer-en";
-"kind_tip_title" = "Kedves ajándék";
-"excellent_tip_title" = "Kiváló ajándék";
-"incredible_tip_title" = "Hihetetlen ajándék";
-"plus_themes_description" = "Gondosan válogatott színes témák, hogy illeszkedjenek kedvenc könyveihez";
-"plus_icons_description" = "A BookPlayer Plus több alkalmazás ikont nyújt, amik megfelelhetnek színsémáinak és a háttérképeinek";
-"support_us_title" = "Támogasson minket";
-"bookplayer_opensource_description" = "A BookPlayer ingyenes és nyílt forráskódú, és ez mindig is így marad. Az Ön segítségével több funkciót tudunk megvalósítani, és még jobbá tehetjük a BookPlayer programot";
-"thanks_title" = "Köszönet a támogatásért!";
-"extra_tips_description" = "Ha kedveli a BookPlayer alkalmazást, további támogatást is nyújthat, hogy tovább támogassa annak fejlődését. Ez segít megőrizni a lelkesedésünket, miáltal további funkciók is érkezhetnek.";
-"select_all_title" = "Összes kijelölése";
-"deselect_all_title" = "Kijelölések megszüntetése";
-"move_title" = "Áthelyezés";
-"jump_start_title" = "Ugrás az elejére";
+
 "mark_finished_title" = "Megjelölés befejezettnek";
-"sort_files_title" = "Fájlok rendezése";
-"rename_title" = "Elem átnevezése";
-"file_error_title" = "Fájl hiba!";
-"file_error_description" = "A könyvfájlt nem sikerült betölteni. Győződjön meg arról, hogy nem DRM védelemmel ellátott fájlokat használ (például .aax fájlokat)";
-"file_missing_title" = "Hiányzó fájl!";
-"file_missing_description" = "A könyvfájlt eltávolítottuk a készülékről. A könyv lejátszásához importálja újra a fájlt";
-"empty_playlist_description" = "A fájlokat úgy is áthelyezheti ide, hogy a Könyvtár ebbe a mappájába húzza őket";
-"playlist_add_title" = "Fájlok hozzáadása";
-"player_speed_title" = "Lejátszási sebesség beállítása";
-"player_sleep_title" = "Lejátszás megállítása";
-"sleep_chapter_option_title" = "Az aktuális fejezet végén";
-"player_chapter_description" = "%d/%d fejezet";
-"chapters_title" = "Fejezetek";
-"chapters_item_description" = "Kezdés: %@ - Hossz: %@";
-"restore_title" = "Visszaállítás";
-"themes_caps_title" = "TÉMÁK";
-"plus_app_icons_title" = "App ikonok";
+
 "mark_unfinished_title" = "Megjelölés befejezetlennek";
+
+"move_library_button" = "Áthelyezés a Könyvtárba";
+
 "move_playlist_button" = "Áthelyezés mappába";
+
 "move_single_item_title" = "Áthelyezi a(z) „ %@ ” mappát ide: „ %@ ”?";
-"current_playlist_title" = "Jelenlegi mappa";
-"select_item_title" = "Elem kiválasztása";
-"sleep_alert_description" = "Alvás a fejezet végén";
-"sleep_time_description" = "Elalvásig hátravan %@";
-"sleep_off_title" = "Ki";
-"sleep_interval_title" = "%@ múlva";
-"chapter_number_title" = "%d. fejezet";
-"progress_complete_description" = "%d százalék meghallgatva";
-"chapter_duration_title" = "Fejezet időtartama:";
-"chapter_time_remaining_title" = "Hátralévő fejezetidő:";
-"book_time_remaining_title" = "Hátralévő könyvidő:";
-"book_duration_title" = "A könyv időtartama:";
-"icon_error_description" = "Az alkalmazásikon módosítása nem sikerült. Próbálkozzon később";
-"error_title" = "Hiba";
-"generic_retry_description" = "Próbálkozzon később";
+
+"move_title" = "Áthelyezés";
+
 "network_error_title" = "Hálózati hiba";
-"purchases_restored_title" = "A vásárlások helyreálltak!";
-"tip_missing_title" = "Még nem vásárolt tőlünk";
-"thanks_amazing_title" = "Ön elképesztő!";
-"play_title" = "Lejátszás";
-"pause_title" = "Szünet";
-"voiceover_no_title" = "Nincs cím";
-"voiceover_no_author" = "Nincs szerző";
-"voiceover_book_progress" = "%@ - %@, %d% meghallgatva";
-"voiceover_no_file_title" = "A fájlnak nincs címe";
-"voiceover_no_file_subtitle" = "A fájlnak nincsen felirata";
-"voiceover_no_playlist_title" = "Nincs mappa címe";
-"voiceover_playlist_progress" = "%@, lejátszólista, %d% meghallgatva";
-"voiceover_unknown_title" = "Ismeretlen cím";
-"voiceover_unknown_author" = "Ismeretlen szerző";
-"voiceover_book_info" = "%@ - %@";
-"voiceover_book_chapter" = "%@ - %@, %@ fejezet";
-"voiceover_rewind_time" = "Visszatekerés %@";
-"voiceover_forward_time" = "Előretekerés %@";
-"watchapp_last_played_title" = "Utoljára lejátszott";
-"watchapp_refresh_data_title" = "Adatok frissítése";
-"recent_title" = "Friss";
-"carplay_library_error" = "Nem lehet betölteni a könyveket";
-"siri_invocation_phrase" = "Folytassa a könyvemet";
-"siri_activity_title" = "Folytassa a legutóbb lejátszott könyvet";
-"watchapp_connect_error_title" = "Kapcsolódási hiba";
-"watchapp_connect_error_description" = "Probléma a telefonhoz való csatlakozáskor, próbálkozzon később ismételten";
-"sleep_remaining_title" = "Alvó állapotig %@";
-"audio_source_title" = "Hangforrás";
-"speed_title" = "sebesség";
-"import_preparing_title" = "Fájlok importálásának előkészítése";
-"library_add_title" = "Az első könyv hozzáadása";
-"invalid_url_title" = "Érvénytelen URL: %@";
-"downloading_file_title" = "Fájl letöltése";
-"progress_title" = "Folyamat";
-"settings_siri_sleeptimer_title" = "Alvó állapot időzítése";
-"active_title" = "Be";
-"voiceover_currently_playing_title" = "Jelenleg lejátszott könyv %@ - %@";
-"voiceover_miniplayer_hint" = "Minilejátszó. Koppintással megjelenik a Lejátszó";
-"voiceover_chapter_time_title" = "Fejezet időtartama: %@";
-"voiceover_dismiss_player_title" = "Lejátszó eltüntetése";
-"sort_most_recent_button" = "Legfrissebb";
-"sort_reversed_button" = "Fordított sorrend";
-"voiceover_continue_playback_title" = "Lejátszás folytatása";
-"coredata_error_diskfull_description" = "A könyvtárat nem sikerült betölteni, az eszközön nincs elég lemezterület.";
-"coredata_error_migration_description" = "Az adatbázis migrációja sikertelen, a könyvtárat újra kell inicializálni.";
-"import_warning_description" = "A fájlok átvitele eltarthat egy ideig, győződjön meg róla, hogy a fájlok száma teljes, mielőtt folytatná.";
-"settings_storage_description" = "Fájlok kezelése";
-"storage_total_title" = "Teljes felhasznált terület";
-"settings_storage_title" = "Tárhelykezelés";
-"storage_fix_file_button" = "Javítás";
-"storage_fix_file_description" = "A könyvelem hiányzik, ha a megfelelő tétel nem található, akkor új jön létre";
-"bookmarks_title" = "Könyvjelzők";
-"bookmark_created_title" = "Könyvjelző elmentve: %@";
-"bookmark_exists_title" = "Már létrehozott egy könyvjelzőt itt: %@";
-"bookmark_note_action_title" = "Megjegyzés hozzáadása";
-"bookmarks_see_title" = "Könyvjelzők megtekintése";
-"bookmark_type_automatic_title" = "Automatikus";
-"bookmark_type_user_title" = "Kézi";
-"bookmark_automatic_play_title" = "Utolsó pozíció a lejátszás megkezdése előtt";
-"bookmark_automatic_skip_title" = "Utolsó pozíció az idő kihagyása előtt";
-"bookmark_note_edit_title" = "Megjegyzés szerkesztése";
-"bookmark_create_title" = "Könyvjelző létrehozása";
-"storage_duplicate_item_title" = "Duplikátum";
-"storage_duplicate_item_description" = "A kiválasztott fájl duplikátum volt, a meglévő fájl a következő címen található: %@";
-"chapters_previous_title" = "Előző fejezet";
-"chapters_next_title" = "Következő fejezet";
-"book_time_current_title" = "Aktuális könyv ideje: %@";
-"storage_fix_files_description" = "Hiányzik a kapcsolat a fájlok és a digitális könyvelemek között, ha az egyes fájlokhoz nem található a megfelelő elem, akkor egy új jön létre.";
-"storage_fix_all_title" = "Javítsa ki az összeset";
-"settings_backup_title" = "iCloud biztonsági mentések";
-"settings_backup_files_title" = "Könyvfájlok belefoglalása";
-"bound_books_create_button" = "Kombinálja kötetbe";
-"bound_books_undo_alert_title" = "Mappába konvertálás";
-"bound_books_new_title_placeholder" = "Új könyvkötet";
-"bound_books_create_alert_description" = "Győződjön meg arról, hogy az elemek megfelelő sorrendben vannak. A fejezetek későbbi átrendezéséhez vissza kell alakítania a kötetet mappává, át kell rendeznie az elemeket, majd újra létre kell hoznia a kötetet.";
-"bound_books_create_alert_title" = "Kötet létrehozása";
-"voiceover_bound_books_progress" = "%@, kötet, %d% kész";
-"voiceover_no_bound_books_title" = "Nincs kötet címke";
-"default_title" = "Alapértelmezett";
-"voiceover_default_speed_title" = "Állítsa be az alapértelmezett sebességet";
-"error_loading_chapters" = "A fejezeteket nem lehetett betölteni: \n%@";
-"error_empty_chapters" = "A fejezetek üresek, ellenőrizze a mappa tartalmát: %@";
-"sleeptimer_option_custom" = "Egyéni";
-"sleeptimer_custom_alert_title" = "Egyéni alvásidőzítő";
-"settings_progresslabels_title" = "Előrehaladási címkék";
-"settings_playerinterface_list_title" = "Megnyílik";
-"settings_remainingtime_title" = "Hátralévő idő használata";
-"settings_chaptercontext_title" = "Fejezet kontextus használata";
-"settings_progresslabels_description" = "Váltás a hátralévő idő, a teljes időtartam és a fejezet vagy a teljes könyv előrehaladásának megjelenítése között a lejátszó képernyőn";
-"settings_playerinterface_list_description" = "A lejátszó képernyőn mi nyíljon meg a lista gomb megnyomására";
-"settings_autoplay_section_title" = "AUTOMATIKUS LEJÁTSZÁS";
-"settings_autoplay_restart_title" = "Indítsa újra a kész könyveket";
-"settings_theme_autobrightness" = "Válassza ki a téma sötét változatát, ha a képernyő fényereje a beállított küszöb alá esik.";
+
+"new_playlist_button" = "Új mappa";
+
 "note_title" = "jegyzet";
-"playing_title" = "hang lejátszása";
+
+"ok_button" = "OK";
+
+"options_button" = "Lehetőségek";
+
+"pause_title" = "Szünet";
+
 "paused_title" = "Szüneteltetve";
-"skipped_forward_title" = "Előre ugrott";
-"skipped_back_title" = "Visszaugrott";
-"button_free_title" = "Gomb nélkül";
+
+"play_title" = "Lejátszás";
+
+"player_chapter_description" = "%d/%d fejezet";
+
+"player_sleep_title" = "Lejátszás megállítása";
+
+"player_speed_title" = "Lejátszási sebesség beállítása";
+
+"playing_title" = "hang lejátszása";
+
+"playlist_add_title" = "Fájlok hozzáadása";
+
+"plus_app_icons_title" = "App ikonok";
+
+"plus_icons_description" = "A BookPlayer Plus több alkalmazás ikont nyújt, amik megfelelhetnek színsémáinak és a háttérképeinek";
+
+"plus_themes_description" = "Gondosan válogatott színes témák, hogy illeszkedjenek kedvenc könyveihez";
+
+"progress_complete_description" = "%d százalék meghallgatva";
+
+"progress_title" = "Folyamat";
+
+"purchases_restored_title" = "A vásárlások helyreálltak!";
+
+"recent_title" = "Friss";
+
+"rename_button" = "Átnevezés";
+
+"rename_title" = "Elem átnevezése";
+
+"restore_title" = "Visszaállítás";
+
 "screen_gestures_title" = "Képernyőmozdulatok";
-"gesture_tap_title" = "Koppintson a lejátszáshoz vagy szüneteltetéshez";
-"gesture_swipe_left_title" = "Csúsztassa balra a visszatekeréshez";
-"gesture_swipe_right_title" = "Csúsztassa jobbra az előreugráshoz";
-"gesture_swipe_vertically_title" = "Függőleges csúsztatással hozzon létre könyvjelzőt";
+
+"seconds_title" = "mp";
+
+"select_all_title" = "Összes kijelölése";
+
+"select_item_title" = "Elem kiválasztása";
+
+"select_playlist_title" = "Mappa kiválasztása";
+
+"settings_app_icon_title" = "App ikon";
+
+"settings_appearance_title" = "Megjelenés";
+
+"settings_autolock_description" = "A készülék a lejátszó képernyőn nem záródik le.";
+
+"settings_autolock_title" = "Automatikus zárolás letiltása";
+
+"settings_autoplay_description" = "A hangoskönyv befejezése után a lejátszás folytatódik a könyvtár összes elemével, beleértve a mappákban lévő elemeket is.";
+
+"settings_autoplay_restart_title" = "Indítsa újra a kész könyveket";
+
+"settings_autoplay_section_title" = "AUTOMATIKUS LEJÁTSZÁS";
+
+"settings_autoplay_title" = "Könyvtárak automatikus lejátszása";
+
+"settings_backup_files_title" = "Könyvfájlok belefoglalása";
+
+"settings_backup_title" = "iCloud biztonsági mentések";
+
+"settings_boostvolume_description" = "Megduplázza a hangerőt.\nÓvatosan és körültekintően használja hallásának védelme érdekében.";
+
+"settings_boostvolume_title" = "Hangerő növelése";
+
+"settings_button" = "Beállítások";
+
+"settings_chaptercontext_title" = "Fejezet kontextus használata";
+
+"settings_controls_title" = "Lejátszóvezérlők";
+
+"settings_credits_title" = "Stáblista és licencek";
+
+"settings_globalspeed_description" = "Sebesség beállítása az összes könyvben.";
+
+"settings_globalspeed_title" = "Globális sebességszabályozás";
+
+"settings_playback_title" = "Lejátszó beállításai";
+
+"settings_playerinterface_list_description" = "A lejátszó képernyőn mi nyíljon meg a lista gomb megnyomására";
+
+"settings_playerinterface_list_title" = "Megnyílik";
+
+"settings_power_connected_title" = "Csak ha a készülék töltőhöz csatlakozik";
+
+"settings_progresslabels_description" = "Váltás a hátralévő idő, a teljes időtartam és a fejezet vagy a teljes könyv előrehaladásának megjelenítése között a lejátszó képernyőn";
+
+"settings_progresslabels_title" = "Előrehaladási címkék";
+
+"settings_remainingtime_title" = "Hátralévő idő használata";
+
+"settings_siri_lastplayed_description" = "A Sirivel folytassa a legutóbb lejátszott könyvet";
+
+"settings_siri_lastplayed_title" = "A legutóbb lejátszott könyv";
+
+"settings_siri_sleeptimer_title" = "Alvó állapot időzítése";
+
+"settings_siri_title" = "SIRI PARANCSOK";
+
+"settings_skip_description" = "A Lejátszó vagy a Vezérlőközpont gombok használatával előidézhető ugrások időtartamának beállítása.";
+
+"settings_skip_forward_title" = "Előretekerés";
+
+"settings_skip_rewind_title" = "Visszatekerés";
+
+"settings_skip_title" = "UGRÁSOK IDŐTARTAMA";
+
+"settings_smartrewind_description" = "Tekerjen vissza 30 másodpercet, ha 10 percig szüneteltette.";
+
+"settings_smartrewind_title" = "Okos visszatekerés";
+
+"settings_storage_description" = "Fájlok kezelése";
+
+"settings_storage_title" = "Tárhelykezelés";
+
+"settings_support_compose_copy" = "Információk másolása a vágólapra";
+
+"settings_support_compose_description" = "Állítson be egy e-mail fiókot a készülék beállításai között.\n\nA következő címre írjon nekünk:";
+
+"settings_support_compose_title" = "Nem lehet e-mailt összeállítani";
+
+"settings_support_email_title" = "Küldjön nekünk egy e-mailt";
+
+"settings_support_project_description" = "Új kéréseket nyithat funkcióigényekkel és felfedezett hibákkal kapcsolatban";
+
+"settings_support_project_title" = "Projekt megtekintése a Githubon";
+
+"settings_support_title" = "TÁMOGATÁS";
+
+"settings_theme_autobrightness" = "Válassza ki a téma sötét változatát, ha a képernyő fényereje a beállított küszöb alá esik.";
+
+"settings_theme_title" = "Téma";
+
+"settings_tip_jar_title" = "Támogatási lehetőségek";
+
+"settings_title" = "Beállítások";
+
+"siri_activity_title" = "Folytassa a legutóbb lejátszott könyvet";
+
+"siri_alert_description" = "A Siri-parancsok iOS 12-es vagy újabb verziókon érhetőek el";
+
+"siri_invocation_phrase" = "Folytassa a könyvemet";
+
+"skipped_back_title" = "Visszaugrott";
+
+"skipped_forward_title" = "Előre ugrott";
+
+"sleep_alert_description" = "Alvás a fejezet végén";
+
+"sleep_chapter_option_title" = "Az aktuális fejezet végén";
+
+"sleep_interval_title" = "%@ múlva";
+
+"sleep_off_title" = "Ki";
+
+"sleep_remaining_title" = "Alvó állapotig %@";
+
+"sleep_time_description" = "Elalvásig hátravan %@";
+
+"sleeptimer_custom_alert_title" = "Egyéni alvásidőzítő";
+
+"sleeptimer_option_custom" = "Egyéni";
+
+"sort_filename_button" = "Eredeti fájlnév";
+
+"sort_files_title" = "Fájlok rendezése";
+
+"sort_most_recent_button" = "Legfrissebb";
+
+"sort_reversed_button" = "Fordított sorrend";
+
+"sort_title" = "Elemek rendezése";
+
+"speed_title" = "sebesség";
+
+"storage_duplicate_item_description" = "A kiválasztott fájl duplikátum volt, a meglévő fájl a következő címen található: %@";
+
+"storage_duplicate_item_title" = "Duplikátum";
+
+"storage_fix_all_title" = "Javítsa ki az összeset";
+
+"storage_fix_file_button" = "Javítás";
+
+"storage_fix_file_description" = "A könyvelem hiányzik, ha a megfelelő tétel nem található, akkor új jön létre";
+
+"storage_fix_files_description" = "Hiányzik a kapcsolat a fájlok és a digitális könyvelemek között, ha az egyes fájlokhoz nem található a megfelelő elem, akkor egy új jön létre.";
+
+"storage_total_title" = "Teljes felhasznált terület";
+
+"support_bookplayer_description" = "Szerezze be a BookPlayer Plus alkalmazást a jövőbeli fejlesztések támogatásához, ez által további témákat és alkalmazásikonokat kaphat";
+
+"support_bookplayer_title" = "A BookPlayer támogatása";
+
+"support_us_title" = "Támogasson minket";
+
+"thanks_amazing_title" = "Ön elképesztő!";
+
+"thanks_title" = "Köszönet a támogatásért!";
+
+"theme_dark_title" = "Mindig használja a sötét variációt";
+
+"theme_switch_title" = "Automatikus váltás";
+
+"theme_system_title" = "Rendszermód használata";
+
+"themes_caps_title" = "TÉMÁK";
+
+"themes_title" = "Témák";
+
+"tip_missing_title" = "Még nem vásárolt tőlünk";
+
+"title_button" = "Cím";
+
+"voiceover_book_chapter" = "%@ - %@, %@ fejezet";
+
+"voiceover_book_info" = "%@ - %@";
+
+"voiceover_book_progress" = "%@ - %@, %d% meghallgatva";
+
+"voiceover_bound_books_progress" = "%@, kötet, %d% kész";
+
+"voiceover_chapter_time_title" = "Fejezet időtartama: %@";
+
+"voiceover_continue_playback_title" = "Lejátszás folytatása";
+
+"voiceover_currently_playing_title" = "Jelenleg lejátszott könyv %@ - %@";
+
+"voiceover_default_speed_title" = "Állítsa be az alapértelmezett sebességet";
+
+"voiceover_dismiss_player_title" = "Lejátszó eltüntetése";
+
+"voiceover_forward_time" = "Előretekerés %@";
+
+"voiceover_miniplayer_hint" = "Minilejátszó. Koppintással megjelenik a Lejátszó";
+
+"voiceover_no_author" = "Nincs szerző";
+
+"voiceover_no_bound_books_title" = "Nincs kötet címke";
+
+"voiceover_no_file_subtitle" = "A fájlnak nincsen felirata";
+
+"voiceover_no_file_title" = "A fájlnak nincs címe";
+
+"voiceover_no_playlist_title" = "Nincs mappa címe";
+
+"voiceover_no_title" = "Nincs cím";
+
+"voiceover_playlist_progress" = "%@, lejátszólista, %d% meghallgatva";
+
+"voiceover_rewind_time" = "Visszatekerés %@";
+
+"voiceover_unknown_author" = "Ismeretlen szerző";
+
+"voiceover_unknown_title" = "Ismeretlen cím";
+
+"watchapp_connect_error_description" = "Probléma a telefonhoz való csatlakozáskor, próbálkozzon később ismételten";
+
+"watchapp_connect_error_title" = "Kapcsolódási hiba";
+
+"watchapp_last_played_title" = "Utoljára lejátszott";
+
+"watchapp_refresh_data_title" = "Adatok frissítése";

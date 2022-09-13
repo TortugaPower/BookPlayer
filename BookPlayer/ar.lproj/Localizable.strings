@@ -1,233 +1,449 @@
-/* 
-  Localizable.strings
-  BookPlayer
+"active_title" = "تشغيل";
 
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
+"audio_source_title" = "مصدر الصوت";
+
+"book_duration_title" = "مدة الكتاب:";
+
+"book_time_current_title" = "وقت الكتاب الفعلي: %@";
+
+"book_time_remaining_title" = "الوقت المتبقي للكتاب:";
+
+"bookmark_automatic_play_title" = "آخر موضع قبل بدء التشغيل";
+
+"bookmark_automatic_skip_title" = "آخر موضع قبل تخطي الوقت";
+
+"bookmark_create_title" = "إنشاء إشارة مرجعية";
+
+"bookmark_created_title" = "تم حفظ الإشارة المرجعية عند %@";
+
+"bookmark_exists_title" = "لقد قمت بالفعل بإنشاء إشارة مرجعية عند %@";
+
+"bookmark_note_action_title" = "إضافة ملاحظة";
+
+"bookmark_note_edit_title" = "تحرير الملاحظة";
+
+"bookmark_type_automatic_title" = "تلقائي";
+
+"bookmark_type_user_title" = "يدوي";
+
+"bookmarks_see_title" = "الاطلاع على الإشارات المرجعية";
+
+"bookmarks_title" = "الاشارات المرجعيه";
+
+"bookplayer_opensource_description" = "BookPlayer مجاني ومفتوح المصدر وسيظل دائمًا على هذا النحو. بمساعدتك، سنكون قادرون على اضافة المزيد من الميزات وجعل BookPlayer أفضل.";
+
+"bound_books_create_alert_description" = "تأكد من أن العناصر في الترتيب الصحيح. لإعادة ترتيب الفصول لاحقًا ، تحتاج إلى تحويل وحدة التخزين مرة أخرى إلى مجلد ، وإعادة ترتيب العناصر ثم إعادة إنشاء المجلد.";
+
+"bound_books_create_alert_title" = "إنشاء وحدة تخزين";
+
+"bound_books_create_button" = "ادمج في الحجم";
+
+"bound_books_new_title_placeholder" = "حجم الكتاب الجديد";
+
+"bound_books_undo_alert_title" = "تحويل إلى مجلد";
+
+"button_free_title" = "بدون زر";
+
+"cancel_button" = "إلغاء الأمر";
+
+"carplay_library_error" = "غير قادر على تحميل الكتب";
+
+"chapter_duration_title" = "مدة الفصل:";
+
+"chapter_number_title" = "الفصل %d";
+
+"chapter_time_remaining_title" = "وقت الفصل المتبقي:";
+
+"chapters_item_description" = "البداية: %@ - المدة: %@";
+
+"chapters_next_title" = "الفصل التالي";
+
+"chapters_previous_title" = "الفصل السابق";
+
+"chapters_title" = "الفصول";
+
+"choose_destination_title" = "اختر وجهة";
+
+"coredata_error_diskfull_description" = "تعذر تحميل المكتبة ، نفدت مساحة القرص على الجهاز.";
+
+"coredata_error_migration_description" = "فشل ترحيل قاعدة البيانات، يجب إعادة إنشاء المكتبة.";
+
+"create_button" = "انشاء";
+
+"create_playlist_button" = "أنشئ مجلد";
+
+"create_playlist_title" = "انشاء مجلد جديد";
+
+"current_playlist_title" = "المجلد الحالي";
+
+"default_title" = "محددة مسبقا";
+
+"delete_button" = "حذف";
+
+"delete_completely_button" = "الحذف كلياً";
+
+"delete_deep_button" = "احذف المجلد والملفات";
+
+"delete_multiple_items_description" = "سيؤدي ذلك إلى إزالة جميع الملفات الموجودة داخل المجلدات المحددة أيضًا.";
+
+"delete_shallow_button" = "حذف المجلد فقط";
+
+"delete_single_item_title" = "هل تريد حذف \" %@ \"؟";
+
+"delete_single_playlist_description" = "سيؤدي حذف المجلد فقط إلى إعادة جميع ملفاته إلى المكتبة.";
+
+"deselect_all_title" = "إلغاء اختيار الكل";
+
+"downloading_file_title" = "تحميل الملف";
+
+"empty_playlist_description" = "يمكنك أيضًا نقل الملفات هنا عن طريق سحبها إلى هذا المجلد في المكتبة";
+
+"error_empty_chapters" = "الفصول فارغة ، الرجاء التحقق من محتويات المجلد: %@";
+
+"error_loading_chapters" = "تعذر تحميل الفصول من: \n %@";
+
+"error_title" = "خطأ";
+
+"excellent_tip_title" = "إكراميّة ممتازة بقيمة";
+
+"existing_playlist_button" = "مجلد موجود";
+
+"export_button" = "مشاركة";
+
+"extra_tips_description" = "إذا كنت تستمتع حقًا بـ BookPlayer ، فيمكنك ترك دعم مادي لدعم تطوير التطبيق بشكل أكبر. سيساعد هذا في الحفاظ على استمرارية المشروع واضافة ميزات جديدة.";
+
+"file_error_description" = "تعذر تحميل ملف هذا الكتاب. تأكد من أنك لا تستخدم الملفات التي تتمتع بحماية DRM (مثل ملفات aax.)";
+
+"file_error_title" = "خطأ في الملف!";
+
+"file_missing_description" = "تمت إزالة ملف هذا الكتاب من جهازك. قم باستيراد الملف مرة أخرى لتشغيل الكتاب";
+
+"file_missing_title" = "الملف مفقود!";
+
+"generic_retry_description" = "الرجاء المحاولة مرة أخرى لاحقاً";
+
+"gesture_swipe_left_title" = "اسحب لليسار للترجيع";
+
+"gesture_swipe_right_title" = "اسحب لليمين للتخطي للأمام";
+
+"gesture_swipe_vertically_title" = "اسحب عموديًا لإنشاء إشارة مرجعية";
+
+"gesture_tap_title" = "انقر للتشغيل أو الإيقاف المؤقت";
+
+"icon_error_description" = "لم يكن تغيير رمز التطبيق ناجحاً. حاول مرة أخرى لاحقاً";
+
+"icons_bookplayer_credit_description" = "من قبل أصدقائك في BookPlayer";
+
+"import_button" = "استيراد الملفات";
+
+"import_description" = "يمكنك أيضا إضافة الملفات عبر AirDrop. أرسل ملفاً مسموعاً إلى جهازك وحدد BookPlayer من القائمة التي تظهر.";
+
+"import_preparing_title" = "التحضير لاستيراد الملفات";
+
+"import_warning_description" = "نقل الملفات قد يستغرق بعض الوقت، يرجى التأكد من أن عدد الملفات كاملة قبل المتابعة.";
+
+"incredible_tip_title" = "إكراميّة‬ لا تصدق بقيمة";
+
+"invalid_url_title" = "URL غير صالح: %@";
+
+"jump_start_title" = "الانتقال إلى البداية";
+
+"kind_tip_title" = "إكراميّة‬ بقيمة";
+
+"learn_more_title" = "التعرف على المزيد";
+
+"library_add_button" = "اضافة";
+
+"library_add_title" = "أضف كتابك الأول";
 
 "library_title" = "المكتبة";
-"settings_button" = "الاعدادات";
-"settings_title" = "الاعدادات";
-"settings_autoplay_title" = "مكتبة التشغيل التلقائي";
-"settings_autoplay_description" = "بعد الانتهاء من كتاب صوتي ، سيستأنف التشغيل مع جميع العناصر الموجودة في المكتبة ، بما في ذلك العناصر الموجودة في المجلدات.";
-"settings_smartrewind_title" = "إعادة الإرجاع الذكية";
-"settings_smartrewind_description" = "الترجيع 30 ثانية بعد توقف لمدة 10 دقائق.";
-"settings_boostvolume_title" = "زيادة مستوى الصوت";
-"settings_boostvolume_description" = "ضاعف مستوى الصوت.\nاستخدم بحذر وعناية بالاستماع.";
-"settings_globalspeed_title" = "التحكم في السرعة العالمية";
-"settings_globalspeed_description" = "تعيين السرعة على جميع الكتب.";
-"settings_autolock_title" = "تعطيل القفل التلقائي";
-"settings_autolock_description" = "منع الجهاز من التأمين عند تشغيل الشاشة \"المشغل\".";
-"settings_siri_lastplayed_title" = "آخر كتاب تم تشغيله";
-"settings_siri_lastplayed_description" = "استخدم Siri لمتابعة آخر كتاب تم تشغيله.";
-"settings_skip_title" = "تخطي الفواصل الزمنية";
-"settings_skip_rewind_title" = "الترجيع";
-"settings_skip_forward_title" = "إلى الأمام";
-"settings_skip_description" = "اضبط القيمة الذي تم تخطيه عند استخدام الأزرار في \"المشغل\" أو \"مركز التحكم\".";
-"settings_support_title" = "الدعم";
-"settings_siri_title" = "اختصار سيري";
-"settings_support_project_title" = "عرض المشروع على Github";
-"settings_support_project_description" = "فتح مشكلات جديدة لطلبات الميزات والأخطاء";
-"settings_support_email_title" = "أرسل لنا رسالة إلكترونية";
-"settings_credits_title" = "الاعتمادات والتراخيص";
-"settings_support_compose_title" = "تعذر إنشاء البريد الإلكتروني";
-"settings_support_compose_description" = "تحتاج إلى إعداد حساب بريد إلكتروني في إعدادات جهازك لاستخدام هذا.\n\nبلد بريد إلكتروني لنا في";
-"settings_support_compose_copy" = "نسخ المعلومات إلى الحافظة";
-"library_add_button" = "اضافة";
-"export_button" = "مشاركة";
-"delete_button" = "حذف";
-"rename_button" = "إعادة تسمية";
-"delete_single_item_title" = "هل تريد حذف \" %@ \"؟";
-"delete_single_playlist_description" = "سيؤدي حذف المجلد فقط إلى إعادة جميع ملفاته إلى المكتبة.";
-"delete_shallow_button" = "حذف المجلد فقط";
-"delete_deep_button" = "احذف المجلد والملفات";
-"create_playlist_button" = "أنشئ مجلد";
-"create_button" = "انشاء";
-"import_button" = "استيراد الملفات";
-"import_description" = "يمكنك أيضا إضافة الملفات عبر AirDrop. أرسل ملفاً مسموعاً إلى جهازك وحدد BookPlayer من القائمة التي تظهر.";
-"create_playlist_title" = "انشاء مجلد جديد";
-"delete_multiple_items_description" = "سيؤدي ذلك إلى إزالة جميع الملفات الموجودة داخل المجلدات المحددة أيضًا.";
-"new_playlist_button" = "ملف جديد";
-"existing_playlist_button" = "مجلد موجود";
-"choose_destination_title" = "اختر وجهة";
-"delete_completely_button" = "الحذف كلياً";
-"move_library_button" = "النقل إلى المكتبة";
-"options_button" = "خيارات";
-"select_playlist_title" = "اختر مجلد";
-"title_button" = "عنوان الكتاب";
-"sort_filename_button" = "اسم الملف الأصلي";
-"sort_title" = "ترتيب الملفات حسب";
-"cancel_button" = "إلغاء الأمر";
-"seconds_title" = "ثانية";
-"ok_button" = "موافق";
-"siri_alert_description" = "تتوفر اختصارات Siri في نظام التشغيل iOS 12 والإصدارات الأحدث";
-"support_bookplayer_title" = "دعم bookplayer";
-"support_bookplayer_description" = "الحصول على BookPlayer + لدعم التنمية في المستقبل والحصول على مواضيع إضافية وأيقونات التطبيق";
-"learn_more_title" = "التعرف على المزيد";
-"settings_appearance_title" = "المظهر";
-"settings_theme_title" = "التنسيق";
-"settings_app_icon_title" = "أيقونة التطبيق";
-"settings_playback_title" = "إعدادات التشغيل";
-"settings_controls_title" = "ضبط المشغل";
-"settings_power_connected_title" = "فقط عند الاتصال بالشاحن";
-"settings_tip_jar_title" = "جرة الإكرامية";
-"theme_system_title" = "تغيير الواجهة تبعا لوضعية النظام";
-"theme_switch_title" = "تبديل الواجهة تلقائياً";
-"theme_dark_title" = "استخدام الواجهة الداكنة دائماً";
-"themes_title" = "سمات الواجهة";
-"icons_bookplayer_credit_description" = "من قبل أصدقائك في BookPlayer";
-"kind_tip_title" = "إكراميّة‬ بقيمة";
-"excellent_tip_title" = "إكراميّة ممتازة بقيمة";
-"incredible_tip_title" = "إكراميّة‬ لا تصدق بقيمة";
-"plus_themes_description" = "سمات ملونة لواجهة التطبيق منتقاة بعناية لتتناسب مع كتبك المفضلة";
-"plus_icons_description" = "يأتي BookPlayer Plus مع العديد من أيقونات التطبيق ، والتي تتوافق مع أنظمة الألوان وخلفية الشاشة.";
-"support_us_title" = "ادعمنا";
-"bookplayer_opensource_description" = "BookPlayer مجاني ومفتوح المصدر وسيظل دائمًا على هذا النحو. بمساعدتك، سنكون قادرون على اضافة المزيد من الميزات وجعل BookPlayer أفضل.";
-"thanks_title" = "شكرا لدعمك!";
-"extra_tips_description" = "إذا كنت تستمتع حقًا بـ BookPlayer ، فيمكنك ترك دعم مادي لدعم تطوير التطبيق بشكل أكبر. سيساعد هذا في الحفاظ على استمرارية المشروع واضافة ميزات جديدة.";
-"select_all_title" = "اختيار الكل";
-"deselect_all_title" = "إلغاء اختيار الكل";
-"move_title" = "نقل";
-"jump_start_title" = "الانتقال إلى البداية";
+
 "mark_finished_title" = "وضع علامة \"منجز\"";
-"sort_files_title" = "ترتيب الملفات حسب";
-"rename_title" = "إعادة تسمية";
-"file_error_title" = "خطأ في الملف!";
-"file_error_description" = "تعذر تحميل ملف هذا الكتاب. تأكد من أنك لا تستخدم الملفات التي تتمتع بحماية DRM (مثل ملفات aax.)";
-"file_missing_title" = "الملف مفقود!";
-"file_missing_description" = "تمت إزالة ملف هذا الكتاب من جهازك. قم باستيراد الملف مرة أخرى لتشغيل الكتاب";
-"empty_playlist_description" = "يمكنك أيضًا نقل الملفات هنا عن طريق سحبها إلى هذا المجلد في المكتبة";
-"playlist_add_title" = "إضافة ملفات";
-"player_speed_title" = "تعيين سرعة التشغيل";
-"player_sleep_title" = "إيقاف التشغيل مؤقتًا";
-"sleep_chapter_option_title" = "نهاية الفصل الحالي";
-"player_chapter_description" = "الفصل %d من %d";
-"chapters_title" = "الفصول";
-"chapters_item_description" = "البداية: %@ - المدة: %@";
-"restore_title" = "استعاده";
-"themes_caps_title" = "التنسيقات";
-"plus_app_icons_title" = "أيقونات التطبيقات";
+
 "mark_unfinished_title" = "وضع علامة كغير مكتملة";
+
+"move_library_button" = "النقل إلى المكتبة";
+
 "move_playlist_button" = "انتقل إلى المجلد";
+
 "move_single_item_title" = "هل تريد نقل \" %@ \" إلى \" %@ \"؟";
-"current_playlist_title" = "المجلد الحالي";
-"select_item_title" = "تحديد العنصر";
-"sleep_alert_description" = "النوم عند انتهاء الفصل";
-"sleep_time_description" = "النوم في %@";
-"sleep_off_title" = "ايقاف";
-"sleep_interval_title" = "في %@";
-"chapter_number_title" = "الفصل %d";
-"progress_complete_description" = "%d بالمائة مكتمل";
-"chapter_duration_title" = "مدة الفصل:";
-"chapter_time_remaining_title" = "وقت الفصل المتبقي:";
-"book_time_remaining_title" = "الوقت المتبقي للكتاب:";
-"book_duration_title" = "مدة الكتاب:";
-"icon_error_description" = "لم يكن تغيير رمز التطبيق ناجحاً. حاول مرة أخرى لاحقاً";
-"error_title" = "خطأ";
-"generic_retry_description" = "الرجاء المحاولة مرة أخرى لاحقاً";
+
+"move_title" = "نقل";
+
 "network_error_title" = "خطأ في الشبكة";
-"purchases_restored_title" = "تمت استعادة المشتريات!";
-"tip_missing_title" = "أنت لم تبلغنا بعد";
-"thanks_amazing_title" = "أنت رائع!";
-"play_title" = "بدء";
-"pause_title" = "ايقاف";
-"voiceover_no_title" = "لا يوجد عنوان";
-"voiceover_no_author" = "لا يوجد كاتب";
-"voiceover_book_progress" = "%@ من %@ ، اكتمل %d";
-"voiceover_no_file_title" = "لا يوجد عنوان ملف";
-"voiceover_no_file_subtitle" = "لا يوجد ملف الترجمة";
-"voiceover_no_playlist_title" = "لا يوجد عنوان مجلد";
-"voiceover_playlist_progress" = "%@ ، قائمة التشغيل ، اكتمل %d بالمائة";
-"voiceover_unknown_title" = "عنوان غير معروف";
-"voiceover_unknown_author" = "كاتب غير معروف";
-"voiceover_book_info" = "%@ بواسطة %@";
-"voiceover_book_chapter" = "%@ من %@ ، الفصل %@";
-"voiceover_rewind_time" = "إرجاع %@";
-"voiceover_forward_time" = "تقديم سريع %@";
-"watchapp_last_played_title" = "التشغيل الاخير";
-"watchapp_refresh_data_title" = "تحديث البيانات";
-"recent_title" = "مؤخراً";
-"carplay_library_error" = "غير قادر على تحميل الكتب";
-"siri_invocation_phrase" = "استمر في كتابي";
-"siri_activity_title" = "متابعة آخر كتاب تم تشغيله";
-"watchapp_connect_error_title" = "خطأ في الاتصال";
-"watchapp_connect_error_description" = "هناك مشكلة في الاتصال بهاتفك، الرجاء المحاولة مرة أخرى لاحقًا";
-"sleep_remaining_title" = "%@ المتبقي حتى النوم";
-"audio_source_title" = "مصدر الصوت";
-"speed_title" = "سرعة";
-"import_preparing_title" = "التحضير لاستيراد الملفات";
-"library_add_title" = "أضف كتابك الأول";
-"invalid_url_title" = "URL غير صالح: %@";
-"downloading_file_title" = "تحميل الملف";
-"progress_title" = "التقدم";
-"settings_siri_sleeptimer_title" = "مؤقت النوم";
-"active_title" = "تشغيل";
-"voiceover_currently_playing_title" = "يتم الآن تشغيل %@ لـ %@";
-"voiceover_miniplayer_hint" = "المشغِّل الصغير. انقر لإظهار المشغِّل";
-"voiceover_chapter_time_title" = "وقت الفصل الحالي: %@";
-"voiceover_dismiss_player_title" = "صرف المشغِّل";
-"sort_most_recent_button" = "الأحدث";
-"sort_reversed_button" = "عكس الترتيب";
-"voiceover_continue_playback_title" = "متابعة التشغيل";
-"coredata_error_diskfull_description" = "تعذر تحميل المكتبة ، نفدت مساحة القرص على الجهاز.";
-"coredata_error_migration_description" = "فشل ترحيل قاعدة البيانات، يجب إعادة إنشاء المكتبة.";
-"import_warning_description" = "نقل الملفات قد يستغرق بعض الوقت، يرجى التأكد من أن عدد الملفات كاملة قبل المتابعة.";
-"settings_storage_description" = "إدارة الملفات";
-"storage_total_title" = "المساحة الإجمالية المستخدمة";
-"settings_storage_title" = "إدارة التخزين";
-"storage_fix_file_button" = "اصلاح";
-"storage_fix_file_description" = "عنصر الكتاب مفقود، إذا تعذر العثور على العنصر المطابق، سيتم إنشاء عنصر جديد";
-"bookmarks_title" = "الاشارات المرجعيه";
-"bookmark_created_title" = "تم حفظ الإشارة المرجعية عند %@";
-"bookmark_exists_title" = "لقد قمت بالفعل بإنشاء إشارة مرجعية عند %@";
-"bookmark_note_action_title" = "إضافة ملاحظة";
-"bookmarks_see_title" = "الاطلاع على الإشارات المرجعية";
-"bookmark_type_automatic_title" = "تلقائي";
-"bookmark_type_user_title" = "يدوي";
-"bookmark_automatic_play_title" = "آخر موضع قبل بدء التشغيل";
-"bookmark_automatic_skip_title" = "آخر موضع قبل تخطي الوقت";
-"bookmark_note_edit_title" = "تحرير الملاحظة";
-"bookmark_create_title" = "إنشاء إشارة مرجعية";
-"storage_duplicate_item_title" = "مكرر";
-"storage_duplicate_item_description" = "الملف المحدد كان مكررا، الملف الموجود موجود في: %@";
-"chapters_previous_title" = "الفصل السابق";
-"chapters_next_title" = "الفصل التالي";
-"book_time_current_title" = "وقت الكتاب الفعلي: %@";
-"storage_fix_files_description" = "الرابط بين الملفات وعناصر الكتاب الرقمي مفقود ، إذا تعذر العثور على العنصر المقابل لكل ملف ، فسيتم إنشاء عنصر جديد";
-"storage_fix_all_title" = "إصلاح الكل";
-"settings_backup_title" = "النسخ الاحتياطية [ايكلوود]";
-"settings_backup_files_title" = "تضمين ملفات الكتب";
-"bound_books_create_button" = "ادمج في الحجم";
-"bound_books_undo_alert_title" = "تحويل إلى مجلد";
-"bound_books_new_title_placeholder" = "حجم الكتاب الجديد";
-"bound_books_create_alert_description" = "تأكد من أن العناصر في الترتيب الصحيح. لإعادة ترتيب الفصول لاحقًا ، تحتاج إلى تحويل وحدة التخزين مرة أخرى إلى مجلد ، وإعادة ترتيب العناصر ثم إعادة إنشاء المجلد.";
-"bound_books_create_alert_title" = "إنشاء وحدة تخزين";
-"voiceover_bound_books_progress" = "%@ ، حجم الصوت ، اكتمل %d بالمائة";
-"voiceover_no_bound_books_title" = "لا يوجد عنوان وحدة التخزين";
-"default_title" = "محددة مسبقا";
-"voiceover_default_speed_title" = "ضبط السرعة الافتراضية";
-"error_loading_chapters" = "تعذر تحميل الفصول من: \n %@";
-"error_empty_chapters" = "الفصول فارغة ، الرجاء التحقق من محتويات المجلد: %@";
-"sleeptimer_option_custom" = "العادة";
-"sleeptimer_custom_alert_title" = "مؤقت نوم مخصص";
-"settings_progresslabels_title" = "تسميات التقدم";
-"settings_playerinterface_list_title" = "يفتح";
-"settings_remainingtime_title" = "استخدم الوقت المتبقي";
-"settings_chaptercontext_title" = "استخدم سياق الفصل";
-"settings_progresslabels_description" = "قم بالتبديل بين عرض الوقت المتبقي والمدة الإجمالية والتقدم في الفصل أو الكتاب في شاشة المشغل";
-"settings_playerinterface_list_description" = "اضبط ما يفتحه زر القائمة في شاشة المشغل";
-"settings_autoplay_section_title" = "تشغيل تلقائي";
-"settings_autoplay_restart_title" = "أعد تشغيل الكتب المنتهية";
-"settings_theme_autobrightness" = "حدد التباين الداكن للسمة إذا انخفض سطوع الشاشة عن الحد المعين.";
+
+"new_playlist_button" = "ملف جديد";
+
 "note_title" = "ملحوظة";
-"playing_title" = "تشغيل الصوت";
+
+"ok_button" = "موافق";
+
+"options_button" = "خيارات";
+
+"pause_title" = "ايقاف";
+
 "paused_title" = "متوقف مؤقتًا";
-"skipped_forward_title" = "تم التخطي للأمام";
-"skipped_back_title" = "تم التخطي للخلف";
-"button_free_title" = "بدون زر";
+
+"play_title" = "بدء";
+
+"player_chapter_description" = "الفصل %d من %d";
+
+"player_sleep_title" = "إيقاف التشغيل مؤقتًا";
+
+"player_speed_title" = "تعيين سرعة التشغيل";
+
+"playing_title" = "تشغيل الصوت";
+
+"playlist_add_title" = "إضافة ملفات";
+
+"plus_app_icons_title" = "أيقونات التطبيقات";
+
+"plus_icons_description" = "يأتي BookPlayer Plus مع العديد من أيقونات التطبيق ، والتي تتوافق مع أنظمة الألوان وخلفية الشاشة.";
+
+"plus_themes_description" = "سمات ملونة لواجهة التطبيق منتقاة بعناية لتتناسب مع كتبك المفضلة";
+
+"progress_complete_description" = "%d بالمائة مكتمل";
+
+"progress_title" = "التقدم";
+
+"purchases_restored_title" = "تمت استعادة المشتريات!";
+
+"recent_title" = "مؤخراً";
+
+"rename_button" = "إعادة تسمية";
+
+"rename_title" = "إعادة تسمية";
+
+"restore_title" = "استعاده";
+
 "screen_gestures_title" = "إيماءات الشاشة";
-"gesture_tap_title" = "انقر للتشغيل أو الإيقاف المؤقت";
-"gesture_swipe_left_title" = "اسحب لليسار للترجيع";
-"gesture_swipe_right_title" = "اسحب لليمين للتخطي للأمام";
-"gesture_swipe_vertically_title" = "اسحب عموديًا لإنشاء إشارة مرجعية";
+
+"seconds_title" = "ثانية";
+
+"select_all_title" = "اختيار الكل";
+
+"select_item_title" = "تحديد العنصر";
+
+"select_playlist_title" = "اختر مجلد";
+
+"settings_app_icon_title" = "أيقونة التطبيق";
+
+"settings_appearance_title" = "المظهر";
+
+"settings_autolock_description" = "منع الجهاز من التأمين عند تشغيل الشاشة \"المشغل\".";
+
+"settings_autolock_title" = "تعطيل القفل التلقائي";
+
+"settings_autoplay_description" = "بعد الانتهاء من كتاب صوتي ، سيستأنف التشغيل مع جميع العناصر الموجودة في المكتبة ، بما في ذلك العناصر الموجودة في المجلدات.";
+
+"settings_autoplay_restart_title" = "أعد تشغيل الكتب المنتهية";
+
+"settings_autoplay_section_title" = "تشغيل تلقائي";
+
+"settings_autoplay_title" = "مكتبة التشغيل التلقائي";
+
+"settings_backup_files_title" = "تضمين ملفات الكتب";
+
+"settings_backup_title" = "النسخ الاحتياطية [ايكلوود]";
+
+"settings_boostvolume_description" = "ضاعف مستوى الصوت.\nاستخدم بحذر وعناية بالاستماع.";
+
+"settings_boostvolume_title" = "زيادة مستوى الصوت";
+
+"settings_button" = "الاعدادات";
+
+"settings_chaptercontext_title" = "استخدم سياق الفصل";
+
+"settings_controls_title" = "ضبط المشغل";
+
+"settings_credits_title" = "الاعتمادات والتراخيص";
+
+"settings_globalspeed_description" = "تعيين السرعة على جميع الكتب.";
+
+"settings_globalspeed_title" = "التحكم في السرعة العالمية";
+
+"settings_playback_title" = "إعدادات التشغيل";
+
+"settings_playerinterface_list_description" = "اضبط ما يفتحه زر القائمة في شاشة المشغل";
+
+"settings_playerinterface_list_title" = "يفتح";
+
+"settings_power_connected_title" = "فقط عند الاتصال بالشاحن";
+
+"settings_progresslabels_description" = "قم بالتبديل بين عرض الوقت المتبقي والمدة الإجمالية والتقدم في الفصل أو الكتاب في شاشة المشغل";
+
+"settings_progresslabels_title" = "تسميات التقدم";
+
+"settings_remainingtime_title" = "استخدم الوقت المتبقي";
+
+"settings_siri_lastplayed_description" = "استخدم Siri لمتابعة آخر كتاب تم تشغيله.";
+
+"settings_siri_lastplayed_title" = "آخر كتاب تم تشغيله";
+
+"settings_siri_sleeptimer_title" = "مؤقت النوم";
+
+"settings_siri_title" = "اختصار سيري";
+
+"settings_skip_description" = "اضبط القيمة الذي تم تخطيه عند استخدام الأزرار في \"المشغل\" أو \"مركز التحكم\".";
+
+"settings_skip_forward_title" = "إلى الأمام";
+
+"settings_skip_rewind_title" = "الترجيع";
+
+"settings_skip_title" = "تخطي الفواصل الزمنية";
+
+"settings_smartrewind_description" = "الترجيع 30 ثانية بعد توقف لمدة 10 دقائق.";
+
+"settings_smartrewind_title" = "إعادة الإرجاع الذكية";
+
+"settings_storage_description" = "إدارة الملفات";
+
+"settings_storage_title" = "إدارة التخزين";
+
+"settings_support_compose_copy" = "نسخ المعلومات إلى الحافظة";
+
+"settings_support_compose_description" = "تحتاج إلى إعداد حساب بريد إلكتروني في إعدادات جهازك لاستخدام هذا.\n\nبلد بريد إلكتروني لنا في";
+
+"settings_support_compose_title" = "تعذر إنشاء البريد الإلكتروني";
+
+"settings_support_email_title" = "أرسل لنا رسالة إلكترونية";
+
+"settings_support_project_description" = "فتح مشكلات جديدة لطلبات الميزات والأخطاء";
+
+"settings_support_project_title" = "عرض المشروع على Github";
+
+"settings_support_title" = "الدعم";
+
+"settings_theme_autobrightness" = "حدد التباين الداكن للسمة إذا انخفض سطوع الشاشة عن الحد المعين.";
+
+"settings_theme_title" = "التنسيق";
+
+"settings_tip_jar_title" = "جرة الإكرامية";
+
+"settings_title" = "الاعدادات";
+
+"siri_activity_title" = "متابعة آخر كتاب تم تشغيله";
+
+"siri_alert_description" = "تتوفر اختصارات Siri في نظام التشغيل iOS 12 والإصدارات الأحدث";
+
+"siri_invocation_phrase" = "استمر في كتابي";
+
+"skipped_back_title" = "تم التخطي للخلف";
+
+"skipped_forward_title" = "تم التخطي للأمام";
+
+"sleep_alert_description" = "النوم عند انتهاء الفصل";
+
+"sleep_chapter_option_title" = "نهاية الفصل الحالي";
+
+"sleep_interval_title" = "في %@";
+
+"sleep_off_title" = "ايقاف";
+
+"sleep_remaining_title" = "%@ المتبقي حتى النوم";
+
+"sleep_time_description" = "النوم في %@";
+
+"sleeptimer_custom_alert_title" = "مؤقت نوم مخصص";
+
+"sleeptimer_option_custom" = "العادة";
+
+"sort_filename_button" = "اسم الملف الأصلي";
+
+"sort_files_title" = "ترتيب الملفات حسب";
+
+"sort_most_recent_button" = "الأحدث";
+
+"sort_reversed_button" = "عكس الترتيب";
+
+"sort_title" = "ترتيب الملفات حسب";
+
+"speed_title" = "سرعة";
+
+"storage_duplicate_item_description" = "الملف المحدد كان مكررا، الملف الموجود موجود في: %@";
+
+"storage_duplicate_item_title" = "مكرر";
+
+"storage_fix_all_title" = "إصلاح الكل";
+
+"storage_fix_file_button" = "اصلاح";
+
+"storage_fix_file_description" = "عنصر الكتاب مفقود، إذا تعذر العثور على العنصر المطابق، سيتم إنشاء عنصر جديد";
+
+"storage_fix_files_description" = "الرابط بين الملفات وعناصر الكتاب الرقمي مفقود ، إذا تعذر العثور على العنصر المقابل لكل ملف ، فسيتم إنشاء عنصر جديد";
+
+"storage_total_title" = "المساحة الإجمالية المستخدمة";
+
+"support_bookplayer_description" = "الحصول على BookPlayer + لدعم التنمية في المستقبل والحصول على مواضيع إضافية وأيقونات التطبيق";
+
+"support_bookplayer_title" = "دعم bookplayer";
+
+"support_us_title" = "ادعمنا";
+
+"thanks_amazing_title" = "أنت رائع!";
+
+"thanks_title" = "شكرا لدعمك!";
+
+"theme_dark_title" = "استخدام الواجهة الداكنة دائماً";
+
+"theme_switch_title" = "تبديل الواجهة تلقائياً";
+
+"theme_system_title" = "تغيير الواجهة تبعا لوضعية النظام";
+
+"themes_caps_title" = "التنسيقات";
+
+"themes_title" = "سمات الواجهة";
+
+"tip_missing_title" = "أنت لم تبلغنا بعد";
+
+"title_button" = "عنوان الكتاب";
+
+"voiceover_book_chapter" = "%@ من %@ ، الفصل %@";
+
+"voiceover_book_info" = "%@ بواسطة %@";
+
+"voiceover_book_progress" = "%@ من %@ ، اكتمل %d";
+
+"voiceover_bound_books_progress" = "%@ ، حجم الصوت ، اكتمل %d بالمائة";
+
+"voiceover_chapter_time_title" = "وقت الفصل الحالي: %@";
+
+"voiceover_continue_playback_title" = "متابعة التشغيل";
+
+"voiceover_currently_playing_title" = "يتم الآن تشغيل %@ لـ %@";
+
+"voiceover_default_speed_title" = "ضبط السرعة الافتراضية";
+
+"voiceover_dismiss_player_title" = "صرف المشغِّل";
+
+"voiceover_forward_time" = "تقديم سريع %@";
+
+"voiceover_miniplayer_hint" = "المشغِّل الصغير. انقر لإظهار المشغِّل";
+
+"voiceover_no_author" = "لا يوجد كاتب";
+
+"voiceover_no_bound_books_title" = "لا يوجد عنوان وحدة التخزين";
+
+"voiceover_no_file_subtitle" = "لا يوجد ملف الترجمة";
+
+"voiceover_no_file_title" = "لا يوجد عنوان ملف";
+
+"voiceover_no_playlist_title" = "لا يوجد عنوان مجلد";
+
+"voiceover_no_title" = "لا يوجد عنوان";
+
+"voiceover_playlist_progress" = "%@ ، قائمة التشغيل ، اكتمل %d بالمائة";
+
+"voiceover_rewind_time" = "إرجاع %@";
+
+"voiceover_unknown_author" = "كاتب غير معروف";
+
+"voiceover_unknown_title" = "عنوان غير معروف";
+
+"watchapp_connect_error_description" = "هناك مشكلة في الاتصال بهاتفك، الرجاء المحاولة مرة أخرى لاحقًا";
+
+"watchapp_connect_error_title" = "خطأ في الاتصال";
+
+"watchapp_last_played_title" = "التشغيل الاخير";
+
+"watchapp_refresh_data_title" = "تحديث البيانات";

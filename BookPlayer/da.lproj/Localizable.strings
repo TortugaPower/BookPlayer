@@ -1,233 +1,449 @@
-/* 
-  Localizable.strings
-  BookPlayer
+"active_title" = "Aktiv";
 
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
+"audio_source_title" = "Lydkilde";
+
+"book_duration_title" = "Bogens varighed:";
+
+"book_time_current_title" = "Aktuel bogtid: %@";
+
+"book_time_remaining_title" = "Bogens resterende tid:";
+
+"bookmark_automatic_play_title" = "Sidste position før afspilning startede";
+
+"bookmark_automatic_skip_title" = "Sidste position før tidsspring";
+
+"bookmark_create_title" = "Opret bogmærke";
+
+"bookmark_created_title" = "Bogmærket er gemt på %@";
+
+"bookmark_exists_title" = "Du har allerede oprettet et bogmærke på %@";
+
+"bookmark_note_action_title" = "Tilføj note";
+
+"bookmark_note_edit_title" = "Rediger note";
+
+"bookmark_type_automatic_title" = "Automatisk";
+
+"bookmark_type_user_title" = "Manuel";
+
+"bookmarks_see_title" = "Se bogmærker";
+
+"bookmarks_title" = "Bogmærker";
+
+"bookplayer_opensource_description" = "BookPlayer er gratis og Open Source, og sådan vil det altid være. Med din hjælp er vi i stand til at implementere flere funktioner og gøre BookPlayer endnu bedre";
+
+"bound_books_create_alert_description" = "Sørg for, at elementerne er i den rigtige rækkefølge. Hvis du vil ændre rækkefølgen af kapitler senere skal du konvertere bindet tilbage til en mappe, omarrangere elementer og derefter genskabe bindet.";
+
+"bound_books_create_alert_title" = "Opret et volumen";
+
+"bound_books_create_button" = "Kombiner til Volume";
+
+"bound_books_new_title_placeholder" = "Ny bogbind";
+
+"bound_books_undo_alert_title" = "Konverter til mappe";
+
+"button_free_title" = "Knapløs";
+
+"cancel_button" = "Annuller";
+
+"carplay_library_error" = "Bøger kunne ikke indlæses";
+
+"chapter_duration_title" = "Kapitlets varighed:";
+
+"chapter_number_title" = "Kapitel %d";
+
+"chapter_time_remaining_title" = "Kapitlets resterende tid:";
+
+"chapters_item_description" = "Start: %@ - Varighed: %@";
+
+"chapters_next_title" = "Næste kapitel";
+
+"chapters_previous_title" = "Forrige kapitel";
+
+"chapters_title" = "Kapitler";
+
+"choose_destination_title" = "Vælg destination";
+
+"coredata_error_diskfull_description" = "Biblioteket kunne ikke indlæses, enheden er løbet tør for diskplads.";
+
+"coredata_error_migration_description" = "En migrering af databasen mislykkedes, biblioteket skal genindlæses.";
+
+"create_button" = "Opret";
+
+"create_playlist_button" = "Opret mappe";
+
+"create_playlist_title" = "Opret en ny mappe";
+
+"current_playlist_title" = "Nuværende mappe";
+
+"default_title" = "Standard";
+
+"delete_button" = "Slet";
+
+"delete_completely_button" = "Slet helt";
+
+"delete_deep_button" = "Slet mappe og filer";
+
+"delete_multiple_items_description" = "Dette vil også fjerne alle filer i valgte mapper.";
+
+"delete_shallow_button" = "Slet kun mappe";
+
+"delete_single_item_title" = "Ønsker du at slette \"%@\"?";
+
+"delete_single_playlist_description" = "Hvis du kun sletter mappen, flyttes alle dens filer tilbage til biblioteket.";
+
+"deselect_all_title" = "Fravælg alle";
+
+"downloading_file_title" = "Henter fil";
+
+"empty_playlist_description" = "Du kan også flytte filer hertil ved at trække dem til denne mappe i biblioteket";
+
+"error_empty_chapters" = "Kapitlerne er tomme, bekræft venligst indholdet af mappen: %@";
+
+"error_loading_chapters" = "Kapitler kunne ikke indlæses fra: \n %@";
+
+"error_title" = "Fejl";
+
+"excellent_tip_title" = "Fremragende donation på";
+
+"existing_playlist_button" = "Eksisterende mappe";
+
+"export_button" = "Del";
+
+"extra_tips_description" = "Hvis du virkelig sætter pris på BookPlayer, kan du donere for at støtte appens udvikling. Dette vil hjælpe til at få tingene til at køre rundt og samtidigt understøtte flere funktionerne ud i fremtiden.";
+
+"file_error_description" = "Denne bogs fil kunne ikke indlæses. Sørg for, at du ikke bruger filer med DRM-beskyttelse (eksempelvis .aax-filer)";
+
+"file_error_title" = "Filfejl!";
+
+"file_missing_description" = "Denne bogs fil blev fjernet fra din enhed. Importer filen igen for at afspille bogen";
+
+"file_missing_title" = "Fil mangler!";
+
+"generic_retry_description" = "Prøv venligst igen senere";
+
+"gesture_swipe_left_title" = "Stryg til venstre for at spole tilbage";
+
+"gesture_swipe_right_title" = "Stryg til højre for at springe fremad";
+
+"gesture_swipe_vertically_title" = "Stryg lodret for at oprette et bogmærke";
+
+"gesture_tap_title" = "Tryk for at afspille eller sætte på pause";
+
+"icon_error_description" = "Ændring af appikonet mislykkedes. Prøv igen senere";
+
+"icons_bookplayer_credit_description" = "Af dine venner på BookPlayer";
+
+"import_button" = "Importér filer";
+
+"import_description" = "Du kan også tilføje filer via AirDrop. Send lydbog-filen til din enhed, og vælg BookPlayer fra listen.";
+
+"import_preparing_title" = "Forbereder import af filer";
+
+"import_warning_description" = "Overførsel af filer kan tage et stykke tid. Sørg for, at antallet af filer er komplet, før du fortsætter.";
+
+"incredible_tip_title" = "Ufattelig donation på";
+
+"invalid_url_title" = "Ugyldig URL: %@";
+
+"jump_start_title" = "Gå til start";
+
+"kind_tip_title" = "Venlig donation på";
+
+"learn_more_title" = "LÆR MERE";
+
+"library_add_button" = "Tilføj";
+
+"library_add_title" = "Tilføj din første bog";
 
 "library_title" = "Bibliotek";
-"settings_button" = "Indstillinger";
-"settings_title" = "Indstillinger";
-"settings_autoplay_title" = "AutoPlay Bibliotek";
-"settings_autoplay_description" = "Når du har afsluttet en lydbog, genoptages afspilningen med alle elementer i biblioteket, inklusive elementer i mapper.";
-"settings_smartrewind_title" = "Smart Tilbagespolning";
-"settings_smartrewind_description" = "Spol 30 sekunder tilbage, efter at du har sat bogen på pause i 10 minutter.";
-"settings_boostvolume_title" = "Boost lydstyrken";
-"settings_boostvolume_description" = "Fordobler lydstyrken. \nAnvend med forsigtighed og omtanke for din hørelse.";
-"settings_globalspeed_title" = "Global hastighedskontrol";
-"settings_globalspeed_description" = "Indstil hastighed på tværs af alle bøger.";
-"settings_autolock_title" = "Deaktiver autolås";
-"settings_autolock_description" = "Undgå at enheden låser når afspilleren er i brug.";
-"settings_siri_lastplayed_title" = "Senest afspillede bog";
-"settings_siri_lastplayed_description" = "Brug Siri til at fortsætte den senest afspillede bog.";
-"settings_skip_title" = "SPRING OVER-INTERVALLER";
-"settings_skip_rewind_title" = "Spol tilbage";
-"settings_skip_forward_title" = "Spol frem";
-"settings_skip_description" = "Justér mængden der springes over, når du bruger knapperne i afspilleren eller i kontrolcenteret.";
-"settings_support_title" = "SUPPORT";
-"settings_siri_title" = "GENVEJE I SIRI";
-"settings_support_project_title" = "Se projektet på GitHub";
-"settings_support_project_description" = "Opret sag for dine funktionsanmodninger og fejl";
-"settings_support_email_title" = "Send os en e-mail";
-"settings_credits_title" = "Anerkendelser og licenser";
-"settings_support_compose_title" = "Kan ikke oprette e-mail";
-"settings_support_compose_description" = "Du skal indstille en e-mailkonto i dine enhedsindstillinger for at bruge denne funktion. \n\nKontakt os:";
-"settings_support_compose_copy" = "Kopier til udklipsholderen";
-"library_add_button" = "Tilføj";
-"export_button" = "Del";
-"delete_button" = "Slet";
-"rename_button" = "Omdøb";
-"delete_single_item_title" = "Ønsker du at slette \"%@\"?";
-"delete_single_playlist_description" = "Hvis du kun sletter mappen, flyttes alle dens filer tilbage til biblioteket.";
-"delete_shallow_button" = "Slet kun mappe";
-"delete_deep_button" = "Slet mappe og filer";
-"create_playlist_button" = "Opret mappe";
-"create_button" = "Opret";
-"import_button" = "Importér filer";
-"import_description" = "Du kan også tilføje filer via AirDrop. Send lydbog-filen til din enhed, og vælg BookPlayer fra listen.";
-"create_playlist_title" = "Opret en ny mappe";
-"delete_multiple_items_description" = "Dette vil også fjerne alle filer i valgte mapper.";
-"new_playlist_button" = "Ny mappe";
-"existing_playlist_button" = "Eksisterende mappe";
-"choose_destination_title" = "Vælg destination";
-"delete_completely_button" = "Slet helt";
-"move_library_button" = "Flyt til bibliotek";
-"options_button" = "Valgmuligheder";
-"select_playlist_title" = "Vælg Mappe";
-"title_button" = "Titel";
-"sort_filename_button" = "Oprindelige filnavn";
-"sort_title" = "Sortér efter";
-"cancel_button" = "Annuller";
-"seconds_title" = "sek";
-"ok_button" = "OK";
-"siri_alert_description" = "Siri-genveje er tilgængelige på iOS 12 og opefter";
-"support_bookplayer_title" = "Støt BookPlayer";
-"support_bookplayer_description" = "Få BookPlayer Plus for at støtte fremtidig udvikling og få ekstra temaer og app-ikoner";
-"learn_more_title" = "LÆR MERE";
-"settings_appearance_title" = "Udseende";
-"settings_theme_title" = "Tema";
-"settings_app_icon_title" = "App-ikon";
-"settings_playback_title" = "Afspilningsindstillinger";
-"settings_controls_title" = "Afspiller kontrol";
-"settings_power_connected_title" = "Kun under opladning";
-"settings_tip_jar_title" = "Donér";
-"theme_system_title" = "Brug systemindstillinger";
-"theme_switch_title" = "Skift automatisk";
-"theme_dark_title" = "Brug altid mørk variation";
-"themes_title" = "Temaer";
-"icons_bookplayer_credit_description" = "Af dine venner på BookPlayer";
-"kind_tip_title" = "Venlig donation på";
-"excellent_tip_title" = "Fremragende donation på";
-"incredible_tip_title" = "Ufattelig donation på";
-"plus_themes_description" = "Farvetemaer er omhyggeligt valgt, så de matcher dine yndlingsbøger";
-"plus_icons_description" = "BookPlayer Plus kommer med en række app-ikoner, der matcher farvetemaer og din baggrund";
-"support_us_title" = "Støt os";
-"bookplayer_opensource_description" = "BookPlayer er gratis og Open Source, og sådan vil det altid være. Med din hjælp er vi i stand til at implementere flere funktioner og gøre BookPlayer endnu bedre";
-"thanks_title" = "Tak for din støtte!";
-"extra_tips_description" = "Hvis du virkelig sætter pris på BookPlayer, kan du donere for at støtte appens udvikling. Dette vil hjælpe til at få tingene til at køre rundt og samtidigt understøtte flere funktionerne ud i fremtiden.";
-"select_all_title" = "Vælg alle";
-"deselect_all_title" = "Fravælg alle";
-"move_title" = "Flyt";
-"jump_start_title" = "Gå til start";
+
 "mark_finished_title" = "Markér som fuldført";
-"sort_files_title" = "Sortér filer efter";
-"rename_title" = "Omdøb";
-"file_error_title" = "Filfejl!";
-"file_error_description" = "Denne bogs fil kunne ikke indlæses. Sørg for, at du ikke bruger filer med DRM-beskyttelse (eksempelvis .aax-filer)";
-"file_missing_title" = "Fil mangler!";
-"file_missing_description" = "Denne bogs fil blev fjernet fra din enhed. Importer filen igen for at afspille bogen";
-"empty_playlist_description" = "Du kan også flytte filer hertil ved at trække dem til denne mappe i biblioteket";
-"playlist_add_title" = "Tilføj filer";
-"player_speed_title" = "Sæt afspilningshastighed";
-"player_sleep_title" = "Sæt afspilningen på pause";
-"sleep_chapter_option_title" = "Slutningen af nuværende kapitel";
-"player_chapter_description" = "Kapitel %d af %d";
-"chapters_title" = "Kapitler";
-"chapters_item_description" = "Start: %@ - Varighed: %@";
-"restore_title" = "Gendan";
-"themes_caps_title" = "TEMAER";
-"plus_app_icons_title" = "App-ikoner";
+
 "mark_unfinished_title" = "Markér som ikke fuldført";
+
+"move_library_button" = "Flyt til bibliotek";
+
 "move_playlist_button" = "Flyt til folder";
+
 "move_single_item_title" = "Vil du flytte '%@' til '%@'?";
-"current_playlist_title" = "Nuværende mappe";
-"select_item_title" = "Vælg element";
-"sleep_alert_description" = "Sover når kapitlet er færdigt";
-"sleep_time_description" = "Sover om %@";
-"sleep_off_title" = "Slå fra";
-"sleep_interval_title" = "Om %@";
-"chapter_number_title" = "Kapitel %d";
-"progress_complete_description" = "%d procent fuldført";
-"chapter_duration_title" = "Kapitlets varighed:";
-"chapter_time_remaining_title" = "Kapitlets resterende tid:";
-"book_time_remaining_title" = "Bogens resterende tid:";
-"book_duration_title" = "Bogens varighed:";
-"icon_error_description" = "Ændring af appikonet mislykkedes. Prøv igen senere";
-"error_title" = "Fejl";
-"generic_retry_description" = "Prøv venligst igen senere";
+
+"move_title" = "Flyt";
+
 "network_error_title" = "Netværksfejl";
-"purchases_restored_title" = "Køb gendannet!";
-"tip_missing_title" = "Du har endnu ikke doneret";
-"thanks_amazing_title" = "Du er fantastisk!";
-"play_title" = "Afspil";
-"pause_title" = "Pause";
-"voiceover_no_title" = "Ingen titel";
-"voiceover_no_author" = "Ingen forfatter";
-"voiceover_book_progress" = "%@ af %@, %d procent fuldført";
-"voiceover_no_file_title" = "Ingen filnavn";
-"voiceover_no_file_subtitle" = "Ingen undertekstfil";
-"voiceover_no_playlist_title" = "Ingen mappetitel";
-"voiceover_playlist_progress" = "%@, Playliste, %d procent fuldført";
-"voiceover_unknown_title" = "Ukendt titel";
-"voiceover_unknown_author" = "Ukendt forfatter";
-"voiceover_book_info" = "%@ af %@";
-"voiceover_book_chapter" = "%@ af %@, kapitel %@";
-"voiceover_rewind_time" = "Spol tilbage %@";
-"voiceover_forward_time" = "Spol frem %@";
-"watchapp_last_played_title" = "Senest afspillet";
-"watchapp_refresh_data_title" = "Genindlæs";
-"recent_title" = "Seneste";
-"carplay_library_error" = "Bøger kunne ikke indlæses";
-"siri_invocation_phrase" = "Fortsæt med bog";
-"siri_activity_title" = "Fortsæt med seneste afspillede bog";
-"watchapp_connect_error_title" = "Forbindelsesfejl";
-"watchapp_connect_error_description" = "Der er et problem med at oprette forbindelse til din telefon. Prøv igen senere";
-"sleep_remaining_title" = "%@ tilbage indtil søvn";
-"audio_source_title" = "Lydkilde";
-"speed_title" = "Hastighed";
-"import_preparing_title" = "Forbereder import af filer";
-"library_add_title" = "Tilføj din første bog";
-"invalid_url_title" = "Ugyldig URL: %@";
-"downloading_file_title" = "Henter fil";
-"progress_title" = "Fremskridt";
-"settings_siri_sleeptimer_title" = "Sleeptimer";
-"active_title" = "Aktiv";
-"voiceover_currently_playing_title" = "Afspiller i øjeblikket %@ af %@";
-"voiceover_miniplayer_hint" = "Miniafspiller. Tryk for at få vist afspilleren";
-"voiceover_chapter_time_title" = "Aktuel kapiteltid: %@";
-"voiceover_dismiss_player_title" = "Skjul Afspiller";
-"sort_most_recent_button" = "Seneste";
-"sort_reversed_button" = "Omvendt rækkefølge";
-"voiceover_continue_playback_title" = "Fortsæt afspilning";
-"coredata_error_diskfull_description" = "Biblioteket kunne ikke indlæses, enheden er løbet tør for diskplads.";
-"coredata_error_migration_description" = "En migrering af databasen mislykkedes, biblioteket skal genindlæses.";
-"import_warning_description" = "Overførsel af filer kan tage et stykke tid. Sørg for, at antallet af filer er komplet, før du fortsætter.";
-"settings_storage_description" = "Administrer dine filer";
-"storage_total_title" = "Samlet plads brugt";
-"settings_storage_title" = "Lagerstyring";
-"storage_fix_file_button" = "Fix";
-"storage_fix_file_description" = "Bogelementet mangler, hvis det tilsvarende element ikke kan findes, oprettes der et nyt";
-"bookmarks_title" = "Bogmærker";
-"bookmark_created_title" = "Bogmærket er gemt på %@";
-"bookmark_exists_title" = "Du har allerede oprettet et bogmærke på %@";
-"bookmark_note_action_title" = "Tilføj note";
-"bookmarks_see_title" = "Se bogmærker";
-"bookmark_type_automatic_title" = "Automatisk";
-"bookmark_type_user_title" = "Manuel";
-"bookmark_automatic_play_title" = "Sidste position før afspilning startede";
-"bookmark_automatic_skip_title" = "Sidste position før tidsspring";
-"bookmark_note_edit_title" = "Rediger note";
-"bookmark_create_title" = "Opret bogmærke";
-"storage_duplicate_item_title" = "Duplikér";
-"storage_duplicate_item_description" = "Den valgte fil eksisterer allerede. Den eksisterende fil er placeret på: %@";
-"chapters_previous_title" = "Forrige kapitel";
-"chapters_next_title" = "Næste kapitel";
-"book_time_current_title" = "Aktuel bogtid: %@";
-"storage_fix_files_description" = "Linket mellem filerne og de digitale bogelementer mangler, hvis det tilsvarende element ikke kan findes for hver fil, oprettes et nyt";
-"storage_fix_all_title" = "Fix Alle";
-"settings_backup_title" = "iCloud-sikkerhedskopier";
-"settings_backup_files_title" = "Inkluder bogfiler";
-"bound_books_create_button" = "Kombiner til Volume";
-"bound_books_undo_alert_title" = "Konverter til mappe";
-"bound_books_new_title_placeholder" = "Ny bogbind";
-"bound_books_create_alert_description" = "Sørg for, at elementerne er i den rigtige rækkefølge. Hvis du vil ændre rækkefølgen af kapitler senere skal du konvertere bindet tilbage til en mappe, omarrangere elementer og derefter genskabe bindet.";
-"bound_books_create_alert_title" = "Opret et volumen";
-"voiceover_bound_books_progress" = "%@, Volumen, %d procent fuldført";
-"voiceover_no_bound_books_title" = "Ingen bindtitel";
-"default_title" = "Standard";
-"voiceover_default_speed_title" = "Indstil standardhastighed";
-"error_loading_chapters" = "Kapitler kunne ikke indlæses fra: \n %@";
-"error_empty_chapters" = "Kapitlerne er tomme, bekræft venligst indholdet af mappen: %@";
-"sleeptimer_option_custom" = "Brugerdefinerede";
-"sleeptimer_custom_alert_title" = "Brugerdefineret sleep timer";
-"settings_progresslabels_title" = "Fremskridtsetiketter";
-"settings_playerinterface_list_title" = "Åbner";
-"settings_remainingtime_title" = "Brug den resterende tid";
-"settings_chaptercontext_title" = "Brug kapitelkontekst";
-"settings_progresslabels_description" = "Skift mellem at vise den resterende tid, den samlede varighed og fremskridt for enten kapitlet eller bogen på afspillerskærmen";
-"settings_playerinterface_list_description" = "Juster, hvad listeknappen på afspillerskærmen åbner";
-"settings_autoplay_section_title" = "AUTOMATISK AFSPILNING";
-"settings_autoplay_restart_title" = "Genstart færdige bøger";
-"settings_theme_autobrightness" = "Vælg den mørke variant af et tema, hvis skærmens lysstyrke falder under den indstillede tærskel.";
+
+"new_playlist_button" = "Ny mappe";
+
 "note_title" = "Bemærk";
-"playing_title" = "afspille lyd";
+
+"ok_button" = "OK";
+
+"options_button" = "Valgmuligheder";
+
+"pause_title" = "Pause";
+
 "paused_title" = "Pause";
-"skipped_forward_title" = "Sprang fremad";
-"skipped_back_title" = "Sprang tilbage";
-"button_free_title" = "Knapløs";
+
+"play_title" = "Afspil";
+
+"player_chapter_description" = "Kapitel %d af %d";
+
+"player_sleep_title" = "Sæt afspilningen på pause";
+
+"player_speed_title" = "Sæt afspilningshastighed";
+
+"playing_title" = "afspille lyd";
+
+"playlist_add_title" = "Tilføj filer";
+
+"plus_app_icons_title" = "App-ikoner";
+
+"plus_icons_description" = "BookPlayer Plus kommer med en række app-ikoner, der matcher farvetemaer og din baggrund";
+
+"plus_themes_description" = "Farvetemaer er omhyggeligt valgt, så de matcher dine yndlingsbøger";
+
+"progress_complete_description" = "%d procent fuldført";
+
+"progress_title" = "Fremskridt";
+
+"purchases_restored_title" = "Køb gendannet!";
+
+"recent_title" = "Seneste";
+
+"rename_button" = "Omdøb";
+
+"rename_title" = "Omdøb";
+
+"restore_title" = "Gendan";
+
 "screen_gestures_title" = "Skærmbevægelser";
-"gesture_tap_title" = "Tryk for at afspille eller sætte på pause";
-"gesture_swipe_left_title" = "Stryg til venstre for at spole tilbage";
-"gesture_swipe_right_title" = "Stryg til højre for at springe fremad";
-"gesture_swipe_vertically_title" = "Stryg lodret for at oprette et bogmærke";
+
+"seconds_title" = "sek";
+
+"select_all_title" = "Vælg alle";
+
+"select_item_title" = "Vælg element";
+
+"select_playlist_title" = "Vælg Mappe";
+
+"settings_app_icon_title" = "App-ikon";
+
+"settings_appearance_title" = "Udseende";
+
+"settings_autolock_description" = "Undgå at enheden låser når afspilleren er i brug.";
+
+"settings_autolock_title" = "Deaktiver autolås";
+
+"settings_autoplay_description" = "Når du har afsluttet en lydbog, genoptages afspilningen med alle elementer i biblioteket, inklusive elementer i mapper.";
+
+"settings_autoplay_restart_title" = "Genstart færdige bøger";
+
+"settings_autoplay_section_title" = "AUTOMATISK AFSPILNING";
+
+"settings_autoplay_title" = "AutoPlay Bibliotek";
+
+"settings_backup_files_title" = "Inkluder bogfiler";
+
+"settings_backup_title" = "iCloud-sikkerhedskopier";
+
+"settings_boostvolume_description" = "Fordobler lydstyrken. \nAnvend med forsigtighed og omtanke for din hørelse.";
+
+"settings_boostvolume_title" = "Boost lydstyrken";
+
+"settings_button" = "Indstillinger";
+
+"settings_chaptercontext_title" = "Brug kapitelkontekst";
+
+"settings_controls_title" = "Afspiller kontrol";
+
+"settings_credits_title" = "Anerkendelser og licenser";
+
+"settings_globalspeed_description" = "Indstil hastighed på tværs af alle bøger.";
+
+"settings_globalspeed_title" = "Global hastighedskontrol";
+
+"settings_playback_title" = "Afspilningsindstillinger";
+
+"settings_playerinterface_list_description" = "Juster, hvad listeknappen på afspillerskærmen åbner";
+
+"settings_playerinterface_list_title" = "Åbner";
+
+"settings_power_connected_title" = "Kun under opladning";
+
+"settings_progresslabels_description" = "Skift mellem at vise den resterende tid, den samlede varighed og fremskridt for enten kapitlet eller bogen på afspillerskærmen";
+
+"settings_progresslabels_title" = "Fremskridtsetiketter";
+
+"settings_remainingtime_title" = "Brug den resterende tid";
+
+"settings_siri_lastplayed_description" = "Brug Siri til at fortsætte den senest afspillede bog.";
+
+"settings_siri_lastplayed_title" = "Senest afspillede bog";
+
+"settings_siri_sleeptimer_title" = "Sleeptimer";
+
+"settings_siri_title" = "GENVEJE I SIRI";
+
+"settings_skip_description" = "Justér mængden der springes over, når du bruger knapperne i afspilleren eller i kontrolcenteret.";
+
+"settings_skip_forward_title" = "Spol frem";
+
+"settings_skip_rewind_title" = "Spol tilbage";
+
+"settings_skip_title" = "SPRING OVER-INTERVALLER";
+
+"settings_smartrewind_description" = "Spol 30 sekunder tilbage, efter at du har sat bogen på pause i 10 minutter.";
+
+"settings_smartrewind_title" = "Smart Tilbagespolning";
+
+"settings_storage_description" = "Administrer dine filer";
+
+"settings_storage_title" = "Lagerstyring";
+
+"settings_support_compose_copy" = "Kopier til udklipsholderen";
+
+"settings_support_compose_description" = "Du skal indstille en e-mailkonto i dine enhedsindstillinger for at bruge denne funktion. \n\nKontakt os:";
+
+"settings_support_compose_title" = "Kan ikke oprette e-mail";
+
+"settings_support_email_title" = "Send os en e-mail";
+
+"settings_support_project_description" = "Opret sag for dine funktionsanmodninger og fejl";
+
+"settings_support_project_title" = "Se projektet på GitHub";
+
+"settings_support_title" = "SUPPORT";
+
+"settings_theme_autobrightness" = "Vælg den mørke variant af et tema, hvis skærmens lysstyrke falder under den indstillede tærskel.";
+
+"settings_theme_title" = "Tema";
+
+"settings_tip_jar_title" = "Donér";
+
+"settings_title" = "Indstillinger";
+
+"siri_activity_title" = "Fortsæt med seneste afspillede bog";
+
+"siri_alert_description" = "Siri-genveje er tilgængelige på iOS 12 og opefter";
+
+"siri_invocation_phrase" = "Fortsæt med bog";
+
+"skipped_back_title" = "Sprang tilbage";
+
+"skipped_forward_title" = "Sprang fremad";
+
+"sleep_alert_description" = "Sover når kapitlet er færdigt";
+
+"sleep_chapter_option_title" = "Slutningen af nuværende kapitel";
+
+"sleep_interval_title" = "Om %@";
+
+"sleep_off_title" = "Slå fra";
+
+"sleep_remaining_title" = "%@ tilbage indtil søvn";
+
+"sleep_time_description" = "Sover om %@";
+
+"sleeptimer_custom_alert_title" = "Brugerdefineret sleep timer";
+
+"sleeptimer_option_custom" = "Brugerdefinerede";
+
+"sort_filename_button" = "Oprindelige filnavn";
+
+"sort_files_title" = "Sortér filer efter";
+
+"sort_most_recent_button" = "Seneste";
+
+"sort_reversed_button" = "Omvendt rækkefølge";
+
+"sort_title" = "Sortér efter";
+
+"speed_title" = "Hastighed";
+
+"storage_duplicate_item_description" = "Den valgte fil eksisterer allerede. Den eksisterende fil er placeret på: %@";
+
+"storage_duplicate_item_title" = "Duplikér";
+
+"storage_fix_all_title" = "Fix Alle";
+
+"storage_fix_file_button" = "Fix";
+
+"storage_fix_file_description" = "Bogelementet mangler, hvis det tilsvarende element ikke kan findes, oprettes der et nyt";
+
+"storage_fix_files_description" = "Linket mellem filerne og de digitale bogelementer mangler, hvis det tilsvarende element ikke kan findes for hver fil, oprettes et nyt";
+
+"storage_total_title" = "Samlet plads brugt";
+
+"support_bookplayer_description" = "Få BookPlayer Plus for at støtte fremtidig udvikling og få ekstra temaer og app-ikoner";
+
+"support_bookplayer_title" = "Støt BookPlayer";
+
+"support_us_title" = "Støt os";
+
+"thanks_amazing_title" = "Du er fantastisk!";
+
+"thanks_title" = "Tak for din støtte!";
+
+"theme_dark_title" = "Brug altid mørk variation";
+
+"theme_switch_title" = "Skift automatisk";
+
+"theme_system_title" = "Brug systemindstillinger";
+
+"themes_caps_title" = "TEMAER";
+
+"themes_title" = "Temaer";
+
+"tip_missing_title" = "Du har endnu ikke doneret";
+
+"title_button" = "Titel";
+
+"voiceover_book_chapter" = "%@ af %@, kapitel %@";
+
+"voiceover_book_info" = "%@ af %@";
+
+"voiceover_book_progress" = "%@ af %@, %d procent fuldført";
+
+"voiceover_bound_books_progress" = "%@, Volumen, %d procent fuldført";
+
+"voiceover_chapter_time_title" = "Aktuel kapiteltid: %@";
+
+"voiceover_continue_playback_title" = "Fortsæt afspilning";
+
+"voiceover_currently_playing_title" = "Afspiller i øjeblikket %@ af %@";
+
+"voiceover_default_speed_title" = "Indstil standardhastighed";
+
+"voiceover_dismiss_player_title" = "Skjul Afspiller";
+
+"voiceover_forward_time" = "Spol frem %@";
+
+"voiceover_miniplayer_hint" = "Miniafspiller. Tryk for at få vist afspilleren";
+
+"voiceover_no_author" = "Ingen forfatter";
+
+"voiceover_no_bound_books_title" = "Ingen bindtitel";
+
+"voiceover_no_file_subtitle" = "Ingen undertekstfil";
+
+"voiceover_no_file_title" = "Ingen filnavn";
+
+"voiceover_no_playlist_title" = "Ingen mappetitel";
+
+"voiceover_no_title" = "Ingen titel";
+
+"voiceover_playlist_progress" = "%@, Playliste, %d procent fuldført";
+
+"voiceover_rewind_time" = "Spol tilbage %@";
+
+"voiceover_unknown_author" = "Ukendt forfatter";
+
+"voiceover_unknown_title" = "Ukendt titel";
+
+"watchapp_connect_error_description" = "Der er et problem med at oprette forbindelse til din telefon. Prøv igen senere";
+
+"watchapp_connect_error_title" = "Forbindelsesfejl";
+
+"watchapp_last_played_title" = "Senest afspillet";
+
+"watchapp_refresh_data_title" = "Genindlæs";

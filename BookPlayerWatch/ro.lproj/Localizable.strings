@@ -1,18 +1,19 @@
-/* 
-  Localizable.strings
-  BookPlayer
-
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
+"chapters_title" = "Capitole";
 
 "library_title" = "Bibliotecă";
+
 "ok_button" = "OK";
+
 "recent_title" = "Recent";
-"watchapp_last_played_title" = "Ultimul redat";
-"watchapp_refresh_data_title" = "Actualizați datele";
-"watchapp_connect_error_title" = "Eroare de conectivitate";
-"watchapp_connect_error_description" = "Există o problemă de conectare la telefonul dvs., încercați din nou mai târziu";
-"chapters_title" = "Capitole";
-"settings_controls_title" = "Controlul Playerului";
+
 "settings_boostvolume_title" = "Creșterea volumului";
+
+"settings_controls_title" = "Controlul Playerului";
+
+"watchapp_connect_error_description" = "Există o problemă de conectare la telefonul dvs., încercați din nou mai târziu";
+
+"watchapp_connect_error_title" = "Eroare de conectivitate";
+
+"watchapp_last_played_title" = "Ultimul redat";
+
+"watchapp_refresh_data_title" = "Actualizați datele";

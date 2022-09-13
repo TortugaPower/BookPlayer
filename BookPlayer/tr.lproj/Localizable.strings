@@ -1,233 +1,449 @@
-/* 
-  Localizable.strings
-  BookPlayer
+"active_title" = "Aktif Kitap";
 
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
+"audio_source_title" = "Ses Kaynağı";
+
+"book_duration_title" = "Kitap süresi:";
+
+"book_time_current_title" = "Mevcut Kitap Saati: %@";
+
+"book_time_remaining_title" = "Kalan Kitap Süresi:";
+
+"bookmark_automatic_play_title" = "Oynatma başlamadan önceki son konum";
+
+"bookmark_automatic_skip_title" = "Zaman atlamadan önceki son konum";
+
+"bookmark_create_title" = "Yer İşareti Oluştur";
+
+"bookmark_created_title" = "Favoriniz %@ konumunda kaydedildi";
+
+"bookmark_exists_title" = "%@ adresinde zaten bir yer imi oluşturdunuz";
+
+"bookmark_note_action_title" = "Not ekle";
+
+"bookmark_note_edit_title" = "Notu düzenle";
+
+"bookmark_type_automatic_title" = "Otomatik";
+
+"bookmark_type_user_title" = "Manuel";
+
+"bookmarks_see_title" = "Yer imlerine bakın";
+
+"bookmarks_title" = "Yer imleri";
+
+"bookplayer_opensource_description" = "BookPlayer ücretsiz ve Açık Kaynak Kodludur ve her zaman bu şekilde kalacaktır. Yardımınızla daha fazla özellik ekleyebilir ve BookPlayer'ı daha da iyi hale getirebiliriz";
+
+"bound_books_create_alert_description" = "Öğelerin doğru sırada olduğundan emin olun. Bölümleri daha sonra yeniden sıralamak için birimi tekrar bir klasöre dönüştürmeniz, öğeleri yeniden sıralamanız ve ardından birimi yeniden oluşturmanız gerekir.";
+
+"bound_books_create_alert_title" = "Birim oluştur";
+
+"bound_books_create_button" = "Hacimde Birleştir";
+
+"bound_books_new_title_placeholder" = "Yeni Kitap Hacmi";
+
+"bound_books_undo_alert_title" = "Klasöre Dönüştür";
+
+"button_free_title" = "Düğmesiz";
+
+"cancel_button" = "İptal";
+
+"carplay_library_error" = "Kitap yüklenemiyor";
+
+"chapter_duration_title" = "Bölüm süresi:";
+
+"chapter_number_title" = "Bölüm %d";
+
+"chapter_time_remaining_title" = "Kalan Bölüm Süresi:";
+
+"chapters_item_description" = "Başlangıç: %@ - Süre: %@";
+
+"chapters_next_title" = "Sonraki bölüm";
+
+"chapters_previous_title" = "Önceki Bölüm";
+
+"chapters_title" = "Bölümler";
+
+"choose_destination_title" = "Hedef seç";
+
+"coredata_error_diskfull_description" = "Kitaplık yüklenemedi, aygıtta disk alanı kalmadı.";
+
+"coredata_error_migration_description" = "Veritabanının taşınması başarısız oldu, kitaplığın yeniden başlatılması gerekecek.";
+
+"create_button" = "Oluştur";
+
+"create_playlist_button" = "Klasör oluşturun";
+
+"create_playlist_title" = "Yeni bir klasör oluştur";
+
+"current_playlist_title" = "Geçerli klasör";
+
+"default_title" = "Varsayılan";
+
+"delete_button" = "Sil";
+
+"delete_completely_button" = "Tamamen sil";
+
+"delete_deep_button" = "Klasörü ve dosyaları sil";
+
+"delete_multiple_items_description" = "Bu, seçilen klasörlerdeki tüm dosyaları da kaldıracaktır.";
+
+"delete_shallow_button" = "Yalnızca klasörü sil";
+
+"delete_single_item_title" = "\"%@\"i silmek istiyor musun?";
+
+"delete_single_playlist_description" = "Yalnızca klasörü silmek, tüm dosyalarını Kitaplığa geri taşır.";
+
+"deselect_all_title" = "Tümünün Seçimini Kaldır";
+
+"downloading_file_title" = "Dosya indiriliyor";
+
+"empty_playlist_description" = "Dosyaları Kitaplık'taki bu klasöre sürükleyerek de buraya taşıyabilirsiniz.";
+
+"error_empty_chapters" = "Bölümler boş, lütfen klasörün içeriğini doğrulayın: %@";
+
+"error_loading_chapters" = "Bölümler şuradan yüklenemedi: \n %@";
+
+"error_title" = "Hata";
+
+"excellent_tip_title" = "Mükemmel bağış";
+
+"existing_playlist_button" = "Mevcut Klasör";
+
+"export_button" = "Paylaş";
+
+"extra_tips_description" = "BookPlayer'dan gerçekten keyif alıyorsan, uygulamanın gelişimini daha da desteklemek için bize bağış gönderebilirsin. Bağışın uygulamanın geliştirilmesine devam edilmesine ve yeni özelliklerin gelmesine yardımcı olacaktır.";
+
+"file_error_description" = "Bu kitabın dosyası yüklenemedi. DRM korumalı dosyaları (.aax dosyaları gibi) kullanmadığınızdan emin olun";
+
+"file_error_title" = "Dosya hatası!";
+
+"file_missing_description" = "Bu kitabın dosyası cihazınızdan kaldırıldı. Kitabı oynatmak için dosyayı tekrar içe aktarın";
+
+"file_missing_title" = "Dosya eksik!";
+
+"generic_retry_description" = "Lütfen daha sonra tekrar deneyin";
+
+"gesture_swipe_left_title" = "Geri sarmak için sola kaydırın";
+
+"gesture_swipe_right_title" = "İleri atlamak için sağa kaydırın";
+
+"gesture_swipe_vertically_title" = "Yer imi oluşturmak için dikey olarak kaydırın";
+
+"gesture_tap_title" = "Oynatmak veya duraklatmak için dokunun";
+
+"icon_error_description" = "Uygulama simgesini değiştirme başarılı olmadı. Daha sonra tekrar deneyin";
+
+"icons_bookplayer_credit_description" = "BookPlayer'daki arkadaşlarınız tarafından";
+
+"import_button" = "Dosyaları içe aktar";
+
+"import_description" = "AirDrop aracılığıyla da dosya ekleyebilirsiniz. Cihazınıza sesli kitap dosyası gönderin ve görüntülenen listeden BookPlayer'ı seçin.";
+
+"import_preparing_title" = "Dosyaları içeri aktarmaya hazırlanılıyor";
+
+"import_warning_description" = "Dosyaların aktarılması biraz zaman alabilir, lütfen devam etmeden önce dosya sayısının tam olduğundan emin olun.";
+
+"incredible_tip_title" = "İnannılmaz bağış";
+
+"invalid_url_title" = "Geçersiz URL: %@";
+
+"jump_start_title" = "Başlangıca Git";
+
+"kind_tip_title" = "Yardımsever bağış";
+
+"learn_more_title" = "DAHA FAZLA BİLGİ EDİN";
+
+"library_add_button" = "Ekle";
+
+"library_add_title" = "İlk kitabınızı ekleyin";
 
 "library_title" = "Kitaplık";
-"settings_button" = "Ayarlar";
-"settings_title" = "Ayarlar";
-"settings_autoplay_title" = "Kitaplığı Otomatik Oynat";
-"settings_autoplay_description" = "Bir sesli kitabı bitirdikten sonra, klasörlerdeki öğeler de dahil olmak üzere kitaplıktaki tüm öğelerle oynatma devam edecektir.";
-"settings_smartrewind_title" = "Akıllı Geri Sarma";
-"settings_smartrewind_description" = "10 dakika duraklatıldıktan sonra 30 saniye geri sarın.";
-"settings_boostvolume_title" = "Sesi Güçlendir";
-"settings_boostvolume_description" = "Sesi iki katına çıkarır.\nİşitme duyunuz için dikkat edin ve dikkatli kullanın.";
-"settings_globalspeed_title" = "Evrensel Hız Kontrolü";
-"settings_globalspeed_description" = "Tüm kitaplarda hızı ayarlayın.";
-"settings_autolock_title" = "Otomatik Kilidi Devre Dışı Bırak";
-"settings_autolock_description" = "Oynatıcı ekranındayken cihazın kilitlenmesini önleyin.";
-"settings_siri_lastplayed_title" = "En son oynatılan kitap";
-"settings_siri_lastplayed_description" = "Son oynatılan kitaba devam etmek için Siri'yi kullanın.";
-"settings_skip_title" = "ATLAMA ARALIKLARI";
-"settings_skip_rewind_title" = "Geri Sarma";
-"settings_skip_forward_title" = "İleri Sarma";
-"settings_skip_description" = "Oynatıcı veya Kontrol Merkezi'ndeki düğmeleri kullanırken atlanan miktarı ayarlayın.";
-"settings_support_title" = "DESTEK";
-"settings_siri_title" = "SIRI KISAYOLU";
-"settings_support_project_title" = "Projeyi Github'da görüntüle";
-"settings_support_project_description" = "Özellik istekleriniz ve hatalar için yeni sorun açın";
-"settings_support_email_title" = "Bize bir e-posta gönder";
-"settings_credits_title" = "Katkıda Bulunanlar ve Lisanslar";
-"settings_support_compose_title" = "E-posta oluşturulamıyor";
-"settings_support_compose_description" = "Bunu kullanmak için cihaz ayarlarınızda bir e-posta hesabı oluşturmanız gerekir. \n \nBize alttaki e-posta adresinden ulaşabilirsiniz";
-"settings_support_compose_copy" = "Bilgileri panoya kopyala";
-"library_add_button" = "Ekle";
-"export_button" = "Paylaş";
-"delete_button" = "Sil";
-"rename_button" = "Yeniden adlandır";
-"delete_single_item_title" = "\"%@\"i silmek istiyor musun?";
-"delete_single_playlist_description" = "Yalnızca klasörü silmek, tüm dosyalarını Kitaplığa geri taşır.";
-"delete_shallow_button" = "Yalnızca klasörü sil";
-"delete_deep_button" = "Klasörü ve dosyaları sil";
-"create_playlist_button" = "Klasör oluşturun";
-"create_button" = "Oluştur";
-"import_button" = "Dosyaları içe aktar";
-"import_description" = "AirDrop aracılığıyla da dosya ekleyebilirsiniz. Cihazınıza sesli kitap dosyası gönderin ve görüntülenen listeden BookPlayer'ı seçin.";
-"create_playlist_title" = "Yeni bir klasör oluştur";
-"delete_multiple_items_description" = "Bu, seçilen klasörlerdeki tüm dosyaları da kaldıracaktır.";
-"new_playlist_button" = "Yeni dosya";
-"existing_playlist_button" = "Mevcut Klasör";
-"choose_destination_title" = "Hedef seç";
-"delete_completely_button" = "Tamamen sil";
-"move_library_button" = "Kitaplığa Taşı";
-"options_button" = "Seçenekler";
-"select_playlist_title" = "Dosya Seç";
-"title_button" = "Başlık";
-"sort_filename_button" = "Orijinal Dosya Adı";
-"sort_title" = "Öğeleri Sıralama Ölçütü";
-"cancel_button" = "İptal";
-"seconds_title" = "sn";
-"ok_button" = "Tamam";
-"siri_alert_description" = "Siri Kısayolları iOS 12 ve sonraki İOS sürümlerinde kullanılabilir";
-"support_bookplayer_title" = "BookPlayer'ı Destekle";
-"support_bookplayer_description" = "Uygulama gelişimini desteklemek, ekstra temalar ve uygulama simgelerine erişim için BookPlayer Plus'ı alın";
-"learn_more_title" = "DAHA FAZLA BİLGİ EDİN";
-"settings_appearance_title" = "Görünüm";
-"settings_theme_title" = "Tema";
-"settings_app_icon_title" = "Uygulama Simgesi";
-"settings_playback_title" = "Oynatma Ayarları";
-"settings_controls_title" = "Oynatıcı Kontrolleri";
-"settings_power_connected_title" = "Sadece şarja bağlıyken";
-"settings_tip_jar_title" = "Bağış Kutusu";
-"theme_system_title" = "Sistem Modunu Kullan";
-"theme_switch_title" = "Otomatik olarak değiştir";
-"theme_dark_title" = "Her zaman koyu renkli temalardan birisini kullan";
-"themes_title" = "Temalar";
-"icons_bookplayer_credit_description" = "BookPlayer'daki arkadaşlarınız tarafından";
-"kind_tip_title" = "Yardımsever bağış";
-"excellent_tip_title" = "Mükemmel bağış";
-"incredible_tip_title" = "İnannılmaz bağış";
-"plus_themes_description" = "En sevdiğiniz kitaplara uyacak şekilde özenle seçilmiş renk temaları";
-"plus_icons_description" = "BookPlayer Plus, renk şemaları ve duvar kağıdınızla eşleşen çeşitli uygulama simgeleriyle birlikte gelir";
-"support_us_title" = "Bizi destekle";
-"bookplayer_opensource_description" = "BookPlayer ücretsiz ve Açık Kaynak Kodludur ve her zaman bu şekilde kalacaktır. Yardımınızla daha fazla özellik ekleyebilir ve BookPlayer'ı daha da iyi hale getirebiliriz";
-"thanks_title" = "Desteğin için teşekkürler!";
-"extra_tips_description" = "BookPlayer'dan gerçekten keyif alıyorsan, uygulamanın gelişimini daha da desteklemek için bize bağış gönderebilirsin. Bağışın uygulamanın geliştirilmesine devam edilmesine ve yeni özelliklerin gelmesine yardımcı olacaktır.";
-"select_all_title" = "Tümünü Seç";
-"deselect_all_title" = "Tümünün Seçimini Kaldır";
-"move_title" = "Taşı";
-"jump_start_title" = "Başlangıca Git";
+
 "mark_finished_title" = "Tamamlanmış Olarak İşaretle";
-"sort_files_title" = "Dosyaları Sıralama Ölçütü";
-"rename_title" = "Öğeyi yeniden adlandır";
-"file_error_title" = "Dosya hatası!";
-"file_error_description" = "Bu kitabın dosyası yüklenemedi. DRM korumalı dosyaları (.aax dosyaları gibi) kullanmadığınızdan emin olun";
-"file_missing_title" = "Dosya eksik!";
-"file_missing_description" = "Bu kitabın dosyası cihazınızdan kaldırıldı. Kitabı oynatmak için dosyayı tekrar içe aktarın";
-"empty_playlist_description" = "Dosyaları Kitaplık'taki bu klasöre sürükleyerek de buraya taşıyabilirsiniz.";
-"playlist_add_title" = "Dosya Ekle";
-"player_speed_title" = "Oynatma hızını ayarla";
-"player_sleep_title" = "Oynatmayı duraklat";
-"sleep_chapter_option_title" = "Geçerli bölüm sonunda";
-"player_chapter_description" = "Bölüm %d / %d";
-"chapters_title" = "Bölümler";
-"chapters_item_description" = "Başlangıç: %@ - Süre: %@";
-"restore_title" = "Geri Yükle";
-"themes_caps_title" = "TEMALAR";
-"plus_app_icons_title" = "Uygulama Simgeleri";
+
 "mark_unfinished_title" = "Tamamlanmamış olarak işaretle";
+
+"move_library_button" = "Kitaplığa Taşı";
+
 "move_playlist_button" = "Klasöre taşı";
+
 "move_single_item_title" = "%@'i %@'e taşımak istiyor musun?";
-"current_playlist_title" = "Geçerli klasör";
-"select_item_title" = "Öğeyi seç";
-"sleep_alert_description" = "Bölüm sona erdiğinde uyunacak";
-"sleep_time_description" = "%@ içinde uyku";
-"sleep_off_title" = "Kapalı";
-"sleep_interval_title" = "%@ içinde";
-"chapter_number_title" = "Bölüm %d";
-"progress_complete_description" = "yüzde %d tamamlandı";
-"chapter_duration_title" = "Bölüm süresi:";
-"chapter_time_remaining_title" = "Kalan Bölüm Süresi:";
-"book_time_remaining_title" = "Kalan Kitap Süresi:";
-"book_duration_title" = "Kitap süresi:";
-"icon_error_description" = "Uygulama simgesini değiştirme başarılı olmadı. Daha sonra tekrar deneyin";
-"error_title" = "Hata";
-"generic_retry_description" = "Lütfen daha sonra tekrar deneyin";
+
+"move_title" = "Taşı";
+
 "network_error_title" = "Ağ hatası";
-"purchases_restored_title" = "Satın almalar geri yüklendi!";
-"tip_missing_title" = "Henüz bize bağış yapmadın.";
-"thanks_amazing_title" = "Harikasın!";
-"play_title" = "Oynat";
-"pause_title" = "Duraklat";
-"voiceover_no_title" = "Başlık Yok";
-"voiceover_no_author" = "Yazar Yok";
-"voiceover_book_progress" = "%@ ( Yazar: %@ ), yüzde %d tamamlandı";
-"voiceover_no_file_title" = "Dosya Başlığı Yok";
-"voiceover_no_file_subtitle" = "Dosya Altyazısı Yok";
-"voiceover_no_playlist_title" = "Klasör Başlığı Yok";
-"voiceover_playlist_progress" = "%@, Oynatma Listesi, yüzde %d tamamlandı";
-"voiceover_unknown_title" = "Bilinmeyen başlık";
-"voiceover_unknown_author" = "Bilinmeyen yazar";
-"voiceover_book_info" = "%@ ( Yazar: %@ )";
-"voiceover_book_chapter" = "%@ ( Yazar: %@ ), bölüm %@";
-"voiceover_rewind_time" = "%@ Geri sarma";
-"voiceover_forward_time" = "%@ Hızlı İleri Sarma";
-"watchapp_last_played_title" = "Son Oynatılan";
-"watchapp_refresh_data_title" = "Verileri yenile";
-"recent_title" = "Son";
-"carplay_library_error" = "Kitap yüklenemiyor";
-"siri_invocation_phrase" = "Kitabıma devam et";
-"siri_activity_title" = "En son oynatılan kitaba devam et";
-"watchapp_connect_error_title" = "Bağlantı Hatası";
-"watchapp_connect_error_description" = "Telefonunuza bağlanmada bir sorun var, lütfen daha sonra tekrar deneyin";
-"sleep_remaining_title" = "uykuya %@ kaldı";
-"audio_source_title" = "Ses Kaynağı";
-"speed_title" = "hız";
-"import_preparing_title" = "Dosyaları içeri aktarmaya hazırlanılıyor";
-"library_add_title" = "İlk kitabınızı ekleyin";
-"invalid_url_title" = "Geçersiz URL: %@";
-"downloading_file_title" = "Dosya indiriliyor";
-"progress_title" = "İlerleme";
-"settings_siri_sleeptimer_title" = "Uyku Zamanlayıcısı";
-"active_title" = "Aktif Kitap";
-"voiceover_currently_playing_title" = "Şu anda %@ ( Yazar: %@ ) oynuyor";
-"voiceover_miniplayer_hint" = "Mini oynatıcı. Player'ı göstermek için dokunun";
-"voiceover_chapter_time_title" = "Geçerli Bölüm Saati: %@";
-"voiceover_dismiss_player_title" = "Oynatıcıyı Kapat";
-"sort_most_recent_button" = "En Yeni";
-"sort_reversed_button" = "Ters sipariş";
-"voiceover_continue_playback_title" = "Oynatmaya Devam Et";
-"coredata_error_diskfull_description" = "Kitaplık yüklenemedi, aygıtta disk alanı kalmadı.";
-"coredata_error_migration_description" = "Veritabanının taşınması başarısız oldu, kitaplığın yeniden başlatılması gerekecek.";
-"import_warning_description" = "Dosyaların aktarılması biraz zaman alabilir, lütfen devam etmeden önce dosya sayısının tam olduğundan emin olun.";
-"settings_storage_description" = "Dosyalarınızı yönetin";
-"storage_total_title" = "Kullanılan toplam alan";
-"settings_storage_title" = "Depolama Yönetimi";
-"storage_fix_file_button" = "Düzeltmek";
-"storage_fix_file_description" = "Kitap öğesi eksik, ilgili öğe bulunamazsa yenisi oluşturulur";
-"bookmarks_title" = "Yer imleri";
-"bookmark_created_title" = "Favoriniz %@ konumunda kaydedildi";
-"bookmark_exists_title" = "%@ adresinde zaten bir yer imi oluşturdunuz";
-"bookmark_note_action_title" = "Not ekle";
-"bookmarks_see_title" = "Yer imlerine bakın";
-"bookmark_type_automatic_title" = "Otomatik";
-"bookmark_type_user_title" = "Manuel";
-"bookmark_automatic_play_title" = "Oynatma başlamadan önceki son konum";
-"bookmark_automatic_skip_title" = "Zaman atlamadan önceki son konum";
-"bookmark_note_edit_title" = "Notu düzenle";
-"bookmark_create_title" = "Yer İşareti Oluştur";
-"storage_duplicate_item_title" = "Kopyalamak";
-"storage_duplicate_item_description" = "Seçilen dosya bir kopyaydı, mevcut dosya şurada bulunuyor: %@";
-"chapters_previous_title" = "Önceki Bölüm";
-"chapters_next_title" = "Sonraki bölüm";
-"book_time_current_title" = "Mevcut Kitap Saati: %@";
-"storage_fix_files_description" = "Dosyalar ve dijital kitap öğeleri arasındaki bağlantı eksik, her dosya için ilgili öğe bulunamazsa, yeni bir tane oluşturulur.";
-"storage_fix_all_title" = "Hepsini düzelt";
-"settings_backup_title" = "iCloud Yedeklemeleri";
-"settings_backup_files_title" = "Kitap dosyalarını dahil et";
-"bound_books_create_button" = "Hacimde Birleştir";
-"bound_books_undo_alert_title" = "Klasöre Dönüştür";
-"bound_books_new_title_placeholder" = "Yeni Kitap Hacmi";
-"bound_books_create_alert_description" = "Öğelerin doğru sırada olduğundan emin olun. Bölümleri daha sonra yeniden sıralamak için birimi tekrar bir klasöre dönüştürmeniz, öğeleri yeniden sıralamanız ve ardından birimi yeniden oluşturmanız gerekir.";
-"bound_books_create_alert_title" = "Birim oluştur";
-"voiceover_bound_books_progress" = "%@, Cilt, %d yüzde Tamamlandı";
-"voiceover_no_bound_books_title" = "Cilt Başlığı Yok";
-"default_title" = "Varsayılan";
-"voiceover_default_speed_title" = "Varsayılan hızı ayarla";
-"error_loading_chapters" = "Bölümler şuradan yüklenemedi: \n %@";
-"error_empty_chapters" = "Bölümler boş, lütfen klasörün içeriğini doğrulayın: %@";
-"sleeptimer_option_custom" = "Gelenek";
-"sleeptimer_custom_alert_title" = "Özel uyku zamanlayıcısı";
-"settings_progresslabels_title" = "İlerleme Etiketleri";
-"settings_playerinterface_list_title" = "açılır";
-"settings_remainingtime_title" = "Kalan Süreyi Kullan";
-"settings_chaptercontext_title" = "Bölüm İçeriğini Kullan";
-"settings_progresslabels_description" = "Oynatıcı ekranında bölümün veya kitabın kalan süresini, toplam süresini ve ilerlemesini görüntüleme arasında geçiş yapın";
-"settings_playerinterface_list_description" = "Oynatıcı ekranındaki liste düğmesinin ne açacağını ayarlayın";
-"settings_autoplay_section_title" = "OTOMATİK OYNATMA";
-"settings_autoplay_restart_title" = "Biten kitapları yeniden başlat";
-"settings_theme_autobrightness" = "Ekran parlaklığı ayarlanan eşiğin altına düşerse bir temanın koyu varyasyonunu seçin.";
+
+"new_playlist_button" = "Yeni dosya";
+
 "note_title" = "Not";
-"playing_title" = "ses çalma";
+
+"ok_button" = "Tamam";
+
+"options_button" = "Seçenekler";
+
+"pause_title" = "Duraklat";
+
 "paused_title" = "duraklatıldı";
-"skipped_forward_title" = "İleri atlandı";
-"skipped_back_title" = "Geri atlandı";
-"button_free_title" = "Düğmesiz";
+
+"play_title" = "Oynat";
+
+"player_chapter_description" = "Bölüm %d / %d";
+
+"player_sleep_title" = "Oynatmayı duraklat";
+
+"player_speed_title" = "Oynatma hızını ayarla";
+
+"playing_title" = "ses çalma";
+
+"playlist_add_title" = "Dosya Ekle";
+
+"plus_app_icons_title" = "Uygulama Simgeleri";
+
+"plus_icons_description" = "BookPlayer Plus, renk şemaları ve duvar kağıdınızla eşleşen çeşitli uygulama simgeleriyle birlikte gelir";
+
+"plus_themes_description" = "En sevdiğiniz kitaplara uyacak şekilde özenle seçilmiş renk temaları";
+
+"progress_complete_description" = "yüzde %d tamamlandı";
+
+"progress_title" = "İlerleme";
+
+"purchases_restored_title" = "Satın almalar geri yüklendi!";
+
+"recent_title" = "Son";
+
+"rename_button" = "Yeniden adlandır";
+
+"rename_title" = "Öğeyi yeniden adlandır";
+
+"restore_title" = "Geri Yükle";
+
 "screen_gestures_title" = "Ekran Hareketleri";
-"gesture_tap_title" = "Oynatmak veya duraklatmak için dokunun";
-"gesture_swipe_left_title" = "Geri sarmak için sola kaydırın";
-"gesture_swipe_right_title" = "İleri atlamak için sağa kaydırın";
-"gesture_swipe_vertically_title" = "Yer imi oluşturmak için dikey olarak kaydırın";
+
+"seconds_title" = "sn";
+
+"select_all_title" = "Tümünü Seç";
+
+"select_item_title" = "Öğeyi seç";
+
+"select_playlist_title" = "Dosya Seç";
+
+"settings_app_icon_title" = "Uygulama Simgesi";
+
+"settings_appearance_title" = "Görünüm";
+
+"settings_autolock_description" = "Oynatıcı ekranındayken cihazın kilitlenmesini önleyin.";
+
+"settings_autolock_title" = "Otomatik Kilidi Devre Dışı Bırak";
+
+"settings_autoplay_description" = "Bir sesli kitabı bitirdikten sonra, klasörlerdeki öğeler de dahil olmak üzere kitaplıktaki tüm öğelerle oynatma devam edecektir.";
+
+"settings_autoplay_restart_title" = "Biten kitapları yeniden başlat";
+
+"settings_autoplay_section_title" = "OTOMATİK OYNATMA";
+
+"settings_autoplay_title" = "Kitaplığı Otomatik Oynat";
+
+"settings_backup_files_title" = "Kitap dosyalarını dahil et";
+
+"settings_backup_title" = "iCloud Yedeklemeleri";
+
+"settings_boostvolume_description" = "Sesi iki katına çıkarır.\nİşitme duyunuz için dikkat edin ve dikkatli kullanın.";
+
+"settings_boostvolume_title" = "Sesi Güçlendir";
+
+"settings_button" = "Ayarlar";
+
+"settings_chaptercontext_title" = "Bölüm İçeriğini Kullan";
+
+"settings_controls_title" = "Oynatıcı Kontrolleri";
+
+"settings_credits_title" = "Katkıda Bulunanlar ve Lisanslar";
+
+"settings_globalspeed_description" = "Tüm kitaplarda hızı ayarlayın.";
+
+"settings_globalspeed_title" = "Evrensel Hız Kontrolü";
+
+"settings_playback_title" = "Oynatma Ayarları";
+
+"settings_playerinterface_list_description" = "Oynatıcı ekranındaki liste düğmesinin ne açacağını ayarlayın";
+
+"settings_playerinterface_list_title" = "açılır";
+
+"settings_power_connected_title" = "Sadece şarja bağlıyken";
+
+"settings_progresslabels_description" = "Oynatıcı ekranında bölümün veya kitabın kalan süresini, toplam süresini ve ilerlemesini görüntüleme arasında geçiş yapın";
+
+"settings_progresslabels_title" = "İlerleme Etiketleri";
+
+"settings_remainingtime_title" = "Kalan Süreyi Kullan";
+
+"settings_siri_lastplayed_description" = "Son oynatılan kitaba devam etmek için Siri'yi kullanın.";
+
+"settings_siri_lastplayed_title" = "En son oynatılan kitap";
+
+"settings_siri_sleeptimer_title" = "Uyku Zamanlayıcısı";
+
+"settings_siri_title" = "SIRI KISAYOLU";
+
+"settings_skip_description" = "Oynatıcı veya Kontrol Merkezi'ndeki düğmeleri kullanırken atlanan miktarı ayarlayın.";
+
+"settings_skip_forward_title" = "İleri Sarma";
+
+"settings_skip_rewind_title" = "Geri Sarma";
+
+"settings_skip_title" = "ATLAMA ARALIKLARI";
+
+"settings_smartrewind_description" = "10 dakika duraklatıldıktan sonra 30 saniye geri sarın.";
+
+"settings_smartrewind_title" = "Akıllı Geri Sarma";
+
+"settings_storage_description" = "Dosyalarınızı yönetin";
+
+"settings_storage_title" = "Depolama Yönetimi";
+
+"settings_support_compose_copy" = "Bilgileri panoya kopyala";
+
+"settings_support_compose_description" = "Bunu kullanmak için cihaz ayarlarınızda bir e-posta hesabı oluşturmanız gerekir. \n \nBize alttaki e-posta adresinden ulaşabilirsiniz";
+
+"settings_support_compose_title" = "E-posta oluşturulamıyor";
+
+"settings_support_email_title" = "Bize bir e-posta gönder";
+
+"settings_support_project_description" = "Özellik istekleriniz ve hatalar için yeni sorun açın";
+
+"settings_support_project_title" = "Projeyi Github'da görüntüle";
+
+"settings_support_title" = "DESTEK";
+
+"settings_theme_autobrightness" = "Ekran parlaklığı ayarlanan eşiğin altına düşerse bir temanın koyu varyasyonunu seçin.";
+
+"settings_theme_title" = "Tema";
+
+"settings_tip_jar_title" = "Bağış Kutusu";
+
+"settings_title" = "Ayarlar";
+
+"siri_activity_title" = "En son oynatılan kitaba devam et";
+
+"siri_alert_description" = "Siri Kısayolları iOS 12 ve sonraki İOS sürümlerinde kullanılabilir";
+
+"siri_invocation_phrase" = "Kitabıma devam et";
+
+"skipped_back_title" = "Geri atlandı";
+
+"skipped_forward_title" = "İleri atlandı";
+
+"sleep_alert_description" = "Bölüm sona erdiğinde uyunacak";
+
+"sleep_chapter_option_title" = "Geçerli bölüm sonunda";
+
+"sleep_interval_title" = "%@ içinde";
+
+"sleep_off_title" = "Kapalı";
+
+"sleep_remaining_title" = "uykuya %@ kaldı";
+
+"sleep_time_description" = "%@ içinde uyku";
+
+"sleeptimer_custom_alert_title" = "Özel uyku zamanlayıcısı";
+
+"sleeptimer_option_custom" = "Gelenek";
+
+"sort_filename_button" = "Orijinal Dosya Adı";
+
+"sort_files_title" = "Dosyaları Sıralama Ölçütü";
+
+"sort_most_recent_button" = "En Yeni";
+
+"sort_reversed_button" = "Ters sipariş";
+
+"sort_title" = "Öğeleri Sıralama Ölçütü";
+
+"speed_title" = "hız";
+
+"storage_duplicate_item_description" = "Seçilen dosya bir kopyaydı, mevcut dosya şurada bulunuyor: %@";
+
+"storage_duplicate_item_title" = "Kopyalamak";
+
+"storage_fix_all_title" = "Hepsini düzelt";
+
+"storage_fix_file_button" = "Düzeltmek";
+
+"storage_fix_file_description" = "Kitap öğesi eksik, ilgili öğe bulunamazsa yenisi oluşturulur";
+
+"storage_fix_files_description" = "Dosyalar ve dijital kitap öğeleri arasındaki bağlantı eksik, her dosya için ilgili öğe bulunamazsa, yeni bir tane oluşturulur.";
+
+"storage_total_title" = "Kullanılan toplam alan";
+
+"support_bookplayer_description" = "Uygulama gelişimini desteklemek, ekstra temalar ve uygulama simgelerine erişim için BookPlayer Plus'ı alın";
+
+"support_bookplayer_title" = "BookPlayer'ı Destekle";
+
+"support_us_title" = "Bizi destekle";
+
+"thanks_amazing_title" = "Harikasın!";
+
+"thanks_title" = "Desteğin için teşekkürler!";
+
+"theme_dark_title" = "Her zaman koyu renkli temalardan birisini kullan";
+
+"theme_switch_title" = "Otomatik olarak değiştir";
+
+"theme_system_title" = "Sistem Modunu Kullan";
+
+"themes_caps_title" = "TEMALAR";
+
+"themes_title" = "Temalar";
+
+"tip_missing_title" = "Henüz bize bağış yapmadın.";
+
+"title_button" = "Başlık";
+
+"voiceover_book_chapter" = "%@ ( Yazar: %@ ), bölüm %@";
+
+"voiceover_book_info" = "%@ ( Yazar: %@ )";
+
+"voiceover_book_progress" = "%@ ( Yazar: %@ ), yüzde %d tamamlandı";
+
+"voiceover_bound_books_progress" = "%@, Cilt, %d yüzde Tamamlandı";
+
+"voiceover_chapter_time_title" = "Geçerli Bölüm Saati: %@";
+
+"voiceover_continue_playback_title" = "Oynatmaya Devam Et";
+
+"voiceover_currently_playing_title" = "Şu anda %@ ( Yazar: %@ ) oynuyor";
+
+"voiceover_default_speed_title" = "Varsayılan hızı ayarla";
+
+"voiceover_dismiss_player_title" = "Oynatıcıyı Kapat";
+
+"voiceover_forward_time" = "%@ Hızlı İleri Sarma";
+
+"voiceover_miniplayer_hint" = "Mini oynatıcı. Player'ı göstermek için dokunun";
+
+"voiceover_no_author" = "Yazar Yok";
+
+"voiceover_no_bound_books_title" = "Cilt Başlığı Yok";
+
+"voiceover_no_file_subtitle" = "Dosya Altyazısı Yok";
+
+"voiceover_no_file_title" = "Dosya Başlığı Yok";
+
+"voiceover_no_playlist_title" = "Klasör Başlığı Yok";
+
+"voiceover_no_title" = "Başlık Yok";
+
+"voiceover_playlist_progress" = "%@, Oynatma Listesi, yüzde %d tamamlandı";
+
+"voiceover_rewind_time" = "%@ Geri sarma";
+
+"voiceover_unknown_author" = "Bilinmeyen yazar";
+
+"voiceover_unknown_title" = "Bilinmeyen başlık";
+
+"watchapp_connect_error_description" = "Telefonunuza bağlanmada bir sorun var, lütfen daha sonra tekrar deneyin";
+
+"watchapp_connect_error_title" = "Bağlantı Hatası";
+
+"watchapp_last_played_title" = "Son Oynatılan";
+
+"watchapp_refresh_data_title" = "Verileri yenile";
