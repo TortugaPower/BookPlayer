@@ -22,8 +22,8 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   public private(set) var itemsUpdates = PassthroughSubject<[SimpleLibraryItem], Never>()
   public private(set) var itemProgressUpdates = PassthroughSubject<IndexPath, Never>()
   public private(set) var items = [SimpleLibraryItem]()
-  private var bookSubscription: AnyCancellable?
   private var bookProgressSubscription: AnyCancellable?
+  private var disposeBag = Set<AnyCancellable>()
   /// Cached path for containing folder of playing item in relation to this list path
   private var playingItemParentPath: String?
 
@@ -43,7 +43,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: themeAccent)?.pngData()
     super.init()
 
-    self.bindBookObserver()
+    self.bindBookObservers()
   }
 
   func getEmptyStateImageName() -> String {
@@ -64,8 +64,8 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     return item.title
   }
 
-  func bindBookObserver() {
-    self.bookSubscription = self.playerManager.currentItemPublisher().sink { [weak self] currentItem in
+  func bindBookObservers() {
+    self.playerManager.currentItemPublisher().sink { [weak self] currentItem in
       guard let self = self else { return }
 
       self.bookProgressSubscription?.cancel()
@@ -79,41 +79,54 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         return
       }
 
-      self.playingItemParentPath = self.getPathForParentOfItem(
-        with: currentItem.relativePath,
-        parentFolder: currentItem.parentFolder
-      )
+      self.playingItemParentPath = self.getPathForParentOfItem(currentItem: currentItem)
 
       self.bindItemProgressObserver(currentItem)
-    }
+    }.store(in: &disposeBag)
+
+    NotificationCenter.default.publisher(for: .folderProgressUpdated)
+      .sink { [weak self] notification in
+        guard
+          let playingItemParentPath = self?.playingItemParentPath,
+          let relativePath = notification.userInfo?["relativePath"] as? String,
+          playingItemParentPath == relativePath,
+          let index = self?.items.firstIndex(where: { relativePath == $0.relativePath }),
+          let progress = notification.userInfo?["progress"] as? Double
+        else {
+          return
+        }
+
+        self?.items[index].percentCompleted = progress
+
+        let indexModified = IndexPath(row: index, section: Section.data.rawValue)
+        self?.itemProgressUpdates.send(indexModified)
+      }.store(in: &disposeBag)
   }
 
-  func getPathForParentOfItem(with relativePath: String, parentFolder: String?) -> String? {
-    guard let parentFolder = parentFolder else { return nil }
+  func getPathForParentOfItem(currentItem: PlayableItem) -> String? {
+    let parentFolders: [String] = currentItem.relativePath.allRanges(of: "/")
+      .map { String(currentItem.relativePath.prefix(upTo: $0.lowerBound)) }
+      .reversed()
 
-    guard let folderRelativePath = folderRelativePath else {
-      /// Return only the first part for the library level
-      return parentFolder.components(separatedBy: "/").first
+    guard let folderRelativePath = self.folderRelativePath else {
+      return parentFolders.last
     }
 
-    let results = parentFolder.components(separatedBy: "\(folderRelativePath)/")
-      .filter({!$0.isEmpty})
-
-    guard
-      results.count == 1,
-      let result = results.first,
-      result != parentFolder,
-      let folderName = result.components(separatedBy: "/").first
-    else {
+    guard let index = parentFolders.firstIndex(of: folderRelativePath) else {
       return nil
     }
 
-    return "\(folderRelativePath)/\(folderName)"
+    let elementIndex = index - 1
+
+    guard elementIndex >= 0 else {
+      return nil
+    }
+
+    return parentFolders[elementIndex]
   }
 
   func bindItemProgressObserver(_ item: PlayableItem) {
     self.bookProgressSubscription?.cancel()
-
     self.bookProgressSubscription = item.publisher(for: \.percentCompleted)
       .combineLatest(item.publisher(for: \.relativePath))
       .removeDuplicates(by: { $0.0 == $1.0 })
@@ -125,11 +138,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
           let index = self.items.firstIndex(where: { relativePath == $0.relativePath })
         else { return }
 
-        var currentItem = self.items[index]
-
-        currentItem.progress = percentCompleted / 100
-
-        self.items[index] = currentItem
+        self.items[index].percentCompleted = percentCompleted
 
         let indexModified = IndexPath(row: index, section: Section.data.rawValue)
         self.itemProgressUpdates.send(indexModified)
@@ -263,6 +272,8 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     do {
       try self.libraryService.moveItems(fetchedItems, inside: folder.relativePath, moveFiles: true)
       try self.libraryService.updateFolder(at: folder.relativePath, type: type)
+
+      libraryService.rebuildFolderDetails(folder.relativePath)
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
@@ -277,6 +288,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         try self.libraryService.moveItems(fetchedItems, inside: folder.relativePath, moveFiles: true)
       }
       try self.libraryService.updateFolder(at: folder.relativePath, type: type)
+      libraryService.rebuildFolderDetails(folder.relativePath)
 
       // stop playback if folder items contain that current item
       if let items = items,
@@ -311,9 +323,13 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
   func handleMoveIntoLibrary(items: [SimpleLibraryItem]) {
     let selectedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
+    let parentFolder = items.first?.parentFolder
 
     do {
       try self.libraryService.moveItems(selectedItems, inside: nil, moveFiles: true)
+      if let parentFolder {
+        libraryService.rebuildFolderDetails(parentFolder)
+      }
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
@@ -328,6 +344,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
     do {
       try self.libraryService.moveItems(fetchedItems, inside: folder.relativePath, moveFiles: true)
+      self.libraryService.rebuildFolderDetails(folder.relativePath)
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
@@ -337,9 +354,13 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
   func handleDelete(items: [SimpleLibraryItem], mode: DeleteMode) {
     let selectedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
+    let parentFolder = items.first?.parentFolder
 
     do {
       try self.libraryService.delete(selectedItems, mode: mode)
+      if let parentFolder {
+        libraryService.rebuildFolderDetails(parentFolder)
+      }
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
@@ -355,6 +376,9 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       let shouldMoveFiles = self.folderRelativePath != nil
 
       try self.libraryService.moveItems(processedItems, inside: self.folderRelativePath, moveFiles: shouldMoveFiles)
+      if let folderRelativePath = self.folderRelativePath {
+        libraryService.rebuildFolderDetails(folderRelativePath)
+      }
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
       return
@@ -527,7 +551,15 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func handleMarkAsFinished(for items: [SimpleLibraryItem], flag: Bool) {
-    items.forEach({ self.libraryService.markAsFinished(flag: flag, relativePath: $0.relativePath) })
+    let parentFolder = items.first?.parentFolder
+
+    items.forEach { [unowned self] in
+      self.libraryService.markAsFinished(flag: flag, relativePath: $0.relativePath)
+    }
+
+    if let parentFolder {
+      self.libraryService.rebuildFolderDetails(parentFolder)
+    }
 
     self.coordinator.reloadItemsWithPadding()
   }

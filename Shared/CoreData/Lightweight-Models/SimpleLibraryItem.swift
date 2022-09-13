@@ -16,7 +16,7 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
   public let details: String
   public let duration: Double
   public let durationFormatted: String
-  public var progress: Double
+  public var percentCompleted: Double
   public let isFinished: Bool
   public let relativePath: String
   public let parentFolder: String?
@@ -43,14 +43,14 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
     hasher.combine(id)
     hasher.combine(title)
     hasher.combine(details)
-    hasher.combine(progress)
+    hasher.combine(percentCompleted)
   }
 
   public init(
     title: String,
     details: String,
     duration: Double,
-    progress: Double,
+    percentCompleted: Double,
     isFinished: Bool,
     relativePath: String,
     parentFolder: String?,
@@ -61,7 +61,7 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
     self.details = details
     self.duration = duration
     self.durationFormatted = TimeParser.formatTotalDuration(duration)
-    self.progress = progress
+    self.percentCompleted = percentCompleted
     self.isFinished = isFinished
     self.relativePath = relativePath
     self.parentFolder = parentFolder
@@ -76,7 +76,7 @@ extension SimpleLibraryItem {
     self.details = item.details
     self.duration = item.duration
     self.durationFormatted = TimeParser.formatTotalDuration(item.duration)
-    self.progress = item.isFinished ? 1.0 : item.progressPercentage
+    self.percentCompleted = item.percentCompleted
     self.isFinished = item.isFinished
     self.relativePath = item.relativePath
     self.parentFolder = item.folder?.relativePath

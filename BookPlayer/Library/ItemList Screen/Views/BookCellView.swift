@@ -48,7 +48,7 @@ class BookCellView: UITableViewCell {
             return self.progressView.value
         }
         set {
-            self.progressView.value = newValue.isNaN
+            self.progressView.value = (newValue.isNaN || newValue.isInfinite)
                 ? 0.0
                 : newValue
         }

@@ -13,28 +13,6 @@ import Foundation
 
 @objc(Book)
 public class Book: LibraryItem {
-  // needed to invalide cache of folder
-  override public func setCurrentTime(_ time: Double) {
-    self.currentTime = time
-    self.folder?.resetCachedProgress()
-  }
-
-  public override var progress: Double {
-    guard self.duration > 0 else { return 0 }
-
-    return self.currentTime
-  }
-
-  public override var progressPercentage: Double {
-    guard self.duration > 0 else { return 0 }
-
-    return self.currentTime / self.duration
-  }
-
-  public var percentage: Double {
-    return round(self.progressPercentage * 100)
-  }
-
   enum CodingKeys: String, CodingKey {
     case currentTime, duration, relativePath, percentCompleted, title, details, folder, orderRank
   }

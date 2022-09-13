@@ -30,10 +30,12 @@ public protocol LibraryServiceProtocol {
   func findFirstItem(in parentFolder: String?, afterRank: Int16?, isUnfinished: Bool?) -> LibraryItem?
 
   func updateFolder(at relativePath: String, type: SimpleItemType) throws
+  func rebuildFolderDetails(_ relativePath: String)
+  func recursiveFolderProgressUpdate(from relativePath: String)
   func findFolder(with fileURL: URL) -> Folder?
   func findFolder(with relativePath: String) -> Folder?
   func hasLibraryLinked(item: LibraryItem) -> Bool
-  func createFolder(with title: String, inside relativePath: String?) throws -> Folder
+  func createFolder(with title: String, inside relativePath: String?) throws -> SimpleLibraryItem
   func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SimpleLibraryItem]?
   func getMaxItemsCount(at relativePath: String?) -> Int
   func replaceOrderedItems(_ items: NSOrderedSet, at relativePath: String?)
@@ -402,7 +404,7 @@ public final class LibraryService: LibraryServiceProtocol {
     try FileManager.default.createDirectory(at: destinationURL, withIntermediateDirectories: false, attributes: nil)
   }
 
-  public func createFolder(with title: String, inside relativePath: String?) throws -> Folder {
+  public func createFolder(with title: String, inside relativePath: String?) throws -> SimpleLibraryItem {
     try createFolderOnDisk(title: title, inside: relativePath)
 
     var parentFolder: Folder?
@@ -424,7 +426,7 @@ public final class LibraryService: LibraryServiceProtocol {
 
     self.dataManager.saveContext()
 
-    return newFolder
+    return SimpleLibraryItem(from: newFolder)
   }
 
   func buildListContentsFetchRequest(
@@ -487,7 +489,7 @@ public final class LibraryService: LibraryServiceProtocol {
         title: title,
         details: details,
         duration: duration,
-        progress: isFinished ? 1.0 : (percentCompleted / 100),
+        percentCompleted: percentCompleted,
         isFinished: isFinished,
         relativePath: relativePath,
         parentFolder: dictionary["folder.relativePath"] as? String,
@@ -942,5 +944,103 @@ public final class LibraryService: LibraryServiceProtocol {
     }
 
     self.dataManager.delete(folder)
+  }
+
+  /// Internal function to calculate the entire folder's duration
+  func calculateFolderDuration(at relativePath: String) -> Double {
+    let durationExpression = NSExpressionDescription()
+    durationExpression.expression = NSExpression(
+      forFunction: "sum:",
+      arguments: [NSExpression(forKeyPath: #keyPath(LibraryItem.duration))]
+    )
+    durationExpression.name = "totalDuration"
+    durationExpression.expressionResultType = NSAttributeType.doubleAttributeType
+
+    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+    fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), relativePath)
+    fetchRequest.propertiesToFetch = [durationExpression]
+    fetchRequest.resultType = .dictionaryResultType
+
+    guard
+      let results = try? self.dataManager.getContext().fetch(fetchRequest).first as? [String: Double]
+    else {
+      return 0
+    }
+
+    return results["totalDuration"] ?? 0
+  }
+
+  /// Internal function to calculate the entire folder's progress
+  func calculateFolderProgress(at relativePath: String) -> (Double, Int) {
+    let progressExpression = NSExpressionDescription()
+    progressExpression.expression = NSExpression(
+      forConditional: NSPredicate(format: "%K == 1", #keyPath(LibraryItem.isFinished)),
+      trueExpression: NSExpression(forConstantValue: 100.0),
+      falseExpression: NSExpression(forKeyPath: #keyPath(LibraryItem.percentCompleted))
+    )
+    progressExpression.name = "parsedPercentCompleted"
+    progressExpression.expressionResultType = NSAttributeType.doubleAttributeType
+
+    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+    fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), relativePath)
+    fetchRequest.propertiesToFetch = [progressExpression]
+    fetchRequest.resultType = .dictionaryResultType
+
+    guard
+      let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Double]],
+      !results.isEmpty
+    else {
+      return (0, 0)
+    }
+
+    let count = results.count
+    let totalProgress = results.reduce(into: Double(0)) { partialResult, dict in
+      partialResult += dict.values.first ?? 0
+    }
+
+    return (totalProgress / Double(count), count)
+  }
+
+  public func rebuildFolderDetails(_ relativePath: String) {
+    guard let folder = findFolder(with: relativePath) else { return }
+
+    let (progress, contentsCount) = calculateFolderProgress(at: relativePath)
+    folder.percentCompleted = progress
+    folder.duration = calculateFolderDuration(at: relativePath)
+    folder.updateDetails(with: contentsCount)
+
+    dataManager.saveContext()
+
+    if let parentFolderPath = getItemProperty(
+      #keyPath(LibraryItem.folder.relativePath),
+      relativePath: relativePath
+    ) as? String {
+      rebuildFolderDetails(parentFolderPath)
+    }
+  }
+
+  public func recursiveFolderProgressUpdate(from relativePath: String) {
+    guard let folder = findFolder(with: relativePath) else { return }
+
+    let (progress, _) = calculateFolderProgress(at: relativePath)
+    folder.percentCompleted = progress
+
+    NotificationCenter.default.post(
+      name: .folderProgressUpdated,
+      object: nil,
+      userInfo: [
+        "relativePath": relativePath,
+        "progress": progress
+      ]
+    )
+
+    dataManager.saveContext()
+
+    if let parentFolderPath = getItemProperty(
+      #keyPath(LibraryItem.folder.relativePath),
+      relativePath: relativePath
+    ) as? String {
+      recursiveFolderProgressUpdate(from: parentFolderPath)
+    }
   }
 }

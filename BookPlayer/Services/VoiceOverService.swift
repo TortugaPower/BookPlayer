@@ -48,10 +48,10 @@ class VoiceOverService {
   }
 
     fileprivate func progressPercent() -> Int {
-        guard let progress = progress, !progress.isNaN else {
-            return 0
-        }
-        return Int(progress * 100)
+      guard let progress = progress, !progress.isNaN, !progress.isInfinite else {
+        return 0
+      }
+      return Int(progress)
     }
 
     // MARK: PlayerMetaView

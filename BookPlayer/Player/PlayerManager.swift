@@ -261,7 +261,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       currentTime += currentItem.currentChapter.start
     }
 
-    self.playbackService.updatePlaybackTime(item: currentItem, time: currentTime)
+    updatePlaybackTime(item: currentItem, time: currentTime)
 
     self.userActivityManager.recordTime()
 
@@ -414,7 +414,7 @@ extension PlayerManager {
     let boundedTime = min(max(time, 0), currentItem.duration)
 
     let chapterBeforeSkip = currentItem.currentChapter
-    self.playbackService.updatePlaybackTime(item: currentItem, time: boundedTime)
+    updatePlaybackTime(item: currentItem, time: boundedTime)
     let chapterAfterSkip = currentItem.currentChapter
 
     // If chapters are different, and it's a bound book, do nothing else,
@@ -610,6 +610,8 @@ extension PlayerManager {
 
     self.libraryService.markAsFinished(flag: true, relativePath: currentItem.relativePath)
 
+    libraryService.recursiveFolderProgressUpdate(from: currentItem.relativePath)
+
     NotificationCenter.default.post(name: .bookEnd, object: nil, userInfo: nil)
   }
 
@@ -652,7 +654,7 @@ extension PlayerManager {
     if autoPlayed,
        nextBook.isFinished,
        restartFinished {
-      self.playbackService.updatePlaybackTime(item: nextBook, time: 0)
+      updatePlaybackTime(item: nextBook, time: 0)
     }
 
     self.playItem(nextBook)
@@ -718,8 +720,20 @@ extension PlayerManager {
             subscription?.cancel()
           })
 
-        self.playbackService.updatePlaybackTime(item: currentItem, time: currentItem.currentTime + 0.1)
+        updatePlaybackTime(item: currentItem, time: currentItem.currentTime + 0.1)
       }
+    }
+  }
+
+  /// Update the current item playback time, and checks for difference in progress percentage
+  func updatePlaybackTime(item: PlayableItem, time: Float64) {
+    let previousPercentage = Int(item.percentCompleted)
+    self.playbackService.updatePlaybackTime(item: item, time: time)
+    let newPercentage = Int(item.percentCompleted)
+
+    if previousPercentage != newPercentage,
+       let parentFolder = item.parentFolder {
+      libraryService.recursiveFolderProgressUpdate(from: parentFolder)
     }
   }
 }

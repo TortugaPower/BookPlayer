@@ -97,69 +97,8 @@ public class Folder: LibraryItem {
         return totalDuration
     }
 
-    public override var duration: Double {
-        get {
-            let itemTime = self.getProgressAndDuration()
-            return itemTime.duration
-        }
-        set {
-            super.duration = newValue
-        }
-    }
-
-    public override var progress: Double {
-        let itemTime = self.getProgressAndDuration()
-
-        return itemTime.progress
-    }
-
-    public override var progressPercentage: Double {
-      switch self.type {
-      case .folder:
-        let itemTime = self.getProgressAndDuration()
-
-        return itemTime.progress / itemTime.duration
-      case .bound:
-        guard self.duration > 0 else { return 0 }
-
-        return self.currentTime / self.duration
-      case .book:
-        return 0
-      }
-    }
-
-    public func getProgressAndDuration() -> (progress: Double, duration: Double) {
-        if let cachedProgress = self.cachedProgress,
-           let cachedDuration = self.cachedDuration {
-            return (cachedProgress, cachedDuration)
-        }
-
-        guard let items = self.items?.array as? [LibraryItem] else {
-            return (0.0, 0.0)
-        }
-
-        var totalDuration = 0.0
-        var totalProgress = 0.0
-
-        for item in items {
-            totalDuration += item.duration
-            totalProgress += item.isFinished
-                ? item.duration
-                : item.progress
-        }
-
-        self.cachedProgress = totalProgress
-        self.cachedDuration = totalDuration
-
-        guard totalDuration > 0 else {
-            return (0.0, 0.0)
-        }
-
-        return (totalProgress, totalDuration)
-    }
-
-  public func updateDetails() {
-    let count = self.items?.count ?? 0
+  public func updateDetails(with count: Int? = nil) {
+    let count = count ?? self.items?.count ?? 0
 
     self.details = String.localizedStringWithFormat("files_title".localized, count)
   }
@@ -170,22 +109,6 @@ public class Folder: LibraryItem {
 
     self.isFinished = !items.contains(where: { !$0.isFinished })
   }
-
-    public func hasBooks() -> Bool {
-        guard let books = self.items else {
-            return false
-        }
-
-        return books.count > 0
-    }
-
-    public override func setCurrentTime(_ time: Double) {
-        guard let items = self.items?.array as? [LibraryItem] else { return }
-
-        for item in items {
-            item.setCurrentTime(time)
-        }
-    }
 
   public func insert(item: LibraryItem, at index: Int? = nil) {
     if let parent = item.folder {
