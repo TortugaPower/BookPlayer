@@ -63,6 +63,7 @@ class ItemSelectionViewController: UITableViewController {
     cell.title = item.title
     cell.playbackState = .stopped
     cell.subtitle = item.details
+    cell.duration = item.durationFormatted
 
     return cell
   }
