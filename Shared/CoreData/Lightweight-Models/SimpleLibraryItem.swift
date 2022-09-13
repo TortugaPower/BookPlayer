@@ -23,6 +23,15 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
   public let type: SimpleItemType
   public let syncStatus: SyncStatus
 
+  public var progress: Double {
+    if type == .folder,
+       duration == 0 {
+      return 0
+    }
+
+    return isFinished ? 1.0 : (percentCompleted / 100)
+  }
+
   public static func == (lhs: SimpleLibraryItem, rhs: SimpleLibraryItem) -> Bool {
     return lhs.id == rhs.id
   }
