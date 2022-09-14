@@ -140,8 +140,7 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
 
     self.currentTimeLabel.text = progressObject.formattedCurrentTime
     self.currentTimeLabel.accessibilityLabel = String(
-      describing: String.localizedStringWithFormat(self.viewModel.getCurrentTimeVoiceOverPrefix(),
-                                                   VoiceOverService.secondsToMinutes(progressObject.currentTime))
+      describing: self.viewModel.getCurrentTimeVoiceOverString(formattedTime: VoiceOverService.secondsToMinutes(progressObject.currentTime))
     )
 
     if let progress = progressObject.progress {

@@ -79,11 +79,10 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     return self.playerManager.currentItem?.currentTimeInContext(self.prefersChapterContext) ?? 0
   }
 
-  func getCurrentTimeVoiceOverPrefix() -> String {
-    // TODO: report this as a separate bug
+  func getCurrentTimeVoiceOverString(formattedTime: String) -> String {
     return self.prefersChapterContext
-    ? "voiceover_chapter_time_title".localized
-    : "book_time_current_title".localized
+      ? Loc.VoiceoverChapterTimeTitle(formattedTime).string
+      : Loc.BookTimeCurrentTitle(formattedTime).string
   }
 
   func getMaxTimeVoiceOverPrefix() -> String {
