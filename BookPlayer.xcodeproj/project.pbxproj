@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -2054,7 +2054,7 @@
 					};
 					4140EA2E227288ED0009F794 = {
 						CreatedOnToolsVersion = 10.2.1;
-						LastSwiftMigration = 1130;
+						LastSwiftMigration = 1400;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
 								enabled = 1;
@@ -2326,6 +2326,7 @@
 		};
 		C35BADEA20698A6D007687C1 /* Run SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -2340,6 +2341,7 @@
 		};
 		C3EA7177218DECC30005D488 /* Run SwiftFormat */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
