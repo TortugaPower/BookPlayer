@@ -20,6 +20,8 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
   public let isFinished: Bool
   public let relativePath: String
   public let parentFolder: String?
+  public let originalFileName: String
+  public let lastPlayDate: Date?
   public let type: SimpleItemType
   public let syncStatus: SyncStatus
 
@@ -44,6 +46,8 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
     "isFinished",
     "relativePath",
     "folder.relativePath",
+    "originalFileName",
+    "lastPlayDate",
     "type",
     "syncStatus"
   ]
@@ -63,6 +67,8 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
     isFinished: Bool,
     relativePath: String,
     parentFolder: String?,
+    originalFileName: String,
+    lastPlayDate: Date?,
     type: SimpleItemType,
     syncStatus: SyncStatus
   ) {
@@ -74,6 +80,8 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
     self.isFinished = isFinished
     self.relativePath = relativePath
     self.parentFolder = parentFolder
+    self.originalFileName = originalFileName
+    self.lastPlayDate = lastPlayDate
     self.type = type
     self.syncStatus = syncStatus
   }
@@ -89,6 +97,8 @@ extension SimpleLibraryItem {
     self.isFinished = item.isFinished
     self.relativePath = item.relativePath
     self.parentFolder = item.folder?.relativePath
+    self.originalFileName = item.originalFileName
+    self.lastPlayDate = item.lastPlayDate
     self.syncStatus = item.syncStatus
 
     switch item.type {

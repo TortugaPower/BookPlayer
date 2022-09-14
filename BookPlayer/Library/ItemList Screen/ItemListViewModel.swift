@@ -527,7 +527,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       itemsToSort.count > 0
     else { return }
 
-    let sortedItems = BookSortService.sort(NSOrderedSet(array: itemsToSort), by: option)
+    let sortedItems = BookSortService.sort(itemsToSort, by: option)
 
     self.libraryService.replaceOrderedItems(sortedItems, at: self.folderRelativePath)
 

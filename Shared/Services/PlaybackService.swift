@@ -231,6 +231,12 @@ public final class PlaybackService: PlaybackServiceProtocol {
       duration = lastChapter.start + lastChapter.duration
     }
 
+    var percentCompleted = folder.percentCompleted
+
+    if percentCompleted.isNaN || percentCompleted.isInfinite {
+      percentCompleted = 0
+    }
+
     return PlayableItem(
       title: folder.title,
       author: chapters.first?.author ?? "voiceover_unknown_author".localized,
@@ -239,7 +245,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
       duration: duration ?? folder.duration,
       relativePath: folder.relativePath,
       parentFolder: folder.folder?.relativePath,
-      percentCompleted: folder.percentCompleted,
+      percentCompleted: percentCompleted,
       lastPlayDate: folder.lastPlayDate,
       isFinished: folder.isFinished,
       isBoundBook: true

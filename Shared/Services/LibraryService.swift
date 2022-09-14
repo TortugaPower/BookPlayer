@@ -38,7 +38,7 @@ public protocol LibraryServiceProtocol {
   func createFolder(with title: String, inside relativePath: String?) throws -> SimpleLibraryItem
   func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SimpleLibraryItem]?
   func getMaxItemsCount(at relativePath: String?) -> Int
-  func replaceOrderedItems(_ items: NSOrderedSet, at relativePath: String?)
+  func replaceOrderedItems(_ items: [SimpleLibraryItem], at relativePath: String?)
   func reorderItem(at relativePath: String, inside folderRelativePath: String?, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath)
 
   func updatePlaybackTime(relativePath: String, time: Double, date: Date)
@@ -479,6 +479,7 @@ public final class LibraryService: LibraryServiceProtocol {
         let percentCompleted = dictionary["percentCompleted"] as? Double,
         let isFinished = dictionary["isFinished"] as? Bool,
         let relativePath = dictionary["relativePath"] as? String,
+        let originalFileName = dictionary["originalFileName"] as? String,
         let rawType = dictionary["type"] as? Int16,
         let type = SimpleItemType(rawValue: rawType),
         let rawSyncStatus = dictionary["syncStatus"] as? Int16,
@@ -493,6 +494,8 @@ public final class LibraryService: LibraryServiceProtocol {
         isFinished: isFinished,
         relativePath: relativePath,
         parentFolder: dictionary["folder.relativePath"] as? String,
+        originalFileName: originalFileName,
+        lastPlayDate: dictionary["lastPlayDate"] as? Date,
         type: type,
         syncStatus: syncStatus
       )
@@ -510,14 +513,18 @@ public final class LibraryService: LibraryServiceProtocol {
     return (try? self.dataManager.getContext().count(for: fetchRequest)) ?? 0
   }
 
-  public func replaceOrderedItems(_ items: NSOrderedSet, at relativePath: String?) {
+  public func replaceOrderedItems(_ items: [SimpleLibraryItem], at relativePath: String?) {
+    let items = items.compactMap({ [unowned self] in
+      self.getItem(with: $0.relativePath)
+    })
+
     if let relativePath = relativePath,
        let folder = self.getItem(with: relativePath) as? Folder {
-      folder.items = items
+      folder.items = NSOrderedSet(array: items)
       folder.rebuildOrderRank()
     } else {
       let library = self.getLibrary()
-      library.items = items
+      library.items = NSOrderedSet(array: items)
       library.rebuildOrderRank()
     }
 
