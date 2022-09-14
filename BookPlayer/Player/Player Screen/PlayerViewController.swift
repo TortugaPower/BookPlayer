@@ -298,7 +298,6 @@ extension PlayerViewController {
 
       if let timeFormatted = timeFormatted {
         self.sleepLabel.isAccessibilityElement = true
-        // TODO: ask also what these string describing localization things are (this is not the only place)
         let remainingTitle = String(describing: Loc.SleepRemainingTitle(timeFormatted).string)
         self.sleepLabel.accessibilityLabel = String(describing: remainingTitle)
 
