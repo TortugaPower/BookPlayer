@@ -26,7 +26,7 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
   @IBOutlet weak var tableView: UITableView!
 
   private var previousLeftButtons: [UIBarButtonItem]?
-  lazy var selectButton: UIBarButtonItem = UIBarButtonItem(title: "select_all_title".localized, style: .plain, target: self, action: #selector(selectButtonPressed))
+  lazy var selectButton: UIBarButtonItem = UIBarButtonItem(title: Loc.SelectAllTitle.string, style: .plain, target: self, action: #selector(selectButtonPressed))
 
   var defaultArtwork: UIImage? {
     return UIImage(data: self.viewModel.defaultArtwork!)
@@ -51,7 +51,7 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
 
     if self.navigationController?.viewControllers.count == 1 {
       self.navigationItem.leftBarButtonItem =  UIBarButtonItem(
-        title: "settings_title".localized,
+        title: Loc.SettingsTitle.string,
         style: .plain,
         target: self,
         action: #selector(showSettings)
@@ -111,7 +111,7 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
                 return
               }
 
-        self.showLoadView(true, title: "downloading_file_title".localized, subtitle: "\("progress_title".localized) \(progress)%")
+        self.showLoadView(true, title: Loc.DownloadingFileTitle.string, subtitle: "\(Loc.ProgressTitle.string) \(progress)%")
       }
       .store(in: &disposeBag)
 
@@ -213,7 +213,7 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
       case .importLocalFiles:
         self?.viewModel.coordinator.showDocumentPicker()
       case .newImportOperation(let operation):
-        let loadingTitle = String.localizedStringWithFormat("import_processing_description".localized, operation.files.count)
+        let loadingTitle = Loc.ImportProcessingDescription(operation.files.count).string
         self?.showLoadView(true, title: loadingTitle)
       case .importOperationFinished(let files):
         self?.showLoadView(false)
@@ -241,7 +241,7 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
       case .markAsFinished(let items, let flag):
         self?.viewModel.handleMarkAsFinished(for: items, flag: flag)
       case .downloadBook(let url):
-        self?.showLoadView(true, title: "downloading_file_title".localized, subtitle: "\("progress_title".localized) 0%")
+        self?.showLoadView(true, title: Loc.DownloadingFileTitle.string, subtitle: "\(Loc.ProgressTitle.string) 0%")
         self?.viewModel.handleDownload(url)
       case .reloadItems(let pageSizePadding):
         self?.viewModel.reloadItems(pageSizePadding: pageSizePadding)
@@ -284,8 +284,8 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
     guard self.tableView.isEditing else { return }
 
     self.selectButton.title = self.tableView.numberOfRows(inSection: Section.data.rawValue) > (self.tableView.indexPathsForSelectedRows?.count ?? 0)
-      ? "select_all_title".localized
-      : "deselect_all_title".localized
+      ? Loc.SelectAllTitle.string
+      : Loc.DeselectAllTitle.string
 
     guard self.tableView.indexPathForSelectedRow == nil else {
       self.bulkControls.moveButton.isEnabled = true
@@ -447,7 +447,7 @@ extension ItemListViewController: UITableViewDelegate {
 
     let item = self.viewModel.items[indexPath.row]
 
-    let optionsAction = UIContextualAction(style: .normal, title: "\("options_button".localized)…") { _, _, completion in
+    let optionsAction = UIContextualAction(style: .normal, title: "\(Loc.OptionsButton.string)…") { _, _, completion in
       self.viewModel.showMoreOptions(selectedItems: [item])
       completion(true)
     }

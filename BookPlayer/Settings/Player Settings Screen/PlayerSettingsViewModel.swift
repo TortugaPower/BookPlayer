@@ -29,8 +29,7 @@ final class PlayerSettingsViewModel {
   }
 
   func getTitleForPlayerListPreference(_ prefersBookmarks: Bool) -> String {
-    let stringKey = prefersBookmarks ? "bookmarks_title" : "chapters_title"
-    return stringKey.localized
+    return prefersBookmarks ? Loc.BookmarksTitle.string : Loc.ChaptersTitle.string
   }
 
   func handleOptionSelected(_ option: PlayerListDisplayOption) {

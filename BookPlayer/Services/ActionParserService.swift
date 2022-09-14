@@ -203,7 +203,7 @@ class ActionParserService {
     }
 
     guard let url = URL(string: urlString) else {
-      libraryCoordinator.showAlert("error_title".localized, message: String.localizedStringWithFormat("invalid_url_title".localized, urlString))
+      libraryCoordinator.showAlert(Loc.ErrorTitle.string, message: Loc.InvalidUrlTitle(urlString).string)
       return
     }
 

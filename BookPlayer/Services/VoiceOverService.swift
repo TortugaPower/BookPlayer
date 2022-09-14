@@ -26,25 +26,25 @@ class VoiceOverService {
     }
 
     fileprivate func bookText() -> String {
-        let voiceOverTitle = self.title ?? "voiceover_no_title".localized
-        let voiceOverSubtitle = self.subtitle ?? "voiceover_no_author".localized
-        return String.localizedStringWithFormat("voiceover_book_progress".localized, voiceOverTitle, voiceOverSubtitle, self.progressPercent())
+        let voiceOverTitle = self.title ?? Loc.VoiceoverNoTitle.string
+        let voiceOverSubtitle = self.subtitle ?? Loc.VoiceoverNoAuthor.string
+      return Loc.VoiceoverBookProgress(voiceOverTitle, voiceOverSubtitle, self.progressPercent()).string
     }
 
     fileprivate func fileText() -> String {
-        let voiceOverTitle = self.title ?? "voiceover_no_file_title".localized
-        let voiceOverSubtitle = self.subtitle ?? "voiceover_no_file_subtitle".localized
+        let voiceOverTitle = self.title ?? Loc.VoiceoverNoFileTitle.string
+        let voiceOverSubtitle = self.subtitle ?? Loc.VoiceoverNoFileSubtitle.string
         return "\(voiceOverTitle) \(voiceOverSubtitle)"
     }
 
   fileprivate func regularFolderText() -> String {
-    let voiceOverTitle = self.title ?? "voiceover_no_playlist_title".localized
-    return String.localizedStringWithFormat("voiceover_playlist_progress".localized, voiceOverTitle, self.progressPercent())
+      let voiceOverTitle = self.title ?? Loc.VoiceoverNoPlaylistTitle.string
+      return Loc.VoiceoverPlaylistProgress(voiceOverTitle, self.progressPercent()).string
   }
 
   fileprivate func boundFolderText() -> String {
-      let voiceOverTitle = self.title ?? "voiceover_no_bound_books_title".localized
-      return String.localizedStringWithFormat("voiceover_bound_books_progress".localized, voiceOverTitle, self.progressPercent())
+      let voiceOverTitle = self.title ?? Loc.VoiceoverNoBoundBooksTitle.string
+      return Loc.VoiceoverBoundBooksProgress(voiceOverTitle, self.progressPercent()).string
   }
 
     fileprivate func progressPercent() -> Int {
@@ -60,17 +60,17 @@ class VoiceOverService {
       let title: String = item.title
       let author: String = item.author
 
-      return String(describing: String.localizedStringWithFormat("voiceover_book_info".localized, title, author))
+      return String(describing: Loc.VoiceoverBookInfo(title, author).string)
     }
 
     // MARK: - ArtworkControl
 
     public static func rewindText() -> String {
-        return String(describing: String.localizedStringWithFormat("voiceover_rewind_time".localized, self.secondsToMinutes(PlayerManager.rewindInterval.rounded())))
+        return Loc.VoiceoverRewindTime(self.secondsToMinutes(PlayerManager.rewindInterval.rounded())).string
     }
 
     public static func fastForwardText() -> String {
-        return String(describing: String.localizedStringWithFormat("voiceover_forward_time".localized, self.secondsToMinutes(PlayerManager.forwardInterval.rounded())))
+        return String(describing: Loc.VoiceoverForwardTime(self.secondsToMinutes(PlayerManager.forwardInterval.rounded())).string)
     }
 
     public static func secondsToMinutes(_ interval: TimeInterval) -> String {

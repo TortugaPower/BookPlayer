@@ -46,14 +46,14 @@ class DataInitializerCoordinator {
     do {
       try self.dataMigrationManager.performMigration { [weak self] error in
         if let error = error {
-          self?.alertPresenter.showAlert("error_title".localized, message: error.localizedDescription, completion: nil)
+          self?.alertPresenter.showAlert(Loc.ErrorTitle.string, message: error.localizedDescription, completion: nil)
           return
         }
 
         self?.handleMigrations()
       }
     } catch {
-      self.alertPresenter.showAlert("error_title".localized, message: error.localizedDescription, completion: nil)
+      self.alertPresenter.showAlert(Loc.ErrorTitle.string, message: error.localizedDescription, completion: nil)
     }
   }
 
@@ -79,7 +79,7 @@ class DataInitializerCoordinator {
     // CoreData may fail if device doesn't have space
     if (error.domain == NSPOSIXErrorDomain && error.code == ENOSPC) ||
         (error.domain == NSCocoaErrorDomain && error.code == NSFileWriteOutOfSpaceError) {
-      self.alertPresenter.showAlert("error_title".localized, message: "coredata_error_diskfull_description".localized, completion: nil)
+      self.alertPresenter.showAlert(Loc.ErrorTitle.string, message: Loc.CoredataErrorDiskfullDescription.string, completion: nil)
       return
     }
 
@@ -92,7 +92,7 @@ class DataInitializerCoordinator {
         error.code == NSMigrationManagerSourceStoreError ||
         error.code == NSMigrationManagerDestinationStoreError ||
         error.code == NSEntityMigrationPolicyError {
-      self.alertPresenter.showAlert("error_title".localized, message: "coredata_error_migration_description".localized) {
+      self.alertPresenter.showAlert(Loc.ErrorTitle.string, message: Loc.CoredataErrorMigrationDescription.string) {
         self.dataMigrationManager.cleanupStoreFile()
         let urls = self.getLibraryFiles()
         self.reloadLibrary(with: urls)

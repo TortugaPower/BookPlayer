@@ -128,7 +128,7 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     airplayRoutePickerView.layer.shadowOffset = CGSize(width: 0.0, height: 2.0)
 
     self.airplayView.isAccessibilityElement = true
-    self.airplayView.accessibilityLabel = "audio_source_title".localized
+    self.airplayView.accessibilityLabel = Loc.AudioSourceTitle.string
   }
 
   public func setupInfo(with item: PlayableItem) {

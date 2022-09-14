@@ -25,7 +25,7 @@ class ButtonFreeViewController: BaseViewController<ButtonFreeCoordinator, Button
   private lazy var titleItem: UILabel = {
     let label = UILabel()
     label.font = UIFont.preferredFont(with: 16, style: .headline, weight: .semibold)
-    label.text = "screen_gestures_title".localized.capitalized
+    label.text = Loc.ScreenGesturesTitle.string.capitalized
     label.numberOfLines = 0
     label.translatesAutoresizingMaskIntoConstraints = false
     return label
@@ -33,28 +33,28 @@ class ButtonFreeViewController: BaseViewController<ButtonFreeCoordinator, Button
 
   private lazy var tapItem: UIStackView = {
     return GestureItemRow(
-      title: "gesture_tap_title".localized,
+      title: Loc.GestureTapTitle.string,
       systemImageName: "hand.tap"
     )
   }()
 
   private lazy var swipeLeftItem: UIStackView = {
     return GestureItemRow(
-      title: "gesture_swipe_left_title".localized,
+      title: Loc.GestureSwipeLeftTitle.string,
       systemImageName: "arrow.left"
     )
   }()
 
   private lazy var swipeRightItem: UIStackView = {
     return GestureItemRow(
-      title: "gesture_swipe_right_title".localized,
+      title: Loc.GestureSwipeRightTitle.string,
       systemImageName: "arrow.right"
     )
   }()
 
   private lazy var swipeVerticalItem: UIStackView = {
     return GestureItemRow(
-      title: "gesture_swipe_vertically_title".localized,
+      title: Loc.GestureSwipeVerticallyTitle.string,
       systemImageName: "arrow.up.arrow.down"
     )
   }()
@@ -94,7 +94,7 @@ class ButtonFreeViewController: BaseViewController<ButtonFreeCoordinator, Button
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    self.navigationItem.title = "button_free_title".localized.capitalized
+    self.navigationItem.title = Loc.ButtonFreeTitle.string.capitalized
 
     self.navigationItem.leftBarButtonItem = UIBarButtonItem(
       image: UIImage(systemName: "xmark"),

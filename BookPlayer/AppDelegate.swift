@@ -157,7 +157,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   ) {
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
     guard FileManager.default.fileExists(atPath: fileURL.path) else {
-      alertPresenter.showAlert("file_missing_title".localized, message: "\("file_missing_description".localized)\n\(fileURL.lastPathComponent)", completion: nil)
+      alertPresenter.showAlert(Loc.FileMissingTitle.string, message: "\(Loc.FileMissingDescription.string)\n\(fileURL.lastPathComponent)", completion: nil)
       return
     }
 
@@ -177,7 +177,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     do {
       item = try self.playbackService?.getPlayableItem(from: libraryItem)
     } catch {
-      alertPresenter.showAlert("error_title".localized, message: error.localizedDescription, completion: nil)
+      alertPresenter.showAlert(Loc.ErrorTitle.string, message: error.localizedDescription, completion: nil)
       return
     }
 
@@ -255,7 +255,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       let playerManager = self.playerManager,
       playerManager.currentItem != nil
     else {
-      UIAccessibility.post(notification: .announcement, argument: "voiceover_no_title".localized)
+      UIAccessibility.post(notification: .announcement, argument: Loc.VoiceoverNoTitle.string)
       return false
     }
 

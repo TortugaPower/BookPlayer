@@ -186,10 +186,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
       let chapters = self.libraryService.getChapters(from: book.relativePath)
     else {
       throw BookPlayerError.runtimeError(
-        String.localizedStringWithFormat(
-          "error_loading_chapters".localized,
-          String(describing: book.relativePath!)
-        )
+        Loc.ErrorLoadingChapters(String(describing: book.relativePath!)).string
       )
     }
 
@@ -230,7 +227,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
 
     return PlayableItem(
       title: folder.title,
-      author: chapters.first?.author ?? "voiceover_unknown_author".localized,
+      author: chapters.first?.author ?? Loc.VoiceoverUnknownAuthor.string,
       chapters: chapters,
       currentTime: folder.currentTime,
       duration: duration ?? folder.duration,
@@ -251,19 +248,13 @@ public final class PlaybackService: PlaybackServiceProtocol {
       ) as? [Book]
     else {
       throw BookPlayerError.runtimeError(
-        String.localizedStringWithFormat(
-          "error_loading_chapters".localized,
-          String(describing: folder.relativePath!)
-        )
+        Loc.ErrorEmptyChapters(String(describing: folder.relativePath!)).string
       )
     }
 
     guard !items.isEmpty else {
       throw BookPlayerError.runtimeError(
-        String.localizedStringWithFormat(
-          "error_empty_chapters".localized,
-          String(describing: folder.title!)
-        )
+        Loc.ErrorEmptyChapters(String(describing: folder.title!)).string
       )
     }
 

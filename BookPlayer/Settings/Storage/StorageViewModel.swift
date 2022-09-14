@@ -229,7 +229,7 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
     // Check if existing book already has its file, and this one is a duplicate
     if FileManager.default.fileExists(atPath: fetchedBookURL.path) {
       try FileManager.default.removeItem(at: item.fileURL)
-      self.coordinator.showAlert("storage_duplicate_item_title".localized, message: String.localizedStringWithFormat("storage_duplicate_item_description".localized, fetchedBook.relativePath!))
+      self.coordinator.showAlert(Loc.StorageDuplicateItemTitle.string, message: Loc.StorageDuplicateItemDescription(fetchedBook.relativePath!).string)
       if shouldReloadItems {
         self.loadItems()
       }

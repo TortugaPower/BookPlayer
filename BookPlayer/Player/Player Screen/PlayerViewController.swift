@@ -108,7 +108,7 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
   }
 
   func setup() {
-    self.closeButton.accessibilityLabel = "voiceover_dismiss_player_title".localized
+    self.closeButton.accessibilityLabel = Loc.VoiceoverDismissPlayerTitle.string
 
     self.chapterTitleButton.titleLabel?.numberOfLines = 2
     self.chapterTitleButton.titleLabel?.textAlignment = .center
@@ -299,7 +299,8 @@ extension PlayerViewController {
 
       if let timeFormatted = timeFormatted {
         self.sleepLabel.isAccessibilityElement = true
-        let remainingTitle = String(describing: String.localizedStringWithFormat("sleep_remaining_title".localized, timeFormatted))
+        // TODO: ask also what these string describing localization things are (this is not the only place)
+        let remainingTitle = String(describing: Loc.SleepRemainingTitle(timeFormatted).string)
         self.sleepLabel.accessibilityLabel = String(describing: remainingTitle)
 
         if let items = self.bottomToolbar.items,
@@ -359,7 +360,7 @@ extension PlayerViewController {
       guard let self = self else { return }
 
       self.speedButton.title = self.formatSpeed(speed)
-      self.speedButton.accessibilityLabel = String(describing: self.formatSpeed(speed) + " \("speed_title".localized)")
+      self.speedButton.accessibilityLabel = String(describing: self.formatSpeed(speed) + " \(Loc.SpeedTitle.string)")
 
       // Only update progress if the player is in pause state
       guard !self.playIconView.isPlaying else { return }
@@ -377,9 +378,9 @@ extension PlayerViewController {
     self.bottomToolbar.setBackgroundImage(UIImage(), forToolbarPosition: .any, barMetrics: .default)
     self.bottomToolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
     self.speedButton.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18.0, weight: .semibold)], for: .normal)
-    self.previousChapterButton.accessibilityLabel = "chapters_previous_title".localized
-    self.nextChapterButton.accessibilityLabel = "chapters_next_title".localized
-    self.bookmarkButton.accessibilityLabel = "bookmark_create_title".localized
+    self.previousChapterButton.accessibilityLabel = Loc.ChaptersPreviousTitle.string
+    self.nextChapterButton.accessibilityLabel = Loc.ChaptersNextTitle.string
+    self.bookmarkButton.accessibilityLabel = Loc.BookmarkCreateTitle.string
   }
 
   func updateToolbar(_ showTimerLabel: Bool = false, animated: Bool = false) {
@@ -441,24 +442,24 @@ extension PlayerViewController {
         self?.viewModel.showListFromMoreAction()
     }))
 
-    actionSheet.addAction(UIAlertAction(title: "jump_start_title".localized, style: .default, handler: { [weak self] _ in
+    actionSheet.addAction(UIAlertAction(title: Loc.JumpStartTitle.string, style: .default, handler: { [weak self] _ in
       self?.viewModel.handleJumpToStart()
     }))
 
-    let markTitle = self.viewModel.isBookFinished() ? "mark_unfinished_title".localized : "mark_finished_title".localized
+    let markTitle = self.viewModel.isBookFinished() ? Loc.MarkUnfinishedTitle.string : Loc.MarkFinishedTitle.string
 
     actionSheet.addAction(UIAlertAction(title: markTitle, style: .default, handler: { [weak self] _ in
       self?.viewModel.handleMarkCompletion()
     }))
 
     actionSheet.addAction(UIAlertAction(
-      title: "button_free_title".localized,
+      title: Loc.ButtonFreeTitle.string,
       style: .default,
       handler: { [weak self] _ in
         self?.viewModel.showButtonFree()
     }))
 
-    actionSheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
+    actionSheet.addAction(UIAlertAction(title: Loc.CancelButton.string, style: .cancel, handler: nil))
 
     self.present(actionSheet, animated: true, completion: nil)
   }

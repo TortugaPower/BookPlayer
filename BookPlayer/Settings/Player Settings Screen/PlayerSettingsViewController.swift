@@ -36,7 +36,7 @@ class PlayerSettingsViewController: UITableViewController {
 
     setUpTheming()
 
-    self.navigationItem.title = "settings_controls_title".localized
+    self.navigationItem.title = Loc.SettingsControlsTitle.string
     self.smartRewindSwitch.addTarget(self, action: #selector(self.rewindToggleDidChange), for: .valueChanged)
     self.boostVolumeSwitch.addTarget(self, action: #selector(self.boostVolumeToggleDidChange), for: .valueChanged)
     self.globalSpeedSwitch.addTarget(self, action: #selector(self.globalSpeedToggleDidChange), for: .valueChanged)
@@ -81,15 +81,15 @@ class PlayerSettingsViewController: UITableViewController {
   func showPlayerListOptionAlert() {
     let sheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
-    sheet.addAction(UIAlertAction(title: "chapters_title".localized, style: .default) { [weak self] _ in
+    sheet.addAction(UIAlertAction(title: Loc.ChaptersTitle.string, style: .default) { [weak self] _ in
       self?.viewModel.handleOptionSelected(.chapters)
     })
 
-    sheet.addAction(UIAlertAction(title: "bookmarks_title".localized, style: .default) { [weak self] _ in
+    sheet.addAction(UIAlertAction(title: Loc.BookmarksTitle.string, style: .default) { [weak self] _ in
       self?.viewModel.handleOptionSelected(.bookmarks)
     })
 
-    sheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel))
+    sheet.addAction(UIAlertAction(title: Loc.CancelButton.string, style: .cancel))
 
     self.present(sheet, animated: true)
   }
@@ -100,7 +100,7 @@ class PlayerSettingsViewController: UITableViewController {
         }
 
         if segue.identifier == "AdjustRewindIntervalSegue" {
-            viewController.title = "settings_skip_rewind_title".localized
+            viewController.title = Loc.SettingsSkipRewindTitle.string
             viewController.selectedInterval = PlayerManager.rewindInterval
             viewController.didSelectInterval = { selectedInterval in
                 PlayerManager.rewindInterval = selectedInterval
@@ -110,7 +110,7 @@ class PlayerSettingsViewController: UITableViewController {
         }
 
         if segue.identifier == "AdjustForwardIntervalSegue" {
-            viewController.title = "settings_skip_forward_title".localized
+          viewController.title = Loc.SettingsSkipForwardTitle.string
             viewController.selectedInterval = PlayerManager.forwardInterval
             viewController.didSelectInterval = { selectedInterval in
                 PlayerManager.forwardInterval = selectedInterval
@@ -140,9 +140,9 @@ class PlayerSettingsViewController: UITableViewController {
 
   override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
     if section == SettingsSection.intervals.rawValue {
-      return "settings_skip_title".localized
+      return Loc.SettingsSkipTitle.string
     } else if section == SettingsSection.progressLabels.rawValue {
-      return "settings_progresslabels_title".localized
+      return Loc.SettingsProgresslabelsTitle.string
     }
 
     return super.tableView(tableView, titleForHeaderInSection: section)
@@ -155,17 +155,17 @@ class PlayerSettingsViewController: UITableViewController {
 
     switch settingsSection {
     case .intervals:
-      return "settings_skip_description".localized
+      return Loc.SettingsSkipDescription.string
     case .rewind:
-      return "settings_smartrewind_description".localized
+      return Loc.SettingsSmartrewindDescription.string
     case .volume:
-      return "settings_boostvolume_description".localized
+      return Loc.SettingsBoostvolumeDescription.string
     case .speed:
-      return "settings_globalspeed_description".localized
+      return Loc.SettingsGlobalspeedDescription.string
     case .progressLabels:
-      return "settings_progresslabels_description".localized
+      return Loc.SettingsProgresslabelsDescription.string
     case .playerList:
-      return "settings_playerinterface_list_description".localized
+      return Loc.SettingsPlayerinterfaceListDescription.string
     }
   }
 

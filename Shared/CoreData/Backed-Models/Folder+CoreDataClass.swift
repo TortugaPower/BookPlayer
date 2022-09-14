@@ -190,7 +190,7 @@ public class Folder: LibraryItem {
   public override func info() -> String {
     let count = self.items?.array.count ?? 0
 
-    return String.localizedStringWithFormat("files_title".localized, count)
+    return Loc.FilesTitle(count).string
   }
 
     enum CodingKeys: String, CodingKey {

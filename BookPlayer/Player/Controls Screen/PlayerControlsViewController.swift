@@ -44,10 +44,10 @@ class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator
   }
 
   func setupUI() {
-    self.navigationItem.title = "settings_controls_title".localized
-    self.playbackLabel.text = "player_speed_title".localized
-    self.boostLabel.text = "settings_boostvolume_title".localized
-    self.boostWarningLabel.text = "settings_boostvolume_description".localized
+    self.navigationItem.title = Loc.SettingsControlsTitle.string
+    self.playbackLabel.text = Loc.PlayerSpeedTitle.string
+    self.boostLabel.text = Loc.SettingsBoostvolumeTitle.string
+    self.boostWarningLabel.text = Loc.SettingsBoostvolumeDescription.string
 
     self.speedFirstQuickActionButton.layer.masksToBounds = true
     self.speedFirstQuickActionButton.layer.cornerRadius = 5
@@ -89,7 +89,7 @@ class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator
   }
 
   func setupAccessibility() {
-    self.boostLabel.accessibilityHint = "settings_boostvolume_description".localized
+    self.boostLabel.accessibilityHint = Loc.SettingsBoostvolumeDescription.string
     self.currentSpeedSlider.accessibilityValue = "\(self.viewModel.getCurrentSpeed())"
     self.boostWarningLabel.isAccessibilityElement = false
     self.currentSpeedLabel.isAccessibilityElement = false

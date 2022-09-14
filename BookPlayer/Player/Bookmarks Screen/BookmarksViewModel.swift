@@ -59,7 +59,7 @@ class BookmarksViewModel: BaseViewModel<BookmarkCoordinator> {
   }
 
   func getBookmarkNoteAlert(_ bookmark: Bookmark) -> UIAlertController {
-    let alert = UIAlertController(title: "bookmark_note_action_title".localized,
+    let alert = UIAlertController(title: Loc.BookmarkNoteActionTitle.string,
                                   message: nil,
                                   preferredStyle: .alert)
 
@@ -67,8 +67,8 @@ class BookmarksViewModel: BaseViewModel<BookmarkCoordinator> {
       textfield.text = bookmark.note
     })
 
-    alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
-    alert.addAction(UIAlertAction(title: "ok_button".localized, style: .default, handler: { _ in
+    alert.addAction(UIAlertAction(title: Loc.CancelButton.string, style: .cancel, handler: nil))
+    alert.addAction(UIAlertAction(title: Loc.OkButton.string, style: .default, handler: { _ in
       guard let note = alert.textFields?.first?.text else {
         return
       }

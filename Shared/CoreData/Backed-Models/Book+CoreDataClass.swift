@@ -114,7 +114,7 @@ extension Book {
       case "title":
         self.title = value as? String
       case "artist":
-        if self.author == "voiceover_unknown_author".localized {
+        if self.author == Loc.VoiceoverUnknownAuthor.string {
           self.author = value as? String
         }
       default:
@@ -136,7 +136,7 @@ extension Book {
     let authorFromMeta = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtist, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String
 
     self.title = titleFromMeta ?? bookUrl.lastPathComponent.replacingOccurrences(of: "_", with: " ")
-    self.author = authorFromMeta ?? "voiceover_unknown_author".localized
+    self.author = authorFromMeta ?? Loc.VoiceoverUnknownAuthor.string
     self.duration = CMTimeGetSeconds(asset.duration)
     self.originalFileName = bookUrl.lastPathComponent
     self.isFinished = false

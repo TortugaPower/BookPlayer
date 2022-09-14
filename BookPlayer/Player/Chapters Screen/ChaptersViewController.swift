@@ -18,7 +18,7 @@ final class ChaptersViewController: BaseTableViewController<ChapterCoordinator, 
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    self.navigationItem.title = "chapters_title".localized
+    self.navigationItem.title = Loc.ChaptersTitle.string
 
     self.tableView.tableFooterView = UIView()
     self.tableView.rowHeight = UITableView.automaticDimension
@@ -60,10 +60,10 @@ final class ChaptersViewController: BaseTableViewController<ChapterCoordinator, 
     let chapter = self.chapters[indexPath.row]
 
     cell.textLabel?.text = chapter.title == ""
-      ? String.localizedStringWithFormat("chapter_number_title".localized, indexPath.row + 1)
+      ? Loc.ChapterNumberTitle(indexPath.row + 1).string
       : chapter.title
 
-    cell.detailTextLabel?.text = String.localizedStringWithFormat("chapters_item_description".localized, TimeParser.formatTime(chapter.start), TimeParser.formatTime(chapter.duration))
+    cell.detailTextLabel?.text = Loc.ChaptersItemDescription(TimeParser.formatTime(chapter.start), TimeParser.formatTime(chapter.duration)).string
     cell.accessoryType = .none
 
     if let currentChapter = self.viewModel.getCurrentChapter(),

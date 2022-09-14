@@ -22,10 +22,10 @@ class UserActivityManager {
     let interaction = INInteraction(intent: intent, response: nil)
     interaction.donate(completion: nil)
     let activity = NSUserActivity(activityType: Constants.UserActivityPlayback)
-    activity.title = "siri_activity_title".localized
+    activity.title = Loc.SiriActivityTitle.string
     activity.isEligibleForPrediction = true
     activity.persistentIdentifier = NSUserActivityPersistentIdentifier(Constants.UserActivityPlayback)
-    activity.suggestedInvocationPhrase = "siri_invocation_phrase".localized
+    activity.suggestedInvocationPhrase = Loc.SiriInvocationPhrase.string
     activity.isEligibleForSearch = true
 
     self.currentActivity = activity

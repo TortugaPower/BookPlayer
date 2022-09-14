@@ -80,6 +80,7 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   }
 
   func getCurrentTimeVoiceOverPrefix() -> String {
+    // TODO: report this as a separate bug
     return self.prefersChapterContext
     ? "voiceover_chapter_time_title".localized
     : "book_time_current_title".localized
@@ -88,13 +89,13 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   func getMaxTimeVoiceOverPrefix() -> String {
     if self.prefersChapterContext {
       return self.prefersRemainingTime
-      ? "chapter_time_remaining_title".localized
-      : "chapter_duration_title".localized
+      ? Loc.ChapterTimeRemainingTitle.string
+      : Loc.ChapterDurationTitle.string
     }
 
     return self.prefersRemainingTime
-    ? "book_time_remaining_title".localized
-    : "book_duration_title".localized
+      ? Loc.BookTimeRemainingTitle.string
+      : Loc.BookDurationTitle.string
   }
 
   func handlePlayPauseAction() {
@@ -176,7 +177,7 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     if self.prefersChapterContext,
        let currentItem = currentItem,
        let currentChapter = currentItem.currentChapter {
-      progress = String.localizedStringWithFormat("player_chapter_description".localized, currentChapter.index, currentItem.chapters.count)
+      progress = Loc.PlayerChapterDescription(Int(currentChapter.index), currentItem.chapters.count).string
       sliderValue = Float((currentItem.currentTime - currentChapter.start) / currentChapter.duration)
     } else {
       progress = "\(Int(round((currentItem?.progressPercentage ?? 0) * 100)))%"
@@ -322,9 +323,9 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
 
   func getListTitleForMoreAction() -> String {
     if UserDefaults.standard.bool(forKey: Constants.UserDefaults.playerListPrefersBookmarks.rawValue) {
-      return "chapters_title".localized
+      return Loc.ChaptersTitle.string
     } else {
-      return "bookmarks_title".localized
+      return Loc.BookmarksTitle.string
     }
   }
 
@@ -372,38 +373,36 @@ extension PlayerViewModel {
     ) {
       self.showBookmarkSuccessAlert(vc: vc, bookmark: bookmark, existed: false)
     } else {
-      vc.showAlert("error_title".localized, message: "file_missing_title".localized)
+      vc.showAlert(Loc.ErrorTitle.string, message: Loc.FileMissingTitle.string)
     }
   }
 
   func showBookmarkSuccessAlert(vc: UIViewController, bookmark: Bookmark, existed: Bool) {
     let formattedTime = TimeParser.formatTime(bookmark.time)
 
-    let titleKey = existed
-    ? "bookmark_exists_title"
-    : "bookmark_created_title"
+    let title = existed
+      ? Loc.BookmarkExistsTitle(formattedTime).string
+      : Loc.BookmarkCreatedTitle(formattedTime).string
 
-    let alert = UIAlertController(title: String.localizedStringWithFormat(titleKey.localized, formattedTime),
-                                  message: nil,
-                                  preferredStyle: .alert)
+    let alert = UIAlertController(title: title, message: nil, preferredStyle: .alert)
 
     if !existed {
-      alert.addAction(UIAlertAction(title: "bookmark_note_action_title".localized, style: .default, handler: { _ in
+      alert.addAction(UIAlertAction(title: Loc.BookmarkNoteActionTitle.string, style: .default, handler: { _ in
         self.showBookmarkNoteAlert(vc: vc, bookmark: bookmark)
       }))
     }
 
-    alert.addAction(UIAlertAction(title: "bookmarks_see_title".localized, style: .default, handler: { _ in
+    alert.addAction(UIAlertAction(title: Loc.BookmarksSeeTitle.string, style: .default, handler: { _ in
       self.showBookmarks()
     }))
 
-    alert.addAction(UIAlertAction(title: "ok_button".localized, style: .cancel, handler: nil))
+    alert.addAction(UIAlertAction(title: Loc.OkButton.string, style: .cancel, handler: nil))
 
     vc.present(alert, animated: true, completion: nil)
   }
 
   func showBookmarkNoteAlert(vc: UIViewController, bookmark: Bookmark) {
-    let alert = UIAlertController(title: "bookmark_note_action_title".localized,
+    let alert = UIAlertController(title: Loc.BookmarkNoteActionTitle.string,
                                   message: nil,
                                   preferredStyle: .alert)
 
@@ -411,8 +410,8 @@ extension PlayerViewModel {
       textfield.text = ""
     })
 
-    alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
-    alert.addAction(UIAlertAction(title: "ok_button".localized, style: .default, handler: { _ in
+    alert.addAction(UIAlertAction(title: Loc.CancelButton.string, style: .cancel, handler: nil))
+    alert.addAction(UIAlertAction(title: Loc.OkButton.string, style: .default, handler: { _ in
       guard let note = alert.textFields?.first?.text else {
         return
       }

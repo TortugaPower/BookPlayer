@@ -35,7 +35,7 @@ final class SleepTimer {
     $timeLeft.map({ interval in
       // End of chapter
       if interval == -2 {
-        return "active_title".localized
+        return Loc.ActiveTitle.string
       }
 
       // Timer finished
@@ -58,7 +58,7 @@ final class SleepTimer {
   // MARK: Internals
 
   private init() {
-    self.defaultMessage = "player_sleep_title".localized
+    self.defaultMessage = Loc.PlayerSleepTitle.string
     self.durationFormatter.unitsStyle = .positional
     self.durationFormatter.allowedUnits = [.minute, .second]
     self.durationFormatter.collapsesLargestUnit = true
@@ -78,18 +78,17 @@ final class SleepTimer {
   public func getAlertMessage() -> String {
     // End of chapter
     if self.timeLeft == -2 {
-      return "sleep_alert_description".localized
+      return Loc.SleepAlertDescription.string
     }
 
     // Timer finished
     if self.timeLeft == 0 {
-      return "player_sleep_title".localized
+      return Loc.PlayerSleepTitle.string
     }
 
-    return String.localizedStringWithFormat(
-      "sleep_time_description".localized,
+    return Loc.SleepTimeDescription(
       self.durationFormatter.string(from: self.timeLeft)!
-    )
+    ).string
   }
 
   private func donateTimerIntent(with option: TimerOption) {
@@ -103,7 +102,7 @@ final class SleepTimer {
   @objc private func update() {
     self.timeLeft -= 1.0
 
-    self.alert?.message = String.localizedStringWithFormat("sleep_time_description".localized, self.durationFormatter.string(from: self.timeLeft)!)
+    self.alert?.message = Loc.SleepTimeDescription(self.durationFormatter.string(from: self.timeLeft)!).string
 
     if self.timeLeft <= 0 {
       self.end()
@@ -121,7 +120,7 @@ final class SleepTimer {
 
   private func startEndOfChapterOption() {
     self.reset()
-    self.alert?.message = "sleep_alert_description".localized
+    self.alert?.message = Loc.SleepAlertDescription.string
     self.timeLeft = -2.0
     NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .chapterChange, object: nil)
     NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .bookEnd, object: nil)
@@ -140,7 +139,7 @@ final class SleepTimer {
 
     let intent = SleepTimerIntent()
 
-    alert.addAction(UIAlertAction(title: "sleep_off_title".localized, style: .default, handler: { _ in
+    alert.addAction(UIAlertAction(title: Loc.SleepOffTitle.string, style: .default, handler: { _ in
       intent.option = .cancel
       (vc as? IntentSelectionDelegate)?.didSelectIntent(intent)
     }))
@@ -148,18 +147,18 @@ final class SleepTimer {
     for interval in self.intervals {
       let formattedDuration = formatter.string(from: interval as TimeInterval)!
 
-      alert.addAction(UIAlertAction(title: String.localizedStringWithFormat("sleep_interval_title".localized, formattedDuration), style: .default, handler: { _ in
+      alert.addAction(UIAlertAction(title: Loc.SleepIntervalTitle(formattedDuration).string, style: .default, handler: { _ in
         intent.option = TimeParser.getTimerOption(from: interval)!
         (vc as? IntentSelectionDelegate)?.didSelectIntent(intent)
       }))
     }
 
-    alert.addAction(UIAlertAction(title: "sleep_chapter_option_title".localized, style: .default) { _ in
+    alert.addAction(UIAlertAction(title: Loc.SleepChapterOptionTitle.string, style: .default) { _ in
       intent.option = .endChapter
       (vc as? IntentSelectionDelegate)?.didSelectIntent(intent)
     })
 
-    alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
+    alert.addAction(UIAlertAction(title: Loc.CancelButton.string, style: .cancel, handler: nil))
 
     return alert
   }

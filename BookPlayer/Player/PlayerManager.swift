@@ -551,7 +551,7 @@ extension PlayerManager {
       if item.status == .failed {
         SceneDelegate.shared?.coordinator.getMainCoordinator()?
           .getTopController()?
-          .showAlert("error_title".localized, message: item.error?.localizedDescription)
+          .showAlert(Loc.ErrorTitle.string, message: item.error?.localizedDescription)
       }
       return
     }

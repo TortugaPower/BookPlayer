@@ -22,7 +22,7 @@ class IconsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.navigationItem.title = "settings_app_icon_title".localized
+      self.navigationItem.title = Loc.SettingsAppIconTitle.string
         self.icons = self.getIcons()
 
         self.tableView.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: self.tableView.frame.size.width, height: 1))
@@ -66,7 +66,7 @@ class IconsViewController: UIViewController {
 
           guard error != nil else { return }
 
-          self.showAlert("error_title".localized, message: "icon_error_description".localized)
+          self.showAlert(Loc.ErrorTitle.string, message: Loc.IconErrorDescription.string)
         })
     }
 }

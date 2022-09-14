@@ -53,7 +53,7 @@ class ThemesViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.navigationItem.title = "themes_title".localized
+        self.navigationItem.title = Loc.ThemesTitle.string
 
       self.localThemes = ThemeManager.getLocalThemes()
       self.extractedThemes = [] // disabled
@@ -238,7 +238,7 @@ extension ThemesViewController: UITableViewDataSource {
         cell.titleLabel.textColor = ThemeManager.shared.currentTheme.primaryColor
 
         guard indexPath.sectionValue != .add else {
-            cell.titleLabel.text = "library_add_button".localized
+            cell.titleLabel.text = Loc.LibraryAddButton.string
             cell.titleLabel.textColor = ThemeManager.shared.currentTheme.linkColor
             cell.plusImageView.isHidden = false
             cell.plusImageView.tintColor = ThemeManager.shared.currentTheme.linkColor

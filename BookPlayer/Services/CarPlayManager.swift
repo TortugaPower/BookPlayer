@@ -97,8 +97,8 @@ class CarPlayManager: NSObject {
       )
 
       let boostTitle = !flag
-      ? "\("settings_boostvolume_title".localized): \("active_title".localized)"
-      : "\("settings_boostvolume_title".localized): \("sleep_off_title".localized)"
+      ? "\(Loc.SettingsBoostvolumeTitle.string): \(Loc.ActiveTitle.string)"
+      : "\(Loc.SettingsBoostvolumeTitle.string): \(Loc.SleepOffTitle.string)"
 
       self?.boostVolumeItem.setText(boostTitle)
       completion()
@@ -150,12 +150,12 @@ class CarPlayManager: NSObject {
         type: .user
       ) {
         let formattedTime = TimeParser.formatTime(bookmark.time)
-        alertTitle = String.localizedStringWithFormat("bookmark_created_title".localized, formattedTime)
+        alertTitle = Loc.BookmarkCreatedTitle(formattedTime).string
       } else {
-        alertTitle = "file_missing_title".localized
+        alertTitle = Loc.FileMissingTitle.string
       }
 
-      let okAction = CPAlertAction(title: "ok_button".localized, style: .default) { _ in
+      let okAction = CPAlertAction(title: Loc.OkButton.string, style: .default) { _ in
         self.interfaceController?.dismissTemplate(animated: true, completion: nil)
       }
       let alertTemplate = CPAlertTemplate(titleVariants: [alertTitle], actions: [okAction])
@@ -168,13 +168,13 @@ class CarPlayManager: NSObject {
 
   /// Setup root Tab bar template with the Recent and Library tabs
   func setRootTemplate() {
-    let recentTemplate = CPListTemplate(title: "recent_title".localized, sections: [])
+    let recentTemplate = CPListTemplate(title: Loc.RecentTitle.string, sections: [])
     self.recentTemplate = recentTemplate
-    recentTemplate.tabTitle = "recent_title".localized
+    recentTemplate.tabTitle = Loc.RecentTitle.string
     recentTemplate.tabImage = UIImage(systemName: "clock")
-    let libraryTemplate = CPListTemplate(title: "library_title".localized, sections: [])
+    let libraryTemplate = CPListTemplate(title: Loc.LibraryTitle.string, sections: [])
     self.libraryTemplate = libraryTemplate
-    libraryTemplate.tabTitle = "library_title".localized
+    libraryTemplate.tabTitle = Loc.LibraryTitle.string
     libraryTemplate.tabImage = UIImage(systemName: "books.vertical")
     let tabTemplate = CPTabBarTemplate(templates: [recentTemplate, libraryTemplate])
     tabTemplate.delegate = self
@@ -335,10 +335,10 @@ extension CarPlayManager {
 
     let chapterItems = chapters.enumerated().map({ [weak self, playerManager] (index, chapter) -> CPListItem in
       let chapterTitle = chapter.title == ""
-      ? String.localizedStringWithFormat("chapter_number_title".localized, index + 1)
+      ? Loc.ChapterNumberTitle(index + 1).string
       : chapter.title
 
-      let chapterDetail = String.localizedStringWithFormat("chapters_item_description".localized, TimeParser.formatTime(chapter.start), TimeParser.formatTime(chapter.duration))
+      let chapterDetail = Loc.ChaptersItemDescription(TimeParser.formatTime(chapter.start), TimeParser.formatTime(chapter.duration)).string
 
       let item = CPListItem(text: chapterTitle, detailText: chapterDetail)
 
@@ -364,7 +364,7 @@ extension CarPlayManager {
 
     let section = CPListSection(items: chapterItems)
 
-    let listTemplate = CPListTemplate(title: "chapters_title".localized, sections: [section])
+    let listTemplate = CPListTemplate(title: Loc.ChaptersTitle.string, sections: [section])
 
     self.interfaceController?.pushTemplate(listTemplate, animated: true, completion: nil)
   }
@@ -423,11 +423,11 @@ extension CarPlayManager {
       return self?.createBookmarkCPItem(from: bookmark, includeImage: false)
     }
 
-    let section1 = CPListSection(items: automaticItems, header: "bookmark_type_automatic_title".localized, sectionIndexTitle: nil)
+    let section1 = CPListSection(items: automaticItems, header: Loc.BookmarkTypeAutomaticTitle.string, sectionIndexTitle: nil)
 
-    let section2 = CPListSection(items: userItems, header: "bookmark_type_user_title".localized, sectionIndexTitle: nil)
+    let section2 = CPListSection(items: userItems, header: Loc.BookmarkTypeUserTitle.string, sectionIndexTitle: nil)
 
-    let listTemplate = CPListTemplate(title: "bookmarks_title".localized, sections: [section1, section2])
+    let listTemplate = CPListTemplate(title: Loc.BookmarksTitle.string, sections: [section1, section2])
 
     self.interfaceController?.pushTemplate(listTemplate, animated: true, completion: nil)
   }
@@ -438,8 +438,8 @@ extension CarPlayManager {
 extension CarPlayManager {
   func showPlaybackControlsTemplate() {
     let boostTitle = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
-    ? "\("settings_boostvolume_title".localized): \("active_title".localized)"
-    : "\("settings_boostvolume_title".localized): \("sleep_off_title".localized)"
+    ? "\(Loc.SettingsBoostvolumeTitle.string): \(Loc.ActiveTitle.string)"
+    : "\(Loc.SettingsBoostvolumeTitle.string): \(Loc.SleepOffTitle.string)"
 
     boostVolumeItem.setText(boostTitle)
 
@@ -469,9 +469,9 @@ extension CarPlayManager {
         return item
       })
 
-    let section2 = CPListSection(items: speedItems, header: "\("player_speed_title".localized): \(formattedSpeed)", sectionIndexTitle: nil)
+    let section2 = CPListSection(items: speedItems, header: "\(Loc.PlayerSpeedTitle.string): \(formattedSpeed)", sectionIndexTitle: nil)
 
-    let listTemplate = CPListTemplate(title: "settings_controls_title".localized, sections: [section1, section2])
+    let listTemplate = CPListTemplate(title: Loc.SettingsControlsTitle.string, sections: [section1, section2])
 
     self.interfaceController?.pushTemplate(listTemplate, animated: true, completion: nil)
   }
@@ -491,7 +491,7 @@ extension CarPlayManager: CPInterfaceControllerDelegate {}
 
 extension CarPlayManager: AlertPresenter {
   public func showAlert(_ title: String? = nil, message: String? = nil, completion: (() -> Void)? = nil) {
-    let okAction = CPAlertAction(title: "ok_button".localized, style: .default) { _ in
+    let okAction = CPAlertAction(title: Loc.OkButton.string, style: .default) { _ in
       self.interfaceController?.dismissTemplate(animated: true, completion: nil)
       completion?()
     }

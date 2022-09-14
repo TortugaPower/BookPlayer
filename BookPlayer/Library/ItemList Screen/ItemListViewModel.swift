@@ -53,7 +53,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
   func getNavigationTitle() -> String {
     guard let folderRelativePath = folderRelativePath else {
-      return "library_title".localized
+      return Loc.LibraryTitle.string
     }
 
     guard let item = self.libraryService.getItem(with: folderRelativePath) else {
@@ -244,7 +244,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       try self.libraryService.moveItems(fetchedItems, inside: folder.relativePath, moveFiles: true)
       try self.libraryService.updateFolder(at: folder.relativePath, type: type)
     } catch {
-      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
+      self.coordinator.showAlert(Loc.ErrorTitle.string, message: error.localizedDescription)
     }
 
     self.coordinator.reloadItemsWithPadding()
@@ -266,7 +266,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       }
 
     } catch {
-      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
+      self.coordinator.showAlert(Loc.ErrorTitle.string, message: error.localizedDescription)
     }
 
     self.coordinator.reloadItemsWithPadding(padding: 1)
@@ -283,7 +283,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         }
       }
     } catch {
-      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
+      self.coordinator.showAlert(Loc.ErrorTitle.string, message: error.localizedDescription)
     }
 
     self.coordinator.reloadItemsWithPadding()
@@ -295,7 +295,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     do {
       try self.libraryService.moveItems(selectedItems, inside: nil, moveFiles: true)
     } catch {
-      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
+      self.coordinator.showAlert(Loc.ErrorTitle.string, message: error.localizedDescription)
     }
 
     self.coordinator.reloadItemsWithPadding(padding: selectedItems.count)
@@ -309,7 +309,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     do {
       try self.libraryService.moveItems(fetchedItems, inside: folder.relativePath, moveFiles: true)
     } catch {
-      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
+      self.coordinator.showAlert(Loc.ErrorTitle.string, message: error.localizedDescription)
     }
 
     self.coordinator.reloadItemsWithPadding()
@@ -321,7 +321,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     do {
       try self.libraryService.delete(selectedItems, mode: mode)
     } catch {
-      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
+      self.coordinator.showAlert(Loc.ErrorTitle.string, message: error.localizedDescription)
     }
 
     self.coordinator.reloadItemsWithPadding()
@@ -336,7 +336,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
       try self.libraryService.moveItems(processedItems, inside: self.folderRelativePath, moveFiles: shouldMoveFiles)
     } catch {
-      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
+      self.coordinator.showAlert(Loc.ErrorTitle.string, message: error.localizedDescription)
       return
     }
 
@@ -362,7 +362,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     do {
       try self.libraryService.moveItems(items, inside: nil, moveFiles: true)
     } catch {
-      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
+      self.coordinator.showAlert(Loc.ErrorTitle.string, message: error.localizedDescription)
     }
 
     self.coordinator.reloadItemsWithPadding(padding: items.count)
@@ -503,11 +503,11 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
       if response.error != nil,
          let error = response.error {
-        self.coordinator.showAlert("network_error_title".localized, message: error.localizedDescription)
+        self.coordinator.showAlert(Loc.NetworkErrorTitle.string, message: error.localizedDescription)
       }
 
       if let response = response.response, response.statusCode >= 300 {
-        self.coordinator.showAlert("network_error_title".localized, message: "Code \(response.statusCode)")
+        self.coordinator.showAlert(Loc.NetworkErrorTitle.string, message: "Code \(response.statusCode)")
       }
     }
   }

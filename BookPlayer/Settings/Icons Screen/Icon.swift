@@ -20,6 +20,6 @@ struct Icon: Codable {
     }
 
     var author: String {
-        return self.artist ?? "icons_bookplayer_credit_description".localized
+        return self.artist ?? Loc.IconsBookplayerCreditDescription.string
     }
 }

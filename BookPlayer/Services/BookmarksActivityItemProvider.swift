@@ -23,7 +23,7 @@ final class BookmarksActivityItemProvider: UIActivityItemProvider {
     _ activityViewController: UIActivityViewController,
     itemForActivityType activityType: UIActivity.ActivityType?
   ) -> Any? {
-    let fileTitle = "bookmarks_title".localized + " \(currentItem.title).txt"
+    let fileTitle = Loc.BookmarksTitle.string + " \(currentItem.title).txt"
     let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileTitle)
 
     do {
@@ -48,13 +48,13 @@ final class BookmarksActivityItemProvider: UIActivityItemProvider {
       let chapterTime = currentItem.getChapterTime(from: bookmark.time)
       let formattedTime = TimeParser.formatTime(chapterTime)
 
-      fileContents += String.localizedStringWithFormat("chapter_number_title".localized, chapter.index)
+      fileContents += Loc.ChapterNumberTitle(Int(chapter.index)).string
       + " / \(formattedTime)\n"
       if currentItem.isBoundBook {
-        fileContents += "\("title_button".localized): \(chapter.title)\n"
+        fileContents += "\(Loc.TitleButton.string): \(chapter.title)\n"
       }
       if let note = bookmark.note {
-        fileContents += "\("note_title".localized): \(note)\n"
+        fileContents += "\(Loc.NoteTitle.string): \(note)\n"
       }
       fileContents += "----\n"
     }

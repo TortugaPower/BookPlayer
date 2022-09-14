@@ -101,7 +101,7 @@ class PlusViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.navigationItem.rightBarButtonItem?.title = "restore_title".localized
+      self.navigationItem.rightBarButtonItem?.title = Loc.RestoreTitle.string
 
         self.gianniImageView.kf.setImage(with: self.contributorGianni.avatarURL)
         self.pichImageView.kf.setImage(with: self.contributorPichfl.avatarURL)
@@ -126,7 +126,7 @@ class PlusViewController: UIViewController {
             view.isHidden = true
         }
 
-        self.navigationItem.title = "settings_tip_jar_title".localized
+      self.navigationItem.title = Loc.SettingsTipJarTitle.string
         self.navigationItem.rightBarButtonItem = nil
         self.tipDescriptionLabel.isHidden = false
         self.maintainersViewTopConstraint.constant = 35
@@ -192,9 +192,9 @@ class PlusViewController: UIViewController {
             self.navigationItem.rightBarButtonItem = self.restoreBarButton
 
             if results.restoreFailedPurchases.count > 0 {
-                self.showAlert("network_error_title".localized, message: "generic_retry_description".localized)
+              self.showAlert(Loc.NetworkErrorTitle.string, message: Loc.GenericRetryDescription.string)
             } else if results.restoredPurchases.count > 0 {
-                self.showAlert("purchases_restored_title".localized, message: nil, style: .alert, completion: {
+                self.showAlert(Loc.PurchasesRestoredTitle.string, message: nil, style: .alert, completion: {
                     self.dismiss(animated: true, completion: nil)
                 })
 
@@ -202,7 +202,7 @@ class PlusViewController: UIViewController {
                 UserDefaults.standard.set(true, forKey: Constants.UserDefaults.donationMade.rawValue)
                 NotificationCenter.default.post(name: .donationMade, object: nil)
             } else {
-                self.showAlert("tip_missing_title".localized, message: nil)
+                self.showAlert(Loc.TipMissingTitle.string, message: nil)
             }
         }
     }
@@ -282,14 +282,14 @@ class PlusViewController: UIViewController {
                 self.view.startConfetti()
 
                 var completion: (() -> Void)?
-                var title = "thanks_amazing_title".localized
+                var title = Loc.ThanksAmazingTitle.string
 
                 // On first visit, dismiss VC after the alert is dimisseds
                 if !UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) {
                     completion = {
                         self.dismiss(animated: true, completion: nil)
                     }
-                    title = "thanks_title".localized
+                    title = Loc.ThanksTitle.string
                 }
 
                 self.showAlert(title, message: nil, style: .alert, completion: completion)
@@ -300,7 +300,7 @@ class PlusViewController: UIViewController {
             case .error(let error):
                 guard error.code != .paymentCancelled else { return }
 
-                self.showAlert("error_title".localized, message: (error as NSError).localizedDescription)
+                self.showAlert(Loc.ErrorTitle.string, message: (error as NSError).localizedDescription)
             }
         }
     }

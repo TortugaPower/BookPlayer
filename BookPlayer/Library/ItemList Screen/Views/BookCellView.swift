@@ -92,7 +92,7 @@ class BookCellView: UITableViewCell {
     private func setup() {
         self.accessoryType = .none
         self.selectionStyle = .none
-        let resumeAction = UIAccessibilityCustomAction(name: "voiceover_continue_playback_title".localized, target: self, selector: #selector(self.artworkButtonTapped(_:)))
+        let resumeAction = UIAccessibilityCustomAction(name: Loc.VoiceoverContinuePlaybackTitle.string, target: self, selector: #selector(self.artworkButtonTapped(_:)))
         accessibilityCustomActions = [resumeAction]
 
       if let titleDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline).withSymbolicTraits(.traitBold) {

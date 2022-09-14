@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		2ED22DC828D1A44800D7096E /* ReMafoX.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ED22DC728D1A44800D7096E /* ReMafoX.swift */; };
 		2ED22DC928D1A44800D7096E /* ReMafoX.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ED22DC728D1A44800D7096E /* ReMafoX.swift */; };
+		2ED22DCA28D1A71000D7096E /* ReMafoX.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ED22DC728D1A44800D7096E /* ReMafoX.swift */; };
 		410641282579AA2F008EB8D0 /* TimeListenedWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410641272579AA2F008EB8D0 /* TimeListenedWidgetView.swift */; };
 		4106414025872614008EB8D0 /* BarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4106413F25872614008EB8D0 /* BarView.swift */; };
 		4106414925872699008EB8D0 /* TimeListenedSmallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4106414825872699008EB8D0 /* TimeListenedSmallView.swift */; };
@@ -2586,6 +2587,7 @@
 				C33E843C20C6E179004A0489 /* ItemProgress.swift in Sources */,
 				62F2F25F25E18C7500E1D6A0 /* ImportableItem.swift in Sources */,
 				4158388B26EC2CC500F4A12B /* ImportCoordinator.swift in Sources */,
+				2ED22DCA28D1A71000D7096E /* ReMafoX.swift in Sources */,
 				41A1B12E226FC7E500EA0400 /* ImportOperation.swift in Sources */,
 				5126F121258E9F18009965DC /* URL+BookPlayer.swift in Sources */,
 				410D0FED1EDCF4B000A52EB9 /* SettingsViewController.swift in Sources */,

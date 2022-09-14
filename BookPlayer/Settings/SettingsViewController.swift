@@ -59,7 +59,7 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.navigationItem.title = "settings_title".localized
+        self.navigationItem.title = Loc.SettingsTitle.string
 
         setUpTheming()
 
@@ -192,17 +192,17 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
 
     switch settingsSection {
     case .theme:
-      return "settings_appearance_title".localized
+      return Loc.SettingsAppearanceTitle.string
     case .playback:
-      return "settings_playback_title".localized
+      return Loc.SettingsPlaybackTitle.string
     case .storage:
-      return "settings_storage_title".localized
+      return Loc.SettingsStorageTitle.string
     case .siri:
-      return "settings_siri_title".localized
+      return Loc.SettingsSiriTitle.string
     case .backups:
-      return "settings_backup_title".localized
+      return Loc.SettingsBackupTitle.string
     case .support:
-      return "settings_support_title".localized
+      return Loc.SettingsSupportTitle.string
     default:
       return super.tableView(tableView, titleForHeaderInSection: section)
     }
@@ -215,9 +215,9 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
 
         switch settingsSection {
         case .autoplay:
-            return "settings_autoplay_description".localized
+            return Loc.SettingsAutoplayDescription.string
         case .autolock:
-            return "settings_autolock_description".localized
+            return Loc.SettingsAutolockDescription.string
         case .support:
             return "BookPlayer \(self.appVersion) - \(self.systemVersion)"
         default:
@@ -275,16 +275,16 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
             self.present(mail, animated: true)
         } else {
             let debugInfo = "BookPlayer \(self.appVersion)\n\(device) - \(self.systemVersion)"
-            let message = "settings_support_compose_description".localized
+            let message = Loc.SettingsSupportComposeDescription.string
 
-            let alert = UIAlertController(title: "settings_support_compose_title".localized, message: "\(message) \(self.supportEmail)\n\n\(debugInfo)", preferredStyle: .alert)
+            let alert = UIAlertController(title: Loc.SettingsSupportComposeTitle.string, message: "\(message) \(self.supportEmail)\n\n\(debugInfo)", preferredStyle: .alert)
 
-            alert.addAction(UIAlertAction(title: "settings_support_compose_copy".localized, style: .default, handler: { [weak self] _ in
+            alert.addAction(UIAlertAction(title: Loc.SettingsSupportComposeCopy.string, style: .default, handler: { [weak self] _ in
               guard let self = self else { return }
               UIPasteboard.general.string = "\(self.supportEmail)\n\(debugInfo)"
             }))
 
-            alert.addAction(UIAlertAction(title: "ok_button".localized, style: .cancel, handler: nil))
+            alert.addAction(UIAlertAction(title: Loc.OkButton.string, style: .cancel, handler: nil))
 
             self.present(alert, animated: true, completion: nil)
         }

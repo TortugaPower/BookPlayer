@@ -16,9 +16,9 @@ import Foundation
     case .user:
       return nil
     case .play:
-      return "bookmark_automatic_play_title".localized
+      return Loc.BookmarkAutomaticPlayTitle.string
     case .skip:
-      return "bookmark_automatic_skip_title".localized
+      return Loc.BookmarkAutomaticSkipTitle.string
     }
   }
 }

@@ -45,18 +45,18 @@ class FolderListCoordinator: ItemListCoordinator {
 
   override func showOperationCompletedAlert(with items: [LibraryItem], availableFolders: [SimpleLibraryItem]) {
     let alert = UIAlertController(
-      title: String.localizedStringWithFormat("import_alert_title".localized, items.count),
+      title: Loc.ImportAlertTitle(items.count).string,
       message: nil,
       preferredStyle: .alert)
 
-    alert.addAction(UIAlertAction(title: "current_playlist_title".localized, style: .default, handler: nil))
+    alert.addAction(UIAlertAction(title: Loc.CurrentPlaylistTitle.string, style: .default, handler: nil))
 
-    alert.addAction(UIAlertAction(title: "library_title".localized, style: .default) { [weak self] _ in
+    alert.addAction(UIAlertAction(title: Loc.LibraryTitle.string, style: .default) { [weak self] _ in
       self?.onAction?(.insertIntoLibrary(items))
     })
 
-    alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { [weak self] _ in
-      var placeholder = "new_playlist_button".localized
+    alert.addAction(UIAlertAction(title: Loc.NewPlaylistButton.string, style: .default) { [weak self] _ in
+      var placeholder = Loc.NewPlaylistButton.string
 
       if let item = items.first {
         placeholder = item.title
@@ -65,7 +65,7 @@ class FolderListCoordinator: ItemListCoordinator {
       self?.showCreateFolderAlert(placeholder: placeholder, with: items.map { $0.relativePath }, type: .regular)
     })
 
-    let existingFolderAction = UIAlertAction(title: "existing_playlist_button".localized, style: .default) { _ in
+    let existingFolderAction = UIAlertAction(title: Loc.ExistingPlaylistButton.string, style: .default) { _ in
       let vc = ItemSelectionViewController()
       vc.items = availableFolders
 

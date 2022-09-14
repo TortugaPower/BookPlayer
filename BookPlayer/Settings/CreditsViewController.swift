@@ -49,7 +49,7 @@ class CreditsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.navigationItem.title = "settings_credits_title".localized
+      self.navigationItem.title = Loc.SettingsCreditsTitle.string
         self.textView.textContainerInset = UIEdgeInsets(top: 10.0, left: 13.0, bottom: 0, right: 13.0)
     }
 }

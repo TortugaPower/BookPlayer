@@ -24,7 +24,7 @@ final class ImportViewController: BaseViewController<ImportCoordinator, ImportVi
     super.viewDidLoad()
 
     setUpTheming()
-    self.descriptionLabel.text = "import_warning_description".localized
+    self.descriptionLabel.text = Loc.ImportWarningDescription.string
     self.navigationController?.navigationBar.prefersLargeTitles = true
     self.tableView.tableFooterView = UIView()
 
@@ -45,7 +45,7 @@ final class ImportViewController: BaseViewController<ImportCoordinator, ImportVi
     do {
       try self.viewModel.discardImportOperation()
     } catch {
-      self.showAlert("error_title".localized, message: error.localizedDescription)
+      self.showAlert(Loc.ErrorTitle.string, message: error.localizedDescription)
     }
 
     self.viewModel.dismiss()
@@ -71,14 +71,14 @@ extension ImportViewController: UITableViewDataSource {
     cell.iconImageView.image = UIImage(systemName: imageName)
     cell.filenameLabel.text = fileItem.getFileName()
     cell.countLabel.text = fileItem.subItems > 0
-    ? String.localizedStringWithFormat("files_title".localized, fileItem.subItems)
+    ? Loc.FilesTitle(fileItem.subItems).string
     : ""
 
     cell.onDeleteTap = { [weak self] in
       do {
         try self?.viewModel.deleteItem(fileItem.fileUrl)
       } catch {
-        self?.showAlert("error_title".localized, message: error.localizedDescription)
+        self?.showAlert(Loc.ErrorTitle.string, message: error.localizedDescription)
       }
     }
 
@@ -88,9 +88,7 @@ extension ImportViewController: UITableViewDataSource {
 
 extension ImportViewController: UITableViewDelegate {
   func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-    return String.localizedStringWithFormat(
-      "files_title".localized, self.viewModel.getTotalItems()
-    ).localizedCapitalized
+    return Loc.FilesTitle(self.viewModel.getTotalItems()).string.localizedCapitalized
   }
 }
 

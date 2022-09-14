@@ -92,7 +92,7 @@ class PlayerCoordinator: Coordinator {
       preferredStyle: .actionSheet
     )
 
-    alertController.addAction(UIAlertAction(title: "sleep_off_title".localized, style: .default, handler: { [weak self] _ in
+    alertController.addAction(UIAlertAction(title: Loc.SleepOffTitle.string, style: .default, handler: { [weak self] _ in
       self?.onAction?(.setSleepTimer(-1))
     }))
 
@@ -101,7 +101,7 @@ class PlayerCoordinator: Coordinator {
 
       alertController.addAction(
         UIAlertAction(
-          title: String.localizedStringWithFormat("sleep_interval_title".localized, formattedDuration),
+          title: Loc.SleepIntervalTitle(formattedDuration).string,
           style: .default,
           handler: { [weak self] _ in
             self?.onAction?(.setSleepTimer(interval))
@@ -110,16 +110,16 @@ class PlayerCoordinator: Coordinator {
       )
     }
 
-    alertController.addAction(UIAlertAction(title: "sleep_chapter_option_title".localized, style: .default) { [weak self] _ in
+    alertController.addAction(UIAlertAction(title: Loc.SleepChapterOptionTitle.string, style: .default) { [weak self] _ in
       self?.onAction?(.setSleepTimer(-2))
     })
 
-    alertController.addAction(UIAlertAction(title: "sleeptimer_option_custom".localized, style: .default) { [weak self] _ in
+    alertController.addAction(UIAlertAction(title: Loc.SleeptimerOptionCustom.string, style: .default) { [weak self] _ in
       self?.showCustomSleepTimerOption()
     })
 
     alertController.addAction(
-      UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil)
+      UIAlertAction(title: Loc.CancelButton.string, style: .cancel, handler: nil)
     )
 
     self.presentingViewController?.present(alertController, animated: true, completion: nil)
@@ -128,7 +128,7 @@ class PlayerCoordinator: Coordinator {
 
   func showCustomSleepTimerOption() {
     let customTimerAlert = UIAlertController(
-      title: "sleeptimer_custom_alert_title".localized,
+      title: Loc.SleeptimerCustomAlertTitle.string,
       message: "\n\n\n\n\n\n\n\n\n\n",
       preferredStyle: .actionSheet
     )
@@ -138,7 +138,7 @@ class PlayerCoordinator: Coordinator {
     customTimerAlert.view.addSubview(datePicker)
     customTimerAlert.addAction(
       UIAlertAction(
-        title: "ok_button".localized,
+        title: Loc.OkButton.string,
         style: .default,
         handler: { [weak self] _ in
           self?.onAction?(.setSleepTimer(datePicker.countDownDuration))
@@ -146,7 +146,7 @@ class PlayerCoordinator: Coordinator {
       )
     )
     customTimerAlert.addAction(
-      UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil)
+      UIAlertAction(title: Loc.CancelButton.string, style: .cancel, handler: nil)
     )
 
     datePicker.translatesAutoresizingMaskIntoConstraints = false

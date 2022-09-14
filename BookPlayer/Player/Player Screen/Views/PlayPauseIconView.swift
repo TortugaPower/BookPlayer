@@ -21,7 +21,7 @@ class PlayPauseIconView: NibLoadableView {
     didSet {
       self.imageView.image = self.isPlaying ? self.pauseImage : self.playImage
 
-      self.playButton.accessibilityLabel = self.isPlaying ? "pause_title".localized : "play_title".localized
+      self.playButton.accessibilityLabel = self.isPlaying ? Loc.PauseTitle.string : Loc.PlayTitle.string
     }
   }
 
@@ -29,7 +29,7 @@ class PlayPauseIconView: NibLoadableView {
     super.init(coder: aDecoder)
 
     self.imageView.isAccessibilityElement = false
-    self.playButton.accessibilityLabel = self.isPlaying ? "pause_title".localized : "play_title".localized
+    self.playButton.accessibilityLabel = self.isPlaying ? Loc.PauseTitle.string : Loc.PlayTitle.string
 
     setUpTheming()
   }

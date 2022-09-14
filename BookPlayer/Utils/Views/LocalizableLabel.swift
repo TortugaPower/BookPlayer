@@ -13,7 +13,7 @@ class LocalizableLabel: UILabel {
         didSet {
             guard let key = localizedKey else { return }
 
-            text = key.localized
+            text = NSLocalizedString(key, comment: "")
         }
     }
 }

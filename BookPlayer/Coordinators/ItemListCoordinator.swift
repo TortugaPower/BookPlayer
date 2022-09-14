@@ -159,14 +159,14 @@ class ItemListCoordinator: Coordinator {
 
   func showOperationCompletedAlert(with items: [LibraryItem], availableFolders: [SimpleLibraryItem]) {
     let alert = UIAlertController(
-      title: String.localizedStringWithFormat("import_alert_title".localized, items.count),
+      title: Loc.ImportAlertTitle(items.count).string,
       message: nil,
       preferredStyle: .alert)
 
-    alert.addAction(UIAlertAction(title: "library_title".localized, style: .default, handler: nil))
+    alert.addAction(UIAlertAction(title: Loc.LibraryTitle.string, style: .default, handler: nil))
 
-    alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { _ in
-      var placeholder = "new_playlist_button".localized
+    alert.addAction(UIAlertAction(title: Loc.NewPlaylistButton.string, style: .default) { _ in
+      var placeholder = Loc.NewPlaylistButton.string
 
       if let item = items.first {
         placeholder = item.title
@@ -176,7 +176,7 @@ class ItemListCoordinator: Coordinator {
       self.showCreateFolderAlert(placeholder: placeholder, with: itemPaths, type: .regular)
     })
 
-    let existingFolderAction = UIAlertAction(title: "existing_playlist_button".localized, style: .default) { _ in
+    let existingFolderAction = UIAlertAction(title: Loc.ExistingPlaylistButton.string, style: .default) { _ in
       let vc = ItemSelectionViewController()
       vc.items = availableFolders
 
@@ -191,8 +191,8 @@ class ItemListCoordinator: Coordinator {
     existingFolderAction.isEnabled = !availableFolders.isEmpty
     alert.addAction(existingFolderAction)
 
-    let convertAction = UIAlertAction(title: "bound_books_create_button".localized, style: .default) { _ in
-      var placeholder = "bound_books_new_title_placeholder".localized
+    let convertAction = UIAlertAction(title: Loc.BoundBooksCreateButton.string, style: .default) { _ in
+      var placeholder = Loc.BoundBooksNewTitlePlaceholder.string
 
       if let item = items.first {
         placeholder = item.title
@@ -218,13 +218,13 @@ extension ItemListCoordinator {
 
     switch type {
     case .regular:
-      alertTitle = "create_playlist_title".localized
+      alertTitle = Loc.CreatePlaylistTitle.string
       alertMessage = ""
-      alertPlaceholderDefault = "new_playlist_button".localized
+      alertPlaceholderDefault = Loc.NewPlaylistButton.string
     case .bound:
-      alertTitle = "bound_books_create_alert_title".localized
-      alertMessage = "bound_books_create_alert_description".localized
-      alertPlaceholderDefault = "bound_books_new_title_placeholder".localized
+      alertTitle = Loc.BoundBooksCreateAlertTitle.string
+      alertMessage = Loc.BoundBooksCreateAlertDescription.string
+      alertPlaceholderDefault = Loc.BoundBooksNewTitlePlaceholder.string
     }
 
     let alert = UIAlertController(title: alertTitle,
@@ -235,8 +235,8 @@ extension ItemListCoordinator {
       textfield.text = placeholder ?? alertPlaceholderDefault
     })
 
-    alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
-    alert.addAction(UIAlertAction(title: "create_button".localized, style: .default, handler: { _ in
+    alert.addAction(UIAlertAction(title: Loc.CancelButton.string, style: .cancel, handler: nil))
+    alert.addAction(UIAlertAction(title: Loc.CreateButton.string, style: .default, handler: { _ in
       let title = alert.textFields!.first!.text!
       self.onAction?(.createFolder(title, items: items, type: type))
     }))
@@ -246,18 +246,18 @@ extension ItemListCoordinator {
 
   func showAddActions() {
     let alertController = UIAlertController(title: nil,
-                                            message: "import_description".localized,
+                                            message: Loc.ImportDescription.string,
                                             preferredStyle: .actionSheet)
 
-    alertController.addAction(UIAlertAction(title: "import_button".localized, style: .default) { _ in
+    alertController.addAction(UIAlertAction(title: Loc.ImportButton.string, style: .default) { _ in
       self.onAction?(.importLocalFiles)
     })
 
-    alertController.addAction(UIAlertAction(title: "create_playlist_button".localized, style: .default) { _ in
+    alertController.addAction(UIAlertAction(title: Loc.CreatePlaylistButton.string, style: .default) { _ in
       self.showCreateFolderAlert()
     })
 
-    alertController.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel))
+    alertController.addAction(UIAlertAction(title: Loc.CancelButton.string, style: .cancel))
 
     self.navigationController.present(alertController, animated: true, completion: nil)
   }
@@ -282,43 +282,43 @@ extension ItemListCoordinator {
   }
 
   func showSortOptions() {
-    let alert = UIAlertController(title: "sort_files_title".localized, message: nil, preferredStyle: .actionSheet)
+    let alert = UIAlertController(title: Loc.SortFilesTitle.string, message: nil, preferredStyle: .actionSheet)
 
-    alert.addAction(UIAlertAction(title: "title_button".localized, style: .default, handler: { _ in
+    alert.addAction(UIAlertAction(title: Loc.TitleButton.string, style: .default, handler: { _ in
       self.onAction?(.sortItems(.metadataTitle))
     }))
 
-    alert.addAction(UIAlertAction(title: "sort_filename_button".localized, style: .default, handler: { _ in
+    alert.addAction(UIAlertAction(title: Loc.SortFilenameButton.string, style: .default, handler: { _ in
       self.onAction?(.sortItems(.fileName))
     }))
 
-    alert.addAction(UIAlertAction(title: "sort_most_recent_button".localized, style: .default, handler: { _ in
+    alert.addAction(UIAlertAction(title: Loc.SortMostRecentButton.string, style: .default, handler: { _ in
       self.onAction?(.sortItems(.mostRecent))
     }))
 
-    alert.addAction(UIAlertAction(title: "sort_reversed_button".localized, style: .default, handler: { _ in
+    alert.addAction(UIAlertAction(title: Loc.SortReversedButton.string, style: .default, handler: { _ in
       self.onAction?(.sortItems(.reverseOrder))
     }))
 
-    alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
+    alert.addAction(UIAlertAction(title: Loc.CancelButton.string, style: .cancel, handler: nil))
 
     self.navigationController.present(alert, animated: true, completion: nil)
   }
 
   func showMoveOptions(selectedItems: [SimpleLibraryItem], availableFolders: [SimpleLibraryItem]) {
-    let alert = UIAlertController(title: "choose_destination_title".localized, message: nil, preferredStyle: .alert)
+    let alert = UIAlertController(title: Loc.ChooseDestinationTitle.string, message: nil, preferredStyle: .alert)
 
     if self is FolderListCoordinator {
-      alert.addAction(UIAlertAction(title: "library_title".localized, style: .default) { [weak self] _ in
+      alert.addAction(UIAlertAction(title: Loc.LibraryTitle.string, style: .default) { [weak self] _ in
         self?.onAction?(.moveIntoLibrary(items: selectedItems))
       })
     }
 
-    alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { _ in
+    alert.addAction(UIAlertAction(title: Loc.NewPlaylistButton.string, style: .default) { _ in
       self.showCreateFolderAlert(placeholder: selectedItems.first?.title, with: selectedItems.map { $0.relativePath })
     })
 
-    let existingFolderAction = UIAlertAction(title: "existing_playlist_button".localized, style: .default) { _ in
+    let existingFolderAction = UIAlertAction(title: Loc.ExistingPlaylistButton.string, style: .default) { _ in
       let vc = ItemSelectionViewController()
       vc.items = availableFolders
 
@@ -333,7 +333,7 @@ extension ItemListCoordinator {
     existingFolderAction.isEnabled = !availableFolders.isEmpty
     alert.addAction(existingFolderAction)
 
-    alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel))
+    alert.addAction(UIAlertAction(title: Loc.CancelButton.string, style: .cancel))
 
     self.navigationController.present(alert, animated: true, completion: nil)
   }
@@ -344,29 +344,29 @@ extension ItemListCoordinator {
 
     if selectedItems.count == 1,
        let item = selectedItems.first {
-      alertTitle = String(format: "delete_single_item_title".localized, item.title)
+      alertTitle = Loc.DeleteSingleItemTitle(item.title).string
       alertMessage = nil
     } else {
-      alertTitle = String.localizedStringWithFormat("delete_multiple_items_title".localized, selectedItems.count)
-      alertMessage = "delete_multiple_items_description".localized
+      alertTitle = Loc.DeleteMultipleItemsTitle(selectedItems.count).string
+      alertMessage = Loc.DeleteMultipleItemsDescription.string
     }
 
     let alert = UIAlertController(title: alertTitle,
                                   message: alertMessage,
                                   preferredStyle: .alert)
 
-    alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
+    alert.addAction(UIAlertAction(title: Loc.CancelButton.string, style: .cancel, handler: nil))
 
-    var deleteActionTitle = "delete_button".localized
+    var deleteActionTitle = Loc.DeleteButton.string
 
     if selectedItems.count == 1,
        let item = selectedItems.first,
        item.type == .folder {
-        deleteActionTitle = "delete_deep_button".localized
+        deleteActionTitle = Loc.DeleteDeepButton.string
 
-        alert.title = String(format: "delete_single_item_title".localized, item.title)
-        alert.message = "delete_single_playlist_description".localized
-        alert.addAction(UIAlertAction(title: "delete_shallow_button".localized, style: .default, handler: { _ in
+        alert.title = Loc.DeleteSingleItemTitle(item.title).string
+        alert.message = Loc.DeleteSinglePlaylistDescription.string
+        alert.addAction(UIAlertAction(title: Loc.DeleteShallowButton.string, style: .default, handler: { _ in
           self.onAction?(.delete(selectedItems, mode: .shallow))
         }))
     }
@@ -389,31 +389,31 @@ extension ItemListCoordinator {
 
     let isSingle = selectedItems.count == 1
 
-    let sheetTitle = isSingle ? item.title : "options_button".localized
+    let sheetTitle = isSingle ? item.title : Loc.OptionsButton.string
 
     let sheet = UIAlertController(title: sheetTitle, message: nil, preferredStyle: .actionSheet)
 
-    let renameAction = UIAlertAction(title: "rename_button".localized, style: .default) { _ in
+    let renameAction = UIAlertAction(title: Loc.RenameButton.string, style: .default) { _ in
       self.showRenameAlert(item)
     }
 
     renameAction.isEnabled = isSingle
     sheet.addAction(renameAction)
 
-    sheet.addAction(UIAlertAction(title: "move_title".localized, style: .default, handler: { _ in
+    sheet.addAction(UIAlertAction(title: Loc.MoveTitle.string, style: .default, handler: { _ in
       self.showMoveOptions(selectedItems: selectedItems, availableFolders: availableFolders)
     }))
 
-    sheet.addAction(UIAlertAction(title: "export_button".localized, style: .default, handler: { _ in
+    sheet.addAction(UIAlertAction(title: Loc.ExportButton.string, style: .default, handler: { _ in
       self.showExportController(for: selectedItems)
     }))
 
-    sheet.addAction(UIAlertAction(title: "jump_start_title".localized, style: .default, handler: { [weak self] _ in
+    sheet.addAction(UIAlertAction(title: Loc.JumpStartTitle.string, style: .default, handler: { [weak self] _ in
       self?.onAction?(.resetPlaybackPosition(selectedItems))
     }))
 
     let areFinished = selectedItems.filter({ !$0.isFinished }).isEmpty
-    let markTitle = areFinished ? "mark_unfinished_title".localized : "mark_finished_title".localized
+    let markTitle = areFinished ? Loc.MarkUnfinishedTitle.string : Loc.MarkFinishedTitle.string
 
     sheet.addAction(UIAlertAction(title: markTitle, style: .default, handler: { [weak self] _ in
       self?.onAction?(.markAsFinished(selectedItems, flag: !areFinished))
@@ -422,12 +422,12 @@ extension ItemListCoordinator {
     let boundBookAction: UIAlertAction
 
     if selectedItems.allSatisfy({ $0.type == .bound }) {
-      boundBookAction = UIAlertAction(title: "bound_books_undo_alert_title".localized, style: .default, handler: { [weak self] _ in
+      boundBookAction = UIAlertAction(title: Loc.BoundBooksUndoAlertTitle.string, style: .default, handler: { [weak self] _ in
         self?.onAction?(.updateFolders(selectedItems, type: .regular))
       })
       boundBookAction.isEnabled = true
     } else {
-      boundBookAction = UIAlertAction(title: "bound_books_create_button".localized, style: .default, handler: { [weak self] _ in
+      boundBookAction = UIAlertAction(title: Loc.BoundBooksCreateButton.string, style: .default, handler: { [weak self] _ in
         if isSingle {
           self?.onAction?(.updateFolders(selectedItems, type: .bound))
         } else {
@@ -443,25 +443,25 @@ extension ItemListCoordinator {
 
     sheet.addAction(boundBookAction)
 
-    sheet.addAction(UIAlertAction(title: "\("delete_button".localized)", style: .destructive) { _ in
+    sheet.addAction(UIAlertAction(title: "\(Loc.DeleteButton.string)", style: .destructive) { _ in
       self.showDeleteAlert(selectedItems: selectedItems)
     })
 
-    sheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
+    sheet.addAction(UIAlertAction(title: Loc.CancelButton.string, style: .cancel, handler: nil))
 
     self.navigationController.present(sheet, animated: true, completion: nil)
   }
 
   func showRenameAlert(_ item: SimpleLibraryItem) {
-    let alert = UIAlertController(title: "rename_title".localized, message: nil, preferredStyle: .alert)
+    let alert = UIAlertController(title: Loc.RenameTitle.string, message: nil, preferredStyle: .alert)
 
     alert.addTextField(configurationHandler: { textfield in
       textfield.placeholder = item.title
       textfield.text = item.title
     })
 
-    alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
-    alert.addAction(UIAlertAction(title: "rename_button".localized, style: .default) { [weak self] _ in
+    alert.addAction(UIAlertAction(title: Loc.CancelButton.string, style: .cancel, handler: nil))
+    alert.addAction(UIAlertAction(title: Loc.RenameButton.string, style: .default) { [weak self] _ in
       if let title = alert.textFields!.first!.text, title != item.title {
         self?.onAction?(.rename(item, newTitle: title))
       }

@@ -17,7 +17,7 @@ class BookmarksViewController: BaseTableViewController<BookmarkCoordinator, Book
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    self.navigationItem.title = "bookmarks_title".localized
+    self.navigationItem.title = Loc.BookmarksTitle.string
 
     self.navigationItem.leftBarButtonItem = UIBarButtonItem(
       image: UIImage(systemName: "xmark"),
@@ -69,8 +69,8 @@ class BookmarksViewController: BaseTableViewController<BookmarkCoordinator, Book
     guard !self.automaticBookmarks.isEmpty else { return nil }
 
     return section == 0
-      ? "bookmark_type_automatic_title".localized
-      : "bookmark_type_user_title".localized
+      ? Loc.BookmarkTypeAutomaticTitle.string
+      : Loc.BookmarkTypeUserTitle.string
   }
 
   override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -107,21 +107,21 @@ class BookmarksViewController: BaseTableViewController<BookmarkCoordinator, Book
 
     let bookmark = self.userBookmarks[indexPath.row]
 
-    let optionsAction = UIContextualAction(style: .normal, title: "bookmark_note_edit_title".localized) { _, _, completion in
+    let optionsAction = UIContextualAction(style: .normal, title: Loc.BookmarkNoteEditTitle.string) { _, _, completion in
       let alert = self.viewModel.getBookmarkNoteAlert(bookmark)
 
       self.present(alert, animated: true, completion: nil)
       completion(true)
     }
 
-    let deleteAction = UIContextualAction(style: .destructive, title: "delete_button".localized) { _, _, completion in
+    let deleteAction = UIContextualAction(style: .destructive, title: Loc.DeleteButton.string) { _, _, completion in
       let alert = UIAlertController(title: nil,
-                                    message: String(format: "delete_single_item_title".localized, TimeParser.formatTime(bookmark.time)),
+                                    message: Loc.DeleteSingleItemTitle(TimeParser.formatTime(bookmark.time)).string,
                                     preferredStyle: .alert)
 
-      alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
+      alert.addAction(UIAlertAction(title: Loc.CancelButton.string, style: .cancel, handler: nil))
 
-      alert.addAction(UIAlertAction(title: "delete_button".localized, style: .destructive, handler: { _ in
+      alert.addAction(UIAlertAction(title: Loc.DeleteButton.string, style: .destructive, handler: { _ in
         self.viewModel.deleteBookmark(bookmark)
         self.reloadData()
       }))

@@ -99,13 +99,13 @@ class MiniPlayerViewController: BaseViewController<MainCoordinator, MiniPlayerVi
   // MARK: - Voiceover
 
   private func setVoiceOverLabels() {
-    let voiceOverTitle = self.titleLabel.text ?? "voiceover_no_title".localized
-    let voiceOverSubtitle = self.authorLabel.text ?? "voiceover_no_author".localized
-    self.titleLabel.accessibilityLabel = "voiceover_miniplayer_hint".localized
+    let voiceOverTitle = self.titleLabel.text ?? Loc.VoiceoverNoTitle.string
+    let voiceOverSubtitle = self.authorLabel.text ?? Loc.VoiceoverNoAuthor.string
+    self.titleLabel.accessibilityLabel = Loc.VoiceoverMiniplayerHint.string
     + ", "
-    + String(describing: String.localizedStringWithFormat("voiceover_currently_playing_title".localized, voiceOverTitle, voiceOverSubtitle))
+    + String(describing: Loc.VoiceoverCurrentlyPlayingTitle(voiceOverTitle, voiceOverSubtitle).string)
     self.titleLabel.accessibilityTraits =  [.header]
-    self.playIconView.accessibilityLabel = "play_title".localized
+    self.playIconView.accessibilityLabel = Loc.PlayingTitle.string
     self.artwork.isAccessibilityElement = false
   }
 }

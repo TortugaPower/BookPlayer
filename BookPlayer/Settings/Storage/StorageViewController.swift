@@ -32,8 +32,8 @@ final class StorageViewController: BaseViewController<StorageCoordinator, Storag
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    self.navigationItem.title = "settings_storage_title".localized
-    self.fixAllButton.setTitle("storage_fix_all_title".localized, for: .normal)
+    self.navigationItem.title = Loc.SettingsStorageTitle.string
+    self.fixAllButton.setTitle(Loc.StorageFixAllTitle.string, for: .normal)
 
     self.tableView.tableFooterView = UIView()
     self.tableView.isScrollEnabled = true
@@ -52,9 +52,7 @@ final class StorageViewController: BaseViewController<StorageCoordinator, Storag
         guard let loadedItems = storageItems else { return }
 
         self?.items = loadedItems
-        self?.filesTitleLabel.text = String.localizedStringWithFormat(
-          "files_title".localized, loadedItems.count
-        ).localizedUppercase
+        self?.filesTitleLabel.text = Loc.FilesTitle(loadedItems.count).string.localizedUppercase
         self?.tableView.reloadData()
         self?.loadingViewIndicator.stopAnimating()
     }.store(in: &disposeBag)
@@ -68,12 +66,12 @@ final class StorageViewController: BaseViewController<StorageCoordinator, Storag
         guard !brokenItems.isEmpty else { return }
 
         let alert = UIAlertController(title: nil,
-                                      message: "storage_fix_files_description".localized,
+                                      message: Loc.StorageFixFilesDescription.string,
                                       preferredStyle: .alert)
 
-        alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: Loc.CancelButton.string, style: .cancel, handler: nil))
 
-        alert.addAction(UIAlertAction(title: "storage_fix_file_button".localized, style: .default, handler: { _ in
+        alert.addAction(UIAlertAction(title: Loc.StorageFixFileButton.string, style: .default, handler: { _ in
           self.loadingViewIndicator.startAnimating()
           do {
             try self.viewModel.handleFix(for: brokenItems) {
@@ -81,7 +79,7 @@ final class StorageViewController: BaseViewController<StorageCoordinator, Storag
             }
           } catch {
             self.loadingViewIndicator.stopAnimating()
-            self.showAlert("error_title".localized, message: error.localizedDescription)
+            self.showAlert(Loc.ErrorTitle.string, message: error.localizedDescription)
           }
         }))
 
@@ -107,16 +105,16 @@ extension StorageViewController: UITableViewDataSource {
 
     cell.onWarningTap = { [weak self] in
       let alert = UIAlertController(title: nil,
-                                    message: "storage_fix_file_description".localized,
+                                    message: Loc.StorageFixFileDescription.string,
                                     preferredStyle: .alert)
 
-      alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
+      alert.addAction(UIAlertAction(title: Loc.CancelButton.string, style: .cancel, handler: nil))
 
-      alert.addAction(UIAlertAction(title: "storage_fix_file_button".localized, style: .default, handler: { [weak self] _ in
+      alert.addAction(UIAlertAction(title: Loc.StorageFixFileButton.string, style: .default, handler: { [weak self] _ in
         do {
           try self?.viewModel.handleFix(for: item)
         } catch {
-          self?.showAlert("error_title".localized, message: error.localizedDescription)
+          self?.showAlert(Loc.ErrorTitle.string, message: error.localizedDescription)
         }
       }))
 
@@ -125,16 +123,16 @@ extension StorageViewController: UITableViewDataSource {
 
     cell.onDeleteTap = { [weak self] in
       let alert = UIAlertController(title: nil,
-                                    message: String(format: "delete_single_item_title".localized, item.title),
+                                    message: Loc.DeleteSingleItemTitle(item.title).string,
                                     preferredStyle: .alert)
 
-      alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
+      alert.addAction(UIAlertAction(title: Loc.CancelButton.string, style: .cancel, handler: nil))
 
-      alert.addAction(UIAlertAction(title: "delete_button".localized, style: .destructive, handler: { _ in
+      alert.addAction(UIAlertAction(title: Loc.DeleteButton.string, style: .destructive, handler: { _ in
         do {
           try self?.viewModel.handleDelete(for: item)
         } catch {
-          self?.showAlert("error_title".localized, message: error.localizedDescription)
+          self?.showAlert(Loc.ErrorTitle.string, message: error.localizedDescription)
         }
       }))
 

@@ -35,7 +35,7 @@ class AddButton: UIButton {
             guard let key = localizedKey else { return }
 
             UIView.performWithoutAnimation {
-                setTitle(key.localized, for: .normal)
+                setTitle(NSLocalizedString(key, comment: ""), for: .normal)
                 layoutIfNeeded()
             }
         }

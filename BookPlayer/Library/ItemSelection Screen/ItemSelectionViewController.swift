@@ -16,7 +16,7 @@ class ItemSelectionViewController: UITableViewController {
     var onItemSelected: ((SimpleLibraryItem) -> Void)?
 
     override func viewDidLoad() {
-        self.title = "select_item_title".localized
+        self.title = Loc.SelectItemTitle.string
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(self.didTapCancel))
 
         // Remove the line after the last cell

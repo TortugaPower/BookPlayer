@@ -42,21 +42,21 @@ class ButtonFreeViewModel: BaseViewModel<ButtonFreeCoordinator> {
     let formattedTime = TimeParser.formatTime(currentItem.currentTime)
 
     let message = isPlaying
-    ? "\("paused_title".localized) (\(formattedTime))"
-    : "\("playing_title".localized.capitalized) (\(formattedTime))"
+    ? "\(Loc.PauseTitle.string) (\(formattedTime))"
+    : "\(Loc.PlayingTitle.string.capitalized) (\(formattedTime))"
     eventPublisher.send(message)
   }
 
   func rewind() {
     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
     playerManager.rewind()
-    eventPublisher.send("skipped_back_title".localized)
+    eventPublisher.send(Loc.SkippedBackTitle.string)
   }
 
   func forward() {
     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
     playerManager.forward()
-    eventPublisher.send("skipped_forward_title".localized)
+    eventPublisher.send(Loc.SkippedForwardTitle.string)
   }
 
   func createBookmark() {
@@ -69,10 +69,7 @@ class ButtonFreeViewModel: BaseViewModel<ButtonFreeCoordinator> {
       type: .user
     ) {
       let formattedTime = TimeParser.formatTime(bookmark.time)
-      let message = String.localizedStringWithFormat(
-        "bookmark_exists_title".localized,
-        formattedTime
-      )
+      let message = Loc.BookmarkExistsTitle(formattedTime).string
       eventPublisher.send(message)
       return
     }
@@ -83,13 +80,10 @@ class ButtonFreeViewModel: BaseViewModel<ButtonFreeCoordinator> {
       type: .user
     ) {
       let formattedTime = TimeParser.formatTime(bookmark.time)
-      let message = String.localizedStringWithFormat(
-        "bookmark_created_title".localized,
-        formattedTime
-      )
+      let message = Loc.BookmarkCreatedTitle(formattedTime).string
       eventPublisher.send(message)
     } else {
-      eventPublisher.send("file_missing_title".localized)
+      eventPublisher.send(Loc.FileMissingTitle.string)
     }
   }
 }
