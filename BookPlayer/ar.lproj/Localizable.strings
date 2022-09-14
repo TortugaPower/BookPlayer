@@ -55,7 +55,7 @@
 "move_library_button" = "النقل إلى المكتبة";
 "options_button" = "خيارات";
 "select_playlist_title" = "اختر مجلد";
-"sort_title_button" = "عنوان الكتاب";
+"title_button" = "عنوان الكتاب";
 "sort_filename_button" = "اسم الملف الأصلي";
 "sort_title" = "ترتيب الملفات حسب";
 "cancel_button" = "إلغاء الأمر";
@@ -219,3 +219,15 @@
 "settings_playerinterface_list_description" = "اضبط ما يفتحه زر القائمة في شاشة المشغل";
 "settings_autoplay_section_title" = "تشغيل تلقائي";
 "settings_autoplay_restart_title" = "أعد تشغيل الكتب المنتهية";
+"settings_theme_autobrightness" = "حدد التباين الداكن للسمة إذا انخفض سطوع الشاشة عن الحد المعين.";
+"note_title" = "ملحوظة";
+"playing_title" = "تشغيل الصوت";
+"paused_title" = "متوقف مؤقتًا";
+"skipped_forward_title" = "تم التخطي للأمام";
+"skipped_back_title" = "تم التخطي للخلف";
+"button_free_title" = "بدون زر";
+"screen_gestures_title" = "إيماءات الشاشة";
+"gesture_tap_title" = "انقر للتشغيل أو الإيقاف المؤقت";
+"gesture_swipe_left_title" = "اسحب لليسار للترجيع";
+"gesture_swipe_right_title" = "اسحب لليمين للتخطي للأمام";
+"gesture_swipe_vertically_title" = "اسحب عموديًا لإنشاء إشارة مرجعية";

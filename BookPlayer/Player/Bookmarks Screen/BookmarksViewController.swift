@@ -19,6 +19,19 @@ class BookmarksViewController: BaseTableViewController<BookmarkCoordinator, Book
 
     self.navigationItem.title = "bookmarks_title".localized
 
+    self.navigationItem.leftBarButtonItem = UIBarButtonItem(
+      image: UIImage(systemName: "xmark"),
+      style: .plain,
+      target: self,
+      action: #selector(self.didPressClose)
+    )
+    self.navigationItem.rightBarButtonItem = UIBarButtonItem(
+      image: UIImage(systemName: "square.and.arrow.up"),
+      style: .plain,
+      target: self,
+      action: #selector(self.didPressExport)
+    )
+
     self.tableView.tableFooterView = UIView()
     self.tableView.rowHeight = UITableView.automaticDimension
     self.tableView.estimatedRowHeight = 55.66
@@ -36,6 +49,14 @@ class BookmarksViewController: BaseTableViewController<BookmarkCoordinator, Book
 
   @IBAction func done(_ sender: UIBarButtonItem?) {
     self.viewModel.dismiss()
+  }
+
+  @objc func didPressClose() {
+    viewModel.dismiss()
+  }
+
+  @objc func didPressExport() {
+    viewModel.showExportController()
   }
 
   // MARK: - Table view data source

@@ -55,7 +55,7 @@
 "move_library_button" = "Переместить в библиотеку";
 "options_button" = "Опции";
 "select_playlist_title" = "Выберите папку";
-"sort_title_button" = "Название";
+"title_button" = "Название";
 "sort_filename_button" = "Исходное имя файла";
 "sort_title" = "Сортировать по";
 "cancel_button" = "Отменить";
@@ -219,3 +219,15 @@
 "settings_playerinterface_list_description" = "Отрегулируйте, что открывает кнопка списка на экране плеера";
 "settings_autoplay_section_title" = "АВТОВОСПРОИЗВЕДЕНИЕ";
 "settings_autoplay_restart_title" = "Перезапустить готовые книги";
+"settings_theme_autobrightness" = "Выбирайте темную вариацию темы, если яркость экрана падает ниже установленного порога.";
+"note_title" = "Примечание";
+"playing_title" = "воспроизведение аудио";
+"paused_title" = "Приостановлено";
+"skipped_forward_title" = "Пропущено вперед";
+"skipped_back_title" = "Пропущено назад";
+"button_free_title" = "без кнопки";
+"screen_gestures_title" = "Экранные жесты";
+"gesture_tap_title" = "Нажмите, чтобы воспроизвести или приостановить";
+"gesture_swipe_left_title" = "Проведите влево, чтобы перемотать назад";
+"gesture_swipe_right_title" = "Проведите вправо, чтобы перейти вперед";
+"gesture_swipe_vertically_title" = "Проведите по вертикали, чтобы создать закладку";

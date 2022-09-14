@@ -55,7 +55,7 @@
 "move_library_button" = "Move to Library";
 "options_button" = "Options";
 "select_playlist_title" = "Select Folder";
-"sort_title_button" = "Title";
+"title_button" = "Title";
 "sort_filename_button" = "Original File Name";
 "sort_title" = "Sort Items by";
 "cancel_button" = "Cancel";
@@ -219,3 +219,15 @@
 "settings_playerinterface_list_description" = "Adjust what the list button in the player screen opens";
 "settings_autoplay_section_title" = "AUTOPLAY";
 "settings_autoplay_restart_title" = "Restart finished books";
+"settings_theme_autobrightness" = "Select the dark variation of a theme if the screen brightness falls below the set threshold.";
+"note_title" = "Note";
+"playing_title" = "Playing";
+"paused_title" = "Paused";
+"skipped_forward_title" = "Skipped forward";
+"skipped_back_title" = "Skipped back";
+"button_free_title" = "Button Free";
+"screen_gestures_title" = "Screen Gestures";
+"gesture_tap_title" = "Tap to play or pause";
+"gesture_swipe_left_title" = "Swipe left to rewind";
+"gesture_swipe_right_title" = "Swipe right to skip forward";
+"gesture_swipe_vertically_title" = "Swipe vertically to create bookmark";

@@ -1596,7 +1596,7 @@
                                                 <color key="textColor" red="0.59229660034179688" green="0.58781206607818604" blue="0.61176860332489014" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                                 <nil key="highlightedColor"/>
                                                 <userDefinedRuntimeAttributes>
-                                                    <userDefinedRuntimeAttribute type="string" keyPath="localizedKey" value="theme_dark_title"/>
+                                                    <userDefinedRuntimeAttribute type="string" keyPath="localizedKey" value="settings_theme_autobrightness"/>
                                                 </userDefinedRuntimeAttributes>
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="THEMES" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PSZ-lE-AzA" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
