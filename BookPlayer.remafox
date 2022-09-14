@@ -22,7 +22,8 @@
       "Pods"
     ],
     "pathsToSearch" : [
-      "BookPlayer"
+      "BookPlayer",
+      "BookPlayerWatch"
     ]
   },
   "configFilePath" : "BookPlayer.remafox",
@@ -57,8 +58,8 @@
     "accessLevel" : "internal",
     "bundleInstance" : "Bundle.main",
     "enumName" : "Res",
-    "filePath" : "BookPlayer/ReMafoX.swift",
-    "indent" : "    ",
+    "filePath" : "Shared/ReMafoX.swift",
+    "indent" : "  ",
     "stringsEnumName" : "Str",
     "stringsTopLevelAlias" : "Loc",
     "useSwiftPackagePreviewsWorkaround" : false,
