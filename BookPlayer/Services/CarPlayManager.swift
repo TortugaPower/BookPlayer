@@ -136,7 +136,7 @@ class CarPlayManager: NSObject {
       }
     }
 
-    let bookmarksButton = CPNowPlayingImageButton(image: UIImage(named: "toolbarIconBookmark")!) { [weak self, libraryService, playerManager] _ in
+    let bookmarksButton = CPNowPlayingImageButton(image: UIImage(systemName: "plus")!) { [weak self, libraryService, playerManager] _ in
       guard
         let self = self,
         let currentItem = playerManager.currentItem
