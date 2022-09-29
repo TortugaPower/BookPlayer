@@ -79,20 +79,21 @@ extension ComplicationController {
   ) -> CLKComplicationTemplate? {
     switch complication.family {
     case .graphicCorner:
-      let textProvider: CLKTextProvider
-      let gaugeProvider: CLKSimpleGaugeProvider
+      var text = "CHP #"
+      var fillFraction: Float = 0.5
 
       if let item = item {
-        textProvider = CLKTextProvider(format: "CHP \(item.currentChapter.index)")
-        gaugeProvider = CLKSimpleGaugeProvider(style: .fill, gaugeColor: .appTintColor, fillFraction: Float(item.percentCompleted))
-      } else {
-        textProvider = CLKTextProvider(format: "CHP #")
-        gaugeProvider = CLKSimpleGaugeProvider(style: .fill, gaugeColor: .appTintColor, fillFraction: 0.5)
+        text = "CHP \(item.currentChapter.index)"
+        fillFraction = Float(item.percentCompleted / 100)
       }
 
       return CLKComplicationTemplateGraphicCornerGaugeText(
-        gaugeProvider: gaugeProvider,
-        outerTextProvider: textProvider
+        gaugeProvider: CLKSimpleGaugeProvider(
+          style: .fill,
+          gaugeColor: .appTintColor,
+          fillFraction: fillFraction
+        ),
+        outerTextProvider: CLKTextProvider(format: text)
       )
     case .graphicRectangular:
       let headerTextProvider: CLKTextProvider
