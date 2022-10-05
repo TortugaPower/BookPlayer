@@ -49,10 +49,10 @@ class CarPlayManager: NSObject {
 
     let dataInitializerCoordinator = DataInitializerCoordinator(alertPresenter: self)
 
-    dataInitializerCoordinator.onFinish = { stack in
+    dataInitializerCoordinator.onFinish = { [weak self] stack in
       let services = AppDelegate.shared?.createCoreServicesIfNeeded(from: stack)
 
-      self.setRootTemplate()
+      self?.setRootTemplate()
 
       services?.watchService.startSession()
     }
@@ -124,11 +124,15 @@ class CarPlayManager: NSObject {
 
     let nextButton = self.getNextChapterButton()
 
-    let controlsButton = CPNowPlayingImageButton(image: UIImage(systemName: "dial.max")!) { [weak self] _ in
+    let controlsButton = CPNowPlayingImageButton(
+      image: UIImage(named: "carplay.dial.max")!
+    ) { [weak self] _ in
       self?.showPlaybackControlsTemplate()
     }
 
-    let listButton = CPNowPlayingImageButton(image: UIImage(systemName: "list.bullet")!) { [weak self] _ in
+    let listButton = CPNowPlayingImageButton(
+      image: UIImage(named: "carplay.list.bullet")!
+    ) { [weak self] _ in
       if UserDefaults.standard.bool(forKey: Constants.UserDefaults.playerListPrefersBookmarks.rawValue) {
         self?.showBookmarkListTemplate()
       } else {
@@ -136,7 +140,9 @@ class CarPlayManager: NSObject {
       }
     }
 
-    let bookmarksButton = CPNowPlayingImageButton(image: UIImage(systemName: "plus")!) { [weak self, libraryService, playerManager] _ in
+    let bookmarksButton = CPNowPlayingImageButton(
+      image: UIImage(named: "toolbarIconBookmark")!
+    ) { [weak self, libraryService, playerManager] _ in
       guard
         let self = self,
         let currentItem = playerManager.currentItem
@@ -291,15 +297,17 @@ extension CarPlayManager {
 
   func getPreviousChapterButton() -> CPNowPlayingImageButton {
     let prevChapterImageName = self.hasChapter(before: AppDelegate.shared?.playerManager?.currentItem?.currentChapter)
-    ? "chevron.left"
-    : "chevron.left.2"
+    ? "carplay.chevron.left"
+    : "carplay.chevron.left.2"
 
-    return CPNowPlayingImageButton(image: UIImage(systemName: prevChapterImageName)!) { _ in
+    return CPNowPlayingImageButton(
+      image: UIImage(named: prevChapterImageName)!
+    ) { _ in
       guard let playerManager = AppDelegate.shared?.playerManager else { return }
 
       if let currentChapter = playerManager.currentItem?.currentChapter,
          let previousChapter = playerManager.currentItem?.previousChapter(before: currentChapter) {
-        playerManager.jumpTo(previousChapter.start, recordBookmark: false)
+        playerManager.jumpToChapter(previousChapter)
       } else {
         playerManager.playPreviousItem()
       }
@@ -308,15 +316,17 @@ extension CarPlayManager {
 
   func getNextChapterButton() -> CPNowPlayingImageButton {
     let nextChapterImageName = self.hasChapter(after: AppDelegate.shared?.playerManager?.currentItem?.currentChapter)
-    ? "chevron.right"
-    : "chevron.right.2"
+    ? "carplay.chevron.right"
+    : "carplay.chevron.right.2"
 
-    return CPNowPlayingImageButton(image: UIImage(systemName: nextChapterImageName)!) { _ in
+    return CPNowPlayingImageButton(
+      image: UIImage(named: nextChapterImageName)!
+    ) { _ in
       guard let playerManager = AppDelegate.shared?.playerManager else { return }
 
       if let currentChapter = playerManager.currentItem?.currentChapter,
          let nextChapter = playerManager.currentItem?.nextChapter(after: currentChapter) {
-        playerManager.jumpTo(nextChapter.start, recordBookmark: false)
+        playerManager.jumpToChapter(nextChapter)
       } else {
         playerManager.playNextItem(autoPlayed: false)
       }
