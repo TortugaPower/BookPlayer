@@ -77,7 +77,7 @@ class ActionParserService {
       return
     }
 
-    playerManager.jumpTo(chapterStart + 0.01, recordBookmark: false)
+    playerManager.jumpTo(chapterStart + 0.05, recordBookmark: false)
   }
 
   private class func handleSpeedRateAction(_ action: Action) {
