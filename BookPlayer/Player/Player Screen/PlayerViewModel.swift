@@ -125,32 +125,6 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     self.playerManager.markAsCompleted(!self.isBookFinished())
   }
 
-  func handleAutolockStatus(forceDisable: Bool = false) {
-    guard !forceDisable else {
-      UIApplication.shared.isIdleTimerDisabled = false
-      UIDevice.current.isBatteryMonitoringEnabled = false
-      return
-    }
-
-    guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue) else {
-      UIApplication.shared.isIdleTimerDisabled = false
-      UIDevice.current.isBatteryMonitoringEnabled = false
-      return
-    }
-
-    guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered.rawValue) else {
-      UIApplication.shared.isIdleTimerDisabled = true
-      UIDevice.current.isBatteryMonitoringEnabled = false
-      return
-    }
-
-    if !UIDevice.current.isBatteryMonitoringEnabled {
-      UIDevice.current.isBatteryMonitoringEnabled = true
-    }
-
-    UIApplication.shared.isIdleTimerDisabled = UIDevice.current.batteryState != .unplugged
-  }
-
   func processToggleMaxTime() -> ProgressObject {
     self.prefersRemainingTime = !self.prefersRemainingTime
     UserDefaults.standard.set(self.prefersRemainingTime, forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
