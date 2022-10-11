@@ -83,18 +83,6 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
     self.containerItemStackView.setCustomSpacing(26, after: self.artworkControl)
   }
 
-  override func viewDidAppear(_ animated: Bool) {
-    super.viewDidAppear(animated)
-
-    self.viewModel.handleAutolockStatus()
-  }
-
-  override func viewDidDisappear(_ animated: Bool) {
-    super.viewDidDisappear(animated)
-
-    self.viewModel.handleAutolockStatus(forceDisable: true)
-  }
-
   // Prevents dragging the view down from changing the safeAreaInsets.top and .bottom
   // Note: I'm pretty sure there is a better solution for this that I haven't found yet - @pichfl
   override func viewSafeAreaInsetsDidChange() {
@@ -329,13 +317,6 @@ extension PlayerViewController {
       .debounce(for: 1.0, scheduler: DispatchQueue.main)
       .sink { [weak self] _ in
         self?.viewModel.requestReview()
-      }
-      .store(in: &disposeBag)
-
-    NotificationCenter.default.publisher(for: UIDevice.batteryStateDidChangeNotification)
-      .debounce(for: 1.0, scheduler: DispatchQueue.main)
-      .sink { [weak self] _ in
-        self?.viewModel.handleAutolockStatus()
       }
       .store(in: &disposeBag)
 

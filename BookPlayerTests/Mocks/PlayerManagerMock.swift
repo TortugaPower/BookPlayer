@@ -49,6 +49,8 @@ class PlayerManagerMock: NSObject, PlayerManagerProtocol {
 
   func jumpTo(_ time: Double, recordBookmark: Bool) {}
 
+  func jumpToChapter(_ chapter: PlayableChapter) {}
+
   func markAsCompleted(_ flag: Bool) {}
 
   func playPreviousItem() {}
