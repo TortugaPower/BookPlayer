@@ -8,6 +8,7 @@
 
 import UIKit
 import BookPlayerKit
+import Combine
 
 enum PlayerActionRoutes {
   case setSleepTimer(_ seconds: Double)
@@ -18,6 +19,12 @@ class PlayerCoordinator: Coordinator {
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
   weak var alert: UIAlertController?
+
+  private var disposeBag = Set<AnyCancellable>()
+
+  deinit {
+    self.handleAutolockStatus(forceDisable: true)
+  }
 
   init(
     playerManager: PlayerManagerProtocol,
@@ -43,6 +50,8 @@ class PlayerCoordinator: Coordinator {
     vc.viewModel = viewModel
     self.presentingViewController?.present(vc, animated: true, completion: nil)
     self.presentingViewController = vc
+    self.bindGeneralObservers()
+    self.handleAutolockStatus()
   }
 
   func showBookmarks() {
@@ -167,5 +176,40 @@ class PlayerCoordinator: Coordinator {
     ).isActive = true
 
     self.presentingViewController?.present(customTimerAlert, animated: true, completion: nil)
+  }
+
+  func bindGeneralObservers() {
+    NotificationCenter.default.publisher(for: UIDevice.batteryStateDidChangeNotification)
+      .debounce(for: 1.0, scheduler: DispatchQueue.main)
+      .sink { [weak self] _ in
+        self?.handleAutolockStatus()
+      }
+      .store(in: &disposeBag)
+  }
+
+  func handleAutolockStatus(forceDisable: Bool = false) {
+    guard !forceDisable else {
+      UIApplication.shared.isIdleTimerDisabled = false
+      UIDevice.current.isBatteryMonitoringEnabled = false
+      return
+    }
+
+    guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue) else {
+      UIApplication.shared.isIdleTimerDisabled = false
+      UIDevice.current.isBatteryMonitoringEnabled = false
+      return
+    }
+
+    guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered.rawValue) else {
+      UIApplication.shared.isIdleTimerDisabled = true
+      UIDevice.current.isBatteryMonitoringEnabled = false
+      return
+    }
+
+    if !UIDevice.current.isBatteryMonitoringEnabled {
+      UIDevice.current.isBatteryMonitoringEnabled = true
+    }
+
+    UIApplication.shared.isIdleTimerDisabled = UIDevice.current.batteryState != .unplugged
   }
 }

@@ -28,6 +28,6 @@ class ChaptersViewModel: BaseViewModel<ChapterCoordinator> {
   // Don't set the chapter, set the new time which will set the chapter in didSet
   // Add a fraction of a second to make sure we start after the end of the previous chapter
   func handleChapterSelected(_ chapter: PlayableChapter) {
-    self.playerManager.jumpTo(chapter.start + 0.01, recordBookmark: false)
+    self.playerManager.jumpToChapter(chapter)
   }
 }

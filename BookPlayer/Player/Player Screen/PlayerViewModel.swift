@@ -54,7 +54,7 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
 
     if let currentChapter = self.playerManager.currentItem?.currentChapter,
        let previousChapter = self.playerManager.currentItem?.previousChapter(before: currentChapter) {
-      self.playerManager.jumpTo(previousChapter.start, recordBookmark: false)
+      self.playerManager.jumpToChapter(previousChapter)
     } else {
       self.playerManager.playPreviousItem()
     }
@@ -65,7 +65,7 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
 
     if let currentChapter = self.playerManager.currentItem?.currentChapter,
        let nextChapter = self.playerManager.currentItem?.nextChapter(after: currentChapter) {
-      self.playerManager.jumpTo(nextChapter.start, recordBookmark: false)
+      self.playerManager.jumpToChapter(nextChapter)
     } else {
       self.playerManager.playNextItem(autoPlayed: false)
     }
@@ -123,32 +123,6 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   func handleMarkCompletion() {
     self.playerManager.pause(fade: false)
     self.playerManager.markAsCompleted(!self.isBookFinished())
-  }
-
-  func handleAutolockStatus(forceDisable: Bool = false) {
-    guard !forceDisable else {
-      UIApplication.shared.isIdleTimerDisabled = false
-      UIDevice.current.isBatteryMonitoringEnabled = false
-      return
-    }
-
-    guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue) else {
-      UIApplication.shared.isIdleTimerDisabled = false
-      UIDevice.current.isBatteryMonitoringEnabled = false
-      return
-    }
-
-    guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered.rawValue) else {
-      UIApplication.shared.isIdleTimerDisabled = true
-      UIDevice.current.isBatteryMonitoringEnabled = false
-      return
-    }
-
-    if !UIDevice.current.isBatteryMonitoringEnabled {
-      UIDevice.current.isBatteryMonitoringEnabled = true
-    }
-
-    UIApplication.shared.isIdleTimerDisabled = UIDevice.current.batteryState != .unplugged
   }
 
   func processToggleMaxTime() -> ProgressObject {

@@ -248,4 +248,11 @@ public class TimeParser {
 
     return durationFormatter.string(from: duration)!
   }
+
+  /// Truncates the time to the specified number of decimal places
+  public class func truncateTime(_ time: TimeInterval, places: Int = 5) -> TimeInterval {
+    let multiplier = (pow(10, places) as NSNumber).doubleValue
+
+    return (Double(Int(time * multiplier)) / multiplier)
+  }
 }

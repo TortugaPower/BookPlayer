@@ -34,6 +34,7 @@ public protocol PlayerManagerProtocol: NSObjectProtocol {
   func rewind()
   func forward()
   func jumpTo(_ time: Double, recordBookmark: Bool)
+  func jumpToChapter(_ chapter: PlayableChapter)
   func markAsCompleted(_ flag: Bool)
   func setSpeed(_ newValue: Float)
 
@@ -394,14 +395,12 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 // MARK: - Seek Controls
 
 extension PlayerManager {
+  func jumpToChapter(_ chapter: PlayableChapter) {
+    jumpTo(chapter.start + 0.5, recordBookmark: false)
+  }
+
   func jumpTo(_ time: Double, recordBookmark: Bool = true) {
     guard let currentItem = self.currentItem else { return }
-
-    var time = time
-    // Fix for chapters in m4b books
-    if !currentItem.isBoundBook {
-      time += 0.5
-    }
 
     if recordBookmark {
       self.createOrUpdateAutomaticBookmark(
@@ -720,7 +719,7 @@ extension PlayerManager {
             subscription?.cancel()
           })
 
-        updatePlaybackTime(item: currentItem, time: currentItem.currentTime + 0.1)
+        updatePlaybackTime(item: currentItem, time: currentItem.currentTime)
       }
     }
   }
