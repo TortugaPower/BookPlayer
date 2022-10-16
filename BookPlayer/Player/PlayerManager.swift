@@ -395,7 +395,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
 extension PlayerManager {
   func jumpToChapter(_ chapter: PlayableChapter) {
-    jumpTo(chapter.start, recordBookmark: false)
+    jumpTo(chapter.start + 0.5, recordBookmark: false)
   }
 
   func initializeChapterTime(_ time: Double) {
