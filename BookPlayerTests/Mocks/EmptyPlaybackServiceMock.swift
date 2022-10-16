@@ -17,6 +17,10 @@ class EmptyPlaybackServiceMock: PlaybackServiceProtocol {
     return nil
   }
 
+  func getNextChapter(from item: PlayableItem) -> PlayableChapter? {
+    return nil
+  }
+
   func getPlayableItem(
     after relativePath: String,
     parentFolder: String?,
