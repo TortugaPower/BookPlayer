@@ -19,6 +19,7 @@ public protocol PlaybackServiceProtocol {
   ) -> PlayableItem?
   func getFirstPlayableItem(in folder: Folder, isUnfinished: Bool?) throws -> PlayableItem?
   func getPlayableItem(from item: LibraryItem) throws -> PlayableItem?
+  func getNextChapter(from item: PlayableItem) -> PlayableChapter?
 }
 
 public final class PlaybackService: PlaybackServiceProtocol {
@@ -34,10 +35,13 @@ public final class PlaybackService: PlaybackServiceProtocol {
     item.currentTime = time
     item.percentCompleted = round((item.currentTime / item.duration) * 100)
     self.libraryService.updatePlaybackTime(relativePath: item.relativePath, time: time, date: now)
+  }
 
-    if let currentChapter = item.currentChapter,
-       item.currentTime >= currentChapter.end || item.currentTime < currentChapter.start {
-      item.updateCurrentChapter()
+  public func getNextChapter(from item: PlayableItem) -> PlayableChapter? {
+    if item.chapters.last == item.currentChapter {
+      return nil
+    } else {
+      return item.nextChapter(after: item.currentChapter)
     }
   }
 
