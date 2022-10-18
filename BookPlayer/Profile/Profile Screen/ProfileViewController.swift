@@ -91,7 +91,7 @@ class ProfileViewController: BaseViewController<ProfileCoordinator, ProfileViewM
       contentView.leadingAnchor.constraint(equalTo: contentLayoutGuide.leadingAnchor),
       contentView.trailingAnchor.constraint(equalTo: contentLayoutGuide.trailingAnchor),
       contentView.bottomAnchor.constraint(equalTo: contentLayoutGuide.bottomAnchor),
-      contentView.widthAnchor.constraint(equalTo: view.widthAnchor),
+      contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
       // setup contents
       containerStackview.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Spacing.S),
       containerStackview.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Spacing.S),

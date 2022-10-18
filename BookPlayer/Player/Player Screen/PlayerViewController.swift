@@ -81,6 +81,29 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
     bindTransitionActions()
 
     self.containerItemStackView.setCustomSpacing(26, after: self.artworkControl)
+    toggleArtwork(for: traitCollection)
+  }
+
+  override func willTransition(
+    to newCollection: UITraitCollection,
+    with coordinator: UIViewControllerTransitionCoordinator
+  ) {
+    super.willTransition(to: newCollection, with: coordinator)
+
+    coordinator.animate { [weak self] _ in
+      self?.toggleArtwork(for: newCollection)
+    }
+  }
+
+  /// When the device has a compact vertical size class, there's not enough room to display the artwork
+  func toggleArtwork(for trait: UITraitCollection) {
+    if trait.verticalSizeClass == .compact {
+      artworkControl.alpha = 0
+      artworkControl.isHidden = true
+    } else {
+      artworkControl.alpha = 1
+      artworkControl.isHidden = false
+    }
   }
 
   // Prevents dragging the view down from changing the safeAreaInsets.top and .bottom
