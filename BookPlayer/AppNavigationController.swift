@@ -31,8 +31,12 @@ class AppNavigationController: UINavigationController, Storyboarded {
     super.viewDidLoad()
 
     // hide native separator
-    self.navigationBar.shadowImage = UIImage()
-    self.navigationBar.setBackgroundImage(UIImage(), for: .any, barMetrics: .default)
+    let standardAppearance = UINavigationBarAppearance()
+    standardAppearance.configureWithTransparentBackground()
+    standardAppearance.backgroundColor = .clear
+    navigationBar.scrollEdgeAppearance = standardAppearance
+    navigationBar.compactAppearance = standardAppearance
+    navigationBar.standardAppearance = standardAppearance
 
     // add custom separator
     self.navigationBar.addSubview(self.separatorView)
@@ -41,7 +45,7 @@ class AppNavigationController: UINavigationController, Storyboarded {
       separatorView.heightAnchor.constraint(equalToConstant: 0.5),
       separatorView.leadingAnchor.constraint(equalTo: navigationBar.leadingAnchor),
       separatorView.trailingAnchor.constraint(equalTo: navigationBar.trailingAnchor),
-      separatorView.bottomAnchor.constraint(equalTo: navigationBar.bottomAnchor, constant: -0.5),
+      separatorView.bottomAnchor.constraint(equalTo: navigationBar.bottomAnchor),
     ])
 
     setUpTheming()
@@ -83,6 +87,9 @@ extension AppNavigationController: Themeable {
       NSAttributedString.Key.foregroundColor: theme.primaryColor
     ]
     self.separatorView.backgroundColor = theme.separatorColor
+    navigationBar.scrollEdgeAppearance?.backgroundColor = theme.systemBackgroundColor
+    navigationBar.compactAppearance?.backgroundColor = theme.systemBackgroundColor
+    navigationBar.standardAppearance.backgroundColor = theme.systemBackgroundColor
     self.view.backgroundColor = theme.systemBackgroundColor
   }
 }
