@@ -67,13 +67,10 @@ public final class PlayableItem: NSObject, Identifiable {
 
     super.init()
 
-    self.currentChapter = chapters[0]
-    self.updateCurrentChapter()
+    self.currentChapter = self.getChapter(at: self.currentTime) ?? chapters[0]
   }
 
-  public func getChapterTime(from globalTime: TimeInterval) -> TimeInterval {
-    guard let chapter = self.getChapter(at: globalTime) else { return globalTime }
-
+  public func getChapterTime(in chapter: PlayableChapter, for globalTime: TimeInterval) -> TimeInterval {
     return globalTime - chapter.start
   }
 
@@ -84,13 +81,6 @@ public final class PlayableItem: NSObject, Identifiable {
     }
 
     return self.chapters.first { globalTime < $0.end && $0.start <= globalTime }
-  }
-
-  public func updateCurrentChapter() {
-    guard let chapter = self.getChapter(at: self.currentTime),
-          chapter != self.currentChapter else { return }
-
-    self.currentChapter = chapter
   }
 
   public func currentTimeInContext(_ prefersChapterContext: Bool) -> TimeInterval {

@@ -161,15 +161,9 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
       self?.setNowPlayingBookTitle(chapter: chapter)
       NotificationCenter.default.post(name: .chapterChange, object: nil, userInfo: nil)
-
-      // avoid loading the same item if it's already loaded
-      if let playingURL = (self?.audioPlayer.currentItem?.asset as? AVURLAsset)?.url,
-         chapter.fileURL == playingURL {
-        return
-      }
-
-      self?.loadChapter(chapter)
     }
+
+    loadChapter(item.currentChapter)
   }
 
   func loadChapter(_ chapter: PlayableChapter) {
@@ -233,7 +227,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
           // add 1 second as a finished threshold
           if currentItem.currentTime > 0.0 {
             let time = (currentItem.currentTime + 1) >= currentItem.duration ? 0 : currentItem.currentTime
-            self.jumpTo(time, recordBookmark: false)
+            self.initializeChapterTime(time)
           }
 
           self.libraryService.updateBookLastPlayDate(at: currentItem.relativePath, date: Date())
@@ -262,6 +256,9 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
     if currentItem.isBoundBook {
       currentTime += currentItem.currentChapter.start
+    } else if currentTime >= currentItem.currentChapter.end || currentTime < currentItem.currentChapter.start,
+              let newChapter = currentItem.getChapter(at: currentTime) {
+      currentItem.currentChapter = newChapter
     }
 
     self.playbackService.updatePlaybackTime(item: currentItem, time: currentTime)
@@ -401,6 +398,23 @@ extension PlayerManager {
     jumpTo(chapter.start + 0.5, recordBookmark: false)
   }
 
+  func initializeChapterTime(_ time: Double) {
+    guard let currentItem = self.currentItem else { return }
+
+    if !self.isPlaying {
+      UserDefaults.standard.set(Date(), forKey: "\(Constants.UserDefaults.lastPauseTime)_\(currentItem.relativePath)")
+    }
+
+    let boundedTime = min(max(time, 0), currentItem.duration)
+
+    self.playbackService.updatePlaybackTime(item: currentItem, time: boundedTime)
+
+    let newTime = currentItem.isBoundBook
+    ? currentItem.getChapterTime(in: currentItem.currentChapter, for: boundedTime)
+    : boundedTime
+    self.audioPlayer.seek(to: CMTime(seconds: newTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
+  }
+
   func jumpTo(_ time: Double, recordBookmark: Bool = true) {
     guard let currentItem = self.currentItem else { return }
 
@@ -420,19 +434,20 @@ extension PlayerManager {
 
     let chapterBeforeSkip = currentItem.currentChapter
     self.playbackService.updatePlaybackTime(item: currentItem, time: boundedTime)
-    let chapterAfterSkip = currentItem.currentChapter
-
-    // If chapters are different, and it's a bound book, do nothing else,
-    // the player is loading the new chapter
-    if chapterBeforeSkip != chapterAfterSkip,
-       currentItem.isBoundBook {
-      return
+    if let chapterAfterSkip = currentItem.getChapter(at: boundedTime),
+       chapterBeforeSkip != chapterAfterSkip {
+      currentItem.currentChapter = chapterAfterSkip
+      // If chapters are different, and it's a bound book,
+      // load the new chapter
+      if currentItem.isBoundBook {
+        loadChapter(chapterAfterSkip)
+        return
+      }
     }
 
     let newTime = currentItem.isBoundBook
-    ? currentItem.getChapterTime(from: boundedTime)
+    ? currentItem.getChapterTime(in: currentItem.currentChapter, for: boundedTime)
     : boundedTime
-
     self.audioPlayer.seek(to: CMTime(seconds: newTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
   }
 
@@ -716,27 +731,29 @@ extension PlayerManager {
 
       self.playNextItem(autoPlayed: true)
       return
-    } else {
-      if currentItem.isBoundBook {
-        var subscription: AnyCancellable?
+    } else if currentItem.isBoundBook {
+      var subscription: AnyCancellable?
 
-        subscription = NotificationCenter.default.publisher(for: .bookReady, object: nil)
-          .sink(receiveValue: { [weak self] notification in
-            guard let self = self,
-                  let userInfo = notification.userInfo,
-                  let loaded = userInfo["loaded"] as? Bool,
-                  loaded == true else {
-                    subscription?.cancel()
-                    return
-                  }
-
-            self.play()
-
+      subscription = NotificationCenter.default.publisher(for: .bookReady, object: nil)
+        .sink(receiveValue: { [weak self] notification in
+          guard let self = self,
+                let userInfo = notification.userInfo,
+                let loaded = userInfo["loaded"] as? Bool,
+                loaded == true else {
             subscription?.cancel()
-          })
+            return
+          }
 
-        self.playbackService.updatePlaybackTime(item: currentItem, time: currentItem.currentTime)
-      }
+          self.play()
+
+          subscription?.cancel()
+        })
+
+      self.playbackService.updatePlaybackTime(item: currentItem, time: currentItem.currentTime)
+      /// Load next chapter
+      guard let nextChapter = self.playbackService.getNextChapter(from: currentItem) else { return }
+      currentItem.currentChapter = nextChapter
+      loadChapter(nextChapter)
     }
   }
 }
