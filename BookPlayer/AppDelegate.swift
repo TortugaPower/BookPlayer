@@ -134,6 +134,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       playbackService = PlaybackService(libraryService: libraryService)
       AppDelegate.shared?.playbackService = playbackService
     }
+		
+		let socketClient: SocketClientProtocol
+		if let sharedSocketClien = AppDelegate.shared?.socketClient {
+			socketClient = sharedSocketClien
+		} else {
+			socketClient = SocketClient()
+			AppDelegate.shared?.socketClient = socketClient
+		}
 
     let playerManager: PlayerManagerProtocol
 
@@ -143,7 +151,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       playerManager = PlayerManager(
         libraryService: libraryService,
         playbackService: playbackService,
-        speedService: SpeedService(libraryService: libraryService)
+        speedService: SpeedService(libraryService: libraryService),
+				socketService: socketClient
       )
       AppDelegate.shared?.playerManager = playerManager
     }
@@ -160,15 +169,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       )
       AppDelegate.shared?.watchConnectivityService = watchService
     }
-		
-		let socketClient: SocketClientProtocol
-
-		if let sharedSocketClien = AppDelegate.shared?.socketClient {
-			socketClient = sharedSocketClien
-		} else {
-			socketClient = SocketClient()
-			AppDelegate.shared?.socketClient = socketClient
-		}
 
     return (
       dataManager,

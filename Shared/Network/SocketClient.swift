@@ -12,10 +12,14 @@ import SocketIO
 public protocol SocketClientProtocol {
 	func connectSocket() throws
 	func disconnectSocket() throws
+	func sendCustomEvent(eventName: String, jsonString: String) throws
+}
+
+public enum SocketEvent: String {
+	case TRACK_UPDATE = "track_update"
 }
 
 public class SocketClient: SocketClientProtocol, BPLogger {
-
 	var socket: SocketIOClient? = nil
 	let manager: SocketManager?
 	let keychain: KeychainServiceProtocol
@@ -49,7 +53,12 @@ public class SocketClient: SocketClientProtocol, BPLogger {
 		self.socket?.on("lastPlayedItem") {data, ack in
 			guard let lastPlayedItem = data[0] as? SyncedItem else { return }
 			print("lastPlayedItem \(lastPlayedItem)")
-			ack.with("Got your currentAmount", "dude")
+			ack.with("Got your ack", "dude")
 		}
+	}
+	
+	public func sendCustomEvent(eventName: String, jsonString: String) throws {
+		print(eventName);
+		self.socket?.emit(eventName, ["data": jsonString])
 	}
 }
