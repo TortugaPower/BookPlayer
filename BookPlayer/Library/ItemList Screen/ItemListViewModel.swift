@@ -517,20 +517,8 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     self.coordinator.showMoreOptionsAlert(selectedItems: selectedItems, availableFolders: availableFolders)
   }
 
-  func handleSort(by option: PlayListSortOrder) {
-    guard
-      let itemsToSort = self.libraryService.fetchContents(
-        at: self.folderRelativePath,
-        limit: nil,
-        offset: nil
-      ),
-      itemsToSort.count > 0
-    else { return }
-
-    let sortedItems = BookSortService.sort(itemsToSort, by: option)
-
-    self.libraryService.replaceOrderedItems(sortedItems, at: self.folderRelativePath)
-
+  func handleSort(by option: SortType) {
+    self.libraryService.sortContents(at: folderRelativePath, by: option)
     self.reloadItems()
   }
 

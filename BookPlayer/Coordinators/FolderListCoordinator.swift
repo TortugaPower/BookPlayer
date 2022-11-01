@@ -31,10 +31,12 @@ class FolderListCoordinator: ItemListCoordinator {
 
   override func start() {
     let vc = ItemListViewController.instantiate(from: .Main)
-    let viewModel = ItemListViewModel(folderRelativePath: self.folderRelativePath,
-                                      playerManager: self.playerManager,
-                                      libraryService: self.libraryService,
-                                      themeAccent: ThemeManager.shared.currentTheme.linkColor)
+    let viewModel = ItemListViewModel(
+      folderRelativePath: self.folderRelativePath,
+      playerManager: self.playerManager,
+      libraryService: self.libraryService,
+      themeAccent: ThemeManager.shared.currentTheme.linkColor
+    )
     viewModel.coordinator = self
     vc.viewModel = viewModel
     self.presentingViewController = self.navigationController

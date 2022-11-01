@@ -27,7 +27,7 @@ enum ItemListActionRoutes {
   case newImportOperation(_ operation: ImportOperation)
   case importOperationFinished(_ urls: [URL])
   case insertIntoLibrary(_ items: [LibraryItem])
-  case sortItems(_ option: PlayListSortOrder)
+  case sortItems(_ option: SortType)
   case reloadItems(_ pageSizePadding: Int)
 }
 

@@ -138,9 +138,13 @@ class StorageViewModelMissingFileTests: XCTestCase {
 
     // Manual recreation of folder and book inside library
     let folder = try self.viewModel.libraryService.createFolder(with: folderName, inside: nil)
+    // swiftlint:disable force_cast
+    let managedFolder = self.viewModel.libraryService.getItem(with: folder.relativePath) as! Folder
     let book = self.viewModel.libraryService.createBook(from: loadedFileURL)
-    folder.insert(item: book)
-    self.viewModel.library.insert(item: folder)
+    let managedBook = self.viewModel.libraryService.getItem(with: book.relativePath) as! Book
+    // swiftlint:enable force_cast
+    managedFolder.insert(item: managedBook)
+    self.viewModel.library.insert(item: managedFolder)
 
     let currentRelativePath = self.viewModel.getRelativePath(of: loadedFileURL, baseURL: self.directoryURL)
 

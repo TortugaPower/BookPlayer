@@ -39,6 +39,7 @@ class ItemListViewModelTests: XCTestCase {
     library.insert(
       item: StubFactory.book(dataManager: self.dataManager, title: "book4", duration: 100)
     )
+    self.dataManager.saveContext()
   }
 
   func testLoadingInitialItems() {
@@ -74,6 +75,7 @@ class ItemListViewModelTests: XCTestCase {
     })
 
     self.sut.loadNextItems()
+    wait(for: [expectation], timeout: 1)
     XCTAssert(loadedItems.count == 4)
     XCTAssert(self.sut.items.count == 4)
     XCTAssert(self.sut.offset == 4)
@@ -91,6 +93,7 @@ class ItemListViewModelTests: XCTestCase {
     })
 
     self.sut.loadNextItems(pageSize: 2)
+    wait(for: [expectation], timeout: 1)
     XCTAssert(loadedItems.count == 2)
     XCTAssert(self.sut.items.count == 2)
     XCTAssert(self.sut.offset == 2)
@@ -113,6 +116,7 @@ class ItemListViewModelTests: XCTestCase {
     })
 
     self.sut.loadAllItemsIfNeeded()
+    wait(for: [expectation], timeout: 1)
     XCTAssert(loadedItems.count == 4)
     XCTAssert(self.sut.items.count == 4)
     XCTAssert(self.sut.offset == 4)

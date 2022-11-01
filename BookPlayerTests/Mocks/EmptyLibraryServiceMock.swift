@@ -11,6 +11,10 @@ import Foundation
 
 /// Empty class meant to be subclassed to adjust service for test conditions
 class EmptyLibraryServiceMock: LibraryServiceProtocol {
+  func rebuildFolderDetails(_ relativePath: String) {}
+
+  func recursiveFolderProgressUpdate(from relativePath: String) {}
+
   func addBook(from item: SyncableItem, parentFolder: String?) {}
 
   func addFolder(from item: SyncableItem, type: ItemType, parentFolder: String?) {}
@@ -77,8 +81,20 @@ class EmptyLibraryServiceMock: LibraryServiceProtocol {
     return false
   }
 
-  func createFolder(with title: String, inside relativePath: String?) throws -> Folder {
-    return Folder()
+  func createFolder(with title: String, inside relativePath: String?) throws -> SimpleLibraryItem {
+    return SimpleLibraryItem(
+      title: "",
+      details: "",
+      duration: 0,
+      percentCompleted: 0,
+      isFinished: false,
+      relativePath: "",
+      parentFolder: nil,
+      originalFileName: "",
+      lastPlayDate: nil,
+      type: .folder,
+      syncStatus: .synced
+    )
   }
 
   func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SimpleLibraryItem]? {
@@ -89,7 +105,7 @@ class EmptyLibraryServiceMock: LibraryServiceProtocol {
     return 0
   }
 
-  func replaceOrderedItems(_ items: NSOrderedSet, at relativePath: String?) {}
+  func sortContents(at relativePath: String?, by type: SortType) {}
 
   func reorderItem(at relativePath: String, inside folderRelativePath: String?, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath) {}
 

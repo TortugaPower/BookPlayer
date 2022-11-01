@@ -28,8 +28,7 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
 
   private lazy var sortButton: UIButton = {
     let button = ComposedButton(
-      title: "Title",
-      secondaryTitle: "Sort",
+      title: "Sort",
       systemImage: "chevron.down",
       imageHeight: 8
     )
