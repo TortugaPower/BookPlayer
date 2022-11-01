@@ -23,45 +23,6 @@ class FolderTests: XCTestCase {
       DataTestUtils.clearFolderContents(url: processedFolder)
     }
 
-    func testAccumulatedProgress() throws {
-        let book1 = StubFactory.book(dataManager: self.dataManager, title: "book1", duration: 100)
-        let book2 = StubFactory.book(dataManager: self.dataManager, title: "book2", duration: 100)
-        let book3 = StubFactory.book(dataManager: self.dataManager, title: "book3", duration: 100)
-
-        let folder = try StubFactory.folder(dataManager: self.dataManager, title: "folder")
-        folder.insert(item: book1)
-        folder.insert(item: book2)
-        let folder2 = try StubFactory.folder(dataManager: self.dataManager, title: "folder2")
-        folder2.insert(item: folder)
-        folder2.insert(item: book3)
-
-        let emptyProgress = folder.progressPercentage
-        let nestedEmptyProgress = folder2.progressPercentage
-
-        XCTAssert(emptyProgress == 0.0)
-        XCTAssert(nestedEmptyProgress == 0.0)
-
-        book1.setCurrentTime(50)
-        book2.setCurrentTime(50)
-        book3.setCurrentTime(20)
-
-        let halfProgress = folder.progressPercentage
-        let nestedPartProgress = folder2.progressPercentage
-
-        XCTAssert(halfProgress == 0.5)
-        XCTAssert(nestedPartProgress == 0.4)
-
-        book1.setCurrentTime(100)
-        book2.setCurrentTime(100)
-        book3.setCurrentTime(100)
-
-        let completedProgress = folder.progressPercentage
-        let nestedCompletedProgress = folder2.progressPercentage
-
-        XCTAssert(completedProgress == 1.0)
-        XCTAssert(nestedCompletedProgress == 1.0)
-    }
-
     func testRelativePath() throws {
         let book1 = StubFactory.book(dataManager: self.dataManager, title: "book1", duration: 100)
         let book2 = StubFactory.book(dataManager: self.dataManager, title: "book2", duration: 100)

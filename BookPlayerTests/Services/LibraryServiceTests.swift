@@ -14,6 +14,7 @@ import Combine
 import XCTest
 
 class LibraryServiceTests: XCTestCase {
+  // swiftlint:disable force_cast
   var sut: LibraryService!
 
   override func setUp() {
@@ -364,20 +365,23 @@ class LibraryServiceTests: XCTestCase {
   }
 
   func testCreateFolderInLibrary() {
-    let folder = try! self.sut.createFolder(with: "test-folder", inside: nil)
+    _ = try! self.sut.createFolder(with: "test-folder", inside: nil)
+    let folder = self.sut.getItem(with: "test-folder") as! Folder
 
     let library = self.sut.getLibrary()
 
     XCTAssert(library.itemsArray.first?.relativePath == folder.relativePath)
     XCTAssert(folder.items?.count == 0)
 
-    let folder2 = try! self.sut.createFolder(with: "test-folder2", inside: nil)
+    _ = try! self.sut.createFolder(with: "test-folder2", inside: nil)
+    let folder2 = self.sut.getItem(with: "test-folder2") as! Folder
 
     XCTAssert(library.itemsArray.count == 2)
     XCTAssert(library.itemsArray.first?.relativePath == folder.relativePath)
     XCTAssert(library.itemsArray.last?.relativePath == folder2.relativePath)
 
-    let folder3 = try! self.sut.createFolder(with: "test-folder3", inside: nil)
+    _ = try! self.sut.createFolder(with: "test-folder3", inside: nil)
+    let folder3 = self.sut.getItem(with: "test-folder3") as! Folder
 
     XCTAssert(library.itemsArray.count == 3)
     XCTAssert(library.itemsArray[0].relativePath == folder.relativePath)
@@ -386,19 +390,23 @@ class LibraryServiceTests: XCTestCase {
   }
 
   func testCreateFolderInFolder() {
-    let folder = try! self.sut.createFolder(with: "test-folder", inside: nil)
-    let folder2 = try! self.sut.createFolder(with: "test-folder2", inside: "test-folder")
+    _ = try! self.sut.createFolder(with: "test-folder", inside: nil)
+    let folder = self.sut.getItem(with: "test-folder") as! Folder
+    _ = try! self.sut.createFolder(with: "test-folder2", inside: "test-folder")
+    let folder2 = self.sut.getItem(with: "test-folder/test-folder2") as! Folder
 
     XCTAssert(folder.items?.count == 1)
     XCTAssert((folder.items?.firstObject as? Folder)?.relativePath == folder2.relativePath)
 
-    let folder3 = try! self.sut.createFolder(with: "test-folder3", inside: "test-folder")
+    _ = try! self.sut.createFolder(with: "test-folder3", inside: "test-folder")
+    let folder3 = self.sut.getItem(with: "test-folder/test-folder3") as! Folder
 
     XCTAssert(folder.items?.count == 2)
     XCTAssert((folder.items?.firstObject as? Folder)?.relativePath == folder2.relativePath)
     XCTAssert((folder.items?.lastObject as? Folder)?.relativePath == folder3.relativePath)
 
-    let folder4 = try! self.sut.createFolder(with: "test-folder4", inside: "test-folder")
+    _ = try! self.sut.createFolder(with: "test-folder4", inside: "test-folder")
+    let folder4 = self.sut.getItem(with: "test-folder/test-folder4") as! Folder
 
     XCTAssert(folder.items?.count == 3)
     XCTAssert((folder.items?[0] as? Folder)?.relativePath == folder2.relativePath)
@@ -449,7 +457,8 @@ class LibraryServiceTests: XCTestCase {
     self.sut.markAsFinished(flag: true, relativePath: book.relativePath)
     XCTAssert(book.isFinished == true)
 
-    let folder = try! self.sut.createFolder(with: "test-folder", inside: nil)
+    _ = try! self.sut.createFolder(with: "test-folder", inside: nil)
+    let folder = self.sut.getItem(with: "test-folder") as! Folder
 
     let book2 = StubFactory.book(
       dataManager: self.sut.dataManager,
@@ -491,7 +500,8 @@ class LibraryServiceTests: XCTestCase {
     self.sut.jumpToStart(relativePath: book.relativePath)
     XCTAssert(book.currentTime == 0)
 
-    let folder = try! self.sut.createFolder(with: "test-folder", inside: nil)
+    _ = try! self.sut.createFolder(with: "test-folder", inside: nil)
+    let folder = self.sut.getItem(with: "test-folder") as! Folder
 
     let book2 = StubFactory.book(
       dataManager: self.sut.dataManager,
@@ -752,7 +762,8 @@ class InsertBooksTests: LibraryServiceTests {
   func testInsertEmptyBooksIntoPlaylist() throws {
     let library = self.sut.getLibrary()
 
-    let folder = try self.sut.createFolder(with: "test-folder", inside: nil)
+    _ = try self.sut.createFolder(with: "test-folder", inside: nil)
+    let folder = self.sut.getItem(with: "test-folder") as! Folder
     XCTAssert(library.items?.count == 1)
 
     try? self.sut.moveItems([], inside: folder.relativePath, moveFiles: true)
@@ -762,7 +773,8 @@ class InsertBooksTests: LibraryServiceTests {
   func testInsertOneBookIntoPlaylist() throws {
     let library = self.sut.getLibrary()
 
-    let folder = try self.sut.createFolder(with: "test-folder", inside: nil)
+    _ = try self.sut.createFolder(with: "test-folder", inside: nil)
+    let folder = self.sut.getItem(with: "test-folder") as! Folder
 
     XCTAssert(library.items?.count == 1)
 
@@ -782,7 +794,8 @@ class InsertBooksTests: LibraryServiceTests {
   func testInsertMultipleBooksIntoPlaylist() throws {
     let library = self.sut.getLibrary()
 
-    let folder = try self.sut.createFolder(with: "test-folder", inside: nil)
+    _ = try self.sut.createFolder(with: "test-folder", inside: nil)
+    let folder = self.sut.getItem(with: "test-folder") as! Folder
 
     XCTAssert(library.items?.count == 1)
 
@@ -806,7 +819,8 @@ class InsertBooksTests: LibraryServiceTests {
   func testInsertExistingBookFromLibraryIntoPlaylist() throws {
     let library = self.sut.getLibrary()
 
-    let folder = try self.sut.createFolder(with: "test-folder", inside: nil)
+    _ = try self.sut.createFolder(with: "test-folder", inside: nil)
+    let folder = self.sut.getItem(with: "test-folder") as! Folder
 
     XCTAssert(library.items?.count == 1)
 
@@ -831,7 +845,8 @@ class InsertBooksTests: LibraryServiceTests {
   func testInsertExistingBookFromPlaylistIntoLibrary() throws {
     let library = self.sut.getLibrary()
 
-    let folder = try self.sut.createFolder(with: "test-folder", inside: nil)
+    _ = try self.sut.createFolder(with: "test-folder", inside: nil)
+    let folder = self.sut.getItem(with: "test-folder") as! Folder
 
     XCTAssert(library.items?.count == 1)
 
@@ -859,8 +874,10 @@ class InsertBooksTests: LibraryServiceTests {
   func testInsertExistingBookFromPlaylistIntoPlaylist() throws {
     let library = self.sut.getLibrary()
 
-    let folder1 = try self.sut.createFolder(with: "test-folder1", inside: nil)
-    let folder2 = try self.sut.createFolder(with: "test-folder2", inside: nil)
+    _ = try self.sut.createFolder(with: "test-folder1", inside: nil)
+    let folder1 = self.sut.getItem(with: "test-folder1") as! Folder
+    _ = try self.sut.createFolder(with: "test-folder2", inside: nil)
+    let folder2 = self.sut.getItem(with: "test-folder2") as! Folder
 
     XCTAssert(library.items?.count == 2)
 
@@ -1085,22 +1102,22 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(library.itemsArray[0].title == book4.title)
     XCTAssert(library.itemsArray[3].title == book1.title)
 
-    self.sut.replaceOrderedItems(NSOrderedSet(array: [book1, book2, book3, book4]), at: nil)
+    self.sut.sortContents(at: nil, by: .metadataTitle)
 
     XCTAssert(library.itemsArray[0].title == book1.title)
     XCTAssert(library.itemsArray[3].title == book4.title)
 
     let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
     library.insert(item: folder)
-    try self.sut.moveItems([book1, book2, book3, book4], inside: folder.relativePath, moveFiles: true)
-
-    XCTAssert((folder.items?.array[0] as? Book)?.title == book1.title)
-    XCTAssert((folder.items?.array[3] as? Book)?.title == book4.title)
-
-    self.sut.replaceOrderedItems(NSOrderedSet(array: [book4, book3, book2, book1]), at: folder.relativePath)
+    try self.sut.moveItems([book4, book3, book2, book1], inside: folder.relativePath, moveFiles: true)
 
     XCTAssert((folder.items?.array[0] as? Book)?.title == book4.title)
     XCTAssert((folder.items?.array[3] as? Book)?.title == book1.title)
+
+    self.sut.sortContents(at: folder.relativePath, by: .metadataTitle)
+
+    XCTAssert((folder.items?.array[0] as? Book)?.title == book1.title)
+    XCTAssert((folder.items?.array[3] as? Book)?.title == book4.title)
   }
 
   func testReorderItem() throws {
@@ -1367,4 +1384,5 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(fetchedBook3?.relativePath == book3.relativePath)
     XCTAssert(fetchedBook4?.relativePath == book4.relativePath)
   }
+  // swiftlint:enable force_cast
 }

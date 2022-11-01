@@ -38,7 +38,7 @@ public protocol LibraryServiceProtocol {
   func createFolder(with title: String, inside relativePath: String?) throws -> SimpleLibraryItem
   func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SimpleLibraryItem]?
   func getMaxItemsCount(at relativePath: String?) -> Int
-  func replaceOrderedItems(_ items: [SimpleLibraryItem], at relativePath: String?)
+  func sortContents(at relativePath: String?, by type: SortType)
   func reorderItem(at relativePath: String, inside folderRelativePath: String?, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath)
 
   func updatePlaybackTime(relativePath: String, time: Double, date: Date)
@@ -203,7 +203,7 @@ public final class LibraryService: LibraryServiceProtocol {
 
   public func getLastPlayedItems(limit: Int?) -> [LibraryItem]? {
     let fetch: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
-    fetch.predicate = NSPredicate(format: "lastPlayDate != nil")
+    fetch.predicate = NSPredicate(format: "type != 0 && lastPlayDate != nil")
 
     if let limit = limit {
       fetch.fetchLimit = limit
@@ -513,18 +513,31 @@ public final class LibraryService: LibraryServiceProtocol {
     return (try? self.dataManager.getContext().count(for: fetchRequest)) ?? 0
   }
 
-  public func replaceOrderedItems(_ items: [SimpleLibraryItem], at relativePath: String?) {
-    let items = items.compactMap({ [unowned self] in
-      self.getItem(with: $0.relativePath)
-    })
+  public func sortContents(at relativePath: String?, by type: SortType) {
+    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+    fetchRequest.propertiesToFetch = type.fetchProperties()
 
-    if let relativePath = relativePath,
+    if let relativePath = relativePath {
+      fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), relativePath)
+    } else {
+      fetchRequest.predicate = NSPredicate(format: "%K != nil", #keyPath(LibraryItem.library))
+    }
+    fetchRequest.sortDescriptors = [NSSortDescriptor(key: #keyPath(LibraryItem.orderRank), ascending: true)]
+
+    guard
+      let results = try? self.dataManager.getContext().fetch(fetchRequest),
+      !results.isEmpty
+    else { return }
+
+    let sortedResults = type.sortItems(results)
+
+    if let relativePath,
        let folder = self.getItem(with: relativePath) as? Folder {
-      folder.items = NSOrderedSet(array: items)
+      folder.items = NSOrderedSet(array: sortedResults)
       folder.rebuildOrderRank()
     } else {
       let library = self.getLibrary()
-      library.items = NSOrderedSet(array: items)
+      library.items = NSOrderedSet(array: sortedResults)
       library.rebuildOrderRank()
     }
 
@@ -560,6 +573,9 @@ public final class LibraryService: LibraryServiceProtocol {
     item.currentTime = time
     item.lastPlayDate = date
     item.percentCompleted = round((item.currentTime / item.duration) * 100)
+    if let parentFolderPath = item.folder?.relativePath {
+      recursiveFolderLastPlayedDateUpdate(from: parentFolderPath, date: date)
+    }
 
     self.dataManager.scheduleSaveContext()
   }
@@ -1026,11 +1042,25 @@ public final class LibraryService: LibraryServiceProtocol {
     }
   }
 
+  func recursiveFolderLastPlayedDateUpdate(from relativePath: String, date: Date) {
+    guard let folder = findFolder(with: relativePath) else { return }
+
+    folder.lastPlayDate = date
+
+    if let parentFolderPath = getItemProperty(
+      #keyPath(LibraryItem.folder.relativePath),
+      relativePath: relativePath
+    ) as? String {
+      recursiveFolderLastPlayedDateUpdate(from: parentFolderPath, date: date)
+    }
+  }
+
   public func recursiveFolderProgressUpdate(from relativePath: String) {
     guard let folder = findFolder(with: relativePath) else { return }
 
     let (progress, _) = calculateFolderProgress(at: relativePath)
     folder.percentCompleted = progress
+    /// TODO: verify if necessary to mark the folder as finished
 
     NotificationCenter.default.post(
       name: .folderProgressUpdated,

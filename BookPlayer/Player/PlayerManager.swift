@@ -620,7 +620,9 @@ extension PlayerManager {
 
     self.libraryService.markAsFinished(flag: true, relativePath: currentItem.relativePath)
 
-    libraryService.recursiveFolderProgressUpdate(from: currentItem.relativePath)
+    if let parentFolderPath = currentItem.parentFolder {
+      libraryService.recursiveFolderProgressUpdate(from: parentFolderPath)
+    }
 
     NotificationCenter.default.post(name: .bookEnd, object: nil, userInfo: nil)
   }

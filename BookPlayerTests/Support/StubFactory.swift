@@ -20,6 +20,7 @@ class StubFactory {
     book.originalFileName = fileUrl.lastPathComponent
     book.isFinished = false
     book.duration = duration
+    book.type = .book
 
     return book
   }

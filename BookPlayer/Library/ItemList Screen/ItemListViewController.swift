@@ -22,11 +22,47 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
   @IBOutlet weak var loadingHeightConstraintView: NSLayoutConstraint!
   @IBOutlet weak var bulkControls: BulkControlsView!
   @IBOutlet weak var bulkControlsBottomConstraint: NSLayoutConstraint!
+  @IBOutlet weak var topContainerView: UIView!
 
   @IBOutlet weak var tableView: UITableView!
 
-  private var previousLeftButtons: [UIBarButtonItem]?
-  lazy var selectButton: UIBarButtonItem = UIBarButtonItem(title: "select_all_title".localized, style: .plain, target: self, action: #selector(selectButtonPressed))
+  private lazy var sortButton: UIButton = {
+    let button = ComposedButton(
+      title: "Sort",
+      systemImage: "chevron.down",
+      imageHeight: 8
+    )
+    button.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+    button.addTarget(self, action: #selector(handleSortButtonPressed), for: .touchUpInside)
+    return button
+  }()
+
+  private lazy var selectButton: UIButton = {
+    let button = ComposedButton(title: "Select")
+    button.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+    button.addTarget(self, action: #selector(handleSelectButtonPressed), for: .touchUpInside)
+    return button
+  }()
+
+  private lazy var spacerView: UIView = {
+    let view = UIView()
+    view.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+    return view
+  }()
+
+  private lazy var selectAllButton: UIButton = {
+    let button = ComposedButton(title: "select_all_title".localized)
+    button.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+    button.addTarget(self, action: #selector(selectAllButtonPressed), for: .touchUpInside)
+    button.isHidden = true
+    return button
+  }()
+
+  private lazy var topStackview: UIStackView = {
+    let stackview = UIStackView(arrangedSubviews: [selectAllButton, sortButton, spacerView, selectButton])
+    stackview.translatesAutoresizingMaskIntoConstraints = false
+    return stackview
+  }()
 
   var defaultArtwork: UIImage? {
     if let data = viewModel.defaultArtwork {
@@ -41,6 +77,8 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
   override func viewDidLoad() {
     super.viewDidLoad()
 
+    self.addSubviews()
+    self.addConstraints()
     self.configureDataSource()
     self.bindDataItems()
     self.bindTransitionActions()
@@ -48,16 +86,26 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
     self.bindNetworkObserver()
   }
 
+  func addSubviews() {
+    self.topContainerView.addSubview(topStackview)
+  }
+
+  func addConstraints() {
+    NSLayoutConstraint.activate([
+      topStackview.topAnchor.constraint(equalTo: topContainerView.topAnchor),
+      topStackview.leadingAnchor.constraint(equalTo: topContainerView.leadingAnchor),
+      topStackview.trailingAnchor.constraint(equalTo: topContainerView.trailingAnchor),
+      topStackview.bottomAnchor.constraint(equalTo: topContainerView.bottomAnchor),
+    ])
+  }
+
   func configureInitialState() {
     self.adjustBottomOffsetForMiniPlayer()
 
-    self.navigationItem.rightBarButtonItem = self.editButtonItem
+    self.navigationItem.rightBarButtonItem = UIBarButtonItem(systemItem: .search)
 
     if self.navigationController?.viewControllers.count == 1 {
       self.navigationController!.interactivePopGestureRecognizer!.delegate = self
-
-      self.previousLeftButtons = navigationItem.leftBarButtonItems
-
       self.viewModel.notifyPendingFiles()
     }
 
@@ -247,12 +295,17 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
     self.tableView.setEditing(editing, animated: true)
 
     if editing {
-      self.previousLeftButtons = navigationItem.leftBarButtonItems
-      self.navigationItem.leftBarButtonItems = [self.selectButton]
-      self.selectButton.isEnabled = self.tableView.numberOfRows(inSection: Section.data.rawValue) > 0
+      self.selectButton.setTitle("Done", for: .normal)
+      self.navigationItem.rightBarButtonItem?.isEnabled = false
+      self.selectAllButton.isHidden = false
+      sortButton.isHidden = true
+      self.selectAllButton.isEnabled = self.tableView.numberOfRows(inSection: Section.data.rawValue) > 0
       self.updateSelectionStatus()
     } else {
-      self.navigationItem.leftBarButtonItems = self.previousLeftButtons
+      self.selectButton.setTitle("Select", for: .normal)
+      self.selectAllButton.isHidden = true
+      sortButton.isHidden = false
+      self.navigationItem.rightBarButtonItem?.isEnabled = true
     }
   }
 
@@ -272,9 +325,10 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
   func updateSelectionStatus() {
     guard self.tableView.isEditing else { return }
 
-    self.selectButton.title = self.tableView.numberOfRows(inSection: Section.data.rawValue) > (self.tableView.indexPathsForSelectedRows?.count ?? 0)
+    let title = self.tableView.numberOfRows(inSection: Section.data.rawValue) > (self.tableView.indexPathsForSelectedRows?.count ?? 0)
       ? "select_all_title".localized
       : "deselect_all_title".localized
+    self.selectAllButton.setTitle(title, for: .normal)
 
     guard self.tableView.indexPathForSelectedRow == nil else {
       self.bulkControls.moveButton.isEnabled = true
@@ -292,7 +346,15 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
     self.viewModel.showAddActions()
   }
 
-  @objc func selectButtonPressed(_ sender: Any) {
+  @objc func handleSortButtonPressed() {
+    viewModel.showSortOptions()
+  }
+
+  @objc func handleSelectButtonPressed() {
+    self.setEditing(!isEditing, animated: true)
+  }
+
+  @objc func selectAllButtonPressed(_ sender: Any) {
     self.viewModel.loadAllItemsIfNeeded()
 
     if self.tableView.numberOfRows(inSection: Section.data.rawValue) == (self.tableView.indexPathsForSelectedRows?.count ?? 0) {
@@ -588,6 +650,8 @@ extension ItemListViewController {
 extension ItemListViewController: Themeable {
   func applyTheme(_ theme: SimpleTheme) {
     self.view.backgroundColor = theme.systemBackgroundColor
+    self.topContainerView.backgroundColor = theme.systemBackgroundColor
+    self.spacerView.backgroundColor = theme.systemBackgroundColor
     self.tableView.backgroundColor = theme.systemBackgroundColor
     self.tableView.separatorColor = theme.separatorColor
     self.emptyStatePlaceholder.backgroundColor = theme.systemBackgroundColor
