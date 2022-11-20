@@ -250,6 +250,7 @@ extension SearchListViewController {
   }
 
   @objc func keyboardWillHide(_ notification: Notification) {
-    tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+    /// Adjust for mini player too
+    tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 88, right: 0)
   }
 }
