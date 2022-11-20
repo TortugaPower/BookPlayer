@@ -10,7 +10,7 @@ import BookPlayerKit
 import UIKit
 
 class FolderListCoordinator: ItemListCoordinator {
-  var folderRelativePath: String
+  let folderRelativePath: String
 
   init(
     navigationController: UINavigationController,
