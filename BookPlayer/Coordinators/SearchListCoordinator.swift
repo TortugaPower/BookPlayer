@@ -41,6 +41,7 @@ class SearchListCoordinator: Coordinator {
       folderRelativePath: folderRelativePath,
       placeholderTitle: placeholderTitle,
       libraryService: libraryService,
+      playerManager: playerManager,
       themeAccent: ThemeManager.shared.currentTheme.linkColor
     )
     viewModel.onTransition = { route in

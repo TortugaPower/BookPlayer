@@ -184,6 +184,7 @@ extension SearchListViewController: UITableViewDataSource {
     cell.progress = item.progress
     cell.duration = item.durationFormatted
     cell.type = item.type
+    cell.playbackState = viewModel.getPlaybackState(for: item)
 
     cell.artworkView.kf.setImage(
       with: ArtworkService.getArtworkProvider(for: item.relativePath),

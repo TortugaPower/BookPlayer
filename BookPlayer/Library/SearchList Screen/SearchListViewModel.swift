@@ -22,6 +22,8 @@ class SearchListViewModel: BaseViewModel<SearchListCoordinator> {
   let placeholderTitle: String
   /// Library service used to search the items
   let libraryService: LibraryServiceProtocol
+
+  let playerManager: PlayerManagerProtocol
   /// Default artwork to use for items without artwork
   public private(set) var defaultArtwork: Data?
   /// Array of items found
@@ -34,20 +36,74 @@ class SearchListViewModel: BaseViewModel<SearchListCoordinator> {
   var resultsOffset = 0
   /// Size of results
   var pageSize = 13
+  /// Cached path for containing folder of playing item in relation to this list path
+  private var playingItemParentPath: String?
   /// Callback to handle actions on this screen
   public var onTransition: Transition<Routes>?
+  private var disposeBag = Set<AnyCancellable>()
 
   /// Initializer
   init(
     folderRelativePath: String?,
     placeholderTitle: String,
     libraryService: LibraryServiceProtocol,
+    playerManager: PlayerManagerProtocol,
     themeAccent: UIColor
   ) {
     self.folderRelativePath = folderRelativePath
     self.placeholderTitle = placeholderTitle
     self.libraryService = libraryService
+    self.playerManager = playerManager
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: themeAccent)?.pngData()
+    super.init()
+
+    self.bindPlayingItemObserver()
+  }
+
+  /// Observe when a new item is loaded into the player
+  func bindPlayingItemObserver() {
+    self.playerManager.currentItemPublisher().sink { [weak self] currentItem in
+      guard let self = self else { return }
+
+      defer {
+        self.clearPlaybackState()
+      }
+
+      guard let currentItem = currentItem else {
+        self.playingItemParentPath = nil
+        return
+      }
+
+      self.playingItemParentPath = self.getPathForParentOfItem(currentItem: currentItem)
+    }.store(in: &disposeBag)
+  }
+
+  /// Trigger a data reload
+  func clearPlaybackState() {
+    items.value = items.value
+  }
+
+  /// Used to properly tint folders that contain the currently playing item
+  func getPathForParentOfItem(currentItem: PlayableItem) -> String? {
+    let parentFolders: [String] = currentItem.relativePath.allRanges(of: "/")
+      .map { String(currentItem.relativePath.prefix(upTo: $0.lowerBound)) }
+      .reversed()
+
+    guard let folderRelativePath = self.folderRelativePath else {
+      return parentFolders.last
+    }
+
+    guard let index = parentFolders.firstIndex(of: folderRelativePath) else {
+      return nil
+    }
+
+    let elementIndex = index - 1
+
+    guard elementIndex >= 0 else {
+      return nil
+    }
+
+    return parentFolders[elementIndex]
   }
 
   /// Get search scopes as String
@@ -107,8 +163,20 @@ class SearchListViewModel: BaseViewModel<SearchListCoordinator> {
     let item = self.items.value[index]
     onTransition?(.itemSelected(item: item))
   }
-
+  /// Update default artwork after a new theme is presented
   func updateDefaultArtwork(for theme: SimpleTheme) {
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: theme.linkColor)?.pngData()
+  }
+  /// Return the playback state for the given item
+  func getPlaybackState(for item: SimpleLibraryItem) -> PlaybackState {
+    guard let currentItem = self.playerManager.currentItem else {
+      return .stopped
+    }
+
+    if item.relativePath == currentItem.relativePath {
+      return .playing
+    }
+
+    return item.relativePath == playingItemParentPath ? .playing : .stopped
   }
 }
