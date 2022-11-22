@@ -1037,6 +1037,7 @@
 		9FDDD2E0289BFCE20020C428 /* LibraryService+Sync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LibraryService+Sync.swift"; sourceTree = "<group>"; };
 		9FDDD2F8289C2E9B0020C428 /* MappingModel_v8_to_v9.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MappingModel_v8_to_v9.xcmappingmodel; sourceTree = "<group>"; };
 		9FE07E1A27C522DE007591F7 /* ContainerItemListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerItemListView.swift; sourceTree = "<group>"; };
+		9FE786AD292D0FA8002B4A8D /* BookPlayerShareExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BookPlayerShareExtension.entitlements; sourceTree = "<group>"; };
 		9FEC87AD27FA9E98006C71D5 /* LoginCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginCoordinator.swift; sourceTree = "<group>"; };
 		9FEC87AF27FA9F0F006C71D5 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		9FEC87B127FA9F1C006C71D5 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
@@ -1911,6 +1912,7 @@
 		9F4A33DE292B0C710034CD4C /* BookPlayerShareExtension */ = {
 			isa = PBXGroup;
 			children = (
+				9FE786AD292D0FA8002B4A8D /* BookPlayerShareExtension.entitlements */,
 				9F4A33DF292B0C710034CD4C /* ShareViewController.swift */,
 				9F4A33E1292B0C710034CD4C /* MainInterface.storyboard */,
 				9F4A33E4292B0C710034CD4C /* Info.plist */,
@@ -4246,6 +4248,7 @@
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = BookPlayerShareExtension/BookPlayerShareExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
@@ -4256,7 +4259,7 @@
 				INFOPLIST_FILE = BookPlayerShareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BookPlayerShareExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Tortuga Power. All rights reserved.";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4285,6 +4288,7 @@
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = BookPlayerShareExtension/BookPlayerShareExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
@@ -4295,7 +4299,7 @@
 				INFOPLIST_FILE = BookPlayerShareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BookPlayerShareExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Tortuga Power. All rights reserved.";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4322,6 +4326,7 @@
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = BookPlayerShareExtension/BookPlayerShareExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
@@ -4332,7 +4337,7 @@
 				INFOPLIST_FILE = BookPlayerShareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BookPlayerShareExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Tortuga Power. All rights reserved.";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

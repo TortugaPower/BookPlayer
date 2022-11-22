@@ -7,25 +7,172 @@
 //
 
 import UIKit
-import Social
+import BookPlayerKit
+import UniformTypeIdentifiers
 
-class ShareViewController: SLComposeServiceViewController {
+@objc(ShareExtensionViewController)
+class ShareViewController: UIViewController {
 
-    override func isContentValid() -> Bool {
-        // Do validation of contentText and/or NSExtensionContext attachments here
-        return true
+  private lazy var navigationBar: UINavigationBar = {
+    let navBar = UINavigationBar()
+    navBar.translatesAutoresizingMaskIntoConstraints = false
+
+    let navItem = UINavigationItem(title: "Import")
+    navItem.leftBarButtonItem = closeButton
+    navItem.rightBarButtonItem = doneButton
+
+    navBar.setItems([navItem], animated: false)
+    return navBar
+  }()
+
+  private lazy var closeButton: UIBarButtonItem = {
+    return UIBarButtonItem(
+      barButtonSystemItem: .cancel,
+      target: self,
+      action: #selector(self.didPressCancel)
+    )
+  }()
+
+  private lazy var doneButton: UIBarButtonItem = {
+    return UIBarButtonItem(
+      barButtonSystemItem: .done,
+      target: self,
+      action: #selector(self.didPressDone)
+    )
+  }()
+
+  private lazy var tableView: UITableView = {
+    let tableView = UITableView()
+    tableView.translatesAutoresizingMaskIntoConstraints = false
+    tableView.rowHeight = UITableView.automaticDimension
+    tableView.estimatedRowHeight = UITableView.automaticDimension
+    tableView.register(UITableViewCell.self, forCellReuseIdentifier: "ShareCellView")
+    tableView.delegate = self
+    tableView.dataSource = self
+    return tableView
+  }()
+
+  /// Allowed content types
+  let contentType = UTType.data.identifier
+
+  var sharedItems = [URL]()
+
+  override func viewDidLoad() {
+    super.viewDidLoad()
+
+    addSubviews()
+    addConstraints()
+    handleSharedFiles()
+  }
+
+  func addSubviews() {
+    view.addSubview(navigationBar)
+    view.addSubview(tableView)
+  }
+
+  func addConstraints() {
+    let safeLayoutGuide = view.safeAreaLayoutGuide
+
+    NSLayoutConstraint.activate([
+      navigationBar.topAnchor.constraint(equalTo: safeLayoutGuide.topAnchor),
+      navigationBar.leadingAnchor.constraint(equalTo: safeLayoutGuide.leadingAnchor),
+      navigationBar.trailingAnchor.constraint(equalTo: safeLayoutGuide.trailingAnchor),
+      tableView.topAnchor.constraint(equalTo: navigationBar.bottomAnchor),
+      tableView.leadingAnchor.constraint(equalTo: safeLayoutGuide.leadingAnchor),
+      tableView.trailingAnchor.constraint(equalTo: safeLayoutGuide.trailingAnchor),
+      tableView.bottomAnchor.constraint(equalTo: safeLayoutGuide.bottomAnchor),
+    ])
+  }
+
+  func loadAttachments(_ attachments: [NSItemProvider]) {
+    var mutableAttachments = attachments
+    guard !mutableAttachments.isEmpty else {
+      DispatchQueue.main.async { [weak self] in
+        self?.tableView.reloadData()
+      }
+      return
     }
 
-    override func didSelectPost() {
-        // This is called after the user selects Post. Do the upload of contentText and/or NSExtensionContext attachments.
-    
-        // Inform the host that we're done, so it un-blocks its UI. Note: Alternatively you could call super's -didSelectPost, which will similarly complete the extension context.
-        self.extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
+    let provider = mutableAttachments.removeFirst()
+
+    guard provider.hasItemConformingToTypeIdentifier(contentType) else {
+      return loadAttachments(mutableAttachments)
     }
 
-    override func configurationItems() -> [Any]! {
-        // To add configuration options via table cells at the bottom of the sheet, return an array of SLComposeSheetConfigurationItem here.
-        return []
+    provider.loadItem(
+      forTypeIdentifier: contentType,
+      options: nil
+    ) { [weak self, mutableAttachments] (data, error) in
+      defer {
+        self?.loadAttachments(mutableAttachments)
+      }
+
+      guard error == nil else { return }
+
+      if let url = data as? URL {
+        self?.sharedItems.append(url)
+      }
+    }
+  }
+
+  func handleSharedFiles() {
+    // extracting the path to the URL that is being shared
+    guard
+      let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem,
+      let attachments = extensionItem.attachments
+    else {
+      didPressCancel()
+      return
     }
 
+    loadAttachments(attachments)
+  }
+
+  @objc func didPressCancel() {
+    extensionContext?.cancelRequest(withError: ShareExtensionError.cancelled)
+  }
+
+  @objc func didPressDone() {
+    saveSharedItems(sharedItems)
+  }
+
+  func saveSharedItems(_ items: [URL]) {
+    var mutableItems = items
+    guard !mutableItems.isEmpty else {
+      DispatchQueue.main.async { [weak self] in
+        self?.extensionContext?.completeRequest(returningItems: nil)
+      }
+      return
+    }
+
+    let item = mutableItems.removeFirst()
+
+    if let data = try? Data(contentsOf: item) {
+      let documentsFolder = DataManager.getDocumentsFolderURL()
+      try? data.write(to: documentsFolder)
+    }
+
+    saveSharedItems(mutableItems)
+  }
+}
+
+extension ShareViewController: UITableViewDataSource {
+  func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    return sharedItems.count
+  }
+
+  func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    let item = sharedItems[indexPath.row]
+    let cell = tableView.dequeueReusableCell(withIdentifier: "ShareCellView", for: indexPath)
+    cell.textLabel?.text = item.lastPathComponent
+    return cell
+  }
+}
+
+extension ShareViewController: UITableViewDelegate {
+
+}
+
+enum ShareExtensionError: Error {
+  case cancelled
 }
