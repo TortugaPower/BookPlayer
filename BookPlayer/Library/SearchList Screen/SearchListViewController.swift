@@ -76,16 +76,11 @@ class SearchListViewController: BaseViewController<SearchListCoordinator, Search
     observeKeyboardEvents()
   }
 
-  override func viewWillAppear(_ animated: Bool) {
-    super.viewWillAppear(animated)
-
-    searchBar.searchTextField.becomeFirstResponder()
-  }
-
   override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
 
     fadeInScopeControls()
+    searchBar.searchTextField.becomeFirstResponder()
   }
 
   func setupSearchBar() {
