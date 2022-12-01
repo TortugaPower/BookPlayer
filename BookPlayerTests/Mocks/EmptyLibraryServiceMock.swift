@@ -11,6 +11,16 @@ import Foundation
 
 /// Empty class meant to be subclassed to adjust service for test conditions
 class EmptyLibraryServiceMock: LibraryServiceProtocol {
+  func filterContents(
+    at relativePath: String?,
+    query: String?,
+    scope: SimpleItemType,
+    limit: Int?,
+    offset: Int?
+  ) -> [SimpleLibraryItem]? {
+    return []
+  }
+
   func rebuildFolderDetails(_ relativePath: String) {}
 
   func recursiveFolderProgressUpdate(from relativePath: String) {}

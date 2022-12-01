@@ -26,6 +26,13 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
 
   @IBOutlet weak var tableView: UITableView!
 
+  private lazy var searchButton: UIBarButtonItem = {
+    return UIBarButtonItem(systemItem: .search, primaryAction: UIAction { [weak self] _ in
+      self?.navigationItem.backButtonDisplayMode = .minimal
+      self?.viewModel.showSearchList()
+    })
+  }()
+
   private lazy var sortButton: UIButton = {
     let button = ComposedButton(
       title: "Sort",
@@ -102,7 +109,7 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
   func configureInitialState() {
     self.adjustBottomOffsetForMiniPlayer()
 
-    self.navigationItem.rightBarButtonItem = UIBarButtonItem(systemItem: .search)
+    self.navigationItem.rightBarButtonItem = searchButton
 
     if self.navigationController?.viewControllers.count == 1 {
       self.navigationController!.interactivePopGestureRecognizer!.delegate = self
@@ -486,6 +493,8 @@ extension ItemListViewController: UITableViewDelegate {
     }
 
     let item = self.viewModel.items[indexPath.row]
+
+    navigationItem.backButtonDisplayMode = .default
     self.viewModel.showItemContents(item)
   }
 

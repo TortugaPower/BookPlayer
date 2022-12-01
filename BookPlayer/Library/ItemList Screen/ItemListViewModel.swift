@@ -517,6 +517,10 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     self.coordinator.showMoreOptionsAlert(selectedItems: selectedItems, availableFolders: availableFolders)
   }
 
+  func showSearchList() {
+    self.coordinator.showSearchList(at: folderRelativePath, placeholderTitle: getNavigationTitle())
+  }
+
   func handleSort(by option: SortType) {
     self.libraryService.sortContents(at: folderRelativePath, by: option)
     self.reloadItems()

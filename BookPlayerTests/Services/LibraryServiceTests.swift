@@ -1384,5 +1384,60 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(fetchedBook3?.relativePath == book3.relativePath)
     XCTAssert(fetchedBook4?.relativePath == book4.relativePath)
   }
+
+  func testFilterBookItems() throws {
+    let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
+    let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
+    let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
+    try self.sut.moveItems([book1, book2, folder], inside: nil, moveFiles: true)
+    let book3 = StubFactory.book(dataManager: self.sut.dataManager, title: "book3", duration: 100)
+    let book4 = StubFactory.book(dataManager: self.sut.dataManager, title: "book4", duration: 100)
+    try self.sut.moveItems([book3, book4], inside: folder.relativePath, moveFiles: true)
+    self.sut.dataManager.saveContext()
+
+    let fetchedNilBooks = self.sut.filterContents(at: nil, query: "book21", scope: .book, limit: nil, offset: nil)
+
+    XCTAssert(fetchedNilBooks?.count == 0)
+
+    let fetchedAllBooks = self.sut.filterContents(at: nil, query: "book", scope: .book, limit: nil, offset: nil)
+
+    XCTAssert(fetchedAllBooks?.count == 4)
+
+    let fetchedResults = self.sut.filterContents(at: nil, query: "book1", scope: .book, limit: nil, offset: nil)
+
+    XCTAssert(fetchedResults?.count == 1)
+    XCTAssert(fetchedResults?.first?.relativePath == book1.relativePath)
+  }
+
+  func testFilterFolderItems() throws {
+    let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
+    let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
+    let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
+    try self.sut.moveItems([book1, book2, folder], inside: nil, moveFiles: true)
+    let book3 = StubFactory.book(dataManager: self.sut.dataManager, title: "book3", duration: 100)
+    let book4 = StubFactory.book(dataManager: self.sut.dataManager, title: "book4", duration: 100)
+    try self.sut.moveItems([book3, book4], inside: folder.relativePath, moveFiles: true)
+    self.sut.dataManager.saveContext()
+
+    let fetchedNilFolders = self.sut.filterContents(at: nil, query: "folder2", scope: .folder, limit: nil, offset: nil)
+
+    XCTAssert(fetchedNilFolders?.count == 0)
+
+    let fetchedFolders = self.sut.filterContents(at: nil, query: "folder", scope: .folder, limit: nil, offset: nil)
+
+    XCTAssert(fetchedFolders?.count == 1)
+
+    let fetchedResults = self.sut.filterContents(
+      at: folder.relativePath,
+      query: nil,
+      scope: .book,
+      limit: nil,
+      offset: nil
+    )
+
+    XCTAssert(fetchedResults?.count == 2)
+    XCTAssert(fetchedResults?.first?.relativePath == book3.relativePath)
+    XCTAssert(fetchedResults?.last?.relativePath == book4.relativePath)
+  }
   // swiftlint:enable force_cast
 }

@@ -28,6 +28,13 @@ public protocol LibraryServiceProtocol {
   func findFirstItem(in parentFolder: String?, isUnfinished: Bool?) -> LibraryItem?
   func findFirstItem(in parentFolder: String?, beforeRank: Int16?) -> LibraryItem?
   func findFirstItem(in parentFolder: String?, afterRank: Int16?, isUnfinished: Bool?) -> LibraryItem?
+  func filterContents(
+    at relativePath: String?,
+    query: String?,
+    scope: SimpleItemType,
+    limit: Int?,
+    offset: Int?
+  ) -> [SimpleLibraryItem]?
 
   func updateFolder(at relativePath: String, type: SimpleItemType) throws
   func rebuildFolderDetails(_ relativePath: String)
@@ -1079,5 +1086,75 @@ public final class LibraryService: LibraryServiceProtocol {
     ) as? String {
       recursiveFolderProgressUpdate(from: parentFolderPath)
     }
+  }
+
+  public func filterContents(
+    at relativePath: String?,
+    query: String?,
+    scope: SimpleItemType,
+    limit: Int?,
+    offset: Int?
+  ) -> [SimpleLibraryItem]? {
+    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+    fetchRequest.propertiesToFetch = SimpleLibraryItem.fetchRequestProperties
+    fetchRequest.resultType = .dictionaryResultType
+    fetchRequest.predicate = buildFilterPredicate(
+      relativePath: relativePath,
+      query: query,
+      scope: scope
+    )
+
+    let sort = NSSortDescriptor(key: #keyPath(LibraryItem.lastPlayDate), ascending: false)
+    fetchRequest.sortDescriptors = [sort]
+
+    if let limit = limit {
+      fetchRequest.fetchLimit = limit
+    }
+
+    if let offset = offset {
+      fetchRequest.fetchOffset = offset
+    }
+
+    let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
+
+    return parseFetchedItems(from: results)
+  }
+
+  private func buildFilterPredicate(
+    relativePath: String?,
+    query: String?,
+    scope: SimpleItemType
+  ) -> NSPredicate {
+    var predicates = [NSPredicate]()
+
+    switch scope {
+    case .folder:
+      predicates.append(
+        NSPredicate(format: "%K == \(SimpleItemType.folder.rawValue)", #keyPath(LibraryItem.type))
+      )
+    case .bound, .book:
+      predicates.append(
+        NSPredicate(format: "%K != \(SimpleItemType.folder.rawValue)", #keyPath(LibraryItem.type))
+      )
+    }
+
+    if let query = query,
+       !query.isEmpty {
+      predicates.append(
+        NSPredicate(
+          format: "%K CONTAINS[cd] %@",
+          #keyPath(LibraryItem.title),
+          query
+        )
+      )
+    }
+
+    if let relativePath = relativePath {
+      predicates.append(
+        NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), relativePath)
+      )
+    }
+
+    return NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
   }
 }

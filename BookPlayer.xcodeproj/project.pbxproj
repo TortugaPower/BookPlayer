@@ -322,6 +322,9 @@
 		69343D36213A07B4000C425E /* VoiceOverServiceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69343D35213A07B4000C425E /* VoiceOverServiceTest.swift */; };
 		9F00F6E82807B5CB00996BBB /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = 9F00F6E72807B5CB00996BBB /* RevenueCat */; };
 		9F00F6EA2807B5D300996BBB /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = 9F00F6E92807B5D300996BBB /* RevenueCat */; };
+		9F17D5AB29115858004F4929 /* SearchListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F17D5AA29115858004F4929 /* SearchListCoordinator.swift */; };
+		9F17D5CB29159289004F4929 /* SearchListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F17D5CA29159289004F4929 /* SearchListViewController.swift */; };
+		9F17D5CD29159297004F4929 /* SearchListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F17D5CC29159297004F4929 /* SearchListViewModel.swift */; };
 		9F1804B827A4AEC500FEDFE5 /* AccessibleSliderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F1804B727A4AEC500FEDFE5 /* AccessibleSliderView.swift */; };
 		9F22DE2C288CAAB800056FCD /* ImageIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE2B288CAAB800056FCD /* ImageIcons.swift */; };
 		9F22DE2E288CB1A900056FCD /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE2D288CB1A900056FCD /* Fonts.swift */; };
@@ -354,6 +357,9 @@
 		9F49072C2903663800054AD6 /* SortType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F49072B2903663800054AD6 /* SortType.swift */; };
 		9F49072D2903663800054AD6 /* SortType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F49072B2903663800054AD6 /* SortType.swift */; };
 		9F4A0F782839574B00F9C959 /* PlayerSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4A0F772839574A00F9C959 /* PlayerSettingsViewModel.swift */; };
+		9F4A33E0292B0C710034CD4C /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4A33DF292B0C710034CD4C /* ShareViewController.swift */; };
+		9F4A33E3292B0C710034CD4C /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9F4A33E1292B0C710034CD4C /* MainInterface.storyboard */; };
+		9F4A33E7292B0C710034CD4C /* BookPlayerShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 9F4A33DD292B0C700034CD4C /* BookPlayerShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		9F56C84D287B734C00EA9751 /* BPLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F56C84C287B734C00EA9751 /* BPLogger.swift */; };
 		9F56C84E287B734C00EA9751 /* BPLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F56C84C287B734C00EA9751 /* BPLogger.swift */; };
 		9F588DBF2902C798000DA799 /* ComposedButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F588DBE2902C798000DA799 /* ComposedButton.swift */; };
@@ -536,6 +542,13 @@
 			remoteGlobalIDString = 41A1B0D1226E9BC400EA0400;
 			remoteInfo = BookPlayerKit;
 		};
+		9F4A33E5292B0C710034CD4C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 418B6CF01D2707F700F974FB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9F4A33DC292B0C700034CD4C;
+			remoteInfo = BookPlayerShareExtension;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -579,6 +592,7 @@
 			dstSubfolderSpec = 13;
 			files = (
 				416A29B02569658300605395 /* BookPlayerWidgetUIExtension.appex in Embed App Extensions */,
+				9F4A33E7292B0C710034CD4C /* BookPlayerShareExtension.appex in Embed App Extensions */,
 				41342D0524435D9900F0905B /* BookPlayerIntents.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
@@ -916,6 +930,9 @@
 		69343D35213A07B4000C425E /* VoiceOverServiceTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceOverServiceTest.swift; sourceTree = "<group>"; };
 		9F00F6EF28084C8800996BBB /* IAP-Configuration.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = "IAP-Configuration.storekit"; sourceTree = "<group>"; };
 		9F00F6F128085CCC00996BBB /* StoreKitTestCertificate.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = StoreKitTestCertificate.cer; sourceTree = "<group>"; };
+		9F17D5AA29115858004F4929 /* SearchListCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchListCoordinator.swift; sourceTree = "<group>"; };
+		9F17D5CA29159289004F4929 /* SearchListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchListViewController.swift; sourceTree = "<group>"; };
+		9F17D5CC29159297004F4929 /* SearchListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchListViewModel.swift; sourceTree = "<group>"; };
 		9F1804B727A4AEC500FEDFE5 /* AccessibleSliderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibleSliderView.swift; sourceTree = "<group>"; };
 		9F1804BF27A739D400FEDFE5 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = fi; path = fi.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		9F1804C027A739D400FEDFE5 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fi; path = fi.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -948,6 +965,10 @@
 		9F4691F92800F8D600A8F0E8 /* AccountCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCoordinator.swift; sourceTree = "<group>"; };
 		9F49072B2903663800054AD6 /* SortType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SortType.swift; sourceTree = "<group>"; };
 		9F4A0F772839574A00F9C959 /* PlayerSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerSettingsViewModel.swift; sourceTree = "<group>"; };
+		9F4A33DD292B0C700034CD4C /* BookPlayerShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BookPlayerShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		9F4A33DF292B0C710034CD4C /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
+		9F4A33E2292B0C710034CD4C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
+		9F4A33E4292B0C710034CD4C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9F56C84C287B734C00EA9751 /* BPLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPLogger.swift; sourceTree = "<group>"; };
 		9F588DBE2902C798000DA799 /* ComposedButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposedButton.swift; sourceTree = "<group>"; };
 		9F646005283AD6B700710D3C /* PlayerSettingsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerSettingsViewModelTests.swift; sourceTree = "<group>"; };
@@ -1119,6 +1140,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9F4A33DA292B0C700034CD4C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -1265,6 +1293,7 @@
 				4151A6DC26E4A13900E49DBE /* MainCoordinator.swift */,
 				41188D2326ED2BA30017124E /* LoadingCoordinator.swift */,
 				4158386826EAF4A300F4A12B /* ItemListCoordinator.swift */,
+				9F17D5AA29115858004F4929 /* SearchListCoordinator.swift */,
 				4158388226EBD76A00F4A12B /* LibraryListCoordinator.swift */,
 				4158386D26EAF76700F4A12B /* FolderListCoordinator.swift */,
 				4158388426EBEE9800F4A12B /* PlayerCoordinator.swift */,
@@ -1324,6 +1353,7 @@
 				4140EA5F227289720009F794 /* BookPlayerWatchKit */,
 				41342CFF24435D9900F0905B /* BookPlayerIntents */,
 				416A29A82569658100605395 /* BookPlayerWidgetUI */,
+				9F4A33DE292B0C710034CD4C /* BookPlayerShareExtension */,
 				418B6CF91D2707F800F974FB /* Products */,
 				41AABFFA1E705D18006BD2E0 /* Frameworks */,
 			);
@@ -1340,6 +1370,7 @@
 				4140EA5E227289720009F794 /* BookPlayerWatchKit.framework */,
 				41342CFE24435D9900F0905B /* BookPlayerIntents.appex */,
 				416A29A32569658100605395 /* BookPlayerWidgetUIExtension.appex */,
+				9F4A33DD292B0C700034CD4C /* BookPlayerShareExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1771,6 +1802,15 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
+		9F17D5CE291592A5004F4929 /* SearchList Screen */ = {
+			isa = PBXGroup;
+			children = (
+				9F17D5CA29159289004F4929 /* SearchListViewController.swift */,
+				9F17D5CC29159297004F4929 /* SearchListViewModel.swift */,
+			);
+			path = "SearchList Screen";
+			sourceTree = "<group>";
+		};
 		9F197EFB27C324FF0029C989 /* PlaybackControls */ = {
 			isa = PBXGroup;
 			children = (
@@ -1866,6 +1906,16 @@
 				9F4A0F772839574A00F9C959 /* PlayerSettingsViewModel.swift */,
 			);
 			path = "Player Settings Screen";
+			sourceTree = "<group>";
+		};
+		9F4A33DE292B0C710034CD4C /* BookPlayerShareExtension */ = {
+			isa = PBXGroup;
+			children = (
+				9F4A33DF292B0C710034CD4C /* ShareViewController.swift */,
+				9F4A33E1292B0C710034CD4C /* MainInterface.storyboard */,
+				9F4A33E4292B0C710034CD4C /* Info.plist */,
+			);
+			path = BookPlayerShareExtension;
 			sourceTree = "<group>";
 		};
 		9F64C6222793C37C00B2493C /* Controls Screen */ = {
@@ -1969,6 +2019,7 @@
 				C36C4D5820A23DF000AFDB76 /* MiniPlayer */,
 				41188D2626ED4D470017124E /* ItemList Screen */,
 				62793617272CCE720097837D /* ItemSelection Screen */,
+				9F17D5CE291592A5004F4929 /* SearchList Screen */,
 			);
 			path = Library;
 			sourceTree = "<group>";
@@ -2260,6 +2311,7 @@
 				4140EA4D227288EF0009F794 /* PBXTargetDependency */,
 				41342D0424435D9900F0905B /* PBXTargetDependency */,
 				416A29AF2569658300605395 /* PBXTargetDependency */,
+				9F4A33E6292B0C710034CD4C /* PBXTargetDependency */,
 			);
 			name = BookPlayer;
 			packageProductDependencies = (
@@ -2317,13 +2369,30 @@
 			productReference = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		9F4A33DC292B0C700034CD4C /* BookPlayerShareExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9F4A33EB292B0C720034CD4C /* Build configuration list for PBXNativeTarget "BookPlayerShareExtension" */;
+			buildPhases = (
+				9F4A33D9292B0C700034CD4C /* Sources */,
+				9F4A33DA292B0C700034CD4C /* Frameworks */,
+				9F4A33DB292B0C700034CD4C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BookPlayerShareExtension;
+			productName = BookPlayerShareExtension;
+			productReference = 9F4A33DD292B0C700034CD4C /* BookPlayerShareExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		418B6CF01D2707F700F974FB /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1220;
+				LastSwiftUpdateCheck = 1400;
 				LastUpgradeCheck = 1250;
 				ORGANIZATIONNAME = "Tortuga Power";
 				TargetAttributes = {
@@ -2384,6 +2453,9 @@
 					41A1B0D1226E9BC400EA0400 = {
 						CreatedOnToolsVersion = 10.2.1;
 					};
+					9F4A33DC292B0C700034CD4C = {
+						CreatedOnToolsVersion = 14.0;
+					};
 				};
 			};
 			buildConfigurationList = 418B6CF31D2707F700F974FB /* Build configuration list for PBXProject "BookPlayer" */;
@@ -2439,6 +2511,7 @@
 				4140EA5D227289720009F794 /* BookPlayerWatchKit */,
 				41342CFD24435D9900F0905B /* BookPlayerIntents */,
 				416A29A22569658100605395 /* BookPlayerWidgetUIExtension */,
+				9F4A33DC292B0C700034CD4C /* BookPlayerShareExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -2561,6 +2634,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9F4A33DB292B0C700034CD4C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9F4A33E3292B0C710034CD4C /* MainInterface.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2762,8 +2843,10 @@
 				4151A6B326E491A800E49DBE /* NibLoadableView.swift in Sources */,
 				4197FAFC267E480100811CC8 /* ImportViewController.swift in Sources */,
 				9FEC87B227FA9F1C006C71D5 /* LoginViewModel.swift in Sources */,
+				9F17D5CD29159297004F4929 /* SearchListViewModel.swift in Sources */,
 				41E562C4223896B500C06BC9 /* UserDefaults+BookPlayer.swift in Sources */,
 				41AD3DA3221C7DCE00DC41E1 /* IconsViewController.swift in Sources */,
+				9F17D5CB29159289004F4929 /* SearchListViewController.swift in Sources */,
 				41B2A5E121CCC21000917584 /* ThemeManager.swift in Sources */,
 				9FBDDBA227DD13FA005FB447 /* ProfileCoordinator.swift in Sources */,
 				9F22DE39288CBE6A00056FCD /* FormButton.swift in Sources */,
@@ -2854,6 +2937,7 @@
 				9F4691F52800F84800A8F0E8 /* AccountViewController.swift in Sources */,
 				9FEC87B027FA9F0F006C71D5 /* LoginViewController.swift in Sources */,
 				4193E2002439A1CD004D6A82 /* NetworkService.swift in Sources */,
+				9F17D5AB29115858004F4929 /* SearchListCoordinator.swift in Sources */,
 				9F2681B628898A7300359BD3 /* LoginDisclaimerView.swift in Sources */,
 				9F4691F22800D58A00A8F0E8 /* CompleteAccountCoordinator.swift in Sources */,
 				4158386E26EAF76700F4A12B /* FolderListCoordinator.swift in Sources */,
@@ -3022,6 +3106,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9F4A33D9292B0C700034CD4C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9F4A33E0292B0C710034CD4C /* ShareViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -3069,6 +3161,11 @@
 			isa = PBXTargetDependency;
 			target = 41A1B0D1226E9BC400EA0400 /* BookPlayerKit */;
 			targetProxy = 41A1B0E5226E9BC500EA0400 /* PBXContainerItemProxy */;
+		};
+		9F4A33E6292B0C710034CD4C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9F4A33DC292B0C700034CD4C /* BookPlayerShareExtension */;
+			targetProxy = 9F4A33E5292B0C710034CD4C /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -3207,6 +3304,14 @@
 				41B2A5D921CAE42600917584 /* Base */,
 			);
 			name = Settings.storyboard;
+			sourceTree = "<group>";
+		};
+		9F4A33E1292B0C710034CD4C /* MainInterface.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				9F4A33E2292B0C710034CD4C /* Base */,
+			);
+			name = MainInterface.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -4132,6 +4237,119 @@
 			};
 			name = Beta;
 		};
+		9F4A33E8292B0C720034CD4C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9976264CCD3F002BFD35 /* Debug.xcconfig */;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "$(inherited)";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BookPlayerShareExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = BookPlayerShareExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Tortuga Power. All rights reserved.";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_SHARE_EXTENSION)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9F4A33E9292B0C720034CD4C /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9977264CCD3F002BFD35 /* Release.xcconfig */;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "$(inherited)";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BookPlayerShareExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = BookPlayerShareExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Tortuga Power. All rights reserved.";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_SHARE_EXTENSION)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		9F4A33EA292B0C720034CD4C /* Beta */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9977264CCD3F002BFD35 /* Release.xcconfig */;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "$(inherited)";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BookPlayerShareExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = BookPlayerShareExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Tortuga Power. All rights reserved.";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_SHARE_EXTENSION)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Beta;
+		};
 		C30C6B8820C68EDD0085218A /* Beta */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -4338,6 +4556,16 @@
 				41A1B0E9226E9BC500EA0400 /* Debug */,
 				41A1B0EA226E9BC500EA0400 /* Release */,
 				41A1B0EB226E9BC500EA0400 /* Beta */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9F4A33EB292B0C720034CD4C /* Build configuration list for PBXNativeTarget "BookPlayerShareExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9F4A33E8292B0C720034CD4C /* Debug */,
+				9F4A33E9292B0C720034CD4C /* Release */,
+				9F4A33EA292B0C720034CD4C /* Beta */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

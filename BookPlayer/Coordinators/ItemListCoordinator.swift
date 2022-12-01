@@ -78,11 +78,13 @@ class ItemListCoordinator: Coordinator {
   }
 
   func showFolder(_ relativePath: String) {
-    let child = FolderListCoordinator(navigationController: self.navigationController,
-                                      folderRelativePath: relativePath,
-                                      playerManager: self.playerManager,
-                                      libraryService: self.libraryService,
-                                      playbackService: self.playbackService)
+    let child = FolderListCoordinator(
+      navigationController: self.navigationController,
+      folderRelativePath: relativePath,
+      playerManager: self.playerManager,
+      libraryService: self.libraryService,
+      playbackService: self.playbackService
+    )
     self.childCoordinators.append(child)
     child.parentCoordinator = self
     child.start()
@@ -97,6 +99,18 @@ class ItemListCoordinator: Coordinator {
     playerCoordinator.parentCoordinator = self
     self.childCoordinators.append(playerCoordinator)
     playerCoordinator.start()
+  }
+
+  func showSearchList(at relativePath: String?, placeholderTitle: String) {
+    let coordinator = SearchListCoordinator(
+      navigationController: navigationController,
+      placeholderTitle: placeholderTitle,
+      folderRelativePath: relativePath,
+      playerManager: playerManager,
+      libraryService: libraryService,
+      playbackService: playbackService
+    )
+    coordinator.start()
   }
 
   func loadNextBook(in folder: Folder) {
