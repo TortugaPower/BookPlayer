@@ -2,17 +2,28 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>BP_BUNDLE_IDENTIFIER</key>
+	<string>$(BP_BUNDLE_IDENTIFIER)</string>
 	<key>NSExtension</key>
 	<dict>
 		<key>NSExtensionAttributes</key>
 		<dict>
-			<key>NSExtensionActivationRule</key>
-			<dict>
-				<key>NSExtensionActivationSupportsAttachmentsWithMinCount</key>
-				<integer>1</integer>
-				<key>NSExtensionActivationDictionaryVersion</key>
-				<integer>2</integer>
-			</dict>
+      <key>NSExtensionActivationRule</key>
+      <string>SUBQUERY (
+        extensionItems,
+        $extensionItem,
+        SUBQUERY (
+        $extensionItem.attachments,
+        $attachment,
+        (
+        ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.audio"
+        || ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.folder"
+        || ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.movie"
+        || ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "com.pkware.zip-archive"
+        )
+        ).@count > 0
+        ).@count > 0
+      </string>
 		</dict>
 		<key>NSExtensionMainStoryboard</key>
 		<string>MainInterface</string>

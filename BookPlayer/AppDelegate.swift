@@ -36,7 +36,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   var window: UIWindow?
   var wasPlayingBeforeInterruption: Bool = false
-  var watcher: DirectoryWatcher?
+  var documentFolderWatcher: DirectoryWatcher?
+  var sharedFolderWatcher: DirectoryWatcher?
 
   var dataManager: DataManager?
   var accountService: AccountServiceProtocol?
@@ -410,12 +411,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   }
 
   func setupDocumentListener() {
-    let documentsUrl = DataManager.getDocumentsFolderURL()
-
-    self.watcher = DirectoryWatcher.watch(documentsUrl)
-    self.watcher?.ignoreDirectories = false
-
-    self.watcher?.onNewFiles = { newFiles in
+    let newFilesCallback: (([URL]) -> Void) = { newFiles in
       guard
         let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator(),
         let libraryCoordinator = mainCoordinator.getLibraryCoordinator()
@@ -425,6 +421,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
       libraryCoordinator.processFiles(urls: newFiles)
     }
+
+    let documentsURL = DataManager.getDocumentsFolderURL()
+    documentFolderWatcher = DirectoryWatcher.watch(documentsURL)
+    documentFolderWatcher?.ignoreDirectories = false
+    documentFolderWatcher?.onNewFiles = newFilesCallback
+
+    let sharedFolderURL = DataManager.getSharedFilesFolderURL()
+    sharedFolderWatcher = DirectoryWatcher.watch(sharedFolderURL)
+    sharedFolderWatcher?.ignoreDirectories = false
+    sharedFolderWatcher?.onNewFiles = newFilesCallback
+
   }
 
   func requestReview() {

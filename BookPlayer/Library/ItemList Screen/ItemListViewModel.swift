@@ -447,28 +447,34 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func notifyPendingFiles() {
-    let documentsFolder = DataManager.getDocumentsFolderURL()
-    let inboxFolder = DataManager.getInboxFolderURL()
+    // Get reference of all the files located inside the Documents, Shared and Inbox folders
+    let documentsURLs = ((try? FileManager.default.contentsOfDirectory(
+      at: DataManager.getDocumentsFolderURL(),
+      includingPropertiesForKeys: nil,
+      options: .skipsSubdirectoryDescendants
+    )) ?? [])
+      .filter {
+        $0.lastPathComponent != DataManager.processedFolderName
+        && $0.lastPathComponent != DataManager.inboxFolderName
+      }
 
-    // Get reference of all the files located inside the Documents folder
-    guard let urls = try? FileManager.default.contentsOfDirectory(at: documentsFolder, includingPropertiesForKeys: nil, options: .skipsSubdirectoryDescendants) else {
-      return
-    }
+    let sharedURLs = (try? FileManager.default.contentsOfDirectory(
+      at: DataManager.getSharedFilesFolderURL(),
+      includingPropertiesForKeys: nil,
+      options: .skipsSubdirectoryDescendants
+    )) ?? []
 
-    // Filter out Processed and Inbox folders from file URLs.
-    var filteredUrls = urls.filter {
-      $0.lastPathComponent != DataManager.processedFolderName
-      && $0.lastPathComponent != DataManager.inboxFolderName
-    }
+    let inboxURLs = (try? FileManager.default.contentsOfDirectory(
+      at: DataManager.getInboxFolderURL(),
+      includingPropertiesForKeys: nil,
+      options: .skipsSubdirectoryDescendants
+    )) ?? []
 
-    // Consider items in the Inbox folder
-    if let inboxUrls = try? FileManager.default.contentsOfDirectory(at: inboxFolder, includingPropertiesForKeys: nil, options: .skipsSubdirectoryDescendants) {
-      filteredUrls += inboxUrls
-    }
+    let urls = documentsURLs + sharedURLs + inboxURLs
 
-    guard !filteredUrls.isEmpty else { return }
+    guard !urls.isEmpty else { return }
 
-    self.handleNewFiles(filteredUrls)
+    self.handleNewFiles(urls)
   }
 
   func handleNewFiles(_ urls: [URL]) {

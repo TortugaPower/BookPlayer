@@ -11,7 +11,7 @@ import UIKit
 public class LoadingUtils {
   private static let loaderViewTag = 5959
 
-  public class func createActivityIndicator(parentView: UIView) -> UIView {
+  public class func createActivityIndicator(parentView: UIView) {
     let screenSize = UIScreen.main.bounds
     let backgroundView = UIView(frame: CGRect(
       x: screenSize.width / 2 - 30,
@@ -41,27 +41,23 @@ public class LoadingUtils {
     }
 
     indicatorView.startAnimating()
-    return backgroundView
   }
 
   public class func loadAndBlock(in vc: UIViewController) {
     vc.view.isUserInteractionEnabled = false
     vc.tabBarController?.tabBar.isUserInteractionEnabled = false
-    if let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) {
-      _ = Self.createActivityIndicator(parentView: window)
-    }
+    Self.createActivityIndicator(parentView: vc.view)
   }
 
   public class func stopLoading(in vc: UIViewController) {
     vc.view.isUserInteractionEnabled = true
     vc.tabBarController?.tabBar.isUserInteractionEnabled = true
-    if let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) {
-      for subview in window.subviews where subview.tag == loaderViewTag {
-        if let indicatorView = subview.subviews.first as? UIActivityIndicatorView {
-          indicatorView.stopAnimating()
-        }
-        subview.removeFromSuperview()
+
+    for subview in vc.view.subviews where subview.tag == loaderViewTag {
+      if let indicatorView = subview.subviews.first as? UIActivityIndicatorView {
+        indicatorView.stopAnimating()
       }
+      subview.removeFromSuperview()
     }
   }
 }
