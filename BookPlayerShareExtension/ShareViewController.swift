@@ -12,12 +12,12 @@ import UniformTypeIdentifiers
 
 @objc(ShareExtensionViewController)
 class ShareViewController: UIViewController {
-
+  /// Manual navigation bar
   private lazy var navigationBar: UINavigationBar = {
     let navBar = UINavigationBar()
     navBar.translatesAutoresizingMaskIntoConstraints = false
 
-    let navItem = UINavigationItem(title: "Import")
+    let navItem = UINavigationItem(title: "Copy")
     navItem.leftBarButtonItem = closeButton
     navItem.rightBarButtonItem = doneButton
 
@@ -26,19 +26,45 @@ class ShareViewController: UIViewController {
   }()
 
   private lazy var closeButton: UIBarButtonItem = {
-    return UIBarButtonItem(
+    let barButton = UIBarButtonItem(
       barButtonSystemItem: .cancel,
       target: self,
       action: #selector(self.didPressCancel)
     )
+    barButton.tintColor = defaultTheme.linkColor
+
+    return barButton
   }()
 
   private lazy var doneButton: UIBarButtonItem = {
-    return UIBarButtonItem(
+    let barButton = UIBarButtonItem(
       barButtonSystemItem: .done,
       target: self,
       action: #selector(self.didPressDone)
     )
+    barButton.tintColor = defaultTheme.linkColor
+
+    return barButton
+  }()
+
+  private lazy var containerDisclaimerLabel: UIView = {
+    let view = UIView()
+    view.translatesAutoresizingMaskIntoConstraints = false
+    /// won't work if set elsewhere
+    view.backgroundColor = defaultTheme.systemBackgroundColor
+    return view
+  }()
+
+  private lazy var disclaimerLabel: UILabel = {
+    let label = UILabel()
+    label.translatesAutoresizingMaskIntoConstraints = false
+    label.textAlignment = .center
+    label.numberOfLines = 0
+    label.text = "When importing folders, make sure to first download the contents locally, as otherwise the cloud items will not be included in the copied folder"
+    /// won't work if set elsewhere
+    label.textColor = defaultTheme.secondaryColor
+    label.font = Fonts.body
+    return label
   }()
 
   private lazy var tableView: UITableView = {
@@ -52,9 +78,44 @@ class ShareViewController: UIViewController {
     return tableView
   }()
 
-  /// Allowed content types
-  let contentType = UTType.data.identifier
+  /// Hard-coded default theme to avoid accessing DB
+  private lazy var defaultTheme: SimpleTheme = {
+    return SimpleTheme(
+      useDarkVariant: UIScreen.main.traitCollection.userInterfaceStyle == .dark,
+      lightPrimaryHex: "242320",
+      lightSecondaryHex: "8F8E95",
+      lightAccentHex: "3488D1",
+      lightSeparatorHex: "DCDCDC",
+      lightSystemBackgroundHex: "FAFAFA",
+      lightSecondarySystemBackgroundHex: "FCFBFC",
+      lightTertiarySystemBackgroundHex: "E8E7E9",
+      lightSystemGroupedBackgroundHex: "EFEEF0",
+      lightSystemFillHex: "87A0BA",
+      lightSecondarySystemFillHex: "ACAAB1",
+      lightTertiarySystemFillHex: "3488D1",
+      lightQuaternarySystemFillHex: "3488D1",
+      darkPrimaryHex: "FAFBFC",
+      darkSecondaryHex: "8F8E94",
+      darkAccentHex: "459EEC",
+      darkSeparatorHex: "434448",
+      darkSystemBackgroundHex: "202225",
+      darkSecondarySystemBackgroundHex: "111113",
+      darkTertiarySystemBackgroundHex: "333538",
+      darkSystemGroupedBackgroundHex: "2C2D30",
+      darkSystemFillHex: "647E98",
+      darkSecondarySystemFillHex: "707176",
+      darkTertiarySystemFillHex: "459EEC",
+      darkQuaternarySystemFillHex: "459EEC",
+      locked: false,
+      title: "Default / Dark"
+    )
+  }()
 
+  /// Allowed content types
+  let contentType = UTType.url.identifier
+  /// Shared folder URL
+  let sharedFolder = DataManager.getSharedFilesFolderURL()
+  /// In-memory array of shared items
   var sharedItems = [URL]()
 
   override func viewDidLoad() {
@@ -67,6 +128,8 @@ class ShareViewController: UIViewController {
 
   func addSubviews() {
     view.addSubview(navigationBar)
+    view.addSubview(containerDisclaimerLabel)
+    containerDisclaimerLabel.addSubview(disclaimerLabel)
     view.addSubview(tableView)
   }
 
@@ -77,7 +140,17 @@ class ShareViewController: UIViewController {
       navigationBar.topAnchor.constraint(equalTo: safeLayoutGuide.topAnchor),
       navigationBar.leadingAnchor.constraint(equalTo: safeLayoutGuide.leadingAnchor),
       navigationBar.trailingAnchor.constraint(equalTo: safeLayoutGuide.trailingAnchor),
-      tableView.topAnchor.constraint(equalTo: navigationBar.bottomAnchor),
+
+      containerDisclaimerLabel.topAnchor.constraint(equalTo: navigationBar.bottomAnchor),
+      containerDisclaimerLabel.leadingAnchor.constraint(equalTo: safeLayoutGuide.leadingAnchor),
+      containerDisclaimerLabel.trailingAnchor.constraint(equalTo: safeLayoutGuide.trailingAnchor),
+
+      disclaimerLabel.topAnchor.constraint(equalTo: containerDisclaimerLabel.topAnchor, constant: 8),
+      disclaimerLabel.leadingAnchor.constraint(equalTo: containerDisclaimerLabel.leadingAnchor, constant: 12),
+      disclaimerLabel.trailingAnchor.constraint(equalTo: containerDisclaimerLabel.trailingAnchor, constant: -12),
+      disclaimerLabel.bottomAnchor.constraint(equalTo: containerDisclaimerLabel.bottomAnchor, constant: -8),
+
+      tableView.topAnchor.constraint(equalTo: containerDisclaimerLabel.bottomAnchor),
       tableView.leadingAnchor.constraint(equalTo: safeLayoutGuide.leadingAnchor),
       tableView.trailingAnchor.constraint(equalTo: safeLayoutGuide.trailingAnchor),
       tableView.bottomAnchor.constraint(equalTo: safeLayoutGuide.bottomAnchor),
@@ -88,7 +161,9 @@ class ShareViewController: UIViewController {
     var mutableAttachments = attachments
     guard !mutableAttachments.isEmpty else {
       DispatchQueue.main.async { [weak self] in
-        self?.tableView.reloadData()
+        guard let self = self else { return }
+        self.tableView.reloadData()
+        LoadingUtils.stopLoading(in: self)
       }
       return
     }
@@ -125,6 +200,7 @@ class ShareViewController: UIViewController {
       return
     }
 
+    LoadingUtils.loadAndBlock(in: self)
     loadAttachments(attachments)
   }
 
@@ -133,6 +209,7 @@ class ShareViewController: UIViewController {
   }
 
   @objc func didPressDone() {
+    LoadingUtils.loadAndBlock(in: self)
     saveSharedItems(sharedItems)
   }
 
@@ -147,12 +224,25 @@ class ShareViewController: UIViewController {
 
     let item = mutableItems.removeFirst()
 
-    if let data = try? Data(contentsOf: item) {
-      let documentsFolder = DataManager.getDocumentsFolderURL()
-      try? data.write(to: documentsFolder)
-    }
+    let destinationURL = sharedFolder.appendingPathComponent(item.lastPathComponent)
+    try? FileManager.default.copyItem(at: item, to: destinationURL)
 
     saveSharedItems(mutableItems)
+  }
+
+  func applyDefaultThemeColors() {
+    view.backgroundColor = defaultTheme.systemBackgroundColor
+    tableView.backgroundColor = defaultTheme.systemBackgroundColor
+    tableView.separatorColor = defaultTheme.separatorColor
+
+    navigationBar.barTintColor = defaultTheme.systemBackgroundColor
+    navigationBar.tintColor = defaultTheme.linkColor
+    navigationBar.titleTextAttributes = [
+      NSAttributedString.Key.foregroundColor: defaultTheme.primaryColor
+    ]
+    navigationBar.largeTitleTextAttributes = [
+      NSAttributedString.Key.foregroundColor: defaultTheme.primaryColor
+    ]
   }
 }
 
@@ -164,14 +254,22 @@ extension ShareViewController: UITableViewDataSource {
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     let item = sharedItems[indexPath.row]
     let cell = tableView.dequeueReusableCell(withIdentifier: "ShareCellView", for: indexPath)
-    cell.textLabel?.text = item.lastPathComponent
+
+    var configuration =  cell.defaultContentConfiguration()
+    configuration.text = item.lastPathComponent
+    configuration.textProperties.font = Fonts.body
+    configuration.textProperties.color = defaultTheme.primaryColor
+    let imageName = item.isDirectoryFolder ? "folder" : "waveform"
+    configuration.image = UIImage(systemName: imageName)
+    configuration.imageProperties.tintColor = defaultTheme.linkColor
+    cell.contentConfiguration = configuration
+    cell.backgroundColor = defaultTheme.systemBackgroundColor
+
     return cell
   }
 }
 
-extension ShareViewController: UITableViewDelegate {
-
-}
+extension ShareViewController: UITableViewDelegate {}
 
 enum ShareExtensionError: Error {
   case cancelled

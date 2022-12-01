@@ -143,6 +143,64 @@ public struct SimpleTheme: Codable {
   enum CodingKeys: String, CodingKey {
     case title, lightPrimaryHex, lightSecondaryHex, lightAccentHex, lightSeparatorHex, lightSystemBackgroundHex, lightSecondarySystemBackgroundHex, lightTertiarySystemBackgroundHex, lightSystemGroupedBackgroundHex, lightSystemFillHex, lightSecondarySystemFillHex, lightTertiarySystemFillHex, lightQuaternarySystemFillHex, darkPrimaryHex, darkSecondaryHex, darkAccentHex, darkSeparatorHex, darkSystemBackgroundHex, darkSecondarySystemBackgroundHex, darkTertiarySystemBackgroundHex, darkSystemGroupedBackgroundHex, darkSystemFillHex, darkSecondarySystemFillHex, darkTertiarySystemFillHex, darkQuaternarySystemFillHex, locked
   }
+
+  public init(
+    useDarkVariant: Bool,
+    lightPrimaryHex: String,
+    lightSecondaryHex: String,
+    lightAccentHex: String,
+    lightSeparatorHex: String,
+    lightSystemBackgroundHex: String,
+    lightSecondarySystemBackgroundHex: String,
+    lightTertiarySystemBackgroundHex: String,
+    lightSystemGroupedBackgroundHex: String,
+    lightSystemFillHex: String,
+    lightSecondarySystemFillHex: String,
+    lightTertiarySystemFillHex: String,
+    lightQuaternarySystemFillHex: String,
+    darkPrimaryHex: String,
+    darkSecondaryHex: String,
+    darkAccentHex: String,
+    darkSeparatorHex: String,
+    darkSystemBackgroundHex: String,
+    darkSecondarySystemBackgroundHex: String,
+    darkTertiarySystemBackgroundHex: String,
+    darkSystemGroupedBackgroundHex: String,
+    darkSystemFillHex: String,
+    darkSecondarySystemFillHex: String,
+    darkTertiarySystemFillHex: String,
+    darkQuaternarySystemFillHex: String,
+    locked: Bool,
+    title: String?
+  ) {
+    self.useDarkVariant = useDarkVariant
+    self.lightPrimaryHex = lightPrimaryHex
+    self.lightSecondaryHex = lightSecondaryHex
+    self.lightAccentHex = lightAccentHex
+    self.lightSeparatorHex = lightSeparatorHex
+    self.lightSystemBackgroundHex = lightSystemBackgroundHex
+    self.lightSecondarySystemBackgroundHex = lightSecondarySystemBackgroundHex
+    self.lightTertiarySystemBackgroundHex = lightTertiarySystemBackgroundHex
+    self.lightSystemGroupedBackgroundHex = lightSystemGroupedBackgroundHex
+    self.lightSystemFillHex = lightSystemFillHex
+    self.lightSecondarySystemFillHex = lightSecondarySystemFillHex
+    self.lightTertiarySystemFillHex = lightTertiarySystemFillHex
+    self.lightQuaternarySystemFillHex = lightQuaternarySystemFillHex
+    self.darkPrimaryHex = darkPrimaryHex
+    self.darkSecondaryHex = darkSecondaryHex
+    self.darkAccentHex = darkAccentHex
+    self.darkSeparatorHex = darkSeparatorHex
+    self.darkSystemBackgroundHex = darkSystemBackgroundHex
+    self.darkSecondarySystemBackgroundHex = darkSecondarySystemBackgroundHex
+    self.darkTertiarySystemBackgroundHex = darkTertiarySystemBackgroundHex
+    self.darkSystemGroupedBackgroundHex = darkSystemGroupedBackgroundHex
+    self.darkSystemFillHex = darkSystemFillHex
+    self.darkSecondarySystemFillHex = darkSecondarySystemFillHex
+    self.darkTertiarySystemFillHex = darkTertiarySystemFillHex
+    self.darkQuaternarySystemFillHex = darkQuaternarySystemFillHex
+    self.locked = locked
+    self.title = title
+  }
 }
 
 extension SimpleTheme {
