@@ -6,6 +6,7 @@
 //  Copyright © 2022 Tortuga Power. All rights reserved.
 //
 
+import BookPlayerKit
 import UIKit
 
 class FormButton: UIButton {

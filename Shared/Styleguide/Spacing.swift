@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct Spacing {
+public struct Spacing {
   /// Value: 8
   public static let S2: CGFloat = 8
   /// Value: 12
