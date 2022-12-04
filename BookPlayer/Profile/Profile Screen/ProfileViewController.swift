@@ -127,7 +127,7 @@ class ProfileViewController: BaseViewController<ProfileCoordinator, ProfileViewM
 
 extension ProfileViewController: Themeable {
   func applyTheme(_ theme: SimpleTheme) {
-    view.backgroundColor = theme.systemBackgroundColor
+    view.backgroundColor = theme.systemGroupedBackgroundColor
 
     self.overrideUserInterfaceStyle = theme.useDarkVariant
       ? UIUserInterfaceStyle.dark

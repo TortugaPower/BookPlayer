@@ -150,7 +150,7 @@ class ProfileCardView: UIView {
 
 extension ProfileCardView: Themeable {
   func applyTheme(_ theme: BookPlayerKit.SimpleTheme) {
-    backgroundColor = theme.secondarySystemBackgroundColor
+    backgroundColor = theme.systemBackgroundColor
     titleLabel.textColor = theme.primaryColor
     statusLabel.textColor = theme.secondaryColor
     containerProfileImageView.backgroundColor = theme.tertiarySystemBackgroundColor
