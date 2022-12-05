@@ -396,3 +396,37 @@ extension SimpleTheme: Equatable {
     return lhs.title == rhs.title
   }
 }
+
+extension SimpleTheme {
+  public static func getDefaultTheme(useDarkVariant: Bool) -> SimpleTheme {
+    return SimpleTheme(
+      useDarkVariant: useDarkVariant,
+      lightPrimaryHex: "242320",
+      lightSecondaryHex: "8F8E95",
+      lightAccentHex: "3488D1",
+      lightSeparatorHex: "DCDCDC",
+      lightSystemBackgroundHex: "FAFAFA",
+      lightSecondarySystemBackgroundHex: "FCFBFC",
+      lightTertiarySystemBackgroundHex: "E8E7E9",
+      lightSystemGroupedBackgroundHex: "EFEEF0",
+      lightSystemFillHex: "87A0BA",
+      lightSecondarySystemFillHex: "ACAAB1",
+      lightTertiarySystemFillHex: "3488D1",
+      lightQuaternarySystemFillHex: "3488D1",
+      darkPrimaryHex: "FAFBFC",
+      darkSecondaryHex: "8F8E94",
+      darkAccentHex: "459EEC",
+      darkSeparatorHex: "434448",
+      darkSystemBackgroundHex: "202225",
+      darkSecondarySystemBackgroundHex: "111113",
+      darkTertiarySystemBackgroundHex: "333538",
+      darkSystemGroupedBackgroundHex: "2C2D30",
+      darkSystemFillHex: "647E98",
+      darkSecondarySystemFillHex: "707176",
+      darkTertiarySystemFillHex: "459EEC",
+      darkQuaternarySystemFillHex: "459EEC",
+      locked: false,
+      title: "Default / Dark"
+    )
+  }
+}
