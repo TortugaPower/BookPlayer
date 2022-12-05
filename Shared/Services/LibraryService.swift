@@ -56,6 +56,7 @@ public protocol LibraryServiceProtocol {
   func getCurrentPlaybackRecord() -> PlaybackRecord
   func getPlaybackRecords(from startDate: Date, to endDate: Date) -> [PlaybackRecord]?
   func recordTime(_ playbackRecord: PlaybackRecord)
+  func getTotalListenedTime() -> TimeInterval
 
   func getBookmarks(of type: BookmarkType, relativePath: String) -> [Bookmark]?
   func getBookmark(at time: Double, relativePath: String, type: BookmarkType) -> Bookmark?
@@ -681,6 +682,29 @@ public final class LibraryService: LibraryServiceProtocol {
     let context = self.dataManager.getContext()
 
     return try? context.fetch(fetch)
+  }
+
+  public func getTotalListenedTime() -> TimeInterval {
+    let totalTimeExpression = NSExpressionDescription()
+    totalTimeExpression.expression = NSExpression(
+      forFunction: "sum:",
+      arguments: [NSExpression(forKeyPath: #keyPath(PlaybackRecord.time))]
+    )
+    totalTimeExpression.name = "totalTime"
+    totalTimeExpression.expressionResultType = NSAttributeType.doubleAttributeType
+
+    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "PlaybackRecord")
+    fetchRequest.propertiesToFetch = [totalTimeExpression]
+    fetchRequest.resultType = .dictionaryResultType
+
+    guard
+      let results = try? self.dataManager.getContext().fetch(fetchRequest).first as? [String: Double]
+    else {
+      return 0
+    }
+
+    return results["totalTime"] ?? 0
+
   }
 
   public func recordTime(_ playbackRecord: PlaybackRecord) {
