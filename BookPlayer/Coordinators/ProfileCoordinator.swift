@@ -29,7 +29,10 @@ class ProfileCoordinator: Coordinator {
 
   override func start() {
     let vc = ProfileViewController()
-    let viewModel = ProfileViewModel(accountService: self.accountService)
+    let viewModel = ProfileViewModel(
+      accountService: accountService,
+      libraryService: libraryService
+    )
     viewModel.coordinator = self
     vc.viewModel = viewModel
     vc.navigationItem.largeTitleDisplayMode = .never

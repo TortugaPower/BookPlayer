@@ -8,6 +8,7 @@
 
 import BookPlayerKit
 import Combine
+import SwiftUI
 import Themeable
 import UIKit
 
@@ -44,6 +45,17 @@ class ProfileViewController: BaseViewController<ProfileCoordinator, ProfileViewM
     return cardView
   }()
 
+  private lazy var listenedStatsView: UIView = {
+    let view = ProfileListenedTimeView(viewModel: viewModel)
+    let hostingController = UIHostingController(rootView: view)
+    hostingController.view.backgroundColor = .clear
+    hostingController.view.isOpaque = false
+    addChild(hostingController)
+    hostingController.didMove(toParent: self)
+
+    return hostingController.view
+  }()
+
   private var disposeBag = Set<AnyCancellable>()
 
   // MARK: - Initializer
@@ -74,6 +86,7 @@ class ProfileViewController: BaseViewController<ProfileCoordinator, ProfileViewM
     scrollView.addSubview(contentView)
     contentView.addSubview(containerStackview)
     containerStackview.addArrangedSubview(profileCardView)
+    containerStackview.addArrangedSubview(listenedStatsView)
   }
 
   func addConstraints() {
@@ -94,8 +107,8 @@ class ProfileViewController: BaseViewController<ProfileCoordinator, ProfileViewM
       contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
       // setup contents
       containerStackview.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Spacing.S),
-      containerStackview.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Spacing.S),
-      containerStackview.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Spacing.S),
+      containerStackview.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+      containerStackview.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
       containerStackview.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Spacing.M),
     ])
   }

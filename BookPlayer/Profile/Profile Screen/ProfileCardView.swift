@@ -12,6 +12,12 @@ import Themeable
 
 class ProfileCardView: UIView {
 
+  private lazy var contentView: UIView = {
+    let view = UIView()
+    view.translatesAutoresizingMaskIntoConstraints = false
+    return view
+  }()
+
   private lazy var containerStackView: UIStackView = {
     let stackview = UIStackView()
     stackview.translatesAutoresizingMaskIntoConstraints = false
@@ -90,8 +96,8 @@ class ProfileCardView: UIView {
 
     super.init(frame: .zero)
     translatesAutoresizingMaskIntoConstraints = false
-    clipsToBounds = true
-    layer.cornerRadius = cornerRadius
+    contentView.clipsToBounds = true
+    contentView.layer.cornerRadius = cornerRadius
 
     let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
     addGestureRecognizer(tapGesture)
@@ -117,7 +123,8 @@ class ProfileCardView: UIView {
   }
 
   func addSubviews() {
-    addSubview(containerStackView)
+    addSubview(contentView)
+    contentView.addSubview(containerStackView)
     containerStackView.addArrangedSubview(containerProfileImageView)
     labelsStackView.addArrangedSubview(statusLabel)
     labelsStackView.addArrangedSubview(titleLabel)
@@ -127,15 +134,20 @@ class ProfileCardView: UIView {
 
   func addConstraints() {
     NSLayoutConstraint.activate([
+      contentView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Spacing.S),
+      contentView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Spacing.S),
+      contentView.topAnchor.constraint(equalTo: topAnchor),
+      contentView.bottomAnchor.constraint(equalTo: bottomAnchor),
       profileImageView.widthAnchor.constraint(equalToConstant: profileImageWidth),
       profileImageView.heightAnchor.constraint(equalTo: profileImageView.widthAnchor),
       profileImageView.centerXAnchor.constraint(equalTo: containerProfileImageView.centerXAnchor),
       profileImageView.centerYAnchor.constraint(equalTo: containerProfileImageView.centerYAnchor),
       containerProfileImageView.widthAnchor.constraint(equalToConstant: containerProfileImageWidth),
       containerProfileImageView.heightAnchor.constraint(equalTo: containerProfileImageView.widthAnchor),
-      containerStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Spacing.S),
-      containerStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Spacing.S),
-      containerStackView.centerYAnchor.constraint(equalTo: centerYAnchor),
+      containerStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Spacing.S),
+      containerStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Spacing.S),
+      containerStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Spacing.S),
+      containerStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Spacing.S),
       containerChevronView.widthAnchor.constraint(equalToConstant: 15),
       chevronImageView.widthAnchor.constraint(equalTo: containerChevronView.widthAnchor),
       chevronImageView.heightAnchor.constraint(equalToConstant: 20),
@@ -149,8 +161,8 @@ class ProfileCardView: UIView {
 }
 
 extension ProfileCardView: Themeable {
-  func applyTheme(_ theme: BookPlayerKit.SimpleTheme) {
-    backgroundColor = theme.systemBackgroundColor
+  func applyTheme(_ theme: SimpleTheme) {
+    contentView.backgroundColor = theme.systemBackgroundColor
     titleLabel.textColor = theme.primaryColor
     statusLabel.textColor = theme.secondaryColor
     containerProfileImageView.backgroundColor = theme.tertiarySystemBackgroundColor
