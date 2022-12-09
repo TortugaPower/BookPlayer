@@ -302,6 +302,12 @@
 		5126F121258E9F18009965DC /* URL+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5126F120258E9F18009965DC /* URL+BookPlayer.swift */; };
 		5126F122258E9F18009965DC /* URL+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5126F120258E9F18009965DC /* URL+BookPlayer.swift */; };
 		5126F123258E9F18009965DC /* URL+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5126F120258E9F18009965DC /* URL+BookPlayer.swift */; };
+		560DD644293F8EAF00A04529 /* BookPlayerKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */; };
+		56D8A0ED28A813D30037592F /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 56D8A0EC28A813D30037592F /* SocketIO */; };
+		56D8A0EF28A838640037592F /* SocketClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56D8A0EE28A838640037592F /* SocketClient.swift */; };
+		56D8A0F028A838640037592F /* SocketClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56D8A0EE28A838640037592F /* SocketClient.swift */; };
+		56D8A0F228A954FD0037592F /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 56D8A0F128A954FD0037592F /* SocketIO */; };
+		56D8A0F428A955620037592F /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 56D8A0F328A955620037592F /* SocketIO */; };
 		62793611272CBE910097837D /* ImportFileItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E3102148606600072AA2 /* ImportFileItem.swift */; };
 		6279361F272D0D110097837D /* MainCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6279361E272D0D110097837D /* MainCoordinatorTests.swift */; };
 		62AAE2252749283F001EB9FF /* MiniPlayerViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62AAE2242749283F001EB9FF /* MiniPlayerViewModelTests.swift */; };
@@ -550,6 +556,13 @@
 			remoteInfo = "Audiobook Player";
 		};
 		41A1B0E5226E9BC500EA0400 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 418B6CF01D2707F700F974FB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 41A1B0D1226E9BC400EA0400;
+			remoteInfo = BookPlayerKit;
+		};
+		560DD646293F8EAF00A04529 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 418B6CF01D2707F700F974FB /* Project object */;
 			proxyType = 1;
@@ -932,6 +945,7 @@
 		41F898AE2402080C00F58B8A /* ZipArchive.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ZipArchive.framework; path = Carthage/Build/iOS/ZipArchive.framework; sourceTree = "<group>"; };
 		41FCA32625E87EC600BFB9E6 /* Audiobook Player 4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Audiobook Player 4.xcdatamodel"; sourceTree = "<group>"; };
 		5126F120258E9F18009965DC /* URL+BookPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "URL+BookPlayer.swift"; sourceTree = "<group>"; };
+		56D8A0EE28A838640037592F /* SocketClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocketClient.swift; sourceTree = "<group>"; };
 		5CBB29522163A17F00E3A9FF /* ZIPFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ZIPFoundation.framework; path = Carthage/Build/iOS/ZIPFoundation.framework; sourceTree = "<group>"; };
 		620C73C7275DA00300D495AA /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ar; path = ar.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		620C73C8275DA00400D495AA /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -1126,6 +1140,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9F00F6EA2807B5D300996BBB /* RevenueCat in Frameworks */,
+				56D8A0F228A954FD0037592F /* SocketIO in Frameworks */,
 				62CADBAA2725BCF000A4A98F /* Kingfisher in Frameworks */,
 				9F3F9100286FF06600868B2C /* SwiftQueue in Frameworks */,
 			);
@@ -1148,6 +1163,7 @@
 				9FC1E4562814D21400522FA8 /* Alamofire in Frameworks */,
 				41F1A204254B09C00043FCF3 /* Themeable in Frameworks */,
 				41F1A20D254B0A0C0043FCF3 /* Sentry in Frameworks */,
+				56D8A0ED28A813D30037592F /* SocketIO in Frameworks */,
 				41A1B0E7226E9BC500EA0400 /* BookPlayerKit.framework in Frameworks */,
 				41F1A1F2254B09020043FCF3 /* IDZSwiftCommonCrypto in Frameworks */,
 				41F1A1E0254B08A10043FCF3 /* DeviceKit in Frameworks */,
@@ -1169,6 +1185,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9F00F6E82807B5CB00996BBB /* RevenueCat in Frameworks */,
+				56D8A0F428A955620037592F /* SocketIO in Frameworks */,
 				62CADBA82725BCE800A4A98F /* Kingfisher in Frameworks */,
 				9F3F90FE286FF05C00868B2C /* SwiftQueue in Frameworks */,
 			);
@@ -2049,6 +2066,7 @@
 				9FC1E4492814C4DE00522FA8 /* NetworkClient.swift */,
 				9FC1E45B2814E6A500522FA8 /* NetworkProvider.swift */,
 				9FC1E4582814E0B000522FA8 /* NetworkUtils.swift */,
+				56D8A0EE28A838640037592F /* SocketClient.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -2330,6 +2348,7 @@
 				62CADBA92725BCF000A4A98F /* Kingfisher */,
 				9F00F6E92807B5D300996BBB /* RevenueCat */,
 				9F3F90FF286FF06600868B2C /* SwiftQueue */,
+				56D8A0F128A954FD0037592F /* SocketIO */,
 			);
 			productName = BookPlayerWatchKit;
 			productReference = 4140EA5E227289720009F794 /* BookPlayerWatchKit.framework */;
@@ -2387,6 +2406,7 @@
 				41F1A20C254B0A0C0043FCF3 /* Sentry */,
 				41F1A227254B0C6C0043FCF3 /* ZipArchive */,
 				9FC1E4552814D21400522FA8 /* Alamofire */,
+				56D8A0EC28A813D30037592F /* SocketIO */,
 			);
 			productName = "Audiobook Player";
 			productReference = 418B6CF81D2707F800F974FB /* BookPlayer.app */;
@@ -2428,6 +2448,7 @@
 				62CADBA72725BCE800A4A98F /* Kingfisher */,
 				9F00F6E72807B5CB00996BBB /* RevenueCat */,
 				9F3F90FD286FF05C00868B2C /* SwiftQueue */,
+				56D8A0F328A955620037592F /* SocketIO */,
 			);
 			productName = BookPlayerKit;
 			productReference = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */;
@@ -2563,6 +2584,7 @@
 				41F1A226254B0C6C0043FCF3 /* XCRemoteSwiftPackageReference "ZipArchive" */,
 				9FE8188D2805BCE40089A41E /* XCRemoteSwiftPackageReference "purchases-ios" */,
 				9F3F90FA286FF03600868B2C /* XCRemoteSwiftPackageReference "SwiftQueue" */,
+				56D8A0EB28A813D30037592F /* XCRemoteSwiftPackageReference "socket" */,
 			);
 			productRefGroup = 418B6CF91D2707F800F974FB /* Products */;
 			projectDirPath = "";
@@ -2803,6 +2825,8 @@
 				5126F123258E9F18009965DC /* URL+BookPlayer.swift in Sources */,
 				9FFCC090289418CA00F4952E /* SimpleChapter.swift in Sources */,
 				419BD5992443FD04001E50A0 /* Intents.intentdefinition in Sources */,
+				9FBDBC7A2879409600D315A2 /* SyncableItem.swift in Sources */,
+				56D8A0F028A838640037592F /* SocketClient.swift in Sources */,
 				9FBDBC7A2879409600D315A2 /* SyncableItem.swift in Sources */,
 				62AAE22D274AA6DE001EB9FF /* LibraryService.swift in Sources */,
 				62CADBAF2725FE2C00A4A98F /* ArtworkService.swift in Sources */,
@@ -3112,6 +3136,8 @@
 				9FFCC08F289418CA00F4952E /* SimpleChapter.swift in Sources */,
 				416AAC3423F515AF005AD04F /* String+BookPlayer.swift in Sources */,
 				9FBDBC792879409600D315A2 /* SyncableItem.swift in Sources */,
+				56D8A0EF28A838640037592F /* SocketClient.swift in Sources */,
+				9FBDBC792879409600D315A2 /* SyncableItem.swift in Sources */,
 				62AAE22E274AA6DE001EB9FF /* LibraryService.swift in Sources */,
 				41A1B126226F88C500EA0400 /* LibraryItem+CoreDataProperties.swift in Sources */,
 				62CADBAB2725C23A00A4A98F /* ArtworkService.swift in Sources */,
@@ -3239,6 +3265,11 @@
 			isa = PBXTargetDependency;
 			target = 41A1B0D1226E9BC400EA0400 /* BookPlayerKit */;
 			targetProxy = 41A1B0E5226E9BC500EA0400 /* PBXContainerItemProxy */;
+		};
+		560DD647293F8EAF00A04529 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 41A1B0D1226E9BC400EA0400 /* BookPlayerKit */;
+			targetProxy = 560DD646293F8EAF00A04529 /* PBXContainerItemProxy */;
 		};
 		9F4A33E6292B0C710034CD4C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -4731,6 +4762,14 @@
 				minimumVersion = 2.3.0;
 			};
 		};
+		56D8A0EB28A813D30037592F /* XCRemoteSwiftPackageReference "socket" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/socketio/socket.io-client-swift";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 		9F3F90FA286FF03600868B2C /* XCRemoteSwiftPackageReference "SwiftQueue" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/lucas34/SwiftQueue.git";
@@ -4784,6 +4823,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 41F1A226254B0C6C0043FCF3 /* XCRemoteSwiftPackageReference "ZipArchive" */;
 			productName = ZipArchive;
+		};
+		56D8A0EC28A813D30037592F /* SocketIO */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 56D8A0EB28A813D30037592F /* XCRemoteSwiftPackageReference "socket" */;
+			productName = SocketIO;
+		};
+		56D8A0F128A954FD0037592F /* SocketIO */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 56D8A0EB28A813D30037592F /* XCRemoteSwiftPackageReference "socket" */;
+			productName = SocketIO;
+		};
+		56D8A0F328A955620037592F /* SocketIO */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 56D8A0EB28A813D30037592F /* XCRemoteSwiftPackageReference "socket" */;
+			productName = SocketIO;
 		};
 		62CADBA72725BCE800A4A98F /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -51,7 +51,7 @@ public class SocketClient: SocketClientProtocol, BPLogger {
 			Self.logger.trace("[Socketclient] connected")
 		}
 		self.socket?.on("lastPlayedItem") {data, ack in
-			guard let lastPlayedItem = data[0] as? SyncedItem else { return }
+			guard let lastPlayedItem = data[0] as? SyncableItem else { return }
 			print("lastPlayedItem \(lastPlayedItem)")
 			ack.with("Got your ack", "dude")
 		}

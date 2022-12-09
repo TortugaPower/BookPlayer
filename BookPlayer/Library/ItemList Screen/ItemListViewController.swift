@@ -32,6 +32,14 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
       self?.viewModel.showSearchList()
     })
   }()
+	
+	private lazy var syncButton: UIBarButtonItem = {
+		return UIBarButtonItem(systemItem: .search, primaryAction: UIAction { [weak self] _ in
+			Task { [weak self] in
+				try? await self?.syncService.syncLibrary()
+			}
+		})
+	}()
 
   private lazy var sortButton: UIButton = {
     let button = ComposedButton(
@@ -109,7 +117,8 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
   func configureInitialState() {
     self.adjustBottomOffsetForMiniPlayer()
 
-    self.navigationItem.rightBarButtonItem = searchButton
+    self.navigationItem.rightBarButtonItem = syncButton
+//		self.navigationItem.rightBarButtonItem = searchButton
 
     if self.navigationController?.viewControllers.count == 1 {
       self.navigationController!.interactivePopGestureRecognizer!.delegate = self

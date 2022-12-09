@@ -25,7 +25,7 @@ public protocol NetworkClientProtocol {
 
 public class NetworkClient: NetworkClientProtocol, BPLogger {
   let scheme = "https"
-  let host = "api.tortugapower.com"
+  let host = "a11a-2800-bf0-800f-efa-2904-7e61-f3b4-8595.ngrok.io"
   let keychain: KeychainServiceProtocol
   private let decoder: JSONDecoder = JSONDecoder()
 
