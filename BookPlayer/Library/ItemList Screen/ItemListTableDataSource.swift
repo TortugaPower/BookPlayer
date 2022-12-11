@@ -10,7 +10,7 @@ import BookPlayerKit
 import Combine
 import UIKit
 
-typealias SectionType = Section
+typealias SectionType = BPSection
 typealias ItemClassType = SimpleLibraryItem
 
 class ItemListTableDataSource: UITableViewDiffableDataSource<SectionType, ItemClassType> {

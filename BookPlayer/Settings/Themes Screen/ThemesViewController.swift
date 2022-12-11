@@ -243,11 +243,11 @@ extension ThemesViewController: UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
         return tableView == self.localThemesTableView
             ? 1
-            : Section.allCases.count
+            : BPSection.allCases.count
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard section == Section.data.rawValue else {
+        guard section == BPSection.data.rawValue else {
             return 1
         }
 

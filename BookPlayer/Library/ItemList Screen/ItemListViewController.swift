@@ -306,7 +306,7 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
       self.navigationItem.rightBarButtonItem?.isEnabled = false
       self.selectAllButton.isHidden = false
       sortButton.isHidden = true
-      self.selectAllButton.isEnabled = self.tableView.numberOfRows(inSection: Section.data.rawValue) > 0
+      self.selectAllButton.isEnabled = self.tableView.numberOfRows(inSection: BPSection.data.rawValue) > 0
       self.updateSelectionStatus()
     } else {
       self.selectButton.setTitle("Select", for: .normal)
@@ -332,7 +332,7 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
   func updateSelectionStatus() {
     guard self.tableView.isEditing else { return }
 
-    let title = self.tableView.numberOfRows(inSection: Section.data.rawValue) > (self.tableView.indexPathsForSelectedRows?.count ?? 0)
+    let title = self.tableView.numberOfRows(inSection: BPSection.data.rawValue) > (self.tableView.indexPathsForSelectedRows?.count ?? 0)
       ? "select_all_title".localized
       : "deselect_all_title".localized
     self.selectAllButton.setTitle(title, for: .normal)
@@ -364,12 +364,12 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
   @objc func selectAllButtonPressed(_ sender: Any) {
     self.viewModel.loadAllItemsIfNeeded()
 
-    if self.tableView.numberOfRows(inSection: Section.data.rawValue) == (self.tableView.indexPathsForSelectedRows?.count ?? 0) {
-      for row in 0..<self.tableView.numberOfRows(inSection: Section.data.rawValue) {
+    if self.tableView.numberOfRows(inSection: BPSection.data.rawValue) == (self.tableView.indexPathsForSelectedRows?.count ?? 0) {
+      for row in 0..<self.tableView.numberOfRows(inSection: BPSection.data.rawValue) {
         self.tableView.deselectRow(at: IndexPath(row: row, section: .data), animated: true)
       }
     } else {
-      for row in 0..<self.tableView.numberOfRows(inSection: Section.data.rawValue) {
+      for row in 0..<self.tableView.numberOfRows(inSection: BPSection.data.rawValue) {
         self.tableView.selectRow(at: IndexPath(row: row, section: .data), animated: true, scrollPosition: .none)
       }
     }
@@ -380,7 +380,7 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
 
 extension ItemListViewController: UITableViewDataSource {
   func numberOfSections(in tableView: UITableView) -> Int {
-    return Section.allCases.count
+    return BPSection.allCases.count
   }
 
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

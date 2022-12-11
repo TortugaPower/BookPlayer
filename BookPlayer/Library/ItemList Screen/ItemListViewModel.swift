@@ -98,7 +98,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
         self?.items[index].percentCompleted = progress
 
-        let indexModified = IndexPath(row: index, section: Section.data.rawValue)
+        let indexModified = IndexPath(row: index, section: BPSection.data.rawValue)
         self?.itemProgressUpdates.send(indexModified)
       }.store(in: &disposeBag)
   }
@@ -140,7 +140,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
         self.items[index].percentCompleted = percentCompleted
 
-        let indexModified = IndexPath(row: index, section: Section.data.rawValue)
+        let indexModified = IndexPath(row: index, section: BPSection.data.rawValue)
         self.itemProgressUpdates.send(indexModified)
       })
   }
