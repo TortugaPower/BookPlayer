@@ -191,8 +191,16 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
     self.bulkControls.layer.shadowRadius = 5
     self.bulkControls.layer.shadowOffset = .zero
 
-    self.bulkControls.onSortTap = { [weak self] in
-      self?.viewModel.showSortOptions()
+    self.bulkControls.onEditTap = { [weak self] in
+      guard
+        let self = self,
+        let indexPath = self.tableView.indexPathForSelectedRow
+      else {
+        return
+      }
+
+      let selectedItem = self.viewModel.items[indexPath.row]
+      self.viewModel.showItemDetails(selectedItem)
     }
 
     self.bulkControls.onMoveTap = { [weak self] in
@@ -334,6 +342,7 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
       ? "select_all_title".localized
       : "deselect_all_title".localized
     self.selectAllButton.setTitle(title, for: .normal)
+    self.bulkControls.editButton.isEnabled = tableView.indexPathsForSelectedRows?.count == 1
 
     guard self.tableView.indexPathForSelectedRow == nil else {
       self.bulkControls.moveButton.isEnabled = true
@@ -471,6 +480,10 @@ extension ItemListViewController: UITableViewDelegate {
     guard indexPath.sectionValue == .data else { return nil }
 
     return indexPath
+  }
+
+  func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+    self.updateSelectionStatus()
   }
 
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

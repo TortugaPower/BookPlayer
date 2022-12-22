@@ -507,6 +507,10 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     self.coordinator.showSortOptions()
   }
 
+  func showItemDetails(_ item: SimpleLibraryItem) {
+    self.coordinator.showItemDetails(item)
+  }
+
   func showMoveOptions(selectedItems: [SimpleLibraryItem]) {
     let availableFolders = getAvailableFolders(notIn: selectedItems)
 
