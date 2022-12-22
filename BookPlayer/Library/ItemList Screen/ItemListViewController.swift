@@ -408,8 +408,10 @@ extension ItemListViewController: UITableViewDataSource {
       guard !tableView.isEditing else {
         if cell.isSelected {
           tableView.deselectRow(at: indexPath, animated: true)
+          self?.tableView(tableView, didDeselectRowAt: indexPath)
         } else {
           tableView.selectRow(at: indexPath, animated: true, scrollPosition: .none)
+          self?.tableView(tableView, didSelectRowAt: indexPath)
         }
         return
       }

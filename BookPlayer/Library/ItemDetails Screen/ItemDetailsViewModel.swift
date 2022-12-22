@@ -43,8 +43,11 @@ class ItemDetailsViewModel: BaseViewModel<ItemDetailsCoordinator> {
   }
 
   func handleSaveAction() {
-    if item.title != formViewModel.title {
-      try? libraryService.renameItem(at: item.relativePath, with: formViewModel.title)
+    var cacheKey = item.relativePath
+
+    if item.title != formViewModel.title,
+       let updatedCacheKey = try? libraryService.renameItem(at: item.relativePath, with: formViewModel.title) {
+      cacheKey = updatedCacheKey
     }
 
     if formViewModel.showAuthor,
@@ -60,7 +63,7 @@ class ItemDetailsViewModel: BaseViewModel<ItemDetailsCoordinator> {
 
     if formViewModel.artworkIsUpdated,
        let imageData = formViewModel.selectedImage?.jpegData(compressionQuality: 0.3) {
-      ArtworkService.storeInCache(imageData, for: item.relativePath) { [weak self] in
+      ArtworkService.storeInCache(imageData, for: cacheKey) { [weak self] in
         DispatchQueue.main.async {
           self?.onTransition?(.done)
         }
