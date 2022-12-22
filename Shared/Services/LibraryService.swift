@@ -65,6 +65,7 @@ public protocol LibraryServiceProtocol {
   func deleteBookmark(_ bookmark: Bookmark)
 
   func renameItem(at relativePath: String, with newTitle: String) throws
+  func updateDetails(at relativePath: String, details: String)
 
   func insertItems(from files: [URL], into folder: Folder?, library: Library, processedItems: [LibraryItem]?) -> [LibraryItem]
   func handleDirectory(item: URL, folder: Folder, library: Library)
@@ -801,6 +802,13 @@ public final class LibraryService: LibraryServiceProtocol {
 
     item.title = newTitle
 
+    self.dataManager.saveContext()
+  }
+
+  public func updateDetails(at relativePath: String, details: String) {
+    guard let item = self.getItem(with: relativePath) else { return }
+
+    item.details = details
     self.dataManager.saveContext()
   }
 

@@ -21,7 +21,6 @@ enum ItemListActionRoutes {
   case moveIntoLibrary(items: [SimpleLibraryItem])
   case moveIntoFolder(_ folder: SimpleLibraryItem, items: [SimpleLibraryItem])
   case delete(_ items: [SimpleLibraryItem], mode: DeleteMode)
-  case rename(_ item: SimpleLibraryItem, newTitle: String)
   case resetPlaybackPosition(_ items: [SimpleLibraryItem])
   case markAsFinished(_ items: [SimpleLibraryItem], flag: Bool)
   case newImportOperation(_ operation: ImportOperation)
@@ -394,12 +393,12 @@ extension ItemListCoordinator {
 
     let sheet = UIAlertController(title: sheetTitle, message: nil, preferredStyle: .actionSheet)
 
-    let renameAction = UIAlertAction(title: "rename_button".localized, style: .default) { _ in
-      self.showRenameAlert(item)
+    let detailsAction = UIAlertAction(title: "Details", style: .default) { [weak self] _ in
+      self?.showItemDetails(item)
     }
 
-    renameAction.isEnabled = isSingle
-    sheet.addAction(renameAction)
+    detailsAction.isEnabled = isSingle
+    sheet.addAction(detailsAction)
 
     sheet.addAction(UIAlertAction(title: "move_title".localized, style: .default, handler: { _ in
       self.showMoveOptions(selectedItems: selectedItems, availableFolders: availableFolders)
@@ -453,24 +452,6 @@ extension ItemListCoordinator {
     self.navigationController.present(sheet, animated: true, completion: nil)
   }
 
-  func showRenameAlert(_ item: SimpleLibraryItem) {
-    let alert = UIAlertController(title: "rename_title".localized, message: nil, preferredStyle: .alert)
-
-    alert.addTextField(configurationHandler: { textfield in
-      textfield.placeholder = item.title
-      textfield.text = item.title
-    })
-
-    alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
-    alert.addAction(UIAlertAction(title: "rename_button".localized, style: .default) { [weak self] _ in
-      if let title = alert.textFields!.first!.text, title != item.title {
-        self?.onAction?(.rename(item, newTitle: title))
-      }
-    })
-
-    self.navigationController.present(alert, animated: true, completion: nil)
-  }
-
   func showExportController(for items: [SimpleLibraryItem]) {
     let providers = items.map { BookActivityItemProvider($0) }
 
@@ -487,5 +468,22 @@ extension ItemListCoordinator {
     }
 
     self.onAction?(.reloadItems(padding))
+  }
+
+  func showItemDetails(_ item: SimpleLibraryItem) {
+    let coordinator = ItemDetailsCoordinator(
+      item: item,
+      libraryService: libraryService,
+      navigationController: navigationController
+    )
+
+    coordinator.onFinish = { route in
+      switch route {
+      case .infoUpdated:
+        self.reloadItemsWithPadding()
+      }
+    }
+
+    coordinator.start()
   }
 }

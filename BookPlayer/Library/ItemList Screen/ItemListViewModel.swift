@@ -532,16 +532,6 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     self.reloadItems()
   }
 
-  func handleRename(item: SimpleLibraryItem, with newTitle: String) {
-    do {
-      try self.libraryService.renameItem(at: item.relativePath, with: newTitle)
-    } catch {
-      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
-    }
-
-    self.coordinator.reloadItemsWithPadding()
-  }
-
   func handleResetPlaybackPosition(for items: [SimpleLibraryItem]) {
     items.forEach({ self.libraryService.jumpToStart(relativePath: $0.relativePath) })
 

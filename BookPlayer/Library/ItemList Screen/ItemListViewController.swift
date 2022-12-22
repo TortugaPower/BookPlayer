@@ -278,8 +278,6 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
         self?.viewModel.handleDelete(items: items, mode: mode)
       case .sortItems(let option):
         self?.viewModel.handleSort(by: option)
-      case .rename(let item, let newTitle):
-        self?.viewModel.handleRename(item: item, with: newTitle)
       case .resetPlaybackPosition(let items):
         self?.viewModel.handleResetPlaybackPosition(for: items)
       case .markAsFinished(let items, let flag):
