@@ -401,6 +401,7 @@
 		9F9E4A8729367554007FD521 /* LoadingUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FA7C61C280B0E1200A0C136 /* LoadingUtils.swift */; };
 		9F9F3B70280E4E4B004359DA /* SyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F9F3B6F280E4E4B004359DA /* SyncService.swift */; };
 		9F9F3B71280E4E4B004359DA /* SyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F9F3B6F280E4E4B004359DA /* SyncService.swift */; };
+		9FA0B0572955E87900E73D03 /* BookPlayerKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */; };
 		9FA334A927C0577E0064E8EA /* BookPlayerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FA334A827C0577E0064E8EA /* BookPlayerApp.swift */; };
 		9FA334AB27C058210064E8EA /* ItemListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FA334AA27C058210064E8EA /* ItemListView.swift */; };
 		9FA334AF27C05EBB0064E8EA /* ContextManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FA334AE27C05EBB0064E8EA /* ContextManager.swift */; };
@@ -561,6 +562,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 9F4A33DC292B0C700034CD4C;
 			remoteInfo = BookPlayerShareExtension;
+		};
+		9FA0B0592955E87A00E73D03 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 418B6CF01D2707F700F974FB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 41A1B0D1226E9BC400EA0400;
+			remoteInfo = BookPlayerKit;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -1170,6 +1178,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9FA0B0572955E87900E73D03 /* BookPlayerKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2435,6 +2444,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				9FA0B05A2955E87A00E73D03 /* PBXTargetDependency */,
 			);
 			name = BookPlayerShareExtension;
 			productName = BookPlayerShareExtension;
@@ -3234,6 +3244,11 @@
 			isa = PBXTargetDependency;
 			target = 9F4A33DC292B0C700034CD4C /* BookPlayerShareExtension */;
 			targetProxy = 9F4A33E5292B0C710034CD4C /* PBXContainerItemProxy */;
+		};
+		9FA0B05A2955E87A00E73D03 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 41A1B0D1226E9BC400EA0400 /* BookPlayerKit */;
+			targetProxy = 9FA0B0592955E87A00E73D03 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
