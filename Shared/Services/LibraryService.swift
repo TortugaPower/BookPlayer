@@ -64,7 +64,8 @@ public protocol LibraryServiceProtocol {
   func addNote(_ note: String, bookmark: Bookmark)
   func deleteBookmark(_ bookmark: Bookmark)
 
-  func renameItem(at relativePath: String, with newTitle: String) throws
+  func renameItem(at relativePath: String, with newTitle: String) throws -> String
+  func updateDetails(at relativePath: String, details: String)
 
   func insertItems(from files: [URL], into folder: Folder?, library: Library, processedItems: [LibraryItem]?) -> [LibraryItem]
   func handleDirectory(item: URL, folder: Folder, library: Library)
@@ -763,8 +764,10 @@ public final class LibraryService: LibraryServiceProtocol {
     self.dataManager.delete(bookmark)
   }
 
-  public func renameItem(at relativePath: String, with newTitle: String) throws {
-    guard let item = self.getItem(with: relativePath) else { return }
+  public func renameItem(at relativePath: String, with newTitle: String) throws -> String {
+    var finalRelativePath = relativePath
+
+    guard let item = self.getItem(with: relativePath) else { return finalRelativePath }
 
     // Rename folder on disk too
     if let folder = item as? Folder {
@@ -794,6 +797,7 @@ public final class LibraryService: LibraryServiceProtocol {
 
       item.originalFileName = newTitle
       item.relativePath = newRelativePath
+      finalRelativePath = newRelativePath
       if let items = folder.items?.array as? [LibraryItem] {
         items.forEach({ folder.rebuildRelativePaths(for: $0) })
       }
@@ -801,6 +805,15 @@ public final class LibraryService: LibraryServiceProtocol {
 
     item.title = newTitle
 
+    self.dataManager.saveContext()
+
+    return finalRelativePath
+  }
+
+  public func updateDetails(at relativePath: String, details: String) {
+    guard let item = self.getItem(with: relativePath) else { return }
+
+    item.details = details
     self.dataManager.saveContext()
   }
 

@@ -47,8 +47,10 @@ public class ArtworkService {
     self.cache.removeImage(forKey: relativePath)
   }
 
-  public class func storeInCache(_ data: Data, for relativePath: String) {
-    self.cache.storeToDisk(data, forKey: relativePath)
+  public class func storeInCache(_ data: Data, for relativePath: String, completionHandler: (() -> Void)? = nil) {
+    self.cache.storeToDisk(data, forKey: relativePath) { _ in
+      completionHandler?()
+    }
   }
 
   public class func getArtworkProvider(for relativePath: String) -> AVAudioAssetImageDataProvider {

@@ -191,8 +191,16 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
     self.bulkControls.layer.shadowRadius = 5
     self.bulkControls.layer.shadowOffset = .zero
 
-    self.bulkControls.onSortTap = { [weak self] in
-      self?.viewModel.showSortOptions()
+    self.bulkControls.onEditTap = { [weak self] in
+      guard
+        let self = self,
+        let indexPath = self.tableView.indexPathForSelectedRow
+      else {
+        return
+      }
+
+      let selectedItem = self.viewModel.items[indexPath.row]
+      self.viewModel.showItemDetails(selectedItem)
     }
 
     self.bulkControls.onMoveTap = { [weak self] in
@@ -278,8 +286,6 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
         self?.viewModel.handleDelete(items: items, mode: mode)
       case .sortItems(let option):
         self?.viewModel.handleSort(by: option)
-      case .rename(let item, let newTitle):
-        self?.viewModel.handleRename(item: item, with: newTitle)
       case .resetPlaybackPosition(let items):
         self?.viewModel.handleResetPlaybackPosition(for: items)
       case .markAsFinished(let items, let flag):
@@ -306,7 +312,7 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
       self.navigationItem.rightBarButtonItem?.isEnabled = false
       self.selectAllButton.isHidden = false
       sortButton.isHidden = true
-      self.selectAllButton.isEnabled = self.tableView.numberOfRows(inSection: Section.data.rawValue) > 0
+      self.selectAllButton.isEnabled = self.tableView.numberOfRows(inSection: BPSection.data.rawValue) > 0
       self.updateSelectionStatus()
     } else {
       self.selectButton.setTitle("Select", for: .normal)
@@ -332,10 +338,11 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
   func updateSelectionStatus() {
     guard self.tableView.isEditing else { return }
 
-    let title = self.tableView.numberOfRows(inSection: Section.data.rawValue) > (self.tableView.indexPathsForSelectedRows?.count ?? 0)
+    let title = self.tableView.numberOfRows(inSection: BPSection.data.rawValue) > (self.tableView.indexPathsForSelectedRows?.count ?? 0)
       ? "select_all_title".localized
       : "deselect_all_title".localized
     self.selectAllButton.setTitle(title, for: .normal)
+    self.bulkControls.editButton.isEnabled = tableView.indexPathsForSelectedRows?.count == 1
 
     guard self.tableView.indexPathForSelectedRow == nil else {
       self.bulkControls.moveButton.isEnabled = true
@@ -364,12 +371,12 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
   @objc func selectAllButtonPressed(_ sender: Any) {
     self.viewModel.loadAllItemsIfNeeded()
 
-    if self.tableView.numberOfRows(inSection: Section.data.rawValue) == (self.tableView.indexPathsForSelectedRows?.count ?? 0) {
-      for row in 0..<self.tableView.numberOfRows(inSection: Section.data.rawValue) {
+    if self.tableView.numberOfRows(inSection: BPSection.data.rawValue) == (self.tableView.indexPathsForSelectedRows?.count ?? 0) {
+      for row in 0..<self.tableView.numberOfRows(inSection: BPSection.data.rawValue) {
         self.tableView.deselectRow(at: IndexPath(row: row, section: .data), animated: true)
       }
     } else {
-      for row in 0..<self.tableView.numberOfRows(inSection: Section.data.rawValue) {
+      for row in 0..<self.tableView.numberOfRows(inSection: BPSection.data.rawValue) {
         self.tableView.selectRow(at: IndexPath(row: row, section: .data), animated: true, scrollPosition: .none)
       }
     }
@@ -380,7 +387,7 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
 
 extension ItemListViewController: UITableViewDataSource {
   func numberOfSections(in tableView: UITableView) -> Int {
-    return Section.allCases.count
+    return BPSection.allCases.count
   }
 
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -401,8 +408,10 @@ extension ItemListViewController: UITableViewDataSource {
       guard !tableView.isEditing else {
         if cell.isSelected {
           tableView.deselectRow(at: indexPath, animated: true)
+          self?.tableView(tableView, didDeselectRowAt: indexPath)
         } else {
           tableView.selectRow(at: indexPath, animated: true, scrollPosition: .none)
+          self?.tableView(tableView, didSelectRowAt: indexPath)
         }
         return
       }
@@ -473,6 +482,10 @@ extension ItemListViewController: UITableViewDelegate {
     guard indexPath.sectionValue == .data else { return nil }
 
     return indexPath
+  }
+
+  func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+    self.updateSelectionStatus()
   }
 
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

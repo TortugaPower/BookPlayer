@@ -98,7 +98,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
         self?.items[index].percentCompleted = progress
 
-        let indexModified = IndexPath(row: index, section: Section.data.rawValue)
+        let indexModified = IndexPath(row: index, section: BPSection.data.rawValue)
         self?.itemProgressUpdates.send(indexModified)
       }.store(in: &disposeBag)
   }
@@ -140,7 +140,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
         self.items[index].percentCompleted = percentCompleted
 
-        let indexModified = IndexPath(row: index, section: Section.data.rawValue)
+        let indexModified = IndexPath(row: index, section: BPSection.data.rawValue)
         self.itemProgressUpdates.send(indexModified)
       })
   }
@@ -507,6 +507,10 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     self.coordinator.showSortOptions()
   }
 
+  func showItemDetails(_ item: SimpleLibraryItem) {
+    self.coordinator.showItemDetails(item)
+  }
+
   func showMoveOptions(selectedItems: [SimpleLibraryItem]) {
     let availableFolders = getAvailableFolders(notIn: selectedItems)
 
@@ -530,16 +534,6 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   func handleSort(by option: SortType) {
     self.libraryService.sortContents(at: folderRelativePath, by: option)
     self.reloadItems()
-  }
-
-  func handleRename(item: SimpleLibraryItem, with newTitle: String) {
-    do {
-      try self.libraryService.renameItem(at: item.relativePath, with: newTitle)
-    } catch {
-      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
-    }
-
-    self.coordinator.reloadItemsWithPadding()
   }
 
   func handleResetPlaybackPosition(for items: [SimpleLibraryItem]) {
