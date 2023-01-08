@@ -302,7 +302,6 @@
 		5126F121258E9F18009965DC /* URL+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5126F120258E9F18009965DC /* URL+BookPlayer.swift */; };
 		5126F122258E9F18009965DC /* URL+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5126F120258E9F18009965DC /* URL+BookPlayer.swift */; };
 		5126F123258E9F18009965DC /* URL+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5126F120258E9F18009965DC /* URL+BookPlayer.swift */; };
-		560DD644293F8EAF00A04529 /* BookPlayerKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */; };
 		56D8A0ED28A813D30037592F /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 56D8A0EC28A813D30037592F /* SocketIO */; };
 		56D8A0EF28A838640037592F /* SocketClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56D8A0EE28A838640037592F /* SocketClient.swift */; };
 		56D8A0F028A838640037592F /* SocketClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56D8A0EE28A838640037592F /* SocketClient.swift */; };
@@ -556,13 +555,6 @@
 			remoteInfo = "Audiobook Player";
 		};
 		41A1B0E5226E9BC500EA0400 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 418B6CF01D2707F700F974FB /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 41A1B0D1226E9BC400EA0400;
-			remoteInfo = BookPlayerKit;
-		};
-		560DD646293F8EAF00A04529 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 418B6CF01D2707F700F974FB /* Project object */;
 			proxyType = 1;
@@ -3266,11 +3258,6 @@
 			target = 41A1B0D1226E9BC400EA0400 /* BookPlayerKit */;
 			targetProxy = 41A1B0E5226E9BC500EA0400 /* PBXContainerItemProxy */;
 		};
-		560DD647293F8EAF00A04529 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 41A1B0D1226E9BC400EA0400 /* BookPlayerKit */;
-			targetProxy = 560DD646293F8EAF00A04529 /* PBXContainerItemProxy */;
-		};
 		9F4A33E6292B0C710034CD4C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 9F4A33DC292B0C700034CD4C /* BookPlayerShareExtension */;
@@ -4766,8 +4753,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/socketio/socket.io-client-swift";
 			requirement = {
-				branch = master;
-				kind = branch;
+				kind = upToNextMajorVersion;
+				minimumVersion = 16.0.1;
 			};
 		};
 		9F3F90FA286FF03600868B2C /* XCRemoteSwiftPackageReference "SwiftQueue" */ = {
