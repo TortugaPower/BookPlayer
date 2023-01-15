@@ -47,8 +47,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   private let libraryService: LibraryServiceProtocol
   private let playbackService: PlaybackServiceProtocol
   private let speedService: SpeedServiceProtocol
+  private let socketService: SocketServiceProtocol
   private let userActivityManager: UserActivityManager
-	private let socketClient: SocketClientProtocol?
 
   private var audioPlayer = AVPlayer()
 
@@ -82,16 +82,18 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
   private let queue = OperationQueue()
 
-  init(libraryService: LibraryServiceProtocol,
-       playbackService: PlaybackServiceProtocol,
-       speedService: SpeedServiceProtocol,
-			 socketService: SocketClientProtocol? = nil) {
+  init(
+    libraryService: LibraryServiceProtocol,
+    playbackService: PlaybackServiceProtocol,
+    speedService: SpeedServiceProtocol,
+    socketService: SocketServiceProtocol
+  ) {
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.speedService = speedService
+    self.socketService = socketService
     self.userActivityManager = UserActivityManager(libraryService: libraryService)
-		self.socketClient = socketService
-		super.init()
+    super.init()
 
     self.setupPlayerInstance()
 
@@ -385,28 +387,20 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       playbackDuration = maxTimeInContext
       itemProgress = currentTimeInContext / maxTimeInContext
     }
-		
+
     self.nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = playbackDuration
     self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackProgress] = itemProgress
-		
-		
-		do {
-			print(currentTimeInContext);
-			print(itemProgress);
-			let jsonObject: [String: Any] = [
-					"speed": self.currentSpeed,
-					"currentTime": currentTimeInContext,
-					"percentCompleted": itemProgress,
-					"isFinished": false,
-					"relativePath": currentItem.relativePath
-			]
-			let jsonSerialize = try JSONSerialization.data(withJSONObject: jsonObject)
-			let jsonString = String(data: jsonSerialize, encoding: String.Encoding.utf8)!
-			try self.socketClient?.sendCustomEvent(eventName: SocketEvent.TRACK_UPDATE.rawValue, jsonString: jsonString)
-		} catch _ {
-				print ("Socket JSON Failure")
-		}
-		
+
+    socketService.sendEvent(
+      .timeUpdate,
+      payload: [
+        "speed": currentSpeed,
+        "currentTime": currentTimeInContext,
+        "percentCompleted": itemProgress,
+        "isFinished": currentItem.isFinished,
+        "relativePath": currentItem.relativePath
+      ]
+    )
   }
 }
 

@@ -303,10 +303,6 @@
 		5126F122258E9F18009965DC /* URL+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5126F120258E9F18009965DC /* URL+BookPlayer.swift */; };
 		5126F123258E9F18009965DC /* URL+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5126F120258E9F18009965DC /* URL+BookPlayer.swift */; };
 		56D8A0ED28A813D30037592F /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 56D8A0EC28A813D30037592F /* SocketIO */; };
-		56D8A0EF28A838640037592F /* SocketClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56D8A0EE28A838640037592F /* SocketClient.swift */; };
-		56D8A0F028A838640037592F /* SocketClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56D8A0EE28A838640037592F /* SocketClient.swift */; };
-		56D8A0F228A954FD0037592F /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 56D8A0F128A954FD0037592F /* SocketIO */; };
-		56D8A0F428A955620037592F /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 56D8A0F328A955620037592F /* SocketIO */; };
 		62793611272CBE910097837D /* ImportFileItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E3102148606600072AA2 /* ImportFileItem.swift */; };
 		6279361F272D0D110097837D /* MainCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6279361E272D0D110097837D /* MainCoordinatorTests.swift */; };
 		62AAE2252749283F001EB9FF /* MiniPlayerViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62AAE2242749283F001EB9FF /* MiniPlayerViewModelTests.swift */; };
@@ -418,12 +414,13 @@
 		9FA334C527C285650064E8EA /* ChapterListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FA334C427C285650064E8EA /* ChapterListView.swift */; };
 		9FA334C727C28D650064E8EA /* PlaybackControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FA334C627C28D650064E8EA /* PlaybackControlsView.swift */; };
 		9FA7C61D280B0E1200A0C136 /* LoadingUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FA7C61C280B0E1200A0C136 /* LoadingUtils.swift */; };
+		9FACAC6A2970F2F500D01EB7 /* SyncableItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC782879409600D315A2 /* SyncableItem.swift */; };
+		9FACAC6B2970FAB700D01EB7 /* SocketService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56D8A0EE28A838640037592F /* SocketService.swift */; };
 		9FB7C48D2835A2C1003B917E /* PlayerManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB7C48C2835A2C1003B917E /* PlayerManagerTests.swift */; };
 		9FB7C48F2835A4C9003B917E /* EmptyLibraryServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB7C48E2835A4C9003B917E /* EmptyLibraryServiceMock.swift */; };
 		9FB7C4912835A5A3003B917E /* EmptyPlaybackServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB7C4902835A5A3003B917E /* EmptyPlaybackServiceMock.swift */; };
 		9FB7C4932835A617003B917E /* EmptySpeedServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB7C4922835A617003B917E /* EmptySpeedServiceMock.swift */; };
 		9FBDBC792879409600D315A2 /* SyncableItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC782879409600D315A2 /* SyncableItem.swift */; };
-		9FBDBC7A2879409600D315A2 /* SyncableItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC782879409600D315A2 /* SyncableItem.swift */; };
 		9FBDBC7D287940D900D315A2 /* ContentsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC7C287940D900D315A2 /* ContentsResponse.swift */; };
 		9FBDBC7E287940D900D315A2 /* ContentsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC7C287940D900D315A2 /* ContentsResponse.swift */; };
 		9FBDBC802879C6C900D315A2 /* UploadItemResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC7F2879C6C900D315A2 /* UploadItemResponse.swift */; };
@@ -937,7 +934,7 @@
 		41F898AE2402080C00F58B8A /* ZipArchive.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ZipArchive.framework; path = Carthage/Build/iOS/ZipArchive.framework; sourceTree = "<group>"; };
 		41FCA32625E87EC600BFB9E6 /* Audiobook Player 4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Audiobook Player 4.xcdatamodel"; sourceTree = "<group>"; };
 		5126F120258E9F18009965DC /* URL+BookPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "URL+BookPlayer.swift"; sourceTree = "<group>"; };
-		56D8A0EE28A838640037592F /* SocketClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocketClient.swift; sourceTree = "<group>"; };
+		56D8A0EE28A838640037592F /* SocketService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocketService.swift; sourceTree = "<group>"; };
 		5CBB29522163A17F00E3A9FF /* ZIPFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ZIPFoundation.framework; path = Carthage/Build/iOS/ZIPFoundation.framework; sourceTree = "<group>"; };
 		620C73C7275DA00300D495AA /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ar; path = ar.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		620C73C8275DA00400D495AA /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -1132,7 +1129,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				9F00F6EA2807B5D300996BBB /* RevenueCat in Frameworks */,
-				56D8A0F228A954FD0037592F /* SocketIO in Frameworks */,
 				62CADBAA2725BCF000A4A98F /* Kingfisher in Frameworks */,
 				9F3F9100286FF06600868B2C /* SwiftQueue in Frameworks */,
 			);
@@ -1177,7 +1173,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				9F00F6E82807B5CB00996BBB /* RevenueCat in Frameworks */,
-				56D8A0F428A955620037592F /* SocketIO in Frameworks */,
 				62CADBA82725BCE800A4A98F /* Kingfisher in Frameworks */,
 				9F3F90FE286FF05C00868B2C /* SwiftQueue in Frameworks */,
 			);
@@ -1831,6 +1826,7 @@
 				41B30A32230232D200025D69 /* CarPlayManager.swift */,
 				4193E201243A91AE004D6A82 /* ActionParserService.swift */,
 				9F82DF9B27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift */,
+				56D8A0EE28A838640037592F /* SocketService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -2058,7 +2054,6 @@
 				9FC1E4492814C4DE00522FA8 /* NetworkClient.swift */,
 				9FC1E45B2814E6A500522FA8 /* NetworkProvider.swift */,
 				9FC1E4582814E0B000522FA8 /* NetworkUtils.swift */,
-				56D8A0EE28A838640037592F /* SocketClient.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -2340,7 +2335,6 @@
 				62CADBA92725BCF000A4A98F /* Kingfisher */,
 				9F00F6E92807B5D300996BBB /* RevenueCat */,
 				9F3F90FF286FF06600868B2C /* SwiftQueue */,
-				56D8A0F128A954FD0037592F /* SocketIO */,
 			);
 			productName = BookPlayerWatchKit;
 			productReference = 4140EA5E227289720009F794 /* BookPlayerWatchKit.framework */;
@@ -2440,7 +2434,6 @@
 				62CADBA72725BCE800A4A98F /* Kingfisher */,
 				9F00F6E72807B5CB00996BBB /* RevenueCat */,
 				9F3F90FD286FF05C00868B2C /* SwiftQueue */,
-				56D8A0F328A955620037592F /* SocketIO */,
 			);
 			productName = BookPlayerKit;
 			productReference = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */;
@@ -2817,9 +2810,6 @@
 				5126F123258E9F18009965DC /* URL+BookPlayer.swift in Sources */,
 				9FFCC090289418CA00F4952E /* SimpleChapter.swift in Sources */,
 				419BD5992443FD04001E50A0 /* Intents.intentdefinition in Sources */,
-				9FBDBC7A2879409600D315A2 /* SyncableItem.swift in Sources */,
-				56D8A0F028A838640037592F /* SocketClient.swift in Sources */,
-				9FBDBC7A2879409600D315A2 /* SyncableItem.swift in Sources */,
 				62AAE22D274AA6DE001EB9FF /* LibraryService.swift in Sources */,
 				62CADBAF2725FE2C00A4A98F /* ArtworkService.swift in Sources */,
 				4140EA80227289D50009F794 /* Folder+CoreDataClass.swift in Sources */,
@@ -2831,6 +2821,7 @@
 				4140EA7D227289CB0009F794 /* LibraryItem+CoreDataProperties.swift in Sources */,
 				4140EA73227289A80009F794 /* Notification+BookPlayerKit.swift in Sources */,
 				41A894212652A5DE0032E972 /* Configuration.swift in Sources */,
+				9FACAC6A2970F2F500D01EB7 /* SyncableItem.swift in Sources */,
 				9FBDBC8A287B023300D315A2 /* LibraryItemFileUploadJob.swift in Sources */,
 				4140EA702272899D0009F794 /* CommandParser.swift in Sources */,
 				9FDDD2DF289BEE590020C428 /* SyncJobScheduler.swift in Sources */,
@@ -2917,6 +2908,7 @@
 				9F82DF9C27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift in Sources */,
 				9F00A600295001C0005EA316 /* ItemDetailsArtworkSectionView.swift in Sources */,
 				410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */,
+				9FACAC6B2970FAB700D01EB7 /* SocketService.swift in Sources */,
 				41AD3DAF221E678600DC41E1 /* PlusViewController.swift in Sources */,
 				9F4691F02800C97000A8F0E8 /* CompleteAccountViewModel.swift in Sources */,
 				9F2681AD2888B26100359BD3 /* LoginBenefitView.swift in Sources */,
@@ -3127,8 +3119,6 @@
 				9F1345B82938DF360089B1DE /* UIFont+BookPlayer.swift in Sources */,
 				9FFCC08F289418CA00F4952E /* SimpleChapter.swift in Sources */,
 				416AAC3423F515AF005AD04F /* String+BookPlayer.swift in Sources */,
-				9FBDBC792879409600D315A2 /* SyncableItem.swift in Sources */,
-				56D8A0EF28A838640037592F /* SocketClient.swift in Sources */,
 				9FBDBC792879409600D315A2 /* SyncableItem.swift in Sources */,
 				62AAE22E274AA6DE001EB9FF /* LibraryService.swift in Sources */,
 				41A1B126226F88C500EA0400 /* LibraryItem+CoreDataProperties.swift in Sources */,
@@ -4812,16 +4802,6 @@
 			productName = ZipArchive;
 		};
 		56D8A0EC28A813D30037592F /* SocketIO */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 56D8A0EB28A813D30037592F /* XCRemoteSwiftPackageReference "socket" */;
-			productName = SocketIO;
-		};
-		56D8A0F128A954FD0037592F /* SocketIO */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 56D8A0EB28A813D30037592F /* XCRemoteSwiftPackageReference "socket" */;
-			productName = SocketIO;
-		};
-		56D8A0F328A955620037592F /* SocketIO */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 56D8A0EB28A813D30037592F /* XCRemoteSwiftPackageReference "socket" */;
 			productName = SocketIO;

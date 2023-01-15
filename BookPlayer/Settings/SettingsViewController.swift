@@ -325,7 +325,7 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
     }
 
     func showProjectOnGitHub() {
-        let url = URL(string: "https://github.com/GianniCarlo/Audiobook-Player")
+        let url = URL(string: "https://github.com/TortugaPower/BookPlayer")
         let safari = SFSafariViewController(url: url!)
         safari.dismissButtonStyle = .close
 

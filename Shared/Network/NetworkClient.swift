@@ -24,8 +24,9 @@ public protocol NetworkClientProtocol {
 }
 
 public class NetworkClient: NetworkClientProtocol, BPLogger {
-  let scheme = "https"
-  let host = "a11a-2800-bf0-800f-efa-2904-7e61-f3b4-8595.ngrok.io"
+  let scheme: String = Bundle.main.configurationValue(for: .apiScheme)
+  let host: String = Bundle.main.configurationValue(for: .apiDomain)
+  let port: String = Bundle.main.configurationValue(for: .apiPort)
   let keychain: KeychainServiceProtocol
   private let decoder: JSONDecoder = JSONDecoder()
 
@@ -83,6 +84,9 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
     var components = URLComponents()
     components.scheme = scheme
     components.host = host
+    if let parsedPort = Int(port) {
+      components.port = parsedPort
+    }
     components.path = path
 
     if case .get = method,

@@ -62,7 +62,7 @@ public protocol AccountServiceProtocol {
     with token: String,
     userId: String
   ) async throws -> Account?
-  func loginIfUserExists() -> Bool
+  func loginIfUserExists()
 
   func logout() throws
   func deleteAccount() async throws -> String
@@ -70,7 +70,6 @@ public protocol AccountServiceProtocol {
 
 public final class AccountService: AccountServiceProtocol {
   let subscriptionId = "com.tortugapower.audiobookplayer.subscription.pro"
-  let apiURL = "https://a11a-2800-bf0-800f-efa-2904-7e61-f3b4-8595.ngrok.io"
   let dataManager: DataManager
   let client: NetworkClientProtocol
   let keychain: KeychainServiceProtocol
@@ -224,17 +223,14 @@ public final class AccountService: AccountServiceProtocol {
     return self.getAccount()
   }
 
-	public func loginIfUserExists() -> Bool {
-    guard let account = self.getAccount(), !account.id.isEmpty else {
-			return false
-		}
+  public func loginIfUserExists() {
+    guard let account = self.getAccount(), !account.id.isEmpty else { return }
 
     Purchases.shared.logIn(account.id) { [weak self] customerInfo, _, _ in
       guard let customerInfo = customerInfo else { return }
 
       self?.updateAccount(from: customerInfo)
     }
-		return true
   }
 
   public func logout() throws {

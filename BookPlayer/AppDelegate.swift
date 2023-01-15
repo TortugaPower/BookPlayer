@@ -27,7 +27,7 @@ typealias CoreServices = (
   playbackService: PlaybackServiceProtocol,
   playerManager: PlayerManagerProtocol,
   watchService: PhoneWatchConnectivityService,
-	socketClient: SocketClientProtocol
+  socketService: SocketServiceProtocol
 )
 
 @UIApplicationMain
@@ -47,7 +47,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   var playbackService: PlaybackServiceProtocol?
   var playerManager: PlayerManagerProtocol?
   var watchConnectivityService: PhoneWatchConnectivityService?
-	var socketClient: SocketClientProtocol?
+  var socketService: SocketServiceProtocol?
 
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     Self.shared = self
@@ -134,14 +134,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       playbackService = PlaybackService(libraryService: libraryService)
       AppDelegate.shared?.playbackService = playbackService
     }
-		
-		let socketClient: SocketClientProtocol
-		if let sharedSocketClien = AppDelegate.shared?.socketClient {
-			socketClient = sharedSocketClien
-		} else {
-			socketClient = SocketClient()
-			AppDelegate.shared?.socketClient = socketClient
-		}
+
+    let socketService: SocketServiceProtocol
+    if let sharedSocketService = AppDelegate.shared?.socketService {
+      socketService = sharedSocketService
+    } else {
+      socketService = SocketService()
+      AppDelegate.shared?.socketService = socketService
+    }
 
     let playerManager: PlayerManagerProtocol
 
@@ -152,7 +152,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         libraryService: libraryService,
         playbackService: playbackService,
         speedService: SpeedService(libraryService: libraryService),
-				socketService: socketClient
+        socketService: socketService
       )
       AppDelegate.shared?.playerManager = playerManager
     }
@@ -178,7 +178,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       playbackService,
       playerManager,
       watchService,
-			socketClient
+      socketService
     )
   }
 

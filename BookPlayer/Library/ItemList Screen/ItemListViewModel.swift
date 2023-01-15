@@ -369,7 +369,6 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func handleOperationCompletion(_ files: [URL]) {
-		print("handleOperationCompletion init")
     let library = self.libraryService.getLibrary()
     let processedItems = self.libraryService.insertItems(from: files, into: nil, library: library, processedItems: [])
 
@@ -384,7 +383,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
       return
     }
-		print("handleOperationCompletion processedItems \(processedItems.count)")
+
     self.coordinator.reloadItemsWithPadding(padding: processedItems.count)
 
     var availableFolders = [SimpleLibraryItem]()
@@ -414,8 +413,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     } catch {
       self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
     }
-		print("handleInsertionIntoLibrary items")
-		print(items)
+
     self.coordinator.reloadItemsWithPadding(padding: items.count)
   }
 

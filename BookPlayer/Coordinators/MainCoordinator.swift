@@ -21,7 +21,7 @@ class MainCoordinator: Coordinator {
   let accountService: AccountServiceProtocol
   let syncService: SyncServiceProtocol
   let watchConnectivityService: PhoneWatchConnectivityService
-	let socketClient: SocketClientProtocol
+  let socketService: SocketServiceProtocol
 
   private var disposeBag = Set<AnyCancellable>()
 
@@ -35,7 +35,7 @@ class MainCoordinator: Coordinator {
     self.playbackService = coreServices.playbackService
     self.playerManager = coreServices.playerManager
     self.watchConnectivityService = coreServices.watchService
-		self.socketClient = coreServices.socketClient
+    self.socketService = coreServices.socketService
 
     ThemeManager.shared.libraryService = libraryService
 
@@ -47,25 +47,30 @@ class MainCoordinator: Coordinator {
     super.init(navigationController: navigationController, flowType: .modal)
     viewModel.coordinator = self
 
-		if accountService.loginIfUserExists() {
-			do {
-				try self.socketClient.connectSocket()
-			} catch {
-				print("socket connect error ")
-			}
-		}
     accountService.setDelegate(self)
-		
+    accountService.loginIfUserExists()
     setUpTheming()
   }
 
   override func start() {
-    self.presentingViewController = tabBarController
+    presentingViewController = tabBarController
 
-    if let currentTheme = try? self.libraryService.getLibraryCurrentTheme() {
+    if let currentTheme = try? libraryService.getLibraryCurrentTheme() {
       ThemeManager.shared.currentTheme = SimpleTheme(with: currentTheme)
     }
 
+    startLibraryCoordinator()
+
+    startProfileCoordinator()
+
+    startSettingsCoordinator()
+
+    bindObservers()
+
+    navigationController.present(tabBarController, animated: false)
+  }
+
+  func startLibraryCoordinator() {
     let libraryCoordinator = LibraryListCoordinator(
       navigationController: AppNavigationController.instantiate(from: .Main),
       playerManager: self.playerManager,
@@ -77,7 +82,9 @@ class MainCoordinator: Coordinator {
     libraryCoordinator.parentCoordinator = self
     self.childCoordinators.append(libraryCoordinator)
     libraryCoordinator.start()
+  }
 
+  func startProfileCoordinator() {
     let profileCoordinator = ProfileCoordinator(
       libraryService: self.libraryService,
       accountService: self.accountService,
@@ -87,7 +94,9 @@ class MainCoordinator: Coordinator {
     profileCoordinator.parentCoordinator = self
     self.childCoordinators.append(profileCoordinator)
     profileCoordinator.start()
+  }
 
+  func startSettingsCoordinator() {
     let settingsCoordinator = SettingsCoordinator(
       libraryService: self.libraryService,
       accountService: self.accountService,
@@ -97,28 +106,21 @@ class MainCoordinator: Coordinator {
     settingsCoordinator.parentCoordinator = self
     self.childCoordinators.append(settingsCoordinator)
     settingsCoordinator.start()
+  }
 
+  func bindObservers() {
     NotificationCenter.default.publisher(for: .login, object: nil)
       .sink(receiveValue: { [weak self] _ in
+        print("=== login")
         self?.syncLibrary()
-				do {
-					try self?.socketClient.connectSocket()
-				} catch {
-					print("socket connect error ")
-				}
       })
       .store(in: &disposeBag)
-		NotificationCenter.default.publisher(for: .logout, object: nil)
-			.sink(receiveValue: { [weak self] _ in
-				do {
-					try self?.socketClient.disconnectSocket()
-				} catch {
-					print("socket disconnect error ")
-				}
-			})
-			.store(in: &disposeBag)
-
-    self.navigationController.present(tabBarController, animated: false)
+    NotificationCenter.default.publisher(for: .logout, object: nil)
+      .sink(receiveValue: { [weak self] _ in
+        print("=== logout")
+        self?.socketService.disconnectSocket()
+      })
+      .store(in: &disposeBag)
   }
 
   func showPlayer() {
@@ -178,7 +180,12 @@ extension MainCoordinator: PurchasesDelegate {
   public func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
     self.accountService.updateAccount(from: customerInfo)
     self.syncService.accountUpdated(customerInfo)
-		print("socket main purchases \(customerInfo)")
+
+    if !customerInfo.activeSubscriptions.isEmpty {
+      socketService.connectSocket()
+    } else {
+      socketService.disconnectSocket()
+    }
   }
 }
 

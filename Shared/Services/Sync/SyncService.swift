@@ -88,14 +88,9 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     let fetchedItems = try await fetchContents()
 
     let fetchedIdentifiers = fetchedItems.map({ $0.relativePath })
-		
-		print("fetchedIdentifiers")
-		print(fetchedIdentifiers)
 
     let itemsToSync = self.libraryService.getItems(notIn: fetchedIdentifiers, parentFolder: nil) ?? []
-		print("itemsToSync")
-		print(itemsToSync)
-		
+
     itemsToSync.forEach({ [weak self] in self?.jobManager.scheduleMetadataUploadJob(for: $0) })
 
     let identifiersToSync = itemsToSync.map({ $0.relativePath })
