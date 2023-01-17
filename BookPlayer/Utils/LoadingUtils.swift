@@ -11,7 +11,12 @@ import UIKit
 public class LoadingUtils {
   private static let loaderViewTag = 5959
 
-  public class func createActivityIndicator(parentView: UIView) {
+  class func loaders(in vcToBlock: UIViewController) -> [UIView] {
+    guard let window = vcToBlock.view.window else { return [] }
+    return window.subviews.filter { $0.tag == loaderViewTag }
+  }
+
+  public class func createActivityIndicator(parentView: UIView) -> UIView {
     let screenSize = UIScreen.main.bounds
     let backgroundView = UIView(frame: CGRect(
       x: screenSize.width / 2 - 30,
@@ -41,23 +46,29 @@ public class LoadingUtils {
     }
 
     indicatorView.startAnimating()
+    return backgroundView
   }
 
-  public class func loadAndBlock(in vc: UIViewController) {
-    vc.view.isUserInteractionEnabled = false
-    vc.tabBarController?.tabBar.isUserInteractionEnabled = false
-    Self.createActivityIndicator(parentView: vc.view)
+  public class func loadAndBlock(in vcToBlock: UIViewController) {
+    guard let window = vcToBlock.view.window else { return }
+
+    let hasHiddenLoader = !loaders(in: vcToBlock).isEmpty
+    let loader = Self.createActivityIndicator(parentView: window)
+    loader.isHidden = hasHiddenLoader
+
+    window.isUserInteractionEnabled = false
   }
 
-  public class func stopLoading(in vc: UIViewController) {
-    vc.view.isUserInteractionEnabled = true
-    vc.tabBarController?.tabBar.isUserInteractionEnabled = true
+  public class func stopLoading(in vcToUnblock: UIViewController) {
+    guard let window = vcToUnblock.view.window else { return }
 
-    for subview in vc.view.subviews where subview.tag == loaderViewTag {
-      if let indicatorView = subview.subviews.first as? UIActivityIndicatorView {
+    if let lastLoader = loaders(in: vcToUnblock).last {
+      if let indicatorView = lastLoader.subviews.first as? UIActivityIndicatorView {
         indicatorView.stopAnimating()
       }
-      subview.removeFromSuperview()
+      lastLoader.removeFromSuperview()
     }
+
+    window.isUserInteractionEnabled = loaders(in: vcToUnblock).isEmpty
   }
 }
