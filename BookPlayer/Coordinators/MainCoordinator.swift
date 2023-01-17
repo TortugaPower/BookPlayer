@@ -111,13 +111,11 @@ class MainCoordinator: Coordinator {
   func bindObservers() {
     NotificationCenter.default.publisher(for: .login, object: nil)
       .sink(receiveValue: { [weak self] _ in
-        print("=== login")
         self?.syncLibrary()
       })
       .store(in: &disposeBag)
     NotificationCenter.default.publisher(for: .logout, object: nil)
       .sink(receiveValue: { [weak self] _ in
-        print("=== logout")
         self?.socketService.disconnectSocket()
       })
       .store(in: &disposeBag)

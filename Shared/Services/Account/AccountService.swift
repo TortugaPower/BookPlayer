@@ -160,7 +160,9 @@ public final class AccountService: AccountServiceProtocol {
 
     self.dataManager.saveContext()
 
-    NotificationCenter.default.post(name: .accountUpdate, object: self)
+    DispatchQueue.main.async {
+      NotificationCenter.default.post(name: .accountUpdate, object: self)
+    }
   }
 
   public func subscribe() async throws -> Bool {
