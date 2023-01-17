@@ -45,11 +45,19 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
 
     let (data, response) = try await URLSession.shared.data(for: request)
 
-    if let httpURLResponse = response as? HTTPURLResponse {
-      Self.logger.trace("[Response] Status \(httpURLResponse.statusCode)\n\(String(data: data, encoding: .utf8))")
+    guard let httpURLResponse = response as? HTTPURLResponse else {
+      throw URLError(.badServerResponse)
     }
 
-    return try self.decoder.decode(T.self, from: data)
+    Self.logger.trace("[Response] Status \(httpURLResponse.statusCode)\n\(String(data: data, encoding: .utf8))")
+
+    switch httpURLResponse.statusCode {
+    case 400...499:
+      let error = try self.decoder.decode(ErrorResponse.self, from: data)
+      throw BookPlayerError.networkError(error.message)
+    default:
+      return try self.decoder.decode(T.self, from: data)
+    }
   }
 
   public func upload(
@@ -123,4 +131,9 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
 
     return request
   }
+}
+
+/// Default error message structure
+struct ErrorResponse: Decodable {
+  let message: String
 }
