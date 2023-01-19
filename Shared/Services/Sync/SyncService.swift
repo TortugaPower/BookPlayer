@@ -85,6 +85,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   }
 
   public func syncLibrary() async throws {
+    /// Register last sync timestamp
     UserDefaults.standard.set(
       Date().timeIntervalSince1970,
       forKey: Constants.UserDefaults.lastSyncTimestamp.rawValue

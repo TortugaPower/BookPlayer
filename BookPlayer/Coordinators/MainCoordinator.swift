@@ -115,6 +115,22 @@ class MainCoordinator: Coordinator {
         self?.syncLibrary()
       })
       .store(in: &disposeBag)
+
+    NotificationCenter.default.publisher(for: .accountUpdate, object: nil)
+      .sink(receiveValue: { [weak self] _ in
+        guard
+          let account = self?.accountService.getAccount()
+        else { return }
+
+        if account.hasSubscription {
+          self?.socketService.connectSocket()
+        } else {
+          self?.socketService.disconnectSocket()
+        }
+
+      })
+      .store(in: &disposeBag)
+
     NotificationCenter.default.publisher(for: .logout, object: nil)
       .sink(receiveValue: { [weak self] _ in
         self?.socketService.disconnectSocket()
@@ -179,12 +195,6 @@ extension MainCoordinator: PurchasesDelegate {
   public func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
     self.accountService.updateAccount(from: customerInfo)
     self.syncService.accountUpdated(customerInfo)
-
-    if !customerInfo.activeSubscriptions.isEmpty {
-      socketService.connectSocket()
-    } else {
-      socketService.disconnectSocket()
-    }
   }
 }
 
