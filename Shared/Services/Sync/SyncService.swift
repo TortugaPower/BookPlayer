@@ -85,6 +85,11 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   }
 
   public func syncLibrary() async throws {
+    UserDefaults.standard.set(
+      Date().timeIntervalSince1970,
+      forKey: Constants.UserDefaults.lastSyncTimestamp.rawValue
+    )
+
     let fetchedItems = try await fetchContents()
 
     let fetchedIdentifiers = fetchedItems.map({ $0.relativePath })

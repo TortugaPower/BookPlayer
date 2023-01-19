@@ -15,43 +15,14 @@ import UIKit
 class ProfileViewController: BaseViewController<ProfileCoordinator, ProfileViewModel> {
   // MARK: - UI components
 
-  private lazy var scrollView: UIScrollView = {
-    let scrollView = UIScrollView()
-    scrollView.translatesAutoresizingMaskIntoConstraints = false
-    return scrollView
-  }()
-
-  private lazy var contentView: UIView = {
-    let view = UIView()
-    view.translatesAutoresizingMaskIntoConstraints = false
-    return view
-  }()
-
-  private lazy var containerStackview: UIStackView = {
-    let stackview = UIStackView()
-    stackview.translatesAutoresizingMaskIntoConstraints = false
-    stackview.axis = .vertical
-    stackview.spacing = Spacing.S
-    return stackview
-  }()
-
-  private lazy var profileCardView: ProfileCardView = {
-    let cardView = ProfileCardView()
-
-    cardView.tapAction = { [weak self] in
-      self?.didTapAccount()
-    }
-
-    return cardView
-  }()
-
-  private lazy var listenedStatsView: UIView = {
-    let view = ProfileListenedTimeView(viewModel: viewModel)
+  private lazy var profileView: UIView = {
+    let view = ProfileView(viewModel: viewModel)
     let hostingController = UIHostingController(rootView: view)
     hostingController.view.backgroundColor = .clear
     hostingController.view.isOpaque = false
     addChild(hostingController)
     hostingController.didMove(toParent: self)
+    hostingController.view.translatesAutoresizingMaskIntoConstraints = false
 
     return hostingController.view
   }()
@@ -75,64 +46,30 @@ class ProfileViewController: BaseViewController<ProfileCoordinator, ProfileViewM
 
     self.navigationItem.title = "Profile"
 
-    self.bindObservers()
     addSubviews()
     addConstraints()
     setUpTheming()
   }
 
+  override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+
+    viewModel.refreshSyncStatusMessage()
+  }
+
   func addSubviews() {
-    view.addSubview(scrollView)
-    scrollView.addSubview(contentView)
-    contentView.addSubview(containerStackview)
-    containerStackview.addArrangedSubview(profileCardView)
-    containerStackview.addArrangedSubview(listenedStatsView)
+    view.addSubview(profileView)
   }
 
   func addConstraints() {
     let safeLayoutGuide = view.safeAreaLayoutGuide
-    // constrain subviews to the scroll view's Content Layout Guide
-    let contentLayoutGuide = scrollView.contentLayoutGuide
 
     NSLayoutConstraint.activate([
-      // setup scrollview
-      scrollView.topAnchor.constraint(equalTo: safeLayoutGuide.topAnchor),
-      scrollView.leadingAnchor.constraint(equalTo: safeLayoutGuide.leadingAnchor),
-      scrollView.trailingAnchor.constraint(equalTo: safeLayoutGuide.trailingAnchor),
-      scrollView.bottomAnchor.constraint(equalTo: safeLayoutGuide.bottomAnchor),
-      contentView.topAnchor.constraint(equalTo: contentLayoutGuide.topAnchor),
-      contentView.leadingAnchor.constraint(equalTo: contentLayoutGuide.leadingAnchor),
-      contentView.trailingAnchor.constraint(equalTo: contentLayoutGuide.trailingAnchor),
-      contentView.bottomAnchor.constraint(equalTo: contentLayoutGuide.bottomAnchor),
-      contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-      // setup contents
-      containerStackview.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Spacing.S),
-      containerStackview.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-      containerStackview.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-      containerStackview.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Spacing.M),
+      profileView.topAnchor.constraint(equalTo: safeLayoutGuide.topAnchor),
+      profileView.leadingAnchor.constraint(equalTo: safeLayoutGuide.leadingAnchor),
+      profileView.trailingAnchor.constraint(equalTo: safeLayoutGuide.trailingAnchor),
+      profileView.bottomAnchor.constraint(equalTo: safeLayoutGuide.bottomAnchor),
     ])
-  }
-
-  func bindObservers() {
-    self.viewModel.$account
-      .receive(on: RunLoop.main)
-      .sink { [weak self] account in
-      self?.setupProfileCardView(account)
-    }
-    .store(in: &disposeBag)
-  }
-
-  func setupProfileCardView(_ account: Account?) {
-    if let account = account,
-       !account.id.isEmpty {
-      self.profileCardView.setup(title: account.email, status: nil)
-    } else {
-      self.profileCardView.setup(title: "Set Up Account", status: "Not signed in")
-    }
-  }
-
-  func didTapAccount() {
-    self.viewModel.showAccount()
   }
 }
 

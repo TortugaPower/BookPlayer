@@ -86,8 +86,9 @@ class MainCoordinator: Coordinator {
 
   func startProfileCoordinator() {
     let profileCoordinator = ProfileCoordinator(
-      libraryService: self.libraryService,
-      accountService: self.accountService,
+      libraryService: libraryService,
+      accountService: accountService,
+      syncService: syncService,
       navigationController: AppNavigationController.instantiate(from: .Main)
     )
     profileCoordinator.tabBarController = tabBarController

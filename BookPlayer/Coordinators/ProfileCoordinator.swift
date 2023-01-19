@@ -14,14 +14,17 @@ class ProfileCoordinator: Coordinator {
 
   let libraryService: LibraryServiceProtocol
   let accountService: AccountServiceProtocol
+  let syncService: SyncServiceProtocol
 
   init(
     libraryService: LibraryServiceProtocol,
     accountService: AccountServiceProtocol,
+    syncService: SyncServiceProtocol,
     navigationController: UINavigationController
   ) {
     self.libraryService = libraryService
     self.accountService = accountService
+    self.syncService = syncService
 
     super.init(navigationController: navigationController,
                flowType: .push)
@@ -31,7 +34,8 @@ class ProfileCoordinator: Coordinator {
     let vc = ProfileViewController()
     let viewModel = ProfileViewModel(
       accountService: accountService,
-      libraryService: libraryService
+      libraryService: libraryService,
+      syncService: syncService
     )
     viewModel.coordinator = self
     vc.viewModel = viewModel
