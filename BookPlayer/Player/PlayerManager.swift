@@ -398,7 +398,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
         "currentTime": currentTimeInContext,
         "percentCompleted": itemProgress,
         "isFinished": currentItem.isFinished,
-        "relativePath": currentItem.relativePath
+        "relativePath": currentItem.relativePath,
+				"lastPlayDateTimestamp": Date().timeIntervalSince1970,
       ]
     )
   }
