@@ -11,7 +11,8 @@ import Foundation
 
 public protocol LibrarySyncProtocol {
   func getItem(with relativePath: String) -> LibraryItem?
-  func getItems(notIn relativePaths: [String], parentFolder: String?) -> [SyncableItem]?
+  func getItemsToSync(remoteIdentifiers: [String], parentFolder: String?) -> [SyncableItem]?
+  func getItemIdentifiers(in parentFolder: String?) -> [String]?
   func fetchSyncableContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SyncableItem]?
 
   func addBook(from item: SyncableItem, parentFolder: String?)
@@ -20,30 +21,9 @@ public protocol LibrarySyncProtocol {
 
 extension LibraryService: LibrarySyncProtocol {
   public func addBook(from item: SyncableItem, parentFolder: String?) {
-    var speed: Float?
-    if let itemSpeed = item.speed {
-      speed = Float(itemSpeed)
-    }
-
-    var lastPlayDate: Date?
-    if let timestamp = item.lastPlayDateTimestamp {
-      lastPlayDate = Date(timeIntervalSince1970: timestamp)
-    }
-
     let newBook = Book(
-      context: self.dataManager.getContext(),
-      title: item.title,
-      details: item.details,
-      relativePath: item.relativePath,
-      originalFileName: item.originalFileName,
-      speed: speed,
-      currentTime: item.currentTime,
-      duration: item.duration,
-      percentCompleted: item.percentCompleted,
-      isFinished: item.isFinished,
-      orderRank: Int16(item.orderRank),
-      lastPlayDate: lastPlayDate,
-      syncStatus: .contentsDownload
+      syncItem: item,
+      context: self.dataManager.getContext()
     )
 
     if let relativePath = parentFolder,
@@ -67,30 +47,9 @@ extension LibraryService: LibrarySyncProtocol {
     // This shouldn't fail
     try? createFolderOnDisk(title: item.title, inside: parentFolder)
 
-    var speed: Float?
-    if let itemSpeed = item.speed {
-      speed = Float(itemSpeed)
-    }
-
-    var lastPlayDate: Date?
-    if let timestamp = item.lastPlayDateTimestamp {
-      lastPlayDate = Date(timeIntervalSince1970: timestamp)
-    }
-
     let newFolder = Folder(
-      context: self.dataManager.getContext(),
-      title: item.title,
-      details: item.details,
-      relativePath: item.relativePath,
-      originalFileName: item.originalFileName,
-      speed: speed,
-      currentTime: item.currentTime,
-      duration: item.duration,
-      percentCompleted: item.percentCompleted,
-      isFinished: item.isFinished,
-      orderRank: Int16(item.orderRank),
-      lastPlayDate: lastPlayDate,
-      syncStatus: .contentsDownload
+      syncItem: item,
+      context: self.dataManager.getContext()
     )
 
     // insert into existing folder or library at index
@@ -106,7 +65,7 @@ extension LibraryService: LibrarySyncProtocol {
     self.dataManager.saveContext()
   }
 
-  public func getItems(notIn relativePaths: [String], parentFolder: String?) -> [SyncableItem]? {
+  public func getItemsToSync(remoteIdentifiers: [String], parentFolder: String?) -> [SyncableItem]? {
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
     fetchRequest.propertiesToFetch = SyncableItem.fetchRequestProperties
     fetchRequest.resultType = .dictionaryResultType
@@ -117,20 +76,33 @@ extension LibraryService: LibrarySyncProtocol {
         #keyPath(LibraryItem.folder.relativePath),
         parentFolder,
         #keyPath(LibraryItem.relativePath),
-        relativePaths
+        remoteIdentifiers
       )
     } else {
       fetchRequest.predicate = NSPredicate(
         format: "%K != nil AND NOT (%K IN %@)",
         #keyPath(LibraryItem.library),
         #keyPath(LibraryItem.relativePath),
-        relativePaths
+        remoteIdentifiers
       )
     }
 
     let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
 
     return parseSyncableItems(from: results)
+  }
+
+  public func getItemIdentifiers(in parentFolder: String?) -> [String]? {
+    let fetchRequest = buildListContentsFetchRequest(
+      properties: ["relativePath"],
+      relativePath: parentFolder,
+      limit: nil,
+      offset: nil
+    )
+
+    let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
+
+    return results?.compactMap({ $0["relativePath"] as? String })
   }
 
   public func fetchSyncableContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SyncableItem]? {

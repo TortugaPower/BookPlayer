@@ -18,40 +18,6 @@ public class Folder: LibraryItem {
 
   // MARK: - Init
 
-  public convenience init(
-    context: NSManagedObjectContext,
-    title: String,
-    details: String,
-    relativePath: String,
-    originalFileName: String,
-    speed: Float?,
-    currentTime: Double,
-    duration: Double,
-    percentCompleted: Double,
-    isFinished: Bool,
-    orderRank: Int16,
-    lastPlayDate: Date?,
-    syncStatus: SyncStatus
-  ) {
-    let entity = NSEntityDescription.entity(forEntityName: "Folder", in: context)!
-    self.init(entity: entity, insertInto: context)
-
-    self.title = title
-    self.details = details
-    self.relativePath = relativePath
-    self.originalFileName = originalFileName
-    if let speed = speed {
-      self.speed = speed
-    }
-    self.currentTime = currentTime
-    self.duration = duration
-    self.percentCompleted = percentCompleted
-    self.isFinished = isFinished
-    self.orderRank = orderRank
-    self.lastPlayDate = lastPlayDate
-    self.syncStatus = syncStatus
-  }
-
   public convenience init(title: String, context: NSManagedObjectContext) {
     let entity = NSEntityDescription.entity(forEntityName: "Folder", in: context)!
     self.init(entity: entity, insertInto: context)
@@ -193,4 +159,32 @@ public class Folder: LibraryItem {
         items = NSOrderedSet(array: encodedItems)
       }
     }
+}
+
+extension Folder {
+  public convenience init(
+    syncItem: SyncableItem,
+    context: NSManagedObjectContext
+  ) {
+    let entity = NSEntityDescription.entity(forEntityName: "Folder", in: context)!
+    self.init(entity: entity, insertInto: context)
+
+    self.title = syncItem.title
+    self.details = syncItem.details
+    self.relativePath = syncItem.relativePath
+    self.originalFileName = syncItem.originalFileName
+    if let speed = syncItem.speed {
+      self.speed = Float(speed)
+    }
+    self.currentTime = syncItem.currentTime
+    self.duration = syncItem.duration
+    self.percentCompleted = syncItem.percentCompleted
+    self.isFinished = syncItem.isFinished
+    self.orderRank = Int16(syncItem.orderRank)
+    if let timestamp = syncItem.lastPlayDateTimestamp {
+      self.lastPlayDate = Date(timeIntervalSince1970: timestamp)
+    }
+    self.syncStatus = .contentsDownload
+    self.type = syncItem.type.itemType
+  }
 }

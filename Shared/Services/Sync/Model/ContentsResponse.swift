@@ -10,4 +10,6 @@ import Foundation
 
 struct ContentsResponse: Decodable {
   let content: [SyncableItem]
+  /// Only returns when querying the root level
+  let lastItemPlayed: SyncableItem?
 }

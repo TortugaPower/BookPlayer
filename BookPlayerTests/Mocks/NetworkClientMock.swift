@@ -17,7 +17,21 @@ class NetworkClientMock: NetworkClientProtocol {
     self.mockedResponse = mockedResponse
   }
 
-  func request<T: RawResponse>(path: String, method: HTTPMethod, parameters: [String: Any]?) async throws -> T {
+  func request<T: RawResponse>(
+    url: URL,
+    method: HTTPMethod,
+    parameters: [String: Any]?,
+    useKeychain: Bool
+  ) async throws -> T {
+    // swiftlint:disable:next force_cast
+    return self.mockedResponse as! T
+  }
+
+  func request<T: RawResponse>(
+    path: String,
+    method: HTTPMethod,
+    parameters: [String : Any]?
+  ) async throws -> T {
     // swiftlint:disable:next force_cast
     return self.mockedResponse as! T
   }

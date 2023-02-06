@@ -1269,29 +1269,29 @@ class ModifyLibraryTests: LibraryServiceTests {
   }
 
   func testGetItemsNotIncluded() throws {
-    let emptyResult = self.sut.getItems(notIn: [], parentFolder: nil)
+    let emptyResult = self.sut.getItemsToSync(remoteIdentifiers: [], parentFolder: nil)
     XCTAssert(emptyResult?.isEmpty == true)
 
     let folder = try! self.sut.createFolder(with: "test-folder", inside: nil)
     let folder2 = try! self.sut.createFolder(with: "test-folder2", inside: nil)
 
-    let secondResult = self.sut.getItems(notIn: [], parentFolder: nil)
+    let secondResult = self.sut.getItemsToSync(remoteIdentifiers: [], parentFolder: nil)
     XCTAssert(secondResult?.count == 2)
 
     let folder3 = try! self.sut.createFolder(with: "test-folder3", inside: folder.relativePath)
     let folder4 = try! self.sut.createFolder(with: "test-folder4", inside: folder.relativePath)
     let folder5 = try! self.sut.createFolder(with: "test-folder5", inside: folder.relativePath)
 
-    let thirdResult = self.sut.getItems(notIn: [], parentFolder: folder.relativePath)
+    let thirdResult = self.sut.getItemsToSync(remoteIdentifiers: [], parentFolder: folder.relativePath)
     XCTAssert(thirdResult?.count == 3)
 
-    let fourthResult = self.sut.getItems(notIn: [folder.relativePath], parentFolder: nil)
+    let fourthResult = self.sut.getItemsToSync(remoteIdentifiers: [folder.relativePath], parentFolder: nil)
 
     XCTAssert(fourthResult?.count == 1)
     XCTAssert(fourthResult?.first?.relativePath == folder2.relativePath)
 
-    let fifthResult = self.sut.getItems(
-      notIn: [folder.relativePath, folder3.relativePath, folder4.relativePath],
+    let fifthResult = self.sut.getItemsToSync(
+      remoteIdentifiers: [folder.relativePath, folder3.relativePath, folder4.relativePath],
       parentFolder: folder.relativePath
     )
 

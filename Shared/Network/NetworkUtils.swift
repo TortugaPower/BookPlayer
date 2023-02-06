@@ -20,3 +20,23 @@ public enum HTTPMethod: String {
   case put = "PUT"
   case delete = "DELETE"
 }
+
+/// Protocol representing an empty response. Use `T.emptyValue()` to get an instance.
+public protocol EmptyResponse {
+  /// Empty value for the conforming type.
+  ///
+  /// - Returns: Value of `Self` to use for empty values.
+  static func emptyValue() -> Self
+}
+
+/// Type representing an empty value. Use `Empty.value` to get the static instance.
+public struct Empty: Codable {
+  /// Static `Empty` instance used for all `Empty` responses.
+  public static let value = Empty()
+}
+
+extension Empty: EmptyResponse {
+  public static func emptyValue() -> Empty {
+    value
+  }
+}

@@ -86,7 +86,11 @@ class ProfileViewModel: BaseViewModel<ProfileCoordinator>, ProfileViewModelProto
 
   func syncLibrary() {
     Task { [weak self] in
-      try? await self?.syncService.syncLibrary()
+      do {
+        try await self?.syncService.fetchListContents(at: nil, shouldSync: true)
+      } catch {
+        print(error.localizedDescription)
+      }
     }
 
     refreshStatusMessage = ""

@@ -11,11 +11,11 @@ import Foundation
 import RevenueCat
 
 class SyncServiceMock: SyncServiceProtocol {
+  var isActive: Bool = false
+
+  func fetchListContents(at relativePath: String?, shouldSync: Bool) async throws -> ([SyncableItem], SyncableItem?) { return ([], nil) }
+
   func cancelAllJobs() {}
 
-  func syncLibrary() async throws {}
-
   func accountUpdated(_ customerInfo: CustomerInfo) {}
-
-  func isReachable(_ flag: Bool) {}
 }

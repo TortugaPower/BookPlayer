@@ -11,6 +11,12 @@ import Foundation
 
 /// Empty class meant to be subclassed to adjust service for test conditions
 class EmptyLibraryServiceMock: LibraryServiceProtocol {
+  func getTotalListenedTime() -> TimeInterval { return 0 }
+
+  func renameItem(at relativePath: String, with newTitle: String) throws -> String { return "" }
+
+  func updateDetails(at relativePath: String, details: String) {}
+
   func filterContents(
     at relativePath: String?,
     query: String?,

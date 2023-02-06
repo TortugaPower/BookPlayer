@@ -19,7 +19,7 @@ class MainCoordinator: Coordinator {
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
   let accountService: AccountServiceProtocol
-  let syncService: SyncServiceProtocol
+  var syncService: SyncServiceProtocol
   let watchConnectivityService: PhoneWatchConnectivityService
   let socketService: SocketServiceProtocol
 
@@ -48,7 +48,6 @@ class MainCoordinator: Coordinator {
     viewModel.coordinator = self
 
     accountService.setDelegate(self)
-    accountService.loginIfUserExists()
     setUpTheming()
   }
 
@@ -59,13 +58,15 @@ class MainCoordinator: Coordinator {
       ThemeManager.shared.currentTheme = SimpleTheme(with: currentTheme)
     }
 
+    bindObservers()
+
+    accountService.loginIfUserExists()
+
     startLibraryCoordinator()
 
     startProfileCoordinator()
 
     startSettingsCoordinator()
-
-    bindObservers()
 
     navigationController.present(tabBarController, animated: false)
   }
@@ -76,7 +77,8 @@ class MainCoordinator: Coordinator {
       playerManager: self.playerManager,
       importManager: ImportManager(libraryService: self.libraryService),
       libraryService: self.libraryService,
-      playbackService: self.playbackService
+      playbackService: self.playbackService,
+      syncService: syncService
     )
     libraryCoordinator.tabBarController = tabBarController
     libraryCoordinator.parentCoordinator = self
@@ -110,12 +112,6 @@ class MainCoordinator: Coordinator {
   }
 
   func bindObservers() {
-    NotificationCenter.default.publisher(for: .login, object: nil)
-      .sink(receiveValue: { [weak self] _ in
-        self?.syncLibrary()
-      })
-      .store(in: &disposeBag)
-
     NotificationCenter.default.publisher(for: .accountUpdate, object: nil)
       .sink(receiveValue: { [weak self] _ in
         guard
@@ -124,8 +120,10 @@ class MainCoordinator: Coordinator {
 
         if account.hasSubscription {
           self?.socketService.connectSocket()
+          self?.syncService.isActive = true
         } else {
           self?.socketService.disconnectSocket()
+          self?.syncService.isActive = false
         }
 
       })
@@ -183,18 +181,11 @@ class MainCoordinator: Coordinator {
 
     return getPresentingController(coordinator: lastCoordinator)
   }
-
-  func syncLibrary() {
-    Task { [weak self] in
-      try? await self?.syncService.syncLibrary()
-    }
-  }
 }
 
 extension MainCoordinator: PurchasesDelegate {
   public func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
     self.accountService.updateAccount(from: customerInfo)
-    self.syncService.accountUpdated(customerInfo)
   }
 }
 

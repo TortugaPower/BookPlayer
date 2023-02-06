@@ -20,8 +20,6 @@ public class SyncJobScheduler: JobSchedulerProtocol {
   let fileUploadQueueManager: SwiftQueueManager
   let metadataJobsPersister: UserDefaultsPersister
   let fileUploadJobsPersister: UserDefaultsPersister
-//  let folderQueueManager: SwiftQueueManager
-//  let progressQueueManager: SwiftQueueManager
 
   public init() {
     let metadataJobsPersister = UserDefaultsPersister(key: LibraryItemMetadataUploadJob.type)

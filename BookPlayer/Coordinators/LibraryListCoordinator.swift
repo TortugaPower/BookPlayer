@@ -16,13 +16,15 @@ class LibraryListCoordinator: ItemListCoordinator {
 
   var fileSubscription: AnyCancellable?
   var importOperationSubscription: AnyCancellable?
+  private var disposeBag = Set<AnyCancellable>()
 
   init(
     navigationController: UINavigationController,
     playerManager: PlayerManagerProtocol,
     importManager: ImportManager,
     libraryService: LibraryServiceProtocol,
-    playbackService: PlaybackServiceProtocol
+    playbackService: PlaybackServiceProtocol,
+    syncService: SyncServiceProtocol
   ) {
     self.importManager = importManager
 
@@ -30,10 +32,11 @@ class LibraryListCoordinator: ItemListCoordinator {
       navigationController: navigationController,
       playerManager: playerManager,
       libraryService: libraryService,
-      playbackService: playbackService
+      playbackService: playbackService,
+      syncService: syncService
     )
 
-    self.bindImportObserver()
+    bindObservers()
   }
 
   override func start() {
@@ -71,6 +74,17 @@ class LibraryListCoordinator: ItemListCoordinator {
     self.documentPickerDelegate = vc
 
     AppDelegate.shared?.watchConnectivityService?.startSession()
+    syncList()
+  }
+
+  func bindObservers() {
+    NotificationCenter.default.publisher(for: .login, object: nil)
+      .sink(receiveValue: { [weak self] _ in
+        self?.syncList()
+      })
+      .store(in: &disposeBag)
+
+    bindImportObserver()
   }
 
   func bindImportObserver() {
@@ -138,5 +152,15 @@ class LibraryListCoordinator: ItemListCoordinator {
           vc.viewModel.coordinator != nil else { return }
 
     vc.viewModel.coordinator.detach()
+  }
+
+  override func syncList() {
+    Task { [weak self] in
+      guard
+        let (newItems, lastPlayed) = try await self?.syncService.fetchListContents(at: nil, shouldSync: true)
+      else { return }
+
+      reloadItemsWithPadding(padding: newItems.count)
+    }
   }
 }

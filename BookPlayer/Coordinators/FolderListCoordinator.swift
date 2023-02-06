@@ -17,7 +17,8 @@ class FolderListCoordinator: ItemListCoordinator {
     folderRelativePath: String,
     playerManager: PlayerManagerProtocol,
     libraryService: LibraryServiceProtocol,
-    playbackService: PlaybackServiceProtocol
+    playbackService: PlaybackServiceProtocol,
+    syncService: SyncServiceProtocol
   ) {
     self.folderRelativePath = folderRelativePath
 
@@ -25,7 +26,8 @@ class FolderListCoordinator: ItemListCoordinator {
       navigationController: navigationController,
       playerManager: playerManager,
       libraryService: libraryService,
-      playbackService: playbackService
+      playbackService: playbackService,
+      syncService: syncService
     )
   }
 
@@ -39,10 +41,11 @@ class FolderListCoordinator: ItemListCoordinator {
     )
     viewModel.coordinator = self
     vc.viewModel = viewModel
-    self.presentingViewController = self.navigationController
-    self.navigationController.pushViewController(vc, animated: true)
+    presentingViewController = navigationController
+    navigationController.pushViewController(vc, animated: true)
 
-    self.documentPickerDelegate = vc
+    documentPickerDelegate = vc
+    syncList()
   }
 
   override func showOperationCompletedAlert(with items: [LibraryItem], availableFolders: [SimpleLibraryItem]) {
@@ -83,5 +86,11 @@ class FolderListCoordinator: ItemListCoordinator {
     alert.addAction(existingFolderAction)
 
     self.navigationController.present(alert, animated: true, completion: nil)
+  }
+
+  override func syncList() {
+    Task { [weak self] in
+      try? await self?.syncService.fetchListContents(at: folderRelativePath, shouldSync: false)
+    }
   }
 }

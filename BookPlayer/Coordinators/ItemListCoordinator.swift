@@ -35,6 +35,7 @@ class ItemListCoordinator: Coordinator {
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
+  let syncService: SyncServiceProtocol
 
   weak var documentPickerDelegate: UIDocumentPickerDelegate?
 
@@ -42,11 +43,13 @@ class ItemListCoordinator: Coordinator {
     navigationController: UINavigationController,
     playerManager: PlayerManagerProtocol,
     libraryService: LibraryServiceProtocol,
-    playbackService: PlaybackServiceProtocol
+    playbackService: PlaybackServiceProtocol,
+    syncService: SyncServiceProtocol
   ) {
     self.playerManager = playerManager
     self.libraryService = libraryService
     self.playbackService = playbackService
+    self.syncService = syncService
 
     super.init(navigationController: navigationController,
                flowType: .push)
@@ -78,11 +81,12 @@ class ItemListCoordinator: Coordinator {
 
   func showFolder(_ relativePath: String) {
     let child = FolderListCoordinator(
-      navigationController: self.navigationController,
+      navigationController: navigationController,
       folderRelativePath: relativePath,
-      playerManager: self.playerManager,
-      libraryService: self.libraryService,
-      playbackService: self.playbackService
+      playerManager: playerManager,
+      libraryService: libraryService,
+      playbackService: playbackService,
+      syncService: syncService
     )
     self.childCoordinators.append(child)
     child.parentCoordinator = self
@@ -107,7 +111,8 @@ class ItemListCoordinator: Coordinator {
       folderRelativePath: relativePath,
       playerManager: playerManager,
       libraryService: libraryService,
-      playbackService: playbackService
+      playbackService: playbackService,
+      syncService: syncService
     )
     coordinator.start()
   }
@@ -203,6 +208,10 @@ class ItemListCoordinator: Coordinator {
     alert.addAction(convertAction)
 
     self.navigationController.present(alert, animated: true, completion: nil)
+  }
+
+  func syncList() {
+    fatalError("ItemListCoordinator is an abstract class, override this function in the subclass")
   }
 }
 

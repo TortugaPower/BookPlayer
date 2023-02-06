@@ -15,6 +15,7 @@ class SearchListCoordinator: Coordinator {
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
+  let syncService: SyncServiceProtocol
 
   init(
     navigationController: UINavigationController,
@@ -22,13 +23,15 @@ class SearchListCoordinator: Coordinator {
     folderRelativePath: String?,
     playerManager: PlayerManagerProtocol,
     libraryService: LibraryServiceProtocol,
-    playbackService: PlaybackServiceProtocol
+    playbackService: PlaybackServiceProtocol,
+    syncService: SyncServiceProtocol
   ) {
     self.folderRelativePath = folderRelativePath
     self.placeholderTitle = placeholderTitle
     self.playerManager = playerManager
     self.libraryService = libraryService
     self.playbackService = playbackService
+    self.syncService = syncService
 
     super.init(
       navigationController: navigationController,
@@ -70,7 +73,8 @@ class SearchListCoordinator: Coordinator {
       folderRelativePath: relativePath,
       playerManager: self.playerManager,
       libraryService: self.libraryService,
-      playbackService: self.playbackService
+      playbackService: self.playbackService,
+      syncService: syncService
     )
     self.childCoordinators.append(child)
     child.parentCoordinator = self

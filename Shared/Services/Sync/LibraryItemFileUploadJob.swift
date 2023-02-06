@@ -45,24 +45,30 @@ class LibraryItemFileUploadJob: NSObject, Job, BPLogger {
       return
     }
 
-    guard !isDirectory.boolValue else {
-      callback.done(.fail(BookPlayerError.runtimeError("File url is for a directory")))
-      return
-    }
+    let isDirectoryBoolean = isDirectory.boolValue
 
-    Task { [weak self, callback, fileURL] in
+    Task { [weak self, callback, fileURL, isDirectoryBoolean] in
       guard let self = self else {
         callback.done(.fail(BookPlayerError.runtimeError("Deallocated self in LibraryItemFileUploadJob")))
         return
       }
 
       do {
-        _ = try await self.client.upload(
-          fileURL,
-          remoteURL: self.remoteURL,
-          identifier: self.relativePath,
-          method: .put
-        )
+        if isDirectoryBoolean {
+          let _: Empty = try await self.client.request(
+            url: self.remoteURL,
+            method: .put,
+            parameters: nil,
+            useKeychain: false
+          )
+        } else {
+          _ = try await self.client.upload(
+            fileURL,
+            remoteURL: self.remoteURL,
+            identifier: self.relativePath,
+            method: .put
+          )
+        }
 
         callback.done(.success)
       } catch {
