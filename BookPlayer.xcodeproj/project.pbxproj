@@ -418,6 +418,8 @@
 		9FA7C61D280B0E1200A0C136 /* LoadingUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FA7C61C280B0E1200A0C136 /* LoadingUtils.swift */; };
 		9FACAC6A2970F2F500D01EB7 /* SyncableItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC782879409600D315A2 /* SyncableItem.swift */; };
 		9FACAC6B2970FAB700D01EB7 /* SocketService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56D8A0EE28A838640037592F /* SocketService.swift */; };
+		9FAFC9E829956B4700FD531E /* LibraryItemMetadataUpdateJob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FAFC9E729956B4700FD531E /* LibraryItemMetadataUpdateJob.swift */; };
+		9FAFC9E929956B4700FD531E /* LibraryItemMetadataUpdateJob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FAFC9E729956B4700FD531E /* LibraryItemMetadataUpdateJob.swift */; };
 		9FB7C48D2835A2C1003B917E /* PlayerManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB7C48C2835A2C1003B917E /* PlayerManagerTests.swift */; };
 		9FB7C48F2835A4C9003B917E /* EmptyLibraryServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB7C48E2835A4C9003B917E /* EmptyLibraryServiceMock.swift */; };
 		9FB7C4912835A5A3003B917E /* EmptyPlaybackServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB7C4902835A5A3003B917E /* EmptyPlaybackServiceMock.swift */; };
@@ -1043,6 +1045,7 @@
 		9FA334C427C285650064E8EA /* ChapterListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChapterListView.swift; sourceTree = "<group>"; };
 		9FA334C627C28D650064E8EA /* PlaybackControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackControlsView.swift; sourceTree = "<group>"; };
 		9FA7C61C280B0E1200A0C136 /* LoadingUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingUtils.swift; sourceTree = "<group>"; };
+		9FAFC9E729956B4700FD531E /* LibraryItemMetadataUpdateJob.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryItemMetadataUpdateJob.swift; sourceTree = "<group>"; };
 		9FB7C48C2835A2C1003B917E /* PlayerManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerManagerTests.swift; sourceTree = "<group>"; };
 		9FB7C48E2835A4C9003B917E /* EmptyLibraryServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyLibraryServiceMock.swift; sourceTree = "<group>"; };
 		9FB7C4902835A5A3003B917E /* EmptyPlaybackServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyPlaybackServiceMock.swift; sourceTree = "<group>"; };
@@ -2088,6 +2091,7 @@
 				9F9F3B6F280E4E4B004359DA /* SyncService.swift */,
 				9FDDD2DD289BEE590020C428 /* SyncJobScheduler.swift */,
 				9FD8FE4D2865687800EB2C3D /* LibraryItemMetadataUploadJob.swift */,
+				9FAFC9E729956B4700FD531E /* LibraryItemMetadataUpdateJob.swift */,
 				9FBDBC88287B023300D315A2 /* LibraryItemFileUploadJob.swift */,
 			);
 			path = Sync;
@@ -2875,6 +2879,7 @@
 				9F56C84E287B734C00EA9751 /* BPLogger.swift in Sources */,
 				418CABB525EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
 				9F9F3B71280E4E4B004359DA /* SyncService.swift in Sources */,
+				9FAFC9E929956B4700FD531E /* LibraryItemMetadataUpdateJob.swift in Sources */,
 				4124AB2225DFE1A60007C839 /* CoreDataStack.swift in Sources */,
 				9F7B64722803216100895ECC /* Account+CoreDataProperties.swift in Sources */,
 				9F7B64752803217400895ECC /* Account+CoreDataClass.swift in Sources */,
@@ -3167,6 +3172,7 @@
 				9FC1E45C2814E6A500522FA8 /* NetworkProvider.swift in Sources */,
 				9FC1E45F2814F66F00522FA8 /* AccountAPI.swift in Sources */,
 				9FC1E4782816001400522FA8 /* KeychainService.swift in Sources */,
+				9FAFC9E829956B4700FD531E /* LibraryItemMetadataUpdateJob.swift in Sources */,
 				41A1B122226F88C500EA0400 /* PlaybackRecord+CoreDataProperties.swift in Sources */,
 				9F49072C2903663800054AD6 /* SortType.swift in Sources */,
 				9F1345B92938E0010089B1DE /* ImageIcons.swift in Sources */,

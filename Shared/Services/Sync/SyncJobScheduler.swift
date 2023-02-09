@@ -10,8 +10,13 @@ import Foundation
 import SwiftQueue
 
 public protocol JobSchedulerProtocol {
+  /// Uploads the file to the server
   func scheduleFileUploadJob(for relativePath: String, remoteUrlPath: String)
+  /// Uploads the metadata for the first time to the server
   func scheduleMetadataUploadJob(for item: SyncableItem)
+  /// Update existing metadata in the server
+  func scheduleMetadataUpdateJob(with relativePath: String, parameters: [String: Any])
+  /// Cancel all stored and ongoing jobs
   func cancelAllJobs()
 }
 
@@ -74,6 +79,17 @@ public class SyncJobScheduler: JobSchedulerProtocol {
 
     JobBuilder(type: LibraryItemMetadataUploadJob.type)
       .singleInstance(forId: item.relativePath)
+      .persist()
+      .retry(limit: .limited(3))
+      .internet(atLeast: .wifi)
+      .with(params: parameters)
+      .schedule(manager: metadataQueueManager)
+  }
+
+  /// Note: folder renames originalFilename property
+  public func scheduleMetadataUpdateJob(with relativePath: String, parameters: [String: Any]) {
+    JobBuilder(type: LibraryItemMetadataUploadJob.type)
+      .singleInstance(forId: relativePath, override: true)
       .persist()
       .retry(limit: .limited(3))
       .internet(atLeast: .wifi)
