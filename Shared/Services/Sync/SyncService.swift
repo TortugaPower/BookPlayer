@@ -136,8 +136,6 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   }
 
   func storeLibraryItems(from syncedItems: [SyncableItem], parentFolder: String?) {
-    let syncedItems = syncedItems.sorted(by: { $0.orderRank < $1.orderRank })
-
     syncedItems.forEach { item in
       switch item.type {
       case .book:

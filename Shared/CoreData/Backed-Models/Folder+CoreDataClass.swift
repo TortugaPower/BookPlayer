@@ -184,7 +184,11 @@ extension Folder {
     if let timestamp = syncItem.lastPlayDateTimestamp {
       self.lastPlayDate = Date(timeIntervalSince1970: timestamp)
     }
-    self.syncStatus = .contentsDownload
+    if syncItem.type == .folder {
+      self.syncStatus = .synced
+    } else {
+      self.syncStatus = .metadata
+    }
     self.type = syncItem.type.itemType
   }
 }

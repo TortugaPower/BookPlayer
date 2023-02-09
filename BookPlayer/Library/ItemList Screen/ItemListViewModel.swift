@@ -244,6 +244,19 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     }
   }
 
+  func handleArtworkTap(for item: SimpleLibraryItem) {
+    switch item.syncStatus {
+    case .metadata:
+      // TODO: download file
+      break
+    case .progress:
+      // TODO: cancel download file
+      break
+    case .synced:
+      playNextBook(in: item)
+    }
+  }
+
   func reloadItems(pageSizePadding: Int = 0) {
     let pageSize = self.items.count + pageSizePadding
     let loadedItems = self.loadInitialItems(pageSize: pageSize)

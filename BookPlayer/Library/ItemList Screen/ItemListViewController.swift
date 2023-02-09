@@ -416,7 +416,7 @@ extension ItemListViewController: UITableViewDataSource {
         return
       }
 
-      self?.viewModel.playNextBook(in: item)
+      self?.viewModel.handleArtworkTap(for: item)
     }
 
     cell.title = item.title
@@ -425,6 +425,7 @@ extension ItemListViewController: UITableViewDataSource {
     cell.duration = item.durationFormatted
     cell.type = item.type
     cell.playbackState = viewModel.getPlaybackState(for: item)
+    cell.updateSyncStatus(item: item)
 
     cell.artworkView.kf.setImage(
       with: ArtworkService.getArtworkProvider(for: item.relativePath),

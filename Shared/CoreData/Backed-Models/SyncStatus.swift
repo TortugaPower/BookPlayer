@@ -10,10 +10,10 @@ import Foundation
 
 /// Pending sync status
 @objc public enum SyncStatus: Int16 {
-       /// For local items
-  case metadataUpload, fileUpload,
-       /// For remote items that were synced
-       contentsDownload, parentFolder,
-       /// ongoing states
-       progress, synced
+       /// Only the metadata is stored locally
+  case metadata,
+       /// Downloading file
+       progress,
+       /// We have both the metadata and file stored locally
+       synced
 }
