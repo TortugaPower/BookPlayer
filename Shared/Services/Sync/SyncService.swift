@@ -19,6 +19,13 @@ public protocol SyncServiceProtocol {
     at relativePath: String?,
     shouldSync: Bool
   ) async throws -> ([SyncableItem], SyncableItem?)
+
+  func updateStatus(_ status: SyncStatus, relativePath: String)
+
+  func downloadRemoteFile(
+    for relativePath: String,
+    delegate: URLSessionTaskDelegate
+  ) async throws -> URLSessionDownloadTask
   /// Cancel all scheduled jobs
   func cancelAllJobs()
 }
@@ -153,7 +160,28 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     return (response.content, response.lastItemPlayed)
   }
 
+  public func downloadRemoteFile(
+    for relativePath: String,
+    delegate: URLSessionTaskDelegate
+  ) async throws -> URLSessionDownloadTask {
+    let response: RemoteFileURLResponseContainer = try await self.provider.request(.remoteFileURL(path: relativePath))
+
+    guard let url = response.content.first?.url else {
+      throw BookPlayerError.emptyResponse
+    }
+
+    return self.provider.client.download(
+      url: url,
+      taskDescription: relativePath,
+      delegate: delegate
+    )
+  }
+
   public func cancelAllJobs() {
     jobManager.cancelAllJobs()
+  }
+
+  public func updateStatus(_ status: SyncStatus, relativePath: String) {
+    libraryService.updateStatus(status, relativePath: relativePath)
   }
 }

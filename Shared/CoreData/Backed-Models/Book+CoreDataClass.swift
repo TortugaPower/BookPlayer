@@ -52,6 +52,17 @@ extension CodingUserInfoKey {
 }
 
 extension Book {
+  public func loadChaptersIfNeeded(context: NSManagedObjectContext) {
+    guard
+      chapters?.count == 0,
+      let fileURL
+    else { return }
+
+    let asset = AVAsset(url: fileURL)
+
+    setChapters(from: asset, context: context)
+  }
+
   public func setChapters(from asset: AVAsset, context: NSManagedObjectContext) {
     for locale in asset.availableChapterLocales {
       let chaptersMetadata = asset.chapterMetadataGroups(

@@ -14,12 +14,25 @@ public protocol LibrarySyncProtocol {
   func getItemsToSync(remoteIdentifiers: [String], parentFolder: String?) -> [SyncableItem]?
   func getItemIdentifiers(in parentFolder: String?) -> [String]?
   func fetchSyncableContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SyncableItem]?
+  func updateStatus(_ status: SyncStatus, relativePath: String)
 
   func addBook(from item: SyncableItem, parentFolder: String?)
   func addFolder(from item: SyncableItem, type: SimpleItemType, parentFolder: String?)
 }
 
 extension LibraryService: LibrarySyncProtocol {
+  public func updateStatus(_ status: SyncStatus, relativePath: String) {
+    guard let item = self.getItem(with: relativePath) else { return }
+
+    item.syncStatus = status
+
+    if status == .synced,
+       let book = item as? Book {
+      book.loadChaptersIfNeeded(context: dataManager.getContext())
+    }
+
+    dataManager.saveContext()
+  }
   public func addBook(from item: SyncableItem, parentFolder: String?) {
     let newBook = Book(
       syncItem: item,
