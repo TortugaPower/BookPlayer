@@ -21,4 +21,5 @@ extension Notification.Name {
   public static let logout = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).account.logout")
   public static let itemMetadatUploaded = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).item.metadata.upload")
   public static let folderProgressUpdated = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).folder.progress.update")
+  public static let downloadProgressUpdated = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).download.update")
 }

@@ -28,6 +28,12 @@ public protocol NetworkClientProtocol {
     identifier: String,
     method: HTTPMethod
   ) async throws -> (Data, URLResponse)
+
+  func download(
+    url: URL,
+    taskDescription: String?,
+    delegate: URLSessionTaskDelegate
+  ) -> URLSessionDownloadTask
 }
 
 public class NetworkClient: NetworkClientProtocol, BPLogger {
@@ -65,6 +71,24 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
     let request = try buildURLRequest(path: path, method: method, parameters: parameters)
 
     return try await executeRequest(request, method: method, parameters: parameters)
+  }
+
+  public func download(
+    url: URL,
+    taskDescription: String?,
+    delegate: URLSessionTaskDelegate
+  ) -> URLSessionDownloadTask {
+    let session = URLSession(
+      configuration: URLSessionConfiguration.default,
+      delegate: delegate,
+      delegateQueue: OperationQueue()
+    )
+
+    let task = session.downloadTask(with: url)
+    task.taskDescription = taskDescription
+    task.resume()
+
+    return task
   }
 
   public func upload(
@@ -172,7 +196,7 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
       let queryItems = parameters.map({
         URLQueryItem(
           name: $0.0,
-          value: "\($0.1)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+          value: "\($0.1)"
         )
       })
       components.queryItems = queryItems

@@ -420,6 +420,8 @@
 		9FACAC6B2970FAB700D01EB7 /* SocketService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56D8A0EE28A838640037592F /* SocketService.swift */; };
 		9FAFC9E829956B4700FD531E /* LibraryItemMetadataUpdateJob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FAFC9E729956B4700FD531E /* LibraryItemMetadataUpdateJob.swift */; };
 		9FAFC9E929956B4700FD531E /* LibraryItemMetadataUpdateJob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FAFC9E729956B4700FD531E /* LibraryItemMetadataUpdateJob.swift */; };
+		9FAFC9F42995BB5C00FD531E /* RemoteFileURLResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FAFC9F32995BB5C00FD531E /* RemoteFileURLResponse.swift */; };
+		9FAFC9F52995BB5C00FD531E /* RemoteFileURLResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FAFC9F32995BB5C00FD531E /* RemoteFileURLResponse.swift */; };
 		9FB7C48D2835A2C1003B917E /* PlayerManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB7C48C2835A2C1003B917E /* PlayerManagerTests.swift */; };
 		9FB7C48F2835A4C9003B917E /* EmptyLibraryServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB7C48E2835A4C9003B917E /* EmptyLibraryServiceMock.swift */; };
 		9FB7C4912835A5A3003B917E /* EmptyPlaybackServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB7C4902835A5A3003B917E /* EmptyPlaybackServiceMock.swift */; };
@@ -1046,6 +1048,7 @@
 		9FA334C627C28D650064E8EA /* PlaybackControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackControlsView.swift; sourceTree = "<group>"; };
 		9FA7C61C280B0E1200A0C136 /* LoadingUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingUtils.swift; sourceTree = "<group>"; };
 		9FAFC9E729956B4700FD531E /* LibraryItemMetadataUpdateJob.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryItemMetadataUpdateJob.swift; sourceTree = "<group>"; };
+		9FAFC9F32995BB5C00FD531E /* RemoteFileURLResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteFileURLResponse.swift; sourceTree = "<group>"; };
 		9FB7C48C2835A2C1003B917E /* PlayerManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerManagerTests.swift; sourceTree = "<group>"; };
 		9FB7C48E2835A4C9003B917E /* EmptyLibraryServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyLibraryServiceMock.swift; sourceTree = "<group>"; };
 		9FB7C4902835A5A3003B917E /* EmptyPlaybackServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyPlaybackServiceMock.swift; sourceTree = "<group>"; };
@@ -2048,6 +2051,7 @@
 				9FBDBC782879409600D315A2 /* SyncableItem.swift */,
 				9FBDBC7F2879C6C900D315A2 /* UploadItemResponse.swift */,
 				9FBDBC7C287940D900D315A2 /* ContentsResponse.swift */,
+				9FAFC9F32995BB5C00FD531E /* RemoteFileURLResponse.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -2868,6 +2872,7 @@
 				4140EA6E227289960009F794 /* DeleteMode.swift in Sources */,
 				9FDDD2FA289C2E9B0020C428 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
 				9F6BC86727E6D03E002CF2A6 /* WatchApplicationContext.swift in Sources */,
+				9FAFC9F52995BB5C00FD531E /* RemoteFileURLResponse.swift in Sources */,
 				4140EA77227289B90009F794 /* Chapter+CoreDataProperties.swift in Sources */,
 				4140EA7B227289C40009F794 /* Book+CoreDataProperties.swift in Sources */,
 				4140EA81227289D80009F794 /* Folder+CoreDataProperties.swift in Sources */,
@@ -3133,6 +3138,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9FC1E46C2815A8CA00522FA8 /* LibraryAPI.swift in Sources */,
+				9FAFC9F42995BB5C00FD531E /* RemoteFileURLResponse.swift in Sources */,
 				4124AB2125DFE1A60007C839 /* CoreDataStack.swift in Sources */,
 				41A1B11F226F88C500EA0400 /* Chapter+CoreDataClass.swift in Sources */,
 				4138CE1626E584B60014F11E /* BookmarkType.swift in Sources */,
