@@ -9,6 +9,29 @@
 import UIKit
 
 extension UIViewController {
+  func showAlert(_ content: BPAlertContent) {
+    let alert = UIAlertController(
+      title: content.title,
+      message: content.message,
+      preferredStyle: .alert
+    )
+
+    let okButton = UIAlertAction(title: content.textButton, style: .default) { _ in
+      content.confirmationAction()
+    }
+
+    alert.addAction(okButton)
+
+    if let cancelTextButton = content.cancelTextButton {
+      let cancelButton = UIAlertAction(title: cancelTextButton, style: .cancel) { _ in
+        content.cancelAction()
+      }
+      alert.addAction(cancelButton)
+    }
+
+    self.present(alert, animated: true, completion: nil)
+  }
+
     func showAlert(_ title: String?, message: String?, style: UIAlertController.Style = .alert, completion: (() -> Void)? = nil) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: style)
         let okButton = UIAlertAction(title: "ok_button".localized, style: .default) { _ in

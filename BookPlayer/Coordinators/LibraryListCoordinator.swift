@@ -41,10 +41,22 @@ class LibraryListCoordinator: ItemListCoordinator {
 
   override func start() {
     let vc = ItemListViewController.instantiate(from: .Main)
-    let viewModel = ItemListViewModel(folderRelativePath: nil,
-                                      playerManager: self.playerManager,
-                                      libraryService: self.libraryService,
-                                      themeAccent: ThemeManager.shared.currentTheme.linkColor)
+    let viewModel = ItemListViewModel(
+      folderRelativePath: nil,
+      playerManager: self.playerManager,
+      libraryService: self.libraryService,
+      playbackService: self.playbackService,
+      syncService: self.syncService,
+      themeAccent: ThemeManager.shared.currentTheme.linkColor
+    )
+    viewModel.onTransition = { [weak self] route in
+      switch route {
+      case .showFolder(let relativePath):
+        self?.showFolder(relativePath)
+      case .loadPlayer(let relativePath):
+        self?.loadPlayer(relativePath)
+      }
+    }
     viewModel.coordinator = self
     vc.viewModel = viewModel
     vc.navigationItem.largeTitleDisplayMode = .automatic

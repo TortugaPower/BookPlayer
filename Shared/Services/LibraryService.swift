@@ -20,6 +20,7 @@ public protocol LibraryServiceProtocol {
   func createTheme(params: [String: Any]) -> Theme
 
   func createBook(from url: URL) -> Book
+  func loadChaptersIfNeeded(relativePath: String)
   func getChapters(from relativePath: String) -> [SimpleChapter]?
   func getItem(with relativePath: String) -> LibraryItem?
   func findBooks(containing fileURL: URL) -> [Book]?
@@ -163,6 +164,14 @@ public final class LibraryService: LibraryServiceProtocol {
     let newBook = Book(from: url, context: self.dataManager.getContext())
     self.dataManager.saveContext()
     return newBook
+  }
+
+  public func loadChaptersIfNeeded(relativePath: String) {
+    guard let book = self.getItem(with: relativePath) as? Book else { return }
+
+    book.loadChaptersIfNeeded(context: dataManager.getContext())
+
+    dataManager.saveContext()
   }
 
   public func getChapters(from relativePath: String) -> [SimpleChapter]? {
@@ -490,9 +499,7 @@ public final class LibraryService: LibraryServiceProtocol {
         let relativePath = dictionary["relativePath"] as? String,
         let originalFileName = dictionary["originalFileName"] as? String,
         let rawType = dictionary["type"] as? Int16,
-        let type = SimpleItemType(rawValue: rawType),
-        let rawSyncStatus = dictionary["syncStatus"] as? Int16,
-        let syncStatus = SyncStatus(rawValue: rawSyncStatus)
+        let type = SimpleItemType(rawValue: rawType)
       else { return nil }
 
       return SimpleLibraryItem(
@@ -505,8 +512,7 @@ public final class LibraryService: LibraryServiceProtocol {
         parentFolder: dictionary["folder.relativePath"] as? String,
         originalFileName: originalFileName,
         lastPlayDate: dictionary["lastPlayDate"] as? Date,
-        type: type,
-        syncStatus: syncStatus
+        type: type
       )
     })
   }

@@ -70,15 +70,6 @@ class ItemListCoordinator: Coordinator {
     }
   }
 
-  func showItemContents(_ item: SimpleLibraryItem) {
-    switch item.type {
-    case .folder:
-      self.showFolder(item.relativePath)
-    case .book, .bound:
-      self.loadPlayer(item.relativePath)
-    }
-  }
-
   func showFolder(_ relativePath: String) {
     let child = FolderListCoordinator(
       navigationController: navigationController,
@@ -115,17 +106,6 @@ class ItemListCoordinator: Coordinator {
       syncService: syncService
     )
     coordinator.start()
-  }
-
-  func loadNextBook(in folder: Folder) {
-    guard
-      let nextItem = try? self.playbackService.getFirstPlayableItem(
-        in: folder,
-        isUnfinished: true
-      )
-    else { return }
-
-    loadPlayer(nextItem.relativePath)
   }
 
   func loadPlayer(_ relativePath: String) {

@@ -30,7 +30,6 @@ extension LibraryItem {
   @NSManaged public var bookmarks: NSSet?
   @NSManaged public var lastPlayed: Library?
   @NSManaged public var details: String!
-  @NSManaged public var syncStatus: SyncStatus
   @NSManaged public var type: ItemType
 }
 

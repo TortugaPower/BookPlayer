@@ -87,6 +87,26 @@ class BookCellView: UITableViewCell {
     }
   }
 
+  var downloadState: DownloadState = DownloadState.downloaded {
+    didSet {
+      switch self.downloadState {
+      case .notDownloaded:
+        statusBackgroundView.isHidden = false
+        statusImageView.isHidden = false
+        downloadProgressView.isHidden = true
+      case .downloading(let progress):
+        statusBackgroundView.isHidden = false
+        downloadProgressView.isHidden = false
+        statusImageView.isHidden = true
+        downloadProgressView.value = progress
+      case .downloaded:
+        statusBackgroundView.isHidden = true
+        statusImageView.isHidden = true
+        downloadProgressView.isHidden = true
+      }
+    }
+  }
+
     override func awakeFromNib() {
         super.awakeFromNib()
         self.setup()
@@ -142,27 +162,6 @@ class BookCellView: UITableViewCell {
     super.setEditing(editing, animated: animated)
 
     self.progressView.isHidden = editing
-  }
-
-  func updateSyncStatus(item: SimpleLibraryItem) {
-    switch item.syncStatus {
-    case .metadata:
-      if item.type == .book {
-        statusBackgroundView.isHidden = false
-        statusImageView.isHidden = false
-      } else {
-        statusBackgroundView.isHidden = true
-        statusImageView.isHidden = true
-      }
-      downloadProgressView.isHidden = true
-    case .progress:
-      statusImageView.isHidden = true
-      downloadProgressView.isHidden = false
-    case .synced:
-      statusBackgroundView.isHidden = true
-      statusImageView.isHidden = true
-      downloadProgressView.isHidden = true
-    }
   }
 
     func setPlaybackColors(_ theme: SimpleTheme) {

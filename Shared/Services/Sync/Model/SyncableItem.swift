@@ -34,8 +34,7 @@ public struct SyncableItem {
     "isFinished",
     "orderRank",
     "lastPlayDate",
-    "type",
-    "syncStatus"
+    "type"
   ]
 }
 

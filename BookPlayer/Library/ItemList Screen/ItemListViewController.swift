@@ -151,7 +151,8 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
     self.tableView.dragDelegate = self
     self.tableView.dropDelegate = self
 
-    self.updateSnapshot(with: self.viewModel.loadInitialItems(), animated: false)
+    self.viewModel.loadInitialItems()
+    self.toggleEmptyStateView()
   }
 
   func bindNetworkObserver() {
@@ -244,15 +245,31 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
   }
 
   func bindDataItems() {
-    self.viewModel.itemsUpdates.sink { [weak self] items in
-      self?.updateSnapshot(with: items, animated: true)
-    }
-    .store(in: &disposeBag)
+    self.viewModel.observeEvents()
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] event in
+        switch event {
+        case .newData:
+          self?.reloadData()
+        case .reloadIndex(let indexPath):
+          self?.tableView.reloadRows(at: [indexPath], with: .none)
+        case .downloadState(let state, let indexPath):
+          self?.updateDownloadState(state, for: indexPath)
+        case .showAlert(let content):
+          self?.showAlert(content)
+        }
+      }
+      .store(in: &disposeBag)
+  }
 
-    self.viewModel.itemProgressUpdates.sink { [weak self] indexPath in
-      self?.tableView.reloadRows(at: [indexPath], with: .none)
+  func updateDownloadState(_ state: DownloadState, for indexPath: IndexPath) {
+    guard
+      let cell = tableView.cellForRow(at: indexPath) as? BookCellView
+    else {
+      return
     }
-    .store(in: &disposeBag)
+
+    cell.downloadState = state
   }
 
   func bindTransitionActions() {
@@ -322,7 +339,7 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
     }
   }
 
-  func updateSnapshot(with items: [SimpleLibraryItem], animated: Bool) {
+  func reloadData() {
     self.toggleEmptyStateView()
 
     var selectedIndexPaths: [IndexPath]?
@@ -425,7 +442,7 @@ extension ItemListViewController: UITableViewDataSource {
     cell.duration = item.durationFormatted
     cell.type = item.type
     cell.playbackState = viewModel.getPlaybackState(for: item)
-    cell.updateSyncStatus(item: item)
+    cell.downloadState = viewModel.getDownloadState(for: item)
 
     cell.artworkView.kf.setImage(
       with: ArtworkService.getArtworkProvider(for: item.relativePath),

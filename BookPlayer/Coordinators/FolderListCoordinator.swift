@@ -37,8 +37,18 @@ class FolderListCoordinator: ItemListCoordinator {
       folderRelativePath: self.folderRelativePath,
       playerManager: self.playerManager,
       libraryService: self.libraryService,
+      playbackService: self.playbackService,
+      syncService: self.syncService,
       themeAccent: ThemeManager.shared.currentTheme.linkColor
     )
+    viewModel.onTransition = { [weak self] route in
+      switch route {
+      case .showFolder(let relativePath):
+        self?.showFolder(relativePath)
+      case .loadPlayer(let relativePath):
+        self?.loadPlayer(relativePath)
+      }
+    }
     viewModel.coordinator = self
     vc.viewModel = viewModel
     presentingViewController = navigationController

@@ -23,7 +23,6 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
   public let originalFileName: String
   public let lastPlayDate: Date?
   public let type: SimpleItemType
-  public let syncStatus: SyncStatus
 
   public var progress: Double {
     if type == .folder,
@@ -32,6 +31,10 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
     }
 
     return isFinished ? 1.0 : (percentCompleted / 100)
+  }
+
+  public var fileURL: URL {
+    return DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
   }
 
   public static func == (lhs: SimpleLibraryItem, rhs: SimpleLibraryItem) -> Bool {
@@ -49,7 +52,6 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
     "originalFileName",
     "lastPlayDate",
     "type",
-    "syncStatus"
   ]
 
   public func hash(into hasher: inout Hasher) {
@@ -69,8 +71,7 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
     parentFolder: String?,
     originalFileName: String,
     lastPlayDate: Date?,
-    type: SimpleItemType,
-    syncStatus: SyncStatus
+    type: SimpleItemType
   ) {
     self.title = title
     self.details = details
@@ -83,7 +84,6 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
     self.originalFileName = originalFileName
     self.lastPlayDate = lastPlayDate
     self.type = type
-    self.syncStatus = syncStatus
   }
 }
 
@@ -99,7 +99,6 @@ extension SimpleLibraryItem {
     self.parentFolder = item.folder?.relativePath
     self.originalFileName = item.originalFileName
     self.lastPlayDate = item.lastPlayDate
-    self.syncStatus = item.syncStatus
 
     switch item.type {
     case .folder:

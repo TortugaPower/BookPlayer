@@ -160,7 +160,6 @@ extension Book {
     if let timestamp = syncItem.lastPlayDateTimestamp {
       self.lastPlayDate = Date(timeIntervalSince1970: timestamp)
     }
-    self.syncStatus = .metadata
     self.type = .book
     // chapters will be loaded after the book is downloaded
   }

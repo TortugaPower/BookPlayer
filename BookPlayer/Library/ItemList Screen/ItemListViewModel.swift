@@ -13,16 +13,37 @@ import MediaPlayer
 import Themeable
 
 class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
+  /// Available routes for this screen
+  enum Routes {
+    case showFolder(relativePath: String)
+    case loadPlayer(relativePath: String)
+  }
+
+  enum Events {
+    case newData
+    case reloadIndex(_ indexPath: IndexPath)
+    case downloadState(_ state: DownloadState, indexPath: IndexPath)
+    case showAlert(content: BPAlertContent)
+  }
+
   let folderRelativePath: String?
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
+  let playbackService: PlaybackServiceProtocol
+  let syncService: SyncServiceProtocol
   var offset = 0
 
   public private(set) var defaultArtwork: Data?
-  public private(set) var itemsUpdates = PassthroughSubject<[SimpleLibraryItem], Never>()
-  public private(set) var itemProgressUpdates = PassthroughSubject<IndexPath, Never>()
   public private(set) var items = [SimpleLibraryItem]()
+
+  var eventsPublisher = InterfaceUpdater<ItemListViewModel.Events>()
+
   private var bookProgressSubscription: AnyCancellable?
+  private var downloadDelegateInterface = BPTaskDownloadDelegate()
+  private lazy var downloadTasksDictionary = [String: URLSessionDownloadTask]()
+  /// Callback to handle actions on this screen
+  public var onTransition: Transition<Routes>?
+
   private var disposeBag = Set<AnyCancellable>()
   /// Cached path for containing folder of playing item in relation to this list path
   private var playingItemParentPath: String?
@@ -31,19 +52,24 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     return self.libraryService.getMaxItemsCount(at: self.folderRelativePath)
   }
 
+  /// Initializer
   init(
     folderRelativePath: String?,
     playerManager: PlayerManagerProtocol,
     libraryService: LibraryServiceProtocol,
+    playbackService: PlaybackServiceProtocol,
+    syncService: SyncServiceProtocol,
     themeAccent: UIColor
   ) {
     self.folderRelativePath = folderRelativePath
     self.playerManager = playerManager
     self.libraryService = libraryService
+    self.playbackService = playbackService
+    self.syncService = syncService
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: themeAccent)?.pngData()
     super.init()
 
-    self.bindBookObservers()
+    self.bindObservers()
   }
 
   func getEmptyStateImageName() -> String {
@@ -62,6 +88,15 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     }
 
     return item.title
+  }
+
+  func observeEvents() -> AnyPublisher<ItemListViewModel.Events, Never> {
+    eventsPublisher.eraseToAnyPublisher()
+  }
+
+  func bindObservers() {
+    bindBookObservers()
+    bindDownloadObservers()
   }
 
   func bindBookObservers() {
@@ -99,8 +134,47 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         self?.items[index].percentCompleted = progress
 
         let indexModified = IndexPath(row: index, section: BPSection.data.rawValue)
-        self?.itemProgressUpdates.send(indexModified)
+        self?.sendEvent(.reloadIndex(indexModified))
       }.store(in: &disposeBag)
+  }
+
+  func bindDownloadObservers() {
+    downloadDelegateInterface.didFinishDownloadingTask = { [weak self] (task, location) in
+      guard
+        let self = self,
+        let relativePath = task.taskDescription
+      else { return }
+
+      self.downloadTasksDictionary[relativePath] = nil
+      let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
+
+      do {
+        try FileManager.default.moveItem(at: location, to: fileURL)
+        self.libraryService.loadChaptersIfNeeded(relativePath: relativePath)
+
+        guard
+          let index = self.items.firstIndex(where: { relativePath == $0.relativePath })
+        else { return }
+
+        let indexModified = IndexPath(row: index, section: BPSection.data.rawValue)
+
+        self.sendEvent(.reloadIndex(indexModified))
+      } catch {
+        self.sendEvent(.showAlert(
+          content: BPAlertContent(title: "error_title".localized, message: error.localizedDescription))
+        )
+      }
+    }
+
+    downloadDelegateInterface.downloadProgressUpdated = { [weak self] (task, progress) in
+      guard
+        let relativePath = task.taskDescription,
+        let index = self?.items.firstIndex(where: { relativePath == $0.relativePath })
+      else { return }
+
+      let indexModified = IndexPath(row: index, section: BPSection.data.rawValue)
+      self?.sendEvent(.downloadState(.downloading(progress: progress), indexPath: indexModified))
+    }
   }
 
   func getPathForParentOfItem(currentItem: PlayableItem) -> String? {
@@ -141,29 +215,25 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         self.items[index].percentCompleted = percentCompleted
 
         let indexModified = IndexPath(row: index, section: BPSection.data.rawValue)
-        self.itemProgressUpdates.send(indexModified)
+        self.sendEvent(.reloadIndex(indexModified))
       })
   }
 
   func clearPlaybackState() {
-    self.itemsUpdates.send(self.items)
+    sendEvent(.newData)
   }
 
-  func loadInitialItems(pageSize: Int = 13) -> [SimpleLibraryItem] {
+  func loadInitialItems(pageSize: Int = 13) {
     guard
       let fetchedItems = self.libraryService.fetchContents(
         at: self.folderRelativePath,
         limit: pageSize,
         offset: 0
       )
-    else {
-      return []
-    }
+    else { return }
 
     self.offset = fetchedItems.count
     self.items = fetchedItems
-
-    return fetchedItems
   }
 
   func loadNextItems(pageSize: Int = 13) {
@@ -183,7 +253,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     self.offset += fetchedItems.count
 
     self.items += fetchedItems
-    self.itemsUpdates.send(self.items)
+    sendEvent(.newData)
   }
 
   func loadAllItemsIfNeeded() {
@@ -202,7 +272,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
     self.offset = fetchedItems.count
     self.items = fetchedItems
-    self.itemsUpdates.send(self.items)
+    sendEvent(.newData)
   }
 
   func getItem(of type: SimpleItemType, after currentIndex: Int) -> Int? {
@@ -225,42 +295,95 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     return index
   }
 
-  func playNextBook(in item: SimpleLibraryItem) {
-    switch item.type {
-    case .book, .bound:
-      self.coordinator.loadPlayer(item.relativePath)
-    case .folder:
-      guard
-        let currentItem = self.playerManager.currentItem,
-        currentItem.relativePath.contains(item.relativePath)
-      else {
-        if let folder = self.libraryService.getItem(with: item.relativePath) as? Folder {
-          self.coordinator.loadNextBook(in: folder)
-        }
-        return
-      }
+  private func playNextBook(in item: SimpleLibraryItem) {
+    guard item.type == .folder else { return }
 
-      self.coordinator.loadPlayer(currentItem.relativePath)
+    /// If the player already is playing a subset of this folder, let the player handle playback
+    if let currentItem = self.playerManager.currentItem,
+       currentItem.relativePath.contains(item.relativePath) {
+      self.coordinator.playerManager.play()
+    } else if
+      let folder = self.libraryService.getItem(with: item.relativePath) as? Folder,
+      let nextPlayableItem = try? self.playbackService.getFirstPlayableItem(
+        in: folder,
+        isUnfinished: true
+      ),
+      let nextItem = libraryService.fetchContents(at: nextPlayableItem.relativePath, limit: 1, offset: nil)?.first {
+
+      showItemContents(nextItem)
     }
   }
 
-  func handleArtworkTap(for item: SimpleLibraryItem) {
-    switch item.syncStatus {
-    case .metadata:
-      // TODO: download file
-      break
-    case .progress:
-      // TODO: cancel download file
-      break
-    case .synced:
-      playNextBook(in: item)
+  func getDownloadState(for item: SimpleLibraryItem) -> DownloadState {
+    /// Only process if subscription is active
+    guard syncService.isActive else { return .downloaded }
+
+    if FileManager.default.fileExists(atPath: item.fileURL.path) {
+      return .downloaded
     }
+
+    if let task = downloadTasksDictionary[item.relativePath] {
+      return .downloading(progress: task.progress.fractionCompleted)
+    }
+
+    return .notDownloaded
+  }
+
+  func handleArtworkTap(for item: SimpleLibraryItem) {
+    switch item.type {
+    case .folder:
+      playNextBook(in: item)
+    case .bound, .book:
+      switch getDownloadState(for: item) {
+      case .notDownloaded:
+        startDownload(of: item)
+      case .downloading:
+        cancelDownload(of: item)
+      case .downloaded:
+        onTransition?(.loadPlayer(relativePath: item.relativePath))
+      }
+    }
+  }
+
+  func startDownload(of item: SimpleLibraryItem) {
+    Task { [weak self] in
+      do {
+        let task = try await self?.syncService.downloadRemoteFile(
+          for: item.relativePath,
+          delegate: downloadDelegateInterface
+        )
+
+        self?.downloadTasksDictionary[item.relativePath] = task
+      } catch {
+        self?.sendEvent(.showAlert(
+          content: BPAlertContent(title: "error_title".localized, message: error.localizedDescription))
+        )
+      }
+    }
+  }
+
+  func cancelDownload(of item: SimpleLibraryItem) {
+    guard let task = downloadTasksDictionary[item.relativePath] else { return }
+
+    sendEvent(.showAlert(
+      content: BPAlertContent(
+        message: "Cancel download",
+        cancelAction: {},
+        confirmationAction: { [task, item, weak self] in
+          task.cancel()
+          self?.downloadTasksDictionary[item.relativePath] = nil
+          if let index = self?.items.firstIndex(of: item) {
+            self?.sendEvent(.reloadIndex(IndexPath(row: index, section: .data)))
+          }
+        }
+      )
+    ))
   }
 
   func reloadItems(pageSizePadding: Int = 0) {
     let pageSize = self.items.count + pageSizePadding
-    let loadedItems = self.loadInitialItems(pageSize: pageSize)
-    self.itemsUpdates.send(loadedItems)
+    self.loadInitialItems(pageSize: pageSize)
+    sendEvent(.newData)
   }
 
   func getPlaybackState(for item: SimpleLibraryItem) -> PlaybackState {
@@ -276,7 +399,17 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func showItemContents(_ item: SimpleLibraryItem) {
-    self.coordinator.showItemContents(item)
+    switch item.type {
+    case .folder:
+      onTransition?(.showFolder(relativePath: item.relativePath))
+    case .book, .bound:
+      switch getDownloadState(for: item) {
+      case .downloading:
+        cancelDownload(of: item)
+      case .downloaded, .notDownloaded:
+        onTransition?(.loadPlayer(relativePath: item.relativePath))
+      }
+    }
   }
 
   func importIntoFolder(_ folder: SimpleLibraryItem, items: [LibraryItem], type: SimpleItemType) {
@@ -288,7 +421,9 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
       libraryService.rebuildFolderDetails(folder.relativePath)
     } catch {
-      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
+      sendEvent(.showAlert(
+        content: BPAlertContent(title: "error_title".localized, message: error.localizedDescription))
+      )
     }
 
     self.coordinator.reloadItemsWithPadding()
@@ -311,7 +446,9 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       }
 
     } catch {
-      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
+      sendEvent(.showAlert(
+        content: BPAlertContent(title: "error_title".localized, message: error.localizedDescription))
+      )
     }
 
     self.coordinator.reloadItemsWithPadding(padding: 1)
@@ -328,7 +465,9 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         }
       }
     } catch {
-      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
+      sendEvent(.showAlert(
+        content: BPAlertContent(title: "error_title".localized, message: error.localizedDescription))
+      )
     }
 
     self.coordinator.reloadItemsWithPadding()
@@ -344,7 +483,9 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         libraryService.rebuildFolderDetails(parentFolder)
       }
     } catch {
-      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
+      sendEvent(.showAlert(
+        content: BPAlertContent(title: "error_title".localized, message: error.localizedDescription))
+      )
     }
 
     self.coordinator.reloadItemsWithPadding(padding: selectedItems.count)
@@ -359,7 +500,9 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       try self.libraryService.moveItems(fetchedItems, inside: folder.relativePath, moveFiles: true)
       self.libraryService.rebuildFolderDetails(folder.relativePath)
     } catch {
-      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
+      sendEvent(.showAlert(
+        content: BPAlertContent(title: "error_title".localized, message: error.localizedDescription))
+      )
     }
 
     self.coordinator.reloadItemsWithPadding()
@@ -375,7 +518,9 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         libraryService.rebuildFolderDetails(parentFolder)
       }
     } catch {
-      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
+      sendEvent(.showAlert(
+        content: BPAlertContent(title: "error_title".localized, message: error.localizedDescription))
+      )
     }
 
     self.coordinator.reloadItemsWithPadding()
@@ -393,7 +538,9 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         libraryService.rebuildFolderDetails(folderRelativePath)
       }
     } catch {
-      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
+      sendEvent(.showAlert(
+        content: BPAlertContent(title: "error_title".localized, message: error.localizedDescription))
+      )
       return
     }
 
@@ -424,7 +571,9 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     do {
       try self.libraryService.moveItems(items, inside: nil, moveFiles: true)
     } catch {
-      self.coordinator.showAlert("error_title".localized, message: error.localizedDescription)
+      sendEvent(.showAlert(
+        content: BPAlertContent(title: "error_title".localized, message: error.localizedDescription))
+      )
     }
 
     self.coordinator.reloadItemsWithPadding(padding: items.count)
@@ -442,7 +591,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       destinationIndexPath: destinationIndexPath
     )
 
-    _ = self.loadInitialItems(pageSize: self.items.count)
+    self.loadInitialItems(pageSize: self.items.count)
   }
 
   func updateDefaultArtwork(for theme: SimpleTheme) {
@@ -575,11 +724,15 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
       if response.error != nil,
          let error = response.error {
-        self?.coordinator.showAlert("network_error_title".localized, message: error.localizedDescription)
+        self?.sendEvent(.showAlert(
+          content: BPAlertContent(title: "network_error_title".localized, message: error.localizedDescription))
+        )
       }
 
       if let response = response.response, response.statusCode >= 300 {
-        self?.coordinator.showAlert("network_error_title".localized, message: "Code \(response.statusCode)")
+        self?.sendEvent(.showAlert(
+          content: BPAlertContent(title: "network_error_title".localized, message: "Code \(response.statusCode)"))
+        )
       }
     }
   }
@@ -595,5 +748,9 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     } catch {
       print("Fail to move dropped file to the Documents directory: \(error.localizedDescription)")
     }
+  }
+
+  private func sendEvent(_ event: ItemListViewModel.Events) {
+    eventsPublisher.send(event)
   }
 }

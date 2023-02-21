@@ -189,8 +189,8 @@ public final class AccountService: AccountServiceProtocol {
     self.updateAccount(
       id: "testId1234",
       email: "test@test.com",
-      donationMade: nil,
-      hasSubscription: nil
+      donationMade: true,
+      hasSubscription: true
     )
 
     try self.keychain.setAccessToken(token)

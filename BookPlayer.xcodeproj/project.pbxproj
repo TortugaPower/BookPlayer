@@ -422,6 +422,10 @@
 		9FAFC9E929956B4700FD531E /* LibraryItemMetadataUpdateJob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FAFC9E729956B4700FD531E /* LibraryItemMetadataUpdateJob.swift */; };
 		9FAFC9F42995BB5C00FD531E /* RemoteFileURLResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FAFC9F32995BB5C00FD531E /* RemoteFileURLResponse.swift */; };
 		9FAFC9F52995BB5C00FD531E /* RemoteFileURLResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FAFC9F32995BB5C00FD531E /* RemoteFileURLResponse.swift */; };
+		9FB20EA329A1BB750021663B /* BPTaskDownloadDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EA229A1BB750021663B /* BPTaskDownloadDelegate.swift */; };
+		9FB20EA529A281140021663B /* DownloadState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EA429A281140021663B /* DownloadState.swift */; };
+		9FB20EB729A423410021663B /* InterfaceUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EB629A423410021663B /* InterfaceUpdater.swift */; };
+		9FB20EB929A479FB0021663B /* BPAlertContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EB829A479FB0021663B /* BPAlertContent.swift */; };
 		9FB7C48D2835A2C1003B917E /* PlayerManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB7C48C2835A2C1003B917E /* PlayerManagerTests.swift */; };
 		9FB7C48F2835A4C9003B917E /* EmptyLibraryServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB7C48E2835A4C9003B917E /* EmptyLibraryServiceMock.swift */; };
 		9FB7C4912835A5A3003B917E /* EmptyPlaybackServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB7C4902835A5A3003B917E /* EmptyPlaybackServiceMock.swift */; };
@@ -1049,6 +1053,10 @@
 		9FA7C61C280B0E1200A0C136 /* LoadingUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingUtils.swift; sourceTree = "<group>"; };
 		9FAFC9E729956B4700FD531E /* LibraryItemMetadataUpdateJob.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryItemMetadataUpdateJob.swift; sourceTree = "<group>"; };
 		9FAFC9F32995BB5C00FD531E /* RemoteFileURLResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteFileURLResponse.swift; sourceTree = "<group>"; };
+		9FB20EA229A1BB750021663B /* BPTaskDownloadDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPTaskDownloadDelegate.swift; sourceTree = "<group>"; };
+		9FB20EA429A281140021663B /* DownloadState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadState.swift; sourceTree = "<group>"; };
+		9FB20EB629A423410021663B /* InterfaceUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterfaceUpdater.swift; sourceTree = "<group>"; };
+		9FB20EB829A479FB0021663B /* BPAlertContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPAlertContent.swift; sourceTree = "<group>"; };
 		9FB7C48C2835A2C1003B917E /* PlayerManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerManagerTests.swift; sourceTree = "<group>"; };
 		9FB7C48E2835A4C9003B917E /* EmptyLibraryServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyLibraryServiceMock.swift; sourceTree = "<group>"; };
 		9FB7C4902835A5A3003B917E /* EmptyPlaybackServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyPlaybackServiceMock.swift; sourceTree = "<group>"; };
@@ -1237,6 +1245,7 @@
 				C3D3852E20C1F10F00A0ACC7 /* Views */,
 				41188D2726ED4D5C0017124E /* ItemListViewController.swift */,
 				41188D2926ED4D8E0017124E /* ItemListViewModel.swift */,
+				9FB20EA229A1BB750021663B /* BPTaskDownloadDelegate.swift */,
 				41188D3B26F00C380017124E /* ItemListTableDataSource.swift */,
 			);
 			path = "ItemList Screen";
@@ -1246,6 +1255,7 @@
 			isa = PBXGroup;
 			children = (
 				62F2F25E25E18C7500E1D6A0 /* ImportableItem.swift */,
+				9FB20EA429A281140021663B /* DownloadState.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -2153,6 +2163,7 @@
 				4137BBCB272DAF2E009ED9FE /* BaseViewController.swift */,
 				9FA7C61C280B0E1200A0C136 /* LoadingUtils.swift */,
 				9F134604293D0A410089B1DE /* ThemeViewModel.swift */,
+				9FB20EB829A479FB0021663B /* BPAlertContent.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -2195,6 +2206,7 @@
 				C3FA301D20E0024900393DDA /* BPArtworkView.swift */,
 				9F1804B727A4AEC500FEDFE5 /* AccessibleSliderView.swift */,
 				9F22DE3F288D8BC800056FCD /* BaseLabel.swift */,
+				9FB20EB629A423410021663B /* InterfaceUpdater.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -2956,6 +2968,7 @@
 				C3FE3F8220A090880055B9C6 /* limitPanAngle.swift in Sources */,
 				9F1804B827A4AEC500FEDFE5 /* AccessibleSliderView.swift in Sources */,
 				4124122626D1640000B099DB /* StorageTableViewCell.swift in Sources */,
+				9FB20EB929A479FB0021663B /* BPAlertContent.swift in Sources */,
 				41B68FFF2705477D00F657C3 /* StorageCoordinator.swift in Sources */,
 				4138CE1926E5B3FB0014F11E /* BookmarksViewController.swift in Sources */,
 				41670131255B4A2C0054164F /* Sequence+BookPlayer.swift in Sources */,
@@ -3016,6 +3029,7 @@
 				41D4F2EF21053944009F1B1E /* IndexPath+BookPlayer.swift in Sources */,
 				69343D332133844D000C425E /* VoiceOverService.swift in Sources */,
 				C359C30720A9F35B00A626E3 /* SkipDurationViewController.swift in Sources */,
+				9FB20EB729A423410021663B /* InterfaceUpdater.swift in Sources */,
 				9FBDDBA027DD13E9005FB447 /* ProfileViewModel.swift in Sources */,
 				9FBDDB8B27DCF1FB005FB447 /* MiniPlayerView.swift in Sources */,
 				C3A479192094CAF300D92122 /* UIViewController+BookPlayer.swift in Sources */,
@@ -3048,6 +3062,7 @@
 				C3FE94792080086800BCEA37 /* BookCellView.swift in Sources */,
 				9F5F13682978D9E100F061A0 /* ProfileRefreshStatusView.swift in Sources */,
 				41AD3DA7221C850F00DC41E1 /* IconCellView.swift in Sources */,
+				9FB20EA529A281140021663B /* DownloadState.swift in Sources */,
 				4158388326EBD76A00F4A12B /* LibraryListCoordinator.swift in Sources */,
 				4142964421F21D95004356DA /* BulkControlsView.swift in Sources */,
 				9F134603293CFCE80089B1DE /* ProfileListenedTimeView.swift in Sources */,
@@ -3060,6 +3075,7 @@
 				4158388B26EC2CC500F4A12B /* ImportCoordinator.swift in Sources */,
 				41A1B12E226FC7E500EA0400 /* ImportOperation.swift in Sources */,
 				5126F121258E9F18009965DC /* URL+BookPlayer.swift in Sources */,
+				9FB20EA329A1BB750021663B /* BPTaskDownloadDelegate.swift in Sources */,
 				9F5F13462977A06300F061A0 /* ProfileCardView.swift in Sources */,
 				9FDDD2FB289C2EA00020C428 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
 				410D0FED1EDCF4B000A52EB9 /* SettingsViewController.swift in Sources */,

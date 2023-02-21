@@ -20,8 +20,6 @@ public protocol SyncServiceProtocol {
     shouldSync: Bool
   ) async throws -> ([SyncableItem], SyncableItem?)
 
-  func updateStatus(_ status: SyncStatus, relativePath: String)
-
   func downloadRemoteFile(
     for relativePath: String,
     delegate: URLSessionTaskDelegate
@@ -179,9 +177,5 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
   public func cancelAllJobs() {
     jobManager.cancelAllJobs()
-  }
-
-  public func updateStatus(_ status: SyncStatus, relativePath: String) {
-    libraryService.updateStatus(status, relativePath: relativePath)
   }
 }

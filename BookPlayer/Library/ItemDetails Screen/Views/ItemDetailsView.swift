@@ -36,8 +36,7 @@ struct ItemDetailsView_Previews: PreviewProvider {
           parentFolder: nil,
           originalFileName: "",
           lastPlayDate: nil,
-          type: .book,
-          syncStatus: .synced
+          type: .book
         )
       )
     )
