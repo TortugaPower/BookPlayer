@@ -169,10 +169,22 @@ class LibraryListCoordinator: ItemListCoordinator {
   override func syncList() {
     Task { [weak self] in
       guard
-        let (newItems, lastPlayed) = try await self?.syncService.fetchListContents(at: nil, shouldSync: true)
+        let self = self
       else { return }
 
+      let (newItems, lastPlayed) = try await self.syncService.fetchListContents(at: nil, shouldSync: true)
+
       reloadItemsWithPadding(padding: newItems.count)
+
+      if let relativePath = lastPlayed?.relativePath,
+         playerManager.currentItem?.relativePath != relativePath {
+        AppDelegate.shared?.loadPlayer(
+          relativePath,
+          autoplay: false,
+          showPlayer: {},
+          alertPresenter: self
+        )
+      }
     }
   }
 }

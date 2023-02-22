@@ -498,6 +498,9 @@ extension CarPlayManager {
 extension CarPlayManager: CPInterfaceControllerDelegate {}
 
 extension CarPlayManager: AlertPresenter {
+  func showLoader() { }
+  func stopLoader() { }
+
   public func showAlert(_ title: String? = nil, message: String? = nil, completion: (() -> Void)? = nil) {
     let okAction = CPAlertAction(title: "ok_button".localized, style: .default) { _ in
       self.interfaceController?.dismissTemplate(animated: true, completion: nil)

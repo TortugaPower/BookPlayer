@@ -192,7 +192,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
 
     if syncService?.isActive == false,
-       FileManager.default.fileExists(atPath: fileURL.path) {
+       !FileManager.default.fileExists(atPath: fileURL.path) {
       alertPresenter.showAlert("file_missing_title".localized, message: "\("file_missing_description".localized)\n\(fileURL.lastPathComponent)", completion: nil)
       return
     }
@@ -222,7 +222,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var subscription: AnyCancellable?
 
     subscription = NotificationCenter.default.publisher(for: .bookReady, object: nil)
-      .sink(receiveValue: { [weak self, showPlayer, autoplay] notification in
+      .sink(receiveValue: { [weak self, showPlayer, autoplay, alertPresenter] notification in
         guard
           let userInfo = notification.userInfo,
           let loaded = userInfo["loaded"] as? Bool,
@@ -232,6 +232,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
           return
         }
 
+        alertPresenter.stopLoader()
         showPlayer?()
 
         if autoplay {
@@ -241,6 +242,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         subscription?.cancel()
       })
 
+    alertPresenter.showLoader()
     self.playerManager?.load(item)
   }
 

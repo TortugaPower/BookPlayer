@@ -115,15 +115,21 @@ class MainCoordinator: Coordinator {
     NotificationCenter.default.publisher(for: .accountUpdate, object: nil)
       .sink(receiveValue: { [weak self] _ in
         guard
-          let account = self?.accountService.getAccount()
+          let self = self,
+          let account = self.accountService.getAccount()
         else { return }
 
         if account.hasSubscription {
-          self?.socketService.connectSocket()
-          self?.syncService.isActive = true
+          self.socketService.connectSocket()
+          self.syncService.isActive = true
+
+          if !self.playerManager.hasLoadedBook(),
+             let libraryCoordinator = self.getLibraryCoordinator() {
+            libraryCoordinator.loadLastBookIfAvailable()
+          }
         } else {
-          self?.socketService.disconnectSocket()
-          self?.syncService.isActive = false
+          self.socketService.disconnectSocket()
+          self.syncService.isActive = false
         }
 
       })

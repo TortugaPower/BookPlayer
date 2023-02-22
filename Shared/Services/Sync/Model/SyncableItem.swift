@@ -9,7 +9,7 @@
 import Foundation
 
 public struct SyncableItem {
-  let relativePath: String
+  public let relativePath: String
   let originalFileName: String
   let title: String
   let details: String
