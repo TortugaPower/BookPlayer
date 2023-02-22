@@ -223,6 +223,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     subscription = NotificationCenter.default.publisher(for: .bookReady, object: nil)
       .sink(receiveValue: { [weak self, showPlayer, autoplay, alertPresenter] notification in
+        alertPresenter.stopLoader()
         guard
           let userInfo = notification.userInfo,
           let loaded = userInfo["loaded"] as? Bool,
@@ -232,7 +233,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
           return
         }
 
-        alertPresenter.stopLoader()
         showPlayer?()
 
         if autoplay {
@@ -243,7 +243,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       })
 
     alertPresenter.showLoader()
-    self.playerManager?.load(item)
+
+    Task { [unowned self] in
+      do {
+        try await self.playerManager?.load(item)
+      } catch {
+        alertPresenter.stopLoader()
+        alertPresenter.showAlert("error_title".localized, message: error.localizedDescription, completion: nil)
+      }
+    }
   }
 
   @objc func messageReceived(_ notification: Notification) {

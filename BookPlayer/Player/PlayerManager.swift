@@ -21,7 +21,7 @@ public protocol PlayerManagerProtocol: NSObjectProtocol {
   var boostVolume: Bool { get set }
   var isPlaying: Bool { get }
 
-  func load(_ item: PlayableItem)
+  func load(_ item: PlayableItem) async throws
   func hasLoadedBook() -> Bool
 
   func playItem(_ item: PlayableItem)
@@ -178,7 +178,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     self.playerItem?.audioTimePitchAlgorithm = .timeDomain
   }
 
-  func load(_ item: PlayableItem) {
+  func load(_ item: PlayableItem) async throws {
     // Recover in case of failure
     if self.audioPlayer.status == .failed {
       if let observer = self.periodicTimeObserver {
@@ -204,37 +204,27 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       NotificationCenter.default.post(name: .chapterChange, object: nil, userInfo: nil)
     }
 
-    loadChapterMetadata(item.currentChapter)
+    try await loadChapterMetadata(item.currentChapter)
   }
 
-  func loadChapterMetadata(_ chapter: PlayableChapter) {
-    Task { [unowned self] in
-      do {
-        try await self.loadPlayerItem(for: chapter)
-      } catch {
-        await SceneDelegate.shared?.coordinator.getMainCoordinator()?
-          .getTopController()?
-          .showAlert("error_title".localized, message: error.localizedDescription)
-        return
-      }
-
-      self.loadChapterOperation(chapter)
-    }
+  func loadChapterMetadata(_ chapter: PlayableChapter) async throws {
+    try await self.loadPlayerItem(for: chapter)
+    self.loadChapterOperation(chapter)
   }
 
   func loadChapterOperation(_ chapter: PlayableChapter) {
     self.queue.addOperation {
       // try loading the player
-      guard let playerItem = self.playerItem,
-            chapter.duration > 0 else {
-              DispatchQueue.main.async {
-                self.currentItem = nil
-
-                NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["loaded": false])
-              }
-
-              return
-            }
+      guard
+        let playerItem = self.playerItem,
+        chapter.duration > 0
+      else {
+        DispatchQueue.main.async {
+          self.currentItem = nil
+          NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["loaded": false])
+        }
+        return
+      }
 
       self.audioPlayer.replaceCurrentItem(with: nil)
       /// Load up info after the item is ready for playback
@@ -496,7 +486,16 @@ extension PlayerManager {
       // If chapters are different, and it's a bound book,
       // load the new chapter
       if currentItem.isBoundBook {
-        loadChapterMetadata(chapterAfterSkip)
+        Task { [unowned self] in
+          do {
+            try await self.loadChapterMetadata(chapterAfterSkip)
+          } catch {
+            await SceneDelegate.shared?.coordinator.getMainCoordinator()?
+              .getTopController()?
+              .showAlert("error_title".localized, message: error.localizedDescription)
+            return
+          }
+        }
         return
       }
     }
@@ -759,7 +758,16 @@ extension PlayerManager {
         subscription?.cancel()
       })
 
-    self.load(item)
+    Task { [unowned self] in
+      do {
+        try await self.load(item)
+      } catch {
+        await SceneDelegate.shared?.coordinator.getMainCoordinator()?
+          .getTopController()?
+          .showAlert("error_title".localized, message: error.localizedDescription)
+        return
+      }
+    }
   }
 
   @objc
@@ -801,7 +809,15 @@ extension PlayerManager {
       /// Load next chapter
       guard let nextChapter = self.playbackService.getNextChapter(from: currentItem) else { return }
       currentItem.currentChapter = nextChapter
-      loadChapterMetadata(nextChapter)
+      Task { [unowned self] in
+        do {
+          try await self.loadChapterMetadata(nextChapter)
+        } catch {
+          await SceneDelegate.shared?.coordinator.getMainCoordinator()?
+            .getTopController()?
+            .showAlert("error_title".localized, message: error.localizedDescription)
+        }
+      }
     }
   }
 
