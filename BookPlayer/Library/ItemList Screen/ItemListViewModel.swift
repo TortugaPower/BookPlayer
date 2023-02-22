@@ -24,6 +24,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     case reloadIndex(_ indexPath: IndexPath)
     case downloadState(_ state: DownloadState, indexPath: IndexPath)
     case showAlert(content: BPAlertContent)
+    case showLoader(flag: Bool)
   }
 
   let folderRelativePath: String?
@@ -348,6 +349,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func startDownload(of item: SimpleLibraryItem) {
+    sendEvent(.showLoader(flag: true))
     Task { [weak self] in
       do {
         let task = try await self?.syncService.downloadRemoteFile(
@@ -356,6 +358,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         )
 
         self?.downloadTasksDictionary[item.relativePath] = task
+        self?.sendEvent(.showLoader(flag: false))
       } catch {
         self?.sendEvent(.showAlert(
           content: BPAlertContent(title: "error_title".localized, message: error.localizedDescription))

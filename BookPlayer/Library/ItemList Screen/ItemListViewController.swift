@@ -257,9 +257,19 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
           self?.updateDownloadState(state, for: indexPath)
         case .showAlert(let content):
           self?.showAlert(content)
+        case .showLoader(let flag):
+          self?.showLoader(flag)
         }
       }
       .store(in: &disposeBag)
+  }
+
+  func showLoader(_ flag: Bool) {
+    if flag {
+      LoadingUtils.loadAndBlock(in: self)
+    } else {
+      LoadingUtils.stopLoading(in: self)
+    }
   }
 
   func updateDownloadState(_ state: DownloadState, for indexPath: IndexPath) {
