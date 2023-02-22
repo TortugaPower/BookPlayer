@@ -46,6 +46,7 @@ public protocol PlayerManagerProtocol: NSObjectProtocol {
 final class PlayerManager: NSObject, PlayerManagerProtocol {
   private let libraryService: LibraryServiceProtocol
   private let playbackService: PlaybackServiceProtocol
+  private let syncService: SyncServiceProtocol
   private let speedService: SpeedServiceProtocol
   private let socketService: SocketServiceProtocol
   private let userActivityManager: UserActivityManager
@@ -85,11 +86,13 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   init(
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol,
+    syncService: SyncServiceProtocol,
     speedService: SpeedServiceProtocol,
     socketService: SocketServiceProtocol
   ) {
     self.libraryService = libraryService
     self.playbackService = playbackService
+    self.syncService = syncService
     self.speedService = speedService
     self.socketService = socketService
     self.userActivityManager = UserActivityManager(libraryService: libraryService)
@@ -126,10 +129,44 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     return self.currentItem != nil
   }
 
-  func loadPlayerItem(for chapter: PlayableChapter) {
+  func loadRemoteURLAsset(for chapter: PlayableChapter) async throws -> AVURLAsset {
+    let fileURL = try await syncService.getRemoteFileURL(of: chapter.relativePath)
+    let asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
+
+    await asset.loadValues(forKeys: ["commonMetadata", "metadata"])
+
+    /// Load artwork if it's not cached
+    if !ArtworkService.isCached(relativePath: chapter.relativePath),
+       let data = AVMetadataItem.metadataItems(
+        from: asset.commonMetadata,
+        filteredByIdentifier: .commonIdentifierArtwork
+       ).first?.dataValue {
+      ArtworkService.storeInCache(data, for: chapter.relativePath)
+    }
+
+    if currentItem?.isBoundBook == false {
+      libraryService.loadChaptersIfNeeded(relativePath: chapter.relativePath, asset: asset)
+
+      if let libraryItem = libraryService.getItem(with: chapter.relativePath),
+         let playbackItem = try playbackService.getPlayableItem(from: libraryItem) {
+        currentItem = playbackItem
+      }
+    }
+
+    return asset
+  }
+
+  func loadPlayerItem(for chapter: PlayableChapter) async throws {
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(chapter.relativePath)
 
-    let bookAsset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
+    let asset: AVURLAsset
+
+    if syncService.isActive,
+      !FileManager.default.fileExists(atPath: fileURL.path) {
+      asset = try await loadRemoteURLAsset(for: chapter)
+    } else {
+      asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
+    }
 
     // Clean just in case
     if self.hasObserverRegistered {
@@ -137,7 +174,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       self.hasObserverRegistered = false
     }
 
-    self.playerItem = AVPlayerItem(asset: bookAsset)
+    self.playerItem = AVPlayerItem(asset: asset)
     self.playerItem?.audioTimePitchAlgorithm = .timeDomain
   }
 
@@ -167,12 +204,25 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       NotificationCenter.default.post(name: .chapterChange, object: nil, userInfo: nil)
     }
 
-    loadChapter(item.currentChapter)
+    loadChapterMetadata(item.currentChapter)
   }
 
-  func loadChapter(_ chapter: PlayableChapter) {
-    self.loadPlayerItem(for: chapter)
+  func loadChapterMetadata(_ chapter: PlayableChapter) {
+    Task { [unowned self] in
+      do {
+        try await self.loadPlayerItem(for: chapter)
+      } catch {
+        await SceneDelegate.shared?.coordinator.getMainCoordinator()?
+          .getTopController()?
+          .showAlert("error_title".localized, message: error.localizedDescription)
+        return
+      }
 
+      self.loadChapterOperation(chapter)
+    }
+  }
+
+  func loadChapterOperation(_ chapter: PlayableChapter) {
     self.queue.addOperation {
       // try loading the player
       guard let playerItem = self.playerItem,
@@ -446,7 +496,7 @@ extension PlayerManager {
       // If chapters are different, and it's a bound book,
       // load the new chapter
       if currentItem.isBoundBook {
-        loadChapter(chapterAfterSkip)
+        loadChapterMetadata(chapterAfterSkip)
         return
       }
     }
@@ -751,7 +801,7 @@ extension PlayerManager {
       /// Load next chapter
       guard let nextChapter = self.playbackService.getNextChapter(from: currentItem) else { return }
       currentItem.currentChapter = nextChapter
-      loadChapter(nextChapter)
+      loadChapterMetadata(nextChapter)
     }
   }
 

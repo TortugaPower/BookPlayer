@@ -20,6 +20,8 @@ public protocol SyncServiceProtocol {
     shouldSync: Bool
   ) async throws -> ([SyncableItem], SyncableItem?)
 
+  func getRemoteFileURL(of relativePath: String) async throws -> URL
+
   func downloadRemoteFile(
     for relativePath: String,
     delegate: URLSessionTaskDelegate
@@ -158,15 +160,21 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     return (response.content, response.lastItemPlayed)
   }
 
-  public func downloadRemoteFile(
-    for relativePath: String,
-    delegate: URLSessionTaskDelegate
-  ) async throws -> URLSessionDownloadTask {
+  public func getRemoteFileURL(of relativePath: String) async throws -> URL {
     let response: RemoteFileURLResponseContainer = try await self.provider.request(.remoteFileURL(path: relativePath))
 
     guard let url = response.content.first?.url else {
       throw BookPlayerError.emptyResponse
     }
+
+    return url
+  }
+
+  public func downloadRemoteFile(
+    for relativePath: String,
+    delegate: URLSessionTaskDelegate
+  ) async throws -> URLSessionDownloadTask {
+    let url = try await getRemoteFileURL(of: relativePath)
 
     return self.provider.client.download(
       url: url,

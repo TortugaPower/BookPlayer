@@ -24,6 +24,7 @@ class PlayerManagerTests: XCTestCase {
     self.sut = PlayerManager(
       libraryService: EmptyLibraryServiceMock(),
       playbackService: EmptyPlaybackServiceMock(),
+      syncService: SyncServiceMock(),
       speedService: EmptySpeedServiceMock(),
       socketService: SocketService()
     )

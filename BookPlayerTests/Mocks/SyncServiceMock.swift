@@ -18,4 +18,15 @@ class SyncServiceMock: SyncServiceProtocol {
   func cancelAllJobs() {}
 
   func accountUpdated(_ customerInfo: CustomerInfo) {}
+
+  func getRemoteFileURL(of relativePath: String) async throws -> URL {
+    return URL(string: "https://google.com")!
+  }
+
+  func downloadRemoteFile(
+    for relativePath: String,
+    delegate: URLSessionTaskDelegate
+  ) async throws -> URLSessionDownloadTask {
+    return URLSessionDownloadTask()
+  }
 }

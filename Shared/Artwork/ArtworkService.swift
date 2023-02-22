@@ -43,6 +43,10 @@ public class ArtworkService {
     return URL(fileURLWithPath: path)
   }
 
+  public class func isCached(relativePath: String) -> Bool {
+    return self.cache.isCached(forKey: relativePath)
+  }
+
   public class func removeCache(for relativePath: String) {
     self.cache.removeImage(forKey: relativePath)
   }

@@ -74,7 +74,9 @@ class AppTabBarController: UITabBarController {
       }
       .store(in: &disposeBag)
 
-    self.miniPlayerViewModel.currentItemObserver().sink { [weak self] item in
+    self.miniPlayerViewModel.currentItemObserver()
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] item in
       guard let self = self else { return }
 
       guard let item = item else {

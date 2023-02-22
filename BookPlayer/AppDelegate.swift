@@ -151,6 +151,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       playerManager = PlayerManager(
         libraryService: libraryService,
         playbackService: playbackService,
+        syncService: syncService,
         speedService: SpeedService(libraryService: libraryService),
         socketService: socketService
       )
@@ -189,7 +190,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     alertPresenter: AlertPresenter
   ) {
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
-    guard FileManager.default.fileExists(atPath: fileURL.path) else {
+
+    if syncService?.isActive == false,
+       FileManager.default.fileExists(atPath: fileURL.path) {
       alertPresenter.showAlert("file_missing_title".localized, message: "\("file_missing_description".localized)\n\(fileURL.lastPathComponent)", completion: nil)
       return
     }

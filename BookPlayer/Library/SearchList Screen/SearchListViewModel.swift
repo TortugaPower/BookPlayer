@@ -62,7 +62,9 @@ class SearchListViewModel: BaseViewModel<SearchListCoordinator> {
 
   /// Observe when a new item is loaded into the player
   func bindPlayingItemObserver() {
-    self.playerManager.currentItemPublisher().sink { [weak self] currentItem in
+    self.playerManager.currentItemPublisher()
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] currentItem in
       guard let self = self else { return }
 
       defer {

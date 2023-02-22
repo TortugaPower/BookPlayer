@@ -350,7 +350,9 @@ extension PlayerViewController {
       }
       .store(in: &disposeBag)
 
-    self.viewModel.currentItemObserver().sink { [weak self] item in
+    self.viewModel.currentItemObserver()
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] item in
       guard let self = self,
             let item = item else { return }
 

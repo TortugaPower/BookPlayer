@@ -6,6 +6,7 @@
 //  Copyright © 2021 Tortuga Power. All rights reserved.
 //
 
+import AVFoundation
 import CoreData
 import Foundation
 
@@ -20,7 +21,7 @@ public protocol LibraryServiceProtocol {
   func createTheme(params: [String: Any]) -> Theme
 
   func createBook(from url: URL) -> Book
-  func loadChaptersIfNeeded(relativePath: String)
+  func loadChaptersIfNeeded(relativePath: String, asset: AVAsset)
   func getChapters(from relativePath: String) -> [SimpleChapter]?
   func getItem(with relativePath: String) -> LibraryItem?
   func findBooks(containing fileURL: URL) -> [Book]?
@@ -166,10 +167,10 @@ public final class LibraryService: LibraryServiceProtocol {
     return newBook
   }
 
-  public func loadChaptersIfNeeded(relativePath: String) {
+  public func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) {
     guard let book = self.getItem(with: relativePath) as? Book else { return }
 
-    book.loadChaptersIfNeeded(context: dataManager.getContext())
+    book.loadChaptersIfNeeded(from: asset, context: dataManager.getContext())
 
     dataManager.saveContext()
   }

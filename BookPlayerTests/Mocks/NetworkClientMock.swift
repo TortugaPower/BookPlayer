@@ -44,4 +44,12 @@ class NetworkClientMock: NetworkClientProtocol {
   ) async throws -> (Data, URLResponse) {
     return (Data(), URLResponse())
   }
+
+  func download(
+    url: URL,
+    taskDescription: String?,
+    delegate: URLSessionTaskDelegate
+  ) -> URLSessionDownloadTask {
+    return URLSessionDownloadTask()
+  }
 }

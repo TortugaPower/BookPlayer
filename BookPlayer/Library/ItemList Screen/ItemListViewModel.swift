@@ -100,7 +100,9 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func bindBookObservers() {
-    self.playerManager.currentItemPublisher().sink { [weak self] currentItem in
+    self.playerManager.currentItemPublisher()
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] currentItem in
       guard let self = self else { return }
 
       self.bookProgressSubscription?.cancel()
@@ -150,7 +152,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
       do {
         try FileManager.default.moveItem(at: location, to: fileURL)
-        self.libraryService.loadChaptersIfNeeded(relativePath: relativePath)
+        self.libraryService.loadChaptersIfNeeded(relativePath: relativePath, asset: AVAsset(url: fileURL))
 
         guard
           let index = self.items.firstIndex(where: { relativePath == $0.relativePath })

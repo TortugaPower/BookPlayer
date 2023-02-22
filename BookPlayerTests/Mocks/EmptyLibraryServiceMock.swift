@@ -6,12 +6,13 @@
 //  Copyright © 2022 Tortuga Power. All rights reserved.
 //
 
+import AVFoundation
 import BookPlayerKit
 import Foundation
 
 /// Empty class meant to be subclassed to adjust service for test conditions
 class EmptyLibraryServiceMock: LibraryServiceProtocol {
-  func loadChaptersIfNeeded(relativePath: String) { }
+  func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) { }
 
   func getTotalListenedTime() -> TimeInterval { return 0 }
 
