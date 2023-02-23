@@ -117,7 +117,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     let (fetchedItems, lastItemPlayed) = try await fetchContents(at: relativePath)
 
-    let libraryIdentifiers = libraryService.getItemIdentifiers(in: nil) ?? []
+    let libraryIdentifiers = libraryService.getItemIdentifiers(in: relativePath) ?? []
 
     var fetchedIdentifiers = [String]()
     var itemsToStore = [SyncableItem]()
@@ -130,7 +130,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     }
 
     if !itemsToStore.isEmpty {
-      self.storeLibraryItems(from: itemsToStore, parentFolder: relativePath)
+     try await self.storeLibraryItems(from: itemsToStore, parentFolder: relativePath)
     }
 
     if shouldSync,
@@ -142,20 +142,29 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     return (itemsToStore, lastItemPlayed)
   }
 
-  func storeLibraryItems(from syncedItems: [SyncableItem], parentFolder: String?) {
-    syncedItems.forEach { item in
+  func storeLibraryItems(from syncedItems: [SyncableItem], parentFolder: String?) async throws {
+    for item in syncedItems {
       switch item.type {
       case .book:
         self.libraryService.addBook(from: item, parentFolder: parentFolder)
-      case .bound, .folder:
-        self.libraryService.addFolder(from: item, type: item.type, parentFolder: parentFolder)
+      case .bound:
+        self.libraryService.addFolder(from: item, type: .bound, parentFolder: parentFolder)
+        _ = try await fetchListContents(at: item.relativePath, shouldSync: false)
+      case .folder:
+        self.libraryService.addFolder(from: item, type: .folder, parentFolder: parentFolder)
       }
     }
   }
 
   public func fetchContents(at relativePath: String?) async throws -> ([SyncableItem], SyncableItem?) {
-    let relativePath = relativePath ?? ""
-    let response: ContentsResponse = try await self.provider.request(.contents(path: relativePath))
+    let path: String
+    if let relativePath = relativePath {
+      path = "\(relativePath)/"
+    } else {
+      path = ""
+    }
+
+    let response: ContentsResponse = try await self.provider.request(.contents(path: path))
 
     return (response.content, response.lastItemPlayed)
   }
