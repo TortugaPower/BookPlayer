@@ -14,6 +14,7 @@ public protocol LibrarySyncProtocol {
   func getItemsToSync(remoteIdentifiers: [String], parentFolder: String?) -> [SyncableItem]?
   func getItemIdentifiers(in parentFolder: String?) -> [String]?
   func fetchSyncableContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SyncableItem]?
+  func getMaxItemsCount(at relativePath: String?) -> Int
 
   func addBook(from item: SyncableItem, parentFolder: String?)
   func addFolder(from item: SyncableItem, type: SimpleItemType, parentFolder: String?)
@@ -28,14 +29,12 @@ extension LibraryService: LibrarySyncProtocol {
 
     if let relativePath = parentFolder,
        let folder = self.getItem(with: relativePath) as? Folder {
-      let count = folder.items?.count ?? 0
-      let index = count == 0 ? 0 : count - 1
+      let index = folder.items?.count ?? 0
       folder.insert(item: newBook, at: min(index, item.orderRank))
       folder.rebuildOrderRank()
     } else {
       let library = self.getLibrary()
-      let count = library.items?.count ?? 0
-      let index = count == 0 ? 0 : count - 1
+      let index = library.items?.count ?? 0
       library.insert(item: newBook, at: min(index, item.orderRank))
       library.rebuildOrderRank()
     }
