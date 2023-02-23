@@ -133,7 +133,16 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     let fileURL = try await syncService.getRemoteFileURL(of: chapter.relativePath)
     let asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
 
-    await asset.loadValues(forKeys: ["commonMetadata", "metadata"])
+    await asset.loadValues(forKeys: [
+      "duration",
+      "playable",
+      "preferredRate",
+      "preferredVolume",
+      "hasProtectedContent",
+      "providesPreciseDurationAndTiming",
+      "commonMetadata",
+      "metadata"
+    ])
 
     /// Load artwork if it's not cached
     if !ArtworkService.isCached(relativePath: chapter.relativePath),
