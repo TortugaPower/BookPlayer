@@ -53,6 +53,8 @@ class FolderListCoordinator: ItemListCoordinator {
         self?.showCreateFolderAlert(placeholder: placeholder, with: items, type: type)
       case .showSearchList(let relativePath, let placeholderTitle):
         self?.showSearchList(at: relativePath, placeholderTitle: placeholderTitle)
+      case .showItemDetails(let item):
+        self?.showItemDetails(item)
       }
     }
     viewModel.coordinator = self

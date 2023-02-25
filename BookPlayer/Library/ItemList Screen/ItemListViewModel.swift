@@ -20,6 +20,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     case showDocumentPicker
     case showCreateFolderAlert(placeholder: String?, items: [String]?, type: SimpleItemType)
     case showSearchList(relativePath: String?, placeholderTitle: String)
+    case showItemDetails(item: SimpleLibraryItem)
   }
 
   enum Events {
@@ -651,7 +652,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func showItemDetails(_ item: SimpleLibraryItem) {
-    self.coordinator.showItemDetails(item)
+    onTransition?(.showItemDetails(item: item))
   }
 
   func showMoveOptions(selectedItems: [SimpleLibraryItem]) {
