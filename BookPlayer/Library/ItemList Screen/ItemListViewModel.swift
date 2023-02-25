@@ -41,7 +41,10 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
   private var bookProgressSubscription: AnyCancellable?
   private var downloadDelegateInterface = BPTaskDownloadDelegate()
-  private lazy var downloadTasksDictionary = [String: URLSessionDownloadTask]()
+  /// Dictionary holding the starting item relative path as key and the download tasks as value
+  private lazy var downloadTasksDictionary = [String: [URLSessionDownloadTask]]()
+  /// Reference to the starting item path for the download tasks (relevant for bound books)
+  private lazy var ongoingTasksParentReference = [String: String]()
   /// Callback to handle actions on this screen
   public var onTransition: Transition<Routes>?
 
@@ -141,42 +144,70 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       }.store(in: &disposeBag)
   }
 
+  func handleFinishedDownload(task: URLSessionDownloadTask, location: URL) {
+    guard
+      let relativePath = task.taskDescription,
+      let localItemRelativePath = ongoingTasksParentReference[relativePath]
+    else { return }
+
+    /// Remove from dictionary if all the other tasks are already completed
+    if let localItemRelativePath = ongoingTasksParentReference[relativePath],
+       downloadTasksDictionary[localItemRelativePath]?
+      .filter({ $0 != task })
+      .allSatisfy({ $0.state == .completed }) == true {
+      downloadTasksDictionary[localItemRelativePath] = nil
+    }
+
+    /// cleanup individual reference
+    ongoingTasksParentReference[relativePath] = nil
+
+    let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
+
+    do {
+      /// If there's already something there, replace with new finished download
+      if FileManager.default.fileExists(atPath: fileURL.path) {
+        try FileManager.default.removeItem(at: fileURL)
+      }
+      try FileManager.default.moveItem(at: location, to: fileURL)
+      libraryService.loadChaptersIfNeeded(relativePath: relativePath, asset: AVAsset(url: fileURL))
+
+      guard let index = items.firstIndex(where: { localItemRelativePath == $0.relativePath }) else { return }
+
+      self.sendEvent(.reloadIndex(IndexPath(row: index, section: BPSection.data.rawValue)))
+    } catch {
+      self.sendEvent(.showAlert(
+        content: BPAlertContent(title: "error_title".localized, message: error.localizedDescription))
+      )
+    }
+  }
+
+  func handleDownloadProgressUpdated(task: URLSessionDownloadTask, individualProgress: Double) {
+    guard
+      let relativePath = task.taskDescription,
+      let localItemRelativePath = ongoingTasksParentReference[relativePath],
+      let index = items.firstIndex(where: { localItemRelativePath == $0.relativePath })
+    else { return }
+
+    let progress: Double
+    /// For individual items, the `fractionCompleted` of the current task can be 0
+    let calculatedProgress = calculateDownloadProgress(with: localItemRelativePath)
+    if calculatedProgress != 0 {
+      progress = calculatedProgress
+    } else {
+      progress = individualProgress
+    }
+
+    let indexModified = IndexPath(row: index, section: BPSection.data.rawValue)
+    sendEvent(.downloadState(.downloading(progress: progress), indexPath: indexModified))
+  }
+
   func bindDownloadObservers() {
     downloadDelegateInterface.didFinishDownloadingTask = { [weak self] (task, location) in
-      guard
-        let self = self,
-        let relativePath = task.taskDescription
-      else { return }
-
-      self.downloadTasksDictionary[relativePath] = nil
-      let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
-
-      do {
-        try FileManager.default.moveItem(at: location, to: fileURL)
-        self.libraryService.loadChaptersIfNeeded(relativePath: relativePath, asset: AVAsset(url: fileURL))
-
-        guard
-          let index = self.items.firstIndex(where: { relativePath == $0.relativePath })
-        else { return }
-
-        let indexModified = IndexPath(row: index, section: BPSection.data.rawValue)
-
-        self.sendEvent(.reloadIndex(indexModified))
-      } catch {
-        self.sendEvent(.showAlert(
-          content: BPAlertContent(title: "error_title".localized, message: error.localizedDescription))
-        )
-      }
+      self?.handleFinishedDownload(task: task, location: location)
     }
 
     downloadDelegateInterface.downloadProgressUpdated = { [weak self] (task, progress) in
-      guard
-        let relativePath = task.taskDescription,
-        let index = self?.items.firstIndex(where: { relativePath == $0.relativePath })
-      else { return }
-
-      let indexModified = IndexPath(row: index, section: BPSection.data.rawValue)
-      self?.sendEvent(.downloadState(.downloading(progress: progress), indexPath: indexModified))
+      self?.handleDownloadProgressUpdated(task: task, individualProgress: progress)
     }
   }
 
@@ -317,16 +348,38 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     }
   }
 
+  func calculateDownloadProgress(with relativePath: String) -> Double {
+    guard let tasks = downloadTasksDictionary[relativePath] else { return 1.0 }
+
+    let completedTasksCount = tasks.filter({ $0.state == .completed }).count
+    let runningTasksProgress = tasks.filter({ $0.state == .running })
+      .reduce(0.0, { $0 + $1.progress.fractionCompleted })
+
+    return (runningTasksProgress + Double(completedTasksCount)) / Double(tasks.count)
+  }
+
   func getDownloadState(for item: SimpleLibraryItem) -> DownloadState {
     /// Only process if subscription is active
     guard syncService.isActive else { return .downloaded }
 
-    if FileManager.default.fileExists(atPath: item.fileURL.path) {
-      return .downloaded
+    if downloadTasksDictionary[item.relativePath]?.isEmpty == false {
+      return .downloading(progress: calculateDownloadProgress(with: item.relativePath))
     }
 
-    if let task = downloadTasksDictionary[item.relativePath] {
-      return .downloading(progress: task.progress.fractionCompleted)
+    let fileURL = item.fileURL
+
+    if item.type == .bound,
+       let enumerator = FileManager.default.enumerator(
+         at: fileURL,
+         includingPropertiesForKeys: nil,
+         options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants]
+       ),
+       enumerator.nextObject() == nil {
+      return .notDownloaded
+    }
+
+    if FileManager.default.fileExists(atPath: fileURL.path) {
+      return .downloaded
     }
 
     return .notDownloaded
@@ -350,17 +403,22 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
   func startDownload(of item: SimpleLibraryItem) {
     sendEvent(.showLoader(flag: true))
+
     Task { [weak self] in
+      guard let self = self else { return }
       do {
-        let task = try await self?.syncService.downloadRemoteFile(
+        let tasks = try await self.syncService.downloadRemoteFiles(
           for: item.relativePath,
+          type: item.type,
           delegate: downloadDelegateInterface
         )
-
-        self?.downloadTasksDictionary[item.relativePath] = task
-        self?.sendEvent(.showLoader(flag: false))
+        self.downloadTasksDictionary[item.relativePath] = tasks
+        self.ongoingTasksParentReference = tasks.reduce(
+          into: ongoingTasksParentReference, { $0[$1.taskDescription!] = item.relativePath }
+        )
+        self.sendEvent(.showLoader(flag: false))
       } catch {
-        self?.sendEvent(.showAlert(
+        self.sendEvent(.showAlert(
           content: BPAlertContent(title: "error_title".localized, message: error.localizedDescription))
         )
       }
@@ -368,14 +426,39 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func cancelDownload(of item: SimpleLibraryItem) {
-    guard let task = downloadTasksDictionary[item.relativePath] else { return }
+    guard let tasks = downloadTasksDictionary[item.relativePath] else { return }
 
     sendEvent(.showAlert(
       content: BPAlertContent(
         message: "Cancel download",
         cancelAction: {},
-        confirmationAction: { [task, item, weak self] in
-          task.cancel()
+        confirmationAction: { [tasks, item, weak self] in
+          var hasCompletedTasks = false
+
+          for task in tasks {
+            guard task.state != .completed else {
+              hasCompletedTasks = true
+              continue
+            }
+
+            task.cancel()
+          }
+
+          /// Clean up bound downloads if at least one was finished
+          if item.type == .bound,
+             hasCompletedTasks {
+            do {
+              let fileURL = item.fileURL
+              try FileManager.default.removeItem(at: fileURL)
+              try FileManager.default.createDirectory(at: fileURL, withIntermediateDirectories: false, attributes: nil)
+            } catch {
+              self?.sendEvent(.showAlert(
+                content: BPAlertContent(title: "error_title".localized, message: error.localizedDescription))
+              )
+              return
+            }
+          }
+
           self?.downloadTasksDictionary[item.relativePath] = nil
           if let index = self?.items.firstIndex(of: item) {
             self?.sendEvent(.reloadIndex(IndexPath(row: index, section: .data)))

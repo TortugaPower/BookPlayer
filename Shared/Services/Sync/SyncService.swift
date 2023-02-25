@@ -20,12 +20,17 @@ public protocol SyncServiceProtocol {
     shouldSync: Bool
   ) async throws -> ([SyncableItem], SyncableItem?)
 
-  func getRemoteFileURL(of relativePath: String) async throws -> URL
+  func getRemoteFileURLs(
+    of relativePath: String,
+    type: SimpleItemType
+  ) async throws -> [RemoteFileURL]
 
-  func downloadRemoteFile(
+  func downloadRemoteFiles(
     for relativePath: String,
+    type: SimpleItemType,
     delegate: URLSessionTaskDelegate
-  ) async throws -> URLSessionDownloadTask
+  ) async throws -> [URLSessionDownloadTask]
+
   /// Cancel all scheduled jobs
   func cancelAllJobs()
 }
@@ -169,27 +174,46 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     return (response.content, response.lastItemPlayed)
   }
 
-  public func getRemoteFileURL(of relativePath: String) async throws -> URL {
-    let response: RemoteFileURLResponseContainer = try await self.provider.request(.remoteFileURL(path: relativePath))
+  public func getRemoteFileURLs(
+    of relativePath: String,
+    type: SimpleItemType
+  ) async throws -> [RemoteFileURL] {
+    let response: RemoteFileURLResponseContainer
 
-    guard let url = response.content.first?.url else {
+    if type == .bound {
+      response = try await provider.request(.remoteContentsURL(path: relativePath))
+    } else {
+      response = try await self.provider.request(.remoteFileURL(path: relativePath))
+    }
+
+    guard !response.content.isEmpty else {
       throw BookPlayerError.emptyResponse
     }
 
-    return url
+    return response.content
   }
 
-  public func downloadRemoteFile(
+  public func downloadRemoteFiles(
     for relativePath: String,
+    type: SimpleItemType,
     delegate: URLSessionTaskDelegate
-  ) async throws -> URLSessionDownloadTask {
-    let url = try await getRemoteFileURL(of: relativePath)
+  ) async throws -> [URLSessionDownloadTask] {
+    let remoteURLs = try await getRemoteFileURLs(of: relativePath, type: type)
 
-    return self.provider.client.download(
-      url: url,
-      taskDescription: relativePath,
-      delegate: delegate
-    )
+    var tasks = [URLSessionDownloadTask]()
+
+    for remoteURL in remoteURLs {
+      /// TODO: handle expiration date
+      let task = self.provider.client.download(
+        url: remoteURL.url,
+        taskDescription: remoteURL.relativePath,
+        delegate: delegate
+      )
+
+      tasks.append(task)
+    }
+
+    return tasks
   }
 
   public func cancelAllJobs() {
