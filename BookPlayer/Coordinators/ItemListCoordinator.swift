@@ -251,30 +251,6 @@ extension ItemListCoordinator {
     self.presentingViewController?.present(providerList, animated: true, completion: nil)
   }
 
-  func showSortOptions() {
-    let alert = UIAlertController(title: "sort_files_title".localized, message: nil, preferredStyle: .actionSheet)
-
-    alert.addAction(UIAlertAction(title: "title_button".localized, style: .default, handler: { _ in
-      self.onAction?(.sortItems(.metadataTitle))
-    }))
-
-    alert.addAction(UIAlertAction(title: "sort_filename_button".localized, style: .default, handler: { _ in
-      self.onAction?(.sortItems(.fileName))
-    }))
-
-    alert.addAction(UIAlertAction(title: "sort_most_recent_button".localized, style: .default, handler: { _ in
-      self.onAction?(.sortItems(.mostRecent))
-    }))
-
-    alert.addAction(UIAlertAction(title: "sort_reversed_button".localized, style: .default, handler: { _ in
-      self.onAction?(.sortItems(.reverseOrder))
-    }))
-
-    alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
-
-    self.navigationController.present(alert, animated: true, completion: nil)
-  }
-
   func showMoveOptions(selectedItems: [SimpleLibraryItem], availableFolders: [SimpleLibraryItem]) {
     let alert = UIAlertController(title: "choose_destination_title".localized, message: nil, preferredStyle: .alert)
 

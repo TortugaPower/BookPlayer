@@ -615,7 +615,38 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func showSortOptions() {
-    self.coordinator.showSortOptions()
+    sendEvent(.showActionSheet(
+      content: BPSheetContent(
+        title: "sort_files_title".localized,
+        message: nil,
+        actionItems: [
+          BPActionItem(
+            title: "title_button".localized,
+            handler: { [weak self] in
+              self?.handleSort(by: .metadataTitle)
+            }
+          ),
+          BPActionItem(
+            title: "sort_filename_button".localized,
+            handler: { [weak self] in
+              self?.handleSort(by: .fileName)
+            }
+          ),
+          BPActionItem(
+            title: "sort_most_recent_button".localized,
+            handler: { [weak self] in
+              self?.handleSort(by: .mostRecent)
+            }
+          ),
+          BPActionItem(
+            title: "sort_reversed_button".localized,
+            handler: { [weak self] in
+              self?.handleSort(by: .reverseOrder)
+            }
+          )
+        ]
+      )
+    ))
   }
 
   func showItemDetails(_ item: SimpleLibraryItem) {
