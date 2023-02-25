@@ -59,6 +59,8 @@ class LibraryListCoordinator: ItemListCoordinator {
         self?.showDocumentPicker()
       case .showCreateFolderAlert(let placeholder, let items, let type):
         self?.showCreateFolderAlert(placeholder: placeholder, with: items, type: type)
+      case .showSearchList(let relativePath, let placeholderTitle):
+        self?.showSearchList(at: relativePath, placeholderTitle: placeholderTitle)
       }
     }
     viewModel.coordinator = self

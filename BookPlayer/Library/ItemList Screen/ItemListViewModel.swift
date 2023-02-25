@@ -19,6 +19,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     case loadPlayer(relativePath: String)
     case showDocumentPicker
     case showCreateFolderAlert(placeholder: String?, items: [String]?, type: SimpleItemType)
+    case showSearchList(relativePath: String?, placeholderTitle: String)
   }
 
   enum Events {
@@ -670,7 +671,9 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func showSearchList() {
-    self.coordinator.showSearchList(at: folderRelativePath, placeholderTitle: getNavigationTitle())
+    onTransition?(
+      .showSearchList(relativePath: folderRelativePath, placeholderTitle: getNavigationTitle())
+    )
   }
 
   func handleSort(by option: SortType) {
@@ -771,7 +774,6 @@ extension ItemListViewModel {
       }
     }
   }
-
 
   /// Handler called when the download has finished for a task
   func handleDownloadProgressUpdated(task: URLSessionDownloadTask, individualProgress: Double) {
