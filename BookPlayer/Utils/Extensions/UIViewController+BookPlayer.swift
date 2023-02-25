@@ -32,6 +32,33 @@ extension UIViewController {
     self.present(alert, animated: true, completion: nil)
   }
 
+  func showActionSheet(_ content: BPSheetContent) {
+    let alert = UIAlertController(
+      title: content.title,
+      message: content.message,
+      preferredStyle: .actionSheet
+    )
+
+    content.actionItems.forEach({ item in
+      alert.addAction(
+        UIAlertAction(
+          title: item.title,
+          style: .default,
+          handler: { _ in item.handler() }
+        )
+      )
+    })
+
+    if let cancelTextButton = content.cancelTextButton {
+      let cancelButton = UIAlertAction(title: cancelTextButton, style: .cancel) { _ in
+        content.cancelAction()
+      }
+      alert.addAction(cancelButton)
+    }
+
+    self.present(alert, animated: true, completion: nil)
+  }
+
     func showAlert(_ title: String?, message: String?, style: UIAlertController.Style = .alert, completion: (() -> Void)? = nil) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: style)
         let okButton = UIAlertAction(title: "ok_button".localized, style: .default) { _ in

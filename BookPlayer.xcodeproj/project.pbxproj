@@ -329,6 +329,7 @@
 		9F00A6242951F2F3005EA316 /* ItemDetailsFormViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F00A6232951F2F3005EA316 /* ItemDetailsFormViewModel.swift */; };
 		9F00F6E82807B5CB00996BBB /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = 9F00F6E72807B5CB00996BBB /* RevenueCat */; };
 		9F00F6EA2807B5D300996BBB /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = 9F00F6E92807B5D300996BBB /* RevenueCat */; };
+		9F07B55B29AA9615005A939D /* BPSheetContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F07B55A29AA9615005A939D /* BPSheetContent.swift */; };
 		9F1345B62938DF070089B1DE /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE2D288CB1A900056FCD /* Fonts.swift */; };
 		9F1345B82938DF360089B1DE /* UIFont+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE3D288D812900056FCD /* UIFont+BookPlayer.swift */; };
 		9F1345B92938E0010089B1DE /* ImageIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE2B288CAAB800056FCD /* ImageIcons.swift */; };
@@ -970,6 +971,7 @@
 		9F00A6232951F2F3005EA316 /* ItemDetailsFormViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsFormViewModel.swift; sourceTree = "<group>"; };
 		9F00F6EF28084C8800996BBB /* IAP-Configuration.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = "IAP-Configuration.storekit"; sourceTree = "<group>"; };
 		9F00F6F128085CCC00996BBB /* StoreKitTestCertificate.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = StoreKitTestCertificate.cer; sourceTree = "<group>"; };
+		9F07B55A29AA9615005A939D /* BPSheetContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPSheetContent.swift; sourceTree = "<group>"; };
 		9F1345FE293CF00A0089B1DE /* UIEdgeInsets+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIEdgeInsets+BookPlayer.swift"; sourceTree = "<group>"; };
 		9F134602293CFCE80089B1DE /* ProfileListenedTimeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileListenedTimeView.swift; sourceTree = "<group>"; };
 		9F134604293D0A410089B1DE /* ThemeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeViewModel.swift; sourceTree = "<group>"; };
@@ -2164,6 +2166,7 @@
 				9FA7C61C280B0E1200A0C136 /* LoadingUtils.swift */,
 				9F134604293D0A410089B1DE /* ThemeViewModel.swift */,
 				9FB20EB829A479FB0021663B /* BPAlertContent.swift */,
+				9F07B55A29AA9615005A939D /* BPSheetContent.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -3002,6 +3005,7 @@
 				C3A479152094CA3800D92122 /* UIImage+BookPlayer.swift in Sources */,
 				418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */,
 				41188D2826ED4D5C0017124E /* ItemListViewController.swift in Sources */,
+				9F07B55B29AA9615005A939D /* BPSheetContent.swift in Sources */,
 				41188D2426ED2BA30017124E /* LoadingCoordinator.swift in Sources */,
 				4151A6DD26E4A13A00E49DBE /* MainCoordinator.swift in Sources */,
 				41964C832220B4F700FF1A2F /* ContributorCellView.swift in Sources */,

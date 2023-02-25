@@ -259,6 +259,8 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
           self?.showAlert(content)
         case .showLoader(let flag):
           self?.showLoader(flag)
+        case .showActionSheet(let content):
+          self?.showActionSheet(content)
         }
       }
       .store(in: &disposeBag)
@@ -289,8 +291,6 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
       switch route {
       case .importOptions:
         self?.viewModel.showAddActions()
-      case .importLocalFiles:
-        self?.viewModel.coordinator.showDocumentPicker()
       case .newImportOperation(let operation):
         let loadingTitle = String.localizedStringWithFormat("import_processing_description".localized, operation.files.count)
         self?.showLoadView(true, title: loadingTitle)

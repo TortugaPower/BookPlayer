@@ -17,6 +17,8 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   enum Routes {
     case showFolder(relativePath: String)
     case loadPlayer(relativePath: String)
+    case showDocumentPicker
+    case showCreateFolderAlert(placeholder: String?, items: [String]?, type: SimpleItemType)
   }
 
   enum Events {
@@ -24,6 +26,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     case reloadIndex(_ indexPath: IndexPath)
     case downloadState(_ state: DownloadState, indexPath: IndexPath)
     case showAlert(content: BPAlertContent)
+    case showActionSheet(content: BPSheetContent)
     case showLoader(flag: Bool)
   }
 
@@ -278,7 +281,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     /// If the player already is playing a subset of this folder, let the player handle playback
     if let currentItem = self.playerManager.currentItem,
        currentItem.relativePath.contains(item.relativePath) {
-      self.coordinator.playerManager.play()
+      self.playerManager.play()
     } else if
       let folder = self.libraryService.getItem(with: item.relativePath) as? Folder,
       let nextPlayableItem = try? self.playbackService.getFirstPlayableItem(
@@ -532,7 +535,26 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func showAddActions() {
-    self.coordinator.showAddActions()
+    sendEvent(.showActionSheet(
+      content: BPSheetContent(
+        title: nil,
+        message: "import_description".localized,
+        actionItems: [
+          BPActionItem(
+            title: "import_button".localized,
+            handler: { [weak self] in
+              self?.onTransition?(.showDocumentPicker)
+            }
+          ),
+          BPActionItem(
+            title: "create_playlist_button".localized,
+            handler: { [weak self] in
+              self?.onTransition?(.showCreateFolderAlert(placeholder: nil, items: nil, type: .folder))
+            }
+          )
+        ]
+      )
+    ))
   }
 
   func notifyPendingFiles() {

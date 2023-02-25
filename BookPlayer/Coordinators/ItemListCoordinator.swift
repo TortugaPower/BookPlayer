@@ -13,7 +13,6 @@ import UniformTypeIdentifiers
 
 enum ItemListActionRoutes {
   case importOptions
-  case importLocalFiles
   case importIntoFolder(_ folder: SimpleLibraryItem, items: [LibraryItem], type: SimpleItemType)
   case downloadBook(_ url: URL)
   case createFolder(_ title: String, items: [String]?, type: SimpleItemType)
@@ -231,24 +230,6 @@ extension ItemListCoordinator {
     }))
 
     self.navigationController.present(alert, animated: true, completion: nil)
-  }
-
-  func showAddActions() {
-    let alertController = UIAlertController(title: nil,
-                                            message: "import_description".localized,
-                                            preferredStyle: .actionSheet)
-
-    alertController.addAction(UIAlertAction(title: "import_button".localized, style: .default) { _ in
-      self.onAction?(.importLocalFiles)
-    })
-
-    alertController.addAction(UIAlertAction(title: "create_playlist_button".localized, style: .default) { _ in
-      self.showCreateFolderAlert()
-    })
-
-    alertController.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel))
-
-    self.navigationController.present(alertController, animated: true, completion: nil)
   }
 
   func showDocumentPicker() {
