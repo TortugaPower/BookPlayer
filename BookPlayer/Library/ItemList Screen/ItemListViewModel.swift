@@ -731,14 +731,52 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   func showMoreOptions(selectedItems: [SimpleLibraryItem]) {
     guard let item = selectedItems.first else { return }
 
-    let availableFolders = getAvailableFolders(notIn: selectedItems)
-
     let isSingle = selectedItems.count == 1
+    // TODO: localize
+    var actions = [
+      BPActionItem(
+        title: "Details",
+        isEnabled: isSingle,
+        handler: { [weak self] in
+          self?.onTransition?(.showItemDetails(item: item))
+        }
+      ),
+      BPActionItem(
+        title: "move_title".localized,
+        handler: { [weak self] in
+          guard let self = self else { return }
 
-    let sheetTitle = isSingle ? item.title : "options_button".localized
+          self.showMoveOptions(
+            selectedItems: selectedItems,
+            availableFolders: self.getAvailableFolders(notIn: selectedItems)
+          )
+        }
+      ),
+      BPActionItem(
+        title: "export_button".localized,
+        handler: { [weak self] in
+          self?.onTransition?(.showExportController(items: selectedItems))
+        }
+      ),
+      BPActionItem(
+        title: "jump_start_title".localized,
+        handler: { [weak self] in
+          self?.handleResetPlaybackPosition(for: selectedItems)
+        }
+      )
+    ]
 
     let areFinished = selectedItems.filter({ !$0.isFinished }).isEmpty
     let markTitle = areFinished ? "mark_unfinished_title".localized : "mark_finished_title".localized
+
+    actions.append(
+      BPActionItem(
+        title: markTitle,
+        handler: { [areFinished, weak self] in
+          self?.handleMarkAsFinished(for: selectedItems, flag: !areFinished)
+        }
+      )
+    )
 
     let boundBookAction: BPActionItem
 
@@ -770,56 +808,70 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       )
     }
 
-    // TODO: localize
-    sendEvent(.showAlert(
-      content: BPAlertContent(
-        title: sheetTitle,
-        style: .actionSheet,
-        actionItems: [
-          BPActionItem(
-            title: "Details",
-            isEnabled: isSingle,
-            handler: { [weak self] in
-              self?.onTransition?(.showItemDetails(item: item))
-            }
-          ),
-          BPActionItem(
-            title: "move_title".localized,
-            handler: { [weak self] in
-              self?.showMoveOptions(
-                selectedItems: selectedItems,
-                availableFolders: availableFolders
+    actions.append(boundBookAction)
+
+    if syncService.isActive {
+      let title: String
+      let handler: () -> Void
+
+      switch getDownloadState(for: item) {
+      case .notDownloaded:
+        title = "Download"
+        handler = { [weak self] in
+          self?.startDownload(of: item)
+        }
+      case .downloading:
+        title = "Cancel download"
+        handler = { [weak self] in
+          self?.cancelDownload(of: item)
+        }
+      case .downloaded:
+        title = "Remove from device"
+        handler = { [weak self] in
+          do {
+            let fileURL = item.fileURL
+            try FileManager.default.removeItem(at: fileURL)
+            if item.type == .bound {
+              try FileManager.default.createDirectory(
+                at: fileURL,
+                withIntermediateDirectories: false,
+                attributes: nil
               )
             }
-          ),
-          BPActionItem(
-            title: "export_button".localized,
-            handler: { [weak self] in
-              self?.onTransition?(.showExportController(items: selectedItems))
-            }
-          ),
-          BPActionItem(
-            title: "jump_start_title".localized,
-            handler: { [weak self] in
-              self?.handleResetPlaybackPosition(for: selectedItems)
-            }
-          ),
-          BPActionItem(
-            title: markTitle,
-            handler: { [weak self] in
-              self?.handleMarkAsFinished(for: selectedItems, flag: !areFinished)
-            }
-          ),
-          boundBookAction,
-          BPActionItem(
-            title: "delete_button".localized,
-            style: .destructive,
-            handler: { [weak self] in
-              self?.showDeleteAlert(selectedItems: selectedItems)
-            }
-          ),
-          BPActionItem.cancelAction
-        ]
+            self?.reloadItems()
+          } catch {
+            self?.sendEvent(.showAlert(
+              content: BPAlertContent.errorAlert(message: error.localizedDescription)
+            ))
+            return
+          }
+        }
+      }
+      actions.append(
+        BPActionItem(
+          title: title,
+          isEnabled: isSingle,
+          handler: handler
+        )
+      )
+    }
+
+    actions.append(
+      BPActionItem(
+        title: "delete_button".localized,
+        style: .destructive,
+        handler: { [weak self] in
+          self?.showDeleteAlert(selectedItems: selectedItems)
+        }
+      )
+    )
+    actions.append(BPActionItem.cancelAction)
+
+    sendEvent(.showAlert(
+      content: BPAlertContent(
+        title: isSingle ? item.title : "options_button".localized,
+        style: .actionSheet,
+        actionItems: actions
       )
     ))
   }
