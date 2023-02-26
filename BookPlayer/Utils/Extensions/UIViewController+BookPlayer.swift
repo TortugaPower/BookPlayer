@@ -13,48 +13,31 @@ extension UIViewController {
     let alert = UIAlertController(
       title: content.title,
       message: content.message,
-      preferredStyle: .alert
+      preferredStyle: content.style
     )
 
-    let okButton = UIAlertAction(title: content.textButton, style: .default) { _ in
-      content.confirmationAction()
+    if let textInputPlaceholder = content.textInputPlaceholder {
+      alert.addTextField(configurationHandler: { textfield in
+        textfield.text = textInputPlaceholder
+      })
     }
-
-    alert.addAction(okButton)
-
-    if let cancelTextButton = content.cancelTextButton {
-      let cancelButton = UIAlertAction(title: cancelTextButton, style: .cancel) { _ in
-        content.cancelAction()
-      }
-      alert.addAction(cancelButton)
-    }
-
-    self.present(alert, animated: true, completion: nil)
-  }
-
-  func showActionSheet(_ content: BPSheetContent) {
-    let alert = UIAlertController(
-      title: content.title,
-      message: content.message,
-      preferredStyle: .actionSheet
-    )
 
     content.actionItems.forEach({ item in
-      alert.addAction(
-        UIAlertAction(
-          title: item.title,
-          style: .default,
-          handler: { _ in item.handler() }
-        )
+      let action = UIAlertAction(
+        title: item.title,
+        style: item.style,
+        handler: { _ in
+          if let text = alert.textFields?.first?.text,
+             let inputHandler = item.inputHandler {
+            inputHandler(text)
+          } else {
+            item.handler()
+          }
+        }
       )
+      action.isEnabled = item.isEnabled
+      alert.addAction(action)
     })
-
-    if let cancelTextButton = content.cancelTextButton {
-      let cancelButton = UIAlertAction(title: cancelTextButton, style: .cancel) { _ in
-        content.cancelAction()
-      }
-      alert.addAction(cancelButton)
-    }
 
     self.present(alert, animated: true, completion: nil)
   }

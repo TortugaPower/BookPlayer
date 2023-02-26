@@ -7,42 +7,69 @@
 //
 
 import Foundation
+import UIKit
 
 struct BPAlertContent {
   let title: String?
   let message: String?
-  let textButton: String
-  let cancelTextButton: String?
-  let cancelAction: () -> Void
-  let confirmationAction: () -> Void
+  let style: UIAlertController.Style
+  let textInputPlaceholder: String?
+  let actionItems: [BPActionItem]
 
   init(
     title: String? = nil,
     message: String? = nil,
-    textButton: String = "ok_button".localized,
-    confirmationAction: @escaping () -> Void = {}
+    style: UIAlertController.Style,
+    textInputPlaceholder: String? = nil,
+    actionItems: [BPActionItem]
   ) {
     self.title = title
     self.message = message
-    self.textButton = textButton
-    self.cancelTextButton = nil
-    self.cancelAction = {}
-    self.confirmationAction = confirmationAction
+    self.style = style
+    self.textInputPlaceholder = textInputPlaceholder
+    self.actionItems = actionItems
   }
+}
+
+extension BPAlertContent {
+  static func errorAlert(title: String = "error_title".localized, message: String) -> BPAlertContent {
+    return BPAlertContent(
+      title: title,
+      message: message,
+      style: .alert,
+      actionItems: [BPActionItem(title: "ok_button".localized)]
+    )
+  }
+}
+
+struct BPActionItem {
+  let title: String
+  let style: UIAlertAction.Style
+  let isEnabled: Bool
+  let handler: () -> Void
+  var inputHandler: ((String) -> Void)?
 
   init(
-    title: String? = nil,
-    message: String? = nil,
-    textButton: String = "ok_button".localized,
-    cancelTextButton: String = "cancel_button".localized,
-    cancelAction: @escaping () -> Void = {},
-    confirmationAction: @escaping () -> Void
+    title: String,
+    style: UIAlertAction.Style = .default,
+    isEnabled: Bool = true,
+    handler: @escaping () -> Void = {},
+    inputHandler: ((String) -> Void)? = nil
   ) {
     self.title = title
-    self.message = message
-    self.textButton = textButton
-    self.cancelTextButton = cancelTextButton
-    self.cancelAction = cancelAction
-    self.confirmationAction = confirmationAction
+    self.style = style
+    self.isEnabled = isEnabled
+    self.handler = handler
+    self.inputHandler = inputHandler
   }
+}
+
+extension BPActionItem {
+  static var cancelAction = BPActionItem(
+    title: "cancel_button".localized,
+    style: .cancel,
+    isEnabled: true,
+    handler: {},
+    inputHandler: nil
+  )
 }

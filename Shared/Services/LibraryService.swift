@@ -657,6 +657,7 @@ public final class LibraryService: LibraryServiceProtocol {
 
   func jumpToStart(book: Book) {
     book.currentTime = 0
+    book.percentCompleted = 0
     book.isFinished = false
     self.dataManager.saveContext()
   }

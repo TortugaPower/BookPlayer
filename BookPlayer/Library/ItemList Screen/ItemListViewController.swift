@@ -227,7 +227,7 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
 
       let selectedItems = indexPaths.compactMap({ self.viewModel.items[$0.row] })
 
-      self.viewModel.showDeleteOptions(selectedItems: selectedItems)
+      self.viewModel.showDeleteAlert(selectedItems: selectedItems)
     }
 
     self.bulkControls.onMoreTap = { [weak self] in
@@ -259,8 +259,6 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
           self?.showAlert(content)
         case .showLoader(let flag):
           self?.showLoader(flag)
-        case .showActionSheet(let content):
-          self?.showActionSheet(content)
         }
       }
       .store(in: &disposeBag)
@@ -289,34 +287,12 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
       self?.setEditing(false, animated: false)
 
       switch route {
-      case .importOptions:
-        self?.viewModel.showAddActions()
       case .newImportOperation(let operation):
         let loadingTitle = String.localizedStringWithFormat("import_processing_description".localized, operation.files.count)
         self?.showLoadView(true, title: loadingTitle)
       case .importOperationFinished(let files):
         self?.showLoadView(false)
         self?.viewModel.handleOperationCompletion(files)
-      case .importIntoFolder(let selectedFolder, let items, let type):
-        self?.viewModel.importIntoFolder(selectedFolder, items: items, type: type)
-      case .createFolder(let title, let items, let type):
-        self?.viewModel.createFolder(with: title, items: items, type: type)
-      case .updateFolders(let folders, let type):
-        self?.viewModel.updateFolders(folders, type: type)
-      case .moveIntoLibrary(let items):
-        self?.viewModel.handleMoveIntoLibrary(items: items)
-      case .moveIntoFolder(let selectedFolder, let items):
-        self?.viewModel.handleMoveIntoFolder(selectedFolder, items: items)
-      case .insertIntoLibrary(let items):
-        self?.viewModel.handleInsertionIntoLibrary(items)
-      case .delete(let items, let mode):
-        self?.viewModel.handleDelete(items: items, mode: mode)
-      case .sortItems(let option):
-        self?.viewModel.handleSort(by: option)
-      case .resetPlaybackPosition(let items):
-        self?.viewModel.handleResetPlaybackPosition(for: items)
-      case .markAsFinished(let items, let flag):
-        self?.viewModel.handleMarkAsFinished(for: items, flag: flag)
       case .downloadBook(let url):
         self?.showLoadView(true, title: "downloading_file_title".localized, subtitle: "\("progress_title".localized) 0%")
         self?.viewModel.handleDownload(url)

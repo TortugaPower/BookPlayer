@@ -18,9 +18,13 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     case showFolder(relativePath: String)
     case loadPlayer(relativePath: String)
     case showDocumentPicker
-    case showCreateFolderAlert(placeholder: String?, items: [String]?, type: SimpleItemType)
     case showSearchList(relativePath: String?, placeholderTitle: String)
     case showItemDetails(item: SimpleLibraryItem)
+    case showExportController(items: [SimpleLibraryItem])
+    case showItemSelectionScreen(
+      availableItems: [SimpleLibraryItem],
+      selectionHandler: (SimpleLibraryItem) -> Void
+    )
   }
 
   enum Events {
@@ -28,7 +32,6 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     case reloadIndex(_ indexPath: IndexPath)
     case downloadState(_ state: DownloadState, indexPath: IndexPath)
     case showAlert(content: BPAlertContent)
-    case showActionSheet(content: BPSheetContent)
     case showLoader(flag: Bool)
   }
 
@@ -354,8 +357,8 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       libraryService.rebuildFolderDetails(folder.relativePath)
     } catch {
       sendEvent(.showAlert(
-        content: BPAlertContent(title: "error_title".localized, message: error.localizedDescription))
-      )
+        content: BPAlertContent.errorAlert(message: error.localizedDescription)
+      ))
     }
 
     self.coordinator.reloadItemsWithPadding()
@@ -379,8 +382,8 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
     } catch {
       sendEvent(.showAlert(
-        content: BPAlertContent(title: "error_title".localized, message: error.localizedDescription))
-      )
+        content: BPAlertContent.errorAlert(message: error.localizedDescription)
+      ))
     }
 
     self.coordinator.reloadItemsWithPadding(padding: 1)
@@ -398,8 +401,8 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       }
     } catch {
       sendEvent(.showAlert(
-        content: BPAlertContent(title: "error_title".localized, message: error.localizedDescription))
-      )
+        content: BPAlertContent.errorAlert(message: error.localizedDescription)
+      ))
     }
 
     self.coordinator.reloadItemsWithPadding()
@@ -416,8 +419,8 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       }
     } catch {
       sendEvent(.showAlert(
-        content: BPAlertContent(title: "error_title".localized, message: error.localizedDescription))
-      )
+        content: BPAlertContent.errorAlert(message: error.localizedDescription)
+      ))
     }
 
     self.coordinator.reloadItemsWithPadding(padding: selectedItems.count)
@@ -433,8 +436,8 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       self.libraryService.rebuildFolderDetails(folder.relativePath)
     } catch {
       sendEvent(.showAlert(
-        content: BPAlertContent(title: "error_title".localized, message: error.localizedDescription))
-      )
+        content: BPAlertContent.errorAlert(message: error.localizedDescription)
+      ))
     }
 
     self.coordinator.reloadItemsWithPadding()
@@ -451,8 +454,8 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       }
     } catch {
       sendEvent(.showAlert(
-        content: BPAlertContent(title: "error_title".localized, message: error.localizedDescription))
-      )
+        content: BPAlertContent.errorAlert(message: error.localizedDescription)
+      ))
     }
 
     self.coordinator.reloadItemsWithPadding()
@@ -471,8 +474,8 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       }
     } catch {
       sendEvent(.showAlert(
-        content: BPAlertContent(title: "error_title".localized, message: error.localizedDescription))
-      )
+        content: BPAlertContent.errorAlert(message: error.localizedDescription)
+      ))
       return
     }
 
@@ -495,7 +498,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     }
 
     if processedItems.count > 1 {
-      self.coordinator.showOperationCompletedAlert(with: processedItems, availableFolders: availableFolders)
+      showOperationCompletedAlert(with: processedItems, availableFolders: availableFolders)
     }
   }
 
@@ -504,8 +507,8 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       try self.libraryService.moveItems(items, inside: nil, moveFiles: true)
     } catch {
       sendEvent(.showAlert(
-        content: BPAlertContent(title: "error_title".localized, message: error.localizedDescription))
-      )
+        content: BPAlertContent.errorAlert(message: error.localizedDescription)
+      ))
     }
 
     self.coordinator.reloadItemsWithPadding(padding: items.count)
@@ -537,10 +540,11 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func showAddActions() {
-    sendEvent(.showActionSheet(
-      content: BPSheetContent(
+    sendEvent(.showAlert(
+      content: BPAlertContent(
         title: nil,
         message: "import_description".localized,
+        style: .actionSheet,
         actionItems: [
           BPActionItem(
             title: "import_button".localized,
@@ -551,7 +555,11 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
           BPActionItem(
             title: "create_playlist_button".localized,
             handler: { [weak self] in
-              self?.onTransition?(.showCreateFolderAlert(placeholder: nil, items: nil, type: .folder))
+              self?.showCreateFolderAlert(
+                placeholder: nil,
+                with: nil,
+                type: .folder
+              )
             }
           )
         ]
@@ -617,10 +625,11 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func showSortOptions() {
-    sendEvent(.showActionSheet(
-      content: BPSheetContent(
+    sendEvent(.showAlert(
+      content: BPAlertContent(
         title: "sort_files_title".localized,
         message: nil,
+        style: .actionSheet,
         actionItems: [
           BPActionItem(
             title: "title_button".localized,
@@ -658,17 +667,329 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   func showMoveOptions(selectedItems: [SimpleLibraryItem]) {
     let availableFolders = getAvailableFolders(notIn: selectedItems)
 
-    self.coordinator.showMoveOptions(selectedItems: selectedItems, availableFolders: availableFolders)
+    showMoveOptions(selectedItems: selectedItems, availableFolders: availableFolders)
   }
 
-  func showDeleteOptions(selectedItems: [SimpleLibraryItem]) {
-    self.coordinator.showDeleteAlert(selectedItems: selectedItems)
+  func showDeleteAlert(selectedItems: [SimpleLibraryItem]) {
+    var actions = [BPActionItem]()
+    var alertTitle: String
+    var alertMessage: String?
+
+    if selectedItems.count == 1,
+       let item = selectedItems.first {
+      alertTitle = String(format: "delete_single_item_title".localized, item.title)
+      alertMessage = nil
+    } else {
+      alertTitle = String.localizedStringWithFormat("delete_multiple_items_title".localized, selectedItems.count)
+      alertMessage = "delete_multiple_items_description".localized
+    }
+
+    var deleteActionTitle = "delete_button".localized
+
+    if selectedItems.count == 1,
+       let item = selectedItems.first,
+       item.type == .folder {
+      deleteActionTitle = "delete_deep_button".localized
+
+      alertTitle = String(format: "delete_single_item_title".localized, item.title)
+      alertMessage = "delete_single_playlist_description".localized
+
+      actions.append(
+        BPActionItem(
+          title: "delete_shallow_button".localized,
+          handler: { [weak self] in
+            self?.handleDelete(items: selectedItems, mode: .shallow)
+          }
+        )
+      )
+    }
+
+    actions.append(
+      BPActionItem(
+        title: deleteActionTitle,
+        style: .destructive,
+        handler: { [weak self] in
+          if selectedItems.contains(where: { $0.relativePath == self?.playerManager.currentItem?.relativePath }) {
+            self?.playerManager.stop()
+          }
+          self?.handleDelete(items: selectedItems, mode: .deep)
+        }
+      )
+    )
+    actions.append(BPActionItem.cancelAction)
+
+    sendEvent(.showAlert(
+      content: BPAlertContent(
+        title: alertTitle,
+        message: alertMessage,
+        style: .alert,
+        actionItems: actions
+      )
+    ))
   }
 
   func showMoreOptions(selectedItems: [SimpleLibraryItem]) {
+    guard let item = selectedItems.first else { return }
+
     let availableFolders = getAvailableFolders(notIn: selectedItems)
 
-    self.coordinator.showMoreOptionsAlert(selectedItems: selectedItems, availableFolders: availableFolders)
+    let isSingle = selectedItems.count == 1
+
+    let sheetTitle = isSingle ? item.title : "options_button".localized
+
+    let areFinished = selectedItems.filter({ !$0.isFinished }).isEmpty
+    let markTitle = areFinished ? "mark_unfinished_title".localized : "mark_finished_title".localized
+
+    let boundBookAction: BPActionItem
+
+    if selectedItems.allSatisfy({ $0.type == .bound }) {
+      boundBookAction = BPActionItem(
+        title: "bound_books_undo_alert_title".localized,
+        handler: { [weak self] in
+          self?.updateFolders(selectedItems, type: .folder)
+        }
+      )
+    } else {
+      let isActionEnabled = (selectedItems.count > 1 && selectedItems.allSatisfy({ $0.type == .book }))
+      || (isSingle && item.type == .folder)
+
+      boundBookAction = BPActionItem(
+        title: "bound_books_create_button".localized,
+        isEnabled: isActionEnabled,
+        handler: { [weak self] in
+          if isSingle {
+            self?.updateFolders(selectedItems, type: .bound)
+          } else {
+            self?.showCreateFolderAlert(
+              placeholder: item.title,
+              with: selectedItems.map { $0.relativePath },
+              type: .bound
+            )
+          }
+        }
+      )
+    }
+
+    // TODO: localize
+    sendEvent(.showAlert(
+      content: BPAlertContent(
+        title: sheetTitle,
+        style: .actionSheet,
+        actionItems: [
+          BPActionItem(
+            title: "Details",
+            isEnabled: isSingle,
+            handler: { [weak self] in
+              self?.onTransition?(.showItemDetails(item: item))
+            }
+          ),
+          BPActionItem(
+            title: "move_title".localized,
+            handler: { [weak self] in
+              self?.showMoveOptions(
+                selectedItems: selectedItems,
+                availableFolders: availableFolders
+              )
+            }
+          ),
+          BPActionItem(
+            title: "export_button".localized,
+            handler: { [weak self] in
+              self?.onTransition?(.showExportController(items: selectedItems))
+            }
+          ),
+          BPActionItem(
+            title: "jump_start_title".localized,
+            handler: { [weak self] in
+              self?.handleResetPlaybackPosition(for: selectedItems)
+            }
+          ),
+          BPActionItem(
+            title: markTitle,
+            handler: { [weak self] in
+              self?.handleMarkAsFinished(for: selectedItems, flag: !areFinished)
+            }
+          ),
+          boundBookAction,
+          BPActionItem(
+            title: "delete_button".localized,
+            style: .destructive,
+            handler: { [weak self] in
+              self?.showDeleteAlert(selectedItems: selectedItems)
+            }
+          ),
+          BPActionItem.cancelAction
+        ]
+      )
+    ))
+  }
+
+  func showMoveOptions(selectedItems: [SimpleLibraryItem], availableFolders: [SimpleLibraryItem]) {
+    var actions = [BPActionItem]()
+
+    if folderRelativePath != nil {
+      actions.append(
+        BPActionItem(
+          title: "library_title".localized,
+          handler: { [weak self] in
+            self?.handleMoveIntoLibrary(items: selectedItems)
+          }
+        )
+      )
+    }
+
+    actions.append(
+      BPActionItem(
+        title: "new_playlist_button".localized,
+        handler: { [weak self] in
+          self?.showCreateFolderAlert(
+            placeholder: selectedItems.first?.title,
+            with: selectedItems.map { $0.relativePath },
+            type: .folder
+          )
+        }
+      )
+    )
+
+    actions.append(
+      BPActionItem(
+        title: "existing_playlist_button".localized,
+        isEnabled: !availableFolders.isEmpty,
+        handler: { [weak self] in
+          self?.onTransition?(.showItemSelectionScreen(
+            availableItems: availableFolders,
+            selectionHandler: { folder in
+              self?.handleMoveIntoFolder(folder, items: selectedItems)
+          }))
+        }
+      )
+    )
+
+    actions.append(BPActionItem.cancelAction)
+
+    sendEvent(.showAlert(
+      content: BPAlertContent(
+        title: "choose_destination_title".localized,
+        style: .alert,
+        actionItems: actions
+      )
+    ))
+  }
+
+  func showOperationCompletedAlert(with items: [LibraryItem], availableFolders: [SimpleLibraryItem]) {
+    let hasParentFolder = folderRelativePath != nil
+    var actions = [BPActionItem]()
+
+    if hasParentFolder {
+      actions.append(BPActionItem(title: "current_playlist_title".localized))
+    }
+
+    actions.append(BPActionItem(
+      title: "library_title".localized,
+      handler: { [hasParentFolder, items, weak self] in
+        guard hasParentFolder else { return }
+
+        self?.handleInsertionIntoLibrary(items)
+      }
+    ))
+
+    actions.append(BPActionItem(
+      title: "new_playlist_button".localized,
+      handler: { [items, weak self] in
+        var placeholder = "new_playlist_button".localized
+
+        if let item = items.first {
+          placeholder = item.title
+        }
+
+        self?.showCreateFolderAlert(
+          placeholder: placeholder,
+          with: items.map { $0.relativePath! },
+          type: .folder
+        )
+      }
+    ))
+
+    actions.append(BPActionItem(
+      title: "existing_playlist_button".localized,
+      isEnabled: !availableFolders.isEmpty,
+      handler: { [items, availableFolders, weak self] in
+        self?.onTransition?(.showItemSelectionScreen(
+          availableItems: availableFolders,
+          selectionHandler: { selectedFolder in
+            self?.importIntoFolder(
+              selectedFolder,
+              items: items,
+              type: .folder
+            )
+          }
+        ))
+      }
+    ))
+
+    actions.append(BPActionItem(
+      title: "bound_books_create_button".localized,
+      isEnabled: items is [Book],
+      handler: { [items, weak self] in
+        let placeholder = items.first?.title
+        ?? "bound_books_new_title_placeholder".localized
+
+        self?.showCreateFolderAlert(
+          placeholder: placeholder,
+          with: items.map { $0.relativePath! },
+          type: .bound
+        )
+      }
+    ))
+
+    sendEvent(.showAlert(
+      content: BPAlertContent(
+        title: String.localizedStringWithFormat("import_alert_title".localized, items.count),
+        style: .alert,
+        actionItems: actions
+      )
+    ))
+  }
+
+  func showCreateFolderAlert(
+    placeholder: String? = nil,
+    with items: [String]? = nil,
+    type: SimpleItemType = .folder
+  ) {
+    let alertTitle: String
+    let alertMessage: String
+    let alertPlaceholderDefault: String
+
+    switch type {
+    case .folder:
+      alertTitle = "create_playlist_title".localized
+      alertMessage = ""
+      alertPlaceholderDefault = "new_playlist_button".localized
+    case .bound:
+      alertTitle = "bound_books_create_alert_title".localized
+      alertMessage = "bound_books_create_alert_description".localized
+      alertPlaceholderDefault = "bound_books_new_title_placeholder".localized
+    case .book:
+      return
+    }
+
+    sendEvent(.showAlert(
+      content: BPAlertContent(
+        title: alertTitle,
+        message: alertMessage,
+        style: .alert,
+        textInputPlaceholder: placeholder ?? alertPlaceholderDefault,
+        actionItems: [
+          BPActionItem(
+            title: "create_button".localized,
+            inputHandler: { [items, type, weak self] title in
+              self?.createFolder(with: title, items: items, type: type)
+            }
+          ),
+          BPActionItem.cancelAction
+        ]
+      )
+    ))
   }
 
   func showSearchList() {
@@ -770,8 +1091,8 @@ extension ItemListViewModel {
         self.sendEvent(.showLoader(flag: false))
       } catch {
         self.sendEvent(.showAlert(
-          content: BPAlertContent(title: "error_title".localized, message: error.localizedDescription))
-        )
+          content: BPAlertContent.errorAlert(message: error.localizedDescription)
+        ))
       }
     }
   }
@@ -840,8 +1161,8 @@ extension ItemListViewModel {
       self.sendEvent(.reloadIndex(IndexPath(row: index, section: BPSection.data.rawValue)))
     } catch {
       self.sendEvent(.showAlert(
-        content: BPAlertContent(title: "error_title".localized, message: error.localizedDescription))
-      )
+        content: BPAlertContent.errorAlert(message: error.localizedDescription)
+      ))
     }
   }
 
@@ -850,42 +1171,49 @@ extension ItemListViewModel {
   func cancelDownload(of item: SimpleLibraryItem) {
     guard let tasks = downloadTasksDictionary[item.relativePath] else { return }
 
+    /// TODO: Localize
     sendEvent(.showAlert(
       content: BPAlertContent(
         message: "Cancel download",
-        cancelAction: {},
-        confirmationAction: { [tasks, item, weak self] in
-          var hasCompletedTasks = false
+        style: .alert,
+        actionItems: [
+          BPActionItem(
+            title: "ok_button".localized,
+            handler: { [tasks, item, weak self] in
+              var hasCompletedTasks = false
 
-          for task in tasks {
-            guard task.state != .completed else {
-              hasCompletedTasks = true
-              continue
+              for task in tasks {
+                guard task.state != .completed else {
+                  hasCompletedTasks = true
+                  continue
+                }
+
+                task.cancel()
+              }
+
+              /// Clean up bound downloads if at least one was finished
+              if item.type == .bound,
+                 hasCompletedTasks {
+                do {
+                  let fileURL = item.fileURL
+                  try FileManager.default.removeItem(at: fileURL)
+                  try FileManager.default.createDirectory(at: fileURL, withIntermediateDirectories: false, attributes: nil)
+                } catch {
+                  self?.sendEvent(.showAlert(
+                    content: BPAlertContent.errorAlert(message: error.localizedDescription)
+                  ))
+                  return
+                }
+              }
+
+              self?.downloadTasksDictionary[item.relativePath] = nil
+              if let index = self?.items.firstIndex(of: item) {
+                self?.sendEvent(.reloadIndex(IndexPath(row: index, section: .data)))
+              }
             }
-
-            task.cancel()
-          }
-
-          /// Clean up bound downloads if at least one was finished
-          if item.type == .bound,
-             hasCompletedTasks {
-            do {
-              let fileURL = item.fileURL
-              try FileManager.default.removeItem(at: fileURL)
-              try FileManager.default.createDirectory(at: fileURL, withIntermediateDirectories: false, attributes: nil)
-            } catch {
-              self?.sendEvent(.showAlert(
-                content: BPAlertContent(title: "error_title".localized, message: error.localizedDescription))
-              )
-              return
-            }
-          }
-
-          self?.downloadTasksDictionary[item.relativePath] = nil
-          if let index = self?.items.firstIndex(of: item) {
-            self?.sendEvent(.reloadIndex(IndexPath(row: index, section: .data)))
-          }
-        }
+          ),
+          BPActionItem.cancelAction
+        ]
       )
     ))
   }
@@ -898,14 +1226,20 @@ extension ItemListViewModel {
       if response.error != nil,
          let error = response.error {
         self?.sendEvent(.showAlert(
-          content: BPAlertContent(title: "network_error_title".localized, message: error.localizedDescription))
-        )
+          content: BPAlertContent.errorAlert(
+            title: "network_error_title".localized,
+            message: error.localizedDescription
+          )
+        ))
       }
 
       if let response = response.response, response.statusCode >= 300 {
         self?.sendEvent(.showAlert(
-          content: BPAlertContent(title: "network_error_title".localized, message: "Code \(response.statusCode)"))
-        )
+          content: BPAlertContent.errorAlert(
+            title: "network_error_title".localized,
+            message: "Code \(response.statusCode)"
+          )
+        ))
       }
     }
   }

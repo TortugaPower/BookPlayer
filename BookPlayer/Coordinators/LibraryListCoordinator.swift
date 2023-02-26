@@ -57,12 +57,14 @@ class LibraryListCoordinator: ItemListCoordinator {
         self?.loadPlayer(relativePath)
       case .showDocumentPicker:
         self?.showDocumentPicker()
-      case .showCreateFolderAlert(let placeholder, let items, let type):
-        self?.showCreateFolderAlert(placeholder: placeholder, with: items, type: type)
       case .showSearchList(let relativePath, let placeholderTitle):
         self?.showSearchList(at: relativePath, placeholderTitle: placeholderTitle)
       case .showItemDetails(let item):
         self?.showItemDetails(item)
+      case .showExportController(let items):
+        self?.showExportController(for: items)
+      case .showItemSelectionScreen(let availableItems, let selectionHandler):
+        self?.showItemSelectionScreen(availableItems: availableItems, selectionHandler: selectionHandler)
       }
     }
     viewModel.coordinator = self
