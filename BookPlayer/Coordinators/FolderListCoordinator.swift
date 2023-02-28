@@ -57,6 +57,8 @@ class FolderListCoordinator: ItemListCoordinator {
         self?.showExportController(for: items)
       case .showItemSelectionScreen(let availableItems, let selectionHandler):
         self?.showItemSelectionScreen(availableItems: availableItems, selectionHandler: selectionHandler)
+      case .showMiniPlayer(let flag):
+        self?.showMiniPlayer(flag: flag)
       }
     }
     viewModel.coordinator = self

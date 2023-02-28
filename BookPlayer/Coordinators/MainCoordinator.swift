@@ -13,7 +13,7 @@ import Themeable
 import UIKit
 
 class MainCoordinator: Coordinator {
-  let tabBarController: AppTabBarController
+  var tabBarController: AppTabBarController?
 
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
@@ -39,19 +39,31 @@ class MainCoordinator: Coordinator {
 
     ThemeManager.shared.libraryService = libraryService
 
-    let viewModel = MiniPlayerViewModel(playerManager: self.playerManager)
-    self.tabBarController = AppTabBarController(miniPlayerViewModel: viewModel)
-    tabBarController.modalPresentationStyle = .fullScreen
-    tabBarController.modalTransitionStyle = .crossDissolve
-
     super.init(navigationController: navigationController, flowType: .modal)
-    viewModel.coordinator = self
 
     accountService.setDelegate(self)
     setUpTheming()
   }
 
   override func start() {
+    let viewModel = MiniPlayerViewModel(
+      playerManager: self.playerManager,
+      lastPlayedItem: try? libraryService.getLibraryLastItem()
+    )
+
+    viewModel.onTransition = { route in
+      switch route {
+      case .showPlayer:
+        self.showPlayer()
+      case .loadItem(let relativePath, let autoplay, let showPlayer):
+        self.loadPlayer(relativePath, autoplay: autoplay, showPlayer: showPlayer)
+      }
+    }
+
+    let tabBarController = AppTabBarController(miniPlayerViewModel: viewModel)
+    self.tabBarController = tabBarController
+    tabBarController.modalPresentationStyle = .fullScreen
+    tabBarController.modalTransitionStyle = .crossDissolve
     presentingViewController = tabBarController
 
     if let currentTheme = try? libraryService.getLibraryCurrentTheme() {
@@ -62,16 +74,16 @@ class MainCoordinator: Coordinator {
 
     accountService.loginIfUserExists()
 
-    startLibraryCoordinator()
+    startLibraryCoordinator(with: tabBarController)
 
-    startProfileCoordinator()
+    startProfileCoordinator(with: tabBarController)
 
-    startSettingsCoordinator()
+    startSettingsCoordinator(with: tabBarController)
 
     navigationController.present(tabBarController, animated: false)
   }
 
-  func startLibraryCoordinator() {
+  func startLibraryCoordinator(with tabBarController: UITabBarController) {
     let libraryCoordinator = LibraryListCoordinator(
       navigationController: AppNavigationController.instantiate(from: .Main),
       playerManager: self.playerManager,
@@ -86,7 +98,7 @@ class MainCoordinator: Coordinator {
     libraryCoordinator.start()
   }
 
-  func startProfileCoordinator() {
+  func startProfileCoordinator(with tabBarController: UITabBarController) {
     let profileCoordinator = ProfileCoordinator(
       libraryService: libraryService,
       accountService: accountService,
@@ -99,7 +111,7 @@ class MainCoordinator: Coordinator {
     profileCoordinator.start()
   }
 
-  func startSettingsCoordinator() {
+  func startSettingsCoordinator(with tabBarController: UITabBarController) {
     let settingsCoordinator = SettingsCoordinator(
       libraryService: self.libraryService,
       accountService: self.accountService,
@@ -125,7 +137,7 @@ class MainCoordinator: Coordinator {
 
           if !self.playerManager.hasLoadedBook(),
              let libraryCoordinator = self.getLibraryCoordinator() {
-            libraryCoordinator.loadLastBookIfAvailable()
+            libraryCoordinator.loadLastBookIfNeeded()
           }
         } else {
           self.socketService.disconnectSocket()
@@ -142,6 +154,19 @@ class MainCoordinator: Coordinator {
       .store(in: &disposeBag)
   }
 
+  func loadPlayer(_ relativePath: String, autoplay: Bool, showPlayer: Bool) {
+    AppDelegate.shared?.loadPlayer(
+      relativePath,
+      autoplay: autoplay,
+      showPlayer: { [weak self] in
+        if showPlayer {
+          self?.showPlayer()
+        }
+      },
+      alertPresenter: (getLibraryCoordinator() ?? self)
+    )
+  }
+
   func showPlayer() {
     let playerCoordinator = PlayerCoordinator(
       playerManager: self.playerManager,
@@ -155,15 +180,18 @@ class MainCoordinator: Coordinator {
 
   func showMiniPlayer(_ flag: Bool) {
     // Only animate if it toggles the state
-    guard flag != self.tabBarController.isMiniPlayerVisible else { return }
+    guard
+      let tabBarController,
+      flag != tabBarController.isMiniPlayerVisible
+    else { return }
 
     guard flag else {
-      self.tabBarController.animateView(self.tabBarController.miniPlayer, show: flag)
+      tabBarController.animateView(tabBarController.miniPlayer, show: flag)
       return
     }
 
     if self.playerManager.hasLoadedBook() {
-      self.tabBarController.animateView(self.tabBarController.miniPlayer, show: flag)
+      tabBarController.animateView(tabBarController.miniPlayer, show: flag)
     }
   }
 

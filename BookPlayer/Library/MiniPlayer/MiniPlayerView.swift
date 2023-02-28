@@ -45,18 +45,22 @@ class MiniPlayerView: UIView {
       .store(in: &disposeBag)
   }
 
-  func setupPlayerView(with currentItem: PlayableItem) {
+  func setupPlayerView(
+    with title: String,
+    author: String,
+    relativePath: String
+  ) {
     self.setNeedsLayout()
 
     self.artwork.kf.setImage(
-      with: ArtworkService.getArtworkProvider(for: currentItem.relativePath),
+      with: ArtworkService.getArtworkProvider(for: relativePath),
       placeholder: ArtworkService.generateDefaultArtwork(
         from: themeProvider.currentTheme.linkColor
       ),
       options: [.targetCache(ArtworkService.cache)]
     )
-    self.authorLabel.text = currentItem.author
-    self.titleLabel.text = currentItem.title
+    self.authorLabel.text = author
+    self.titleLabel.text = title
 
     setVoiceOverLabels()
     applyTheme(self.themeProvider.currentTheme)

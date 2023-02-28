@@ -74,22 +74,26 @@ class AppTabBarController: UITabBarController {
       }
       .store(in: &disposeBag)
 
-    self.miniPlayerViewModel.currentItemObserver()
+    self.miniPlayerViewModel.currentItemInfo
       .receive(on: DispatchQueue.main)
       .sink { [weak self] item in
-      guard let self = self else { return }
+        guard let self = self else { return }
 
-      guard let item = item else {
-        self.miniPlayer.isHidden = true
-        return
-      }
+        guard let item = item else {
+          self.miniPlayer.isHidden = true
+          return
+        }
 
-      if self.miniPlayer.isHidden {
-        self.animateView(self.miniPlayer, show: true)
-      }
+        if self.miniPlayer.isHidden {
+          self.animateView(self.miniPlayer, show: true)
+        }
 
-      self.miniPlayer.setupPlayerView(with: item)
-    }.store(in: &disposeBag)
+        self.miniPlayer.setupPlayerView(
+          with: item.title,
+          author: item.author,
+          relativePath: item.relativePath
+        )
+      }.store(in: &disposeBag)
 
     self.miniPlayer.onPlayerTap = { [weak self] in
       self?.miniPlayerViewModel.showPlayer()

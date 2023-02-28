@@ -24,7 +24,6 @@ public protocol PlayerManagerProtocol: NSObjectProtocol {
   func load(_ item: PlayableItem) async throws
   func hasLoadedBook() -> Bool
 
-  func playItem(_ item: PlayableItem)
   func playPreviousItem()
   func playNextItem(autoPlayed: Bool)
   func play()
@@ -126,7 +125,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   }
 
   func hasLoadedBook() -> Bool {
-    return self.currentItem != nil
+    return playerItem != nil
   }
 
   func loadRemoteURLAsset(for chapter: PlayableChapter) async throws -> AVURLAsset {
@@ -201,7 +200,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
     // Preload item
     if self.currentItem != nil {
-      self.stop()
+      stopPlayback()
     }
 
     self.currentItem = item
@@ -679,15 +678,19 @@ extension PlayerManager {
   }
 
   func stop() {
+    stopPlayback()
+
+    self.libraryService.setLibraryLastBook(with: nil)
+
+    self.currentItem = nil
+  }
+
+  private func stopPlayback() {
     self.observeStatus = false
 
     self.audioPlayer.pause()
 
     self.userActivityManager.stopPlaybackActivity()
-
-    self.libraryService.setLibraryLastBook(with: nil)
-
-    self.currentItem = nil
   }
 
   func markAsCompleted(_ flag: Bool) {

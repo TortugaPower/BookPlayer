@@ -65,6 +65,8 @@ class LibraryListCoordinator: ItemListCoordinator {
         self?.showExportController(for: items)
       case .showItemSelectionScreen(let availableItems, let selectionHandler):
         self?.showItemSelectionScreen(availableItems: availableItems, selectionHandler: selectionHandler)
+      case .showMiniPlayer(let flag):
+        self?.showMiniPlayer(flag: flag)
       }
     }
     viewModel.coordinator = self
@@ -85,7 +87,7 @@ class LibraryListCoordinator: ItemListCoordinator {
       tabBarController.setViewControllers(newControllersArray, animated: false)
     }
 
-    self.loadLastBookIfAvailable()
+    self.loadLastBookIfNeeded()
 
     if let appDelegate = AppDelegate.shared {
       for action in appDelegate.pendingURLActions {
@@ -140,6 +142,31 @@ class LibraryListCoordinator: ItemListCoordinator {
     })
   }
 
+  func loadLastBookIfNeeded() {
+    /// Only load on launch if flag is set
+    guard
+      UserDefaults.standard.bool(forKey: Constants.UserActivityPlayback) == true,
+      let libraryItem = try? self.libraryService.getLibraryLastItem()
+    else { return }
+
+    AppDelegate.shared?.loadPlayer(
+      libraryItem.relativePath,
+      autoplay: false,
+      showPlayer: { [weak self] in
+        if UserDefaults.standard.bool(forKey: Constants.UserActivityPlayback) {
+          UserDefaults.standard.removeObject(forKey: Constants.UserActivityPlayback)
+          self?.playerManager.play()
+        }
+
+        if UserDefaults.standard.bool(forKey: Constants.UserDefaults.showPlayer.rawValue) {
+          UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.showPlayer.rawValue)
+          self?.showPlayer()
+        }
+      },
+      alertPresenter: self
+    )
+  }
+
   func processFiles(urls: [URL]) {
     for url in urls {
       self.importManager.process(url)
@@ -186,15 +213,21 @@ class LibraryListCoordinator: ItemListCoordinator {
 
       reloadItemsWithPadding(padding: newItems.count)
 
-      if let relativePath = lastPlayed?.relativePath,
-         playerManager.currentItem?.relativePath != relativePath {
-        AppDelegate.shared?.loadPlayer(
-          relativePath,
-          autoplay: false,
-          showPlayer: {},
-          alertPresenter: self
-        )
-      }
+      guard let lastPlayedRelativePath = lastPlayed?.relativePath else { return }
+
+      let lastItemRelativePath = try? self.libraryService.getLibraryLastItem()?.relativePath
+
+      guard lastItemRelativePath != lastPlayedRelativePath else { return }
+
+      self.playerManager.stop()
+      self.libraryService.setLibraryLastBook(with: lastPlayedRelativePath)
+
+      guard
+        let lastItem = try? self.libraryService.getLibraryLastItem(),
+        let playableItem = try? playbackService.getPlayableItem(from: lastItem)
+      else { return }
+
+      playerManager.currentItem = playableItem
     }
   }
 }

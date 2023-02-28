@@ -134,7 +134,11 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
   }
 
   func setupPlayerView(with currentItem: PlayableItem) {
-    self.artworkControl.setupInfo(with: currentItem)
+    self.artworkControl.setupInfo(
+      with: currentItem.title,
+      author: currentItem.author,
+      relativePath: currentItem.relativePath
+    )
 
     self.updateView(with: self.viewModel.getCurrentProgressState(currentItem))
 

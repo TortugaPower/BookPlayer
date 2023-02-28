@@ -56,10 +56,10 @@ class VoiceOverService {
 
     // MARK: PlayerMetaView
 
-    public func playerMetaText(item: PlayableItem) -> String {
-      let title: String = item.title
-      let author: String = item.author
-
+    public func playerMetaText(
+      title: String,
+      author: String
+    ) -> String {
       return String(describing: String.localizedStringWithFormat("voiceover_book_info".localized, title, author))
     }
 

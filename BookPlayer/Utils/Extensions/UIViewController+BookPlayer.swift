@@ -116,3 +116,25 @@ extension UIViewController {
     return top
   }
 }
+
+extension UIViewController: AlertPresenter {
+  func showAlert(_ title: String?, message: String?, completion: (() -> Void)?) {
+    showAlert(title, message: message, style: .alert, completion: completion)
+  }
+
+  func showLoader() {
+    if let navigationController {
+      LoadingUtils.loadAndBlock(in: navigationController)
+    } else {
+      LoadingUtils.loadAndBlock(in: self)
+    }
+  }
+
+  func stopLoader() {
+    if let navigationController {
+      LoadingUtils.stopLoading(in: navigationController)
+    } else {
+      LoadingUtils.stopLoading(in: self)
+    }
+  }
+}

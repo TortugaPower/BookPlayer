@@ -107,25 +107,8 @@ class ItemListCoordinator: Coordinator {
     )
   }
 
-  func loadLastBookIfAvailable() {
-    guard let libraryItem = try? self.libraryService.getLibraryLastItem() else { return }
-
-    AppDelegate.shared?.loadPlayer(
-      libraryItem.relativePath,
-      autoplay: false,
-      showPlayer: { [weak self] in
-        if UserDefaults.standard.bool(forKey: Constants.UserActivityPlayback) {
-          UserDefaults.standard.removeObject(forKey: Constants.UserActivityPlayback)
-          self?.playerManager.play()
-        }
-
-        if UserDefaults.standard.bool(forKey: Constants.UserDefaults.showPlayer.rawValue) {
-          UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.showPlayer.rawValue)
-          self?.showPlayer()
-        }
-      },
-      alertPresenter: self
-    )
+  func showMiniPlayer(flag: Bool) {
+    getMainCoordinator()?.showMiniPlayer(flag)
   }
 
   func syncList() {

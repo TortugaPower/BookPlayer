@@ -25,6 +25,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       availableItems: [SimpleLibraryItem],
       selectionHandler: (SimpleLibraryItem) -> Void
     )
+    case showMiniPlayer(flag: Bool)
   }
 
   enum Events {
@@ -534,9 +535,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func showMiniPlayer(_ flag: Bool) {
-    if let mainCoordinator = self.coordinator?.getMainCoordinator() {
-      mainCoordinator.showMiniPlayer(flag)
-    }
+    onTransition?(.showMiniPlayer(flag: flag))
   }
 
   func showAddActions() {
