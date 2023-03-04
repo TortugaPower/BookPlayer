@@ -13,12 +13,15 @@ import RevenueCat
 public protocol SyncServiceProtocol {
   /// Flag to check if it can sync or not
   var isActive: Bool { get set }
-  /// Fetch the contents list for the specific folder or library
-  @discardableResult
-  func fetchListContents(
-    at relativePath: String?,
-    shouldSync: Bool
-  ) async throws -> ([SyncableItem], SyncableItem?)
+
+  /// Fetch the contents at the relativePath and override local contents with the remote repsonse
+  func syncListContents(
+    at relativePath: String?
+  ) async throws -> ([SyncableItem], SyncableItem?)?
+
+  /// Fetch the top level of the library, store incoming items and upload new local items
+  /// Note: Should only be called when the user logs in
+  func syncLibraryContents() async throws -> ([SyncableItem], SyncableItem?)
 
   func getRemoteFileURLs(
     of relativePath: String,
@@ -105,15 +108,14 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     }
   }
 
-  public func fetchListContents(
-    at relativePath: String?,
-    shouldSync: Bool
-  ) async throws -> ([SyncableItem], SyncableItem?) {
+  public func syncListContents(
+    at relativePath: String?
+  ) async throws -> ([SyncableItem], SyncableItem?)? {
     guard isActive else {
       throw BookPlayerError.networkError("Sync is not enabled")
     }
-    /// Register last sync timestamp
-    if shouldSync {
+
+    if relativePath == nil {
       UserDefaults.standard.set(
         Date().timeIntervalSince1970,
         forKey: Constants.UserDefaults.lastSyncTimestamp.rawValue
@@ -122,7 +124,49 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     let (fetchedItems, lastItemPlayed) = try await fetchContents(at: relativePath)
 
+    guard !fetchedItems.isEmpty else { return nil }
+
     let libraryIdentifiers = libraryService.getItemIdentifiers(in: relativePath) ?? []
+
+    var fetchedIdentifiers = [String]()
+    var itemsToStore = [SyncableItem]()
+    var itemsToUpdate = [SyncableItem]()
+
+    for fetchedItem in fetchedItems {
+      fetchedIdentifiers.append(fetchedItem.relativePath)
+      if !libraryIdentifiers.contains(fetchedItem.relativePath) {
+        itemsToStore.append(fetchedItem)
+      } else {
+        itemsToUpdate.append(fetchedItem)
+      }
+    }
+
+    /// Remove items from the library that are not in the remote items
+    try libraryService.removeItems(notIn: fetchedIdentifiers, parentFolder: relativePath)
+
+    /// Store new items
+    if !itemsToStore.isEmpty {
+     try await self.storeLibraryItems(from: itemsToStore, parentFolder: relativePath)
+    }
+    /// Update data or store
+    itemsToUpdate.forEach({ libraryService.updateInfo(from: $0) })
+
+    return (fetchedItems, lastItemPlayed)
+  }
+
+  public func syncLibraryContents() async throws -> ([SyncableItem], SyncableItem?) {
+    guard isActive else {
+      throw BookPlayerError.networkError("Sync is not enabled")
+    }
+
+    UserDefaults.standard.set(
+      Date().timeIntervalSince1970,
+      forKey: Constants.UserDefaults.lastSyncTimestamp.rawValue
+    )
+
+    let (fetchedItems, lastItemPlayed) = try await fetchContents(at: nil)
+
+    let libraryIdentifiers = libraryService.getItemIdentifiers(in: nil) ?? []
 
     var fetchedIdentifiers = [String]()
     var itemsToStore = [SyncableItem]()
@@ -135,13 +179,12 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     }
 
     if !itemsToStore.isEmpty {
-     try await self.storeLibraryItems(from: itemsToStore, parentFolder: relativePath)
+     try await self.storeLibraryItems(from: itemsToStore, parentFolder: nil)
     }
 
-    if shouldSync,
-       let itemsToSync = libraryService.getItemsToSync(remoteIdentifiers: fetchedIdentifiers, parentFolder: nil),
-       !itemsToSync.isEmpty {
-      itemsToSync.forEach({ [weak self] in self?.jobManager.scheduleMetadataUploadJob(for: $0) })
+    if let itemsToUpload = libraryService.getItemsToSync(remoteIdentifiers: fetchedIdentifiers, parentFolder: nil),
+       !itemsToUpload.isEmpty {
+      itemsToUpload.forEach({ [weak self] in self?.jobManager.scheduleMetadataUploadJob(for: $0) })
     }
 
     return (itemsToStore, lastItemPlayed)
@@ -154,7 +197,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
         self.libraryService.addBook(from: item, parentFolder: parentFolder)
       case .bound:
         self.libraryService.addFolder(from: item, type: .bound, parentFolder: parentFolder)
-        _ = try await fetchListContents(at: item.relativePath, shouldSync: false)
+        _ = try await syncListContents(at: item.relativePath)
       case .folder:
         self.libraryService.addFolder(from: item, type: .folder, parentFolder: parentFolder)
       }

@@ -76,7 +76,7 @@ public class Folder: LibraryItem {
     self.isFinished = !items.contains(where: { !$0.isFinished })
   }
 
-  public func insert(item: LibraryItem, at index: Int? = nil) {
+  public func insert(item: LibraryItem) {
     if let parent = item.folder {
       parent.removeFromItems(item)
       parent.updateCompletionState()
@@ -87,14 +87,8 @@ public class Folder: LibraryItem {
       library.removeFromItems(item)
     }
 
-    if let index = index {
-      self.insertIntoItems(item, at: index)
-    } else {
-      self.addToItems(item)
-    }
-
+    self.addToItems(item)
     self.rebuildRelativePaths(for: item)
-    self.rebuildOrderRank()
     self.updateDetails()
   }
 
@@ -104,14 +98,6 @@ public class Folder: LibraryItem {
     if let folder = item as? Folder,
        let items = folder.items?.array as? [LibraryItem] {
       items.forEach({ folder.rebuildRelativePaths(for: $0) })
-    }
-  }
-
-  public func rebuildOrderRank() {
-    guard let items = self.items?.array as? [LibraryItem] else { return }
-
-    for (index, item) in items.enumerated() {
-      item.orderRank = Int16(index)
     }
   }
 

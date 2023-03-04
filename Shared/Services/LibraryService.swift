@@ -48,7 +48,7 @@ public protocol LibraryServiceProtocol {
   func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SimpleLibraryItem]?
   func getMaxItemsCount(at relativePath: String?) -> Int
   func sortContents(at relativePath: String?, by type: SortType)
-  func reorderItem(at relativePath: String, inside folderRelativePath: String?, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath)
+  func reorderItem(with relativePath: String, inside folderRelativePath: String?, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath)
 
   func updatePlaybackTime(relativePath: String, time: Double, date: Date)
   func updateBookSpeed(at relativePath: String, speed: Float)
@@ -530,54 +530,66 @@ public final class LibraryService: LibraryServiceProtocol {
   }
 
   public func sortContents(at relativePath: String?, by type: SortType) {
+    guard
+      let results = fetchRawContents(at: relativePath, propertiesToFetch: type.fetchProperties()),
+      !results.isEmpty
+    else { return }
+
+    let sortedResults = type.sortItems(results)
+
+    /// Rebuild order rank
+    for (index, item) in sortedResults.enumerated() {
+      item.orderRank = Int16(index)
+    }
+
+    if let relativePath,
+       let folder = self.getItem(with: relativePath) as? Folder {
+      folder.items = NSOrderedSet(array: sortedResults)
+    } else {
+      let library = self.getLibrary()
+      library.items = NSOrderedSet(array: sortedResults)
+    }
+
+    self.dataManager.saveContext()
+  }
+
+  func fetchRawContents(at relativePath: String?, propertiesToFetch: [String]) -> [LibraryItem]? {
     let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
-    fetchRequest.propertiesToFetch = type.fetchProperties()
+    fetchRequest.propertiesToFetch = propertiesToFetch
 
     if let relativePath = relativePath {
       fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), relativePath)
     } else {
       fetchRequest.predicate = NSPredicate(format: "%K != nil", #keyPath(LibraryItem.library))
     }
-    fetchRequest.sortDescriptors = [NSSortDescriptor(key: #keyPath(LibraryItem.orderRank), ascending: true)]
+    let sort = NSSortDescriptor(key: #keyPath(LibraryItem.orderRank), ascending: true)
+    fetchRequest.sortDescriptors = [sort]
 
-    guard
-      let results = try? self.dataManager.getContext().fetch(fetchRequest),
-      !results.isEmpty
-    else { return }
-
-    let sortedResults = type.sortItems(results)
-
-    if let relativePath,
-       let folder = self.getItem(with: relativePath) as? Folder {
-      folder.items = NSOrderedSet(array: sortedResults)
-      folder.rebuildOrderRank()
-    } else {
-      let library = self.getLibrary()
-      library.items = NSOrderedSet(array: sortedResults)
-      library.rebuildOrderRank()
-    }
-
-    self.dataManager.saveContext()
+    return try? self.dataManager.getContext().fetch(fetchRequest)
   }
 
   public func reorderItem(
-    at relativePath: String,
+    with relativePath: String,
     inside folderRelativePath: String?,
     sourceIndexPath: IndexPath,
     destinationIndexPath: IndexPath
   ) {
-    guard let storedItem = self.getItem(with: relativePath) else { return }
+    guard
+      var contents = fetchRawContents(
+        at: folderRelativePath,
+        propertiesToFetch: [
+          #keyPath(LibraryItem.relativePath),
+          #keyPath(LibraryItem.orderRank)
+        ]
+      )
+    else { return }
 
-    if let folderRelativePath = folderRelativePath,
-       let folder = self.getItem(with: folderRelativePath) as? Folder {
-      folder.removeFromItems(at: sourceIndexPath.row)
-      folder.insertIntoItems(storedItem, at: destinationIndexPath.row)
-      folder.rebuildOrderRank()
-    } else {
-      let library = self.getLibrary()
-      library.removeFromItems(at: sourceIndexPath.row)
-      library.insertIntoItems(storedItem, at: destinationIndexPath.row)
-      library.rebuildOrderRank()
+    let movedItem = contents.remove(at: sourceIndexPath.row)
+    contents.insert(movedItem, at: destinationIndexPath.row)
+
+    /// Rebuild order rank
+    for (index, item) in contents.enumerated() {
+      item.orderRank = Int16(index)
     }
 
     self.dataManager.saveContext()

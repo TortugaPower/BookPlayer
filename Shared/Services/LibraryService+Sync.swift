@@ -13,14 +13,38 @@ public protocol LibrarySyncProtocol {
   func getItem(with relativePath: String) -> LibraryItem?
   func getItemsToSync(remoteIdentifiers: [String], parentFolder: String?) -> [SyncableItem]?
   func getItemIdentifiers(in parentFolder: String?) -> [String]?
+  func removeItems(notIn relativePaths: [String], parentFolder: String?) throws
   func fetchSyncableContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SyncableItem]?
   func getMaxItemsCount(at relativePath: String?) -> Int
 
+  func updateInfo(from item: SyncableItem)
   func addBook(from item: SyncableItem, parentFolder: String?)
   func addFolder(from item: SyncableItem, type: SimpleItemType, parentFolder: String?)
 }
 
 extension LibraryService: LibrarySyncProtocol {
+  public func updateInfo(from item: SyncableItem) {
+    guard let localItem = getItem(with: item.relativePath) else { return }
+
+    localItem.title = item.title
+    localItem.details = item.details
+    localItem.currentTime = item.currentTime
+    localItem.duration = item.duration
+    localItem.isFinished = item.isFinished
+    localItem.orderRank = Int16(item.orderRank)
+    localItem.percentCompleted = item.percentCompleted
+    localItem.type = item.type.itemType
+    localItem.speed = Float(item.speed ?? 1.0)
+    if let timestamp = item.lastPlayDateTimestamp {
+      localItem.lastPlayDate = Date(timeIntervalSince1970: timestamp)
+    } else {
+      localItem.lastPlayDate = nil
+    }
+
+    dataManager.saveContext()
+    // TODO: handle updated_at timestamp
+  }
+
   public func addBook(from item: SyncableItem, parentFolder: String?) {
     let newBook = Book(
       syncItem: item,
@@ -29,14 +53,10 @@ extension LibraryService: LibrarySyncProtocol {
 
     if let relativePath = parentFolder,
        let folder = self.getItem(with: relativePath) as? Folder {
-      let index = folder.items?.count ?? 0
-      folder.insert(item: newBook, at: min(index, item.orderRank))
-      folder.rebuildOrderRank()
+      folder.addToItems(newBook)
     } else {
       let library = self.getLibrary()
-      let index = library.items?.count ?? 0
-      library.insert(item: newBook, at: min(index, item.orderRank))
-      library.rebuildOrderRank()
+      library.addToItems(newBook)
     }
 
     self.dataManager.saveContext()
@@ -55,10 +75,10 @@ extension LibraryService: LibrarySyncProtocol {
     if let relativePath = parentFolder {
       // The folder object must exist
       let folder = self.findFolder(with: relativePath)!
-      folder.insert(item: newFolder, at: item.orderRank)
+      folder.addToItems(newFolder)
     } else {
       let library = self.getLibrary()
-      library.insert(item: newFolder, at: item.orderRank)
+      library.addToItems(newFolder)
     }
 
     self.dataManager.saveContext()
@@ -156,4 +176,63 @@ extension LibraryService: LibrarySyncProtocol {
       )
     })
   }
+
+  public func removeItems(notIn relativePaths: [String], parentFolder: String?) throws {
+    guard
+      let itemIdentifiers = getItemIdentifiers(notIn: relativePaths, parentFolder: parentFolder),
+      let items = getItems(in: itemIdentifiers, parentFolder: parentFolder)
+    else { return }
+
+    try delete(items, mode: .deep)
+  }
+
+  func getItems(in relativePaths: [String], parentFolder: String?) -> [LibraryItem]? {
+    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+
+    if let parentFolder = parentFolder {
+      fetchRequest.predicate = NSPredicate(
+        format: "%K == %@ AND (%K IN %@)",
+        #keyPath(LibraryItem.folder.relativePath),
+        parentFolder,
+        #keyPath(LibraryItem.relativePath),
+        relativePaths
+      )
+    } else {
+      fetchRequest.predicate = NSPredicate(
+        format: "%K != nil AND (%K IN %@)",
+        #keyPath(LibraryItem.library),
+        #keyPath(LibraryItem.relativePath),
+        relativePaths
+      )
+    }
+
+    return try? self.dataManager.getContext().fetch(fetchRequest)
+  }
+
+  func getItemIdentifiers(notIn relativePaths: [String], parentFolder: String?) -> [String]? {
+      let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+      fetchRequest.propertiesToFetch = ["relativePath"]
+      fetchRequest.resultType = .dictionaryResultType
+
+      if let parentFolder = parentFolder {
+        fetchRequest.predicate = NSPredicate(
+          format: "%K == %@ AND NOT (%K IN %@)",
+          #keyPath(LibraryItem.folder.relativePath),
+          parentFolder,
+          #keyPath(LibraryItem.relativePath),
+          relativePaths
+        )
+      } else {
+        fetchRequest.predicate = NSPredicate(
+          format: "%K != nil AND NOT (%K IN %@)",
+          #keyPath(LibraryItem.library),
+          #keyPath(LibraryItem.relativePath),
+          relativePaths
+        )
+      }
+
+      let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
+
+      return results?.compactMap({ $0["relativePath"] as? String })
+    }
 }

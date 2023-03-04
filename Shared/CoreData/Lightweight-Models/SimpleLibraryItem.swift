@@ -48,6 +48,7 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
     "percentCompleted",
     "isFinished",
     "relativePath",
+    "orderRank",
     "folder.relativePath",
     "originalFileName",
     "lastPlayDate",

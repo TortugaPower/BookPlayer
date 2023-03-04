@@ -73,10 +73,9 @@ class FolderListCoordinator: ItemListCoordinator {
   override func syncList() {
     Task { [weak self] in
       guard
-        let self = self
+        let self = self,
+        let (newItems, _) = try await self.syncService.syncListContents(at: self.folderRelativePath)
       else { return }
-
-      let (newItems, _) = try await self.syncService.fetchListContents(at: self.folderRelativePath, shouldSync: false)
 
       reloadItemsWithPadding(padding: newItems.count)
     }

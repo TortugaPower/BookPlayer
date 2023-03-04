@@ -521,7 +521,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     }
 
     self.libraryService.reorderItem(
-      at: item.relativePath,
+      with: item.relativePath,
       inside: self.folderRelativePath,
       sourceIndexPath: sourceIndexPath,
       destinationIndexPath: destinationIndexPath

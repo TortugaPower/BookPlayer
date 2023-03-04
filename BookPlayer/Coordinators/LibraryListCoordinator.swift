@@ -104,7 +104,7 @@ class LibraryListCoordinator: ItemListCoordinator {
   func bindObservers() {
     NotificationCenter.default.publisher(for: .login, object: nil)
       .sink(receiveValue: { [weak self] _ in
-        self?.syncList()
+        self?.syncLibrary()
       })
       .store(in: &disposeBag)
 
@@ -203,31 +203,43 @@ class LibraryListCoordinator: ItemListCoordinator {
     vc.viewModel.coordinator.detach()
   }
 
+  func syncLibrary() {
+    Task { [weak self] in
+      guard let (newItems, lastPlayed) = try await self?.syncService.syncLibraryContents() else { return }
+
+      self?.processFetchedItems(newItems, lastPlayed: lastPlayed)
+    }
+  }
+
   override func syncList() {
     Task { [weak self] in
       guard
         let self = self
       else { return }
 
-      let (newItems, lastPlayed) = try await self.syncService.fetchListContents(at: nil, shouldSync: true)
+      guard let (newItems, lastPlayed) = try await self.syncService.syncListContents(at: nil) else { return }
 
-      reloadItemsWithPadding(padding: newItems.count)
-
-      guard let lastPlayedRelativePath = lastPlayed?.relativePath else { return }
-
-      let lastItemRelativePath = try? self.libraryService.getLibraryLastItem()?.relativePath
-
-      guard lastItemRelativePath != lastPlayedRelativePath else { return }
-
-      self.playerManager.stop()
-      self.libraryService.setLibraryLastBook(with: lastPlayedRelativePath)
-
-      guard
-        let lastItem = try? self.libraryService.getLibraryLastItem(),
-        let playableItem = try? playbackService.getPlayableItem(from: lastItem)
-      else { return }
-
-      playerManager.currentItem = playableItem
+      self.processFetchedItems(newItems, lastPlayed: lastPlayed)
     }
+  }
+
+  func processFetchedItems(_ items: [SyncableItem], lastPlayed: SyncableItem?) {
+    reloadItemsWithPadding(padding: items.count)
+
+    guard let lastPlayedRelativePath = lastPlayed?.relativePath else { return }
+
+    let lastItemRelativePath = try? libraryService.getLibraryLastItem()?.relativePath
+
+    guard lastItemRelativePath != lastPlayedRelativePath else { return }
+
+    playerManager.stop()
+    libraryService.setLibraryLastBook(with: lastPlayedRelativePath)
+
+    guard
+      let lastItem = try? libraryService.getLibraryLastItem(),
+      let playableItem = try? playbackService.getPlayableItem(from: lastItem)
+    else { return }
+
+    playerManager.currentItem = playableItem
   }
 }
