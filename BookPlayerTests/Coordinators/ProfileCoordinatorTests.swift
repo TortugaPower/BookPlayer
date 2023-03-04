@@ -20,6 +20,7 @@ class ProfileCoordinatorTests: XCTestCase {
     let libraryService = LibraryService(dataManager: dataManager)
     self.sut = ProfileCoordinator(
       libraryService: libraryService,
+      playerManager: PlayerManagerMock(),
       accountService: AccountServiceMock(account: nil),
       syncService: SyncServiceMock(),
       navigationController: UINavigationController()

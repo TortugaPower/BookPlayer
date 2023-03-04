@@ -41,7 +41,8 @@ struct ProfileView<Model: ProfileViewModelProtocol>: View {
                 viewModel.syncLibrary()
               }
             )
-            .padding([.bottom, .trailing, .leading], Spacing.M)
+            .padding([.trailing, .leading], Spacing.M)
+            .padding([.bottom], viewModel.bottomOffset)
           }
         }
         .frame(maxWidth: .infinity, minHeight: geometryProxy.size.height)
@@ -52,6 +53,7 @@ struct ProfileView<Model: ProfileViewModelProtocol>: View {
 
 struct ProfileView_Previews: PreviewProvider {
   class MockProfileViewModel: ProfileViewModelProtocol, ObservableObject {
+    var bottomOffset: CGFloat = Spacing.M
     var refreshStatusMessage: String = "Last refresh: 1 second ago"
     var totalListeningTimeFormatted: String = "0m"
     var account: Account?

@@ -14,30 +14,43 @@ protocol ProfileViewModelProtocol: ObservableObject {
   var account: Account? { get set }
   var totalListeningTimeFormatted: String { get set }
   var refreshStatusMessage: String { get set }
+  var bottomOffset: CGFloat { get set }
 
   func showAccount()
   func syncLibrary()
 }
 
 class ProfileViewModel: BaseViewModel<ProfileCoordinator>, ProfileViewModelProtocol {
+  struct ModelConstants {
+    static let defaultBottomOffset = Spacing.M
+    static let miniPlayerOffset = Spacing.S2 + 88
+  }
   let accountService: AccountServiceProtocol
   let libraryService: LibraryServiceProtocol
+  let playerManager: PlayerManagerProtocol
   let syncService: SyncServiceProtocol
 
   @Published var account: Account?
   @Published var totalListeningTimeFormatted: String = "0m"
   @Published var refreshStatusMessage: String = ""
+  @Published var bottomOffset: CGFloat = ModelConstants.defaultBottomOffset
 
   private var disposeBag = Set<AnyCancellable>()
 
   init(
     accountService: AccountServiceProtocol,
     libraryService: LibraryServiceProtocol,
+    playerManager: PlayerManagerProtocol,
     syncService: SyncServiceProtocol
   ) {
     self.accountService = accountService
     self.libraryService = libraryService
+    self.playerManager = playerManager
     self.syncService = syncService
+
+    if (try? libraryService.getLibraryLastItem()) != nil {
+      bottomOffset =  ModelConstants.miniPlayerOffset
+    }
 
     super.init()
 
@@ -57,6 +70,17 @@ class ProfileViewModel: BaseViewModel<ProfileCoordinator>, ProfileViewModelProto
       .sink(receiveValue: { [weak self] _ in
         self?.reloadListenedTime()
       })
+      .store(in: &disposeBag)
+
+    playerManager.currentItemPublisher()
+      .dropFirst()
+      .sink { [weak self] item in
+        if item == nil {
+          self?.bottomOffset = ModelConstants.defaultBottomOffset
+        } else {
+          self?.bottomOffset = ModelConstants.miniPlayerOffset
+        }
+      }
       .store(in: &disposeBag)
   }
 
@@ -87,7 +111,7 @@ class ProfileViewModel: BaseViewModel<ProfileCoordinator>, ProfileViewModelProto
   func syncLibrary() {
     Task { [weak self] in
       do {
-        try await self?.syncService.fetchListContents(at: nil, shouldSync: true)
+        _ = try await self?.syncService.syncListContents(at: nil)
       } catch {
         print(error.localizedDescription)
       }

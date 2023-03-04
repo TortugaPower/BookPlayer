@@ -101,6 +101,7 @@ class MainCoordinator: Coordinator {
   func startProfileCoordinator(with tabBarController: UITabBarController) {
     let profileCoordinator = ProfileCoordinator(
       libraryService: libraryService,
+      playerManager: playerManager,
       accountService: accountService,
       syncService: syncService,
       navigationController: AppNavigationController.instantiate(from: .Main)

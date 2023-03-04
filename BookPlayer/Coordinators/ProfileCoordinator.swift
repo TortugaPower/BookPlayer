@@ -13,16 +13,19 @@ class ProfileCoordinator: Coordinator {
   weak var tabBarController: UITabBarController?
 
   let libraryService: LibraryServiceProtocol
+  let playerManager: PlayerManagerProtocol
   let accountService: AccountServiceProtocol
   let syncService: SyncServiceProtocol
 
   init(
     libraryService: LibraryServiceProtocol,
+    playerManager: PlayerManagerProtocol,
     accountService: AccountServiceProtocol,
     syncService: SyncServiceProtocol,
     navigationController: UINavigationController
   ) {
     self.libraryService = libraryService
+    self.playerManager = playerManager
     self.accountService = accountService
     self.syncService = syncService
 
@@ -35,6 +38,7 @@ class ProfileCoordinator: Coordinator {
     let viewModel = ProfileViewModel(
       accountService: accountService,
       libraryService: libraryService,
+      playerManager: playerManager,
       syncService: syncService
     )
     viewModel.coordinator = self
