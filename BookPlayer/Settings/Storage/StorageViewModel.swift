@@ -80,7 +80,7 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
   }
 
   func bookExists(_ relativePath: String, library: Library) -> Bool {
-    guard let items = library.items?.array as? [LibraryItem] else {
+    guard let items = library.items?.allObjects as? [LibraryItem] else {
       return false
     }
 
@@ -107,7 +107,7 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
   }
 
   func getItem(with relativePath: String, from folder: Folder) -> LibraryItem? {
-    guard let items = folder.items?.array as? [LibraryItem] else {
+    guard let items = folder.items?.allObjects as? [LibraryItem] else {
       return nil
     }
 

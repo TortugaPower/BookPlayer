@@ -13,7 +13,7 @@ import Foundation
 @objc(Library)
 public class Library: NSManagedObject, Codable {
     public var itemsArray: [LibraryItem] {
-        return self.items?.array as? [LibraryItem] ?? []
+        return self.items?.allObjects as? [LibraryItem] ?? []
     }
 
   public func insert(item: LibraryItem) {
@@ -35,7 +35,7 @@ public class Library: NSManagedObject, Codable {
     item.relativePath = item.originalFileName
 
     if let folder = item as? Folder,
-       let items = folder.items?.array as? [LibraryItem] {
+       let items = folder.items?.allObjects as? [LibraryItem] {
       items.forEach({ folder.rebuildRelativePaths(for: $0) })
     }
   }

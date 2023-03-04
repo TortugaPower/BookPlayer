@@ -187,8 +187,8 @@ public final class AccountService: AccountServiceProtocol {
 
   public func loginTestAccount(token: String) throws {
     self.updateAccount(
-      id: "testId1234",
-      email: "test@test.com",
+      id: "001918.a2d23624056d45618b7c2699d98c535e.2333",
+      email: "gcarlo89@hotmail.com",
       donationMade: true,
       hasSubscription: true
     )

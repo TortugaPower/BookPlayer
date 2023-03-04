@@ -345,7 +345,7 @@ public final class LibraryService: LibraryServiceProtocol {
       folder.type = .folder
       folder.lastPlayDate = nil
     case .bound:
-      guard let items = folder.items?.array as? [Book] else {
+      guard let items = folder.items?.allObjects as? [Book] else {
         throw BookPlayerError.runtimeError("The folder needs to only contain book items")
       }
 
@@ -540,14 +540,6 @@ public final class LibraryService: LibraryServiceProtocol {
     /// Rebuild order rank
     for (index, item) in sortedResults.enumerated() {
       item.orderRank = Int16(index)
-    }
-
-    if let relativePath,
-       let folder = self.getItem(with: relativePath) as? Folder {
-      folder.items = NSOrderedSet(array: sortedResults)
-    } else {
-      let library = self.getLibrary()
-      library.items = NSOrderedSet(array: sortedResults)
     }
 
     self.dataManager.saveContext()
@@ -818,7 +810,7 @@ public final class LibraryService: LibraryServiceProtocol {
       item.originalFileName = newTitle
       item.relativePath = newRelativePath
       finalRelativePath = newRelativePath
-      if let items = folder.items?.array as? [LibraryItem] {
+      if let items = folder.items?.allObjects as? [LibraryItem] {
         items.forEach({ folder.rebuildRelativePaths(for: $0) })
       }
     }
@@ -1001,7 +993,7 @@ public final class LibraryService: LibraryServiceProtocol {
 
   func shallowDelete(folder: Folder) throws {
     // Move children to parent folder or library
-    if let items = folder.items?.array as? [LibraryItem] {
+    if let items = folder.items?.allObjects as? [LibraryItem] {
       for item in items {
         guard let fileURL = item.fileURL else { continue }
 

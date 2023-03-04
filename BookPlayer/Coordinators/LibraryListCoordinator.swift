@@ -205,7 +205,9 @@ class LibraryListCoordinator: ItemListCoordinator {
 
   func syncLibrary() {
     Task { [weak self] in
-      guard let (newItems, lastPlayed) = try await self?.syncService.syncLibraryContents() else { return }
+      guard
+        let (newItems, lastPlayed) = try await self?.syncService.syncLibraryContents(at: nil)
+      else { return }
 
       self?.processFetchedItems(newItems, lastPlayed: lastPlayed)
     }

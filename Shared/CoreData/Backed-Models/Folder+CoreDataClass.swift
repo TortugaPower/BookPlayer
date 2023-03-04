@@ -50,7 +50,7 @@ public class Folder: LibraryItem {
     }
 
     func totalDuration() -> Double {
-        guard let items = self.items?.array as? [LibraryItem] else {
+        guard let items = self.items?.allObjects as? [LibraryItem] else {
             return 0.0
         }
 
@@ -71,7 +71,7 @@ public class Folder: LibraryItem {
 
   public func updateCompletionState() {
     self.resetCachedProgress()
-    guard let items = self.items?.array as? [LibraryItem] else { return }
+    guard let items = self.items?.allObjects as? [LibraryItem] else { return }
 
     self.isFinished = !items.contains(where: { !$0.isFinished })
   }
@@ -96,7 +96,7 @@ public class Folder: LibraryItem {
     item.relativePath = self.relativePathBuilder(for: item)
 
     if let folder = item as? Folder,
-       let items = folder.items?.array as? [LibraryItem] {
+       let items = folder.items?.allObjects as? [LibraryItem] {
       items.forEach({ folder.rebuildRelativePaths(for: $0) })
     }
   }
@@ -108,7 +108,7 @@ public class Folder: LibraryItem {
     }
 
   public override func info() -> String {
-    let count = self.items?.array.count ?? 0
+    let count = self.items?.allObjects.count ?? 0
 
     return String.localizedStringWithFormat("files_title".localized, count)
   }
@@ -123,7 +123,7 @@ public class Folder: LibraryItem {
       try container.encode(details, forKey: .details)
       try container.encode(orderRank, forKey: .orderRank)
 
-      guard let itemsArray = self.items?.array as? [LibraryItem] else { return }
+      guard let itemsArray = self.items?.allObjects as? [LibraryItem] else { return }
 
       try container.encode(itemsArray, forKey: .items)
     }
@@ -142,7 +142,7 @@ public class Folder: LibraryItem {
       details = try values.decode(String.self, forKey: .details)
 
       if let encodedItems = try? values.decode([LibraryItem].self, forKey: .items) {
-        items = NSOrderedSet(array: encodedItems)
+        items = NSSet(array: encodedItems)
       }
     }
 }

@@ -560,7 +560,8 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
                 type: .folder
               )
             }
-          )
+          ),
+          BPActionItem.cancelAction
         ]
       )
     ))
