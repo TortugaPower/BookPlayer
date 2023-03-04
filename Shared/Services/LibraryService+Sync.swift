@@ -59,7 +59,7 @@ extension LibraryService: LibrarySyncProtocol {
       library.addToItems(newBook)
     }
 
-    self.dataManager.saveContext()
+    self.dataManager.saveSyncContext()
   }
 
   public func addFolder(from item: SyncableItem, type: SimpleItemType, parentFolder: String?) {
@@ -81,7 +81,7 @@ extension LibraryService: LibrarySyncProtocol {
       library.addToItems(newFolder)
     }
 
-    self.dataManager.saveContext()
+    self.dataManager.saveSyncContext()
   }
 
   public func getItemsToSync(remoteIdentifiers: [String], parentFolder: String?) -> [SyncableItem]? {

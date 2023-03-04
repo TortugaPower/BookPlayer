@@ -87,6 +87,12 @@ public class DataManager {
     self.coreDataStack.saveContext()
   }
 
+  public func saveSyncContext() {
+    coreDataStack.managedContext.performAndWait { [weak self] in
+      self?.coreDataStack.saveContext()
+    }
+  }
+
   public func getBackgroundContext() -> NSManagedObjectContext {
     return self.coreDataStack.getBackgroundContext()
   }
