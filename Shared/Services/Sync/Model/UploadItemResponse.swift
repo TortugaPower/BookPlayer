@@ -13,5 +13,5 @@ struct UploadItemResponse: Decodable {
 }
 
 struct UploadItemContent: Decodable {
-  let url: String?
+  let url: URL?
 }

@@ -206,7 +206,7 @@ class LibraryListCoordinator: ItemListCoordinator {
   func syncLibrary() {
     Task { [weak self] in
       guard
-        let (newItems, lastPlayed) = try await self?.syncService.syncLibraryContents(at: nil)
+        let (newItems, lastPlayed) = try await self?.syncService.syncLibraryContents()
       else { return }
 
       self?.processFetchedItems(newItems, lastPlayed: lastPlayed)
@@ -216,7 +216,8 @@ class LibraryListCoordinator: ItemListCoordinator {
   override func syncList() {
     Task { [weak self] in
       guard
-        let self = self
+        let self = self,
+        UserDefaults.standard.bool(forKey: Constants.UserDefaults.completedLibrarySync.rawValue) == true
       else { return }
 
       guard let (newItems, lastPlayed) = try await self.syncService.syncListContents(at: nil) else { return }

@@ -11,10 +11,10 @@ import Foundation
 
 public protocol LibrarySyncProtocol {
   func getItem(with relativePath: String) -> LibraryItem?
-  func getItemsToSync(remoteIdentifiers: [String], parentFolder: String?) -> [SyncableItem]?
+  func getItemsToSync(remoteIdentifiers: [String]) -> [SyncableItem]?
   func getItemIdentifiers(in parentFolder: String?) -> [String]?
   func removeItems(notIn relativePaths: [String], parentFolder: String?) throws
-  func fetchSyncableContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SyncableItem]?
+  func fetchSyncableNestedContents(at relativePath: String) -> [SyncableItem]?
   func getMaxItemsCount(at relativePath: String?) -> Int
 
   func updateInfo(from item: SyncableItem)
@@ -84,27 +84,16 @@ extension LibraryService: LibrarySyncProtocol {
     self.dataManager.saveSyncContext()
   }
 
-  public func getItemsToSync(remoteIdentifiers: [String], parentFolder: String?) -> [SyncableItem]? {
+  public func getItemsToSync(remoteIdentifiers: [String]) -> [SyncableItem]? {
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
     fetchRequest.propertiesToFetch = SyncableItem.fetchRequestProperties
     fetchRequest.resultType = .dictionaryResultType
-
-    if let parentFolder = parentFolder {
-      fetchRequest.predicate = NSPredicate(
-        format: "%K == %@ AND NOT (%K IN %@)",
-        #keyPath(LibraryItem.folder.relativePath),
-        parentFolder,
-        #keyPath(LibraryItem.relativePath),
-        remoteIdentifiers
-      )
-    } else {
-      fetchRequest.predicate = NSPredicate(
-        format: "%K != nil AND NOT (%K IN %@)",
-        #keyPath(LibraryItem.library),
-        #keyPath(LibraryItem.relativePath),
-        remoteIdentifiers
-      )
-    }
+    fetchRequest.predicate = NSPredicate(
+      format: "%K != nil AND NOT (%K IN %@)",
+      #keyPath(LibraryItem.library),
+      #keyPath(LibraryItem.relativePath),
+      remoteIdentifiers
+    )
 
     let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
 
@@ -124,12 +113,12 @@ extension LibraryService: LibrarySyncProtocol {
     return results?.compactMap({ $0["relativePath"] as? String })
   }
 
-  public func fetchSyncableContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SyncableItem]? {
-    let fetchRequest = buildListContentsFetchRequest(
-      properties: SyncableItem.fetchRequestProperties,
-      relativePath: relativePath,
-      limit: limit,
-      offset: offset
+  public func fetchSyncableNestedContents(at relativePath: String) -> [SyncableItem]? {
+    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+    fetchRequest.propertiesToFetch = SyncableItem.fetchRequestProperties
+    fetchRequest.resultType = .dictionaryResultType
+    fetchRequest.predicate = NSPredicate(
+      format: "%K BEGINSWITH %@", #keyPath(LibraryItem.folder.relativePath), relativePath
     )
 
     let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]

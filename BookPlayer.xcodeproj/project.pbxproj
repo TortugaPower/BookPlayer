@@ -334,6 +334,8 @@
 		9F07B71F29B39F9D005A939D /* MappingModel_v8_to_v9.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9F07B71C29B39F9D005A939D /* MappingModel_v8_to_v9.xcmappingmodel */; };
 		9F07B72029B39F9D005A939D /* MappingModel_v8_to_v9.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9F07B71C29B39F9D005A939D /* MappingModel_v8_to_v9.xcmappingmodel */; };
 		9F07B72129B39F9D005A939D /* MappingModel_v8_to_v9.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9F07B71C29B39F9D005A939D /* MappingModel_v8_to_v9.xcmappingmodel */; };
+		9F07B72529B512F1005A939D /* LibraryItemUploadJob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F07B72229B512F0005A939D /* LibraryItemUploadJob.swift */; };
+		9F07B72629B512F1005A939D /* LibraryItemUploadJob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F07B72229B512F0005A939D /* LibraryItemUploadJob.swift */; };
 		9F1345B62938DF070089B1DE /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE2D288CB1A900056FCD /* Fonts.swift */; };
 		9F1345B82938DF360089B1DE /* UIFont+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE3D288D812900056FCD /* UIFont+BookPlayer.swift */; };
 		9F1345B92938E0010089B1DE /* ImageIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE2B288CAAB800056FCD /* ImageIcons.swift */; };
@@ -440,8 +442,6 @@
 		9FBDBC7E287940D900D315A2 /* ContentsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC7C287940D900D315A2 /* ContentsResponse.swift */; };
 		9FBDBC802879C6C900D315A2 /* UploadItemResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC7F2879C6C900D315A2 /* UploadItemResponse.swift */; };
 		9FBDBC812879C6C900D315A2 /* UploadItemResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC7F2879C6C900D315A2 /* UploadItemResponse.swift */; };
-		9FBDBC89287B023300D315A2 /* LibraryItemFileUploadJob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC88287B023300D315A2 /* LibraryItemFileUploadJob.swift */; };
-		9FBDBC8A287B023300D315A2 /* LibraryItemFileUploadJob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC88287B023300D315A2 /* LibraryItemFileUploadJob.swift */; };
 		9FBDDB8927DC454B005FB447 /* AppTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDDB8827DC454B005FB447 /* AppTabBarController.swift */; };
 		9FBDDB8B27DCF1FB005FB447 /* MiniPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDDB8A27DCF1FB005FB447 /* MiniPlayerView.swift */; };
 		9FBDDB9327DCF906005FB447 /* MiniPlayerView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9FBDDB9227DCF906005FB447 /* MiniPlayerView.xib */; };
@@ -469,8 +469,6 @@
 		9FC1E4782816001400522FA8 /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC1E4742815C6A300522FA8 /* KeychainService.swift */; };
 		9FC1E4792816001400522FA8 /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC1E4742815C6A300522FA8 /* KeychainService.swift */; };
 		9FC1E47B281600D500522FA8 /* KeychainServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC1E47A281600D500522FA8 /* KeychainServiceMock.swift */; };
-		9FD8FE4E2865687800EB2C3D /* LibraryItemMetadataUploadJob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FD8FE4D2865687800EB2C3D /* LibraryItemMetadataUploadJob.swift */; };
-		9FD8FE4F2865687800EB2C3D /* LibraryItemMetadataUploadJob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FD8FE4D2865687800EB2C3D /* LibraryItemMetadataUploadJob.swift */; };
 		9FDDD2D8289B64440020C428 /* SyncStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FDDD2D7289B64440020C428 /* SyncStatus.swift */; };
 		9FDDD2D9289B64440020C428 /* SyncStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FDDD2D7289B64440020C428 /* SyncStatus.swift */; };
 		9FDDD2DE289BEE590020C428 /* SyncJobScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FDDD2DD289BEE590020C428 /* SyncJobScheduler.swift */; };
@@ -971,6 +969,7 @@
 		9F00F6EF28084C8800996BBB /* IAP-Configuration.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = "IAP-Configuration.storekit"; sourceTree = "<group>"; };
 		9F00F6F128085CCC00996BBB /* StoreKitTestCertificate.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = StoreKitTestCertificate.cer; sourceTree = "<group>"; };
 		9F07B71C29B39F9D005A939D /* MappingModel_v8_to_v9.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MappingModel_v8_to_v9.xcmappingmodel; sourceTree = "<group>"; };
+		9F07B72229B512F0005A939D /* LibraryItemUploadJob.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryItemUploadJob.swift; sourceTree = "<group>"; };
 		9F1345FE293CF00A0089B1DE /* UIEdgeInsets+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIEdgeInsets+BookPlayer.swift"; sourceTree = "<group>"; };
 		9F134602293CFCE80089B1DE /* ProfileListenedTimeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileListenedTimeView.swift; sourceTree = "<group>"; };
 		9F134604293D0A410089B1DE /* ThemeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeViewModel.swift; sourceTree = "<group>"; };
@@ -1065,7 +1064,6 @@
 		9FBDBC782879409600D315A2 /* SyncableItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncableItem.swift; sourceTree = "<group>"; };
 		9FBDBC7C287940D900D315A2 /* ContentsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentsResponse.swift; sourceTree = "<group>"; };
 		9FBDBC7F2879C6C900D315A2 /* UploadItemResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadItemResponse.swift; sourceTree = "<group>"; };
-		9FBDBC88287B023300D315A2 /* LibraryItemFileUploadJob.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryItemFileUploadJob.swift; sourceTree = "<group>"; };
 		9FBDDB8827DC454B005FB447 /* AppTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTabBarController.swift; sourceTree = "<group>"; };
 		9FBDDB8A27DCF1FB005FB447 /* MiniPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniPlayerView.swift; sourceTree = "<group>"; };
 		9FBDDB9227DCF906005FB447 /* MiniPlayerView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MiniPlayerView.xib; sourceTree = "<group>"; };
@@ -1086,7 +1084,6 @@
 		9FC1E4742815C6A300522FA8 /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
 		9FC1E4762815F97E00522FA8 /* KeychainServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainServiceTests.swift; sourceTree = "<group>"; };
 		9FC1E47A281600D500522FA8 /* KeychainServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainServiceMock.swift; sourceTree = "<group>"; };
-		9FD8FE4D2865687800EB2C3D /* LibraryItemMetadataUploadJob.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryItemMetadataUploadJob.swift; sourceTree = "<group>"; };
 		9FDDD2D7289B64440020C428 /* SyncStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncStatus.swift; sourceTree = "<group>"; };
 		9FDDD2DD289BEE590020C428 /* SyncJobScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncJobScheduler.swift; sourceTree = "<group>"; };
 		9FDDD2E0289BFCE20020C428 /* LibraryService+Sync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LibraryService+Sync.swift"; sourceTree = "<group>"; };
@@ -2104,9 +2101,8 @@
 				9FC1E46A2815A8A800522FA8 /* LibraryAPI.swift */,
 				9F9F3B6F280E4E4B004359DA /* SyncService.swift */,
 				9FDDD2DD289BEE590020C428 /* SyncJobScheduler.swift */,
-				9FD8FE4D2865687800EB2C3D /* LibraryItemMetadataUploadJob.swift */,
+				9F07B72229B512F0005A939D /* LibraryItemUploadJob.swift */,
 				9FAFC9E729956B4700FD531E /* LibraryItemMetadataUpdateJob.swift */,
-				9FBDBC88287B023300D315A2 /* LibraryItemFileUploadJob.swift */,
 			);
 			path = Sync;
 			sourceTree = "<group>";
@@ -2850,6 +2846,7 @@
 				9F7B64782803B0B000895ECC /* AccountService.swift in Sources */,
 				4140EA78227289BC0009F794 /* PlaybackRecord+CoreDataClass.swift in Sources */,
 				4140EA79227289BF0009F794 /* PlaybackRecord+CoreDataProperties.swift in Sources */,
+				9F07B72629B512F1005A939D /* LibraryItemUploadJob.swift in Sources */,
 				41A90C4927564DAA00C30394 /* BookPlayerError.swift in Sources */,
 				9F07B72029B39F9D005A939D /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
 				41C23402272E1960006BC7B8 /* SimpleTheme.swift in Sources */,
@@ -2857,7 +2854,6 @@
 				4140EA73227289A80009F794 /* Notification+BookPlayerKit.swift in Sources */,
 				41A894212652A5DE0032E972 /* Configuration.swift in Sources */,
 				9FACAC6A2970F2F500D01EB7 /* SyncableItem.swift in Sources */,
-				9FBDBC8A287B023300D315A2 /* LibraryItemFileUploadJob.swift in Sources */,
 				4140EA702272899D0009F794 /* CommandParser.swift in Sources */,
 				9FDDD2DF289BEE590020C428 /* SyncJobScheduler.swift in Sources */,
 				4140EA76227289B50009F794 /* Chapter+CoreDataClass.swift in Sources */,
@@ -2905,7 +2901,6 @@
 				41A90C4627563F5A00C30394 /* ItemType.swift in Sources */,
 				4140EA7E227289CE0009F794 /* Library+CoreDataClass.swift in Sources */,
 				41C233FE272E1958006BC7B8 /* SimpleLibraryItem.swift in Sources */,
-				9FD8FE4F2865687800EB2C3D /* LibraryItemMetadataUploadJob.swift in Sources */,
 				416AAC3523F515B0005AD04F /* String+BookPlayer.swift in Sources */,
 				41A8942B2652A7DF0032E972 /* Bundle+BookPlayer.swift in Sources */,
 				4138CE1226E5542D0014F11E /* Bookmark+CoreDataClass.swift in Sources */,
@@ -3174,7 +3169,6 @@
 				41A1B124226F88C500EA0400 /* Book+CoreDataProperties.swift in Sources */,
 				41A1B108226E9DF800EA0400 /* DataManager.swift in Sources */,
 				41A1B131226FE33500EA0400 /* Constants.swift in Sources */,
-				9FBDBC89287B023300D315A2 /* LibraryItemFileUploadJob.swift in Sources */,
 				4124AB1725DFE07E0007C839 /* DataMigrationManager.swift in Sources */,
 				9FDDD2DE289BEE590020C428 /* SyncJobScheduler.swift in Sources */,
 				41A8942A2652A7DF0032E972 /* Bundle+BookPlayer.swift in Sources */,
@@ -3210,6 +3204,7 @@
 				41A1B10C226E9E9700EA0400 /* DeleteMode.swift in Sources */,
 				9F07B71F29B39F9D005A939D /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
 				9FC1E44A2814C4DE00522FA8 /* NetworkClient.swift in Sources */,
+				9F07B72529B512F1005A939D /* LibraryItemUploadJob.swift in Sources */,
 				41EB07182752F1BA00EFEE13 /* PlayableChapter.swift in Sources */,
 				9F1345BA2938E0130089B1DE /* Spacing.swift in Sources */,
 				5126F122258E9F18009965DC /* URL+BookPlayer.swift in Sources */,
@@ -3224,7 +3219,6 @@
 				41A1B11D226F88C500EA0400 /* Theme+CoreDataClass.swift in Sources */,
 				41A894202652A5DE0032E972 /* Configuration.swift in Sources */,
 				41A90C4527563F5A00C30394 /* ItemType.swift in Sources */,
-				9FD8FE4E2865687800EB2C3D /* LibraryItemMetadataUploadJob.swift in Sources */,
 				41A1B129226F88C500EA0400 /* Folder+CoreDataClass.swift in Sources */,
 				41C233FD272E1957006BC7B8 /* SimpleLibraryItem.swift in Sources */,
 				41A1B12A226F88C500EA0400 /* Folder+CoreDataProperties.swift in Sources */,

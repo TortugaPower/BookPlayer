@@ -111,7 +111,7 @@ class ProfileViewModel: BaseViewModel<ProfileCoordinator>, ProfileViewModelProto
   func syncLibrary() {
     Task { [weak self] in
       do {
-        _ = try await self?.syncService.syncListContents(at: nil)
+        _ = try await self?.syncService.syncLibraryContents()
       } catch {
         print(error.localizedDescription)
       }

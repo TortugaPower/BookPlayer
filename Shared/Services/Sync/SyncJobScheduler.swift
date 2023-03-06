@@ -10,50 +10,29 @@ import Foundation
 import SwiftQueue
 
 public protocol JobSchedulerProtocol {
-  /// Uploads the file to the server
-  func scheduleFileUploadJob(for relativePath: String, remoteUrlPath: String)
+  var libraryFinishedSync: (() -> Void)? { get set }
   /// Uploads the metadata for the first time to the server
-  func scheduleMetadataUploadJob(for item: SyncableItem)
+  func scheduleLibraryItemUploadJob(for item: SyncableItem)
   /// Update existing metadata in the server
   func scheduleMetadataUpdateJob(with relativePath: String, parameters: [String: Any])
   /// Cancel all stored and ongoing jobs
   func cancelAllJobs()
 }
 
-public class SyncJobScheduler: JobSchedulerProtocol {
-  let metadataQueueManager: SwiftQueueManager
-  let fileUploadQueueManager: SwiftQueueManager
-  let metadataJobsPersister: UserDefaultsPersister
-  let fileUploadJobsPersister: UserDefaultsPersister
+public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
+  let libraryJobsPersister: UserDefaultsPersister
+  var libraryQueueManager: SwiftQueueManager!
+  public var libraryFinishedSync: (() -> Void)?
 
   public init() {
-    let metadataJobsPersister = UserDefaultsPersister(key: LibraryItemMetadataUploadJob.type)
-    self.metadataQueueManager = SwiftQueueManagerBuilder(creator: LibraryItemMetadataUploadJobCreator())
-      .set(persister: metadataJobsPersister)
+    self.libraryJobsPersister = UserDefaultsPersister(key: LibraryItemUploadJob.type)
+    self.libraryQueueManager = SwiftQueueManagerBuilder(creator: LibraryItemUploadJobCreator())
+      .set(persister: libraryJobsPersister)
+      .set(listener: self)
       .build()
-    self.metadataJobsPersister = metadataJobsPersister
-
-    let fileUploadJobsPersister = UserDefaultsPersister(key: LibraryItemFileUploadJob.type)
-    self.fileUploadQueueManager = SwiftQueueManagerBuilder(creator: LibraryItemFileUploadJobCreator())
-      .set(persister: fileUploadJobsPersister)
-      .build()
-    self.fileUploadJobsPersister = fileUploadJobsPersister
   }
 
-  public func scheduleFileUploadJob(for relativePath: String, remoteUrlPath: String) {
-    JobBuilder(type: LibraryItemFileUploadJob.type)
-      .singleInstance(forId: relativePath)
-      .persist()
-      .retry(limit: .limited(3))
-      .internet(atLeast: .wifi)
-      .with(params: [
-        "relativePath": relativePath,
-        "remoteUrlPath": remoteUrlPath
-      ])
-      .schedule(manager: fileUploadQueueManager)
-  }
-
-  public func scheduleMetadataUploadJob(for item: SyncableItem) {
+  public func scheduleLibraryItemUploadJob(for item: SyncableItem) {
     var parameters: [String: Any] = [
       "relativePath": item.relativePath,
       "originalFileName": item.originalFileName,
@@ -77,30 +56,49 @@ public class SyncJobScheduler: JobSchedulerProtocol {
       parameters["speed"] = speed
     }
 
-    JobBuilder(type: LibraryItemMetadataUploadJob.type)
+    JobBuilder(type: LibraryItemUploadJob.type)
       .singleInstance(forId: item.relativePath)
       .persist()
-      .retry(limit: .limited(3))
+      .retry(limit: .unlimited)
       .internet(atLeast: .wifi)
       .with(params: parameters)
-      .schedule(manager: metadataQueueManager)
+      .schedule(manager: libraryQueueManager)
   }
 
   /// Note: folder renames originalFilename property
   public func scheduleMetadataUpdateJob(with relativePath: String, parameters: [String: Any]) {
-    JobBuilder(type: LibraryItemMetadataUploadJob.type)
+    JobBuilder(type: LibraryItemMetadataUpdateJob.type)
       .singleInstance(forId: relativePath, override: true)
       .persist()
       .retry(limit: .limited(3))
       .internet(atLeast: .wifi)
       .with(params: parameters)
-      .schedule(manager: metadataQueueManager)
+      .schedule(manager: libraryQueueManager)
   }
 
   public func cancelAllJobs() {
-    metadataQueueManager.cancelAllOperations()
-    metadataJobsPersister.clearAll()
-    fileUploadQueueManager.cancelAllOperations()
-    fileUploadJobsPersister.clearAll()
+    libraryQueueManager.cancelAllOperations()
+    libraryJobsPersister.clearAll()
+  }
+}
+
+extension SyncJobScheduler: JobListener {
+  public func onJobScheduled(job: SwiftQueue.JobInfo) {
+    Self.logger.trace("Schedule job for \(job.params["relativePath"] as? String)")
+  }
+
+  public func onBeforeRun(job: SwiftQueue.JobInfo) {}
+
+  public func onAfterRun(job: SwiftQueue.JobInfo, result: SwiftQueue.JobCompletion) {}
+
+  public func onTerminated(job: SwiftQueue.JobInfo, result: SwiftQueue.JobCompletion) {
+    Self.logger.trace("Terminated job for \(job.params["relativePath"] as? String)")
+
+    guard
+      let pendingOperations = libraryQueueManager.getAll()["GLOBAL"],
+      pendingOperations.isEmpty
+    else { return }
+
+    libraryFinishedSync?()
   }
 }

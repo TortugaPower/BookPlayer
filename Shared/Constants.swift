@@ -12,6 +12,7 @@ public enum Constants {
         case donationMade = "userSettingsDonationMade"
         case showPlayer = "userSettingsShowPlayer"
         case lastSyncTimestamp = "lastSyncTimestamp"
+        case completedLibrarySync = "userSettingsCompletedLibrarySync"
 
         // User preferences
         case themeBrightnessEnabled = "userSettingsBrightnessEnabled"
