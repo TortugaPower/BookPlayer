@@ -42,7 +42,14 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   let libraryService: LibrarySyncProtocol
   var jobManager: JobSchedulerProtocol
   let client: NetworkClientProtocol
-  public var isActive = false
+  public var isActive = false {
+    didSet {
+      if isActive == false {
+        jobManager.cancelAllJobs()
+      }
+    }
+  }
+
   private let provider: NetworkProvider<LibraryAPI>
 
   private var disposeBag = Set<AnyCancellable>()

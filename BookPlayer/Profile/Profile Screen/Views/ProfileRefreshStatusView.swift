@@ -11,6 +11,7 @@ import SwiftUI
 struct ProfileRefreshStatusView: View {
 
   @Binding var statusMessage: String
+  @Binding var buttonDisabled: Bool
   @ObservedObject var themeViewModel: ThemeViewModel
 
   var refreshAction: () -> Void
@@ -19,6 +20,8 @@ struct ProfileRefreshStatusView: View {
     VStack {
       Button("Sync Library", action: refreshAction)
         .foregroundColor(themeViewModel.linkColor)
+        .opacity(buttonDisabled ? 0.5 : 1)
+        .disabled(buttonDisabled)
       Text(statusMessage)
         .foregroundColor(themeViewModel.secondaryColor)
     }
@@ -29,6 +32,7 @@ struct ProfileRefreshStatusView_Previews: PreviewProvider {
   static var previews: some View {
     ProfileRefreshStatusView(
       statusMessage: .constant("Last sync: 1 second ago"),
+      buttonDisabled: .constant(true),
       themeViewModel: ThemeViewModel(),
       refreshAction: {}
     )

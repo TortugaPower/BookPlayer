@@ -336,6 +336,8 @@
 		9F07B72129B39F9D005A939D /* MappingModel_v8_to_v9.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9F07B71C29B39F9D005A939D /* MappingModel_v8_to_v9.xcmappingmodel */; };
 		9F07B72529B512F1005A939D /* LibraryItemUploadJob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F07B72229B512F0005A939D /* LibraryItemUploadJob.swift */; };
 		9F07B72629B512F1005A939D /* LibraryItemUploadJob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F07B72229B512F0005A939D /* LibraryItemUploadJob.swift */; };
+		9F07B79829B770B7005A939D /* BPTaskUploadDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F07B79629B7706B005A939D /* BPTaskUploadDelegate.swift */; };
+		9F07B79929B770B7005A939D /* BPTaskUploadDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F07B79629B7706B005A939D /* BPTaskUploadDelegate.swift */; };
 		9F1345B62938DF070089B1DE /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE2D288CB1A900056FCD /* Fonts.swift */; };
 		9F1345B82938DF360089B1DE /* UIFont+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE3D288D812900056FCD /* UIFont+BookPlayer.swift */; };
 		9F1345B92938E0010089B1DE /* ImageIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE2B288CAAB800056FCD /* ImageIcons.swift */; };
@@ -970,6 +972,7 @@
 		9F00F6F128085CCC00996BBB /* StoreKitTestCertificate.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = StoreKitTestCertificate.cer; sourceTree = "<group>"; };
 		9F07B71C29B39F9D005A939D /* MappingModel_v8_to_v9.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MappingModel_v8_to_v9.xcmappingmodel; sourceTree = "<group>"; };
 		9F07B72229B512F0005A939D /* LibraryItemUploadJob.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryItemUploadJob.swift; sourceTree = "<group>"; };
+		9F07B79629B7706B005A939D /* BPTaskUploadDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPTaskUploadDelegate.swift; sourceTree = "<group>"; };
 		9F1345FE293CF00A0089B1DE /* UIEdgeInsets+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIEdgeInsets+BookPlayer.swift"; sourceTree = "<group>"; };
 		9F134602293CFCE80089B1DE /* ProfileListenedTimeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileListenedTimeView.swift; sourceTree = "<group>"; };
 		9F134604293D0A410089B1DE /* ThemeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeViewModel.swift; sourceTree = "<group>"; };
@@ -2078,6 +2081,7 @@
 		9FC1E4572814E09700522FA8 /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				9F07B79629B7706B005A939D /* BPTaskUploadDelegate.swift */,
 				9FC1E4492814C4DE00522FA8 /* NetworkClient.swift */,
 				9FC1E45B2814E6A500522FA8 /* NetworkProvider.swift */,
 				9FC1E4582814E0B000522FA8 /* NetworkUtils.swift */,
@@ -2887,6 +2891,7 @@
 				41EB07192752F1BA00EFEE13 /* PlayableChapter.swift in Sources */,
 				9FC1E44B2814C4DE00522FA8 /* NetworkClient.swift in Sources */,
 				41D20DB325D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
+				9F07B79929B770B7005A939D /* BPTaskUploadDelegate.swift in Sources */,
 				4124AB1825DFE07E0007C839 /* DataMigrationManager.swift in Sources */,
 				41C3394A25E04091003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
 				9F56C84E287B734C00EA9751 /* BPLogger.swift in Sources */,
@@ -3193,6 +3198,7 @@
 				9F49072C2903663800054AD6 /* SortType.swift in Sources */,
 				9F1345B92938E0010089B1DE /* ImageIcons.swift in Sources */,
 				9FBDBC7D287940D900D315A2 /* ContentsResponse.swift in Sources */,
+				9F07B79829B770B7005A939D /* BPTaskUploadDelegate.swift in Sources */,
 				41C3394925E04091003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
 				41640A452441ACE2004FB97B /* Intents.intentdefinition in Sources */,
 				41D20DB225D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,

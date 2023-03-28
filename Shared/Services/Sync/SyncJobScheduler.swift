@@ -6,6 +6,7 @@
 //  Copyright © 2022 Tortuga Power. All rights reserved.
 //
 
+import Combine
 import Foundation
 import SwiftQueue
 
@@ -23,13 +24,32 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   let libraryJobsPersister: UserDefaultsPersister
   var libraryQueueManager: SwiftQueueManager!
   public var libraryFinishedSync: (() -> Void)?
+  private var disposeBag = Set<AnyCancellable>()
 
   public init() {
     self.libraryJobsPersister = UserDefaultsPersister(key: LibraryItemUploadJob.type)
-    self.libraryQueueManager = SwiftQueueManagerBuilder(creator: LibraryItemUploadJobCreator())
-      .set(persister: libraryJobsPersister)
-      .set(listener: self)
-      .build()
+
+    recreateQueue()
+    bindObservers()
+  }
+
+  func bindObservers() {
+    NotificationCenter.default.publisher(for: .uploadCompleted)
+      .sink { [weak self] notification in
+        guard
+          let task = notification.object as? URLSessionTask,
+          let path = task.taskDescription
+        else { return }
+
+        self?.libraryQueueManager.cancelOperations(uuid: path)
+      }
+      .store(in: &disposeBag)
+
+    NotificationCenter.default.publisher(for: .recreateQueue, object: nil)
+      .sink { [weak self] _ in
+        self?.recreateQueue()
+      }
+      .store(in: &disposeBag)
   }
 
   public func scheduleLibraryItemUploadJob(for item: SyncableItem) {
@@ -79,6 +99,18 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   public func cancelAllJobs() {
     libraryQueueManager.cancelAllOperations()
     libraryJobsPersister.clearAll()
+  }
+
+  public func recreateQueue() {
+    /// Suspend queue if it's already created
+    if libraryQueueManager != nil {
+      libraryQueueManager.isSuspended = true
+    }
+
+    libraryQueueManager = SwiftQueueManagerBuilder(creator: LibraryItemUploadJobCreator())
+      .set(persister: libraryJobsPersister)
+      .set(listener: self)
+      .build()
   }
 }
 

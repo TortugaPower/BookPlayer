@@ -25,9 +25,9 @@ public protocol NetworkClientProtocol {
   func upload(
     _ fileURL: URL,
     remoteURL: URL,
-    identifier: String,
-    method: HTTPMethod
-  ) async throws -> (Data, URLResponse)
+    taskDescription: String?,
+    delegate: URLSessionTaskDelegate
+  ) -> URLSessionUploadTask
 
   func download(
     url: URL,
@@ -78,8 +78,12 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
     taskDescription: String?,
     delegate: URLSessionTaskDelegate
   ) -> URLSessionDownloadTask {
+    let bundleIdentifier: String = Bundle.main.configurationValue(for: .bundleIdentifier)
+
     let session = URLSession(
-      configuration: URLSessionConfiguration.default,
+      configuration: URLSessionConfiguration.background(
+        withIdentifier: "\(bundleIdentifier).background"
+      ),
       delegate: delegate,
       delegateQueue: OperationQueue()
     )
@@ -94,25 +98,30 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
   public func upload(
     _ fileURL: URL,
     remoteURL: URL,
-    identifier: String,
-    method: HTTPMethod
-  ) async throws -> (Data, URLResponse) {
+    taskDescription: String?,
+    delegate: URLSessionTaskDelegate
+  ) -> URLSessionUploadTask {
     var request = URLRequest(url: remoteURL)
     request.cachePolicy = .reloadIgnoringLocalCacheData
-    request.httpMethod = method.rawValue
+    request.httpMethod = HTTPMethod.put.rawValue
 
-    Self.logger.trace("[Request] \(method.rawValue) \(remoteURL.path)")
+    let bundleIdentifier: String = Bundle.main.configurationValue(for: .bundleIdentifier)
 
-    let (responseData, response) = try await URLSession.shared.upload(
-      for: request,
-      fromFile: fileURL
+    let session = URLSession(
+      configuration: URLSessionConfiguration.background(
+        withIdentifier: "\(bundleIdentifier).background"
+      ),
+      delegate: delegate,
+      delegateQueue: OperationQueue()
     )
 
-    if let httpResponse = response as? HTTPURLResponse {
-      Self.logger.trace("[Response] Status \(httpResponse.statusCode) URL: \(response.url?.path)")
-    }
+    Self.logger.trace("[Request] PUT \(remoteURL.path)")
 
-    return (responseData, response)
+    let task = session.uploadTask(with: request, fromFile: fileURL)
+    task.taskDescription = taskDescription
+    task.resume()
+
+    return task
   }
 
   func executeRequest<T: Decodable>(

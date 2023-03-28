@@ -60,29 +60,64 @@ class LibraryItemUploadJob: Job, BPLogger {
           return
         }
 
-        let isDirectoryBoolean = isDirectory.boolValue
-
-        if isDirectoryBoolean {
+        guard isDirectory.boolValue == false else {
           let _: Empty = try await self.client.request(
             url: remoteURL,
             method: .put,
             parameters: nil,
             useKeychain: false
           )
-        } else {
-          _ = try await self.client.upload(
-            fileURL,
-            remoteURL: remoteURL,
-            identifier: self.relativePath,
-            method: .put
-          )
+          callback.done(.success)
+          return
         }
 
-        callback.done(.success)
+        uploadFile(
+          fileURL: fileURL,
+          remoteURL: remoteURL,
+          relativePath: self.relativePath
+        )
       } catch {
         callback.done(.fail(error))
       }
     }
+  }
+
+  /// Upload file on a background thread, the callback can't be used,
+  /// so it's up to the queue manager to remove the job once it's done
+  func uploadFile(
+    fileURL: URL,
+    remoteURL: URL,
+    relativePath: String
+  ) {
+    let uploadDelegate = BPTaskUploadDelegate()
+    uploadDelegate.uploadProgressUpdated = { task, uploadProgress in
+      guard let relativePath = task.taskDescription else { return }
+
+      NotificationCenter.default.post(
+        name: .uploadProgressUpdated,
+        object: nil,
+        userInfo: [
+          "progress": uploadProgress,
+          "relativePath": relativePath
+        ]
+      )
+    }
+
+    uploadDelegate.didFinishTask = { task, error in
+      if task.state == .completed && error == nil {
+        NotificationCenter.default.post(name: .uploadCompleted, object: task)
+      } else {
+        /// Got an error, and the queue can get stuck, better to recreate it
+        NotificationCenter.default.post(name: .recreateQueue, object: task)
+      }
+    }
+
+    _ = self.client.upload(
+      fileURL,
+      remoteURL: remoteURL,
+      taskDescription: relativePath,
+      delegate: uploadDelegate
+    )
   }
 
   func onRetry(error: Error) -> SwiftQueue.RetryConstraint {

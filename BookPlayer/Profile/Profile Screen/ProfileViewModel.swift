@@ -15,6 +15,7 @@ protocol ProfileViewModelProtocol: ObservableObject {
   var totalListeningTimeFormatted: String { get set }
   var refreshStatusMessage: String { get set }
   var bottomOffset: CGFloat { get set }
+  var isSyncButtonDisabled: Bool { get set }
 
   func showAccount()
   func syncLibrary()
@@ -34,7 +35,9 @@ class ProfileViewModel: BaseViewModel<ProfileCoordinator>, ProfileViewModelProto
   @Published var totalListeningTimeFormatted: String = "0m"
   @Published var refreshStatusMessage: String = ""
   @Published var bottomOffset: CGFloat = ModelConstants.defaultBottomOffset
+  @Published var isSyncButtonDisabled: Bool = false
 
+  var syncStatusObserver: NSKeyValueObservation!
   private var disposeBag = Set<AnyCancellable>()
 
   init(
@@ -60,6 +63,12 @@ class ProfileViewModel: BaseViewModel<ProfileCoordinator>, ProfileViewModelProto
   }
 
   func bindObservers() {
+    UserDefaults.standard.publisher(for: \.userSettingsCompletedLibrarySync)
+      .sink(receiveValue: { [weak self] completedSync in
+        self?.isSyncButtonDisabled = !completedSync
+      })
+      .store(in: &disposeBag)
+
     NotificationCenter.default.publisher(for: .accountUpdate, object: nil)
       .sink(receiveValue: { [weak self] _ in
         self?.reloadAccount()
@@ -72,8 +81,27 @@ class ProfileViewModel: BaseViewModel<ProfileCoordinator>, ProfileViewModelProto
       })
       .store(in: &disposeBag)
 
+    NotificationCenter.default.publisher(for: .uploadProgressUpdated, object: nil)
+      .receive(on: DispatchQueue.main)
+      .sink(receiveValue: { [weak self] notification in
+        guard
+          let relativePath = notification.userInfo?["relativePath"] as? String,
+          let progress = notification.userInfo?["progress"] as? Double
+        else { return }
+        self?.updateSyncMessage(relativePath: relativePath, progress: progress)
+      })
+      .store(in: &disposeBag)
+
+    NotificationCenter.default.publisher(for: .uploadCompleted, object: nil)
+      .receive(on: DispatchQueue.main)
+      .sink(receiveValue: { [weak self] _ in
+        self?.refreshStatusMessage = ""
+      })
+      .store(in: &disposeBag)
+
     playerManager.currentItemPublisher()
       .dropFirst()
+      .receive(on: DispatchQueue.main)
       .sink { [weak self] item in
         if item == nil {
           self?.bottomOffset = ModelConstants.defaultBottomOffset
@@ -90,6 +118,10 @@ class ProfileViewModel: BaseViewModel<ProfileCoordinator>, ProfileViewModelProto
 
   func showAccount() {
     self.coordinator.showAccount()
+  }
+
+  func updateSyncMessage(relativePath: String, progress: Double) {
+    refreshStatusMessage = "\(Int(round(progress * 100)))% \(relativePath)"
   }
 
   func refreshSyncStatusMessage() {

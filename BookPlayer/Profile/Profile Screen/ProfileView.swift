@@ -36,6 +36,7 @@ struct ProfileView<Model: ProfileViewModelProtocol>: View {
           if viewModel.account?.hasSubscription == true {
             ProfileRefreshStatusView(
               statusMessage: $viewModel.refreshStatusMessage,
+              buttonDisabled: $viewModel.isSyncButtonDisabled,
               themeViewModel: themeViewModel,
               refreshAction: {
                 viewModel.syncLibrary()
@@ -53,6 +54,7 @@ struct ProfileView<Model: ProfileViewModelProtocol>: View {
 
 struct ProfileView_Previews: PreviewProvider {
   class MockProfileViewModel: ProfileViewModelProtocol, ObservableObject {
+    var isSyncButtonDisabled: Bool = false
     var bottomOffset: CGFloat = Spacing.M
     var refreshStatusMessage: String = "Last refresh: 1 second ago"
     var totalListeningTimeFormatted: String = "0m"

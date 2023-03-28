@@ -6,7 +6,6 @@
 //  Copyright © 2023 Tortuga Power. All rights reserved.
 //
 
-import AVFoundation
 import Foundation
 
 class BPTaskDownloadDelegate: NSObject, URLSessionDownloadDelegate {
