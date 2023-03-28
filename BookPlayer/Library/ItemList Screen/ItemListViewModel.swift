@@ -348,23 +348,6 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     }
   }
 
-  func importIntoFolder(_ folder: SimpleLibraryItem, items: [LibraryItem], type: SimpleItemType) {
-    let fetchedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
-
-    do {
-      try self.libraryService.moveItems(fetchedItems, inside: folder.relativePath, moveFiles: true)
-      try self.libraryService.updateFolder(at: folder.relativePath, type: type)
-
-      libraryService.rebuildFolderDetails(folder.relativePath)
-    } catch {
-      sendEvent(.showAlert(
-        content: BPAlertContent.errorAlert(message: error.localizedDescription)
-      ))
-    }
-
-    self.coordinator.reloadItemsWithPadding()
-  }
-
   func createFolder(with title: String, items: [String]? = nil, type: SimpleItemType) {
     do {
       let folder = try self.libraryService.createFolder(with: title, inside: self.folderRelativePath)
@@ -462,59 +445,6 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     self.coordinator.reloadItemsWithPadding()
   }
 
-  func handleOperationCompletion(_ files: [URL]) {
-    let library = self.libraryService.getLibrary()
-    let processedItems = self.libraryService.insertItems(from: files, into: nil, library: library, processedItems: [])
-
-    do {
-      let shouldMoveFiles = self.folderRelativePath != nil
-
-      try self.libraryService.moveItems(processedItems, inside: self.folderRelativePath, moveFiles: shouldMoveFiles)
-      if let folderRelativePath = self.folderRelativePath {
-        libraryService.rebuildFolderDetails(folderRelativePath)
-      }
-    } catch {
-      sendEvent(.showAlert(
-        content: BPAlertContent.errorAlert(message: error.localizedDescription)
-      ))
-      return
-    }
-
-    self.coordinator.reloadItemsWithPadding(padding: processedItems.count)
-
-    var availableFolders = [SimpleLibraryItem]()
-
-    if let existingItems = self.libraryService.fetchContents(
-      at: self.folderRelativePath,
-      limit: nil,
-      offset: nil
-    ) {
-      let existingFolders = existingItems.filter({ $0.type == .folder })
-
-      for folder in existingFolders {
-        if processedItems.contains(where: { $0.relativePath == folder.relativePath }) { continue }
-
-        availableFolders.append(folder)
-      }
-    }
-
-    if processedItems.count > 1 {
-      showOperationCompletedAlert(with: processedItems, availableFolders: availableFolders)
-    }
-  }
-
-  func handleInsertionIntoLibrary(_ items: [LibraryItem]) {
-    do {
-      try self.libraryService.moveItems(items, inside: nil, moveFiles: true)
-    } catch {
-      sendEvent(.showAlert(
-        content: BPAlertContent.errorAlert(message: error.localizedDescription)
-      ))
-    }
-
-    self.coordinator.reloadItemsWithPadding(padding: items.count)
-  }
-
   func reorder(item: SimpleLibraryItem, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath) {
     if let folderRelativePath = folderRelativePath {
       ArtworkService.removeCache(for: folderRelativePath)
@@ -565,41 +495,6 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         ]
       )
     ))
-  }
-
-  func notifyPendingFiles() {
-    // Get reference of all the files located inside the Documents, Shared and Inbox folders
-    let documentsURLs = ((try? FileManager.default.contentsOfDirectory(
-      at: DataManager.getDocumentsFolderURL(),
-      includingPropertiesForKeys: nil,
-      options: .skipsSubdirectoryDescendants
-    )) ?? [])
-      .filter {
-        $0.lastPathComponent != DataManager.processedFolderName
-        && $0.lastPathComponent != DataManager.inboxFolderName
-      }
-
-    let sharedURLs = (try? FileManager.default.contentsOfDirectory(
-      at: DataManager.getSharedFilesFolderURL(),
-      includingPropertiesForKeys: nil,
-      options: .skipsSubdirectoryDescendants
-    )) ?? []
-
-    let inboxURLs = (try? FileManager.default.contentsOfDirectory(
-      at: DataManager.getInboxFolderURL(),
-      includingPropertiesForKeys: nil,
-      options: .skipsSubdirectoryDescendants
-    )) ?? []
-
-    let urls = documentsURLs + sharedURLs + inboxURLs
-
-    guard !urls.isEmpty else { return }
-
-    self.handleNewFiles(urls)
-  }
-
-  func handleNewFiles(_ urls: [URL]) {
-    self.coordinator.getMainCoordinator()?.getLibraryCoordinator()?.processFiles(urls: urls)
   }
 
   private func getAvailableFolders(notIn items: [SimpleLibraryItem]) -> [SimpleLibraryItem] {
@@ -928,81 +823,6 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     ))
   }
 
-  func showOperationCompletedAlert(with items: [LibraryItem], availableFolders: [SimpleLibraryItem]) {
-    let hasParentFolder = folderRelativePath != nil
-    var actions = [BPActionItem]()
-
-    if hasParentFolder {
-      actions.append(BPActionItem(title: "current_playlist_title".localized))
-    }
-
-    actions.append(BPActionItem(
-      title: "library_title".localized,
-      handler: { [hasParentFolder, items, weak self] in
-        guard hasParentFolder else { return }
-
-        self?.handleInsertionIntoLibrary(items)
-      }
-    ))
-
-    actions.append(BPActionItem(
-      title: "new_playlist_button".localized,
-      handler: { [items, weak self] in
-        var placeholder = "new_playlist_button".localized
-
-        if let item = items.first {
-          placeholder = item.title
-        }
-
-        self?.showCreateFolderAlert(
-          placeholder: placeholder,
-          with: items.map { $0.relativePath! },
-          type: .folder
-        )
-      }
-    ))
-
-    actions.append(BPActionItem(
-      title: "existing_playlist_button".localized,
-      isEnabled: !availableFolders.isEmpty,
-      handler: { [items, availableFolders, weak self] in
-        self?.onTransition?(.showItemSelectionScreen(
-          availableItems: availableFolders,
-          selectionHandler: { selectedFolder in
-            self?.importIntoFolder(
-              selectedFolder,
-              items: items,
-              type: .folder
-            )
-          }
-        ))
-      }
-    ))
-
-    actions.append(BPActionItem(
-      title: "bound_books_create_button".localized,
-      isEnabled: items is [Book],
-      handler: { [items, weak self] in
-        let placeholder = items.first?.title
-        ?? "bound_books_new_title_placeholder".localized
-
-        self?.showCreateFolderAlert(
-          placeholder: placeholder,
-          with: items.map { $0.relativePath! },
-          type: .bound
-        )
-      }
-    ))
-
-    sendEvent(.showAlert(
-      content: BPAlertContent(
-        title: String.localizedStringWithFormat("import_alert_title".localized, items.count),
-        style: .alert,
-        actionItems: actions
-      )
-    ))
-  }
-
   func showCreateFolderAlert(
     placeholder: String? = nil,
     with items: [String]? = nil,
@@ -1075,6 +895,185 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     self.coordinator.reloadItemsWithPadding()
   }
 
+  private func sendEvent(_ event: ItemListViewModel.Events) {
+    eventsPublisher.send(event)
+  }
+}
+
+// MARK: - Import related functions
+extension ItemListViewModel {
+  func notifyPendingFiles() {
+    // Get reference of all the files located inside the Documents, Shared and Inbox folders
+    let documentsURLs = ((try? FileManager.default.contentsOfDirectory(
+      at: DataManager.getDocumentsFolderURL(),
+      includingPropertiesForKeys: nil,
+      options: .skipsSubdirectoryDescendants
+    )) ?? [])
+      .filter {
+        $0.lastPathComponent != DataManager.processedFolderName
+        && $0.lastPathComponent != DataManager.inboxFolderName
+      }
+
+    let sharedURLs = (try? FileManager.default.contentsOfDirectory(
+      at: DataManager.getSharedFilesFolderURL(),
+      includingPropertiesForKeys: nil,
+      options: .skipsSubdirectoryDescendants
+    )) ?? []
+
+    let inboxURLs = (try? FileManager.default.contentsOfDirectory(
+      at: DataManager.getInboxFolderURL(),
+      includingPropertiesForKeys: nil,
+      options: .skipsSubdirectoryDescendants
+    )) ?? []
+
+    let urls = documentsURLs + sharedURLs + inboxURLs
+
+    guard !urls.isEmpty else { return }
+
+    self.handleNewFiles(urls)
+  }
+
+  func handleNewFiles(_ urls: [URL]) {
+    self.coordinator.getMainCoordinator()?.getLibraryCoordinator()?.processFiles(urls: urls)
+  }
+
+  func handleOperationCompletion(_ files: [URL]) {
+    let library = self.libraryService.getLibrary()
+    let processedItems = self.libraryService.insertItems(from: files, into: nil, library: library, processedItems: [])
+
+    do {
+      let shouldMoveFiles = self.folderRelativePath != nil
+
+      try self.libraryService.moveItems(processedItems, inside: self.folderRelativePath, moveFiles: shouldMoveFiles)
+      if let folderRelativePath = self.folderRelativePath {
+        libraryService.rebuildFolderDetails(folderRelativePath)
+      }
+    } catch {
+      sendEvent(.showAlert(
+        content: BPAlertContent.errorAlert(message: error.localizedDescription)
+      ))
+      return
+    }
+
+    self.coordinator.reloadItemsWithPadding(padding: processedItems.count)
+
+    var availableFolders = [SimpleLibraryItem]()
+
+    if let existingItems = self.libraryService.fetchContents(
+      at: self.folderRelativePath,
+      limit: nil,
+      offset: nil
+    ) {
+      let existingFolders = existingItems.filter({ $0.type == .folder })
+
+      for folder in existingFolders {
+        if processedItems.contains(where: { $0.relativePath == folder.relativePath }) { continue }
+
+        availableFolders.append(folder)
+      }
+    }
+
+    if processedItems.count > 1 {
+      showOperationCompletedAlert(with: processedItems, availableFolders: availableFolders)
+    }
+  }
+
+  func showOperationCompletedAlert(with items: [LibraryItem], availableFolders: [SimpleLibraryItem]) {
+    let hasParentFolder = folderRelativePath != nil
+    var actions = [BPActionItem]()
+
+    if hasParentFolder {
+      actions.append(BPActionItem(title: "current_playlist_title".localized))
+    }
+
+    actions.append(BPActionItem(
+      title: "library_title".localized,
+      handler: { [hasParentFolder, items, weak self] in
+        guard hasParentFolder else { return }
+
+        self?.handleInsertionIntoLibrary(items)
+      }
+    ))
+
+    actions.append(BPActionItem(
+      title: "new_playlist_button".localized,
+      handler: { [items, weak self] in
+        let placeholder = items.first?.title ?? "new_playlist_button".localized
+
+        self?.showCreateFolderAlert(
+          placeholder: placeholder,
+          with: items.map { $0.relativePath! },
+          type: .folder
+        )
+      }
+    ))
+
+    actions.append(BPActionItem(
+      title: "existing_playlist_button".localized,
+      isEnabled: !availableFolders.isEmpty,
+      handler: { [items, availableFolders, weak self] in
+        self?.onTransition?(.showItemSelectionScreen(
+          availableItems: availableFolders,
+          selectionHandler: { selectedFolder in
+            self?.importIntoFolder(selectedFolder, items: items, type: .folder)
+          }
+        ))
+      }
+    ))
+
+    actions.append(BPActionItem(
+      title: "bound_books_create_button".localized,
+      isEnabled: items is [Book],
+      handler: { [items, weak self] in
+        let placeholder = items.first?.title
+        ?? "bound_books_new_title_placeholder".localized
+
+        self?.showCreateFolderAlert(
+          placeholder: placeholder,
+          with: items.map { $0.relativePath! },
+          type: .bound
+        )
+      }
+    ))
+
+    sendEvent(.showAlert(
+      content: BPAlertContent(
+        title: String.localizedStringWithFormat("import_alert_title".localized, items.count),
+        style: .alert,
+        actionItems: actions
+      )
+    ))
+  }
+
+  func importIntoFolder(_ folder: SimpleLibraryItem, items: [LibraryItem], type: SimpleItemType) {
+    let fetchedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
+
+    do {
+      try self.libraryService.moveItems(fetchedItems, inside: folder.relativePath, moveFiles: true)
+      try self.libraryService.updateFolder(at: folder.relativePath, type: type)
+
+      libraryService.rebuildFolderDetails(folder.relativePath)
+    } catch {
+      sendEvent(.showAlert(
+        content: BPAlertContent.errorAlert(message: error.localizedDescription)
+      ))
+    }
+
+    self.coordinator.reloadItemsWithPadding()
+  }
+
+  func handleInsertionIntoLibrary(_ items: [LibraryItem]) {
+    do {
+      try self.libraryService.moveItems(items, inside: nil, moveFiles: true)
+    } catch {
+      sendEvent(.showAlert(
+        content: BPAlertContent.errorAlert(message: error.localizedDescription)
+      ))
+    }
+
+    self.coordinator.reloadItemsWithPadding(padding: items.count)
+  }
+
   func importData(from item: ImportableItem) {
     let filename = item.suggestedName ?? "\(Date().timeIntervalSince1970).\(item.fileExtension)"
 
@@ -1086,10 +1085,6 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     } catch {
       print("Fail to move dropped file to the Documents directory: \(error.localizedDescription)")
     }
-  }
-
-  private func sendEvent(_ event: ItemListViewModel.Events) {
-    eventsPublisher.send(event)
   }
 }
 
