@@ -428,13 +428,20 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func handleDelete(items: [SimpleLibraryItem], mode: DeleteMode) {
-    let selectedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
     let parentFolder = items.first?.parentFolder
 
     do {
-      try self.libraryService.delete(selectedItems, mode: mode)
+      switch mode {
+      case .deep:
+        try self.libraryService.delete(items, mode: mode)
+      case .shallow:
+        /// move before deleting
+        try self.libraryService.delete(items, mode: mode)
+      }
+
       if let parentFolder {
         libraryService.rebuildFolderDetails(parentFolder)
+        // update folder details to server
       }
     } catch {
       sendEvent(.showAlert(
@@ -938,7 +945,7 @@ extension ItemListViewModel {
   }
 
   func handleOperationCompletion(_ files: [URL]) {
-    let library = self.libraryService.getLibrary()
+    let library = self.libraryService.getLibraryReference()
     let processedItems = self.libraryService.insertItems(from: files, into: nil, library: library, processedItems: [])
 
     do {

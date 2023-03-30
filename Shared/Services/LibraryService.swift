@@ -12,6 +12,8 @@ import Foundation
 
 public protocol LibraryServiceProtocol {
   func getLibrary() -> Library
+  /// Get the stored library object with no properties loaded
+  func getLibraryReference() -> Library
   func getLibraryLastItem() throws -> LibraryItem?
 
   func getLibraryCurrentTheme() throws -> Theme?
@@ -24,6 +26,8 @@ public protocol LibraryServiceProtocol {
   func loadChaptersIfNeeded(relativePath: String, asset: AVAsset)
   func getChapters(from relativePath: String) -> [SimpleChapter]?
   func getItem(with relativePath: String) -> LibraryItem?
+  /// Get the stored item object with no properties loaded
+  func getItemReference(with relativePath: String) -> LibraryItem?
   func findBooks(containing fileURL: URL) -> [Book]?
   func getLastPlayedItems(limit: Int?) -> [LibraryItem]?
   func getItemProperty(_ property: String, relativePath: String) -> Any?
@@ -72,7 +76,7 @@ public protocol LibraryServiceProtocol {
   func insertItems(from files: [URL], into folder: Folder?, library: Library, processedItems: [LibraryItem]?) -> [LibraryItem]
   func handleDirectory(item: URL, folder: Folder, library: Library)
   func moveItems(_ items: [LibraryItem], inside relativePath: String?, moveFiles: Bool) throws
-  func delete(_ items: [LibraryItem], mode: DeleteMode) throws
+  func delete(_ items: [SimpleLibraryItem], mode: DeleteMode) throws
 }
 
 public final class LibraryService: LibraryServiceProtocol {
@@ -91,6 +95,15 @@ public final class LibraryService: LibraryServiceProtocol {
     fetch.returnsObjectsAsFaults = false
 
     return (try? context.fetch(fetch).first) ?? self.createLibrary()
+  }
+
+  public func getLibraryReference() -> Library {
+    let context = self.dataManager.getContext()
+    let fetch: NSFetchRequest<Library> = Library.fetchRequest()
+    fetch.includesPropertyValues = false
+    fetch.fetchLimit = 1
+
+    return (try? context.fetch(fetch).first)!
   }
 
   func createLibrary() -> Library {
@@ -138,13 +151,13 @@ public final class LibraryService: LibraryServiceProtocol {
 
   public func setLibraryTheme(with title: String) {
     guard let theme = self.getTheme(with: title) else { return }
-    let library = self.getLibrary()
+    let library = self.getLibraryReference()
     library.currentTheme = theme
     self.dataManager.saveContext()
   }
 
   public func setLibraryLastBook(with relativePath: String?) {
-    let library = self.getLibrary()
+    let library = self.getLibraryReference()
 
     if let relativePath = relativePath {
       library.lastPlayedItem = self.getItem(with: relativePath)
@@ -208,6 +221,15 @@ public final class LibraryService: LibraryServiceProtocol {
     let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
     fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
     fetchRequest.fetchLimit = 1
+
+    return try? self.dataManager.getContext().fetch(fetchRequest).first
+  }
+
+  public func getItemReference(with relativePath: String) -> LibraryItem? {
+    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+    fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
+    fetchRequest.fetchLimit = 1
+    fetchRequest.includesPropertyValues = false
 
     return try? self.dataManager.getContext().fetch(fetchRequest).first
   }
@@ -426,24 +448,23 @@ public final class LibraryService: LibraryServiceProtocol {
   public func createFolder(with title: String, inside relativePath: String?) throws -> SimpleLibraryItem {
     try createFolderOnDisk(title: title, inside: relativePath)
 
-    var parentFolder: Folder?
-
-    if let relativePath = relativePath {
-      // The folder object must exist
-      parentFolder = self.findFolder(with: relativePath)!
-    }
-
-    let newFolder = Folder(title: title, context: self.dataManager.getContext())
+    let newFolder = Folder(title: title, context: dataManager.getContext())
+    newFolder.orderRank = getNextOrderRank(in: relativePath)
 
     // insert into existing folder or library at index
-    if let parentFolder = parentFolder {
+    if let parentPath = relativePath {
+      guard
+        let parentFolder = getItemReference(with: parentPath) as? Folder
+      else {
+        throw BookPlayerError.runtimeError("Parent folder does not exist at: \(parentPath)")
+      }
+
       parentFolder.insert(item: newFolder)
     } else {
-      let library = self.getLibrary()
-      library.insert(item: newFolder)
+      getLibraryReference().insert(item: newFolder)
     }
 
-    self.dataManager.saveContext()
+    dataManager.saveContext()
 
     return SimpleLibraryItem(from: newFolder)
   }
@@ -898,7 +919,7 @@ public final class LibraryService: LibraryServiceProtocol {
       // The folder object must exist
       folder = self.findFolder(with: relativePath)!
     } else {
-      library = self.getLibrary()
+      library = self.getLibraryReference()
     }
 
     for item in items {
@@ -937,92 +958,78 @@ public final class LibraryService: LibraryServiceProtocol {
     self.dataManager.saveContext()
   }
 
-  public func delete(_ items: [LibraryItem], mode: DeleteMode) throws {
+  public func delete(_ items: [SimpleLibraryItem], mode: DeleteMode) throws {
     for item in items {
-      switch item {
-      case let book as Book:
-        try self.delete(book: book)
-      case let folder as Folder:
-        if mode == .deep {
-          try self.deepDelete(folder: folder)
-        } else {
-          try self.shallowDelete(folder: folder)
+      switch item.type {
+      case .book:
+        try deleteItem(item)
+      case .bound, .folder:
+        switch mode {
+        case .deep:
+          try deleteFolderContents(item)
+        case .shallow:
+          try moveFolderContents(item)
         }
-      default:
-        continue
+
+        try deleteItem(item)
       }
     }
   }
 
-  func delete(book: Book) throws {
+  func deleteItem(_ item: SimpleLibraryItem) throws {
     // Delete file item if it exists
-    if let fileURL = book.fileURL,
-       FileManager.default.fileExists(atPath: fileURL.path) {
+    let fileURL = item.fileURL
+    if FileManager.default.fileExists(atPath: fileURL.path) {
       try FileManager.default.removeItem(at: fileURL)
     }
 
-    self.dataManager.delete(book)
+    if let bookReference = getItemReference(with: item.relativePath) {
+      dataManager.delete(bookReference)
+    }
   }
 
-  func deepDelete(folder: Folder) throws {
-    // Delete folder if it exists
-    if let fileURL = folder.fileURL,
-       FileManager.default.fileExists(atPath: fileURL.path) {
-      try FileManager.default.removeItem(at: fileURL)
-    }
+  func deleteFolderContents(_ folder: SimpleLibraryItem) throws {
+    // Delete folder contents
+    guard let items = fetchContents(at: folder.relativePath, limit: nil, offset: nil) else { return }
 
-    defer {
-      self.dataManager.delete(folder)
-    }
-
-    // Fetch folder items
-    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
-
-    fetchRequest.predicate = NSPredicate(
-      format: "%K == %@",
-      #keyPath(LibraryItem.folder.relativePath),
-      folder.relativePath
-    )
-
-    fetchRequest.includesPropertyValues = false
-
-    let items = try self.dataManager.getContext().fetch(fetchRequest)
-    // Delete items
     try self.delete(items, mode: .deep)
   }
 
-  func shallowDelete(folder: Folder) throws {
+  func moveFolderContents(_ folder: SimpleLibraryItem) throws {
     // Move children to parent folder or library
-    if let items = folder.items?.allObjects as? [LibraryItem] {
-      for item in items {
-        guard let fileURL = item.fileURL else { continue }
+    guard let items = fetchRawContents(
+      at: folder.relativePath,
+      propertiesToFetch: [#keyPath(LibraryItem.relativePath)]
+    ) else { return }
 
-        if let parent = folder.folder {
-          if let parentURL = parent.fileURL {
-            try FileManager.default.moveItem(
-              at: fileURL,
-              to: parentURL.appendingPathComponent(fileURL.lastPathComponent)
-            )
-          }
-          parent.insert(item: item)
-        } else if let library = folder.library {
-          try FileManager.default.moveItem(
-            at: fileURL,
-            to: DataManager.getProcessedFolderURL().appendingPathComponent(fileURL.lastPathComponent)
-          )
-          library.insert(item: item)
-        }
-      }
+    var parentFolderReference: Folder?
+
+    if let parentFolderPath = folder.parentFolder,
+       let parentFolder = getItemReference(with: parentFolderPath) as? Folder {
+      parentFolderReference = parentFolder
     }
 
-    // Delete empty folder
-    if let folderURL = folder.fileURL {
-      if FileManager.default.fileExists(atPath: folderURL.path) {
-        try FileManager.default.removeItem(at: folderURL)
+    lazy var library = getLibraryReference()
+
+    for item in items {
+      guard let fileURL = item.fileURL else { continue }
+
+      if let parentFolder = parentFolderReference,
+         let parentURL = parentFolder.fileURL {
+        try FileManager.default.moveItem(
+          at: fileURL,
+          to: parentURL.appendingPathComponent(fileURL.lastPathComponent)
+        )
+
+        parentFolder.insert(item: item)
+      } else {
+        try FileManager.default.moveItem(
+          at: fileURL,
+          to: DataManager.getProcessedFolderURL().appendingPathComponent(fileURL.lastPathComponent)
+        )
+        library.insert(item: item)
       }
     }
-
-    self.dataManager.delete(folder)
   }
 
   /// Internal function to calculate the entire folder's duration
@@ -1047,6 +1054,34 @@ public final class LibraryService: LibraryServiceProtocol {
     }
 
     return results["totalDuration"] ?? 0
+  }
+
+  func getNextOrderRank(in folderPath: String?) -> Int16 {
+    let maxExpression = NSExpressionDescription()
+    maxExpression.expression = NSExpression(
+      forFunction: "max:",
+      arguments: [NSExpression(forKeyPath: #keyPath(LibraryItem.orderRank))]
+    )
+    maxExpression.name = "maxOrderRank"
+    maxExpression.expressionResultType = NSAttributeType.integer16AttributeType
+
+    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+    if let folderPath {
+      fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), folderPath)
+    } else {
+      fetchRequest.predicate = NSPredicate(format: "%K != nil", #keyPath(LibraryItem.library))
+    }
+    fetchRequest.propertiesToFetch = [maxExpression]
+    fetchRequest.resultType = .dictionaryResultType
+
+    guard
+      let results = try? dataManager.getContext().fetch(fetchRequest) as? [[String: Int16]],
+      let maxOrderRank = results.first?["maxOrderRank"]
+    else {
+      return 0
+    }
+
+    return maxOrderRank + 1
   }
 
   /// Internal function to calculate the entire folder's progress
