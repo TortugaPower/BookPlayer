@@ -28,6 +28,8 @@ public protocol LibraryServiceProtocol {
   func getItem(with relativePath: String) -> LibraryItem?
   /// Get the stored item object with no properties loaded
   func getItemReference(with relativePath: String) -> LibraryItem?
+  func getItems(notIn relativePaths: [String], parentFolder: String?) -> [SimpleLibraryItem]?
+
   func findBooks(containing fileURL: URL) -> [Book]?
   func getLastPlayedItems(limit: Int?) -> [LibraryItem]?
   func getItemProperty(_ property: String, relativePath: String) -> Any?
@@ -45,8 +47,6 @@ public protocol LibraryServiceProtocol {
   func updateFolder(at relativePath: String, type: SimpleItemType) throws
   func rebuildFolderDetails(_ relativePath: String)
   func recursiveFolderProgressUpdate(from relativePath: String)
-  func findFolder(with fileURL: URL) -> Folder?
-  func findFolder(with relativePath: String) -> Folder?
   func hasLibraryLinked(item: LibraryItem) -> Bool
   func createFolder(with title: String, inside relativePath: String?) throws -> SimpleLibraryItem
   func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SimpleLibraryItem]?
@@ -73,12 +73,12 @@ public protocol LibraryServiceProtocol {
   func renameItem(at relativePath: String, with newTitle: String) throws -> String
   func updateDetails(at relativePath: String, details: String)
 
-  func insertItems(from files: [URL], into folder: Folder?, library: Library, processedItems: [LibraryItem]?) -> [LibraryItem]
-  func handleDirectory(item: URL, folder: Folder, library: Library)
-  func moveItems(_ items: [LibraryItem], inside relativePath: String?, moveFiles: Bool) throws
+  func insertItems(from files: [URL]) -> [String]
+  func moveItems(_ items: [String], inside relativePath: String?) throws
   func delete(_ items: [SimpleLibraryItem], mode: DeleteMode) throws
 }
 
+// swiftlint:disable force_cast
 public final class LibraryService: LibraryServiceProtocol {
   let dataManager: DataManager
 
@@ -160,7 +160,7 @@ public final class LibraryService: LibraryServiceProtocol {
     let library = self.getLibraryReference()
 
     if let relativePath = relativePath {
-      library.lastPlayedItem = self.getItem(with: relativePath)
+      library.lastPlayedItem = getItemReference(with: relativePath)
     } else {
       library.lastPlayedItem = nil
     }
@@ -225,11 +225,75 @@ public final class LibraryService: LibraryServiceProtocol {
     return try? self.dataManager.getContext().fetch(fetchRequest).first
   }
 
+  private func rebuildRelativePaths(for item: LibraryItem, parentFolder: String?) {
+    switch item {
+    case let book as Book:
+      if let parentPath = parentFolder {
+        let itemRelativePath = book.relativePath.split(separator: "/").map({ String($0) }).last ?? book.relativePath
+        book.relativePath = "\(parentPath)/\(itemRelativePath!)"
+      } else {
+        book.relativePath = book.originalFileName
+      }
+    case let folder as Folder:
+      /// Get contents before updating relative path
+      let contents = fetchRawContents(
+        at: folder.relativePath,
+        propertiesToFetch: [
+        #keyPath(LibraryItem.relativePath),
+        #keyPath(LibraryItem.originalFileName)
+        ]
+      ) ?? []
+
+      if let parentPath = parentFolder {
+        let itemRelativePath = folder.relativePath.split(separator: "/").map({ String($0) }).last ?? folder.relativePath
+        folder.relativePath = "\(parentPath)/\(itemRelativePath!)"
+      } else {
+        folder.relativePath = folder.originalFileName
+      }
+
+      for nestedItem in contents {
+        rebuildRelativePaths(for: nestedItem, parentFolder: folder.relativePath)
+      }
+    default:
+      break
+    }
+  }
+
+  public func getItems(notIn relativePaths: [String], parentFolder: String?) -> [SimpleLibraryItem]? {
+    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+    fetchRequest.propertiesToFetch = SimpleLibraryItem.fetchRequestProperties
+    fetchRequest.resultType = .dictionaryResultType
+
+    if let parentFolder = parentFolder {
+      fetchRequest.predicate = NSPredicate(
+        format: "%K == %@ AND NOT (%K IN %@)",
+        #keyPath(LibraryItem.folder.relativePath),
+        parentFolder,
+        #keyPath(LibraryItem.relativePath),
+        relativePaths
+      )
+    } else {
+      fetchRequest.predicate = NSPredicate(
+        format: "%K != nil AND NOT (%K IN %@)",
+        #keyPath(LibraryItem.library),
+        #keyPath(LibraryItem.relativePath),
+        relativePaths
+      )
+    }
+
+    let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
+
+    return parseFetchedItems(from: results)
+  }
+
   public func getItemReference(with relativePath: String) -> LibraryItem? {
     let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
     fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
     fetchRequest.fetchLimit = 1
-    fetchRequest.includesPropertyValues = false
+    fetchRequest.propertiesToFetch = [
+      #keyPath(LibraryItem.relativePath),
+      #keyPath(LibraryItem.originalFileName)
+    ]
 
     return try? self.dataManager.getContext().fetch(fetchRequest).first
   }
@@ -256,6 +320,33 @@ public final class LibraryService: LibraryServiceProtocol {
     let context = self.dataManager.getContext()
 
     return try? context.fetch(fetch)
+  }
+
+  public func hasItemProperty(_ property: String, relativePath: String) -> Bool {
+    let booleanExpression = NSExpressionDescription()
+    booleanExpression.name = "hasProperty"
+    booleanExpression.expressionResultType = NSAttributeType.booleanAttributeType
+    booleanExpression.expression = NSExpression(
+      forConditional: NSPredicate(
+        format: "%@ != nil",
+        property
+      ),
+      trueExpression: NSExpression(forConstantValue: true),
+      falseExpression: NSExpression(forConstantValue: false)
+    )
+    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+    fetchRequest.predicate = NSPredicate(
+      format: "%K == %@",
+      #keyPath(LibraryItem.relativePath),
+      relativePath
+    )
+    fetchRequest.propertiesToFetch = [booleanExpression]
+    fetchRequest.resultType = .dictionaryResultType
+    fetchRequest.fetchLimit = 1
+
+    let result = try? self.dataManager.getContext().fetch(fetchRequest).first as? [String: Bool]
+
+    return result?["hasProperty"] ?? false
   }
 
   public func getItemProperty(_ property: String, relativePath: String) -> Any? {
@@ -385,20 +476,6 @@ public final class LibraryService: LibraryServiceProtocol {
     self.dataManager.saveContext()
   }
 
-  public func findFolder(with fileURL: URL) -> Folder? {
-    return self.findFolder(
-      with: String(fileURL.relativePath(to: DataManager.getProcessedFolderURL()).dropFirst())
-    )
-  }
-
-  public func findFolder(with relativePath: String) -> Folder? {
-    let fetch: NSFetchRequest<Folder> = Folder.fetchRequest()
-
-    fetch.predicate = NSPredicate(format: "relativePath == %@", relativePath)
-
-    return try? self.dataManager.getContext().fetch(fetch).first
-  }
-
   public func hasLibraryLinked(item: LibraryItem) -> Bool {
 
     var keyPath = item.relativePath.split(separator: "/")
@@ -418,8 +495,10 @@ public final class LibraryService: LibraryServiceProtocol {
   func removeFolderIfNeeded(_ fileURL: URL) throws {
     guard FileManager.default.fileExists(atPath: fileURL.path) else { return }
 
+    let folderPath = String(fileURL.relativePath(to: DataManager.getProcessedFolderURL()).dropFirst())
+
     // Delete folder if it belongs to an orphaned folder
-    if let existingFolder = self.findFolder(with: fileURL) {
+    if let existingFolder = getItemReference(with: folderPath) as? Folder {
       if !self.hasLibraryLinked(item: existingFolder) {
         // Delete folder if it doesn't belong to active folder
         try FileManager.default.removeItem(at: fileURL)
@@ -459,9 +538,11 @@ public final class LibraryService: LibraryServiceProtocol {
         throw BookPlayerError.runtimeError("Parent folder does not exist at: \(parentPath)")
       }
 
-      parentFolder.insert(item: newFolder)
+      let existingParentContentsCount = getMaxItemsCount(at: parentPath)
+      parentFolder.addToItems(newFolder)
+      parentFolder.details = String.localizedStringWithFormat("files_title".localized, existingParentContentsCount + 1)
     } else {
-      getLibraryReference().insert(item: newFolder)
+      getLibraryReference().addToItems(newFolder)
     }
 
     dataManager.saveContext()
@@ -519,6 +600,7 @@ public final class LibraryService: LibraryServiceProtocol {
         let percentCompleted = dictionary["percentCompleted"] as? Double,
         let isFinished = dictionary["isFinished"] as? Bool,
         let relativePath = dictionary["relativePath"] as? String,
+        let orderRank = dictionary["orderRank"] as? Int16,
         let originalFileName = dictionary["originalFileName"] as? String,
         let rawType = dictionary["type"] as? Int16,
         let type = SimpleItemType(rawValue: rawType)
@@ -531,6 +613,7 @@ public final class LibraryService: LibraryServiceProtocol {
         percentCompleted: percentCompleted,
         isFinished: isFinished,
         relativePath: relativePath,
+        orderRank: orderRank,
         parentFolder: dictionary["folder.relativePath"] as? String,
         originalFileName: originalFileName,
         lastPlayDate: dictionary["lastPlayDate"] as? Date,
@@ -601,6 +684,24 @@ public final class LibraryService: LibraryServiceProtocol {
     contents.insert(movedItem, at: destinationIndexPath.row)
 
     /// Rebuild order rank
+    for (index, item) in contents.enumerated() {
+      item.orderRank = Int16(index)
+    }
+
+    self.dataManager.saveContext()
+  }
+
+  func rebuildOrderRank(in folderRelativePath: String?) {
+    guard
+      let contents = fetchRawContents(
+        at: folderRelativePath,
+        propertiesToFetch: [
+          #keyPath(LibraryItem.relativePath),
+          #keyPath(LibraryItem.orderRank)
+        ]
+      )
+    else { return }
+
     for (index, item) in contents.enumerated() {
       item.orderRank = Int16(index)
     }
@@ -776,7 +877,7 @@ public final class LibraryService: LibraryServiceProtocol {
       return bookmark
     }
 
-    guard let item = self.getItem(with: relativePath) else { return nil }
+    guard let item = self.getItemReference(with: relativePath) else { return nil }
 
     let bookmark = Bookmark(with: floor(time), type: type, context: self.dataManager.getContext())
     item.addToBookmarks(bookmark)
@@ -800,21 +901,24 @@ public final class LibraryService: LibraryServiceProtocol {
   public func renameItem(at relativePath: String, with newTitle: String) throws -> String {
     var finalRelativePath = relativePath
 
-    guard let item = self.getItem(with: relativePath) else { return finalRelativePath }
+    guard let item = self.getItemReference(with: relativePath) else { return finalRelativePath }
 
     // Rename folder on disk too
     if let folder = item as? Folder {
       let processedFolderURL = DataManager.getProcessedFolderURL()
 
       let sourceUrl = processedFolderURL
-        .appendingPathComponent(item.relativePath)
+        .appendingPathComponent(folder.relativePath)
 
       let destinationUrl: URL
       let newRelativePath: String
 
-      if let parentFolder = item.folder {
+      if let parentFolderPath = getItemProperty(
+        #keyPath(LibraryItem.folder.relativePath),
+        relativePath: folder.relativePath
+      ) as? String {
         destinationUrl = processedFolderURL
-          .appendingPathComponent(parentFolder.relativePath)
+          .appendingPathComponent(parentFolderPath)
           .appendingPathComponent(newTitle)
         newRelativePath = String(destinationUrl.relativePath(to: processedFolderURL).dropFirst())
       } else {
@@ -831,8 +935,15 @@ public final class LibraryService: LibraryServiceProtocol {
       item.originalFileName = newTitle
       item.relativePath = newRelativePath
       finalRelativePath = newRelativePath
-      if let items = folder.items?.allObjects as? [LibraryItem] {
-        items.forEach({ folder.rebuildRelativePaths(for: $0) })
+
+      if let items = fetchRawContents(
+        at: folder.relativePath,
+        propertiesToFetch: [
+          #keyPath(LibraryItem.relativePath),
+          #keyPath(LibraryItem.originalFileName)
+        ]
+      ) {
+        items.forEach({ rebuildRelativePaths(for: $0, parentFolder: folder.relativePath) })
       }
     }
 
@@ -844,57 +955,65 @@ public final class LibraryService: LibraryServiceProtocol {
   }
 
   public func updateDetails(at relativePath: String, details: String) {
-    guard let item = self.getItem(with: relativePath) else { return }
+    guard let item = self.getItemReference(with: relativePath) else { return }
 
     item.details = details
     self.dataManager.saveContext()
   }
 
-  // This handles the Core Data objects creation from the Import operation
-  // This method doesn't handle moving files on disk, only creating the core data structure for a given file tree
-  public func insertItems(from files: [URL], into folder: Folder?, library: Library, processedItems: [LibraryItem]?) -> [LibraryItem] {
-    guard !files.isEmpty else {
-      self.dataManager.saveContext()
-      return processedItems ?? []
-    }
-
-    var remainingFiles = files
-    var resultingFiles = processedItems
-
-    let nextFile = remainingFiles.removeFirst()
-    let context = self.dataManager.getContext()
-
-    let libraryItem: LibraryItem
-
-    if let attributes = try? FileManager.default.attributesOfItem(atPath: nextFile.path),
-       let type = attributes[.type] as? FileAttributeType,
-       type == .typeDirectory {
-      let folder = Folder(from: nextFile, context: context)
-      self.handleDirectory(item: nextFile, folder: folder, library: library)
-      libraryItem = folder
-    } else {
-      libraryItem = Book(from: nextFile, context: context)
-    }
-
-    if let folder = folder {
-      folder.insert(item: libraryItem)
-    } else {
-      library.insert(item: libraryItem)
-    }
-
-    resultingFiles?.append(libraryItem)
-
-    return self.insertItems(from: remainingFiles, into: folder, library: library, processedItems: resultingFiles)
+  @discardableResult
+  public func insertItems(from files: [URL]) -> [String] {
+    return insertItems(from: files, parentPath: nil)
   }
 
-  public func handleDirectory(item: URL, folder: Folder, library: Library) {
+  /// This handles the Core Data objects creation from the Import operation. This method doesn't handle moving files on disk,
+  /// as we don't want this method to throw, and the files are already in the processed folder
+  @discardableResult
+  func insertItems(from files: [URL], parentPath: String? = nil) -> [String] {
+    let context = dataManager.getContext()
+    let library = getLibraryReference()
+
+    var processedFiles = [String]()
+    for file in files {
+      let libraryItem: LibraryItem
+
+      if let attributes = try? FileManager.default.attributesOfItem(atPath: file.path),
+         let type = attributes[.type] as? FileAttributeType,
+         type == .typeDirectory {
+        libraryItem = Folder(from: file, context: context)
+        /// Kick-off separate function to handle instatiating the folder contents
+        self.handleDirectory(file)
+      } else {
+        libraryItem = Book(from: file, context: context)
+      }
+
+      libraryItem.orderRank = getNextOrderRank(in: parentPath)
+
+      if let parentPath,
+         let parentFolder = getItemReference(with: parentPath) as? Folder {
+        parentFolder.addToItems(libraryItem)
+        /// update details on parent folder
+      } else {
+        library.addToItems(libraryItem)
+      }
+
+      processedFiles.append(libraryItem.relativePath)
+      dataManager.saveContext()
+    }
+
+    return processedFiles
+  }
+
+  private func handleDirectory(_ folderURL: URL) {
     let enumerator = FileManager.default.enumerator(
-      at: item,
+      at: folderURL,
       includingPropertiesForKeys: [.creationDateKey, .isDirectoryKey],
       options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants], errorHandler: { (url, error) -> Bool in
         print("directoryEnumerator error at \(url): ", error)
         return true
-      })!
+      }
+    )!
+
     var files = [URL]()
     for case let fileURL as URL in enumerator {
       files.append(fileURL)
@@ -902,60 +1021,90 @@ public final class LibraryService: LibraryServiceProtocol {
 
     let sortDescriptor = NSSortDescriptor(key: "path", ascending: true, selector: #selector(NSString.localizedStandardCompare(_:)))
     let orderedSet = NSOrderedSet(array: files)
-    // swiftlint:disable force_cast
+
     let sortedFiles = orderedSet.sortedArray(using: [sortDescriptor]) as! [URL]
 
-    _ = self.insertItems(from: sortedFiles, into: folder, library: library, processedItems: [])
+    let parentPath = folderURL.relativePath(to: DataManager.getProcessedFolderURL())
+    insertItems(from: sortedFiles, parentPath: parentPath)
+    rebuildFolderDetails(parentPath)
   }
 
-  public func moveItems(_ items: [LibraryItem], inside relativePath: String?, moveFiles: Bool) throws {
-    let processedFolderURL = DataManager.getProcessedFolderURL()
-
+  public func moveItems(_ items: [String], inside relativePath: String?) throws {
     var folder: Folder?
-    var library: Library?
+    let library = self.getLibraryReference()
 
-    // insert into existing folder or library at index
-    if let relativePath = relativePath {
-      // The folder object must exist
-      folder = self.findFolder(with: relativePath)!
-    } else {
-      library = self.getLibraryReference()
+    if let relativePath = relativePath,
+       let folderReference = getItemReference(with: relativePath) as? Folder {
+      folder = folderReference
     }
 
-    for item in items {
-      if moveFiles {
-        let sourceUrl = processedFolderURL
-          .appendingPathComponent(item.relativePath)
-        let destinationUrl: URL
+    /// Preserve original parent path to rebuild order rank later
+    var originalParentPath: String?
+    if let firstPath = items.first {
+      originalParentPath = getItemProperty(
+        #keyPath(LibraryItem.folder.relativePath),
+        relativePath: firstPath
+       ) as? String
+    }
 
-        if let folder = folder {
-          destinationUrl = processedFolderURL
-            .appendingPathComponent(folder.relativePath)
-            .appendingPathComponent(item.originalFileName)
-        } else {
-          destinationUrl = processedFolderURL
-            .appendingPathComponent(item.originalFileName)
-        }
+    let processedFolderURL = DataManager.getProcessedFolderURL()
+    let startingIndex = getNextOrderRank(in: relativePath)
 
+    for (index, itemPath) in items.enumerated() {
+      guard let libraryItem = getItemReference(with: itemPath) else { continue }
+
+      /// If it exists, move the file first
+      let sourceUrl = processedFolderURL
+        .appendingPathComponent(itemPath)
+      let destinationUrl: URL
+
+      if let folder = folder {
+        destinationUrl = processedFolderURL
+          .appendingPathComponent(folder.relativePath)
+          .appendingPathComponent(sourceUrl.lastPathComponent)
+      } else {
+        destinationUrl = processedFolderURL
+          .appendingPathComponent(sourceUrl.lastPathComponent)
+      }
+
+      if FileManager.default.fileExists(atPath: sourceUrl.path) {
         try FileManager.default.moveItem(
           at: sourceUrl,
           to: destinationUrl
         )
       }
 
+      libraryItem.orderRank = startingIndex + Int16(index)
+      rebuildRelativePaths(for: libraryItem, parentFolder: relativePath)
+
       if let folder = folder {
-        folder.insert(item: item)
+        /// Remove reference to Library if it exists
+        if hasItemProperty(#keyPath(LibraryItem.library), relativePath: itemPath) {
+          library.removeFromItems(libraryItem)
+        }
+
+        folder.addToItems(libraryItem)
       } else {
-        library?.insert(item: item)
+        if let parentPath = getItemProperty(
+          #keyPath(LibraryItem.folder.relativePath),
+          relativePath: itemPath
+        ) as? String,
+           let parentFolder = getItemReference(with: parentPath) as? Folder {
+          parentFolder.removeFromItems(libraryItem)
+          /// update details
+        }
+        library.addToItems(libraryItem)
       }
     }
 
-    if let folder = folder {
-      folder.updateCompletionState()
-      folder.updateDetails()
-    }
-
     self.dataManager.saveContext()
+
+    if let folder {
+      rebuildFolderDetails(folder.relativePath)
+    }
+    if let originalParentPath {
+      rebuildOrderRank(in: originalParentPath)
+    }
   }
 
   public func delete(_ items: [SimpleLibraryItem], mode: DeleteMode) throws {
@@ -968,7 +1117,11 @@ public final class LibraryService: LibraryServiceProtocol {
         case .deep:
           try deleteFolderContents(item)
         case .shallow:
-          try moveFolderContents(item)
+          // Move children to parent folder or library
+          if let items = getItemIdentifiers(in: item.relativePath),
+             !items.isEmpty {
+            try moveItems(items, inside: item.parentFolder)
+          }
         }
 
         try deleteItem(item)
@@ -993,43 +1146,6 @@ public final class LibraryService: LibraryServiceProtocol {
     guard let items = fetchContents(at: folder.relativePath, limit: nil, offset: nil) else { return }
 
     try self.delete(items, mode: .deep)
-  }
-
-  func moveFolderContents(_ folder: SimpleLibraryItem) throws {
-    // Move children to parent folder or library
-    guard let items = fetchRawContents(
-      at: folder.relativePath,
-      propertiesToFetch: [#keyPath(LibraryItem.relativePath)]
-    ) else { return }
-
-    var parentFolderReference: Folder?
-
-    if let parentFolderPath = folder.parentFolder,
-       let parentFolder = getItemReference(with: parentFolderPath) as? Folder {
-      parentFolderReference = parentFolder
-    }
-
-    lazy var library = getLibraryReference()
-
-    for item in items {
-      guard let fileURL = item.fileURL else { continue }
-
-      if let parentFolder = parentFolderReference,
-         let parentURL = parentFolder.fileURL {
-        try FileManager.default.moveItem(
-          at: fileURL,
-          to: parentURL.appendingPathComponent(fileURL.lastPathComponent)
-        )
-
-        parentFolder.insert(item: item)
-      } else {
-        try FileManager.default.moveItem(
-          at: fileURL,
-          to: DataManager.getProcessedFolderURL().appendingPathComponent(fileURL.lastPathComponent)
-        )
-        library.insert(item: item)
-      }
-    }
   }
 
   /// Internal function to calculate the entire folder's duration
@@ -1116,12 +1232,12 @@ public final class LibraryService: LibraryServiceProtocol {
   }
 
   public func rebuildFolderDetails(_ relativePath: String) {
-    guard let folder = findFolder(with: relativePath) else { return }
+    guard let folder = getItemReference(with: relativePath) as? Folder else { return }
 
     let (progress, contentsCount) = calculateFolderProgress(at: relativePath)
     folder.percentCompleted = progress
     folder.duration = calculateFolderDuration(at: relativePath)
-    folder.updateDetails(with: contentsCount)
+    folder.details = String.localizedStringWithFormat("files_title".localized, contentsCount)
 
     dataManager.saveContext()
 
@@ -1134,7 +1250,7 @@ public final class LibraryService: LibraryServiceProtocol {
   }
 
   func recursiveFolderLastPlayedDateUpdate(from relativePath: String, date: Date) {
-    guard let folder = findFolder(with: relativePath) else { return }
+    guard let folder = getItemReference(with: relativePath) as? Folder else { return }
 
     folder.lastPlayDate = date
 
@@ -1147,7 +1263,7 @@ public final class LibraryService: LibraryServiceProtocol {
   }
 
   public func recursiveFolderProgressUpdate(from relativePath: String) {
-    guard let folder = findFolder(with: relativePath) else { return }
+    guard let folder = getItemReference(with: relativePath) as? Folder else { return }
 
     let (progress, _) = calculateFolderProgress(at: relativePath)
     folder.percentCompleted = progress

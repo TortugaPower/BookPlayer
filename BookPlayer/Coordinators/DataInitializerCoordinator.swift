@@ -133,9 +133,10 @@ class DataInitializerCoordinator {
 
       let libraryService = LibraryService(dataManager: dataManager)
 
-      let library = libraryService.getLibrary()
+      /// Create library on disk
+      _ = libraryService.getLibrary()
 
-      _ = libraryService.insertItems(from: files, into: nil, library: library, processedItems: [])
+      libraryService.insertItems(from: files)
 
       self?.onFinish?(stack)
     }

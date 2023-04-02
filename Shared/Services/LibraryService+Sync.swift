@@ -72,9 +72,8 @@ extension LibraryService: LibrarySyncProtocol {
     )
 
     // insert into existing folder or library at index
-    if let relativePath = parentFolder {
-      // The folder object must exist
-      let folder = self.findFolder(with: relativePath)!
+    if let relativePath = parentFolder,
+       let folder = getItemReference(with: relativePath) as? Folder {
       folder.addToItems(newFolder)
     } else {
       let library = self.getLibraryReference()
@@ -196,31 +195,4 @@ extension LibraryService: LibrarySyncProtocol {
 
     return try? self.dataManager.getContext().fetch(fetchRequest)
   }
-
-  func getItems(notIn relativePaths: [String], parentFolder: String?) -> [SimpleLibraryItem]? {
-      let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
-      fetchRequest.propertiesToFetch = SimpleLibraryItem.fetchRequestProperties
-      fetchRequest.resultType = .dictionaryResultType
-
-      if let parentFolder = parentFolder {
-        fetchRequest.predicate = NSPredicate(
-          format: "%K == %@ AND NOT (%K IN %@)",
-          #keyPath(LibraryItem.folder.relativePath),
-          parentFolder,
-          #keyPath(LibraryItem.relativePath),
-          relativePaths
-        )
-      } else {
-        fetchRequest.predicate = NSPredicate(
-          format: "%K != nil AND NOT (%K IN %@)",
-          #keyPath(LibraryItem.library),
-          #keyPath(LibraryItem.relativePath),
-          relativePaths
-        )
-      }
-
-      let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
-
-      return parseFetchedItems(from: results)
-    }
 }

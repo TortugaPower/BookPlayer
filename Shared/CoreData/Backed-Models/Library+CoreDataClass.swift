@@ -16,30 +16,6 @@ public class Library: NSManagedObject, Codable {
         return self.items?.allObjects as? [LibraryItem] ?? []
     }
 
-  public func insert(item: LibraryItem) {
-    if let parent = item.folder {
-      parent.removeFromItems(item)
-      parent.updateCompletionState()
-      parent.updateDetails()
-    }
-
-    if let library = item.library {
-      library.removeFromItems(item)
-    }
-
-    self.addToItems(item)
-    self.rebuildRelativePaths(for: item)
-  }
-
-  public func rebuildRelativePaths(for item: LibraryItem) {
-    item.relativePath = item.originalFileName
-
-    if let folder = item as? Folder,
-       let items = folder.items?.allObjects as? [LibraryItem] {
-      items.forEach({ folder.rebuildRelativePaths(for: $0) })
-    }
-  }
-
     enum CodingKeys: String, CodingKey {
         case items, books, folders, lastPlayedItem, currentTheme
     }

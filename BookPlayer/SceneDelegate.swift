@@ -76,7 +76,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     mainCoordinator.syncService.isActive
 
-
     // Check if the app is on the PlayerViewController
     if mainCoordinator.hasPlayerShown() {
       // Notify controller to see if it should ask for review
