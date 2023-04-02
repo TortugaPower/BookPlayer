@@ -1029,6 +1029,30 @@ public final class LibraryService: LibraryServiceProtocol {
     rebuildFolderDetails(parentPath)
   }
 
+  private func moveFileIfNeeded(
+    from sourceUrl: URL,
+    processedFolderURL: URL,
+    parentPath: String?
+  ) throws {
+    guard FileManager.default.fileExists(atPath: sourceUrl.path) else { return }
+
+    let destinationUrl: URL
+
+    if let parentPath {
+      destinationUrl = processedFolderURL
+        .appendingPathComponent(parentPath)
+        .appendingPathComponent(sourceUrl.lastPathComponent)
+    } else {
+      destinationUrl = processedFolderURL
+        .appendingPathComponent(sourceUrl.lastPathComponent)
+    }
+
+    try FileManager.default.moveItem(
+      at: sourceUrl,
+      to: destinationUrl
+    )
+  }
+
   public func moveItems(_ items: [String], inside relativePath: String?) throws {
     var folder: Folder?
     let library = self.getLibraryReference()
@@ -1053,26 +1077,14 @@ public final class LibraryService: LibraryServiceProtocol {
     for (index, itemPath) in items.enumerated() {
       guard let libraryItem = getItemReference(with: itemPath) else { continue }
 
-      /// If it exists, move the file first
       let sourceUrl = processedFolderURL
         .appendingPathComponent(itemPath)
-      let destinationUrl: URL
 
-      if let folder = folder {
-        destinationUrl = processedFolderURL
-          .appendingPathComponent(folder.relativePath)
-          .appendingPathComponent(sourceUrl.lastPathComponent)
-      } else {
-        destinationUrl = processedFolderURL
-          .appendingPathComponent(sourceUrl.lastPathComponent)
-      }
-
-      if FileManager.default.fileExists(atPath: sourceUrl.path) {
-        try FileManager.default.moveItem(
-          at: sourceUrl,
-          to: destinationUrl
-        )
-      }
+      try moveFileIfNeeded(
+        from: sourceUrl,
+        processedFolderURL: processedFolderURL,
+        parentPath: folder?.relativePath
+      )
 
       libraryItem.orderRank = startingIndex + Int16(index)
       rebuildRelativePaths(for: libraryItem, parentFolder: relativePath)
@@ -1082,7 +1094,6 @@ public final class LibraryService: LibraryServiceProtocol {
         if hasItemProperty(#keyPath(LibraryItem.library), relativePath: itemPath) {
           library.removeFromItems(libraryItem)
         }
-
         folder.addToItems(libraryItem)
       } else {
         if let parentPath = getItemProperty(
@@ -1091,7 +1102,6 @@ public final class LibraryService: LibraryServiceProtocol {
         ) as? String,
            let parentFolder = getItemReference(with: parentPath) as? Folder {
           parentFolder.removeFromItems(libraryItem)
-          /// update details
         }
         library.addToItems(libraryItem)
       }
