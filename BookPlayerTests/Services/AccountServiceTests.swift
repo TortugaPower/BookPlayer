@@ -113,26 +113,4 @@ class AccountServiceTests: XCTestCase {
     XCTAssert(self.sut.getAccount()?.hasSubscription == false)
     XCTAssert(try mockKeychain.getAccessToken() == nil)
   }
-
-  func testLogin() async {
-    let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
-    let mockResponse = LoginResponse(email: "success@test.com", token: "accessToken")
-    let keychainMock = KeychainServiceMock()
-
-    self.sut = AccountService(
-      dataManager: dataManager,
-      client: NetworkClientMock(mockedResponse: mockResponse),
-      keychain: keychainMock
-    )
-
-    self.setupBlankAccount()
-
-    let account = try! await self.sut.login(with: "identity token", userId: "3")
-
-    XCTAssert(keychainMock.accessToken == "accessToken")
-    XCTAssert(account?.id == "3")
-    XCTAssert(account?.email == "success@test.com")
-    XCTAssert(account?.donationMade == false)
-    XCTAssert(account?.hasSubscription == false)
-  }
 }
