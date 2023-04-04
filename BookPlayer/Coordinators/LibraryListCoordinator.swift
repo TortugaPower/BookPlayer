@@ -39,6 +39,7 @@ class LibraryListCoordinator: ItemListCoordinator {
     bindObservers()
   }
 
+  // swiftlint:disable:next function_body_length
   override func start() {
     let vc = ItemListViewController.instantiate(from: .Main)
     let viewModel = ItemListViewModel(

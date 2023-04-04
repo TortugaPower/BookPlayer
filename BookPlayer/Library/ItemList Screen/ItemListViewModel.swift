@@ -623,6 +623,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     ))
   }
 
+  // swiftlint:disable:next function_body_length
   func showMoreOptions(selectedItems: [SimpleLibraryItem]) {
     guard let item = selectedItems.first else { return }
 

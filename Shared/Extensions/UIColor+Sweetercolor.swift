@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Jathu Satkunarajah. All rights reserved.
 //
 
-// swiftlint:disable identifier_name function_body_length file_length
+// swiftlint:disable identifier_name file_length
 
 import UIKit
 
@@ -365,6 +365,7 @@ extension UIColor {
 
      - returns: A CGFloat representing the deltaE
      */
+    // swiftlint:disable:next function_body_length
     func CIEDE2000(compare color: UIColor) -> CGFloat {
         // CIEDE2000, Sharma 2004 -> http://www.ece.rochester.edu/~gsharma/ciede2000/ciede2000noteCRNA.pdf
 
@@ -793,3 +794,5 @@ public struct LCHColor {
         return toXYZ().toRGB()
     }
 }
+
+// swiftlint:enable identifier_name file_length
