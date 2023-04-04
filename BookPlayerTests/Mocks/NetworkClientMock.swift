@@ -16,7 +16,7 @@ class NetworkClientMock: NetworkClientProtocol {
     taskDescription: String?,
     delegate: URLSessionTaskDelegate
   ) -> URLSessionUploadTask {
-    return URLSessionUploadTask()
+    return URLSession.shared.uploadTask(with: URLRequest(url: URL(string: "https://google.com")!), from: Data())
   }
 
   typealias RawResponse = Decodable
@@ -59,6 +59,6 @@ class NetworkClientMock: NetworkClientProtocol {
     taskDescription: String?,
     delegate: URLSessionTaskDelegate
   ) -> URLSessionDownloadTask {
-    return URLSessionDownloadTask()
+    return URLSession.shared.downloadTask(with: URLRequest(url: URL(string: "https://google.com")!))
   }
 }

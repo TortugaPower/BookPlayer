@@ -19,17 +19,6 @@ import StoreKit
 import UIKit
 import WatchConnectivity
 
-typealias CoreServices = (
-  dataManager: DataManager,
-  accountService: AccountServiceProtocol,
-  syncService: SyncServiceProtocol,
-  libraryService: LibraryServiceProtocol,
-  playbackService: PlaybackServiceProtocol,
-  playerManager: PlayerManagerProtocol,
-  watchService: PhoneWatchConnectivityService,
-  socketService: SocketServiceProtocol
-)
-
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
   static weak var shared: AppDelegate?
@@ -171,15 +160,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       AppDelegate.shared?.watchConnectivityService = watchService
     }
 
-    return (
-      dataManager,
-      accountService,
-      syncService,
-      libraryService,
-      playbackService,
-      playerManager,
-      watchService,
-      socketService
+    return CoreServices(
+      dataManager: dataManager,
+      accountService: accountService,
+      syncService: syncService,
+      libraryService: libraryService,
+      playbackService: playbackService,
+      playerManager: playerManager,
+      watchService: watchService,
+      socketService: socketService
     )
   }
 

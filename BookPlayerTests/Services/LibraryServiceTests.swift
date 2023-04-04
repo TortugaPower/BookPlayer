@@ -232,8 +232,6 @@ class LibraryServiceTests: XCTestCase {
 
     self.sut.dataManager.saveContext()
 
-    let testURL = DataManager.getProcessedFolderURL().appendingPathComponent("test1-folder")
-
     let folder = self.sut.getItemReference(with: "test1-folder")
     XCTAssert(folder?.relativePath == "test1-folder")
   }
@@ -679,7 +677,7 @@ class LibraryServiceTests: XCTestCase {
       duration: 100
     )
 
-    try self.sut.renameItem(at: book.relativePath, with: "rename-test")
+    _ = try self.sut.renameItem(at: book.relativePath, with: "rename-test")
     XCTAssert(book.title == "rename-test")
   }
 
@@ -694,14 +692,14 @@ class LibraryServiceTests: XCTestCase {
     )
     try self.sut.moveItems([folder2.relativePath], inside: folder.relativePath)
 
-    try self.sut.renameItem(at: folder.relativePath, with: "rename-test")
+    _ = try self.sut.renameItem(at: folder.relativePath, with: "rename-test")
     XCTAssert(folder.title == "rename-test")
     XCTAssert(folder.relativePath == "rename-test")
     XCTAssert(folder.originalFileName == "rename-test")
     XCTAssert(FileManager.default.fileExists(atPath: folder.fileURL!.path))
 
     let fetchedFolder2 = sut.getItem(with: "rename-test/test-folder2")!
-    try self.sut.renameItem(at: fetchedFolder2.relativePath, with: "rename-test2")
+    _ = try self.sut.renameItem(at: fetchedFolder2.relativePath, with: "rename-test2")
     XCTAssert(fetchedFolder2.title == "rename-test2")
     XCTAssert(fetchedFolder2.relativePath == "rename-test/rename-test2")
     XCTAssert(fetchedFolder2.originalFileName == "rename-test2")
@@ -1138,7 +1136,7 @@ class ModifyLibraryTests: LibraryServiceTests {
 
     try sut.moveItems([book3.relativePath, book2.relativePath, book1.relativePath], inside: nil)
 
-    let contents = try sut.fetchContents(at: nil, limit: nil, offset: nil)
+    let contents = sut.fetchContents(at: nil, limit: nil, offset: nil)
     XCTAssert(contents?[0].title == book3.title)
     XCTAssert(contents?[2].title == book1.title)
 
@@ -1149,7 +1147,7 @@ class ModifyLibraryTests: LibraryServiceTests {
       destinationIndexPath: IndexPath(row: 2, section: .data)
     )
 
-    let sortedContents = try sut.fetchContents(at: nil, limit: nil, offset: nil)
+    let sortedContents = sut.fetchContents(at: nil, limit: nil, offset: nil)
 
     XCTAssert(sortedContents?[0].title == book2.title)
     XCTAssert(sortedContents?[2].title == book3.title)
@@ -1287,8 +1285,8 @@ class ModifyLibraryTests: LibraryServiceTests {
     let emptyResult = self.sut.getItemsToSync(remoteIdentifiers: [])
     XCTAssert(emptyResult?.isEmpty == true)
 
-    let folder = try! self.sut.createFolder(with: "test-folder", inside: nil)
-    let folder2 = try! self.sut.createFolder(with: "test-folder2", inside: nil)
+    _ = try! self.sut.createFolder(with: "test-folder", inside: nil)
+    _ = try! self.sut.createFolder(with: "test-folder2", inside: nil)
 
     let secondResult = self.sut.getItemsToSync(remoteIdentifiers: [])
     XCTAssert(secondResult?.count == 2)
