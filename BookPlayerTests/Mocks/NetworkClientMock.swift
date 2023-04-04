@@ -10,6 +10,15 @@ import Foundation
 import BookPlayerKit
 
 class NetworkClientMock: NetworkClientProtocol {
+  func upload(
+    _ fileURL: URL,
+    remoteURL: URL,
+    taskDescription: String?,
+    delegate: URLSessionTaskDelegate
+  ) -> URLSessionUploadTask {
+    return URLSessionUploadTask()
+  }
+
   typealias RawResponse = Decodable
   let mockedResponse: RawResponse
 

@@ -131,7 +131,7 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
   func createBook(from item: StorageItem) throws {
     let book = self.libraryService.createBook(from: item.fileURL)
     try moveBookFile(from: item, with: book)
-    try self.libraryService.moveItems([book], inside: nil, moveFiles: false)
+    try libraryService.moveItems([book.relativePath], inside: nil)
     reloadLibraryItems()
   }
 
@@ -220,7 +220,7 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
 
     // Relink book object if it's orphaned
     if fetchedBook.getLibrary() == nil {
-      try self.libraryService.moveItems([fetchedBook], inside: nil, moveFiles: false)
+      try libraryService.moveItems([fetchedBook.relativePath], inside: nil)
       reloadLibraryItems()
     }
 

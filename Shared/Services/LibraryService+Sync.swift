@@ -55,7 +55,7 @@ extension LibraryService: LibrarySyncProtocol {
        let folder = self.getItem(with: relativePath) as? Folder {
       folder.addToItems(newBook)
     } else {
-      let library = self.getLibrary()
+      let library = self.getLibraryReference()
       library.addToItems(newBook)
     }
 
@@ -72,12 +72,11 @@ extension LibraryService: LibrarySyncProtocol {
     )
 
     // insert into existing folder or library at index
-    if let relativePath = parentFolder {
-      // The folder object must exist
-      let folder = self.findFolder(with: relativePath)!
+    if let relativePath = parentFolder,
+       let folder = getItemReference(with: relativePath) as? Folder {
       folder.addToItems(newFolder)
     } else {
-      let library = self.getLibrary()
+      let library = self.getLibraryReference()
       library.addToItems(newFolder)
     }
 
@@ -168,8 +167,7 @@ extension LibraryService: LibrarySyncProtocol {
 
   public func removeItems(notIn relativePaths: [String], parentFolder: String?) throws {
     guard
-      let itemIdentifiers = getItemIdentifiers(notIn: relativePaths, parentFolder: parentFolder),
-      let items = getItems(in: itemIdentifiers, parentFolder: parentFolder)
+      let items = getItems(notIn: relativePaths, parentFolder: parentFolder)
     else { return }
 
     try delete(items, mode: .deep)
@@ -197,31 +195,4 @@ extension LibraryService: LibrarySyncProtocol {
 
     return try? self.dataManager.getContext().fetch(fetchRequest)
   }
-
-  func getItemIdentifiers(notIn relativePaths: [String], parentFolder: String?) -> [String]? {
-      let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
-      fetchRequest.propertiesToFetch = ["relativePath"]
-      fetchRequest.resultType = .dictionaryResultType
-
-      if let parentFolder = parentFolder {
-        fetchRequest.predicate = NSPredicate(
-          format: "%K == %@ AND NOT (%K IN %@)",
-          #keyPath(LibraryItem.folder.relativePath),
-          parentFolder,
-          #keyPath(LibraryItem.relativePath),
-          relativePaths
-        )
-      } else {
-        fetchRequest.predicate = NSPredicate(
-          format: "%K != nil AND NOT (%K IN %@)",
-          #keyPath(LibraryItem.library),
-          #keyPath(LibraryItem.relativePath),
-          relativePaths
-        )
-      }
-
-      let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
-
-      return results?.compactMap({ $0["relativePath"] as? String })
-    }
 }

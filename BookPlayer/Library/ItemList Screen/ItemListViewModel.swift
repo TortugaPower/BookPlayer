@@ -351,8 +351,8 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   func createFolder(with title: String, items: [String]? = nil, type: SimpleItemType) {
     do {
       let folder = try self.libraryService.createFolder(with: title, inside: self.folderRelativePath)
-      if let fetchedItems = items?.compactMap({ self.libraryService.getItem(with: $0 )}) {
-        try self.libraryService.moveItems(fetchedItems, inside: folder.relativePath, moveFiles: true)
+      if let fetchedItems = items {
+        try libraryService.moveItems(fetchedItems, inside: folder.relativePath)
       }
       try self.libraryService.updateFolder(at: folder.relativePath, type: type)
       libraryService.rebuildFolderDetails(folder.relativePath)
@@ -393,11 +393,11 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func handleMoveIntoLibrary(items: [SimpleLibraryItem]) {
-    let selectedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
+    let selectedItems = items.compactMap({ $0.relativePath })
     let parentFolder = items.first?.parentFolder
 
     do {
-      try self.libraryService.moveItems(selectedItems, inside: nil, moveFiles: true)
+      try libraryService.moveItems(selectedItems, inside: nil)
       if let parentFolder {
         libraryService.rebuildFolderDetails(parentFolder)
       }
@@ -413,11 +413,10 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   func handleMoveIntoFolder(_ folder: SimpleLibraryItem, items: [SimpleLibraryItem]) {
     ArtworkService.removeCache(for: folder.relativePath)
 
-    let fetchedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
+    let fetchedItems = items.compactMap({ $0.relativePath })
 
     do {
-      try self.libraryService.moveItems(fetchedItems, inside: folder.relativePath, moveFiles: true)
-      self.libraryService.rebuildFolderDetails(folder.relativePath)
+      try libraryService.moveItems(fetchedItems, inside: folder.relativePath)
     } catch {
       sendEvent(.showAlert(
         content: BPAlertContent.errorAlert(message: error.localizedDescription)
@@ -428,13 +427,14 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func handleDelete(items: [SimpleLibraryItem], mode: DeleteMode) {
-    let selectedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
     let parentFolder = items.first?.parentFolder
 
     do {
-      try self.libraryService.delete(selectedItems, mode: mode)
+      try self.libraryService.delete(items, mode: mode)
+
       if let parentFolder {
         libraryService.rebuildFolderDetails(parentFolder)
+        // update folder details to server
       }
     } catch {
       sendEvent(.showAlert(
@@ -938,16 +938,11 @@ extension ItemListViewModel {
   }
 
   func handleOperationCompletion(_ files: [URL]) {
-    let library = self.libraryService.getLibrary()
-    let processedItems = self.libraryService.insertItems(from: files, into: nil, library: library, processedItems: [])
+    let processedItems = libraryService.insertItems(from: files)
 
     do {
-      let shouldMoveFiles = self.folderRelativePath != nil
-
-      try self.libraryService.moveItems(processedItems, inside: self.folderRelativePath, moveFiles: shouldMoveFiles)
-      if let folderRelativePath = self.folderRelativePath {
-        libraryService.rebuildFolderDetails(folderRelativePath)
-      }
+      /// Move imported files to current selected folder so the user can see them
+      try libraryService.moveItems(processedItems, inside: folderRelativePath)
     } catch {
       sendEvent(.showAlert(
         content: BPAlertContent.errorAlert(message: error.localizedDescription)
@@ -957,29 +952,22 @@ extension ItemListViewModel {
 
     self.coordinator.reloadItemsWithPadding(padding: processedItems.count)
 
-    var availableFolders = [SimpleLibraryItem]()
+    let availableFolders = self.libraryService.getItems(
+      notIn: processedItems,
+      parentFolder: folderRelativePath
+    )?.filter({ $0.type == .folder }) ?? []
 
-    if let existingItems = self.libraryService.fetchContents(
-      at: self.folderRelativePath,
-      limit: nil,
-      offset: nil
-    ) {
-      let existingFolders = existingItems.filter({ $0.type == .folder })
-
-      for folder in existingFolders {
-        if processedItems.contains(where: { $0.relativePath == folder.relativePath }) { continue }
-
-        availableFolders.append(folder)
-      }
-    }
-
-    if processedItems.count > 1 {
-      showOperationCompletedAlert(with: processedItems, availableFolders: availableFolders)
-    }
+    showOperationCompletedAlert(with: processedItems, availableFolders: availableFolders)
   }
 
-  func showOperationCompletedAlert(with items: [LibraryItem], availableFolders: [SimpleLibraryItem]) {
+  func showOperationCompletedAlert(with items: [String], availableFolders: [SimpleLibraryItem]) {
     let hasParentFolder = folderRelativePath != nil
+
+    var firstTitle: String?
+    if let relativePath = items.first {
+      firstTitle = libraryService.getItemProperty(#keyPath(LibraryItem.title), relativePath: relativePath) as? String
+    }
+
     var actions = [BPActionItem]()
 
     if hasParentFolder {
@@ -997,12 +985,12 @@ extension ItemListViewModel {
 
     actions.append(BPActionItem(
       title: "new_playlist_button".localized,
-      handler: { [items, weak self] in
-        let placeholder = items.first?.title ?? "new_playlist_button".localized
+      handler: { [firstTitle, weak self] in
+        let placeholder = firstTitle ?? "new_playlist_button".localized
 
         self?.showCreateFolderAlert(
           placeholder: placeholder,
-          with: items.map { $0.relativePath! },
+          with: items,
           type: .folder
         )
       }
@@ -1024,15 +1012,10 @@ extension ItemListViewModel {
     actions.append(BPActionItem(
       title: "bound_books_create_button".localized,
       isEnabled: items is [Book],
-      handler: { [items, weak self] in
-        let placeholder = items.first?.title
-        ?? "bound_books_new_title_placeholder".localized
+      handler: { [firstTitle, weak self] in
+        let placeholder = firstTitle ?? "bound_books_new_title_placeholder".localized
 
-        self?.showCreateFolderAlert(
-          placeholder: placeholder,
-          with: items.map { $0.relativePath! },
-          type: .bound
-        )
+        self?.showCreateFolderAlert(placeholder: placeholder, with: items, type: .bound)
       }
     ))
 
@@ -1045,14 +1028,10 @@ extension ItemListViewModel {
     ))
   }
 
-  func importIntoFolder(_ folder: SimpleLibraryItem, items: [LibraryItem], type: SimpleItemType) {
-    let fetchedItems = items.compactMap({ self.libraryService.getItem(with: $0.relativePath )})
-
+  func importIntoFolder(_ folder: SimpleLibraryItem, items: [String], type: SimpleItemType) {
     do {
-      try self.libraryService.moveItems(fetchedItems, inside: folder.relativePath, moveFiles: true)
-      try self.libraryService.updateFolder(at: folder.relativePath, type: type)
-
-      libraryService.rebuildFolderDetails(folder.relativePath)
+      try libraryService.moveItems(items, inside: folder.relativePath)
+      try libraryService.updateFolder(at: folder.relativePath, type: type)
     } catch {
       sendEvent(.showAlert(
         content: BPAlertContent.errorAlert(message: error.localizedDescription)
@@ -1062,9 +1041,9 @@ extension ItemListViewModel {
     self.coordinator.reloadItemsWithPadding()
   }
 
-  func handleInsertionIntoLibrary(_ items: [LibraryItem]) {
+  func handleInsertionIntoLibrary(_ items: [String]) {
     do {
-      try self.libraryService.moveItems(items, inside: nil, moveFiles: true)
+      try libraryService.moveItems(items, inside: nil)
     } catch {
       sendEvent(.showAlert(
         content: BPAlertContent.errorAlert(message: error.localizedDescription)

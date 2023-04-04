@@ -13,9 +13,6 @@ import UIKit
 
 @objc(Folder)
 public class Folder: LibraryItem {
-  var cachedDuration: Double?
-  var cachedProgress: Double?
-
   // MARK: - Init
 
   public convenience init(title: String, context: NSManagedObjectContext) {
@@ -39,78 +36,6 @@ public class Folder: LibraryItem {
     self.originalFileName = fileTitle
     self.type = .folder
     self.details = String.localizedStringWithFormat("files_title".localized, 0)
-  }
-
-    // MARK: - Methods
-
-    public func resetCachedProgress() {
-        self.cachedProgress = nil
-        self.cachedDuration = nil
-        self.folder?.resetCachedProgress()
-    }
-
-    func totalDuration() -> Double {
-        guard let items = self.items?.allObjects as? [LibraryItem] else {
-            return 0.0
-        }
-
-        let totalDuration = items.reduce(0.0, {$0 + $1.duration})
-
-        guard totalDuration > 0 else {
-            return 0.0
-        }
-
-        return totalDuration
-    }
-
-  public func updateDetails(with count: Int? = nil) {
-    let count = count ?? self.items?.count ?? 0
-
-    self.details = String.localizedStringWithFormat("files_title".localized, count)
-  }
-
-  public func updateCompletionState() {
-    self.resetCachedProgress()
-    guard let items = self.items?.allObjects as? [LibraryItem] else { return }
-
-    self.isFinished = !items.contains(where: { !$0.isFinished })
-  }
-
-  public func insert(item: LibraryItem) {
-    if let parent = item.folder {
-      parent.removeFromItems(item)
-      parent.updateCompletionState()
-      parent.updateDetails()
-    }
-
-    if let library = item.library {
-      library.removeFromItems(item)
-    }
-
-    self.addToItems(item)
-    self.rebuildRelativePaths(for: item)
-    self.updateDetails()
-  }
-
-  public func rebuildRelativePaths(for item: LibraryItem) {
-    item.relativePath = self.relativePathBuilder(for: item)
-
-    if let folder = item as? Folder,
-       let items = folder.items?.allObjects as? [LibraryItem] {
-      items.forEach({ folder.rebuildRelativePaths(for: $0) })
-    }
-  }
-
-    public func relativePathBuilder(for item: LibraryItem) -> String {
-        let itemRelativePath = item.relativePath.split(separator: "/").map({ String($0) }).last ?? item.relativePath
-
-        return "\(self.relativePath!)/\(itemRelativePath!)"
-    }
-
-  public override func info() -> String {
-    let count = self.items?.allObjects.count ?? 0
-
-    return String.localizedStringWithFormat("files_title".localized, count)
   }
 
     enum CodingKeys: String, CodingKey {
