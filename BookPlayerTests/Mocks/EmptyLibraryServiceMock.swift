@@ -12,6 +12,26 @@ import Foundation
 
 /// Empty class meant to be subclassed to adjust service for test conditions
 class EmptyLibraryServiceMock: LibraryServiceProtocol {
+  func getLibraryReference() -> BookPlayerKit.Library {
+    return Library()
+  }
+
+  func getItemReference(with relativePath: String) -> BookPlayerKit.LibraryItem? {
+    return nil
+  }
+
+  func getItems(notIn relativePaths: [String], parentFolder: String?) -> [BookPlayerKit.SimpleLibraryItem]? {
+    return nil
+  }
+
+  func insertItems(from files: [URL]) -> [String] {
+    return []
+  }
+
+  func moveItems(_ items: [String], inside relativePath: String?) throws { }
+
+  func delete(_ items: [BookPlayerKit.SimpleLibraryItem], mode: BookPlayerKit.DeleteMode) throws { }
+
   func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) { }
 
   func getTotalListenedTime() -> TimeInterval { return 0 }
@@ -108,6 +128,7 @@ class EmptyLibraryServiceMock: LibraryServiceProtocol {
       percentCompleted: 0,
       isFinished: false,
       relativePath: "",
+      orderRank: 0,
       parentFolder: nil,
       originalFileName: "",
       lastPlayDate: nil,
@@ -125,7 +146,12 @@ class EmptyLibraryServiceMock: LibraryServiceProtocol {
 
   func sortContents(at relativePath: String?, by type: SortType) {}
 
-  func reorderItem(at relativePath: String, inside folderRelativePath: String?, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath) {}
+  func reorderItem(
+    with relativePath: String,
+    inside folderRelativePath: String?,
+    sourceIndexPath: IndexPath,
+    destinationIndexPath: IndexPath
+  ) {}
 
   func updatePlaybackTime(relativePath: String, time: Double) {}
 

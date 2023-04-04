@@ -529,6 +529,10 @@ public final class LibraryService: LibraryServiceProtocol {
 
     let newFolder = Folder(title: title, context: dataManager.getContext())
     newFolder.orderRank = getNextOrderRank(in: relativePath)
+    /// Override relative path
+    if let relativePath {
+      newFolder.relativePath = "\(relativePath)/\(title)"
+    }
 
     // insert into existing folder or library at index
     if let parentPath = relativePath {
@@ -763,9 +767,9 @@ public final class LibraryService: LibraryServiceProtocol {
   func markAsFinished(flag: Bool, folder: Folder) {
     folder.isFinished = flag
 
-    guard let items = self.fetchContents(at: folder.relativePath, limit: nil, offset: nil) else { return }
+    guard let itemIdentifiers = getItemIdentifiers(in: folder.relativePath) else { return }
 
-    items.forEach({ self.markAsFinished(flag: flag, relativePath: $0.relativePath) })
+    itemIdentifiers.forEach({ self.markAsFinished(flag: flag, relativePath: $0) })
   }
 
   public func jumpToStart(relativePath: String) {
@@ -937,7 +941,7 @@ public final class LibraryService: LibraryServiceProtocol {
       finalRelativePath = newRelativePath
 
       if let items = fetchRawContents(
-        at: folder.relativePath,
+        at: relativePath,
         propertiesToFetch: [
           #keyPath(LibraryItem.relativePath),
           #keyPath(LibraryItem.originalFileName)

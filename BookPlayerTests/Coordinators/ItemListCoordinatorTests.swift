@@ -44,8 +44,8 @@ class LibraryListCoordinatorTests: XCTestCase {
 
   func testShowFolder() {
     let folder = try! StubFactory.folder(dataManager: self.dataManager, title: "folder 1")
-    let library = self.libraryListCoordinator.libraryService.getLibrary()
-    library.insert(item: folder)
+    let library = self.libraryListCoordinator.libraryService.getLibraryReference()
+    library.addToItems(folder)
 
     self.libraryListCoordinator.showFolder(folder.relativePath)
     XCTAssert(self.libraryListCoordinator.childCoordinators.first is ItemListCoordinator)

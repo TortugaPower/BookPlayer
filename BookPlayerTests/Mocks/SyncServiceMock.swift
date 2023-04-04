@@ -11,6 +11,22 @@ import Foundation
 import RevenueCat
 
 class SyncServiceMock: SyncServiceProtocol {
+  func syncListContents(at relativePath: String?) async throws -> ([BookPlayerKit.SyncableItem], BookPlayerKit.SyncableItem?)? {
+    return nil
+  }
+
+  func syncLibraryContents() async throws -> ([BookPlayerKit.SyncableItem], BookPlayerKit.SyncableItem?) {
+    return ([], nil)
+  }
+
+  func getRemoteFileURLs(of relativePath: String, type: BookPlayerKit.SimpleItemType) async throws -> [BookPlayerKit.RemoteFileURL] {
+    return []
+  }
+
+  func downloadRemoteFiles(for relativePath: String, type: BookPlayerKit.SimpleItemType, delegate: URLSessionTaskDelegate) async throws -> [URLSessionDownloadTask] {
+    return []
+  }
+
   var isActive: Bool = false
 
   func fetchListContents(at relativePath: String?, shouldSync: Bool) async throws -> ([SyncableItem], SyncableItem?) { return ([], nil) }

@@ -351,9 +351,8 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   func createFolder(with title: String, items: [String]? = nil, type: SimpleItemType) {
     do {
       let folder = try self.libraryService.createFolder(with: title, inside: self.folderRelativePath)
-      if let fetchedItems = items?.compactMap({ $0 }) {
+      if let fetchedItems = items {
         try libraryService.moveItems(fetchedItems, inside: folder.relativePath)
-        // rebuild relative paths
       }
       try self.libraryService.updateFolder(at: folder.relativePath, type: type)
       libraryService.rebuildFolderDetails(folder.relativePath)
@@ -431,13 +430,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     let parentFolder = items.first?.parentFolder
 
     do {
-      switch mode {
-      case .deep:
-        try self.libraryService.delete(items, mode: mode)
-      case .shallow:
-        /// move before deleting
-        try self.libraryService.delete(items, mode: mode)
-      }
+      try self.libraryService.delete(items, mode: mode)
 
       if let parentFolder {
         libraryService.rebuildFolderDetails(parentFolder)

@@ -32,17 +32,17 @@ class ItemListViewModelTests: XCTestCase {
     )
 
     let library = libraryService.getLibrary()
-    library.insert(
-      item: StubFactory.book(dataManager: self.dataManager, title: "book1", duration: 100)
+    library.addToItems(
+      StubFactory.book(dataManager: self.dataManager, title: "book1", duration: 100)
     )
-    library.insert(
-      item: StubFactory.book(dataManager: self.dataManager, title: "book2", duration: 100)
+    library.addToItems(
+      StubFactory.book(dataManager: self.dataManager, title: "book2", duration: 100)
     )
-    library.insert(
-      item: StubFactory.book(dataManager: self.dataManager, title: "book3", duration: 100)
+    library.addToItems(
+      StubFactory.book(dataManager: self.dataManager, title: "book3", duration: 100)
     )
-    library.insert(
-      item: StubFactory.book(dataManager: self.dataManager, title: "book4", duration: 100)
+    library.addToItems(
+      StubFactory.book(dataManager: self.dataManager, title: "book4", duration: 100)
     )
     self.dataManager.saveContext()
   }
