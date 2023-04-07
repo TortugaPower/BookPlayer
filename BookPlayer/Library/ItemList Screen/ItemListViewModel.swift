@@ -482,6 +482,13 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
             }
           ),
           BPActionItem(
+            // TODO: translate string for download button
+            title: "download_button".localized,
+            handler: { [weak self] in
+              self?.showDownloadFromUrlAlert()
+            }
+          ),
+          BPActionItem(
             title: "create_playlist_button".localized,
             handler: { [weak self] in
               self?.showCreateFolderAlert(
@@ -857,6 +864,29 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
             title: "create_button".localized,
             inputHandler: { [items, type, weak self] title in
               self?.createFolder(with: title, items: items, type: type)
+            }
+          ),
+          BPActionItem.cancelAction
+        ]
+      )
+    ))
+  }
+  
+  func showDownloadFromUrlAlert() {
+    sendEvent(.showAlert(
+      content: BPAlertContent(
+        // TODO: Translate title
+        title: "download_from_url_title".localized,
+        style: .alert,
+        textInputPlaceholder: "",
+        actionItems: [
+          BPActionItem(
+            // TODO: translate button
+            title: "download_button".localized,
+            inputHandler: { [weak self] url in
+              if let bookUrl = URL(string: url) {
+                self?.handleDownload(bookUrl)
+              }
             }
           ),
           BPActionItem.cancelAction
