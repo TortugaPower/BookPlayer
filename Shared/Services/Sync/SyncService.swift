@@ -34,6 +34,8 @@ public protocol SyncServiceProtocol {
     delegate: URLSessionTaskDelegate
   ) async throws -> [URLSessionDownloadTask]
 
+  func delete(_ items: [SimpleLibraryItem], mode: DeleteMode) async throws
+
   /// Cancel all scheduled jobs
   func cancelAllJobs()
 }
@@ -299,5 +301,23 @@ extension SyncService {
     }
 
     itemsToUpload.forEach({ [weak self] in self?.jobManager.scheduleLibraryItemUploadJob(for: $0) })
+  }
+}
+
+// MARK: - Delete functionality
+extension SyncService {
+  public func delete(_ items: [SimpleLibraryItem], mode: DeleteMode) async throws {
+    guard isActive else { return }
+
+    for item in items {
+      switch mode {
+      case .deep:
+        let response: Empty = try await provider.request(.delete(path: item.relativePath))
+        print(response)
+      case .shallow:
+        let response: Empty = try await provider.request(.shallowDelete(path: item.relativePath))
+        print(response)
+      }
+    }
   }
 }

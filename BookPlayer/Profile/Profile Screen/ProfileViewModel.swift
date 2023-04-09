@@ -64,6 +64,7 @@ class ProfileViewModel: BaseViewModel<ProfileCoordinator>, ProfileViewModelProto
 
   func bindObservers() {
     UserDefaults.standard.publisher(for: \.userSettingsCompletedLibrarySync)
+      .receive(on: DispatchQueue.main)
       .sink(receiveValue: { [weak self] completedSync in
         self?.isSyncButtonDisabled = !completedSync
       })
