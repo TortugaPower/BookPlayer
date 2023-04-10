@@ -310,14 +310,7 @@ extension SyncService {
     guard isActive else { return }
 
     for item in items {
-      switch mode {
-      case .deep:
-        let response: Empty = try await provider.request(.delete(path: item.relativePath))
-        print(response)
-      case .shallow:
-        let response: Empty = try await provider.request(.shallowDelete(path: item.relativePath))
-        print(response)
-      }
+      jobManager.scheduleDeleteJob(with: item.relativePath, mode: mode)
     }
   }
 }

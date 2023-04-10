@@ -1,5 +1,5 @@
 //
-//  LibraryItemUploadJob.swift
+//  LibraryItemSyncJob.swift
 //  BookPlayer
 //
 //  Created by gianni.carlo on 5/3/23.
@@ -9,12 +9,17 @@
 import Foundation
 import SwiftQueue
 
-class LibraryItemUploadJob: Job, BPLogger {
-  static let type = "LibraryItemUploadJob"
+enum JobType: String {
+  case upload, update, delete, shallowDelete
+}
+
+class LibraryItemSyncJob: Job, BPLogger {
+  static let type = "LibraryItemSyncJob"
 
   let client: NetworkClientProtocol
   let provider: NetworkProvider<LibraryAPI>
   let relativePath: String
+  let jobType: JobType
   let parameters: [String: Any]
 
   /// Initializer
@@ -24,11 +29,13 @@ class LibraryItemUploadJob: Job, BPLogger {
   init(
     client: NetworkClientProtocol,
     relativePath: String,
+    jobType: JobType,
     parameters: [String: Any]
   ) {
     self.client = client
     self.provider = NetworkProvider(client: client)
     self.relativePath = relativePath
+    self.jobType = jobType
     self.parameters = parameters
   }
 
@@ -40,46 +47,63 @@ class LibraryItemUploadJob: Job, BPLogger {
       }
 
       do {
-        let response: UploadItemResponse = try await self.provider.request(.upload(params: self.parameters))
-
-        guard let remoteURL = response.content.url else {
-          /// The file is already present in the storage
+        switch self.jobType {
+        case .upload:
+          try await self.handleUploadJob(callback: callback)
+        case .update:
+          // TODO: verify endpoint
+          let _: UploadItemResponse = try await self.provider.request(.upload(params: self.parameters))
           callback.done(.success)
-          return
-        }
-
-        let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(self.relativePath)
-
-        var isDirectory: ObjCBool = false
-
-        guard
-          FileManager.default.fileExists(atPath: fileURL.path, isDirectory: &isDirectory)
-        else {
-          /// Uploaded metadata will not have a backing file, but we'll have a backup of item data
+        case .delete:
+          let _: Empty = try await provider.request(.delete(path: self.relativePath))
           callback.done(.success)
-          return
-        }
-
-        guard isDirectory.boolValue == false else {
-          let _: Empty = try await self.client.request(
-            url: remoteURL,
-            method: .put,
-            parameters: nil,
-            useKeychain: false
-          )
+        case .shallowDelete:
+          let _: Empty = try await provider.request(.shallowDelete(path: self.relativePath))
           callback.done(.success)
-          return
         }
-
-        uploadFile(
-          fileURL: fileURL,
-          remoteURL: remoteURL,
-          relativePath: self.relativePath
-        )
       } catch {
         callback.done(.fail(error))
       }
     }
+  }
+
+  func handleUploadJob(callback: SwiftQueue.JobResult) async throws {
+    let response: UploadItemResponse = try await self.provider.request(.upload(params: self.parameters))
+
+    guard let remoteURL = response.content.url else {
+      /// The file is already present in the storage
+      callback.done(.success)
+      return
+    }
+
+    let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(self.relativePath)
+
+    var isDirectory: ObjCBool = false
+
+    guard
+      FileManager.default.fileExists(atPath: fileURL.path, isDirectory: &isDirectory)
+    else {
+      /// Uploaded metadata will not have a backing file, but we'll have a backup of item data
+      callback.done(.success)
+      return
+    }
+
+    guard isDirectory.boolValue == false else {
+      let _: Empty = try await self.client.request(
+        url: remoteURL,
+        method: .put,
+        parameters: nil,
+        useKeychain: false
+      )
+      callback.done(.success)
+      return
+    }
+
+    uploadFile(
+      fileURL: fileURL,
+      remoteURL: remoteURL,
+      relativePath: self.relativePath
+    )
   }
 
   /// Upload file on a background thread, the callback can't be used,
@@ -137,15 +161,17 @@ class LibraryItemUploadJob: Job, BPLogger {
 struct LibraryItemUploadJobCreator: JobCreator {
   func create(type: String, params: [String: Any]?) -> SwiftQueue.Job {
     guard
-      type == LibraryItemUploadJob.type,
+      type == LibraryItemSyncJob.type,
       let relativePath = params?["relativePath"] as? String,
-      let parameters = params
+      let jobTypeRaw = params?["jobType"] as? String,
+      let jobType = JobType(rawValue: jobTypeRaw)
     else { fatalError("Wrong job type") }
 
-    return LibraryItemUploadJob(
+    return LibraryItemSyncJob(
       client: NetworkClient(),
       relativePath: relativePath,
-      parameters: parameters
+      jobType: jobType,
+      parameters: params ?? [:]
     )
   }
 }

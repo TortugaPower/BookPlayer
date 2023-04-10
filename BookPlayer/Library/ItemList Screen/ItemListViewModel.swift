@@ -874,14 +874,14 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       )
     ))
   }
-  
+
   func showDownloadFromUrlAlert() {
     sendEvent(.showAlert(
       content: BPAlertContent(
         // TODO: Translate title
         title: "download_from_url_title".localized,
         style: .alert,
-        textInputPlaceholder: "",
+        textInputPlaceholder: "https://",
         actionItems: [
           BPActionItem(
             // TODO: translate button
