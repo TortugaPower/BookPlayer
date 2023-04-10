@@ -34,7 +34,7 @@ public protocol SyncServiceProtocol {
     delegate: URLSessionTaskDelegate
   ) async throws -> [URLSessionDownloadTask]
 
-  func delete(_ items: [SimpleLibraryItem], mode: DeleteMode) async throws
+  func scheduleDelete(_ items: [SimpleLibraryItem], mode: DeleteMode)
 
   /// Cancel all scheduled jobs
   func cancelAllJobs()
@@ -306,7 +306,7 @@ extension SyncService {
 
 // MARK: - Delete functionality
 extension SyncService {
-  public func delete(_ items: [SimpleLibraryItem], mode: DeleteMode) async throws {
+  public func scheduleDelete(_ items: [SimpleLibraryItem], mode: DeleteMode) {
     guard isActive else { return }
 
     for item in items {

@@ -429,23 +429,21 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   func handleDelete(items: [SimpleLibraryItem], mode: DeleteMode) {
     let parentFolder = items.first?.parentFolder
 
-    Task { @MainActor in
-      do {
-        try self.libraryService.delete(items, mode: mode)
+    do {
+      try libraryService.delete(items, mode: mode)
 
-        if let parentFolder {
-          libraryService.rebuildFolderDetails(parentFolder)
-        }
-
-        try await self.syncService.delete(items, mode: mode)
-      } catch {
-        sendEvent(.showAlert(
-          content: BPAlertContent.errorAlert(message: error.localizedDescription)
-        ))
+      if let parentFolder {
+        libraryService.rebuildFolderDetails(parentFolder)
       }
 
-      self.coordinator.reloadItemsWithPadding()
+      syncService.scheduleDelete(items, mode: mode)
+    } catch {
+      sendEvent(.showAlert(
+        content: BPAlertContent.errorAlert(message: error.localizedDescription)
+      ))
     }
+
+    self.coordinator.reloadItemsWithPadding()
   }
 
   func reorder(item: SimpleLibraryItem, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath) {
