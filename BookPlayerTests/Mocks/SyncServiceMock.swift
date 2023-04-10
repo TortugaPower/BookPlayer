@@ -11,6 +11,8 @@ import Foundation
 import RevenueCat
 
 class SyncServiceMock: SyncServiceProtocol {
+  func scheduleDelete(_ items: [BookPlayerKit.SimpleLibraryItem], mode: BookPlayerKit.DeleteMode) {}
+
   func syncListContents(at relativePath: String?) async throws -> ([BookPlayerKit.SyncableItem], BookPlayerKit.SyncableItem?)? {
     return nil
   }
