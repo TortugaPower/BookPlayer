@@ -80,7 +80,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     }
 
     JobBuilder(type: LibraryItemSyncJob.type)
-      .singleInstance(forId: item.relativePath)
+      .singleInstance(forId: "\(JobType.upload.identifier)/\(item.relativePath)")
       .persist()
       .retry(limit: .unlimited)
       .internet(atLeast: .wifi)
@@ -94,32 +94,33 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     parameters["jobType"] = JobType.update.rawValue
 
     JobBuilder(type: LibraryItemSyncJob.type)
-      .singleInstance(forId: relativePath, override: true)
+      .singleInstance(forId: "\(JobType.update.identifier)/\(relativePath)", override: true)
       .persist()
       .retry(limit: .limited(3))
       .internet(atLeast: .wifi)
+      .delay(time: 2)
       .with(params: parameters)
       .schedule(manager: libraryQueueManager)
   }
 
   public func scheduleDeleteJob(with relativePath: String, mode: DeleteMode) {
-    let jobType: String
+    let jobType: JobType
 
     switch mode {
     case .deep:
-      jobType = JobType.delete.rawValue
+      jobType = JobType.delete
     case .shallow:
-      jobType = JobType.shallowDelete.rawValue
+      jobType = JobType.shallowDelete
     }
 
     JobBuilder(type: LibraryItemSyncJob.type)
-      .singleInstance(forId: relativePath, override: true)
+      .singleInstance(forId: "\(jobType.identifier)/\(relativePath)")
       .persist()
       .retry(limit: .limited(3))
       .internet(atLeast: .wifi)
       .with(params: [
         "relativePath": relativePath,
-        "jobType": jobType
+        "jobType": jobType.rawValue
       ])
       .schedule(manager: libraryQueueManager)
   }

@@ -11,6 +11,10 @@ import SwiftQueue
 
 enum JobType: String {
   case upload, update, delete, shallowDelete
+
+  var identifier: String {
+    return "BKPLY-\(self.rawValue)"
+  }
 }
 
 class LibraryItemSyncJob: Job, BPLogger {
