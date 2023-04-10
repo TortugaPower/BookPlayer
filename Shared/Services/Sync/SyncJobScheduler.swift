@@ -16,6 +16,8 @@ public protocol JobSchedulerProtocol {
   func scheduleLibraryItemUploadJob(for item: SyncableItem)
   /// Update existing metadata in the server
   func scheduleMetadataUpdateJob(with relativePath: String, parameters: [String: Any])
+  /// Delete item
+  func scheduleDeleteJob(with relativePath: String, mode: DeleteMode)
   /// Cancel all stored and ongoing jobs
   func cancelAllJobs()
 }
@@ -27,7 +29,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   private var disposeBag = Set<AnyCancellable>()
 
   public init() {
-    self.libraryJobsPersister = UserDefaultsPersister(key: LibraryItemUploadJob.type)
+    self.libraryJobsPersister = UserDefaultsPersister(key: LibraryItemSyncJob.type)
 
     recreateQueue()
     bindObservers()
@@ -63,7 +65,8 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       "percentCompleted": item.percentCompleted,
       "isFinished": item.isFinished,
       "orderRank": item.orderRank,
-      "type": item.type.rawValue
+      "type": item.type.rawValue,
+      "jobType": JobType.upload.rawValue
     ]
 
     if let lastPlayTimestamp = item.lastPlayDateTimestamp {
@@ -76,7 +79,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       parameters["speed"] = speed
     }
 
-    JobBuilder(type: LibraryItemUploadJob.type)
+    JobBuilder(type: LibraryItemSyncJob.type)
       .singleInstance(forId: item.relativePath)
       .persist()
       .retry(limit: .unlimited)
@@ -87,12 +90,37 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
 
   /// Note: folder renames originalFilename property
   public func scheduleMetadataUpdateJob(with relativePath: String, parameters: [String: Any]) {
-    JobBuilder(type: LibraryItemMetadataUpdateJob.type)
+    var parameters = parameters
+    parameters["jobType"] = JobType.update.rawValue
+
+    JobBuilder(type: LibraryItemSyncJob.type)
       .singleInstance(forId: relativePath, override: true)
       .persist()
       .retry(limit: .limited(3))
       .internet(atLeast: .wifi)
       .with(params: parameters)
+      .schedule(manager: libraryQueueManager)
+  }
+
+  public func scheduleDeleteJob(with relativePath: String, mode: DeleteMode) {
+    let jobType: String
+
+    switch mode {
+    case .deep:
+      jobType = JobType.delete.rawValue
+    case .shallow:
+      jobType = JobType.shallowDelete.rawValue
+    }
+
+    JobBuilder(type: LibraryItemSyncJob.type)
+      .singleInstance(forId: relativePath, override: true)
+      .persist()
+      .retry(limit: .limited(3))
+      .internet(atLeast: .wifi)
+      .with(params: [
+        "relativePath": relativePath,
+        "jobType": jobType
+      ])
       .schedule(manager: libraryQueueManager)
   }
 

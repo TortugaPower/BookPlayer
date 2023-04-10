@@ -430,12 +430,13 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     let parentFolder = items.first?.parentFolder
 
     do {
-      try self.libraryService.delete(items, mode: mode)
+      try libraryService.delete(items, mode: mode)
 
       if let parentFolder {
         libraryService.rebuildFolderDetails(parentFolder)
-        // update folder details to server
       }
+
+      syncService.scheduleDelete(items, mode: mode)
     } catch {
       sendEvent(.showAlert(
         content: BPAlertContent.errorAlert(message: error.localizedDescription)
@@ -871,14 +872,14 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       )
     ))
   }
-  
+
   func showDownloadFromUrlAlert() {
     sendEvent(.showAlert(
       content: BPAlertContent(
         // TODO: Translate title
         title: "download_from_url_title".localized,
         style: .alert,
-        textInputPlaceholder: "",
+        textInputPlaceholder: "https://",
         actionItems: [
           BPActionItem(
             // TODO: translate button
