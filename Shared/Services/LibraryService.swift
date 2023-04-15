@@ -14,7 +14,7 @@ public protocol LibraryServiceProtocol {
   func getLibrary() -> Library
   /// Get the stored library object with no properties loaded
   func getLibraryReference() -> Library
-  func getLibraryLastItem() throws -> LibraryItem?
+  func getLibraryLastItem() throws -> SimpleLibraryItem?
 
   func getLibraryCurrentTheme() throws -> Theme?
   func getTheme(with title: String) -> Theme?
@@ -25,17 +25,21 @@ public protocol LibraryServiceProtocol {
   func createBook(from url: URL) -> Book
   func loadChaptersIfNeeded(relativePath: String, asset: AVAsset)
   func getChapters(from relativePath: String) -> [SimpleChapter]?
+
+  func getSimpleItem(with relativePath: String) -> SimpleLibraryItem?
   func getItem(with relativePath: String) -> LibraryItem?
   /// Get the stored item object with no properties loaded
   func getItemReference(with relativePath: String) -> LibraryItem?
   func getItems(notIn relativePaths: [String], parentFolder: String?) -> [SimpleLibraryItem]?
 
   func findBooks(containing fileURL: URL) -> [Book]?
-  func getLastPlayedItems(limit: Int?) -> [LibraryItem]?
+  func getLastPlayedItems(limit: Int?) -> [SimpleLibraryItem]?
   func getItemProperty(_ property: String, relativePath: String) -> Any?
-  func findFirstItem(in parentFolder: String?, isUnfinished: Bool?) -> LibraryItem?
-  func findFirstItem(in parentFolder: String?, beforeRank: Int16?) -> LibraryItem?
-  func findFirstItem(in parentFolder: String?, afterRank: Int16?, isUnfinished: Bool?) -> LibraryItem?
+  /// Autoplay
+  func findFirstItem(in parentFolder: String?, isUnfinished: Bool?) -> SimpleLibraryItem?
+  func findFirstItem(in parentFolder: String?, beforeRank: Int16?) -> SimpleLibraryItem?
+  func findFirstItem(in parentFolder: String?, afterRank: Int16?, isUnfinished: Bool?) -> SimpleLibraryItem?
+  /// Search
   func filterContents(
     at relativePath: String?,
     query: String?,
@@ -113,18 +117,20 @@ public final class LibraryService: LibraryServiceProtocol {
     return library
   }
 
-  public func getLibraryLastItem() throws -> LibraryItem? {
+  public func getLibraryLastItem() throws -> SimpleLibraryItem? {
     let context = self.dataManager.getContext()
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "Library")
-    fetchRequest.propertiesToFetch = ["lastPlayedItem"]
+    fetchRequest.propertiesToFetch = ["lastPlayedItem.relativePath"]
     fetchRequest.resultType = .dictionaryResultType
 
-    guard let dict = try context.fetch(fetchRequest).first as? [String: NSManagedObjectID],
-          let lastPlayedItemId = dict["lastPlayedItem"] else {
-            return nil
-          }
+    guard
+      let dict = try context.fetch(fetchRequest).first as? [String: String],
+      let relativePath = dict["lastPlayedItem.relativePath"] as? String
+    else {
+      return nil
+    }
 
-    return try? context.existingObject(with: lastPlayedItemId) as? LibraryItem
+    return getSimpleItem(with: relativePath)
   }
 
   public func getLibraryCurrentTheme() throws -> Theme? {
@@ -217,6 +223,18 @@ public final class LibraryService: LibraryServiceProtocol {
     })
   }
 
+  public func getSimpleItem(with relativePath: String) -> SimpleLibraryItem? {
+    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+    fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
+    fetchRequest.fetchLimit = 1
+    fetchRequest.propertiesToFetch = SimpleLibraryItem.fetchRequestProperties
+    fetchRequest.resultType = .dictionaryResultType
+
+    let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
+
+    return parseFetchedItems(from: results)?.first
+  }
+
   public func getItem(with relativePath: String) -> LibraryItem? {
     let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
     fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
@@ -306,20 +324,22 @@ public final class LibraryService: LibraryServiceProtocol {
     return try? context.fetch(fetch)
   }
 
-  public func getLastPlayedItems(limit: Int?) -> [LibraryItem]? {
-    let fetch: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
-    fetch.predicate = NSPredicate(format: "type != 0 && lastPlayDate != nil")
+  public func getLastPlayedItems(limit: Int?) -> [SimpleLibraryItem]? {
+    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+    fetchRequest.predicate = NSPredicate(format: "type != 0 && lastPlayDate != nil")
+    fetchRequest.propertiesToFetch = SimpleLibraryItem.fetchRequestProperties
+    fetchRequest.resultType = .dictionaryResultType
 
     if let limit = limit {
-      fetch.fetchLimit = limit
+      fetchRequest.fetchLimit = limit
     }
 
     let sort = NSSortDescriptor(key: #keyPath(LibraryItem.lastPlayDate), ascending: false)
-    fetch.sortDescriptors = [sort]
+    fetchRequest.sortDescriptors = [sort]
 
-    let context = self.dataManager.getContext()
+    let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
 
-    return try? context.fetch(fetch)
+    return parseFetchedItems(from: results)
   }
 
   public func hasItemProperty(_ property: String, relativePath: String) -> Bool {
@@ -370,8 +390,8 @@ public final class LibraryService: LibraryServiceProtocol {
     rankPredicate: NSPredicate?,
     sortAscending: Bool,
     isUnfinished: Bool?
-  ) -> LibraryItem? {
-    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+  ) -> SimpleLibraryItem? {
+    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
 
     let pathPredicate: NSPredicate
 
@@ -404,11 +424,15 @@ public final class LibraryService: LibraryServiceProtocol {
     let sort = NSSortDescriptor(key: #keyPath(LibraryItem.orderRank), ascending: sortAscending)
     fetchRequest.sortDescriptors = [sort]
     fetchRequest.fetchLimit = 1
+    fetchRequest.propertiesToFetch = SimpleLibraryItem.fetchRequestProperties
+    fetchRequest.resultType = .dictionaryResultType
 
-    return try? self.dataManager.getContext().fetch(fetchRequest).first
+    let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
+
+    return parseFetchedItems(from: results)?.first
   }
 
-  public func findFirstItem(in parentFolder: String?, isUnfinished: Bool?) -> LibraryItem? {
+  public func findFirstItem(in parentFolder: String?, isUnfinished: Bool?) -> SimpleLibraryItem? {
     return findFirstItem(
       in: parentFolder,
       rankPredicate: nil,
@@ -417,7 +441,7 @@ public final class LibraryService: LibraryServiceProtocol {
     )
   }
 
-  public func findFirstItem(in parentFolder: String?, beforeRank: Int16?) -> LibraryItem? {
+  public func findFirstItem(in parentFolder: String?, beforeRank: Int16?) -> SimpleLibraryItem? {
     var rankPredicate: NSPredicate?
     if let beforeRank = beforeRank {
       rankPredicate = NSPredicate(format: "%K < %d", #keyPath(LibraryItem.orderRank), beforeRank)
@@ -434,7 +458,7 @@ public final class LibraryService: LibraryServiceProtocol {
     in parentFolder: String?,
     afterRank: Int16?,
     isUnfinished: Bool?
-  ) -> LibraryItem? {
+  ) -> SimpleLibraryItem? {
     var rankPredicate: NSPredicate?
     if let afterRank = afterRank {
       rankPredicate = NSPredicate(format: "%K > %d", #keyPath(LibraryItem.orderRank), afterRank)
@@ -600,6 +624,7 @@ public final class LibraryService: LibraryServiceProtocol {
       guard
         let title = dictionary["title"] as? String,
         let details = dictionary["details"] as? String,
+        let currentTime = dictionary["currentTime"] as? Double,
         let duration = dictionary["duration"] as? Double,
         let percentCompleted = dictionary["percentCompleted"] as? Double,
         let isFinished = dictionary["isFinished"] as? Bool,
@@ -613,6 +638,7 @@ public final class LibraryService: LibraryServiceProtocol {
       return SimpleLibraryItem(
         title: title,
         details: details,
+        currentTime: currentTime,
         duration: duration,
         percentCompleted: percentCompleted,
         isFinished: isFinished,

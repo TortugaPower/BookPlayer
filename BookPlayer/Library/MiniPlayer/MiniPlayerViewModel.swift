@@ -27,7 +27,7 @@ class MiniPlayerViewModel {
 
   init(
     playerManager: PlayerManagerProtocol,
-    lastPlayedItem: LibraryItem?
+    lastPlayedItem: SimpleLibraryItem?
   ) {
     self.playerManager = playerManager
 

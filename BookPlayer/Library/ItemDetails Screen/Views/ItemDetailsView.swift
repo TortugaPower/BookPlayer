@@ -29,6 +29,7 @@ struct ItemDetailsView_Previews: PreviewProvider {
         item: SimpleLibraryItem(
           title: "title",
           details: "details",
+          currentTime: 0,
           duration: 100,
           percentCompleted: 1,
           isFinished: false,

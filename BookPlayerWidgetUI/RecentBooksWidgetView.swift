@@ -37,13 +37,12 @@ struct RecentBooksProvider: IntentTimelineProvider {
             }
 
       let theme = SimpleTheme(with: currentTheme)
-      let mappedItems = items.map { SimpleLibraryItem(from: $0) }
 
       let autoplay = configuration.autoplay?.boolValue ?? true
       let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
 
       let entry = LibraryEntry(date: Date(),
-                               items: mappedItems,
+                               items: items,
                                theme: theme,
                                timerSeconds: seconds,
                                autoplay: autoplay)
@@ -70,13 +69,12 @@ struct RecentBooksProvider: IntentTimelineProvider {
             }
 
       let theme = SimpleTheme(with: currentTheme)
-      let mappedItems = items.map { SimpleLibraryItem(from: $0) }
 
       let autoplay = configuration.autoplay?.boolValue ?? true
       let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
 
       let entry = LibraryEntry(date: Date(),
-                               items: mappedItems,
+                               items: items,
                                theme: theme,
                                timerSeconds: seconds,
                                autoplay: autoplay)

@@ -196,7 +196,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       return
     }
 
-    guard let libraryItem = self.libraryService?.getItem(with: relativePath) else { return }
+    guard let libraryItem = self.libraryService?.getSimpleItem(with: relativePath) else { return }
 
     var item: PlayableItem?
 

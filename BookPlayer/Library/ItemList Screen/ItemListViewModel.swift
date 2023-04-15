@@ -288,14 +288,11 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     if let currentItem = self.playerManager.currentItem,
        currentItem.relativePath.contains(item.relativePath) {
       self.playerManager.play()
-    } else if
-      let folder = self.libraryService.getItem(with: item.relativePath) as? Folder,
-      let nextPlayableItem = try? self.playbackService.getFirstPlayableItem(
-        in: folder,
+    } else if let nextPlayableItem = try? self.playbackService.getFirstPlayableItem(
+        in: item,
         isUnfinished: true
       ),
-      let nextItem = libraryService.fetchContents(at: nextPlayableItem.relativePath, limit: 1, offset: nil)?.first {
-
+      let nextItem = libraryService.getSimpleItem(with: nextPlayableItem.relativePath) {
       showItemContents(nextItem)
     }
   }
