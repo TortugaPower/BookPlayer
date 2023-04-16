@@ -64,31 +64,10 @@ class LibraryServiceTests: XCTestCase {
   func testGetLibraryCurrentTheme() {
     XCTAssert(sut.getLibraryCurrentTheme() == nil)
 
-    let theme = Theme(context: self.sut.dataManager.getContext())
-    theme.title = "theme-test"
-
-    let newLibrary = self.sut.getLibrary()
-    XCTAssert(newLibrary.currentTheme == nil)
-    newLibrary.currentTheme = theme
-
-    self.sut.dataManager.saveContext()
+    self.sut.setLibraryTheme(with: SimpleTheme.getDefaultTheme())
 
     let currentTheme = sut.getLibraryCurrentTheme()
-    XCTAssert(currentTheme?.title == theme.title)
-  }
-
-  func testSetLibraryTheme() {
-    let library = self.sut.getLibrary()
-    XCTAssert(library.currentTheme == nil)
-
-    let theme = Theme(context: self.sut.dataManager.getContext())
-    theme.title = "theme-test"
-
-    self.sut.setLibraryTheme(with: SimpleTheme(with: theme))
-    self.sut.dataManager.saveContext()
-
-    let testLibrary = self.sut.getLibrary()
-    XCTAssert(testLibrary.currentTheme.title == "theme-test")
+    XCTAssert(currentTheme?.title == "Default / Dark")
   }
 
   func testCreateBook() {

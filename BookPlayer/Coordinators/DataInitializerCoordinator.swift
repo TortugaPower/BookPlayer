@@ -67,9 +67,11 @@ class DataInitializerCoordinator {
       }
 
       let dataManager = DataManager(coreDataStack: stack)
+      let libraryService = LibraryService(dataManager: dataManager)
+      _ = libraryService.getLibrary()
 
       self?.setupDefaultState(
-        libraryService: LibraryService(dataManager: dataManager),
+        libraryService: libraryService,
         dataManager: dataManager
       )
 
