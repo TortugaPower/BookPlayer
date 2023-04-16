@@ -96,11 +96,11 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       return "library_title".localized
     }
 
-    guard let item = self.libraryService.getItem(with: folderRelativePath) else {
-      return ""
-    }
-
-    return item.title
+    return libraryService.getItemProperty(
+      #keyPath(LibraryItem.title),
+      relativePath: folderRelativePath
+    ) as? String
+    ?? ""
   }
 
   func observeEvents() -> AnyPublisher<ItemListViewModel.Events, Never> {
@@ -288,14 +288,11 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     if let currentItem = self.playerManager.currentItem,
        currentItem.relativePath.contains(item.relativePath) {
       self.playerManager.play()
-    } else if
-      let folder = self.libraryService.getItem(with: item.relativePath) as? Folder,
-      let nextPlayableItem = try? self.playbackService.getFirstPlayableItem(
-        in: folder,
+    } else if let nextPlayableItem = try? self.playbackService.getFirstPlayableItem(
+        in: item,
         isUnfinished: true
       ),
-      let nextItem = libraryService.fetchContents(at: nextPlayableItem.relativePath, limit: 1, offset: nil)?.first {
-
+      let nextItem = libraryService.getSimpleItem(with: nextPlayableItem.relativePath) {
       showItemContents(nextItem)
     }
   }

@@ -51,7 +51,7 @@ class ProfileViewModel: BaseViewModel<ProfileCoordinator>, ProfileViewModelProto
     self.playerManager = playerManager
     self.syncService = syncService
 
-    if (try? libraryService.getLibraryLastItem()) != nil {
+    if libraryService.getLibraryLastItem() != nil {
       bottomOffset =  ModelConstants.miniPlayerOffset
     }
 

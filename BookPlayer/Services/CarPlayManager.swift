@@ -242,9 +242,8 @@ class CarPlayManager: NSObject {
     else { return }
 
     let items = libraryService.getLastPlayedItems(limit: 20) ?? []
-    let simpleItems = items.map({ SimpleLibraryItem(from: $0) })
 
-    let cpitems = transformItems(simpleItems)
+    let cpitems = transformItems(items)
 
     cpitems.first?.isPlaying = true
 

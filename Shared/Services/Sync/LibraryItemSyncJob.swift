@@ -11,6 +11,10 @@ import SwiftQueue
 
 enum JobType: String {
   case upload, update, delete, shallowDelete
+
+  var identifier: String {
+    return "BKPLY-\(self.rawValue)"
+  }
 }
 
 class LibraryItemSyncJob: Job, BPLogger {
@@ -51,8 +55,7 @@ class LibraryItemSyncJob: Job, BPLogger {
         case .upload:
           try await self.handleUploadJob(callback: callback)
         case .update:
-          // TODO: verify endpoint
-          let _: UploadItemResponse = try await self.provider.request(.upload(params: self.parameters))
+          let _: UploadItemResponse = try await self.provider.request(.update(params: self.parameters))
           callback.done(.success)
         case .delete:
           let _: Empty = try await provider.request(.delete(path: self.relativePath))

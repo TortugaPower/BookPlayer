@@ -23,10 +23,7 @@ final class ThemeManager: ThemeProvider {
     }
     set {
       self.setNewTheme(newValue)
-
-      if let title = newValue.title {
-        self.libraryService.setLibraryTheme(with: title)
-      }
+      self.libraryService.setLibraryTheme(with: newValue)
     }
   }
 

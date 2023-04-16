@@ -8,8 +8,11 @@
 
 import CoreData
 import Foundation
+import Combine
 
 public protocol LibrarySyncProtocol {
+  var metadataUpdatePublisher: AnyPublisher<[String: Any], Never> { get }
+
   func getItem(with relativePath: String) -> LibraryItem?
   func getItemsToSync(remoteIdentifiers: [String]) -> [SyncableItem]?
   func getItemIdentifiers(in parentFolder: String?) -> [String]?
