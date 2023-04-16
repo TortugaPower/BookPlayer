@@ -98,7 +98,6 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       .persist()
       .retry(limit: .limited(3))
       .internet(atLeast: .wifi)
-      .delay(time: 2)
       .with(params: parameters)
       .schedule(manager: libraryQueueManager)
   }

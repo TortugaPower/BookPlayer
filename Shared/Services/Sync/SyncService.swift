@@ -82,6 +82,11 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
         forKey: Constants.UserDefaults.completedLibrarySync.rawValue
       )
     }
+
+    libraryService.metadataUpdatePublisher.sink { [weak self] params in
+      self?.scheduleMetadataUpdate(params: params)
+    }
+    .store(in: &disposeBag)
   }
 
   public func syncListContents(
@@ -284,6 +289,17 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
   public func cancelAllJobs() {
     jobManager.cancelAllJobs()
+  }
+}
+
+extension SyncService {
+  func scheduleMetadataUpdate(params: [String: Any]) {
+    guard
+      isActive,
+      let relativePath = params["relativePath"] as? String
+    else { return }
+
+    jobManager.scheduleMetadataUpdateJob(with: relativePath, parameters: params)
   }
 }
 

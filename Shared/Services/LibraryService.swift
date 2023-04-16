@@ -9,8 +9,12 @@
 import AVFoundation
 import CoreData
 import Foundation
+import Combine
 
 public protocol LibraryServiceProtocol {
+  /// Metadata publisher that collects changes during 10 seconds before normalizing the payload
+  var metadataUpdatePublisher: AnyPublisher<[String: Any], Never> { get }
+
   /// Gets (or create) the library for the App. There should be only one Library object at all times
   func getLibrary() -> Library
   /// Get the stored library object with no properties loaded
@@ -127,6 +131,28 @@ public protocol LibraryServiceProtocol {
 public final class LibraryService: LibraryServiceProtocol {
   let dataManager: DataManager
 
+  /// Internal passthrough publisher for emitting metadata update events
+  private var metadataPassthroughPublisher = PassthroughSubject<[String: Any], Never>()
+  /// Public metadata publisher that collects changes during 4 seconds before normalizing the payload
+  public lazy var metadataUpdatePublisher = metadataPassthroughPublisher
+    .collect(.byTime(DispatchQueue.main, .seconds(10)))
+    .flatMap({ changes in
+      var results = [String: [String: Any]]()
+      for change in changes {
+        guard let relativePath = change["relativePath"] as? String else { continue }
+
+        if let itemDict = results[relativePath] {
+          results[relativePath] = itemDict.merging(change) { (_, new) in new }
+        } else {
+          results[relativePath] = change
+        }
+      }
+
+      let resultsArray = Array(results.values) as [[String: Any]]
+      return resultsArray.publisher
+    })
+    .eraseToAnyPublisher()
+
   public init(dataManager: DataManager) {
     self.dataManager = dataManager
   }
@@ -204,40 +230,6 @@ public final class LibraryService: LibraryServiceProtocol {
     return result?["hasProperty"] ?? false
   }
 
-  func hasLibraryLinked(item: LibraryItem) -> Bool {
-
-    var keyPath = item.relativePath.split(separator: "/")
-      .dropLast()
-      .map({ _ in return "folder" })
-      .joined(separator: ".")
-
-    keyPath += keyPath.isEmpty ? "library" : ".library"
-
-    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
-
-    fetchRequest.predicate = NSPredicate(format: "relativePath == %@ && \(keyPath) != nil", item.relativePath)
-
-    return (try? self.dataManager.getContext().fetch(fetchRequest).first) != nil
-  }
-
-  func removeFolderIfNeeded(_ fileURL: URL) throws {
-    guard FileManager.default.fileExists(atPath: fileURL.path) else { return }
-
-    let folderPath = String(fileURL.relativePath(to: DataManager.getProcessedFolderURL()).dropFirst())
-
-    // Delete folder if it belongs to an orphaned folder
-    if let existingFolder = getItemReference(with: folderPath) as? Folder {
-      if !self.hasLibraryLinked(item: existingFolder) {
-        // Delete folder if it doesn't belong to active folder
-        try FileManager.default.removeItem(at: fileURL)
-        self.dataManager.delete(existingFolder)
-      }
-    } else {
-      // Delete folder if it doesn't belong to active folder
-      try FileManager.default.removeItem(at: fileURL)
-    }
-  }
-
   func buildListContentsFetchRequest(
     properties: [String],
     relativePath: String?,
@@ -299,39 +291,6 @@ public final class LibraryService: LibraryServiceProtocol {
     })
   }
 
-  func fetchRawContents(at relativePath: String?, propertiesToFetch: [String]) -> [LibraryItem]? {
-    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
-    fetchRequest.propertiesToFetch = propertiesToFetch
-
-    if let relativePath = relativePath {
-      fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), relativePath)
-    } else {
-      fetchRequest.predicate = NSPredicate(format: "%K != nil", #keyPath(LibraryItem.library))
-    }
-    let sort = NSSortDescriptor(key: #keyPath(LibraryItem.orderRank), ascending: true)
-    fetchRequest.sortDescriptors = [sort]
-
-    return try? self.dataManager.getContext().fetch(fetchRequest)
-  }
-
-  func rebuildOrderRank(in folderRelativePath: String?) {
-    guard
-      let contents = fetchRawContents(
-        at: folderRelativePath,
-        propertiesToFetch: [
-          #keyPath(LibraryItem.relativePath),
-          #keyPath(LibraryItem.orderRank)
-        ]
-      )
-    else { return }
-
-    for (index, item) in contents.enumerated() {
-      item.orderRank = Int16(index)
-    }
-
-    self.dataManager.saveContext()
-  }
-
   func getNextOrderRank(in folderPath: String?) -> Int16 {
     let maxExpression = NSExpressionDescription()
     maxExpression.expression = NSExpression(
@@ -358,19 +317,6 @@ public final class LibraryService: LibraryServiceProtocol {
     }
 
     return maxOrderRank + 1
-  }
-
-  func recursiveFolderLastPlayedDateUpdate(from relativePath: String, date: Date) {
-    guard let folder = getItemReference(with: relativePath) as? Folder else { return }
-
-    folder.lastPlayDate = date
-
-    if let parentFolderPath = getItemProperty(
-      #keyPath(LibraryItem.folder.relativePath),
-      relativePath: relativePath
-    ) as? String {
-      recursiveFolderLastPlayedDateUpdate(from: parentFolderPath, date: date)
-    }
   }
 
   private func buildFilterPredicate(
@@ -661,6 +607,28 @@ extension LibraryService {
     }
   }
 
+  func rebuildOrderRank(in folderRelativePath: String?) {
+    guard
+      let contents = fetchRawContents(
+        at: folderRelativePath,
+        propertiesToFetch: [
+          #keyPath(LibraryItem.relativePath),
+          #keyPath(LibraryItem.orderRank)
+        ]
+      )
+    else { return }
+
+    for (index, item) in contents.enumerated() {
+      item.orderRank = Int16(index)
+      metadataPassthroughPublisher.send([
+        #keyPath(LibraryItem.relativePath): item.relativePath!,
+        #keyPath(LibraryItem.orderRank): item.orderRank
+      ])
+    }
+
+    self.dataManager.saveContext()
+  }
+
   public func delete(_ items: [SimpleLibraryItem], mode: DeleteMode) throws {
     for item in items {
       switch item.type {
@@ -716,6 +684,21 @@ extension LibraryService {
     let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
 
     return parseFetchedItems(from: results)
+  }
+
+  func fetchRawContents(at relativePath: String?, propertiesToFetch: [String]) -> [LibraryItem]? {
+    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+    fetchRequest.propertiesToFetch = propertiesToFetch
+
+    if let relativePath = relativePath {
+      fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), relativePath)
+    } else {
+      fetchRequest.predicate = NSPredicate(format: "%K != nil", #keyPath(LibraryItem.library))
+    }
+    let sort = NSSortDescriptor(key: #keyPath(LibraryItem.orderRank), ascending: true)
+    fetchRequest.sortDescriptors = [sort]
+
+    return try? self.dataManager.getContext().fetch(fetchRequest)
   }
 
   public func getMaxItemsCount(at relativePath: String?) -> Int {
@@ -996,6 +979,39 @@ extension LibraryService {
     try FileManager.default.createDirectory(at: destinationURL, withIntermediateDirectories: false, attributes: nil)
   }
 
+  func hasLibraryLinked(item: LibraryItem) -> Bool {
+    var keyPath = item.relativePath.split(separator: "/")
+      .dropLast()
+      .map({ _ in return "folder" })
+      .joined(separator: ".")
+
+    keyPath += keyPath.isEmpty ? "library" : ".library"
+
+    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+
+    fetchRequest.predicate = NSPredicate(format: "relativePath == %@ && \(keyPath) != nil", item.relativePath)
+
+    return (try? self.dataManager.getContext().fetch(fetchRequest).first) != nil
+  }
+
+  func removeFolderIfNeeded(_ fileURL: URL) throws {
+    guard FileManager.default.fileExists(atPath: fileURL.path) else { return }
+
+    let folderPath = String(fileURL.relativePath(to: DataManager.getProcessedFolderURL()).dropFirst())
+
+    // Delete folder if it belongs to an orphaned folder
+    if let existingFolder = getItemReference(with: folderPath) as? Folder {
+      if !self.hasLibraryLinked(item: existingFolder) {
+        // Delete folder if it doesn't belong to active folder
+        try FileManager.default.removeItem(at: fileURL)
+        self.dataManager.delete(existingFolder)
+      }
+    } else {
+      // Delete folder if it doesn't belong to active folder
+      try FileManager.default.removeItem(at: fileURL)
+    }
+  }
+
   public func createFolder(with title: String, inside relativePath: String?) throws -> SimpleLibraryItem {
     try createFolderOnDisk(title: title, inside: relativePath)
 
@@ -1031,10 +1047,16 @@ extension LibraryService {
       throw BookPlayerError.runtimeError("Can't find the folder")
     }
 
+    var metadataUpdates: [String : Any] = [
+      #keyPath(LibraryItem.relativePath): relativePath,
+      #keyPath(LibraryItem.type): type.rawValue,
+    ]
+
     switch type {
     case .folder:
       folder.type = .folder
       folder.lastPlayDate = nil
+      metadataUpdates[#keyPath(LibraryItem.lastPlayDate)] = ""
     case .bound:
       guard let items = folder.items?.allObjects as? [Book] else {
         throw BookPlayerError.runtimeError("The folder needs to only contain book items")
@@ -1044,12 +1066,20 @@ extension LibraryService {
         throw BookPlayerError.runtimeError("The folder can't be empty")
       }
 
-      items.forEach({ $0.lastPlayDate = nil })
+      for item in items {
+        item.lastPlayDate = nil
+        metadataPassthroughPublisher.send([
+          #keyPath(LibraryItem.relativePath): item.relativePath!,
+          #keyPath(LibraryItem.lastPlayDate): "",
+        ])
+      }
 
       folder.type = .bound
     case .book:
       return
     }
+
+    metadataPassthroughPublisher.send(metadataUpdates)
 
     self.dataManager.saveContext()
   }
@@ -1093,6 +1123,13 @@ extension LibraryService {
     folder.duration = calculateFolderDuration(at: relativePath)
     folder.details = String.localizedStringWithFormat("files_title".localized, contentsCount)
 
+    metadataPassthroughPublisher.send([
+      #keyPath(LibraryItem.relativePath): relativePath,
+      #keyPath(LibraryItem.percentCompleted): progress,
+      #keyPath(LibraryItem.duration): folder.duration,
+      #keyPath(LibraryItem.details): folder.details!,
+    ])
+
     dataManager.saveContext()
 
     if let parentFolderPath = getItemProperty(
@@ -1108,6 +1145,11 @@ extension LibraryService {
 
     let (progress, _) = calculateFolderProgress(at: relativePath)
     folder.percentCompleted = progress
+
+    metadataPassthroughPublisher.send([
+      #keyPath(LibraryItem.relativePath): relativePath,
+      #keyPath(LibraryItem.percentCompleted): progress,
+    ])
     /// TODO: verify if necessary to mark the folder as finished
 
     NotificationCenter.default.post(
@@ -1189,6 +1231,11 @@ extension LibraryService {
     guard let item = self.getItemReference(with: relativePath) else { return }
 
     item.details = details
+
+    metadataPassthroughPublisher.send([
+      #keyPath(LibraryItem.relativePath): relativePath,
+      #keyPath(LibraryItem.details): details,
+    ])
     self.dataManager.saveContext()
   }
 
@@ -1238,6 +1285,10 @@ extension LibraryService {
     /// Rebuild order rank
     for (index, item) in contents.enumerated() {
       item.orderRank = Int16(index)
+      metadataPassthroughPublisher.send([
+        #keyPath(LibraryItem.relativePath): item.relativePath!,
+        #keyPath(LibraryItem.orderRank): item.orderRank,
+      ])
     }
 
     self.dataManager.saveContext()
@@ -1254,6 +1305,10 @@ extension LibraryService {
     /// Rebuild order rank
     for (index, item) in sortedResults.enumerated() {
       item.orderRank = Int16(index)
+      metadataPassthroughPublisher.send([
+        #keyPath(LibraryItem.relativePath): item.relativePath!,
+        #keyPath(LibraryItem.orderRank): item.orderRank,
+      ])
     }
 
     self.dataManager.saveContext()
@@ -1262,9 +1317,11 @@ extension LibraryService {
   public func updatePlaybackTime(relativePath: String, time: Double, date: Date) {
     guard let item = self.getItem(with: relativePath) else { return }
 
+    /// Metadata update already handled by the socket for playback
     item.currentTime = time
     item.lastPlayDate = date
     item.percentCompleted = round((item.currentTime / item.duration) * 100)
+
     if let parentFolderPath = item.folder?.relativePath {
       recursiveFolderLastPlayedDateUpdate(from: parentFolderPath, date: date)
     }
@@ -1272,11 +1329,42 @@ extension LibraryService {
     self.dataManager.scheduleSaveContext()
   }
 
+  func recursiveFolderLastPlayedDateUpdate(from relativePath: String, date: Date) {
+    guard let folder = getItemReference(with: relativePath) as? Folder else { return }
+
+    folder.lastPlayDate = date
+
+    metadataPassthroughPublisher.send([
+      #keyPath(LibraryItem.relativePath): relativePath,
+      #keyPath(LibraryItem.lastPlayDate): date,
+    ])
+
+    if let parentFolderPath = getItemProperty(
+      #keyPath(LibraryItem.folder.relativePath),
+      relativePath: relativePath
+    ) as? String {
+      recursiveFolderLastPlayedDateUpdate(from: parentFolderPath, date: date)
+    }
+  }
+
   public func updateBookSpeed(at relativePath: String, speed: Float) {
     guard let item = self.getItem(with: relativePath) else { return }
 
     item.speed = speed
     item.folder?.speed = speed
+
+    metadataPassthroughPublisher.send([
+      #keyPath(LibraryItem.relativePath): relativePath,
+      #keyPath(LibraryItem.speed): speed,
+    ])
+
+    if let folder = item.folder,
+       let folderPath = folder.relativePath {
+      metadataPassthroughPublisher.send([
+        #keyPath(LibraryItem.relativePath): folderPath,
+        #keyPath(LibraryItem.speed): speed,
+      ])
+    }
 
     self.dataManager.saveContext()
   }
@@ -1301,17 +1389,31 @@ extension LibraryService {
   }
 
   func markAsFinished(flag: Bool, book: Book) {
+    var metadataUpdates: [String: Any] = [
+      #keyPath(LibraryItem.relativePath): book.relativePath!,
+      #keyPath(LibraryItem.isFinished): flag,
+    ]
+
     book.isFinished = flag
     // To avoid progress display side-effects
     if !flag,
        book.currentTime.rounded(.up) == book.duration.rounded(.up) {
       book.currentTime = 0.0
+      metadataUpdates[#keyPath(LibraryItem.currentTime)] = 0
     }
+
+    metadataPassthroughPublisher.send(metadataUpdates)
+
     self.dataManager.saveContext()
   }
 
   func markAsFinished(flag: Bool, folder: Folder) {
     folder.isFinished = flag
+
+    metadataPassthroughPublisher.send([
+      #keyPath(LibraryItem.relativePath): folder.relativePath!,
+      #keyPath(LibraryItem.isFinished): flag,
+    ])
 
     guard let itemIdentifiers = getItemIdentifiers(in: folder.relativePath) else { return }
 
@@ -1335,10 +1437,29 @@ extension LibraryService {
     book.currentTime = 0
     book.percentCompleted = 0
     book.isFinished = false
+
+    metadataPassthroughPublisher.send([
+      #keyPath(LibraryItem.relativePath): book.relativePath!,
+      #keyPath(LibraryItem.currentTime): 0,
+      #keyPath(LibraryItem.percentCompleted): 0,
+      #keyPath(LibraryItem.isFinished): false,
+    ])
+
     self.dataManager.saveContext()
   }
 
   func jumpToStart(folder: Folder) {
+    folder.currentTime = 0
+    folder.percentCompleted = 0
+    folder.isFinished = false
+
+    metadataPassthroughPublisher.send([
+      #keyPath(LibraryItem.relativePath): folder.relativePath!,
+      #keyPath(LibraryItem.currentTime): 0,
+      #keyPath(LibraryItem.percentCompleted): 0,
+      #keyPath(LibraryItem.isFinished): false,
+    ])
+
     guard let itemIdentifiers = getItemIdentifiers(in: folder.relativePath) else { return }
 
     itemIdentifiers.forEach({ self.jumpToStart(relativePath: $0) })
