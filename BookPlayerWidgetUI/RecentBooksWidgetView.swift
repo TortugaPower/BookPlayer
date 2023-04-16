@@ -30,13 +30,13 @@ struct RecentBooksProvider: IntentTimelineProvider {
       let dataManager = DataManager(coreDataStack: stack)
       let libraryService = LibraryService(dataManager: dataManager)
 
-      guard let items = libraryService.getLastPlayedItems(limit: self.numberOfBooks),
-            let currentTheme = try? libraryService.getLibraryCurrentTheme() else {
-              completion(self.placeholder(in: context))
-              return
-            }
-
-      let theme = SimpleTheme(with: currentTheme)
+      guard
+        let items = libraryService.getLastPlayedItems(limit: self.numberOfBooks),
+        let theme = libraryService.getLibraryCurrentTheme()
+      else {
+        completion(self.placeholder(in: context))
+        return
+      }
 
       let autoplay = configuration.autoplay?.boolValue ?? true
       let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
@@ -62,13 +62,13 @@ struct RecentBooksProvider: IntentTimelineProvider {
       let dataManager = DataManager(coreDataStack: stack)
       let libraryService = LibraryService(dataManager: dataManager)
 
-      guard let items = libraryService.getLastPlayedItems(limit: self.numberOfBooks),
-            let currentTheme = try? libraryService.getLibraryCurrentTheme() else {
-              completion(Timeline(entries: [], policy: .atEnd))
-              return
-            }
-
-      let theme = SimpleTheme(with: currentTheme)
+      guard
+        let items = libraryService.getLastPlayedItems(limit: self.numberOfBooks),
+        let theme = libraryService.getLibraryCurrentTheme()
+      else {
+        completion(Timeline(entries: [], policy: .atEnd))
+        return
+      }
 
       let autoplay = configuration.autoplay?.boolValue ?? true
       let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)

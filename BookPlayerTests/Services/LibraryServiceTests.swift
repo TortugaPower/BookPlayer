@@ -21,7 +21,7 @@ class LibraryServiceTests: XCTestCase {
     DataTestUtils.clearFolderContents(url: DataManager.getProcessedFolderURL())
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
     self.sut = LibraryService(dataManager: dataManager)
-    _ = self.sut.createLibrary()
+    _ = self.sut.getLibrary()
   }
 
   func testGetExistingLibrary() {
@@ -39,7 +39,7 @@ class LibraryServiceTests: XCTestCase {
   }
 
   func testGetEmptyLibraryLastItem() {
-    let lastBook = try! self.sut.getLibraryLastItem()
+    let lastBook = sut.getLibraryLastItem()
     XCTAssert(lastBook == nil)
   }
 
@@ -57,12 +57,12 @@ class LibraryServiceTests: XCTestCase {
 
     self.sut.dataManager.saveContext()
 
-    let lastBook = try! self.sut.getLibraryLastItem()
+    let lastBook = sut.getLibraryLastItem()
     XCTAssert(lastBook?.relativePath == book.relativePath)
   }
 
   func testGetLibraryCurrentTheme() {
-    XCTAssert(try! self.sut.getLibraryCurrentTheme() == nil)
+    XCTAssert(sut.getLibraryCurrentTheme() == nil)
 
     let theme = Theme(context: self.sut.dataManager.getContext())
     theme.title = "theme-test"
@@ -73,19 +73,8 @@ class LibraryServiceTests: XCTestCase {
 
     self.sut.dataManager.saveContext()
 
-    let currentTheme = try! self.sut.getLibraryCurrentTheme()
+    let currentTheme = sut.getLibraryCurrentTheme()
     XCTAssert(currentTheme?.title == theme.title)
-  }
-
-  func testGetTheme() {
-    XCTAssert(self.sut.getTheme(with: "theme-test") == nil)
-
-    let theme = Theme(context: self.sut.dataManager.getContext())
-    theme.title = "theme-test"
-
-    self.sut.dataManager.saveContext()
-
-    XCTAssert(self.sut.getTheme(with: "theme-test") != nil)
   }
 
   func testSetLibraryTheme() {
@@ -95,47 +84,11 @@ class LibraryServiceTests: XCTestCase {
     let theme = Theme(context: self.sut.dataManager.getContext())
     theme.title = "theme-test"
 
-    self.sut.setLibraryTheme(with: "theme-test")
+    self.sut.setLibraryTheme(with: SimpleTheme(with: theme))
     self.sut.dataManager.saveContext()
 
     let testLibrary = self.sut.getLibrary()
     XCTAssert(testLibrary.currentTheme.title == "theme-test")
-  }
-
-  func testCreateThemeFromParams() {
-    let params: [String: Any] = [
-      "title": "Default / Dark",
-      "lightPrimaryHex": "242320",
-      "lightSecondaryHex": "8F8E95",
-      "lightAccentHex": "3488D1",
-      "lightSeparatorHex": "DCDCDC",
-      "lightSystemBackgroundHex": "FAFAFA",
-      "lightSecondarySystemBackgroundHex": "FCFBFC",
-      "lightTertiarySystemBackgroundHex": "E8E7E9",
-      "lightSystemGroupedBackgroundHex": "EFEEF0",
-      "lightSystemFillHex": "87A0BA",
-      "lightSecondarySystemFillHex": "ACAAB1",
-      "lightTertiarySystemFillHex": "3488D1",
-      "lightQuaternarySystemFillHex": "3488D1",
-      "darkPrimaryHex": "FAFBFC",
-      "darkSecondaryHex": "8F8E94",
-      "darkAccentHex": "459EEC",
-      "darkSeparatorHex": "434448",
-      "darkSystemBackgroundHex": "202225",
-      "darkSecondarySystemBackgroundHex": "111113",
-      "darkTertiarySystemBackgroundHex": "333538",
-      "darkSystemGroupedBackgroundHex": "2C2D30",
-      "darkSystemFillHex": "647E98",
-      "darkSecondarySystemFillHex": "707176",
-      "darkTertiarySystemFillHex": "459EEC",
-      "darkQuaternarySystemFillHex": "459EEC",
-      "locked": false
-    ]
-
-    let theme = self.sut.createTheme(params: params)
-    XCTAssert(theme.title == "Default / Dark")
-    XCTAssert(theme.lightPrimaryHex == "242320")
-    XCTAssert(theme.darkPrimaryHex == "FAFBFC")
   }
 
   func testCreateBook() {

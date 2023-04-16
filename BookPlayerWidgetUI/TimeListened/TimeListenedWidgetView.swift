@@ -36,24 +36,17 @@ struct TimeListenedProvider: IntentTimelineProvider {
         records = [WidgetUtils.getPlaybackRecord(with: libraryService)]
       }
 
-      var title: String?
-      var theme: SimpleTheme?
-
-      if let lastPlayedItem = try? libraryService.getLibraryLastItem(),
-         let currentTheme = try? libraryService.getLibraryCurrentTheme() {
-        title = lastPlayedItem.title
-        theme = SimpleTheme(with: currentTheme)
-      }
-
       let autoplay = configuration.autoplay?.boolValue ?? true
       let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
 
-      let entry = TimeListenedEntry(date: Date(),
-                                    title: title,
-                                    theme: theme,
-                                    timerSeconds: seconds,
-                                    autoplay: autoplay,
-                                    playbackRecords: records)
+      let entry = TimeListenedEntry(
+        date: Date(),
+        title: libraryService.getLibraryLastItem()?.title,
+        theme: libraryService.getLibraryCurrentTheme(),
+        timerSeconds: seconds,
+        autoplay: autoplay,
+        playbackRecords: records
+      )
 
       completion(entry)
     }
@@ -78,24 +71,17 @@ struct TimeListenedProvider: IntentTimelineProvider {
         records = [WidgetUtils.getPlaybackRecord(with: libraryService)]
       }
 
-      var title: String?
-      var theme: SimpleTheme?
-
-      if let lastPlayedItem = try? libraryService.getLibraryLastItem(),
-         let currentTheme = try? libraryService.getLibraryCurrentTheme() {
-        title = lastPlayedItem.title
-        theme = SimpleTheme(with: currentTheme)
-      }
-
       let autoplay = configuration.autoplay?.boolValue ?? true
       let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
 
-      let entry = TimeListenedEntry(date: Date(),
-                                    title: title,
-                                    theme: theme,
-                                    timerSeconds: seconds,
-                                    autoplay: autoplay,
-                                    playbackRecords: records)
+      let entry = TimeListenedEntry(
+        date: Date(),
+        title: libraryService.getLibraryLastItem()?.title,
+        theme: libraryService.getLibraryCurrentTheme(),
+        timerSeconds: seconds,
+        autoplay: autoplay,
+        playbackRecords: records
+      )
 
       completion(Timeline(entries: [entry], policy: .after(WidgetUtils.getNextDayDate())))
     }

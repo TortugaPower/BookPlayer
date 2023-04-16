@@ -141,14 +141,6 @@ class StorageViewModelMissingFileTests: XCTestCase {
     let book = self.viewModel.libraryService.createBook(from: loadedFileURL)
     try viewModel.libraryService.moveItems([book.relativePath], inside: folder.relativePath)
 
-    let currentRelativePath = self.viewModel.getRelativePath(of: loadedFileURL, baseURL: self.directoryURL)
-
-    // manually fetched book should be nil
-    let fetchedBook = self.viewModel.libraryService.getItem(
-      with: currentRelativePath
-    ) as? Book
-
-    XCTAssert(fetchedBook == nil)
-    XCTAssertFalse(self.viewModel.shouldShowWarning(for: "Maigretův první případ/idyllica_04_herrick_64kb.mp3", book: nil))
+    XCTAssertFalse(self.viewModel.shouldShowWarning(for: "Maigretův první případ/idyllica_04_herrick_64kb.mp3"))
   }
 }

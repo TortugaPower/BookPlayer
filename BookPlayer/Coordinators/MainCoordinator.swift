@@ -48,7 +48,7 @@ class MainCoordinator: Coordinator {
   override func start() {
     let viewModel = MiniPlayerViewModel(
       playerManager: self.playerManager,
-      lastPlayedItem: try? libraryService.getLibraryLastItem()
+      lastPlayedItem: libraryService.getLibraryLastItem()
     )
 
     viewModel.onTransition = { route in
@@ -66,8 +66,8 @@ class MainCoordinator: Coordinator {
     tabBarController.modalTransitionStyle = .crossDissolve
     presentingViewController = tabBarController
 
-    if let currentTheme = try? libraryService.getLibraryCurrentTheme() {
-      ThemeManager.shared.currentTheme = SimpleTheme(with: currentTheme)
+    if let currentTheme = libraryService.getLibraryCurrentTheme() {
+      ThemeManager.shared.currentTheme = currentTheme
     }
 
     bindObservers()

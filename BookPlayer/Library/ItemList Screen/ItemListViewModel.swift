@@ -96,11 +96,11 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       return "library_title".localized
     }
 
-    guard let item = self.libraryService.getItem(with: folderRelativePath) else {
-      return ""
-    }
-
-    return item.title
+    return libraryService.getItemProperty(
+      #keyPath(LibraryItem.title),
+      relativePath: folderRelativePath
+    ) as? String
+    ?? ""
   }
 
   func observeEvents() -> AnyPublisher<ItemListViewModel.Events, Never> {

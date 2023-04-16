@@ -38,7 +38,7 @@ public struct SimpleTheme: Codable {
   public let darkQuaternarySystemFillHex: String
   public let locked: Bool
 
-  public let title: String?
+  public let title: String
 
   public var lightPrimaryColor: UIColor {
       return UIColor(hex: lightPrimaryHex)
@@ -171,7 +171,7 @@ public struct SimpleTheme: Codable {
     darkTertiarySystemFillHex: String,
     darkQuaternarySystemFillHex: String,
     locked: Bool,
-    title: String?
+    title: String
   ) {
     self.useDarkVariant = useDarkVariant
     self.lightPrimaryHex = lightPrimaryHex
@@ -398,7 +398,7 @@ extension SimpleTheme: Equatable {
 }
 
 extension SimpleTheme {
-  public static func getDefaultTheme(useDarkVariant: Bool) -> SimpleTheme {
+  public static func getDefaultTheme(useDarkVariant: Bool = false) -> SimpleTheme {
     return SimpleTheme(
       useDarkVariant: useDarkVariant,
       lightPrimaryHex: "242320",

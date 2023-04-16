@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21513" systemVersion="22D68" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21513" systemVersion="22E261" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Account" representedClassName="Account" syncable="YES">
         <attribute name="donationMade" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="email" attributeType="String"/>
@@ -78,7 +78,7 @@
         <attribute name="lightSystemGroupedBackgroundHex" optional="YES" attributeType="String"/>
         <attribute name="lightTertiarySystemBackgroundHex" optional="YES" attributeType="String"/>
         <attribute name="lightTertiarySystemFillHex" optional="YES" attributeType="String"/>
-        <attribute name="title" optional="YES" attributeType="String"/>
+        <attribute name="title" attributeType="String"/>
         <relationship name="library" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Library" inverseName="extractedThemes" inverseEntity="Library"/>
         <relationship name="selected" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Library" inverseName="currentTheme" inverseEntity="Library"/>
     </entity>

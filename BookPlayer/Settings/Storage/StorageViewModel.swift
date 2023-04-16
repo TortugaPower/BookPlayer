@@ -47,18 +47,19 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
               let fileAttributes = try? FileManager.default.attributesOfItem(atPath: fileURL.path) else { continue }
 
         let currentRelativePath = self.getRelativePath(of: fileURL, baseURL: processedFolder)
-        let fetchedBook = self.libraryService.getItem(
-          with: currentRelativePath
-        ) as? Book
+        let fetchedTitle = self.libraryService.getItemProperty(
+          #keyPath(LibraryItem.title),
+          relativePath: currentRelativePath
+        ) as? String
 
-        let bookTitle = fetchedBook?.title ?? Book.getBookTitle(from: fileURL)
+        let bookTitle = fetchedTitle ?? Book.getBookTitle(from: fileURL)
 
         let storageItem = StorageItem(
           title: bookTitle,
           fileURL: fileURL,
           path: fileURL.relativePath(to: processedFolder),
           size: fileAttributes[FileAttributeKey.size] as? Int64 ?? 0,
-          showWarning: self.shouldShowWarning(for: currentRelativePath, book: fetchedBook)
+          showWarning: fetchedTitle == nil && self.shouldShowWarning(for: currentRelativePath)
         )
 
         items.append(storageItem)
@@ -72,9 +73,7 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
     return String(fileURL.relativePath(to: baseURL).dropFirst())
   }
 
-  func shouldShowWarning(for relativePath: String, book: Book?) -> Bool {
-    guard book == nil else { return false }
-
+  func shouldShowWarning(for relativePath: String) -> Bool {
     // Fetch may fail with unicode characters, this is a last resort to double check it's not really linked
     return !bookExists(relativePath, library: self.library)
   }

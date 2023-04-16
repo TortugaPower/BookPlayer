@@ -40,7 +40,7 @@ extension Theme {
     @NSManaged public var darkTertiarySystemFillHex: String!
     @NSManaged public var darkQuaternarySystemFillHex: String!
 
-    @NSManaged public var title: String?
+    @NSManaged public var title: String!
     @NSManaged public var book: Book?
     @NSManaged public var library: Library?
 

@@ -11,6 +11,14 @@ import Foundation
 
 /// Empty class meant to be subclassed to adjust service for test conditions
 class EmptyPlaybackServiceMock: PlaybackServiceProtocol {
+  func getFirstPlayableItem(in folder: BookPlayerKit.SimpleLibraryItem, isUnfinished: Bool?) throws -> BookPlayerKit.PlayableItem? {
+    return nil
+  }
+
+  func getPlayableItem(from item: BookPlayerKit.SimpleLibraryItem) throws -> BookPlayerKit.PlayableItem? {
+    return nil
+  }
+
   func updatePlaybackTime(item: PlayableItem, time: Double) {}
 
   func getPlayableItem(before relativePath: String, parentFolder: String?) -> PlayableItem? {
@@ -27,14 +35,6 @@ class EmptyPlaybackServiceMock: PlaybackServiceProtocol {
     autoplayed: Bool,
     restartFinished: Bool
   ) -> PlayableItem? {
-    return nil
-  }
-
-  func getPlayableItem(from item: LibraryItem) throws -> PlayableItem? {
-    return nil
-  }
-
-  func getFirstPlayableItem(in folder: Folder, isUnfinished: Bool?) throws -> PlayableItem? {
     return nil
   }
 }

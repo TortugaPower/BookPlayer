@@ -12,6 +12,36 @@ import Foundation
 
 /// Empty class meant to be subclassed to adjust service for test conditions
 class EmptyLibraryServiceMock: LibraryServiceProtocol {
+  func getLibraryLastItem() -> BookPlayerKit.SimpleLibraryItem? {
+    return nil
+  }
+
+  func getLibraryCurrentTheme() -> BookPlayerKit.SimpleTheme? {
+    return nil
+  }
+
+  func setLibraryTheme(with simpleTheme: BookPlayerKit.SimpleTheme) { }
+
+  func getLastPlayedItems(limit: Int?) -> [BookPlayerKit.SimpleLibraryItem]? {
+    return nil
+  }
+
+  func getSimpleItem(with relativePath: String) -> BookPlayerKit.SimpleLibraryItem? {
+    return nil
+  }
+
+  func findFirstItem(in parentFolder: String?, isUnfinished: Bool?) -> BookPlayerKit.SimpleLibraryItem? {
+    return nil
+  }
+
+  func findFirstItem(in parentFolder: String?, beforeRank: Int16?) -> BookPlayerKit.SimpleLibraryItem? {
+    return nil
+  }
+
+  func findFirstItem(in parentFolder: String?, afterRank: Int16?, isUnfinished: Bool?) -> BookPlayerKit.SimpleLibraryItem? {
+    return nil
+  }
+
   func getLibraryReference() -> BookPlayerKit.Library {
     return Library()
   }
@@ -66,24 +96,14 @@ class EmptyLibraryServiceMock: LibraryServiceProtocol {
     return Library()
   }
 
-  func getLibraryLastItem() throws -> LibraryItem? {
-    return nil
-  }
-
-  func getLibraryCurrentTheme() throws -> Theme? {
-    return nil
-  }
-
   func getTheme(with title: String) -> Theme? {
     return nil
   }
 
-  func setLibraryTheme(with title: String) {}
-
   func setLibraryLastBook(with relativePath: String?) {}
 
-  func createTheme(params: [String: Any]) -> Theme {
-    return Theme()
+  func createTheme(params: [String: Any]) -> SimpleTheme {
+    return SimpleTheme(with: Theme())
   }
 
   func createBook(from url: URL) -> Book {
@@ -99,10 +119,6 @@ class EmptyLibraryServiceMock: LibraryServiceProtocol {
   }
 
   func findBooks(containing fileURL: URL) -> [Book]? {
-    return nil
-  }
-
-  func getLastPlayedItems(limit: Int?) -> [LibraryItem]? {
     return nil
   }
 
@@ -124,6 +140,7 @@ class EmptyLibraryServiceMock: LibraryServiceProtocol {
     return SimpleLibraryItem(
       title: "",
       details: "",
+      currentTime: 0,
       duration: 0,
       percentCompleted: 0,
       isFinished: false,
@@ -204,18 +221,6 @@ class EmptyLibraryServiceMock: LibraryServiceProtocol {
   func moveItems(_ items: [LibraryItem], inside relativePath: String?, moveFiles: Bool) throws {}
 
   func delete(_ items: [LibraryItem], mode: DeleteMode) throws {}
-
-  func findFirstItem(in parentFolder: String?, isUnfinished: Bool?) -> LibraryItem? {
-    return nil
-  }
-
-  func findFirstItem(in parentFolder: String?, beforeRank: Int16?) -> LibraryItem? {
-    return nil
-  }
-
-  func findFirstItem(in parentFolder: String?, afterRank: Int16?, isUnfinished: Bool?) -> LibraryItem? {
-    return nil
-  }
 
   func getItemProperty(_ property: String, relativePath: String) -> Any? {
     return nil

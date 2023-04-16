@@ -147,7 +147,7 @@ class LibraryListCoordinator: ItemListCoordinator {
     /// Only load on launch if flag is set
     guard
       UserDefaults.standard.bool(forKey: Constants.UserActivityPlayback) == true,
-      let libraryItem = try? self.libraryService.getLibraryLastItem()
+      let libraryItem = libraryService.getLibraryLastItem()
     else { return }
 
     AppDelegate.shared?.loadPlayer(
@@ -232,7 +232,7 @@ class LibraryListCoordinator: ItemListCoordinator {
 
     guard let lastPlayedRelativePath = lastPlayed?.relativePath else { return }
 
-    let lastItemRelativePath = try? libraryService.getLibraryLastItem()?.relativePath
+    let lastItemRelativePath = libraryService.getLibraryLastItem()?.relativePath
 
     guard lastItemRelativePath != lastPlayedRelativePath else { return }
 
@@ -240,7 +240,7 @@ class LibraryListCoordinator: ItemListCoordinator {
     libraryService.setLibraryLastBook(with: lastPlayedRelativePath)
 
     guard
-      let lastItem = try? libraryService.getLibraryLastItem(),
+      let lastItem = libraryService.getLibraryLastItem(),
       let playableItem = try? playbackService.getPlayableItem(from: lastItem)
     else { return }
 

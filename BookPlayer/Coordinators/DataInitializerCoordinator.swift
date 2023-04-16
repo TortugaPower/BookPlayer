@@ -68,7 +68,10 @@ class DataInitializerCoordinator {
 
       let dataManager = DataManager(coreDataStack: stack)
 
-      self?.setupDefaultState(dataManager: dataManager)
+      self?.setupDefaultState(
+        libraryService: LibraryService(dataManager: dataManager),
+        dataManager: dataManager
+      )
 
       self?.onFinish?(stack)
     }
@@ -129,12 +132,15 @@ class DataInitializerCoordinator {
 
       let dataManager = DataManager(coreDataStack: stack)
 
-      self?.setupDefaultState(dataManager: dataManager)
-
       let libraryService = LibraryService(dataManager: dataManager)
 
       /// Create library on disk
       _ = libraryService.getLibrary()
+
+      self?.setupDefaultState(
+        libraryService: libraryService,
+        dataManager: dataManager
+      )
 
       libraryService.insertItems(from: files)
 
@@ -142,7 +148,10 @@ class DataInitializerCoordinator {
     }
   }
 
-  func setupDefaultState(dataManager: DataManager) {
+  func setupDefaultState(
+    libraryService: LibraryService,
+    dataManager: DataManager
+  ) {
     let userDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
 
     // Migrate user defaults app icon
@@ -191,23 +200,17 @@ class DataInitializerCoordinator {
       UserDefaults.standard.set(true, forKey: Constants.UserDefaults.autoplayRestartEnabled.rawValue)
     }
 
-    self.setupThemes(dataManager: dataManager)
+    setupDefaultTheme(libraryService: libraryService)
 
-    self.setupBlankAccount(dataManager: dataManager)
+    setupBlankAccount(dataManager: dataManager)
   }
 
-  func setupThemes(dataManager: DataManager) {
-    let libraryService = LibraryService(dataManager: dataManager)
+  func setupDefaultTheme(libraryService: LibraryService) {
+    guard libraryService.getLibraryCurrentTheme() == nil else { return }
 
-    // Load themes into DB if necessary
-    self.loadLocalThemesIfNeeded(libraryService)
-
-    // Load default theme into library if needed
-    let library = libraryService.getLibrary()
-
-    if library.currentTheme == nil {
-      libraryService.setLibraryTheme(with: "Default / Dark")
-    }
+    libraryService.setLibraryTheme(
+      with: SimpleTheme.getDefaultTheme()
+    )
   }
 
   /// Setup blank account for donationMade key migration
@@ -221,17 +224,5 @@ class DataInitializerCoordinator {
     )
 
     UserDefaults.standard.set(nil, forKey: Constants.UserDefaults.donationMade.rawValue)
-  }
-
-  public func loadLocalThemesIfNeeded(_ libraryService: LibraryService) {
-    guard
-      libraryService.getTheme(with: "Default / Dark") == nil,
-      let themesFile = Bundle.main.url(forResource: "Themes", withExtension: "json"),
-      let data = try? Data(contentsOf: themesFile, options: .mappedIfSafe),
-      let jsonObject = try? JSONSerialization.jsonObject(with: data, options: .mutableLeaves),
-      let themeParams = jsonObject as? [[String: Any]]
-    else { return }
-
-    themeParams.forEach({ _ = libraryService.createTheme(params: $0) })
   }
 }
