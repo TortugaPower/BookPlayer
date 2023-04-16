@@ -1047,7 +1047,7 @@ extension LibraryService {
       throw BookPlayerError.runtimeError("Can't find the folder")
     }
 
-    var metadataUpdates: [String : Any] = [
+    var metadataUpdates: [String: Any] = [
       #keyPath(LibraryItem.relativePath): relativePath,
       #keyPath(LibraryItem.type): type.rawValue,
     ]

@@ -9,9 +9,13 @@
 import AVFoundation
 import BookPlayerKit
 import Foundation
+import Combine
 
 /// Empty class meant to be subclassed to adjust service for test conditions
 class EmptyLibraryServiceMock: LibraryServiceProtocol {
+  var metadataUpdatePublisher: AnyPublisher<[String: Any], Never> = PassthroughSubject<[String: Any], Never>()
+    .eraseToAnyPublisher()
+
   func getLibraryLastItem() -> BookPlayerKit.SimpleLibraryItem? {
     return nil
   }
