@@ -16,6 +16,8 @@ public protocol JobSchedulerProtocol {
   func scheduleLibraryItemUploadJob(for item: SyncableItem)
   /// Update existing metadata in the server
   func scheduleMetadataUpdateJob(with relativePath: String, parameters: [String: Any])
+  /// Move item to destination
+  func scheduleMoveItemJob(with relativePath: String, to parentFolder: String?)
   /// Delete item
   func scheduleDeleteJob(with relativePath: String, mode: DeleteMode)
   /// Cancel all stored and ongoing jobs
@@ -85,6 +87,20 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       .retry(limit: .unlimited)
       .internet(atLeast: .wifi)
       .with(params: parameters)
+      .schedule(manager: libraryQueueManager)
+  }
+
+  public func scheduleMoveItemJob(with relativePath: String, to parentFolder: String?) {
+    JobBuilder(type: LibraryItemSyncJob.type)
+      .singleInstance(forId: "\(JobType.move.identifier)/\(relativePath)")
+      .persist()
+      .retry(limit: .unlimited)
+      .internet(atLeast: .wifi)
+      .with(params: [
+        "origin": relativePath,
+        "destination": parentFolder ?? "",
+        "jobType": JobType.move.rawValue
+      ])
       .schedule(manager: libraryQueueManager)
   }
 

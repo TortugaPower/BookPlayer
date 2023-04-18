@@ -350,6 +350,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       let folder = try self.libraryService.createFolder(with: title, inside: self.folderRelativePath)
       if let fetchedItems = items {
         try libraryService.moveItems(fetchedItems, inside: folder.relativePath)
+        syncService.scheduleMove(items: fetchedItems, to: folder.relativePath)
       }
       try self.libraryService.updateFolder(at: folder.relativePath, type: type)
       libraryService.rebuildFolderDetails(folder.relativePath)
@@ -395,6 +396,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
     do {
       try libraryService.moveItems(selectedItems, inside: nil)
+      syncService.scheduleMove(items: selectedItems, to: nil)
       if let parentFolder {
         libraryService.rebuildFolderDetails(parentFolder)
       }
@@ -414,6 +416,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
     do {
       try libraryService.moveItems(fetchedItems, inside: folder.relativePath)
+      syncService.scheduleMove(items: fetchedItems, to: folder.relativePath)
     } catch {
       sendEvent(.showAlert(
         content: BPAlertContent.errorAlert(message: error.localizedDescription)
@@ -972,6 +975,7 @@ extension ItemListViewModel {
     do {
       /// Move imported files to current selected folder so the user can see them
       try libraryService.moveItems(processedItems, inside: folderRelativePath)
+      syncService.scheduleMove(items: processedItems, to: folderRelativePath)
     } catch {
       sendEvent(.showAlert(
         content: BPAlertContent.errorAlert(message: error.localizedDescription)
@@ -1060,6 +1064,7 @@ extension ItemListViewModel {
   func importIntoFolder(_ folder: SimpleLibraryItem, items: [String], type: SimpleItemType) {
     do {
       try libraryService.moveItems(items, inside: folder.relativePath)
+      syncService.scheduleMove(items: items, to: folder.relativePath)
       try libraryService.updateFolder(at: folder.relativePath, type: type)
     } catch {
       sendEvent(.showAlert(
@@ -1073,6 +1078,7 @@ extension ItemListViewModel {
   func handleInsertionIntoLibrary(_ items: [String]) {
     do {
       try libraryService.moveItems(items, inside: nil)
+      syncService.scheduleMove(items: items, to: nil)
     } catch {
       sendEvent(.showAlert(
         content: BPAlertContent.errorAlert(message: error.localizedDescription)
