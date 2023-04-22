@@ -64,7 +64,7 @@ class LibraryItemSyncJob: Job, BPLogger {
           else {
             throw BookPlayerError.runtimeError("Missing parameters for moving")
           }
-          let _: UploadItemResponse = try await self.provider.request(.move(origin: origin, destination: destination))
+          let _: Empty = try await self.provider.request(.move(origin: origin, destination: destination))
           callback.done(.success)
         case .delete:
           let _: Empty = try await provider.request(.delete(path: self.relativePath))

@@ -97,6 +97,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       .retry(limit: .unlimited)
       .internet(atLeast: .wifi)
       .with(params: [
+        "relativePath": relativePath,
         "origin": relativePath,
         "destination": parentFolder ?? "",
         "jobType": JobType.move.rawValue
