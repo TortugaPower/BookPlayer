@@ -12,6 +12,7 @@ public enum LibraryAPI {
   case contents(path: String)
   case upload(params: [String: Any])
   case update(params: [String: Any])
+  case move(origin: String, destination: String)
   case remoteFileURL(path: String)
   case remoteContentsURL(path: String)
   case delete(path: String)
@@ -27,6 +28,8 @@ extension LibraryAPI: Endpoint {
       return "/v1/library"
     case .update:
       return "/v1/library"
+    case .move:
+      return "/v1/library/move"
     case .remoteFileURL:
       return "/v1/library"
     case .remoteContentsURL:
@@ -45,6 +48,8 @@ extension LibraryAPI: Endpoint {
     case .upload:
       return .put
     case .update:
+      return .post
+    case .move:
       return .post
     case .remoteFileURL:
       return .get
@@ -65,6 +70,11 @@ extension LibraryAPI: Endpoint {
       return params
     case .update(let params):
       return params
+    case .move(let origin, let destination):
+      return [
+        "origin": origin,
+        "destination": destination
+      ]
     case .remoteFileURL(let path):
       return [
         "relativePath": path,

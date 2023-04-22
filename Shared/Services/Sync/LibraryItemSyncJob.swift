@@ -10,7 +10,7 @@ import Foundation
 import SwiftQueue
 
 enum JobType: String {
-  case upload, update, delete, shallowDelete
+  case upload, update, move, delete, shallowDelete
 
   var identifier: String {
     return "BKPLY-\(self.rawValue)"
@@ -56,6 +56,15 @@ class LibraryItemSyncJob: Job, BPLogger {
           try await self.handleUploadJob(callback: callback)
         case .update:
           let _: UploadItemResponse = try await self.provider.request(.update(params: self.parameters))
+          callback.done(.success)
+        case .move:
+          guard
+            let origin = parameters["origin"] as? String,
+            let destination = parameters["destination"] as? String
+          else {
+            throw BookPlayerError.runtimeError("Missing parameters for moving")
+          }
+          let _: Empty = try await self.provider.request(.move(origin: origin, destination: destination))
           callback.done(.success)
         case .delete:
           let _: Empty = try await provider.request(.delete(path: self.relativePath))

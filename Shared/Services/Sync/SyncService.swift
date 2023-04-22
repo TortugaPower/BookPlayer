@@ -36,6 +36,8 @@ public protocol SyncServiceProtocol {
 
   func scheduleDelete(_ items: [SimpleLibraryItem], mode: DeleteMode)
 
+  func scheduleMove(items: [String], to parentFolder: String?)
+
   /// Cancel all scheduled jobs
   func cancelAllJobs()
 }
@@ -289,6 +291,16 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
   public func cancelAllJobs() {
     jobManager.cancelAllJobs()
+  }
+}
+
+extension SyncService {
+  public func scheduleMove(items: [String], to parentFolder: String?) {
+    guard isActive else { return }
+
+    for relativePath in items {
+      jobManager.scheduleMoveItemJob(with: relativePath, to: parentFolder)
+    }
   }
 }
 
