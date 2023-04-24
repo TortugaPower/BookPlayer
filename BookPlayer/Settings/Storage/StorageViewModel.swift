@@ -70,7 +70,7 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
   }
 
   func getRelativePath(of fileURL: URL, baseURL: URL) -> String {
-    return String(fileURL.relativePath(to: baseURL).dropFirst())
+    return fileURL.relativePath(to: baseURL)
   }
 
   func shouldShowWarning(for relativePath: String) -> Bool {

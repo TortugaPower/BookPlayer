@@ -58,7 +58,7 @@ class EmptyLibraryServiceMock: LibraryServiceProtocol {
     return nil
   }
 
-  func insertItems(from files: [URL]) -> [String] {
+  func insertItems(from files: [URL]) -> [SimpleLibraryItem] {
     return []
   }
 
@@ -144,6 +144,7 @@ class EmptyLibraryServiceMock: LibraryServiceProtocol {
     return SimpleLibraryItem(
       title: "",
       details: "",
+      speed: 1,
       currentTime: 0,
       duration: 0,
       percentCompleted: 0,

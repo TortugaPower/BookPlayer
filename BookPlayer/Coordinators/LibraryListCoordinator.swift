@@ -217,8 +217,7 @@ class LibraryListCoordinator: ItemListCoordinator {
   override func syncList() {
     Task { [weak self] in
       guard
-        let self = self,
-        UserDefaults.standard.bool(forKey: Constants.UserDefaults.completedLibrarySync.rawValue) == true
+        let self = self
       else { return }
 
       guard let (newItems, lastPlayed) = try await self.syncService.syncListContents(at: nil) else { return }

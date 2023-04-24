@@ -11,9 +11,8 @@ import Foundation
 import SwiftQueue
 
 public protocol JobSchedulerProtocol {
-  var libraryFinishedSync: (() -> Void)? { get set }
   /// Uploads the metadata for the first time to the server
-  func scheduleLibraryItemUploadJob(for item: SyncableItem)
+  func scheduleLibraryItemUploadJob(for item: SyncableItem) throws
   /// Update existing metadata in the server
   func scheduleMetadataUpdateJob(with relativePath: String, parameters: [String: Any])
   /// Move item to destination
@@ -27,7 +26,6 @@ public protocol JobSchedulerProtocol {
 public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   let libraryJobsPersister: UserDefaultsPersister
   var libraryQueueManager: SwiftQueueManager!
-  public var libraryFinishedSync: (() -> Void)?
   private var disposeBag = Set<AnyCancellable>()
 
   public init() {
@@ -42,10 +40,17 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       .sink { [weak self] notification in
         guard
           let task = notification.object as? URLSessionTask,
-          let path = task.taskDescription
+          let relativePath = task.taskDescription
         else { return }
 
-        self?.libraryQueueManager.cancelOperations(uuid: path)
+        do {
+          let hardLinkURL = FileManager.default.temporaryDirectory.appendingPathComponent(relativePath)
+          try FileManager.default.removeItem(at: hardLinkURL)
+        } catch {
+          Self.logger.trace("Failed to delete hard link for \(relativePath): \(error.localizedDescription)")
+        }
+
+        self?.libraryQueueManager.cancelOperations(uuid: "\(JobType.upload.identifier)/\(relativePath)")
       }
       .store(in: &disposeBag)
 
@@ -56,7 +61,18 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       .store(in: &disposeBag)
   }
 
-  public func scheduleLibraryItemUploadJob(for item: SyncableItem) {
+  private func createHardLink(for item: SyncableItem) throws {
+    let hardLinkURL = FileManager.default.temporaryDirectory.appendingPathComponent(item.relativePath)
+
+    let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(item.relativePath)
+
+    try FileManager.default.linkItem(at: fileURL, to: hardLinkURL)
+  }
+
+  public func scheduleLibraryItemUploadJob(for item: SyncableItem) throws {
+    /// Create hard link to file location in case the user moves the item around in the library
+    try createHardLink(for: item)
+
     var parameters: [String: Any] = [
       "relativePath": item.relativePath,
       "originalFileName": item.originalFileName,
@@ -162,6 +178,11 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
 extension SyncJobScheduler: JobListener {
   public func onJobScheduled(job: SwiftQueue.JobInfo) {
     Self.logger.trace("Schedule job for \(job.params["relativePath"] as? String)")
+
+    UserDefaults.standard.set(
+      true,
+      forKey: Constants.UserDefaults.hasQueuedJobs.rawValue
+    )
   }
 
   public func onBeforeRun(job: SwiftQueue.JobInfo) {}
@@ -176,6 +197,9 @@ extension SyncJobScheduler: JobListener {
       pendingOperations.isEmpty
     else { return }
 
-    libraryFinishedSync?()
+    UserDefaults.standard.set(
+      false,
+      forKey: Constants.UserDefaults.hasQueuedJobs.rawValue
+    )
   }
 }

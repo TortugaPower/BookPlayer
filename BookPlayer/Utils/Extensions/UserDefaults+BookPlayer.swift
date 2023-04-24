@@ -14,7 +14,7 @@ extension UserDefaults {
     return string(forKey: Constants.UserDefaults.appIcon.rawValue)
   }
 
-  @objc dynamic var userSettingsCompletedLibrarySync: Bool {
-    return bool(forKey: Constants.UserDefaults.completedLibrarySync.rawValue)
+  @objc dynamic var userSettingsHasQueuedJobs: Bool {
+    return bool(forKey: Constants.UserDefaults.hasQueuedJobs.rawValue)
   }
 }

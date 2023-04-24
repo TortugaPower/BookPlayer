@@ -6,7 +6,13 @@ public extension URL {
     }
 
     func relativePath(to baseURL: URL) -> String {
-        return self.path.components(separatedBy: baseURL.path).last ?? ""
+      let lastPath = self.path.components(separatedBy: baseURL.path).last ?? ""
+      if !lastPath.isEmpty,
+         lastPath.first == "/" {
+        return String(lastPath.dropFirst())
+      } else {
+        return lastPath
+      }
     }
 
     var isDirectoryFolder: Bool {

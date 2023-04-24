@@ -82,6 +82,7 @@ struct ItemDetailsForm_Previews: PreviewProvider {
         item: SimpleLibraryItem(
           title: "title",
           details: "details",
+          speed: 1,
           currentTime: 0,
           duration: 100,
           percentCompleted: 1,

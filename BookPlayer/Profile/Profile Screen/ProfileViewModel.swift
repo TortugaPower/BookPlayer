@@ -63,10 +63,10 @@ class ProfileViewModel: BaseViewModel<ProfileCoordinator>, ProfileViewModelProto
   }
 
   func bindObservers() {
-    UserDefaults.standard.publisher(for: \.userSettingsCompletedLibrarySync)
+    UserDefaults.standard.publisher(for: \.userSettingsHasQueuedJobs)
       .receive(on: DispatchQueue.main)
       .sink(receiveValue: { [weak self] completedSync in
-        self?.isSyncButtonDisabled = !completedSync
+        self?.isSyncButtonDisabled = completedSync
       })
       .store(in: &disposeBag)
 
