@@ -117,6 +117,9 @@ class LibraryItemSyncJob: Job, BPLogger {
         parameters: nil,
         useKeychain: false
       )
+
+      /// Clean up hard link
+      try FileManager.default.removeItem(at: fileURL)
       callback.done(.success)
       return
     }
