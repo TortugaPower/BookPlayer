@@ -74,7 +74,6 @@ class FolderListCoordinator: ItemListCoordinator {
     Task { [weak self] in
       guard
         let self = self,
-        UserDefaults.standard.bool(forKey: Constants.UserDefaults.completedLibrarySync.rawValue) == true,
         let (newItems, _) = try await self.syncService.syncListContents(at: self.folderRelativePath)
       else { return }
 

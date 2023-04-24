@@ -348,6 +348,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   func createFolder(with title: String, items: [String]? = nil, type: SimpleItemType) {
     do {
       let folder = try self.libraryService.createFolder(with: title, inside: self.folderRelativePath)
+      try syncService.scheduleUpload(items: [folder])
       if let fetchedItems = items {
         try libraryService.moveItems(fetchedItems, inside: folder.relativePath)
         syncService.scheduleMove(items: fetchedItems, to: folder.relativePath)
@@ -971,11 +972,16 @@ extension ItemListViewModel {
 
   func handleOperationCompletion(_ files: [URL]) {
     let processedItems = libraryService.insertItems(from: files)
-
+    var itemIdentifiers = processedItems.map({ $0.relativePath })
     do {
+      try syncService.scheduleUpload(items: processedItems)
       /// Move imported files to current selected folder so the user can see them
-      try libraryService.moveItems(processedItems, inside: folderRelativePath)
-      syncService.scheduleMove(items: processedItems, to: folderRelativePath)
+      if let folderRelativePath {
+        try libraryService.moveItems(itemIdentifiers, inside: folderRelativePath)
+        syncService.scheduleMove(items: itemIdentifiers, to: folderRelativePath)
+        /// Update identifiers after moving for the follow up action alert
+        itemIdentifiers = itemIdentifiers.map({ "\(folderRelativePath)/\($0)" })
+      }
     } catch {
       sendEvent(.showAlert(
         content: BPAlertContent.errorAlert(message: error.localizedDescription)
@@ -983,14 +989,14 @@ extension ItemListViewModel {
       return
     }
 
-    self.coordinator.reloadItemsWithPadding(padding: processedItems.count)
+    self.coordinator.reloadItemsWithPadding(padding: itemIdentifiers.count)
 
     let availableFolders = self.libraryService.getItems(
-      notIn: processedItems,
+      notIn: itemIdentifiers,
       parentFolder: folderRelativePath
     )?.filter({ $0.type == .folder }) ?? []
 
-    showOperationCompletedAlert(with: processedItems, availableFolders: availableFolders)
+    showOperationCompletedAlert(with: itemIdentifiers, availableFolders: availableFolders)
   }
 
   func showOperationCompletedAlert(with items: [String], availableFolders: [SimpleLibraryItem]) {
@@ -1012,7 +1018,7 @@ extension ItemListViewModel {
       handler: { [hasParentFolder, items, weak self] in
         guard hasParentFolder else { return }
 
-        self?.handleInsertionIntoLibrary(items)
+        self?.importIntoLibrary(items)
       }
     ))
 
@@ -1075,7 +1081,7 @@ extension ItemListViewModel {
     self.coordinator.reloadItemsWithPadding()
   }
 
-  func handleInsertionIntoLibrary(_ items: [String]) {
+  func importIntoLibrary(_ items: [String]) {
     do {
       try libraryService.moveItems(items, inside: nil)
       syncService.scheduleMove(items: items, to: nil)

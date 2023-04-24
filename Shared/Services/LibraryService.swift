@@ -28,7 +28,7 @@ public protocol LibraryServiceProtocol {
   /// Set the last played book
   func setLibraryLastBook(with relativePath: String?)
   /// Import and insert items
-  func insertItems(from files: [URL]) -> [String]
+  func insertItems(from files: [URL]) -> [SimpleLibraryItem]
   /// Move items between folders
   func moveItems(_ items: [String], inside relativePath: String?) throws
   /// Delete items
@@ -263,6 +263,7 @@ public final class LibraryService: LibraryServiceProtocol {
       guard
         let title = dictionary["title"] as? String,
         let details = dictionary["details"] as? String,
+        let speed = dictionary["speed"] as? Float,
         let currentTime = dictionary["currentTime"] as? Double,
         let duration = dictionary["duration"] as? Double,
         let percentCompleted = dictionary["percentCompleted"] as? Double,
@@ -277,6 +278,7 @@ public final class LibraryService: LibraryServiceProtocol {
       return SimpleLibraryItem(
         title: title,
         details: details,
+        speed: Double(speed),
         currentTime: currentTime,
         duration: duration,
         percentCompleted: percentCompleted,
@@ -452,18 +454,18 @@ extension LibraryService {
   }
 
   @discardableResult
-  public func insertItems(from files: [URL]) -> [String] {
+  public func insertItems(from files: [URL]) -> [SimpleLibraryItem] {
     return insertItems(from: files, parentPath: nil)
   }
 
   /// This handles the Core Data objects creation from the Import operation. This method doesn't handle moving files on disk,
   /// as we don't want this method to throw, and the files are already in the processed folder
   @discardableResult
-  func insertItems(from files: [URL], parentPath: String? = nil) -> [String] {
+  func insertItems(from files: [URL], parentPath: String? = nil) -> [SimpleLibraryItem] {
     let context = dataManager.getContext()
     let library = getLibraryReference()
 
-    var processedFiles = [String]()
+    var processedFiles = [SimpleLibraryItem]()
     for file in files {
       let libraryItem: LibraryItem
 
@@ -487,7 +489,7 @@ extension LibraryService {
         library.addToItems(libraryItem)
       }
 
-      processedFiles.append(libraryItem.relativePath)
+      processedFiles.append(SimpleLibraryItem(from: libraryItem))
       dataManager.saveContext()
     }
 
@@ -648,6 +650,9 @@ extension LibraryService {
 
         try deleteItem(item)
       }
+
+      /// Clean up artwork cache
+      ArtworkService.removeCache(for: item.relativePath)
     }
   }
 
@@ -997,7 +1002,7 @@ extension LibraryService {
   func removeFolderIfNeeded(_ fileURL: URL) throws {
     guard FileManager.default.fileExists(atPath: fileURL.path) else { return }
 
-    let folderPath = String(fileURL.relativePath(to: DataManager.getProcessedFolderURL()).dropFirst())
+    let folderPath = fileURL.relativePath(to: DataManager.getProcessedFolderURL())
 
     // Delete folder if it belongs to an orphaned folder
     if let existingFolder = getItemReference(with: folderPath) as? Folder {
@@ -1193,7 +1198,7 @@ extension LibraryService {
         destinationUrl = processedFolderURL
           .appendingPathComponent(parentFolderPath)
           .appendingPathComponent(newTitle)
-        newRelativePath = String(destinationUrl.relativePath(to: processedFolderURL).dropFirst())
+        newRelativePath = destinationUrl.relativePath(to: processedFolderURL)
       } else {
         destinationUrl = processedFolderURL
           .appendingPathComponent(newTitle)

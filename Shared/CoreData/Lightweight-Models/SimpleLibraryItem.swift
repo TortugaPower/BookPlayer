@@ -14,6 +14,7 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
   }
   public let title: String
   public let details: String
+  public let speed: Double
   public let currentTime: Double
   public let duration: Double
   public let durationFormatted: String
@@ -46,6 +47,7 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
   static var fetchRequestProperties = [
     "title",
     "details",
+    "speed",
     "currentTime",
     "duration",
     "percentCompleted",
@@ -68,6 +70,7 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
   public init(
     title: String,
     details: String,
+    speed: Double,
     currentTime: Double,
     duration: Double,
     percentCompleted: Double,
@@ -81,6 +84,7 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
   ) {
     self.title = title
     self.details = details
+    self.speed = speed
     self.currentTime = currentTime
     self.duration = duration
     self.durationFormatted = TimeParser.formatTotalDuration(duration)
@@ -99,6 +103,7 @@ extension SimpleLibraryItem {
   public init(from item: LibraryItem) {
     self.title = item.title
     self.details = item.details
+    self.speed = Double(item.speed)
     self.currentTime = item.currentTime
     self.duration = item.duration
     self.durationFormatted = TimeParser.formatTotalDuration(item.duration)

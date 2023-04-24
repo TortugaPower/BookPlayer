@@ -53,7 +53,16 @@ class LibraryItemSyncJob: Job, BPLogger {
       do {
         switch self.jobType {
         case .upload:
-          try await self.handleUploadJob(callback: callback)
+          guard
+            let rawType = parameters["type"] as? Int16,
+            let type = SimpleItemType(rawValue: rawType)
+          else {
+            throw BookPlayerError.runtimeError("Missing parameters for uploading")
+          }
+          try await self.handleUploadJob(
+            type: type,
+            callback: callback
+          )
         case .update:
           let _: UploadItemResponse = try await self.provider.request(.update(params: self.parameters))
           callback.done(.success)
@@ -79,7 +88,10 @@ class LibraryItemSyncJob: Job, BPLogger {
     }
   }
 
-  func handleUploadJob(callback: SwiftQueue.JobResult) async throws {
+  func handleUploadJob(
+    type: SimpleItemType,
+    callback: SwiftQueue.JobResult
+  ) async throws {
     let response: UploadItemResponse = try await self.provider.request(.upload(params: self.parameters))
 
     guard let remoteURL = response.content.url else {
@@ -88,25 +100,26 @@ class LibraryItemSyncJob: Job, BPLogger {
       return
     }
 
-    let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(self.relativePath)
-
-    var isDirectory: ObjCBool = false
+    let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(self.relativePath)
 
     guard
-      FileManager.default.fileExists(atPath: fileURL.path, isDirectory: &isDirectory)
+      FileManager.default.fileExists(atPath: fileURL.path)
     else {
       /// Uploaded metadata will not have a backing file, but we'll have a backup of item data
       callback.done(.success)
       return
     }
 
-    guard isDirectory.boolValue == false else {
+    guard type == .book else {
       let _: Empty = try await self.client.request(
         url: remoteURL,
         method: .put,
         parameters: nil,
         useKeychain: false
       )
+
+      /// Clean up hard link
+      try FileManager.default.removeItem(at: fileURL)
       callback.done(.success)
       return
     }
@@ -163,9 +176,9 @@ class LibraryItemSyncJob: Job, BPLogger {
   func onRemove(result: SwiftQueue.JobCompletion) {
     switch result {
     case .success:
-      Self.logger.trace("Finished upload for: \(self.relativePath)")
+      Self.logger.trace("Finished \(self.jobType.rawValue) for: \(self.relativePath)")
     case .fail(let error):
-      Self.logger.error("Upload error for \(self.relativePath): \(error.localizedDescription)")
+      Self.logger.error("Error on jobType \(self.jobType.rawValue) for \(self.relativePath): \(error.localizedDescription)")
     }
   }
 }

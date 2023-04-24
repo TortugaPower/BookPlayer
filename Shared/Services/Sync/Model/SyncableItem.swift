@@ -70,3 +70,20 @@ extension SyncableItem: Decodable {
     self.type = try container.decode(SimpleItemType.self, forKey: .type)
   }
 }
+
+extension SyncableItem {
+  public init(from item: SimpleLibraryItem) {
+    self.relativePath = item.relativePath
+    self.originalFileName = item.originalFileName
+    self.title = item.title
+    self.details = item.details
+    self.speed = item.speed
+    self.currentTime = item.currentTime
+    self.duration = item.duration
+    self.percentCompleted = item.percentCompleted
+    self.isFinished = item.isFinished
+    self.orderRank = Int(item.orderRank)
+    self.lastPlayDateTimestamp = item.lastPlayDate?.timeIntervalSince1970
+    self.type = item.type
+  }
+}

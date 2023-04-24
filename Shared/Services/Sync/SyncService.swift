@@ -34,6 +34,8 @@ public protocol SyncServiceProtocol {
     delegate: URLSessionTaskDelegate
   ) async throws -> [URLSessionDownloadTask]
 
+  func scheduleUpload(items: [SimpleLibraryItem]) throws
+
   func scheduleDelete(_ items: [SimpleLibraryItem], mode: DeleteMode)
 
   func scheduleMove(items: [String], to parentFolder: String?)
@@ -78,13 +80,6 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       })
       .store(in: &disposeBag)
 
-    jobManager.libraryFinishedSync = {
-      UserDefaults.standard.set(
-        true,
-        forKey: Constants.UserDefaults.completedLibrarySync.rawValue
-      )
-    }
-
     libraryService.metadataUpdatePublisher.sink { [weak self] params in
       self?.scheduleMetadataUpdate(params: params)
     }
@@ -96,7 +91,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   ) async throws -> ([SyncableItem], SyncableItem?)? {
     guard
       isActive,
-      UserDefaults.standard.bool(forKey: Constants.UserDefaults.completedLibrarySync.rawValue) == true
+      UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasQueuedJobs.rawValue) == false
     else {
       throw BookPlayerError.networkError("Sync is not enabled")
     }
@@ -144,15 +139,12 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   }
 
   public func syncLibraryContents() async throws -> ([SyncableItem], SyncableItem?) {
-    guard isActive else {
+    guard
+      isActive,
+      UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasQueuedJobs.rawValue) == false
+    else {
       throw BookPlayerError.networkError("Sync is not enabled")
     }
-
-    /// Block any list syncing calls until the library sync is finished
-    UserDefaults.standard.set(
-      false,
-      forKey: Constants.UserDefaults.completedLibrarySync.rawValue
-    )
 
     UserDefaults.standard.set(
       Date().timeIntervalSince1970,
@@ -179,12 +171,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     if let itemsToUpload = libraryService.getItemsToSync(remoteIdentifiers: fetchedIdentifiers),
        !itemsToUpload.isEmpty {
-      handleItemsToUpload(itemsToUpload)
-    } else {
-      UserDefaults.standard.set(
-        true,
-        forKey: Constants.UserDefaults.completedLibrarySync.rawValue
-      )
+      try handleItemsToUpload(itemsToUpload)
     }
 
     return (itemsToStore, lastItemPlayed)
@@ -316,7 +303,7 @@ extension SyncService {
 }
 
 extension SyncService {
-  func handleItemsToUpload(_ items: [SyncableItem]) {
+  func handleItemsToUpload(_ items: [SyncableItem]) throws {
     let folders = items.filter({ $0.type != .book })
 
     var itemsToUpload = items
@@ -328,7 +315,17 @@ extension SyncService {
       }
     }
 
-    itemsToUpload.forEach({ [weak self] in self?.jobManager.scheduleLibraryItemUploadJob(for: $0) })
+    for item in itemsToUpload {
+      try jobManager.scheduleLibraryItemUploadJob(for: item)
+    }
+  }
+
+  public func scheduleUpload(items: [SimpleLibraryItem]) throws {
+    guard isActive else { return }
+
+    let syncItems = items.map({ SyncableItem(from: $0) })
+
+    try handleItemsToUpload(syncItems)
   }
 }
 
