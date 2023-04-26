@@ -13,14 +13,20 @@ import Foundation
 class BookmarksViewModel: BaseViewModel<BookmarkCoordinator> {
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
+  let syncService: SyncServiceProtocol
+  let reloadDataPublisher = PassthroughSubject<Bool, Never>()
 
-  init(playerManager: PlayerManagerProtocol,
-       libraryService: LibraryServiceProtocol) {
+  init(
+    playerManager: PlayerManagerProtocol,
+    libraryService: LibraryServiceProtocol,
+    syncService: SyncServiceProtocol
+  ) {
     self.playerManager = playerManager
     self.libraryService = libraryService
+    self.syncService = syncService
   }
 
-  func getAutomaticBookmarks() -> [Bookmark] {
+  func getAutomaticBookmarks() -> [SimpleBookmark] {
     guard let currentItem = self.playerManager.currentItem else { return [] }
 
     let playBookmarks = self.libraryService.getBookmarks(of: .play, relativePath: currentItem.relativePath) ?? []
@@ -31,15 +37,15 @@ class BookmarksViewModel: BaseViewModel<BookmarkCoordinator> {
     return bookmarks.sorted(by: { $0.time < $1.time })
   }
 
-  func getUserBookmarks() -> [Bookmark] {
+  func getUserBookmarks() -> [SimpleBookmark] {
     guard let currentItem = self.playerManager.currentItem else { return [] }
 
     let bookmarks = self.libraryService.getBookmarks(of: .user, relativePath: currentItem.relativePath) ?? []
 
-    return bookmarks.filter({ $0.type == .user }).sorted(by: { $0.time < $1.time })
+    return bookmarks
   }
 
-  func handleBookmarkSelected(_ bookmark: Bookmark) {
+  func handleBookmarkSelected(_ bookmark: SimpleBookmark) {
     self.playerManager.jumpTo(bookmark.time + 0.01, recordBookmark: false)
   }
 
@@ -54,11 +60,11 @@ class BookmarksViewModel: BaseViewModel<BookmarkCoordinator> {
     }
   }
 
-  func editNote(_ note: String, for bookmark: Bookmark) {
-    self.libraryService.addNote(note, bookmark: bookmark)
+  func editNote(_ note: String, for bookmark: SimpleBookmark) {
+    addNote(note, bookmark: bookmark)
   }
 
-  func getBookmarkNoteAlert(_ bookmark: Bookmark) -> UIAlertController {
+  func getBookmarkNoteAlert(_ bookmark: SimpleBookmark) -> UIAlertController {
     let alert = UIAlertController(title: "bookmark_note_action_title".localized,
                                   message: nil,
                                   preferredStyle: .alert)
@@ -68,19 +74,30 @@ class BookmarksViewModel: BaseViewModel<BookmarkCoordinator> {
     })
 
     alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
-    alert.addAction(UIAlertAction(title: "ok_button".localized, style: .default, handler: { _ in
+    alert.addAction(UIAlertAction(title: "ok_button".localized, style: .default, handler: { [weak self] _ in
       guard let note = alert.textFields?.first?.text else {
         return
       }
 
-      self.libraryService.addNote(note, bookmark: bookmark)
+      self?.addNote(note, bookmark: bookmark)
+      self?.reloadDataPublisher.send(true)
     }))
 
     return alert
   }
 
-  func deleteBookmark(_ bookmark: Bookmark) {
-    self.libraryService.deleteBookmark(bookmark)
+  func addNote(_ note: String, bookmark: SimpleBookmark) {
+    libraryService.addNote(note, bookmark: bookmark)
+    syncService.scheduleSetBookmark(
+      relativePath: bookmark.relativePath,
+      time: bookmark.time,
+      note: note
+    )
+  }
+
+  func deleteBookmark(_ bookmark: SimpleBookmark) {
+    libraryService.deleteBookmark(bookmark)
+    syncService.scheduleDeleteBookmark(bookmark)
   }
 
   func showExportController() {

@@ -148,12 +148,18 @@ class CarPlayManager: NSObject {
       else { return }
 
       let alertTitle: String
+      let currentTime = floor(currentItem.currentTime)
 
       if let bookmark = libraryService.createBookmark(
-        at: currentItem.currentTime,
+        at: currentTime,
         relativePath: currentItem.relativePath,
         type: .user
       ) {
+        AppDelegate.shared?.syncService?.scheduleSetBookmark(
+          relativePath: currentItem.relativePath,
+          time: currentTime,
+          note: nil
+        )
         let formattedTime = TimeParser.formatTime(bookmark.time)
         alertTitle = String.localizedStringWithFormat("bookmark_created_title".localized, formattedTime)
       } else {
@@ -380,7 +386,7 @@ extension CarPlayManager {
 // MARK: - Bookmark List Template
 
 extension CarPlayManager {
-  func createBookmarkCPItem(from bookmark: Bookmark, includeImage: Bool) -> CPListItem {
+  func createBookmarkCPItem(from bookmark: SimpleBookmark, includeImage: Bool) -> CPListItem {
     let item = CPListItem(
       text: bookmark.note,
       detailText: TimeParser.formatTime(bookmark.time)

@@ -19,6 +19,7 @@ public protocol LibrarySyncProtocol {
   func removeItems(notIn relativePaths: [String], parentFolder: String?) throws
   func fetchSyncableNestedContents(at relativePath: String) -> [SyncableItem]?
   func getMaxItemsCount(at relativePath: String?) -> Int
+  func getBookmarks(of type: BookmarkType, relativePath: String) -> [SimpleBookmark]?
 
   func updateInfo(from item: SyncableItem)
   func addBook(from item: SyncableItem, parentFolder: String?)

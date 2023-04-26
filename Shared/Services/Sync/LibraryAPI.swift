@@ -17,6 +17,8 @@ public enum LibraryAPI {
   case remoteContentsURL(path: String)
   case delete(path: String)
   case shallowDelete(path: String)
+  case bookmarks(path: String)
+  case setBookmark(path: String, note: String?, time: Double, isActive: Bool)
 }
 
 extension LibraryAPI: Endpoint {
@@ -38,6 +40,10 @@ extension LibraryAPI: Endpoint {
       return "/v1/library"
     case .shallowDelete:
       return "/v1/library/folder_in_out"
+    case .bookmarks:
+      return "/v1/library/bookmarks"
+    case .setBookmark:
+      return "/v1/library/bookmark"
     }
   }
 
@@ -59,6 +65,10 @@ extension LibraryAPI: Endpoint {
       return .delete
     case .shallowDelete:
       return .delete
+    case .bookmarks:
+      return .post
+    case .setBookmark:
+      return .put
     }
   }
 
@@ -89,6 +99,20 @@ extension LibraryAPI: Endpoint {
       return ["relativePath": path]
     case .shallowDelete(let path):
       return ["relativePath": path]
+    case .bookmarks(let path):
+      return ["relativePath": path]
+    case .setBookmark(let path, let note, let time, let isActive):
+      var params: [String: Any] = [
+        "key": path,
+        "time": time,
+        "active": isActive
+      ]
+
+      if let note {
+        params["note"] = note
+      }
+
+      return params
     }
   }
 }

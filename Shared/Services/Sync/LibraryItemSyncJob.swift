@@ -10,7 +10,13 @@ import Foundation
 import SwiftQueue
 
 enum JobType: String {
-  case upload, update, move, delete, shallowDelete
+  case upload
+  case update
+  case move
+  case delete
+  case shallowDelete
+  case setBookmark
+  case deleteBookmark
 
   var identifier: String {
     return "BKPLY-\(self.rawValue)"
@@ -81,11 +87,51 @@ class LibraryItemSyncJob: Job, BPLogger {
         case .shallowDelete:
           let _: Empty = try await provider.request(.shallowDelete(path: self.relativePath))
           callback.done(.success)
+        case .setBookmark:
+          try await handleSetBookmark()
+          callback.done(.success)
+        case .deleteBookmark:
+          try await handleDeleteBookmark()
+          callback.done(.success)
         }
       } catch {
         callback.done(.fail(error))
       }
     }
+  }
+
+  func handleSetBookmark() async throws {
+    guard
+      let time = parameters["time"] as? Double
+    else {
+      throw BookPlayerError.runtimeError("Missing parameters for creating a bookmark")
+    }
+
+    let _: Empty = try await provider.request(
+      .setBookmark(
+        path: self.relativePath,
+        note: parameters["note"] as? String,
+        time: time,
+        isActive: true
+      )
+    )
+  }
+
+  func handleDeleteBookmark() async throws {
+    guard
+      let time = parameters["time"] as? Double
+    else {
+      throw BookPlayerError.runtimeError("Missing parameters for deleting a bookmark")
+    }
+
+    let _: Empty = try await provider.request(
+      .setBookmark(
+        path: self.relativePath,
+        note: nil,
+        time: time,
+        isActive: false
+      )
+    )
   }
 
   func handleUploadJob(

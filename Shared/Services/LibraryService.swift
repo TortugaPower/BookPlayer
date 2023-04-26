@@ -116,15 +116,15 @@ public protocol LibraryServiceProtocol {
 
   /// Bookmarks
   /// Fetch bookmarks for an item
-  func getBookmarks(of type: BookmarkType, relativePath: String) -> [Bookmark]?
+  func getBookmarks(of type: BookmarkType, relativePath: String) -> [SimpleBookmark]?
   /// Fetch a bookmark at a specific time
-  func getBookmark(at time: Double, relativePath: String, type: BookmarkType) -> Bookmark?
+  func getBookmark(at time: Double, relativePath: String, type: BookmarkType) -> SimpleBookmark?
   /// Create a bookmark at the given time
-  func createBookmark(at time: Double, relativePath: String, type: BookmarkType) -> Bookmark?
+  func createBookmark(at time: Double, relativePath: String, type: BookmarkType) -> SimpleBookmark?
   /// Add a note to a bookmark
-  func addNote(_ note: String, bookmark: Bookmark)
+  func addNote(_ note: String, bookmark: SimpleBookmark)
   /// Delete a bookmark
-  func deleteBookmark(_ bookmark: Bookmark)
+  func deleteBookmark(_ bookmark: SimpleBookmark)
 }
 
 // swiftlint:disable force_cast
@@ -1528,52 +1528,139 @@ extension LibraryService {
 
 // MARK: - Bookmarks
 extension LibraryService {
-  public func getBookmarks(of type: BookmarkType, relativePath: String) -> [Bookmark]? {
-    let fetchRequest: NSFetchRequest<Bookmark> = Bookmark.fetchRequest()
-    fetchRequest.predicate = NSPredicate(format: "%K == %@ && type == %d",
-                                         #keyPath(Bookmark.item.relativePath),
-                                         relativePath,
-                                         type.rawValue)
+  func buildBookmarksFetchRequest(
+    properties: [String],
+    time: Double?,
+    relativePath: String,
+    type: BookmarkType
+  ) -> NSFetchRequest<NSDictionary> {
+    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "Bookmark")
+    fetchRequest.propertiesToFetch = SimpleBookmark.fetchRequestProperties
+    fetchRequest.resultType = .dictionaryResultType
+    if let time {
+      fetchRequest.predicate = NSPredicate(
+        format: "%K == %@ && type == %d && time == %f",
+        #keyPath(Bookmark.item.relativePath),
+        relativePath,
+        type.rawValue,
+        floor(time)
+      )
+    } else {
+      fetchRequest.predicate = NSPredicate(
+        format: "%K == %@ && type == %d",
+        #keyPath(Bookmark.item.relativePath),
+        relativePath,
+        type.rawValue
+      )
+    }
+    let sort = NSSortDescriptor(key: #keyPath(Bookmark.time), ascending: true)
+    fetchRequest.sortDescriptors = [sort]
 
-    return try? self.dataManager.getContext().fetch(fetchRequest)
+    return fetchRequest
   }
 
-  public func getBookmark(at time: Double, relativePath: String, type: BookmarkType) -> Bookmark? {
-    let time = floor(time)
+  func parseFetchedBookmarks(from results: [[String: Any]]?) -> [SimpleBookmark]? {
+    return results?.compactMap({ dictionary -> SimpleBookmark? in
+      guard
+        let time = dictionary["time"] as? Double,
+        let relativePath = dictionary["item.relativePath"] as? String,
+        let rawType = dictionary["type"] as? Int16,
+        let type = BookmarkType(rawValue: rawType)
+      else { return nil }
+
+      return SimpleBookmark(
+        time: time,
+        note: dictionary["note"] as? String,
+        type: type,
+        relativePath: relativePath
+      )
+    })
+  }
+
+  func getBookmarkReference(from bookmark: SimpleBookmark) -> Bookmark? {
 
     let fetchRequest: NSFetchRequest<Bookmark> = Bookmark.fetchRequest()
-    fetchRequest.predicate = NSPredicate(format: "%K == %@ && type == %d && time == %f",
-                                         #keyPath(Bookmark.item.relativePath),
-                                         relativePath,
-                                         type.rawValue,
-                                         floor(time))
+    fetchRequest.predicate = NSPredicate(
+      format: "%K == %@ && type == %d && time == %f",
+      #keyPath(Bookmark.item.relativePath),
+      bookmark.relativePath,
+      bookmark.type.rawValue,
+      bookmark.time
+    )
+    fetchRequest.fetchLimit = 1
+    fetchRequest.propertiesToFetch = [
+      #keyPath(Bookmark.time),
+      #keyPath(Bookmark.note),
+      #keyPath(Bookmark.type),
+    ]
 
     return try? self.dataManager.getContext().fetch(fetchRequest).first
   }
 
-  public func createBookmark(at time: Double, relativePath: String, type: BookmarkType) -> Bookmark? {
-    if let bookmark = self.getBookmark(at: time, relativePath: relativePath, type: type) {
+  public func getBookmarks(of type: BookmarkType, relativePath: String) -> [SimpleBookmark]? {
+    let fetchRequest = buildBookmarksFetchRequest(
+      properties: SimpleBookmark.fetchRequestProperties,
+      time: nil,
+      relativePath: relativePath,
+      type: type
+    )
+
+    let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
+
+    return parseFetchedBookmarks(from: results)
+  }
+
+  public func getBookmark(at time: Double, relativePath: String, type: BookmarkType) -> SimpleBookmark? {
+    let fetchRequest = buildBookmarksFetchRequest(
+      properties: SimpleBookmark.fetchRequestProperties,
+      time: time,
+      relativePath: relativePath,
+      type: type
+    )
+    fetchRequest.fetchLimit = 1
+
+    let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
+
+    return parseFetchedBookmarks(from: results)?.first
+  }
+
+  public func createBookmark(at time: Double, relativePath: String, type: BookmarkType) -> SimpleBookmark? {
+    let finalTime = floor(time)
+
+    if let bookmark = self.getBookmark(at: finalTime, relativePath: relativePath, type: type) {
       return bookmark
     }
 
     guard let item = self.getItemReference(with: relativePath) else { return nil }
 
-    let bookmark = Bookmark(with: floor(time), type: type, context: self.dataManager.getContext())
+    let bookmark = Bookmark(with: finalTime, type: type, context: self.dataManager.getContext())
     item.addToBookmarks(bookmark)
 
     self.dataManager.saveContext()
 
-    return bookmark
+    return SimpleBookmark(
+      time: finalTime,
+      note: nil,
+      type: type,
+      relativePath: relativePath
+    )
   }
 
-  public func addNote(_ note: String, bookmark: Bookmark) {
-    bookmark.note = note
+  public func addNote(_ note: String, bookmark: SimpleBookmark) {
+    guard
+      let bookmarkReference = getBookmarkReference(from: bookmark)
+    else { return }
+    bookmarkReference.note = note
     self.dataManager.saveContext()
   }
 
-  public func deleteBookmark(_ bookmark: Bookmark) {
-    let item = bookmark.item
-    item?.removeFromBookmarks(bookmark)
-    self.dataManager.delete(bookmark)
+  public func deleteBookmark(_ bookmark: SimpleBookmark) {
+    guard
+      let bookmarkReference = getBookmarkReference(from: bookmark)
+    else { return }
+
+    let item = getItemReference(with: bookmark.relativePath)
+    item?.removeFromBookmarks(bookmarkReference)
+    self.dataManager.delete(bookmarkReference)
   }
 }

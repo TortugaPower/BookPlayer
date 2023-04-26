@@ -172,6 +172,7 @@ class MainCoordinator: Coordinator {
     let playerCoordinator = PlayerCoordinator(
       playerManager: self.playerManager,
       libraryService: self.libraryService,
+      syncService: self.syncService,
       presentingViewController: self.presentingViewController
     )
     playerCoordinator.parentCoordinator = self

@@ -7,12 +7,14 @@
 //
 
 import BookPlayerKit
+import Combine
 import Themeable
 import UIKit
 
 class BookmarksViewController: BaseTableViewController<BookmarkCoordinator, BookmarksViewModel>, Storyboarded {
-  var automaticBookmarks = [Bookmark]()
-  var userBookmarks = [Bookmark]()
+  var automaticBookmarks = [SimpleBookmark]()
+  var userBookmarks = [SimpleBookmark]()
+  private var disposeBag = Set<AnyCancellable>()
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -39,6 +41,11 @@ class BookmarksViewController: BaseTableViewController<BookmarkCoordinator, Book
     self.reloadData()
 
     setUpTheming()
+    viewModel.reloadDataPublisher
+      .sink { [weak self] _ in
+        self?.reloadData()
+      }
+      .store(in: &disposeBag)
   }
 
   func reloadData() {

@@ -18,6 +18,7 @@ class PlayerCoordinator: Coordinator {
   public var onAction: Transition<PlayerActionRoutes>?
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
+  let syncService: SyncServiceProtocol
   weak var alert: UIAlertController?
 
   private var disposeBag = Set<AnyCancellable>()
@@ -29,10 +30,12 @@ class PlayerCoordinator: Coordinator {
   init(
     playerManager: PlayerManagerProtocol,
     libraryService: LibraryServiceProtocol,
+    syncService: SyncServiceProtocol,
     presentingViewController: UIViewController?
   ) {
     self.playerManager = playerManager
     self.libraryService = libraryService
+    self.syncService = syncService
 
     super.init(
       navigationController: AppNavigationController.instantiate(from: .Player),
@@ -44,8 +47,11 @@ class PlayerCoordinator: Coordinator {
 
   override func start() {
     let vc = PlayerViewController.instantiate(from: .Player)
-    let viewModel = PlayerViewModel(playerManager: self.playerManager,
-                                    libraryService: self.libraryService)
+    let viewModel = PlayerViewModel(
+      playerManager: self.playerManager,
+      libraryService: self.libraryService,
+      syncService: self.syncService
+    )
     viewModel.coordinator = self
     vc.viewModel = viewModel
     self.presentingViewController?.present(vc, animated: true, completion: nil)
@@ -58,6 +64,7 @@ class PlayerCoordinator: Coordinator {
     let bookmarksCoordinator = BookmarkCoordinator(
       playerManager: self.playerManager,
       libraryService: self.libraryService,
+      syncService: self.syncService,
       presentingViewController: self.presentingViewController
     )
     bookmarksCoordinator.parentCoordinator = self
@@ -69,7 +76,8 @@ class PlayerCoordinator: Coordinator {
     let coordinator = ButtonFreeCoordinator(
       navigationController: self.navigationController,
       playerManager: self.playerManager,
-      libraryService: self.libraryService
+      libraryService: self.libraryService,
+      syncService: self.syncService
     )
     coordinator.parentCoordinator = self
     coordinator.presentingViewController = self.presentingViewController

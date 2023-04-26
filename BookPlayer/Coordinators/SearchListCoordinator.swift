@@ -96,6 +96,7 @@ class SearchListCoordinator: Coordinator {
     let playerCoordinator = PlayerCoordinator(
       playerManager: self.playerManager,
       libraryService: self.libraryService,
+      syncService: self.syncService,
       presentingViewController: self.navigationController
     )
     playerCoordinator.parentCoordinator = self

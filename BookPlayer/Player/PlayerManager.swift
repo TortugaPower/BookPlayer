@@ -850,13 +850,15 @@ extension PlayerManager {
 // MARK: - BookMarks
 extension PlayerManager {
   public func createOrUpdateAutomaticBookmark(at time: Double, relativePath: String, type: BookmarkType) {
-    let bookmark = self.libraryService.getBookmarks(of: type, relativePath: relativePath)?.first
-    ?? self.libraryService.createBookmark(at: time, relativePath: relativePath, type: type)
+    /// Clean up old bookmark
+    if let bookmark = libraryService.getBookmarks(of: type, relativePath: relativePath)?.first {
+      libraryService.deleteBookmark(bookmark)
+    }
 
-    guard let bookmark = bookmark else { return }
+    guard
+      let bookmark = libraryService.createBookmark(at: floor(time), relativePath: relativePath, type: type)
+    else { return }
 
-    bookmark.time = floor(time)
-
-    self.libraryService.addNote(type.getNote() ?? "", bookmark: bookmark)
+    libraryService.addNote(type.getNote() ?? "", bookmark: bookmark)
   }
 }

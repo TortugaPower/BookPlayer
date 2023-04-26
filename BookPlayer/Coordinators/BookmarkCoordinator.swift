@@ -12,15 +12,17 @@ import BookPlayerKit
 class BookmarkCoordinator: Coordinator {
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
+  let syncService: SyncServiceProtocol
 
   init(
     playerManager: PlayerManagerProtocol,
     libraryService: LibraryServiceProtocol,
+    syncService: SyncServiceProtocol,
     presentingViewController: UIViewController?
   ) {
     self.playerManager = playerManager
     self.libraryService = libraryService
-
+    self.syncService = syncService
     super.init(
       navigationController: AppNavigationController.instantiate(from: .Player),
       flowType: .modal
@@ -31,8 +33,11 @@ class BookmarkCoordinator: Coordinator {
 
   override func start() {
     let vc = BookmarksViewController.instantiate(from: .Player)
-    let viewModel = BookmarksViewModel(playerManager: self.playerManager,
-                                       libraryService: self.libraryService)
+    let viewModel = BookmarksViewModel(
+      playerManager: self.playerManager,
+      libraryService: self.libraryService,
+      syncService: self.syncService
+    )
     viewModel.coordinator = self
     vc.viewModel = viewModel
 
@@ -41,7 +46,7 @@ class BookmarkCoordinator: Coordinator {
     self.presentingViewController?.present(self.navigationController, animated: true, completion: nil)
   }
 
-  func showExportController(currentItem: PlayableItem, bookmarks: [Bookmark]) {
+  func showExportController(currentItem: PlayableItem, bookmarks: [SimpleBookmark]) {
     let provider = BookmarksActivityItemProvider(currentItem: currentItem, bookmarks: bookmarks)
 
     let shareController = UIActivityViewController(activityItems: [provider], applicationActivities: nil)

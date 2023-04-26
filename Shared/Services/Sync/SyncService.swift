@@ -40,6 +40,14 @@ public protocol SyncServiceProtocol {
 
   func scheduleMove(items: [String], to parentFolder: String?)
 
+  func scheduleSetBookmark(
+    relativePath: String,
+    time: Double,
+    note: String?
+  )
+
+  func scheduleDeleteBookmark(_ bookmark: SimpleBookmark)
+
   /// Cancel all scheduled jobs
   func cancelAllJobs()
 }
@@ -317,6 +325,15 @@ extension SyncService {
 
     for item in itemsToUpload {
       try jobManager.scheduleLibraryItemUploadJob(for: item)
+      if let bookmarks = libraryService.getBookmarks(of: .user, relativePath: item.relativePath) {
+        for bookmark in bookmarks {
+          jobManager.scheduleSetBookmarkJob(
+            with: bookmark.relativePath,
+            time: floor(bookmark.time),
+            note: bookmark.note
+          )
+        }
+      }
     }
   }
 
@@ -337,5 +354,26 @@ extension SyncService {
     for item in items {
       jobManager.scheduleDeleteJob(with: item.relativePath, mode: mode)
     }
+  }
+}
+
+extension SyncService {
+  public func scheduleSetBookmark(
+    relativePath: String,
+    time: Double,
+    note: String?
+  ) {
+    jobManager.scheduleSetBookmarkJob(
+      with: relativePath,
+      time: time,
+      note: note
+    )
+  }
+
+  public func scheduleDeleteBookmark(_ bookmark: SimpleBookmark) {
+    jobManager.scheduleDeleteBookmarkJob(
+      with: bookmark.relativePath,
+      time: bookmark.time
+    )
   }
 }

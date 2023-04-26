@@ -19,6 +19,14 @@ public protocol JobSchedulerProtocol {
   func scheduleMoveItemJob(with relativePath: String, to parentFolder: String?)
   /// Delete item
   func scheduleDeleteJob(with relativePath: String, mode: DeleteMode)
+  /// Create or update a bookmark
+  func scheduleSetBookmarkJob(
+    with relativePath: String,
+    time: Double,
+    note: String?
+  )
+  /// Delete a bookmark
+  func scheduleDeleteBookmarkJob(with relativePath: String, time: Double)
   /// Cancel all stored and ongoing jobs
   func cancelAllJobs()
 }
@@ -154,6 +162,44 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
         "relativePath": relativePath,
         "jobType": jobType.rawValue
       ])
+      .schedule(manager: libraryQueueManager)
+  }
+
+  public func scheduleDeleteBookmarkJob(with relativePath: String, time: Double) {
+    JobBuilder(type: LibraryItemSyncJob.type)
+      .singleInstance(forId: "\(JobType.deleteBookmark.identifier)/\(relativePath)")
+      .persist()
+      .retry(limit: .unlimited)
+      .internet(atLeast: .wifi)
+      .with(params: [
+        "relativePath": relativePath,
+        "time": time,
+        "jobType": JobType.deleteBookmark.rawValue
+      ])
+      .schedule(manager: libraryQueueManager)
+  }
+
+  public func scheduleSetBookmarkJob(
+    with relativePath: String,
+    time: Double,
+    note: String?
+  ) {
+    var params: [String: Any] = [
+      "relativePath": relativePath,
+      "time": time,
+      "jobType": JobType.setBookmark.rawValue
+    ]
+
+    if let note {
+      params["note"] = note
+    }
+
+    JobBuilder(type: LibraryItemSyncJob.type)
+      .singleInstance(forId: "\(JobType.setBookmark.identifier)/\(relativePath)")
+      .persist()
+      .retry(limit: .unlimited)
+      .internet(atLeast: .wifi)
+      .with(params: params)
       .schedule(manager: libraryQueueManager)
   }
 
