@@ -22,6 +22,7 @@ class PlayerCoordinatorTests: XCTestCase {
     self.playerCoordinator = PlayerCoordinator(
       playerManager: PlayerManagerMock(),
       libraryService: libraryService,
+      syncService: SyncServiceMock(),
       presentingViewController: UINavigationController()
     )
     self.playerCoordinator.start()

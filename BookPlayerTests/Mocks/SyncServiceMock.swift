@@ -11,6 +11,12 @@ import Foundation
 import RevenueCat
 
 class SyncServiceMock: SyncServiceProtocol {
+  func scheduleUpload(items: [BookPlayerKit.SimpleLibraryItem]) throws {}
+
+  func scheduleSetBookmark(relativePath: String, time: Double, note: String?) {}
+
+  func scheduleDeleteBookmark(_ bookmark: BookPlayerKit.SimpleBookmark) {}
+
   func scheduleMove(items: [String], to parentFolder: String?) {}
 
   func scheduleDelete(_ items: [BookPlayerKit.SimpleLibraryItem], mode: BookPlayerKit.DeleteMode) {}

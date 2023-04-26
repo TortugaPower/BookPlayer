@@ -79,7 +79,7 @@ class LibraryServiceTests: XCTestCase {
     let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: processedFolder)
     let newBook = self.sut.createBook(from: fileUrl)
     XCTAssert(newBook.title == "test-book.txt")
-    XCTAssert(newBook.relativePath == "/test-book.txt")
+    XCTAssert(newBook.relativePath == "test-book.txt")
   }
 
   func testGetItemWithIdentifier() {
@@ -533,13 +533,13 @@ class LibraryServiceTests: XCTestCase {
     let bookmark = self.sut.createBookmark(at: 5, relativePath: book.relativePath, type: .skip)!
     XCTAssert(bookmark.time == 5)
     XCTAssert(bookmark.type == .skip)
-    XCTAssert(bookmark.item?.relativePath == book.relativePath)
+    XCTAssert(bookmark.relativePath == book.relativePath)
 
     let sameBookmark = self.sut.createBookmark(at: 5, relativePath: book.relativePath, type: .skip)!
 
     XCTAssert(bookmark.time == sameBookmark.time)
     XCTAssert(bookmark.type == sameBookmark.type)
-    XCTAssert(bookmark.item?.relativePath == sameBookmark.item?.relativePath)
+    XCTAssert(bookmark.relativePath == sameBookmark.relativePath)
   }
 
   func testGetBookmarks() {
@@ -574,6 +574,8 @@ class LibraryServiceTests: XCTestCase {
     bookmark.time = 10
     book.addToBookmarks(bookmark)
 
+    self.sut.dataManager.saveContext()
+
     XCTAssert(self.sut.getBookmark(at: 10, relativePath: book.relativePath, type: .play) != nil)
   }
 
@@ -587,7 +589,9 @@ class LibraryServiceTests: XCTestCase {
     let bookmark = self.sut.createBookmark(at: 5, relativePath: book.relativePath, type: .skip)!
     XCTAssert(bookmark.note == nil)
     self.sut.addNote("Test bookmark", bookmark: bookmark)
-    XCTAssert(bookmark.note == "Test bookmark")
+    self.sut.dataManager.saveContext()
+    let fetchedBookmark = self.sut.getBookmark(at: 5, relativePath: book.relativePath, type: .skip)!
+    XCTAssert(fetchedBookmark.note == "Test bookmark")
   }
 
   func testDeleteBookmark() {
@@ -599,7 +603,9 @@ class LibraryServiceTests: XCTestCase {
 
     let bookmark = self.sut.createBookmark(at: 5, relativePath: book.relativePath, type: .skip)!
     self.sut.deleteBookmark(bookmark)
-    XCTAssert(bookmark.isFault)
+
+    let fetchedBookmark = self.sut.getBookmark(at: 5, relativePath: book.relativePath, type: .skip)
+    XCTAssert(fetchedBookmark == nil)
   }
 
   func testRenameBookItem() throws {
@@ -713,6 +719,7 @@ class InsertBooksTests: LibraryServiceTests {
     let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: processedFolder)
 
     let processedItems = sut.insertItems(from: [fileUrl])
+      .map({ $0.relativePath })
     try sut.moveItems(processedItems, inside: folder.relativePath)
     XCTAssert(library.items?.count == 1)
     XCTAssert(folder.items?.count == 1)
@@ -738,6 +745,7 @@ class InsertBooksTests: LibraryServiceTests {
     let file2Url = DataTestUtils.generateTestFile(name: filename2, contents: book2Contents, destinationFolder: processedFolder)
 
     let processedItems = sut.insertItems(from: [file1Url, file2Url])
+      .map({ $0.relativePath })
     try sut.moveItems(processedItems, inside: folder.relativePath)
 
     XCTAssert(library.items?.count == 1)
@@ -761,6 +769,7 @@ class InsertBooksTests: LibraryServiceTests {
     let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: processedFolder)
 
     let processedItems = self.sut.insertItems(from: [fileUrl])
+      .map({ $0.relativePath })
 
     XCTAssert(library.items?.count == 2)
     XCTAssert(folder.items?.count == 0)
@@ -787,6 +796,7 @@ class InsertBooksTests: LibraryServiceTests {
     let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: processedFolder)
 
     let processedItems = self.sut.insertItems(from: [fileUrl])
+      .map({ $0.relativePath })
 
     try self.sut.moveItems(processedItems, inside: folder.relativePath)
 
@@ -818,6 +828,7 @@ class InsertBooksTests: LibraryServiceTests {
     let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: processedFolder)
 
     let processedItems = self.sut.insertItems(from: [fileUrl])
+      .map({ $0.relativePath })
 
     try self.sut.moveItems(processedItems, inside: folder1.relativePath)
 

@@ -199,21 +199,21 @@ class EmptyLibraryServiceMock: LibraryServiceProtocol {
 
   func recordTime(_ playbackRecord: PlaybackRecord) {}
 
-  func getBookmarks(of type: BookmarkType, relativePath: String) -> [Bookmark]? {
+  func getBookmarks(of type: BookmarkType, relativePath: String) -> [SimpleBookmark]? {
     return nil
   }
 
-  func getBookmark(at time: Double, relativePath: String, type: BookmarkType) -> Bookmark? {
+  func getBookmark(at time: Double, relativePath: String, type: BookmarkType) -> SimpleBookmark? {
     return nil
   }
 
-  func createBookmark(at time: Double, relativePath: String, type: BookmarkType) -> Bookmark? {
-    return Bookmark()
+  func createBookmark(at time: Double, relativePath: String, type: BookmarkType) -> SimpleBookmark? {
+    return nil
   }
 
-  func addNote(_ note: String, bookmark: Bookmark) {}
+  func addNote(_ note: String, bookmark: SimpleBookmark) {}
 
-  func deleteBookmark(_ bookmark: Bookmark) {}
+  func deleteBookmark(_ bookmark: SimpleBookmark) {}
 
   func renameItem(at relativePath: String, with newTitle: String) {}
 
