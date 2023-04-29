@@ -23,6 +23,8 @@ public protocol SyncServiceProtocol {
   /// Note: Should only be called when the user logs in
   func syncLibraryContents() async throws -> ([SyncableItem], SyncableItem?)
 
+  func syncBookmarksList(relativePath: String) async throws -> [SimpleBookmark]?
+
   func getRemoteFileURLs(
     of relativePath: String,
     type: SimpleItemType
@@ -199,6 +201,23 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     }
   }
 
+  public func syncBookmarksList(relativePath: String) async throws -> [SimpleBookmark]? {
+    guard
+      isActive,
+      UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasQueuedJobs.rawValue) == false
+    else {
+      throw BookPlayerError.networkError("Sync is not enabled")
+    }
+
+    let bookmarks = try await fetchBookmarks(for: relativePath)
+
+    for bookmark in bookmarks {
+      libraryService.addBookmark(from: bookmark)
+    }
+
+    return libraryService.getBookmarks(of: .user, relativePath: relativePath)
+  }
+
   func fetchBoundContents(for item: SyncableItem) async throws {
     guard item.type == .bound else { return }
 
@@ -229,7 +248,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     }
   }
 
-  public func fetchContents(at relativePath: String?) async throws -> ([SyncableItem], SyncableItem?) {
+  func fetchContents(at relativePath: String?) async throws -> ([SyncableItem], SyncableItem?) {
     let path: String
     if let relativePath = relativePath {
       path = "\(relativePath)/"
@@ -240,6 +259,12 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     let response: ContentsResponse = try await self.provider.request(.contents(path: path))
 
     return (response.content, response.lastItemPlayed)
+  }
+
+  func fetchBookmarks(for relativePath: String) async throws -> [SimpleBookmark] {
+    let response: BookmarksResponse = try await provider.request(.bookmarks(path: relativePath))
+
+    return response.bookmarks.map({ SimpleBookmark(from: $0) })
   }
 
   public func getRemoteFileURLs(
@@ -363,6 +388,8 @@ extension SyncService {
     time: Double,
     note: String?
   ) {
+    guard isActive else { return }
+
     jobManager.scheduleSetBookmarkJob(
       with: relativePath,
       time: time,
@@ -371,6 +398,8 @@ extension SyncService {
   }
 
   public func scheduleDeleteBookmark(_ bookmark: SimpleBookmark) {
+    guard isActive else { return }
+
     jobManager.scheduleDeleteBookmarkJob(
       with: bookmark.relativePath,
       time: bookmark.time

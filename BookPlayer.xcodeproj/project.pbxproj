@@ -403,6 +403,10 @@
 		9F82DF9C27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F82DF9B27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift */; };
 		9F89D89C27EDFCA400F73947 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F89D89B27EDFCA400F73947 /* SceneDelegate.swift */; };
 		9F8A9A5E27AC3F8C0093AA1C /* PlayableItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F8A9A5D27AC3F8C0093AA1C /* PlayableItemTests.swift */; };
+		9F9C7B5029F9670100E257B0 /* BookmarksResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F9C7B4F29F9670100E257B0 /* BookmarksResponse.swift */; };
+		9F9C7B5129F9670100E257B0 /* BookmarksResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F9C7B4F29F9670100E257B0 /* BookmarksResponse.swift */; };
+		9F9C7B5329F9672700E257B0 /* SyncableBookmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F9C7B5229F9672700E257B0 /* SyncableBookmark.swift */; };
+		9F9C7B5429F9672700E257B0 /* SyncableBookmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F9C7B5229F9672700E257B0 /* SyncableBookmark.swift */; };
 		9F9E4A8729367554007FD521 /* LoadingUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FA7C61C280B0E1200A0C136 /* LoadingUtils.swift */; };
 		9F9F3B70280E4E4B004359DA /* SyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F9F3B6F280E4E4B004359DA /* SyncService.swift */; };
 		9F9F3B71280E4E4B004359DA /* SyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F9F3B6F280E4E4B004359DA /* SyncService.swift */; };
@@ -1038,6 +1042,8 @@
 		9F82DF9B27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneWatchConnectivityService.swift; sourceTree = "<group>"; };
 		9F89D89B27EDFCA400F73947 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		9F8A9A5D27AC3F8C0093AA1C /* PlayableItemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayableItemTests.swift; sourceTree = "<group>"; };
+		9F9C7B4F29F9670100E257B0 /* BookmarksResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksResponse.swift; sourceTree = "<group>"; };
+		9F9C7B5229F9672700E257B0 /* SyncableBookmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncableBookmark.swift; sourceTree = "<group>"; };
 		9F9F3B6F280E4E4B004359DA /* SyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncService.swift; sourceTree = "<group>"; };
 		9FA334A827C0577E0064E8EA /* BookPlayerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookPlayerApp.swift; sourceTree = "<group>"; };
 		9FA334AA27C058210064E8EA /* ItemListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListView.swift; sourceTree = "<group>"; };
@@ -2056,8 +2062,10 @@
 			isa = PBXGroup;
 			children = (
 				9FBDBC782879409600D315A2 /* SyncableItem.swift */,
+				9F9C7B5229F9672700E257B0 /* SyncableBookmark.swift */,
 				9FBDBC7F2879C6C900D315A2 /* UploadItemResponse.swift */,
 				9FBDBC7C287940D900D315A2 /* ContentsResponse.swift */,
+				9F9C7B4F29F9670100E257B0 /* BookmarksResponse.swift */,
 				9FAFC9F32995BB5C00FD531E /* RemoteFileURLResponse.swift */,
 			);
 			path = Model;
@@ -2838,6 +2846,7 @@
 				4140EA6C2272898F0009F794 /* DataManager.swift in Sources */,
 				4140EA71227289A20009F794 /* UIColor+BookPlayer.swift in Sources */,
 				4138CE1726E584B60014F11E /* BookmarkType.swift in Sources */,
+				9F9C7B5429F9672700E257B0 /* SyncableBookmark.swift in Sources */,
 				9FDA66F029EB9027000B5741 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
 				5126F123258E9F18009965DC /* URL+BookPlayer.swift in Sources */,
 				9FFCC090289418CA00F4952E /* SimpleChapter.swift in Sources */,
@@ -2868,6 +2877,7 @@
 				4140EA6D227289930009F794 /* Constants.swift in Sources */,
 				41EB071C2752FA6B00EFEE13 /* PlaybackService.swift in Sources */,
 				9FDDD2D9289B64440020C428 /* SyncStatus.swift in Sources */,
+				9F9C7B5129F9670100E257B0 /* BookmarksResponse.swift in Sources */,
 				9FDDD2E2289BFCE20020C428 /* LibraryService+Sync.swift in Sources */,
 				4140EA72227289A50009F794 /* UIColor+Sweetercolor.swift in Sources */,
 				9FC1E45D2814E6A500522FA8 /* NetworkProvider.swift in Sources */,
@@ -3186,6 +3196,7 @@
 				9FDDD2D8289B64440020C428 /* SyncStatus.swift in Sources */,
 				9FDDD2E1289BFCE20020C428 /* LibraryService+Sync.swift in Sources */,
 				9FBF33EC29F6293C00501639 /* SimpleBookmark.swift in Sources */,
+				9F9C7B5329F9672700E257B0 /* SyncableBookmark.swift in Sources */,
 				4140EA1F22723CFC0009F794 /* CommandParser.swift in Sources */,
 				41EB071B2752FA6B00EFEE13 /* PlaybackService.swift in Sources */,
 				9FC1E45C2814E6A500522FA8 /* NetworkProvider.swift in Sources */,
@@ -3207,6 +3218,7 @@
 				41A1B10C226E9E9700EA0400 /* DeleteMode.swift in Sources */,
 				9FC1E44A2814C4DE00522FA8 /* NetworkClient.swift in Sources */,
 				9F07B72529B512F1005A939D /* LibraryItemSyncJob.swift in Sources */,
+				9F9C7B5029F9670100E257B0 /* BookmarksResponse.swift in Sources */,
 				41EB07182752F1BA00EFEE13 /* PlayableChapter.swift in Sources */,
 				9F1345BA2938E0130089B1DE /* Spacing.swift in Sources */,
 				5126F122258E9F18009965DC /* URL+BookPlayer.swift in Sources */,

@@ -41,9 +41,16 @@ class BookmarkCoordinator: Coordinator {
     viewModel.coordinator = self
     vc.viewModel = viewModel
 
-    self.navigationController.viewControllers = [vc]
-    self.navigationController.presentationController?.delegate = self
-    self.presentingViewController?.present(self.navigationController, animated: true, completion: nil)
+    viewModel.onTransition = { [weak self] route in
+      switch route {
+      case .export(let bookmarks, let item):
+        self?.showExportController(currentItem: item, bookmarks: bookmarks)
+      }
+    }
+
+    navigationController.viewControllers = [vc]
+    navigationController.presentationController?.delegate = self
+    presentingViewController?.present(self.navigationController, animated: true, completion: nil)
   }
 
   func showExportController(currentItem: PlayableItem, bookmarks: [SimpleBookmark]) {
@@ -51,6 +58,6 @@ class BookmarkCoordinator: Coordinator {
 
     let shareController = UIActivityViewController(activityItems: [provider], applicationActivities: nil)
 
-    self.presentingViewController?.present(shareController, animated: true, completion: nil)
+    navigationController.present(shareController, animated: true, completion: nil)
   }
 }

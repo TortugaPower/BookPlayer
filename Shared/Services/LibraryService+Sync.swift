@@ -24,6 +24,7 @@ public protocol LibrarySyncProtocol {
   func updateInfo(from item: SyncableItem)
   func addBook(from item: SyncableItem, parentFolder: String?)
   func addFolder(from item: SyncableItem, type: SimpleItemType, parentFolder: String?)
+  func addBookmark(from bookmark: SimpleBookmark)
 }
 
 extension LibraryService: LibrarySyncProtocol {
@@ -82,6 +83,18 @@ extension LibraryService: LibrarySyncProtocol {
     } else {
       let library = self.getLibraryReference()
       library.addToItems(newFolder)
+    }
+
+    self.dataManager.saveSyncContext()
+  }
+
+  public func addBookmark(from bookmark: SimpleBookmark) {
+    if let fetchedBookmark = getBookmarkReference(from: bookmark) {
+      fetchedBookmark.note = bookmark.note
+    } else if let item = getItemReference(with: bookmark.relativePath) {
+      let newBookmark = Bookmark(with: bookmark.time, type: bookmark.type, context: dataManager.getContext())
+      newBookmark.note = bookmark.note
+      item.addToBookmarks(newBookmark)
     }
 
     self.dataManager.saveSyncContext()

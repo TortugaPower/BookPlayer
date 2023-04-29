@@ -32,3 +32,19 @@ public struct SimpleBookmark: Decodable {
     }
   }
 }
+
+extension SimpleBookmark: Equatable {
+  public static func == (lhs: SimpleBookmark, rhs: SimpleBookmark) -> Bool {
+    return lhs.time == rhs.time
+    && lhs.relativePath == rhs.relativePath
+  }
+}
+
+extension SimpleBookmark {
+  init(from bookmark: SyncableBookmark) {
+    self.relativePath = bookmark.key
+    self.time = bookmark.time
+    self.note = bookmark.note
+    self.type = .user
+  }
+}
