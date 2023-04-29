@@ -11,6 +11,10 @@ import Foundation
 import RevenueCat
 
 class SyncServiceMock: SyncServiceProtocol {
+  func syncBookmarksList(relativePath: String) async throws -> [BookPlayerKit.SimpleBookmark]? {
+    return nil
+  }
+
   func scheduleUpload(items: [BookPlayerKit.SimpleLibraryItem]) throws {}
 
   func scheduleSetBookmark(relativePath: String, time: Double, note: String?) {}

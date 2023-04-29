@@ -1341,7 +1341,7 @@ extension LibraryService {
 
     metadataPassthroughPublisher.send([
       #keyPath(LibraryItem.relativePath): relativePath,
-      #keyPath(LibraryItem.lastPlayDate): date,
+      #keyPath(LibraryItem.lastPlayDate): date.timeIntervalSince1970,
     ])
 
     if let parentFolderPath = getItemProperty(

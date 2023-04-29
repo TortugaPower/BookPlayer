@@ -40,6 +40,7 @@ class BookmarksViewController: BaseTableViewController<BookmarkCoordinator, Book
 
     setUpTheming()
     viewModel.reloadDataPublisher
+      .receive(on: DispatchQueue.main)
       .sink { [weak self] _ in
         self?.reloadData()
       }
