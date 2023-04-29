@@ -18,6 +18,7 @@ class PlayerCoordinator: Coordinator {
   public var onAction: Transition<PlayerActionRoutes>?
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
+  let syncService: SyncServiceProtocol
   weak var alert: UIAlertController?
 
   private var disposeBag = Set<AnyCancellable>()
@@ -26,33 +27,47 @@ class PlayerCoordinator: Coordinator {
     self.handleAutolockStatus(forceDisable: true)
   }
 
-  init(navigationController: UINavigationController,
-       playerManager: PlayerManagerProtocol,
-       libraryService: LibraryServiceProtocol) {
+  init(
+    playerManager: PlayerManagerProtocol,
+    libraryService: LibraryServiceProtocol,
+    syncService: SyncServiceProtocol,
+    presentingViewController: UIViewController?
+  ) {
     self.playerManager = playerManager
     self.libraryService = libraryService
+    self.syncService = syncService
 
-    super.init(navigationController: navigationController, flowType: .modal)
+    super.init(
+      navigationController: AppNavigationController.instantiate(from: .Player),
+      flowType: .modal
+    )
+
+    self.presentingViewController = presentingViewController
   }
 
   override func start() {
     let vc = PlayerViewController.instantiate(from: .Player)
-    let viewModel = PlayerViewModel(playerManager: self.playerManager,
-                                    libraryService: self.libraryService)
+    let viewModel = PlayerViewModel(
+      playerManager: self.playerManager,
+      libraryService: self.libraryService,
+      syncService: self.syncService
+    )
     viewModel.coordinator = self
     vc.viewModel = viewModel
-    self.navigationController.present(vc, animated: true, completion: nil)
+    self.presentingViewController?.present(vc, animated: true, completion: nil)
     self.presentingViewController = vc
     self.bindGeneralObservers()
     self.handleAutolockStatus()
   }
 
   func showBookmarks() {
-    let bookmarksCoordinator = BookmarkCoordinator(navigationController: self.navigationController,
-                                                   playerManager: self.playerManager,
-                                                   libraryService: self.libraryService)
+    let bookmarksCoordinator = BookmarkCoordinator(
+      playerManager: self.playerManager,
+      libraryService: self.libraryService,
+      syncService: self.syncService,
+      presentingViewController: self.presentingViewController
+    )
     bookmarksCoordinator.parentCoordinator = self
-    bookmarksCoordinator.presentingViewController = self.presentingViewController
     self.childCoordinators.append(bookmarksCoordinator)
     bookmarksCoordinator.start()
   }
@@ -61,7 +76,8 @@ class PlayerCoordinator: Coordinator {
     let coordinator = ButtonFreeCoordinator(
       navigationController: self.navigationController,
       playerManager: self.playerManager,
-      libraryService: self.libraryService
+      libraryService: self.libraryService,
+      syncService: self.syncService
     )
     coordinator.parentCoordinator = self
     coordinator.presentingViewController = self.presentingViewController
@@ -70,21 +86,21 @@ class PlayerCoordinator: Coordinator {
   }
 
   func showChapters() {
-    let chaptersCoordinator = ChapterCoordinator(navigationController: self.navigationController,
-                                                 playerManager: self.playerManager)
+    let chaptersCoordinator = ChapterCoordinator(
+      playerManager: self.playerManager,
+      presentingViewController: self.presentingViewController
+    )
     chaptersCoordinator.parentCoordinator = self
-    chaptersCoordinator.presentingViewController = self.presentingViewController
     self.childCoordinators.append(chaptersCoordinator)
     chaptersCoordinator.start()
   }
 
   func showControls() {
     let playerControlsCoordinator = PlayerControlsCoordinator(
-      navigationController: self.navigationController,
-      playerManager: self.playerManager
+      playerManager: self.playerManager,
+      presentingViewController: self.presentingViewController
     )
     playerControlsCoordinator.parentCoordinator = self
-    playerControlsCoordinator.presentingViewController = self.presentingViewController
     self.childCoordinators.append(playerControlsCoordinator)
     playerControlsCoordinator.start()
   }

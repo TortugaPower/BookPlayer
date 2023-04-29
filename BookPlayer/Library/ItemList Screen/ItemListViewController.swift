@@ -14,7 +14,7 @@ import UIKit
 
 class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListViewModel>,
                               Storyboarded,
-                              UIGestureRecognizerDelegate {
+                              UIGestureRecognizerDelegate, BPLogger {
 
   @IBOutlet weak var emptyStatePlaceholder: UIView!
   @IBOutlet weak var emptyStateImageView: UIImageView!
@@ -22,14 +22,61 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
   @IBOutlet weak var loadingHeightConstraintView: NSLayoutConstraint!
   @IBOutlet weak var bulkControls: BulkControlsView!
   @IBOutlet weak var bulkControlsBottomConstraint: NSLayoutConstraint!
+  @IBOutlet weak var topContainerView: UIView!
 
   @IBOutlet weak var tableView: UITableView!
 
-  private var previousLeftButtons: [UIBarButtonItem]?
-  lazy var selectButton: UIBarButtonItem = UIBarButtonItem(title: "select_all_title".localized, style: .plain, target: self, action: #selector(selectButtonPressed))
+  private lazy var searchButton: UIBarButtonItem = {
+    return UIBarButtonItem(systemItem: .search, primaryAction: UIAction { [weak self] _ in
+      self?.navigationItem.backButtonDisplayMode = .minimal
+      self?.viewModel.showSearchList()
+    })
+  }()
+
+  private lazy var sortButton: UIButton = {
+    let button = ComposedButton(
+      title: "Sort",
+      systemImage: "chevron.down",
+      imageHeight: 8
+    )
+    button.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+    button.addTarget(self, action: #selector(handleSortButtonPressed), for: .touchUpInside)
+    return button
+  }()
+
+  private lazy var selectButton: UIButton = {
+    let button = ComposedButton(title: "Select")
+    button.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+    button.addTarget(self, action: #selector(handleSelectButtonPressed), for: .touchUpInside)
+    return button
+  }()
+
+  private lazy var spacerView: UIView = {
+    let view = UIView()
+    view.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+    return view
+  }()
+
+  private lazy var selectAllButton: UIButton = {
+    let button = ComposedButton(title: "select_all_title".localized)
+    button.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+    button.addTarget(self, action: #selector(selectAllButtonPressed), for: .touchUpInside)
+    button.isHidden = true
+    return button
+  }()
+
+  private lazy var topStackview: UIStackView = {
+    let stackview = UIStackView(arrangedSubviews: [selectAllButton, sortButton, spacerView, selectButton])
+    stackview.translatesAutoresizingMaskIntoConstraints = false
+    return stackview
+  }()
 
   var defaultArtwork: UIImage? {
-    return UIImage(data: self.viewModel.defaultArtwork!)
+    if let data = viewModel.defaultArtwork {
+      return UIImage(data: data)
+    }
+
+    return nil
   }
 
   private var disposeBag = Set<AnyCancellable>()
@@ -37,6 +84,8 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
   override func viewDidLoad() {
     super.viewDidLoad()
 
+    self.addSubviews()
+    self.addConstraints()
     self.configureDataSource()
     self.bindDataItems()
     self.bindTransitionActions()
@@ -44,22 +93,26 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
     self.bindNetworkObserver()
   }
 
+  func addSubviews() {
+    self.topContainerView.addSubview(topStackview)
+  }
+
+  func addConstraints() {
+    NSLayoutConstraint.activate([
+      topStackview.topAnchor.constraint(equalTo: topContainerView.topAnchor),
+      topStackview.leadingAnchor.constraint(equalTo: topContainerView.leadingAnchor),
+      topStackview.trailingAnchor.constraint(equalTo: topContainerView.trailingAnchor),
+      topStackview.bottomAnchor.constraint(equalTo: topContainerView.bottomAnchor),
+    ])
+  }
+
   func configureInitialState() {
     self.adjustBottomOffsetForMiniPlayer()
 
-    self.navigationItem.rightBarButtonItem = self.editButtonItem
+    self.navigationItem.rightBarButtonItem = searchButton
 
     if self.navigationController?.viewControllers.count == 1 {
-      self.navigationItem.leftBarButtonItem =  UIBarButtonItem(
-        title: "settings_title".localized,
-        style: .plain,
-        target: self,
-        action: #selector(showSettings)
-      )
       self.navigationController!.interactivePopGestureRecognizer!.delegate = self
-
-      self.previousLeftButtons = navigationItem.leftBarButtonItems
-
       self.viewModel.notifyPendingFiles()
     }
 
@@ -98,7 +151,8 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
     self.tableView.dragDelegate = self
     self.tableView.dropDelegate = self
 
-    self.updateSnapshot(with: self.viewModel.loadInitialItems(), animated: false)
+    self.viewModel.loadInitialItems()
+    self.toggleEmptyStateView()
   }
 
   func bindNetworkObserver() {
@@ -127,28 +181,27 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
       return (navigationController?.viewControllers.count ?? 0) > 1
   }
 
-  override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-    super.traitCollectionDidChange(previousTraitCollection)
-
-    guard self.traitCollection.userInterfaceStyle != .unspecified else { return }
-
-    self.viewModel.checkSystemModeTheme()
-  }
-
   func adjustBottomOffsetForMiniPlayer() {
-    self.tableView.contentInset.bottom = Device.current.hasSensorHousing ? 199: 88
+    self.tableView.contentInset.bottom = 88
   }
 
   func setupBulkControls() {
-    self.bulkControlsBottomConstraint.constant = Device.current.hasSensorHousing ? 136: 25
     self.bulkControls.isHidden = true
     self.bulkControls.layer.cornerRadius = 13
     self.bulkControls.layer.shadowOpacity = 0.3
     self.bulkControls.layer.shadowRadius = 5
     self.bulkControls.layer.shadowOffset = .zero
 
-    self.bulkControls.onSortTap = { [weak self] in
-      self?.viewModel.showSortOptions()
+    self.bulkControls.onEditTap = { [weak self] in
+      guard
+        let self = self,
+        let indexPath = self.tableView.indexPathForSelectedRow
+      else {
+        return
+      }
+
+      let selectedItem = self.viewModel.items[indexPath.row]
+      self.viewModel.showItemDetails(selectedItem)
     }
 
     self.bulkControls.onMoveTap = { [weak self] in
@@ -174,7 +227,7 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
 
       let selectedItems = indexPaths.compactMap({ self.viewModel.items[$0.row] })
 
-      self.viewModel.showDeleteOptions(selectedItems: selectedItems)
+      self.viewModel.showDeleteAlert(selectedItems: selectedItems)
     }
 
     self.bulkControls.onMoreTap = { [weak self] in
@@ -192,15 +245,41 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
   }
 
   func bindDataItems() {
-    self.viewModel.itemsUpdates.sink { [weak self] items in
-      self?.updateSnapshot(with: items, animated: true)
-    }
-    .store(in: &disposeBag)
+    self.viewModel.observeEvents()
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] event in
+        switch event {
+        case .newData:
+          self?.reloadData()
+        case .reloadIndex(let indexPath):
+          self?.tableView.reloadRows(at: [indexPath], with: .none)
+        case .downloadState(let state, let indexPath):
+          self?.updateDownloadState(state, for: indexPath)
+        case .showAlert(let content):
+          self?.showAlert(content)
+        case .showLoader(let flag):
+          self?.showLoader(flag)
+        }
+      }
+      .store(in: &disposeBag)
+  }
 
-    self.viewModel.itemProgressUpdates.sink { [weak self] indexPath in
-      self?.tableView.reloadRows(at: [indexPath], with: .none)
+  func showLoader(_ flag: Bool) {
+    if flag {
+      LoadingUtils.loadAndBlock(in: self)
+    } else {
+      LoadingUtils.stopLoading(in: self)
     }
-    .store(in: &disposeBag)
+  }
+
+  func updateDownloadState(_ state: DownloadState, for indexPath: IndexPath) {
+    guard
+      let cell = tableView.cellForRow(at: indexPath) as? BookCellView
+    else {
+      return
+    }
+
+    cell.downloadState = state
   }
 
   func bindTransitionActions() {
@@ -208,38 +287,12 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
       self?.setEditing(false, animated: false)
 
       switch route {
-      case .importOptions:
-        self?.viewModel.showAddActions()
-      case .importLocalFiles:
-        self?.viewModel.coordinator.showDocumentPicker()
       case .newImportOperation(let operation):
         let loadingTitle = String.localizedStringWithFormat("import_processing_description".localized, operation.files.count)
         self?.showLoadView(true, title: loadingTitle)
       case .importOperationFinished(let files):
         self?.showLoadView(false)
         self?.viewModel.handleOperationCompletion(files)
-      case .importIntoFolder(let selectedFolder, let items, let type):
-        self?.viewModel.importIntoFolder(selectedFolder, items: items, type: type)
-      case .createFolder(let title, let items, let type):
-        self?.viewModel.createFolder(with: title, items: items, type: type)
-      case .updateFolders(let folders, let type):
-        self?.viewModel.updateFolders(folders, type: type)
-      case .moveIntoLibrary(let items):
-        self?.viewModel.handleMoveIntoLibrary(items: items)
-      case .moveIntoFolder(let selectedFolder, let items):
-        self?.viewModel.handleMoveIntoFolder(selectedFolder, items: items)
-      case .insertIntoLibrary(let items):
-        self?.viewModel.handleInsertionIntoLibrary(items)
-      case .delete(let items, let mode):
-        self?.viewModel.handleDelete(items: items, mode: mode)
-      case .sortItems(let option):
-        self?.viewModel.handleSort(by: option)
-      case .rename(let item, let newTitle):
-        self?.viewModel.handleRename(item: item, with: newTitle)
-      case .resetPlaybackPosition(let items):
-        self?.viewModel.handleResetPlaybackPosition(for: items)
-      case .markAsFinished(let items, let flag):
-        self?.viewModel.handleMarkAsFinished(for: items, flag: flag)
       case .downloadBook(let url):
         self?.showLoadView(true, title: "downloading_file_title".localized, subtitle: "\("progress_title".localized) 0%")
         self?.viewModel.handleDownload(url)
@@ -258,16 +311,21 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
     self.tableView.setEditing(editing, animated: true)
 
     if editing {
-      self.previousLeftButtons = navigationItem.leftBarButtonItems
-      self.navigationItem.leftBarButtonItems = [self.selectButton]
-      self.selectButton.isEnabled = self.tableView.numberOfRows(inSection: Section.data.rawValue) > 0
+      self.selectButton.setTitle("Done", for: .normal)
+      self.navigationItem.rightBarButtonItem?.isEnabled = false
+      self.selectAllButton.isHidden = false
+      sortButton.isHidden = true
+      self.selectAllButton.isEnabled = self.tableView.numberOfRows(inSection: BPSection.data.rawValue) > 0
       self.updateSelectionStatus()
     } else {
-      self.navigationItem.leftBarButtonItems = self.previousLeftButtons
+      self.selectButton.setTitle("Select", for: .normal)
+      self.selectAllButton.isHidden = true
+      sortButton.isHidden = false
+      self.navigationItem.rightBarButtonItem?.isEnabled = true
     }
   }
 
-  func updateSnapshot(with items: [SimpleLibraryItem], animated: Bool) {
+  func reloadData() {
     self.toggleEmptyStateView()
 
     var selectedIndexPaths: [IndexPath]?
@@ -283,9 +341,11 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
   func updateSelectionStatus() {
     guard self.tableView.isEditing else { return }
 
-    self.selectButton.title = self.tableView.numberOfRows(inSection: Section.data.rawValue) > (self.tableView.indexPathsForSelectedRows?.count ?? 0)
+    let title = self.tableView.numberOfRows(inSection: BPSection.data.rawValue) > (self.tableView.indexPathsForSelectedRows?.count ?? 0)
       ? "select_all_title".localized
       : "deselect_all_title".localized
+    self.selectAllButton.setTitle(title, for: .normal)
+    self.bulkControls.editButton.isEnabled = tableView.indexPathsForSelectedRows?.count == 1
 
     guard self.tableView.indexPathForSelectedRow == nil else {
       self.bulkControls.moveButton.isEnabled = true
@@ -303,19 +363,23 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
     self.viewModel.showAddActions()
   }
 
-  @objc func showSettings() {
-    self.viewModel.showSettings()
+  @objc func handleSortButtonPressed() {
+    viewModel.showSortOptions()
   }
 
-  @objc func selectButtonPressed(_ sender: Any) {
+  @objc func handleSelectButtonPressed() {
+    self.setEditing(!isEditing, animated: true)
+  }
+
+  @objc func selectAllButtonPressed(_ sender: Any) {
     self.viewModel.loadAllItemsIfNeeded()
 
-    if self.tableView.numberOfRows(inSection: Section.data.rawValue) == (self.tableView.indexPathsForSelectedRows?.count ?? 0) {
-      for row in 0..<self.tableView.numberOfRows(inSection: Section.data.rawValue) {
+    if self.tableView.numberOfRows(inSection: BPSection.data.rawValue) == (self.tableView.indexPathsForSelectedRows?.count ?? 0) {
+      for row in 0..<self.tableView.numberOfRows(inSection: BPSection.data.rawValue) {
         self.tableView.deselectRow(at: IndexPath(row: row, section: .data), animated: true)
       }
     } else {
-      for row in 0..<self.tableView.numberOfRows(inSection: Section.data.rawValue) {
+      for row in 0..<self.tableView.numberOfRows(inSection: BPSection.data.rawValue) {
         self.tableView.selectRow(at: IndexPath(row: row, section: .data), animated: true, scrollPosition: .none)
       }
     }
@@ -326,7 +390,7 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
 
 extension ItemListViewController: UITableViewDataSource {
   func numberOfSections(in tableView: UITableView) -> Int {
-    return Section.allCases.count
+    return BPSection.allCases.count
   }
 
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -347,21 +411,24 @@ extension ItemListViewController: UITableViewDataSource {
       guard !tableView.isEditing else {
         if cell.isSelected {
           tableView.deselectRow(at: indexPath, animated: true)
+          self?.tableView(tableView, didDeselectRowAt: indexPath)
         } else {
           tableView.selectRow(at: indexPath, animated: true, scrollPosition: .none)
+          self?.tableView(tableView, didSelectRowAt: indexPath)
         }
         return
       }
 
-      self?.viewModel.playNextBook(in: item)
+      self?.viewModel.handleArtworkTap(for: item)
     }
 
     cell.title = item.title
     cell.subtitle = item.details
-    cell.progress = item.isFinished ? 1.0 : item.progress
-    cell.duration = item.duration
+    cell.progress = item.progress
+    cell.duration = item.durationFormatted
     cell.type = item.type
-    cell.playbackState = item.playbackState
+    cell.playbackState = viewModel.getPlaybackState(for: item)
+    cell.downloadState = viewModel.getDownloadState(for: item)
 
     cell.artworkView.kf.setImage(
       with: ArtworkService.getArtworkProvider(for: item.relativePath),
@@ -421,6 +488,10 @@ extension ItemListViewController: UITableViewDelegate {
     return indexPath
   }
 
+  func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+    self.updateSelectionStatus()
+  }
+
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     self.updateSelectionStatus()
 
@@ -439,6 +510,8 @@ extension ItemListViewController: UITableViewDelegate {
     }
 
     let item = self.viewModel.items[indexPath.row]
+
+    navigationItem.backButtonDisplayMode = .default
     self.viewModel.showItemContents(item)
   }
 
@@ -603,6 +676,8 @@ extension ItemListViewController {
 extension ItemListViewController: Themeable {
   func applyTheme(_ theme: SimpleTheme) {
     self.view.backgroundColor = theme.systemBackgroundColor
+    self.topContainerView.backgroundColor = theme.systemBackgroundColor
+    self.spacerView.backgroundColor = theme.systemBackgroundColor
     self.tableView.backgroundColor = theme.systemBackgroundColor
     self.tableView.separatorColor = theme.separatorColor
     self.emptyStatePlaceholder.backgroundColor = theme.systemBackgroundColor

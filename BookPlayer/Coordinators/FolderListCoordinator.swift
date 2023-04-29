@@ -10,14 +10,15 @@ import BookPlayerKit
 import UIKit
 
 class FolderListCoordinator: ItemListCoordinator {
-  var folderRelativePath: String
+  let folderRelativePath: String
 
   init(
     navigationController: UINavigationController,
     folderRelativePath: String,
     playerManager: PlayerManagerProtocol,
     libraryService: LibraryServiceProtocol,
-    playbackService: PlaybackServiceProtocol
+    playbackService: PlaybackServiceProtocol,
+    syncService: SyncServiceProtocol
   ) {
     self.folderRelativePath = folderRelativePath
 
@@ -25,61 +26,58 @@ class FolderListCoordinator: ItemListCoordinator {
       navigationController: navigationController,
       playerManager: playerManager,
       libraryService: libraryService,
-      playbackService: playbackService
+      playbackService: playbackService,
+      syncService: syncService
     )
   }
 
   override func start() {
     let vc = ItemListViewController.instantiate(from: .Main)
-    let viewModel = ItemListViewModel(folderRelativePath: self.folderRelativePath,
-                                      playerManager: self.playerManager,
-                                      libraryService: self.libraryService,
-                                      themeAccent: ThemeManager.shared.currentTheme.linkColor)
+    let viewModel = ItemListViewModel(
+      folderRelativePath: self.folderRelativePath,
+      playerManager: self.playerManager,
+      libraryService: self.libraryService,
+      playbackService: self.playbackService,
+      syncService: self.syncService,
+      themeAccent: ThemeManager.shared.currentTheme.linkColor
+    )
+    viewModel.onTransition = { [weak self] route in
+      switch route {
+      case .showFolder(let relativePath):
+        self?.showFolder(relativePath)
+      case .loadPlayer(let relativePath):
+        self?.loadPlayer(relativePath)
+      case .showDocumentPicker:
+        self?.showDocumentPicker()
+      case .showSearchList(let relativePath, let placeholderTitle):
+        self?.showSearchList(at: relativePath, placeholderTitle: placeholderTitle)
+      case .showItemDetails(let item):
+        self?.showItemDetails(item)
+      case .showExportController(let items):
+        self?.showExportController(for: items)
+      case .showItemSelectionScreen(let availableItems, let selectionHandler):
+        self?.showItemSelectionScreen(availableItems: availableItems, selectionHandler: selectionHandler)
+      case .showMiniPlayer(let flag):
+        self?.showMiniPlayer(flag: flag)
+      }
+    }
     viewModel.coordinator = self
     vc.viewModel = viewModel
-    self.presentingViewController = self.navigationController
-    self.navigationController.pushViewController(vc, animated: true)
+    presentingViewController = navigationController
+    navigationController.pushViewController(vc, animated: true)
 
-    self.documentPickerDelegate = vc
+    documentPickerDelegate = vc
+    syncList()
   }
 
-  override func showOperationCompletedAlert(with items: [LibraryItem], availableFolders: [SimpleLibraryItem]) {
-    let alert = UIAlertController(
-      title: String.localizedStringWithFormat("import_alert_title".localized, items.count),
-      message: nil,
-      preferredStyle: .alert)
+  override func syncList() {
+    Task { [weak self] in
+      guard
+        let self = self,
+        let (newItems, _) = try await self.syncService.syncListContents(at: self.folderRelativePath)
+      else { return }
 
-    alert.addAction(UIAlertAction(title: "current_playlist_title".localized, style: .default, handler: nil))
-
-    alert.addAction(UIAlertAction(title: "library_title".localized, style: .default) { [weak self] _ in
-      self?.onAction?(.insertIntoLibrary(items))
-    })
-
-    alert.addAction(UIAlertAction(title: "new_playlist_button".localized, style: .default) { [weak self] _ in
-      var placeholder = "new_playlist_button".localized
-
-      if let item = items.first {
-        placeholder = item.title
-      }
-
-      self?.showCreateFolderAlert(placeholder: placeholder, with: items.map { $0.relativePath }, type: .regular)
-    })
-
-    let existingFolderAction = UIAlertAction(title: "existing_playlist_button".localized, style: .default) { _ in
-      let vc = ItemSelectionViewController()
-      vc.items = availableFolders
-
-      vc.onItemSelected = { selectedFolder in
-        self.onAction?(.importIntoFolder(selectedFolder, items: items, type: .regular))
-      }
-
-      let nav = AppNavigationController(rootViewController: vc)
-      self.navigationController.present(nav, animated: true, completion: nil)
+      reloadItemsWithPadding(padding: newItems.count)
     }
-
-    existingFolderAction.isEnabled = !availableFolders.isEmpty
-    alert.addAction(existingFolderAction)
-
-    self.navigationController.present(alert, animated: true, completion: nil)
   }
 }

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21223" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="nNa-3d-7ZC">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21225" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="nNa-3d-7ZC">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21204"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21207"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -16,7 +16,7 @@
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="grouped" separatorStyle="default" rowHeight="44" sectionHeaderHeight="18" sectionFooterHeight="18" id="Slj-f9-QjB">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="775"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" systemColor="groupTableViewBackgroundColor"/>
+                        <color key="backgroundColor" red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <sections>
                             <tableViewSection id="tVW-RY-UkZ">
                                 <cells>
@@ -70,9 +70,6 @@
                                                 </label>
                                             </subviews>
                                         </tableViewCellContentView>
-                                        <connections>
-                                            <segue destination="NEQ-oF-OIb" kind="show" id="7ta-G1-2ZA"/>
-                                        </connections>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="zzO-fZ-F5R" detailTextLabel="MdO-Yx-eBK" style="IBUITableViewCellStyleValue1" id="sUu-CC-cH1" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="238" width="375" height="44"/>
@@ -100,9 +97,6 @@
                                                 </label>
                                             </subviews>
                                         </tableViewCellContentView>
-                                        <connections>
-                                            <segue destination="9BF-g4-gyu" kind="show" id="I7c-sW-D0I"/>
-                                        </connections>
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
@@ -127,9 +121,6 @@
                                                 </label>
                                             </subviews>
                                         </tableViewCellContentView>
-                                        <connections>
-                                            <segue destination="Te4-I9-OuL" kind="show" id="KN4-28-NkV"/>
-                                        </connections>
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
@@ -477,9 +468,6 @@
                                         <accessibility key="accessibilityConfiguration">
                                             <accessibilityTraits key="traits" link="YES"/>
                                         </accessibility>
-                                        <connections>
-                                            <segue destination="d6y-ya-0pE" kind="presentation" id="JSN-6M-HGi"/>
-                                        </connections>
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
@@ -504,9 +492,6 @@
                                                 </label>
                                             </subviews>
                                         </tableViewCellContentView>
-                                        <connections>
-                                            <segue destination="ZB7-qt-cNi" kind="show" identifier="CreditSegue" id="kP9-oe-kZ9"/>
-                                        </connections>
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
@@ -516,13 +501,7 @@
                             <outlet property="delegate" destination="4H6-OJ-4Mr" id="XQU-In-1vD"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Settings" leftItemsSupplementBackButton="YES" largeTitleDisplayMode="never" id="OYp-Bd-tHB">
-                        <barButtonItem key="rightBarButtonItem" style="done" systemItem="done" id="BUQ-FJ-Ywj">
-                            <connections>
-                                <action selector="done:" destination="4H6-OJ-4Mr" id="CNZ-He-eLd"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" title="Settings" leftItemsSupplementBackButton="YES" largeTitleDisplayMode="never" id="OYp-Bd-tHB"/>
                     <size key="freeformSize" width="375" height="775"/>
                     <connections>
                         <outlet property="appIconLabel" destination="MdO-Yx-eBK" id="dXu-fc-mwk"/>
@@ -532,6 +511,7 @@
                         <outlet property="autoplayRestartSwitch" destination="Dwy-AZ-0Mo" id="gkj-22-udL"/>
                         <outlet property="disableAutolockSwitch" destination="BlM-8p-0Ka" id="Fbl-zc-kUw"/>
                         <outlet property="iCloudBackupsSwitch" destination="ssf-Q5-vn2" id="pjG-GZ-NHe"/>
+                        <outlet property="plusBannerView" destination="Va0-II-9v9" id="JhN-Ul-Hvm"/>
                         <outlet property="themeLabel" destination="CVc-ad-1rf" id="I40-1O-6rO"/>
                     </connections>
                 </tableViewController>
@@ -544,11 +524,11 @@
             <objects>
                 <viewController storyboardIdentifier="IconsViewController" title="App Icon" id="9BF-g4-gyu" customClass="IconsViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="aMR-PV-wIN">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="647"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="6rH-0d-17o">
-                                <rect key="frame" x="0.0" y="162" width="375" height="485"/>
+                                <rect key="frame" x="0.0" y="162" width="375" height="505"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="IconCellView" rowHeight="86" id="t00-L8-g4n" customClass="IconCellView" customModule="BookPlayer" customModuleProvider="target">
@@ -566,7 +546,7 @@
                                                     </constraints>
                                                 </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hfJ-8d-1E2">
-                                                    <rect key="frame" x="88" y="22" width="256" height="20.5"/>
+                                                    <rect key="frame" x="88" y="21.5" width="256" height="21"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
@@ -631,6 +611,7 @@
                             <constraint firstItem="6rH-0d-17o" firstAttribute="top" secondItem="evd-2l-0Sl" secondAttribute="bottom" id="wVo-bS-Anu"/>
                         </constraints>
                     </view>
+                    <navigationItem key="navigationItem" title="Icons" id="Ohf-lQ-zR4"/>
                     <connections>
                         <outlet property="bannerHeightConstraint" destination="1ea-uB-KdW" id="heY-pg-wia"/>
                         <outlet property="bannerView" destination="evd-2l-0Sl" id="4vJ-0g-JbF"/>
@@ -644,13 +625,13 @@
         <!--Credits-->
         <scene sceneID="dar-3c-enm">
             <objects>
-                <viewController title="Credits" id="ZB7-qt-cNi" customClass="CreditsViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="CreditsViewController" title="Credits" id="ZB7-qt-cNi" customClass="CreditsViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="fgW-Kg-WQ8">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="647"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" showsHorizontalScrollIndicator="NO" bouncesZoom="NO" editable="NO" usesAttributedText="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1sI-UV-abw">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="647"/>
+                                <rect key="frame" x="0.0" y="0.0" width="374" height="666"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <attributedString key="attributedText">
@@ -668,6 +649,7 @@
                         <viewLayoutGuide key="safeArea" id="0QN-vQ-nhK"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </view>
+                    <navigationItem key="navigationItem" title="Credits" id="tQC-Hc-cer"/>
                     <connections>
                         <outlet property="textView" destination="1sI-UV-abw" id="ZPK-Fq-fFB"/>
                     </connections>
@@ -676,32 +658,16 @@
             </objects>
             <point key="canvasLocation" x="457" y="1667"/>
         </scene>
-        <!--Plus Navigation Controller-->
-        <scene sceneID="Bnz-fq-vui">
-            <objects>
-                <navigationController storyboardIdentifier="PlusNavigationController" id="d6y-ya-0pE" customClass="PlusNavigationController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translucent="NO" id="v1q-oa-GaA">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <connections>
-                        <segue destination="AQw-yJ-pXJ" kind="relationship" relationship="rootViewController" id="ugz-AR-c1n"/>
-                    </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="lo6-Ts-biM" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-236" y="-91"/>
-        </scene>
         <!--BookPlayer Plus-->
         <scene sceneID="neO-Jy-6Sb">
             <objects>
                 <viewController storyboardIdentifier="PlusViewController" title="BookPlayer Plus" id="AQw-yJ-pXJ" customClass="PlusViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="BG4-7I-rMx">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="836"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="900"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="MvT-oX-RXS">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="836"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="900"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="grA-HN-IYo">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="835"/>
@@ -727,7 +693,7 @@
                                                 </constraints>
                                             </imageView>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Support BookPlayer" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DTB-KZ-XGh" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
-                                                <rect key="frame" x="112" y="143" width="151.5" height="21"/>
+                                                <rect key="frame" x="111.5" y="143" width="152" height="21"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="21" id="c3a-oc-yUs"/>
                                                 </constraints>
@@ -824,7 +790,7 @@
                                                     </activityIndicatorView>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2jC-Rp-xFW">
                                                         <rect key="frame" x="12.5" y="50" width="75" height="28"/>
-                                                        <color key="backgroundColor" red="0.40704941749572754" green="0.47697103023529053" blue="0.71767419576644897" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                                        <color key="backgroundColor" red="0.40784313725490196" green="0.47843137254901957" blue="0.71764705882352942" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                                         <constraints>
                                                             <constraint firstAttribute="width" constant="75" id="SnM-Dl-6Uo"/>
                                                             <constraint firstAttribute="height" constant="28" id="lE5-Ss-mi3"/>
@@ -1065,7 +1031,7 @@
                                                         </constraints>
                                                         <string key="text">BookPlayer is free and Open Source and it will always remain that way. With your help we are able to implement more features and make BookPlayer even better.</string>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                        <color key="textColor" red="0.65893751382827759" green="0.66252428293228149" blue="0.67451232671737671" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                                        <color key="textColor" red="0.6588235294117647" green="0.66274509803921566" blue="0.67450980392156867" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                                         <nil key="highlightedColor"/>
                                                         <userDefinedRuntimeAttributes>
                                                             <userDefinedRuntimeAttribute type="string" keyPath="localizedKey" value="bookplayer_opensource_description"/>
@@ -1352,11 +1318,11 @@
             <objects>
                 <viewController storyboardIdentifier="ThemesViewController" title="Themes" id="NEQ-oF-OIb" customClass="ThemesViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="NNw-SR-G93">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="716"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="u4n-Rr-8Xe">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="716"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="736"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rZg-q1-gw4">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="804"/>
@@ -1824,12 +1790,13 @@
                         <viewLayoutGuide key="safeArea" id="Qf4-jm-zuY"/>
                         <color key="backgroundColor" red="0.93345028162002563" green="0.93702846765518188" blue="0.94902259111404419" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                         <constraints>
+                            <constraint firstItem="u4n-Rr-8Xe" firstAttribute="leading" secondItem="Qf4-jm-zuY" secondAttribute="leading" id="6sz-pL-txP"/>
                             <constraint firstItem="u4n-Rr-8Xe" firstAttribute="top" secondItem="NNw-SR-G93" secondAttribute="top" id="NeG-sk-4QC"/>
-                            <constraint firstItem="u4n-Rr-8Xe" firstAttribute="leading" secondItem="NNw-SR-G93" secondAttribute="leading" id="OvW-9t-Sdd"/>
                             <constraint firstAttribute="bottom" secondItem="u4n-Rr-8Xe" secondAttribute="bottom" id="RWk-Ws-Ugu"/>
-                            <constraint firstAttribute="trailing" secondItem="u4n-Rr-8Xe" secondAttribute="trailing" id="VIK-5D-VMM"/>
+                            <constraint firstItem="u4n-Rr-8Xe" firstAttribute="trailing" secondItem="Qf4-jm-zuY" secondAttribute="trailing" id="x9e-0j-7or"/>
                         </constraints>
                     </view>
+                    <navigationItem key="navigationItem" title="Themes" id="Wc6-ef-jxy"/>
                     <size key="freeformSize" width="375" height="736"/>
                     <connections>
                         <outlet property="bannerHeightConstraint" destination="jAc-oq-2Ga" id="c1P-Yg-ycK"/>
@@ -2158,9 +2125,9 @@ second line</string>
         <!--Player Controls-->
         <scene sceneID="2Le-fm-VpK">
             <objects>
-                <tableViewController id="Te4-I9-OuL" customClass="PlayerSettingsViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController storyboardIdentifier="PlayerSettingsViewController" id="Te4-I9-OuL" customClass="PlayerSettingsViewController" customModule="BookPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="grouped" separatorStyle="default" rowHeight="44" sectionHeaderHeight="18" sectionFooterHeight="18" id="8gG-tG-v63">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="647"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" systemColor="groupTableViewBackgroundColor"/>
                         <sections>

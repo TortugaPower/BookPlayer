@@ -10,6 +10,8 @@ import Foundation
 
 public enum BookPlayerError: Error {
   case runtimeError(String)
+  case networkError(String)
+  case emptyResponse
 }
 
 extension BookPlayerError: LocalizedError {
@@ -17,6 +19,10 @@ extension BookPlayerError: LocalizedError {
     switch self {
     case .runtimeError(let string):
       return string
+    case .emptyResponse:
+      return "Empty network response"
+    case .networkError(let message):
+      return message
     }
   }
 }

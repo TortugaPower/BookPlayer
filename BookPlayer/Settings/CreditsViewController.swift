@@ -6,10 +6,11 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
+import BookPlayerKit
 import UIKit
 import WebKit
 
-class CreditsViewController: UIViewController {
+class CreditsViewController: UIViewController, Storyboarded {
     @IBOutlet private weak var textView: UITextView!
 
     var content: String!
@@ -46,12 +47,22 @@ class CreditsViewController: UIViewController {
         }
     }
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
+  override func viewDidLoad() {
+    super.viewDidLoad()
 
-        self.navigationItem.title = "settings_credits_title".localized
-        self.textView.textContainerInset = UIEdgeInsets(top: 10.0, left: 13.0, bottom: 0, right: 13.0)
-    }
+    self.navigationItem.title = "settings_credits_title".localized
+    self.navigationItem.leftBarButtonItem = UIBarButtonItem(
+      image: ImageIcons.navigationBackImage,
+      style: .plain,
+      target: self,
+      action: #selector(self.didPressClose)
+    )
+    self.textView.textContainerInset = UIEdgeInsets(top: 10.0, left: 13.0, bottom: 0, right: 13.0)
+  }
+
+  @objc func didPressClose() {
+    self.dismiss(animated: true, completion: nil)
+  }
 }
 
 // Helper function inserted by Swift 4.2 migrator.

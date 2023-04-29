@@ -31,8 +31,6 @@ extension Book {
         return try? context.fetch(request).first
     }
 
-    @NSManaged public var author: String!
-    @NSManaged public var ext: String!
     @NSManaged public var chapters: NSOrderedSet?
 }
 

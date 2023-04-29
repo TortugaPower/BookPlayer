@@ -42,6 +42,7 @@ class PlayableItemTests: XCTestCase {
       relativePath: "",
       parentFolder: nil,
       percentCompleted: 10,
+      lastPlayDate: nil,
       isFinished: false,
       isBoundBook: false
     )

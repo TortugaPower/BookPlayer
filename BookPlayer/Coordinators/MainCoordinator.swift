@@ -7,71 +7,173 @@
 //
 
 import BookPlayerKit
-import DeviceKit
-import MediaPlayer
+import Combine
+import RevenueCat
 import Themeable
 import UIKit
 
 class MainCoordinator: Coordinator {
-  let rootViewController: RootViewController
+  var tabBarController: AppTabBarController?
+
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
+  let accountService: AccountServiceProtocol
+  var syncService: SyncServiceProtocol
   let watchConnectivityService: PhoneWatchConnectivityService
+  let socketService: SocketServiceProtocol
+
+  private var disposeBag = Set<AnyCancellable>()
 
   init(
-    rootController: RootViewController,
-    coreServices: CoreServices,
-    navigationController: UINavigationController
+    navigationController: UINavigationController,
+    coreServices: CoreServices
   ) {
-    self.rootViewController = rootController
     self.libraryService = coreServices.libraryService
+    self.accountService = coreServices.accountService
+    self.syncService = coreServices.syncService
     self.playbackService = coreServices.playbackService
     self.playerManager = coreServices.playerManager
     self.watchConnectivityService = coreServices.watchService
+    self.socketService = coreServices.socketService
 
     ThemeManager.shared.libraryService = libraryService
 
     super.init(navigationController: navigationController, flowType: .modal)
 
+    accountService.setDelegate(self)
     setUpTheming()
   }
 
   override func start() {
-    self.rootViewController.addChild(self.navigationController)
-    self.rootViewController.mainContainer.addSubview(self.navigationController.view)
-    self.navigationController.didMove(toParent: self.rootViewController)
+    let viewModel = MiniPlayerViewModel(
+      playerManager: self.playerManager,
+      lastPlayedItem: libraryService.getLibraryLastItem()
+    )
 
-    let miniPlayerVC = MiniPlayerViewController.instantiate(from: .Main)
-    let viewModel = MiniPlayerViewModel(playerManager: self.playerManager)
-    viewModel.coordinator = self
-    miniPlayerVC.viewModel = viewModel
-
-    self.rootViewController.addChild(miniPlayerVC)
-    self.rootViewController.miniPlayerContainer.addSubview(miniPlayerVC.view)
-    miniPlayerVC.didMove(toParent: self.rootViewController)
-
-    if let currentTheme = try? self.libraryService.getLibraryCurrentTheme() {
-      ThemeManager.shared.currentTheme = SimpleTheme(with: currentTheme)
+    viewModel.onTransition = { route in
+      switch route {
+      case .showPlayer:
+        self.showPlayer()
+      case .loadItem(let relativePath, let autoplay, let showPlayer):
+        self.loadPlayer(relativePath, autoplay: autoplay, showPlayer: showPlayer)
+      }
     }
 
+    let tabBarController = AppTabBarController(miniPlayerViewModel: viewModel)
+    self.tabBarController = tabBarController
+    tabBarController.modalPresentationStyle = .fullScreen
+    tabBarController.modalTransitionStyle = .crossDissolve
+    presentingViewController = tabBarController
+
+    if let currentTheme = libraryService.getLibraryCurrentTheme() {
+      ThemeManager.shared.currentTheme = currentTheme
+    }
+
+    bindObservers()
+
+    accountService.loginIfUserExists()
+
+    startLibraryCoordinator(with: tabBarController)
+
+    startProfileCoordinator(with: tabBarController)
+
+    startSettingsCoordinator(with: tabBarController)
+
+    navigationController.present(tabBarController, animated: false)
+  }
+
+  func startLibraryCoordinator(with tabBarController: UITabBarController) {
     let libraryCoordinator = LibraryListCoordinator(
-      navigationController: self.navigationController,
+      navigationController: AppNavigationController.instantiate(from: .Main),
       playerManager: self.playerManager,
       importManager: ImportManager(libraryService: self.libraryService),
       libraryService: self.libraryService,
-      playbackService: self.playbackService
+      playbackService: self.playbackService,
+      syncService: syncService
     )
+    libraryCoordinator.tabBarController = tabBarController
     libraryCoordinator.parentCoordinator = self
     self.childCoordinators.append(libraryCoordinator)
     libraryCoordinator.start()
   }
 
+  func startProfileCoordinator(with tabBarController: UITabBarController) {
+    let profileCoordinator = ProfileCoordinator(
+      libraryService: libraryService,
+      playerManager: playerManager,
+      accountService: accountService,
+      syncService: syncService,
+      navigationController: AppNavigationController.instantiate(from: .Main)
+    )
+    profileCoordinator.tabBarController = tabBarController
+    profileCoordinator.parentCoordinator = self
+    self.childCoordinators.append(profileCoordinator)
+    profileCoordinator.start()
+  }
+
+  func startSettingsCoordinator(with tabBarController: UITabBarController) {
+    let settingsCoordinator = SettingsCoordinator(
+      libraryService: self.libraryService,
+      accountService: self.accountService,
+      navigationController: AppNavigationController.instantiate(from: .Settings)
+    )
+    settingsCoordinator.tabBarController = tabBarController
+    settingsCoordinator.parentCoordinator = self
+    self.childCoordinators.append(settingsCoordinator)
+    settingsCoordinator.start()
+  }
+
+  func bindObservers() {
+    NotificationCenter.default.publisher(for: .accountUpdate, object: nil)
+      .sink(receiveValue: { [weak self] _ in
+        guard
+          let self = self,
+          let account = self.accountService.getAccount()
+        else { return }
+
+        if account.hasSubscription {
+          self.socketService.connectSocket()
+          self.syncService.isActive = true
+
+          if !self.playerManager.hasLoadedBook(),
+             let libraryCoordinator = self.getLibraryCoordinator() {
+            libraryCoordinator.loadLastBookIfNeeded()
+          }
+        } else {
+          self.socketService.disconnectSocket()
+          self.syncService.isActive = false
+        }
+
+      })
+      .store(in: &disposeBag)
+
+    NotificationCenter.default.publisher(for: .logout, object: nil)
+      .sink(receiveValue: { [weak self] _ in
+        self?.socketService.disconnectSocket()
+      })
+      .store(in: &disposeBag)
+  }
+
+  func loadPlayer(_ relativePath: String, autoplay: Bool, showPlayer: Bool) {
+    AppDelegate.shared?.loadPlayer(
+      relativePath,
+      autoplay: autoplay,
+      showPlayer: { [weak self] in
+        if showPlayer {
+          self?.showPlayer()
+        }
+      },
+      alertPresenter: (getLibraryCoordinator() ?? self)
+    )
+  }
+
   func showPlayer() {
     let playerCoordinator = PlayerCoordinator(
-      navigationController: self.navigationController,
       playerManager: self.playerManager,
-      libraryService: self.libraryService
+      libraryService: self.libraryService,
+      syncService: self.syncService,
+      presentingViewController: self.presentingViewController
     )
     playerCoordinator.parentCoordinator = self
     self.childCoordinators.append(playerCoordinator)
@@ -80,15 +182,18 @@ class MainCoordinator: Coordinator {
 
   func showMiniPlayer(_ flag: Bool) {
     // Only animate if it toggles the state
-    guard flag != self.rootViewController.isMiniPlayerVisible else { return }
+    guard
+      let tabBarController,
+      flag != tabBarController.isMiniPlayerVisible
+    else { return }
 
-    guard flag == true else {
-      self.rootViewController.animateView(self.rootViewController.miniPlayerContainer, show: flag)
+    guard flag else {
+      tabBarController.animateView(tabBarController.miniPlayer, show: flag)
       return
     }
 
     if self.playerManager.hasLoadedBook() {
-      self.rootViewController.animateView(self.rootViewController.miniPlayerContainer, show: flag)
+      tabBarController.animateView(tabBarController.miniPlayer, show: flag)
     }
   }
 
@@ -111,6 +216,12 @@ class MainCoordinator: Coordinator {
     }
 
     return getPresentingController(coordinator: lastCoordinator)
+  }
+}
+
+extension MainCoordinator: PurchasesDelegate {
+  public func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
+    self.accountService.updateAccount(from: customerInfo)
   }
 }
 

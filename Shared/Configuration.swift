@@ -31,5 +31,13 @@ public enum Configuration {
 }
 
 public enum ConfigurationKeys: String, RawRepresentable {
-    case bundleIdentifier = "BP_BUNDLE_IDENTIFIER"
+  case bundleIdentifier = "BP_BUNDLE_IDENTIFIER"
+  case sentryDSN = "BP_SENTRY_DSN"
+  case revenueCat = "BP_REVENUECAT_KEY"
+  case mockedBearerToken = "BP_MOCKED_BEARER_TOKEN"
+  case isSocketSecure = "BP_IS_SOCKET_SECURE"
+  case socketServerURL = "BP_SOCKET_SERVER"
+  case apiScheme = "BP_API_SCHEME"
+  case apiDomain = "BP_API_DOMAIN"
+  case apiPort = "BP_API_PORT"
 }

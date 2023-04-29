@@ -1,0 +1,142 @@
+{
+  "identifier" : "B145B4D1",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "4.99",
+      "familyShareable" : false,
+      "internalID" : "E52A8ED2",
+      "localizations" : [
+        {
+          "description" : "",
+          "displayName" : "",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.tortugapower.audiobookplayer.tip.excellent",
+      "referenceName" : "excellent.tip",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "4.99",
+      "familyShareable" : false,
+      "internalID" : "9F3EDC7B",
+      "localizations" : [
+        {
+          "description" : "",
+          "displayName" : "",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.tortugapower.audiobookplayer.tip.excellent.consumable",
+      "referenceName" : "excellent.tip.consumable",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "9.99",
+      "familyShareable" : false,
+      "internalID" : "3C857C9A",
+      "localizations" : [
+        {
+          "description" : "",
+          "displayName" : "",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.tortugapower.audiobookplayer.tip.incredible",
+      "referenceName" : "incredible.tip",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "9.99",
+      "familyShareable" : false,
+      "internalID" : "D91C21EE",
+      "localizations" : [
+        {
+          "description" : "",
+          "displayName" : "",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.tortugapower.audiobookplayer.tip.incredible.consumable",
+      "referenceName" : "incredible.tip.consumable",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "2.99",
+      "familyShareable" : false,
+      "internalID" : "B13C26CC",
+      "localizations" : [
+        {
+          "description" : "",
+          "displayName" : "",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.tortugapower.audiobookplayer.tip.kind",
+      "referenceName" : "kind.tip",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "2.99",
+      "familyShareable" : false,
+      "internalID" : "5607C78B",
+      "localizations" : [
+        {
+          "description" : "",
+          "displayName" : "",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.tortugapower.audiobookplayer.tip.kind.consumable",
+      "referenceName" : "kind.tip.consumable",
+      "type" : "Consumable"
+    }
+  ],
+  "settings" : {
+    "_compatibilityTimeRate" : 6,
+    "_timeRate" : 15
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "652B5FC0",
+      "localizations" : [
+
+      ],
+      "name" : "BookPlayer Pro",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "4.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "404D4313",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "",
+              "displayName" : "",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.tortugapower.audiobookplayer.subscription.pro",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "pro.subscription",
+          "subscriptionGroupID" : "652B5FC0",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 1,
+    "minor" : 2
+  }
+}

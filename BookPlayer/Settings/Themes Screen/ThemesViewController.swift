@@ -7,11 +7,12 @@
 //
 
 import BookPlayerKit
+import Combine
 import Themeable
 import UIKit
 import WidgetKit
 
-class ThemesViewController: UIViewController {
+class ThemesViewController: UIViewController, Storyboarded {
     @IBOutlet var brightnessViews: [UIView]!
     @IBOutlet weak var brightnessContainerHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var brightnessDescriptionLabel: UILabel!
@@ -38,6 +39,8 @@ class ThemesViewController: UIViewController {
     @IBOutlet weak var bannerView: PlusBannerView!
     @IBOutlet weak var bannerHeightConstraint: NSLayoutConstraint!
 
+    var viewModel: ThemesViewModel!
+    private var disposeBag = Set<AnyCancellable>()
     var shouldRefreshTableHeight = true
     let cellHeight = 45
     let expandedHeight = 110
@@ -50,42 +53,63 @@ class ThemesViewController: UIViewController {
 
     var extractedThemes: [SimpleTheme]!
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
+  override func viewDidLoad() {
+    super.viewDidLoad()
 
-        self.navigationItem.title = "themes_title".localized
+    self.navigationItem.title = "themes_title".localized
+    self.navigationItem.leftBarButtonItem = UIBarButtonItem(
+      image: ImageIcons.navigationBackImage,
+      style: .plain,
+      target: self,
+      action: #selector(self.didPressClose)
+    )
 
-      self.localThemes = ThemeManager.getLocalThemes()
-      self.extractedThemes = [] // disabled
+    self.localThemes = ThemeManager.getLocalThemes()
+    self.extractedThemes = [] // disabled
 
-        if !UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) {
-            NotificationCenter.default.addObserver(self, selector: #selector(self.donationMade), name: .donationMade, object: nil)
-        } else {
-            self.donationMade()
-        }
+    self.handleDonationObserver()
 
-        setUpTheming()
+    setUpTheming()
 
-        self.extractedThemesTableView.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: self.extractedThemesTableView.frame.size.width, height: 1))
+    self.extractedThemesTableView.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: self.extractedThemesTableView.frame.size.width, height: 1))
 
-        self.darkModeSwitch.isOn = UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeDarkVariantEnabled.rawValue)
-        self.systemModeSwitch.isOn = UserDefaults.standard.bool(forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue)
-        self.brightnessSwitch.isOn = UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeBrightnessEnabled.rawValue)
-        self.brightnessSlider.value = UserDefaults.standard.float(forKey: Constants.UserDefaults.themeBrightnessThreshold.rawValue)
+    self.darkModeSwitch.isOn = UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeDarkVariantEnabled.rawValue)
+    self.systemModeSwitch.isOn = UserDefaults.standard.bool(forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue)
+    self.brightnessSwitch.isOn = UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeBrightnessEnabled.rawValue)
+    self.brightnessSlider.value = UserDefaults.standard.float(forKey: Constants.UserDefaults.themeBrightnessThreshold.rawValue)
 
-        if self.brightnessSwitch.isOn {
-            self.toggleAutomaticBrightness(animated: false)
-        }
-
-        if self.systemModeSwitch.isOn {
-            self.brightnessSwitch.isEnabled = false
-            self.darkModeSwitch.isEnabled = false
-        }
-
-        self.brightnessChanged()
-
-        NotificationCenter.default.addObserver(self, selector: #selector(self.brightnessChanged), name: UIScreen.brightnessDidChangeNotification, object: nil)
+    if self.brightnessSwitch.isOn {
+      self.toggleAutomaticBrightness(animated: false)
     }
+
+    if self.systemModeSwitch.isOn {
+      self.brightnessSwitch.isEnabled = false
+      self.darkModeSwitch.isEnabled = false
+    }
+
+    self.brightnessChanged()
+
+    NotificationCenter.default.addObserver(self, selector: #selector(self.brightnessChanged), name: UIScreen.brightnessDidChangeNotification, object: nil)
+
+    self.bannerView.showPlus = { [weak self] in
+      self?.viewModel.showPlus()
+    }
+  }
+
+  func handleDonationObserver() {
+    if self.viewModel.hasMadeDonation() {
+      self.donationMade()
+    } else {
+      self.viewModel.$account
+        .receive(on: RunLoop.main)
+        .sink { [weak self] account in
+        if account?.donationMade ?? false {
+          self?.donationMade()
+        }
+      }
+      .store(in: &disposeBag)
+    }
+  }
 
   override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
@@ -115,6 +139,10 @@ class ThemesViewController: UIViewController {
     }
 
     func extractTheme() {}
+
+  @objc func didPressClose() {
+    self.dismiss(animated: true, completion: nil)
+  }
 
     @IBAction func sliderUpdated(_ sender: UISlider) {
         let lowerBounds: Float = 0.22
@@ -215,11 +243,11 @@ extension ThemesViewController: UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
         return tableView == self.localThemesTableView
             ? 1
-            : Section.allCases.count
+            : BPSection.allCases.count
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard section == Section.data.rawValue else {
+        guard section == BPSection.data.rawValue else {
             return 1
         }
 
@@ -243,7 +271,7 @@ extension ThemesViewController: UITableViewDataSource {
             cell.plusImageView.isHidden = false
             cell.plusImageView.tintColor = ThemeManager.shared.currentTheme.linkColor
             cell.showCaseView.isHidden = true
-            cell.isLocked = !UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue)
+            cell.isLocked = !self.viewModel.hasMadeDonation()
             return cell
         }
 
@@ -253,7 +281,7 @@ extension ThemesViewController: UITableViewDataSource {
 
         cell.titleLabel.text = item.title
         cell.setupShowCaseView(for: item)
-        cell.isLocked = item.locked && !UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue)
+        cell.isLocked = item.locked && !self.viewModel.hasMadeDonation()
 
         cell.accessoryType = item == ThemeManager.shared.currentTheme
             ? .checkmark

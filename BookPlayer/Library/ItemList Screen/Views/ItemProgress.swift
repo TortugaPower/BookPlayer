@@ -10,7 +10,7 @@ import BookPlayerKit
 import Themeable
 import UIKit
 
-enum State {
+enum DisplayState {
     case normal
     case highlighted
 }
@@ -30,7 +30,7 @@ class ItemProgress: UIView {
     private var pieColors: PieColors?
     private var highlightedPieColors: PieColors?
 
-    var state: State = .normal {
+    var state: DisplayState = .normal {
         didSet {
             self.applyColors()
         }
@@ -181,7 +181,7 @@ class ItemProgress: UIView {
 
             self.pieSegment.path = path.cgPath
         } else {
-            // Show completion stateggg
+            // Show completion state
             self.pieOutline.isHidden = true
             self.pieBackground.isHidden = true
             self.pieSegment.isHidden = true

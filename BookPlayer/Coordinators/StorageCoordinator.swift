@@ -12,11 +12,17 @@ import BookPlayerKit
 class StorageCoordinator: Coordinator {
   let libraryService: LibraryServiceProtocol
 
-  init(libraryService: LibraryServiceProtocol,
-       navigationController: UINavigationController) {
+  init(
+    libraryService: LibraryServiceProtocol,
+    presentingViewController: UIViewController?
+  ) {
     self.libraryService = libraryService
 
-    super.init(navigationController: navigationController, flowType: .push)
+    super.init(
+      navigationController: AppNavigationController.instantiate(from: .Main),
+      flowType: .modal
+    )
+    self.presentingViewController = presentingViewController
   }
 
   override func start() {
@@ -26,8 +32,11 @@ class StorageCoordinator: Coordinator {
                                      folderURL: DataManager.getProcessedFolderURL())
     viewModel.coordinator = self
     vc.viewModel = viewModel
-    self.navigationController.delegate = self
-    self.navigationController.pushViewController(vc, animated: true)
+    vc.navigationItem.largeTitleDisplayMode = .never
+
+    self.navigationController.viewControllers = [vc]
+    self.navigationController.presentationController?.delegate = self
+    self.presentingViewController?.present(self.navigationController, animated: true, completion: nil)
   }
 
   override func interactiveDidFinish(vc: UIViewController) {

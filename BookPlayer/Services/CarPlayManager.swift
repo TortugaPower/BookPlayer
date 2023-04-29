@@ -110,8 +110,7 @@ class CarPlayManager: NSObject {
       let libraryService = AppDelegate.shared?.libraryService
     else { return [] }
 
-    let items = libraryService.fetchContents(at: relativePath, limit: nil, offset: nil) ?? []
-    return items.map({ SimpleLibraryItem(from: $0, themeAccent: .blue) })
+    return libraryService.fetchContents(at: relativePath, limit: nil, offset: nil) ?? []
   }
 
   func setupNowPlayingTemplate() {
@@ -149,12 +148,18 @@ class CarPlayManager: NSObject {
       else { return }
 
       let alertTitle: String
+      let currentTime = floor(currentItem.currentTime)
 
       if let bookmark = libraryService.createBookmark(
-        at: currentItem.currentTime,
+        at: currentTime,
         relativePath: currentItem.relativePath,
         type: .user
       ) {
+        AppDelegate.shared?.syncService?.scheduleSetBookmark(
+          relativePath: currentItem.relativePath,
+          time: currentTime,
+          note: nil
+        )
         let formattedTime = TimeParser.formatTime(bookmark.time)
         alertTitle = String.localizedStringWithFormat("bookmark_created_title".localized, formattedTime)
       } else {
@@ -209,9 +214,8 @@ class CarPlayManager: NSObject {
     else { return [] }
 
     let items = libraryService.fetchContents(at: relativePath, limit: nil, offset: nil) ?? []
-    let simpleItems = items.map({ SimpleLibraryItem(from: $0, themeAccent: .blue) })
 
-    return transformItems(simpleItems)
+    return transformItems(items)
   }
 
   /// Transforms the interface `SimpleLibraryItem` into CarPlay items
@@ -222,8 +226,8 @@ class CarPlayManager: NSObject {
         detailText: simpleItem.details,
         image: UIImage(contentsOfFile: ArtworkService.getCachedImageURL(for: simpleItem.relativePath).path)
       )
-      item.playbackProgress = CGFloat(simpleItem.progress)
-      item.handler = { [weak self, simpleItem] (selectableItem, completion) in
+      item.playbackProgress = CGFloat(simpleItem.percentCompleted / 100)
+      item.handler = { [weak self, simpleItem] (_, completion) in
         switch simpleItem.type {
         case .book, .bound:
           self?.playItem(with: simpleItem.relativePath)
@@ -244,9 +248,8 @@ class CarPlayManager: NSObject {
     else { return }
 
     let items = libraryService.getLastPlayedItems(limit: 20) ?? []
-    let simpleItems = items.map({ SimpleLibraryItem(from: $0, themeAccent: .blue) })
 
-    let cpitems = transformItems(simpleItems)
+    let cpitems = transformItems(items)
 
     cpitems.first?.isPlaying = true
 
@@ -383,7 +386,7 @@ extension CarPlayManager {
 // MARK: - Bookmark List Template
 
 extension CarPlayManager {
-  func createBookmarkCPItem(from bookmark: Bookmark, includeImage: Bool) -> CPListItem {
+  func createBookmarkCPItem(from bookmark: SimpleBookmark, includeImage: Bool) -> CPListItem {
     let item = CPListItem(
       text: bookmark.note,
       detailText: TimeParser.formatTime(bookmark.time)
@@ -500,6 +503,9 @@ extension CarPlayManager {
 extension CarPlayManager: CPInterfaceControllerDelegate {}
 
 extension CarPlayManager: AlertPresenter {
+  func showLoader() { }
+  func stopLoader() { }
+
   public func showAlert(_ title: String? = nil, message: String? = nil, completion: (() -> Void)? = nil) {
     let okAction = CPAlertAction(title: "ok_button".localized, style: .default) { _ in
       self.interfaceController?.dismissTemplate(animated: true, completion: nil)

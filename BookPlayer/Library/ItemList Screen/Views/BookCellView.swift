@@ -22,7 +22,11 @@ class BookCellView: UITableViewCell {
     @IBOutlet weak var artworkHeight: NSLayoutConstraint!
     @IBOutlet weak var customSeparatorView: UIView!
 
-    var theme: SimpleTheme!
+  @IBOutlet weak var statusBackgroundView: UIView!
+  @IBOutlet weak var downloadProgressView: ItemProgress!
+  @IBOutlet weak var statusImageView: UIImageView!
+
+  var theme: SimpleTheme!
     var onArtworkTap: (() -> Void)?
 
     var title: String? {
@@ -48,7 +52,7 @@ class BookCellView: UITableViewCell {
             return self.progressView.value
         }
         set {
-            self.progressView.value = newValue.isNaN
+            self.progressView.value = (newValue.isNaN || newValue.isInfinite)
                 ? 0.0
                 : newValue
         }
@@ -80,6 +84,26 @@ class BookCellView: UITableViewCell {
       UIView.animate(withDuration: 0.1, animations: {
         self.setPlaybackColors(self.theme)
       })
+    }
+  }
+
+  var downloadState: DownloadState = DownloadState.downloaded {
+    didSet {
+      switch self.downloadState {
+      case .notDownloaded:
+        statusBackgroundView.isHidden = false
+        statusImageView.isHidden = false
+        downloadProgressView.isHidden = true
+      case .downloading(let progress):
+        statusBackgroundView.isHidden = false
+        downloadProgressView.isHidden = false
+        statusImageView.isHidden = true
+        downloadProgressView.value = progress
+      case .downloaded:
+        statusBackgroundView.isHidden = true
+        statusImageView.isHidden = true
+        downloadProgressView.isHidden = true
+      }
     }
   }
 
@@ -116,12 +140,14 @@ class BookCellView: UITableViewCell {
         }
     }
 
-    override func willMove(toSuperview newSuperview: UIView?) {
-        super.willMove(toSuperview: newSuperview)
+  override func willMove(toSuperview newSuperview: UIView?) {
+    super.willMove(toSuperview: newSuperview)
 
-        self.artworkButton.layer.cornerRadius = 4.0
-        self.artworkButton.layer.masksToBounds = true
-    }
+    self.artworkButton.layer.cornerRadius = 4.0
+    self.artworkButton.layer.masksToBounds = true
+    self.statusBackgroundView.layer.cornerRadius = 4.0
+    self.statusBackgroundView.layer.masksToBounds = true
+  }
 
     @IBAction func artworkButtonTapped(_ sender: Any) {
         self.onArtworkTap?()
@@ -176,6 +202,8 @@ extension BookCellView: Themeable {
     self.setPlaybackColors(theme)
     self.selectionView.defaultColor = theme.secondarySystemFillColor
     self.selectionView.selectedColor = theme.systemFillColor
+    self.statusBackgroundView.backgroundColor = theme.systemGroupedBackgroundColor
+    self.statusImageView.tintColor = theme.linkColor
     self.overrideUserInterfaceStyle = theme.useDarkVariant
       ? UIUserInterfaceStyle.dark
       : UIUserInterfaceStyle.light

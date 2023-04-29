@@ -20,6 +20,7 @@ class SettingsCoordinatorTests: XCTestCase {
     let libraryService = LibraryService(dataManager: dataManager)
     self.settingsCoordinator = SettingsCoordinator(
       libraryService: libraryService,
+      accountService: AccountServiceMock(account: nil),
       navigationController: UINavigationController()
     )
     self.settingsCoordinator.start()

@@ -11,7 +11,7 @@ import Combine
 import Themeable
 import UIKit
 
-class PlayerSettingsViewController: UITableViewController {
+class PlayerSettingsViewController: UITableViewController, Storyboarded {
   @IBOutlet weak var smartRewindSwitch: UISwitch!
   @IBOutlet weak var boostVolumeSwitch: UISwitch!
   @IBOutlet weak var globalSpeedSwitch: UISwitch!
@@ -37,6 +37,12 @@ class PlayerSettingsViewController: UITableViewController {
     setUpTheming()
 
     self.navigationItem.title = "settings_controls_title".localized
+    self.navigationItem.leftBarButtonItem = UIBarButtonItem(
+      image: ImageIcons.navigationBackImage,
+      style: .plain,
+      target: self,
+      action: #selector(self.didPressClose)
+    )
     self.smartRewindSwitch.addTarget(self, action: #selector(self.rewindToggleDidChange), for: .valueChanged)
     self.boostVolumeSwitch.addTarget(self, action: #selector(self.boostVolumeToggleDidChange), for: .valueChanged)
     self.globalSpeedSwitch.addTarget(self, action: #selector(self.globalSpeedToggleDidChange), for: .valueChanged)
@@ -53,6 +59,10 @@ class PlayerSettingsViewController: UITableViewController {
     self.forwardIntervalLabel.text = TimeParser.formatDuration(PlayerManager.forwardInterval)
 
     bindObservers()
+  }
+
+  @objc func didPressClose() {
+    self.dismiss(animated: true, completion: nil)
   }
 
   func bindObservers() {

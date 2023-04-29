@@ -14,3 +14,4 @@ disabled_rules:
   - force_try
   - type_body_length
   - file_length
+  - orphaned_doc_comment

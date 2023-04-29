@@ -47,18 +47,19 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
               let fileAttributes = try? FileManager.default.attributesOfItem(atPath: fileURL.path) else { continue }
 
         let currentRelativePath = self.getRelativePath(of: fileURL, baseURL: processedFolder)
-        let fetchedBook = self.libraryService.getItem(
-          with: currentRelativePath
-        ) as? Book
+        let fetchedTitle = self.libraryService.getItemProperty(
+          #keyPath(LibraryItem.title),
+          relativePath: currentRelativePath
+        ) as? String
 
-        let bookTitle = fetchedBook?.title ?? Book.getBookTitle(from: fileURL)
+        let bookTitle = fetchedTitle ?? Book.getBookTitle(from: fileURL)
 
         let storageItem = StorageItem(
           title: bookTitle,
           fileURL: fileURL,
           path: fileURL.relativePath(to: processedFolder),
           size: fileAttributes[FileAttributeKey.size] as? Int64 ?? 0,
-          showWarning: self.shouldShowWarning(for: currentRelativePath, book: fetchedBook)
+          showWarning: fetchedTitle == nil && self.shouldShowWarning(for: currentRelativePath)
         )
 
         items.append(storageItem)
@@ -69,18 +70,16 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
   }
 
   func getRelativePath(of fileURL: URL, baseURL: URL) -> String {
-    return String(fileURL.relativePath(to: baseURL).dropFirst())
+    return fileURL.relativePath(to: baseURL)
   }
 
-  func shouldShowWarning(for relativePath: String, book: Book?) -> Bool {
-    guard book == nil else { return false }
-
+  func shouldShowWarning(for relativePath: String) -> Bool {
     // Fetch may fail with unicode characters, this is a last resort to double check it's not really linked
     return !bookExists(relativePath, library: self.library)
   }
 
   func bookExists(_ relativePath: String, library: Library) -> Bool {
-    guard let items = library.items?.array as? [LibraryItem] else {
+    guard let items = library.items?.allObjects as? [LibraryItem] else {
       return false
     }
 
@@ -107,7 +106,7 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
   }
 
   func getItem(with relativePath: String, from folder: Folder) -> LibraryItem? {
-    guard let items = folder.items?.array as? [LibraryItem] else {
+    guard let items = folder.items?.allObjects as? [LibraryItem] else {
       return nil
     }
 
@@ -131,7 +130,7 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
   func createBook(from item: StorageItem) throws {
     let book = self.libraryService.createBook(from: item.fileURL)
     try moveBookFile(from: item, with: book)
-    try self.libraryService.moveItems([book], inside: nil, moveFiles: false)
+    try libraryService.moveItems([book.relativePath], inside: nil)
     reloadLibraryItems()
   }
 
@@ -220,7 +219,7 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
 
     // Relink book object if it's orphaned
     if fetchedBook.getLibrary() == nil {
-      try self.libraryService.moveItems([fetchedBook], inside: nil, moveFiles: false)
+      try libraryService.moveItems([fetchedBook.relativePath], inside: nil)
       reloadLibraryItems()
     }
 

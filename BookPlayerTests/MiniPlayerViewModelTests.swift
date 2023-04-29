@@ -19,25 +19,24 @@ class MiniPlayerViewModelTests: XCTestCase {
 
   override func setUp() {
     self.playerMock = PlayerManagerMock()
-    self.sut = MiniPlayerViewModel(playerManager: self.playerMock)
+    self.sut = MiniPlayerViewModel(playerManager: self.playerMock, lastPlayedItem: nil)
   }
 
   func testShowPlayer() {
-    let rootVC = RootViewController.instantiate(from: .Main)
-    rootVC.loadView()
-    let coreServices = AppDelegate.shared!.createCoreServicesIfNeeded(from: CoreDataStack(testPath: "/dev/null"))
-    let mainCoordinator = MainCoordinator(
-      rootController: rootVC,
-      coreServices: coreServices,
-      navigationController: UINavigationController()
-    )
-    self.sut.coordinator = mainCoordinator
+    let expectation = XCTestExpectation(description: "Waiting for transition capture")
+    var capturedTransition = false
 
-    XCTAssert(mainCoordinator.childCoordinators.isEmpty)
+    self.sut.onTransition = { route in
+      if case .showPlayer = route {
+        capturedTransition = true
+        expectation.fulfill()
+      }
+    }
 
     self.sut.showPlayer()
 
-    XCTAssert(mainCoordinator.childCoordinators.count == 1)
+    wait(for: [expectation], timeout: 0.5)
+    XCTAssert(capturedTransition == true)
   }
 
   func testPlayPause() {

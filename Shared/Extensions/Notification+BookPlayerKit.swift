@@ -16,4 +16,11 @@ extension Notification.Name {
   public static let bookPlaying = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).book.playback")
   public static let bookReady = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).book.ready")
   public static let messageReceived = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).watch.message")
+  public static let accountUpdate = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).account.update")
+  public static let login = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).account.login")
+  public static let logout = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).account.logout")
+  public static let folderProgressUpdated = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).folder.progress.update")
+  public static let uploadProgressUpdated = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).upload.progress.update")
+  public static let uploadCompleted = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).upload.completed")
+  public static let recreateQueue = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).queue.recreate")
 }

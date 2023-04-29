@@ -8,6 +8,8 @@
 
 import UIKit
 
+public typealias Transition<T> = ((T) -> Void)
+
 public enum FlowType {
   case push, modal
 }
@@ -59,6 +61,14 @@ class Coordinator: NSObject {
 extension Coordinator: AlertPresenter {
   public func showAlert(_ title: String? = nil, message: String? = nil, completion: (() -> Void)? = nil) {
     self.navigationController.showAlert(title, message: message, completion: completion)
+  }
+
+  func showLoader() {
+    LoadingUtils.loadAndBlock(in: self.navigationController)
+  }
+
+  func stopLoader() {
+    LoadingUtils.stopLoading(in: self.navigationController)
   }
 }
 

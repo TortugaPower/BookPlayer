@@ -9,6 +9,39 @@
 import UIKit
 
 extension UIViewController {
+  func showAlert(_ content: BPAlertContent) {
+    let alert = UIAlertController(
+      title: content.title,
+      message: content.message,
+      preferredStyle: content.style
+    )
+
+    if let textInputPlaceholder = content.textInputPlaceholder {
+      alert.addTextField(configurationHandler: { textfield in
+        textfield.text = textInputPlaceholder
+      })
+    }
+
+    content.actionItems.forEach({ item in
+      let action = UIAlertAction(
+        title: item.title,
+        style: item.style,
+        handler: { _ in
+          if let text = alert.textFields?.first?.text,
+             let inputHandler = item.inputHandler {
+            inputHandler(text)
+          } else {
+            item.handler()
+          }
+        }
+      )
+      action.isEnabled = item.isEnabled
+      alert.addAction(action)
+    })
+
+    self.present(alert, animated: true, completion: nil)
+  }
+
     func showAlert(_ title: String?, message: String?, style: UIAlertController.Style = .alert, completion: (() -> Void)? = nil) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: style)
         let okButton = UIAlertAction(title: "ok_button".localized, style: .default) { _ in
@@ -81,5 +114,27 @@ extension UIViewController {
     }
 
     return top
+  }
+}
+
+extension UIViewController: AlertPresenter {
+  func showAlert(_ title: String?, message: String?, completion: (() -> Void)?) {
+    showAlert(title, message: message, style: .alert, completion: completion)
+  }
+
+  func showLoader() {
+    if let navigationController {
+      LoadingUtils.loadAndBlock(in: navigationController)
+    } else {
+      LoadingUtils.loadAndBlock(in: self)
+    }
+  }
+
+  func stopLoader() {
+    if let navigationController {
+      LoadingUtils.stopLoading(in: navigationController)
+    } else {
+      LoadingUtils.stopLoading(in: self)
+    }
   }
 }

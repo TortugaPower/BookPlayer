@@ -10,51 +10,35 @@ import CoreData
 import Foundation
 
 extension DataMigrationManager {
-  func migrateLibraryOrder(dataManager: DataManager) {
-    let libraryService = LibraryService(dataManager: dataManager)
-    let library = libraryService.getLibrary()
+  func populateFolderDetails(dataManager: DataManager) {
+    let fetch: NSFetchRequest<Folder> = Folder.fetchRequest()
+    fetch.returnsObjectsAsFaults = false
+    guard let folders = try? dataManager.getContext().fetch(fetch) as [Folder] else { return }
 
-    guard let items = library.items?.array as? [LibraryItem] else { return }
-
-    for (index, item) in items.enumerated() {
-      item.orderRank = Int16(index)
+    folders.forEach { folder in
+      let count = folder.items?.count ?? 0
+      folder.details = String.localizedStringWithFormat("files_title".localized, count)
     }
 
     dataManager.saveContext()
-
-    let folders = items.compactMap({ item -> Folder? in
-      if let folder = item as? Folder {
-        return folder
-      }
-
-      return nil
-    })
-
-    self.migrateFolderOrder(folders, dataManager: dataManager)
   }
 
-  func migrateFolderOrder(_ folders: [Folder], dataManager: DataManager) {
-    guard !folders.isEmpty else { return }
+  func populateIsFinished(dataManager: DataManager) {
+    let fetch: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+    fetch.propertiesToFetch = ["isFinished"]
 
-    var mutatingFolders = folders
+    guard
+      let items = try? dataManager.getContext().fetch(fetch) as [LibraryItem]
+    else { return }
 
-    let folder = mutatingFolders.removeFirst()
-    guard let items = folder.items?.array as? [LibraryItem] else { return }
-
-    for (index, item) in items.enumerated() {
-      item.orderRank = Int16(index)
+    items.forEach { item in
+      if item.isFinished {
+        item.isFinished = true
+      } else {
+        item.isFinished = false
+      }
     }
 
     dataManager.saveContext()
-
-    let newFolders = items.compactMap({ item -> Folder? in
-      if let folder = item as? Folder {
-        return folder
-      }
-
-      return nil
-    })
-
-    self.migrateFolderOrder(mutatingFolders + newFolders, dataManager: dataManager)
   }
 }

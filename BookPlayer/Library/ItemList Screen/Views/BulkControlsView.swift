@@ -9,12 +9,12 @@
 import UIKit
 
 class BulkControlsView: NibLoadableView {
-    @IBOutlet weak var sortButton: UIButton!
+    @IBOutlet weak var editButton: UIButton!
     @IBOutlet weak var moveButton: UIButton!
     @IBOutlet weak var trashButton: UIButton!
     @IBOutlet weak var moreButton: UIButton!
 
-    var onSortTap: (() -> Void)?
+    var onEditTap: (() -> Void)?
     var onMoveTap: (() -> Void)?
     var onDeleteTap: (() -> Void)?
     var onMoreTap: (() -> Void)?
@@ -22,14 +22,14 @@ class BulkControlsView: NibLoadableView {
   override func awakeFromNib() {
     super.awakeFromNib()
 
-    self.sortButton.accessibilityLabel = "sort_title".localized
+    self.editButton.accessibilityLabel = "Details"
     self.moveButton.accessibilityLabel = "move_title".localized
     self.trashButton.accessibilityLabel = "delete_button".localized
     self.moreButton.accessibilityLabel = "options_button".localized
   }
 
-    @IBAction func didPressSort(_ sender: UIButton) {
-        self.onSortTap?()
+    @IBAction func didPressEdit(_ sender: UIButton) {
+        self.onEditTap?()
     }
 
     @IBAction func didPressMove(_ sender: UIButton) {

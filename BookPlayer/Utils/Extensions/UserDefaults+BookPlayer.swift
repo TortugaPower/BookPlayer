@@ -10,7 +10,11 @@ import BookPlayerKit
 import Foundation
 
 extension UserDefaults {
-    @objc dynamic var userSettingsAppIcon: String? {
-        return string(forKey: Constants.UserDefaults.appIcon.rawValue)
-    }
+  @objc dynamic var userSettingsAppIcon: String? {
+    return string(forKey: Constants.UserDefaults.appIcon.rawValue)
+  }
+
+  @objc dynamic var userSettingsHasQueuedJobs: Bool {
+    return bool(forKey: Constants.UserDefaults.hasQueuedJobs.rawValue)
+  }
 }

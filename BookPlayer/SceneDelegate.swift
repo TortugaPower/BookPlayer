@@ -68,16 +68,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   }
 
   func sceneDidBecomeActive(_ scene: UIScene) {
-    // Check if the app is on the PlayerViewController
     guard
-      let mainCoordinator = coordinator.getMainCoordinator(),
-      mainCoordinator.hasPlayerShown()
+      let mainCoordinator = coordinator.getMainCoordinator()
     else {
       return
     }
 
-    // Notify controller to see if it should ask for review
-    NotificationCenter.default.post(name: .requestReview, object: nil)
+    // Check if the app is on the PlayerViewController
+    if mainCoordinator.hasPlayerShown() {
+      // Notify controller to see if it should ask for review
+      NotificationCenter.default.post(name: .requestReview, object: nil)
+    }
   }
 
   func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {

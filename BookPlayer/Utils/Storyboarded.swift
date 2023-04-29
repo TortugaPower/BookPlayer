@@ -12,6 +12,7 @@ enum StoryboardName: String {
   case Main, Settings, Player
 }
 
+/// Deprecated, storyboards will no longer be used for future screens
 protocol Storyboarded {
   static func instantiate(from storyboard: StoryboardName) -> Self
 }

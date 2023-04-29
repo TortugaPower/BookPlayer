@@ -26,7 +26,8 @@ class LibraryListCoordinatorTests: XCTestCase {
       playerManager: PlayerManagerMock(),
       importManager: ImportManager(libraryService: libraryService),
       libraryService: libraryService,
-      playbackService: coreServices.playbackService
+      playbackService: coreServices.playbackService,
+      syncService: SyncServiceMock()
     )
 
     self.libraryListCoordinator.start()
@@ -43,8 +44,8 @@ class LibraryListCoordinatorTests: XCTestCase {
 
   func testShowFolder() {
     let folder = try! StubFactory.folder(dataManager: self.dataManager, title: "folder 1")
-    let library = self.libraryListCoordinator.libraryService.getLibrary()
-    library.insert(item: folder)
+    let library = self.libraryListCoordinator.libraryService.getLibraryReference()
+    library.addToItems(folder)
 
     self.libraryListCoordinator.showFolder(folder.relativePath)
     XCTAssert(self.libraryListCoordinator.childCoordinators.first is ItemListCoordinator)
@@ -56,37 +57,9 @@ class LibraryListCoordinatorTests: XCTestCase {
     XCTAssert(self.libraryListCoordinator.childCoordinators.first is PlayerCoordinator)
   }
 
-  func testShowSettings() {
-    self.libraryListCoordinator.showSettings()
-    XCTAssert(self.libraryListCoordinator.childCoordinators.first is SettingsCoordinator)
-  }
-
   func testShowImport() {
     self.libraryListCoordinator.showImport()
     XCTAssert(self.libraryListCoordinator.childCoordinators.first is ImportCoordinator)
-  }
-
-  func testShowItemContents() {
-    let folder = try! StubFactory.folder(dataManager: self.dataManager, title: "folder 1")
-    let book = StubFactory.book(dataManager: self.dataManager, title: "book 1", duration: 10)
-    let library = self.libraryListCoordinator.libraryService.getLibrary()
-    library.insert(item: folder)
-    library.insert(item: book)
-
-    self.libraryListCoordinator.showItemContents(SimpleLibraryItem(from: folder, themeAccent: .blue))
-
-    XCTAssert(self.libraryListCoordinator.childCoordinators.first is ItemListCoordinator)
-
-    let notificationExpectation = expectation(forNotification: .bookReady, object: nil) { (notification: Notification) -> Bool in
-      if let loaded = notification.userInfo?["loaded"] as? Bool {
-        XCTAssert(loaded == true)
-      }
-
-      return true
-    }
-
-    self.libraryListCoordinator.showItemContents(SimpleLibraryItem(from: book, themeAccent: .blue))
-    wait(for: [notificationExpectation], timeout: 3.0)
   }
 }
 
@@ -103,7 +76,8 @@ class FolderListCoordinatorTests: XCTestCase {
       folderRelativePath: folder.relativePath,
       playerManager: PlayerManagerMock(),
       libraryService: libraryService,
-      playbackService: PlaybackService(libraryService: libraryService)
+      playbackService: PlaybackService(libraryService: libraryService),
+      syncService: SyncServiceMock()
     )
 
     self.folderListCoordinator.start()

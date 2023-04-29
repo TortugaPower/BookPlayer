@@ -7,34 +7,64 @@
 //
 
 import BookPlayerKit
+import Combine
 import Themeable
 import UIKit
 import WidgetKit
 
-class IconsViewController: UIViewController {
-    @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var bannerView: PlusBannerView!
-    @IBOutlet weak var bannerHeightConstraint: NSLayoutConstraint!
+class IconsViewController: UIViewController, Storyboarded {
+  @IBOutlet weak var tableView: UITableView!
+  @IBOutlet weak var bannerView: PlusBannerView!
+  @IBOutlet weak var bannerHeightConstraint: NSLayoutConstraint!
 
-    let userDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
-    var icons: [Icon]!
+  let userDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
+  var icons: [Icon]!
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
+  var viewModel: IconsViewModel!
+  private var disposeBag = Set<AnyCancellable>()
 
-        self.navigationItem.title = "settings_app_icon_title".localized
-        self.icons = self.getIcons()
+  override func viewDidLoad() {
+    super.viewDidLoad()
 
-        self.tableView.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: self.tableView.frame.size.width, height: 1))
+    self.navigationItem.title = "settings_app_icon_title".localized
+    self.navigationItem.leftBarButtonItem = UIBarButtonItem(
+      image: ImageIcons.navigationBackImage,
+      style: .plain,
+      target: self,
+      action: #selector(self.didPressClose)
+    )
 
-        if !UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) {
-            NotificationCenter.default.addObserver(self, selector: #selector(self.donationMade), name: .donationMade, object: nil)
-        } else {
-            self.donationMade()
-        }
+    self.icons = self.getIcons()
 
-        setUpTheming()
+    self.tableView.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: self.tableView.frame.size.width, height: 1))
+
+    self.handleDonationObserver()
+
+    setUpTheming()
+
+    self.bannerView.showPlus = { [weak self] in
+      self?.viewModel.showPlus()
     }
+  }
+
+  func handleDonationObserver() {
+    if self.viewModel.hasMadeDonation() {
+      self.donationMade()
+    } else {
+      self.viewModel.$account
+        .receive(on: RunLoop.main)
+        .sink { [weak self] account in
+        if account?.donationMade ?? false {
+          self?.donationMade()
+        }
+      }
+      .store(in: &disposeBag)
+    }
+  }
+
+  @objc func didPressClose() {
+    self.dismiss(animated: true, completion: nil)
+  }
 
     @objc func donationMade() {
         self.bannerView.isHidden = true
@@ -86,7 +116,7 @@ extension IconsViewController: UITableViewDataSource {
         cell.titleLabel.text = item.title
         cell.authorLabel.text = item.author
         cell.iconImage = UIImage(named: item.imageName)
-        cell.isLocked = item.isLocked && !UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue)
+        cell.isLocked = item.isLocked && !self.viewModel.hasMadeDonation()
 
         let currentAppIcon = self.userDefaults?.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
 

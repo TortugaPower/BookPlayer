@@ -14,17 +14,14 @@ import Combine
 import XCTest
 
 class LibraryServiceTests: XCTestCase {
+  // swiftlint:disable force_cast
   var sut: LibraryService!
 
   override func setUp() {
     DataTestUtils.clearFolderContents(url: DataManager.getProcessedFolderURL())
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
     self.sut = LibraryService(dataManager: dataManager)
-  }
-
-  func testGetNewLibrary() {
-    let library = self.sut.getLibrary()
-    XCTAssert(library.items!.array.isEmpty)
+    _ = self.sut.getLibrary()
   }
 
   func testGetExistingLibrary() {
@@ -34,15 +31,15 @@ class LibraryServiceTests: XCTestCase {
       duration: 100
     )
 
-    let newLibrary = self.sut.createLibrary()
-    newLibrary.insert(item: book)
+    let newLibrary = self.sut.getLibraryReference()
+    newLibrary.addToItems(book)
 
     let loadedLibrary = self.sut.getLibrary()
-    XCTAssert(!loadedLibrary.items!.array.isEmpty)
+    XCTAssert(!loadedLibrary.itemsArray.isEmpty)
   }
 
   func testGetEmptyLibraryLastItem() {
-    let lastBook = try! self.sut.getLibraryLastItem()
+    let lastBook = sut.getLibraryLastItem()
     XCTAssert(lastBook == nil)
   }
 
@@ -53,92 +50,24 @@ class LibraryServiceTests: XCTestCase {
       duration: 100
     )
 
-    let newLibrary = self.sut.createLibrary()
+    let newLibrary = self.sut.getLibraryReference()
     XCTAssert(newLibrary.lastPlayedItem == nil)
     newLibrary.lastPlayedItem = book
-    newLibrary.insert(item: book)
+    newLibrary.addToItems(book)
 
     self.sut.dataManager.saveContext()
 
-    let lastBook = try! self.sut.getLibraryLastItem()
+    let lastBook = sut.getLibraryLastItem()
     XCTAssert(lastBook?.relativePath == book.relativePath)
   }
 
   func testGetLibraryCurrentTheme() {
-    XCTAssert(try! self.sut.getLibraryCurrentTheme() == nil)
+    XCTAssert(sut.getLibraryCurrentTheme() == nil)
 
-    let theme = Theme(context: self.sut.dataManager.getContext())
-    theme.title = "theme-test"
+    self.sut.setLibraryTheme(with: SimpleTheme.getDefaultTheme())
 
-    let newLibrary = self.sut.createLibrary()
-    XCTAssert(newLibrary.currentTheme == nil)
-    newLibrary.currentTheme = theme
-
-    self.sut.dataManager.saveContext()
-
-    let currentTheme = try! self.sut.getLibraryCurrentTheme()
-    XCTAssert(currentTheme?.title == theme.title)
-  }
-
-  func testGetTheme() {
-    XCTAssert(self.sut.getTheme(with: "theme-test") == nil)
-
-    let theme = Theme(context: self.sut.dataManager.getContext())
-    theme.title = "theme-test"
-
-    self.sut.dataManager.saveContext()
-
-    XCTAssert(self.sut.getTheme(with: "theme-test") != nil)
-  }
-
-  func testSetLibraryTheme() {
-    let library = self.sut.getLibrary()
-    XCTAssert(library.currentTheme == nil)
-
-    let theme = Theme(context: self.sut.dataManager.getContext())
-    theme.title = "theme-test"
-
-    self.sut.setLibraryTheme(with: "theme-test")
-    self.sut.dataManager.saveContext()
-
-    let testLibrary = self.sut.getLibrary()
-    XCTAssert(testLibrary.currentTheme.title == "theme-test")
-  }
-
-  func testCreateThemeFromParams() {
-    let params: [String: Any] = [
-      "title": "Default / Dark",
-      "lightPrimaryHex": "242320",
-      "lightSecondaryHex": "8F8E95",
-      "lightAccentHex": "3488D1",
-      "lightSeparatorHex": "DCDCDC",
-      "lightSystemBackgroundHex": "FAFAFA",
-      "lightSecondarySystemBackgroundHex": "FCFBFC",
-      "lightTertiarySystemBackgroundHex": "E8E7E9",
-      "lightSystemGroupedBackgroundHex": "EFEEF0",
-      "lightSystemFillHex": "87A0BA",
-      "lightSecondarySystemFillHex": "ACAAB1",
-      "lightTertiarySystemFillHex": "3488D1",
-      "lightQuaternarySystemFillHex": "3488D1",
-      "darkPrimaryHex": "FAFBFC",
-      "darkSecondaryHex": "8F8E94",
-      "darkAccentHex": "459EEC",
-      "darkSeparatorHex": "434448",
-      "darkSystemBackgroundHex": "202225",
-      "darkSecondarySystemBackgroundHex": "111113",
-      "darkTertiarySystemBackgroundHex": "333538",
-      "darkSystemGroupedBackgroundHex": "2C2D30",
-      "darkSystemFillHex": "647E98",
-      "darkSecondarySystemFillHex": "707176",
-      "darkTertiarySystemFillHex": "459EEC",
-      "darkQuaternarySystemFillHex": "459EEC",
-      "locked": false
-    ]
-
-    let theme = self.sut.createTheme(params: params)
-    XCTAssert(theme.title == "Default / Dark")
-    XCTAssert(theme.lightPrimaryHex == "242320")
-    XCTAssert(theme.darkPrimaryHex == "FAFBFC")
+    let currentTheme = sut.getLibraryCurrentTheme()
+    XCTAssert(currentTheme?.title == "Default / Dark")
   }
 
   func testCreateBook() {
@@ -150,7 +79,7 @@ class LibraryServiceTests: XCTestCase {
     let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: processedFolder)
     let newBook = self.sut.createBook(from: fileUrl)
     XCTAssert(newBook.title == "test-book.txt")
-    XCTAssert(newBook.relativePath == "/test-book.txt")
+    XCTAssert(newBook.relativePath == "test-book.txt")
   }
 
   func testGetItemWithIdentifier() {
@@ -226,7 +155,7 @@ class LibraryServiceTests: XCTestCase {
   }
 
   func testFindEmptyFolder() {
-    let folder = self.sut.findFolder(with: URL(string: "test/url")!)
+    let folder = self.sut.getItemReference(with: "test/url")
     XCTAssert(folder == nil)
   }
 
@@ -235,9 +164,7 @@ class LibraryServiceTests: XCTestCase {
 
     self.sut.dataManager.saveContext()
 
-    let testURL = DataManager.getProcessedFolderURL().appendingPathComponent("test1-folder")
-
-    let folder = self.sut.findFolder(with: testURL)
+    let folder = self.sut.getItemReference(with: "test1-folder")
     XCTAssert(folder?.relativePath == "test1-folder")
   }
 
@@ -250,7 +177,7 @@ class LibraryServiceTests: XCTestCase {
     XCTAssert(self.sut.hasLibraryLinked(item: book1) == false)
   }
 
-  func testHasLibraryLinked() {
+  func testHasLibraryLinked() throws {
     let library = self.sut.getLibrary()
 
     let book1 = StubFactory.book(
@@ -258,7 +185,7 @@ class LibraryServiceTests: XCTestCase {
       title: "test1-book",
       duration: 100
     )
-    library.insert(item: book1)
+    library.addToItems(book1)
 
     XCTAssert(self.sut.hasLibraryLinked(item: book1) == true)
 
@@ -266,12 +193,13 @@ class LibraryServiceTests: XCTestCase {
       dataManager: self.sut.dataManager,
       title: "test1-folder"
     )
-    folder1.insert(item: book1)
+
+    try sut.moveItems([book1.relativePath], inside: folder1.relativePath)
 
     XCTAssert(self.sut.hasLibraryLinked(item: folder1) == false)
     XCTAssert(self.sut.hasLibraryLinked(item: book1) == false)
 
-    library.insert(item: folder1)
+    try sut.moveItems([folder1.relativePath], inside: nil)
 
     XCTAssert(self.sut.hasLibraryLinked(item: folder1) == true)
     XCTAssert(self.sut.hasLibraryLinked(item: book1) == true)
@@ -284,13 +212,14 @@ class LibraryServiceTests: XCTestCase {
 
     XCTAssert(self.sut.hasLibraryLinked(item: folder2) == false)
 
-    folder1.insert(item: folder2)
+    try sut.moveItems([folder2.relativePath], inside: folder1.relativePath)
 
     XCTAssert(self.sut.hasLibraryLinked(item: folder2) == true)
     XCTAssert(self.sut.hasLibraryLinked(item: book1) == true)
     XCTAssert(self.sut.hasLibraryLinked(item: folder1) == true)
 
-    folder1.library = nil
+    library.removeFromItems(folder1)
+    self.sut.dataManager.saveContext()
 
     XCTAssert(self.sut.hasLibraryLinked(item: folder2) == false)
     XCTAssert(self.sut.hasLibraryLinked(item: book1) == false)
@@ -303,7 +232,7 @@ class LibraryServiceTests: XCTestCase {
       dataManager: self.sut.dataManager,
       title: "test1-folder"
     )
-    library.insert(item: folder1)
+    library.addToItems(folder1)
 
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent("test1-folder")
 
@@ -337,14 +266,14 @@ class LibraryServiceTests: XCTestCase {
       title: "test1-book",
       duration: 100
     )
-    library.insert(item: book1)
+    library.addToItems(book1)
 
     let folder2 = try! StubFactory.folder(
       dataManager: self.sut.dataManager,
       title: "test2-folder"
     )
-    folder2.insert(item: book1)
-    library.insert(item: folder2)
+    folder2.addToItems(book1)
+    library.addToItems(folder2)
 
     let nestedURL = DataManager.getProcessedFolderURL().appendingPathComponent(folder2.relativePath)
 
@@ -353,7 +282,7 @@ class LibraryServiceTests: XCTestCase {
       title: "test3-folder",
       destinationFolder: nestedURL
     )
-    folder2.insert(item: folder3)
+    folder2.addToItems(folder3)
 
     XCTAssert(FileManager.default.fileExists(atPath: nestedURL.path))
     try! self.sut.removeFolderIfNeeded(nestedURL)
@@ -364,46 +293,51 @@ class LibraryServiceTests: XCTestCase {
   }
 
   func testCreateFolderInLibrary() {
-    let folder = try! self.sut.createFolder(with: "test-folder", inside: nil)
+    _ = try! self.sut.createFolder(with: "test-folder", inside: nil)
+    let folder = self.sut.getItem(with: "test-folder") as! Folder
 
     let library = self.sut.getLibrary()
 
     XCTAssert(library.itemsArray.first?.relativePath == folder.relativePath)
     XCTAssert(folder.items?.count == 0)
 
-    let folder2 = try! self.sut.createFolder(with: "test-folder2", inside: nil)
+    _ = try! self.sut.createFolder(with: "test-folder2", inside: nil)
+    let folder2 = self.sut.getItem(with: "test-folder2") as! Folder
 
     XCTAssert(library.itemsArray.count == 2)
-    XCTAssert(library.itemsArray.first?.relativePath == folder.relativePath)
-    XCTAssert(library.itemsArray.last?.relativePath == folder2.relativePath)
+    XCTAssert(library.itemsArray.contains(where: { $0.relativePath == folder.relativePath}))
+    XCTAssert(library.itemsArray.contains(where: { $0.relativePath == folder2.relativePath}))
 
-    let folder3 = try! self.sut.createFolder(with: "test-folder3", inside: nil)
+    _ = try! self.sut.createFolder(with: "test-folder3", inside: nil)
+    let folder3 = self.sut.getItem(with: "test-folder3") as! Folder
 
     XCTAssert(library.itemsArray.count == 3)
-    XCTAssert(library.itemsArray[0].relativePath == folder.relativePath)
-    XCTAssert(library.itemsArray[1].relativePath == folder2.relativePath)
-    XCTAssert(library.itemsArray[2].relativePath == folder3.relativePath)
+    XCTAssert(library.itemsArray.contains(where: { $0.relativePath == folder3.relativePath}))
   }
 
   func testCreateFolderInFolder() {
-    let folder = try! self.sut.createFolder(with: "test-folder", inside: nil)
-    let folder2 = try! self.sut.createFolder(with: "test-folder2", inside: "test-folder")
+    _ = try! self.sut.createFolder(with: "test-folder", inside: nil)
+    let folder = self.sut.getItem(with: "test-folder") as! Folder
+    _ = try! self.sut.createFolder(with: "test-folder2", inside: "test-folder")
+    let folder2 = self.sut.getItem(with: "test-folder/test-folder2") as! Folder
 
     XCTAssert(folder.items?.count == 1)
-    XCTAssert((folder.items?.firstObject as? Folder)?.relativePath == folder2.relativePath)
+    XCTAssert((folder.items?.allObjects.first as? Folder)?.relativePath == folder2.relativePath)
 
-    let folder3 = try! self.sut.createFolder(with: "test-folder3", inside: "test-folder")
+    _ = try! self.sut.createFolder(with: "test-folder3", inside: "test-folder")
+    let folder3 = self.sut.getItem(with: "test-folder/test-folder3") as! Folder
 
     XCTAssert(folder.items?.count == 2)
-    XCTAssert((folder.items?.firstObject as? Folder)?.relativePath == folder2.relativePath)
-    XCTAssert((folder.items?.lastObject as? Folder)?.relativePath == folder3.relativePath)
 
-    let folder4 = try! self.sut.createFolder(with: "test-folder4", inside: "test-folder")
+    XCTAssert((folder.items?.allObjects as? [LibraryItem])?
+      .contains(where: { $0.relativePath == folder3.relativePath}) ?? false)
+
+    _ = try! self.sut.createFolder(with: "test-folder4", inside: "test-folder")
+    let folder4 = self.sut.getItem(with: "test-folder/test-folder4") as! Folder
 
     XCTAssert(folder.items?.count == 3)
-    XCTAssert((folder.items?[0] as? Folder)?.relativePath == folder2.relativePath)
-    XCTAssert((folder.items?[1] as? Folder)?.relativePath == folder3.relativePath)
-    XCTAssert((folder.items?[2] as? Folder)?.relativePath == folder4.relativePath)
+    XCTAssert((folder.items?.allObjects as? [LibraryItem])?
+      .contains(where: { $0.relativePath == folder4.relativePath}) ?? false)
   }
 
   func testFetchContents() {
@@ -449,7 +383,8 @@ class LibraryServiceTests: XCTestCase {
     self.sut.markAsFinished(flag: true, relativePath: book.relativePath)
     XCTAssert(book.isFinished == true)
 
-    let folder = try! self.sut.createFolder(with: "test-folder", inside: nil)
+    _ = try! self.sut.createFolder(with: "test-folder", inside: nil)
+    let folder = self.sut.getItem(with: "test-folder") as! Folder
 
     let book2 = StubFactory.book(
       dataManager: self.sut.dataManager,
@@ -465,8 +400,10 @@ class LibraryServiceTests: XCTestCase {
     )
     book3.currentTime = 40
 
-    folder.insert(item: book2)
-    folder.insert(item: book3)
+    folder.addToItems(book2)
+    folder.addToItems(book3)
+
+    self.sut.dataManager.saveContext()
 
     XCTAssert(book2.isFinished == false)
     XCTAssert(book3.isFinished == false)
@@ -489,7 +426,8 @@ class LibraryServiceTests: XCTestCase {
     self.sut.jumpToStart(relativePath: book.relativePath)
     XCTAssert(book.currentTime == 0)
 
-    let folder = try! self.sut.createFolder(with: "test-folder", inside: nil)
+    _ = try! self.sut.createFolder(with: "test-folder", inside: nil)
+    let folder = self.sut.getItem(with: "test-folder") as! Folder
 
     let book2 = StubFactory.book(
       dataManager: self.sut.dataManager,
@@ -505,8 +443,10 @@ class LibraryServiceTests: XCTestCase {
     )
     book3.currentTime = 40
 
-    folder.insert(item: book2)
-    folder.insert(item: book3)
+    folder.addToItems(book2)
+    folder.addToItems(book3)
+
+    self.sut.dataManager.saveContext()
 
     self.sut.jumpToStart(relativePath: folder.relativePath)
 
@@ -593,13 +533,13 @@ class LibraryServiceTests: XCTestCase {
     let bookmark = self.sut.createBookmark(at: 5, relativePath: book.relativePath, type: .skip)!
     XCTAssert(bookmark.time == 5)
     XCTAssert(bookmark.type == .skip)
-    XCTAssert(bookmark.item?.relativePath == book.relativePath)
+    XCTAssert(bookmark.relativePath == book.relativePath)
 
     let sameBookmark = self.sut.createBookmark(at: 5, relativePath: book.relativePath, type: .skip)!
 
     XCTAssert(bookmark.time == sameBookmark.time)
     XCTAssert(bookmark.type == sameBookmark.type)
-    XCTAssert(bookmark.item?.relativePath == sameBookmark.item?.relativePath)
+    XCTAssert(bookmark.relativePath == sameBookmark.relativePath)
   }
 
   func testGetBookmarks() {
@@ -634,6 +574,8 @@ class LibraryServiceTests: XCTestCase {
     bookmark.time = 10
     book.addToBookmarks(bookmark)
 
+    self.sut.dataManager.saveContext()
+
     XCTAssert(self.sut.getBookmark(at: 10, relativePath: book.relativePath, type: .play) != nil)
   }
 
@@ -647,7 +589,9 @@ class LibraryServiceTests: XCTestCase {
     let bookmark = self.sut.createBookmark(at: 5, relativePath: book.relativePath, type: .skip)!
     XCTAssert(bookmark.note == nil)
     self.sut.addNote("Test bookmark", bookmark: bookmark)
-    XCTAssert(bookmark.note == "Test bookmark")
+    self.sut.dataManager.saveContext()
+    let fetchedBookmark = self.sut.getBookmark(at: 5, relativePath: book.relativePath, type: .skip)!
+    XCTAssert(fetchedBookmark.note == "Test bookmark")
   }
 
   func testDeleteBookmark() {
@@ -659,18 +603,45 @@ class LibraryServiceTests: XCTestCase {
 
     let bookmark = self.sut.createBookmark(at: 5, relativePath: book.relativePath, type: .skip)!
     self.sut.deleteBookmark(bookmark)
-    XCTAssert(bookmark.isFault)
+
+    let fetchedBookmark = self.sut.getBookmark(at: 5, relativePath: book.relativePath, type: .skip)
+    XCTAssert(fetchedBookmark == nil)
   }
 
-  func testRenameItem() {
+  func testRenameBookItem() throws {
     let book = StubFactory.book(
       dataManager: self.sut.dataManager,
       title: "test-book1",
       duration: 100
     )
 
-    self.sut.renameItem(at: book.relativePath, with: "rename-test")
+    _ = try self.sut.renameItem(at: book.relativePath, with: "rename-test")
     XCTAssert(book.title == "rename-test")
+  }
+
+  func testRenameFolderItem() throws {
+    let folder = try StubFactory.folder(
+      dataManager: self.sut.dataManager,
+      title: "test-folder1"
+    )
+    let folder2 = try StubFactory.folder(
+      dataManager: self.sut.dataManager,
+      title: "test-folder2"
+    )
+    try self.sut.moveItems([folder2.relativePath], inside: folder.relativePath)
+
+    _ = try self.sut.renameItem(at: folder.relativePath, with: "rename-test")
+    XCTAssert(folder.title == "rename-test")
+    XCTAssert(folder.relativePath == "rename-test")
+    XCTAssert(folder.originalFileName == "rename-test")
+    XCTAssert(FileManager.default.fileExists(atPath: folder.fileURL!.path))
+
+    let fetchedFolder2 = sut.getItem(with: "rename-test/test-folder2")!
+    _ = try self.sut.renameItem(at: fetchedFolder2.relativePath, with: "rename-test2")
+    XCTAssert(fetchedFolder2.title == "rename-test2")
+    XCTAssert(fetchedFolder2.relativePath == "rename-test/rename-test2")
+    XCTAssert(fetchedFolder2.originalFileName == "rename-test2")
+    XCTAssert(FileManager.default.fileExists(atPath: fetchedFolder2.fileURL!.path))
   }
 }
 
@@ -681,7 +652,7 @@ class InsertBooksTests: LibraryServiceTests {
 
     let library = self.sut.getLibrary()
 
-    try self.sut.moveItems([], inside: nil, moveFiles: true)
+    try self.sut.moveItems([], inside: nil)
 
     XCTAssert(library.items?.count == 0)
   }
@@ -696,7 +667,7 @@ class InsertBooksTests: LibraryServiceTests {
     // Add test file to Processed folder
     let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: processedFolder)
 
-    let processedItems = self.sut.insertItems(from: [fileUrl], into: nil, library: library, processedItems: [])
+    let processedItems = self.sut.insertItems(from: [fileUrl])
 
     XCTAssert(library.items?.count == 1)
     XCTAssert(processedItems.count == 1)
@@ -715,7 +686,7 @@ class InsertBooksTests: LibraryServiceTests {
     let file1Url = DataTestUtils.generateTestFile(name: filename1, contents: book1Contents, destinationFolder: processedFolder)
     let file2Url = DataTestUtils.generateTestFile(name: filename2, contents: book2Contents, destinationFolder: processedFolder)
 
-    let processedItems = self.sut.insertItems(from: [file1Url, file2Url], into: nil, library: library, processedItems: [])
+    let processedItems = self.sut.insertItems(from: [file1Url, file2Url])
 
     XCTAssert(library.items?.count == 2)
     XCTAssert(processedItems.count == 2)
@@ -724,17 +695,19 @@ class InsertBooksTests: LibraryServiceTests {
   func testInsertEmptyBooksIntoPlaylist() throws {
     let library = self.sut.getLibrary()
 
-    let folder = try self.sut.createFolder(with: "test-folder", inside: nil)
+    _ = try self.sut.createFolder(with: "test-folder", inside: nil)
+    let folder = self.sut.getItem(with: "test-folder") as! Folder
     XCTAssert(library.items?.count == 1)
 
-    try? self.sut.moveItems([], inside: folder.relativePath, moveFiles: true)
+    try? self.sut.moveItems([], inside: folder.relativePath)
     XCTAssert(folder.items?.count == 0)
   }
 
   func testInsertOneBookIntoPlaylist() throws {
     let library = self.sut.getLibrary()
 
-    let folder = try self.sut.createFolder(with: "test-folder", inside: nil)
+    _ = try self.sut.createFolder(with: "test-folder", inside: nil)
+    let folder = self.sut.getItem(with: "test-folder") as! Folder
 
     XCTAssert(library.items?.count == 1)
 
@@ -745,7 +718,9 @@ class InsertBooksTests: LibraryServiceTests {
     // Add test file to Documents folder
     let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: processedFolder)
 
-    let processedItems = self.sut.insertItems(from: [fileUrl], into: folder, library: library, processedItems: [])
+    let processedItems = sut.insertItems(from: [fileUrl])
+      .map({ $0.relativePath })
+    try sut.moveItems(processedItems, inside: folder.relativePath)
     XCTAssert(library.items?.count == 1)
     XCTAssert(folder.items?.count == 1)
     XCTAssert(processedItems.count == 1)
@@ -754,7 +729,8 @@ class InsertBooksTests: LibraryServiceTests {
   func testInsertMultipleBooksIntoPlaylist() throws {
     let library = self.sut.getLibrary()
 
-    let folder = try self.sut.createFolder(with: "test-folder", inside: nil)
+    _ = try self.sut.createFolder(with: "test-folder", inside: nil)
+    let folder = self.sut.getItem(with: "test-folder") as! Folder
 
     XCTAssert(library.items?.count == 1)
 
@@ -768,7 +744,9 @@ class InsertBooksTests: LibraryServiceTests {
     let file1Url = DataTestUtils.generateTestFile(name: filename1, contents: book1Contents, destinationFolder: processedFolder)
     let file2Url = DataTestUtils.generateTestFile(name: filename2, contents: book2Contents, destinationFolder: processedFolder)
 
-    let processedItems = self.sut.insertItems(from: [file1Url, file2Url], into: folder, library: library, processedItems: [])
+    let processedItems = sut.insertItems(from: [file1Url, file2Url])
+      .map({ $0.relativePath })
+    try sut.moveItems(processedItems, inside: folder.relativePath)
 
     XCTAssert(library.items?.count == 1)
     XCTAssert(folder.items?.count == 2)
@@ -778,7 +756,8 @@ class InsertBooksTests: LibraryServiceTests {
   func testInsertExistingBookFromLibraryIntoPlaylist() throws {
     let library = self.sut.getLibrary()
 
-    let folder = try self.sut.createFolder(with: "test-folder", inside: nil)
+    _ = try self.sut.createFolder(with: "test-folder", inside: nil)
+    let folder = self.sut.getItem(with: "test-folder") as! Folder
 
     XCTAssert(library.items?.count == 1)
 
@@ -789,12 +768,13 @@ class InsertBooksTests: LibraryServiceTests {
     // Add test file to Documents folder
     let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: processedFolder)
 
-    let processedItems = self.sut.insertItems(from: [fileUrl], into: nil, library: library, processedItems: [])
+    let processedItems = self.sut.insertItems(from: [fileUrl])
+      .map({ $0.relativePath })
 
     XCTAssert(library.items?.count == 2)
     XCTAssert(folder.items?.count == 0)
 
-    try self.sut.moveItems(processedItems, inside: folder.relativePath, moveFiles: true)
+    try self.sut.moveItems(processedItems, inside: folder.relativePath)
 
     XCTAssert(library.items?.count == 1)
     XCTAssert(folder.items?.count == 1)
@@ -803,7 +783,8 @@ class InsertBooksTests: LibraryServiceTests {
   func testInsertExistingBookFromPlaylistIntoLibrary() throws {
     let library = self.sut.getLibrary()
 
-    let folder = try self.sut.createFolder(with: "test-folder", inside: nil)
+    _ = try self.sut.createFolder(with: "test-folder", inside: nil)
+    let folder = self.sut.getItem(with: "test-folder") as! Folder
 
     XCTAssert(library.items?.count == 1)
 
@@ -814,15 +795,16 @@ class InsertBooksTests: LibraryServiceTests {
     // Add test file to Documents folder
     let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: processedFolder)
 
-    let processedItems = self.sut.insertItems(from: [fileUrl], into: nil, library: library, processedItems: [])
+    let processedItems = self.sut.insertItems(from: [fileUrl])
+      .map({ $0.relativePath })
 
-    try self.sut.moveItems(processedItems, inside: folder.relativePath, moveFiles: true)
+    try self.sut.moveItems(processedItems, inside: folder.relativePath)
 
     XCTAssert(library.items?.count == 1)
     XCTAssert(folder.items?.count == 1)
     XCTAssert(processedItems.count == 1)
 
-    try self.sut.moveItems(processedItems, inside: nil, moveFiles: true)
+    try self.sut.moveItems(["test-folder/file.txt"], inside: nil)
 
     XCTAssert(library.items?.count == 2)
     XCTAssert(folder.items?.count == 0)
@@ -831,8 +813,10 @@ class InsertBooksTests: LibraryServiceTests {
   func testInsertExistingBookFromPlaylistIntoPlaylist() throws {
     let library = self.sut.getLibrary()
 
-    let folder1 = try self.sut.createFolder(with: "test-folder1", inside: nil)
-    let folder2 = try self.sut.createFolder(with: "test-folder2", inside: nil)
+    _ = try self.sut.createFolder(with: "test-folder1", inside: nil)
+    let folder1 = self.sut.getItem(with: "test-folder1") as! Folder
+    _ = try self.sut.createFolder(with: "test-folder2", inside: nil)
+    let folder2 = self.sut.getItem(with: "test-folder2") as! Folder
 
     XCTAssert(library.items?.count == 2)
 
@@ -843,16 +827,17 @@ class InsertBooksTests: LibraryServiceTests {
     // Add test file to Processed folder
     let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: processedFolder)
 
-    let processedItems = self.sut.insertItems(from: [fileUrl], into: nil, library: library, processedItems: [])
+    let processedItems = self.sut.insertItems(from: [fileUrl])
+      .map({ $0.relativePath })
 
-    try self.sut.moveItems(processedItems, inside: folder1.relativePath, moveFiles: true)
+    try self.sut.moveItems(processedItems, inside: folder1.relativePath)
 
     XCTAssert(library.items?.count == 2)
     XCTAssert(folder1.items?.count == 1)
     XCTAssert(folder2.items?.count == 0)
     XCTAssert(processedItems.count == 1)
 
-    try self.sut.moveItems(processedItems, inside: folder2.relativePath, moveFiles: true)
+    try self.sut.moveItems(["test-folder1/file.txt"], inside: folder2.relativePath)
 
     XCTAssert(library.items?.count == 2)
     XCTAssert(folder1.items?.count == 0)
@@ -866,15 +851,17 @@ class ModifyLibraryTests: LibraryServiceTests {
   func testMoveItemsIntoFolder() throws {
     let library = self.sut.getLibrary()
     let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
-    library.insert(item: book1)
+    library.addToItems(book1)
     let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
-    library.insert(item: book2)
+    library.addToItems(book2)
     let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
-    library.insert(item: folder)
+    library.addToItems(folder)
+
+    self.sut.dataManager.saveContext()
 
     XCTAssert(library.items?.count == 3)
 
-    try self.sut.moveItems([book1, book2], inside: folder.relativePath, moveFiles: true)
+    try self.sut.moveItems([book1.relativePath, book2.relativePath], inside: folder.relativePath)
 
     XCTAssert(library.items?.count == 1)
     XCTAssert(folder.items?.count == 2)
@@ -882,13 +869,15 @@ class ModifyLibraryTests: LibraryServiceTests {
     let book3 = StubFactory.book(dataManager: self.sut.dataManager, title: "book3", duration: 100)
     let book4 = StubFactory.book(dataManager: self.sut.dataManager, title: "book4", duration: 100)
     let folder2 = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder2")
-    library.insert(item: folder2)
-    folder2.insert(item: book3)
-    folder2.insert(item: book4)
+    library.addToItems(folder2)
+    folder2.addToItems(book3)
+    folder2.addToItems(book4)
+
+    self.sut.dataManager.saveContext()
 
     XCTAssert(library.items?.count == 2)
 
-    try self.sut.moveItems([folder2], inside: folder.relativePath, moveFiles: true)
+    try self.sut.moveItems([folder2.relativePath], inside: folder.relativePath)
 
     XCTAssert(library.items?.count == 1)
     XCTAssert(folder.items?.count == 3)
@@ -900,25 +889,25 @@ class ModifyLibraryTests: LibraryServiceTests {
     let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
     let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
 
-    try self.sut.moveItems([book1, book2, folder], inside: nil, moveFiles: true)
-    try self.sut.moveItems([book1, book2], inside: folder.relativePath, moveFiles: true)
+    try self.sut.moveItems([book1.relativePath, book2.relativePath, folder.relativePath], inside: nil)
+    try self.sut.moveItems([book1.relativePath, book2.relativePath], inside: folder.relativePath)
 
     let book3 = StubFactory.book(dataManager: self.sut.dataManager, title: "book3", duration: 100)
     let book4 = StubFactory.book(dataManager: self.sut.dataManager, title: "book4", duration: 100)
     let folder2 = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder2")
 
-    try self.sut.moveItems([book3, book4, folder2], inside: nil, moveFiles: true)
-    try self.sut.moveItems([folder, book3, book4], inside: folder2.relativePath, moveFiles: true)
+    try self.sut.moveItems([book3.relativePath, book4.relativePath, folder2.relativePath], inside: nil)
+    try self.sut.moveItems([folder.relativePath, book3.relativePath, book4.relativePath], inside: folder2.relativePath)
 
     XCTAssert(library.items?.count == 1)
     XCTAssert(folder2.items?.count == 3)
 
-    try self.sut.moveItems([folder], inside: nil, moveFiles: true)
+    try self.sut.moveItems([folder.relativePath], inside: nil)
 
     XCTAssert(library.items?.count == 2)
     XCTAssert(folder.items?.count == 2)
 
-    try self.sut.moveItems([book3, book4], inside: nil, moveFiles: true)
+    try self.sut.moveItems([book3.relativePath, book4.relativePath], inside: nil)
 
     XCTAssert(library.items?.count == 4)
     XCTAssert(folder2.items?.count == 0)
@@ -928,43 +917,45 @@ class ModifyLibraryTests: LibraryServiceTests {
     let library = self.sut.getLibrary()
     let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
     let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
-    try self.sut.moveItems([book1], inside: folder.relativePath, moveFiles: true)
+    try self.sut.moveItems([book1.relativePath], inside: folder.relativePath)
     let folder2 = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder2")
-    try self.sut.moveItems([folder], inside: folder2.relativePath, moveFiles: true)
-    try self.sut.moveItems([folder2], inside: nil, moveFiles: true)
+    try self.sut.moveItems([folder.relativePath], inside: folder2.relativePath)
+    try self.sut.moveItems([folder2.relativePath], inside: nil)
 
-    try self.sut.delete([folder2], mode: .shallow)
+    try self.sut.delete([SimpleLibraryItem(from: folder2)], mode: .shallow)
 
-    XCTAssert((library.items?.array as? [LibraryItem])?.first == folder)
+    XCTAssert((library.items?.allObjects as? [LibraryItem])?.first == folder)
 
-    try self.sut.delete([folder], mode: .shallow)
+    try self.sut.delete([SimpleLibraryItem(from: folder)], mode: .shallow)
 
-    XCTAssert((library.items?.array as? [LibraryItem])?.first == book1)
+    XCTAssert((library.items?.allObjects as? [LibraryItem])?.first == book1)
   }
 
   func testFolderShallowDeleteWithMultipleBooks() throws {
     let library = self.sut.getLibrary()
     let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
-    try self.sut.moveItems([book1], inside: nil, moveFiles: true)
+    try self.sut.moveItems([book1.relativePath], inside: nil)
     let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
     let book3 = StubFactory.book(dataManager: self.sut.dataManager, title: "book3", duration: 100)
     let book4 = StubFactory.book(dataManager: self.sut.dataManager, title: "book4", duration: 100)
     let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
-    try self.sut.moveItems([book2], inside: folder.relativePath, moveFiles: true)
-    try self.sut.moveItems([book3], inside: folder.relativePath, moveFiles: true)
+    try self.sut.moveItems([book2.relativePath], inside: folder.relativePath)
+    try self.sut.moveItems([book3.relativePath], inside: folder.relativePath)
     let folder2 = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder2")
-    try self.sut.moveItems([folder], inside: folder2.relativePath, moveFiles: true)
-    try self.sut.moveItems([book4], inside: folder2.relativePath, moveFiles: true)
-    try self.sut.moveItems([folder2], inside: nil, moveFiles: true)
+    try self.sut.moveItems([folder.relativePath], inside: folder2.relativePath)
+    try self.sut.moveItems([book4.relativePath], inside: folder2.relativePath)
+    try self.sut.moveItems([folder2.relativePath], inside: nil)
 
-    try self.sut.delete([folder2], mode: .shallow)
+    try self.sut.delete([SimpleLibraryItem(from: folder2)], mode: .shallow)
 
-    XCTAssert((library.items?.array as? [LibraryItem])?.first == book1)
-    XCTAssert((library.items?.array as? [LibraryItem])?.last == book4)
+    XCTAssert(library.itemsArray
+          .contains(where: { $0.relativePath == book1.relativePath}))
+    XCTAssert(library.itemsArray
+          .contains(where: { $0.relativePath == book4.relativePath}))
 
-    try self.sut.delete([folder], mode: .shallow)
+    try self.sut.delete([SimpleLibraryItem(from: folder)], mode: .shallow)
 
-    XCTAssert(library.items?.array is [Book])
+    XCTAssert(library.items?.allObjects is [Book])
     XCTAssert(library.items?.count == 4)
   }
 
@@ -974,18 +965,18 @@ class ModifyLibraryTests: LibraryServiceTests {
     let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
     let folder2 = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder2")
 
-    try self.sut.moveItems([book1, folder, folder2], inside: nil, moveFiles: true)
-    try self.sut.moveItems([book1], inside: folder.relativePath, moveFiles: true)
-    try self.sut.moveItems([folder], inside: folder2.relativePath, moveFiles: true)
+    try self.sut.moveItems([book1.relativePath, folder.relativePath, folder2.relativePath], inside: nil)
+    try self.sut.moveItems([book1.relativePath], inside: folder.relativePath)
+    try self.sut.moveItems([folder.relativePath], inside: folder2.relativePath)
 
     XCTAssert(folder2.items?.count == 1)
 
-    try self.sut.delete([folder], mode: .deep)
+    try self.sut.delete([SimpleLibraryItem(from: folder)], mode: .deep)
 
     XCTAssert(folder2.items?.count == 0)
     XCTAssert(library.items?.count == 1)
 
-    try self.sut.delete([folder2], mode: .deep)
+    try self.sut.delete([SimpleLibraryItem(from: folder2)], mode: .deep)
 
     XCTAssert(library.items?.count == 0)
   }
@@ -993,126 +984,136 @@ class ModifyLibraryTests: LibraryServiceTests {
   func testFolderDeepDeleteWithMultipleBooks() throws {
     let library = self.sut.getLibrary()
     let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
-    library.insert(item: book1)
+    library.addToItems(book1)
     let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
-    library.insert(item: book2)
+    library.addToItems(book2)
     let book3 = StubFactory.book(dataManager: self.sut.dataManager, title: "book3", duration: 100)
-    library.insert(item: book3)
+    library.addToItems(book3)
     let book4 = StubFactory.book(dataManager: self.sut.dataManager, title: "book4", duration: 100)
-    library.insert(item: book4)
+    library.addToItems(book4)
     let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
-    library.insert(item: folder)
+    library.addToItems(folder)
     let folder2 = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder2")
-    library.insert(item: folder2)
+    library.addToItems(folder2)
 
-    try self.sut.moveItems([book2, book3], inside: folder.relativePath, moveFiles: true)
-    try self.sut.moveItems([book4, folder], inside: folder2.relativePath, moveFiles: true)
+    try self.sut.moveItems([book2.relativePath, book3.relativePath], inside: folder.relativePath)
+    try self.sut.moveItems([book4.relativePath, folder.relativePath], inside: folder2.relativePath)
 
     XCTAssert(folder2.items?.count == 2)
 
-    try self.sut.delete([folder], mode: .deep)
+    try self.sut.delete([SimpleLibraryItem(from: folder)], mode: .deep)
 
     XCTAssert(folder2.items?.count == 1)
     XCTAssert(library.items?.count == 2)
 
-    try self.sut.delete([folder2], mode: .deep)
+    try self.sut.delete([SimpleLibraryItem(from: folder2)], mode: .deep)
 
     XCTAssert(library.items?.count == 1)
-    XCTAssert((library.items?.array as? [LibraryItem])?.first == book1)
+    XCTAssert((library.items?.allObjects as? [LibraryItem])?.first == book1)
   }
 
   func testGetMaxItemsCount() throws {
     XCTAssert(self.sut.getMaxItemsCount(at: nil) == 0)
     let library = self.sut.getLibrary()
     let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
-    library.insert(item: book1)
+    library.addToItems(book1)
     let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
-    library.insert(item: book2)
+    library.addToItems(book2)
     let book3 = StubFactory.book(dataManager: self.sut.dataManager, title: "book3", duration: 100)
-    library.insert(item: book3)
+    library.addToItems(book3)
     let book4 = StubFactory.book(dataManager: self.sut.dataManager, title: "book4", duration: 100)
-    library.insert(item: book4)
+    library.addToItems(book4)
 
     XCTAssert(self.sut.getMaxItemsCount(at: nil) == 4)
 
     let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
-    library.insert(item: folder)
-    try self.sut.moveItems([book1, book2, book3, book4], inside: folder.relativePath, moveFiles: true)
+    library.addToItems(folder)
+
+    sut.dataManager.saveContext()
+
+    try self.sut.moveItems([book1.relativePath, book2.relativePath, book3.relativePath, book4.relativePath], inside: folder.relativePath)
 
     XCTAssert(self.sut.getMaxItemsCount(at: nil) == 1)
     XCTAssert(self.sut.getMaxItemsCount(at: "folder") == 4)
   }
 
   func testReplaceOrderItems() throws {
-    let library = self.sut.getLibrary()
     let book4 = StubFactory.book(dataManager: self.sut.dataManager, title: "book4", duration: 100)
-    library.insert(item: book4)
     let book3 = StubFactory.book(dataManager: self.sut.dataManager, title: "book3", duration: 100)
-    library.insert(item: book3)
     let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
-    library.insert(item: book2)
     let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
-    library.insert(item: book1)
 
-    XCTAssert(library.itemsArray[0].title == book4.title)
-    XCTAssert(library.itemsArray[3].title == book1.title)
+    try sut.moveItems([book4.relativePath, book3.relativePath, book2.relativePath, book1.relativePath], inside: nil)
 
-    self.sut.replaceOrderedItems(NSOrderedSet(array: [book1, book2, book3, book4]), at: nil)
+    let originalContents = sut.fetchContents(at: nil, limit: nil, offset: nil)
 
-    XCTAssert(library.itemsArray[0].title == book1.title)
-    XCTAssert(library.itemsArray[3].title == book4.title)
+    XCTAssert(originalContents?[0].title == book4.title)
+    XCTAssert(originalContents?[3].title == book1.title)
+
+    self.sut.sortContents(at: nil, by: .metadataTitle)
+
+    let sortedContents = sut.fetchContents(at: nil, limit: nil, offset: nil)
+
+    XCTAssert(sortedContents?[0].title == book1.title)
+    XCTAssert(sortedContents?[3].title == book4.title)
 
     let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
-    library.insert(item: folder)
-    try self.sut.moveItems([book1, book2, book3, book4], inside: folder.relativePath, moveFiles: true)
+    try sut.moveItems([folder.relativePath], inside: nil)
+    try self.sut.moveItems([book4.relativePath, book3.relativePath, book2.relativePath, book1.relativePath], inside: folder.relativePath)
 
-    XCTAssert((folder.items?.array[0] as? Book)?.title == book1.title)
-    XCTAssert((folder.items?.array[3] as? Book)?.title == book4.title)
+    let folderContents = sut.fetchContents(at: folder.relativePath, limit: nil, offset: nil)
+    XCTAssert(folderContents?[0].title == book4.title)
+    XCTAssert(folderContents?[3].title == book1.title)
 
-    self.sut.replaceOrderedItems(NSOrderedSet(array: [book4, book3, book2, book1]), at: folder.relativePath)
+    self.sut.sortContents(at: folder.relativePath, by: .metadataTitle)
 
-    XCTAssert((folder.items?.array[0] as? Book)?.title == book4.title)
-    XCTAssert((folder.items?.array[3] as? Book)?.title == book1.title)
+    let sortedFolderContents = sut.fetchContents(at: folder.relativePath, limit: nil, offset: nil)
+    XCTAssert(sortedFolderContents?[0].title == book1.title)
+    XCTAssert(sortedFolderContents?[3].title == book4.title)
   }
 
   func testReorderItem() throws {
-    let library = self.sut.getLibrary()
     let book3 = StubFactory.book(dataManager: self.sut.dataManager, title: "book3", duration: 100)
-    library.insert(item: book3)
     let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
-    library.insert(item: book2)
     let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
-    library.insert(item: book1)
 
-    XCTAssert(library.itemsArray[0].title == book3.title)
-    XCTAssert(library.itemsArray[2].title == book1.title)
+    try sut.moveItems([book3.relativePath, book2.relativePath, book1.relativePath], inside: nil)
+
+    let contents = sut.fetchContents(at: nil, limit: nil, offset: nil)
+    XCTAssert(contents?[0].title == book3.title)
+    XCTAssert(contents?[2].title == book1.title)
 
     self.sut.reorderItem(
-      at: book3.relativePath,
+      with: book3.relativePath,
       inside: nil,
       sourceIndexPath: IndexPath(row: 0, section: .data),
       destinationIndexPath: IndexPath(row: 2, section: .data)
     )
 
-    XCTAssert(library.itemsArray[0].title == book2.title)
-    XCTAssert(library.itemsArray[2].title == book3.title)
+    let sortedContents = sut.fetchContents(at: nil, limit: nil, offset: nil)
+
+    XCTAssert(sortedContents?[0].title == book2.title)
+    XCTAssert(sortedContents?[2].title == book3.title)
 
     let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
-    library.insert(item: folder)
-    try self.sut.moveItems([book1, book2, book3], inside: folder.relativePath, moveFiles: true)
 
-    XCTAssert((folder.items?.array[0] as? Book)?.title == book1.title)
-    XCTAssert((folder.items?.array[2] as? Book)?.title == book3.title)
+    try sut.moveItems([folder.relativePath], inside: nil)
+    try self.sut.moveItems([book1.relativePath, book2.relativePath, book3.relativePath], inside: folder.relativePath)
+
+    let folderContents = sut.fetchContents(at: folder.relativePath, limit: nil, offset: nil)
+    XCTAssert(folderContents?[0].title == book1.title)
+    XCTAssert(folderContents?[2].title == book3.title)
 
     self.sut.reorderItem(
-      at: book3.relativePath,
+      with: book3.relativePath,
       inside: folder.relativePath,
       sourceIndexPath: IndexPath(row: 2, section: .data),
       destinationIndexPath: IndexPath(row: 0, section: .data)
     )
 
-    XCTAssert((folder.items?.array[0] as? Book)?.title == book3.title)
-    XCTAssert((folder.items?.array[2] as? Book)?.title == book2.title)
+    let sortedFolderContents = sut.fetchContents(at: folder.relativePath, limit: nil, offset: nil)
+    XCTAssert(sortedFolderContents?[0].title == book3.title)
+    XCTAssert(sortedFolderContents?[2].title == book2.title)
   }
 
   func testUpdateBookSpeed() throws {
@@ -1122,7 +1123,7 @@ class ModifyLibraryTests: LibraryServiceTests {
       duration: 100
     )
     let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
-    try self.sut.moveItems([book], inside: folder.relativePath, moveFiles: true)
+    try self.sut.moveItems([book.relativePath], inside: folder.relativePath)
 
     self.sut.updateBookSpeed(at: book.relativePath, speed: 2.0)
 
@@ -1156,12 +1157,17 @@ class ModifyLibraryTests: LibraryServiceTests {
       duration: 100
     )
     let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
-    try self.sut.moveItems([book], inside: folder.relativePath, moveFiles: true)
+    try self.sut.moveItems([book.relativePath], inside: folder.relativePath)
 
     let now = Date()
-    self.sut.updateBookLastPlayDate(at: book.relativePath, date: now)
+    self.sut.updatePlaybackTime(
+      relativePath: book.relativePath,
+      time: 50,
+      date: now
+    )
 
     XCTAssert(book.lastPlayDate == now)
+    XCTAssert(book.currentTime == 50)
   }
 
   func testGetItemSpeed() throws {
@@ -1171,7 +1177,7 @@ class ModifyLibraryTests: LibraryServiceTests {
       duration: 100
     )
     let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
-    try self.sut.moveItems([book], inside: folder.relativePath, moveFiles: true)
+    try self.sut.moveItems([book.relativePath], inside: folder.relativePath)
 
     XCTAssert(book.speed == 1.0)
     XCTAssert(folder.speed == 1.0)
@@ -1218,6 +1224,20 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(fetchedChapters?.last?.index == 2)
   }
 
+  func testGetItemsNotIncluded() throws {
+    let emptyResult = self.sut.getItemsToSync(remoteIdentifiers: [])
+    XCTAssert(emptyResult?.isEmpty == true)
+
+    _ = try! self.sut.createFolder(with: "test-folder", inside: nil)
+    _ = try! self.sut.createFolder(with: "test-folder2", inside: nil)
+
+    let secondResult = self.sut.getItemsToSync(remoteIdentifiers: [])
+    XCTAssert(secondResult?.count == 2)
+
+    let thirdResult = self.sut.getItemsToSync(remoteIdentifiers: ["test-folder"])
+    XCTAssert(thirdResult?.count == 1)
+  }
+
   func testGetItemProperty() {
     let book = StubFactory.book(
       dataManager: self.sut.dataManager,
@@ -1238,10 +1258,10 @@ class ModifyLibraryTests: LibraryServiceTests {
     let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
     let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
     let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
-    try self.sut.moveItems([book1, book2, folder], inside: nil, moveFiles: true)
+    try self.sut.moveItems([book1.relativePath, book2.relativePath, folder.relativePath], inside: nil)
     let book3 = StubFactory.book(dataManager: self.sut.dataManager, title: "book3", duration: 100)
     let book4 = StubFactory.book(dataManager: self.sut.dataManager, title: "book4", duration: 100)
-    try self.sut.moveItems([book3, book4], inside: folder.relativePath, moveFiles: true)
+    try self.sut.moveItems([book3.relativePath, book4.relativePath], inside: folder.relativePath)
 
     book1.isFinished = true
     book3.isFinished = true
@@ -1264,10 +1284,10 @@ class ModifyLibraryTests: LibraryServiceTests {
     let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
     let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
     let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
-    try self.sut.moveItems([book1, book2, folder], inside: nil, moveFiles: true)
+    try self.sut.moveItems([book1.relativePath, book2.relativePath, folder.relativePath], inside: nil)
     let book3 = StubFactory.book(dataManager: self.sut.dataManager, title: "book3", duration: 100)
     let book4 = StubFactory.book(dataManager: self.sut.dataManager, title: "book4", duration: 100)
-    try self.sut.moveItems([book3, book4], inside: folder.relativePath, moveFiles: true)
+    try self.sut.moveItems([book3.relativePath, book4.relativePath], inside: folder.relativePath)
 
     let fetchedBook1 = self.sut.findFirstItem(in: nil, beforeRank: 1)
 
@@ -1282,10 +1302,10 @@ class ModifyLibraryTests: LibraryServiceTests {
     let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
     let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
     let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
-    try self.sut.moveItems([book1, book2, folder], inside: nil, moveFiles: true)
+    try self.sut.moveItems([book1.relativePath, book2.relativePath, folder.relativePath], inside: nil)
     let book3 = StubFactory.book(dataManager: self.sut.dataManager, title: "book3", duration: 100)
     let book4 = StubFactory.book(dataManager: self.sut.dataManager, title: "book4", duration: 100)
-    try self.sut.moveItems([book3, book4], inside: folder.relativePath, moveFiles: true)
+    try self.sut.moveItems([book3.relativePath, book4.relativePath], inside: folder.relativePath)
 
     book1.isFinished = true
     book3.isFinished = true
@@ -1303,4 +1323,66 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(fetchedBook3?.relativePath == book3.relativePath)
     XCTAssert(fetchedBook4?.relativePath == book4.relativePath)
   }
+
+  func testFilterBookItems() throws {
+    let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
+    let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
+    let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
+    try self.sut.moveItems([book1.relativePath, book2.relativePath, folder.relativePath], inside: nil)
+    let book3 = StubFactory.book(dataManager: self.sut.dataManager, title: "book3", duration: 100)
+    let book4 = StubFactory.book(dataManager: self.sut.dataManager, title: "book4", duration: 100)
+    try self.sut.moveItems([book3.relativePath, book4.relativePath], inside: folder.relativePath)
+    self.sut.dataManager.saveContext()
+
+    let fetchedNilBooks = self.sut.filterContents(at: nil, query: "book21", scope: .book, limit: nil, offset: nil)
+
+    XCTAssert(fetchedNilBooks?.count == 0)
+
+    let fetchedAllBooks = self.sut.filterContents(at: nil, query: "book", scope: .book, limit: nil, offset: nil)
+
+    XCTAssert(fetchedAllBooks?.count == 4)
+
+    let fetchedResults = self.sut.filterContents(at: nil, query: "book1", scope: .book, limit: nil, offset: nil)
+
+    XCTAssert(fetchedResults?.count == 1)
+    XCTAssert(fetchedResults?.first?.relativePath == book1.relativePath)
+  }
+
+  func testFilterFolderItems() throws {
+    let now = Date().timeIntervalSince1970
+    let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
+    book1.lastPlayDate = Date(timeIntervalSince1970: now + 1)
+    let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
+    book2.lastPlayDate = Date(timeIntervalSince1970: now + 2)
+    let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
+    folder.lastPlayDate = Date(timeIntervalSince1970: now + 3)
+    try self.sut.moveItems([book1.relativePath, book2.relativePath, folder.relativePath], inside: nil)
+    let book3 = StubFactory.book(dataManager: self.sut.dataManager, title: "book3", duration: 100)
+    book3.lastPlayDate = Date(timeIntervalSince1970: now + 4)
+    let book4 = StubFactory.book(dataManager: self.sut.dataManager, title: "book4", duration: 100)
+    book4.lastPlayDate = Date(timeIntervalSince1970: now + 5)
+    try self.sut.moveItems([book3.relativePath, book4.relativePath], inside: folder.relativePath)
+    self.sut.dataManager.saveContext()
+
+    let fetchedNilFolders = self.sut.filterContents(at: nil, query: "folder2", scope: .folder, limit: nil, offset: nil)
+
+    XCTAssert(fetchedNilFolders?.count == 0)
+
+    let fetchedFolders = self.sut.filterContents(at: nil, query: "folder", scope: .folder, limit: nil, offset: nil)
+
+    XCTAssert(fetchedFolders?.count == 1)
+
+    let fetchedResults = self.sut.filterContents(
+      at: folder.relativePath,
+      query: nil,
+      scope: .book,
+      limit: nil,
+      offset: nil
+    )
+
+    XCTAssert(fetchedResults?.count == 2)
+    XCTAssert(fetchedResults?.first?.relativePath == book4.relativePath)
+    XCTAssert(fetchedResults?.last?.relativePath == book3.relativePath)
+  }
+  // swiftlint:enable force_cast
 }

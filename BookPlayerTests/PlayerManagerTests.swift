@@ -24,7 +24,9 @@ class PlayerManagerTests: XCTestCase {
     self.sut = PlayerManager(
       libraryService: EmptyLibraryServiceMock(),
       playbackService: EmptyPlaybackServiceMock(),
-      speedService: EmptySpeedServiceMock()
+      syncService: SyncServiceMock(),
+      speedService: EmptySpeedServiceMock(),
+      socketService: SocketService()
     )
   }
 
@@ -54,6 +56,7 @@ class PlayerManagerTests: XCTestCase {
       relativePath: "",
       parentFolder: nil,
       percentCompleted: 10,
+      lastPlayDate: nil,
       isFinished: false,
       isBoundBook: false
     )

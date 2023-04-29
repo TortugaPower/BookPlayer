@@ -11,9 +11,9 @@ import Foundation
 
 final class BookmarksActivityItemProvider: UIActivityItemProvider {
   let currentItem: PlayableItem
-  let bookmarks: [Bookmark]
+  let bookmarks: [SimpleBookmark]
 
-  init(currentItem: PlayableItem, bookmarks: [Bookmark]) {
+  init(currentItem: PlayableItem, bookmarks: [SimpleBookmark]) {
     self.currentItem = currentItem
     self.bookmarks = bookmarks
     super.init(placeholderItem: URL(fileURLWithPath: "placeholder.txt"))

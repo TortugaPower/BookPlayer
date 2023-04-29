@@ -21,6 +21,7 @@ public final class PlayableItem: NSObject, Identifiable {
   @objc dynamic public let relativePath: String
   public let parentFolder: String?
   @objc dynamic public var percentCompleted: Double
+  @objc dynamic public var lastPlayDate: Date?
   public var isFinished: Bool
   // This property is explicitly set for bound books, for seeking purposes
   public let isBoundBook: Bool
@@ -39,7 +40,7 @@ public final class PlayableItem: NSObject, Identifiable {
 
   enum CodingKeys: String, CodingKey {
     case title, author, chapters, currentTime, duration,
-         relativePath, parentFolder, percentCompleted, isFinished, isBoundBook
+         relativePath, parentFolder, percentCompleted, lastPlayDate, isFinished, isBoundBook
   }
 
   public init(
@@ -51,6 +52,7 @@ public final class PlayableItem: NSObject, Identifiable {
     relativePath: String,
     parentFolder: String?,
     percentCompleted: Double,
+    lastPlayDate: Date?,
     isFinished: Bool,
     isBoundBook: Bool
   ) {
@@ -62,6 +64,7 @@ public final class PlayableItem: NSObject, Identifiable {
     self.relativePath = relativePath
     self.parentFolder = parentFolder
     self.percentCompleted = percentCompleted
+    self.lastPlayDate = lastPlayDate
     self.isFinished = isFinished
     self.isBoundBook = isBoundBook
 
@@ -195,6 +198,7 @@ extension PlayableItem: Codable {
     try container.encode(self.relativePath, forKey: .relativePath)
     try? container.encode(self.parentFolder, forKey: .parentFolder)
     try container.encode(self.percentCompleted, forKey: .percentCompleted)
+    try? container.encode(self.lastPlayDate, forKey: .lastPlayDate)
     try container.encode(self.isFinished, forKey: .isFinished)
     try container.encode(self.isBoundBook, forKey: .isBoundBook)
   }
@@ -210,6 +214,7 @@ extension PlayableItem: Codable {
       relativePath: try values.decode(String.self, forKey: .relativePath),
       parentFolder: try? values.decode(String?.self, forKey: .parentFolder),
       percentCompleted: try values.decode(Double.self, forKey: .percentCompleted),
+      lastPlayDate: try? values.decode(Date.self, forKey: .lastPlayDate),
       isFinished: try values.decode(Bool.self, forKey: .isFinished),
       isBoundBook: try values.decode(Bool.self, forKey: .isBoundBook)
     )

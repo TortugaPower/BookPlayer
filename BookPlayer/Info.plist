@@ -8,6 +8,22 @@
 	</array>
 	<key>BP_BUNDLE_IDENTIFIER</key>
 	<string>$(BP_BUNDLE_IDENTIFIER)</string>
+	<key>BP_MOCKED_BEARER_TOKEN</key>
+	<string>$(BP_MOCKED_BEARER_TOKEN)</string>
+	<key>BP_REVENUECAT_KEY</key>
+	<string>$(BP_REVENUECAT_KEY)</string>
+	<key>BP_SENTRY_DSN</key>
+	<string>$(BP_SENTRY_DSN)</string>
+  <key>BP_IS_SOCKET_SECURE</key>
+  <string>$(BP_IS_SOCKET_SECURE)</string>
+	<key>BP_SOCKET_SERVER</key>
+	<string>$(BP_SOCKET_SERVER)</string>
+  <key>BP_API_SCHEME</key>
+  <string>$(BP_API_SCHEME)</string>
+  <key>BP_API_DOMAIN</key>
+  <string>$(BP_API_DOMAIN)</string>
+  <key>BP_API_PORT</key>
+  <string>$(BP_API_PORT)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -313,14 +329,10 @@
 	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
 </dict>
 </plist>

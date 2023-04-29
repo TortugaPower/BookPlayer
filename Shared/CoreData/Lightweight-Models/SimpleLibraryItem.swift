@@ -14,121 +14,114 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
   }
   public let title: String
   public let details: String
-  public let duration: String
-  public let progress: Double
+  public let speed: Double
+  public let currentTime: Double
+  public let duration: Double
+  public let durationFormatted: String
+  public var percentCompleted: Double
   public let isFinished: Bool
-  public let themeAccent: UIColor
   public let relativePath: String
+  public let orderRank: Int16
   public let parentFolder: String?
+  public let originalFileName: String
+  public let lastPlayDate: Date?
   public let type: SimpleItemType
-  public let playbackState: PlaybackState
+
+  public var progress: Double {
+    if type == .folder,
+       duration == 0 {
+      return 0
+    }
+
+    return isFinished ? 1.0 : (percentCompleted / 100)
+  }
+
+  public var fileURL: URL {
+    return DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
+  }
 
   public static func == (lhs: SimpleLibraryItem, rhs: SimpleLibraryItem) -> Bool {
     return lhs.id == rhs.id
   }
 
+  static var fetchRequestProperties = [
+    "title",
+    "details",
+    "speed",
+    "currentTime",
+    "duration",
+    "percentCompleted",
+    "isFinished",
+    "relativePath",
+    "orderRank",
+    "folder.relativePath",
+    "originalFileName",
+    "lastPlayDate",
+    "type",
+  ]
+
   public func hash(into hasher: inout Hasher) {
     hasher.combine(id)
     hasher.combine(title)
     hasher.combine(details)
-    hasher.combine(progress)
-    hasher.combine(playbackState)
+    hasher.combine(percentCompleted)
+  }
+
+  public init(
+    title: String,
+    details: String,
+    speed: Double,
+    currentTime: Double,
+    duration: Double,
+    percentCompleted: Double,
+    isFinished: Bool,
+    relativePath: String,
+    orderRank: Int16,
+    parentFolder: String?,
+    originalFileName: String,
+    lastPlayDate: Date?,
+    type: SimpleItemType
+  ) {
+    self.title = title
+    self.details = details
+    self.speed = speed
+    self.currentTime = currentTime
+    self.duration = duration
+    self.durationFormatted = TimeParser.formatTotalDuration(duration)
+    self.percentCompleted = percentCompleted
+    self.isFinished = isFinished
+    self.relativePath = relativePath
+    self.orderRank = orderRank
+    self.parentFolder = parentFolder
+    self.originalFileName = originalFileName
+    self.lastPlayDate = lastPlayDate
+    self.type = type
   }
 }
 
 extension SimpleLibraryItem {
-  // Reserved for Add item
-  public init() {
-    self.title = "Add Button"
-    self.details = ""
-    self.duration = ""
-    self.progress = 0
-    self.isFinished = false
-    self.themeAccent = UIColor(hex: "3488D1")
-    self.relativePath = "bookplayer/add-button"
-    self.parentFolder = nil
-    self.type = .book
-    self.playbackState = .stopped
-  }
-
-  public init(from item: SimpleLibraryItem, themeAccent: UIColor) {
+  public init(from item: LibraryItem) {
     self.title = item.title
     self.details = item.details
+    self.speed = Double(item.speed)
+    self.currentTime = item.currentTime
     self.duration = item.duration
-    self.progress = item.progress
+    self.durationFormatted = TimeParser.formatTotalDuration(item.duration)
+    self.percentCompleted = item.percentCompleted
     self.isFinished = item.isFinished
-    self.themeAccent = item.themeAccent
     self.relativePath = item.relativePath
-    self.parentFolder = item.parentFolder
-    self.type = item.type
-    self.playbackState = item.playbackState
-  }
+    self.orderRank = item.orderRank
+    self.parentFolder = item.folder?.relativePath
+    self.originalFileName = item.originalFileName
+    self.lastPlayDate = item.lastPlayDate
 
-  public init(from item: SimpleLibraryItem, progress: Double?, playbackState: PlaybackState = .stopped) {
-    self.title = item.title
-    self.details = item.details
-    self.duration = item.duration
-    self.progress = progress ?? item.progress
-    self.isFinished = item.isFinished
-    self.themeAccent = item.themeAccent
-    self.relativePath = item.relativePath
-    self.parentFolder = item.parentFolder
-    self.type = item.type
-    self.playbackState = playbackState
-  }
-
-  public init(from item: SimpleLibraryItem, playbackState: PlaybackState) {
-    self.title = item.title
-    self.details = item.details
-    self.duration = item.duration
-    self.progress = item.progress
-    self.isFinished = item.isFinished
-    self.themeAccent = item.themeAccent
-    self.relativePath = item.relativePath
-    self.parentFolder = item.parentFolder
-    self.type = item.type
-    self.playbackState = playbackState
-  }
-
-  public init(from item: LibraryItem, themeAccent: UIColor, playbackState: PlaybackState = .stopped) {
-    if let book = item as? Book {
-      self.init(from: book, themeAccent: themeAccent, playbackState: playbackState)
-    } else {
-      // swiftlint:disable force_cast
-      let folder = item as! Folder
-      self.init(from: folder, themeAccent: themeAccent, playbackState: playbackState)
-    }
-  }
-
-  public init(from book: Book, themeAccent: UIColor, playbackState: PlaybackState = .stopped) {
-    self.title = book.title
-    self.details = book.author
-    self.duration = TimeParser.formatTotalDuration(book.duration)
-    self.progress = book.isFinished ? 1.0 : book.progressPercentage
-    self.isFinished = book.isFinished
-    self.themeAccent = themeAccent
-    self.relativePath = book.relativePath
-    self.parentFolder = book.folder?.relativePath
-    self.type = .book
-    self.playbackState = playbackState
-  }
-
-  public init(from folder: Folder, themeAccent: UIColor, playbackState: PlaybackState = .stopped) {
-    self.title = folder.title
-    self.details = folder.info()
-    self.duration = TimeParser.formatTotalDuration(folder.duration)
-    self.progress = folder.isFinished ? 1.0 : folder.progressPercentage
-    self.isFinished = folder.isFinished
-    self.themeAccent = themeAccent
-    self.relativePath = folder.relativePath
-    self.parentFolder = folder.folder?.relativePath
-
-    switch folder.type {
-    case .regular:
+    switch item.type {
+    case .folder:
       self.type = .folder
     case .bound:
       self.type = .bound
+    case .book:
+      self.type = .book
     }
-    self.playbackState = playbackState
   }
 }
