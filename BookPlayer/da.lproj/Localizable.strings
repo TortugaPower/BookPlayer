@@ -1,11 +1,3 @@
-/* 
-  Localizable.strings
-  BookPlayer
-
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
-
 "library_title" = "Bibliotek";
 "settings_button" = "Indstillinger";
 "settings_title" = "Indstillinger";
@@ -231,3 +223,24 @@
 "gesture_swipe_left_title" = "Stryg til venstre for at spole tilbage";
 "gesture_swipe_right_title" = "Stryg til højre for at springe fremad";
 "gesture_swipe_vertically_title" = "Stryg lodret for at oprette et bogmærke";
+"details_title" = "detaljer";
+"download_title" = "Hent";
+"cancel_download_title" = "Annuller download";
+"remove_downloaded_file_title" = "Fjern fra enheden";
+"download_from_url_title" = "Download fra URL";
+"done_title" = "Færdig";
+"select_title" = "Vælg";
+"sort_button_title" = "Sortere";
+"search_title" = "Søg";
+"books_title" = "Bøger";
+"folders_title" = "Mapper";
+"item_title_placeholder" = "Titel";
+"item_author_placeholder" = "Forfatter";
+"artwork_options_title" = "Muligheder for kunstværker";
+"artwork_photolibrary_title" = "Vælg fra Fotobibliotek";
+"artwork_clipboard_title" = "Indsæt fra udklipsholder";
+"artwork_reset_title" = "Nulstil";
+"artwork_clipboard_empty_title" = "Intet billede i udklipsholderen";
+"artwork_title" = "Kunstværk";
+"update_title" = "Opdatering";
+"edit_title" = "Redigere";

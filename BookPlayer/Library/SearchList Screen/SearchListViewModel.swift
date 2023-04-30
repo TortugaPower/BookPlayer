@@ -113,9 +113,9 @@ class SearchListViewModel: BaseViewModel<SearchListCoordinator> {
     return searchScopes.map { item in
       switch item {
       case .book, .bound:
-        return "Books"
+        return "books_title".localized
       case .folder:
-        return "Folders"
+        return "folders_title".localized
       }
     }
   }

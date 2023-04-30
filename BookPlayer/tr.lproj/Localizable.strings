@@ -1,11 +1,3 @@
-/* 
-  Localizable.strings
-  BookPlayer
-
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
-
 "library_title" = "Kitaplık";
 "settings_button" = "Ayarlar";
 "settings_title" = "Ayarlar";
@@ -231,3 +223,24 @@
 "gesture_swipe_left_title" = "Geri sarmak için sola kaydırın";
 "gesture_swipe_right_title" = "İleri atlamak için sağa kaydırın";
 "gesture_swipe_vertically_title" = "Yer imi oluşturmak için dikey olarak kaydırın";
+"details_title" = "Detaylar";
+"download_title" = "İndirmek";
+"cancel_download_title" = "İndirmeyi iptal et";
+"remove_downloaded_file_title" = "Cihazdan kaldır";
+"download_from_url_title" = "URL'den indir";
+"done_title" = "Tamamlamak";
+"select_title" = "Seçme";
+"sort_button_title" = "Tür";
+"search_title" = "Aramak";
+"books_title" = "Kitabın";
+"folders_title" = "Klasörler";
+"item_title_placeholder" = "Başlık";
+"item_author_placeholder" = "Yazar";
+"artwork_options_title" = "Sanat eseri seçenekleri";
+"artwork_photolibrary_title" = "Fotoğraf Kitaplığından Seçin";
+"artwork_clipboard_title" = "Panodan yapıştır";
+"artwork_reset_title" = "Sıfırla";
+"artwork_clipboard_empty_title" = "Panoda resim yok";
+"artwork_title" = "sanat eseri";
+"update_title" = "Güncelleme";
+"edit_title" = "Düzenlemek";

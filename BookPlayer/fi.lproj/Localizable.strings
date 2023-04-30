@@ -1,11 +1,3 @@
-/* 
-  Localizable.strings
-  BookPlayer
-
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
-
 "library_title" = "Kirjasto";
 "settings_button" = "Asetukset";
 "settings_title" = "Asetukset";
@@ -231,3 +223,24 @@
 "gesture_swipe_left_title" = "Pyyhkäise vasemmalle kelataksesi taaksepäin";
 "gesture_swipe_right_title" = "Siirry eteenpäin pyyhkäisemällä oikealle";
 "gesture_swipe_vertically_title" = "Luo kirjanmerkki pyyhkäisemällä pystysuunnassa";
+"details_title" = "Yksityiskohdat";
+"download_title" = "ladata";
+"cancel_download_title" = "Peruuta lataus";
+"remove_downloaded_file_title" = "Poista laitteesta";
+"download_from_url_title" = "Lataa osoitteesta URL";
+"done_title" = "Tehty";
+"select_title" = "Valitse";
+"sort_button_title" = "Järjestellä";
+"search_title" = "Hae";
+"books_title" = "Kirjat";
+"folders_title" = "Kansiot";
+"item_title_placeholder" = "Otsikko";
+"item_author_placeholder" = "Tekijä";
+"artwork_options_title" = "Taideteosvaihtoehdot";
+"artwork_photolibrary_title" = "Valitse valokuvakirjastosta";
+"artwork_clipboard_title" = "Liitä leikepöydältä";
+"artwork_reset_title" = "Nollaa";
+"artwork_clipboard_empty_title" = "Ei kuvaa leikepöydällä";
+"artwork_title" = "Taideteos";
+"update_title" = "Päivittää";
+"edit_title" = "Muokata";

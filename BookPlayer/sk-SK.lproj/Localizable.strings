@@ -1,11 +1,3 @@
-/* 
-  Localizable.strings
-  BookPlayer
-
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
-
 "library_title" = "Knižnica";
 "settings_button" = "Nastavenia";
 "settings_title" = "Nastavenia";
@@ -225,9 +217,30 @@
 "paused_title" = "Pozastavené";
 "skipped_forward_title" = "Preskočené dopredu";
 "skipped_back_title" = "Preskočené späť";
-"button_free_title" = "Bez gombíka";
+"button_free_title" = "Gestá potiahnutia";
 "screen_gestures_title" = "Gestá na obrazovke";
 "gesture_tap_title" = "Klepnutím spustíte prehrávanie alebo pozastavenie";
 "gesture_swipe_left_title" = "Potiahnutím doľava sa vrátite";
 "gesture_swipe_right_title" = "Potiahnutím doprava preskočíte dopredu";
 "gesture_swipe_vertically_title" = "Záložku vytvoríte potiahnutím zvisle";
+"details_title" = "Podrobnosti";
+"download_title" = "Stiahnuť ▼";
+"cancel_download_title" = "Zrušiť sťahovanie";
+"remove_downloaded_file_title" = "Odstrániť zo zariadenia";
+"download_from_url_title" = "Stiahnuť z adresy URL";
+"done_title" = "hotový";
+"select_title" = "Vyberte";
+"sort_button_title" = "Triediť";
+"search_title" = "Vyhľadávanie";
+"books_title" = "knihy";
+"folders_title" = "Priečinky";
+"item_title_placeholder" = "Názov";
+"item_author_placeholder" = "Autor";
+"artwork_options_title" = "Možnosti umeleckých diel";
+"artwork_photolibrary_title" = "Vyberte si z knižnice fotografií";
+"artwork_clipboard_title" = "Prilepiť zo schránky";
+"artwork_reset_title" = "Resetovať";
+"artwork_clipboard_empty_title" = "V schránke nie je žiadny obrázok";
+"artwork_title" = "Umelecké diela";
+"update_title" = "Aktualizovať";
+"edit_title" = "Upraviť";

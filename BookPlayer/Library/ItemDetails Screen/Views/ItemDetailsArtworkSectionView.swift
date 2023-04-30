@@ -20,14 +20,14 @@ struct ItemDetailsArtworkSectionView: View {
   var body: some View {
     Section(
       header: HStack {
-        Text("Artwork")
+        Text("artwork_title".localized)
           .foregroundColor(themeViewModel.secondaryColor)
         Spacer()
         Button(action: actionHandler) {
           if image != nil {
-            Text("Update")
+            Text("update_title".localized)
           } else {
-            Text("Add")
+            Text("library_add_button".localized)
           }
         }
         .foregroundColor(themeViewModel.linkColor)

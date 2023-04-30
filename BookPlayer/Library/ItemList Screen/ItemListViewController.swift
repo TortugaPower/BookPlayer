@@ -35,7 +35,7 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
 
   private lazy var sortButton: UIButton = {
     let button = ComposedButton(
-      title: "Sort",
+      title: "sort_button_title".localized,
       systemImage: "chevron.down",
       imageHeight: 8
     )
@@ -45,7 +45,7 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
   }()
 
   private lazy var selectButton: UIButton = {
-    let button = ComposedButton(title: "Select")
+    let button = ComposedButton(title: "select_title".localized)
     button.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
     button.addTarget(self, action: #selector(handleSelectButtonPressed), for: .touchUpInside)
     return button
@@ -311,14 +311,14 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
     self.tableView.setEditing(editing, animated: true)
 
     if editing {
-      self.selectButton.setTitle("Done", for: .normal)
+      self.selectButton.setTitle("done_title".localized, for: .normal)
       self.navigationItem.rightBarButtonItem?.isEnabled = false
       self.selectAllButton.isHidden = false
       sortButton.isHidden = true
       self.selectAllButton.isEnabled = self.tableView.numberOfRows(inSection: BPSection.data.rawValue) > 0
       self.updateSelectionStatus()
     } else {
-      self.selectButton.setTitle("Select", for: .normal)
+      self.selectButton.setTitle("select_title".localized, for: .normal)
       self.selectAllButton.isHidden = true
       sortButton.isHidden = false
       self.navigationItem.rightBarButtonItem?.isEnabled = true

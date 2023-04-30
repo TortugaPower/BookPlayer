@@ -1,11 +1,3 @@
-/* 
-  Localizable.strings
-  BookPlayer
-
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
-
 "library_title" = "Libreria";
 "settings_button" = "Impostazioni";
 "settings_title" = "Impostazioni";
@@ -221,7 +213,7 @@
 "settings_autoplay_restart_title" = "Riavvia i libri finiti";
 "settings_theme_autobrightness" = "Seleziona la variazione scura di un tema se la luminosità dello schermo scende al di sotto della soglia impostata.";
 "note_title" = "Nota";
-"playing_title" = "riproduzione dell'audio";
+"playing_title" = "Riproduzione dell'audio";
 "paused_title" = "In pausa";
 "skipped_forward_title" = "Salto in avanti";
 "skipped_back_title" = "Salto indietro";
@@ -231,3 +223,24 @@
 "gesture_swipe_left_title" = "Scorri verso sinistra per riavvolgere";
 "gesture_swipe_right_title" = "Scorri verso destra per andare avanti";
 "gesture_swipe_vertically_title" = "Scorri verticalmente per creare un segnalibro";
+"details_title" = "Dettagli";
+"download_title" = "Scaricamento";
+"cancel_download_title" = "Annulla il download";
+"remove_downloaded_file_title" = "Rimuovi dal dispositivo";
+"download_from_url_title" = "Scarica dall'URL";
+"done_title" = "Fatto";
+"select_title" = "Selezionare";
+"sort_button_title" = "Sorta";
+"search_title" = "Ricerca";
+"books_title" = "Libri";
+"folders_title" = "Cartelle";
+"item_title_placeholder" = "Titolo";
+"item_author_placeholder" = "Autore";
+"artwork_options_title" = "Opzioni di opere d'arte";
+"artwork_photolibrary_title" = "Scegli dalla Libreria foto";
+"artwork_clipboard_title" = "Incolla dagli appunti";
+"artwork_reset_title" = "Ripristina";
+"artwork_clipboard_empty_title" = "Nessuna immagine negli appunti";
+"artwork_title" = "Modello";
+"update_title" = "Aggiornamento";
+"edit_title" = "Modificare";

@@ -1,11 +1,3 @@
-/* 
-  Localizable.strings
-  BookPlayer
-
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
-
 "library_title" = "Knihovna";
 "settings_button" = "Nastavení";
 "settings_title" = "Nastavení";
@@ -231,3 +223,24 @@
 "gesture_swipe_left_title" = "Přejetím doleva převinete zpět";
 "gesture_swipe_right_title" = "Přejetím doprava přeskočíte vpřed";
 "gesture_swipe_vertically_title" = "Záložku vytvoříte přejetím prstem svisle";
+"details_title" = "Podrobnosti";
+"download_title" = "Stažení";
+"cancel_download_title" = "Zrušit stahování";
+"remove_downloaded_file_title" = "Odebrat ze zařízení";
+"download_from_url_title" = "Stáhnout z URL";
+"done_title" = "Hotovo";
+"select_title" = "Vybrat";
+"sort_button_title" = "Seřadit";
+"search_title" = "Vyhledávání";
+"books_title" = "knihy";
+"folders_title" = "Složky";
+"item_title_placeholder" = "Titul";
+"item_author_placeholder" = "Autor";
+"artwork_options_title" = "Možnosti uměleckého díla";
+"artwork_photolibrary_title" = "Vyberte si z knihovny fotografií";
+"artwork_clipboard_title" = "Vložit ze schránky";
+"artwork_reset_title" = "Resetovat";
+"artwork_clipboard_empty_title" = "Ve schránce není žádný obrázek";
+"artwork_title" = "Umělecké dílo";
+"update_title" = "Aktualizace";
+"edit_title" = "Upravit";

@@ -22,7 +22,7 @@ class BulkControlsView: NibLoadableView {
   override func awakeFromNib() {
     super.awakeFromNib()
 
-    self.editButton.accessibilityLabel = "Details"
+    self.editButton.accessibilityLabel = "details_title".localized
     self.moveButton.accessibilityLabel = "move_title".localized
     self.trashButton.accessibilityLabel = "delete_button".localized
     self.moreButton.accessibilityLabel = "options_button".localized

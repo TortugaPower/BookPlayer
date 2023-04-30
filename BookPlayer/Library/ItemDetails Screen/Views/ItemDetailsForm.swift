@@ -24,12 +24,12 @@ struct ItemDetailsForm: View {
 
   var body: some View {
     Form {
-      Section(header: Text("Details")
+      Section(header: Text("details_title".localized)
         .foregroundColor(themeViewModel.secondaryColor)
       ) {
-        ClearableTextField("Title", text: $viewModel.title)
+        ClearableTextField("item_title_placeholder".localized, text: $viewModel.title)
         if viewModel.showAuthor {
-          ClearableTextField("Author", text: $viewModel.author)
+          ClearableTextField("item_author_placeholder".localized, text: $viewModel.author)
         }
       }
       .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
@@ -44,19 +44,19 @@ struct ItemDetailsForm: View {
     })
     .actionSheet(isPresented: $showingArtworkOptions) {
       ActionSheet(
-        title: Text("Artwork options"),
+        title: Text("artwork_options_title".localized),
         buttons: [
-          .default(Text("Choose from Photo Library")) {
+          .default(Text("artwork_photolibrary_title".localized)) {
             showingImagePicker = true
           },
-          .default(Text("Paste from clipboard")) {
+          .default(Text("artwork_clipboard_title".localized)) {
             if let image = UIPasteboard.general.image {
               viewModel.selectedImage = image
             } else {
               showingEmptyPasteboardAlert = true
             }
           },
-          .default(Text("Reset")) {
+          .default(Text("artwork_reset_title".localized)) {
             viewModel.resetArtwork()
           },
           .cancel(),
@@ -68,8 +68,8 @@ struct ItemDetailsForm: View {
     }
     .alert(isPresented: $showingEmptyPasteboardAlert) {
       Alert(
-        title: Text("No image in the clipboard"),
-        dismissButton: .default(Text("Ok"))
+        title: Text("artwork_clipboard_empty_title".localized),
+        dismissButton: .default(Text("ok_button".localized))
       )
     }
   }

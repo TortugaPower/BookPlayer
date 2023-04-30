@@ -1,11 +1,3 @@
-/* 
-  Localizable.strings
-  BookPlayer
-
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
-
 "library_title" = "Bibliothek";
 "settings_button" = "Einstellungen";
 "settings_title" = "Einstellungen";
@@ -218,8 +210,8 @@
 "settings_progresslabels_description" = "Zwischen der Anzeige der verbleibenden Zeit, der Gesamtdauer und des Kapitel- oder Buchfortschritts auf dem Wiedergabebildschirm umschalten.";
 "settings_playerinterface_list_description" = "Anpassen, was die Taste „Liste“ auf dem Wiedergabebildschirm öffnet";
 "settings_autoplay_section_title" = "AUTOMATISCHES ABSPIELEN";
-"settings_autoplay_restart_title" = "Fertige Bücher neu starten";
-"settings_theme_autobrightness" = "Wählen Sie die dunkle Variante eines Themas, wenn die Bildschirmhelligkeit unter den eingestellten Schwellenwert fällt.";
+"settings_autoplay_restart_title" = "Beendete Bücher neu starten";
+"settings_theme_autobrightness" = "Wähle die dunkle Variante eines Themas, wenn die Bildschirmhelligkeit unter den eingestellten Schwellenwert fällt.";
 "note_title" = "Notiz";
 "playing_title" = "Audio abspielen";
 "paused_title" = "Angehalten";
@@ -227,7 +219,28 @@
 "skipped_back_title" = "Zurückgesprungen";
 "button_free_title" = "Knopflos";
 "screen_gestures_title" = "Bildschirmgesten";
-"gesture_tap_title" = "Tippen Sie zum Abspielen oder Anhalten";
-"gesture_swipe_left_title" = "Zum Zurückspulen nach links wischen";
-"gesture_swipe_right_title" = "Wischen Sie nach rechts, um vorwärts zu springen";
-"gesture_swipe_vertically_title" = "Wischen Sie vertikal, um ein Lesezeichen zu erstellen";
+"gesture_tap_title" = "Tippe zum Abspielen oder Anhalten";
+"gesture_swipe_left_title" = "Streiche nach links, um zurückzuspringen";
+"gesture_swipe_right_title" = "Streiche nach rechts, um vorwärtszuspringen";
+"gesture_swipe_vertically_title" = "Streiche vertikal, um ein Lesezeichen zu erstellen";
+"details_title" = "Einzelheiten";
+"download_title" = "Herunterladen";
+"cancel_download_title" = "Download abbrechen";
+"remove_downloaded_file_title" = "Vom Gerät entfernen";
+"download_from_url_title" = "Von URL herunterladen";
+"done_title" = "Erledigt";
+"select_title" = "Wählen";
+"sort_button_title" = "Sortieren";
+"search_title" = "Suchen";
+"books_title" = "Bücher";
+"folders_title" = "Ordner";
+"item_title_placeholder" = "Titel";
+"item_author_placeholder" = "Autor";
+"artwork_options_title" = "Artwork-Optionen";
+"artwork_photolibrary_title" = "Wählen Sie aus der Fotobibliothek";
+"artwork_clipboard_title" = "Aus Zwischenablage einfügen";
+"artwork_reset_title" = "Zurücksetzen";
+"artwork_clipboard_empty_title" = "Kein Bild in der Zwischenablage";
+"artwork_title" = "Kunstwerk";
+"update_title" = "Aktualisieren";
+"edit_title" = "Bearbeiten";

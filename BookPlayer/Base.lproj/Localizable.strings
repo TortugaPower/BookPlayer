@@ -1,11 +1,3 @@
-/* 
-  Localizable.strings
-  BookPlayer
-
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
-
 "library_title" = "Library";
 "settings_button" = "Settings";
 "settings_title" = "Settings";
@@ -231,3 +223,24 @@
 "gesture_swipe_left_title" = "Swipe left to rewind";
 "gesture_swipe_right_title" = "Swipe right to skip forward";
 "gesture_swipe_vertically_title" = "Swipe vertically to create bookmark";
+"details_title" = "Details";
+"download_title" = "Download";
+"cancel_download_title" = "Cancel download";
+"remove_downloaded_file_title" = "Remove from device";
+"download_from_url_title" = "Download from URL";
+"done_title" = "Done";
+"select_title" = "Select";
+"sort_button_title" = "Sort";
+"search_title" = "Search";
+"books_title" = "Books";
+"folders_title" = "Folders";
+"item_title_placeholder" = "Title";
+"item_author_placeholder" = "Author";
+"artwork_options_title" = "Artwork options";
+"artwork_photolibrary_title" = "Choose from Photo Library";
+"artwork_clipboard_title" = "Paste from clipboard";
+"artwork_reset_title" = "Reset";
+"artwork_clipboard_empty_title" = "No image in the clipboard";
+"artwork_title" = "Artwork";
+"update_title" = "Update";
+"edit_title" = "Edit";

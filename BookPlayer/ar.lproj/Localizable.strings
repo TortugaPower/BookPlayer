@@ -1,11 +1,3 @@
-/* 
-  Localizable.strings
-  BookPlayer
-
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
-
 "library_title" = "المكتبة";
 "settings_button" = "الاعدادات";
 "settings_title" = "الاعدادات";
@@ -231,3 +223,24 @@
 "gesture_swipe_left_title" = "اسحب لليسار للترجيع";
 "gesture_swipe_right_title" = "اسحب لليمين للتخطي للأمام";
 "gesture_swipe_vertically_title" = "اسحب عموديًا لإنشاء إشارة مرجعية";
+"details_title" = "تفاصيل";
+"download_title" = "تحميل";
+"cancel_download_title" = "إلغاء التنزيل";
+"remove_downloaded_file_title" = "إزالة من الجهاز";
+"download_from_url_title" = "تنزيل من URL";
+"done_title" = "منتهي";
+"select_title" = "يختار";
+"sort_button_title" = "نوع";
+"search_title" = "يبحث";
+"books_title" = "كتب";
+"folders_title" = "المجلدات";
+"item_title_placeholder" = "عنوان";
+"item_author_placeholder" = "مؤلف";
+"artwork_options_title" = "خيارات العمل الفني";
+"artwork_photolibrary_title" = "اختر من مكتبة الصور";
+"artwork_clipboard_title" = "لصق من الحافظة";
+"artwork_reset_title" = "إعادة ضبط";
+"artwork_clipboard_empty_title" = "لا توجد صورة في الحافظة";
+"artwork_title" = "عمل فني";
+"update_title" = "تحديث";
+"edit_title" = "يحرر";

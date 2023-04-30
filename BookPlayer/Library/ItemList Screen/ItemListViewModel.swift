@@ -484,8 +484,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
             }
           ),
           BPActionItem(
-            // TODO: translate string for download button
-            title: "download_button".localized,
+            title: "download_title".localized,
             handler: { [weak self] in
               self?.showDownloadFromUrlAlert()
             }
@@ -637,10 +636,10 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     guard let item = selectedItems.first else { return }
 
     let isSingle = selectedItems.count == 1
-    // TODO: localize
+
     var actions = [
       BPActionItem(
-        title: "Details",
+        title: "details_title".localized,
         isEnabled: isSingle,
         handler: { [weak self] in
           self?.onTransition?(.showItemDetails(item: item))
@@ -721,17 +720,17 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
       switch getDownloadState(for: item) {
       case .notDownloaded:
-        title = "Download"
+        title = "download_title".localized
         handler = { [weak self] in
           self?.startDownload(of: item)
         }
       case .downloading:
-        title = "Cancel download"
+        title = "cancel_download_title".localized
         handler = { [weak self] in
           self?.cancelDownload(of: item)
         }
       case .downloaded:
-        title = "Remove from device"
+        title = "remove_downloaded_file_title".localized
         handler = { [weak self] in
           do {
             let fileURL = item.fileURL
@@ -877,14 +876,12 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   func showDownloadFromUrlAlert() {
     sendEvent(.showAlert(
       content: BPAlertContent(
-        // TODO: Translate title
         title: "download_from_url_title".localized,
         style: .alert,
         textInputPlaceholder: "https://",
         actionItems: [
           BPActionItem(
-            // TODO: translate button
-            title: "download_button".localized,
+            title: "download_title".localized,
             inputHandler: { [weak self] url in
               if let bookUrl = URL(string: url) {
                 self?.handleDownload(bookUrl)
@@ -1238,10 +1235,9 @@ extension ItemListViewModel {
   func cancelDownload(of item: SimpleLibraryItem) {
     guard let tasks = downloadTasksDictionary[item.relativePath] else { return }
 
-    /// TODO: Localize
     sendEvent(.showAlert(
       content: BPAlertContent(
-        message: "Cancel download",
+        message: "cancel_download_title".localized,
         style: .alert,
         actionItems: [
           BPActionItem(

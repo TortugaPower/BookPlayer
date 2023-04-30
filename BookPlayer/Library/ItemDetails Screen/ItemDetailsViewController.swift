@@ -52,7 +52,7 @@ class ItemDetailsViewController: BaseViewController<ItemDetailsCoordinator, Item
   }
 
   func setupNavigationItem() {
-    self.navigationItem.title = "Edit"
+    self.navigationItem.title = "edit_title".localized
     self.navigationItem.leftBarButtonItem = UIBarButtonItem(
       barButtonSystemItem: .cancel,
       target: self,

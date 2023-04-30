@@ -84,7 +84,7 @@ class SearchListViewController: BaseViewController<SearchListCoordinator, Search
   }
 
   func setupSearchBar() {
-    searchBar.placeholder = "Search \(viewModel.placeholderTitle)"
+    searchBar.placeholder = "search_title".localized + " \(viewModel.placeholderTitle)"
     searchBar.showsCancelButton = false
     searchBar.returnKeyType = .done
     searchBar.enablesReturnKeyAutomatically = false
