@@ -269,3 +269,7 @@
 "pro_welcome_title" = "Välkommen till BookPlayer Pro!";
 "pro_welcome_description" = "Vi börjar synkronisera ditt bibliotek när WiFi är tillgängligt";
 "benefits_disclaimer_watch_description" = "- Fristående uppspelning på Apple Watch är ännu inte tillgänglig. Den kommer att ingå i en framtida version.";
+"privacy_policy_title" = "Integritetspolicy";
+"terms_conditions_title" = "Villkor";
+"and_title" = "och";
+"agreement_prefix_title" = "Genom att fortsätta godkänner du";

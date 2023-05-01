@@ -269,3 +269,7 @@
 "pro_welcome_title" = "Welkom bij BookPlayer Pro!";
 "pro_welcome_description" = "We beginnen met het synchroniseren van je bibliotheek zodra wifi beschikbaar is";
 "benefits_disclaimer_watch_description" = "- Stand-alone afspelen op de Apple Watch is nog niet beschikbaar. Het zal worden opgenomen in een toekomstige versie.";
+"privacy_policy_title" = "Privacybeleid";
+"terms_conditions_title" = "Voorwaarden";
+"and_title" = "En";
+"agreement_prefix_title" = "Door verder te gaan, gaat u hiermee akkoord";

@@ -35,6 +35,15 @@ class CompleteAccountCoordinator: Coordinator {
     viewModel.coordinator = self
     vc.viewModel = viewModel
 
+    viewModel.onTransition = { [weak self] route in
+      switch route {
+      case .success:
+        self?.showCongrats()
+      case .link(let url):
+        self?.openLink(url)
+      }
+    }
+
     self.navigationController.navigationBar.prefersLargeTitles = false
     self.navigationController.viewControllers = [vc]
     self.navigationController.presentationController?.delegate = self
@@ -46,6 +55,10 @@ class CompleteAccountCoordinator: Coordinator {
     self.navigationController.showAlert("pro_welcome_title".localized, message: "pro_welcome_description".localized) { [weak self] in
       self?.didFinish()
     }
+  }
+
+  func openLink(_ url: URL) {
+    UIApplication.shared.open(url)
   }
 
   func showError(_ error: Error) {

@@ -269,3 +269,7 @@
 "pro_welcome_title" = "Добро пожаловать в BookPlayer Pro!";
 "pro_welcome_description" = "Мы начнем синхронизировать вашу библиотеку, когда будет доступен Wi-Fi.";
 "benefits_disclaimer_watch_description" = "- Автономное воспроизведение на Apple Watch пока недоступно. Он будет включен в будущую версию.";
+"privacy_policy_title" = "политика конфиденциальности";
+"terms_conditions_title" = "Условия и положения";
+"and_title" = "и";
+"agreement_prefix_title" = "Продолжая, вы соглашаетесь";

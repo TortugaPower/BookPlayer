@@ -70,6 +70,52 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
     )
   }()
 
+  private lazy var privacyPolicySectionView: UIView = {
+    let row = AccountRowContainerView(
+      title: "privacy_policy_title".localized,
+      systemImageName: "doc.text.fill",
+      showChevron: false,
+      titleFont: Fonts.title
+    )
+
+    row.tapAction = { [weak self] in
+      self?.viewModel.showPrivacyPolicy()
+    }
+
+    return AccountSectionContainerView(
+      contents: row,
+      insets: UIEdgeInsets(
+        top: 0,
+        left: Spacing.S,
+        bottom: 0,
+        right: Spacing.S
+      )
+    )
+  }()
+
+  private lazy var termsSectionView: UIView = {
+    let row = AccountRowContainerView(
+      title: "terms_conditions_title".localized,
+      systemImageName: "doc.text.fill",
+      showChevron: false,
+      titleFont: Fonts.title
+    )
+
+    row.tapAction = { [weak self] in
+      self?.viewModel.showTermsAndConditions()
+    }
+
+    return AccountSectionContainerView(
+      contents: row,
+      insets: UIEdgeInsets(
+        top: 0,
+        left: Spacing.S,
+        bottom: 0,
+        right: Spacing.S
+      )
+    )
+  }()
+
   private lazy var manageFilesSectionView: UIView = {
     // TODO: Add localization
     let row = AccountRowContainerView(
@@ -207,6 +253,8 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
     contentView.addSubview(containerStackview)
     containerStackview.addArrangedSubview(accountSectionView)
     containerStackview.addArrangedSubview(manageProSectionView)
+    containerStackview.addArrangedSubview(privacyPolicySectionView)
+    containerStackview.addArrangedSubview(termsSectionView)
     // TODO: add section about uploaded files
 //    containerStackview.addArrangedSubview(manageFilesSectionView)
     containerStackview.addArrangedSubview(benefitsSectionView)

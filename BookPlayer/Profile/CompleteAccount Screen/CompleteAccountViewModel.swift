@@ -10,10 +10,18 @@ import BookPlayerKit
 import Foundation
 
 class CompleteAccountViewModel: BaseViewModel<CompleteAccountCoordinator> {
+  enum Routes {
+    case link(_ url: URL)
+    case success
+  }
+
   let accountService: AccountServiceProtocol
   let account: Account
   let containerImageWidth: CGFloat = 60
   let imageWidth: CGFloat = 35
+
+  /// Callback to handle actions on this screen
+  var onTransition: Transition<Routes>?
 
   init(
     accountService: AccountServiceProtocol,
@@ -35,7 +43,7 @@ class CompleteAccountViewModel: BaseViewModel<CompleteAccountCoordinator> {
         await MainActor.run { [weak self, userCancelled] in
           self?.coordinator.stopLoader()
           if !userCancelled {
-            self?.coordinator.showCongrats()
+            self?.onTransition?(.success)
           }
         }
 
@@ -63,7 +71,7 @@ class CompleteAccountViewModel: BaseViewModel<CompleteAccountCoordinator> {
 
         await MainActor.run { [weak self] in
           self?.coordinator.stopLoader()
-          self?.coordinator.showCongrats()
+          self?.onTransition?(.success)
         }
       } catch {
         await MainActor.run { [weak self, error] in
@@ -72,5 +80,9 @@ class CompleteAccountViewModel: BaseViewModel<CompleteAccountCoordinator> {
         }
       }
     }
+  }
+
+  func openLink(_ url: URL) {
+    onTransition?(.link(url))
   }
 }

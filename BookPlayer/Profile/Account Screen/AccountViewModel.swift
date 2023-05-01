@@ -56,6 +56,22 @@ class AccountViewModel: BaseViewModel<AccountCoordinator> {
     Purchases.shared.showManageSubscriptions() { _ in }
   }
 
+  func showTermsAndConditions() {
+    guard
+      let url = URL(string: "https://github.com/TortugaPower/BookPlayer/blob/main/TERMS_CONDITIONS.md")
+    else { return }
+
+    UIApplication.shared.open(url)
+  }
+
+  func showPrivacyPolicy() {
+    guard
+      let url = URL(string: "https://github.com/TortugaPower/BookPlayer/blob/main/PRIVACY_POLICY.md")
+    else { return }
+
+    UIApplication.shared.open(url)
+  }
+
   func showManageFiles() {
     self.coordinator.showUploadedFiles()
   }

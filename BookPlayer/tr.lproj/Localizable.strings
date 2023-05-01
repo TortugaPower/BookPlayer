@@ -269,3 +269,7 @@
 "pro_welcome_title" = "BookPlayer Pro'ya hoş geldiniz!";
 "pro_welcome_description" = "WiFi kullanılabilir olduğunda kitaplığınızı senkronize etmeye başlayacağız";
 "benefits_disclaimer_watch_description" = "- Apple Watch'ta bağımsız oynatma henüz mevcut değil. Gelecekteki bir sürüme dahil edilecektir.";
+"privacy_policy_title" = "Gizlilik Politikası";
+"terms_conditions_title" = "Şartlar ve koşullar";
+"and_title" = "Ve";
+"agreement_prefix_title" = "Devam ederek şunları kabul etmiş olursunuz:";

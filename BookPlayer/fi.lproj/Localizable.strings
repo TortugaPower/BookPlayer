@@ -269,3 +269,7 @@
 "pro_welcome_title" = "Tervetuloa BookPlayer Prohon!";
 "pro_welcome_description" = "Aloitamme kirjastosi synkronoinnin, kun Wi-Fi on käytettävissä";
 "benefits_disclaimer_watch_description" = "- Itsenäinen toisto Apple Watchilla ei ole vielä saatavilla. Se sisällytetään tulevaan versioon.";
+"privacy_policy_title" = "Tietosuojakäytäntö";
+"terms_conditions_title" = "Käyttöehdot";
+"and_title" = "ja";
+"agreement_prefix_title" = "Jatkamalla hyväksyt";

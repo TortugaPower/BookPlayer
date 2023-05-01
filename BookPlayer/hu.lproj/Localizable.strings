@@ -269,3 +269,7 @@
 "pro_welcome_title" = "Üdvözöljük a BookPlayer Pro-ban!";
 "pro_welcome_description" = "Elkezdjük szinkronizálni a könyvtárat, ha elérhető lesz a WiFi";
 "benefits_disclaimer_watch_description" = "- Önálló lejátszás az Apple Watchon még nem érhető el. Egy jövőbeli verzióba bekerül.";
+"privacy_policy_title" = "Adatvédelmi irányelvek";
+"terms_conditions_title" = "Felhasználási feltételek";
+"and_title" = "és";
+"agreement_prefix_title" = "A folytatással beleegyezik";

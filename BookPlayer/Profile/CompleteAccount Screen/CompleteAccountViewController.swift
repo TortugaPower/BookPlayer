@@ -66,6 +66,40 @@ class CompleteAccountViewController: BaseViewController<CompleteAccountCoordinat
     return button
   }()
 
+  private lazy var privacyPolicy = NSMutableAttributedString(
+    string: "privacy_policy_title".localized,
+    attributes: [
+      .link: URL(string: "https://github.com/TortugaPower/BookPlayer/blob/main/PRIVACY_POLICY.md")!
+    ]
+  )
+
+  private lazy var terms = NSMutableAttributedString(
+    string: "terms_conditions_title".localized,
+    attributes: [
+      .link: URL(string: "https://github.com/TortugaPower/BookPlayer/blob/main/TERMS_CONDITIONS.md")!
+    ]
+  )
+
+  private lazy var disclaimerTextView: UITextView = {
+    let textView = UITextView()
+    textView.delegate = self
+    textView.showsVerticalScrollIndicator = false
+    textView.bounces = false
+
+    var finalString = NSMutableAttributedString(string: "\("agreement_prefix_title".localized) ")
+    finalString.append(privacyPolicy)
+    finalString.append(NSAttributedString(string: " \("and_title".localized) "))
+    finalString.append(terms)
+    textView.attributedText = finalString
+    textView.font = Fonts.body
+    textView.textAlignment = .center
+
+    textView.translatesAutoresizingMaskIntoConstraints = false
+    textView.adjustsFontForContentSizeCategory = true
+
+    return textView
+  }()
+
   // MARK: - Initializer
 
   init() {
@@ -111,6 +145,7 @@ class CompleteAccountViewController: BaseViewController<CompleteAccountCoordinat
     view.addSubview(costLabel)
     view.addSubview(monthlyLabel)
     view.addSubview(subscribeButton)
+    view.addSubview(disclaimerTextView)
   }
 
   func addConstraints() {
@@ -133,9 +168,13 @@ class CompleteAccountViewController: BaseViewController<CompleteAccountCoordinat
       costLabel.centerXAnchor.constraint(equalTo: safeLayoutGuide.centerXAnchor),
       monthlyLabel.topAnchor.constraint(equalTo: costLabel.bottomAnchor, constant: Spacing.L),
       monthlyLabel.centerXAnchor.constraint(equalTo: safeLayoutGuide.centerXAnchor),
-      subscribeButton.bottomAnchor.constraint(equalTo: safeLayoutGuide.bottomAnchor, constant: -Spacing.S),
+      subscribeButton.bottomAnchor.constraint(equalTo: disclaimerTextView.topAnchor, constant: -Spacing.S2),
       subscribeButton.leadingAnchor.constraint(equalTo: safeLayoutGuide.leadingAnchor, constant: Spacing.M),
       subscribeButton.trailingAnchor.constraint(equalTo: safeLayoutGuide.trailingAnchor, constant: -Spacing.M),
+      disclaimerTextView.bottomAnchor.constraint(equalTo: safeLayoutGuide.bottomAnchor, constant: -Spacing.S),
+      disclaimerTextView.heightAnchor.constraint(equalToConstant: 48),
+      disclaimerTextView.leadingAnchor.constraint(equalTo: safeLayoutGuide.leadingAnchor, constant: Spacing.M),
+      disclaimerTextView.trailingAnchor.constraint(equalTo: safeLayoutGuide.trailingAnchor, constant: -Spacing.M),
     ])
   }
 
@@ -165,9 +204,30 @@ extension CompleteAccountViewController: Themeable {
     self.proLabel.textColor = theme.secondaryColor
     self.costLabel.textColor = theme.primaryColor
     self.monthlyLabel.textColor = theme.secondaryColor
+    self.disclaimerTextView.backgroundColor = .clear
+    self.disclaimerTextView.textColor = theme.primaryColor
+    self.disclaimerTextView.linkTextAttributes = [
+      .foregroundColor: theme.linkColor
+    ]
 
     self.overrideUserInterfaceStyle = theme.useDarkVariant
       ? UIUserInterfaceStyle.dark
       : UIUserInterfaceStyle.light
+  }
+}
+
+extension CompleteAccountViewController: UITextViewDelegate {
+  func textView(
+    _ textView: UITextView,
+    shouldInteractWith URL: URL,
+    in characterRange: NSRange,
+    interaction: UITextItemInteraction
+  ) -> Bool {
+    viewModel.openLink(URL)
+    return false
+  }
+
+  func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
+    return false
   }
 }

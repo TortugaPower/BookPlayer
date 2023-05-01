@@ -269,3 +269,7 @@
 "pro_welcome_title" = "Bienvenue sur BookPlayer Pro !";
 "pro_welcome_description" = "Nous commencerons à synchroniser votre bibliothèque lorsque le Wi-Fi sera disponible";
 "benefits_disclaimer_watch_description" = "- La lecture autonome sur l'Apple Watch n'est pas encore disponible. Il sera inclus dans une future version.";
+"privacy_policy_title" = "politique de confidentialité";
+"terms_conditions_title" = "Termes et conditions";
+"and_title" = "et";
+"agreement_prefix_title" = "En continuant, vous acceptez";

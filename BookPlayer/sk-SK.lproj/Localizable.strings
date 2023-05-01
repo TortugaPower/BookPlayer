@@ -269,3 +269,7 @@
 "pro_welcome_title" = "Vitajte v BookPlayer Pro!";
 "pro_welcome_description" = "Keď bude k dispozícii Wi-Fi, spustíme synchronizáciu vašej knižnice";
 "benefits_disclaimer_watch_description" = "- Samostatné prehrávanie na Apple Watch zatiaľ nie je dostupné. Bude súčasťou budúcej verzie.";
+"privacy_policy_title" = "Zásady ochrany osobných údajov";
+"terms_conditions_title" = "Podmienky";
+"and_title" = "a";
+"agreement_prefix_title" = "Pokračovaním vyjadrujete súhlas";
