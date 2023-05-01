@@ -33,9 +33,8 @@ class SettingsCoordinator: Coordinator {
     self.navigationController.presentationController?.delegate = self
 
     vc.navigationItem.largeTitleDisplayMode = .never
-    // TODO: localize
     self.navigationController.tabBarItem = UITabBarItem(
-      title: "Settings",
+      title: "settings_title".localized,
       image: UIImage(systemName: "gearshape"),
       selectedImage: UIImage(systemName: "gearshape.fill")
     )

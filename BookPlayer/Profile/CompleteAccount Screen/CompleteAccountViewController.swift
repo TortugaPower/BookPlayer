@@ -43,6 +43,7 @@ class CompleteAccountViewController: BaseViewController<CompleteAccountCoordinat
 
   private lazy var costLabel: UILabel = {
     let label = BaseLabel()
+    // TODO: localize
     label.text = "$4.99 / month"
     label.font = Fonts.title
     return label
@@ -51,12 +52,12 @@ class CompleteAccountViewController: BaseViewController<CompleteAccountCoordinat
   private lazy var monthlyLabel: UILabel = {
     let label = BaseLabel()
     label.font = Fonts.body
-    label.text = "Renews automatically monthly"
+    label.text = "renewal_description".localized
     return label
   }()
 
   private lazy var subscribeButton: UIButton = {
-    let button = FormButton(title: "Subscribe now")
+    let button = FormButton(title: "subscribe_title".localized)
     button.addTarget(
       self,
       action: #selector(self.didPressSubscribe),
@@ -87,7 +88,7 @@ class CompleteAccountViewController: BaseViewController<CompleteAccountCoordinat
   }
 
   func setupNavigationItem() {
-    self.title = "Complete Account"
+    self.title = "completeaccount_title".localized
     self.navigationItem.leftBarButtonItem = UIBarButtonItem(
       image: ImageIcons.navigationBackImage,
       style: .plain,

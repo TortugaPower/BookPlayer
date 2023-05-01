@@ -23,14 +23,14 @@ struct ProfileCardView: View {
        !account.email.isEmpty {
       return account.email
     } else {
-      return "Set Up Account"
+      return "setup_account_title".localized
     }
   }
 
   var status: String? {
     if account == nil
         || account?.email.isEmpty == true {
-      return "Not signed in"
+      return "not_signedin_title".localized
     } else {
       return nil
     }

@@ -18,7 +18,7 @@ struct ProfileListenedTimeView: View {
       Text(formattedListeningTime)
         .font(Font(Fonts.title))
         .foregroundColor(themeViewModel.primaryColor)
-      Text("Total Listening Time")
+      Text("total_listening_title".localized)
         .font(Font(Fonts.subheadline))
         .foregroundColor(themeViewModel.secondaryColor)
     }

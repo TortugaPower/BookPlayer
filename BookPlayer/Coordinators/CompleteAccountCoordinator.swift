@@ -43,8 +43,7 @@ class CompleteAccountCoordinator: Coordinator {
 
   func showCongrats() {
     self.navigationController.getTopViewController()?.view.startConfetti()
-    // TODO: localize
-    self.navigationController.showAlert("Welcome to BookPlayer Pro!", message: "We'll start syncing your library 🙌") { [weak self] in
+    self.navigationController.showAlert("pro_welcome_title".localized, message: "pro_welcome_description".localized) { [weak self] in
       self?.didFinish()
     }
   }

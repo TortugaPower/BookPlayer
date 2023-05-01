@@ -50,7 +50,7 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
     let row = AccountRowContainerView(
       title: "BookPlayer Pro",
       systemImageName: "icloud.and.arrow.up.fill",
-      detail: "Manage",
+      detail: "manage_title".localized,
       showChevron: true,
       titleFont: Fonts.title
     )
@@ -71,6 +71,7 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
   }()
 
   private lazy var manageFilesSectionView: UIView = {
+    // TODO: Add localization
     let row = AccountRowContainerView(
       title: "Uploaded Files",
       systemImageName: "folder",
@@ -94,6 +95,7 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
   }()
 
   private lazy var benefitsSectionView: UIView = {
+    // TODO: Add localization
     let row = AccountProBenefitsView(price: "$4.99 / monthly")
 
     row.tapAction = { [weak self] in
@@ -123,7 +125,7 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
     }
 
     let row = AccountRowContainerView(
-      title: "Sign Out",
+      title: "logout_title".localized,
       systemImageName: imageName,
       flipImage: flipImage,
       imageTintColor: .red
@@ -146,7 +148,7 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
 
   private lazy var deleteSectionView: UIView = {
     let row = AccountRowContainerView(
-      title: "Delete Account",
+      title: "delete_account_title".localized,
       systemImageName: "trash",
       imageTintColor: .red
     )
@@ -191,7 +193,7 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
   }
 
   func setupNavigationItem() {
-    self.navigationItem.title = "Account"
+    self.navigationItem.title = "account_title".localized
     self.navigationItem.leftBarButtonItem = UIBarButtonItem(
       image: ImageIcons.navigationBackImage,
       style: .plain,
@@ -206,7 +208,8 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
     contentView.addSubview(containerStackview)
     containerStackview.addArrangedSubview(accountSectionView)
     containerStackview.addArrangedSubview(manageProSectionView)
-    containerStackview.addArrangedSubview(manageFilesSectionView)
+    // TODO: add section about uploaded files
+//    containerStackview.addArrangedSubview(manageFilesSectionView)
     containerStackview.addArrangedSubview(benefitsSectionView)
     containerStackview.addArrangedSubview(logoutSectionView)
     containerStackview.addArrangedSubview(deleteSectionView)

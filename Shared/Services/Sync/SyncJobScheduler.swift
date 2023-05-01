@@ -119,7 +119,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       .singleInstance(forId: "\(JobType.move.identifier)/\(relativePath)")
       .persist()
       .retry(limit: .unlimited)
-      .internet(atLeast: .wifi)
+      .internet(atLeast: .cellular)
       .with(params: [
         "relativePath": relativePath,
         "origin": relativePath,
@@ -138,7 +138,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       .singleInstance(forId: "\(JobType.update.identifier)/\(relativePath)", override: true)
       .persist()
       .retry(limit: .limited(3))
-      .internet(atLeast: .wifi)
+      .internet(atLeast: .cellular)
       .with(params: parameters)
       .schedule(manager: libraryQueueManager)
   }
@@ -157,7 +157,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       .singleInstance(forId: "\(jobType.identifier)/\(relativePath)")
       .persist()
       .retry(limit: .limited(3))
-      .internet(atLeast: .wifi)
+      .internet(atLeast: .cellular)
       .with(params: [
         "relativePath": relativePath,
         "jobType": jobType.rawValue
@@ -170,7 +170,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       .singleInstance(forId: "\(JobType.deleteBookmark.identifier)/\(relativePath)")
       .persist()
       .retry(limit: .unlimited)
-      .internet(atLeast: .wifi)
+      .internet(atLeast: .cellular)
       .with(params: [
         "relativePath": relativePath,
         "time": time,
@@ -198,7 +198,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       .singleInstance(forId: "\(JobType.setBookmark.identifier)/\(relativePath)")
       .persist()
       .retry(limit: .unlimited)
-      .internet(atLeast: .wifi)
+      .internet(atLeast: .cellular)
       .with(params: params)
       .schedule(manager: libraryQueueManager)
   }

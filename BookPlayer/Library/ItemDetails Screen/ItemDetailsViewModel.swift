@@ -59,8 +59,6 @@ class ItemDetailsViewModel: BaseViewModel<ItemDetailsCoordinator> {
       ArtworkService.removeCache(for: item.relativePath)
     }
 
-    // TODO: schedule job to update metadata on server
-
     if formViewModel.artworkIsUpdated,
        let imageData = formViewModel.selectedImage?.jpegData(compressionQuality: 0.3) {
       ArtworkService.storeInCache(imageData, for: cacheKey) { [weak self] in

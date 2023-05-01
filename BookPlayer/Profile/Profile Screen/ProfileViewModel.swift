@@ -138,7 +138,7 @@ class ProfileViewModel: BaseViewModel<ProfileCoordinator>, ProfileViewModelProto
       let formattedTime = formatTime(timeDifference, units: [.minute, .second])
     else { return }
 
-    refreshStatusMessage = "Last sync: \(formattedTime) ago"
+    refreshStatusMessage = String(format: "last_sync_title".localized, formattedTime)
   }
 
   func syncLibrary() {

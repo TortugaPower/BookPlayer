@@ -44,7 +44,7 @@ class ProfileViewController: BaseViewController<ProfileCoordinator, ProfileViewM
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    self.navigationItem.title = "Profile"
+    self.navigationItem.title = "profile_title".localized
 
     addSubviews()
     addConstraints()

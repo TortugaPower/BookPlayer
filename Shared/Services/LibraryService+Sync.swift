@@ -47,7 +47,6 @@ extension LibraryService: LibrarySyncProtocol {
     }
 
     dataManager.saveContext()
-    // TODO: handle updated_at timestamp
   }
 
   public func addBook(from item: SyncableItem, parentFolder: String?) {

@@ -28,8 +28,8 @@ class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel> 
 
   private lazy var cloudBenefitStackView: UIStackView = {
     let stackView = LoginBenefitView(
-      title: "Cloud sync",
-      description: "Download and sync your library and book progress to all your supported devices.",
+      title: "benefits_cloudsync_title".localized,
+      description: "benefits_cloudsync_description".localized,
       systemName: "icloud.and.arrow.up.fill",
       imageAlpha: 0.5
     )
@@ -39,8 +39,8 @@ class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel> 
 
   private lazy var cosmeticBenefitStackView: UIStackView = {
     let stackView = LoginBenefitView(
-      title: "Themes & Icons",
-      description: "You'll have access to the additional themes and app icons that are unlocked by donating and joining BookPlayer Plus.",
+      title: "benefits_themesicons_title".localized,
+      description: "benefits_themesicons_description".localized,
       shouldAddOverlay: true,
       imageName: "BookPlayerPlus",
       imageAlpha: 0.5
@@ -51,8 +51,8 @@ class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel> 
 
   private lazy var supportBenefitStackView: UIStackView = {
     let stackView = LoginBenefitView(
-      title: "Support us",
-      description: "With your help we are able to implement more features and make BookPlayer even better.",
+      title: "benefits_supportus_title".localized,
+      description: "benefits_supportus_description".localized,
       imageName: "plusImageSupport"
     )
     stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -61,11 +61,11 @@ class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel> 
 
   private lazy var disclaimerStackView: UIStackView = {
     let stackView = LoginDisclaimerView(
-      title: "Please keep in mind the following",
+      title: "benefits_disclaimer_title".localized,
       disclaimers: [
-        "- You only need an account with us if you plan to listen to your library across different devices",
-        "- Due to ongoing server costs for cloud storage and progress syncing, we require a subscription to offset the cost of this feature",
-        "- The cost of the monthly subscription is $4.99 USD, and after the account creation, you will be prompted to subscribe to fully activate your account"
+        "benefits_disclaimer_account_description".localized,
+        "benefits_disclaimer_subscription_description".localized,
+        "benefits_disclaimer_watch_description".localized
       ]
     )
     stackView.translatesAutoresizingMaskIntoConstraints = false

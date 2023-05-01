@@ -44,9 +44,8 @@ class ProfileCoordinator: Coordinator {
     viewModel.coordinator = self
     vc.viewModel = viewModel
     vc.navigationItem.largeTitleDisplayMode = .never
-    // TODO: localize
     self.navigationController.tabBarItem = UITabBarItem(
-      title: "Profile",
+      title: "profile_title".localized,
       image: UIImage(systemName: "person.crop.circle"),
       selectedImage: UIImage(systemName: "person.crop.circle.fill")
     )

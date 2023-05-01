@@ -35,14 +35,14 @@ class AccountProBenefitsView: UIStackView {
 
   private lazy var cloudBenefitView: UIView = {
     return AccountRowContainerView(
-      title: "Cloud sync",
+      title: "benefits_cloudsync_title".localized,
       systemImageName: "icloud.and.arrow.up.fill"
     )
   }()
 
   private lazy var cosmeticBenefitView: UIView = {
     return AccountRowContainerView(
-      title: "Themes & Icons",
+      title: "benefits_themesicons_title".localized,
       shouldAddOverlay: true,
       imageName: "BookPlayerPlus",
       imageAlpha: 0.5
@@ -51,13 +51,13 @@ class AccountProBenefitsView: UIStackView {
 
   private lazy var supportBenefitView: UIView = {
     return AccountRowContainerView(
-      title: "Support us",
+      title: "benefits_supportus_title".localized,
       imageName: "plusImageSupport"
     )
   }()
 
   private lazy var completeButton: UIButton = {
-    let button = FormButton(title: "Complete Account")
+    let button = FormButton(title: "completeaccount_title".localized)
     button.addTarget(self, action: #selector(didTapButton), for: .touchUpInside)
     return button
   }()
