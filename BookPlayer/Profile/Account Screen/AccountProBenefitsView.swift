@@ -12,7 +12,7 @@ import Themeable
 
 class AccountProBenefitsView: UIStackView {
   private lazy var titleStackView: UIStackView = {
-    let stackview = UIStackView(arrangedSubviews: [proLabel, priceLabel])
+    let stackview = UIStackView(arrangedSubviews: [proLabel])
     stackview.axis = .horizontal
     return stackview
   }()
@@ -22,14 +22,6 @@ class AccountProBenefitsView: UIStackView {
     label.text = "BookPlayer Pro"
     label.font = Fonts.title
     label.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
-    return label
-  }()
-
-  private lazy var priceLabel: UILabel = {
-    let label = UILabel()
-    label.text = price
-    label.font = Fonts.titleRegular
-    label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
     return label
   }()
 
@@ -62,12 +54,9 @@ class AccountProBenefitsView: UIStackView {
     return button
   }()
 
-  let price: String
-
   var tapAction: (() -> Void)?
 
-  init(price: String) {
-    self.price = price
+  init() {
     super.init(frame: .zero)
     translatesAutoresizingMaskIntoConstraints = false
     axis = .vertical
@@ -97,6 +86,5 @@ class AccountProBenefitsView: UIStackView {
 extension AccountProBenefitsView: Themeable {
   func applyTheme(_ theme: SimpleTheme) {
     proLabel.textColor = theme.primaryColor
-    priceLabel.textColor = theme.secondaryColor
   }
 }

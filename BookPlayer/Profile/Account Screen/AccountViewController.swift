@@ -95,8 +95,7 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
   }()
 
   private lazy var benefitsSectionView: UIView = {
-    // TODO: Add localization
-    let row = AccountProBenefitsView(price: "$4.99 / monthly")
+    let row = AccountProBenefitsView()
 
     row.tapAction = { [weak self] in
       self?.didPressCompleteAccount()
