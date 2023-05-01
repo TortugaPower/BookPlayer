@@ -79,6 +79,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
       // Notify controller to see if it should ask for review
       NotificationCenter.default.post(name: .requestReview, object: nil)
     }
+
+    /// Sync list when app is active again
+    mainCoordinator.getLibraryCoordinator()?.syncList()
   }
 
   func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
