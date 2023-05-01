@@ -37,7 +37,7 @@ final class IconsViewModel {
   }
 
   func hasMadeDonation() -> Bool {
-    return self.account?.donationMade ?? false
+    return (self.account?.donationMade ?? false) || account?.hasSubscription == true
   }
 
   func showPro() {
