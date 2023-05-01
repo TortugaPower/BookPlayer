@@ -202,7 +202,7 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
         case self.iconsIndexPath:
           self.viewModel.showIcons()
         case self.tipJarPath:
-          self.viewModel.showPro()
+          self.viewModel.showTipJar()
         case self.supportEmailPath:
           self.sendSupportEmail()
         case self.githubLinkPath:

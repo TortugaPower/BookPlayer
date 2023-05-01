@@ -37,7 +37,8 @@ final class PlusViewModel {
   }
 
   func hasMadeDonation() -> Bool {
-    return self.account?.donationMade ?? false
+    // Force true to only show the tip jar screen
+    return true
   }
 
   func handleNewDonation() {

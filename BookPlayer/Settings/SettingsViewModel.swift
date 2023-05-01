@@ -57,6 +57,10 @@ class SettingsViewModel: BaseViewModel<SettingsCoordinator> {
     self.coordinator.showPro()
   }
 
+  func showTipJar() {
+    self.coordinator.showTipJar()
+  }
+
   func showStorageManagement() {
     self.coordinator.showStorageManagement()
   }

@@ -80,6 +80,18 @@ class SettingsCoordinator: Coordinator {
     child.start()
   }
 
+  func showTipJar() {
+    let viewModel = PlusViewModel(accountService: self.accountService)
+    viewModel.coordinator = self
+    let vc = PlusViewController.instantiate(from: .Settings)
+    vc.viewModel = viewModel
+    vc.navigationItem.largeTitleDisplayMode = .never
+    let nav = AppNavigationController.instantiate(from: .Main)
+    nav.viewControllers = [vc]
+
+    self.navigationController.getTopViewController()?.present(nav, animated: true, completion: nil)
+  }
+
   func showThemes() {
     let viewModel = ThemesViewModel(accountService: self.accountService)
     viewModel.coordinator = self
