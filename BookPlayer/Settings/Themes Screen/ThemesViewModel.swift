@@ -40,7 +40,7 @@ final class ThemesViewModel {
     return self.account?.donationMade ?? false
   }
 
-  func showPlus() {
-    self.coordinator.showPlus()
+  func showPro() {
+    self.coordinator.showPro()
   }
 }

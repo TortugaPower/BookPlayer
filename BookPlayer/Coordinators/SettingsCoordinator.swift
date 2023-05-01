@@ -58,16 +58,26 @@ class SettingsCoordinator: Coordinator {
     child.start()
   }
 
-  func showPlus() {
-    let viewModel = PlusViewModel(accountService: self.accountService)
-    viewModel.coordinator = self
-    let vc = PlusViewController.instantiate(from: .Settings)
-    vc.viewModel = viewModel
-    vc.navigationItem.largeTitleDisplayMode = .never
-    let nav = AppNavigationController.instantiate(from: .Main)
-    nav.viewControllers = [vc]
+  func showPro() {
+    let presentingVC = self.navigationController.getTopViewController()
+    let child: Coordinator
 
-    self.navigationController.getTopViewController()?.present(nav, animated: true, completion: nil)
+    if self.accountService.getAccountId() != nil {
+      child = CompleteAccountCoordinator(
+        accountService: self.accountService,
+        presentingViewController: presentingVC
+      )
+    } else {
+      child = LoginCoordinator(
+        accountService: self.accountService,
+        presentingViewController: presentingVC
+      )
+    }
+
+    self.childCoordinators.append(child)
+    child.parentCoordinator = self
+
+    child.start()
   }
 
   func showThemes() {

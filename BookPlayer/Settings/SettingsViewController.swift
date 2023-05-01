@@ -107,7 +107,7 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
     }
 
     self.plusBannerView.showPlus = { [weak self] in
-      self?.viewModel.showPlus()
+      self?.viewModel.showPro()
     }
   }
 
@@ -166,13 +166,12 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
 
     guard !self.viewModel.hasMadeDonation() else { return 0 }
 
-    return 102
+    return 152
   }
 
   override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
     guard
-      section == 0,
-      self.viewModel.hasMadeDonation()
+      section == 0
     else {
       return super.tableView(tableView, heightForHeaderInSection: section)
     }
@@ -182,8 +181,7 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
 
   override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
     guard
-      section == 0,
-      self.viewModel.hasMadeDonation()
+      section == 0
     else {
       return super.tableView(tableView, heightForFooterInSection: section)
     }
@@ -204,7 +202,7 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
         case self.iconsIndexPath:
           self.viewModel.showIcons()
         case self.tipJarPath:
-          self.viewModel.showPlus()
+          self.viewModel.showPro()
         case self.supportEmailPath:
           self.sendSupportEmail()
         case self.githubLinkPath:

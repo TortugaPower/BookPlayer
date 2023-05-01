@@ -53,8 +53,8 @@ class SettingsViewModel: BaseViewModel<SettingsCoordinator> {
     try? processedFolderURL.setResourceValues(resourceValues)
   }
 
-  func showPlus() {
-    self.coordinator.showPlus()
+  func showPro() {
+    self.coordinator.showPro()
   }
 
   func showStorageManagement() {

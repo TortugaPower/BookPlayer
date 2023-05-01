@@ -92,7 +92,7 @@ class ThemesViewController: UIViewController, Storyboarded {
     NotificationCenter.default.addObserver(self, selector: #selector(self.brightnessChanged), name: UIScreen.brightnessDidChangeNotification, object: nil)
 
     self.bannerView.showPlus = { [weak self] in
-      self?.viewModel.showPlus()
+      self?.viewModel.showPro()
     }
   }
 

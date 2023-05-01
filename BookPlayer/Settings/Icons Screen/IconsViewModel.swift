@@ -40,7 +40,7 @@ final class IconsViewModel {
     return self.account?.donationMade ?? false
   }
 
-  func showPlus() {
-    self.coordinator.showPlus()
+  func showPro() {
+    self.coordinator.showPro()
   }
 }

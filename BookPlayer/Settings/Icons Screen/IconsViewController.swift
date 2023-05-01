@@ -43,7 +43,7 @@ class IconsViewController: UIViewController, Storyboarded {
     setUpTheming()
 
     self.bannerView.showPlus = { [weak self] in
-      self?.viewModel.showPlus()
+      self?.viewModel.showPro()
     }
   }
 
