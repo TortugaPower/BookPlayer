@@ -268,3 +268,4 @@
 "renewal_description" = "每月自动更新";
 "pro_welcome_title" = "欢迎使用 BookPlayer Pro！";
 "pro_welcome_description" = "当 WiFi 可用时，我们将开始同步您的图书馆";
+"benefits_disclaimer_watch_description" = "- 尚无法在 Apple Watch 上独立播放。它将包含在未来的版本中。";

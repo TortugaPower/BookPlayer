@@ -268,3 +268,4 @@
 "renewal_description" = "Автоматично поновлюється щомісяця";
 "pro_welcome_title" = "Ласкаво просимо до BookPlayer Pro!";
 "pro_welcome_description" = "Ми почнемо синхронізацію вашої бібліотеки, коли Wi-Fi стане доступним";
+"benefits_disclaimer_watch_description" = "- Автономне відтворення на Apple Watch поки що недоступне. Його буде включено в наступну версію.";
