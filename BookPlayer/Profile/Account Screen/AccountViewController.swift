@@ -73,9 +73,7 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
   private lazy var privacyPolicySectionView: UIView = {
     let row = AccountRowContainerView(
       title: "privacy_policy_title".localized,
-      systemImageName: "doc.text.fill",
-      showChevron: false,
-      titleFont: Fonts.title
+      systemImageName: "doc.text"
     )
 
     row.tapAction = { [weak self] in
@@ -96,9 +94,7 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
   private lazy var termsSectionView: UIView = {
     let row = AccountRowContainerView(
       title: "terms_conditions_title".localized,
-      systemImageName: "doc.text.fill",
-      showChevron: false,
-      titleFont: Fonts.title
+      systemImageName: "doc.text"
     )
 
     row.tapAction = { [weak self] in
@@ -116,6 +112,7 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
     )
   }()
 
+  // TODO: add section about uploaded files
   private lazy var manageFilesSectionView: UIView = {
     // TODO: Add localization
     let row = AccountRowContainerView(
@@ -255,9 +252,9 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
     containerStackview.addArrangedSubview(manageProSectionView)
     containerStackview.addArrangedSubview(privacyPolicySectionView)
     containerStackview.addArrangedSubview(termsSectionView)
-    // TODO: add section about uploaded files
-//    containerStackview.addArrangedSubview(manageFilesSectionView)
+    containerStackview.setCustomSpacing(0, after: privacyPolicySectionView)
     containerStackview.addArrangedSubview(benefitsSectionView)
+    containerStackview.setCustomSpacing(Spacing.S, after: benefitsSectionView)
     containerStackview.addArrangedSubview(logoutSectionView)
     containerStackview.addArrangedSubview(deleteSectionView)
   }
