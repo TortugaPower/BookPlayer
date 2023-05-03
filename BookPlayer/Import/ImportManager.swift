@@ -31,8 +31,9 @@ final class ImportManager {
   public func process(_ fileUrl: URL) {
     // Avoid processing the creation of the Processed and Inbox folder
     if fileUrl.lastPathComponent == DataManager.processedFolderName
-        || fileUrl.lastPathComponent == "Inbox" { return }
-
+        || fileUrl.lastPathComponent == "Inbox"
+        || fileUrl.isInProcessedFolder { return }
+    
     self.files.value.insert(fileUrl)
   }
 
@@ -43,7 +44,7 @@ final class ImportManager {
   }
 
   public func removeFile(_ item: URL, updateCollection: Bool = true) throws {
-    if FileManager.default.fileExists(atPath: item.path) {
+    if FileManager.default.fileExists(atPath: item.path) && !item.isInProcessedFolder {
       try FileManager.default.removeItem(at: item)
     }
 

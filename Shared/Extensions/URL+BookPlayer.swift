@@ -12,6 +12,10 @@ public extension URL {
     var isDirectoryFolder: Bool {
         return (try? resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory == true
     }
+    
+    var isInProcessedFolder: Bool {
+        return absoluteString.contains(DataManager.getProcessedFolderURL().absoluteString)
+    }
 
   // Disable file protection for file and descendants if it's a directory
   func disableFileProtection() {

@@ -43,7 +43,7 @@ public class CommandParser {
 
   public class func parse(_ url: URL) -> Action? {
     if url.isFileURL {
-      guard !url.absoluteString.contains(DataManager.getProcessedFolderURL().absoluteString) else {
+      guard !url.isInProcessedFolder else {
         return nil
       }
       
