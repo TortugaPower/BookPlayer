@@ -64,7 +64,15 @@ class AccountServiceMock: AccountServiceProtocol {
     }
   }
 
-  func subscribe() async throws -> Bool {
+  func getHardcodedSubscriptionOptions() -> [BookPlayerKit.PricingModel] {
+    return []
+  }
+
+  func getSubscriptionOptions() async throws -> [BookPlayerKit.PricingModel] {
+    return []
+  }
+
+  func subscribe(option: BookPlayerKit.PricingModel) async throws -> Bool {
     self.account?.hasSubscription = true
     return true
   }
