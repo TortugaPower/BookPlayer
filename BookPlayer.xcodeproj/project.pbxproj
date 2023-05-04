@@ -1433,7 +1433,11 @@
 				418B6CF91D2707F800F974FB /* Products */,
 				41AABFFA1E705D18006BD2E0 /* Frameworks */,
 			);
+			indentWidth = 2;
 			sourceTree = "<group>";
+			tabWidth = 2;
+			usesTabs = 0;
+			wrapsLines = 1;
 		};
 		418B6CF91D2707F800F974FB /* Products */ = {
 			isa = PBXGroup;
