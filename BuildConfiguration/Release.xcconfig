@@ -1,0 +1,28 @@
+//
+//  Debug.xcconfig
+//  BookPlayer
+//
+//  Created by Gianni Carlo on 5/12/21.
+//  Copyright © 2021 Tortuga Power. All rights reserved.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+DEVELOPMENT_TEAM =
+BP_ENTITLEMENTS = BookPlayer-NoCarPlay
+BP_BUNDLE_IDENTIFIER = com.replace.me
+BP_PROVISIONING_MAIN =
+BP_PROVISIONING_WATCH =
+BP_PROVISIONING_WATCH_EXTENSION =
+BP_PROVISIONING_INTENTS =
+BP_PROVISIONING_WIDGET_UI =
+BP_PROVISIONING_SHARE_EXTENSION =
+BP_SENTRY_DSN = replace.me
+BP_REVENUECAT_KEY = replace.me
+BP_MOCKED_BEARER_TOKEN = simulator.only
+BP_IS_SOCKET_SECURE = false
+BP_SOCKET_SERVER =
+BP_API_SCHEME = http
+BP_API_DOMAIN = replace.me
+BP_API_PORT =
