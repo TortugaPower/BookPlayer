@@ -14,7 +14,9 @@ public extension URL {
     }
     
     var isInProcessedFolder: Bool {
-        return absoluteString.contains(DataManager.getProcessedFolderURL().absoluteString)
+        let absoluteUrl = resolvingSymlinksInPath().absoluteString
+        let processedFolderUrl = DataManager.getProcessedFolderURL().absoluteString
+        return absoluteUrl.contains(processedFolderUrl)
     }
 
   // Disable file protection for file and descendants if it's a directory
