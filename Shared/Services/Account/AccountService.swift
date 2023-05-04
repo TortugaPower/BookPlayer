@@ -54,7 +54,10 @@ public protocol AccountServiceProtocol {
     hasSubscription: Bool?
   )
 
-  func subscribe() async throws -> Bool
+  func getHardcodedSubscriptionOptions() -> [PricingModel]
+  func getSubscriptionOptions() async throws -> [PricingModel]
+
+  func subscribe(option: PricingModel) async throws -> Bool
   func restorePurchases() async throws -> CustomerInfo
 
   func loginTestAccount(token: String) throws
@@ -69,7 +72,8 @@ public protocol AccountServiceProtocol {
 }
 
 public final class AccountService: AccountServiceProtocol {
-  let subscriptionId = "com.tortugapower.audiobookplayer.subscription.pro"
+  let monthlySubscriptionId = "com.tortugapower.audiobookplayer.subscription.pro"
+  let yearlySubscriptionId = "com.tortugapower.audiobookplayer.subscription.pro.yearly"
   let dataManager: DataManager
   let client: NetworkClientProtocol
   let keychain: KeychainServiceProtocol
@@ -165,8 +169,45 @@ public final class AccountService: AccountServiceProtocol {
     }
   }
 
-  public func subscribe() async throws -> Bool {
-    let products = await Purchases.shared.products([self.subscriptionId])
+  public func getHardcodedSubscriptionOptions() -> [PricingModel] {
+    return [
+      PricingModel(id: yearlySubscriptionId, title: "49.99 USD \("yearly_title".localized)"),
+      PricingModel(id: monthlySubscriptionId, title: "4.99 USD \("monthly_title".localized)")
+    ]
+  }
+
+  public func getSubscriptionOptions() async throws -> [PricingModel] {
+    let products = await Purchases.shared.products([yearlySubscriptionId, monthlySubscriptionId])
+
+    var options = [PricingModel]()
+
+    for product in products {
+      let localizedKey: String
+
+      switch product.productIdentifier {
+      case yearlySubscriptionId:
+        localizedKey = "yearly_title"
+      case monthlySubscriptionId:
+        localizedKey = "monthly_title"
+      default:
+        continue
+      }
+
+      options.append(PricingModel(
+        id: product.productIdentifier,
+        title: "\(product.localizedPriceString) \(localizedKey.localized)"
+      ))
+    }
+
+    if options.isEmpty {
+      throw AccountError.emptyProducts
+    }
+
+    return options
+  }
+
+  public func subscribe(option: PricingModel) async throws -> Bool {
+    let products = await Purchases.shared.products([option.id])
 
     guard let product = products.first else {
       throw AccountError.emptyProducts

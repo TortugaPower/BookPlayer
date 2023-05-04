@@ -47,6 +47,12 @@ class CompleteAccountCoordinator: Coordinator {
     self.navigationController.navigationBar.prefersLargeTitles = false
     self.navigationController.viewControllers = [vc]
     self.navigationController.presentationController?.delegate = self
+
+    if #available(iOS 15.0, *),
+       let sheet = self.navigationController.sheetPresentationController {
+      sheet.detents = [.medium()]
+    }
+
     self.presentingViewController?.present(self.navigationController, animated: true, completion: nil)
   }
 

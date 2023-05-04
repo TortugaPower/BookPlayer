@@ -20,6 +20,10 @@ class CompleteAccountViewModel: BaseViewModel<CompleteAccountCoordinator> {
   let containerImageWidth: CGFloat = 60
   let imageWidth: CGFloat = 35
 
+  lazy var pricingViewModel = PricingViewModel(
+    options: accountService.getHardcodedSubscriptionOptions()
+  )
+
   /// Callback to handle actions on this screen
   var onTransition: Transition<Routes>?
 
@@ -31,36 +35,44 @@ class CompleteAccountViewModel: BaseViewModel<CompleteAccountCoordinator> {
     self.account = account
   }
 
-  func handleSubscription() {
-    Task { [weak self, accountService] in
-      await MainActor.run { [weak self] in
-        self?.coordinator.showLoader()
+  func loadPricingOptions() {
+    Task { @MainActor [weak self] in
+      if let options = try? await self?.accountService.getSubscriptionOptions() {
+        self?.pricingViewModel.options = options
+        self?.pricingViewModel.selected = options.first
       }
 
-      do {
-        let userCancelled = try await accountService.subscribe()
+      self?.pricingViewModel.isLoading = false
+    }
+  }
 
-        await MainActor.run { [weak self, userCancelled] in
-          self?.coordinator.stopLoader()
-          if !userCancelled {
-            self?.onTransition?(.success)
-          }
+  func handleSubscription() {
+    guard
+      pricingViewModel.isLoading == false,
+      let selectedOption = pricingViewModel.selected
+    else { return }
+
+    Task { @MainActor [weak self, accountService] in
+      self?.coordinator.showLoader()
+
+      do {
+        let userCancelled = try await accountService.subscribe(option: selectedOption)
+
+        self?.coordinator.stopLoader()
+        if !userCancelled {
+          self?.onTransition?(.success)
         }
 
       } catch {
-        await MainActor.run { [weak self, error] in
-          self?.coordinator.stopLoader()
-          self?.coordinator.showError(error)
-        }
+        self?.coordinator.stopLoader()
+        self?.coordinator.showError(error)
       }
     }
   }
 
   func handleRestorePurchases() {
-    Task { [weak self, accountService] in
-      await MainActor.run { [weak self] in
-        self?.coordinator.showLoader()
-      }
+    Task { @MainActor [weak self, accountService] in
+      self?.coordinator.showLoader()
 
       do {
         let customerInfo = try await accountService.restorePurchases()
@@ -69,15 +81,11 @@ class CompleteAccountViewModel: BaseViewModel<CompleteAccountCoordinator> {
           throw AccountError.inactiveSubscription
         }
 
-        await MainActor.run { [weak self] in
-          self?.coordinator.stopLoader()
-          self?.onTransition?(.success)
-        }
+        self?.coordinator.stopLoader()
+        self?.onTransition?(.success)
       } catch {
-        await MainActor.run { [weak self, error] in
-          self?.coordinator.stopLoader()
-          self?.coordinator.showError(error)
-        }
+        self?.coordinator.stopLoader()
+        self?.coordinator.showError(error)
       }
     }
   }

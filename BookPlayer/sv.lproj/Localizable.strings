@@ -273,3 +273,6 @@
 "terms_conditions_title" = "Villkor";
 "and_title" = "och";
 "agreement_prefix_title" = "Genom att fortsätta godkänner du";
+"yearly_title" = "per år";
+"monthly_title" = "per månad";
+"choose_plan_title" = "Välj din plan";
