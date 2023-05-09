@@ -209,39 +209,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     guard let item = item else { return }
 
-    var subscription: AnyCancellable?
+    playerManager?.load(item, autoplay: autoplay)
 
-    subscription = NotificationCenter.default.publisher(for: .bookReady, object: nil)
-      .sink(receiveValue: { [weak self, showPlayer, autoplay, alertPresenter] notification in
-        alertPresenter.stopLoader()
-        guard
-          let userInfo = notification.userInfo,
-          let loaded = userInfo["loaded"] as? Bool,
-          loaded == true
-        else {
-          subscription?.cancel()
-          return
-        }
-
-        showPlayer?()
-
-        if autoplay {
-          self?.playerManager?.play()
-        }
-
-        subscription?.cancel()
-      })
-
-    alertPresenter.showLoader()
-
-    Task { [unowned self] in
-      do {
-        try await self.playerManager?.load(item)
-      } catch {
-        alertPresenter.stopLoader()
-        alertPresenter.showAlert("error_title".localized, message: error.localizedDescription, completion: nil)
-      }
-    }
+    showPlayer?()
   }
 
   @objc func messageReceived(_ notification: Notification) {
