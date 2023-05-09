@@ -32,7 +32,7 @@ final class ImportManager {
     // Avoid processing the creation of the Processed and Inbox folder
     if fileUrl.lastPathComponent == DataManager.processedFolderName
         || fileUrl.lastPathComponent == "Inbox" { return }
-
+    
     self.files.value.insert(fileUrl)
   }
 
