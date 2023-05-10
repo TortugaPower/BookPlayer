@@ -461,12 +461,9 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     socketService.sendEvent(
       .timeUpdate,
       payload: [
-        "speed": currentSpeed,
         "currentTime": currentItem.currentTime,
         "percentCompleted": currentItem.percentCompleted,
-        "isFinished": currentItem.isFinished,
         "relativePath": currentItem.relativePath,
-        "duration": currentItem.duration,
         "lastPlayDateTimestamp": Date().timeIntervalSince1970,
       ]
     )
