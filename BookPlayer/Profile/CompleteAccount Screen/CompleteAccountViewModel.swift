@@ -52,20 +52,22 @@ class CompleteAccountViewModel: BaseViewModel<CompleteAccountCoordinator> {
       let selectedOption = pricingViewModel.selected
     else { return }
 
-    Task { @MainActor [weak self, accountService] in
-      self?.coordinator.showLoader()
+    Task { @MainActor [weak self] in
+      guard let self = self else { return }
+
+      self.coordinator.showLoader()
 
       do {
-        let userCancelled = try await accountService.subscribe(option: selectedOption)
+        let userCancelled = try await self.accountService.subscribe(option: selectedOption)
 
-        self?.coordinator.stopLoader()
+        self.coordinator.stopLoader()
         if !userCancelled {
-          self?.onTransition?(.success)
+          self.onTransition?(.success)
         }
 
       } catch {
-        self?.coordinator.stopLoader()
-        self?.coordinator.showError(error)
+        self.coordinator.stopLoader()
+        self.coordinator.showError(error)
       }
     }
   }
