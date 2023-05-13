@@ -71,21 +71,22 @@ class CompleteAccountViewModel: BaseViewModel<CompleteAccountCoordinator> {
   }
 
   func handleRestorePurchases() {
-    Task { @MainActor [weak self, accountService] in
-      self?.coordinator.showLoader()
+    Task { @MainActor [weak self] in
+      guard let self = self else { return }
+      self.coordinator.showLoader()
 
       do {
-        let customerInfo = try await accountService.restorePurchases()
+        let customerInfo = try await self.accountService.restorePurchases()
 
         if customerInfo.activeSubscriptions.isEmpty {
           throw AccountError.inactiveSubscription
         }
 
-        self?.coordinator.stopLoader()
-        self?.onTransition?(.success)
+        self.coordinator.stopLoader()
+        self.onTransition?(.success)
       } catch {
-        self?.coordinator.stopLoader()
-        self?.coordinator.showError(error)
+        self.coordinator.stopLoader()
+        self.coordinator.showError(error)
       }
     }
   }

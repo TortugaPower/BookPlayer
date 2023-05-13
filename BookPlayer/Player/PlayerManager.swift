@@ -134,6 +134,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       .getRemoteFileURLs(of: chapter.relativePath, type: .book)[0].url
     let asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
 
+    // TODO: Check if there's a way to reduce the time this operation takes
+    // it's currently a bottleneck when streaming playback
     await asset.loadValues(forKeys: [
       "duration",
       "playable",
@@ -144,6 +146,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       "commonMetadata",
       "metadata"
     ])
+
+    guard !Task.isCancelled else {
+      throw BookPlayerError.cancelledTask
+    }
 
     /// Load artwork if it's not cached
     if !ArtworkService.isCached(relativePath: chapter.relativePath),
@@ -189,6 +195,9 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   }
 
   func load(_ item: PlayableItem, autoplay: Bool) {
+    /// Cancel in case there's an ongoing load task
+    loadChapterTask?.cancel()
+
     // Recover in case of failure
     if self.audioPlayer.status == .failed {
       if let observer = self.periodicTimeObserver {
@@ -226,12 +235,12 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       do {
         try await self.loadPlayerItem(for: chapter)
         self.loadChapterOperation(chapter)
+      } catch BookPlayerError.cancelledTask {
+        /// Do nothing, as it was cancelled to load another item
       } catch {
         self.playbackQueued = nil
-        /// Only show the alert if the user didn't manually cancel
-        if !Task.isCancelled {
-          self.showErrorAlert(error.localizedDescription)
-        }
+        self.observeStatus = false
+        self.showErrorAlert(error.localizedDescription)
         return
       }
     }

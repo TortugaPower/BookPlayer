@@ -18,7 +18,7 @@ public extension URL {
     var isDirectoryFolder: Bool {
         return (try? resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory == true
     }
-    
+
   // Disable file protection for file and descendants if it's a directory
   func disableFileProtection() {
     try? (self as NSURL).setResourceValue(URLFileProtection.none, forKey: .fileProtectionKey)
