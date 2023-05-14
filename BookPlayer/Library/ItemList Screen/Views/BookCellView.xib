@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21678"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -49,16 +49,20 @@
                                 </constraints>
                             </view>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="cloud" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="exW-YC-Pde">
-                                <rect key="frame" x="14" y="17" width="22.5" height="15.5"/>
+                                <rect key="frame" x="30" y="35" width="18" height="11.5"/>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="18" id="qUI-DD-Zma"/>
+                                    <constraint firstAttribute="height" constant="16" id="qey-Kh-ovx"/>
+                                </constraints>
                             </imageView>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="exW-YC-Pde" firstAttribute="centerY" secondItem="HjN-Wo-Zoa" secondAttribute="centerY" id="5co-FB-0eg"/>
                             <constraint firstItem="Khm-Uz-cE9" firstAttribute="centerY" secondItem="HjN-Wo-Zoa" secondAttribute="centerY" id="MSm-WP-Hr3"/>
+                            <constraint firstAttribute="trailing" secondItem="exW-YC-Pde" secondAttribute="trailing" constant="2" id="OVq-q3-WrG"/>
                             <constraint firstItem="Khm-Uz-cE9" firstAttribute="centerX" secondItem="HjN-Wo-Zoa" secondAttribute="centerX" id="g3S-Qo-IYo"/>
-                            <constraint firstItem="exW-YC-Pde" firstAttribute="centerX" secondItem="HjN-Wo-Zoa" secondAttribute="centerX" id="vac-1I-3RW"/>
+                            <constraint firstAttribute="bottom" secondItem="exW-YC-Pde" secondAttribute="bottom" constant="1" id="zl2-HW-A8a"/>
                         </constraints>
                     </view>
                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="NTM-yi-YfQ">
@@ -172,7 +176,7 @@ second line</string>
     </objects>
     <resources>
         <image name="cloud" catalog="system" width="128" height="87"/>
-        <image name="defaultArtwork" width="90" height="90"/>
+        <image name="defaultArtwork" width="325" height="325"/>
         <systemColor name="labelColor">
             <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
