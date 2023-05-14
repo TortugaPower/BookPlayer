@@ -65,7 +65,7 @@ public class DataManager {
 
     return sharedFolderURL
   }
-  
+
   public class func isURLInProcessedFolder(_ url: URL) -> Bool {
     let absoluteUrl = url.resolvingSymlinksInPath().absoluteString
     let processedFolderUrl = getProcessedFolderURL().absoluteString

@@ -21,7 +21,7 @@ public protocol PlayerManagerProtocol: NSObjectProtocol {
   var boostVolume: Bool { get set }
   var isPlaying: Bool { get }
 
-  func load(_ item: PlayableItem) async throws
+  func load(_ item: PlayableItem, autoplay: Bool)
   func hasLoadedBook() -> Bool
 
   func playPreviousItem()
@@ -58,7 +58,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   private var isPlayingSubscription: AnyCancellable?
   private var periodicTimeObserver: Any?
   /// Flag determining if it should resume playback after finishing up loading an item
-  private var playbackQueued: Bool?
+  @Published private var playbackQueued: Bool?
   private var hasObserverRegistered = false
   private var observeStatus: Bool = false {
     didSet {
@@ -75,6 +75,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   }
 
   private var playerItem: AVPlayerItem?
+  private var loadChapterTask: Task<(), Never>?
   @Published var currentItem: PlayableItem?
   @Published var currentSpeed: Float = 1.0
 
@@ -133,6 +134,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       .getRemoteFileURLs(of: chapter.relativePath, type: .book)[0].url
     let asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
 
+    // TODO: Check if there's a way to reduce the time this operation takes
+    // it's currently a bottleneck when streaming playback
     await asset.loadValues(forKeys: [
       "duration",
       "playable",
@@ -143,6 +146,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       "commonMetadata",
       "metadata"
     ])
+
+    guard !Task.isCancelled else {
+      throw BookPlayerError.cancelledTask
+    }
 
     /// Load artwork if it's not cached
     if !ArtworkService.isCached(relativePath: chapter.relativePath),
@@ -187,7 +194,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     self.playerItem?.audioTimePitchAlgorithm = .timeDomain
   }
 
-  func load(_ item: PlayableItem) async throws {
+  func load(_ item: PlayableItem, autoplay: Bool) {
+    /// Cancel in case there's an ongoing load task
+    loadChapterTask?.cancel()
+
     // Recover in case of failure
     if self.audioPlayer.status == .failed {
       if let observer = self.periodicTimeObserver {
@@ -213,12 +223,27 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       NotificationCenter.default.post(name: .chapterChange, object: nil, userInfo: nil)
     }
 
-    try await loadChapterMetadata(item.currentChapter)
+    loadChapterMetadata(item.currentChapter, autoplay: autoplay)
   }
 
-  func loadChapterMetadata(_ chapter: PlayableChapter) async throws {
-    try await self.loadPlayerItem(for: chapter)
-    self.loadChapterOperation(chapter)
+  func loadChapterMetadata(_ chapter: PlayableChapter, autoplay: Bool? = nil) {
+    if let autoplay {
+      playbackQueued = autoplay
+    }
+
+    loadChapterTask = Task { [unowned self] in
+      do {
+        try await self.loadPlayerItem(for: chapter)
+        self.loadChapterOperation(chapter)
+      } catch BookPlayerError.cancelledTask {
+        /// Do nothing, as it was cancelled to load another item
+      } catch {
+        self.playbackQueued = nil
+        self.observeStatus = false
+        self.showErrorAlert(error.localizedDescription)
+        return
+      }
+    }
   }
 
   func loadChapterOperation(_ chapter: PlayableChapter) {
@@ -236,10 +261,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       }
 
       self.audioPlayer.replaceCurrentItem(with: nil)
-      /// Load up info after the item is ready for playback
-      if !self.isPlaying {
-        self.observeStatus = true
-      }
+      self.observeStatus = true
       self.audioPlayer.replaceCurrentItem(with: playerItem)
 
       // Update UI on main thread
@@ -291,11 +313,13 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
   // Called every second by the timer
   func updateTime() {
-    guard let currentItem = self.currentItem,
-          let playerItem = self.playerItem,
-          playerItem.status == .readyToPlay else {
-            return
-          }
+    guard
+      let currentItem,
+      let playerItem,
+      playerItem.status == .readyToPlay
+    else {
+      return
+    }
 
     var currentTime = CMTimeGetSeconds(self.audioPlayer.currentTime())
 
@@ -348,11 +372,14 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   }
 
   func isPlayingPublisher() -> AnyPublisher<Bool, Never> {
-    return self.audioPlayer.publisher(for: \.timeControlStatus)
-      .map({ timeControlStatus in
-        return timeControlStatus == .playing
-      })
-      .eraseToAnyPublisher()
+    return Publishers.CombineLatest(
+      audioPlayer.publisher(for: \.timeControlStatus),
+      $playbackQueued
+    )
+    .map({ (timeControlStatus, playbackQueued) in
+      return timeControlStatus == .playing || playbackQueued == true
+    })
+    .eraseToAnyPublisher()
   }
 
   var boostVolume: Bool = false {
@@ -443,12 +470,9 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     socketService.sendEvent(
       .timeUpdate,
       payload: [
-        "speed": currentSpeed,
-        "currentTime": currentTimeInContext,
-        "percentCompleted": itemProgress,
-        "isFinished": currentItem.isFinished,
+        "currentTime": currentItem.currentTime,
+        "percentCompleted": currentItem.percentCompleted,
         "relativePath": currentItem.relativePath,
-        "duration": currentItem.duration,
         "lastPlayDateTimestamp": Date().timeIntervalSince1970,
       ]
     )
@@ -496,16 +520,7 @@ extension PlayerManager {
       // If chapters are different, and it's a bound book,
       // load the new chapter
       if currentItem.isBoundBook {
-        Task { [unowned self] in
-          do {
-            try await self.loadChapterMetadata(chapterAfterSkip)
-          } catch {
-            await SceneDelegate.shared?.coordinator.getMainCoordinator()?
-              .getTopController()?
-              .showAlert("error_title".localized, message: error.localizedDescription)
-            return
-          }
-        }
+        loadChapterMetadata(chapterAfterSkip)
         return
       }
     }
@@ -535,13 +550,27 @@ extension PlayerManager {
 
 extension PlayerManager {
   func play() {
-    guard let currentItem = self.currentItem,
-          let playerItem = self.playerItem else { return }
+    /// Ignore play commands if there's no item loaded
+    guard let currentItem else { return }
+
+    guard let playerItem else {
+      /// Check if the playbable item is in the process of being set
+      if observeStatus == false {
+        load(currentItem, autoplay: true)
+      }
+      return
+    }
 
     guard playerItem.status == .readyToPlay else {
-      // queue playback
-      self.playbackQueued = true
-      self.observeStatus = true
+      /// Try to reload the item if it failed to load previously
+      if playerItem.status == .failed {
+        load(currentItem, autoplay: true)
+      } else {
+        // queue playback
+        self.playbackQueued = true
+        self.observeStatus = true
+      }
+
       return
     }
 
@@ -622,9 +651,9 @@ extension PlayerManager {
 
     guard item.status == .readyToPlay else {
       if item.status == .failed {
-        SceneDelegate.shared?.coordinator.getMainCoordinator()?
-          .getTopController()?
-          .showAlert("error_title".localized, message: item.error?.localizedDescription)
+        playbackQueued = nil
+        observeStatus = false
+        showErrorAlert(item.error?.localizedDescription)
       }
       return
     }
@@ -653,6 +682,8 @@ extension PlayerManager {
       self?.bindPauseObserver()
       // Set pause state on player and control center
       self?.audioPlayer.pause()
+      self?.playbackQueued = nil
+      self?.loadChapterTask?.cancel()
       self?.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0.0
       self?.setNowPlayingBookTime()
       MPNowPlayingInfoCenter.default().nowPlayingInfo = self?.nowPlayingInfo
@@ -671,7 +702,7 @@ extension PlayerManager {
   // Toggle play/pause of book
   func playPause() {
     // Pause player if it's playing
-    if self.audioPlayer.timeControlStatus == .playing {
+    if self.audioPlayer.timeControlStatus == .playing || playbackQueued == true {
       self.pause(fade: false)
     } else {
       self.play()
@@ -687,11 +718,13 @@ extension PlayerManager {
   }
 
   private func stopPlayback() {
-    self.observeStatus = false
+    observeStatus = false
+    playbackQueued = nil
 
-    self.audioPlayer.pause()
+    audioPlayer.pause()
+    loadChapterTask?.cancel()
 
-    self.userActivityManager.stopPlaybackActivity()
+    userActivityManager.stopPlaybackActivity()
   }
 
   func markAsCompleted(_ flag: Bool) {
@@ -719,7 +752,7 @@ extension PlayerManager {
       )
     else { return }
 
-    self.playItem(previousBook)
+    load(previousBook, autoplay: true)
   }
 
   func playNextItem(autoPlayed: Bool = false) {
@@ -748,40 +781,7 @@ extension PlayerManager {
       updatePlaybackTime(item: nextBook, time: 0)
     }
 
-    self.playItem(nextBook)
-  }
-
-  func playItem(_ item: PlayableItem) {
-    var subscription: AnyCancellable?
-
-    subscription = NotificationCenter.default.publisher(for: .bookReady, object: nil)
-      .sink(receiveValue: { [weak self] notification in
-        guard let self = self,
-              let userInfo = notification.userInfo,
-              let loaded = userInfo["loaded"] as? Bool,
-              loaded == true else {
-                subscription?.cancel()
-                return
-              }
-
-        // Resume playback if it's paused
-        if !self.isPlaying {
-          self.play()
-        }
-
-        subscription?.cancel()
-      })
-
-    Task { [unowned self] in
-      do {
-        try await self.load(item)
-      } catch {
-        await SceneDelegate.shared?.coordinator.getMainCoordinator()?
-          .getTopController()?
-          .showAlert("error_title".localized, message: error.localizedDescription)
-        return
-      }
-    }
+    load(nextBook, autoplay: true)
   }
 
   @objc
@@ -802,36 +802,11 @@ extension PlayerManager {
       self.playNextItem(autoPlayed: true)
       return
     } else if currentItem.isBoundBook {
-      var subscription: AnyCancellable?
-
-      subscription = NotificationCenter.default.publisher(for: .bookReady, object: nil)
-        .sink(receiveValue: { [weak self] notification in
-          guard let self = self,
-                let userInfo = notification.userInfo,
-                let loaded = userInfo["loaded"] as? Bool,
-                loaded == true else {
-            subscription?.cancel()
-            return
-          }
-
-          self.play()
-
-          subscription?.cancel()
-        })
-
       updatePlaybackTime(item: currentItem, time: currentItem.currentTime)
       /// Load next chapter
       guard let nextChapter = self.playbackService.getNextChapter(from: currentItem) else { return }
       currentItem.currentChapter = nextChapter
-      Task { [unowned self] in
-        do {
-          try await self.loadChapterMetadata(nextChapter)
-        } catch {
-          await SceneDelegate.shared?.coordinator.getMainCoordinator()?
-            .getTopController()?
-            .showAlert("error_title".localized, message: error.localizedDescription)
-        }
-      }
+      loadChapterMetadata(nextChapter, autoplay: true)
     }
   }
 
@@ -861,5 +836,15 @@ extension PlayerManager {
     else { return }
 
     libraryService.addNote(type.getNote() ?? "", bookmark: bookmark)
+  }
+}
+
+extension PlayerManager {
+  private func showErrorAlert(_ message: String?) {
+    DispatchQueue.main.async {
+      SceneDelegate.shared?.coordinator.getMainCoordinator()?
+        .getTopController()?
+        .showAlert("error_title".localized, message: message)
+    }
   }
 }

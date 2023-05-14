@@ -46,7 +46,7 @@ extension LibraryService: LibrarySyncProtocol {
       localItem.lastPlayDate = nil
     }
 
-    dataManager.saveContext()
+    dataManager.saveSyncContext()
   }
 
   public func addBook(from item: SyncableItem, parentFolder: String?) {

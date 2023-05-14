@@ -46,7 +46,7 @@ public class CommandParser {
       guard !DataManager.isURLInProcessedFolder(url) else {
         return nil
       }
-      
+
       return Action(command: .fileImport, parameters: [URLQueryItem(name: "url", value: url.path)])
     }
 

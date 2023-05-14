@@ -37,7 +37,7 @@ class PlayerManagerMock: NSObject, PlayerManagerProtocol {
 
   func stop() {}
 
-  func load(_ item: PlayableItem) {
+  func load(_ item: PlayableItem, autoplay: Bool) {
     NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["loaded": true])
   }
 
