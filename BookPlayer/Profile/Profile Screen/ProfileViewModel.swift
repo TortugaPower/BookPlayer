@@ -101,7 +101,6 @@ class ProfileViewModel: BaseViewModel<ProfileCoordinator>, ProfileViewModelProto
       .store(in: &disposeBag)
 
     playerManager.currentItemPublisher()
-      .dropFirst()
       .receive(on: DispatchQueue.main)
       .sink { [weak self] item in
         if item == nil {

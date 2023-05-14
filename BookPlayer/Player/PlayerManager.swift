@@ -126,7 +126,11 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   }
 
   func hasLoadedBook() -> Bool {
-    return playerItem != nil
+    if playerItem == nil {
+      return currentItem != nil
+    } else {
+      return true
+    }
   }
 
   func loadRemoteURLAsset(for chapter: PlayableChapter) async throws -> AVURLAsset {

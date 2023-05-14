@@ -46,10 +46,7 @@ class MainCoordinator: Coordinator {
   }
 
   override func start() {
-    let viewModel = MiniPlayerViewModel(
-      playerManager: self.playerManager,
-      lastPlayedItem: libraryService.getLibraryLastItem()
-    )
+    let viewModel = MiniPlayerViewModel(playerManager: playerManager)
 
     viewModel.onTransition = { route in
       switch route {
