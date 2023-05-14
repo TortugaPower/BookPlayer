@@ -25,19 +25,8 @@ class MiniPlayerViewModel {
   public var currentItemInfo = CurrentValueSubject<Data?, Never>(nil)
   private var disposeBag = Set<AnyCancellable>()
 
-  init(
-    playerManager: PlayerManagerProtocol,
-    lastPlayedItem: SimpleLibraryItem?
-  ) {
+  init(playerManager: PlayerManagerProtocol) {
     self.playerManager = playerManager
-
-    if let lastPlayedItem {
-      self.currentItemInfo.value = Data((
-        title: lastPlayedItem.title,
-        author: lastPlayedItem.details,
-        relativePath: lastPlayedItem.relativePath
-      ))
-    }
 
     bindObservers()
   }
@@ -45,7 +34,6 @@ class MiniPlayerViewModel {
   func bindObservers() {
     /// Drop initial value, as this viewModel already handles that
     self.playerManager.currentItemPublisher()
-      .dropFirst()
       .sink { [weak self] currentItem in
         guard let currentItem else {
           self?.currentItemInfo.value = nil

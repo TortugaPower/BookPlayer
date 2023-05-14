@@ -19,7 +19,7 @@ class MiniPlayerViewModelTests: XCTestCase {
 
   override func setUp() {
     self.playerMock = PlayerManagerMock()
-    self.sut = MiniPlayerViewModel(playerManager: self.playerMock, lastPlayedItem: nil)
+    self.sut = MiniPlayerViewModel(playerManager: self.playerMock)
   }
 
   func testShowPlayer() {
