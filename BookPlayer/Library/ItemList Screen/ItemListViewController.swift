@@ -431,7 +431,10 @@ extension ItemListViewController: UITableViewDataSource {
     cell.downloadState = viewModel.getDownloadState(for: item)
 
     cell.artworkView.kf.setImage(
-      with: ArtworkService.getArtworkProvider(for: item.relativePath),
+      with: ArtworkService.getArtworkProvider(
+        for: item.relativePath,
+        remoteURL: item.remoteURL
+      ),
       placeholder: self.defaultArtwork,
       options: [.targetCache(ArtworkService.cache)]
     )

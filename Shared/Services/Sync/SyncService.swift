@@ -143,7 +143,9 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       )
     }
     /// Update data or store
-    itemsToUpdate.forEach({ libraryService.updateInfo(from: $0) })
+    if !itemsToUpdate.isEmpty {
+      libraryService.updateInfo(from: itemsToUpdate)
+    }
 
     return (fetchedItems, lastItemPlayed)
   }

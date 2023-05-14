@@ -57,10 +57,13 @@ public class ArtworkService {
     }
   }
 
-  public class func getArtworkProvider(for relativePath: String) -> AVAudioAssetImageDataProvider {
+  public class func getArtworkProvider(
+    for relativePath: String,
+    remoteURL: URL? = nil
+  ) -> AVAudioAssetImageDataProvider {
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
 
-    return AVAudioAssetImageDataProvider(fileURL: fileURL, cacheKey: relativePath)
+    return AVAudioAssetImageDataProvider(fileURL: fileURL, remoteURL: remoteURL, cacheKey: relativePath)
   }
 
 #if os(iOS)

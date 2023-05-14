@@ -14,7 +14,7 @@ import Foundation
 @objc(Book)
 public class Book: LibraryItem {
   enum CodingKeys: String, CodingKey {
-    case currentTime, duration, relativePath, percentCompleted, title, details, folder, orderRank
+    case currentTime, duration, relativePath, remoteURL, percentCompleted, title, details, folder, orderRank
   }
 
   public override func encode(to encoder: Encoder) throws {
@@ -22,6 +22,7 @@ public class Book: LibraryItem {
     try container.encode(currentTime, forKey: .currentTime)
     try container.encode(duration, forKey: .duration)
     try container.encode(relativePath, forKey: .relativePath)
+    try? container.encode(remoteURL, forKey: .remoteURL)
     try container.encode(percentCompleted, forKey: .percentCompleted)
     try container.encode(title, forKey: .title)
     try container.encode(details, forKey: .details)
@@ -41,6 +42,7 @@ public class Book: LibraryItem {
     currentTime = try values.decode(Double.self, forKey: .currentTime)
     duration = try values.decode(Double.self, forKey: .duration)
     relativePath = try values.decode(String.self, forKey: .relativePath)
+    remoteURL = try? values.decode(URL.self, forKey: .remoteURL)
     percentCompleted = try values.decode(Double.self, forKey: .percentCompleted)
     title = try values.decode(String.self, forKey: .title)
     details = try values.decode(String.self, forKey: .details)
@@ -104,6 +106,7 @@ extension Book {
     self.init(entity: entity, insertInto: context)
     let fileURL = bookUrl
     self.relativePath = fileURL.relativePath(to: DataManager.getProcessedFolderURL())
+    self.remoteURL = nil
     let asset = AVAsset(url: fileURL)
 
     let titleFromMeta = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyTitle, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String
@@ -143,6 +146,7 @@ extension Book {
     self.title = syncItem.title
     self.details = syncItem.details
     self.relativePath = syncItem.relativePath
+    self.remoteURL = syncItem.remoteURL
     self.originalFileName = syncItem.originalFileName
     if let speed = syncItem.speed {
       self.speed = Float(speed)

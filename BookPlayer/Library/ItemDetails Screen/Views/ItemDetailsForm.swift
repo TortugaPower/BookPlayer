@@ -88,6 +88,7 @@ struct ItemDetailsForm_Previews: PreviewProvider {
           percentCompleted: 1,
           isFinished: false,
           relativePath: "",
+          remoteURL: nil,
           orderRank: 0,
           parentFolder: nil,
           originalFileName: "",

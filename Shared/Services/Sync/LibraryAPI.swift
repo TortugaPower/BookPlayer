@@ -75,7 +75,10 @@ extension LibraryAPI: Endpoint {
   public var parameters: [String: Any]? {
     switch self {
     case .contents(let path):
-      return ["relativePath": path]
+      return [
+        "relativePath": path,
+        "sign": true
+      ]
     case .upload( let params):
       return params
     case .update(let params):
