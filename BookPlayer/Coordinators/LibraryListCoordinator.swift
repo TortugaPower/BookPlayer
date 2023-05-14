@@ -144,9 +144,7 @@ class LibraryListCoordinator: ItemListCoordinator {
   }
 
   func loadLastBookIfNeeded() {
-    /// Only load on launch if flag is set
     guard
-      UserDefaults.standard.bool(forKey: Constants.UserActivityPlayback) == true,
       let libraryItem = libraryService.getLibraryLastItem()
     else { return }
 
