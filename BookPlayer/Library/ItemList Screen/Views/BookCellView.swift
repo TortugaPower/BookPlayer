@@ -22,9 +22,11 @@ class BookCellView: UITableViewCell {
     @IBOutlet weak var artworkHeight: NSLayoutConstraint!
     @IBOutlet weak var customSeparatorView: UIView!
 
-  @IBOutlet weak var statusBackgroundView: UIView!
+  @IBOutlet weak var statusContainerView: UIView!
+  @IBOutlet weak var downloadBackgroundView: UIView!
   @IBOutlet weak var downloadProgressView: ItemProgress!
-  @IBOutlet weak var statusImageView: UIImageView!
+  @IBOutlet weak var cloudImageView: UIImageView!
+  @IBOutlet weak var cloudBackgroundView: UIView!
 
   var theme: SimpleTheme!
     var onArtworkTap: (() -> Void)?
@@ -91,18 +93,25 @@ class BookCellView: UITableViewCell {
     didSet {
       switch self.downloadState {
       case .notDownloaded:
-        statusBackgroundView.isHidden = false
-        statusImageView.isHidden = false
+        statusContainerView.isHidden = false
+
+        cloudBackgroundView.isHidden = false
+        cloudImageView.isHidden = false
+
+        downloadBackgroundView.isHidden = true
         downloadProgressView.isHidden = true
       case .downloading(let progress):
-        statusBackgroundView.isHidden = false
+        statusContainerView.isHidden = false
+
+        downloadBackgroundView.isHidden = false
         downloadProgressView.isHidden = false
-        statusImageView.isHidden = true
+
+        cloudBackgroundView.isHidden = true
+        cloudImageView.isHidden = true
+
         downloadProgressView.value = progress
       case .downloaded:
-        statusBackgroundView.isHidden = true
-        statusImageView.isHidden = true
-        downloadProgressView.isHidden = true
+        statusContainerView.isHidden = true
       }
     }
   }
@@ -129,7 +138,24 @@ class BookCellView: UITableViewCell {
       self.subtitleLabel.adjustsFontForContentSizeCategory = true
       self.durationLabel.font = UIFont(descriptor: subtitleDescriptor, size: 0.0)
       self.durationLabel.adjustsFontForContentSizeCategory = true
+
+      self.setupDownloadStatusViews()
     }
+
+  func setupDownloadStatusViews() {
+    self.downloadBackgroundView.alpha = 0.3
+    /// Setup mask for cloud icon background
+    let startingPoint = CGPoint(x: cloudBackgroundView.bounds.maxX, y: cloudBackgroundView.bounds.maxY)
+    let path = UIBezierPath()
+    path.move(to: startingPoint)
+    path.addLine(to: CGPoint(x: cloudBackgroundView.bounds.maxX / 3, y: cloudBackgroundView.bounds.maxY))
+    path.addLine(to: CGPoint(x: cloudBackgroundView.bounds.maxX, y: cloudBackgroundView.bounds.maxY / 3))
+    path.addLine(to: startingPoint)
+
+    let maskShape = CAShapeLayer()
+    maskShape.path = path.cgPath
+    cloudBackgroundView.layer.mask = maskShape
+  }
 
     override func addSubview(_ view: UIView) {
         super.addSubview(view)
@@ -145,8 +171,8 @@ class BookCellView: UITableViewCell {
 
     self.artworkButton.layer.cornerRadius = 4.0
     self.artworkButton.layer.masksToBounds = true
-    self.statusBackgroundView.layer.cornerRadius = 4.0
-    self.statusBackgroundView.layer.masksToBounds = true
+    self.cloudBackgroundView.layer.cornerRadius = 4.0
+    self.cloudBackgroundView.layer.masksToBounds = true
   }
 
     @IBAction func artworkButtonTapped(_ sender: Any) {
@@ -202,8 +228,9 @@ extension BookCellView: Themeable {
     self.setPlaybackColors(theme)
     self.selectionView.defaultColor = theme.secondarySystemFillColor
     self.selectionView.selectedColor = theme.systemFillColor
-    self.statusBackgroundView.backgroundColor = theme.systemGroupedBackgroundColor
-    self.statusImageView.tintColor = theme.linkColor
+    self.downloadBackgroundView.backgroundColor = theme.systemBackgroundColor
+    self.cloudBackgroundView.backgroundColor = theme.systemGroupedBackgroundColor
+    self.cloudImageView.tintColor = theme.linkColor
     self.overrideUserInterfaceStyle = theme.useDarkVariant
       ? UIUserInterfaceStyle.dark
       : UIUserInterfaceStyle.light
