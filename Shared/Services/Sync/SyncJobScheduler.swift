@@ -70,6 +70,9 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   }
 
   private func createHardLink(for item: SyncableItem) throws {
+    /// Hard links only apply to files and not folders
+    guard item.type == .book else { return }
+
     let hardLinkURL = FileManager.default.temporaryDirectory.appendingPathComponent(item.relativePath)
 
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(item.relativePath)
