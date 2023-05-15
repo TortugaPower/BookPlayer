@@ -333,6 +333,13 @@ extension SyncService {
       let relativePath = params["relativePath"] as? String
     else { return }
 
+    var params = params
+
+    /// Override param `lastPlayDate` if it exists with the proper name
+    if let lastPlayDate = params.removeValue(forKey: #keyPath(LibraryItem.lastPlayDate)) {
+      params["lastPlayDateTimestamp"] = lastPlayDate
+    }
+
     jobManager.scheduleMetadataUpdateJob(with: relativePath, parameters: params)
   }
 }

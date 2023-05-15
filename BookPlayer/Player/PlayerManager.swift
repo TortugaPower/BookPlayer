@@ -134,8 +134,15 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   }
 
   func loadRemoteURLAsset(for chapter: PlayableChapter) async throws -> AVURLAsset {
-    let fileURL = try await syncService
-      .getRemoteFileURLs(of: chapter.relativePath, type: .book)[0].url
+    let fileURL: URL
+
+    if let chapterURL = chapter.remoteURL {
+      fileURL = chapterURL
+    } else {
+      fileURL = try await syncService
+        .getRemoteFileURLs(of: chapter.relativePath, type: .book)[0].url
+    }
+
     let asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
 
     // TODO: Check if there's a way to reduce the time this operation takes

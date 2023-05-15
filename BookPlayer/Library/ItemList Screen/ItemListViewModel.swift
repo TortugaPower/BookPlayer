@@ -557,7 +557,8 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
             handler: { [weak self] in
               self?.handleSort(by: .reverseOrder)
             }
-          )
+          ),
+          BPActionItem.cancelAction
         ]
       )
     ))

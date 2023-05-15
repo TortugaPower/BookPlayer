@@ -200,6 +200,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
           start: 0.0,
           duration: book.duration,
           relativePath: book.relativePath,
+          remoteURL: book.remoteURL,
           index: 1
         )
       ]
@@ -213,6 +214,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
           start: chapter.start,
           duration: chapter.duration,
           relativePath: book.relativePath,
+          remoteURL: book.remoteURL,
           index: Int16(index + 1)
         )
       })
@@ -285,6 +287,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
           start: currentDuration,
           duration: truncatedDuration,
           relativePath: book.relativePath,
+          remoteURL: book.remoteURL,
           index: Int16(index + 1)
         )
 
