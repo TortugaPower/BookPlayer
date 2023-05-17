@@ -388,7 +388,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       $playbackQueued
     )
     .map({ (timeControlStatus, playbackQueued) in
-      return timeControlStatus == .playing || playbackQueued == true
+      return timeControlStatus != .paused || playbackQueued == true
     })
     .eraseToAnyPublisher()
   }
