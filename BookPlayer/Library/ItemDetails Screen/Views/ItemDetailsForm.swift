@@ -89,6 +89,7 @@ struct ItemDetailsForm_Previews: PreviewProvider {
           isFinished: false,
           relativePath: "",
           remoteURL: nil,
+          artworkURL: nil,
           orderRank: 0,
           parentFolder: nil,
           originalFileName: "",

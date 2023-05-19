@@ -40,6 +40,7 @@ extension LibraryService: LibrarySyncProtocol {
       localItem.orderRank = Int16(item.orderRank)
       localItem.percentCompleted = item.percentCompleted
       localItem.remoteURL = item.remoteURL
+      localItem.artworkURL = item.artworkURL
       localItem.type = item.type.itemType
       localItem.speed = Float(item.speed ?? 1.0)
       if let timestamp = item.lastPlayDateTimestamp {
@@ -170,6 +171,7 @@ extension LibraryService: LibrarySyncProtocol {
       return SyncableItem(
         relativePath: relativePath,
         remoteURL: dictionary["remoteURL"] as? URL,
+        artworkURL: dictionary["artworkURL"] as? URL,
         originalFileName: originalFileName,
         title: title,
         details: details,

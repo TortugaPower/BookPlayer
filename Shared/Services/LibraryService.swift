@@ -285,6 +285,7 @@ public final class LibraryService: LibraryServiceProtocol {
         isFinished: isFinished,
         relativePath: relativePath,
         remoteURL: dictionary["remoteURL"] as? URL,
+        artworkURL: dictionary["artworkURL"] as? URL,
         orderRank: orderRank,
         parentFolder: dictionary["folder.relativePath"] as? String,
         originalFileName: originalFileName,

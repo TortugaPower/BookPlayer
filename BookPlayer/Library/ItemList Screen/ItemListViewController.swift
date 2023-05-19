@@ -430,14 +430,22 @@ extension ItemListViewController: UITableViewDataSource {
     cell.playbackState = viewModel.getPlaybackState(for: item)
     cell.downloadState = viewModel.getDownloadState(for: item)
 
-    cell.artworkView.kf.setImage(
-      with: ArtworkService.getArtworkProvider(
-        for: item.relativePath,
-        remoteURL: item.remoteURL
-      ),
-      placeholder: self.defaultArtwork,
-      options: [.targetCache(ArtworkService.cache)]
-    )
+    if let artworkURL = item.artworkURL {
+      cell.artworkView.kf.setImage(
+        with: artworkURL,
+        placeholder: defaultArtwork,
+        options: [.targetCache(ArtworkService.cache)]
+      )
+    } else {
+      cell.artworkView.kf.setImage(
+        with: ArtworkService.getArtworkProvider(
+          for: item.relativePath,
+          remoteURL: item.remoteURL
+        ),
+        placeholder: defaultArtwork,
+        options: [.targetCache(ArtworkService.cache)]
+      )
+    }
     cell.setAccessibilityLabels()
     return cell
   }

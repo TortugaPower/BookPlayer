@@ -298,7 +298,6 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     var tasks = [URLSessionDownloadTask]()
 
     for remoteURL in remoteURLs {
-      /// TODO: handle expiration date
       let task = self.provider.client.download(
         url: remoteURL.url,
         taskDescription: remoteURL.relativePath,
