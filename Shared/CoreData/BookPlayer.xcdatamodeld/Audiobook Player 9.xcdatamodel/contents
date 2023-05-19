@@ -32,6 +32,7 @@
         <relationship name="lastPlayedItem" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LibraryItem" inverseName="lastPlayed" inverseEntity="LibraryItem"/>
     </entity>
     <entity name="LibraryItem" representedClassName="LibraryItem" isAbstract="YES" syncable="YES">
+        <attribute name="artworkURL" optional="YES" attributeType="URI"/>
         <attribute name="currentTime" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="details" optional="YES" attributeType="String"/>
         <attribute name="duration" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
