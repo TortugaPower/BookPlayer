@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21225" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="UvS-mV-Are">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="UvS-mV-Are">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21207"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21678"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -16,7 +16,7 @@
                     <simulatedStatusBarMetrics key="simulatedStatusBarMetrics" statusBarStyle="lightContent"/>
                     <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" largeTitles="YES" id="il0-XD-ghB">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="96"/>
+                        <rect key="frame" x="0.0" y="20" width="375" height="96"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                 </navigationController>
@@ -33,7 +33,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" allowsSelection="NO" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="LYg-tW-M3Q">
-                                <rect key="frame" x="0.0" y="58" width="375" height="609"/>
+                                <rect key="frame" x="0.0" y="78" width="375" height="589"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="ImportTableViewCell" id="3Jo-hF-16u" customClass="ImportTableViewCell" customModule="BookPlayer" customModuleProvider="target">
@@ -101,7 +101,7 @@
                                 </connections>
                             </tableView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Transfering files may take a while, please make sure the number of files is complete before proceeding." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vwI-h1-B0U">
-                                <rect key="frame" x="16" y="0.0" width="343" height="53"/>
+                                <rect key="frame" x="16" y="20" width="343" height="53"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="53" id="7vi-wR-3vW"/>
                                 </constraints>
@@ -152,7 +152,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="emptyLibrary" translatesAutoresizingMaskIntoConstraints="NO" id="qMq-Jo-baa">
-                                <rect key="frame" x="63" y="209" width="249" height="249"/>
+                                <rect key="frame" x="63" y="219" width="249" height="249"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="qMq-Jo-baa" secondAttribute="height" multiplier="1:1" id="KVK-xb-BCE"/>
                                 </constraints>
@@ -163,6 +163,7 @@
                         <constraints>
                             <constraint firstItem="qMq-Jo-baa" firstAttribute="centerY" secondItem="NQi-uU-LMv" secondAttribute="centerY" id="Aar-6V-SK3"/>
                             <constraint firstItem="qMq-Jo-baa" firstAttribute="centerX" secondItem="NQi-uU-LMv" secondAttribute="centerX" id="Q0v-Vb-NgA"/>
+                            <constraint firstItem="qMq-Jo-baa" firstAttribute="width" secondItem="PoI-aS-3G5" secondAttribute="width" multiplier="0.664" id="pJv-Xx-cq7"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -179,14 +180,14 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" layoutMarginsFollowReadableWidth="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="86" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="TP0-JK-hUQ">
-                                <rect key="frame" x="0.0" y="40" width="375" height="627"/>
+                                <rect key="frame" x="0.0" y="60" width="375" height="607"/>
                                 <connections>
                                     <outlet property="dataSource" destination="Ttl-AN-zxZ" id="e90-tb-vT5"/>
                                     <outlet property="delegate" destination="Ttl-AN-zxZ" id="Ddf-9C-fCT"/>
                                 </connections>
                             </tableView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ZwC-BN-4rl">
-                                <rect key="frame" x="16" y="0.0" width="343" height="40"/>
+                                <rect key="frame" x="16" y="20" width="343" height="40"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="TVJ-gK-ELH"/>
@@ -251,12 +252,12 @@
                                     <constraint firstItem="LUz-pa-ZjA" firstAttribute="height" secondItem="Isd-Uh-Zz1" secondAttribute="height" priority="250" id="Ft4-UH-mxd"/>
                                     <constraint firstItem="GAA-F6-6lf" firstAttribute="leading" secondItem="oVP-SJ-Vkq" secondAttribute="leading" constant="16" id="G7I-0H-RUz"/>
                                     <constraint firstItem="LUz-pa-ZjA" firstAttribute="top" secondItem="0rU-kp-Lhh" secondAttribute="bottom" id="ITq-oV-MS0"/>
-                                    <constraint firstItem="q8y-d7-HKX" firstAttribute="width" secondItem="oVP-SJ-Vkq" secondAttribute="width" constant="-126" id="Je2-4y-p6q"/>
                                     <constraint firstAttribute="bottom" secondItem="LUz-pa-ZjA" secondAttribute="bottom" id="MNI-Q8-LEx"/>
                                     <constraint firstItem="0rU-kp-Lhh" firstAttribute="leading" secondItem="oVP-SJ-Vkq" secondAttribute="leading" constant="16" id="OAd-3F-0iu"/>
                                     <constraint firstItem="q8y-d7-HKX" firstAttribute="top" secondItem="11e-XK-6Lb" secondAttribute="bottom" id="S0r-Rg-fYK"/>
                                     <constraint firstAttribute="trailing" secondItem="GAA-F6-6lf" secondAttribute="trailing" constant="16" id="Tqt-AP-cw8"/>
                                     <constraint firstItem="GAA-F6-6lf" firstAttribute="top" secondItem="q8y-d7-HKX" secondAttribute="bottom" constant="10" id="Z3g-sY-s9v"/>
+                                    <constraint firstItem="q8y-d7-HKX" firstAttribute="width" secondItem="oVP-SJ-Vkq" secondAttribute="width" multiplier="0.664" id="ds0-7e-6Qi"/>
                                     <constraint firstAttribute="trailing" secondItem="Isd-Uh-Zz1" secondAttribute="trailing" constant="16" id="jKO-22-0WA"/>
                                     <constraint firstItem="11e-XK-6Lb" firstAttribute="top" secondItem="Isd-Uh-Zz1" secondAttribute="bottom" priority="750" id="pzf-2Z-ape"/>
                                     <constraint firstItem="0rU-kp-Lhh" firstAttribute="top" secondItem="GAA-F6-6lf" secondAttribute="bottom" id="tIY-eV-Vbe"/>
@@ -267,7 +268,7 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="L2f-M1-8fN" customClass="LoadingView" customModule="BookPlayer" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="40" width="375" height="65"/>
+                                <rect key="frame" x="0.0" y="60" width="375" height="65"/>
                                 <color key="backgroundColor" systemColor="groupTableViewBackgroundColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="65" id="69u-wZ-9DI"/>
