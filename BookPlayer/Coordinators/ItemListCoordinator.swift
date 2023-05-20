@@ -143,6 +143,13 @@ extension ItemListCoordinator {
     let shareController = UIActivityViewController(activityItems: providers, applicationActivities: nil)
     shareController.excludedActivityTypes = [.copyToPasteboard]
 
+    if let popoverPresentationController = shareController.popoverPresentationController,
+       let view = navigationController.topViewController?.view {
+      popoverPresentationController.permittedArrowDirections = []
+      popoverPresentationController.sourceView = view
+      popoverPresentationController.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 0, height: 0)
+    }
+
     self.navigationController.present(shareController, animated: true, completion: nil)
   }
 

@@ -11,12 +11,19 @@ import Combine
 import UIKit
 
 class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
+  enum Events {
+    case sleepTimerAlert(content: BPAlertContent)
+    case customSleepTimer(title: String)
+  }
+
   private let playerManager: PlayerManagerProtocol
   private let libraryService: LibraryServiceProtocol
   private let syncService: SyncServiceProtocol
   private var chapterBeforeSliderValueChange: PlayableChapter?
   private var prefersChapterContext = UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
   private var prefersRemainingTime = UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
+
+  var eventsPublisher = InterfaceUpdater<PlayerViewModel.Events>()
 
   init(
     playerManager: PlayerManagerProtocol,
@@ -26,6 +33,10 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     self.playerManager = playerManager
     self.libraryService = libraryService
     self.syncService = syncService
+  }
+
+  private func sendEvent(_ event: PlayerViewModel.Events) {
+    eventsPublisher.send(event)
   }
 
   func currentItemObserver() -> Published<PlayableItem?>.Publisher {
@@ -312,7 +323,67 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   }
 
   func showSleepTimerActions() {
-    self.coordinator.showSleepTimerActions()
+    var actions = [BPActionItem]()
+
+    actions.append(
+      BPActionItem(
+        title: "sleep_off_title".localized,
+        handler: { [weak self] in
+          self?.handleSleepTimerOptions(seconds: -1)
+        }
+      )
+    )
+
+    let formatter = DateComponentsFormatter()
+
+    formatter.unitsStyle = .full
+    formatter.allowedUnits = [.hour, .minute]
+
+    for interval in SleepTimer.shared.intervals {
+      guard let formattedDuration = formatter.string(from: interval) else { continue }
+
+      actions.append(
+        BPActionItem(
+          title: String.localizedStringWithFormat("sleep_interval_title".localized, formattedDuration),
+          handler: { [weak self] in
+            self?.handleSleepTimerOptions(seconds: interval)
+          }
+        )
+      )
+    }
+
+    actions.append(
+      BPActionItem(
+        title: "sleep_chapter_option_title".localized,
+        handler: { [weak self] in
+          self?.handleSleepTimerOptions(seconds: -2)
+        }
+      )
+    )
+
+    actions.append(
+      BPActionItem(
+        title: "sleeptimer_option_custom".localized,
+        handler: { [weak self] in
+          self?.showCustomSleepTimerOption()
+        }
+      )
+    )
+
+    actions.append(BPActionItem.cancelAction)
+
+    sendEvent(.sleepTimerAlert(
+      content: BPAlertContent(
+        title: nil,
+        message: SleepTimer.shared.getAlertMessage(),
+        style: .actionSheet,
+        actionItems: actions
+      )
+    ))
+  }
+
+  func showCustomSleepTimerOption() {
+    sendEvent(.customSleepTimer(title: "sleeptimer_custom_alert_title".localized))
   }
 
   func handleSleepTimerOptions(seconds: Double) {

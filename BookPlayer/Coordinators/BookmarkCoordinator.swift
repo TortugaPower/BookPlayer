@@ -58,6 +58,10 @@ class BookmarkCoordinator: Coordinator {
 
     let shareController = UIActivityViewController(activityItems: [provider], applicationActivities: nil)
 
+    if let popoverPresentationController = shareController.popoverPresentationController {
+      popoverPresentationController.barButtonItem = navigationController.topViewController?.navigationItem.rightBarButtonItem!
+    }
+
     navigationController.present(shareController, animated: true, completion: nil)
   }
 }

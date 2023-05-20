@@ -258,6 +258,8 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
           self?.updateDownloadState(state, for: indexPath)
         case .showAlert(let content):
           self?.showAlert(content)
+        case .showSortAlert(let content):
+          self?.showSortAlert(content)
         case .showLoader(let flag):
           self?.showLoader(flag)
         }
@@ -366,6 +368,16 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
 
   @objc func handleSortButtonPressed() {
     viewModel.showSortOptions()
+  }
+
+  func showSortAlert(_ content: BPAlertContent) {
+    let alert = buildAlert(content)
+
+    alert.popoverPresentationController?.sourceRect = CGRect.null
+    alert.popoverPresentationController?.permittedArrowDirections = .any
+    alert.popoverPresentationController?.sourceView = sortButton
+
+    present(alert, animated: true, completion: nil)
   }
 
   @objc func handleSelectButtonPressed() {

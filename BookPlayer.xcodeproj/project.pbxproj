@@ -162,8 +162,8 @@
 		419B375E23B8D6DB00128A8F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 419B375B23B8D6DB00128A8F /* Localizable.strings */; };
 		419BD5992443FD04001E50A0 /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 41640A3624416EE8004FB97B /* Intents.intentdefinition */; };
 		41A1B0E4226E9BC500EA0400 /* BookPlayerKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A1B0D4226E9BC400EA0400 /* BookPlayerKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		41A1B0E7226E9BC500EA0400 /* BookPlayerKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */; };
-		41A1B0E8226E9BC500EA0400 /* BookPlayerKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		41A1B0E7226E9BC500EA0400 /* BookPlayerKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */; platformFilter = ios; };
+		41A1B0E8226E9BC500EA0400 /* BookPlayerKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */; platformFilter = ios; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		41A1B0F2226E9D1200EA0400 /* BookPlayer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */; };
 		41A1B104226E9DBA00EA0400 /* UIColor+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30B085E209654E3003F325B /* UIColor+BookPlayer.swift */; };
 		41A1B105226E9DBD00EA0400 /* UIColor+Sweetercolor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30CD2A0209791FA00258B09 /* UIColor+Sweetercolor.swift */; };
@@ -3329,6 +3329,7 @@
 		};
 		41A1B0E6226E9BC500EA0400 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
+			platformFilter = ios;
 			target = 41A1B0D1226E9BC400EA0400 /* BookPlayerKit */;
 			targetProxy = 41A1B0E5226E9BC500EA0400 /* PBXContainerItemProxy */;
 		};
@@ -4197,9 +4198,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -4232,11 +4236,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = RELEASE;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -4615,11 +4622,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = RELEASE;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Beta;
 		};

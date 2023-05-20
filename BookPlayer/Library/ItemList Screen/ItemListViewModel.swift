@@ -33,6 +33,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     case reloadIndex(_ indexPath: IndexPath)
     case downloadState(_ state: DownloadState, indexPath: IndexPath)
     case showAlert(content: BPAlertContent)
+    case showSortAlert(content: BPAlertContent)
     case showLoader(flag: Bool)
   }
 
@@ -528,7 +529,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func showSortOptions() {
-    sendEvent(.showAlert(
+    sendEvent(.showSortAlert(
       content: BPAlertContent(
         title: "sort_files_title".localized,
         message: nil,

@@ -70,6 +70,8 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
 
     bindGeneralObservers()
 
+    bindPresenterEvents()
+
     bindProgressObservers()
 
     bindPlaybackControlsObservers()
@@ -77,8 +79,6 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
     bindBookPlayingProgressEvents()
 
     bindTimerObserver()
-
-    bindTransitionActions()
 
     self.containerItemStackView.setCustomSpacing(26, after: self.artworkControl)
     toggleArtwork(for: traitCollection)
@@ -195,15 +195,6 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
 
 // MARK: - Observers
 extension PlayerViewController {
-  func bindTransitionActions() {
-    self.viewModel.coordinator.onAction = { route in
-      switch route {
-      case .setSleepTimer(let seconds):
-        self.viewModel.handleSleepTimerOptions(seconds: seconds)
-      }
-    }
-  }
-
   func bindProgressObservers() {
     self.progressSlider.publisher(for: .touchDown)
       .sink { [weak self] _ in
@@ -379,6 +370,18 @@ extension PlayerViewController {
       self.updateView(with: progressObject)
     }.store(in: &disposeBag)
   }
+
+  func bindPresenterEvents() {
+    self.viewModel.eventsPublisher
+      .sink { [weak self] event in
+        switch event {
+        case .sleepTimerAlert(let content):
+          self?.presentSleepTimerAlert(content)
+        case .customSleepTimer(let title):
+          self?.presentCustomSleepTimerAlert(title)
+        }
+      }.store(in: &disposeBag)
+  }
 }
 
 // MARK: - Toolbar
@@ -437,6 +440,53 @@ extension PlayerViewController {
     self.viewModel.showSleepTimerActions()
   }
 
+  func presentSleepTimerAlert(_ content: BPAlertContent) {
+    let alert = buildAlert(content)
+    SleepTimer.shared.alert = alert
+
+    alert.popoverPresentationController?.permittedArrowDirections = .any
+    alert.popoverPresentationController?.barButtonItem = sleepButton
+
+    present(alert, animated: true, completion: nil)
+  }
+
+  func presentCustomSleepTimerAlert(_ title: String) {
+    let customTimerAlert = UIAlertController(
+      title: title,
+      message: "\n\n\n\n\n\n\n\n\n\n",
+      preferredStyle: .actionSheet
+    )
+
+    let datePicker = UIDatePicker()
+    datePicker.datePickerMode = .countDownTimer
+    customTimerAlert.view.addSubview(datePicker)
+    customTimerAlert.addAction(
+      UIAlertAction(
+        title: "ok_button".localized,
+        style: .default,
+        handler: { [weak self] _ in
+          self?.viewModel.handleSleepTimerOptions(seconds: datePicker.countDownDuration)
+        }
+      )
+    )
+    customTimerAlert.addAction(
+      UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil)
+    )
+
+    datePicker.translatesAutoresizingMaskIntoConstraints = false
+    datePicker.widthAnchor.constraint(
+      equalTo: datePicker.superview!.widthAnchor
+    ).isActive = true
+    datePicker.topAnchor.constraint(
+      equalTo: datePicker.superview!.topAnchor,
+      constant: 30
+    ).isActive = true
+
+    customTimerAlert.popoverPresentationController?.barButtonItem = sleepButton
+
+    present(customTimerAlert, animated: true, completion: nil)
+  }
+
   @IBAction func showMore() {
     guard self.viewModel.hasLoadedBook() else {
       return
@@ -469,6 +519,10 @@ extension PlayerViewController {
     }))
 
     actionSheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
+
+    if let popoverPresentationController = actionSheet.popoverPresentationController {
+      popoverPresentationController.barButtonItem = moreButton
+    }
 
     self.present(actionSheet, animated: true, completion: nil)
   }
