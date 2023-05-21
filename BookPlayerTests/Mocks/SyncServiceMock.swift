@@ -11,6 +11,8 @@ import Foundation
 import RevenueCat
 
 class SyncServiceMock: SyncServiceProtocol {
+  func uploadArtwork(relativePath: String, data: Data) async throws { }
+
   func syncBookmarksList(relativePath: String) async throws -> [BookPlayerKit.SimpleBookmark]? {
     return nil
   }

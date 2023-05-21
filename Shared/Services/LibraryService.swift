@@ -599,9 +599,6 @@ extension LibraryService {
         }
         library.addToItems(libraryItem)
       }
-
-      /// Reset remote URL
-      libraryItem.remoteURL = nil
     }
 
     self.dataManager.saveContext()

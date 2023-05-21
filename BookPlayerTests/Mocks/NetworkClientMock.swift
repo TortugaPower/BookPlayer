@@ -10,6 +10,8 @@ import Foundation
 import BookPlayerKit
 
 class NetworkClientMock: NetworkClientProtocol {
+  func upload(_ data: Data, remoteURL: URL) async throws { }
+
   func upload(
     _ fileURL: URL,
     remoteURL: URL,
