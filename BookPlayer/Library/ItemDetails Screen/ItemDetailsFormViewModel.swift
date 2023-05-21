@@ -34,18 +34,4 @@ class ItemDetailsFormViewModel: ObservableObject {
     let cachedImageURL = ArtworkService.getCachedImageURL(for: item.relativePath)
     self.selectedImage = UIImage(contentsOfFile: cachedImageURL.path)
   }
-
-  /// Reset to encoded artwork in file
-  func resetArtwork() {
-    originalImageDataProvider.data { [weak self] result in
-      DispatchQueue.main.async {
-        switch result {
-        case .success(let data):
-          self?.selectedImage = UIImage(data: data)
-        case .failure:
-          self?.selectedImage = nil
-        }
-      }
-    }
-  }
 }

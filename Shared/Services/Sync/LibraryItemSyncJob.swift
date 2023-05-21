@@ -65,10 +65,8 @@ class LibraryItemSyncJob: Job, BPLogger {
           else {
             throw BookPlayerError.runtimeError("Missing parameters for uploading")
           }
-          try await self.handleUploadJob(
-            type: type,
-            callback: callback
-          )
+
+          try await self.handleUploadJob(type: type, callback: callback)
         case .update:
           let _: UploadItemResponse = try await self.provider.request(.update(params: self.parameters))
           callback.done(.success)
@@ -146,16 +144,6 @@ class LibraryItemSyncJob: Job, BPLogger {
       return
     }
 
-    let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(self.relativePath)
-
-    guard
-      FileManager.default.fileExists(atPath: fileURL.path)
-    else {
-      /// Uploaded metadata will not have a backing file, but we'll have a backup of item data
-      callback.done(.success)
-      return
-    }
-
     guard type == .book else {
       let _: Empty = try await self.client.request(
         url: remoteURL,
@@ -164,8 +152,16 @@ class LibraryItemSyncJob: Job, BPLogger {
         useKeychain: false
       )
 
-      /// Clean up hard link
-      try FileManager.default.removeItem(at: fileURL)
+      callback.done(.success)
+      return
+    }
+
+    let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(self.relativePath)
+
+    guard
+      FileManager.default.fileExists(atPath: fileURL.path)
+    else {
+      /// Uploaded metadata will not have a backing file, but we'll have a backup of item data
       callback.done(.success)
       return
     }

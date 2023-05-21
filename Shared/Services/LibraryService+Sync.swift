@@ -21,29 +21,33 @@ public protocol LibrarySyncProtocol {
   func getMaxItemsCount(at relativePath: String?) -> Int
   func getBookmarks(of type: BookmarkType, relativePath: String) -> [SimpleBookmark]?
 
-  func updateInfo(from item: SyncableItem)
+  func updateInfo(from items: [SyncableItem])
   func addBook(from item: SyncableItem, parentFolder: String?)
   func addFolder(from item: SyncableItem, type: SimpleItemType, parentFolder: String?)
   func addBookmark(from bookmark: SimpleBookmark)
 }
 
 extension LibraryService: LibrarySyncProtocol {
-  public func updateInfo(from item: SyncableItem) {
-    guard let localItem = getItem(with: item.relativePath) else { return }
+  public func updateInfo(from items: [SyncableItem]) {
+    for item in items {
+      guard let localItem = getItem(with: item.relativePath) else { continue }
 
-    localItem.title = item.title
-    localItem.details = item.details
-    localItem.currentTime = item.currentTime
-    localItem.duration = item.duration
-    localItem.isFinished = item.isFinished
-    localItem.orderRank = Int16(item.orderRank)
-    localItem.percentCompleted = item.percentCompleted
-    localItem.type = item.type.itemType
-    localItem.speed = Float(item.speed ?? 1.0)
-    if let timestamp = item.lastPlayDateTimestamp {
-      localItem.lastPlayDate = Date(timeIntervalSince1970: timestamp)
-    } else {
-      localItem.lastPlayDate = nil
+      localItem.title = item.title
+      localItem.details = item.details
+      localItem.currentTime = item.currentTime
+      localItem.duration = item.duration
+      localItem.isFinished = item.isFinished
+      localItem.orderRank = Int16(item.orderRank)
+      localItem.percentCompleted = item.percentCompleted
+      localItem.remoteURL = item.remoteURL
+      localItem.artworkURL = item.artworkURL
+      localItem.type = item.type.itemType
+      localItem.speed = Float(item.speed ?? 1.0)
+      if let timestamp = item.lastPlayDateTimestamp {
+        localItem.lastPlayDate = Date(timeIntervalSince1970: timestamp)
+      } else {
+        localItem.lastPlayDate = nil
+      }
     }
 
     dataManager.saveSyncContext()
@@ -166,6 +170,8 @@ extension LibraryService: LibrarySyncProtocol {
 
       return SyncableItem(
         relativePath: relativePath,
+        remoteURL: dictionary["remoteURL"] as? URL,
+        artworkURL: dictionary["artworkURL"] as? URL,
         originalFileName: originalFileName,
         title: title,
         details: details,

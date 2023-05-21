@@ -83,6 +83,7 @@ extension Folder {
     self.title = syncItem.title
     self.details = syncItem.details
     self.relativePath = syncItem.relativePath
+    self.remoteURL = syncItem.remoteURL
     self.originalFileName = syncItem.originalFileName
     if let speed = syncItem.speed {
       self.speed = Float(speed)

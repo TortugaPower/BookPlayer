@@ -17,6 +17,7 @@ public struct PlayableChapter: Codable, Identifiable {
   public let start: TimeInterval
   public let duration: TimeInterval
   public let relativePath: String
+  public let remoteURL: URL?
   public let index: Int16
 
   public var end: TimeInterval {
@@ -33,6 +34,7 @@ public struct PlayableChapter: Codable, Identifiable {
     start: TimeInterval,
     duration: TimeInterval,
     relativePath: String,
+    remoteURL: URL?,
     index: Int16
   ) {
     self.title = title
@@ -40,6 +42,7 @@ public struct PlayableChapter: Codable, Identifiable {
     self.start = start
     self.duration = duration
     self.relativePath = relativePath
+    self.remoteURL = remoteURL
     self.index = index
   }
 }

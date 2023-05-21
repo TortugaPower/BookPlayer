@@ -17,10 +17,16 @@ public struct AVAudioAssetImageDataProvider: ImageDataProvider {
   }
 
   public let fileURL: URL
+  public let remoteURL: URL?
   public var cacheKey: String
 
-  public init(fileURL: URL, cacheKey: String) {
+  public init(
+    fileURL: URL,
+    remoteURL: URL? = nil,
+    cacheKey: String
+  ) {
     self.fileURL = fileURL
+    self.remoteURL = remoteURL
     self.cacheKey = cacheKey
   }
 
@@ -28,14 +34,16 @@ public struct AVAudioAssetImageDataProvider: ImageDataProvider {
     DispatchQueue.global(qos: .background).async {
       var isDirectory: ObjCBool = false
 
-      guard FileManager.default.fileExists(atPath: self.fileURL.path, isDirectory: &isDirectory) else {
-        return handler(.failure(AVAudioAssetImageDataProviderError.missingFile))
-      }
-
-      if isDirectory.boolValue {
-        self.handleDirectory(at: self.fileURL, handler: handler)
+      if FileManager.default.fileExists(atPath: self.fileURL.path, isDirectory: &isDirectory) {
+        if isDirectory.boolValue {
+          self.handleDirectory(at: self.fileURL, handler: handler)
+        } else {
+          self.handleFileItem(at: self.fileURL, handler: handler)
+        }
+      } else if let remoteURL {
+        self.handleFileItem(at: remoteURL, handler: handler)
       } else {
-        self.handleFileItem(at: self.fileURL, handler: handler)
+        return handler(.failure(AVAudioAssetImageDataProviderError.missingFile))
       }
     }
   }
@@ -56,7 +64,7 @@ public struct AVAudioAssetImageDataProvider: ImageDataProvider {
     asset.loadValuesAsynchronously(forKeys: ["commonMetadata", "metadata"]) {
       var imageData: Data?
 
-      if fileURL.pathExtension == "mp3" {
+      if url.pathExtension == "mp3" {
         imageData = self.getDataFromMP3(asset: asset)
       } else if let data = AVMetadataItem.metadataItems(
         from: asset.commonMetadata,
@@ -138,8 +146,9 @@ public struct AVAudioAssetImageDataProvider: ImageDataProvider {
         return self.processNextFolderItem(from: mutableUrls, callback: callback)
       }
 
-      ArtworkService.storeInCache(newData, for: self.cacheKey)
-      callback(newURL)
+      ArtworkService.storeInCache(newData, for: self.cacheKey) {
+        callback(newURL)
+      }
     }
   }
 }

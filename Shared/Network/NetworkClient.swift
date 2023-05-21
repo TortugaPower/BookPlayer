@@ -23,6 +23,11 @@ public protocol NetworkClientProtocol {
   ) async throws -> T
 
   func upload(
+    _ data: Data,
+    remoteURL: URL
+  ) async throws
+
+  func upload(
     _ fileURL: URL,
     remoteURL: URL,
     taskDescription: String?,
@@ -93,6 +98,19 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
     task.resume()
 
     return task
+  }
+
+  public func upload(
+    _ data: Data,
+    remoteURL: URL
+  ) async throws {
+    var request = URLRequest(url: remoteURL)
+    request.cachePolicy = .reloadIgnoringLocalCacheData
+    request.httpMethod = HTTPMethod.put.rawValue
+
+    Self.logger.trace("[Request] PUT \(remoteURL.path)")
+
+    _ = try await URLSession.shared.upload(for: request, from: data)
   }
 
   public func upload(

@@ -21,6 +21,8 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
   public var percentCompleted: Double
   public let isFinished: Bool
   public let relativePath: String
+  public let remoteURL: URL?
+  public let artworkURL: URL?
   public let orderRank: Int16
   public let parentFolder: String?
   public let originalFileName: String
@@ -53,6 +55,8 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
     "percentCompleted",
     "isFinished",
     "relativePath",
+    "remoteURL",
+    "artworkURL",
     "orderRank",
     "folder.relativePath",
     "originalFileName",
@@ -76,6 +80,8 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
     percentCompleted: Double,
     isFinished: Bool,
     relativePath: String,
+    remoteURL: URL?,
+    artworkURL: URL?,
     orderRank: Int16,
     parentFolder: String?,
     originalFileName: String,
@@ -91,6 +97,8 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
     self.percentCompleted = percentCompleted
     self.isFinished = isFinished
     self.relativePath = relativePath
+    self.remoteURL = remoteURL
+    self.artworkURL = artworkURL
     self.orderRank = orderRank
     self.parentFolder = parentFolder
     self.originalFileName = originalFileName
@@ -110,6 +118,8 @@ extension SimpleLibraryItem {
     self.percentCompleted = item.percentCompleted
     self.isFinished = item.isFinished
     self.relativePath = item.relativePath
+    self.remoteURL = item.remoteURL
+    self.artworkURL = item.artworkURL
     self.orderRank = item.orderRank
     self.parentFolder = item.folder?.relativePath
     self.originalFileName = item.originalFileName

@@ -150,6 +150,8 @@ class EmptyLibraryServiceMock: LibraryServiceProtocol {
       percentCompleted: 0,
       isFinished: false,
       relativePath: "",
+      remoteURL: nil,
+      artworkURL: nil,
       orderRank: 0,
       parentFolder: nil,
       originalFileName: "",

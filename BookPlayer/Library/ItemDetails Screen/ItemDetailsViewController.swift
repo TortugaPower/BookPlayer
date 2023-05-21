@@ -49,6 +49,29 @@ class ItemDetailsViewController: BaseViewController<ItemDetailsCoordinator, Item
     addSubviews()
     addConstraints()
     setUpTheming()
+    bindEventsObserver()
+  }
+
+  func bindEventsObserver() {
+    self.viewModel.observeEvents()
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] event in
+        switch event {
+        case .showAlert(let content):
+          self?.showAlert(content)
+        case .showLoader(let flag):
+          self?.showLoader(flag)
+        }
+      }
+      .store(in: &disposeBag)
+  }
+
+  func showLoader(_ flag: Bool) {
+    if flag {
+      LoadingUtils.loadAndBlock(in: self)
+    } else {
+      LoadingUtils.stopLoading(in: self)
+    }
   }
 
   func setupNavigationItem() {

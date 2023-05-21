@@ -10,6 +10,8 @@ import Foundation
 
 public struct SyncableItem {
   public let relativePath: String
+  public let remoteURL: URL?
+  public let artworkURL: URL?
   let originalFileName: String
   let title: String
   let details: String
@@ -24,6 +26,8 @@ public struct SyncableItem {
 
   static var fetchRequestProperties = [
     "relativePath",
+    "remoteURL",
+    "artworkURL",
     "originalFileName",
     "title",
     "details",
@@ -39,8 +43,10 @@ public struct SyncableItem {
 }
 
 extension SyncableItem: Decodable {
-  enum CodingKeys: CodingKey {
+  enum CodingKeys: String, CodingKey {
     case relativePath
+    case remoteURL = "url"
+    case artworkURL = "thumbnail"
     case originalFileName
     case title
     case details
@@ -57,6 +63,8 @@ extension SyncableItem: Decodable {
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     self.relativePath = try container.decode(String.self, forKey: .relativePath)
+    self.remoteURL = try? container.decode(URL.self, forKey: .remoteURL)
+    self.artworkURL = try? container.decode(URL.self, forKey: .artworkURL)
     self.originalFileName = try container.decode(String.self, forKey: .originalFileName)
     self.title = try container.decode(String.self, forKey: .title)
     self.details = try container.decodeIfPresent(String.self, forKey: .details) ?? ""
@@ -74,6 +82,8 @@ extension SyncableItem: Decodable {
 extension SyncableItem {
   public init(from item: SimpleLibraryItem) {
     self.relativePath = item.relativePath
+    self.remoteURL = item.remoteURL
+    self.artworkURL = item.artworkURL
     self.originalFileName = item.originalFileName
     self.title = item.title
     self.details = item.details

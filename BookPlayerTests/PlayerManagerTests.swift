@@ -37,6 +37,7 @@ class PlayerManagerTests: XCTestCase {
       start: 0,
       duration: 50,
       relativePath: "",
+      remoteURL: nil,
       index: 0
     )
     let testChapter2 = PlayableChapter(
@@ -45,6 +46,7 @@ class PlayerManagerTests: XCTestCase {
       start: 51,
       duration: 100,
       relativePath: "",
+      remoteURL: nil,
       index: 1
     )
     return PlayableItem(

@@ -56,9 +56,6 @@ struct ItemDetailsForm: View {
               showingEmptyPasteboardAlert = true
             }
           },
-          .default(Text("artwork_reset_title".localized)) {
-            viewModel.resetArtwork()
-          },
           .cancel(),
         ]
       )
@@ -88,6 +85,8 @@ struct ItemDetailsForm_Previews: PreviewProvider {
           percentCompleted: 1,
           isFinished: false,
           relativePath: "",
+          remoteURL: nil,
+          artworkURL: nil,
           orderRank: 0,
           parentFolder: nil,
           originalFileName: "",
