@@ -19,6 +19,8 @@ extension UIViewController {
     if let textInputPlaceholder = content.textInputPlaceholder {
       alert.addTextField(configurationHandler: { textfield in
         textfield.text = textInputPlaceholder
+        textfield.placeholder = textInputPlaceholder
+        textfield.delegate = self
       })
     }
 
@@ -154,5 +156,12 @@ extension UIViewController: AlertPresenter {
     } else {
       LoadingUtils.stopLoading(in: self)
     }
+  }
+}
+
+extension UIViewController: UITextFieldDelegate {
+  public func textFieldDidBeginEditing(_ textField: UITextField) {
+    /// Preselect existing text
+    textField.selectAll(nil)
   }
 }

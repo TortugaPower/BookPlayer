@@ -485,7 +485,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
             }
           ),
           BPActionItem(
-            title: "download_title".localized,
+            title: "download_from_url_title".localized,
             handler: { [weak self] in
               self?.showDownloadFromUrlAlert()
             }
@@ -970,6 +970,8 @@ extension ItemListViewModel {
   }
 
   func handleOperationCompletion(_ files: [URL]) {
+    guard !files.isEmpty else { return }
+
     let processedItems = libraryService.insertItems(from: files)
     var itemIdentifiers = processedItems.map({ $0.relativePath })
     do {

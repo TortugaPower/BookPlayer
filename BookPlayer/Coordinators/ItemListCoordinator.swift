@@ -85,16 +85,25 @@ class ItemListCoordinator: Coordinator {
   }
 
   func showSearchList(at relativePath: String?, placeholderTitle: String) {
-    let coordinator = SearchListCoordinator(
-      navigationController: navigationController,
-      placeholderTitle: placeholderTitle,
+    let viewModel = SearchListViewModel(
       folderRelativePath: relativePath,
-      playerManager: playerManager,
+      placeholderTitle: placeholderTitle,
       libraryService: libraryService,
-      playbackService: playbackService,
-      syncService: syncService
+      syncService: syncService,
+      playerManager: playerManager,
+      themeAccent: ThemeManager.shared.currentTheme.linkColor
     )
-    coordinator.start()
+    viewModel.onTransition = { [weak self] route in
+      switch route {
+      case .showFolder(let relativePath):
+        self?.showFolder(relativePath)
+      case .loadPlayer(let relativePath):
+        self?.loadPlayer(relativePath)
+      }
+    }
+    let vc = SearchListViewController(viewModel: viewModel)
+
+    self.navigationController.pushViewController(vc, animated: true)
   }
 
   func loadPlayer(_ relativePath: String) {
