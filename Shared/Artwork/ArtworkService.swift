@@ -34,7 +34,11 @@ public class ArtworkService {
   static let rightHueGradientOffset: CGFloat = 38.85
 
   public class func retrieveImageFromCache(for relativePath: String, completionHandler: @escaping (Result<RetrieveImageResult, KingfisherError>) -> Void) {
-    _ = self.manager.retrieveImage(with: .provider(self.getArtworkProvider(for: relativePath)), completionHandler: completionHandler)
+    _ = self.manager.retrieveImage(
+      with: .provider(self.getArtworkProvider(for: relativePath)),
+      options: [.targetCache(Self.cache)],
+      completionHandler: completionHandler
+    )
   }
 
   public class func getCachedImageURL(for relativePath: String) -> URL {
@@ -47,6 +51,14 @@ public class ArtworkService {
     return self.cache.isCached(forKey: relativePath)
   }
 
+  public class func removeCache(for relativePath: String) async {
+    await withCheckedContinuation { continuation in
+      cache.removeImage(forKey: relativePath) {
+        continuation.resume()
+      }
+    }
+  }
+
   public class func removeCache(for relativePath: String) {
     self.cache.removeImage(forKey: relativePath)
   }
@@ -54,6 +66,14 @@ public class ArtworkService {
   public class func storeInCache(_ data: Data, for relativePath: String, completionHandler: (() -> Void)? = nil) {
     self.cache.storeToDisk(data, forKey: relativePath) { _ in
       completionHandler?()
+    }
+  }
+
+  public class func storeInCache(_ data: Data, for relativePath: String) async {
+    await withCheckedContinuation { continuation in
+      cache.storeToDisk(data, forKey: relativePath) { _ in
+        continuation.resume()
+      }
     }
   }
 

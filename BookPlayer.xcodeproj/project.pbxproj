@@ -331,6 +331,8 @@
 		9F07B72629B512F1005A939D /* LibraryItemSyncJob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F07B72229B512F0005A939D /* LibraryItemSyncJob.swift */; };
 		9F07B79829B770B7005A939D /* BPTaskUploadDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F07B79629B7706B005A939D /* BPTaskUploadDelegate.swift */; };
 		9F07B79929B770B7005A939D /* BPTaskUploadDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F07B79629B7706B005A939D /* BPTaskUploadDelegate.swift */; };
+		9F0872DB2A19867C00B7FD4A /* ArtworkResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F0872DA2A19867C00B7FD4A /* ArtworkResponse.swift */; };
+		9F0872DC2A19867C00B7FD4A /* ArtworkResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F0872DA2A19867C00B7FD4A /* ArtworkResponse.swift */; };
 		9F1345B62938DF070089B1DE /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE2D288CB1A900056FCD /* Fonts.swift */; };
 		9F1345B82938DF360089B1DE /* UIFont+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE3D288D812900056FCD /* UIFont+BookPlayer.swift */; };
 		9F1345B92938E0010089B1DE /* ImageIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE2B288CAAB800056FCD /* ImageIcons.swift */; };
@@ -978,6 +980,7 @@
 		9F00F6F128085CCC00996BBB /* StoreKitTestCertificate.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = StoreKitTestCertificate.cer; sourceTree = "<group>"; };
 		9F07B72229B512F0005A939D /* LibraryItemSyncJob.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryItemSyncJob.swift; sourceTree = "<group>"; };
 		9F07B79629B7706B005A939D /* BPTaskUploadDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPTaskUploadDelegate.swift; sourceTree = "<group>"; };
+		9F0872DA2A19867C00B7FD4A /* ArtworkResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtworkResponse.swift; sourceTree = "<group>"; };
 		9F1345FE293CF00A0089B1DE /* UIEdgeInsets+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIEdgeInsets+BookPlayer.swift"; sourceTree = "<group>"; };
 		9F134602293CFCE80089B1DE /* ProfileListenedTimeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileListenedTimeView.swift; sourceTree = "<group>"; };
 		9F134604293D0A410089B1DE /* ThemeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeViewModel.swift; sourceTree = "<group>"; };
@@ -2085,6 +2088,7 @@
 				9FBDBC7F2879C6C900D315A2 /* UploadItemResponse.swift */,
 				9FBDBC7C287940D900D315A2 /* ContentsResponse.swift */,
 				9F9C7B4F29F9670100E257B0 /* BookmarksResponse.swift */,
+				9F0872DA2A19867C00B7FD4A /* ArtworkResponse.swift */,
 				9FAFC9F32995BB5C00FD531E /* RemoteFileURLResponse.swift */,
 			);
 			path = Model;
@@ -2866,6 +2870,7 @@
 				9FC1E46D2815A8CA00522FA8 /* LibraryAPI.swift in Sources */,
 				4140EA6C2272898F0009F794 /* DataManager.swift in Sources */,
 				4140EA71227289A20009F794 /* UIColor+BookPlayer.swift in Sources */,
+				9F0872DC2A19867C00B7FD4A /* ArtworkResponse.swift in Sources */,
 				4138CE1726E584B60014F11E /* BookmarkType.swift in Sources */,
 				9F9C7B5429F9672700E257B0 /* SyncableBookmark.swift in Sources */,
 				5126F123258E9F18009965DC /* URL+BookPlayer.swift in Sources */,
@@ -3266,6 +3271,7 @@
 				41A1B11E226F88C500EA0400 /* Theme+CoreDataProperties.swift in Sources */,
 				9F1345B62938DF070089B1DE /* Fonts.swift in Sources */,
 				41A1B127226F88C500EA0400 /* Library+CoreDataClass.swift in Sources */,
+				9F0872DB2A19867C00B7FD4A /* ArtworkResponse.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -46,7 +46,7 @@ extension SyncableItem: Decodable {
   enum CodingKeys: String, CodingKey {
     case relativePath
     case remoteURL = "url"
-    case artworkURL
+    case artworkURL = "thumbnail"
     case originalFileName
     case title
     case details

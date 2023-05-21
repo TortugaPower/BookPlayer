@@ -56,9 +56,6 @@ struct ItemDetailsForm: View {
               showingEmptyPasteboardAlert = true
             }
           },
-          .default(Text("artwork_reset_title".localized)) {
-            viewModel.resetArtwork()
-          },
           .cancel(),
         ]
       )

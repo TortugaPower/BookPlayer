@@ -36,6 +36,8 @@ public protocol SyncServiceProtocol {
     delegate: URLSessionTaskDelegate
   ) async throws -> [URLSessionDownloadTask]
 
+  func uploadArtwork(relativePath: String, data: Data) async throws
+
   func scheduleUpload(items: [SimpleLibraryItem]) throws
 
   func scheduleDelete(_ items: [SimpleLibraryItem], mode: DeleteMode)
@@ -308,6 +310,21 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     }
 
     return tasks
+  }
+
+  public func uploadArtwork(relativePath: String, data: Data) async throws {
+    guard isActive else { return }
+
+    let filename = "\(UUID().uuidString)-\(Int(Date().timeIntervalSince1970)).jpg"
+    let response: ArtworkResponse = try await self.provider.request(
+      .uploadArtwork(path: relativePath, filename: filename, uploaded: nil)
+    )
+
+    try await client.upload(data, remoteURL: response.thumbnailURL)
+
+    let _: Empty = try await self.provider.request(
+      .uploadArtwork(path: relativePath, filename: filename, uploaded: true)
+    )
   }
 
   public func cancelAllJobs() {

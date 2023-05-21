@@ -65,10 +65,8 @@ class LibraryItemSyncJob: Job, BPLogger {
           else {
             throw BookPlayerError.runtimeError("Missing parameters for uploading")
           }
-          try await self.handleUploadJob(
-            type: type,
-            callback: callback
-          )
+
+          try await self.handleUploadJob(type: type, callback: callback)
         case .update:
           let _: UploadItemResponse = try await self.provider.request(.update(params: self.parameters))
           callback.done(.success)

@@ -9,6 +9,7 @@
 import BookPlayerKit
 import Combine
 import DeviceKit
+import Kingfisher
 import Themeable
 import UIKit
 
@@ -432,7 +433,7 @@ extension ItemListViewController: UITableViewDataSource {
 
     if let artworkURL = item.artworkURL {
       cell.artworkView.kf.setImage(
-        with: artworkURL,
+        with: ImageResource(downloadURL: artworkURL, cacheKey: item.relativePath),
         placeholder: defaultArtwork,
         options: [.targetCache(ArtworkService.cache)]
       )

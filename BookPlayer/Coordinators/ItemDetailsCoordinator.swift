@@ -19,6 +19,8 @@ class ItemDetailsCoordinator: Coordinator {
   let item: SimpleLibraryItem
   /// Library service used for modifications
   let libraryService: LibraryServiceProtocol
+  /// Service to sync new artwork
+  let syncService: SyncServiceProtocol
   /// Weak reference to the navigation used to show the flow
   weak var flowNav: UINavigationController?
   /// Callback when the coordinator is done
@@ -28,10 +30,12 @@ class ItemDetailsCoordinator: Coordinator {
   init(
     item: SimpleLibraryItem,
     libraryService: LibraryServiceProtocol,
+    syncService: SyncServiceProtocol,
     navigationController: UINavigationController
   ) {
     self.item = item
     self.libraryService = libraryService
+    self.syncService = syncService
 
     super.init(
       navigationController: navigationController,
@@ -42,7 +46,8 @@ class ItemDetailsCoordinator: Coordinator {
   override func start() {
     let viewModel = ItemDetailsViewModel(
       item: item,
-      libraryService: libraryService
+      libraryService: libraryService,
+      syncService: syncService
     )
     viewModel.onTransition = { route in
       switch route {

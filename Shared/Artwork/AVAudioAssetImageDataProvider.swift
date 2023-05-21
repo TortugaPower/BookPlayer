@@ -146,8 +146,9 @@ public struct AVAudioAssetImageDataProvider: ImageDataProvider {
         return self.processNextFolderItem(from: mutableUrls, callback: callback)
       }
 
-      ArtworkService.storeInCache(newData, for: self.cacheKey)
-      callback(newURL)
+      ArtworkService.storeInCache(newData, for: self.cacheKey) {
+        callback(newURL)
+      }
     }
   }
 }

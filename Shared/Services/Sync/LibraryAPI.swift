@@ -19,6 +19,7 @@ public enum LibraryAPI {
   case shallowDelete(path: String)
   case bookmarks(path: String)
   case setBookmark(path: String, note: String?, time: Double, isActive: Bool)
+  case uploadArtwork(path: String, filename: String, uploaded: Bool?)
 }
 
 extension LibraryAPI: Endpoint {
@@ -44,6 +45,8 @@ extension LibraryAPI: Endpoint {
       return "/v1/library/bookmarks"
     case .setBookmark:
       return "/v1/library/bookmark"
+    case .uploadArtwork:
+      return "/v1/library/thumbnail_set"
     }
   }
 
@@ -69,6 +72,8 @@ extension LibraryAPI: Endpoint {
       return .post
     case .setBookmark:
       return .put
+    case .uploadArtwork:
+      return .post
     }
   }
 
@@ -113,6 +118,17 @@ extension LibraryAPI: Endpoint {
 
       if let note {
         params["note"] = note
+      }
+
+      return params
+    case .uploadArtwork(let path, let filename, let uploaded):
+      var params: [String: Any] = [
+        "relativePath": path,
+        "thumbnail_name": filename
+      ]
+
+      if let uploaded {
+        params["uploaded"] = uploaded
       }
 
       return params

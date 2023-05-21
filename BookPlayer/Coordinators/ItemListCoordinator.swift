@@ -159,6 +159,7 @@ extension ItemListCoordinator {
     let coordinator = ItemDetailsCoordinator(
       item: item,
       libraryService: libraryService,
+      syncService: syncService,
       navigationController: navigationController
     )
 

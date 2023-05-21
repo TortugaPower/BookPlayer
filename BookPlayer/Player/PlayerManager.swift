@@ -168,7 +168,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
         from: asset.commonMetadata,
         filteredByIdentifier: .commonIdentifierArtwork
        ).first?.dataValue {
-      ArtworkService.storeInCache(data, for: chapter.relativePath)
+      await ArtworkService.storeInCache(data, for: chapter.relativePath)
     }
 
     if currentItem?.isBoundBook == false {
