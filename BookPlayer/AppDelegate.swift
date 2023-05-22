@@ -37,6 +37,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   var playerManager: PlayerManagerProtocol?
   var watchConnectivityService: PhoneWatchConnectivityService?
   var socketService: SocketServiceProtocol?
+  /// Internal property used as a fallback in ``activeSceneDelegate``
+  var lastSceneToResignActive: SceneDelegate?
+  /// Access the current (or last) active scene delegate to present VCs or alerts
+  var activeSceneDelegate: SceneDelegate? {
+    if let scene = UIApplication.shared.connectedScenes.first(
+      where: { $0.activationState == .foregroundActive }
+    ) as? UIWindowScene,
+       let delegate = scene.delegate as? SceneDelegate {
+      return delegate
+    } else {
+      return lastSceneToResignActive
+    }
+  }
 
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     Self.shared = self
@@ -396,9 +409,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   }
 
   func setupDocumentListener() {
-    let newFilesCallback: (([URL]) -> Void) = { newFiles in
+    let newFilesCallback: (([URL]) -> Void) = { [weak self] newFiles in
       guard
-        let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator(),
+        let activeSceneDelegate = self?.activeSceneDelegate,
+        let mainCoordinator = activeSceneDelegate.coordinator.getMainCoordinator(),
         let libraryCoordinator = mainCoordinator.getLibraryCoordinator()
       else {
         return
@@ -422,6 +436,33 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   func requestReview() {
     if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
       SKStoreReviewController.requestReview(in: scene)
+    }
+  }
+
+  func playLastBook() {
+    guard
+      let playerManager,
+      playerManager.hasLoadedBook()
+    else {
+      UserDefaults.standard.set(true, forKey: Constants.UserActivityPlayback)
+      return
+    }
+
+    playerManager.play()
+  }
+
+  func showPlayer() {
+    guard
+      let playerManager,
+      playerManager.hasLoadedBook()
+    else {
+      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.showPlayer.rawValue)
+      return
+    }
+
+    if let mainCoordinator = activeSceneDelegate?.coordinator.getMainCoordinator(),
+       !mainCoordinator.hasPlayerShown() {
+      mainCoordinator.showPlayer()
     }
   }
 }

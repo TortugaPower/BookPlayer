@@ -84,7 +84,7 @@ final class ThemeManager: ThemeProvider {
 
   private func setNewTheme(_ newTheme: SimpleTheme) {
     guard
-      let sceneDelegate = SceneDelegate.shared,
+      let sceneDelegate = AppDelegate.shared?.activeSceneDelegate,
       let window = sceneDelegate.window
     else { return }
 

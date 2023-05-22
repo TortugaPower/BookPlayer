@@ -853,7 +853,7 @@ extension PlayerManager {
 extension PlayerManager {
   private func showErrorAlert(_ message: String?) {
     DispatchQueue.main.async {
-      SceneDelegate.shared?.coordinator.getMainCoordinator()?
+      AppDelegate.shared?.activeSceneDelegate?.coordinator.getMainCoordinator()?
         .getTopController()?
         .showAlert("error_title".localized, message: message)
     }

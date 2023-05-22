@@ -123,7 +123,7 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
   }
 
   func reloadLibraryItems() {
-    SceneDelegate.shared?.coordinator.getMainCoordinator()?
+    AppDelegate.shared?.activeSceneDelegate?.coordinator.getMainCoordinator()?
       .getLibraryCoordinator()?.reloadItemsWithPadding()
   }
 
