@@ -14,6 +14,7 @@ class BookCellView: UITableViewCell {
   @IBOutlet public weak var artworkView: BPArtworkView!
   @IBOutlet private weak var titleLabel: UILabel!
   @IBOutlet private weak var subtitleLabel: UILabel!
+  @IBOutlet weak var containerChevronView: UIView!
   @IBOutlet weak var chevronImageView: UIImageView!
   @IBOutlet private weak var progressView: ItemProgress!
   @IBOutlet weak var durationLabel: UILabel!
@@ -75,9 +76,9 @@ class BookCellView: UITableViewCell {
       didSet {
         switch self.type {
         case .folder:
-          chevronImageView.isHidden = false
+          containerChevronView.isHidden = false
         default:
-          chevronImageView.isHidden = true
+          containerChevronView.isHidden = true
         }
       }
     }
@@ -188,7 +189,10 @@ class BookCellView: UITableViewCell {
   override func setEditing(_ editing: Bool, animated: Bool) {
     super.setEditing(editing, animated: animated)
 
-    self.progressView.isHidden = editing
+    progressView.isHidden = editing
+    if type == .folder {
+      containerChevronView.isHidden = editing
+    }
   }
 
     func setPlaybackColors(_ theme: SimpleTheme) {
@@ -229,7 +233,7 @@ extension BookCellView: Themeable {
     self.setPlaybackColors(theme)
     self.selectionView.defaultColor = theme.secondarySystemFillColor
     self.selectionView.selectedColor = theme.systemFillColor
-    self.chevronImageView.tintColor = theme.separatorColor
+    self.chevronImageView.tintColor = theme.secondarySystemFillColor
     self.downloadBackgroundView.backgroundColor = theme.systemBackgroundColor
     self.cloudBackgroundView.backgroundColor = theme.systemGroupedBackgroundColor
     self.cloudImageView.tintColor = theme.linkColor
