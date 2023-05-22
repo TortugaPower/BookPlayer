@@ -11,16 +11,18 @@ import Themeable
 import UIKit
 
 class BookCellView: UITableViewCell {
-    @IBOutlet public weak var artworkView: BPArtworkView!
-    @IBOutlet private weak var titleLabel: UILabel!
-    @IBOutlet private weak var subtitleLabel: UILabel!
-    @IBOutlet private weak var progressView: ItemProgress!
-    @IBOutlet weak var durationLabel: UILabel!
-    @IBOutlet weak var selectionView: CheckboxSelectionView!
-    @IBOutlet private weak var artworkButton: UIButton!
-    @IBOutlet weak var artworkWidth: NSLayoutConstraint!
-    @IBOutlet weak var artworkHeight: NSLayoutConstraint!
-    @IBOutlet weak var customSeparatorView: UIView!
+  @IBOutlet public weak var artworkView: BPArtworkView!
+  @IBOutlet private weak var titleLabel: UILabel!
+  @IBOutlet private weak var subtitleLabel: UILabel!
+  @IBOutlet weak var containerChevronView: UIView!
+  @IBOutlet weak var chevronImageView: UIImageView!
+  @IBOutlet private weak var progressView: ItemProgress!
+  @IBOutlet weak var durationLabel: UILabel!
+  @IBOutlet weak var selectionView: CheckboxSelectionView!
+  @IBOutlet private weak var artworkButton: UIButton!
+  @IBOutlet weak var artworkWidth: NSLayoutConstraint!
+  @IBOutlet weak var artworkHeight: NSLayoutConstraint!
+  @IBOutlet weak var customSeparatorView: UIView!
 
   @IBOutlet weak var statusContainerView: UIView!
   @IBOutlet weak var downloadBackgroundView: UIView!
@@ -71,14 +73,14 @@ class BookCellView: UITableViewCell {
     }
 
     var type: SimpleItemType = .book {
-        didSet {
-            switch self.type {
-            case .folder:
-                self.accessoryType = .disclosureIndicator
-            default:
-                self.accessoryType = .none
-            }
+      didSet {
+        switch self.type {
+        case .folder:
+          containerChevronView.isHidden = false
+        default:
+          containerChevronView.isHidden = true
         }
+      }
     }
 
   var playbackState: PlaybackState = PlaybackState.stopped {
@@ -187,7 +189,10 @@ class BookCellView: UITableViewCell {
   override func setEditing(_ editing: Bool, animated: Bool) {
     super.setEditing(editing, animated: animated)
 
-    self.progressView.isHidden = editing
+    progressView.isHidden = editing
+    if type == .folder {
+      containerChevronView.isHidden = editing
+    }
   }
 
     func setPlaybackColors(_ theme: SimpleTheme) {
@@ -228,6 +233,7 @@ extension BookCellView: Themeable {
     self.setPlaybackColors(theme)
     self.selectionView.defaultColor = theme.secondarySystemFillColor
     self.selectionView.selectedColor = theme.systemFillColor
+    self.chevronImageView.tintColor = theme.secondarySystemFillColor
     self.downloadBackgroundView.backgroundColor = theme.systemBackgroundColor
     self.cloudBackgroundView.backgroundColor = theme.systemGroupedBackgroundColor
     self.cloudImageView.tintColor = theme.linkColor

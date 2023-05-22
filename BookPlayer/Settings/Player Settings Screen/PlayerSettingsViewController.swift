@@ -88,7 +88,7 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
       .store(in: &disposeBag)
   }
 
-  func showPlayerListOptionAlert() {
+  func showPlayerListOptionAlert(indexPath: IndexPath) {
     let sheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
     sheet.addAction(UIAlertAction(title: "chapters_title".localized, style: .default) { [weak self] _ in
@@ -100,6 +100,10 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
     })
 
     sheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel))
+
+    if let popoverPresentationController = sheet.popoverPresentationController {
+      popoverPresentationController.sourceView = tableView.cellForRow(at: indexPath)
+    }
 
     self.present(sheet, animated: true)
   }
@@ -144,7 +148,7 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
     tableView.deselectRow(at: indexPath as IndexPath, animated: true)
 
     if indexPath == playerListPreferencePath {
-      self.showPlayerListOptionAlert()
+      self.showPlayerListOptionAlert(indexPath: indexPath)
     }
   }
 

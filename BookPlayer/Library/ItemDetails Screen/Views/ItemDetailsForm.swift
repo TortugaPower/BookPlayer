@@ -38,28 +38,28 @@ struct ItemDetailsForm: View {
         showingArtworkOptions = true
       }
       .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
+      .actionSheet(isPresented: $showingArtworkOptions) {
+        ActionSheet(
+          title: Text("artwork_options_title".localized),
+          buttons: [
+            .default(Text("artwork_photolibrary_title".localized)) {
+              showingImagePicker = true
+            },
+            .default(Text("artwork_clipboard_title".localized)) {
+              if let image = UIPasteboard.general.image {
+                viewModel.selectedImage = image
+              } else {
+                showingEmptyPasteboardAlert = true
+              }
+            },
+            .cancel(),
+          ]
+        )
+      }
     }
     .onChange(of: viewModel.selectedImage, perform: { _ in
       viewModel.artworkIsUpdated = true
     })
-    .actionSheet(isPresented: $showingArtworkOptions) {
-      ActionSheet(
-        title: Text("artwork_options_title".localized),
-        buttons: [
-          .default(Text("artwork_photolibrary_title".localized)) {
-            showingImagePicker = true
-          },
-          .default(Text("artwork_clipboard_title".localized)) {
-            if let image = UIPasteboard.general.image {
-              viewModel.selectedImage = image
-            } else {
-              showingEmptyPasteboardAlert = true
-            }
-          },
-          .cancel(),
-        ]
-      )
-    }
     .sheet(isPresented: $showingImagePicker) {
       ImagePicker(image: $viewModel.selectedImage)
     }

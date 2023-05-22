@@ -228,7 +228,7 @@ extension MainCoordinator: Themeable {
       !UserDefaults.standard.bool(forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue)
     else { return }
     // This fixes native components like alerts having the proper color theme
-    SceneDelegate.shared?.window?.overrideUserInterfaceStyle = theme.useDarkVariant
+    AppDelegate.shared?.activeSceneDelegate?.window?.overrideUserInterfaceStyle = theme.useDarkVariant
     ? .dark
     : .light
   }

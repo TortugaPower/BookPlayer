@@ -44,7 +44,7 @@ class CarPlayManager: NSObject {
   func initializeDataIfNeeded() {
     guard
       AppDelegate.shared?.dataManager == nil,
-      SceneDelegate.shared == nil
+      AppDelegate.shared?.activeSceneDelegate == nil
     else { return }
 
     let dataInitializerCoordinator = DataInitializerCoordinator(alertPresenter: self)

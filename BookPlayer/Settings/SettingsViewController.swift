@@ -91,7 +91,7 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
 
     self.appIconLabel.text = userDefaults?.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
 
-    self.iconObserver = UserDefaults.standard.observe(\.userSettingsAppIcon) { [weak self] _, _ in
+    self.iconObserver = userDefaults?.observe(\.userSettingsAppIcon) { [weak self] _, _ in
         self?.appIconLabel.text = userDefaults?.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
     }
 

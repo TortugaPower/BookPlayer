@@ -59,10 +59,9 @@ class AccountRowContainerView: UIView {
   }()
 
   private lazy var chevronImageView: UIImageView = {
-    let imageView = UIImageView(image: UIImage(systemName: "chevron.right"))
+    let imageView = UIImageView(image: UIImage(systemName: "chevron.forward"))
     imageView.translatesAutoresizingMaskIntoConstraints = false
     imageView.contentMode = .scaleAspectFit
-    imageView.image = imageView.image?.imageFlippedForRightToLeftLayoutDirection()
     return imageView
   }()
 

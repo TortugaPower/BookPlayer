@@ -33,6 +33,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     case reloadIndex(_ indexPath: IndexPath)
     case downloadState(_ state: DownloadState, indexPath: IndexPath)
     case showAlert(content: BPAlertContent)
+    case showSortAlert(content: BPAlertContent)
     case showLoader(flag: Bool)
   }
 
@@ -484,7 +485,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
             }
           ),
           BPActionItem(
-            title: "download_title".localized,
+            title: "download_from_url_title".localized,
             handler: { [weak self] in
               self?.showDownloadFromUrlAlert()
             }
@@ -528,7 +529,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func showSortOptions() {
-    sendEvent(.showAlert(
+    sendEvent(.showSortAlert(
       content: BPAlertContent(
         title: "sort_files_title".localized,
         message: nil,
@@ -969,6 +970,8 @@ extension ItemListViewModel {
   }
 
   func handleOperationCompletion(_ files: [URL]) {
+    guard !files.isEmpty else { return }
+
     let processedItems = libraryService.insertItems(from: files)
     var itemIdentifiers = processedItems.map({ $0.relativePath })
     do {

@@ -11,7 +11,7 @@ import Combine
 import Themeable
 import UIKit
 
-class SearchListViewController: BaseViewController<SearchListCoordinator, SearchListViewModel> {
+class SearchListViewController: BaseViewController<Coordinator, SearchListViewModel> {
 
   private var disposeBag = Set<AnyCancellable>()
   /// Width for each scope item
@@ -180,6 +180,7 @@ extension SearchListViewController: UITableViewDataSource {
     cell.duration = item.durationFormatted
     cell.type = item.type
     cell.playbackState = viewModel.getPlaybackState(for: item)
+    cell.downloadState = viewModel.getDownloadState(for: item)
 
     cell.artworkView.kf.setImage(
       with: ArtworkService.getArtworkProvider(for: item.relativePath),
