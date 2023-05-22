@@ -42,6 +42,8 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
   @IBOutlet weak var containerPlayerControlsStackView: UIStackView!
   @IBOutlet weak var containerChapterControlsStackView: UIStackView!
   @IBOutlet weak var containerProgressControlsStackView: UIStackView!
+  @IBOutlet weak var aspectRatioConstraint: NSLayoutConstraint!
+  @IBOutlet weak var artworkHeightConstraint: NSLayoutConstraint!
   private var themedStatusBarStyle: UIStatusBarStyle?
   private var panGestureRecognizer: UIPanGestureRecognizer!
   private let dismissThreshold: CGFloat = 44.0 * UIScreen.main.nativeScale
@@ -97,12 +99,19 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
 
   /// When the device has a compact vertical size class, there's not enough room to display the artwork
   func toggleArtwork(for trait: UITraitCollection) {
-    if trait.verticalSizeClass == .compact {
-      artworkControl.alpha = 0
-      artworkControl.isHidden = true
+    if UIDevice.current.userInterfaceIdiom == .phone {
+      aspectRatioConstraint.isActive = true
+      artworkHeightConstraint.isActive = false
+      if trait.verticalSizeClass == .compact {
+        artworkControl.alpha = 0
+        artworkControl.isHidden = true
+      } else {
+        artworkControl.alpha = 1
+        artworkControl.isHidden = false
+      }
     } else {
-      artworkControl.alpha = 1
-      artworkControl.isHidden = false
+      aspectRatioConstraint.isActive = false
+      artworkHeightConstraint.isActive = true
     }
   }
 
