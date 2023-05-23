@@ -87,7 +87,8 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
         left: Spacing.S,
         bottom: 0,
         right: Spacing.S
-      )
+      ),
+      hideBottomSeparator: true
     )
   }()
 

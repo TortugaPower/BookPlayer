@@ -18,10 +18,13 @@ struct ProfileRefreshStatusView: View {
 
   var body: some View {
     VStack {
-      Button("sync_library_title".localized, action: refreshAction)
-        .foregroundColor(themeViewModel.linkColor)
-        .opacity(buttonDisabled ? 0.5 : 1)
-        .disabled(buttonDisabled)
+      /// Disabled showing the sync button
+      if false {
+        Button("sync_library_title".localized, action: refreshAction)
+          .foregroundColor(themeViewModel.linkColor)
+          .opacity(buttonDisabled ? 0.5 : 1)
+          .disabled(buttonDisabled)
+      }
       Text(statusMessage)
         .foregroundColor(themeViewModel.secondaryColor)
     }
