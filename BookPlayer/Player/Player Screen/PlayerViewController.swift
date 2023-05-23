@@ -62,6 +62,14 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
   override func viewDidLoad() {
     super.viewDidLoad()
 
+    if UIDevice.current.userInterfaceIdiom != .phone {
+      artworkHeightConstraint.priority = .defaultHigh
+      aspectRatioConstraint.priority = .defaultLow
+    } else {
+      artworkHeightConstraint.priority = .defaultLow
+      aspectRatioConstraint.priority = .defaultHigh
+    }
+
     setup()
 
     setUpTheming()
@@ -97,23 +105,24 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
     }
   }
 
+  override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+    super.viewWillTransition(to: size, with: coordinator)
+
+    /// Patch to fix background layers on default artwork for iPad
+    if UIDevice.current.userInterfaceIdiom != .phone,
+       artworkControl.artworkImage.isHidden {
+      artworkControl.setupGradients(with: size)
+    }
+  }
+
   /// When the device has a compact vertical size class, there's not enough room to display the artwork
   func toggleArtwork(for trait: UITraitCollection) {
-    if UIDevice.current.userInterfaceIdiom == .phone {
-      aspectRatioConstraint.isActive = true
-      artworkHeightConstraint.isActive = false
-      if trait.verticalSizeClass == .compact {
-        artworkControl.alpha = 0
-        artworkControl.isHidden = true
-      } else {
-        artworkControl.alpha = 1
-        artworkControl.isHidden = false
-      }
+    if trait.verticalSizeClass == .compact {
+      artworkControl.alpha = 0
+      artworkControl.isHidden = true
     } else {
-      if aspectRatioConstraint != nil {
-        aspectRatioConstraint.isActive = false
-      }
-      artworkHeightConstraint.isActive = true
+      artworkControl.alpha = 1
+      artworkControl.isHidden = false
     }
   }
 
