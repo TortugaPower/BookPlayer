@@ -110,7 +110,9 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
         artworkControl.isHidden = false
       }
     } else {
-      aspectRatioConstraint.isActive = false
+      if aspectRatioConstraint != nil {
+        aspectRatioConstraint.isActive = false
+      }
       artworkHeightConstraint.isActive = true
     }
   }

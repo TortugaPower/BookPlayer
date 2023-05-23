@@ -560,7 +560,11 @@ extension ItemListViewController: UITableViewDragDelegate {
 }
 
 extension ItemListViewController: UITableViewDropDelegate {
-  func tableView(_ tableView: UITableView, performDropWith coordinator: UITableViewDropCoordinator) {}
+  func tableView(_ tableView: UITableView, performDropWith coordinator: UITableViewDropCoordinator) {
+    for item in coordinator.session.items {
+      self.handleDroppedItem(item)
+    }
+  }
 
   func tableView(_ tableView: UITableView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UITableViewDropProposal {
     // Cancel drop if destination is not in the data section
@@ -572,7 +576,7 @@ extension ItemListViewController: UITableViewDropDelegate {
       return UITableViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)
     }
 
-    return UITableViewDropProposal(operation: .cancel, intent: .unspecified)
+    return UITableViewDropProposal(operation: .copy)
   }
 }
 
@@ -598,7 +602,9 @@ extension ItemListViewController: UIDropInteractionDelegate {
 
     item.itemProvider.loadObject(ofClass: ImportableItem.self) { [weak self] (object, _) in
       guard let item = object as? ImportableItem else { return }
-      item.suggestedName = providerReference.suggestedName
+      if let suggestedName = providerReference.suggestedName {
+        item.suggestedName = "\(suggestedName).\(item.fileExtension)"
+      }
 
       self?.viewModel.importData(from: item)
     }

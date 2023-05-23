@@ -226,7 +226,10 @@ extension MainCoordinator: Themeable {
   func applyTheme(_ theme: SimpleTheme) {
     guard
       !UserDefaults.standard.bool(forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue)
-    else { return }
+    else {
+      AppDelegate.shared?.activeSceneDelegate?.window?.overrideUserInterfaceStyle = .unspecified
+      return
+    }
     // This fixes native components like alerts having the proper color theme
     AppDelegate.shared?.activeSceneDelegate?.window?.overrideUserInterfaceStyle = theme.useDarkVariant
     ? .dark
