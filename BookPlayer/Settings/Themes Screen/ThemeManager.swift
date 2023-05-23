@@ -86,7 +86,10 @@ final class ThemeManager: ThemeProvider {
     guard
       let sceneDelegate = AppDelegate.shared?.activeSceneDelegate,
       let window = sceneDelegate.window
-    else { return }
+    else {
+      self.theme.value = newTheme
+      return
+    }
 
     let newTheme = SimpleTheme(with: newTheme, useDarkVariant: self.useDarkVariant)
     UIView.transition(with: window,

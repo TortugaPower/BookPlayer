@@ -63,7 +63,8 @@ class MainCoordinator: Coordinator {
     tabBarController.modalTransitionStyle = .crossDissolve
     presentingViewController = tabBarController
 
-    if let currentTheme = libraryService.getLibraryCurrentTheme() {
+    if var currentTheme = libraryService.getLibraryCurrentTheme() {
+      currentTheme.useDarkVariant = ThemeManager.shared.useDarkVariant
       ThemeManager.shared.currentTheme = currentTheme
     }
 
