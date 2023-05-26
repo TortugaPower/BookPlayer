@@ -1,0 +1,10 @@
+# Terms of Use
+
+The BookPlayer-branded content and services available in connection with the mobile application, and their related systems or networks (the **“Application”**) are made available to you (**“you”** or **“your”**, as the context requires) by BookPlayer. (**“BookPlayer”**, **“we”**, **“our”** and **“us”**, as the context requires) subject to these terms of use, which include the [General Terms of Use](https://github.com/TortugaPower/BookPlayer/blob/main/GENERAL_TERMS.md) (**“General Terms”**) and [BookPlayer Pro Terms of Use](https://github.com/TortugaPower/BookPlayer/blob/main/SUPPLEMENTAL_TERMS.md) (**“Supplemental Terms”**) (collectively, the **“Terms”**). By using the Application, you agree to follow and be bound by the Terms, which may be updated by us from time to time without notice to you. You can review the most current version of the Terms at any time [here](https://github.com/TortugaPower/BookPlayer/blob/main/TERMS_CONDITIONS.md). We and third-party providers may make improvements and/or changes in any part of the Application at any time without notice. The Application is offered and available only to individuals who are 18 years or older, or 13 years or older with parental consent, or the applicable age of majority in your country. By using or accessing the Application, you represent and warrant that you meet these requirements.
+
+The Terms are important and you should read them carefully and contact us with any questions before you use the BookPlayer Application and associated websites, content, products and services. You can contact us at [support@bookplayer.app](mailto:support@bookplayer.app).
+
+By continuing to use the Application you acknowledge and agree that you have had sufficient chance to read and understand the Terms and you agree to be bound by them. If you do not agree to the terms, you should not use the Application including its associated features and network.
+
+[Terms of Use – General](https://github.com/TortugaPower/BookPlayer/blob/main/GENERAL_TERMS.md)\
+[Terms of Use – BookPlayer Pro](https://github.com/TortugaPower/BookPlayer/blob/main/SUPPLEMENTAL_TERMS.md)

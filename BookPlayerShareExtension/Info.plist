@@ -8,8 +8,8 @@
 	<dict>
 		<key>NSExtensionAttributes</key>
 		<dict>
-      <key>NSExtensionActivationRule</key>
-      <string>SUBQUERY (
+			<key>NSExtensionActivationRule</key>
+			<string>SUBQUERY (
         extensionItems,
         $extensionItem,
         SUBQUERY (
@@ -21,8 +21,8 @@
         || ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.movie"
         || ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "com.pkware.zip-archive"
         )
-        ).@count > 0
-        ).@count > 0
+        ).@count &gt; 0
+        ).@count &gt; 0
       </string>
 		</dict>
 		<key>NSExtensionMainStoryboard</key>
