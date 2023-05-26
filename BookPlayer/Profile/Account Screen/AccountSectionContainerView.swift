@@ -16,7 +16,7 @@ class AccountSectionContainerView: UIView {
   let contentView: UIView
   let insets: UIEdgeInsets
   let bottomSeparator = UIView()
-  let separatorHeight: CGFloat = 0.5
+  let separatorHeight: CGFloat = 0.67
 
   init(contents: UIView, insets: UIEdgeInsets, hideBottomSeparator: Bool = false) {
     self.contentView = contents
