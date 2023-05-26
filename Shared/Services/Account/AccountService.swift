@@ -181,21 +181,17 @@ public final class AccountService: AccountServiceProtocol {
 
     var options = [PricingModel]()
 
-    for product in products {
-      let localizedKey: String
-
-      switch product.productIdentifier {
-      case yearlySubscriptionId:
-        localizedKey = "yearly_title"
-      case monthlySubscriptionId:
-        localizedKey = "monthly_title"
-      default:
-        continue
-      }
-
+    if let product = products.first(where: { $0.productIdentifier == yearlySubscriptionId }) {
       options.append(PricingModel(
         id: product.productIdentifier,
-        title: "\(product.localizedPriceString) \(localizedKey.localized)"
+        title: "\(product.localizedPriceString) \("yearly_title".localized)"
+      ))
+    }
+
+    if let product = products.first(where: { $0.productIdentifier == monthlySubscriptionId }) {
+      options.append(PricingModel(
+        id: product.productIdentifier,
+        title: "\(product.localizedPriceString) \("monthly_title".localized)"
       ))
     }
 
