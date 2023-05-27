@@ -14,7 +14,7 @@ import UniformTypeIdentifiers
 enum ItemListActionRoutes {
   case downloadBook(_ url: URL)
   case newImportOperation(_ operation: ImportOperation)
-  case importOperationFinished(_ urls: [URL])
+  case importOperationFinished(_ urls: [URL], _ suggestedFolderName: String?)
   case reloadItems(_ pageSizePadding: Int)
 }
 

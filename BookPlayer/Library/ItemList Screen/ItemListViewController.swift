@@ -293,9 +293,9 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
       case .newImportOperation(let operation):
         let loadingTitle = String.localizedStringWithFormat("import_processing_description".localized, operation.files.count)
         self?.showLoadView(true, title: loadingTitle)
-      case .importOperationFinished(let files):
+      case .importOperationFinished(let files, let suggestedFolderName):
         self?.showLoadView(false)
-        self?.viewModel.handleOperationCompletion(files)
+        self?.viewModel.handleOperationCompletion(files, suggestedFolderName: suggestedFolderName)
       case .downloadBook(let url):
         self?.showLoadView(true, title: "downloading_file_title".localized, subtitle: "\("progress_title".localized) 0%")
         self?.viewModel.handleDownload(url)
