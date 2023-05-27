@@ -969,7 +969,7 @@ extension ItemListViewModel {
     self.coordinator.getMainCoordinator()?.getLibraryCoordinator()?.processFiles(urls: urls)
   }
 
-  func handleOperationCompletion(_ files: [URL]) {
+  func handleOperationCompletion(_ files: [URL], suggestedFolderName: String?) {
     guard !files.isEmpty else { return }
 
     let processedItems = libraryService.insertItems(from: files)
@@ -997,14 +997,24 @@ extension ItemListViewModel {
       parentFolder: folderRelativePath
     )?.filter({ $0.type == .folder }) ?? []
 
-    showOperationCompletedAlert(with: itemIdentifiers, availableFolders: availableFolders)
+    showOperationCompletedAlert(
+      with: itemIdentifiers,
+      availableFolders: availableFolders,
+      suggestedFolderName: suggestedFolderName
+    )
   }
 
-  func showOperationCompletedAlert(with items: [String], availableFolders: [SimpleLibraryItem]) {
+  func showOperationCompletedAlert(
+    with items: [String],
+    availableFolders: [SimpleLibraryItem],
+    suggestedFolderName: String?
+  ) {
     let hasParentFolder = folderRelativePath != nil
 
     var firstTitle: String?
-    if let relativePath = items.first {
+    if let suggestedFolderName {
+      firstTitle = suggestedFolderName
+    } else if let relativePath = items.first {
       firstTitle = libraryService.getItemProperty(#keyPath(LibraryItem.title), relativePath: relativePath) as? String
     }
 

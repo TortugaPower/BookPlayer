@@ -135,7 +135,7 @@ class LibraryListCoordinator: ItemListCoordinator {
 
       operation.completionBlock = {
         DispatchQueue.main.async {
-          coordinator.onAction?(.importOperationFinished(operation.processedFiles))
+          coordinator.onAction?(.importOperationFinished(operation.processedFiles, operation.suggestedFolderName))
         }
       }
 

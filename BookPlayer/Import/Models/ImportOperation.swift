@@ -20,6 +20,7 @@ public class ImportOperation: Operation {
   public let files: [URL]
   public let libraryService: LibraryServiceProtocol
   public var processedFiles = [URL]()
+  public var suggestedFolderName: String?
 
   private let lockQueue = DispatchQueue(label: "com.bookplayer.asyncoperation", attributes: .concurrent)
 
@@ -102,6 +103,8 @@ public class ImportOperation: Operation {
   }
 
   func handleZip(file: URL, remainingFiles: [URL]) {
+    self.suggestedFolderName = file.deletingPathExtension().lastPathComponent
+    
     // Unzip to temporary directory
     let documentsURL = DataManager.getDocumentsFolderURL()
 
