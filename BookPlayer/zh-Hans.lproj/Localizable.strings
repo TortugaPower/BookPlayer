@@ -276,3 +276,10 @@
 "yearly_title" = "每年";
 "monthly_title" = "每月";
 "choose_plan_title" = "选择您的计划";
+"tasks_title" = "任务";
+"queued_sync_tasks_title" = "排队的同步任务 (%d)";
+"sync_tasks_alert_description" = "如果有一个同步任务卡住并且在有活动的互联网连接后没有清除，您可以注销并登录以清除当前任务。这会将您的图书馆恢复到同步到我们服务器的最后状态。
+
+请记住，上传任务可能需要一些时间，并且进度会定期发布在上一个屏幕上。
+
+我们正在努力提供无缝体验，如果可能的话，请通过 support@bookplayer.app 与我们联系并提供此屏幕的屏幕截图。谢谢！";

@@ -15,6 +15,10 @@ final class IconsViewModel {
 
   @Published var account: Account?
 
+  var hasSubscription: Bool {
+    return account?.hasSubscription == true
+  }
+
   private var disposeBag = Set<AnyCancellable>()
 
   init(accountService: AccountServiceProtocol) {

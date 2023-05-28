@@ -231,8 +231,6 @@ public final class AccountService: AccountServiceProtocol {
     )
 
     try self.keychain.setAccessToken(token)
-
-    NotificationCenter.default.post(name: .login, object: self)
   }
 
   public func login(
@@ -256,8 +254,6 @@ public final class AccountService: AccountServiceProtocol {
         hasSubscription: !customerInfo.activeSubscriptions.isEmpty
       )
     }
-
-    NotificationCenter.default.post(name: .login, object: self)
 
     return self.getAccount()
   }

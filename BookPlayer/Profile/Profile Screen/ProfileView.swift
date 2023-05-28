@@ -34,12 +34,12 @@ struct ProfileView<Model: ProfileViewModelProtocol>: View {
           Spacer()
 
           if viewModel.account?.hasSubscription == true {
-            ProfileRefreshStatusView(
+            ProfileSyncTasksStatusView(
+              buttonText: $viewModel.tasksButtonText,
               statusMessage: $viewModel.refreshStatusMessage,
-              buttonDisabled: $viewModel.isSyncButtonDisabled,
               themeViewModel: themeViewModel,
-              refreshAction: {
-                viewModel.syncLibrary()
+              showTasksAction: {
+                viewModel.showTasks()
               }
             )
             .padding([.trailing, .leading], Spacing.M)
@@ -54,14 +54,14 @@ struct ProfileView<Model: ProfileViewModelProtocol>: View {
 
 struct ProfileView_Previews: PreviewProvider {
   class MockProfileViewModel: ProfileViewModelProtocol, ObservableObject {
-    var isSyncButtonDisabled: Bool = false
+    var tasksButtonText: String = "Queued sync tasks"
     var bottomOffset: CGFloat = Spacing.M
     var refreshStatusMessage: String = "Last refresh: 1 second ago"
     var totalListeningTimeFormatted: String = "0m"
     var account: Account?
 
     func showAccount() {}
-    func syncLibrary() {}
+    func showTasks() {}
   }
   static var previews: some View {
     ProfileView(viewModel: MockProfileViewModel())

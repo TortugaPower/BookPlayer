@@ -13,6 +13,8 @@ import RevenueCat
 public protocol SyncServiceProtocol {
   /// Flag to check if it can sync or not
   var isActive: Bool { get set }
+  /// Count of the currently queued sync jobs
+  var queuedJobsCount: Int { get }
 
   /// Fetch the contents at the relativePath and override local contents with the remote repsonse
   func syncListContents(
@@ -52,6 +54,8 @@ public protocol SyncServiceProtocol {
 
   func scheduleDeleteBookmark(_ bookmark: SimpleBookmark)
 
+  /// Get all queued jobs
+  func getAllQueuedJobs() -> [QueuedJobInfo]
   /// Cancel all scheduled jobs
   func cancelAllJobs()
 }
@@ -67,6 +71,8 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       }
     }
   }
+
+  public var queuedJobsCount: Int { jobManager.queuedJobsCount }
 
   private let provider: NetworkProvider<LibraryAPI>
 
@@ -325,6 +331,10 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     let _: Empty = try await self.provider.request(
       .uploadArtwork(path: relativePath, filename: filename, uploaded: true)
     )
+  }
+
+  public func getAllQueuedJobs() -> [QueuedJobInfo] {
+    return jobManager.getAllQueuedJobs()
   }
 
   public func cancelAllJobs() {

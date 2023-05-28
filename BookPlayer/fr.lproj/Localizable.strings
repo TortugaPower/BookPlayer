@@ -276,3 +276,10 @@
 "yearly_title" = "par an";
 "monthly_title" = "par mois";
 "choose_plan_title" = "Choisissez votre forfait";
+"tasks_title" = "Tâches";
+"queued_sync_tasks_title" = "Tâches de synchronisation en file d'attente (%d)";
+"sync_tasks_alert_description" = "Si une tâche de synchronisation est bloquée et ne s'efface pas après avoir eu une connexion Internet active, vous pouvez vous déconnecter et vous connecter pour effacer les tâches en cours. Cela ramènera votre bibliothèque au dernier état synchronisé avec nos serveurs.
+
+ Gardez à l'esprit que les tâches de téléchargement peuvent prendre un certain temps et que la progression sera périodiquement affichée sur l'écran précédent.
+
+ Nous travaillons dur pour fournir une expérience transparente, si possible, veuillez nous contacter à support@bookplayer.app avec une capture d'écran de cet écran. Merci!";

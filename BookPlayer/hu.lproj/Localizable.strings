@@ -276,3 +276,10 @@
 "yearly_title" = "évente";
 "monthly_title" = "havonta";
 "choose_plan_title" = "Válassza ki a tervet";
+"tasks_title" = "Feladatok";
+"queued_sync_tasks_title" = "Sorban lévő szinkronizálási feladatok (%d)";
+"sync_tasks_alert_description" = "Ha van egy szinkronizálási feladat, amely elakadt, és nem törlődik az aktív internetkapcsolat megléte után, kijelentkezhet és bejelentkezhet az aktuális feladatok törléséhez. Ezzel visszaállítja a könyvtárát a szervereinkkel legutóbb szinkronizált állapotba.
+
+ Ne feledje, hogy a feltöltési feladatok eltarthatnak egy ideig, és az előrehaladás rendszeresen megjelenik az előző képernyőn.
+
+ Keményen dolgozunk a zökkenőmentes élmény biztosítása érdekében, ha lehetséges, kérjük, írjon nekünk a support@bookplayer.app címre, és küldjön képernyőképet erről a képernyőről. Kösz!";

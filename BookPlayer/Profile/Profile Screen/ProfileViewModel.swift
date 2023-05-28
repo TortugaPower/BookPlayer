@@ -13,19 +13,30 @@ import Combine
 protocol ProfileViewModelProtocol: ObservableObject {
   var account: Account? { get set }
   var totalListeningTimeFormatted: String { get set }
+  var tasksButtonText: String { get set }
   var refreshStatusMessage: String { get set }
   var bottomOffset: CGFloat { get set }
-  var isSyncButtonDisabled: Bool { get set }
 
   func showAccount()
-  func syncLibrary()
+  func showTasks()
 }
 
-class ProfileViewModel: BaseViewModel<ProfileCoordinator>, ProfileViewModelProtocol {
+class ProfileViewModel: ProfileViewModelProtocol {
+  /// Available routes
+  enum Routes {
+    case showAccount
+    case showQueuedTasks
+  }
+
+  /// Spacing constants for the bottom inset
   struct ModelConstants {
     static let defaultBottomOffset = Spacing.M
     static let miniPlayerOffset = Spacing.S2 + 88
   }
+
+  /// Callback to handle actions on this screen
+  public var onTransition: Transition<Routes>?
+
   let accountService: AccountServiceProtocol
   let libraryService: LibraryServiceProtocol
   let playerManager: PlayerManagerProtocol
@@ -33,9 +44,9 @@ class ProfileViewModel: BaseViewModel<ProfileCoordinator>, ProfileViewModelProto
 
   @Published var account: Account?
   @Published var totalListeningTimeFormatted: String = "0m"
+  @Published var tasksButtonText: String = ""
   @Published var refreshStatusMessage: String = ""
   @Published var bottomOffset: CGFloat = ModelConstants.defaultBottomOffset
-  @Published var isSyncButtonDisabled: Bool = false
 
   var syncStatusObserver: NSKeyValueObservation!
   private var disposeBag = Set<AnyCancellable>()
@@ -51,23 +62,29 @@ class ProfileViewModel: BaseViewModel<ProfileCoordinator>, ProfileViewModelProto
     self.playerManager = playerManager
     self.syncService = syncService
 
-    if libraryService.getLibraryLastItem() != nil {
-      bottomOffset =  ModelConstants.miniPlayerOffset
-    }
-
-    super.init()
-
+    tasksButtonText = String(format: "queued_sync_tasks_title".localized, syncService.queuedJobsCount)
     self.reloadAccount()
     self.reloadListenedTime()
     self.bindObservers()
   }
 
+  func updateQueuedJobsCount() {
+    tasksButtonText = String(format: "queued_sync_tasks_title".localized, syncService.queuedJobsCount)
+  }
+
   func bindObservers() {
-    UserDefaults.standard.publisher(for: \.userSettingsHasQueuedJobs)
+    NotificationCenter.default.publisher(for: .jobScheduled)
       .receive(on: DispatchQueue.main)
-      .sink(receiveValue: { [weak self] completedSync in
-        self?.isSyncButtonDisabled = completedSync
-      })
+      .sink { [weak self] _ in
+        self?.updateQueuedJobsCount()
+      }
+      .store(in: &disposeBag)
+
+    NotificationCenter.default.publisher(for: .jobTerminated)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in
+        self?.updateQueuedJobsCount()
+      }
       .store(in: &disposeBag)
 
     NotificationCenter.default.publisher(for: .accountUpdate, object: nil)
@@ -117,7 +134,7 @@ class ProfileViewModel: BaseViewModel<ProfileCoordinator>, ProfileViewModelProto
   }
 
   func showAccount() {
-    self.coordinator.showAccount()
+    onTransition?(.showAccount)
   }
 
   func updateSyncMessage(relativePath: String, progress: Double) {
@@ -140,16 +157,8 @@ class ProfileViewModel: BaseViewModel<ProfileCoordinator>, ProfileViewModelProto
     refreshStatusMessage = String(format: "last_sync_title".localized, formattedTime)
   }
 
-  func syncLibrary() {
-    Task { [weak self] in
-      do {
-        _ = try await self?.syncService.syncLibraryContents()
-      } catch {
-        print(error.localizedDescription)
-      }
-    }
-
-    refreshStatusMessage = ""
+  func showTasks() {
+    onTransition?(.showQueuedTasks)
   }
 
   func reloadListenedTime() {

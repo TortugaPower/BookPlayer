@@ -276,3 +276,10 @@
 "yearly_title" = "yıl başına";
 "monthly_title" = "her ay";
 "choose_plan_title" = "planınızı seçin";
+"tasks_title" = "Görevler";
+"queued_sync_tasks_title" = "Kuyruğa alınmış eşitleme görevleri (%d)";
+"sync_tasks_alert_description" = "Etkin bir internet bağlantısına sahip olduktan sonra takılıp kalmayan bir eşitleme görevi varsa, mevcut görevleri temizlemek için oturumu kapatıp oturum açabilirsiniz. Bu, kitaplığınızı sunucularımızla senkronize edilen son duruma geri döndürür.
+
+ Yükleme görevlerinin biraz zaman alabileceğini ve ilerlemenin periyodik olarak önceki ekranda yayınlanacağını unutmayın.
+
+ Kusursuz bir deneyim sağlamak için çok çalışıyoruz, mümkünse lütfen bu ekranın ekran görüntüsüyle birlikte support@bookplayer.app adresinden bizimle iletişime geçin. Teşekkürler!";

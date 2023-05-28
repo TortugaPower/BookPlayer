@@ -36,7 +36,7 @@ class LibraryListCoordinator: ItemListCoordinator {
       syncService: syncService
     )
 
-    bindObservers()
+    bindImportObserver()
   }
 
   // swiftlint:disable:next function_body_length
@@ -100,16 +100,6 @@ class LibraryListCoordinator: ItemListCoordinator {
 
     AppDelegate.shared?.watchConnectivityService?.startSession()
     syncList()
-  }
-
-  func bindObservers() {
-    NotificationCenter.default.publisher(for: .login, object: nil)
-      .sink(receiveValue: { [weak self] _ in
-        self?.syncLibrary()
-      })
-      .store(in: &disposeBag)
-
-    bindImportObserver()
   }
 
   func bindImportObserver() {

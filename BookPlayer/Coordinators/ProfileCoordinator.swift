@@ -34,15 +34,23 @@ class ProfileCoordinator: Coordinator {
   }
 
   override func start() {
-    let vc = ProfileViewController()
     let viewModel = ProfileViewModel(
       accountService: accountService,
       libraryService: libraryService,
       playerManager: playerManager,
       syncService: syncService
     )
-    viewModel.coordinator = self
-    vc.viewModel = viewModel
+
+    viewModel.onTransition = { [weak self] route in
+      switch route {
+      case .showAccount:
+        self?.showAccount()
+      case .showQueuedTasks:
+        self?.showQueuedTasks()
+      }
+    }
+
+    let vc = ProfileViewController(viewModel: viewModel)
     vc.navigationItem.largeTitleDisplayMode = .never
     self.navigationController.tabBarItem = UITabBarItem(
       title: "profile_title".localized,
@@ -58,18 +66,6 @@ class ProfileCoordinator: Coordinator {
     }
 
     self.navigationController.pushViewController(vc, animated: true)
-  }
-
-  func showSettings() {
-    let settingsCoordinator = SettingsCoordinator(
-      libraryService: self.libraryService,
-      accountService: self.accountService,
-      navigationController: AppNavigationController.instantiate(from: .Settings)
-    )
-    settingsCoordinator.parentCoordinator = self
-    settingsCoordinator.presentingViewController = self.presentingViewController
-    self.childCoordinators.append(settingsCoordinator)
-    settingsCoordinator.start()
   }
 
   func showAccount() {
@@ -91,5 +87,14 @@ class ProfileCoordinator: Coordinator {
       loginCoordinator.parentCoordinator = self
       loginCoordinator.start()
     }
+  }
+
+  func showQueuedTasks() {
+    let viewModel = QueuedSyncTasksViewModel(syncService: syncService)
+
+    let vc = QueuedSyncTasksViewController(viewModel: viewModel)
+
+    let nav = AppNavigationController(rootViewController: vc)
+    self.navigationController.present(nav, animated: true)
   }
 }

@@ -1,5 +1,5 @@
 //
-//  ProfileRefreshStatusView.swift
+//  ProfileSyncTasksStatusView.swift
 //  BookPlayer
 //
 //  Created by gianni.carlo on 18/1/23.
@@ -8,23 +8,17 @@
 
 import SwiftUI
 
-struct ProfileRefreshStatusView: View {
-
+struct ProfileSyncTasksStatusView: View {
+  @Binding var buttonText: String
   @Binding var statusMessage: String
-  @Binding var buttonDisabled: Bool
   @ObservedObject var themeViewModel: ThemeViewModel
 
-  var refreshAction: () -> Void
+  var showTasksAction: () -> Void
 
   var body: some View {
     VStack {
-      /// Disabled showing the sync button
-      if false {
-        Button("sync_library_title".localized, action: refreshAction)
-          .foregroundColor(themeViewModel.linkColor)
-          .opacity(buttonDisabled ? 0.5 : 1)
-          .disabled(buttonDisabled)
-      }
+      Button(buttonText, action: showTasksAction)
+        .foregroundColor(themeViewModel.linkColor)
       Text(statusMessage)
         .foregroundColor(themeViewModel.secondaryColor)
     }
@@ -33,11 +27,11 @@ struct ProfileRefreshStatusView: View {
 
 struct ProfileRefreshStatusView_Previews: PreviewProvider {
   static var previews: some View {
-    ProfileRefreshStatusView(
+    ProfileSyncTasksStatusView(
+      buttonText: .constant("Queued sync tasks"),
       statusMessage: .constant("Last sync: 1 second ago"),
-      buttonDisabled: .constant(true),
       themeViewModel: ThemeViewModel(),
-      refreshAction: {}
+      showTasksAction: {}
     )
   }
 }
