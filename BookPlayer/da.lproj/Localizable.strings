@@ -276,3 +276,10 @@
 "yearly_title" = "Per år";
 "monthly_title" = "om måneden";
 "choose_plan_title" = "Vælg din plan";
+"tasks_title" = "Opgaver";
+"queued_sync_tasks_title" = "Synkroniseringsopgaver i kø (%d)";
+"sync_tasks_alert_description" = "Hvis der er en synkroniseringsopgave, der sidder fast og ikke rydder ud efter at have en aktiv internetforbindelse, kan du logge ud og logge på for at rydde de aktuelle opgaver. Dette vil vende dit bibliotek tilbage til den sidste tilstand, der er synkroniseret med vores servere.
+
+ Husk, at uploadopgaver kan tage noget tid, og fremskridtene vil med jævne mellemrum blive offentliggjort på den forrige skærm.
+
+ Vi arbejder hårdt på at give en problemfri oplevelse, hvis det er muligt, kontakt os venligst på support@bookplayer.app med et skærmbillede af denne skærm. Tak!";

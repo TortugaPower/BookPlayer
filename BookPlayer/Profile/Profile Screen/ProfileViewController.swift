@@ -12,7 +12,9 @@ import SwiftUI
 import Themeable
 import UIKit
 
-class ProfileViewController: BaseViewController<ProfileCoordinator, ProfileViewModel> {
+class ProfileViewController: UIViewController {
+  var viewModel: ProfileViewModel
+
   // MARK: - UI components
 
   private lazy var profileView: UIView = {
@@ -31,10 +33,12 @@ class ProfileViewController: BaseViewController<ProfileCoordinator, ProfileViewM
 
   // MARK: - Initializer
 
-  init() {
+  init(viewModel: ProfileViewModel) {
+    self.viewModel = viewModel
     super.init(nibName: nil, bundle: nil)
   }
 
+  @available(*, unavailable)
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }

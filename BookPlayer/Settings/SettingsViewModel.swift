@@ -39,7 +39,7 @@ class SettingsViewModel: BaseViewModel<SettingsCoordinator> {
   }
 
   func hasMadeDonation() -> Bool {
-    return (self.account?.donationMade ?? false) || account?.hasSubscription == true
+    return account?.hasSubscription == true
   }
 
   func toggleFileBackupsPreference(_ flag: Bool) {

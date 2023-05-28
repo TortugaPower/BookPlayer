@@ -276,3 +276,10 @@
 "yearly_title" = "pe an";
 "monthly_title" = "pe luna";
 "choose_plan_title" = "Alege-ți planul";
+"tasks_title" = "Sarcini";
+"queued_sync_tasks_title" = "Sarcini de sincronizare puse în coadă (%d)";
+"sync_tasks_alert_description" = "Dacă există o sarcină de sincronizare care este blocată și nu se șterge după ce aveți o conexiune la internet activă, vă puteți deconecta și vă puteți conecta pentru a șterge sarcinile curente. Aceasta vă va reveni biblioteca la ultima stare sincronizată cu serverele noastre.
+
+ Rețineți că sarcinile de încărcare pot dura ceva timp, iar progresul va fi publicat periodic pe ecranul anterior.
+
+ Lucrăm din greu pentru a oferi o experiență perfectă, dacă este posibil, vă rugăm să ne contactați la support@bookplayer.app cu o captură de ecran a acestui ecran. Mulțumiri!";

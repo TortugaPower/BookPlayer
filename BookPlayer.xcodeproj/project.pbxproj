@@ -382,7 +382,7 @@
 		9F588DBF2902C798000DA799 /* ComposedButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F588DBE2902C798000DA799 /* ComposedButton.swift */; };
 		9F5F12DB2976E8CD00F061A0 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5F12DA2976E8CD00F061A0 /* ProfileView.swift */; };
 		9F5F13462977A06300F061A0 /* ProfileCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5F13452977A06300F061A0 /* ProfileCardView.swift */; };
-		9F5F13682978D9E100F061A0 /* ProfileRefreshStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5F13672978D9E100F061A0 /* ProfileRefreshStatusView.swift */; };
+		9F5F13682978D9E100F061A0 /* ProfileSyncTasksStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5F13672978D9E100F061A0 /* ProfileSyncTasksStatusView.swift */; };
 		9F5FBB08293EDCD8009F4B0E /* ItemDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5FBB07293EDCD8009F4B0E /* ItemDetailsViewController.swift */; };
 		9F5FBB0A293EE0C2009F4B0E /* ItemDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5FBB09293EE0C2009F4B0E /* ItemDetailsViewModel.swift */; };
 		9F5FBB0E293EE116009F4B0E /* ItemDetailsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5FBB0D293EE116009F4B0E /* ItemDetailsCoordinator.swift */; };
@@ -490,6 +490,13 @@
 		9FEC87AE27FA9E98006C71D5 /* LoginCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEC87AD27FA9E98006C71D5 /* LoginCoordinator.swift */; };
 		9FEC87B027FA9F0F006C71D5 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEC87AF27FA9F0F006C71D5 /* LoginViewController.swift */; };
 		9FEC87B227FA9F1C006C71D5 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEC87B127FA9F1C006C71D5 /* LoginViewModel.swift */; };
+		9FF710AC2A212221006490E0 /* QueuedSyncTasksViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF710AB2A212221006490E0 /* QueuedSyncTasksViewController.swift */; };
+		9FF710B72A212A19006490E0 /* QueuedSyncTasksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF710B62A212A19006490E0 /* QueuedSyncTasksView.swift */; };
+		9FF710B92A213084006490E0 /* QueuedSyncTaskRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF710B82A213084006490E0 /* QueuedSyncTaskRowView.swift */; };
+		9FF710BB2A215558006490E0 /* QueuedSyncTasksViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF710BA2A215558006490E0 /* QueuedSyncTasksViewModel.swift */; };
+		9FF710BD2A215686006490E0 /* QueuedSyncTaskType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF710BC2A215686006490E0 /* QueuedSyncTaskType.swift */; };
+		9FF710C02A215B8F006490E0 /* QueuedJobInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF710BE2A215B57006490E0 /* QueuedJobInfo.swift */; };
+		9FF710C12A215B90006490E0 /* QueuedJobInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF710BE2A215B57006490E0 /* QueuedJobInfo.swift */; };
 		9FFCC08F289418CA00F4952E /* SimpleChapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FFCC08E289418CA00F4952E /* SimpleChapter.swift */; };
 		9FFCC090289418CA00F4952E /* SimpleChapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FFCC08E289418CA00F4952E /* SimpleChapter.swift */; };
 		C30B66AE20E2D8CF00FC0030 /* ArtworkControl.xib in Resources */ = {isa = PBXBuildFile; fileRef = C30B66AD20E2D8CF00FC0030 /* ArtworkControl.xib */; };
@@ -1031,7 +1038,7 @@
 		9F588DBE2902C798000DA799 /* ComposedButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposedButton.swift; sourceTree = "<group>"; };
 		9F5F12DA2976E8CD00F061A0 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		9F5F13452977A06300F061A0 /* ProfileCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCardView.swift; sourceTree = "<group>"; };
-		9F5F13672978D9E100F061A0 /* ProfileRefreshStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileRefreshStatusView.swift; sourceTree = "<group>"; };
+		9F5F13672978D9E100F061A0 /* ProfileSyncTasksStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSyncTasksStatusView.swift; sourceTree = "<group>"; };
 		9F5FBB07293EDCD8009F4B0E /* ItemDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsViewController.swift; sourceTree = "<group>"; };
 		9F5FBB09293EE0C2009F4B0E /* ItemDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsViewModel.swift; sourceTree = "<group>"; };
 		9F5FBB0D293EE116009F4B0E /* ItemDetailsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsCoordinator.swift; sourceTree = "<group>"; };
@@ -1112,6 +1119,12 @@
 		9FEC87AD27FA9E98006C71D5 /* LoginCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginCoordinator.swift; sourceTree = "<group>"; };
 		9FEC87AF27FA9F0F006C71D5 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		9FEC87B127FA9F1C006C71D5 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
+		9FF710AB2A212221006490E0 /* QueuedSyncTasksViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedSyncTasksViewController.swift; sourceTree = "<group>"; };
+		9FF710B62A212A19006490E0 /* QueuedSyncTasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedSyncTasksView.swift; sourceTree = "<group>"; };
+		9FF710B82A213084006490E0 /* QueuedSyncTaskRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedSyncTaskRowView.swift; sourceTree = "<group>"; };
+		9FF710BA2A215558006490E0 /* QueuedSyncTasksViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedSyncTasksViewModel.swift; sourceTree = "<group>"; };
+		9FF710BC2A215686006490E0 /* QueuedSyncTaskType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedSyncTaskType.swift; sourceTree = "<group>"; };
+		9FF710BE2A215B57006490E0 /* QueuedJobInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedJobInfo.swift; sourceTree = "<group>"; };
 		9FFCC08E289418CA00F4952E /* SimpleChapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleChapter.swift; sourceTree = "<group>"; };
 		C30B085E209654E3003F325B /* UIColor+BookPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+BookPlayer.swift"; sourceTree = "<group>"; };
 		C30B66AD20E2D8CF00FC0030 /* ArtworkControl.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ArtworkControl.xib; sourceTree = "<group>"; };
@@ -1953,6 +1966,11 @@
 				9F5F12DA2976E8CD00F061A0 /* ProfileView.swift */,
 				9FBDDB9F27DD13E9005FB447 /* ProfileViewModel.swift */,
 				9FBDDB9B27DD135E005FB447 /* ProfileViewController.swift */,
+				9FF710AB2A212221006490E0 /* QueuedSyncTasksViewController.swift */,
+				9FF710BA2A215558006490E0 /* QueuedSyncTasksViewModel.swift */,
+				9FF710B62A212A19006490E0 /* QueuedSyncTasksView.swift */,
+				9FF710BC2A215686006490E0 /* QueuedSyncTaskType.swift */,
+				9FF710B82A213084006490E0 /* QueuedSyncTaskRowView.swift */,
 			);
 			path = "Profile Screen";
 			sourceTree = "<group>";
@@ -2018,7 +2036,7 @@
 			children = (
 				9F5F13452977A06300F061A0 /* ProfileCardView.swift */,
 				9F134602293CFCE80089B1DE /* ProfileListenedTimeView.swift */,
-				9F5F13672978D9E100F061A0 /* ProfileRefreshStatusView.swift */,
+				9F5F13672978D9E100F061A0 /* ProfileSyncTasksStatusView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -2131,6 +2149,7 @@
 				9FC1E46A2815A8A800522FA8 /* LibraryAPI.swift */,
 				9F9F3B6F280E4E4B004359DA /* SyncService.swift */,
 				9FDDD2DD289BEE590020C428 /* SyncJobScheduler.swift */,
+				9FF710BE2A215B57006490E0 /* QueuedJobInfo.swift */,
 				9F07B72229B512F0005A939D /* LibraryItemSyncJob.swift */,
 			);
 			path = Sync;
@@ -2926,6 +2945,7 @@
 				4124AB1825DFE07E0007C839 /* DataMigrationManager.swift in Sources */,
 				41C3394A25E04091003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
 				9F56C84E287B734C00EA9751 /* BPLogger.swift in Sources */,
+				9FF710C12A215B90006490E0 /* QueuedJobInfo.swift in Sources */,
 				418CABB525EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
 				9F9F3B71280E4E4B004359DA /* SyncService.swift in Sources */,
 				4124AB2225DFE1A60007C839 /* CoreDataStack.swift in Sources */,
@@ -2984,6 +3004,7 @@
 				41B2A5F121CD857800917584 /* AddCellView.swift in Sources */,
 				4151A6B326E491A800E49DBE /* NibLoadableView.swift in Sources */,
 				4197FAFC267E480100811CC8 /* ImportViewController.swift in Sources */,
+				9FF710AC2A212221006490E0 /* QueuedSyncTasksViewController.swift in Sources */,
 				9FEC87B227FA9F1C006C71D5 /* LoginViewModel.swift in Sources */,
 				9F17D5CD29159297004F4929 /* SearchListViewModel.swift in Sources */,
 				41E562C4223896B500C06BC9 /* UserDefaults+BookPlayer.swift in Sources */,
@@ -3010,6 +3031,7 @@
 				41188D2226ECFE450017124E /* ChapterCoordinator.swift in Sources */,
 				4165EE0520A743D500616EDF /* BookPlayer.xcdatamodeld in Sources */,
 				41B2A5DC21CAEE0E00917584 /* PlayerSettingsViewController.swift in Sources */,
+				9FF710B72A212A19006490E0 /* QueuedSyncTasksView.swift in Sources */,
 				41B2A5ED21CCC6D100917584 /* AppNavigationController.swift in Sources */,
 				9F22DE40288D8BC800056FCD /* BaseLabel.swift in Sources */,
 				41B2AC8E1D43CCE8005382A9 /* ChaptersViewController.swift in Sources */,
@@ -3034,6 +3056,7 @@
 				410D00FE26DDD2A900D11A45 /* ProgressObject.swift in Sources */,
 				C3A479152094CA3800D92122 /* UIImage+BookPlayer.swift in Sources */,
 				418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */,
+				9FF710BD2A215686006490E0 /* QueuedSyncTaskType.swift in Sources */,
 				41188D2826ED4D5C0017124E /* ItemListViewController.swift in Sources */,
 				41188D2426ED2BA30017124E /* LoadingCoordinator.swift in Sources */,
 				4151A6DD26E4A13A00E49DBE /* MainCoordinator.swift in Sources */,
@@ -3041,6 +3064,7 @@
 				4124122826D19A8700B099DB /* StorageViewModel.swift in Sources */,
 				4158387926EB8D8800F4A12B /* LoadingViewController.swift in Sources */,
 				4151A6E026E4A17900E49DBE /* Coordinator.swift in Sources */,
+				9FF710BB2A215558006490E0 /* QueuedSyncTasksViewModel.swift in Sources */,
 				418EA78B268D6EF100F6BAEB /* ImportTableViewCell.swift in Sources */,
 				9F2DC9D92A008B19006CDF1F /* PricingOptionsView.swift in Sources */,
 				41188D2026ECDDD50017124E /* BookmarkCoordinator.swift in Sources */,
@@ -3094,9 +3118,10 @@
 				4158386E26EAF76700F4A12B /* FolderListCoordinator.swift in Sources */,
 				9F64C6262793D5B100B2493C /* PlayerControlsViewController.swift in Sources */,
 				C3FE94792080086800BCEA37 /* BookCellView.swift in Sources */,
-				9F5F13682978D9E100F061A0 /* ProfileRefreshStatusView.swift in Sources */,
+				9F5F13682978D9E100F061A0 /* ProfileSyncTasksStatusView.swift in Sources */,
 				41AD3DA7221C850F00DC41E1 /* IconCellView.swift in Sources */,
 				9FB20EA529A281140021663B /* DownloadState.swift in Sources */,
+				9FF710B92A213084006490E0 /* QueuedSyncTaskRowView.swift in Sources */,
 				4158388326EBD76A00F4A12B /* LibraryListCoordinator.swift in Sources */,
 				4142964421F21D95004356DA /* BulkControlsView.swift in Sources */,
 				9F134603293CFCE80089B1DE /* ProfileListenedTimeView.swift in Sources */,
@@ -3259,6 +3284,7 @@
 				9FBDBC802879C6C900D315A2 /* UploadItemResponse.swift in Sources */,
 				41A1B11D226F88C500EA0400 /* Theme+CoreDataClass.swift in Sources */,
 				41A894202652A5DE0032E972 /* Configuration.swift in Sources */,
+				9FF710C02A215B8F006490E0 /* QueuedJobInfo.swift in Sources */,
 				41A90C4527563F5A00C30394 /* ItemType.swift in Sources */,
 				41A1B129226F88C500EA0400 /* Folder+CoreDataClass.swift in Sources */,
 				41C233FD272E1957006BC7B8 /* SimpleLibraryItem.swift in Sources */,

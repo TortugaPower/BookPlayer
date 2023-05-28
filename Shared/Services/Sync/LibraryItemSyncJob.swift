@@ -9,7 +9,7 @@
 import Foundation
 import SwiftQueue
 
-enum JobType: String {
+public enum JobType: String {
   case upload
   case update
   case move

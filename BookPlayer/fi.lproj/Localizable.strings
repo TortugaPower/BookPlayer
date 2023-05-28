@@ -276,3 +276,10 @@
 "yearly_title" = "vuodessa";
 "monthly_title" = "kuukaudessa";
 "choose_plan_title" = "Valitse suunnitelmasi";
+"tasks_title" = "Tehtävät";
+"queued_sync_tasks_title" = "Jonossa olevat synkronointitehtävät (%d)";
+"sync_tasks_alert_description" = "Jos jokin synkronointitehtävä on jumissa eikä poistu aktiivisen Internet-yhteyden jälkeen, voit kirjautua ulos ja kirjautua sisään tyhjentääksesi nykyiset tehtävät. Tämä palauttaa kirjastosi tilaan, joka on viimeksi synkronoitu palvelimillemme.
+
+ Muista, että lataustehtävät voivat kestää jonkin aikaa, ja edistyminen julkaistaan ajoittain edellisellä näytöllä.
+
+ Teemme kovasti töitä tarjotaksemme saumattoman kokemuksen. Jos mahdollista, ota meihin yhteyttä osoitteeseen support@bookplayer.app ja anna kuvakaappaus tästä näytöstä. Kiitos!";

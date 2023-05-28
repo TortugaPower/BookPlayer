@@ -276,3 +276,10 @@
 "yearly_title" = "na rok";
 "monthly_title" = "na miesiąc";
 "choose_plan_title" = "Wybierz swój plan";
+"tasks_title" = "Zadania";
+"queued_sync_tasks_title" = "Zadania synchronizacji w kolejce (%d)";
+"sync_tasks_alert_description" = "Jeśli jakieś zadanie synchronizacji utknęło i nie jest usuwane po aktywnym połączeniu internetowym, możesz się wylogować i zalogować, aby usunąć bieżące zadania. Spowoduje to przywrócenie Twojej biblioteki do ostatniego stanu zsynchronizowanego z naszymi serwerami.
+
+ Pamiętaj, że zadania przesyłania mogą zająć trochę czasu, a postęp będzie okresowo publikowany na poprzednim ekranie.
+
+ Ciężko pracujemy nad zapewnieniem bezproblemowego działania, jeśli to możliwe, skontaktuj się z nami pod adresem support@bookplayer.app, przesyłając zrzut ekranu tego ekranu. Dzięki!";

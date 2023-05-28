@@ -276,3 +276,10 @@
 "yearly_title" = "por ano";
 "monthly_title" = "por mês";
 "choose_plan_title" = "Escolha seu plano";
+"tasks_title" = "Tarefas";
+"queued_sync_tasks_title" = "Tarefas de sincronização em fila (%d)";
+"sync_tasks_alert_description" = "Se houver uma tarefa de sincronização que está travada e não é eliminada após uma conexão ativa com a Internet, você pode fazer logout e entrar para limpar as tarefas atuais. Isso reverterá sua biblioteca para o último estado sincronizado com nossos servidores.
+
+ Lembre-se de que as tarefas de upload podem levar algum tempo e o progresso será postado periodicamente na tela anterior.
+
+ Estamos trabalhando duro para fornecer uma experiência perfeita, se possível, entre em contato connosco em support@bookplayer.app com uma captura de tela desta tela. Obrigado!";

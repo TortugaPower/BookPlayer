@@ -132,11 +132,14 @@ class MainCoordinator: Coordinator {
 
         if account.hasSubscription {
           self.socketService.connectSocket()
-          self.syncService.isActive = true
 
-          if !self.playerManager.hasLoadedBook(),
-             let libraryCoordinator = self.getLibraryCoordinator() {
-            libraryCoordinator.loadLastBookIfNeeded()
+          let libraryCoordinator = self.getLibraryCoordinator()
+
+          if !self.syncService.isActive {
+            self.syncService.isActive = true
+            libraryCoordinator?.syncLibrary()
+          } else if !self.playerManager.hasLoadedBook() {
+            libraryCoordinator?.loadLastBookIfNeeded()
           }
         } else {
           self.socketService.disconnectSocket()

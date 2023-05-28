@@ -276,3 +276,10 @@
 "yearly_title" = "za rok";
 "monthly_title" = "za mesiac";
 "choose_plan_title" = "Vyberte si svoj plán";
+"tasks_title" = "Úlohy";
+"queued_sync_tasks_title" = "Úlohy synchronizácie vo fronte (%d)";
+"sync_tasks_alert_description" = "Ak je synchronizačná úloha zaseknutá a nevymaže sa ani po aktívnom pripojení na internet, môžete sa odhlásiť a prihlásiť, aby ste vymazali aktuálne úlohy. Tým sa vaša knižnica vráti do posledného stavu synchronizovaného s našimi servermi.
+
+ Majte na pamäti, že úlohy nahrávania môžu chvíľu trvať a priebeh sa bude pravidelne zobrazovať na predchádzajúcej obrazovke.
+
+ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné, kontaktujte nás na adrese support@bookplayer.app so snímkou obrazovky tejto obrazovky. Vďaka!";

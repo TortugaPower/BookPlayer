@@ -276,3 +276,10 @@
 "yearly_title" = "per jaar";
 "monthly_title" = "per maand";
 "choose_plan_title" = "Kies je abonnement";
+"tasks_title" = "Taken";
+"queued_sync_tasks_title" = "Synchronisatietaken in wachtrij (%d)";
+"sync_tasks_alert_description" = "Als er een synchronisatietaak is vastgelopen en niet wordt gewist na een actieve internetverbinding, kunt u uitloggen en inloggen om de huidige taken te wissen. Hierdoor wordt uw bibliotheek teruggezet naar de laatste staat die is gesynchroniseerd met onze servers.
+
+ Houd er rekening mee dat het uploaden van taken enige tijd kan duren en dat de voortgang regelmatig op het vorige scherm wordt weergegeven.
+
+ We werken er hard aan om een naadloze ervaring te bieden, neem indien mogelijk contact met ons op via support@bookplayer.app met een screenshot van dit scherm. Bedankt!";

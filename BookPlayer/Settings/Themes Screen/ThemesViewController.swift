@@ -97,13 +97,13 @@ class ThemesViewController: UIViewController, Storyboarded {
   }
 
   func handleDonationObserver() {
-    if self.viewModel.hasMadeDonation() {
+    if self.viewModel.hasSubscription {
       self.donationMade()
     } else {
       self.viewModel.$account
         .receive(on: RunLoop.main)
         .sink { [weak self] account in
-        if account?.donationMade ?? false {
+        if account?.hasSubscription ?? false {
           self?.donationMade()
         }
       }

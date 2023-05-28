@@ -11,6 +11,8 @@ import Foundation
 import SwiftQueue
 
 public protocol JobSchedulerProtocol {
+  /// Count of the currently queued sync jobs
+  var queuedJobsCount: Int { get }
   /// Uploads the metadata for the first time to the server
   func scheduleLibraryItemUploadJob(for item: SyncableItem) throws
   /// Update existing metadata in the server
@@ -27,6 +29,8 @@ public protocol JobSchedulerProtocol {
   )
   /// Delete a bookmark
   func scheduleDeleteBookmarkJob(with relativePath: String, time: Double)
+  /// Get all queued jobs
+  func getAllQueuedJobs() -> [QueuedJobInfo]
   /// Cancel all stored and ongoing jobs
   func cancelAllJobs()
 }
@@ -35,6 +39,12 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   let libraryJobsPersister: UserDefaultsPersister
   var libraryQueueManager: SwiftQueueManager!
   private var disposeBag = Set<AnyCancellable>()
+
+  private var pendingOperations: [JobInfo] {
+    libraryQueueManager.getAll()["GLOBAL"] ?? []
+  }
+
+  public var queuedJobsCount: Int { pendingOperations.count }
 
   public init() {
     self.libraryJobsPersister = UserDefaultsPersister(key: LibraryItemSyncJob.type)
@@ -206,6 +216,24 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       .schedule(manager: libraryQueueManager)
   }
 
+  public func getAllQueuedJobs() -> [QueuedJobInfo] {
+    return pendingOperations.compactMap({ job -> QueuedJobInfo? in
+      guard
+        let relativePath = job.params["relativePath"] as? String,
+        let jobTypeRaw = job.params["jobType"] as? String,
+        let jobType = JobType(rawValue: jobTypeRaw)
+      else {
+        return nil
+      }
+
+      return QueuedJobInfo(
+        id: "\(jobTypeRaw)/\(relativePath)",
+        relativePath: relativePath,
+        jobType: jobType
+      )
+    })
+  }
+
   public func cancelAllJobs() {
     libraryQueueManager.cancelAllOperations()
     libraryJobsPersister.clearAll()
@@ -232,6 +260,8 @@ extension SyncJobScheduler: JobListener {
       true,
       forKey: Constants.UserDefaults.hasQueuedJobs.rawValue
     )
+
+    NotificationCenter.default.post(name: .jobScheduled, object: nil)
   }
 
   public func onBeforeRun(job: SwiftQueue.JobInfo) {}
@@ -241,10 +271,9 @@ extension SyncJobScheduler: JobListener {
   public func onTerminated(job: SwiftQueue.JobInfo, result: SwiftQueue.JobCompletion) {
     Self.logger.trace("Terminated job for \(job.params["relativePath"] as? String)")
 
-    guard
-      let pendingOperations = libraryQueueManager.getAll()["GLOBAL"],
-      pendingOperations.isEmpty
-    else { return }
+    NotificationCenter.default.post(name: .jobTerminated, object: nil)
+
+    guard pendingOperations.isEmpty else { return }
 
     UserDefaults.standard.set(
       false,
