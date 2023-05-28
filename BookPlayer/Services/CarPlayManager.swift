@@ -113,6 +113,7 @@ class CarPlayManager: NSObject {
     return libraryService.fetchContents(at: relativePath, limit: nil, offset: nil) ?? []
   }
 
+  // swiftlint:disable:next function_body_length
   func setupNowPlayingTemplate() {
     guard
       let libraryService = AppDelegate.shared?.libraryService,

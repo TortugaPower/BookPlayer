@@ -104,7 +104,7 @@ public class ImportOperation: Operation {
 
   func handleZip(file: URL, remainingFiles: [URL]) {
     self.suggestedFolderName = file.deletingPathExtension().lastPathComponent
-    
+
     // Unzip to temporary directory
     let documentsURL = DataManager.getDocumentsFolderURL()
 
