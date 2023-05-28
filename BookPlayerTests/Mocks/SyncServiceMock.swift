@@ -11,6 +11,12 @@ import Foundation
 import RevenueCat
 
 class SyncServiceMock: SyncServiceProtocol {
+  var queuedJobsCount: Int = 0
+
+  func getAllQueuedJobs() -> [BookPlayerKit.QueuedJobInfo] {
+    return []
+  }
+
   func uploadArtwork(relativePath: String, data: Data) async throws { }
 
   func syncBookmarksList(relativePath: String) async throws -> [BookPlayerKit.SimpleBookmark]? {

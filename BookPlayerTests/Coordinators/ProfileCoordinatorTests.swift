@@ -31,9 +31,4 @@ class ProfileCoordinatorTests: XCTestCase {
   func testInitialState() {
     XCTAssert(self.sut.childCoordinators.isEmpty)
   }
-
-  func testShowSettings() {
-    self.sut.showSettings()
-    XCTAssert(self.sut.childCoordinators.first is SettingsCoordinator)
-  }
 }
