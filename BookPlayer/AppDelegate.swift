@@ -64,12 +64,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       defaults.set(true, forKey: Constants.UserDefaults.completedFirstLaunch.rawValue)
     }
 
-    try? AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, mode: AVAudioSession.Mode(rawValue: convertFromAVAudioSessionMode(AVAudioSession.Mode.spokenAudio)), options: [])
+    try? AVAudioSession.sharedInstance().setCategory(
+      AVAudioSession.Category.playback,
+      mode: AVAudioSession.Mode(rawValue: convertFromAVAudioSessionMode(AVAudioSession.Mode.spokenAudio)),
+      options: []
+    )
 
     // register to audio-interruption notifications
-    NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioInterruptions(_:)), name: AVAudioSession.interruptionNotification, object: nil)
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(self.handleAudioInterruptions(_:)),
+      name: AVAudioSession.interruptionNotification,
+      object: nil
+    )
 
-    NotificationCenter.default.addObserver(self, selector: #selector(self.messageReceived), name: .messageReceived, object: nil)
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(self.messageReceived),
+      name: .messageReceived,
+      object: nil
+    )
 
     // register for remote events
     self.setupMPRemoteCommands()
@@ -405,6 +419,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     SentrySDK.start { options in
       options.dsn = "https://\(sentryDSN)"
       options.debug = false
+      options.tracesSampleRate = 0.5
     }
   }
 
