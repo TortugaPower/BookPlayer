@@ -222,6 +222,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     // Preload item
     if self.currentItem != nil {
       stopPlayback()
+      playerItem = nil
+      currentItem = nil
     }
 
     self.currentItem = item
@@ -726,6 +728,7 @@ extension PlayerManager {
     self.libraryService.setLibraryLastBook(with: nil)
 
     self.currentItem = nil
+    playerItem = nil
   }
 
   private func stopPlayback() {
