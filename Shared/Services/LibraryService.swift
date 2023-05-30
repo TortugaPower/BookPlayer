@@ -79,8 +79,10 @@ public protocol LibraryServiceProtocol {
   func rebuildFolderDetails(_ relativePath: String)
   /// Rebuild folder progress
   func recursiveFolderProgressUpdate(from relativePath: String)
-  /// Rename item title
-  func renameItem(at relativePath: String, with newTitle: String) throws -> String
+  /// Rename book title
+  func renameBook(at relativePath: String, with newTitle: String)
+  /// Rename folder title
+  func renameFolder(at relativePath: String, with newTitle: String) throws -> String
   /// Update item details
   func updateDetails(at relativePath: String, details: String)
   /// Update item order to new rank
@@ -1178,60 +1180,68 @@ extension LibraryService {
     }
   }
 
-  public func renameItem(at relativePath: String, with newTitle: String) throws -> String {
-    var finalRelativePath = relativePath
-
-    guard let item = self.getItemReference(with: relativePath) else { return finalRelativePath }
-
-    // Rename folder on disk too
-    if let folder = item as? Folder {
-      let processedFolderURL = DataManager.getProcessedFolderURL()
-
-      let sourceUrl = processedFolderURL
-        .appendingPathComponent(folder.relativePath)
-
-      let destinationUrl: URL
-      let newRelativePath: String
-
-      if let parentFolderPath = getItemProperty(
-        #keyPath(LibraryItem.folder.relativePath),
-        relativePath: folder.relativePath
-      ) as? String {
-        destinationUrl = processedFolderURL
-          .appendingPathComponent(parentFolderPath)
-          .appendingPathComponent(newTitle)
-        newRelativePath = destinationUrl.relativePath(to: processedFolderURL)
-      } else {
-        destinationUrl = processedFolderURL
-          .appendingPathComponent(newTitle)
-        newRelativePath = newTitle
-      }
-
-      try FileManager.default.moveItem(
-        at: sourceUrl,
-        to: destinationUrl
-      )
-
-      item.originalFileName = newTitle
-      item.relativePath = newRelativePath
-      finalRelativePath = newRelativePath
-
-      if let items = fetchRawContents(
-        at: relativePath,
-        propertiesToFetch: [
-          #keyPath(LibraryItem.relativePath),
-          #keyPath(LibraryItem.originalFileName)
-        ]
-      ) {
-        items.forEach({ rebuildRelativePaths(for: $0, parentFolder: folder.relativePath) })
-      }
-    }
+  public func renameBook(at relativePath: String, with newTitle: String) {
+    guard let item = self.getItemReference(with: relativePath) else { return }
 
     item.title = newTitle
 
+    metadataPassthroughPublisher.send([
+      #keyPath(LibraryItem.relativePath): relativePath,
+      #keyPath(LibraryItem.title): newTitle,
+    ])
+
+    self.dataManager.saveContext()
+  }
+
+  public func renameFolder(at relativePath: String, with newTitle: String) throws -> String {
+    guard let folder = self.getItemReference(with: relativePath) as? Folder else { return relativePath }
+
+    let processedFolderURL = DataManager.getProcessedFolderURL()
+
+    let sourceUrl = processedFolderURL
+      .appendingPathComponent(folder.relativePath)
+
+    let destinationUrl: URL
+    let newRelativePath: String
+
+    if let parentFolderPath = getItemProperty(
+      #keyPath(LibraryItem.folder.relativePath),
+      relativePath: folder.relativePath
+    ) as? String {
+      destinationUrl = processedFolderURL
+        .appendingPathComponent(parentFolderPath)
+        .appendingPathComponent(newTitle)
+      newRelativePath = destinationUrl.relativePath(to: processedFolderURL)
+    } else {
+      destinationUrl = processedFolderURL
+        .appendingPathComponent(newTitle)
+      newRelativePath = newTitle
+    }
+
+    try FileManager.default.moveItem(
+      at: sourceUrl,
+      to: destinationUrl
+    )
+
+    folder.originalFileName = newTitle
+    folder.relativePath = newRelativePath
+    folder.title = newTitle
+
+    if let items = fetchRawContents(
+      at: relativePath,
+      propertiesToFetch: [
+        #keyPath(LibraryItem.relativePath),
+        #keyPath(LibraryItem.originalFileName)
+      ]
+    ) {
+      items.forEach({ rebuildRelativePaths(for: $0, parentFolder: folder.relativePath) })
+    }
+
+    // TODO: Sync folder rename
+
     self.dataManager.saveContext()
 
-    return finalRelativePath
+    return newRelativePath
   }
 
   public func updateDetails(at relativePath: String, details: String) {

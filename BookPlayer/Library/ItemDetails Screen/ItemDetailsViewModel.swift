@@ -60,9 +60,12 @@ class ItemDetailsViewModel: BaseViewModel<ItemDetailsCoordinator> {
   func handleSaveAction() {
     var cacheKey = item.relativePath
 
-    if item.title != formViewModel.title,
-       let updatedCacheKey = try? libraryService.renameItem(at: item.relativePath, with: formViewModel.title) {
-      cacheKey = updatedCacheKey
+    if item.title != formViewModel.title {
+      if item.type == .book {
+        libraryService.renameBook(at: item.relativePath, with: formViewModel.title)
+      } else if let updatedCacheKey = try? libraryService.renameFolder(at: item.relativePath, with: formViewModel.title) {
+        cacheKey = updatedCacheKey
+      }
     }
 
     if formViewModel.showAuthor,
