@@ -135,7 +135,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       fetchedIdentifiers.append(fetchedItem.relativePath)
       if !libraryIdentifiers.contains(fetchedItem.relativePath) {
         itemsToStore.append(fetchedItem)
-      } else {
+      } else if fetchedItem.relativePath != lastItemPlayed?.relativePath {
         itemsToUpdate.append(fetchedItem)
       }
     }

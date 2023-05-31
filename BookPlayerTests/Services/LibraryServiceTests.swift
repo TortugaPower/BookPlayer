@@ -615,7 +615,7 @@ class LibraryServiceTests: XCTestCase {
       duration: 100
     )
 
-    _ = try self.sut.renameItem(at: book.relativePath, with: "rename-test")
+    _ = try self.sut.renameBook(at: book.relativePath, with: "rename-test")
     XCTAssert(book.title == "rename-test")
   }
 
@@ -630,14 +630,14 @@ class LibraryServiceTests: XCTestCase {
     )
     try self.sut.moveItems([folder2.relativePath], inside: folder.relativePath)
 
-    _ = try self.sut.renameItem(at: folder.relativePath, with: "rename-test")
+    _ = try self.sut.renameFolder(at: folder.relativePath, with: "rename-test")
     XCTAssert(folder.title == "rename-test")
     XCTAssert(folder.relativePath == "rename-test")
     XCTAssert(folder.originalFileName == "rename-test")
     XCTAssert(FileManager.default.fileExists(atPath: folder.fileURL!.path))
 
     let fetchedFolder2 = sut.getItem(with: "rename-test/test-folder2")!
-    _ = try self.sut.renameItem(at: fetchedFolder2.relativePath, with: "rename-test2")
+    _ = try self.sut.renameFolder(at: fetchedFolder2.relativePath, with: "rename-test2")
     XCTAssert(fetchedFolder2.title == "rename-test2")
     XCTAssert(fetchedFolder2.relativePath == "rename-test/rename-test2")
     XCTAssert(fetchedFolder2.originalFileName == "rename-test2")
@@ -1163,7 +1163,8 @@ class ModifyLibraryTests: LibraryServiceTests {
     self.sut.updatePlaybackTime(
       relativePath: book.relativePath,
       time: 50,
-      date: now
+      date: now,
+      scheduleSave: false
     )
 
     XCTAssert(book.lastPlayDate == now)

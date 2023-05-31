@@ -217,20 +217,62 @@ class LibraryListCoordinator: ItemListCoordinator {
   func processFetchedItems(_ items: [SyncableItem], lastPlayed: SyncableItem?) {
     reloadItemsWithPadding(padding: items.count)
 
-    guard let lastPlayedRelativePath = lastPlayed?.relativePath else { return }
+    if let lastPlayed {
+      handleSyncedLastPlayed(item: lastPlayed)
+    }
+  }
 
-    let lastItemRelativePath = libraryService.getLibraryLastItem()?.relativePath
-
-    guard lastItemRelativePath != lastPlayedRelativePath else { return }
-
-    playerManager.stop()
-    libraryService.setLibraryLastBook(with: lastPlayedRelativePath)
-
+  func handleSyncedLastPlayed(item: SyncableItem) {
     guard
-      let lastItem = libraryService.getLibraryLastItem(),
-      let playableItem = try? playbackService.getPlayableItem(from: lastItem)
-    else { return }
+      let localLastItem = libraryService.getLibraryLastItem(),
+      let lastPlayDateTimestamp = item.lastPlayDateTimestamp
+    else {
+      setSyncedLastPlayedItem(relativePath: item.relativePath)
+      return
+    }
 
-    playerManager.currentItem = playableItem
+    /// Check to update current time or not
+    if item.relativePath == localLastItem.relativePath {
+      /// Add a padding of 5 mins to local time
+      if item.currentTime > (localLastItem.currentTime + 300) {
+        /// Continue playback after time sync
+        let wasPlaying = playerManager.isPlaying
+        playerManager.stop()
+        libraryService.updatePlaybackTime(
+          relativePath: item.relativePath,
+          time: item.currentTime,
+          date: Date(timeIntervalSince1970: lastPlayDateTimestamp),
+          scheduleSave: false
+        )
+        AppDelegate.shared?.loadPlayer(
+          item.relativePath,
+          autoplay: wasPlaying,
+          showPlayer: nil,
+          alertPresenter: self
+        )
+      }
+    } else {
+      /// Only continue overriding local book if it's not currently playing
+      guard playerManager.isPlaying == false else { return }
+
+      if let lastPlayDateTimestamp = item.lastPlayDateTimestamp,
+         let localLastPlayDateTimestamp = localLastItem.lastPlayDate?.timeIntervalSince1970,
+         lastPlayDateTimestamp > localLastPlayDateTimestamp {
+        setSyncedLastPlayedItem(relativePath: item.relativePath)
+      }
+    }
+  }
+
+  func setSyncedLastPlayedItem(relativePath: String?) {
+    libraryService.setLibraryLastBook(with: relativePath)
+
+    if let relativePath {
+      AppDelegate.shared?.loadPlayer(
+        relativePath,
+        autoplay: false,
+        showPlayer: nil,
+        alertPresenter: self
+      )
+    }
   }
 }

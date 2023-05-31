@@ -16,12 +16,12 @@ public struct SyncableItem {
   let title: String
   let details: String
   let speed: Double?
-  let currentTime: Double
+  public let currentTime: Double
   let duration: Double
   let percentCompleted: Double
   let isFinished: Bool
   let orderRank: Int
-  let lastPlayDateTimestamp: Double?
+  public let lastPlayDateTimestamp: Double?
   let type: SimpleItemType
 
   static var fetchRequestProperties = [

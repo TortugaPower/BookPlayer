@@ -96,7 +96,7 @@ public protocol LibraryServiceProtocol {
   func sortContents(at relativePath: String?, by type: SortType)
   /// Playback
   /// Update playback time for item
-  func updatePlaybackTime(relativePath: String, time: Double, date: Date)
+  func updatePlaybackTime(relativePath: String, time: Double, date: Date, scheduleSave: Bool)
   /// Update item speed
   func updateBookSpeed(at relativePath: String, speed: Float)
   /// Get item speed
@@ -1331,7 +1331,7 @@ extension LibraryService {
     self.dataManager.saveContext()
   }
 
-  public func updatePlaybackTime(relativePath: String, time: Double, date: Date) {
+  public func updatePlaybackTime(relativePath: String, time: Double, date: Date, scheduleSave: Bool) {
     guard let item = self.getItem(with: relativePath) else { return }
 
     /// Metadata update already handled by the socket for playback
@@ -1343,7 +1343,12 @@ extension LibraryService {
       recursiveFolderLastPlayedDateUpdate(from: parentFolderPath, date: date)
     }
 
-    self.dataManager.scheduleSaveContext()
+    if scheduleSave {
+      dataManager.scheduleSaveContext()
+    } else {
+      dataManager.saveContext()
+    }
+
   }
 
   func recursiveFolderLastPlayedDateUpdate(from relativePath: String, date: Date) {

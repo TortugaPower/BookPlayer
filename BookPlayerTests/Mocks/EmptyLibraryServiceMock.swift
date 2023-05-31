@@ -13,6 +13,10 @@ import Combine
 
 /// Empty class meant to be subclassed to adjust service for test conditions
 class EmptyLibraryServiceMock: LibraryServiceProtocol {
+  func renameBook(at relativePath: String, with newTitle: String) { }
+
+  func renameFolder(at relativePath: String, with newTitle: String) throws -> String { return "" }
+
   var metadataUpdatePublisher: AnyPublisher<[String: Any], Never> = PassthroughSubject<[String: Any], Never>()
     .eraseToAnyPublisher()
 
@@ -94,7 +98,7 @@ class EmptyLibraryServiceMock: LibraryServiceProtocol {
 
   func getItems(notIn relativePaths: [String], parentFolder: String?) throws -> [String] { return [] }
 
-  func updatePlaybackTime(relativePath: String, time: Double, date: Date) {}
+  func updatePlaybackTime(relativePath: String, time: Double, date: Date, scheduleSave: Bool) {}
 
   func getLibrary() -> Library {
     return Library()

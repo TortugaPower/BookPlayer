@@ -34,7 +34,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
     item.lastPlayDate = now
     item.currentTime = time
     item.percentCompleted = round((item.currentTime / item.duration) * 100)
-    self.libraryService.updatePlaybackTime(relativePath: item.relativePath, time: time, date: now)
+    self.libraryService.updatePlaybackTime(relativePath: item.relativePath, time: time, date: now, scheduleSave: true)
   }
 
   public func getNextChapter(from item: PlayableItem) -> PlayableChapter? {
