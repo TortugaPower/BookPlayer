@@ -13,6 +13,7 @@ public enum JobType: String {
   case upload
   case update
   case move
+  case renameFolder
   case delete
   case shallowDelete
   case setBookmark
@@ -49,6 +50,7 @@ class LibraryItemSyncJob: Job, BPLogger {
     self.parameters = parameters
   }
 
+  // swiftlint:disable:next function_body_length
   func onRun(callback: SwiftQueue.JobResult) {
     Task { [weak self, callback] in
       guard let self = self else {
@@ -78,6 +80,13 @@ class LibraryItemSyncJob: Job, BPLogger {
             throw BookPlayerError.runtimeError("Missing parameters for moving")
           }
           let _: Empty = try await self.provider.request(.move(origin: origin, destination: destination))
+          callback.done(.success)
+        case .renameFolder:
+          guard let name = parameters["name"] as? String else {
+            throw BookPlayerError.runtimeError("Missing parameters for renaming")
+          }
+
+          let _: Empty = try await provider.request(.renameFolder(path: self.relativePath, name: name))
           callback.done(.success)
         case .delete:
           let _: Empty = try await provider.request(.delete(path: self.relativePath))

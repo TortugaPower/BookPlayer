@@ -29,6 +29,8 @@ public protocol JobSchedulerProtocol {
   )
   /// Delete a bookmark
   func scheduleDeleteBookmarkJob(with relativePath: String, time: Double)
+  /// Rename a folder
+  func scheduleRenameFolderJob(with relativePath: String, name: String)
   /// Get all queued jobs
   func getAllQueuedJobs() -> [QueuedJobInfo]
   /// Cancel all stored and ongoing jobs
@@ -209,6 +211,22 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
 
     JobBuilder(type: LibraryItemSyncJob.type)
       .singleInstance(forId: "\(JobType.setBookmark.identifier)/\(relativePath)")
+      .persist()
+      .retry(limit: .unlimited)
+      .internet(atLeast: .cellular)
+      .with(params: params)
+      .schedule(manager: libraryQueueManager)
+  }
+
+  public func scheduleRenameFolderJob(with relativePath: String, name: String) {
+    let params: [String: Any] = [
+      "relativePath": relativePath,
+      "name": name,
+      "jobType": JobType.renameFolder.rawValue
+    ]
+
+    JobBuilder(type: LibraryItemSyncJob.type)
+      .singleInstance(forId: "\(JobType.renameFolder.identifier)/\(relativePath)")
       .persist()
       .retry(limit: .unlimited)
       .internet(atLeast: .cellular)

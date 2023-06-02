@@ -61,10 +61,18 @@ class ItemDetailsViewModel: BaseViewModel<ItemDetailsCoordinator> {
     var cacheKey = item.relativePath
 
     if item.title != formViewModel.title {
-      if item.type == .book {
+      switch item.type {
+      case .book:
         libraryService.renameBook(at: item.relativePath, with: formViewModel.title)
-      } else if let updatedCacheKey = try? libraryService.renameFolder(at: item.relativePath, with: formViewModel.title) {
-        cacheKey = updatedCacheKey
+      case .bound, .folder:
+        do {
+          let newRelativePath = try libraryService.renameFolder(at: item.relativePath, with: formViewModel.title)
+          cacheKey = newRelativePath
+          syncService.scheduleRenameFolder(at: item.relativePath, name: formViewModel.title)
+        } catch {
+          sendEvent(.showAlert(content: BPAlertContent.errorAlert(message: error.localizedDescription)))
+          return
+        }
       }
     }
 

@@ -615,7 +615,7 @@ class LibraryServiceTests: XCTestCase {
       duration: 100
     )
 
-    _ = try self.sut.renameBook(at: book.relativePath, with: "rename-test")
+    sut.renameBook(at: book.relativePath, with: "rename-test")
     XCTAssert(book.title == "rename-test")
   }
 

@@ -1237,8 +1237,6 @@ extension LibraryService {
       items.forEach({ rebuildRelativePaths(for: $0, parentFolder: folder.relativePath) })
     }
 
-    // TODO: Sync folder rename
-
     self.dataManager.saveContext()
 
     return newRelativePath

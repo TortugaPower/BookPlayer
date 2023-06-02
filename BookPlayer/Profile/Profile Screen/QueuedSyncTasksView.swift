@@ -21,6 +21,8 @@ struct QueuedSyncTasksView<Model: QueuedSyncTasksViewModelProtocol>: View {
       return "arrow.2.circlepath"
     case .move:
       return "arrow.forward"
+    case .renameFolder:
+      return "square.and.pencil"
     case .delete:
       return "xmark.bin.fill"
     case .shallowDelete:

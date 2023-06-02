@@ -46,6 +46,8 @@ public protocol SyncServiceProtocol {
 
   func scheduleMove(items: [String], to parentFolder: String?)
 
+  func scheduleRenameFolder(at relativePath: String, name: String)
+
   func scheduleSetBookmark(
     relativePath: String,
     time: Double,
@@ -439,5 +441,11 @@ extension SyncService {
       with: bookmark.relativePath,
       time: bookmark.time
     )
+  }
+
+  public func scheduleRenameFolder(at relativePath: String, name: String) {
+    guard isActive else { return }
+
+    jobManager.scheduleRenameFolderJob(with: relativePath, name: name)
   }
 }
