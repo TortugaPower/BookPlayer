@@ -114,7 +114,7 @@ class ActionParserService {
       isOn,
       forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue
     )
-    playerManager.boostVolume = isOn
+    playerManager.setBoostVolume(isOn)
   }
 
   private class func handleFileImportAction(_ action: Action) {

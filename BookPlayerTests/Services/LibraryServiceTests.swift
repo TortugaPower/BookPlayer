@@ -608,7 +608,7 @@ class LibraryServiceTests: XCTestCase {
     XCTAssert(fetchedBookmark == nil)
   }
 
-  func testRenameBookItem() throws {
+  func testRenameBookItem() {
     let book = StubFactory.book(
       dataManager: self.sut.dataManager,
       title: "test-book1",

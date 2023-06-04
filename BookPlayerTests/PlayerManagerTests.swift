@@ -22,10 +22,10 @@ class PlayerManagerTests: XCTestCase {
     UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
     UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
     self.sut = PlayerManager(
-      libraryService: EmptyLibraryServiceMock(),
-      playbackService: EmptyPlaybackServiceMock(),
-      syncService: SyncServiceMock(),
-      speedService: EmptySpeedServiceMock(),
+      libraryService: LibraryServiceProtocolMock(),
+      playbackService: PlaybackServiceProtocolMock(),
+      syncService: SyncServiceProtocolMock(),
+      speedService: SpeedServiceProtocolMock(),
       socketService: SocketService()
     )
   }

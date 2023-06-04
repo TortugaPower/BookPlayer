@@ -1,5 +1,5 @@
 excluded:
-  - Carthage
+  - BookPlayer/Generated/AutoMockable.generated.swift
 cyclomatic_complexity:
   ignores_case_statements: true
 # line_length: 120

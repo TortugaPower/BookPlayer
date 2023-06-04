@@ -15,12 +15,12 @@ import XCTest
 
 class AccountServiceTests: XCTestCase {
   var sut: AccountService!
-  var mockKeychain: KeychainServiceMock!
+  var mockKeychain: KeychainServiceProtocolMock!
 
   override func setUp() {
     DataTestUtils.clearFolderContents(url: DataManager.getProcessedFolderURL())
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
-    self.mockKeychain = KeychainServiceMock()
+    self.mockKeychain = KeychainServiceProtocolMock()
     self.sut = AccountService(dataManager: dataManager, keychain: self.mockKeychain)
   }
 
@@ -96,7 +96,7 @@ class AccountServiceTests: XCTestCase {
   func testDeleteAccoount() async throws {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
     let mockResponse = DeleteResponse(message: "success")
-    let keychainMock = KeychainServiceMock()
+    let keychainMock = KeychainServiceProtocolMock()
 
     self.sut = AccountService(
       dataManager: dataManager,

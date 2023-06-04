@@ -9,6 +9,7 @@
 import Foundation
 import Security
 
+/// sourcery: AutoMockable
 public protocol KeychainServiceProtocol {
   func setAccessToken(_ token: String) throws
   func getAccessToken() throws -> String?

@@ -8,6 +8,7 @@
 
 import Foundation
 
+import Combine
 @testable import BookPlayer
 @testable import BookPlayerKit
 import XCTest
@@ -16,18 +17,26 @@ class LibraryListCoordinatorTests: XCTestCase {
   var libraryListCoordinator: LibraryListCoordinator!
   var dataManager: DataManager!
 
+  @Published var placeholder: PlayableItem?
+  @Published var speed: Float = 1
+
   override func setUp() {
     let coreServices = AppDelegate.shared!.createCoreServicesIfNeeded(from: CoreDataStack(testPath: "/dev/null"))
     self.dataManager = coreServices.dataManager
     let libraryService = coreServices.libraryService
+    _ = libraryService.getLibrary()
+    let playerManagerMock = PlayerManagerProtocolMock()
+    playerManagerMock.currentItemPublisherReturnValue = $placeholder
+    playerManagerMock.currentSpeedPublisherReturnValue = $speed
+    playerManagerMock.isPlayingPublisherReturnValue = Just(false).eraseToAnyPublisher()
 
     self.libraryListCoordinator = LibraryListCoordinator(
       navigationController: UINavigationController(),
-      playerManager: PlayerManagerMock(),
+      playerManager: playerManagerMock,
       importManager: ImportManager(libraryService: libraryService),
       libraryService: libraryService,
       playbackService: coreServices.playbackService,
-      syncService: SyncServiceMock()
+      syncService: SyncServiceProtocolMock()
     )
 
     self.libraryListCoordinator.start()
@@ -66,18 +75,22 @@ class LibraryListCoordinatorTests: XCTestCase {
 class FolderListCoordinatorTests: XCTestCase {
   var folderListCoordinator: FolderListCoordinator!
 
+  @Published var placeholder: PlayableItem?
+
   override func setUp() {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
     let libraryService = LibraryService(dataManager: dataManager)
     let folder = try! StubFactory.folder(dataManager: dataManager, title: "folder 1")
+    let playerManagerMock = PlayerManagerProtocolMock()
+    playerManagerMock.currentItemPublisherReturnValue = $placeholder
 
     self.folderListCoordinator = FolderListCoordinator(
       navigationController: UINavigationController(),
       folderRelativePath: folder.relativePath,
-      playerManager: PlayerManagerMock(),
+      playerManager: playerManagerMock,
       libraryService: libraryService,
       playbackService: PlaybackService(libraryService: libraryService),
-      syncService: SyncServiceMock()
+      syncService: SyncServiceProtocolMock()
     )
 
     self.folderListCoordinator.start()

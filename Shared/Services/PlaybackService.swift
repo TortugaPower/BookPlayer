@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// sourcery: AutoMockable
 public protocol PlaybackServiceProtocol {
   func updatePlaybackTime(item: PlayableItem, time: Double)
   func getPlayableItem(before relativePath: String, parentFolder: String?) -> PlayableItem?

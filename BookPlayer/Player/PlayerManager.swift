@@ -13,12 +13,11 @@ import Foundation
 import MediaPlayer
 import WidgetKit
 
-// swiftlint:disable file_length
-
-public protocol PlayerManagerProtocol: NSObjectProtocol {
+// swiftlint:disable:next file_length
+/// sourcery: AutoMockable
+public protocol PlayerManagerProtocol {
   var currentItem: PlayableItem? { get set }
   var currentSpeed: Float { get set }
-  var boostVolume: Bool { get set }
   var isPlaying: Bool { get }
 
   func load(_ item: PlayableItem, autoplay: Bool)
@@ -36,6 +35,7 @@ public protocol PlayerManagerProtocol: NSObjectProtocol {
   func jumpToChapter(_ chapter: PlayableChapter)
   func markAsCompleted(_ flag: Bool)
   func setSpeed(_ newValue: Float)
+  func setBoostVolume(_ newValue: Bool)
 
   func currentSpeedPublisher() -> Published<Float>.Publisher
   func isPlayingPublisher() -> AnyPublisher<Bool, Never>
@@ -647,6 +647,10 @@ extension PlayerManager {
     if self.isPlaying {
       self.audioPlayer.rate = newValue
     }
+  }
+
+  func setBoostVolume(_ newValue: Bool) {
+    self.boostVolume = newValue
   }
 
   // swiftlint:disable block_based_kvo

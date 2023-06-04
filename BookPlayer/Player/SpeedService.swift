@@ -10,6 +10,7 @@ import BookPlayerKit
 import Combine
 import Foundation
 
+/// sourcery: AutoMockable
 public protocol SpeedServiceProtocol {
   func setSpeed(_ newValue: Float, relativePath: String?)
   func getSpeed(relativePath: String?) -> Float

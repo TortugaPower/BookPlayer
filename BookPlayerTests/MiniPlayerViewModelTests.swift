@@ -15,10 +15,14 @@ import XCTest
 
 class MiniPlayerViewModelTests: XCTestCase {
   var sut: MiniPlayerViewModel!
-  var playerMock: PlayerManagerMock!
+  var playerMock: PlayerManagerProtocolMock!
+
+  @Published var placeholder: PlayableItem?
 
   override func setUp() {
-    self.playerMock = PlayerManagerMock()
+    self.playerMock = PlayerManagerProtocolMock()
+    playerMock.currentItemPublisherReturnValue = $placeholder
+    playerMock.hasLoadedBookReturnValue = true
     self.sut = MiniPlayerViewModel(playerManager: self.playerMock)
   }
 
@@ -42,6 +46,6 @@ class MiniPlayerViewModelTests: XCTestCase {
   func testPlayPause() {
     self.sut.handlePlayPauseAction()
 
-    XCTAssert(self.playerMock.didPlayPause == true)
+    XCTAssert(playerMock.playPauseCalled == true)
   }
 }

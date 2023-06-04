@@ -192,7 +192,7 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
 
       guard let playerManager = AppDelegate.shared?.playerManager else { return }
 
-      playerManager.boostVolume = self.boostVolumeSwitch.isOn
+      playerManager.setBoostVolume(self.boostVolumeSwitch.isOn)
     }
 
     @objc func globalSpeedToggleDidChange() {

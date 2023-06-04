@@ -10,6 +10,7 @@ import Combine
 import Foundation
 import RevenueCat
 
+/// sourcery: AutoMockable
 public protocol SyncServiceProtocol {
   /// Flag to check if it can sync or not
   var isActive: Bool { get set }

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 
 @testable import BookPlayer
 @testable import BookPlayerKit
@@ -15,14 +16,21 @@ import XCTest
 class PlayerCoordinatorTests: XCTestCase {
   var playerCoordinator: PlayerCoordinator!
 
+  @Published var placeholder: PlayableItem?
+  @Published var speed: Float = 1
+
   override func setUp() {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
     let libraryService = LibraryService(dataManager: dataManager)
+    let playerManagerMock = PlayerManagerProtocolMock()
+    playerManagerMock.currentItemPublisherReturnValue = $placeholder
+    playerManagerMock.currentSpeedPublisherReturnValue = $speed
+    playerManagerMock.isPlayingPublisherReturnValue = Just(true).eraseToAnyPublisher()
 
     self.playerCoordinator = PlayerCoordinator(
-      playerManager: PlayerManagerMock(),
+      playerManager: playerManagerMock,
       libraryService: libraryService,
-      syncService: SyncServiceMock(),
+      syncService: SyncServiceProtocolMock(),
       presentingViewController: UINavigationController()
     )
     self.playerCoordinator.start()

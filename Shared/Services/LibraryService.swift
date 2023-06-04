@@ -11,6 +11,7 @@ import CoreData
 import Foundation
 import Combine
 
+/// sourcery: AutoMockable
 public protocol LibraryServiceProtocol {
   /// Metadata publisher that collects changes during 10 seconds before normalizing the payload
   var metadataUpdatePublisher: AnyPublisher<[String: Any], Never> { get }
