@@ -101,7 +101,7 @@ extension LibraryAPI: Endpoint {
     case .renameFolder(let path, let name):
       return [
         "relativePath": path,
-        "name": name
+        "newName": name
       ]
     case .remoteFileURL(let path):
       return [
