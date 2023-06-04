@@ -57,6 +57,7 @@ class ItemDetailsViewModel: BaseViewModel<ItemDetailsCoordinator> {
     onTransition?(.cancel)
   }
 
+  // swiftlint:disable:next function_body_length
   func handleSaveAction() {
     var cacheKey = item.relativePath
 
