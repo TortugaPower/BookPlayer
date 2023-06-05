@@ -114,12 +114,12 @@ class ActionParserService {
       isOn,
       forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue
     )
-    playerManager.boostVolume = isOn
+    playerManager.setBoostVolume(isOn)
   }
 
   private class func handleFileImportAction(_ action: Action) {
     guard
-      let libraryCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator()?.getLibraryCoordinator(),
+      let libraryCoordinator = AppDelegate.shared?.activeSceneDelegate?.coordinator.getMainCoordinator()?.getLibraryCoordinator(),
       let urlString = action.getQueryValue(for: "url")
     else {
       return
@@ -166,7 +166,7 @@ class ActionParserService {
     if let value = action.getQueryValue(for: "showPlayer"),
        let showPlayer = Bool(value),
        showPlayer {
-      SceneDelegate.shared?.showPlayer()
+      AppDelegate.shared?.showPlayer()
     }
 
     if let value = action.getQueryValue(for: "autoplay"),
@@ -177,7 +177,7 @@ class ActionParserService {
 
     guard let bookIdentifier = action.getQueryValue(for: "identifier") else {
       self.removeAction(action)
-      SceneDelegate.shared?.playLastBook()
+      AppDelegate.shared?.playLastBook()
       return
     }
 
@@ -188,7 +188,9 @@ class ActionParserService {
       return
     }
 
-    guard let libraryCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator()?.getLibraryCoordinator() else { return }
+    guard
+      let libraryCoordinator = AppDelegate.shared?.activeSceneDelegate?.coordinator.getMainCoordinator()?.getLibraryCoordinator()
+    else { return }
 
     self.removeAction(action)
     libraryCoordinator.loadPlayer(bookIdentifier)
@@ -196,7 +198,7 @@ class ActionParserService {
 
   private class func handleDownloadAction(_ action: Action) {
     guard
-      let libraryCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator()?.getLibraryCoordinator(),
+      let libraryCoordinator = AppDelegate.shared?.activeSceneDelegate?.coordinator.getMainCoordinator()?.getLibraryCoordinator(),
       let urlString = action.getQueryValue(for: "url")?.replacingOccurrences(of: "\"", with: "")
     else {
       return

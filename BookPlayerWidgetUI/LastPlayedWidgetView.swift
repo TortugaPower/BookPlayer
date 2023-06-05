@@ -28,13 +28,13 @@ struct PlayAndSleepProvider: IntentTimelineProvider {
         let dataManager = DataManager(coreDataStack: stack)
         let libraryService = LibraryService(dataManager: dataManager)
 
-        guard let lastPlayedItem = try? libraryService.getLibraryLastItem(),
-              let currentTheme = try? libraryService.getLibraryCurrentTheme() else {
-                completion(self.placeholder(in: context))
-                return
-              }
-
-        let theme = SimpleTheme(with: currentTheme)
+        guard
+          let lastPlayedItem = libraryService.getLibraryLastItem(),
+          let theme = libraryService.getLibraryCurrentTheme()
+        else {
+          completion(self.placeholder(in: context))
+          return
+        }
 
         let title = lastPlayedItem.title
         let autoplay = configuration.autoplay?.boolValue ?? true
@@ -62,13 +62,13 @@ struct PlayAndSleepProvider: IntentTimelineProvider {
         let dataManager = DataManager(coreDataStack: stack)
         let libraryService = LibraryService(dataManager: dataManager)
 
-        guard let lastPlayedItem = try? libraryService.getLibraryLastItem(),
-              let currentTheme = try? libraryService.getLibraryCurrentTheme() else {
-                completion(Timeline(entries: [], policy: .atEnd))
-                return
-              }
-
-        let theme = SimpleTheme(with: currentTheme)
+        guard
+          let lastPlayedItem = libraryService.getLibraryLastItem(),
+          let theme = libraryService.getLibraryCurrentTheme()
+        else {
+          completion(Timeline(entries: [], policy: .atEnd))
+          return
+        }
 
         let title = lastPlayedItem.title
         let autoplay = configuration.autoplay?.boolValue ?? true

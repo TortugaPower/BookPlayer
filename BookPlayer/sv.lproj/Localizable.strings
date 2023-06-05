@@ -1,11 +1,3 @@
-/* 
-  Localizable.strings
-  BookPlayer
-
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
-
 "library_title" = "Bibliotek";
 "settings_button" = "Inställningar";
 "settings_title" = "Inställningar";
@@ -63,7 +55,7 @@
 "ok_button" = "OK";
 "siri_alert_description" = "Siri-genvägar är tillgängliga på iOS 12 och högre";
 "support_bookplayer_title" = "Stöd BookPlayer";
-"support_bookplayer_description" = "Köp BookPlayer Plus för att stödja framtida utveckling och få extra teman och appikoner";
+"support_bookplayer_description" = "Skaffa BookPlayer Pro för att stödja framtida utveckling och få extra teman, appikoner och molnsynkronisering";
 "learn_more_title" = "LÄS MER";
 "settings_appearance_title" = "Utseende";
 "settings_theme_title" = "Tema";
@@ -231,3 +223,63 @@
 "gesture_swipe_left_title" = "Svep åt vänster för att spola tillbaka";
 "gesture_swipe_right_title" = "Svep åt höger för att hoppa framåt";
 "gesture_swipe_vertically_title" = "Svep vertikalt för att skapa ett bokmärke";
+"details_title" = "Detaljer";
+"download_title" = "Ladda ner";
+"cancel_download_title" = "Avbryt nedladdning";
+"remove_downloaded_file_title" = "Ta bort från enheten";
+"download_from_url_title" = "Ladda ner från URL";
+"done_title" = "Gjort";
+"select_title" = "Välj";
+"sort_button_title" = "Sort";
+"search_title" = "Sök";
+"books_title" = "Böcker";
+"folders_title" = "Mappar";
+"item_title_placeholder" = "Titel";
+"item_author_placeholder" = "Författare";
+"artwork_options_title" = "Alternativ för konstverk";
+"artwork_photolibrary_title" = "Välj från Fotobibliotek";
+"artwork_clipboard_title" = "Klistra in från urklipp";
+"artwork_reset_title" = "Återställa";
+"artwork_clipboard_empty_title" = "Ingen bild i klippbordet";
+"artwork_title" = "Konstverk";
+"update_title" = "Uppdatering";
+"edit_title" = "Redigera";
+"setup_account_title" = "Konfigurera konto";
+"not_signedin_title" = "Inte inloggad";
+"total_listening_title" = "Total lyssningstid";
+"sync_library_title" = "Synkronisera bibliotek";
+"last_sync_title" = "Senaste synkronisering: %@";
+"profile_title" = "Profil";
+"manage_title" = "Hantera";
+"logout_title" = "Logga ut";
+"delete_account_title" = "Radera konto";
+"account_title" = "konto";
+"benefits_cloudsync_title" = "Molnsynkronisering";
+"benefits_themesicons_title" = "Teman och ikoner";
+"benefits_supportus_title" = "Stöd oss";
+"completeaccount_title" = "Komplettera ditt konto";
+"benefits_cloudsync_description" = "Ladda ner och synkronisera ditt bibliotek och bokförlopp till alla dina enheter som stöds.";
+"benefits_themesicons_description" = "Du får tillgång till ytterligare teman och appikoner som låses upp genom att donera och gå med i BookPlayer Plus.";
+"benefits_supportus_description" = "Med din hjälp kan vi implementera fler funktioner och göra BookPlayer ännu bättre.";
+"benefits_disclaimer_title" = "Tänk på följande:";
+"benefits_disclaimer_account_description" = "– Du behöver bara ett konto hos oss om du planerar att lyssna på ditt bibliotek på olika enheter";
+"benefits_disclaimer_subscription_description" = "- På grund av pågående serverkostnader för molnlagring och förloppssynkronisering kräver vi ett abonnemang för att kompensera för kostnaden för denna funktion";
+"subscribe_title" = "Prenumerera nu";
+"renewal_description" = "Förnyas automatiskt varje månad";
+"pro_welcome_title" = "Välkommen till BookPlayer Pro!";
+"pro_welcome_description" = "Vi börjar synkronisera ditt bibliotek när WiFi är tillgängligt";
+"benefits_disclaimer_watch_description" = "- Fristående uppspelning på Apple Watch är ännu inte tillgänglig. Den kommer att ingå i en framtida version.";
+"privacy_policy_title" = "Integritetspolicy";
+"terms_conditions_title" = "Villkor";
+"and_title" = "och";
+"agreement_prefix_title" = "Genom att fortsätta godkänner du";
+"yearly_title" = "per år";
+"monthly_title" = "per månad";
+"choose_plan_title" = "Välj din plan";
+"tasks_title" = "Uppgifter";
+"queued_sync_tasks_title" = "Synkroniseringsuppgifter i kö (%d)";
+"sync_tasks_alert_description" = "Om det finns en synkroniseringsuppgift som har fastnat och inte rensas ut efter att ha en aktiv internetanslutning, kan du logga ut och logga in för att rensa bort de aktuella uppgifterna. Detta kommer att återställa ditt bibliotek till det senast synkroniserade tillståndet med våra servrar.
+
+ Tänk på att uppladdningsuppgifter kan ta lite tid, och framstegen kommer att publiceras med jämna mellanrum på föregående skärm.
+
+ Vi arbetar hårt på att ge en sömlös upplevelse, om möjligt, kontakta oss på support@bookplayer.app med en skärmdump av den här skärmen. Tack!";

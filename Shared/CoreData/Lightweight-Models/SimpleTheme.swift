@@ -38,7 +38,7 @@ public struct SimpleTheme: Codable {
   public let darkQuaternarySystemFillHex: String
   public let locked: Bool
 
-  public let title: String?
+  public let title: String
 
   public var lightPrimaryColor: UIColor {
       return UIColor(hex: lightPrimaryHex)
@@ -142,6 +142,64 @@ public struct SimpleTheme: Codable {
 
   enum CodingKeys: String, CodingKey {
     case title, lightPrimaryHex, lightSecondaryHex, lightAccentHex, lightSeparatorHex, lightSystemBackgroundHex, lightSecondarySystemBackgroundHex, lightTertiarySystemBackgroundHex, lightSystemGroupedBackgroundHex, lightSystemFillHex, lightSecondarySystemFillHex, lightTertiarySystemFillHex, lightQuaternarySystemFillHex, darkPrimaryHex, darkSecondaryHex, darkAccentHex, darkSeparatorHex, darkSystemBackgroundHex, darkSecondarySystemBackgroundHex, darkTertiarySystemBackgroundHex, darkSystemGroupedBackgroundHex, darkSystemFillHex, darkSecondarySystemFillHex, darkTertiarySystemFillHex, darkQuaternarySystemFillHex, locked
+  }
+
+  public init(
+    useDarkVariant: Bool,
+    lightPrimaryHex: String,
+    lightSecondaryHex: String,
+    lightAccentHex: String,
+    lightSeparatorHex: String,
+    lightSystemBackgroundHex: String,
+    lightSecondarySystemBackgroundHex: String,
+    lightTertiarySystemBackgroundHex: String,
+    lightSystemGroupedBackgroundHex: String,
+    lightSystemFillHex: String,
+    lightSecondarySystemFillHex: String,
+    lightTertiarySystemFillHex: String,
+    lightQuaternarySystemFillHex: String,
+    darkPrimaryHex: String,
+    darkSecondaryHex: String,
+    darkAccentHex: String,
+    darkSeparatorHex: String,
+    darkSystemBackgroundHex: String,
+    darkSecondarySystemBackgroundHex: String,
+    darkTertiarySystemBackgroundHex: String,
+    darkSystemGroupedBackgroundHex: String,
+    darkSystemFillHex: String,
+    darkSecondarySystemFillHex: String,
+    darkTertiarySystemFillHex: String,
+    darkQuaternarySystemFillHex: String,
+    locked: Bool,
+    title: String
+  ) {
+    self.useDarkVariant = useDarkVariant
+    self.lightPrimaryHex = lightPrimaryHex
+    self.lightSecondaryHex = lightSecondaryHex
+    self.lightAccentHex = lightAccentHex
+    self.lightSeparatorHex = lightSeparatorHex
+    self.lightSystemBackgroundHex = lightSystemBackgroundHex
+    self.lightSecondarySystemBackgroundHex = lightSecondarySystemBackgroundHex
+    self.lightTertiarySystemBackgroundHex = lightTertiarySystemBackgroundHex
+    self.lightSystemGroupedBackgroundHex = lightSystemGroupedBackgroundHex
+    self.lightSystemFillHex = lightSystemFillHex
+    self.lightSecondarySystemFillHex = lightSecondarySystemFillHex
+    self.lightTertiarySystemFillHex = lightTertiarySystemFillHex
+    self.lightQuaternarySystemFillHex = lightQuaternarySystemFillHex
+    self.darkPrimaryHex = darkPrimaryHex
+    self.darkSecondaryHex = darkSecondaryHex
+    self.darkAccentHex = darkAccentHex
+    self.darkSeparatorHex = darkSeparatorHex
+    self.darkSystemBackgroundHex = darkSystemBackgroundHex
+    self.darkSecondarySystemBackgroundHex = darkSecondarySystemBackgroundHex
+    self.darkTertiarySystemBackgroundHex = darkTertiarySystemBackgroundHex
+    self.darkSystemGroupedBackgroundHex = darkSystemGroupedBackgroundHex
+    self.darkSystemFillHex = darkSystemFillHex
+    self.darkSecondarySystemFillHex = darkSecondarySystemFillHex
+    self.darkTertiarySystemFillHex = darkTertiarySystemFillHex
+    self.darkQuaternarySystemFillHex = darkQuaternarySystemFillHex
+    self.locked = locked
+    self.title = title
   }
 }
 
@@ -336,5 +394,39 @@ extension SimpleTheme {
 extension SimpleTheme: Equatable {
   public static func == (lhs: SimpleTheme, rhs: SimpleTheme) -> Bool {
     return lhs.title == rhs.title
+  }
+}
+
+extension SimpleTheme {
+  public static func getDefaultTheme(useDarkVariant: Bool = false) -> SimpleTheme {
+    return SimpleTheme(
+      useDarkVariant: useDarkVariant,
+      lightPrimaryHex: "242320",
+      lightSecondaryHex: "8F8E95",
+      lightAccentHex: "3488D1",
+      lightSeparatorHex: "DCDCDC",
+      lightSystemBackgroundHex: "FAFAFA",
+      lightSecondarySystemBackgroundHex: "FCFBFC",
+      lightTertiarySystemBackgroundHex: "E8E7E9",
+      lightSystemGroupedBackgroundHex: "EFEEF0",
+      lightSystemFillHex: "87A0BA",
+      lightSecondarySystemFillHex: "ACAAB1",
+      lightTertiarySystemFillHex: "3488D1",
+      lightQuaternarySystemFillHex: "3488D1",
+      darkPrimaryHex: "FAFBFC",
+      darkSecondaryHex: "8F8E94",
+      darkAccentHex: "459EEC",
+      darkSeparatorHex: "434448",
+      darkSystemBackgroundHex: "202225",
+      darkSecondarySystemBackgroundHex: "111113",
+      darkTertiarySystemBackgroundHex: "333538",
+      darkSystemGroupedBackgroundHex: "2C2D30",
+      darkSystemFillHex: "647E98",
+      darkSecondarySystemFillHex: "707176",
+      darkTertiarySystemFillHex: "459EEC",
+      darkQuaternarySystemFillHex: "459EEC",
+      locked: false,
+      title: "Default / Dark"
+    )
   }
 }

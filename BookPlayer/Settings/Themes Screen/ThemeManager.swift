@@ -23,10 +23,7 @@ final class ThemeManager: ThemeProvider {
     }
     set {
       self.setNewTheme(newValue)
-
-      if let title = newValue.title {
-        self.libraryService.setLibraryTheme(with: title)
-      }
+      self.libraryService.setLibraryTheme(with: newValue)
     }
   }
 
@@ -87,9 +84,12 @@ final class ThemeManager: ThemeProvider {
 
   private func setNewTheme(_ newTheme: SimpleTheme) {
     guard
-      let sceneDelegate = SceneDelegate.shared,
+      let sceneDelegate = AppDelegate.shared?.activeSceneDelegate,
       let window = sceneDelegate.window
-    else { return }
+    else {
+      self.theme.value = newTheme
+      return
+    }
 
     let newTheme = SimpleTheme(with: newTheme, useDarkVariant: self.useDarkVariant)
     UIView.transition(with: window,

@@ -4,6 +4,7 @@
 
 # Build configuration
 BuildConfiguration/Debug.xcconfig
+BuildConfiguration/Release.xcconfig
 
 ## Build generated
 build/

@@ -15,7 +15,7 @@ class ButtonFreeViewController: BaseViewController<ButtonFreeCoordinator, Button
 
   private lazy var contentStackview: UIStackView = {
     let stackview = UIStackView()
-    stackview.spacing = 12
+    stackview.spacing = Spacing.S1
     stackview.axis = .vertical
     stackview.translatesAutoresizingMaskIntoConstraints = false
     stackview.isUserInteractionEnabled = false
@@ -23,8 +23,8 @@ class ButtonFreeViewController: BaseViewController<ButtonFreeCoordinator, Button
   }()
 
   private lazy var titleItem: UILabel = {
-    let label = UILabel()
-    label.font = UIFont.preferredFont(with: 16, style: .headline, weight: .semibold)
+    let label = BaseLabel()
+    label.font = Fonts.title
     label.text = "screen_gestures_title".localized.capitalized
     label.numberOfLines = 0
     label.translatesAutoresizingMaskIntoConstraints = false
@@ -67,11 +67,11 @@ class ButtonFreeViewController: BaseViewController<ButtonFreeCoordinator, Button
   }()
 
   private lazy var messageLabel: UILabel = {
-    let label = UILabel()
+    let label = BaseLabel()
     label.translatesAutoresizingMaskIntoConstraints = false
     label.numberOfLines = 0
     label.textAlignment = .center
-    label.font = UIFont.preferredFont(with: 16, style: .headline, weight: .semibold)
+    label.font = Fonts.title
     label.alpha = 0
     return label
   }()
@@ -97,7 +97,7 @@ class ButtonFreeViewController: BaseViewController<ButtonFreeCoordinator, Button
     self.navigationItem.title = "button_free_title".localized.capitalized
 
     self.navigationItem.leftBarButtonItem = UIBarButtonItem(
-      image: UIImage(systemName: "xmark"),
+      image: ImageIcons.navigationBackImage,
       style: .plain,
       target: self,
       action: #selector(self.didPressClose)
@@ -242,27 +242,5 @@ extension ButtonFreeViewController: Themeable {
     self.overrideUserInterfaceStyle = theme.useDarkVariant
       ? UIUserInterfaceStyle.dark
       : UIUserInterfaceStyle.light
-  }
-}
-
-/// Reference: https://stackoverflow.com/a/62687023/2105150
-extension UIFont {
-  static func preferredFont(with size: CGFloat, style: TextStyle, weight: Weight, italic: Bool = false) -> UIFont {
-    // Get the font at the specified size and preferred weight
-    var font = UIFont.systemFont(ofSize: size, weight: weight)
-    if italic == true {
-      font = font.with([.traitItalic])
-    }
-
-    // Setup the font to be auto-scalable
-    let metrics = UIFontMetrics(forTextStyle: style)
-    return metrics.scaledFont(for: font)
-  }
-
-  private func with(_ traits: UIFontDescriptor.SymbolicTraits...) -> UIFont {
-    guard let descriptor = fontDescriptor.withSymbolicTraits(UIFontDescriptor.SymbolicTraits(traits).union(fontDescriptor.symbolicTraits)) else {
-      return self
-    }
-    return UIFont(descriptor: descriptor, size: 0)
   }
 }

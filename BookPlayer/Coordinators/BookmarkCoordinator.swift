@@ -12,36 +12,56 @@ import BookPlayerKit
 class BookmarkCoordinator: Coordinator {
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
+  let syncService: SyncServiceProtocol
 
-  init(navigationController: UINavigationController,
-       playerManager: PlayerManagerProtocol,
-       libraryService: LibraryServiceProtocol) {
+  init(
+    playerManager: PlayerManagerProtocol,
+    libraryService: LibraryServiceProtocol,
+    syncService: SyncServiceProtocol,
+    presentingViewController: UIViewController?
+  ) {
     self.playerManager = playerManager
     self.libraryService = libraryService
+    self.syncService = syncService
+    super.init(
+      navigationController: AppNavigationController.instantiate(from: .Player),
+      flowType: .modal
+    )
 
-    super.init(navigationController: navigationController,
-               flowType: .modal)
+    self.presentingViewController = presentingViewController
   }
 
   override func start() {
     let vc = BookmarksViewController.instantiate(from: .Player)
-    let viewModel = BookmarksViewModel(playerManager: self.playerManager,
-                                       libraryService: self.libraryService)
+    let viewModel = BookmarksViewModel(
+      playerManager: self.playerManager,
+      libraryService: self.libraryService,
+      syncService: self.syncService
+    )
     viewModel.coordinator = self
     vc.viewModel = viewModel
 
-    let nav = AppNavigationController.instantiate(from: .Main)
-    nav.viewControllers = [vc]
-    nav.presentationController?.delegate = self
-    self.presentingViewController?.present(nav, animated: true, completion: nil)
-    self.presentingViewController = nav
+    viewModel.onTransition = { [weak self] route in
+      switch route {
+      case .export(let bookmarks, let item):
+        self?.showExportController(currentItem: item, bookmarks: bookmarks)
+      }
+    }
+
+    navigationController.viewControllers = [vc]
+    navigationController.presentationController?.delegate = self
+    presentingViewController?.present(self.navigationController, animated: true, completion: nil)
   }
 
-  func showExportController(currentItem: PlayableItem, bookmarks: [Bookmark]) {
+  func showExportController(currentItem: PlayableItem, bookmarks: [SimpleBookmark]) {
     let provider = BookmarksActivityItemProvider(currentItem: currentItem, bookmarks: bookmarks)
 
     let shareController = UIActivityViewController(activityItems: [provider], applicationActivities: nil)
 
-    self.presentingViewController?.present(shareController, animated: true, completion: nil)
+    if let popoverPresentationController = shareController.popoverPresentationController {
+      popoverPresentationController.barButtonItem = navigationController.topViewController?.navigationItem.rightBarButtonItem!
+    }
+
+    navigationController.present(shareController, animated: true, completion: nil)
   }
 }

@@ -13,13 +13,17 @@ class ImportCoordinator: Coordinator {
   weak var importViewController: ImportViewController?
 
   init(
-    navigationController: UINavigationController,
-    importManager: ImportManager
+    importManager: ImportManager,
+    presentingViewController: UIViewController?
   ) {
     self.importManager = importManager
 
-    super.init(navigationController: navigationController,
-               flowType: .modal)
+    super.init(
+      navigationController: AppNavigationController.instantiate(from: .Player),
+      flowType: .modal
+    )
+
+    self.presentingViewController = presentingViewController
   }
 
   override func start() {
@@ -32,7 +36,8 @@ class ImportCoordinator: Coordinator {
     let nav = AppNavigationController.instantiate(from: .Main)
     nav.viewControllers = [vc]
     nav.presentationController?.delegate = self
-    self.presentingViewController?.getTopViewController()?.present(nav, animated: true, completion: nil)
+    AppDelegate.shared?.activeSceneDelegate?.coordinator.getMainCoordinator()?
+      .getTopController()?.present(nav, animated: true, completion: nil)
   }
 
   override func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {

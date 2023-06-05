@@ -1,11 +1,3 @@
-/* 
-  Localizable.strings
-  BookPlayer
-
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
-
 "library_title" = "Bibliotek";
 "settings_button" = "Indstillinger";
 "settings_title" = "Indstillinger";
@@ -63,7 +55,7 @@
 "ok_button" = "OK";
 "siri_alert_description" = "Siri-genveje er tilgængelige på iOS 12 og opefter";
 "support_bookplayer_title" = "Støt BookPlayer";
-"support_bookplayer_description" = "Få BookPlayer Plus for at støtte fremtidig udvikling og få ekstra temaer og app-ikoner";
+"support_bookplayer_description" = "Få BookPlayer Pro til at understøtte fremtidig udvikling og få ekstra temaer, appikoner og skysynkronisering";
 "learn_more_title" = "LÆR MERE";
 "settings_appearance_title" = "Udseende";
 "settings_theme_title" = "Tema";
@@ -231,3 +223,63 @@
 "gesture_swipe_left_title" = "Stryg til venstre for at spole tilbage";
 "gesture_swipe_right_title" = "Stryg til højre for at springe fremad";
 "gesture_swipe_vertically_title" = "Stryg lodret for at oprette et bogmærke";
+"details_title" = "detaljer";
+"download_title" = "Hent";
+"cancel_download_title" = "Annuller download";
+"remove_downloaded_file_title" = "Fjern fra enheden";
+"download_from_url_title" = "Download fra URL";
+"done_title" = "Færdig";
+"select_title" = "Vælg";
+"sort_button_title" = "Sortere";
+"search_title" = "Søg";
+"books_title" = "Bøger";
+"folders_title" = "Mapper";
+"item_title_placeholder" = "Titel";
+"item_author_placeholder" = "Forfatter";
+"artwork_options_title" = "Muligheder for kunstværker";
+"artwork_photolibrary_title" = "Vælg fra Fotobibliotek";
+"artwork_clipboard_title" = "Indsæt fra udklipsholder";
+"artwork_reset_title" = "Nulstil";
+"artwork_clipboard_empty_title" = "Intet billede i udklipsholderen";
+"artwork_title" = "Kunstværk";
+"update_title" = "Opdatering";
+"edit_title" = "Redigere";
+"setup_account_title" = "Opret konto";
+"not_signedin_title" = "Ikke logget ind";
+"total_listening_title" = "Samlet lyttetid";
+"sync_library_title" = "Synkroniser bibliotek";
+"last_sync_title" = "Sidste synkronisering: %@";
+"profile_title" = "Profil";
+"manage_title" = "Styre";
+"logout_title" = "Log ud";
+"delete_account_title" = "Slet konto";
+"account_title" = "Konto";
+"benefits_cloudsync_title" = "Skysynkronisering";
+"benefits_themesicons_title" = "Temaer og ikoner";
+"benefits_supportus_title" = "Støt os";
+"completeaccount_title" = "Fuldfør din konto";
+"benefits_cloudsync_description" = "Download og synkroniser dit bibliotek og bogforløb til alle dine understøttede enheder.";
+"benefits_themesicons_description" = "Du får adgang til de ekstra temaer og appikoner, der låses op ved at donere og tilmelde dig BookPlayer Plus.";
+"benefits_supportus_description" = "Med din hjælp er vi i stand til at implementere flere funktioner og gøre BookPlayer endnu bedre.";
+"benefits_disclaimer_title" = "Vær venligst opmærksom på følgende:";
+"benefits_disclaimer_account_description" = "- Du skal kun have en konto hos os, hvis du planlægger at lytte til dit bibliotek på tværs af forskellige enheder";
+"benefits_disclaimer_subscription_description" = "- På grund af løbende serveromkostninger til cloud storage og fremskridtssynkronisering kræver vi et abonnement for at kompensere for omkostningerne ved denne funktion";
+"subscribe_title" = "Tilmeld nu";
+"renewal_description" = "Fornyes automatisk hver måned";
+"pro_welcome_title" = "Velkommen til BookPlayer Pro!";
+"pro_welcome_description" = "Vi begynder at synkronisere dit bibliotek, når WiFi er tilgængeligt";
+"benefits_disclaimer_watch_description" = "- Stand-alone afspilning på Apple Watch er endnu ikke tilgængelig. Det vil blive inkluderet i en fremtidig version.";
+"privacy_policy_title" = "Fortrolighedspolitik";
+"terms_conditions_title" = "Vilkår og betingelser";
+"and_title" = "og";
+"agreement_prefix_title" = "Ved at fortsætte accepterer du";
+"yearly_title" = "Per år";
+"monthly_title" = "om måneden";
+"choose_plan_title" = "Vælg din plan";
+"tasks_title" = "Opgaver";
+"queued_sync_tasks_title" = "Synkroniseringsopgaver i kø (%d)";
+"sync_tasks_alert_description" = "Hvis der er en synkroniseringsopgave, der sidder fast og ikke rydder ud efter at have en aktiv internetforbindelse, kan du logge ud og logge på for at rydde de aktuelle opgaver. Dette vil vende dit bibliotek tilbage til den sidste tilstand, der er synkroniseret med vores servere.
+
+ Husk, at uploadopgaver kan tage noget tid, og fremskridtene vil med jævne mellemrum blive offentliggjort på den forrige skærm.
+
+ Vi arbejder hårdt på at give en problemfri oplevelse, hvis det er muligt, kontakt os venligst på support@bookplayer.app med et skærmbillede af denne skærm. Tak!";

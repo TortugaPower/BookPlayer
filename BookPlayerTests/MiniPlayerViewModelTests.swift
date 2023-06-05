@@ -15,34 +15,37 @@ import XCTest
 
 class MiniPlayerViewModelTests: XCTestCase {
   var sut: MiniPlayerViewModel!
-  var playerMock: PlayerManagerMock!
+  var playerMock: PlayerManagerProtocolMock!
+
+  @Published var placeholder: PlayableItem?
 
   override func setUp() {
-    self.playerMock = PlayerManagerMock()
+    self.playerMock = PlayerManagerProtocolMock()
+    playerMock.currentItemPublisherReturnValue = $placeholder
+    playerMock.hasLoadedBookReturnValue = true
     self.sut = MiniPlayerViewModel(playerManager: self.playerMock)
   }
 
   func testShowPlayer() {
-    let rootVC = RootViewController.instantiate(from: .Main)
-    rootVC.loadView()
-    let coreServices = AppDelegate.shared!.createCoreServicesIfNeeded(from: CoreDataStack(testPath: "/dev/null"))
-    let mainCoordinator = MainCoordinator(
-      rootController: rootVC,
-      coreServices: coreServices,
-      navigationController: UINavigationController()
-    )
-    self.sut.coordinator = mainCoordinator
+    let expectation = XCTestExpectation(description: "Waiting for transition capture")
+    var capturedTransition = false
 
-    XCTAssert(mainCoordinator.childCoordinators.isEmpty)
+    self.sut.onTransition = { route in
+      if case .showPlayer = route {
+        capturedTransition = true
+        expectation.fulfill()
+      }
+    }
 
     self.sut.showPlayer()
 
-    XCTAssert(mainCoordinator.childCoordinators.count == 1)
+    wait(for: [expectation], timeout: 0.5)
+    XCTAssert(capturedTransition == true)
   }
 
   func testPlayPause() {
     self.sut.handlePlayPauseAction()
 
-    XCTAssert(self.playerMock.didPlayPause == true)
+    XCTAssert(playerMock.playPauseCalled == true)
   }
 }

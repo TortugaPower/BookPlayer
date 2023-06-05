@@ -16,19 +16,16 @@ class MainCoordinatorTests: XCTestCase {
   var mainCoordinator: MainCoordinator!
 
   override func setUp() {
-    let rootVC = RootViewController.instantiate(from: .Main)
-    rootVC.loadView()
     let coreServices = AppDelegate.shared!.createCoreServicesIfNeeded(from: CoreDataStack(testPath: "/dev/null"))
     self.mainCoordinator = MainCoordinator(
-      rootController: rootVC,
-      coreServices: coreServices,
-      navigationController: UINavigationController()
+      navigationController: UINavigationController(),
+      coreServices: coreServices
     )
   }
 
   func testInitialState() {
     self.mainCoordinator.start()
-    XCTAssert(self.mainCoordinator.childCoordinators.count == 1)
+    XCTAssert(self.mainCoordinator.childCoordinators.count == 3)
     XCTAssertNotNil(self.mainCoordinator.getLibraryCoordinator())
   }
 
@@ -36,7 +33,7 @@ class MainCoordinatorTests: XCTestCase {
     self.mainCoordinator.start()
     self.mainCoordinator.showPlayer()
 
-    XCTAssert(self.mainCoordinator.childCoordinators.count == 2)
+    XCTAssert(self.mainCoordinator.childCoordinators.count == 4)
     XCTAssert(self.mainCoordinator.hasPlayerShown())
   }
 }

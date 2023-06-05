@@ -8,6 +8,7 @@
 
 import Foundation
 
+import Combine
 @testable import BookPlayer
 @testable import BookPlayerKit
 import XCTest
@@ -16,17 +17,26 @@ class LibraryListCoordinatorTests: XCTestCase {
   var libraryListCoordinator: LibraryListCoordinator!
   var dataManager: DataManager!
 
+  @Published var placeholder: PlayableItem?
+  @Published var speed: Float = 1
+
   override func setUp() {
     let coreServices = AppDelegate.shared!.createCoreServicesIfNeeded(from: CoreDataStack(testPath: "/dev/null"))
     self.dataManager = coreServices.dataManager
     let libraryService = coreServices.libraryService
+    _ = libraryService.getLibrary()
+    let playerManagerMock = PlayerManagerProtocolMock()
+    playerManagerMock.currentItemPublisherReturnValue = $placeholder
+    playerManagerMock.currentSpeedPublisherReturnValue = $speed
+    playerManagerMock.isPlayingPublisherReturnValue = Just(false).eraseToAnyPublisher()
 
     self.libraryListCoordinator = LibraryListCoordinator(
       navigationController: UINavigationController(),
-      playerManager: PlayerManagerMock(),
+      playerManager: playerManagerMock,
       importManager: ImportManager(libraryService: libraryService),
       libraryService: libraryService,
-      playbackService: coreServices.playbackService
+      playbackService: coreServices.playbackService,
+      syncService: SyncServiceProtocolMock()
     )
 
     self.libraryListCoordinator.start()
@@ -43,8 +53,8 @@ class LibraryListCoordinatorTests: XCTestCase {
 
   func testShowFolder() {
     let folder = try! StubFactory.folder(dataManager: self.dataManager, title: "folder 1")
-    let library = self.libraryListCoordinator.libraryService.getLibrary()
-    library.insert(item: folder)
+    let library = self.libraryListCoordinator.libraryService.getLibraryReference()
+    library.addToItems(folder)
 
     self.libraryListCoordinator.showFolder(folder.relativePath)
     XCTAssert(self.libraryListCoordinator.childCoordinators.first is ItemListCoordinator)
@@ -56,54 +66,31 @@ class LibraryListCoordinatorTests: XCTestCase {
     XCTAssert(self.libraryListCoordinator.childCoordinators.first is PlayerCoordinator)
   }
 
-  func testShowSettings() {
-    self.libraryListCoordinator.showSettings()
-    XCTAssert(self.libraryListCoordinator.childCoordinators.first is SettingsCoordinator)
-  }
-
   func testShowImport() {
     self.libraryListCoordinator.showImport()
     XCTAssert(self.libraryListCoordinator.childCoordinators.first is ImportCoordinator)
-  }
-
-  func testShowItemContents() {
-    let folder = try! StubFactory.folder(dataManager: self.dataManager, title: "folder 1")
-    let book = StubFactory.book(dataManager: self.dataManager, title: "book 1", duration: 10)
-    let library = self.libraryListCoordinator.libraryService.getLibrary()
-    library.insert(item: folder)
-    library.insert(item: book)
-
-    self.libraryListCoordinator.showItemContents(SimpleLibraryItem(from: folder, themeAccent: .blue))
-
-    XCTAssert(self.libraryListCoordinator.childCoordinators.first is ItemListCoordinator)
-
-    let notificationExpectation = expectation(forNotification: .bookReady, object: nil) { (notification: Notification) -> Bool in
-      if let loaded = notification.userInfo?["loaded"] as? Bool {
-        XCTAssert(loaded == true)
-      }
-
-      return true
-    }
-
-    self.libraryListCoordinator.showItemContents(SimpleLibraryItem(from: book, themeAccent: .blue))
-    wait(for: [notificationExpectation], timeout: 3.0)
   }
 }
 
 class FolderListCoordinatorTests: XCTestCase {
   var folderListCoordinator: FolderListCoordinator!
 
+  @Published var placeholder: PlayableItem?
+
   override func setUp() {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
     let libraryService = LibraryService(dataManager: dataManager)
     let folder = try! StubFactory.folder(dataManager: dataManager, title: "folder 1")
+    let playerManagerMock = PlayerManagerProtocolMock()
+    playerManagerMock.currentItemPublisherReturnValue = $placeholder
 
     self.folderListCoordinator = FolderListCoordinator(
       navigationController: UINavigationController(),
       folderRelativePath: folder.relativePath,
-      playerManager: PlayerManagerMock(),
+      playerManager: playerManagerMock,
       libraryService: libraryService,
-      playbackService: PlaybackService(libraryService: libraryService)
+      playbackService: PlaybackService(libraryService: libraryService),
+      syncService: SyncServiceProtocolMock()
     )
 
     self.folderListCoordinator.start()

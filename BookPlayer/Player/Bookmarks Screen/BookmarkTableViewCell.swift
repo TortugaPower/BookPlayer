@@ -7,7 +7,6 @@
 //
 
 import BookPlayerKit
-import Combine
 import Themeable
 import UIKit
 
@@ -16,10 +15,6 @@ class BookmarkTableViewCell: UITableViewCell {
   @IBOutlet weak var noteLabel: UILabel!
   @IBOutlet weak var iconImageView: UIImageView!
 
-  private var timeSubscription: AnyCancellable?
-  private var noteSubscription: AnyCancellable?
-  private var iconTypeSubscription: AnyCancellable?
-
   override func awakeFromNib() {
     super.awakeFromNib()
 
@@ -27,23 +22,14 @@ class BookmarkTableViewCell: UITableViewCell {
     setUpTheming()
   }
 
-  func setup(with bookmark: Bookmark) {
-    self.timeSubscription = bookmark.publisher(for: \.time)
-      .map({ TimeParser.formatTime($0) })
-      .assign(to: \.text, on: timeLabel)
-
-    self.noteSubscription = bookmark.publisher(for: \.note)
-      .assign(to: \.text, on: noteLabel)
-
-    self.iconTypeSubscription = bookmark.publisher(for: \.type)
-      .map({ _ in
-        if let imageName = bookmark.getImageNameForType() {
-          return UIImage(systemName: imageName)
-        } else {
-          return nil
-        }
-      })
-      .assign(to: \.image, on: iconImageView)
+  func setup(with bookmark: SimpleBookmark) {
+    timeLabel.text = TimeParser.formatTime(bookmark.time)
+    noteLabel.text = bookmark.note
+    if let imageName = bookmark.getImageNameForType() {
+      iconImageView.image = UIImage(systemName: imageName)
+    } else {
+      iconImageView.image = nil
+    }
   }
 }
 

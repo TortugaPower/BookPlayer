@@ -1,11 +1,3 @@
-/* 
-  Localizable.strings
-  BookPlayer
-
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
-
 "library_title" = "有声书库";
 "settings_button" = "设置";
 "settings_title" = "设置";
@@ -63,7 +55,7 @@
 "ok_button" = "确定";
 "siri_alert_description" = "Siri快捷方式在iOS 12及更高版本上可用";
 "support_bookplayer_title" = "支持我们";
-"support_bookplayer_description" = "获取BookPlayer Plus，以支持未来的开发并获取其他主题和应用程序图标";
+"support_bookplayer_description" = "获取 BookPlayer Pro 以支持未来的开发并获得额外的主题、应用程序图标和云同步";
 "learn_more_title" = "了解更多";
 "settings_appearance_title" = "外观";
 "settings_theme_title" = "主题";
@@ -231,3 +223,63 @@
 "gesture_swipe_left_title" = "向左滑动可倒带";
 "gesture_swipe_right_title" = "向右滑动可向前跳";
 "gesture_swipe_vertically_title" = "垂直滑动以创建书签";
+"details_title" = "细节";
+"download_title" = "下载";
+"cancel_download_title" = "取消下载";
+"remove_downloaded_file_title" = "从设备中删除";
+"download_from_url_title" = "从网址下载";
+"done_title" = "完毕";
+"select_title" = "选择";
+"sort_button_title" = "种类";
+"search_title" = "搜索";
+"books_title" = "图书";
+"folders_title" = "文件夹";
+"item_title_placeholder" = "标题";
+"item_author_placeholder" = "作者";
+"artwork_options_title" = "艺术品选项";
+"artwork_photolibrary_title" = "从照片库中选择";
+"artwork_clipboard_title" = "从剪贴板粘贴";
+"artwork_reset_title" = "重置";
+"artwork_clipboard_empty_title" = "剪贴板中没有图像";
+"artwork_title" = "艺术品";
+"update_title" = "更新";
+"edit_title" = "编辑";
+"setup_account_title" = "设置帐户";
+"not_signedin_title" = "未登录";
+"total_listening_title" = "总收听时间";
+"sync_library_title" = "同步库";
+"last_sync_title" = "上次同步： %@";
+"profile_title" = "轮廓";
+"manage_title" = "管理";
+"logout_title" = "登出";
+"delete_account_title" = "删除帐户";
+"account_title" = "帐户";
+"benefits_cloudsync_title" = "云同步";
+"benefits_themesicons_title" = "主题和图标";
+"benefits_supportus_title" = "支持我们";
+"completeaccount_title" = "完成您的帐户";
+"benefits_cloudsync_description" = "下载您的图书馆和图书进度并将其同步到所有支持的设备。";
+"benefits_themesicons_description" = "您将可以访问通过捐赠和加入 BookPlayer Plus 解锁的其他主题和应用程序图标。";
+"benefits_supportus_description" = "在您的帮助下，我们能够实现更多功能并使 BookPlayer 变得更好。";
+"benefits_disclaimer_title" = "请记住以下几点：";
+"benefits_disclaimer_account_description" = "- 如果您打算在不同设备上收听您的图书馆，您只需要一个我们的帐户";
+"benefits_disclaimer_subscription_description" = "- 由于云存储和进度同步的持续服务器成本，我们需要订阅来抵消此功能的成本";
+"subscribe_title" = "现在订阅";
+"renewal_description" = "每月自动更新";
+"pro_welcome_title" = "欢迎使用 BookPlayer Pro！";
+"pro_welcome_description" = "当 WiFi 可用时，我们将开始同步您的图书馆";
+"benefits_disclaimer_watch_description" = "- 尚无法在 Apple Watch 上独立播放。它将包含在未来的版本中。";
+"privacy_policy_title" = "隐私政策";
+"terms_conditions_title" = "条款和条件";
+"and_title" = "和";
+"agreement_prefix_title" = "继续即表示您同意";
+"yearly_title" = "每年";
+"monthly_title" = "每月";
+"choose_plan_title" = "选择您的计划";
+"tasks_title" = "任务";
+"queued_sync_tasks_title" = "排队的同步任务 (%d)";
+"sync_tasks_alert_description" = "如果有一个同步任务卡住并且在有活动的互联网连接后没有清除，您可以注销并登录以清除当前任务。这会将您的图书馆恢复到同步到我们服务器的最后状态。
+
+请记住，上传任务可能需要一些时间，并且进度会定期发布在上一个屏幕上。
+
+我们正在努力提供无缝体验，如果可能的话，请通过 support@bookplayer.app 与我们联系并提供此屏幕的屏幕截图。谢谢！";

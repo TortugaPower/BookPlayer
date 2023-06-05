@@ -10,4 +10,6 @@ import Foundation
 
 protocol AlertPresenter {
   func showAlert(_ title: String?, message: String?, completion: (() -> Void)?)
+  func showLoader()
+  func stopLoader()
 }

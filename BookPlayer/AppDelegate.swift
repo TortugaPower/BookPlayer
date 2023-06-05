@@ -14,18 +14,10 @@ import DirectoryWatcher
 import Intents
 import MediaPlayer
 import Sentry
+import RevenueCat
 import StoreKit
-import SwiftyStoreKit
 import UIKit
 import WatchConnectivity
-
-typealias CoreServices = (
-  dataManager: DataManager,
-  libraryService: LibraryServiceProtocol,
-  playbackService: PlaybackServiceProtocol,
-  playerManager: PlayerManagerProtocol,
-  watchService: PhoneWatchConnectivityService
-)
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -34,13 +26,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   var window: UIWindow?
   var wasPlayingBeforeInterruption: Bool = false
-  var watcher: DirectoryWatcher?
+  var documentFolderWatcher: DirectoryWatcher?
+  var sharedFolderWatcher: DirectoryWatcher?
 
   var dataManager: DataManager?
-  var libraryService: LibraryServiceProtocol?
+  var accountService: AccountServiceProtocol?
+  var syncService: SyncServiceProtocol?
+  var libraryService: LibraryService?
   var playbackService: PlaybackServiceProtocol?
   var playerManager: PlayerManagerProtocol?
   var watchConnectivityService: PhoneWatchConnectivityService?
+  var socketService: SocketServiceProtocol?
+  /// Internal property used as a fallback in ``activeSceneDelegate``
+  var lastSceneToResignActive: SceneDelegate?
+  /// Access the current (or last) active scene delegate to present VCs or alerts
+  var activeSceneDelegate: SceneDelegate? {
+    if let scene = UIApplication.shared.connectedScenes.first(
+      where: { $0.activationState == .foregroundActive }
+    ) as? UIWindowScene,
+       let delegate = scene.delegate as? SceneDelegate {
+      return delegate
+    } else {
+      return lastSceneToResignActive
+    }
+  }
 
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     Self.shared = self
@@ -55,25 +64,35 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       defaults.set(true, forKey: Constants.UserDefaults.completedFirstLaunch.rawValue)
     }
 
-    try? AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, mode: AVAudioSession.Mode(rawValue: convertFromAVAudioSessionMode(AVAudioSession.Mode.spokenAudio)), options: [])
+    try? AVAudioSession.sharedInstance().setCategory(
+      AVAudioSession.Category.playback,
+      mode: AVAudioSession.Mode(rawValue: convertFromAVAudioSessionMode(AVAudioSession.Mode.spokenAudio)),
+      options: []
+    )
 
     // register to audio-interruption notifications
-    NotificationCenter.default.addObserver(self, selector: #selector(self.handleAudioInterruptions(_:)), name: AVAudioSession.interruptionNotification, object: nil)
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(self.handleAudioInterruptions(_:)),
+      name: AVAudioSession.interruptionNotification,
+      object: nil
+    )
 
-    NotificationCenter.default.addObserver(self, selector: #selector(self.messageReceived), name: .messageReceived, object: nil)
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(self.messageReceived),
+      name: .messageReceived,
+      object: nil
+    )
 
     // register for remote events
     self.setupMPRemoteCommands()
     // register document's folder listener
     self.setupDocumentListener()
-    // setup store required listeners
-    self.setupStoreListener()
-
-    // Create a Sentry client
-    SentrySDK.start { options in
-      options.dsn = "https://23b4d02f7b044c10adb55a0cc8de3881@sentry.io/1414296"
-      options.debug = false
-    }
+    // Setup RevenueCat
+    self.setupRevenueCat()
+    // Setup Sentry
+    self.setupSentry()
 
     return true
   }
@@ -96,13 +115,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       AppDelegate.shared?.dataManager = dataManager
     }
 
-    let libraryService: LibraryServiceProtocol
+    let accountService: AccountServiceProtocol
+
+    if let sharedAccountService = AppDelegate.shared?.accountService {
+      accountService = sharedAccountService
+    } else {
+      accountService = AccountService(dataManager: dataManager)
+      AppDelegate.shared?.accountService = accountService
+    }
+
+    let libraryService: LibraryService
 
     if let sharedLibraryService = AppDelegate.shared?.libraryService {
       libraryService = sharedLibraryService
     } else {
       libraryService = LibraryService(dataManager: dataManager)
       AppDelegate.shared?.libraryService = libraryService
+    }
+
+    let syncService: SyncServiceProtocol
+
+    if let sharedSyncService = AppDelegate.shared?.syncService {
+      syncService = sharedSyncService
+    } else {
+      syncService = SyncService(libraryService: libraryService)
+      AppDelegate.shared?.syncService = syncService
     }
 
     let playbackService: PlaybackServiceProtocol
@@ -114,6 +151,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       AppDelegate.shared?.playbackService = playbackService
     }
 
+    let socketService: SocketServiceProtocol
+    if let sharedSocketService = AppDelegate.shared?.socketService {
+      socketService = sharedSocketService
+    } else {
+      socketService = SocketService()
+      AppDelegate.shared?.socketService = socketService
+    }
+
     let playerManager: PlayerManagerProtocol
 
     if let sharedPlayerManager = AppDelegate.shared?.playerManager {
@@ -122,7 +167,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       playerManager = PlayerManager(
         libraryService: libraryService,
         playbackService: playbackService,
-        speedService: SpeedService(libraryService: libraryService)
+        syncService: syncService,
+        speedService: SpeedService(libraryService: libraryService),
+        socketService: socketService
       )
       AppDelegate.shared?.playerManager = playerManager
     }
@@ -140,12 +187,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       AppDelegate.shared?.watchConnectivityService = watchService
     }
 
-    return (
-      dataManager,
-      libraryService,
-      playbackService,
-      playerManager,
-      watchService
+    return CoreServices(
+      dataManager: dataManager,
+      accountService: accountService,
+      syncService: syncService,
+      libraryService: libraryService,
+      playbackService: playbackService,
+      playerManager: playerManager,
+      watchService: watchService,
+      socketService: socketService
     )
   }
 
@@ -156,21 +206,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     alertPresenter: AlertPresenter
   ) {
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
-    guard FileManager.default.fileExists(atPath: fileURL.path) else {
+
+    if syncService?.isActive == false,
+       !FileManager.default.fileExists(atPath: fileURL.path) {
       alertPresenter.showAlert("file_missing_title".localized, message: "\("file_missing_description".localized)\n\(fileURL.lastPathComponent)", completion: nil)
       return
     }
 
     // Only load if loaded book is a different one
-    guard relativePath != self.playerManager?.currentItem?.relativePath else {
+    if playerManager?.hasLoadedBook() == true,
+       relativePath == playerManager?.currentItem?.relativePath {
       if autoplay {
-        self.playerManager?.play()
+        playerManager?.play()
       }
       showPlayer?()
       return
     }
 
-    guard let libraryItem = self.libraryService?.getItem(with: relativePath) else { return }
+    guard let libraryItem = self.libraryService?.getSimpleItem(with: relativePath) else { return }
 
     var item: PlayableItem?
 
@@ -183,29 +236,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     guard let item = item else { return }
 
-    var subscription: AnyCancellable?
+    playerManager?.load(item, autoplay: autoplay)
 
-    subscription = NotificationCenter.default.publisher(for: .bookReady, object: nil)
-      .sink(receiveValue: { [weak self, showPlayer, autoplay] notification in
-        guard
-          let userInfo = notification.userInfo,
-          let loaded = userInfo["loaded"] as? Bool,
-          loaded == true
-        else {
-          subscription?.cancel()
-          return
-        }
-
-        showPlayer?()
-
-        if autoplay {
-          self?.playerManager?.play()
-        }
-
-        subscription?.cancel()
-      })
-
-    self.playerManager?.load(item)
+    showPlayer?()
   }
 
   @objc func messageReceived(_ notification: Notification) {
@@ -374,15 +407,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
   }
 
+  func setupRevenueCat() {
+    let revenueCatApiKey: String = Bundle.main.configurationValue(for: .revenueCat)
+    Purchases.logLevel = .error
+    Purchases.configure(withAPIKey: revenueCatApiKey)
+  }
+
+  func setupSentry() {
+    let sentryDSN: String = Bundle.main.configurationValue(for: .sentryDSN)
+    // Create a Sentry client
+    SentrySDK.start { options in
+      options.dsn = "https://\(sentryDSN)"
+      options.debug = false
+      options.tracesSampleRate = 0.5
+    }
+  }
+
   func setupDocumentListener() {
-    let documentsUrl = DataManager.getDocumentsFolderURL()
-
-    self.watcher = DirectoryWatcher.watch(documentsUrl)
-    self.watcher?.ignoreDirectories = false
-
-    self.watcher?.onNewFiles = { newFiles in
+    let newFilesCallback: (([URL]) -> Void) = { [weak self] newFiles in
       guard
-        let mainCoordinator = SceneDelegate.shared?.coordinator.getMainCoordinator(),
+        let activeSceneDelegate = self?.activeSceneDelegate,
+        let mainCoordinator = activeSceneDelegate.coordinator.getMainCoordinator(),
         let libraryCoordinator = mainCoordinator.getLibraryCoordinator()
       else {
         return
@@ -390,32 +435,49 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
       libraryCoordinator.processFiles(urls: newFiles)
     }
-  }
 
-  func setupStoreListener() {
-    SwiftyStoreKit.completeTransactions(atomically: true) { purchases in
-      for purchase in purchases {
-        guard purchase.transaction.transactionState == .purchased
-                || purchase.transaction.transactionState == .restored
-        else { continue }
+    let documentsURL = DataManager.getDocumentsFolderURL()
+    documentFolderWatcher = DirectoryWatcher.watch(documentsURL)
+    documentFolderWatcher?.ignoreDirectories = false
+    documentFolderWatcher?.onNewFiles = newFilesCallback
 
-        UserDefaults.standard.set(true, forKey: Constants.UserDefaults.donationMade.rawValue)
-        NotificationCenter.default.post(name: .donationMade, object: nil)
+    let sharedFolderURL = DataManager.getSharedFilesFolderURL()
+    sharedFolderWatcher = DirectoryWatcher.watch(sharedFolderURL)
+    sharedFolderWatcher?.ignoreDirectories = false
+    sharedFolderWatcher?.onNewFiles = newFilesCallback
 
-        if purchase.needsFinishTransaction {
-          SwiftyStoreKit.finishTransaction(purchase.transaction)
-        }
-      }
-    }
-
-    SwiftyStoreKit.shouldAddStorePaymentHandler = { _, _ in
-      true
-    }
   }
 
   func requestReview() {
     if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
       SKStoreReviewController.requestReview(in: scene)
+    }
+  }
+
+  func playLastBook() {
+    guard
+      let playerManager,
+      playerManager.hasLoadedBook()
+    else {
+      UserDefaults.standard.set(true, forKey: Constants.UserActivityPlayback)
+      return
+    }
+
+    playerManager.play()
+  }
+
+  func showPlayer() {
+    guard
+      let playerManager,
+      playerManager.hasLoadedBook()
+    else {
+      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.showPlayer.rawValue)
+      return
+    }
+
+    if let mainCoordinator = activeSceneDelegate?.coordinator.getMainCoordinator(),
+       !mainCoordinator.hasPlayerShown() {
+      mainCoordinator.showPlayer()
     }
   }
 }

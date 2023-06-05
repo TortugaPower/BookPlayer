@@ -1,11 +1,3 @@
-/* 
-  Localizable.strings
-  BookPlayer
-
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
-
 "library_title" = "Bibliothèque";
 "settings_button" = "Réglages";
 "settings_title" = "Réglages";
@@ -63,7 +55,7 @@
 "ok_button" = "OK";
 "siri_alert_description" = "Les raccourcis Siri sont disponibles sur iOS 12 et supérieur";
 "support_bookplayer_title" = "Soutenir BookPlayer";
-"support_bookplayer_description" = "Obtenez BookPlayer Plus pour soutenir le développement futur et obtenir des thèmes et des icônes d'application supplémentaires";
+"support_bookplayer_description" = "Obtenez BookPlayer Pro pour soutenir le développement futur et obtenir des thèmes, des icônes d'application supplémentaires et une synchronisation dans le cloud";
 "learn_more_title" = "EN SAVOIR PLUS";
 "settings_appearance_title" = "Apparence";
 "settings_theme_title" = "Thème";
@@ -231,3 +223,63 @@
 "gesture_swipe_left_title" = "Balayez vers la gauche pour revenir en arrière";
 "gesture_swipe_right_title" = "Balayez vers la droite pour avancer";
 "gesture_swipe_vertically_title" = "Faites glisser verticalement pour créer un signet";
+"details_title" = "Détails";
+"download_title" = "Télécharger";
+"cancel_download_title" = "Annuler le téléchargement";
+"remove_downloaded_file_title" = "Supprimer de l’appareil";
+"download_from_url_title" = "Télécharger à partir de l'URL";
+"done_title" = "Fait";
+"select_title" = "Sélectionner";
+"sort_button_title" = "Trier";
+"search_title" = "Recherche";
+"books_title" = "Livres";
+"folders_title" = "Dossiers";
+"item_title_placeholder" = "Titre";
+"item_author_placeholder" = "Auteur";
+"artwork_options_title" = "Options d'illustration";
+"artwork_photolibrary_title" = "Choisissez parmi la photothèque";
+"artwork_clipboard_title" = "Coller depuis le presse-papiers";
+"artwork_reset_title" = "Réinitialiser";
+"artwork_clipboard_empty_title" = "Aucune image dans le presse-papiers";
+"artwork_title" = "Ouvrages d'art";
+"update_title" = "Mise à jour";
+"edit_title" = "Modifier";
+"setup_account_title" = "Mettre en place compte";
+"not_signedin_title" = "Pas connecté";
+"total_listening_title" = "Temps d'écoute total";
+"sync_library_title" = "Bibliothèque de synchronisation";
+"last_sync_title" = "Dernière synchronisation : %@";
+"profile_title" = "Profil";
+"manage_title" = "Gérer";
+"logout_title" = "Se déconnecter";
+"delete_account_title" = "Supprimer le compte";
+"account_title" = "Compte";
+"benefits_cloudsync_title" = "Synchronisation cloud";
+"benefits_themesicons_title" = "Thèmes et icônes";
+"benefits_supportus_title" = "Soutenez-nous";
+"completeaccount_title" = "Complétez votre compte";
+"benefits_cloudsync_description" = "Téléchargez et synchronisez votre bibliothèque et réservez la progression sur tous vos appareils pris en charge.";
+"benefits_themesicons_description" = "Vous aurez accès aux thèmes et icônes d'application supplémentaires qui sont déverrouillés en faisant un don et en rejoignant BookPlayer Plus.";
+"benefits_supportus_description" = "Avec votre aide, nous sommes en mesure d'implémenter plus de fonctionnalités et de rendre BookPlayer encore meilleur.";
+"benefits_disclaimer_title" = "Veuillez garder à l'esprit ce qui suit :";
+"benefits_disclaimer_account_description" = "- Vous n'avez besoin d'un compte chez nous que si vous prévoyez d'écouter votre bibliothèque sur différents appareils";
+"benefits_disclaimer_subscription_description" = "- En raison des coûts de serveur continus pour le stockage dans le cloud et la synchronisation de la progression, nous avons besoin d'un abonnement pour compenser le coût de cette fonctionnalité";
+"subscribe_title" = "Abonnez-vous maintenant";
+"renewal_description" = "Se renouvelle automatiquement tous les mois";
+"pro_welcome_title" = "Bienvenue sur BookPlayer Pro !";
+"pro_welcome_description" = "Nous commencerons à synchroniser votre bibliothèque lorsque le Wi-Fi sera disponible";
+"benefits_disclaimer_watch_description" = "- La lecture autonome sur l'Apple Watch n'est pas encore disponible. Il sera inclus dans une future version.";
+"privacy_policy_title" = "politique de confidentialité";
+"terms_conditions_title" = "Termes et conditions";
+"and_title" = "et";
+"agreement_prefix_title" = "En continuant, vous acceptez";
+"yearly_title" = "par an";
+"monthly_title" = "par mois";
+"choose_plan_title" = "Choisissez votre forfait";
+"tasks_title" = "Tâches";
+"queued_sync_tasks_title" = "Tâches de synchronisation en file d'attente (%d)";
+"sync_tasks_alert_description" = "Si une tâche de synchronisation est bloquée et ne s'efface pas après avoir eu une connexion Internet active, vous pouvez vous déconnecter et vous connecter pour effacer les tâches en cours. Cela ramènera votre bibliothèque au dernier état synchronisé avec nos serveurs.
+
+ Gardez à l'esprit que les tâches de téléchargement peuvent prendre un certain temps et que la progression sera périodiquement affichée sur l'écran précédent.
+
+ Nous travaillons dur pour fournir une expérience transparente, si possible, veuillez nous contacter à support@bookplayer.app avec une capture d'écran de cet écran. Merci!";

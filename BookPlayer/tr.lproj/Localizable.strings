@@ -1,11 +1,3 @@
-/* 
-  Localizable.strings
-  BookPlayer
-
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
-
 "library_title" = "Kitaplık";
 "settings_button" = "Ayarlar";
 "settings_title" = "Ayarlar";
@@ -63,7 +55,7 @@
 "ok_button" = "Tamam";
 "siri_alert_description" = "Siri Kısayolları iOS 12 ve sonraki İOS sürümlerinde kullanılabilir";
 "support_bookplayer_title" = "BookPlayer'ı Destekle";
-"support_bookplayer_description" = "Uygulama gelişimini desteklemek, ekstra temalar ve uygulama simgelerine erişim için BookPlayer Plus'ı alın";
+"support_bookplayer_description" = "Gelecekteki geliştirmeleri desteklemek ve ekstra temalar, uygulama simgeleri ve bulut senkronizasyonu elde etmek için BookPlayer Pro'yu edinin";
 "learn_more_title" = "DAHA FAZLA BİLGİ EDİN";
 "settings_appearance_title" = "Görünüm";
 "settings_theme_title" = "Tema";
@@ -231,3 +223,63 @@
 "gesture_swipe_left_title" = "Geri sarmak için sola kaydırın";
 "gesture_swipe_right_title" = "İleri atlamak için sağa kaydırın";
 "gesture_swipe_vertically_title" = "Yer imi oluşturmak için dikey olarak kaydırın";
+"details_title" = "Detaylar";
+"download_title" = "İndirmek";
+"cancel_download_title" = "İndirmeyi iptal et";
+"remove_downloaded_file_title" = "Cihazdan kaldır";
+"download_from_url_title" = "URL'den indir";
+"done_title" = "Tamamlamak";
+"select_title" = "Seçme";
+"sort_button_title" = "Tür";
+"search_title" = "Aramak";
+"books_title" = "Kitabın";
+"folders_title" = "Klasörler";
+"item_title_placeholder" = "Başlık";
+"item_author_placeholder" = "Yazar";
+"artwork_options_title" = "Sanat eseri seçenekleri";
+"artwork_photolibrary_title" = "Fotoğraf Kitaplığından Seçin";
+"artwork_clipboard_title" = "Panodan yapıştır";
+"artwork_reset_title" = "Sıfırla";
+"artwork_clipboard_empty_title" = "Panoda resim yok";
+"artwork_title" = "sanat eseri";
+"update_title" = "Güncelleme";
+"edit_title" = "Düzenlemek";
+"setup_account_title" = "Hesap açmak";
+"not_signedin_title" = "Oturum açılmadı";
+"total_listening_title" = "Toplam Dinleme Süresi";
+"sync_library_title" = "Kitaplığı Eşitle";
+"last_sync_title" = "Son senkronizasyon: %@";
+"profile_title" = "Profil";
+"manage_title" = "Üstesinden gelmek";
+"logout_title" = "Çıkış Yap";
+"delete_account_title" = "Hesabı sil";
+"account_title" = "Hesap";
+"benefits_cloudsync_title" = "Bulut senkronizasyonu";
+"benefits_themesicons_title" = "Temalar ve Simgeler";
+"benefits_supportus_title" = "Bizi destekle";
+"completeaccount_title" = "hesabınızı tamamlayın";
+"benefits_cloudsync_description" = "Kitaplığınızı ve kitap ilerlemenizi indirin ve desteklenen tüm cihazlarınıza senkronize edin.";
+"benefits_themesicons_description" = "BookPlayer Plus'a bağışta bulunarak ve katılarak kilidi açılan ek temalara ve uygulama simgelerine erişebileceksiniz.";
+"benefits_supportus_description" = "Yardımınızla daha fazla özellik uygulayabilir ve BookPlayer'ı daha da iyi hale getirebiliriz.";
+"benefits_disclaimer_title" = "Lütfen aşağıdakileri aklınızda bulundurun:";
+"benefits_disclaimer_account_description" = "- Yalnızca kitaplığınızı farklı cihazlarda dinlemeyi planlıyorsanız bizde bir hesaba ihtiyacınız vardır.";
+"benefits_disclaimer_subscription_description" = "- Bulut depolama ve ilerleme senkronizasyonu için devam eden sunucu maliyetleri nedeniyle, bu özelliğin maliyetini karşılamak için bir aboneliğe ihtiyacımız var";
+"subscribe_title" = "şimdi abone ol";
+"renewal_description" = "Aylık olarak otomatik olarak yenilenir";
+"pro_welcome_title" = "BookPlayer Pro'ya hoş geldiniz!";
+"pro_welcome_description" = "WiFi kullanılabilir olduğunda kitaplığınızı senkronize etmeye başlayacağız";
+"benefits_disclaimer_watch_description" = "- Apple Watch'ta bağımsız oynatma henüz mevcut değil. Gelecekteki bir sürüme dahil edilecektir.";
+"privacy_policy_title" = "Gizlilik Politikası";
+"terms_conditions_title" = "Şartlar ve koşullar";
+"and_title" = "Ve";
+"agreement_prefix_title" = "Devam ederek şunları kabul etmiş olursunuz:";
+"yearly_title" = "yıl başına";
+"monthly_title" = "her ay";
+"choose_plan_title" = "planınızı seçin";
+"tasks_title" = "Görevler";
+"queued_sync_tasks_title" = "Kuyruğa alınmış eşitleme görevleri (%d)";
+"sync_tasks_alert_description" = "Etkin bir internet bağlantısına sahip olduktan sonra takılıp kalmayan bir eşitleme görevi varsa, mevcut görevleri temizlemek için oturumu kapatıp oturum açabilirsiniz. Bu, kitaplığınızı sunucularımızla senkronize edilen son duruma geri döndürür.
+
+ Yükleme görevlerinin biraz zaman alabileceğini ve ilerlemenin periyodik olarak önceki ekranda yayınlanacağını unutmayın.
+
+ Kusursuz bir deneyim sağlamak için çok çalışıyoruz, mümkünse lütfen bu ekranın ekran görüntüsüyle birlikte support@bookplayer.app adresinden bizimle iletişime geçin. Teşekkürler!";

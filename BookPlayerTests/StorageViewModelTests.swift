@@ -96,7 +96,7 @@ class StorageViewModelMissingFileTests: XCTestCase {
                            size: 10,
                            showWarning: true)
     // Trigger library creation for this test
-    XCTAssertTrue(self.viewModel.library.items?.array.isEmpty ?? false)
+    XCTAssertTrue(self.viewModel.library.items?.allObjects.isEmpty ?? false)
     try self.viewModel.handleFix(for: item)
 
     let expectation = XCTestExpectation(description: "Items load expectation")
@@ -139,17 +139,8 @@ class StorageViewModelMissingFileTests: XCTestCase {
     // Manual recreation of folder and book inside library
     let folder = try self.viewModel.libraryService.createFolder(with: folderName, inside: nil)
     let book = self.viewModel.libraryService.createBook(from: loadedFileURL)
-    folder.insert(item: book)
-    self.viewModel.library.insert(item: folder)
+    try viewModel.libraryService.moveItems([book.relativePath], inside: folder.relativePath)
 
-    let currentRelativePath = self.viewModel.getRelativePath(of: loadedFileURL, baseURL: self.directoryURL)
-
-    // manually fetched book should be nil
-    let fetchedBook = self.viewModel.libraryService.getItem(
-      with: currentRelativePath
-    ) as? Book
-
-    XCTAssert(fetchedBook == nil)
-    XCTAssertFalse(self.viewModel.shouldShowWarning(for: "Maigretův první případ/idyllica_04_herrick_64kb.mp3", book: nil))
+    XCTAssertFalse(self.viewModel.shouldShowWarning(for: "Maigretův první případ/idyllica_04_herrick_64kb.mp3"))
   }
 }

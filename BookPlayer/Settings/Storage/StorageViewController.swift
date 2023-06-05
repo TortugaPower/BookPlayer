@@ -33,6 +33,12 @@ final class StorageViewController: BaseViewController<StorageCoordinator, Storag
     super.viewDidLoad()
 
     self.navigationItem.title = "settings_storage_title".localized
+    self.navigationItem.leftBarButtonItem = UIBarButtonItem(
+      image: ImageIcons.navigationBackImage,
+      style: .plain,
+      target: self,
+      action: #selector(self.didPressClose)
+    )
     self.fixAllButton.setTitle("storage_fix_all_title".localized, for: .normal)
 
     self.tableView.tableFooterView = UIView()
@@ -87,6 +93,10 @@ final class StorageViewController: BaseViewController<StorageCoordinator, Storag
 
         self.present(alert, animated: true, completion: nil)
       }.store(in: &disposeBag)
+  }
+
+  @objc func didPressClose() {
+    self.viewModel.dismiss()
   }
 }
 

@@ -19,7 +19,7 @@ class BookSortServiceTest: XCTestCase {
     "09 Book 10.txt"
   ]
 
-    var booksByFile: NSOrderedSet?
+    var booksByFile: [LibraryItem]?
 
     override func setUp() {
       let documentsFolder = DataManager.getDocumentsFolderURL()
@@ -27,13 +27,14 @@ class BookSortServiceTest: XCTestCase {
       let processedFolder = DataManager.getProcessedFolderURL()
       DataTestUtils.clearFolderContents(url: processedFolder)
 
-      self.booksByFile = NSOrderedSet(array: self.unorderedBookNames.map { StubFactory.book(dataManager: self.dataManager, title: $0, duration: 1000) })
+      self.booksByFile = self.unorderedBookNames
+        .map { StubFactory.book(dataManager: self.dataManager, title: $0, duration: 1000) }
     }
 
     override func tearDown() {}
 
     func testSortByFileName() {
-        let sortedBooks = BookSortService.sort(self.booksByFile!, by: .fileName)
+        let sortedBooks = SortType.fileName.sortItems(self.booksByFile!)
         let bookNames = sortedBooks.map { (book) -> String in
             guard let book = book as? Book else { return "" }
             return book.originalFileName!

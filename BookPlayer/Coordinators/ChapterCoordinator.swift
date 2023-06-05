@@ -12,12 +12,18 @@ import UIKit
 class ChapterCoordinator: Coordinator {
   let playerManager: PlayerManagerProtocol
 
-  init(navigationController: UINavigationController,
-       playerManager: PlayerManagerProtocol) {
+  init(
+    playerManager: PlayerManagerProtocol,
+    presentingViewController: UIViewController?
+  ) {
     self.playerManager = playerManager
 
-    super.init(navigationController: navigationController,
-               flowType: .modal)
+    super.init(
+      navigationController: AppNavigationController.instantiate(from: .Player),
+      flowType: .modal
+    )
+
+    self.presentingViewController = presentingViewController
   }
 
   override func start() {
@@ -26,9 +32,8 @@ class ChapterCoordinator: Coordinator {
     viewModel.coordinator = self
     vc.viewModel = viewModel
 
-    let nav = AppNavigationController.instantiate(from: .Main)
-    nav.viewControllers = [vc]
-    nav.presentationController?.delegate = self
-    self.presentingViewController?.present(nav, animated: true, completion: nil)
+    self.navigationController.viewControllers = [vc]
+    self.navigationController.presentationController?.delegate = self
+    self.presentingViewController?.present(self.navigationController, animated: true, completion: nil)
   }
 }

@@ -7,12 +7,12 @@
 //
 
 import BookPlayerKit
+import Combine
 import Themeable
 import UIKit
 
 class BookmarksViewController: BaseTableViewController<BookmarkCoordinator, BookmarksViewModel>, Storyboarded {
-  var automaticBookmarks = [Bookmark]()
-  var userBookmarks = [Bookmark]()
+  private var disposeBag = Set<AnyCancellable>()
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -20,13 +20,13 @@ class BookmarksViewController: BaseTableViewController<BookmarkCoordinator, Book
     self.navigationItem.title = "bookmarks_title".localized
 
     self.navigationItem.leftBarButtonItem = UIBarButtonItem(
-      image: UIImage(systemName: "xmark"),
+      image: ImageIcons.navigationBackImage,
       style: .plain,
       target: self,
       action: #selector(self.didPressClose)
     )
     self.navigationItem.rightBarButtonItem = UIBarButtonItem(
-      image: UIImage(systemName: "square.and.arrow.up"),
+      image: ImageIcons.share,
       style: .plain,
       target: self,
       action: #selector(self.didPressExport)
@@ -39,11 +39,16 @@ class BookmarksViewController: BaseTableViewController<BookmarkCoordinator, Book
     self.reloadData()
 
     setUpTheming()
+    viewModel.reloadDataPublisher
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in
+        self?.reloadData()
+      }
+      .store(in: &disposeBag)
+    viewModel.bindCurrentItemObserver()
   }
 
   func reloadData() {
-    self.userBookmarks = viewModel.getUserBookmarks()
-    self.automaticBookmarks = viewModel.getAutomaticBookmarks()
     self.tableView.reloadData()
   }
 
@@ -66,7 +71,7 @@ class BookmarksViewController: BaseTableViewController<BookmarkCoordinator, Book
   }
 
   override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-    guard !self.automaticBookmarks.isEmpty else { return nil }
+    guard !viewModel.automaticBookmarks.isEmpty else { return nil }
 
     return section == 0
       ? "bookmark_type_automatic_title".localized
@@ -75,8 +80,8 @@ class BookmarksViewController: BaseTableViewController<BookmarkCoordinator, Book
 
   override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     return section == 0
-      ? self.automaticBookmarks.count
-      : self.userBookmarks.count
+      ? viewModel.automaticBookmarks.count
+      : viewModel.userBookmarks.count
   }
 
   override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -84,8 +89,8 @@ class BookmarksViewController: BaseTableViewController<BookmarkCoordinator, Book
     let cell = tableView.dequeueReusableCell(withIdentifier: "BookmarkTableViewCell", for: indexPath) as! BookmarkTableViewCell
 
     let bookmark = indexPath.section == 0
-      ? self.automaticBookmarks[indexPath.row]
-      : self.userBookmarks[indexPath.row]
+      ? viewModel.automaticBookmarks[indexPath.row]
+      : viewModel.userBookmarks[indexPath.row]
 
     cell.setup(with: bookmark)
 
@@ -94,27 +99,35 @@ class BookmarksViewController: BaseTableViewController<BookmarkCoordinator, Book
 
   override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     let bookmark = indexPath.section == 0
-      ? self.automaticBookmarks[indexPath.row]
-      : self.userBookmarks[indexPath.row]
+      ? viewModel.automaticBookmarks[indexPath.row]
+      : viewModel.userBookmarks[indexPath.row]
 
-    self.viewModel.handleBookmarkSelected(bookmark)
+    viewModel.handleBookmarkSelected(bookmark)
 
-    self.done(nil)
+    done(nil)
   }
 
   override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
     guard indexPath.section == 1 else { return nil }
 
-    let bookmark = self.userBookmarks[indexPath.row]
+    let bookmark = viewModel.userBookmarks[indexPath.row]
 
-    let optionsAction = UIContextualAction(style: .normal, title: "bookmark_note_edit_title".localized) { _, _, completion in
+    let optionsAction = UIContextualAction(
+      style: .normal,
+      title: "bookmark_note_edit_title".localized
+    ) { [weak self] _, _, completion in
+      guard let self else { return }
+
       let alert = self.viewModel.getBookmarkNoteAlert(bookmark)
 
       self.present(alert, animated: true, completion: nil)
       completion(true)
     }
 
-    let deleteAction = UIContextualAction(style: .destructive, title: "delete_button".localized) { _, _, completion in
+    let deleteAction = UIContextualAction(
+      style: .destructive,
+      title: "delete_button".localized
+    ) { [weak self] _, _, completion in
       let alert = UIAlertController(title: nil,
                                     message: String(format: "delete_single_item_title".localized, TimeParser.formatTime(bookmark.time)),
                                     preferredStyle: .alert)
@@ -122,11 +135,11 @@ class BookmarksViewController: BaseTableViewController<BookmarkCoordinator, Book
       alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
 
       alert.addAction(UIAlertAction(title: "delete_button".localized, style: .destructive, handler: { _ in
-        self.viewModel.deleteBookmark(bookmark)
-        self.reloadData()
+        self?.viewModel.deleteBookmark(bookmark)
+        self?.reloadData()
       }))
 
-      self.present(alert, animated: true, completion: nil)
+      self?.present(alert, animated: true, completion: nil)
       completion(true)
     }
 

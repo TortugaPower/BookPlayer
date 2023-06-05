@@ -12,14 +12,17 @@ import BookPlayerKit
 class ButtonFreeCoordinator: Coordinator {
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
+  let syncService: SyncServiceProtocol
 
   init(
     navigationController: UINavigationController,
     playerManager: PlayerManagerProtocol,
-    libraryService: LibraryServiceProtocol
+    libraryService: LibraryServiceProtocol,
+    syncService: SyncServiceProtocol
   ) {
     self.playerManager = playerManager
     self.libraryService = libraryService
+    self.syncService = syncService
 
     super.init(
       navigationController: navigationController,
@@ -30,7 +33,8 @@ class ButtonFreeCoordinator: Coordinator {
   override func start() {
     let viewModel = ButtonFreeViewModel(
       playerManager: self.playerManager,
-      libraryService: self.libraryService
+      libraryService: self.libraryService,
+      syncService: self.syncService
     )
     viewModel.coordinator = self
     let vc = ButtonFreeViewController(viewModel: viewModel)

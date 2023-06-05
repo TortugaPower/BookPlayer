@@ -34,7 +34,11 @@ public class ArtworkService {
   static let rightHueGradientOffset: CGFloat = 38.85
 
   public class func retrieveImageFromCache(for relativePath: String, completionHandler: @escaping (Result<RetrieveImageResult, KingfisherError>) -> Void) {
-    _ = self.manager.retrieveImage(with: .provider(self.getArtworkProvider(for: relativePath)), completionHandler: completionHandler)
+    _ = self.manager.retrieveImage(
+      with: .provider(self.getArtworkProvider(for: relativePath)),
+      options: [.targetCache(Self.cache)],
+      completionHandler: completionHandler
+    )
   }
 
   public class func getCachedImageURL(for relativePath: String) -> URL {
@@ -43,18 +47,43 @@ public class ArtworkService {
     return URL(fileURLWithPath: path)
   }
 
+  public class func isCached(relativePath: String) -> Bool {
+    return self.cache.isCached(forKey: relativePath)
+  }
+
+  public class func removeCache(for relativePath: String) async {
+    await withCheckedContinuation { continuation in
+      cache.removeImage(forKey: relativePath) {
+        continuation.resume()
+      }
+    }
+  }
+
   public class func removeCache(for relativePath: String) {
     self.cache.removeImage(forKey: relativePath)
   }
 
-  public class func storeInCache(_ data: Data, for relativePath: String) {
-    self.cache.storeToDisk(data, forKey: relativePath)
+  public class func storeInCache(_ data: Data, for relativePath: String, completionHandler: (() -> Void)? = nil) {
+    self.cache.storeToDisk(data, forKey: relativePath) { _ in
+      completionHandler?()
+    }
   }
 
-  public class func getArtworkProvider(for relativePath: String) -> AVAudioAssetImageDataProvider {
+  public class func storeInCache(_ data: Data, for relativePath: String) async {
+    await withCheckedContinuation { continuation in
+      cache.storeToDisk(data, forKey: relativePath) { _ in
+        continuation.resume()
+      }
+    }
+  }
+
+  public class func getArtworkProvider(
+    for relativePath: String,
+    remoteURL: URL? = nil
+  ) -> AVAudioAssetImageDataProvider {
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
 
-    return AVAudioAssetImageDataProvider(fileURL: fileURL, cacheKey: relativePath)
+    return AVAudioAssetImageDataProvider(fileURL: fileURL, remoteURL: remoteURL, cacheKey: relativePath)
   }
 
 #if os(iOS)

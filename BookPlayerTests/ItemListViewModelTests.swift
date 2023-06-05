@@ -18,46 +18,53 @@ class ItemListViewModelTests: XCTestCase {
   var subscription: AnyCancellable?
   var dataManager: DataManager!
 
+  @Published var placeholder: PlayableItem?
+
   override func setUp() {
     self.dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
     let libraryService = LibraryService(dataManager: dataManager)
-    self.sut = ItemListViewModel(folderRelativePath: nil,
-                                 playerManager: PlayerManagerMock(),
-                                 libraryService: libraryService,
-                                 themeAccent: .blue)
+    let playerManagerMock = PlayerManagerProtocolMock()
+    playerManagerMock.currentItemPublisherReturnValue = $placeholder
+
+    self.sut = ItemListViewModel(
+      folderRelativePath: nil,
+      playerManager: playerManagerMock,
+      libraryService: libraryService,
+      playbackService: PlaybackServiceProtocolMock(),
+      syncService: SyncServiceProtocolMock(),
+      themeAccent: .blue
+    )
 
     let library = libraryService.getLibrary()
-    library.insert(
-      item: StubFactory.book(dataManager: self.dataManager, title: "book1", duration: 100)
+    library.addToItems(
+      StubFactory.book(dataManager: self.dataManager, title: "book1", duration: 100)
     )
-    library.insert(
-      item: StubFactory.book(dataManager: self.dataManager, title: "book2", duration: 100)
+    library.addToItems(
+      StubFactory.book(dataManager: self.dataManager, title: "book2", duration: 100)
     )
-    library.insert(
-      item: StubFactory.book(dataManager: self.dataManager, title: "book3", duration: 100)
+    library.addToItems(
+      StubFactory.book(dataManager: self.dataManager, title: "book3", duration: 100)
     )
-    library.insert(
-      item: StubFactory.book(dataManager: self.dataManager, title: "book4", duration: 100)
+    library.addToItems(
+      StubFactory.book(dataManager: self.dataManager, title: "book4", duration: 100)
     )
+    self.dataManager.saveContext()
   }
 
   func testLoadingInitialItems() {
-    let loadedItems = self.sut.loadInitialItems()
-    XCTAssert(loadedItems.count == 4)
+    self.sut.loadInitialItems()
     XCTAssert(self.sut.items.count == 4)
     XCTAssert(self.sut.offset == 4)
     XCTAssert(self.sut.maxItems == 4)
   }
 
   func testLoadingInitialItemsPagination() {
-    let partialLoadedItems = self.sut.loadInitialItems(pageSize: 2)
-    XCTAssert(partialLoadedItems.count == 2)
+    self.sut.loadInitialItems(pageSize: 2)
     XCTAssert(self.sut.items.count == 2)
     XCTAssert(self.sut.offset == 2)
     XCTAssert(self.sut.maxItems == 4)
 
-    let completeLoadedItems = self.sut.loadInitialItems(pageSize: 4)
-    XCTAssert(completeLoadedItems.count == 4)
+    self.sut.loadInitialItems(pageSize: 4)
     XCTAssert(self.sut.items.count == 4)
     XCTAssert(self.sut.offset == 4)
     XCTAssert(self.sut.maxItems == 4)
@@ -67,14 +74,14 @@ class ItemListViewModelTests: XCTestCase {
     self.subscription?.cancel()
     let expectation = XCTestExpectation(description: "Item updates notification")
 
-    var loadedItems: [SimpleLibraryItem]!
-    self.subscription = self.sut.itemsUpdates.sink(receiveValue: { items in
-      loadedItems = items
-      expectation.fulfill()
+    self.subscription = self.sut.observeEvents().sink(receiveValue: { event in
+      if case .newData = event {
+        expectation.fulfill()
+      }
     })
 
     self.sut.loadNextItems()
-    XCTAssert(loadedItems.count == 4)
+    wait(for: [expectation], timeout: 1)
     XCTAssert(self.sut.items.count == 4)
     XCTAssert(self.sut.offset == 4)
     XCTAssert(self.sut.maxItems == 4)
@@ -84,14 +91,14 @@ class ItemListViewModelTests: XCTestCase {
     self.subscription?.cancel()
     let expectation = XCTestExpectation(description: "Item updates notification")
 
-    var loadedItems: [SimpleLibraryItem]!
-    self.subscription = self.sut.itemsUpdates.sink(receiveValue: { items in
-      loadedItems = items
-      expectation.fulfill()
+    self.subscription = self.sut.observeEvents().sink(receiveValue: { event in
+      if case .newData = event {
+        expectation.fulfill()
+      }
     })
 
     self.sut.loadNextItems(pageSize: 2)
-    XCTAssert(loadedItems.count == 2)
+    wait(for: [expectation], timeout: 1)
     XCTAssert(self.sut.items.count == 2)
     XCTAssert(self.sut.offset == 2)
     XCTAssert(self.sut.maxItems == 4)
@@ -106,14 +113,14 @@ class ItemListViewModelTests: XCTestCase {
     self.subscription?.cancel()
     let expectation = XCTestExpectation(description: "Item updates notification")
 
-    var loadedItems: [SimpleLibraryItem]!
-    self.subscription = self.sut.itemsUpdates.sink(receiveValue: { items in
-      loadedItems = items
-      expectation.fulfill()
+    self.subscription = self.sut.observeEvents().sink(receiveValue: { event in
+      if case .newData = event {
+        expectation.fulfill()
+      }
     })
 
     self.sut.loadAllItemsIfNeeded()
-    XCTAssert(loadedItems.count == 4)
+    wait(for: [expectation], timeout: 1)
     XCTAssert(self.sut.items.count == 4)
     XCTAssert(self.sut.offset == 4)
     XCTAssert(self.sut.maxItems == 4)

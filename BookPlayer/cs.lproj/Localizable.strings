@@ -1,11 +1,3 @@
-/* 
-  Localizable.strings
-  BookPlayer
-
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
-
 "library_title" = "Knihovna";
 "settings_button" = "Nastavení";
 "settings_title" = "Nastavení";
@@ -63,7 +55,7 @@
 "ok_button" = "OK";
 "siri_alert_description" = "Zkratky pro Siri jsou k dispozici v iOS 12 a vyšším";
 "support_bookplayer_title" = "Podpořte BookPlayer";
-"support_bookplayer_description" = "Pořiďte si BookPlayer Plus, podpořte tak budoucí vývoj aplikace a získejte další témata a ikony aplikace";
+"support_bookplayer_description" = "Získejte BookPlayer Pro pro podporu budoucího vývoje a získejte další motivy, ikony aplikací a synchronizaci s cloudem";
 "learn_more_title" = "Více";
 "settings_appearance_title" = "Vzhled";
 "settings_theme_title" = "Téma";
@@ -231,3 +223,63 @@
 "gesture_swipe_left_title" = "Přejetím doleva převinete zpět";
 "gesture_swipe_right_title" = "Přejetím doprava přeskočíte vpřed";
 "gesture_swipe_vertically_title" = "Záložku vytvoříte přejetím prstem svisle";
+"details_title" = "Podrobnosti";
+"download_title" = "Stažení";
+"cancel_download_title" = "Zrušit stahování";
+"remove_downloaded_file_title" = "Odebrat ze zařízení";
+"download_from_url_title" = "Stáhnout z URL";
+"done_title" = "Hotovo";
+"select_title" = "Vybrat";
+"sort_button_title" = "Seřadit";
+"search_title" = "Vyhledávání";
+"books_title" = "knihy";
+"folders_title" = "Složky";
+"item_title_placeholder" = "Titul";
+"item_author_placeholder" = "Autor";
+"artwork_options_title" = "Možnosti uměleckého díla";
+"artwork_photolibrary_title" = "Vyberte si z knihovny fotografií";
+"artwork_clipboard_title" = "Vložit ze schránky";
+"artwork_reset_title" = "Resetovat";
+"artwork_clipboard_empty_title" = "Ve schránce není žádný obrázek";
+"artwork_title" = "Umělecké dílo";
+"update_title" = "Aktualizace";
+"edit_title" = "Upravit";
+"setup_account_title" = "Nastavit účet";
+"not_signedin_title" = "Nejste přihlášeni";
+"total_listening_title" = "Celková doba poslechu";
+"sync_library_title" = "Synchronizovat knihovnu";
+"last_sync_title" = "Poslední synchronizace: %@";
+"profile_title" = "Profil";
+"manage_title" = "Spravovat";
+"logout_title" = "Odhlásit se";
+"delete_account_title" = "Smazat účet";
+"account_title" = "Účet";
+"benefits_cloudsync_title" = "Cloud synchronizace";
+"benefits_themesicons_title" = "Motivy a ikony";
+"benefits_supportus_title" = "Podpoř nás";
+"completeaccount_title" = "Dokončete svůj účet";
+"benefits_cloudsync_description" = "Stáhněte si a synchronizujte svou knihovnu a průběh knih do všech podporovaných zařízení.";
+"benefits_themesicons_description" = "Budete mít přístup k dalším motivům a ikonám aplikací, které se odemknou darováním a připojením k BookPlayer Plus.";
+"benefits_supportus_description" = "S vaší pomocí jsme schopni implementovat více funkcí a vylepšit BookPlayer.";
+"benefits_disclaimer_title" = "Mějte prosím na paměti následující:";
+"benefits_disclaimer_account_description" = "- Účet u nás potřebujete pouze v případě, že plánujete poslouchat svou knihovnu na různých zařízeních";
+"benefits_disclaimer_subscription_description" = "- Vzhledem k neustálým nákladům na server na cloudové úložiště a synchronizaci průběhu vyžadujeme předplatné, abychom kompenzovali náklady na tuto funkci";
+"subscribe_title" = "Přihlaste se k odběru";
+"renewal_description" = "Automaticky se obnovuje měsíčně";
+"pro_welcome_title" = "Vítejte v BookPlayer Pro!";
+"pro_welcome_description" = "Jakmile bude k dispozici WiFi, začneme synchronizovat vaši knihovnu";
+"benefits_disclaimer_watch_description" = "- Samostatné přehrávání na Apple Watch zatím není k dispozici. Bude součástí budoucí verze.";
+"privacy_policy_title" = "Zásady ochrany osobních údajů";
+"terms_conditions_title" = "Pravidla a podmínky";
+"and_title" = "a";
+"agreement_prefix_title" = "Pokračováním souhlasíte";
+"yearly_title" = "za rok";
+"monthly_title" = "za měsíc";
+"choose_plan_title" = "Vyberte si svůj plán";
+"tasks_title" = "Úkoly";
+"queued_sync_tasks_title" = "Úlohy synchronizace ve frontě (%d)";
+"sync_tasks_alert_description" = "Pokud se nějaká úloha synchronizace zasekla a nevymaže se ani po aktivním připojení k internetu, můžete se odhlásit a přihlásit a vymazat aktuální úlohy. Tím se vaše knihovna vrátí do posledního stavu synchronizovaného s našimi servery.
+
+ Mějte na paměti, že úlohy nahrávání mohou nějakou dobu trvat a jejich průběh bude pravidelně zveřejňován na předchozí obrazovce.
+
+ Usilovně pracujeme na zajištění bezproblémového zážitku, pokud je to možné, kontaktujte nás na adrese support@bookplayer.app se snímkem obrazovky této obrazovky. Dík!";

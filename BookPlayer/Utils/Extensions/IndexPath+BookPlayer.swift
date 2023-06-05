@@ -9,16 +9,16 @@
 import UIKit
 
 extension IndexPath {
-    init(row: Int, section: Section) {
+    init(row: Int, section: BPSection) {
         self.init(row: row, section: section.rawValue)
     }
 
-    var sectionValue: Section {
-        return Section(rawValue: self.section) ?? .data
+    var sectionValue: BPSection {
+        return BPSection(rawValue: self.section) ?? .data
     }
 }
 
-enum Section: Int, CaseIterable {
+enum BPSection: Int, CaseIterable {
   case data,
        add
 }

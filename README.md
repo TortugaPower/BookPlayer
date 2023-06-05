@@ -44,8 +44,9 @@ Please visit our [Wiki](https://github.com/TortugaPower/BookPlayer/wiki) for our
 - Support for VoiceOver
 - Dark mode for night owls
 
-### BookPlayer Plus
+### BookPlayer Pro
 
+- Cloud sync
 - Support Open Source development
 - Additional color themes
 - Select from alternative App Icons
@@ -58,13 +59,14 @@ See [our Roadmap on GitHub](https://github.com/GianniCarlo/Audiobook-Player/proj
 
 - English
 - Czech (Petr Kabrna)
-- German ([@pichfl](https://github.com/pichfl), Fabian Schalle [@fabifabulousity](https://github.com/fabifabulousity))
+- German ([@pichfl](https://github.com/pichfl), Fabian Schalle
 - Russian ([@Nibelungc](https://github.com/Nibelungc), Andrey Kozlov, [@carcade](https://github.com/carcade) & Eugene
   Newfield)
 - Spanish ([@GianniCarlo](https://github.com/GianniCarlo))
 - Swedish ([@hypeitinc](https://github.com/hypeitinc))
 - Chinese Simplified ([@wangqj](https://twitter.com/wangqj))
 - Danish (Carl Houmøller)
+- Dutch (Miguel De Pelsmaeker)
 - French (Christophe Vergne)
 - Romanian (Alexandru Hamuraru)
 - Turkish (Selçuk Onuk)
@@ -124,20 +126,22 @@ invite you to Lokalise.
 Managed with the [Swift Package Manager](https://swift.org/package-manager/)
 
 - [Alamofire](https://github.com/Alamofire/Alamofire) for downloading books via url scheme actions
-- [ColorCube](https://github.com/pixelogik/ColorCube) for extracting artwork colors
 - [DeviceKit](https://github.com/dennisweissmann/DeviceKit) for device information used in support requests
+- [DirectoryWatcher](https://github.com/GianniCarlo/DirectoryWatcher) for events on the document's folder
 - [Kingfisher](https://github.com/onevcat/Kingfisher) for contributors' profile pictures
 - [MarqueeLabel](https://github.com/cbpowell/MarqueeLabel) for scrolling labels
-- [DirectoryWatcher](https://github.com/GianniCarlo/DirectoryWatcher) for events on the document's folder
+- [RevenueCat](https://github.com/RevenueCat/purchases-ios) for managing in-app purchases
 - [Sentry](https://github.com/getsentry/sentry-cocoa) for crash reporting
+- [SocketIO](https://github.com/socketio/socket.io-client-swift) for real-time updating a book progress
 - [Sweetercolor](https://github.com/jathu/sweetercolor) for handling artwork colors
-- [SwiftyStoreKit](https://github.com/bizz84/SwiftyStoreKit) for the tip jar
+- [SwiftQueue](https://github.com/bizz84/SwiftyStoreKit) for scheduling background library sync jobs
+- [Themeable](https://github.com/GianniCarlo/Themeable) for custom app themes
 - [ZipArchive](https://github.com/ZipArchive/ZipArchive) for zip files
 
 Managed with [Homebrew](https://brew.sh)
 
 - [SwiftLint](https://github.com/realm/SwiftLint)
-- [SwiftFormat](https://github.com/nicklockwood/SwiftFormat)
+- [Sourcery](https://github.com/krzysztofzablocki/Sourcery)
 
 ## License
 

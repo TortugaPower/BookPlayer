@@ -8,11 +8,11 @@ public enum Constants {
     public enum UserDefaults: String {
         // Application information
         case completedFirstLaunch = "userSettingsCompletedFirstLaunch"
-        case lastPauseTime = "userSettingsLastPauseTime"
-        case lastPlayedItem = "userSettingsLastPlayedItem"
         case appIcon = "userSettingsAppIcon"
         case donationMade = "userSettingsDonationMade"
         case showPlayer = "userSettingsShowPlayer"
+        case lastSyncTimestamp = "lastSyncTimestamp"
+        case hasQueuedJobs = "userSettingsHasQueuedJobs"
 
         // User preferences
         case themeBrightnessEnabled = "userSettingsBrightnessEnabled"

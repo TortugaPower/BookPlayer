@@ -12,6 +12,7 @@ import Foundation
 public class DataManager {
   public static let processedFolderName = "Processed"
   public static let inboxFolderName = "Inbox"
+  public static let sharedFolderName = "SharedBP"
   public static var loadingDataError: Error?
   private let coreDataStack: CoreDataStack
   private var pendingSaveContext: DispatchWorkItem?
@@ -49,6 +50,28 @@ public class DataManager {
     return inboxFolderURL
   }
 
+  public class func getSharedFilesFolderURL() -> URL {
+    let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!
+
+    let sharedFolderURL = containerURL.appendingPathComponent(self.sharedFolderName)
+
+    if !FileManager.default.fileExists(atPath: sharedFolderURL.path) {
+      do {
+        try FileManager.default.createDirectory(at: sharedFolderURL, withIntermediateDirectories: true, attributes: nil)
+      } catch {
+        fatalError("Couldn't create Shared folder")
+      }
+    }
+
+    return sharedFolderURL
+  }
+
+  public class func isURLInProcessedFolder(_ url: URL) -> Bool {
+    let absoluteUrl = url.resolvingSymlinksInPath().absoluteString
+    let processedFolderUrl = getProcessedFolderURL().absoluteString
+    return absoluteUrl.contains(processedFolderUrl)
+  }
+
   public func getContext() -> NSManagedObjectContext {
     return self.coreDataStack.managedContext
   }
@@ -68,6 +91,12 @@ public class DataManager {
 
   public func saveContext() {
     self.coreDataStack.saveContext()
+  }
+
+  public func saveSyncContext() {
+    coreDataStack.managedContext.performAndWait { [weak self] in
+      self?.coreDataStack.saveContext()
+    }
   }
 
   public func getBackgroundContext() -> NSManagedObjectContext {

@@ -11,7 +11,6 @@ import BookPlayerKit
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-  static weak var shared: SceneDelegate?
   var window: UIWindow?
   let coordinator = LoadingCoordinator(
     navigationController: UINavigationController(),
@@ -19,8 +18,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   )
 
   func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-    Self.shared = self
-
     // Appearance
     UINavigationBar.appearance().titleTextAttributes = [
       NSAttributedString.Key.foregroundColor: UIColor(hex: "#37454E")
@@ -67,17 +64,26 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     completionHandler(true)
   }
 
+  func sceneWillResignActive(_ scene: UIScene) {
+    /// Store last delegate to be active (when airdropping, all scenes resign active)
+    AppDelegate.shared?.lastSceneToResignActive = self
+  }
+
   func sceneDidBecomeActive(_ scene: UIScene) {
-    // Check if the app is on the PlayerViewController
     guard
-      let mainCoordinator = coordinator.getMainCoordinator(),
-      mainCoordinator.hasPlayerShown()
+      let mainCoordinator = coordinator.getMainCoordinator()
     else {
       return
     }
 
-    // Notify controller to see if it should ask for review
-    NotificationCenter.default.post(name: .requestReview, object: nil)
+    // Check if the app is on the PlayerViewController
+    if mainCoordinator.hasPlayerShown() {
+      // Notify controller to see if it should ask for review
+      NotificationCenter.default.post(name: .requestReview, object: nil)
+    }
+
+    /// Sync list when app is active again
+    mainCoordinator.getLibraryCoordinator()?.syncList()
   }
 
   func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
@@ -87,29 +93,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 extension SceneDelegate {
   func playLastBook() {
-    guard
-      let playerManager = AppDelegate.shared?.playerManager,
-      playerManager.hasLoadedBook()
-    else {
-      UserDefaults.standard.set(true, forKey: Constants.UserActivityPlayback)
-      return
-    }
-
-    playerManager.play()
-  }
-
-  func showPlayer() {
-    guard
-      let playerManager = AppDelegate.shared?.playerManager,
-      playerManager.hasLoadedBook()
-    else {
-      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.showPlayer.rawValue)
-      return
-    }
-
-    if let mainCoordinator = coordinator.getMainCoordinator(),
-       !mainCoordinator.hasPlayerShown() {
-      mainCoordinator.showPlayer()
-    }
+    AppDelegate.shared?.playLastBook()
   }
 }

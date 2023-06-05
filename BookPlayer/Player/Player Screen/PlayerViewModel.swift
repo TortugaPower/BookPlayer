@@ -11,16 +11,32 @@ import Combine
 import UIKit
 
 class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
+  enum Events {
+    case sleepTimerAlert(content: BPAlertContent)
+    case customSleepTimer(title: String)
+  }
+
   private let playerManager: PlayerManagerProtocol
   private let libraryService: LibraryServiceProtocol
+  private let syncService: SyncServiceProtocol
   private var chapterBeforeSliderValueChange: PlayableChapter?
   private var prefersChapterContext = UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
   private var prefersRemainingTime = UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
 
-  init(playerManager: PlayerManagerProtocol,
-       libraryService: LibraryServiceProtocol) {
+  var eventsPublisher = InterfaceUpdater<PlayerViewModel.Events>()
+
+  init(
+    playerManager: PlayerManagerProtocol,
+    libraryService: LibraryServiceProtocol,
+    syncService: SyncServiceProtocol
+  ) {
     self.playerManager = playerManager
     self.libraryService = libraryService
+    self.syncService = syncService
+  }
+
+  private func sendEvent(_ event: PlayerViewModel.Events) {
+    eventsPublisher.send(event)
   }
 
   func currentItemObserver() -> Published<PlayableItem?>.Publisher {
@@ -307,7 +323,67 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   }
 
   func showSleepTimerActions() {
-    self.coordinator.showSleepTimerActions()
+    var actions = [BPActionItem]()
+
+    actions.append(
+      BPActionItem(
+        title: "sleep_off_title".localized,
+        handler: { [weak self] in
+          self?.handleSleepTimerOptions(seconds: -1)
+        }
+      )
+    )
+
+    let formatter = DateComponentsFormatter()
+
+    formatter.unitsStyle = .full
+    formatter.allowedUnits = [.hour, .minute]
+
+    for interval in SleepTimer.shared.intervals {
+      guard let formattedDuration = formatter.string(from: interval) else { continue }
+
+      actions.append(
+        BPActionItem(
+          title: String.localizedStringWithFormat("sleep_interval_title".localized, formattedDuration),
+          handler: { [weak self] in
+            self?.handleSleepTimerOptions(seconds: interval)
+          }
+        )
+      )
+    }
+
+    actions.append(
+      BPActionItem(
+        title: "sleep_chapter_option_title".localized,
+        handler: { [weak self] in
+          self?.handleSleepTimerOptions(seconds: -2)
+        }
+      )
+    )
+
+    actions.append(
+      BPActionItem(
+        title: "sleeptimer_option_custom".localized,
+        handler: { [weak self] in
+          self?.showCustomSleepTimerOption()
+        }
+      )
+    )
+
+    actions.append(BPActionItem.cancelAction)
+
+    sendEvent(.sleepTimerAlert(
+      content: BPAlertContent(
+        title: nil,
+        message: SleepTimer.shared.getAlertMessage(),
+        style: .actionSheet,
+        actionItems: actions
+      )
+    ))
+  }
+
+  func showCustomSleepTimerOption() {
+    sendEvent(.customSleepTimer(title: "sleeptimer_custom_alert_title".localized))
   }
 
   func handleSleepTimerOptions(seconds: Double) {
@@ -340,17 +416,22 @@ extension PlayerViewModel {
     }
 
     if let bookmark = self.libraryService.createBookmark(
-      at: currentTime,
+      at: floor(currentTime),
       relativePath: currentItem.relativePath,
       type: .user
     ) {
+      syncService.scheduleSetBookmark(
+        relativePath: currentItem.relativePath,
+        time: floor(currentTime),
+        note: nil
+      )
       self.showBookmarkSuccessAlert(vc: vc, bookmark: bookmark, existed: false)
     } else {
       vc.showAlert("error_title".localized, message: "file_missing_title".localized)
     }
   }
 
-  func showBookmarkSuccessAlert(vc: UIViewController, bookmark: Bookmark, existed: Bool) {
+  func showBookmarkSuccessAlert(vc: UIViewController, bookmark: SimpleBookmark, existed: Bool) {
     let formattedTime = TimeParser.formatTime(bookmark.time)
 
     let titleKey = existed
@@ -376,7 +457,7 @@ extension PlayerViewModel {
     vc.present(alert, animated: true, completion: nil)
   }
 
-  func showBookmarkNoteAlert(vc: UIViewController, bookmark: Bookmark) {
+  func showBookmarkNoteAlert(vc: UIViewController, bookmark: SimpleBookmark) {
     let alert = UIAlertController(title: "bookmark_note_action_title".localized,
                                   message: nil,
                                   preferredStyle: .alert)
@@ -386,12 +467,17 @@ extension PlayerViewModel {
     })
 
     alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
-    alert.addAction(UIAlertAction(title: "ok_button".localized, style: .default, handler: { _ in
+    alert.addAction(UIAlertAction(title: "ok_button".localized, style: .default, handler: { [weak self] _ in
       guard let note = alert.textFields?.first?.text else {
         return
       }
 
-      self.libraryService.addNote(note, bookmark: bookmark)
+      self?.libraryService.addNote(note, bookmark: bookmark)
+      self?.syncService.scheduleSetBookmark(
+        relativePath: bookmark.relativePath,
+        time: bookmark.time,
+        note: note
+      )
     }))
 
     vc.present(alert, animated: true, completion: nil)

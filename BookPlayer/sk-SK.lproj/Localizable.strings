@@ -1,11 +1,3 @@
-/* 
-  Localizable.strings
-  BookPlayer
-
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
-
 "library_title" = "Knižnica";
 "settings_button" = "Nastavenia";
 "settings_title" = "Nastavenia";
@@ -63,7 +55,7 @@
 "ok_button" = "OK";
 "siri_alert_description" = "Skratky pre Siri sú k dispozícii v iOS 12 a vyššom";
 "support_bookplayer_title" = "Podporte BookPlayer";
-"support_bookplayer_description" = "Získajte BookPlayer Plus. Podporíte tým budúci vývoj aplikácie a získate ďalšie témy a ikony aplikácie";
+"support_bookplayer_description" = "Získajte BookPlayer Pro na podporu budúceho vývoja a získajte ďalšie témy, ikony aplikácií a synchronizáciu s cloudom";
 "learn_more_title" = "ZISTIŤ VIAC";
 "settings_appearance_title" = "Vzhľad";
 "settings_theme_title" = "Téma";
@@ -225,9 +217,69 @@
 "paused_title" = "Pozastavené";
 "skipped_forward_title" = "Preskočené dopredu";
 "skipped_back_title" = "Preskočené späť";
-"button_free_title" = "Bez gombíka";
+"button_free_title" = "Gestá potiahnutia";
 "screen_gestures_title" = "Gestá na obrazovke";
 "gesture_tap_title" = "Klepnutím spustíte prehrávanie alebo pozastavenie";
 "gesture_swipe_left_title" = "Potiahnutím doľava sa vrátite";
 "gesture_swipe_right_title" = "Potiahnutím doprava preskočíte dopredu";
 "gesture_swipe_vertically_title" = "Záložku vytvoríte potiahnutím zvisle";
+"details_title" = "Podrobnosti";
+"download_title" = "Stiahnuť ▼";
+"cancel_download_title" = "Zrušiť sťahovanie";
+"remove_downloaded_file_title" = "Odstrániť zo zariadenia";
+"download_from_url_title" = "Stiahnuť z adresy URL";
+"done_title" = "hotový";
+"select_title" = "Vyberte";
+"sort_button_title" = "Triediť";
+"search_title" = "Vyhľadávanie";
+"books_title" = "knihy";
+"folders_title" = "Priečinky";
+"item_title_placeholder" = "Názov";
+"item_author_placeholder" = "Autor";
+"artwork_options_title" = "Možnosti umeleckých diel";
+"artwork_photolibrary_title" = "Vyberte si z knižnice fotografií";
+"artwork_clipboard_title" = "Prilepiť zo schránky";
+"artwork_reset_title" = "Resetovať";
+"artwork_clipboard_empty_title" = "V schránke nie je žiadny obrázok";
+"artwork_title" = "Umelecké diela";
+"update_title" = "Aktualizovať";
+"edit_title" = "Upraviť";
+"setup_account_title" = "Nastaviť účet";
+"not_signedin_title" = "Nie je prihlásený";
+"total_listening_title" = "Celkový čas počúvania";
+"sync_library_title" = "Synchronizovať knižnicu";
+"last_sync_title" = "Posledná synchronizácia: %@";
+"profile_title" = "Profil";
+"manage_title" = "Spravovať";
+"logout_title" = "Odhlásiť sa";
+"delete_account_title" = "Zmazať účet";
+"account_title" = "účtu";
+"benefits_cloudsync_title" = "Cloudová synchronizácia";
+"benefits_themesicons_title" = "Témy a ikony";
+"benefits_supportus_title" = "Podpor nás";
+"completeaccount_title" = "Dokončite svoj účet";
+"benefits_cloudsync_description" = "Stiahnite si a synchronizujte svoju knižnicu a priebeh kníh do všetkých podporovaných zariadení.";
+"benefits_themesicons_description" = "Budete mať prístup k ďalším témam a ikonám aplikácií, ktoré sa odomknú darovaním a pripojením sa k BookPlayer Plus.";
+"benefits_supportus_description" = "S vašou pomocou sme schopní implementovať viac funkcií a urobiť BookPlayer ešte lepším.";
+"benefits_disclaimer_title" = "Prosím, majte na pamäti nasledovné:";
+"benefits_disclaimer_account_description" = "- Účet u nás potrebujete iba vtedy, ak plánujete počúvať svoju knižnicu na rôznych zariadeniach";
+"benefits_disclaimer_subscription_description" = "- Vzhľadom na pretrvávajúce náklady servera na úložisko v cloude a synchronizáciu priebehu vyžadujeme predplatné na kompenzáciu nákladov na túto funkciu";
+"subscribe_title" = "Odoberaj teraz";
+"renewal_description" = "Automaticky sa obnovuje mesačne";
+"pro_welcome_title" = "Vitajte v BookPlayer Pro!";
+"pro_welcome_description" = "Keď bude k dispozícii Wi-Fi, spustíme synchronizáciu vašej knižnice";
+"benefits_disclaimer_watch_description" = "- Samostatné prehrávanie na Apple Watch zatiaľ nie je dostupné. Bude súčasťou budúcej verzie.";
+"privacy_policy_title" = "Zásady ochrany osobných údajov";
+"terms_conditions_title" = "Podmienky";
+"and_title" = "a";
+"agreement_prefix_title" = "Pokračovaním vyjadrujete súhlas";
+"yearly_title" = "za rok";
+"monthly_title" = "za mesiac";
+"choose_plan_title" = "Vyberte si svoj plán";
+"tasks_title" = "Úlohy";
+"queued_sync_tasks_title" = "Úlohy synchronizácie vo fronte (%d)";
+"sync_tasks_alert_description" = "Ak je synchronizačná úloha zaseknutá a nevymaže sa ani po aktívnom pripojení na internet, môžete sa odhlásiť a prihlásiť, aby ste vymazali aktuálne úlohy. Tým sa vaša knižnica vráti do posledného stavu synchronizovaného s našimi servermi.
+
+ Majte na pamäti, že úlohy nahrávania môžu chvíľu trvať a priebeh sa bude pravidelne zobrazovať na predchádzajúcej obrazovke.
+
+ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné, kontaktujte nás na adrese support@bookplayer.app so snímkou obrazovky tejto obrazovky. Vďaka!";

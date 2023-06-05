@@ -16,12 +16,13 @@ class StaticCellView: UITableViewCell {
   override func awakeFromNib() {
     super.awakeFromNib()
 
-    let titleDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .body)
-    let font = UIFont(descriptor: titleDescriptor, size: 0.0)
+    let font = UIFont.preferredFont(forTextStyle: .body)
     self.customLabel?.font = font
     self.customLabel?.adjustsFontForContentSizeCategory = true
     self.textLabel?.font = font
     self.textLabel?.adjustsFontForContentSizeCategory = true
+    self.detailTextLabel?.font = font
+    self.detailTextLabel?.adjustsFontForContentSizeCategory = true
 
     setUpTheming()
   }

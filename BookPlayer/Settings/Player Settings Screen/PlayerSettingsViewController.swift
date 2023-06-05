@@ -11,7 +11,7 @@ import Combine
 import Themeable
 import UIKit
 
-class PlayerSettingsViewController: UITableViewController {
+class PlayerSettingsViewController: UITableViewController, Storyboarded {
   @IBOutlet weak var smartRewindSwitch: UISwitch!
   @IBOutlet weak var boostVolumeSwitch: UISwitch!
   @IBOutlet weak var globalSpeedSwitch: UISwitch!
@@ -37,6 +37,12 @@ class PlayerSettingsViewController: UITableViewController {
     setUpTheming()
 
     self.navigationItem.title = "settings_controls_title".localized
+    self.navigationItem.leftBarButtonItem = UIBarButtonItem(
+      image: ImageIcons.navigationBackImage,
+      style: .plain,
+      target: self,
+      action: #selector(self.didPressClose)
+    )
     self.smartRewindSwitch.addTarget(self, action: #selector(self.rewindToggleDidChange), for: .valueChanged)
     self.boostVolumeSwitch.addTarget(self, action: #selector(self.boostVolumeToggleDidChange), for: .valueChanged)
     self.globalSpeedSwitch.addTarget(self, action: #selector(self.globalSpeedToggleDidChange), for: .valueChanged)
@@ -53,6 +59,10 @@ class PlayerSettingsViewController: UITableViewController {
     self.forwardIntervalLabel.text = TimeParser.formatDuration(PlayerManager.forwardInterval)
 
     bindObservers()
+  }
+
+  @objc func didPressClose() {
+    self.dismiss(animated: true, completion: nil)
   }
 
   func bindObservers() {
@@ -78,7 +88,7 @@ class PlayerSettingsViewController: UITableViewController {
       .store(in: &disposeBag)
   }
 
-  func showPlayerListOptionAlert() {
+  func showPlayerListOptionAlert(indexPath: IndexPath) {
     let sheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
     sheet.addAction(UIAlertAction(title: "chapters_title".localized, style: .default) { [weak self] _ in
@@ -90,6 +100,10 @@ class PlayerSettingsViewController: UITableViewController {
     })
 
     sheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel))
+
+    if let popoverPresentationController = sheet.popoverPresentationController {
+      popoverPresentationController.sourceView = tableView.cellForRow(at: indexPath)
+    }
 
     self.present(sheet, animated: true)
   }
@@ -134,7 +148,7 @@ class PlayerSettingsViewController: UITableViewController {
     tableView.deselectRow(at: indexPath as IndexPath, animated: true)
 
     if indexPath == playerListPreferencePath {
-      self.showPlayerListOptionAlert()
+      self.showPlayerListOptionAlert(indexPath: indexPath)
     }
   }
 
@@ -178,7 +192,7 @@ class PlayerSettingsViewController: UITableViewController {
 
       guard let playerManager = AppDelegate.shared?.playerManager else { return }
 
-      playerManager.boostVolume = self.boostVolumeSwitch.isOn
+      playerManager.setBoostVolume(self.boostVolumeSwitch.isOn)
     }
 
     @objc func globalSpeedToggleDidChange() {

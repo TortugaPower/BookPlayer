@@ -40,11 +40,11 @@ extension Theme {
     @NSManaged public var darkTertiarySystemFillHex: String!
     @NSManaged public var darkQuaternarySystemFillHex: String!
 
-    @NSManaged public var title: String?
+    @NSManaged public var title: String!
     @NSManaged public var book: Book?
     @NSManaged public var library: Library?
 
-    // swiftlint:disable function_body_length
+    // swiftlint:disable:next function_body_length
     public class func searchPredicate(_ params: [String: Any]) -> NSPredicate? {
         guard let title = params["title"] as? String,
               let lightPrimaryHex = params["lightPrimaryHex"] as? String,

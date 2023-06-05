@@ -7,6 +7,7 @@
 //
 
 import BookPlayerKit
+import Combine
 import DeviceKit
 import IntentsUI
 import MessageUI
@@ -29,65 +30,86 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
   @IBOutlet weak var autolockDisabledOnlyWhenPoweredLabel: UILabel!
   @IBOutlet weak var themeLabel: UILabel!
   @IBOutlet weak var appIconLabel: UILabel!
+  @IBOutlet weak var plusBannerView: PlusBannerView!
 
-    var iconObserver: NSKeyValueObservation!
+  private var disposeBag = Set<AnyCancellable>()
+  var iconObserver: NSKeyValueObservation!
 
-    enum SettingsSection: Int {
-        case plus = 0, theme, playback, storage, autoplay, autolock, siri, backups, support, credits
+  enum SettingsSection: Int {
+    case plus = 0, appearance, playback, storage, autoplay, autolock, siri, backups, support, credits
+  }
+
+  let creditsIndexPath = IndexPath(row: 0, section: SettingsSection.credits.rawValue)
+  let playbackIndexPath = IndexPath(row: 0, section: SettingsSection.playback.rawValue)
+  let themesIndexPath = IndexPath(row: 0, section: SettingsSection.appearance.rawValue)
+  let iconsIndexPath = IndexPath(row: 1, section: SettingsSection.appearance.rawValue)
+  let storageIndexPath = IndexPath(row: 0, section: SettingsSection.storage.rawValue)
+  let lastPlayedShortcutPath = IndexPath(row: 0, section: SettingsSection.siri.rawValue)
+  let sleepTimerShortcutPath = IndexPath(row: 1, section: SettingsSection.siri.rawValue)
+  let githubLinkPath = IndexPath(row: 0, section: SettingsSection.support.rawValue)
+  let supportEmailPath = IndexPath(row: 1, section: SettingsSection.support.rawValue)
+  let tipJarPath = IndexPath(row: 2, section: SettingsSection.support.rawValue)
+
+  var version: String = "0.0.0"
+  var build: String = "0"
+  var supportEmail = "support@bookplayer.app"
+
+  var appVersion: String {
+    return "\(self.version)-\(self.build)"
+  }
+
+  var systemVersion: String {
+    return "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
+  }
+
+  override func viewDidLoad() {
+    super.viewDidLoad()
+
+    self.navigationItem.title = "settings_title".localized
+
+    setUpTheming()
+
+    self.bindObservers()
+
+    self.setupSwitchValues()
+
+    guard
+      let version = Bundle.main.infoDictionary!["CFBundleShortVersionString"] as? String,
+      let build = Bundle.main.infoDictionary!["CFBundleVersion"] as? String
+    else {
+      return
     }
 
-    let storageIndexPath = IndexPath(row: 0, section: 3)
-    let lastPlayedShortcutPath = IndexPath(row: 0, section: 6)
-    let sleepTimerShortcutPath = IndexPath(row: 1, section: 6)
+    self.version = version
+    self.build = build
 
-    let supportSection: Int = 8
-    let githubLinkPath = IndexPath(row: 0, section: 8)
-    let supportEmailPath = IndexPath(row: 1, section: 8)
+    self.tableView.contentInset.bottom = 88
+  }
 
-    var version: String = "0.0.0"
-    var build: String = "0"
-    var supportEmail = "support@bookplayer.app"
+  func bindObservers() {
+    let userDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
 
-    var appVersion: String {
-        return "\(self.version)-\(self.build)"
+    self.appIconLabel.text = userDefaults?.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
+
+    self.iconObserver = userDefaults?.observe(\.userSettingsAppIcon) { [weak self] _, _ in
+        self?.appIconLabel.text = userDefaults?.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
     }
 
-    var systemVersion: String {
-        return "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
+    if self.viewModel.hasMadeDonation() {
+      self.donationMade()
+    } else {
+      self.viewModel.$account
+        .receive(on: RunLoop.main)
+        .sink { [weak self] _ in
+        self?.donationMade()
+      }
+      .store(in: &disposeBag)
     }
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        self.navigationItem.title = "settings_title".localized
-
-        setUpTheming()
-
-        let userDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
-
-        self.appIconLabel.text = userDefaults?.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
-
-        self.iconObserver = UserDefaults.standard.observe(\.userSettingsAppIcon) { [weak self] _, _ in
-            self?.appIconLabel.text = userDefaults?.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
-        }
-        if UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) {
-            self.donationMade()
-        } else {
-            NotificationCenter.default.addObserver(self, selector: #selector(self.donationMade), name: .donationMade, object: nil)
-        }
-
-      self.setupSwitchValues()
-
-        guard
-            let version = Bundle.main.infoDictionary!["CFBundleShortVersionString"] as? String,
-            let build = Bundle.main.infoDictionary!["CFBundleVersion"] as? String
-        else {
-            return
-        }
-
-        self.version = version
-        self.build = build
+    self.plusBannerView.showPlus = { [weak self] in
+      self?.viewModel.showPro()
     }
+  }
 
   func setupSwitchValues() {
     self.autoplayLibrarySwitch.addTarget(self, action: #selector(self.autoplayToggleDidChange), for: .valueChanged)
@@ -137,40 +159,50 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
     self.viewModel.toggleFileBackupsPreference(self.iCloudBackupsSwitch.isOn)
   }
 
-    @IBAction func done(_ sender: UIBarButtonItem) {
-      self.viewModel.coordinator.didFinish()
+  override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    guard indexPath.section == 0 else {
+      return super.tableView(tableView, heightForRowAt: indexPath)
     }
 
-    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        guard indexPath.section == 0 else {
-            return super.tableView(tableView, heightForRowAt: indexPath)
-        }
+    guard !self.viewModel.hasMadeDonation() else { return 0 }
 
-        guard !UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) else { return 0 }
+    return 152
+  }
 
-        return 102
+  override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+    guard
+      section == 0
+    else {
+      return super.tableView(tableView, heightForHeaderInSection: section)
     }
 
-    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        guard section == 0, UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) else {
-            return super.tableView(tableView, heightForHeaderInSection: section)
-        }
+    return CGFloat.leastNormalMagnitude
+  }
 
-        return CGFloat.leastNormalMagnitude
+  override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+    guard
+      section == 0
+    else {
+      return super.tableView(tableView, heightForFooterInSection: section)
     }
 
-    override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        guard section == 0, UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) else {
-            return super.tableView(tableView, heightForFooterInSection: section)
-        }
-
-        return CGFloat.leastNormalMagnitude
-    }
+    return CGFloat.leastNormalMagnitude
+  }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath as IndexPath, animated: true)
 
         switch indexPath {
+        case self.creditsIndexPath:
+          self.viewModel.showCredits()
+        case self.playbackIndexPath:
+          self.viewModel.showPlayerControls()
+        case self.themesIndexPath:
+          self.viewModel.showThemes()
+        case self.iconsIndexPath:
+          self.viewModel.showIcons()
+        case self.tipJarPath:
+          self.viewModel.showTipJar()
         case self.supportEmailPath:
           self.sendSupportEmail()
         case self.githubLinkPath:
@@ -180,7 +212,7 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
         case self.sleepTimerShortcutPath:
           self.showSleepTimerShortcut()
         case self.storageIndexPath:
-          self.viewModel.coordinator.showStorageManagement()
+          self.viewModel.showStorageManagement()
         default: break
         }
     }
@@ -191,7 +223,7 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
     }
 
     switch settingsSection {
-    case .theme:
+    case .appearance:
       return "settings_appearance_title".localized
     case .playback:
       return "settings_playback_title".localized
@@ -291,7 +323,7 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
     }
 
     func showProjectOnGitHub() {
-        let url = URL(string: "https://github.com/GianniCarlo/Audiobook-Player")
+        let url = URL(string: "https://github.com/TortugaPower/BookPlayer")
         let safari = SFSafariViewController(url: url!)
         safari.dismissButtonStyle = .close
 

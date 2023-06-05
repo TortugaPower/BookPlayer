@@ -37,6 +37,7 @@ struct ItemCellView_Previews: PreviewProvider {
         relativePath: "book 1",
         parentFolder: nil,
         percentCompleted: 0,
+        lastPlayDate: nil,
         isFinished: false,
         isBoundBook: false
       ))

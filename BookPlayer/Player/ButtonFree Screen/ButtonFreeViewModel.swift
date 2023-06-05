@@ -13,15 +13,17 @@ import Foundation
 class ButtonFreeViewModel: BaseViewModel<ButtonFreeCoordinator> {
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
-
+  let syncService: SyncServiceProtocol
   var eventPublisher = PassthroughSubject<String, Never>()
 
   init(
     playerManager: PlayerManagerProtocol,
-    libraryService: LibraryServiceProtocol
+    libraryService: LibraryServiceProtocol,
+    syncService: SyncServiceProtocol
   ) {
     self.playerManager = playerManager
     self.libraryService = libraryService
+    self.syncService = syncService
   }
 
   func disableTimer(_ flag: Bool) {
@@ -77,11 +79,18 @@ class ButtonFreeViewModel: BaseViewModel<ButtonFreeCoordinator> {
       return
     }
 
+    let currentTime = floor(currentItem.currentTime)
+
     if let bookmark = self.libraryService.createBookmark(
-      at: currentItem.currentTime,
+      at: currentTime,
       relativePath: currentItem.relativePath,
       type: .user
     ) {
+      syncService.scheduleSetBookmark(
+        relativePath: currentItem.relativePath,
+        time: currentTime,
+        note: nil
+      )
       let formattedTime = TimeParser.formatTime(bookmark.time)
       let message = String.localizedStringWithFormat(
         "bookmark_created_title".localized,

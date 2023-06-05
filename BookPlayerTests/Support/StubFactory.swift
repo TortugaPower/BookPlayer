@@ -13,15 +13,14 @@ class StubFactory {
 
     // swiftlint:disable:next force_cast
     let book = NSEntityDescription.insertNewObject(forEntityName: "Book", into: dataManager.getContext()) as! Book
-    book.author = "test-author"
-    book.ext = fileUrl.pathExtension
-    book.identifier = fileUrl.lastPathComponent
+    book.details = "test-author"
     book.relativePath = fileUrl.relativePath(to: DataManager.getProcessedFolderURL())
 
     book.title = title
     book.originalFileName = fileUrl.lastPathComponent
     book.isFinished = false
     book.duration = duration
+    book.type = .book
 
     return book
   }

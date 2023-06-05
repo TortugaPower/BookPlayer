@@ -93,6 +93,11 @@ class ProgressSlider: UISlider {
         UIBezierPath(rect: progressRect).fill()
     }
 
+  override func thumbRect(forBounds bounds: CGRect, trackRect rect: CGRect, value: Float) -> CGRect {
+    let originalRect = super.thumbRect(forBounds: bounds, trackRect: rect, value: value)
+    return originalRect.offsetBy(dx: 0, dy: 1)
+  }
+
   public func setProgress(_ value: Float) {
     self.value = value
     self.setNeedsDisplay()

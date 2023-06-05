@@ -1,11 +1,3 @@
-/* 
-  Localizable.strings
-  BookPlayer
-
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
-
 "library_title" = "المكتبة";
 "settings_button" = "الاعدادات";
 "settings_title" = "الاعدادات";
@@ -63,7 +55,7 @@
 "ok_button" = "موافق";
 "siri_alert_description" = "تتوفر اختصارات Siri في نظام التشغيل iOS 12 والإصدارات الأحدث";
 "support_bookplayer_title" = "دعم bookplayer";
-"support_bookplayer_description" = "الحصول على BookPlayer + لدعم التنمية في المستقبل والحصول على مواضيع إضافية وأيقونات التطبيق";
+"support_bookplayer_description" = "احصل على BookPlayer Pro لدعم التطوير المستقبلي والحصول على سمات إضافية وأيقونات التطبيقات والمزامنة السحابية";
 "learn_more_title" = "التعرف على المزيد";
 "settings_appearance_title" = "المظهر";
 "settings_theme_title" = "التنسيق";
@@ -231,3 +223,63 @@
 "gesture_swipe_left_title" = "اسحب لليسار للترجيع";
 "gesture_swipe_right_title" = "اسحب لليمين للتخطي للأمام";
 "gesture_swipe_vertically_title" = "اسحب عموديًا لإنشاء إشارة مرجعية";
+"details_title" = "تفاصيل";
+"download_title" = "تحميل";
+"cancel_download_title" = "إلغاء التنزيل";
+"remove_downloaded_file_title" = "إزالة من الجهاز";
+"download_from_url_title" = "تنزيل من URL";
+"done_title" = "منتهي";
+"select_title" = "يختار";
+"sort_button_title" = "نوع";
+"search_title" = "يبحث";
+"books_title" = "كتب";
+"folders_title" = "المجلدات";
+"item_title_placeholder" = "عنوان";
+"item_author_placeholder" = "مؤلف";
+"artwork_options_title" = "خيارات العمل الفني";
+"artwork_photolibrary_title" = "اختر من مكتبة الصور";
+"artwork_clipboard_title" = "لصق من الحافظة";
+"artwork_reset_title" = "إعادة ضبط";
+"artwork_clipboard_empty_title" = "لا توجد صورة في الحافظة";
+"artwork_title" = "عمل فني";
+"update_title" = "تحديث";
+"edit_title" = "يحرر";
+"setup_account_title" = "إعداد حساب";
+"not_signedin_title" = "لم تسجل الدخول";
+"total_listening_title" = "إجمالي وقت الاستماع";
+"sync_library_title" = "مكتبة المزامنة";
+"last_sync_title" = "آخر مزامنة: %@";
+"profile_title" = "حساب تعريفي";
+"manage_title" = "يدير";
+"logout_title" = "تسجيل خروج";
+"delete_account_title" = "حذف الحساب";
+"account_title" = "حساب";
+"benefits_cloudsync_title" = "المزامنة السحابية";
+"benefits_themesicons_title" = "المظاهر والأيقونات";
+"benefits_supportus_title" = "ادعمنا";
+"completeaccount_title" = "أكمل حسابك";
+"benefits_cloudsync_description" = "قم بتنزيل ومزامنة مكتبتك وتقدم الكتاب مع جميع أجهزتك المدعومة.";
+"benefits_themesicons_description" = "سيكون لديك حق الوصول إلى السمات الإضافية وأيقونات التطبيقات التي يتم فتحها من خلال التبرع والانضمام إلى BookPlayer Plus.";
+"benefits_supportus_description" = "بمساعدتك ، نحن قادرون على تنفيذ المزيد من الميزات وجعل BookPlayer أفضل.";
+"benefits_disclaimer_title" = "يرجى مراعاة ما يلي:";
+"benefits_disclaimer_account_description" = "- تحتاج فقط إلى حساب معنا إذا كنت تخطط للاستماع إلى مكتبتك عبر أجهزة مختلفة";
+"benefits_disclaimer_subscription_description" = "- نظرًا لتكاليف الخادم المستمرة للتخزين السحابي ومزامنة التقدم ، فإننا نطلب اشتراكًا لتعويض تكلفة هذه الميزة";
+"subscribe_title" = "إشترك الآن";
+"renewal_description" = "يتجدد تلقائيا شهريا";
+"pro_welcome_title" = "مرحبًا بك في BookPlayer Pro!";
+"pro_welcome_description" = "سنبدأ في مزامنة مكتبتك عندما تكون شبكة WiFi متاحة";
+"benefits_disclaimer_watch_description" = "- التشغيل المستقل على Apple Watch غير متاح بعد. سيتم تضمينه في إصدار مستقبلي.";
+"privacy_policy_title" = "سياسة الخصوصية";
+"terms_conditions_title" = "الأحكام والشروط";
+"and_title" = "و";
+"agreement_prefix_title" = "بالمتابعة ، أنت توافق على";
+"yearly_title" = "كل سنة";
+"monthly_title" = "كل شهر";
+"choose_plan_title" = "اختر خطتك";
+"tasks_title" = "مهام";
+"queued_sync_tasks_title" = "مهام المزامنة الموضوعة في قائمة الانتظار (%d)";
+"sync_tasks_alert_description" = "إذا كانت هناك مهمة مزامنة عالقة ولم يتم مسحها بعد وجود اتصال إنترنت نشط ، فيمكنك تسجيل الخروج وتسجيل الدخول لمسح المهام الحالية. سيؤدي هذا إلى إعادة مكتبتك إلى آخر حالة تمت مزامنتها مع خوادمنا.
+
+ ضع في اعتبارك أن مهام التحميل قد تستغرق بعض الوقت ، وسيتم نشر التقدم بشكل دوري على الشاشة السابقة.
+
+ نحن نعمل بجد لتوفير تجربة سلسة ، إذا أمكن ، يرجى الاتصال بنا على support@bookplayer.app مع لقطة شاشة لهذه الشاشة. شكرًا!";

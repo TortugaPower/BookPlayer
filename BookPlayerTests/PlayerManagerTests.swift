@@ -22,9 +22,11 @@ class PlayerManagerTests: XCTestCase {
     UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
     UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
     self.sut = PlayerManager(
-      libraryService: EmptyLibraryServiceMock(),
-      playbackService: EmptyPlaybackServiceMock(),
-      speedService: EmptySpeedServiceMock()
+      libraryService: LibraryServiceProtocolMock(),
+      playbackService: PlaybackServiceProtocolMock(),
+      syncService: SyncServiceProtocolMock(),
+      speedService: SpeedServiceProtocolMock(),
+      socketService: SocketService()
     )
   }
 
@@ -35,6 +37,7 @@ class PlayerManagerTests: XCTestCase {
       start: 0,
       duration: 50,
       relativePath: "",
+      remoteURL: nil,
       index: 0
     )
     let testChapter2 = PlayableChapter(
@@ -43,6 +46,7 @@ class PlayerManagerTests: XCTestCase {
       start: 51,
       duration: 100,
       relativePath: "",
+      remoteURL: nil,
       index: 1
     )
     return PlayableItem(
@@ -54,6 +58,7 @@ class PlayerManagerTests: XCTestCase {
       relativePath: "",
       parentFolder: nil,
       percentCompleted: 10,
+      lastPlayDate: nil,
       isFinished: false,
       isBoundBook: false
     )

@@ -19,7 +19,7 @@ class GestureItemRow: UIStackView {
   }()
 
   private lazy var titleLabel: UILabel = {
-    let label = UILabel()
+    let label = BaseLabel()
     label.setContentCompressionResistancePriority(.required, for: .horizontal)
     label.numberOfLines = 0
     return label
@@ -33,9 +33,9 @@ class GestureItemRow: UIStackView {
     translatesAutoresizingMaskIntoConstraints = false
     imageView.image = UIImage(systemName: systemImageName)
     titleLabel.text = title
-    titleLabel.font = UIFont.preferredFont(with: 16, style: .body, weight: .regular)
+    titleLabel.font = Fonts.titleRegular
     axis = .horizontal
-    spacing = 8
+    spacing = Spacing.S2
     addSubviews()
     addConstraints()
     setUpTheming()

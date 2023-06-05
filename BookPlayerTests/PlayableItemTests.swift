@@ -23,6 +23,7 @@ class PlayableItemTests: XCTestCase {
       start: 0,
       duration: 50,
       relativePath: "",
+      remoteURL: nil,
       index: 1
     )
     let testChapter2 = PlayableChapter(
@@ -31,6 +32,7 @@ class PlayableItemTests: XCTestCase {
       start: 51,
       duration: 100,
       relativePath: "",
+      remoteURL: nil,
       index: 1
     )
     self.sut = PlayableItem(
@@ -42,6 +44,7 @@ class PlayableItemTests: XCTestCase {
       relativePath: "",
       parentFolder: nil,
       percentCompleted: 10,
+      lastPlayDate: nil,
       isFinished: false,
       isBoundBook: false
     )

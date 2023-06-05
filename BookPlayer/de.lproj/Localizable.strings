@@ -1,11 +1,3 @@
-/* 
-  Localizable.strings
-  BookPlayer
-
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
-
 "library_title" = "Bibliothek";
 "settings_button" = "Einstellungen";
 "settings_title" = "Einstellungen";
@@ -63,7 +55,7 @@
 "ok_button" = "OK";
 "siri_alert_description" = "Siri Kurzbefehle sind erst ab iOS 12 verfügbar.";
 "support_bookplayer_title" = "BookPlayer unterstützen";
-"support_bookplayer_description" = "Hol dir BookPlayer Plus, um die Entwicklung und Verbesserung dieser App zu unterstützen und zusätzliche Designs und App Icons freizuschalten.";
+"support_bookplayer_description" = "Holen Sie sich BookPlayer Pro, um zukünftige Entwicklungen zu unterstützen und zusätzliche Themen, App-Symbole und Cloud-Synchronisierung zu erhalten";
 "learn_more_title" = "Mehr erfahren";
 "settings_appearance_title" = "Erscheinungsbild";
 "settings_theme_title" = "Design";
@@ -218,8 +210,8 @@
 "settings_progresslabels_description" = "Zwischen der Anzeige der verbleibenden Zeit, der Gesamtdauer und des Kapitel- oder Buchfortschritts auf dem Wiedergabebildschirm umschalten.";
 "settings_playerinterface_list_description" = "Anpassen, was die Taste „Liste“ auf dem Wiedergabebildschirm öffnet";
 "settings_autoplay_section_title" = "AUTOMATISCHES ABSPIELEN";
-"settings_autoplay_restart_title" = "Fertige Bücher neu starten";
-"settings_theme_autobrightness" = "Wählen Sie die dunkle Variante eines Themas, wenn die Bildschirmhelligkeit unter den eingestellten Schwellenwert fällt.";
+"settings_autoplay_restart_title" = "Beendete Bücher neu starten";
+"settings_theme_autobrightness" = "Wähle die dunkle Variante eines Themas, wenn die Bildschirmhelligkeit unter den eingestellten Schwellenwert fällt.";
 "note_title" = "Notiz";
 "playing_title" = "Audio abspielen";
 "paused_title" = "Angehalten";
@@ -227,7 +219,67 @@
 "skipped_back_title" = "Zurückgesprungen";
 "button_free_title" = "Knopflos";
 "screen_gestures_title" = "Bildschirmgesten";
-"gesture_tap_title" = "Tippen Sie zum Abspielen oder Anhalten";
-"gesture_swipe_left_title" = "Zum Zurückspulen nach links wischen";
-"gesture_swipe_right_title" = "Wischen Sie nach rechts, um vorwärts zu springen";
-"gesture_swipe_vertically_title" = "Wischen Sie vertikal, um ein Lesezeichen zu erstellen";
+"gesture_tap_title" = "Tippe zum Abspielen oder Anhalten";
+"gesture_swipe_left_title" = "Streiche nach links, um zurückzuspringen";
+"gesture_swipe_right_title" = "Streiche nach rechts, um vorwärtszuspringen";
+"gesture_swipe_vertically_title" = "Streiche vertikal, um ein Lesezeichen zu erstellen";
+"details_title" = "Einzelheiten";
+"download_title" = "Herunterladen";
+"cancel_download_title" = "Download abbrechen";
+"remove_downloaded_file_title" = "Vom Gerät entfernen";
+"download_from_url_title" = "Von URL herunterladen";
+"done_title" = "Erledigt";
+"select_title" = "Wählen";
+"sort_button_title" = "Sortieren";
+"search_title" = "Suchen";
+"books_title" = "Bücher";
+"folders_title" = "Ordner";
+"item_title_placeholder" = "Titel";
+"item_author_placeholder" = "Autor";
+"artwork_options_title" = "Artwork-Optionen";
+"artwork_photolibrary_title" = "Wählen Sie aus der Fotobibliothek";
+"artwork_clipboard_title" = "Aus Zwischenablage einfügen";
+"artwork_reset_title" = "Zurücksetzen";
+"artwork_clipboard_empty_title" = "Kein Bild in der Zwischenablage";
+"artwork_title" = "Kunstwerk";
+"update_title" = "Aktualisieren";
+"edit_title" = "Bearbeiten";
+"setup_account_title" = "Einen Account erstellen";
+"not_signedin_title" = "Nicht eingeloggt";
+"total_listening_title" = "Gesamte Hörzeit";
+"sync_library_title" = "Bibliothek synchronisieren";
+"last_sync_title" = "Letzte Synchronisierung: %@";
+"profile_title" = "Profil";
+"manage_title" = "Verwalten";
+"logout_title" = "Ausloggen";
+"delete_account_title" = "Konto löschen";
+"account_title" = "Konto";
+"benefits_cloudsync_title" = "Cloud-Synchronisierung";
+"benefits_themesicons_title" = "Themen & Symbole";
+"benefits_supportus_title" = "Unterstütze uns";
+"completeaccount_title" = "Vervollständigen Sie Ihr Konto";
+"benefits_cloudsync_description" = "Laden Sie Ihre Bibliothek und Ihren Buchfortschritt herunter und synchronisieren Sie sie mit allen Ihren unterstützten Geräten.";
+"benefits_themesicons_description" = "Sie haben Zugriff auf die zusätzlichen Themen und App-Symbole, die freigeschaltet werden, indem Sie spenden und BookPlayer Plus beitreten.";
+"benefits_supportus_description" = "Mit Ihrer Hilfe können wir weitere Funktionen implementieren und BookPlayer noch besser machen.";
+"benefits_disclaimer_title" = "Bitte beachten Sie Folgendes:";
+"benefits_disclaimer_account_description" = "- Sie benötigen nur dann ein Konto bei uns, wenn Sie Ihre Bibliothek auf verschiedenen Geräten anhören möchten";
+"benefits_disclaimer_subscription_description" = "- Aufgrund laufender Serverkosten für Cloud-Speicher und Fortschrittssynchronisierung benötigen wir ein Abonnement, um die Kosten für diese Funktion auszugleichen";
+"subscribe_title" = "Abonniere jetzt";
+"renewal_description" = "Verlängert sich automatisch monatlich";
+"pro_welcome_title" = "Willkommen bei BookPlayer Pro!";
+"pro_welcome_description" = "Wir beginnen mit der Synchronisierung Ihrer Bibliothek, sobald WLAN verfügbar ist";
+"benefits_disclaimer_watch_description" = "- Standalone-Wiedergabe auf der Apple Watch ist noch nicht verfügbar. Es wird in einer zukünftigen Version enthalten sein.";
+"privacy_policy_title" = "Datenschutz-Bestimmungen";
+"terms_conditions_title" = "Geschäftsbedingungen";
+"and_title" = "Und";
+"agreement_prefix_title" = "Indem Sie fortfahren, stimmen Sie zu";
+"yearly_title" = "pro Jahr";
+"monthly_title" = "pro Monat";
+"choose_plan_title" = "Wählen Sie Ihren Plan";
+"tasks_title" = "Aufgaben";
+"queued_sync_tasks_title" = "Synchronisierungsaufgaben in der Warteschlange (%d)";
+"sync_tasks_alert_description" = "Wenn eine Synchronisierungsaufgabe hängen bleibt und nach einer aktiven Internetverbindung nicht gelöscht werden kann, können Sie sich abmelden und wieder anmelden, um die aktuellen Aufgaben zu löschen. Dadurch wird Ihre Bibliothek auf den letzten mit unseren Servern synchronisierten Status zurückgesetzt.
+
+ Beachten Sie, dass Upload-Aufgaben einige Zeit in Anspruch nehmen können und der Fortschritt regelmäßig auf dem vorherigen Bildschirm angezeigt wird.
+
+ Wir arbeiten hart daran, ein nahtloses Erlebnis zu bieten. Wenn möglich, kontaktieren Sie uns bitte unter support@bookplayer.app mit einem Screenshot dieses Bildschirms. Danke!";

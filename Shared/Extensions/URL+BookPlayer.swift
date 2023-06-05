@@ -2,12 +2,17 @@ import Foundation
 public extension URL {
     /// Isolates and returns a filename string from a `URL`
     var fileName: String {
-        let filename = self.deletingPathExtension().lastPathComponent
-        return filename
+      return self.deletingPathExtension().lastPathComponent
     }
 
     func relativePath(to baseURL: URL) -> String {
-        return self.path.components(separatedBy: baseURL.path).last ?? ""
+      let lastPath = self.path.components(separatedBy: baseURL.path).last ?? ""
+      if !lastPath.isEmpty,
+         lastPath.first == "/" {
+        return String(lastPath.dropFirst())
+      } else {
+        return lastPath
+      }
     }
 
     var isDirectoryFolder: Bool {

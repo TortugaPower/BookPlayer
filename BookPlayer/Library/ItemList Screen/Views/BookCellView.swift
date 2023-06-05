@@ -11,18 +11,26 @@ import Themeable
 import UIKit
 
 class BookCellView: UITableViewCell {
-    @IBOutlet public weak var artworkView: BPArtworkView!
-    @IBOutlet private weak var titleLabel: UILabel!
-    @IBOutlet private weak var subtitleLabel: UILabel!
-    @IBOutlet private weak var progressView: ItemProgress!
-    @IBOutlet weak var durationLabel: UILabel!
-    @IBOutlet weak var selectionView: CheckboxSelectionView!
-    @IBOutlet private weak var artworkButton: UIButton!
-    @IBOutlet weak var artworkWidth: NSLayoutConstraint!
-    @IBOutlet weak var artworkHeight: NSLayoutConstraint!
-    @IBOutlet weak var customSeparatorView: UIView!
+  @IBOutlet public weak var artworkView: BPArtworkView!
+  @IBOutlet private weak var titleLabel: UILabel!
+  @IBOutlet private weak var subtitleLabel: UILabel!
+  @IBOutlet weak var containerChevronView: UIView!
+  @IBOutlet weak var chevronImageView: UIImageView!
+  @IBOutlet private weak var progressView: ItemProgress!
+  @IBOutlet weak var durationLabel: UILabel!
+  @IBOutlet weak var selectionView: CheckboxSelectionView!
+  @IBOutlet private weak var artworkButton: UIButton!
+  @IBOutlet weak var artworkWidth: NSLayoutConstraint!
+  @IBOutlet weak var artworkHeight: NSLayoutConstraint!
+  @IBOutlet weak var customSeparatorView: UIView!
 
-    var theme: SimpleTheme!
+  @IBOutlet weak var statusContainerView: UIView!
+  @IBOutlet weak var downloadBackgroundView: UIView!
+  @IBOutlet weak var downloadProgressView: ItemProgress!
+  @IBOutlet weak var cloudImageView: UIImageView!
+  @IBOutlet weak var cloudBackgroundView: UIView!
+
+  var theme: SimpleTheme!
     var onArtworkTap: (() -> Void)?
 
     var title: String? {
@@ -48,7 +56,7 @@ class BookCellView: UITableViewCell {
             return self.progressView.value
         }
         set {
-            self.progressView.value = newValue.isNaN
+            self.progressView.value = (newValue.isNaN || newValue.isInfinite)
                 ? 0.0
                 : newValue
         }
@@ -65,14 +73,14 @@ class BookCellView: UITableViewCell {
     }
 
     var type: SimpleItemType = .book {
-        didSet {
-            switch self.type {
-            case .folder:
-                self.accessoryType = .disclosureIndicator
-            default:
-                self.accessoryType = .none
-            }
+      didSet {
+        switch self.type {
+        case .folder:
+          containerChevronView.isHidden = false
+        default:
+          containerChevronView.isHidden = true
         }
+      }
     }
 
   var playbackState: PlaybackState = PlaybackState.stopped {
@@ -80,6 +88,33 @@ class BookCellView: UITableViewCell {
       UIView.animate(withDuration: 0.1, animations: {
         self.setPlaybackColors(self.theme)
       })
+    }
+  }
+
+  var downloadState: DownloadState = DownloadState.downloaded {
+    didSet {
+      switch self.downloadState {
+      case .notDownloaded:
+        statusContainerView.isHidden = false
+
+        cloudBackgroundView.isHidden = false
+        cloudImageView.isHidden = false
+
+        downloadBackgroundView.isHidden = true
+        downloadProgressView.isHidden = true
+      case .downloading(let progress):
+        statusContainerView.isHidden = false
+
+        downloadBackgroundView.isHidden = false
+        downloadProgressView.isHidden = false
+
+        cloudBackgroundView.isHidden = true
+        cloudImageView.isHidden = true
+
+        downloadProgressView.value = progress
+      case .downloaded:
+        statusContainerView.isHidden = true
+      }
     }
   }
 
@@ -105,7 +140,24 @@ class BookCellView: UITableViewCell {
       self.subtitleLabel.adjustsFontForContentSizeCategory = true
       self.durationLabel.font = UIFont(descriptor: subtitleDescriptor, size: 0.0)
       self.durationLabel.adjustsFontForContentSizeCategory = true
+
+      self.setupDownloadStatusViews()
     }
+
+  func setupDownloadStatusViews() {
+    self.downloadBackgroundView.alpha = 0.3
+    /// Setup mask for cloud icon background
+    let startingPoint = CGPoint(x: cloudBackgroundView.bounds.maxX, y: cloudBackgroundView.bounds.maxY)
+    let path = UIBezierPath()
+    path.move(to: startingPoint)
+    path.addLine(to: CGPoint(x: cloudBackgroundView.bounds.maxX / 3, y: cloudBackgroundView.bounds.maxY))
+    path.addLine(to: CGPoint(x: cloudBackgroundView.bounds.maxX, y: cloudBackgroundView.bounds.maxY / 3))
+    path.addLine(to: startingPoint)
+
+    let maskShape = CAShapeLayer()
+    maskShape.path = path.cgPath
+    cloudBackgroundView.layer.mask = maskShape
+  }
 
     override func addSubview(_ view: UIView) {
         super.addSubview(view)
@@ -116,12 +168,14 @@ class BookCellView: UITableViewCell {
         }
     }
 
-    override func willMove(toSuperview newSuperview: UIView?) {
-        super.willMove(toSuperview: newSuperview)
+  override func willMove(toSuperview newSuperview: UIView?) {
+    super.willMove(toSuperview: newSuperview)
 
-        self.artworkButton.layer.cornerRadius = 4.0
-        self.artworkButton.layer.masksToBounds = true
-    }
+    self.artworkButton.layer.cornerRadius = 4.0
+    self.artworkButton.layer.masksToBounds = true
+    self.cloudBackgroundView.layer.cornerRadius = 4.0
+    self.cloudBackgroundView.layer.masksToBounds = true
+  }
 
     @IBAction func artworkButtonTapped(_ sender: Any) {
         self.onArtworkTap?()
@@ -135,7 +189,10 @@ class BookCellView: UITableViewCell {
   override func setEditing(_ editing: Bool, animated: Bool) {
     super.setEditing(editing, animated: animated)
 
-    self.progressView.isHidden = editing
+    progressView.isHidden = editing
+    if type == .folder {
+      containerChevronView.isHidden = editing
+    }
   }
 
     func setPlaybackColors(_ theme: SimpleTheme) {
@@ -176,6 +233,10 @@ extension BookCellView: Themeable {
     self.setPlaybackColors(theme)
     self.selectionView.defaultColor = theme.secondarySystemFillColor
     self.selectionView.selectedColor = theme.systemFillColor
+    self.chevronImageView.tintColor = theme.secondarySystemFillColor
+    self.downloadBackgroundView.backgroundColor = theme.systemBackgroundColor
+    self.cloudBackgroundView.backgroundColor = theme.systemGroupedBackgroundColor
+    self.cloudImageView.tintColor = theme.linkColor
     self.overrideUserInterfaceStyle = theme.useDarkVariant
       ? UIUserInterfaceStyle.dark
       : UIUserInterfaceStyle.light

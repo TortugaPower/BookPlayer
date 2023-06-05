@@ -48,18 +48,18 @@ class VoiceOverService {
   }
 
     fileprivate func progressPercent() -> Int {
-        guard let progress = progress, !progress.isNaN else {
-            return 0
-        }
-        return Int(progress * 100)
+      guard let progress = progress, !progress.isNaN, !progress.isInfinite else {
+        return 0
+      }
+      return Int(progress)
     }
 
     // MARK: PlayerMetaView
 
-    public func playerMetaText(item: PlayableItem) -> String {
-      let title: String = item.title
-      let author: String = item.author
-
+    public func playerMetaText(
+      title: String,
+      author: String
+    ) -> String {
       return String(describing: String.localizedStringWithFormat("voiceover_book_info".localized, title, author))
     }
 

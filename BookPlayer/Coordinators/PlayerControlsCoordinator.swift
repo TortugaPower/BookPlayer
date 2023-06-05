@@ -12,12 +12,18 @@ import BookPlayerKit
 class PlayerControlsCoordinator: Coordinator {
   let playerManager: PlayerManagerProtocol
 
-  init(navigationController: UINavigationController,
-       playerManager: PlayerManagerProtocol) {
+  init(
+    playerManager: PlayerManagerProtocol,
+    presentingViewController: UIViewController?
+  ) {
     self.playerManager = playerManager
 
-    super.init(navigationController: navigationController,
-               flowType: .modal)
+    super.init(
+      navigationController: AppNavigationController.instantiate(from: .Player),
+      flowType: .modal
+    )
+
+    self.presentingViewController = presentingViewController
   }
 
   override func start() {
@@ -26,16 +32,15 @@ class PlayerControlsCoordinator: Coordinator {
     viewModel.coordinator = self
     vc.viewModel = viewModel
 
-    let nav = AppNavigationController.instantiate(from: .Main)
-    nav.navigationBar.prefersLargeTitles = false
-    nav.viewControllers = [vc]
-    nav.presentationController?.delegate = self
+    self.navigationController.navigationBar.prefersLargeTitles = false
+    self.navigationController.viewControllers = [vc]
+    self.navigationController.presentationController?.delegate = self
 
     if #available(iOS 15.0, *),
-       let sheet = nav.sheetPresentationController {
+       let sheet = self.navigationController.sheetPresentationController {
       sheet.detents = [.medium()]
     }
 
-    self.presentingViewController?.present(nav, animated: true, completion: nil)
+    self.presentingViewController?.present(self.navigationController, animated: true, completion: nil)
   }
 }

@@ -14,7 +14,7 @@ import Themeable
 class ArtworkControl: UIView, UIGestureRecognizerDelegate {
   @IBOutlet var contentView: UIView!
 
-  @IBOutlet private weak var artworkImage: BPArtworkView!
+  @IBOutlet weak var artworkImage: BPArtworkView!
   @IBOutlet weak var artworkOverlay: UIView!
   @IBOutlet weak var backgroundGradientColorView: UIView!
   @IBOutlet weak var authorLabel: UILabel!
@@ -22,8 +22,8 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
   @IBOutlet weak var infoContainerStackView: UIStackView!
   @IBOutlet weak var airplayView: UIView!
 
-  private var leftGradientLayer: CAGradientLayer!
-  private var rightGradientLayer: CAGradientLayer!
+  private var leftGradientLayer = CAGradientLayer()
+  private var rightGradientLayer = CAGradientLayer()
 
   var shadowOpacity: CGFloat {
     get {
@@ -48,17 +48,30 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     self.setup()
   }
 
-  private func setupGradients() {
-    self.leftGradientLayer = CAGradientLayer()
-    self.leftGradientLayer.frame = CGRect(x: 0, y: 0, width: self.bounds.width, height: self.bounds.height)
+  func setupGradients(with size: CGSize) {
+    var size = size
+    /// Adjust size on the ipad
+    if UIDevice.current.userInterfaceIdiom != .phone {
+      size = CGSize(
+        width: size.width,
+        height: size.height * 0.504132
+      )
+    }
+
+    self.leftGradientLayer.frame = CGRect(x: 0, y: 0, width: size.width, height: size.height)
     self.leftGradientLayer.type = .radial
     self.leftGradientLayer.startPoint = CGPoint(x: 0, y: 0)
     self.leftGradientLayer.endPoint = CGPoint(x: 1, y: 1)
-    self.rightGradientLayer = CAGradientLayer()
-    self.rightGradientLayer.frame = CGRect(x: 0, y: 0, width: self.bounds.width, height: self.bounds.height)
+    self.rightGradientLayer.frame = CGRect(x: 0, y: 0, width: size.width, height: size.height)
     self.rightGradientLayer.type = .radial
     self.rightGradientLayer.startPoint = CGPoint(x: 1, y: 0)
     self.rightGradientLayer.endPoint = CGPoint(x: 0, y: 1)
+
+    self.leftGradientLayer.removeFromSuperlayer()
+    self.rightGradientLayer.removeFromSuperlayer()
+
+    self.backgroundGradientColorView.layer.insertSublayer(self.leftGradientLayer, at: 0)
+    self.backgroundGradientColorView.layer.insertSublayer(self.rightGradientLayer, at: 0)
   }
 
   private func setup() {
@@ -99,7 +112,11 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     self.backgroundGradientColorView.layer.borderColor = UIColor.clear.cgColor
     self.setupAirplayView()
 
-    self.setupGradients()
+    let size = UIDevice.current.userInterfaceIdiom == .phone
+    ? bounds.size
+    : UIScreen.main.bounds.size
+
+    self.setupGradients(with: size)
     self.setUpTheming()
   }
 
@@ -131,11 +148,15 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     self.airplayView.accessibilityLabel = "audio_source_title".localized
   }
 
-  public func setupInfo(with item: PlayableItem) {
-    self.titleLabel.text = item.title
-    self.authorLabel.text = item.author
+  public func setupInfo(
+    with title: String,
+    author: String,
+    relativePath: String
+  ) {
+    self.titleLabel.text = title
+    self.authorLabel.text = author
     self.artworkImage.kf.setImage(
-      with: ArtworkService.getArtworkProvider(for: item.relativePath),
+      with: ArtworkService.getArtworkProvider(for: relativePath),
       options: [.targetCache(ArtworkService.cache)],
       completionHandler: { result in
         switch result {
@@ -149,7 +170,10 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
       }
     )
     self.artworkOverlay.isAccessibilityElement = true
-    self.artworkOverlay.accessibilityLabel = VoiceOverService().playerMetaText(item: item)
+    self.artworkOverlay.accessibilityLabel = VoiceOverService().playerMetaText(
+      title: title,
+      author: author
+    )
   }
 }
 

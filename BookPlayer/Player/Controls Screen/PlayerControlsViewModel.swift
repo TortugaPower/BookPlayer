@@ -43,7 +43,7 @@ class PlayerControlsViewModel: BaseViewModel<PlayerControlsCoordinator> {
   func handleBoostVolumeToggle(flag: Bool) {
     UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
 
-    self.playerManager.boostVolume = flag
+    self.playerManager.setBoostVolume(flag)
   }
 
   func roundSpeedValue(_ value: Float) -> Float {

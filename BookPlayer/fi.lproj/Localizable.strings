@@ -1,11 +1,3 @@
-/* 
-  Localizable.strings
-  BookPlayer
-
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
-
 "library_title" = "Kirjasto";
 "settings_button" = "Asetukset";
 "settings_title" = "Asetukset";
@@ -63,7 +55,7 @@
 "ok_button" = "OK";
 "siri_alert_description" = "Siri-pikakuvakkeet ovat saatavilla iOS 12:ssa ja uudemmissa";
 "support_bookplayer_title" = "Tue BookPlayeriä";
-"support_bookplayer_description" = "Hanki BookPlayer Plus tukeaksesi jatkokehitystä ja hanki ylimääräisiä teemoja ja sovelluskuvakkeita";
+"support_bookplayer_description" = "Hanki BookPlayer Pro tukemaan tulevaa kehitystä ja hankkimaan lisäteemoja, sovelluskuvakkeita ja pilvisynkronointia";
 "learn_more_title" = "LUE LISÄÄ";
 "settings_appearance_title" = "Ulkonäkö";
 "settings_theme_title" = "Teema";
@@ -231,3 +223,63 @@
 "gesture_swipe_left_title" = "Pyyhkäise vasemmalle kelataksesi taaksepäin";
 "gesture_swipe_right_title" = "Siirry eteenpäin pyyhkäisemällä oikealle";
 "gesture_swipe_vertically_title" = "Luo kirjanmerkki pyyhkäisemällä pystysuunnassa";
+"details_title" = "Yksityiskohdat";
+"download_title" = "ladata";
+"cancel_download_title" = "Peruuta lataus";
+"remove_downloaded_file_title" = "Poista laitteesta";
+"download_from_url_title" = "Lataa osoitteesta URL";
+"done_title" = "Tehty";
+"select_title" = "Valitse";
+"sort_button_title" = "Järjestellä";
+"search_title" = "Hae";
+"books_title" = "Kirjat";
+"folders_title" = "Kansiot";
+"item_title_placeholder" = "Otsikko";
+"item_author_placeholder" = "Tekijä";
+"artwork_options_title" = "Taideteosvaihtoehdot";
+"artwork_photolibrary_title" = "Valitse valokuvakirjastosta";
+"artwork_clipboard_title" = "Liitä leikepöydältä";
+"artwork_reset_title" = "Nollaa";
+"artwork_clipboard_empty_title" = "Ei kuvaa leikepöydällä";
+"artwork_title" = "Taideteos";
+"update_title" = "Päivittää";
+"edit_title" = "Muokata";
+"setup_account_title" = "Määritä tili";
+"not_signedin_title" = "Ei kirjautunut sisään";
+"total_listening_title" = "Yhteensä kuunteluaika";
+"sync_library_title" = "Synkronoi kirjasto";
+"last_sync_title" = "Viimeisin synkronointi: %@";
+"profile_title" = "Profiili";
+"manage_title" = "Hallitse";
+"logout_title" = "Kirjautua ulos";
+"delete_account_title" = "Poista tili";
+"account_title" = "Tili";
+"benefits_cloudsync_title" = "Pilven synkronointi";
+"benefits_themesicons_title" = "Teemat ja kuvakkeet";
+"benefits_supportus_title" = "Tue meitä";
+"completeaccount_title" = "Viimeistele tilisi";
+"benefits_cloudsync_description" = "Lataa ja synkronoi kirjastosi ja kirjan edistyminen kaikille tuetuille laitteille.";
+"benefits_themesicons_description" = "Pääset käyttämään lisäteemoja ja sovelluskuvakkeita, jotka avautuvat lahjoittamalla ja liittymällä BookPlayer Plus -palveluun.";
+"benefits_supportus_description" = "Avullasi voimme ottaa käyttöön enemmän ominaisuuksia ja tehdä BookPlayerista entistä paremman.";
+"benefits_disclaimer_title" = "Muista seuraavat asiat:";
+"benefits_disclaimer_account_description" = "- Tarvitset tilin vain, jos aiot kuunnella kirjastoasi eri laitteilla";
+"benefits_disclaimer_subscription_description" = "- Pilvitallennustilan ja edistymisen synkronoinnin jatkuvien palvelinkustannusten vuoksi tarvitsemme tilauksen korvataksemme tämän ominaisuuden kustannukset.";
+"subscribe_title" = "Tilaa nyt";
+"renewal_description" = "Uusitaan automaattisesti kuukausittain";
+"pro_welcome_title" = "Tervetuloa BookPlayer Prohon!";
+"pro_welcome_description" = "Aloitamme kirjastosi synkronoinnin, kun Wi-Fi on käytettävissä";
+"benefits_disclaimer_watch_description" = "- Itsenäinen toisto Apple Watchilla ei ole vielä saatavilla. Se sisällytetään tulevaan versioon.";
+"privacy_policy_title" = "Tietosuojakäytäntö";
+"terms_conditions_title" = "Käyttöehdot";
+"and_title" = "ja";
+"agreement_prefix_title" = "Jatkamalla hyväksyt";
+"yearly_title" = "vuodessa";
+"monthly_title" = "kuukaudessa";
+"choose_plan_title" = "Valitse suunnitelmasi";
+"tasks_title" = "Tehtävät";
+"queued_sync_tasks_title" = "Jonossa olevat synkronointitehtävät (%d)";
+"sync_tasks_alert_description" = "Jos jokin synkronointitehtävä on jumissa eikä poistu aktiivisen Internet-yhteyden jälkeen, voit kirjautua ulos ja kirjautua sisään tyhjentääksesi nykyiset tehtävät. Tämä palauttaa kirjastosi tilaan, joka on viimeksi synkronoitu palvelimillemme.
+
+ Muista, että lataustehtävät voivat kestää jonkin aikaa, ja edistyminen julkaistaan ajoittain edellisellä näytöllä.
+
+ Teemme kovasti töitä tarjotaksemme saumattoman kokemuksen. Jos mahdollista, ota meihin yhteyttä osoitteeseen support@bookplayer.app ja anna kuvakaappaus tästä näytöstä. Kiitos!";

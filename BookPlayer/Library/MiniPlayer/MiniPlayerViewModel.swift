@@ -11,15 +11,42 @@ import Combine
 import UIKit
 import StoreKit
 
-class MiniPlayerViewModel: BaseViewModel<MainCoordinator> {
+class MiniPlayerViewModel {
+  typealias Data = (title: String, author: String, relativePath: String)
+  /// Available routes
+  enum Routes {
+    case showPlayer
+    case loadItem(relativePath: String, autoplay: Bool, showPlayer: Bool)
+  }
+  /// Callback to handle actions on this screen
+  public var onTransition: Transition<Routes>?
+
   private let playerManager: PlayerManagerProtocol
+  public var currentItemInfo = CurrentValueSubject<Data?, Never>(nil)
+  private var disposeBag = Set<AnyCancellable>()
 
   init(playerManager: PlayerManagerProtocol) {
     self.playerManager = playerManager
+
+    bindObservers()
   }
 
-  func currentItemObserver() -> Published<PlayableItem?>.Publisher {
-    return self.playerManager.currentItemPublisher()
+  func bindObservers() {
+    /// Drop initial value, as this viewModel already handles that
+    self.playerManager.currentItemPublisher()
+      .sink { [weak self] currentItem in
+        guard let currentItem else {
+          self?.currentItemInfo.value = nil
+          return
+        }
+
+        self?.currentItemInfo.value = Data((
+          title: currentItem.title,
+          author: currentItem.author,
+          relativePath: currentItem.relativePath
+        ))
+      }
+      .store(in: &disposeBag)
   }
 
   func isPlayingObserver() -> AnyPublisher<Bool, Never> {
@@ -29,11 +56,19 @@ class MiniPlayerViewModel: BaseViewModel<MainCoordinator> {
   func handlePlayPauseAction() {
     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
 
-    self.playerManager.playPause()
+    if playerManager.hasLoadedBook() {
+      playerManager.playPause()
+    } else if let relativePath = currentItemInfo.value?.relativePath {
+      onTransition?(.loadItem(relativePath: relativePath, autoplay: true, showPlayer: false))
+    }
   }
 
   func showPlayer() {
     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-    self.coordinator.showPlayer()
+    if playerManager.hasLoadedBook() {
+      onTransition?(.showPlayer)
+    } else if let relativePath = currentItemInfo.value?.relativePath {
+      onTransition?(.loadItem(relativePath: relativePath, autoplay: false, showPlayer: true))
+    }
   }
 }

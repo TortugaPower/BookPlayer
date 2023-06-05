@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21225" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21207"/>
+        <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="BulkControlsView" customModule="BookPlayer" customModuleProvider="target">
             <connections>
+                <outlet property="editButton" destination="29m-rB-UkN" id="5Tq-E7-xwH"/>
                 <outlet property="moreButton" destination="7e4-jY-UR6" id="7RI-ba-xbH"/>
                 <outlet property="moveButton" destination="xKc-dJ-YHT" id="KRG-lw-BtN"/>
-                <outlet property="sortButton" destination="29m-rB-UkN" id="ytm-go-y3H"/>
                 <outlet property="trashButton" destination="Lcg-cO-tJD" id="3KG-yZ-ps6"/>
             </connections>
         </placeholder>
@@ -21,11 +22,14 @@
             <rect key="frame" x="0.0" y="0.0" width="264" height="50"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="29m-rB-UkN" userLabel="sortButton">
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="29m-rB-UkN" userLabel="editButton">
                     <rect key="frame" x="0.0" y="0.0" width="66" height="50"/>
-                    <state key="normal" image="libraryIconSort"/>
+                    <state key="normal">
+                        <imageReference key="image" image="square.and.pencil" catalog="system" symbolScale="large"/>
+                        <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="large"/>
+                    </state>
                     <connections>
-                        <action selector="didPressSort:" destination="-1" eventType="touchUpInside" id="xgj-KR-Jct"/>
+                        <action selector="didPressEdit:" destination="-1" eventType="touchUpInside" id="XpU-5k-NvY"/>
                     </connections>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xKc-dJ-YHT" userLabel="moveButton">
@@ -71,6 +75,7 @@
                     </constraints>
                 </view>
             </subviews>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <constraints>
                 <constraint firstItem="p63-FV-mNb" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="0eP-WH-aP1"/>
                 <constraint firstItem="29m-rB-UkN" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="9qK-iw-0dw"/>
@@ -99,14 +104,13 @@
                 <constraint firstItem="Lcg-cO-tJD" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="y54-iq-bvU"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <point key="canvasLocation" x="234.40000000000001" y="27.886056971514247"/>
         </view>
     </objects>
     <resources>
         <image name="libraryIconDelete" width="26" height="26"/>
         <image name="libraryIconMove" width="26" height="26"/>
-        <image name="libraryIconSort" width="26" height="26"/>
+        <image name="square.and.pencil" catalog="system" width="128" height="113"/>
         <image name="toolbarIconMore" width="24" height="24"/>
     </resources>
 </document>

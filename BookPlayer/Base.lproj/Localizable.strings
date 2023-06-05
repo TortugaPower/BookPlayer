@@ -1,11 +1,3 @@
-/* 
-  Localizable.strings
-  BookPlayer
-
-  Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
-*/
-
 "library_title" = "Library";
 "settings_button" = "Settings";
 "settings_title" = "Settings";
@@ -63,7 +55,7 @@
 "ok_button" = "OK";
 "siri_alert_description" = "Siri Shortcuts are available on iOS 12 and above";
 "support_bookplayer_title" = "Support BookPlayer";
-"support_bookplayer_description" = "Get BookPlayer Plus to support future development and get extra themes and app icons";
+"support_bookplayer_description" = "Get BookPlayer Pro to support future development and get extra themes, app icons and cloud sync";
 "learn_more_title" = "LEARN MORE";
 "settings_appearance_title" = "Appearance";
 "settings_theme_title" = "Theme";
@@ -231,3 +223,63 @@
 "gesture_swipe_left_title" = "Swipe left to rewind";
 "gesture_swipe_right_title" = "Swipe right to skip forward";
 "gesture_swipe_vertically_title" = "Swipe vertically to create bookmark";
+"details_title" = "Details";
+"download_title" = "Download";
+"cancel_download_title" = "Cancel download";
+"remove_downloaded_file_title" = "Remove from device";
+"download_from_url_title" = "Download from URL";
+"done_title" = "Done";
+"select_title" = "Select";
+"sort_button_title" = "Sort";
+"search_title" = "Search";
+"books_title" = "Books";
+"folders_title" = "Folders";
+"item_title_placeholder" = "Title";
+"item_author_placeholder" = "Author";
+"artwork_options_title" = "Artwork options";
+"artwork_photolibrary_title" = "Choose from Photo Library";
+"artwork_clipboard_title" = "Paste from clipboard";
+"artwork_reset_title" = "Reset";
+"artwork_clipboard_empty_title" = "No image in the clipboard";
+"artwork_title" = "Artwork";
+"update_title" = "Update";
+"edit_title" = "Edit";
+"setup_account_title" = "Set Up Account";
+"not_signedin_title" = "Not signed in";
+"total_listening_title" = "Total Listening Time";
+"sync_library_title" = "Sync Library";
+"last_sync_title" = "Last sync: %@";
+"profile_title" = "Profile";
+"manage_title" = "Manage";
+"logout_title" = "Log out";
+"delete_account_title" = "Delete Account";
+"account_title" = "Account";
+"benefits_cloudsync_title" = "Cloud sync";
+"benefits_themesicons_title" = "Themes & Icons";
+"benefits_supportus_title" = "Support us";
+"completeaccount_title" = "Complete your account";
+"benefits_cloudsync_description" = "Download and sync your library and book progress to all your supported devices.";
+"benefits_themesicons_description" = "You'll have access to the additional themes and app icons that are unlocked by donating and joining BookPlayer Plus.";
+"benefits_supportus_description" = "With your help we are able to implement more features and make BookPlayer even better.";
+"benefits_disclaimer_title" = "Please keep in mind the following:";
+"benefits_disclaimer_account_description" = "- You only need an account with us if you plan to listen to your library across different devices";
+"benefits_disclaimer_subscription_description" = "- Due to ongoing server costs for cloud storage and progress syncing, we require a subscription to offset the cost of this feature";
+"subscribe_title" = "Subscribe now";
+"renewal_description" = "Renews automatically monthly";
+"pro_welcome_title" = "Welcome to BookPlayer Pro!";
+"pro_welcome_description" = "We'll start syncing your library when WiFi is available";
+"benefits_disclaimer_watch_description" = "- Stand-alone playback on the Apple Watch is not available yet. It will be included in a future version.";
+"privacy_policy_title" = "Privacy Policy";
+"terms_conditions_title" = "Terms and Conditions";
+"and_title" = "and";
+"agreement_prefix_title" = "By continuing, you agree to";
+"yearly_title" = "per year";
+"monthly_title" = "per month";
+"choose_plan_title" = "Choose your plan";
+"tasks_title" = "Tasks";
+"queued_sync_tasks_title" = "Queued sync tasks (%d)";
+"sync_tasks_alert_description" = "If there's a synchronization task that is stuck and doesn't clear out after having an active internet connection, you can log out and sign in to clear out the current tasks. This will revert your library to the last state synchronized to our servers.
+
+Keep in mind that upload tasks can take some time, and the progress will be periodically posted on the previous screen.
+
+We're working hard on providing a seamless experience, if possible, please contact us at support@bookplayer.app with a screenshot of this screen. Thanks!";

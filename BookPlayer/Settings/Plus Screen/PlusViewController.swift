@@ -7,9 +7,10 @@
 //
 
 import BookPlayerKit
+import Combine
 import Kingfisher
 import SafariServices
-import SwiftyStoreKit
+import RevenueCat
 import Themeable
 import UIKit
 
@@ -28,7 +29,7 @@ struct Contributor: Decodable {
     }
 }
 
-class PlusViewController: UIViewController {
+class PlusViewController: UIViewController, Storyboarded {
     @IBOutlet weak var scrollContentHeightConstraint: NSLayoutConstraint!
 
     @IBOutlet weak var kindTipButton: UIButton!
@@ -56,6 +57,9 @@ class PlusViewController: UIViewController {
 
     @IBOutlet var plusViews: [UIView]!
     @IBOutlet weak var tipDescriptionLabel: UILabel!
+
+  var viewModel: PlusViewModel!
+  private var disposeBag = Set<AnyCancellable>()
 
     var loadingBarButton: UIBarButtonItem!
     var restoreBarButton: UIBarButtonItem!
@@ -98,28 +102,28 @@ class PlusViewController: UIViewController {
         }
     }
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
+  override func viewDidLoad() {
+    super.viewDidLoad()
 
-        self.navigationItem.rightBarButtonItem?.title = "restore_title".localized
+    self.navigationItem.rightBarButtonItem?.title = "restore_title".localized
 
-        self.gianniImageView.kf.setImage(with: self.contributorGianni.avatarURL)
-        self.pichImageView.kf.setImage(with: self.contributorPichfl.avatarURL)
+    self.gianniImageView.kf.setImage(with: self.contributorGianni.avatarURL)
+    self.pichImageView.kf.setImage(with: self.contributorPichfl.avatarURL)
 
-        let activityIndicatorView = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.medium)
-        activityIndicatorView.startAnimating()
-        activityIndicatorView.color = self.themeProvider.currentTheme.useDarkVariant ? .white : .gray
-        self.loadingBarButton = UIBarButtonItem(customView: activityIndicatorView)
+    let activityIndicatorView = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.medium)
+    activityIndicatorView.startAnimating()
+    activityIndicatorView.color = self.themeProvider.currentTheme.useDarkVariant ? .white : .gray
+    self.loadingBarButton = UIBarButtonItem(customView: activityIndicatorView)
 
-        if UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) {
-            self.setupTipJarLayout()
-        }
-
-        self.setupContributors()
-        self.setupLocalizedTipPrices()
-
-        setUpTheming()
+    if self.viewModel.hasMadeDonation() {
+      self.setupTipJarLayout()
     }
+
+    self.setupContributors()
+    self.setupLocalizedTipPrices()
+
+    setUpTheming()
+  }
 
     func setupTipJarLayout() {
         for view in self.plusViews {
@@ -136,23 +140,30 @@ class PlusViewController: UIViewController {
         self.incredibleTipId += self.tipJarSuffix
     }
 
-    func setupLocalizedTipPrices() {
-        self.showSpinner(true, senders: [self.kindTipButton, self.excellentTipButton, self.incredibleTipButton])
+  func setupLocalizedTipPrices() {
+    self.showSpinner(true, senders: [self.kindTipButton, self.excellentTipButton, self.incredibleTipButton])
 
-        SwiftyStoreKit.retrieveProductsInfo([self.kindTipId, self.excellentTipId, self.incredibleTipId]) { (results) in
-            for product in results.retrievedProducts {
-                if product.productIdentifier.contains(self.kindTipId) {
-                    self.kindTipButton.setTitle(product.localizedPrice, for: .normal)
-                } else if product.productIdentifier.contains(self.excellentTipId) {
-                    self.excellentTipButton.setTitle(product.localizedPrice, for: .normal)
-                } else if product.productIdentifier.contains(self.incredibleTipId) {
-                    self.incredibleTipButton.setTitle(product.localizedPrice, for: .normal)
-                }
-            }
+    Purchases.shared.getProducts([self.kindTipId, self.excellentTipId, self.incredibleTipId]) { [weak self] products in
+      guard let self = self else { return }
 
-            self.showSpinner(false, senders: [self.kindTipButton, self.excellentTipButton, self.incredibleTipButton])
+      guard !products.isEmpty else {
+        self.showAlert("error_title".localized, message: "network_error_title".localized)
+        return
+      }
+
+      for product in products {
+        if product.productIdentifier.contains(self.kindTipId) {
+          self.kindTipButton.setTitle(product.localizedPriceString, for: .normal)
+        } else if product.productIdentifier.contains(self.excellentTipId) {
+          self.excellentTipButton.setTitle(product.localizedPriceString, for: .normal)
+        } else if product.productIdentifier.contains(self.incredibleTipId) {
+          self.incredibleTipButton.setTitle(product.localizedPriceString, for: .normal)
         }
+      }
+
+      self.showSpinner(false, senders: [self.kindTipButton, self.excellentTipButton, self.incredibleTipButton])
     }
+  }
 
     func setupSpinners() {
         self.kindTipSpinner.stopAnimating()
@@ -180,32 +191,41 @@ class PlusViewController: UIViewController {
         task.resume()
     }
 
-    @IBAction func close(_ sender: UIBarButtonItem) {
-        self.dismiss(animated: true, completion: nil)
+  @IBAction func close(_ sender: UIBarButtonItem) {
+    self.dismiss(animated: true, completion: nil)
+  }
+
+  @IBAction func restorePurchases(_ sender: UIBarButtonItem) {
+    self.restoreBarButton = self.navigationItem.rightBarButtonItem
+    self.navigationItem.rightBarButtonItem = self.loadingBarButton
+
+    Purchases.shared.restorePurchases { [weak self] customerInfo, error in
+      guard let self = self else { return }
+
+      self.navigationItem.rightBarButtonItem = self.restoreBarButton
+
+      if let error = error {
+        self.showAlert("error_title".localized, message: error.localizedDescription)
+        return
+      }
+
+      guard let customerInfo = customerInfo else {
+        self.showAlert("error_title".localized, message: "network_error_title".localized)
+        return
+      }
+
+      if customerInfo.nonSubscriptions.isEmpty {
+        self.showAlert("tip_missing_title".localized, message: nil)
+      } else {
+        self.showAlert("purchases_restored_title".localized, message: nil, style: .alert, completion: {
+          self.dismiss(animated: true, completion: nil)
+        })
+
+        self.view.startConfetti()
+        self.viewModel.handleNewDonation()
+      }
     }
-
-    @IBAction func restorePurchases(_ sender: UIBarButtonItem) {
-        self.restoreBarButton = self.navigationItem.rightBarButtonItem
-        self.navigationItem.rightBarButtonItem = self.loadingBarButton
-
-        SwiftyStoreKit.restorePurchases(atomically: true) { results in
-            self.navigationItem.rightBarButtonItem = self.restoreBarButton
-
-            if results.restoreFailedPurchases.count > 0 {
-                self.showAlert("network_error_title".localized, message: "generic_retry_description".localized)
-            } else if results.restoredPurchases.count > 0 {
-                self.showAlert("purchases_restored_title".localized, message: nil, style: .alert, completion: {
-                    self.dismiss(animated: true, completion: nil)
-                })
-
-                self.view.startConfetti()
-                UserDefaults.standard.set(true, forKey: Constants.UserDefaults.donationMade.rawValue)
-                NotificationCenter.default.post(name: .donationMade, object: nil)
-            } else {
-                self.showAlert("tip_missing_title".localized, message: nil)
-            }
-        }
-    }
+  }
 
     @IBAction func showGianniProfile(_ sender: UIButton) {
         self.showProfile(self.contributorGianni.profileURL)
@@ -271,39 +291,46 @@ class PlusViewController: UIViewController {
         self.present(safari, animated: true)
     }
 
-    func requestProduct(_ id: String, sender: UIButton) {
-        self.showSpinner(true, senders: [sender])
+  func requestProduct(_ id: String, sender: UIButton) {
+    self.showSpinner(true, senders: [sender])
 
-        SwiftyStoreKit.purchaseProduct(id, quantity: 1, atomically: true) { result in
-            self.showSpinner(false, senders: [sender])
+    Purchases.shared.getProducts([id]) { [weak self] products in
+      guard let product = products.first else {
+        self?.showAlert("error_title".localized, message: "network_error_title".localized)
+        return
+      }
 
-            switch result {
-            case .success:
-                self.view.startConfetti()
+      Purchases.shared.purchase(product: product) { _, _, error, userCancelled in
+        guard let self = self else { return }
 
-                var completion: (() -> Void)?
-                var title = "thanks_amazing_title".localized
+        self.showSpinner(false, senders: [sender])
 
-                // On first visit, dismiss VC after the alert is dimisseds
-                if !UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue) {
-                    completion = {
-                        self.dismiss(animated: true, completion: nil)
-                    }
-                    title = "thanks_title".localized
-                }
+        guard !userCancelled else { return }
 
-                self.showAlert(title, message: nil, style: .alert, completion: completion)
-
-                UserDefaults.standard.set(true, forKey: Constants.UserDefaults.donationMade.rawValue)
-                NotificationCenter.default.post(name: .donationMade, object: nil)
-
-            case .error(let error):
-                guard error.code != .paymentCancelled else { return }
-
-                self.showAlert("error_title".localized, message: (error as NSError).localizedDescription)
-            }
+        if let error = error {
+          self.showAlert("error_title".localized, message: error.localizedDescription)
+          return
         }
+
+        self.view.startConfetti()
+
+        var completion: (() -> Void)?
+        var title = "thanks_amazing_title".localized
+
+        // On first visit, dismiss VC after the alert is dismissed
+        if !self.viewModel.hasMadeDonation() {
+          completion = {
+            self.dismiss(animated: true, completion: nil)
+          }
+          title = "thanks_title".localized
+        }
+
+        self.showAlert(title, message: nil, style: .alert, completion: completion)
+
+        self.viewModel.handleNewDonation()
+      }
     }
+  }
 }
 
 extension PlusViewController: UICollectionViewDataSource {

@@ -34,25 +34,11 @@ public class LibraryItem: NSManagedObject, Codable {
     return self.library
   }
 
-    // Represents sum of current time
-    public var progress: Double {
-        return 0
-    }
+  public func encode(to encoder: Encoder) throws {
+    fatalError("LibraryItem is an abstract class, override this function in the subclass")
+  }
 
-    // Percentage represented from 0 to 1
-    public var progressPercentage: Double {
-        return 1.0
-    }
-
-    public func info() -> String { return "" }
-
-    public func setCurrentTime(_ time: Double) {}
-
-    public func encode(to encoder: Encoder) throws {
-        fatalError("LibraryItem is an abstract class, override this function in the subclass")
-    }
-
-    public required convenience init(from decoder: Decoder) throws {
-        fatalError("LibraryItem is an abstract class, override this function in the subclass")
-    }
+  public required convenience init(from decoder: Decoder) throws {
+    fatalError("LibraryItem is an abstract class, override this function in the subclass")
+  }
 }

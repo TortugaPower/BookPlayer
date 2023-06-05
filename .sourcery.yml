@@ -1,0 +1,10 @@
+sources:
+    - ./Shared
+    - ./BookPlayerKit
+    - ./BookPlayer
+templates:
+    - Templates
+output: BookPlayer/Generated
+args:
+  autoMockableImports: ["Combine", "BookPlayerKit"]
+  autoMockableTestableImports: ["BookPlayer"]
