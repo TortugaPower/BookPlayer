@@ -37,9 +37,9 @@ public protocol PlayerManagerProtocol {
   func setSpeed(_ newValue: Float)
   func setBoostVolume(_ newValue: Bool)
 
-  func currentSpeedPublisher() -> Published<Float>.Publisher
+  func currentSpeedPublisher() -> AnyPublisher<Float, Never>
   func isPlayingPublisher() -> AnyPublisher<Bool, Never>
-  func currentItemPublisher() -> Published<PlayableItem?>.Publisher
+  func currentItemPublisher() -> AnyPublisher<PlayableItem?, Never>
 }
 
 final class PlayerManager: NSObject, PlayerManagerProtocol {
@@ -121,8 +121,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     self.audioPlayer.allowsExternalPlayback = false
   }
 
-  func currentItemPublisher() -> Published<PlayableItem?>.Publisher {
-    return self.$currentItem
+  func currentItemPublisher() -> AnyPublisher<PlayableItem?, Never> {
+    return self.$currentItem.eraseToAnyPublisher()
   }
 
   func hasLoadedBook() -> Bool {
@@ -757,8 +757,8 @@ extension PlayerManager {
     NotificationCenter.default.post(name: .bookEnd, object: nil, userInfo: nil)
   }
 
-  func currentSpeedPublisher() -> Published<Float>.Publisher {
-    return self.$currentSpeed
+  func currentSpeedPublisher() -> AnyPublisher<Float, Never> {
+    return $currentSpeed.eraseToAnyPublisher()
   }
 
   func playPreviousItem() {

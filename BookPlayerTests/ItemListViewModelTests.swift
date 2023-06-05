@@ -18,13 +18,11 @@ class ItemListViewModelTests: XCTestCase {
   var subscription: AnyCancellable?
   var dataManager: DataManager!
 
-  @Published var placeholder: PlayableItem?
-
   override func setUp() {
     self.dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
     let libraryService = LibraryService(dataManager: dataManager)
     let playerManagerMock = PlayerManagerProtocolMock()
-    playerManagerMock.currentItemPublisherReturnValue = $placeholder
+    playerManagerMock.currentItemPublisherReturnValue = Just(nil).eraseToAnyPublisher()
 
     self.sut = ItemListViewModel(
       folderRelativePath: nil,

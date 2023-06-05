@@ -14,37 +14,81 @@ import Combine
 import XCTest
 
 class MiniPlayerViewModelTests: XCTestCase {
-  var sut: MiniPlayerViewModel!
-  var playerMock: PlayerManagerProtocolMock!
+  func testLoadItemFromShowPlayer() {
+    let playerMock = PlayerManagerProtocolMock()
+    playerMock.currentItemPublisherReturnValue = Just(PlayableItem.mock).eraseToAnyPublisher()
+    playerMock.hasLoadedBookReturnValue = false
+    let sut = MiniPlayerViewModel(playerManager: playerMock)
 
-  @Published var placeholder: PlayableItem?
-
-  override func setUp() {
-    self.playerMock = PlayerManagerProtocolMock()
-    playerMock.currentItemPublisherReturnValue = $placeholder
-    playerMock.hasLoadedBookReturnValue = true
-    self.sut = MiniPlayerViewModel(playerManager: self.playerMock)
-  }
-
-  func testShowPlayer() {
     let expectation = XCTestExpectation(description: "Waiting for transition capture")
     var capturedTransition = false
 
-    self.sut.onTransition = { route in
+    sut.onTransition = { route in
+      if case .loadItem = route {
+        capturedTransition = true
+        expectation.fulfill()
+      }
+    }
+
+    sut.showPlayer()
+
+    wait(for: [expectation], timeout: 0.5)
+    XCTAssert(capturedTransition == true)
+  }
+
+  func testShowPlayer() {
+    let playerMock = PlayerManagerProtocolMock()
+    playerMock.currentItemPublisherReturnValue = Just(nil).eraseToAnyPublisher()
+    playerMock.hasLoadedBookReturnValue = true
+    let sut = MiniPlayerViewModel(playerManager: playerMock)
+
+    let expectation = XCTestExpectation(description: "Waiting for transition capture")
+    var capturedTransition = false
+
+    sut.onTransition = { route in
       if case .showPlayer = route {
         capturedTransition = true
         expectation.fulfill()
       }
     }
 
-    self.sut.showPlayer()
+    sut.showPlayer()
 
     wait(for: [expectation], timeout: 0.5)
     XCTAssert(capturedTransition == true)
   }
 
+  func testLoadItemFromPlayPause() {
+    let playerMock = PlayerManagerProtocolMock()
+    playerMock.currentItemPublisherReturnValue = Just(PlayableItem.mock).eraseToAnyPublisher()
+    playerMock.hasLoadedBookReturnValue = false
+
+    let sut = MiniPlayerViewModel(playerManager: playerMock)
+
+    let expectation = XCTestExpectation(description: "Waiting for transition capture")
+    var capturedTransition = false
+
+    sut.onTransition = { route in
+      if case .loadItem = route {
+        capturedTransition = true
+        expectation.fulfill()
+      }
+    }
+
+    sut.handlePlayPauseAction()
+
+    wait(for: [expectation], timeout: 0.5)
+    XCTAssert(capturedTransition == true)
+    XCTAssert(playerMock.playPauseCalled == false)
+  }
+
   func testPlayPause() {
-    self.sut.handlePlayPauseAction()
+    let playerMock = PlayerManagerProtocolMock()
+    playerMock.currentItemPublisherReturnValue = Just(nil).eraseToAnyPublisher()
+    playerMock.hasLoadedBookReturnValue = true
+
+    let sut = MiniPlayerViewModel(playerManager: playerMock)
+    sut.handlePlayPauseAction()
 
     XCTAssert(playerMock.playPauseCalled == true)
   }

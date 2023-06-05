@@ -1241,9 +1241,9 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
     var currentSpeedPublisherCalled: Bool {
         return currentSpeedPublisherCallsCount > 0
     }
-    var currentSpeedPublisherReturnValue: Published<Float>.Publisher!
-    var currentSpeedPublisherClosure: (() -> Published<Float>.Publisher)?
-    func currentSpeedPublisher() -> Published<Float>.Publisher {
+    var currentSpeedPublisherReturnValue: AnyPublisher<Float, Never>!
+    var currentSpeedPublisherClosure: (() -> AnyPublisher<Float, Never>)?
+    func currentSpeedPublisher() -> AnyPublisher<Float, Never> {
         currentSpeedPublisherCallsCount += 1
         if let currentSpeedPublisherClosure = currentSpeedPublisherClosure {
             return currentSpeedPublisherClosure()
@@ -1273,9 +1273,9 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
     var currentItemPublisherCalled: Bool {
         return currentItemPublisherCallsCount > 0
     }
-    var currentItemPublisherReturnValue: Published<PlayableItem?>.Publisher!
-    var currentItemPublisherClosure: (() -> Published<PlayableItem?>.Publisher)?
-    func currentItemPublisher() -> Published<PlayableItem?>.Publisher {
+    var currentItemPublisherReturnValue: AnyPublisher<PlayableItem?, Never>!
+    var currentItemPublisherClosure: (() -> AnyPublisher<PlayableItem?, Never>)?
+    func currentItemPublisher() -> AnyPublisher<PlayableItem?, Never> {
         currentItemPublisherCallsCount += 1
         if let currentItemPublisherClosure = currentItemPublisherClosure {
             return currentItemPublisherClosure()
