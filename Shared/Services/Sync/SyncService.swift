@@ -41,7 +41,7 @@ public protocol SyncServiceProtocol {
 
   func uploadArtwork(relativePath: String, data: Data) async throws
 
-  func scheduleUpload(items: [SimpleLibraryItem]) throws
+  func scheduleUpload(items: [SimpleLibraryItem])
 
   func scheduleDelete(_ items: [SimpleLibraryItem], mode: DeleteMode)
 
@@ -97,7 +97,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   func bindObservers() {
     NotificationCenter.default.publisher(for: .logout, object: nil)
       .sink(receiveValue: { [weak self] _ in
-        self?.cancelAllJobs()
+        self?.isActive = false
       })
       .store(in: &disposeBag)
 
@@ -194,7 +194,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     if let itemsToUpload = libraryService.getItemsToSync(remoteIdentifiers: fetchedIdentifiers),
        !itemsToUpload.isEmpty {
-      try handleItemsToUpload(itemsToUpload)
+      handleItemsToUpload(itemsToUpload)
     }
 
     return (itemsToStore, lastItemPlayed)
@@ -374,7 +374,7 @@ extension SyncService {
 }
 
 extension SyncService {
-  func handleItemsToUpload(_ items: [SyncableItem]) throws {
+  func handleItemsToUpload(_ items: [SyncableItem]) {
     let folders = items.filter({ $0.type != .book })
 
     var itemsToUpload = items
@@ -387,7 +387,7 @@ extension SyncService {
     }
 
     for item in itemsToUpload {
-      try jobManager.scheduleLibraryItemUploadJob(for: item)
+      jobManager.scheduleLibraryItemUploadJob(for: item)
       if let bookmarks = libraryService.getBookmarks(of: .user, relativePath: item.relativePath) {
         for bookmark in bookmarks {
           jobManager.scheduleSetBookmarkJob(
@@ -400,12 +400,12 @@ extension SyncService {
     }
   }
 
-  public func scheduleUpload(items: [SimpleLibraryItem]) throws {
+  public func scheduleUpload(items: [SimpleLibraryItem]) {
     guard isActive else { return }
 
     let syncItems = items.map({ SyncableItem(from: $0) })
 
-    try handleItemsToUpload(syncItems)
+    handleItemsToUpload(syncItems)
   }
 }
 

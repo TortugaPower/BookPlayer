@@ -14,7 +14,7 @@ public protocol JobSchedulerProtocol {
   /// Count of the currently queued sync jobs
   var queuedJobsCount: Int { get }
   /// Uploads the metadata for the first time to the server
-  func scheduleLibraryItemUploadJob(for item: SyncableItem) throws
+  func scheduleLibraryItemUploadJob(for item: SyncableItem)
   /// Update existing metadata in the server
   func scheduleMetadataUpdateJob(with relativePath: String, parameters: [String: Any])
   /// Move item to destination
@@ -81,7 +81,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       .store(in: &disposeBag)
   }
 
-  private func createHardLink(for item: SyncableItem) throws {
+  private func createHardLink(for item: SyncableItem) {
     /// Hard links only apply to files and not folders
     guard item.type == .book else { return }
 
@@ -89,12 +89,17 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
 
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(item.relativePath)
 
-    try FileManager.default.linkItem(at: fileURL, to: hardLinkURL)
+    /// Clean up in case hard link path is already used
+    if FileManager.default.fileExists(atPath: hardLinkURL.path) {
+      try? FileManager.default.removeItem(at: hardLinkURL)
+    }
+
+    try? FileManager.default.linkItem(at: fileURL, to: hardLinkURL)
   }
 
-  public func scheduleLibraryItemUploadJob(for item: SyncableItem) throws {
+  public func scheduleLibraryItemUploadJob(for item: SyncableItem) {
     /// Create hard link to file location in case the user moves the item around in the library
-    try createHardLink(for: item)
+    createHardLink(for: item)
 
     var parameters: [String: Any] = [
       "relativePath": item.relativePath,

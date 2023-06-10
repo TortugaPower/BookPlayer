@@ -349,7 +349,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   func createFolder(with title: String, items: [String]? = nil, type: SimpleItemType) {
     do {
       let folder = try self.libraryService.createFolder(with: title, inside: self.folderRelativePath)
-      try syncService.scheduleUpload(items: [folder])
+      syncService.scheduleUpload(items: [folder])
       if let fetchedItems = items {
         try libraryService.moveItems(fetchedItems, inside: folder.relativePath)
         syncService.scheduleMove(items: fetchedItems, to: folder.relativePath)
@@ -975,7 +975,7 @@ extension ItemListViewModel {
     let processedItems = libraryService.insertItems(from: files)
     var itemIdentifiers = processedItems.map({ $0.relativePath })
     do {
-      try syncService.scheduleUpload(items: processedItems)
+      syncService.scheduleUpload(items: processedItems)
       /// Move imported files to current selected folder so the user can see them
       if let folderRelativePath {
         try libraryService.moveItems(itemIdentifiers, inside: folderRelativePath)

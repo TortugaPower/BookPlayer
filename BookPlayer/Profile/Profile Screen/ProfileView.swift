@@ -33,7 +33,8 @@ struct ProfileView<Model: ProfileViewModelProtocol>: View {
 
           Spacer()
 
-          if viewModel.account?.hasSubscription == true {
+          if viewModel.account?.hasSubscription == true,
+             viewModel.account?.id.isEmpty == false {
             ProfileSyncTasksStatusView(
               buttonText: $viewModel.tasksButtonText,
               statusMessage: $viewModel.refreshStatusMessage,
