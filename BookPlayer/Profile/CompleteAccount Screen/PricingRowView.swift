@@ -94,5 +94,6 @@ struct PricingRowView_Previews: PreviewProvider {
         isLoading: .constant(true)
       )
     }
+    .environmentObject(ThemeViewModel())
   }
 }

@@ -73,5 +73,6 @@ struct ProfileCardView: View {
 struct ProfileCardView_Previews: PreviewProvider {
   static var previews: some View {
     ProfileCardView(account: .constant(Account()))
+      .environmentObject(ThemeViewModel())
   }
 }

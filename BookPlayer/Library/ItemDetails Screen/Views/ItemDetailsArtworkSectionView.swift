@@ -49,5 +49,6 @@ struct ItemDetailsArtworkSectionView_Previews: PreviewProvider {
       image: .constant(nil),
       actionHandler: {}
     )
+    .environmentObject(ThemeViewModel())
   }
 }

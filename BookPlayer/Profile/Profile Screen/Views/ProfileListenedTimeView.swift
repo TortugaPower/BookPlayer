@@ -30,5 +30,6 @@ struct ProfileStatsView_Previews: PreviewProvider {
     ProfileListenedTimeView(
       formattedListeningTime: .constant("0m")
     )
+    .environmentObject(ThemeViewModel())
   }
 }

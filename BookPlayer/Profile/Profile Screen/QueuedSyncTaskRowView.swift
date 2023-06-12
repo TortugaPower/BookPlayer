@@ -37,5 +37,6 @@ struct QueuedSyncTaskRowView_Previews: PreviewProvider {
       imageName: .constant("bookmark"),
       title: .constant("Task")
     )
+    .environmentObject(ThemeViewModel())
   }
 }

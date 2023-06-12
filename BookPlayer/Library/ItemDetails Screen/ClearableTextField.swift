@@ -38,5 +38,6 @@ struct ClearableTextField: View {
 struct ClearableTextField_Previews: PreviewProvider {
   static var previews: some View {
     ClearableTextField("Title", text: .constant(""))
+      .environmentObject(ThemeViewModel())
   }
 }
