@@ -13,7 +13,7 @@ struct QueuedSyncTaskRowView: View {
   @Binding var imageName: String
   @Binding var title: String
 
-  @StateObject var themeViewModel = ThemeViewModel()
+  @EnvironmentObject var themeViewModel: ThemeViewModel
 
   var body: some View {
     HStack {

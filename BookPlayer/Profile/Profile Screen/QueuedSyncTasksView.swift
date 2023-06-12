@@ -46,6 +46,7 @@ struct QueuedSyncTasksView<Model: QueuedSyncTasksViewModelProtocol>: View {
         }
       }
       .scrollContentBackground(.hidden)
+      .environmentObject(themeViewModel)
     } else {
       List {
         ForEach(viewModel.queuedJobs) { job in
@@ -55,6 +56,7 @@ struct QueuedSyncTasksView<Model: QueuedSyncTasksViewModelProtocol>: View {
           )
         }
       }
+      .environmentObject(themeViewModel)
     }
   }
 }

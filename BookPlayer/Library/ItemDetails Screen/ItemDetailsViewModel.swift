@@ -10,7 +10,7 @@ import Foundation
 import BookPlayerKit
 import Combine
 
-class ItemDetailsViewModel: BaseViewModel<ItemDetailsCoordinator> {
+class ItemDetailsViewModel: BaseViewModel<Coordinator> {
   /// Possible routes for the screen
   enum Routes {
     case cancel

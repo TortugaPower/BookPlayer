@@ -16,7 +16,7 @@ struct ProfileCardView: View {
   var cornerRadius: CGFloat = 10
 
   @Binding var account: Account?
-  @ObservedObject var themeViewModel: ThemeViewModel
+  @EnvironmentObject var themeViewModel: ThemeViewModel
 
   var title: String {
     if let account,
@@ -72,9 +72,6 @@ struct ProfileCardView: View {
 
 struct ProfileCardView_Previews: PreviewProvider {
   static var previews: some View {
-    ProfileCardView(
-      account: .constant(Account()),
-      themeViewModel: ThemeViewModel()
-    )
+    ProfileCardView(account: .constant(Account()))
   }
 }

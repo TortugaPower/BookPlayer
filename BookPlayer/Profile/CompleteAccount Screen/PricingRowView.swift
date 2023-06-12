@@ -14,7 +14,7 @@ struct PricingRowView: View {
   @Binding var isSelected: Bool
   @Binding var isLoading: Bool
   /// Theme view model to update colors
-  @StateObject var themeViewModel = ThemeViewModel()
+  @EnvironmentObject var themeViewModel: ThemeViewModel
 
   var imageLength: CGFloat = 24
 

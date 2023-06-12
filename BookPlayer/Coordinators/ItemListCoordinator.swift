@@ -172,21 +172,27 @@ extension ItemListCoordinator {
   }
 
   func showItemDetails(_ item: SimpleLibraryItem) {
-    let coordinator = ItemDetailsCoordinator(
+    let viewModel = ItemDetailsViewModel(
       item: item,
       libraryService: libraryService,
-      syncService: syncService,
-      navigationController: navigationController
+      syncService: syncService
     )
-
-    coordinator.onFinish = { route in
+    viewModel.onTransition = { [weak self] route in
       switch route {
-      case .infoUpdated:
-        self.reloadItemsWithPadding()
+      case .done:
+        self?.reloadItemsWithPadding()
+      case .cancel:
+        /// do nothing on cancel
+        break
       }
+      self?.navigationController.dismiss(animated: true)
     }
 
-    coordinator.start()
+    let vc = ItemDetailsViewController(viewModel: viewModel)
+    let nav = AppNavigationController.instantiate(from: .Main)
+    nav.viewControllers = [vc]
+
+    navigationController.present(nav, animated: true, completion: nil)
   }
 
   func showItemSelectionScreen(

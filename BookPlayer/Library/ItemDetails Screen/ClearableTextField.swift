@@ -15,7 +15,7 @@ struct ClearableTextField: View {
   /// Input's text
   @Binding var text: String
   /// Current theme
-  @StateObject var themeViewModel = ThemeViewModel()
+  @EnvironmentObject var themeViewModel: ThemeViewModel
 
   init(_ placeholder: String, text: Binding<String>) {
     self.placeholder = placeholder

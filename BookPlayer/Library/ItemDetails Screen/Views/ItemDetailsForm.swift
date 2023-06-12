@@ -69,6 +69,7 @@ struct ItemDetailsForm: View {
         dismissButton: .default(Text("ok_button".localized))
       )
     }
+    .environmentObject(themeViewModel)
   }
 }
 
