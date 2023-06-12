@@ -234,8 +234,8 @@
 "search_title" = "Keresés";
 "books_title" = "Könyvek";
 "folders_title" = "Mappák";
-"item_title_placeholder" = "Cím";
-"item_author_placeholder" = "Szerző";
+"section_item_title" = "Cím";
+"section_item_author" = "Szerző";
 "artwork_options_title" = "Műalkotási lehetőségek";
 "artwork_photolibrary_title" = "Válasszon a Photo Library közül";
 "artwork_clipboard_title" = "Beillesztés a vágólapról";

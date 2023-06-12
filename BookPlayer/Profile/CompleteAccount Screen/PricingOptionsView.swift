@@ -11,6 +11,7 @@ import SwiftUI
 
 struct PricingOptionsView: View {
   @ObservedObject var viewModel: PricingViewModel
+  @StateObject var themeViewModel = ThemeViewModel()
 
   var body: some View {
     VStack(spacing: Spacing.S1) {
@@ -25,6 +26,7 @@ struct PricingOptionsView: View {
         }
       }
     }
+    .environmentObject(themeViewModel)
   }
 }
 

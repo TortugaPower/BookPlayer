@@ -385,7 +385,6 @@
 		9F5F13682978D9E100F061A0 /* ProfileSyncTasksStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5F13672978D9E100F061A0 /* ProfileSyncTasksStatusView.swift */; };
 		9F5FBB08293EDCD8009F4B0E /* ItemDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5FBB07293EDCD8009F4B0E /* ItemDetailsViewController.swift */; };
 		9F5FBB0A293EE0C2009F4B0E /* ItemDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5FBB09293EE0C2009F4B0E /* ItemDetailsViewModel.swift */; };
-		9F5FBB0E293EE116009F4B0E /* ItemDetailsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5FBB0D293EE116009F4B0E /* ItemDetailsCoordinator.swift */; };
 		9F646006283AD6B700710D3C /* PlayerSettingsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F646005283AD6B700710D3C /* PlayerSettingsViewModelTests.swift */; };
 		9F64C6212793C31600B2493C /* PlayerControlsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F64C6202793C31600B2493C /* PlayerControlsCoordinator.swift */; };
 		9F64C6242793C3DA00B2493C /* PlayerControlsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F64C6232793C3DA00B2493C /* PlayerControlsViewModel.swift */; };
@@ -1037,7 +1036,6 @@
 		9F5F13672978D9E100F061A0 /* ProfileSyncTasksStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSyncTasksStatusView.swift; sourceTree = "<group>"; };
 		9F5FBB07293EDCD8009F4B0E /* ItemDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsViewController.swift; sourceTree = "<group>"; };
 		9F5FBB09293EE0C2009F4B0E /* ItemDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsViewModel.swift; sourceTree = "<group>"; };
-		9F5FBB0D293EE116009F4B0E /* ItemDetailsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsCoordinator.swift; sourceTree = "<group>"; };
 		9F646005283AD6B700710D3C /* PlayerSettingsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerSettingsViewModelTests.swift; sourceTree = "<group>"; };
 		9F64C6202793C31600B2493C /* PlayerControlsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsCoordinator.swift; sourceTree = "<group>"; };
 		9F64C6232793C3DA00B2493C /* PlayerControlsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsViewModel.swift; sourceTree = "<group>"; };
@@ -1376,7 +1374,6 @@
 				4158386826EAF4A300F4A12B /* ItemListCoordinator.swift */,
 				4158388226EBD76A00F4A12B /* LibraryListCoordinator.swift */,
 				4158386D26EAF76700F4A12B /* FolderListCoordinator.swift */,
-				9F5FBB0D293EE116009F4B0E /* ItemDetailsCoordinator.swift */,
 				4158388426EBEE9800F4A12B /* PlayerCoordinator.swift */,
 				4158388A26EC2CC500F4A12B /* ImportCoordinator.swift */,
 				41188D1F26ECDDD50017124E /* BookmarkCoordinator.swift */,
@@ -2985,7 +2982,6 @@
 				9FBDDBA227DD13FA005FB447 /* ProfileCoordinator.swift in Sources */,
 				9F22DE39288CBE6A00056FCD /* FormButton.swift in Sources */,
 				4151A6A826E48C3400E49DBE /* Storyboarded.swift in Sources */,
-				9F5FBB0E293EE116009F4B0E /* ItemDetailsCoordinator.swift in Sources */,
 				9F00A5FC294F9B9A005EA316 /* ItemDetailsForm.swift in Sources */,
 				9F7B647C2804798800895ECC /* IconsViewModel.swift in Sources */,
 				9F3D0CE728C2BF7700E9E8A3 /* ButtonFreeViewModel.swift in Sources */,

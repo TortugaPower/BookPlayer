@@ -234,8 +234,8 @@
 "search_title" = "Căutare";
 "books_title" = "Cărți";
 "folders_title" = "Foldere";
-"item_title_placeholder" = "Titlu";
-"item_author_placeholder" = "Autor";
+"section_item_title" = "Titlu";
+"section_item_author" = "Autor";
 "artwork_options_title" = "Opțiuni de artă";
 "artwork_photolibrary_title" = "Alegeți din Biblioteca foto";
 "artwork_clipboard_title" = "Lipiți din clipboard";

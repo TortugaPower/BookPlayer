@@ -24,15 +24,21 @@ struct ItemDetailsForm: View {
 
   var body: some View {
     Form {
-      Section(header: Text("details_title".localized)
+      Section(header: Text("section_item_title".localized)
         .foregroundColor(themeViewModel.secondaryColor)
       ) {
-        ClearableTextField("item_title_placeholder".localized, text: $viewModel.title)
-        if viewModel.showAuthor {
-          ClearableTextField("item_author_placeholder".localized, text: $viewModel.author)
-        }
+        ClearableTextField(viewModel.titlePlaceholder, text: $viewModel.title)
       }
       .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
+
+      if viewModel.showAuthor {
+        Section(header: Text("section_item_author".localized)
+          .foregroundColor(themeViewModel.secondaryColor)
+        ) {
+          ClearableTextField(viewModel.authorPlaceholder, text: $viewModel.author)
+        }
+        .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
+      }
 
       ItemDetailsArtworkSectionView(image: $viewModel.selectedImage) {
         showingArtworkOptions = true
@@ -69,6 +75,7 @@ struct ItemDetailsForm: View {
         dismissButton: .default(Text("ok_button".localized))
       )
     }
+    .environmentObject(themeViewModel)
   }
 }
 

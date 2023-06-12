@@ -234,8 +234,8 @@
 "search_title" = "Hae";
 "books_title" = "Kirjat";
 "folders_title" = "Kansiot";
-"item_title_placeholder" = "Otsikko";
-"item_author_placeholder" = "Tekijä";
+"section_item_title" = "Otsikko";
+"section_item_author" = "Tekijä";
 "artwork_options_title" = "Taideteosvaihtoehdot";
 "artwork_photolibrary_title" = "Valitse valokuvakirjastosta";
 "artwork_clipboard_title" = "Liitä leikepöydältä";

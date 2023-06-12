@@ -234,8 +234,8 @@
 "search_title" = "Szukaj";
 "books_title" = "Książki";
 "folders_title" = "Lornetka składana";
-"item_title_placeholder" = "Tytuł";
-"item_author_placeholder" = "Autor";
+"section_item_title" = "Tytuł";
+"section_item_author" = "Autor";
 "artwork_options_title" = "Opcje grafiki";
 "artwork_photolibrary_title" = "Wybierz z biblioteki zdjęć";
 "artwork_clipboard_title" = "Wklej ze schowka";

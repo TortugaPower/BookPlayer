@@ -10,7 +10,7 @@ import Foundation
 import BookPlayerKit
 import Combine
 
-class ItemDetailsViewModel: BaseViewModel<ItemDetailsCoordinator> {
+class ItemDetailsViewModel: BaseViewModel<Coordinator> {
   /// Possible routes for the screen
   enum Routes {
     case cancel
@@ -57,39 +57,18 @@ class ItemDetailsViewModel: BaseViewModel<ItemDetailsCoordinator> {
     onTransition?(.cancel)
   }
 
-  // swiftlint:disable:next function_body_length
   func handleSaveAction() {
-    var cacheKey = item.relativePath
+    let cacheKey: String
 
-    let storedTitle = libraryService.getItemProperty(
-      #keyPath(LibraryItem.title),
-      relativePath: item.relativePath
-    ) as? String
-
-    if storedTitle != formViewModel.title {
-      switch item.type {
-      case .book:
-        libraryService.renameBook(at: item.relativePath, with: formViewModel.title)
-      case .bound, .folder:
-        do {
-          let newRelativePath = try libraryService.renameFolder(at: item.relativePath, with: formViewModel.title)
-          cacheKey = newRelativePath
-          syncService.scheduleRenameFolder(at: item.relativePath, name: formViewModel.title)
-        } catch {
-          sendEvent(.showAlert(content: BPAlertContent.errorAlert(message: error.localizedDescription)))
-          return
-        }
-      }
+    do {
+      cacheKey = try updateTitle(formViewModel.title, relativePath: item.relativePath)
+    } catch {
+      sendEvent(.showAlert(content: BPAlertContent.errorAlert(message: error.localizedDescription)))
+      return
     }
 
-    let storedDetails = libraryService.getItemProperty(
-      #keyPath(LibraryItem.details),
-      relativePath: item.relativePath
-    ) as? String
-
-    if formViewModel.showAuthor,
-       storedDetails != formViewModel.author {
-      libraryService.updateDetails(at: item.relativePath, details: formViewModel.author)
+    if formViewModel.showAuthor {
+      updateAuthor(formViewModel.author, relativePath: item.relativePath)
     }
 
     guard formViewModel.artworkIsUpdated else {
@@ -118,6 +97,53 @@ class ItemDetailsViewModel: BaseViewModel<ItemDetailsCoordinator> {
         self.sendEvent(.showAlert(content: BPAlertContent.errorAlert(message: error.localizedDescription)))
       }
     }
+  }
+
+  /// Update the item title if necessary
+  /// - Returns: The new relative path to be used as the cache key
+  func updateTitle(_ newTitle: String, relativePath: String) throws -> String {
+    var cacheKey = relativePath
+    let cleanedTitle = newTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+
+    guard !cleanedTitle.isEmpty else {
+      return cacheKey
+    }
+
+    let storedTitle = libraryService.getItemProperty(
+      #keyPath(LibraryItem.title),
+      relativePath: relativePath
+    ) as? String
+
+    guard storedTitle != cleanedTitle else {
+      return cacheKey
+    }
+
+    switch item.type {
+    case .book:
+      libraryService.renameBook(at: relativePath, with: cleanedTitle)
+    case .bound, .folder:
+      let newRelativePath = try libraryService.renameFolder(at: relativePath, with: cleanedTitle)
+      cacheKey = newRelativePath
+      syncService.scheduleRenameFolder(at: relativePath, name: cleanedTitle)
+    }
+
+    return cacheKey
+  }
+
+  /// Update the item's author if necessary
+  func updateAuthor(_ newAuthor: String, relativePath: String) {
+    let cleanedAuthor = newAuthor.trimmingCharacters(in: .whitespacesAndNewlines)
+
+    guard !cleanedAuthor.isEmpty else { return }
+
+    let storedDetails = libraryService.getItemProperty(
+      #keyPath(LibraryItem.details),
+      relativePath: relativePath
+    ) as? String
+
+    guard storedDetails != cleanedAuthor else { return }
+
+    libraryService.updateDetails(at: relativePath, details: cleanedAuthor)
   }
 
   private func sendEvent(_ event: ItemDetailsViewModel.Events) {

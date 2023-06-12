@@ -11,7 +11,7 @@ import SwiftUI
 
 struct ProfileListenedTimeView: View {
   @Binding var formattedListeningTime: String
-  @ObservedObject var themeViewModel: ThemeViewModel
+  @EnvironmentObject var themeViewModel: ThemeViewModel
 
   var body: some View {
     VStack {
@@ -28,8 +28,8 @@ struct ProfileListenedTimeView: View {
 struct ProfileStatsView_Previews: PreviewProvider {
   static var previews: some View {
     ProfileListenedTimeView(
-      formattedListeningTime: .constant("0m"),
-      themeViewModel: ThemeViewModel()
+      formattedListeningTime: .constant("0m")
     )
+    .environmentObject(ThemeViewModel())
   }
 }

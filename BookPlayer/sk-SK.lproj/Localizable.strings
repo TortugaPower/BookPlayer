@@ -234,8 +234,8 @@
 "search_title" = "Vyhľadávanie";
 "books_title" = "knihy";
 "folders_title" = "Priečinky";
-"item_title_placeholder" = "Názov";
-"item_author_placeholder" = "Autor";
+"section_item_title" = "Názov";
+"section_item_author" = "Autor";
 "artwork_options_title" = "Možnosti umeleckých diel";
 "artwork_photolibrary_title" = "Vyberte si z knižnice fotografií";
 "artwork_clipboard_title" = "Prilepiť zo schránky";
