@@ -1469,22 +1469,18 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     }
     //MARK: - scheduleUpload
 
-    var scheduleUploadItemsThrowableError: Error?
     var scheduleUploadItemsCallsCount = 0
     var scheduleUploadItemsCalled: Bool {
         return scheduleUploadItemsCallsCount > 0
     }
     var scheduleUploadItemsReceivedItems: [SimpleLibraryItem]?
     var scheduleUploadItemsReceivedInvocations: [[SimpleLibraryItem]] = []
-    var scheduleUploadItemsClosure: (([SimpleLibraryItem]) throws -> Void)?
-    func scheduleUpload(items: [SimpleLibraryItem]) throws {
-        if let error = scheduleUploadItemsThrowableError {
-            throw error
-        }
+    var scheduleUploadItemsClosure: (([SimpleLibraryItem]) -> Void)?
+    func scheduleUpload(items: [SimpleLibraryItem]) {
         scheduleUploadItemsCallsCount += 1
         scheduleUploadItemsReceivedItems = items
         scheduleUploadItemsReceivedInvocations.append(items)
-        try scheduleUploadItemsClosure?(items)
+        scheduleUploadItemsClosure?(items)
     }
     //MARK: - scheduleDelete
 
