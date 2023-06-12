@@ -234,8 +234,8 @@
 "search_title" = "Procurar";
 "books_title" = "livros";
 "folders_title" = "Pastas";
-"item_title_placeholder" = "Título";
-"item_author_placeholder" = "Autor";
+"section_item_title" = "Título";
+"section_item_author" = "Autor";
 "artwork_options_title" = "Opções de arte";
 "artwork_photolibrary_title" = "Escolha na biblioteca de fotos";
 "artwork_clipboard_title" = "Colar da área de transferência";

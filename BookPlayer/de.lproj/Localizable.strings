@@ -234,8 +234,8 @@
 "search_title" = "Suchen";
 "books_title" = "Bücher";
 "folders_title" = "Ordner";
-"item_title_placeholder" = "Titel";
-"item_author_placeholder" = "Autor";
+"section_item_title" = "Titel";
+"section_item_author" = "Autor";
 "artwork_options_title" = "Artwork-Optionen";
 "artwork_photolibrary_title" = "Wählen Sie aus der Fotobibliothek";
 "artwork_clipboard_title" = "Aus Zwischenablage einfügen";

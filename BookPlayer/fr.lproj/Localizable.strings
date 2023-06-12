@@ -234,8 +234,8 @@
 "search_title" = "Recherche";
 "books_title" = "Livres";
 "folders_title" = "Dossiers";
-"item_title_placeholder" = "Titre";
-"item_author_placeholder" = "Auteur";
+"section_item_title" = "Titre";
+"section_item_author" = "Auteur";
 "artwork_options_title" = "Options d'illustration";
 "artwork_photolibrary_title" = "Choisissez parmi la photothèque";
 "artwork_clipboard_title" = "Coller depuis le presse-papiers";

@@ -234,8 +234,8 @@
 "search_title" = "Ricerca";
 "books_title" = "Libri";
 "folders_title" = "Cartelle";
-"item_title_placeholder" = "Titolo";
-"item_author_placeholder" = "Autore";
+"section_item_title" = "Titolo";
+"section_item_author" = "Autore";
 "artwork_options_title" = "Opzioni di opere d'arte";
 "artwork_photolibrary_title" = "Scegli dalla Libreria foto";
 "artwork_clipboard_title" = "Incolla dagli appunti";

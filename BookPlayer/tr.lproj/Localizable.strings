@@ -234,8 +234,8 @@
 "search_title" = "Aramak";
 "books_title" = "Kitabın";
 "folders_title" = "Klasörler";
-"item_title_placeholder" = "Başlık";
-"item_author_placeholder" = "Yazar";
+"section_item_title" = "Başlık";
+"section_item_author" = "Yazar";
 "artwork_options_title" = "Sanat eseri seçenekleri";
 "artwork_photolibrary_title" = "Fotoğraf Kitaplığından Seçin";
 "artwork_clipboard_title" = "Panodan yapıştır";

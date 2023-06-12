@@ -18,6 +18,10 @@ class ItemDetailsFormViewModel: ObservableObject {
   @Published var author: String
   /// Artwork image
   @Published var selectedImage: UIImage?
+  /// Original item title
+  var titlePlaceholder: String
+  /// Original item author
+  var authorPlaceholder: String
   /// Determines if there's an update for the artwork
   var artworkIsUpdated: Bool = false
   /// Flag to show the author field
@@ -28,7 +32,9 @@ class ItemDetailsFormViewModel: ObservableObject {
   /// Initializer
   init(item: SimpleLibraryItem) {
     self.title = item.title
+    self.titlePlaceholder = item.title
     self.author = item.details
+    self.authorPlaceholder = item.details
     self.showAuthor = item.type == .book
     self.originalImageDataProvider = ArtworkService.getArtworkProvider(for: item.relativePath)
     let cachedImageURL = ArtworkService.getCachedImageURL(for: item.relativePath)
