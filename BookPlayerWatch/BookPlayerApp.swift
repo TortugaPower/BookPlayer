@@ -11,7 +11,7 @@ import SwiftUI
 @main
 struct BookPlayerApp: App {
   // swiftlint:disable:next weak_delegate
-  @WKExtensionDelegateAdaptor var extensionDelegate: ExtensionDelegate
+  @WKApplicationDelegateAdaptor var extensionDelegate: ExtensionDelegate
 
   @SceneBuilder var body: some Scene {
     WindowGroup {

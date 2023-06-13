@@ -63,8 +63,7 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES"
-      launchAutomaticallySubstyle = "8"
-      notificationPayloadFile = "BookPlayerWatch Extension/PushNotificationPayload.apns">
+      launchAutomaticallySubstyle = "8">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
          <BuildableReference
@@ -82,8 +81,7 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES"
-      launchAutomaticallySubstyle = "8"
-      notificationPayloadFile = "BookPlayerWatch Extension/PushNotificationPayload.apns">
+      launchAutomaticallySubstyle = "8">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
          <BuildableReference
