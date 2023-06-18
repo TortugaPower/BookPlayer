@@ -234,8 +234,8 @@
 "search_title" = "Zoekopdracht";
 "books_title" = "Boeken";
 "folders_title" = "mappen";
-"item_title_placeholder" = "Titel";
-"item_author_placeholder" = "Auteur";
+"section_item_title" = "Titel";
+"section_item_author" = "Auteur";
 "artwork_options_title" = "Kunstwerk opties";
 "artwork_photolibrary_title" = "Kies uit de fotobibliotheek";
 "artwork_clipboard_title" = "Plakken vanaf het klembord";

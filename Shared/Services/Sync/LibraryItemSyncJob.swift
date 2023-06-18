@@ -165,7 +165,13 @@ class LibraryItemSyncJob: Job, BPLogger {
       return
     }
 
-    let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(self.relativePath)
+    let hardLinkURL = FileManager.default.temporaryDirectory.appendingPathComponent(self.relativePath)
+
+    /// Prefer the hard link URL and fallback to recorded item path
+    /// Note: the recorded item path may not have the item if the user moved it
+    let fileURL = FileManager.default.fileExists(atPath: hardLinkURL.path)
+    ? hardLinkURL
+    : DataManager.getProcessedFolderURL().appendingPathComponent(self.relativePath)
 
     guard
       FileManager.default.fileExists(atPath: fileURL.path)

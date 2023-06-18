@@ -234,8 +234,8 @@
 "search_title" = "Пошук";
 "books_title" = "Книги";
 "folders_title" = "Папки";
-"item_title_placeholder" = "Назва";
-"item_author_placeholder" = "Автор";
+"section_item_title" = "Назва";
+"section_item_author" = "Автор";
 "artwork_options_title" = "Варіанти художніх робіт";
 "artwork_photolibrary_title" = "Виберіть із бібліотеки фотографій";
 "artwork_clipboard_title" = "Вставити з буфера обміну";

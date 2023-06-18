@@ -234,8 +234,8 @@
 "search_title" = "Sök";
 "books_title" = "Böcker";
 "folders_title" = "Mappar";
-"item_title_placeholder" = "Titel";
-"item_author_placeholder" = "Författare";
+"section_item_title" = "Titel";
+"section_item_author" = "Författare";
 "artwork_options_title" = "Alternativ för konstverk";
 "artwork_photolibrary_title" = "Välj från Fotobibliotek";
 "artwork_clipboard_title" = "Klistra in från urklipp";

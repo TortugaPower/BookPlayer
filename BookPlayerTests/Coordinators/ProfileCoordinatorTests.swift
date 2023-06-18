@@ -16,13 +16,11 @@ import XCTest
 class ProfileCoordinatorTests: XCTestCase {
   var sut: ProfileCoordinator!
 
-  @Published var placeholder: PlayableItem?
-
   override func setUp() {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
     let libraryService = LibraryService(dataManager: dataManager)
     let playerManagerMock = PlayerManagerProtocolMock()
-    playerManagerMock.currentItemPublisherReturnValue = $placeholder
+    playerManagerMock.currentItemPublisherReturnValue = Just(nil).eraseToAnyPublisher()
     let syncServiceMock = SyncServiceProtocolMock()
     syncServiceMock.queuedJobsCount = 0
     self.sut = ProfileCoordinator(

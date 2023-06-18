@@ -62,6 +62,7 @@ class StorageViewModelMissingFileTests: XCTestCase {
 
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: self.testPath))
     let libraryService = LibraryService(dataManager: dataManager)
+    _ = libraryService.getLibrary()
     self.viewModel = StorageViewModel(libraryService: libraryService,
                                       folderURL: self.directoryURL)
   }

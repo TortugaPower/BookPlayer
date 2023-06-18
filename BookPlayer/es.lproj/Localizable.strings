@@ -234,8 +234,8 @@
 "search_title" = "Buscar";
 "books_title" = "Libros";
 "folders_title" = "Carpetas";
-"item_title_placeholder" = "Título";
-"item_author_placeholder" = "Autor";
+"section_item_title" = "Título";
+"section_item_author" = "Autor";
 "artwork_options_title" = "Opciones de ilustraciones";
 "artwork_photolibrary_title" = "Elija de la biblioteca de fotos";
 "artwork_clipboard_title" = "Pegar desde el portapapeles";

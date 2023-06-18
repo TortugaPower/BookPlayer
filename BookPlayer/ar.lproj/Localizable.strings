@@ -234,8 +234,8 @@
 "search_title" = "يبحث";
 "books_title" = "كتب";
 "folders_title" = "المجلدات";
-"item_title_placeholder" = "عنوان";
-"item_author_placeholder" = "مؤلف";
+"section_item_title" = "عنوان";
+"section_item_author" = "مؤلف";
 "artwork_options_title" = "خيارات العمل الفني";
 "artwork_photolibrary_title" = "اختر من مكتبة الصور";
 "artwork_clipboard_title" = "لصق من الحافظة";

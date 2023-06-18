@@ -16,15 +16,12 @@ import XCTest
 class PlayerCoordinatorTests: XCTestCase {
   var playerCoordinator: PlayerCoordinator!
 
-  @Published var placeholder: PlayableItem?
-  @Published var speed: Float = 1
-
   override func setUp() {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
     let libraryService = LibraryService(dataManager: dataManager)
     let playerManagerMock = PlayerManagerProtocolMock()
-    playerManagerMock.currentItemPublisherReturnValue = $placeholder
-    playerManagerMock.currentSpeedPublisherReturnValue = $speed
+    playerManagerMock.currentItemPublisherReturnValue = Just(nil).eraseToAnyPublisher()
+    playerManagerMock.currentSpeedPublisherReturnValue = Just(1.0).eraseToAnyPublisher()
     playerManagerMock.isPlayingPublisherReturnValue = Just(true).eraseToAnyPublisher()
 
     self.playerCoordinator = PlayerCoordinator(

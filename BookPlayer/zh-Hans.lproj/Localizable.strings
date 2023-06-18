@@ -234,8 +234,8 @@
 "search_title" = "搜索";
 "books_title" = "图书";
 "folders_title" = "文件夹";
-"item_title_placeholder" = "标题";
-"item_author_placeholder" = "作者";
+"section_item_title" = "标题";
+"section_item_author" = "作者";
 "artwork_options_title" = "艺术品选项";
 "artwork_photolibrary_title" = "从照片库中选择";
 "artwork_clipboard_title" = "从剪贴板粘贴";

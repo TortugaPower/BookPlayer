@@ -234,8 +234,8 @@
 "search_title" = "Søg";
 "books_title" = "Bøger";
 "folders_title" = "Mapper";
-"item_title_placeholder" = "Titel";
-"item_author_placeholder" = "Forfatter";
+"section_item_title" = "Titel";
+"section_item_author" = "Forfatter";
 "artwork_options_title" = "Muligheder for kunstværker";
 "artwork_photolibrary_title" = "Vælg fra Fotobibliotek";
 "artwork_clipboard_title" = "Indsæt fra udklipsholder";

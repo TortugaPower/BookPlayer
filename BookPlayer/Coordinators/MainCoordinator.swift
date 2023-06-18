@@ -130,7 +130,7 @@ class MainCoordinator: Coordinator {
           let account = self.accountService.getAccount()
         else { return }
 
-        if account.hasSubscription {
+        if account.hasSubscription, !account.id.isEmpty {
           self.socketService.connectSocket()
 
           let libraryCoordinator = self.getLibraryCoordinator()

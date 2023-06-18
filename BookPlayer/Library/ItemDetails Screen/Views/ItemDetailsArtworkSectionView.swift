@@ -15,7 +15,7 @@ struct ItemDetailsArtworkSectionView: View {
   /// Callback for action handler
   var actionHandler: () -> Void
   /// Theme view model to update colors
-  @StateObject var themeViewModel = ThemeViewModel()
+  @EnvironmentObject var themeViewModel: ThemeViewModel
 
   var body: some View {
     Section(
@@ -49,5 +49,6 @@ struct ItemDetailsArtworkSectionView_Previews: PreviewProvider {
       image: .constant(nil),
       actionHandler: {}
     )
+    .environmentObject(ThemeViewModel())
   }
 }

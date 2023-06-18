@@ -15,7 +15,7 @@ struct ItemDetailsView: View {
   var body: some View {
     if #available(iOS 16.0, *) {
       ItemDetailsForm(viewModel: viewModel)
-      .scrollContentBackground(.hidden)
+        .scrollContentBackground(.hidden)
     } else {
       ItemDetailsForm(viewModel: viewModel)
     }

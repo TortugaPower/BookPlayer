@@ -234,8 +234,8 @@
 "search_title" = "Search";
 "books_title" = "Books";
 "folders_title" = "Folders";
-"item_title_placeholder" = "Title";
-"item_author_placeholder" = "Author";
+"section_item_title" = "Title";
+"section_item_author" = "Author";
 "artwork_options_title" = "Artwork options";
 "artwork_photolibrary_title" = "Choose from Photo Library";
 "artwork_clipboard_title" = "Paste from clipboard";

@@ -17,23 +17,20 @@ struct ProfileView<Model: ProfileViewModelProtocol>: View {
     GeometryReader { geometryProxy in
       ScrollView {
         VStack(spacing: Spacing.M) {
-          ProfileCardView(
-            account: $viewModel.account,
-            themeViewModel: themeViewModel
-          )
-          .onTapGesture {
-            viewModel.showAccount()
-          }
-          .padding([.top, .trailing, .leading], Spacing.S)
+          ProfileCardView(account: $viewModel.account)
+            .onTapGesture {
+              viewModel.showAccount()
+            }
+            .padding([.top, .trailing, .leading], Spacing.S)
 
           ProfileListenedTimeView(
-            formattedListeningTime: $viewModel.totalListeningTimeFormatted,
-            themeViewModel: themeViewModel
+            formattedListeningTime: $viewModel.totalListeningTimeFormatted
           )
 
           Spacer()
 
-          if viewModel.account?.hasSubscription == true {
+          if viewModel.account?.hasSubscription == true,
+             viewModel.account?.id.isEmpty == false {
             ProfileSyncTasksStatusView(
               buttonText: $viewModel.tasksButtonText,
               statusMessage: $viewModel.refreshStatusMessage,
@@ -49,6 +46,7 @@ struct ProfileView<Model: ProfileViewModelProtocol>: View {
         .frame(maxWidth: .infinity, minHeight: geometryProxy.size.height)
       }
     }
+    .environmentObject(themeViewModel)
   }
 }
 

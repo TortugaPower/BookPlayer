@@ -234,8 +234,8 @@
 "search_title" = "Vyhledávání";
 "books_title" = "knihy";
 "folders_title" = "Složky";
-"item_title_placeholder" = "Titul";
-"item_author_placeholder" = "Autor";
+"section_item_title" = "Titul";
+"section_item_author" = "Autor";
 "artwork_options_title" = "Možnosti uměleckého díla";
 "artwork_photolibrary_title" = "Vyberte si z knihovny fotografií";
 "artwork_clipboard_title" = "Vložit ze schránky";

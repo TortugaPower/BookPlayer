@@ -39,11 +39,11 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     eventsPublisher.send(event)
   }
 
-  func currentItemObserver() -> Published<PlayableItem?>.Publisher {
+  func currentItemObserver() -> AnyPublisher<PlayableItem?, Never> {
     return self.playerManager.currentItemPublisher()
   }
 
-  func currentSpeedObserver() -> Published<Float>.Publisher {
+  func currentSpeedObserver() -> AnyPublisher<Float, Never> {
     return self.playerManager.currentSpeedPublisher()
   }
 

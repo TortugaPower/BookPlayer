@@ -12,7 +12,7 @@ import SwiftUI
 import Themeable
 import UIKit
 
-class ItemDetailsViewController: BaseViewController<ItemDetailsCoordinator, ItemDetailsViewModel> {
+class ItemDetailsViewController: BaseViewController<Coordinator, ItemDetailsViewModel> {
   // MARK: - UI components
 
   private lazy var detailsView: UIView = {

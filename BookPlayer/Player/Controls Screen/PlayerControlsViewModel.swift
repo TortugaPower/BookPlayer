@@ -20,7 +20,7 @@ class PlayerControlsViewModel: BaseViewModel<PlayerControlsCoordinator> {
     self.playerManager = playerManager
   }
 
-  func currentSpeedPublisher() -> Published<Float>.Publisher {
+  func currentSpeedPublisher() -> AnyPublisher<Float, Never> {
     return self.playerManager.currentSpeedPublisher()
   }
 
