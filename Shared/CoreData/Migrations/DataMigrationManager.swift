@@ -10,7 +10,7 @@ import CoreData
 import Foundation
 import UIKit
 
-public final class DataMigrationManager {
+public final class DataMigrationManager: BPLogger {
   private let modelName: String = "BookPlayer"
   private let currentModel: NSManagedObjectModel
   private let storeURL: URL
@@ -68,6 +68,7 @@ public final class DataMigrationManager {
       try? FileManager.default.removeItem(at: destinationURL)
     }
 
+    Self.logger.info("Migrating Core Data store")
     try migrationManager.migrateStore(from: storeURL,
                                       sourceType: NSSQLiteStoreType,
                                       options: nil,
@@ -87,7 +88,9 @@ public final class DataMigrationManager {
     try? fileManager.removeItem(at: destinationWal)
     try? fileManager.removeItem(at: destinationShm)
 
+    Self.logger.info("Deleting old Core Data store")
     try fileManager.removeItem(at: storeURL)
+    Self.logger.info("Moving into place the newly-migrated Core Data store")
     try fileManager.moveItem(at: destinationURL, to: storeURL)
   }
 
@@ -113,11 +116,11 @@ public final class DataMigrationManager {
     return storeModel != lastVersion.model()
   }
 
-  public func performMigration(completionHandler: @escaping (Error?) -> Void) throws {
+  public func performMigration(completionHandler: @escaping () -> Void) throws {
     guard let storeModel = self.storeModel,
           let currentVersion = DBVersion(model: storeModel),
           let nextVersion = currentVersion.next() else {
-            completionHandler(nil)
+            completionHandler()
             return
           }
 
@@ -141,14 +144,15 @@ public final class DataMigrationManager {
 
     // Only continue if there's extra work to be done
     guard currentVersion == .v8 else {
-      completionHandler(nil)
+      completionHandler()
       return
     }
 
     let stack = self.getCoreDataStack()
     stack.loadStore { _, error in
-      if let error = error {
-        completionHandler(error)
+      /// Only continue if there weren't any errors when loading the store
+      guard error == nil else {
+        completionHandler()
         return
       }
 
@@ -159,7 +163,7 @@ public final class DataMigrationManager {
         self.populateFolderDetails(dataManager: dataManager)
       }
 
-      completionHandler(nil)
+      completionHandler()
     }
   }
 }
