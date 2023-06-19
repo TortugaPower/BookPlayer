@@ -37,7 +37,7 @@ extension BPAlertContent {
       title: title,
       message: message,
       style: .alert,
-      actionItems: [BPActionItem(title: "ok_button".localized)]
+      actionItems: [BPActionItem.okAction]
     )
   }
 }
@@ -65,6 +65,14 @@ struct BPActionItem {
 }
 
 extension BPActionItem {
+  static var okAction = BPActionItem(
+    title: "ok_button".localized,
+    style: .default,
+    isEnabled: true,
+    handler: {},
+    inputHandler: nil
+  )
+
   static var cancelAction = BPActionItem(
     title: "cancel_button".localized,
     style: .cancel,

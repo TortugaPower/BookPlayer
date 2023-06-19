@@ -94,7 +94,14 @@ class SettingsCoordinator: Coordinator {
 
   func showThemes() {
     let viewModel = ThemesViewModel(accountService: self.accountService)
-    viewModel.coordinator = self
+
+    viewModel.onTransition = { [weak self] routes in
+      switch routes {
+      case .showPro:
+        self?.showPro()
+      }
+    }
+
     let vc = ThemesViewController.instantiate(from: .Settings)
     vc.viewModel = viewModel
     vc.navigationItem.largeTitleDisplayMode = .never
