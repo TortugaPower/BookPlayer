@@ -33,6 +33,12 @@ class IconsViewController: UIViewController, Storyboarded {
       target: self,
       action: #selector(self.didPressClose)
     )
+    self.navigationItem.rightBarButtonItem = UIBarButtonItem(
+      title: "restore_title".localized,
+      style: .plain,
+      target: self,
+      action: #selector(self.didPressRestore)
+    )
 
     self.icons = self.getIcons()
 
@@ -44,6 +50,32 @@ class IconsViewController: UIViewController, Storyboarded {
 
     self.bannerView.showPlus = { [weak self] in
       self?.viewModel.showPro()
+    }
+
+    bindDataItems()
+  }
+
+  func bindDataItems() {
+    self.viewModel.observeEvents()
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] event in
+        switch event {
+        case .showAlert(let content):
+          self?.showAlert(content)
+        case .showLoader(let flag):
+          self?.showLoader(flag)
+        case .donationMade:
+          self?.donationMade()
+        }
+      }
+      .store(in: &disposeBag)
+  }
+
+  func showLoader(_ flag: Bool) {
+    if flag {
+      LoadingUtils.loadAndBlock(in: self)
+    } else {
+      LoadingUtils.stopLoading(in: self)
     }
   }
 
@@ -66,11 +98,17 @@ class IconsViewController: UIViewController, Storyboarded {
     self.dismiss(animated: true, completion: nil)
   }
 
-    @objc func donationMade() {
-        self.bannerView.isHidden = true
-        self.bannerHeightConstraint.constant = 0
-        self.tableView.reloadData()
+  @objc func didPressRestore() {
+    viewModel.handleRestorePurchases()
+  }
+
+  @objc func donationMade() {
+    if self.viewModel.hasSubscription {
+      self.bannerView.isHidden = true
+      self.bannerHeightConstraint.constant = 0
     }
+    self.tableView.reloadData()
+  }
 
     func getIcons() -> [Icon] {
         guard

@@ -8,7 +8,6 @@
 
 import BookPlayerKit
 import Combine
-import RevenueCat
 import Themeable
 import UIKit
 import WidgetKit

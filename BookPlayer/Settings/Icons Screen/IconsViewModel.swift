@@ -10,7 +10,18 @@ import BookPlayerKit
 import Combine
 
 final class IconsViewModel {
-  weak var coordinator: SettingsCoordinator!
+  /// Available routes for this screen
+  enum Routes {
+    case showPro
+  }
+
+  /// Events that the screen can handle
+  enum Events {
+    case showAlert(content: BPAlertContent)
+    case showLoader(Bool)
+    case donationMade
+  }
+
   let accountService: AccountServiceProtocol
 
   @Published var account: Account?
@@ -18,6 +29,11 @@ final class IconsViewModel {
   var hasSubscription: Bool {
     return account?.hasSubscription == true
   }
+
+  /// Callback to handle actions on this screen
+  public var onTransition: Transition<Routes>?
+  /// Events publisher
+  private var eventsPublisher = InterfaceUpdater<IconsViewModel.Events>()
 
   private var disposeBag = Set<AnyCancellable>()
 
@@ -28,12 +44,20 @@ final class IconsViewModel {
     self.bindObservers()
   }
 
-  func bindObservers() {
+  func observeEvents() -> AnyPublisher<IconsViewModel.Events, Never> {
+    eventsPublisher.eraseToAnyPublisher()
+  }
+
+  private func bindObservers() {
     NotificationCenter.default.publisher(for: .accountUpdate, object: nil)
       .sink(receiveValue: { [weak self] _ in
         self?.reloadAccount()
       })
       .store(in: &disposeBag)
+  }
+
+  private func sendEvent(_ event: IconsViewModel.Events) {
+    eventsPublisher.send(event)
   }
 
   func reloadAccount() {
@@ -45,6 +69,52 @@ final class IconsViewModel {
   }
 
   func showPro() {
-    self.coordinator.showPro()
+    onTransition?(.showPro)
+  }
+
+  func handleRestorePurchases() {
+    Task { @MainActor [weak self] in
+      guard let self = self else { return }
+
+      self.sendEvent(.showLoader(true))
+
+      do {
+        let customerInfo = try await self.accountService.restorePurchases()
+
+        self.sendEvent(.showLoader(false))
+
+        if customerInfo.nonSubscriptions.isEmpty {
+          self.sendEvent(.showAlert(
+            content: BPAlertContent(
+              title: "tip_missing_title".localized,
+              style: .alert,
+              actionItems: [BPActionItem.okAction]
+            )
+          ))
+        } else {
+          self.accountService.updateAccount(
+            id: nil,
+            email: nil,
+            donationMade: true,
+            hasSubscription: nil
+          )
+
+          self.sendEvent(.showAlert(
+            content: BPAlertContent(
+              title: "purchases_restored_title".localized,
+              style: .alert,
+              actionItems: [BPActionItem.okAction]
+            )
+          ))
+
+          self.sendEvent(.donationMade)
+        }
+      } catch {
+        self.sendEvent(.showLoader(false))
+        self.sendEvent(.showAlert(
+          content: BPAlertContent.errorAlert(message: error.localizedDescription)
+        ))
+      }
+    }
   }
 }
