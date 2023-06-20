@@ -38,20 +38,18 @@ class DataInitializerCoordinator: BPLogger {
   }
 
   private func handleMigrations() {
-    guard self.dataMigrationManager.needsMigration() else {
-      self.loadLibrary()
+    guard dataMigrationManager.needsMigration() else {
+      loadLibrary()
       return
     }
 
     do {
-      try self.dataMigrationManager.performMigration { [weak self] in
-        self?.handleMigrations()
+      try dataMigrationManager.performMigration {
+        self.handleMigrations()
       }
     } catch {
       Self.logger.info("Failed to perform migration")
-      self.alertPresenter.showAlert("error_title".localized, message: error.localizedDescription) { [weak self] in
-        self?.loadLibrary()
-      }
+      loadLibrary()
     }
   }
 
