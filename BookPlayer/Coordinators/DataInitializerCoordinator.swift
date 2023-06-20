@@ -11,7 +11,7 @@ import Combine
 import CoreData
 import Foundation
 
-class DataInitializerCoordinator {
+class DataInitializerCoordinator: BPLogger {
   let dataMigrationManager: DataMigrationManager
   let alertPresenter: AlertPresenter
 
@@ -38,30 +38,28 @@ class DataInitializerCoordinator {
   }
 
   private func handleMigrations() {
-    guard self.dataMigrationManager.needsMigration() else {
-      self.loadLibrary()
+    guard dataMigrationManager.needsMigration() else {
+      loadLibrary()
       return
     }
 
     do {
-      try self.dataMigrationManager.performMigration { [weak self] error in
-        if let error = error {
-          self?.alertPresenter.showAlert("error_title".localized, message: error.localizedDescription, completion: nil)
-          return
-        }
-
-        self?.handleMigrations()
+      try dataMigrationManager.performMigration {
+        self.handleMigrations()
       }
     } catch {
-      self.alertPresenter.showAlert("error_title".localized, message: error.localizedDescription, completion: nil)
+      Self.logger.info("Failed to perform migration")
+      loadLibrary()
     }
   }
 
   func loadLibrary() {
+    Self.logger.info("Loading store")
     let stack = self.dataMigrationManager.getCoreDataStack()
 
     stack.loadStore { [weak self] _, error in
       if let error = error {
+        Self.logger.error("Failed to load store")
         self?.handleCoreDataError(error)
         return
       }
@@ -96,7 +94,8 @@ class DataInitializerCoordinator {
         error.code == NSMigrationMissingMappingModelError ||
         error.code == NSMigrationManagerSourceStoreError ||
         error.code == NSMigrationManagerDestinationStoreError ||
-        error.code == NSEntityMigrationPolicyError {
+        error.code == NSEntityMigrationPolicyError ||
+        error.code == NSValidationMultipleErrorsError {
       self.alertPresenter.showAlert("error_title".localized, message: "coredata_error_migration_description".localized) {
         self.dataMigrationManager.cleanupStoreFile()
         let urls = self.getLibraryFiles()

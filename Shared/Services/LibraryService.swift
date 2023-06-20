@@ -262,15 +262,13 @@ public final class LibraryService: LibraryServiceProtocol {
   }
 
   func parseFetchedItems(from results: [[String: Any]]?) -> [SimpleLibraryItem]? {
-    return results?.compactMap({ dictionary -> SimpleLibraryItem? in
+    return results?.compactMap({ [weak self] dictionary -> SimpleLibraryItem? in
       guard
         let title = dictionary["title"] as? String,
-        let details = dictionary["details"] as? String,
         let speed = dictionary["speed"] as? Float,
         let currentTime = dictionary["currentTime"] as? Double,
         let duration = dictionary["duration"] as? Double,
         let percentCompleted = dictionary["percentCompleted"] as? Double,
-        let isFinished = dictionary["isFinished"] as? Bool,
         let relativePath = dictionary["relativePath"] as? String,
         let orderRank = dictionary["orderRank"] as? Int16,
         let originalFileName = dictionary["originalFileName"] as? String,
@@ -278,14 +276,19 @@ public final class LibraryService: LibraryServiceProtocol {
         let type = SimpleItemType(rawValue: rawType)
       else { return nil }
 
+      /// Patch for optional CoreData properties until we migrate to Realm
+      if dictionary["details"] == nil {
+        self?.rebuildFolderDetails(relativePath)
+      }
+
       return SimpleLibraryItem(
         title: title,
-        details: details,
+        details: dictionary["details"] as? String ?? "",
         speed: Double(speed),
         currentTime: currentTime,
         duration: duration,
         percentCompleted: percentCompleted,
-        isFinished: isFinished,
+        isFinished:  dictionary["isFinished"] as? Bool ?? false,
         relativePath: relativePath,
         remoteURL: dictionary["remoteURL"] as? URL,
         artworkURL: dictionary["artworkURL"] as? URL,
