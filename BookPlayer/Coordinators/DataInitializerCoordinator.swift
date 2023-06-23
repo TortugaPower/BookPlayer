@@ -95,7 +95,8 @@ class DataInitializerCoordinator: BPLogger {
         error.code == NSMigrationManagerSourceStoreError ||
         error.code == NSMigrationManagerDestinationStoreError ||
         error.code == NSEntityMigrationPolicyError ||
-        error.code == NSValidationMultipleErrorsError {
+        error.code == NSValidationMultipleErrorsError ||
+        error.code == NSValidationMissingMandatoryPropertyError {
       self.alertPresenter.showAlert("error_title".localized, message: "coredata_error_migration_description".localized) {
         self.dataMigrationManager.cleanupStoreFile()
         let urls = self.getLibraryFiles()
