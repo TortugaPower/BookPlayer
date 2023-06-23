@@ -887,6 +887,10 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
             inputHandler: { [weak self] url in
               if let bookUrl = URL(string: url) {
                 self?.handleDownload(bookUrl)
+              } else {
+                self?.sendEvent(.showAlert(
+                  content: BPAlertContent.errorAlert(message: URLError(.badURL).localizedDescription)
+                ))
               }
             }
           ),
