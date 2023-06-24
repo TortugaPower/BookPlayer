@@ -1448,25 +1448,6 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
             return downloadRemoteFilesForTypeDelegateReturnValue
         }
     }
-    //MARK: - uploadArtwork
-
-    var uploadArtworkRelativePathDataThrowableError: Error?
-    var uploadArtworkRelativePathDataCallsCount = 0
-    var uploadArtworkRelativePathDataCalled: Bool {
-        return uploadArtworkRelativePathDataCallsCount > 0
-    }
-    var uploadArtworkRelativePathDataReceivedArguments: (relativePath: String, data: Data)?
-    var uploadArtworkRelativePathDataReceivedInvocations: [(relativePath: String, data: Data)] = []
-    var uploadArtworkRelativePathDataClosure: ((String, Data) async throws -> Void)?
-    func uploadArtwork(relativePath: String, data: Data) async throws {
-        if let error = uploadArtworkRelativePathDataThrowableError {
-            throw error
-        }
-        uploadArtworkRelativePathDataCallsCount += 1
-        uploadArtworkRelativePathDataReceivedArguments = (relativePath: relativePath, data: data)
-        uploadArtworkRelativePathDataReceivedInvocations.append((relativePath: relativePath, data: data))
-        try await uploadArtworkRelativePathDataClosure?(relativePath, data)
-    }
     //MARK: - scheduleUpload
 
     var scheduleUploadItemsCallsCount = 0
@@ -1556,6 +1537,21 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
         scheduleDeleteBookmarkReceivedBookmark = bookmark
         scheduleDeleteBookmarkReceivedInvocations.append(bookmark)
         scheduleDeleteBookmarkClosure?(bookmark)
+    }
+    //MARK: - scheduleUploadArtwork
+
+    var scheduleUploadArtworkRelativePathCallsCount = 0
+    var scheduleUploadArtworkRelativePathCalled: Bool {
+        return scheduleUploadArtworkRelativePathCallsCount > 0
+    }
+    var scheduleUploadArtworkRelativePathReceivedRelativePath: String?
+    var scheduleUploadArtworkRelativePathReceivedInvocations: [String] = []
+    var scheduleUploadArtworkRelativePathClosure: ((String) -> Void)?
+    func scheduleUploadArtwork(relativePath: String) {
+        scheduleUploadArtworkRelativePathCallsCount += 1
+        scheduleUploadArtworkRelativePathReceivedRelativePath = relativePath
+        scheduleUploadArtworkRelativePathReceivedInvocations.append(relativePath)
+        scheduleUploadArtworkRelativePathClosure?(relativePath)
     }
     //MARK: - getAllQueuedJobs
 
