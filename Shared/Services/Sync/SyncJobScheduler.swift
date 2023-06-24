@@ -31,6 +31,8 @@ public protocol JobSchedulerProtocol {
   func scheduleDeleteBookmarkJob(with relativePath: String, time: Double)
   /// Rename a folder
   func scheduleRenameFolderJob(with relativePath: String, name: String)
+  /// Upload current cached artwork
+  func scheduleArtworkUpload(with relativePath: String)
   /// Get all queued jobs
   func getAllQueuedJobs() -> [QueuedJobInfo]
   /// Cancel all stored and ongoing jobs
@@ -238,6 +240,21 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
 
     JobBuilder(type: LibraryItemSyncJob.type)
       .singleInstance(forId: "\(JobType.renameFolder.identifier)/\(relativePath)")
+      .persist()
+      .retry(limit: .unlimited)
+      .internet(atLeast: .cellular)
+      .with(params: params)
+      .schedule(manager: libraryQueueManager)
+  }
+
+  public func scheduleArtworkUpload(with relativePath: String) {
+    let params: [String: Any] = [
+      "relativePath": relativePath,
+      "jobType": JobType.uploadArtwork.rawValue
+    ]
+
+    JobBuilder(type: LibraryItemSyncJob.type)
+      .singleInstance(forId: "\(JobType.uploadArtwork.identifier)/\(relativePath)")
       .persist()
       .retry(limit: .unlimited)
       .internet(atLeast: .cellular)

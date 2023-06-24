@@ -86,16 +86,12 @@ class ItemDetailsViewModel: BaseViewModel<Coordinator> {
 
       self.sendEvent(.showLoader(flag: true))
 
-      do {
-        try await self.syncService.uploadArtwork(relativePath: item.relativePath, data: imageData)
-        await ArtworkService.removeCache(for: item.relativePath)
-        await ArtworkService.storeInCache(imageData, for: cacheKey)
-        self.sendEvent(.showLoader(flag: false))
-        self.onTransition?(.done)
-      } catch {
-        self.sendEvent(.showLoader(flag: false))
-        self.sendEvent(.showAlert(content: BPAlertContent.errorAlert(message: error.localizedDescription)))
-      }
+      await ArtworkService.removeCache(for: item.relativePath)
+      await ArtworkService.storeInCache(imageData, for: cacheKey)
+      self.syncService.scheduleUploadArtwork(relativePath: cacheKey)
+
+      self.sendEvent(.showLoader(flag: false))
+      self.onTransition?(.done)
     }
   }
 
