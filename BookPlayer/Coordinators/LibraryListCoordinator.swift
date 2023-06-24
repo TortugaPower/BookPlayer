@@ -45,6 +45,7 @@ class LibraryListCoordinator: ItemListCoordinator {
     let viewModel = ItemListViewModel(
       folderRelativePath: nil,
       playerManager: self.playerManager,
+      networkClient: NetworkClient(),
       libraryService: self.libraryService,
       playbackService: self.playbackService,
       syncService: self.syncService,

@@ -35,10 +35,13 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     case showAlert(content: BPAlertContent)
     case showSortAlert(content: BPAlertContent)
     case showLoader(flag: Bool)
+    case showProcessingView(Bool, title: String?, subtitle: String?)
   }
 
   let folderRelativePath: String?
   let playerManager: PlayerManagerProtocol
+  /// Used to handle single URL downloads
+  private let networkClient: NetworkClientProtocol
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
   let syncService: SyncServiceProtocol
@@ -50,6 +53,9 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   var eventsPublisher = InterfaceUpdater<ItemListViewModel.Events>()
 
   private var bookProgressSubscription: AnyCancellable?
+  /// Delegate for progress updates of single downloads by URL
+  private var singleDownloadProgressDelegateInterface = BPTaskDownloadDelegate()
+  /// Download delegate for synced items
   private var downloadDelegateInterface = BPTaskDownloadDelegate()
   /// Dictionary holding the starting item relative path as key and the download tasks as value
   private lazy var downloadTasksDictionary = [String: [URLSessionDownloadTask]]()
@@ -70,6 +76,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   init(
     folderRelativePath: String?,
     playerManager: PlayerManagerProtocol,
+    networkClient: NetworkClientProtocol,
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol,
     syncService: SyncServiceProtocol,
@@ -77,6 +84,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   ) {
     self.folderRelativePath = folderRelativePath
     self.playerManager = playerManager
+    self.networkClient = networkClient
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.syncService = syncService
@@ -161,6 +169,23 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
     downloadDelegateInterface.downloadProgressUpdated = { [weak self] (task, progress) in
       self?.handleDownloadProgressUpdated(task: task, individualProgress: progress)
+    }
+
+    singleDownloadProgressDelegateInterface.downloadProgressUpdated = { [weak self] (_, progress) in
+      let percentage = String(format: "%.2f", progress * 100)
+      self?.sendEvent(.showProcessingView(
+        true,
+        title: "downloading_file_title".localized,
+        subtitle: "\("progress_title".localized) \(percentage)%"
+      ))
+    }
+
+    singleDownloadProgressDelegateInterface.didFinishDownloadingTask = { [weak self] (task, fileURL) in
+      self?.handleSingleDownloadTaskFinished(task, fileURL: fileURL)
+    }
+
+    singleDownloadProgressDelegateInterface.didFinishTaskWithError = { [weak self] (task, error) in
+      self?.handleSingleDownloadTaskFinishedWithError(task, error: error)
     }
   }
 
@@ -889,7 +914,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
                 self?.handleDownload(bookUrl)
               } else {
                 self?.sendEvent(.showAlert(
-                  content: BPAlertContent.errorAlert(message: URLError(.badURL).localizedDescription)
+                  content: BPAlertContent.errorAlert(message: String.localizedStringWithFormat("invalid_url_title".localized, url))
                 ))
               }
             }
@@ -1301,27 +1326,54 @@ extension ItemListViewModel {
 
   /// Used to handle downloads via URL scheme
   func handleDownload(_ url: URL) {
-    NetworkService.shared.download(from: url) { [weak self] response in
-      NotificationCenter.default.post(name: .downloadEnd, object: self)
+    sendEvent(.showProcessingView(true, title: "downloading_file_title".localized, subtitle: "\("progress_title".localized) 0%"))
 
-      if response.error != nil,
-         let error = response.error {
-        self?.sendEvent(.showAlert(
-          content: BPAlertContent.errorAlert(
-            title: "network_error_title".localized,
-            message: error.localizedDescription
-          )
-        ))
-      }
+    _ = networkClient.download(url: url, taskDescription: nil, delegate: singleDownloadProgressDelegateInterface)
+  }
 
-      if let response = response.response, response.statusCode >= 300 {
-        self?.sendEvent(.showAlert(
-          content: BPAlertContent.errorAlert(
-            title: "network_error_title".localized,
-            message: "Code \(response.statusCode)"
-          )
-        ))
-      }
+  func handleSingleDownloadTaskFinished(_ task: URLSessionTask, fileURL: URL) {
+    sendEvent(.showProcessingView(false, title: nil, subtitle: nil))
+    let filename = task.response?.suggestedFilename
+    ?? task.originalRequest?.url?.lastPathComponent
+    ?? fileURL.lastPathComponent
+
+    do {
+      try FileManager.default.moveItem(
+        at: fileURL,
+        to: DataManager.getDocumentsFolderURL().appendingPathComponent(filename)
+      )
+    } catch {
+      sendEvent(.showAlert(
+        content: BPAlertContent.errorAlert(
+          title: "error_title".localized,
+          message: error.localizedDescription
+        )
+      ))
     }
+  }
+
+  func handleSingleDownloadTaskFinishedWithError(_ task: URLSessionTask, error: Error?) {
+    sendEvent(.showProcessingView(false, title: nil, subtitle: nil))
+    if let error {
+      sendEvent(.showAlert(
+        content: BPAlertContent.errorAlert(
+          title: "network_error_title".localized,
+          message: error.localizedDescription
+        )
+      ))
+      return
+    }
+
+    guard let statusCode = (task.response as? HTTPURLResponse)?.statusCode,
+          statusCode >= 400 else {
+      return
+    }
+
+    sendEvent(.showAlert(
+      content: BPAlertContent.errorAlert(
+        title: "network_error_title".localized,
+        message: "Code \(statusCode)\n\(HTTPURLResponse.localizedString(forStatusCode: statusCode))"
+      )
+    ))
   }
 }
