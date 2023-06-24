@@ -27,6 +27,7 @@ class ItemListViewModelTests: XCTestCase {
     self.sut = ItemListViewModel(
       folderRelativePath: nil,
       playerManager: playerManagerMock,
+      networkClient: NetworkClient(),
       libraryService: libraryService,
       playbackService: PlaybackServiceProtocolMock(),
       syncService: SyncServiceProtocolMock(),

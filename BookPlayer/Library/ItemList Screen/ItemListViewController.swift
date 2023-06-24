@@ -262,6 +262,8 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
           self?.showSortAlert(content)
         case .showLoader(let flag):
           self?.showLoader(flag)
+        case .showProcessingView(let flag, let title, let subtitle):
+          self?.showLoadView(flag, title: title, subtitle: subtitle)
         }
       }
       .store(in: &disposeBag)
@@ -297,7 +299,6 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
         self?.showLoadView(false)
         self?.viewModel.handleOperationCompletion(files, suggestedFolderName: suggestedFolderName)
       case .downloadBook(let url):
-        self?.showLoadView(true, title: "downloading_file_title".localized, subtitle: "\("progress_title".localized) 0%")
         self?.viewModel.handleDownload(url)
       case .reloadItems(let pageSizePadding):
         self?.viewModel.reloadItems(pageSizePadding: pageSizePadding)
