@@ -125,7 +125,6 @@ invite you to Lokalise.
 
 Managed with the [Swift Package Manager](https://swift.org/package-manager/)
 
-- [Alamofire](https://github.com/Alamofire/Alamofire) for downloading books via url scheme actions
 - [DeviceKit](https://github.com/dennisweissmann/DeviceKit) for device information used in support requests
 - [DirectoryWatcher](https://github.com/GianniCarlo/DirectoryWatcher) for events on the document's folder
 - [Kingfisher](https://github.com/onevcat/Kingfisher) for contributors' profile pictures

@@ -149,7 +149,6 @@
 		418CABB525EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 418CABB025EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel */; };
 		418CABB625EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 418CABB025EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel */; };
 		418EA78B268D6EF100F6BAEB /* ImportTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418EA78A268D6EF100F6BAEB /* ImportTableViewCell.swift */; };
-		4193E2002439A1CD004D6A82 /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4193E1FE2439A0A1004D6A82 /* NetworkService.swift */; };
 		4193E202243A91AE004D6A82 /* ActionParserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4193E201243A91AE004D6A82 /* ActionParserService.swift */; };
 		41964C832220B4F700FF1A2F /* ContributorCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41964C822220B4F700FF1A2F /* ContributorCellView.swift */; };
 		4197240021874D5F00AB1190 /* UserActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419723FF21874D5F00AB1190 /* UserActivityManager.swift */; };
@@ -454,7 +453,6 @@
 		9FC1A29F28C0D8CC00F25906 /* BookmarksActivityItemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC1A29E28C0D8CC00F25906 /* BookmarksActivityItemProvider.swift */; };
 		9FC1E44A2814C4DE00522FA8 /* NetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC1E4492814C4DE00522FA8 /* NetworkClient.swift */; };
 		9FC1E44B2814C4DE00522FA8 /* NetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC1E4492814C4DE00522FA8 /* NetworkClient.swift */; };
-		9FC1E4562814D21400522FA8 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 9FC1E4552814D21400522FA8 /* Alamofire */; };
 		9FC1E4592814E0B000522FA8 /* NetworkUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC1E4582814E0B000522FA8 /* NetworkUtils.swift */; };
 		9FC1E45A2814E0B000522FA8 /* NetworkUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC1E4582814E0B000522FA8 /* NetworkUtils.swift */; };
 		9FC1E45C2814E6A500522FA8 /* NetworkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC1E45B2814E6A500522FA8 /* NetworkProvider.swift */; };
@@ -824,7 +822,6 @@
 		418EA78A268D6EF100F6BAEB /* ImportTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportTableViewCell.swift; sourceTree = "<group>"; };
 		419196341D47CC4E007A3AF3 /* BookPlayer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BookPlayer.entitlements; sourceTree = "<group>"; };
 		4193E1FB24394CEF004D6A82 /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = Carthage/Build/iOS/Alamofire.framework; sourceTree = "<group>"; };
-		4193E1FE2439A0A1004D6A82 /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
 		4193E201243A91AE004D6A82 /* ActionParserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionParserService.swift; sourceTree = "<group>"; };
 		4193E203243A98AB004D6A82 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = fr; path = fr.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		4193E204243A98AB004D6A82 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -1186,7 +1183,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9FC1E4562814D21400522FA8 /* Alamofire in Frameworks */,
 				41F1A204254B09C00043FCF3 /* Themeable in Frameworks */,
 				41F1A20D254B0A0C0043FCF3 /* Sentry in Frameworks */,
 				56D8A0ED28A813D30037592F /* SocketIO in Frameworks */,
@@ -1856,7 +1852,6 @@
 			isa = PBXGroup;
 			children = (
 				69343D322133844D000C425E /* VoiceOverService.swift */,
-				4193E1FE2439A0A1004D6A82 /* NetworkService.swift */,
 				419723FF21874D5F00AB1190 /* UserActivityManager.swift */,
 				41D39D40215F177D00B65290 /* BookActivityItemProvider.swift */,
 				9FC1A29E28C0D8CC00F25906 /* BookmarksActivityItemProvider.swift */,
@@ -2454,7 +2449,6 @@
 				41F1A203254B09C00043FCF3 /* Themeable */,
 				41F1A20C254B0A0C0043FCF3 /* Sentry */,
 				41F1A227254B0C6C0043FCF3 /* ZipArchive */,
-				9FC1E4552814D21400522FA8 /* Alamofire */,
 				56D8A0EC28A813D30037592F /* SocketIO */,
 			);
 			productName = "Audiobook Player";
@@ -2623,7 +2617,6 @@
 			);
 			mainGroup = 418B6CEF1D2707F700F974FB;
 			packageReferences = (
-				41F1A1CC254B07090043FCF3 /* XCRemoteSwiftPackageReference "Alamofire" */,
 				41F1A1D5254B07E80043FCF3 /* XCRemoteSwiftPackageReference "MarqueeLabel" */,
 				41F1A1DE254B08A10043FCF3 /* XCRemoteSwiftPackageReference "DeviceKit" */,
 				41F1A1F0254B09020043FCF3 /* XCRemoteSwiftPackageReference "IDZSwiftCommonCrypto" */,
@@ -3077,7 +3070,6 @@
 				9FEC87B027FA9F0F006C71D5 /* LoginViewController.swift in Sources */,
 				9F00A5FA294F8BFE005EA316 /* ClearableTextField.swift in Sources */,
 				9F5FBB08293EDCD8009F4B0E /* ItemDetailsViewController.swift in Sources */,
-				4193E2002439A1CD004D6A82 /* NetworkService.swift in Sources */,
 				9F2681B628898A7300359BD3 /* LoginDisclaimerView.swift in Sources */,
 				9FD8D95829DC53750074C2D8 /* CoreServices.swift in Sources */,
 				9F4691F22800D58A00A8F0E8 /* CompleteAccountCoordinator.swift in Sources */,
@@ -4767,14 +4759,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		41F1A1CC254B07090043FCF3 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.9.1;
-			};
-		};
 		41F1A1D5254B07E80043FCF3 /* XCRemoteSwiftPackageReference "MarqueeLabel" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/cbpowell/MarqueeLabel.git";
@@ -4935,11 +4919,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9F3F90FA286FF03600868B2C /* XCRemoteSwiftPackageReference "SwiftQueue" */;
 			productName = SwiftQueue;
-		};
-		9FC1E4552814D21400522FA8 /* Alamofire */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 41F1A1CC254B07090043FCF3 /* XCRemoteSwiftPackageReference "Alamofire" */;
-			productName = Alamofire;
 		};
 /* End XCSwiftPackageProductDependency section */
 
