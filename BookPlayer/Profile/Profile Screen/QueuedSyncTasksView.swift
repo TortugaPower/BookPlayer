@@ -31,6 +31,8 @@ struct QueuedSyncTasksView<Model: QueuedSyncTasksViewModelProtocol>: View {
       return "bookmark"
     case .deleteBookmark:
       return "bookmark.slash"
+    case .uploadArtwork:
+      return "photo"
     }
   }
 

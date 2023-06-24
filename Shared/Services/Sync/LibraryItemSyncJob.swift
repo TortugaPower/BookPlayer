@@ -18,6 +18,7 @@ public enum JobType: String {
   case shallowDelete
   case setBookmark
   case deleteBookmark
+  case uploadArtwork
 
   var identifier: String {
     return "BKPLY-\(self.rawValue)"
@@ -100,11 +101,32 @@ class LibraryItemSyncJob: Job, BPLogger {
         case .deleteBookmark:
           try await handleDeleteBookmark()
           callback.done(.success)
+        case .uploadArtwork:
+          try await handleUploadArtwork()
+          callback.done(.success)
         }
       } catch {
         callback.done(.fail(error))
       }
     }
+  }
+
+  func handleUploadArtwork() async throws {
+    let cachedImageURL = ArtworkService.getCachedImageURL(for: relativePath)
+
+    /// Only continue if the artwork is cached
+    guard let data = FileManager.default.contents(atPath: cachedImageURL.path) else { return }
+
+    let filename = "\(UUID().uuidString)-\(Int(Date().timeIntervalSince1970)).jpg"
+    let response: ArtworkResponse = try await self.provider.request(
+      .uploadArtwork(path: relativePath, filename: filename, uploaded: nil)
+    )
+
+    try await client.upload(data, remoteURL: response.thumbnailURL)
+
+    let _: Empty = try await self.provider.request(
+      .uploadArtwork(path: relativePath, filename: filename, uploaded: true)
+    )
   }
 
   func handleSetBookmark() async throws {
