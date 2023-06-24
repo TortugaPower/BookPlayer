@@ -1331,6 +1331,7 @@ extension ItemListViewModel {
     _ = networkClient.download(url: url, taskDescription: nil, delegate: singleDownloadProgressDelegateInterface)
   }
 
+  // TODO: Move functionality related to single-donwload into a separate service, and listen to publisher for events
   func handleSingleDownloadTaskFinished(_ task: URLSessionTask, fileURL: URL) {
     sendEvent(.showProcessingView(false, title: nil, subtitle: nil))
     let filename = task.response?.suggestedFilename
