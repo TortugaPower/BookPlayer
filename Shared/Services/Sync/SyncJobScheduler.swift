@@ -43,7 +43,11 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   private var disposeBag = Set<AnyCancellable>()
 
   private var pendingOperations: [JobInfo] {
-    libraryQueueManager.getAll()["GLOBAL"] ?? []
+    if libraryQueueManager != nil {
+      return libraryQueueManager.getAll()["GLOBAL"] ?? []
+    } else {
+      return []
+    }
   }
 
   public var queuedJobsCount: Int { pendingOperations.count }
@@ -70,7 +74,9 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
           Self.logger.trace("Failed to delete hard link for \(relativePath): \(error.localizedDescription)")
         }
 
-        self?.libraryQueueManager.cancelOperations(uuid: "\(JobType.upload.identifier)/\(relativePath)")
+        if self?.libraryQueueManager != nil {
+          self?.libraryQueueManager.cancelOperations(uuid: "\(JobType.upload.identifier)/\(relativePath)")
+        }
       }
       .store(in: &disposeBag)
 
@@ -258,7 +264,9 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   }
 
   public func cancelAllJobs() {
-    libraryQueueManager.cancelAllOperations()
+    if libraryQueueManager != nil {
+      libraryQueueManager.cancelAllOperations()
+    }
     libraryJobsPersister.clearAll()
   }
 
